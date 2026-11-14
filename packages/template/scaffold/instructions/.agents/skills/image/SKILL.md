@@ -25,11 +25,11 @@ For a generated film, choose the video model under [video](../video/SKILL.md) fi
 
 On a short, a subject only one scene shows has its canon references embedded in that scene file's standing state; a user's fixed screenplay is never edited, so its one-scene canon references go with the instructions.
 
-Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
+Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe, and fewer views where the model's guide asks for fewer, as one that wants only a headshot and a full-body image does:
 
 - a front full-body view in a neutral pose;
 - a face close-up with a neutral expression;
-- three-quarter or profile views as the shots need, unless the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
+- three-quarter or profile views as the shots need.
 
 Where the chosen model's terms reject references with real human faces, ask the user how to give it identity.
 

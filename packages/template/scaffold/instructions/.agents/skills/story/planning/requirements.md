@@ -4,7 +4,7 @@ What the user fixed or delegated about the work itself is recorded here before a
 
 ## Requirements
 
-Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement, apart from a generated film's look in a production whose route writes no settings, which [project context](../../production/project-context.md) holds because no body there realizes it.
+Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement, apart from a generated film's look in a production that writes no settings, which [project context](../../production/project-context.md) holds because no body there realizes it.
 
 Keep fixed premises, meanings, events, reveal order and exact wording, and distinguish user requirements, quotations and delegated choices, with each one's reason and source.
 

@@ -46,7 +46,7 @@ The hint's figures are gray and coarse, so motion and appearance arrive through 
 
 Where the model's guide asks for the video's role, state it in one sentence, in the model's wording for an edit or a reference, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing").
 
-Name the gray forms only as what each one becomes, never as the appearance to produce: one guide asks to say what the render's forms stand for and another to keep words such as clay or 3D out.
+Name the gray forms only as what each one becomes, never as their appearance, such as clay or 3D.
 
 ### First frame or keyframe
 

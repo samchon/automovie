@@ -2,11 +2,11 @@
 
 A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt, and each take is one job of it. Plan each scene's requests from its screenplay scene file and the rendered hint, once the [video skill](SKILL.md) has chosen the model and read its documentation.
 
-## Boundaries
+## Intervals
 
-End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat its takes cannot hold, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
+End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat the model cannot carry inside one request, such as a contact a still-frame model must land on a frame, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
-On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim past a take's conditioned last frame or its generated speech; retime the take if it has no generated sound, and otherwise tell the user. With handles, condition the last frame at the boundary, not at the handle's end.
+On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim past a take's conditioned last frame or its generated speech; when the excess cannot be trimmed without cutting past either, retime the take if it has no generated sound, and otherwise tell the user. With handles, condition the last frame at the boundary, not at the handle's end.
 
 Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
@@ -52,7 +52,7 @@ Keeping positions and contacts copies the hint's timing, stiffness included. Rep
 
 ## Inputs
 
-Give each input one role: the hint video or its channels for motion and camera, the canon references for identity and appearance, a [shot frame](../image/SKILL.md#shot-frames) for appearance at the hint's pose where no previous take continues into the request, and, where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, which lie inside that take rather than in its trailing handle, for motion across the boundary. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every such request the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
+Give each input one role: the hint video or its channels for motion and camera, the canon references for identity and appearance, a first frame made under [shot frames](../image/SKILL.md#shot-frames) where no previous take continues into the request, any last frame or keyframe that shot frames calls for, to keep the hint's pose there, and, where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, which lie inside that take rather than in its trailing handle, for motion across the boundary. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every such request the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
 
 Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
 
