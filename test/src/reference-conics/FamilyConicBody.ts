@@ -1824,7 +1824,7 @@ namespace FamilyConicBody {
           return fitted === undefined || s < fitted.from || s > fitted.to ? undefined : fitted.at(s);
         };
       }      const targetDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--target-wall="))?.slice("--target-wall=".length);
-      const targetStored: K.IStored | null = targetDir === undefined ? null : (JSON.parse(await fs.readFile(path.join(targetDir, part.name + ".family.json"), "utf8")) as K.IStored);
+      const targetStored: K.IStored | null = targetDir === undefined ? null : await storedWall(targetDir, part.name);
       const targetWall: { read: (s: number) => number[]; layout: C.ILayout } | null = targetStored === null ? null : { read: K.reader(targetStored), layout: targetStored.layout };      for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
         if (plainRead !== null && (s < skinRange[0]! || s > skinRange[1]!)) {
@@ -2401,7 +2401,7 @@ namespace FamilyConicBody {
           return { knots, values };
         }
         if (seed === undefined) return null;
-        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(seed, part.name + ".family.json"), "utf8")) as K.IStored;
+        const wall: K.IStored = await storedWall(seed, part.name);
         const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
         return { knots, values: F.resample(wall.values, wall.knots, knots) };
       })();
@@ -3396,7 +3396,8 @@ namespace FamilyConicBody {
 
   /**
    * A stored wall: `<directory>/<part>.family.json` of an earlier run, or with `stored` the family the Human package holds now
-   * (`AutoMovieHumanF1.BODY`), so a wall emitted long ago can be spliced or refitted on without its run's directory.
+   * (`AutoMovieHumanF1.BODY`), so a wall emitted long ago can be spliced or refitted on without its run's directory. Read so by `--wall`,
+   * `--splice`, `--seed`, `--seed-tail`, `--target-wall` and `--against`.
    */
   async function storedWall(directory: string, name: string): Promise<K.IStored> {
     if (directory !== "stored") return JSON.parse(await fs.readFile(path.join(directory, name + ".family.json"), "utf8")) as K.IStored;
