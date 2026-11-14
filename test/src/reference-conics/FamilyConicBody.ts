@@ -1680,7 +1680,9 @@ namespace FamilyConicBody {
           const fitted = smoothed.get(side);
           return fitted === undefined || s < fitted.from || s > fitted.to ? undefined : fitted.at(s);
         };
-      }      for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
+      }      const targetDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--target-wall="))?.slice("--target-wall=".length);
+      const targetStored: K.IStored | null = targetDir === undefined ? null : (JSON.parse(await fs.readFile(path.join(targetDir, part.name + ".family.json"), "utf8")) as K.IStored);
+      const targetWall: { read: (s: number) => number[]; layout: C.ILayout } | null = targetStored === null ? null : { read: K.reader(targetStored), layout: targetStored.layout };      for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
         if (plainRead !== null && (s < skinRange[0]! || s > skinRange[1]!)) {
           const points: C.P[] = own(s);
@@ -1762,7 +1764,22 @@ namespace FamilyConicBody {
             const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
             return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
           }) : R.hull(loop);
-          rows.push({ s, points: wall, heldout: i % 2 === 1 });
+          // `--target-wall=<directory>`: the section fitted is the stored wall's own outside the part's opening at this station (its
+          // closures' phase spans, `without`) and the cut section only inside it, so a window refit reproduces the stored wall on visible
+          // skin and changes only the opening (construction.md, Repair: a region's fix stays within the region).
+          const spans: [number, number][] = closures.filter((c): boolean => c.s === s && c.span !== undefined).map((c): [number, number] => c.span!);
+          const within = (phi: number): boolean => spans.some(([a, b]: [number, number]): boolean => {
+            const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            return off > 1e-9 && off < span - 1e-9;
+          });
+          const targetSection: Q.ISection | null = targetWall === null ? null : C.chain(targetWall.read(s), targetWall.layout);
+          const fitted: C.P[] = targetSection === null || targetSection.fault !== null ? wall : Array.from({ length: SKIN_RAYS }, (_: unknown, k: number): C.P => {
+            const phi: number = (2 * Math.PI * k) / SKIN_RAYS;
+            const r: number = within(phi) ? C.radius(wall, phi) : Q.radius(targetSection, phi);
+            return [r * Math.cos(phi), r * Math.sin(phi)];
+          });
+          rows.push({ s, points: fitted, heldout: i % 2 === 1 });
           invented.push(null);
           // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
           // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
@@ -1921,15 +1938,73 @@ namespace FamilyConicBody {
           if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
           // `--splice=<directory>@<from>..<to>`: a window refitted on its own (`--from`, `--to`, `--seed --held` on this wall's knots): the
           // other wall's knots strictly inside the window replace this one's, and this wall's values at the window's end knots and every knot
-          // outside it are carried unchanged, so both ends join the wall their neighbours were sewn on. Its reliefs: those whose stations
-          // overlap the window are fitted again on the changed wall (construction.md, Repair), the rest carried as stored.
+          // outside it are carried unchanged, held there in value and first and second derivative (below). Its reliefs: every stored one is
+          // carried in its stored order, and only one wholly inside the window is fitted again (construction.md, Repair: a region's fix stays
+          // within the region).
           if (at!.includes("..")) {
             const [from, to]: number[] = at!.split("..").map(Number) as [number, number];
             const inside: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! > from + 1e-9 && tail.knots[k]! < to - 1e-9);
             const kept: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! <= from + 1e-9 || wall.knots[k]! >= to - 1e-9);
             const merged: { k: number; from: "wall" | "tail"; s: number }[] = [...kept.map((k: number) => ({ k, from: "wall" as const, s: wall.knots[k]! })), ...inside.map((k: number) => ({ k, from: "tail" as const, s: tail.knots[k]! }))].sort((a, b): number => a.s - b.s);
+            const storedKnots: number[] = [...wall.knots];
+            const storedValues: number[][] = wall.values.map((field: number[]): number[] => [...field]);
             wall.values = wall.values.map((field: number[], f: number): number[] => merged.map((m): number => (m.from === "wall" ? field[m.k]! : tail.values[f]![m.k]!)));
             wall.knots = merged.map((m): number => m.s);
+            // Held at both ends: a natural cubic's piece on each interval is fixed by the values and second derivatives (moments) at its two
+            // knots, so with the stored values kept at and outside the window's end knots and the stored moments set there, every interval
+            // outside the window is the stored wall's exactly, and the window meets it with equal value, first and second derivative. The
+            // window's interior values take the least change (in their sum of squares) that sets the two moments: two linear conditions
+            // per field. Spliced on values alone, the natural cubic carried the window's change 0.49 mm into the trunk at 200 mm.
+            const moments = (x: readonly number[], y: readonly number[]): number[] => {
+              const n: number = x.length;
+              const a: number[] = new Array<number>(n).fill(0), b: number[] = new Array<number>(n).fill(1), cc: number[] = new Array<number>(n).fill(0), r: number[] = new Array<number>(n).fill(0);
+              for (let i: number = 1; i + 1 < n; ++i) {
+                const h0: number = x[i]! - x[i - 1]!, h1: number = x[i + 1]! - x[i]!;
+                a[i] = h0;
+                b[i] = 2 * (h0 + h1);
+                cc[i] = h1;
+                r[i] = 6 * ((y[i + 1]! - y[i]!) / h1 - (y[i]! - y[i - 1]!) / h0);
+              }
+              for (let i: number = 1; i < n; ++i) {
+                const w: number = a[i]! / b[i - 1]!;
+                b[i]! -= w * cc[i - 1]!;
+                r[i]! -= w * r[i - 1]!;
+              }
+              const m: number[] = new Array<number>(n).fill(0);
+              m[n - 1] = r[n - 1]! / b[n - 1]!;
+              for (let i: number = n - 2; i >= 0; --i) m[i] = (r[i]! - cc[i]! * m[i + 1]!) / b[i]!;
+              return m;
+            };
+            const ends: [number, number] = [wall.knots.findIndex((k: number): boolean => Math.abs(k - from!) < 1e-9), wall.knots.findIndex((k: number): boolean => Math.abs(k - to!) < 1e-9)];
+            const free: number[] = merged.map((m, k: number): number => (m.from === "tail" ? k : -1)).filter((k: number): boolean => k >= 0);
+            let worst: number = 0;
+            wall.values = wall.values.map((field: number[], f: number): number[] => {
+              const target: number[] = moments(storedKnots, storedValues[f]!);
+              const want: [number, number] = [target[storedKnots.findIndex((k: number): boolean => Math.abs(k - from!) < 1e-9)]!, target[storedKnots.findIndex((k: number): boolean => Math.abs(k - to!) < 1e-9)]!];
+              const at = (y: number[]): [number, number] => {
+                const m: number[] = moments(wall.knots, y);
+                return [m[ends[0]]!, m[ends[1]]!];
+              };
+              const base: [number, number] = at(field);
+              const columns: [number, number][] = free.map((k: number): [number, number] => {
+                const y: number[] = [...field];
+                y[k]! += 1;
+                const g: [number, number] = at(y);
+                return [g[0] - base[0], g[1] - base[1]];
+              });
+              const [p, q, rr] = [columns.reduce((s: number, g) => s + g[0] * g[0], 0), columns.reduce((s: number, g) => s + g[0] * g[1], 0), columns.reduce((s: number, g) => s + g[1] * g[1], 0)];
+              const det: number = p * rr - q * q;
+              const need: [number, number] = [want[0] - base[0], want[1] - base[1]];
+              const lambda: [number, number] = [(rr * need[0] - q * need[1]) / det, (p * need[1] - q * need[0]) / det];
+              const out: number[] = [...field];
+              free.forEach((k: number, j: number): void => {
+                out[k]! += columns[j]![0] * lambda[0] + columns[j]![1] * lambda[1];
+              });
+              const check: [number, number] = at(out);
+              worst = Math.max(worst, Math.abs(check[0] - want[0]), Math.abs(check[1] - want[1]));
+              return out;
+            });
+            log("family-body-window-held", { part: part.name, window: [from, to], momentMiss: worst });
             spliced = { tail, at: from!, head: wall.reliefs ?? [], window: [from!, to!] };
             log("family-body-window-splice", { part: part.name, window: [from, to], replaced: inside.map((k: number): number => tail.knots[k]!), knots: wall.knots.length });
           } else {
@@ -2259,8 +2334,9 @@ namespace FamilyConicBody {
           const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
           return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true, ...(net.fade === undefined ? {} : { fade: net.fade }) } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }) };
         });
-        // A window splice carries the stored reliefs that do not overlap its window and fits again only those that do.
-        const touching = (stations: readonly [number, number] | readonly number[]): boolean => spliced?.window === undefined || (stations[1]! > spliced.window[0] && stations[0]! < spliced.window[1]);
+        // A window splice carries every stored relief in its stored order and fits again only those wholly inside its window: a relief that
+        // straddles the window's edge, fitted again from scratch, moved the trunk's head and breasts up to 13 mm away from the window.
+        const touching = (stations: readonly [number, number] | readonly number[]): boolean => spliced?.window === undefined || (stations[0]! >= spliced.window[0] && stations[1]! <= spliced.window[1]);
         definition.reliefs = spliced?.window === undefined ? [] : spliced.head.filter((relief: IAutoMovieLoftRelief): boolean => !touching(relief.stations));
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
          for (const window of list) {
@@ -2393,7 +2469,7 @@ namespace FamilyConicBody {
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
       // lies under its closed end and is cast back along the course on one net that closes on itself round the tip.
       // A window splice (`--splice=<directory>@<from>..<to>`) carries the stored casts whose stations miss the window, as its other reliefs.
-      for (const face of tip === null || BARE ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (spliced?.window === undefined || (Number(cast.stations[1]) > spliced.window[0] && Number(cast.stations[0]) < spliced.window[1])))) {
+      for (const face of tip === null || BARE ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])))) {
         const capped: L.IResult = K.create(definition, stations);
         if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
         const first: R.V = part.centres[0]!;
