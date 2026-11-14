@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { IAutoMovieLoftRelief } from "@automovie/engine";
-import { type AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placing } from "@automovie/human";
+import { type AutoMovieHumanConicLoft, AutoMovieHumanConicRelief, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanF1Placing } from "@automovie/human";
 
 /**
  * The count of what f1 is stored as (issue #3197, step 1): per part and in total, the families' and cutters' knots and fields, the relief
@@ -15,8 +15,11 @@ import { type AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHuma
  * - A family's or cutter's numbers come from the objects the figure builds from, `AutoMovieHumanF1.FAMILIES` and `CUTTERS`: its wall is
  *   knots times fields (what each module's header calls its independent numbers), and its knots' stations, turn halves, tips and roll are
  *   listed beside it. A mirrored member is stored once and counted once.
- * - A relief net is its `rows * columns` heights; its exact zeros are counted apart, with how many of them the three outer rings hold
- *   by the engine's rule (`IAutoMovieLoftRelief.heights`).
+ * - A relief net is its `rows * columns` heights as the engine reads it (expanded); its exact zeros are counted apart, with how many of
+ *   them the three outer rings hold by the engine's rule (`IAutoMovieLoftRelief.heights`). What its module stores is counted beside it:
+ *   `AutoMovieHumanConicRelief.stored` returns, for the very `heights` array the module built, the length of the half a mirrored net
+ *   was written as, zero for a twin written as its original's name, and every height for a net written whole. The shape total takes the
+ *   stored count.
  * - The placing table is `AutoMovieHumanF1Placing`: every number of `CHAIN`, `POINTS` and `DIRECTIONS`, generated full-precision data.
  * - The figure's constants cannot be found by reflection (they are module-private), so the tool reads the tracked sources' text: every
  *   `const UPPER_CASE` of `AutoMovieHumanF1.ts`, `AutoMovieHumanConicLoft.ts` and `AutoMovieHumanConicSection.ts` with the numeric literals
@@ -136,6 +139,8 @@ namespace FamilyConicCount {
     rows: number;
     columns: number;
     heights: number;
+    /** The heights its module stores (`AutoMovieHumanConicRelief.stored`). */
+    stored: number;
     zeros: number;
     /** Heights of the three outer rings, which the engine's rule holds at zero. */
     ring: number;
@@ -211,6 +216,7 @@ namespace FamilyConicCount {
           rows: relief.rows,
           columns: relief.columns,
           heights: relief.heights.length,
+          stored: AutoMovieHumanConicRelief.stored(relief),
           zeros: relief.heights.filter((h: number): boolean => h === 0).length,
           ring: relief.rows * relief.columns - Math.max(0, relief.rows - 6) * Math.max(0, relief.columns - 6),
           stations: relief.stations,
@@ -328,6 +334,7 @@ namespace FamilyConicCount {
     const sum = (pick: (r: IRow) => number, of: IRow[] = rows): number => of.reduce((total: number, r: IRow): number => total + pick(r), 0);
     const nets = (of: IRow[] = rows): INet[] => of.flatMap((r: IRow): INet[] => r.nets);
     const heights = (of: IRow[] = rows): number => nets(of).reduce((total: number, n: INet): number => total + n.heights, 0);
+    const stored = (of: IRow[] = rows): number => nets(of).reduce((total: number, n: INet): number => total + n.stored, 0);
     const zeros = (of: IRow[] = rows): number => nets(of).reduce((total: number, n: INet): number => total + n.zeros, 0);
     const families: IRow[] = rows.filter((r: IRow): boolean => r.role === "family");
     const cutters: IRow[] = rows.filter((r: IRow): boolean => r.role === "cutter");
@@ -345,13 +352,14 @@ namespace FamilyConicCount {
       roll: sum((r: IRow): number => r.roll),
       nets: nets().length,
       heights: heights(),
+      stored: stored(),
       zeros: zeros(),
       ringZeros: nets().reduce((total: number, n: INet): number => total + n.ring, 0),
       placing: placing.chain.numbers + placing.points.numbers + placing.directions.numbers,
       constants: { shape: byClass("shape"), search: byClass("search"), tessellation: byClass("tessellation") + density, unclassified: byClass("unclassified") },
       inline: { shape: inlineBy("shape"), search: inlineBy("search"), tessellation: inlineBy("tessellation") },
     };
-    const shape: number = totals.wall.families + totals.wall.cutters + totals.knotStations + totals.halves + totals.tips.numbers + totals.roll + totals.heights + totals.placing + totals.constants.shape + totals.inline.shape;
+    const shape: number = totals.wall.families + totals.wall.cutters + totals.knotStations + totals.halves + totals.tips.numbers + totals.roll + totals.stored + totals.placing + totals.constants.shape + totals.inline.shape;
 
     const pad = (value: string | number, width: number): string => String(value).padStart(width);
     const lead = (value: string, width: number): string => value.padEnd(width);
@@ -367,7 +375,8 @@ namespace FamilyConicCount {
     lines.push("  tip numbers                          " + pad(totals.tips.numbers, 7) + "   in " + totals.tips.ends + " closed ends");
     lines.push("  roll numbers                         " + pad(totals.roll, 7));
     lines.push("  relief nets                          " + pad(totals.nets, 7));
-    lines.push("  relief heights                       " + pad(totals.heights, 7) + "   exact zeros " + totals.zeros + ", of which the three outer rings hold at most " + totals.ringZeros);
+    lines.push("  relief heights, stored               " + pad(totals.stored, 7) + "   (a mirrored net stores its half, a twin none)");
+    lines.push("  relief heights, expanded             " + pad(totals.heights, 7) + "   exact zeros " + totals.zeros + ", of which the three outer rings hold at most " + totals.ringZeros);
     lines.push("  placing numbers (generated)          " + pad(totals.placing, 7) + "   chain " + placing.chain.numbers + ", points " + placing.points.numbers + ", directions " + placing.directions.numbers);
     lines.push("  constants, shape                     " + pad(totals.constants.shape, 7) + "   in constant blocks; inline in construction() " + totals.inline.shape);
     lines.push("  constants, search and tolerance      " + pad(totals.constants.search, 7) + "   inline " + totals.inline.search + "   (not shape, not a saving)");
@@ -375,11 +384,11 @@ namespace FamilyConicCount {
     if (totals.constants.unclassified > 0) lines.push("  constants, UNCLASSIFIED              " + pad(totals.constants.unclassified, 7) + "   name them in CONSTANTS");
     lines.push("");
     lines.push("BY PART");
-    lines.push("  " + lead("part", 10) + pad("families", 9) + pad("cutters", 8) + pad("wall", 7) + pad("beside", 7) + pad("nets", 6) + pad("heights", 9) + pad("zeros", 8));
+    lines.push("  " + lead("part", 10) + pad("families", 9) + pad("cutters", 8) + pad("wall", 7) + pad("beside", 7) + pad("nets", 6) + pad("stored", 9) + pad("expanded", 9) + pad("zeros", 8));
     const parts: string[] = [...new Set(rows.map((r: IRow): string => r.part))];
     for (const part of parts) {
       const of: IRow[] = rows.filter((r: IRow): boolean => r.part === part);
-      lines.push("  " + lead(part, 10) + pad(of.filter((r: IRow): boolean => r.role === "family").length, 9) + pad(of.filter((r: IRow): boolean => r.role === "cutter").length, 8) + pad(sum((r: IRow): number => r.wall, of), 7) + pad(sum(beside, of), 7) + pad(nets(of).length, 6) + pad(heights(of), 9) + pad(zeros(of), 8));
+      lines.push("  " + lead(part, 10) + pad(of.filter((r: IRow): boolean => r.role === "family").length, 9) + pad(of.filter((r: IRow): boolean => r.role === "cutter").length, 8) + pad(sum((r: IRow): number => r.wall, of), 7) + pad(sum(beside, of), 7) + pad(nets(of).length, 6) + pad(stored(of), 9) + pad(heights(of), 9) + pad(zeros(of), 8));
     }
     lines.push("  (beside: knot stations, turn halves, tip numbers and roll numbers)");
     lines.push("");
@@ -390,9 +399,9 @@ namespace FamilyConicCount {
     lines.push("  (mm, share, angle: fields by unit; a field holds one number per knot)");
     lines.push("");
     lines.push("RELIEF NETS");
-    lines.push("  " + lead("net", 24) + pad("rows", 5) + pad("cols", 5) + pad("heights", 8) + pad("zeros", 7) + pad("ring", 6) + "  " + lead("stations, mm", 18) + lead("phases, rad", 20) + lead("heights, mm", 20) + "cast");
+    lines.push("  " + lead("net", 24) + pad("rows", 5) + pad("cols", 5) + pad("stored", 8) + pad("heights", 8) + pad("zeros", 7) + pad("ring", 6) + "  " + lead("stations, mm", 18) + lead("phases, rad", 20) + lead("heights, mm", 20) + "cast");
     for (const n of nets())
-      lines.push("  " + lead(n.name, 24) + pad(n.rows, 5) + pad(n.columns, 5) + pad(n.heights, 8) + pad(n.zeros, 7) + pad(n.ring, 6) + "  " + lead(n.stations[0] + " .. " + n.stations[1], 18) + lead(n.phases[0].toFixed(4) + " .. " + n.phases[1].toFixed(4), 20) + lead(n.amplitude[0].toFixed(2) + " .. " + n.amplitude[1].toFixed(2), 20) + n.cast);
+      lines.push("  " + lead(n.name, 24) + pad(n.rows, 5) + pad(n.columns, 5) + pad(n.stored, 8) + pad(n.heights, 8) + pad(n.zeros, 7) + pad(n.ring, 6) + "  " + lead(n.stations[0] + " .. " + n.stations[1], 18) + lead(n.phases[0].toFixed(4) + " .. " + n.phases[1].toFixed(4), 20) + lead(n.amplitude[0].toFixed(2) + " .. " + n.amplitude[1].toFixed(2), 20) + n.cast);
     lines.push("  (ring: the heights of the three outer rings, zero by the engine's rule)");
     lines.push("");
     lines.push("PLACING TABLE (AutoMovieHumanF1Placing, generated, full precision)");
@@ -415,12 +424,12 @@ namespace FamilyConicCount {
     if (unlisted.length === 0) lines.push("  none");
     lines.push("");
     lines.push("AGAINST THE RECORD'S \"Measured\" TABLE (f1-conic-families.md)");
-    lines.push("  " + lead("family", 12) + pad("record", 8) + pad("stored", 8) + pad("record", 10) + pad("stored", 8) + "   (conic numbers, then heights)");
+    lines.push("  " + lead("family", 12) + pad("record", 8) + pad("now", 8) + pad("record", 10) + pad("now", 8) + "   (conic numbers, then expanded heights)");
     for (const entry of RECORD) {
       const r: IRow | undefined = rows.find((x: IRow): boolean => x.name === entry.family);
       if (r === undefined) continue;
-      const stored: number = r.nets.reduce((total: number, n: INet): number => total + n.heights, 0);
-      lines.push("  " + lead(entry.family, 12) + pad(entry.conic, 8) + pad(r.wall + r.knots, 8) + pad(entry.heights, 10) + pad(stored, 8) + "   " + (entry.conic === r.wall + r.knots && entry.heights === stored ? "same" : "differs: stored is " + r.knots + " knots x (" + r.fields + " fields + the station), record's is " + entry.conic / (r.fields + 1) + " knots' worth"));
+      const now: number = r.nets.reduce((total: number, n: INet): number => total + n.heights, 0);
+      lines.push("  " + lead(entry.family, 12) + pad(entry.conic, 8) + pad(r.wall + r.knots, 8) + pad(entry.heights, 10) + pad(now, 8) + "   " + (entry.conic === r.wall + r.knots && entry.heights === now ? "same" : "differs: stored is " + r.knots + " knots x (" + r.fields + " fields + the station), record's is " + entry.conic / (r.fields + 1) + " knots' worth"));
     }
     lines.push("  (the record's conic numbers and each module's header count a knot's station with its fields; 'wall' above is the fields alone)");
     lines.push("  families the record's table does not list: " + rows.filter((r: IRow): boolean => !RECORD.some((entry): boolean => entry.family === r.name) && !r.name.startsWith("finger.") && !r.name.startsWith("toe.")).map((r: IRow): string => r.name + " " + r.wall + (r.nets.length === 0 ? "" : " + " + r.nets.reduce((total: number, n: INet): number => total + n.heights, 0) + " heights")).join(", "));
