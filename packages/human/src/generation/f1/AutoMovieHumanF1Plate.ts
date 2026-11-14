@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's plate tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,7 +23,7 @@ export const AutoMovieHumanF1Plate: AutoMovieHumanConicLoft.IFamily = {
   name: "plate",
   centres: AutoMovieHumanF1Joints.plate,
   halves: [4, 8, 4],
-  up: [0, 0, 1],
+  up: AutoMovieHumanF1Placement.direction("plate.up"),
   // The chart's roll about the course, radians at its own knots (`AutoMovieHumanConicLoft.IFamily.roll`).
   roll: { knots: [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66], values: [2.0608, 2.0708, 1.9408, 1.7708, 1.6708, 1.6108, 1.5708, 1.5008, 1.4908, 1.5608, 1.6208, 1.7508, 1.9008, 2.0708, 2.2508, 2.3908] },
   layout: AutoMovieHumanConicSection.lens(0),

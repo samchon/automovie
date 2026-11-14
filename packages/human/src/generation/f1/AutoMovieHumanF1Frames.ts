@@ -1,11 +1,17 @@
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
-import { AutoMovieHumanF1Joints as J } from "./AutoMovieHumanF1Joints";
-import { AutoMovieHumanF1Landmarks as L } from "./AutoMovieHumanF1Landmarks";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Landmarks } from "./AutoMovieHumanF1Landmarks";
+import { AutoMovieHumanF1Placing } from "./AutoMovieHumanF1Placing";
 
 /**
  * f1's segment-frame tree in its reference pose: every segment's parent, its frame built from f1's own joint centres and landmarks
  * (`AutoMovieHumanF1Joints`, `AutoMovieHumanF1Landmarks`) by the rule written beside it, and the chain of reference rotations that
  * returns it.
+ *
+ * The chain is stored (`AutoMovieHumanF1Placing.CHAIN`, written from these rules by `test/src/reference-conics/FamilyConicRebase.ts
+ * --tables`) and is the one definition every part is placed by: `joints` and `world` read it. The rules here are its written
+ * definition: `segments` applies them to the landmarks, which at the reference pose are themselves read through the stored chain, and a
+ * unit test holds that the rules return that chain within rounding, so a rule and the stored chain cannot part unnoticed.
  *
  * The tree: pelvis (root) > thorax > head > ear and nose; thorax > breast; thorax > humerus > forearm > hand > each finger's proximal,
  * middle and distal phalanges, and hand > the thumb's metacarpal, proximal and distal phalanges; pelvis > femur > tibia > foot > each
@@ -21,7 +27,15 @@ import { AutoMovieHumanF1Landmarks as L } from "./AutoMovieHumanF1Landmarks";
  * origin elsewhere (the forearm at US, the tibia at IM, a phalanx midway between its base and head), that is a constant translation inside
  * the segment that changes no axis and no joint angle. Rigid parts keep the origins named in their rules.
  *
- * Nothing in the figure consumes this tree yet.
+ * Two readings of the reference pose that look unanatomical are the definitions' own, and no frame is tuned to mend them:
+ * - The elbow reads 27.0 degrees of flexion, while the lines through the joint centres (GH to the elbow centre, the elbow centre to the
+ *   wrist centre) stand 36.6 degrees apart. ISB's long axes are not those lines: the humerus's runs from the epicondyles' midpoint to
+ *   GH and the forearm's from the ulnar styloid to that midpoint, and US stands on the wrist's ulnar side, off the wrist centre, so the
+ *   two ISB axes stand 27.4 degrees apart (`FamilyConicFrames.ts`).
+ * - The wrist reads -19.8 degrees of axial rotation. The forearm's Z comes from the plane of the two styloids and the epicondyles'
+ *   midpoint, the hand's from the line across the knuckles (the fifth metacarpal head to the second), a declared substitute for the
+ *   third metacarpal's unpalpable sagittal plane; the two substitutes are different lines of the wrist and the hand, and their angle
+ *   about the long axis is the reading.
  */
 export namespace AutoMovieHumanF1Frames {
   /** One segment: its name, parent, rule and reference frame. */
@@ -47,14 +61,25 @@ export namespace AutoMovieHumanF1Frames {
     /** The child segment, whose rotation relative to its parent the angles read. */
     segment: string;
 
-    /** ISB's sequence: Y-X-Y Euler (shoulder, Wu et al. 2005 2.3.4.1) or Z-X-Y Cardan (the joint coordinate systems of the others). */
+    /** ISB's sequence: Y-X-Y Euler (shoulder, Wu et al. 2005 2.4.7) or Z-X-Y Cardan (the joint coordinate systems of the others). */
     sequence: "YXY" | "ZXY";
 
     /** The meaning of the three angles, in order. */
     names: [string, string, string];
   }
 
-  /** The joints ISB writes angles for, with their sequences (Wu et al. 2002: hip 4.4.1, knee after Grood and Suntay, ankle 3.5; Wu et al. 2005: shoulder 2.3.4.1, elbow 3.4.1, wrist 4.4.1). */
+  /**
+   * The joints ISB writes angles for, with their sequences, each angle named for its positive sense.
+   *
+   * Read in the published text (2026-11-14): the shoulder, Wu et al. 2005 2.4.7, "plane of elevation, 0 degrees is abduction, 90 degrees
+   * is forward flexion", "elevation (negative)" and axial rotation "endo- or internal-rotation (positive)"; the elbow, 3.4.1, "flexion
+   * (positive) and hyperextension (negative)", the carrying angle, "pronation (positive) and supination (negative)"; the ankle, Wu et
+   * al. 2002 3.5, "dorsiflexion (positive)", "inversion (positive)", "internal rotation (positive)". For the hip, Wu et al. 2002 4.5
+   * names "flexion or extension", "adduction or abduction" and "internal or external rotation" without a sign, and the paper has no knee
+   * section (ankle, hip and spine only): the hip's and the knee's names are the sense of a positive rotation about the axes ISB defines
+   * (about the parent's Z to the right, a positive turn carries the femur's distal end forward, flexion, and the tibia's forward too,
+   * extension), since Grood and Suntay 1983, whom the knee follows, could not be reached. The wrist's section was not read.
+   */
   export const ANGLES: readonly IAngles[] = [
     { joint: "shoulder", segment: "humerus", sequence: "YXY", names: ["plane of elevation", "elevation", "axial rotation"] },
     { joint: "elbow", segment: "forearm", sequence: "ZXY", names: ["flexion", "carrying angle", "pronation"] },
@@ -73,8 +98,13 @@ export namespace AutoMovieHumanF1Frames {
   /** How far the breast's course root stands inside the chest behind the dome's top along its normal, mm (`AutoMovieHumanF1Joints.breastRoot`). */
   export const BREAST_DEPTH: number = 30;
 
-  /** Every segment parent-first, in the reference pose. */
-  export function segments(): ISegment[] {
+  /**
+   * Every segment parent-first, in the reference pose, by its rule.
+   *
+   * @param J The joint table the rules read; absent, f1's own at the reference pose.
+   * @param L The landmark table the rules read; absent, f1's own at the reference pose.
+   */
+  export function segments(J: typeof AutoMovieHumanF1Joints = AutoMovieHumanF1Joints, L: typeof AutoMovieHumanF1Landmarks = AutoMovieHumanF1Landmarks): ISegment[] {
     const out: ISegment[] = [];
     const add = (name: string, parent: string | null, rule: string, frame: F.IFrame): F.IFrame => {
       out.push({ name, parent, rule, frame });
@@ -144,9 +174,9 @@ export namespace AutoMovieHumanF1Frames {
     return out;
   }
 
-  /** The chain of reference rotations, parent-first. */
+  /** The chain of reference rotations, parent-first: the stored chain, which the rules of `segments` return within rounding. */
   export function joints(): F.IJoint[] {
-    return F.chain(segments());
+    return AutoMovieHumanF1Placing.CHAIN;
   }
 
   /** The frames for a pose given as one rotation per joint by segment name; a joint the pose leaves undefined keeps its reference rotation. */

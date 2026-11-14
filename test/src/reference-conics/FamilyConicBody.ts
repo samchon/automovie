@@ -1058,7 +1058,11 @@ namespace FamilyConicBody {
       const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
       return Math.min(armscye.side([p[0], p[1], side * p[2]]), ARM_TUBE_MM - Math.hypot(q[0] - along * d[0], q[1] - along * d[1], q[2] - along * d[2]));
     }));    const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
-    if (process.argv.includes("--emit-joints")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), joints(source));
+    if (process.argv.includes("--emit-joints")) {
+      const emitted: { text: string; world: Record<string, R.V> } = joints(source);
+      await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), emitted.text);
+      await fs.writeFile(path.join(out, "joints.world.json"), JSON.stringify({ points: emitted.world }));
+    }
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
     const beyond = (a: R.V, b: R.V, length: number): R.V => {
       const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
@@ -1073,7 +1077,7 @@ namespace FamilyConicBody {
       centres.push(beyond(centres.at(-1)!, far, PAD.past));
       const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
       log("family-body-pad", { part: name, pad: far });
-      return { name, centres, course: "[" + [...keys, "J.beyond(" + keys.at(-1) + ", J." + joints[0]!.replace("_01_r", "") + "Pad, " + PAD.past + ")"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
+      return { name, centres, course: "[" + [...keys, "J." + joints[0]!.replace("_01_r", "") + "End"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [] };
     };
     // A net over a digit's dome, cast back along the digit as the crown's is, did not mend the short tips: the dome is 3 to 4 mm long and
     // the casts of a toe land on its neighbours; the thumb's net came out at heights of -8 to 8 mm.
@@ -1193,7 +1197,7 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: isbHalves, up: isb.up, domain: [ARM_FIRST_MM, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.handEnd]", halves: isbHalves, up: isb.up, domain: [ARM_FIRST_MM, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
@@ -1209,7 +1213,7 @@ namespace FamilyConicBody {
         // The hand from the wrist on, its own family on the arm's course with a wider knuckle turn (`HAND_KNUCKLE_HALF`), continued from the
         // arm's open end by a band (`IAutoMovieConstructionContinuation.band`): on the arm's turn of 16 mm a side (radius 78 mm) the hand's
         // ulnar edge stands 69 mm inside the turn and its sections nearly cross there, a crease along the palm side of the little finger's root.
-        { name: "hand", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: handHalves, up: arm.up, domain: [HAND_FROM, KNUCKLE.end], gap: GAP_MM, tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: HAND_FEATURES.length > 0 ? featureGrooves(HAND_FEATURES) : LIMB, ...(process.argv.includes("--hand-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+        { name: "hand", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.handEnd]", halves: handHalves, up: arm.up, domain: [HAND_FROM, KNUCKLE.end], gap: GAP_MM, tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: HAND_FEATURES.length > 0 ? featureGrooves(HAND_FEATURES) : LIMB, ...(process.argv.includes("--hand-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           { name: "hand", stations: [HAND_FROM + 4, KNUCKLE.relief], rows: 31, columns: 38, reach: 14, hold: thumbHold, fade: [15, 25] },
           { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: armClip, reliefEnd: KNUCKLE.relief },
@@ -1227,12 +1231,12 @@ namespace FamilyConicBody {
         // refused all 762 readings (the start's margins under --seeds). A conic arc is admissible for any meeting strictly inside its
         // chord's ends; the margin guards the engine's spline between stations, and the armpit's vault was admitted on the native path at
         // 0.072. 0.04 holds the least measured meeting, 0.051, with the spread between stations.
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, margin: 0.04, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, margin: 0.04, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
 
         // A stretch of the leg as a family of its own on the leg's course, fitted to its skin with grooves carried by inflection lines
         // (`FamilyConicSection.inflected`): `--segment=<from>,<to>`, `--segment-grooves=<anchors>`, `--segment-up=<x,y,z>` (the chart's seed,
         // turned so a hollow falls after a `u` extreme), `--segment-gap=<mm>`. A trial for the foot's end before its split and the heel.
-        ...(SEGMENT === undefined ? [] : [{ name: "segment", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)] as R.V[], course: "[J.thigh, J.calf, J.foot, J.footBall, J.toward(J.footBall, [[J.bigtoe1, J.bigtoe2], [J.indextoe1, J.indextoe2], [J.middletoe1, J.middletoe2], [J.ringtoe1, J.ringtoe2], [J.littletoe1, J.littletoe2]], " + TOE_TURN.reach + ")]", halves: [40, 62, TOE_TURN.half], up: SEGMENT.up, domain: SEGMENT.domain, gap: SEGMENT.gap, mirrored: true, layouts: [{ layout: SEGMENT.features.length > 0 ? C.featured(C.limb(1), SEGMENT.features) : SEGMENT.grooves.length === 0 ? C.limb(1) : C.inflected(1, SEGMENT.grooves), depth: 1 }], reliefs: [] as IWindow[], skin: "inner" as const }]),
+        ...(SEGMENT === undefined ? [] : [{ name: "segment", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)] as R.V[], course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]", halves: [40, 62, TOE_TURN.half], up: SEGMENT.up, domain: SEGMENT.domain, gap: SEGMENT.gap, mirrored: true, layouts: [{ layout: SEGMENT.features.length > 0 ? C.featured(C.limb(1), SEGMENT.features) : SEGMENT.grooves.length === 0 ? C.limb(1) : C.inflected(1, SEGMENT.grooves), depth: 1 }], reliefs: [] as IWindow[], skin: "inner" as const }]),
         // The auricle as a conic family of its own skin: level sections straight up through the shell, each the excursion of the head's level
         // cut out of the head's line, closed across the root 4 mm inside the head (`FamilyConicExcursion.ts auricle`), read along rays from
         // the course and fitted to that skin, its grooves (`--pinna-grooves`, anchor indices of the limb layout) carried by inflection lines.
@@ -1282,13 +1286,13 @@ namespace FamilyConicBody {
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
         // after a `u` extreme). Both ends close inside the slit, as the stored cutter's (`AutoMovieHumanF1Axilla`): refitted on the same course and insets whenever the band it is capped under moves (`AXILLA_BAND`).
-        { name: "axilla", centres: AXILLA, course: JSON.stringify(AXILLA).replaceAll(",", ", "), halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - AXILLA_CAPS_MM[0], tip: AXILLA_DOMAIN[1] + AXILLA_CAPS_MM[1], mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET, sag: 0, side: AXILLA_ARM_SIDE_MM }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
+        { name: "axilla", centres: AXILLA, course: "J.axilla", halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - AXILLA_CAPS_MM[0], tip: AXILLA_DOMAIN[1] + AXILLA_CAPS_MM[1], mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET, sag: 0, side: AXILLA_ARM_SIDE_MM }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
         // are, with a reach of 20 mm, since the vault is up to 28 mm wide. Both ends close: its back tip at x about 0, clear of the slit
         // cutter's front tip at x -1.9.
-        { name: "vault", centres: VAULT, course: JSON.stringify(VAULT).replaceAll(",", ", "), halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: VAULT_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
+        { name: "vault", centres: VAULT, course: "J.vault", halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: VAULT_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
@@ -2999,6 +3003,7 @@ namespace FamilyConicBody {
       const anchors: number = definition.layout.anchors.length;
       const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.mirror ? (anchors - 1) / 2 : anchors / 4)), engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
+      await fs.writeFile(path.join(out, moduleName(part.name) + ".placing.json"), JSON.stringify(placing(definition)));
 
       // The construction's own path must admit the family too; a refused one is written beside the receipt but not into the package.
       const refused: string[] = K.refusals(definition);
@@ -3123,16 +3128,25 @@ namespace FamilyConicBody {
     ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].flatMap((toe: string): [string, string][] => [1, 2].map((k: number): [string, string] => [toe + k, toe + "_0" + k + "_r"])),
   ];
 
-  /** The datum module: every joint centre the authored courses use, once, by name. */
-  function joints(source: R.ISource): string {
+  /**
+   * The datum module, every joint centre the authored courses use, once, by name, and the world values read for it. The module holds no
+   * coordinate: each datum reads the re-based table (`AutoMovieHumanF1Placing.POINTS`) by its own name, and the values written below
+   * go to `FamilyConicRebase.ts --tables --world=<out>/joints.world.json`, which enters them in their segments' frames and builds the
+   * course ends from them.
+   */
+  function joints(source: R.ISource): { text: string; world: Record<string, R.V> } {
     const lines: string[] = [
+      "import { AutoMovieHumanF1Placement } from \"./AutoMovieHumanF1Placement\";",
+      "",
       "/**",
       " * f1's joint centres on the +Z side in its reference pose: the datums every authored course of the figure runs through.",
       " *",
-      " * Frame: millimetres, forward +X, up +Y, +Z the reference's left. The values are the reference rig's bind joint centres,",
-      " * read once offline by `test/src/reference-conics/FamilyConicBody.ts --emit-joints`. A family names its course by these",
-      " * datums and holds no joint coordinate of its own, so a law that places the joints from a person's measurements replaces",
-      " * this table and every course follows.",
+      " * Frame: millimetres, forward +X, up +Y, +Z the stored side. Each value is stored in the frame of the segment it belongs to",
+      " * (`AutoMovieHumanF1Placing.POINTS`) and read here through the chain at the reference pose (`AutoMovieHumanF1Placement.point`), so this",
+      " * module holds no coordinate. The joint centres are the reference rig's bind joint centres, read once offline by",
+      " * `test/src/reference-conics/FamilyConicBody.ts --emit-joints` and re-based by `FamilyConicRebase.ts --tables`. A family names its",
+      " * course by these datums and holds no joint coordinate of its own, so a law that places the joints from a person's measurements",
+      " * replaces the table and every course follows.",
       " */",
       "export namespace AutoMovieHumanF1Joints {",
       "  /** A point in the figure's frame, mm. */",
@@ -3250,6 +3264,66 @@ namespace FamilyConicBody {
       "  /** Where a nostril's course ends, straight up inside the nose. */",
       "  export const nostrilTip: V3 = [119.1, 1560.4, 7.7];",
       "",
+      "  /**",
+      "   * Where the arm's and the hand's courses end: 40 mm past the middle finger's first joint along the mean direction of the four fingers'",
+      "   * first segments (`toward(middle1, [[index1, index2], [middle1, middle2], [ring1, ring2], [pinky1, pinky2]], 40)` at the reference",
+      "   * pose), a point of the hand, about which the palm's sections past the knuckles are read.",
+      "   */",
+      "  export const handEnd: V3 = AutoMovieHumanF1Placement.point(\"handEnd\");",
+      "",
+      "  /**",
+      "   * Where the leg's course ends: 40 mm past the ball of the foot along the mean direction of the five toes' first segments",
+      "   * (`toward(footBall, [[bigtoe1, bigtoe2], ..., [littletoe1, littletoe2]], 40)` at the reference pose), a point of the foot.",
+      "   */",
+      "  export const footEnd: V3 = AutoMovieHumanF1Placement.point(\"footEnd\");",
+      "",
+      "  /** Where the index finger's course ends: 4 mm past its pad's far point on the line from its last joint (`beyond(index3, indexPad, 4)`), a point of its distal phalanx. */",
+      "  export const indexEnd: V3 = AutoMovieHumanF1Placement.point(\"indexEnd\");",
+      "",
+      "  /** Where the middle finger's course ends: `beyond(middle3, middlePad, 4)`, a point of its distal phalanx. */",
+      "  export const middleEnd: V3 = AutoMovieHumanF1Placement.point(\"middleEnd\");",
+      "",
+      "  /** Where the ring finger's course ends: `beyond(ring3, ringPad, 4)`, a point of its distal phalanx. */",
+      "  export const ringEnd: V3 = AutoMovieHumanF1Placement.point(\"ringEnd\");",
+      "",
+      "  /** Where the pinky finger's course ends: `beyond(pinky3, pinkyPad, 4)`, a point of its distal phalanx. */",
+      "  export const pinkyEnd: V3 = AutoMovieHumanF1Placement.point(\"pinkyEnd\");",
+      "",
+      "  /** Where the thumb's course ends: `beyond(thumb3, thumbPad, 4)`, a point of its distal phalanx. */",
+      "  export const thumbEnd: V3 = AutoMovieHumanF1Placement.point(\"thumbEnd\");",
+      "",
+      "  /** Where the big toe's course ends: `beyond(bigtoe2, bigtoePad, 4)`, a point of its distal segment. */",
+      "  export const bigtoeEnd: V3 = AutoMovieHumanF1Placement.point(\"bigtoeEnd\");",
+      "",
+      "  /** Where the index toe's course ends: `beyond(indextoe2, indextoePad, 4)`, a point of its distal segment. */",
+      "  export const indextoeEnd: V3 = AutoMovieHumanF1Placement.point(\"indextoeEnd\");",
+      "",
+      "  /** Where the middle toe's course ends: `beyond(middletoe2, middletoePad, 4)`, a point of its distal segment. */",
+      "  export const middletoeEnd: V3 = AutoMovieHumanF1Placement.point(\"middletoeEnd\");",
+      "",
+      "  /** Where the ring toe's course ends: `beyond(ringtoe2, ringtoePad, 4)`, a point of its distal segment. */",
+      "  export const ringtoeEnd: V3 = AutoMovieHumanF1Placement.point(\"ringtoeEnd\");",
+      "",
+      "  /** Where the little toe's course ends: `beyond(littletoe2, littletoePad, 4)`, a point of its distal segment. */",
+      "  export const littletoeEnd: V3 = AutoMovieHumanF1Placement.point(\"littletoeEnd\");",
+      "",
+      "  /**",
+      "   * The course of the armpit's slit cutter (`AutoMovieHumanF1Axilla`), through the slit's air from under the crease's front to the cusp",
+      "   * behind it, as `test/src/reference-conics/FamilyConicBody.ts` laid it (`AXILLA`); points of the thorax, on whose side the slit was read.",
+      "   */",
+      "  export const axilla: V3[] = AutoMovieHumanF1Placement.points(\"axilla\");",
+      "",
+      "  /** The course of the vault cutter (`AutoMovieHumanF1Vault`, a constructed form outside the body), as `FamilyConicBody.ts` laid it (`VAULT`); points of the thorax. */",
+      "  export const vault: V3[] = AutoMovieHumanF1Placement.points(\"vault\");",
+      "",
+      "  /**",
+      "   * Where the breast's band fans against the trunk below the breast's side (`AutoMovieHumanF1.BREAST_FAN_FILL_MM` fairs the skin about",
+      "   * it): a dark dash on `fold.left` (px 600..640 x 335..345), folds of 14 degrees in the band's own triangles at",
+      "   * [98..101, 1243..1247, 109..111] in the reference pose, where the port loop's distance falls from 56 to 47 mm within an eighth of a",
+      "   * turn. A point of the thorax.",
+      "   */",
+      "  export const breastFan: V3 = AutoMovieHumanF1Placement.point(\"breastFan\");",
+      "",
       "  /** The point `length` millimetres past `b` on the line from `a` through `b`: where a digit's course ends beyond its last joint. */",
       "  export function beyond(a: V3, b: V3, length: number): V3 {",
       "    const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);",
@@ -3269,7 +3343,21 @@ namespace FamilyConicBody {
       "}",
       "",
     );
-    return lines.join("\n");
+    const world: Record<string, R.V> = {};
+    const text: string[] = lines.map((line: string): string => {
+      const one: RegExpMatchArray | null = line.match(/^(\s*export const (\w+): V3 = )(\[[^\]]*\]);$/);
+      const many: RegExpMatchArray | null = line.match(/^(\s*export const (\w+): V3\[\] = )(\[\[.*\]\]);$/);
+      if (one !== null) {
+        world[one[2]!] = JSON.parse(one[3]!) as R.V;
+        return one[1]! + "AutoMovieHumanF1Placement.point(" + JSON.stringify(one[2]) + ");";
+      }
+      if (many !== null) {
+        (JSON.parse(many[3]!) as R.V[]).forEach((p: R.V, k: number): void => void (world[many[2]! + "." + k] = p));
+        return many[1]! + "AutoMovieHumanF1Placement.points(" + JSON.stringify(many[2]) + ");";
+      }
+      return line;
+    });
+    return { text: text.join("\n"), world };
   }
 
   /** Module and constant name of a part's authored family. */
@@ -3335,6 +3423,9 @@ namespace FamilyConicBody {
       ...(family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f") ? [] : ["import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";"]),
       // The joints are imported only when the course names them; a course written as numbers leaves the import unused.
       ...(part.course.includes("J.") ? ["import { AutoMovieHumanF1Joints } from \"./AutoMovieHumanF1Joints\";"] : []),
+      // The placing fields read the re-based table (`AutoMovieHumanF1Placing`), which `FamilyConicRebase.ts --tables` writes; their world
+      // values go to it by name through `placing`.
+      "import { AutoMovieHumanF1Placement } from \"./AutoMovieHumanF1Placement\";",
       "",
       "/**",
       " * f1's " + part.name + " tape wall" + (part.mirrored ? " on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly" : "") + ".",
@@ -3356,7 +3447,7 @@ namespace FamilyConicBody {
       "  name: " + JSON.stringify(family.name) + ",",
       "  centres: " + part.course.replaceAll("J.", "AutoMovieHumanF1Joints.") + ",",
       "  halves: " + JSON.stringify(family.halves).replaceAll(",", ", ") + ",",
-      "  up: " + JSON.stringify(family.up).replaceAll(",", ", ") + ",",
+      "  up: AutoMovieHumanF1Placement.direction(" + JSON.stringify(family.name + ".up") + "),",
       ...(family.roll === undefined ? [] : ["  // The chart's roll about the course, radians at its own knots (`AutoMovieHumanConicLoft.IFamily.roll`).", "  roll: { knots: " + JSON.stringify(family.roll.knots).replaceAll(",", ", ") + ", values: " + JSON.stringify(family.roll.values).replaceAll(",", ", ") + " },"]),
       // A layout with feature anchors has no constructor of its own in the model, so it is written out.
       family.layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f")
@@ -3373,11 +3464,25 @@ namespace FamilyConicBody {
     if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, " + (typeof part.tip === "number" ? "a station placed by anatomy" : "the station where the reference's own loop vanishes") + "; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
       lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
-      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9 ? relief.phases : relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");
+      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9 ? relief.phases : relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ").replace(/"axis":\[[^\]]*\]/, "\"axis\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".axis") + ")").replace(/"turn":\[[^\]]*\]/, "\"turn\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".turn") + ")") + ",");
       lines.push("  ],");
     }
     lines.push("};", "");
     return lines.join("\n");
+  }
+
+  /**
+   * The world values of a fitted family's placing directions by their names in the re-based table (`AutoMovieHumanF1Placing.DIRECTIONS`):
+   * its `up`, and each relief's `axis`, rounded as `emit` rounded it before the module read the table, and `turn`. The module `emit`
+   * writes holds none of them; `FamilyConicRebase.ts --tables --world=<file>` enters them in their segments' frames.
+   */
+  function placing(family: K.IStored): { directions: Record<string, number[]> } {
+    const directions: Record<string, number[]> = { [family.name + ".up"]: family.up };
+    for (const relief of family.reliefs ?? []) {
+      directions[relief.name + ".axis"] = relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5);
+      if (relief.turn !== undefined) directions[relief.name + ".turn"] = relief.turn;
+    }
+    return { directions };
   }
 
   /**

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's finger.pinky tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -20,9 +21,9 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  */
 export const AutoMovieHumanF1FingerPinky: AutoMovieHumanConicLoft.IFamily = {
   name: "finger.pinky",
-  centres: [AutoMovieHumanF1Joints.pinky1, AutoMovieHumanF1Joints.pinky2, AutoMovieHumanF1Joints.pinky3, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.pinky3, AutoMovieHumanF1Joints.pinkyPad, 4)],
+  centres: [AutoMovieHumanF1Joints.pinky1, AutoMovieHumanF1Joints.pinky2, AutoMovieHumanF1Joints.pinky3, AutoMovieHumanF1Joints.pinkyEnd],
   halves: [5,5],
-  up: [1, 0, 0],
+  up: AutoMovieHumanF1Placement.direction("finger.pinky.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [16, 22, 38.5, 46, 54, 61],
   values: [

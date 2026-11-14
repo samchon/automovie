@@ -227,10 +227,11 @@ export namespace AutoMovieHumanSegmentFrame {
   }
 
   /**
-   * The ISB shoulder angles, a Y-X-Y Euler sequence (Wu et al. 2005 2.3.4.1, the humerus relative to the thorax): `R = Ry(a) Rx(b) Ry(c)`
-   * with a the plane of elevation, b the elevation and c the axial rotation, radians. ISB writes the elevation as a negative rotation
-   * about the floating axis, so the branch with b in [-pi, 0] is returned: an arm raised sideways reads a plane of elevation near 0
-   * (abduction) and a negative elevation. From the product, `R[1][1] = cos b`, `R[0][1] = sin a sin b`, `R[2][1] = cos a sin b`,
+   * The ISB shoulder angles, a Y-X-Y Euler sequence (Wu et al. 2005 2.4.7, the humerus relative to the thorax): `R = Ry(a) Rx(b) Ry(c)`
+   * with a the plane of elevation (0 abduction, 90 degrees forward flexion), b the elevation and c the axial rotation (internal
+   * positive), radians. The text writes "elevation (negative)", and its footnote 5 that the second rotation is by definition in the
+   * negative direction as a consequence of the chosen axes, so the branch with b in [-pi, 0] is returned: an arm raised sideways reads
+   * a plane of elevation near 0 and a negative elevation. From the product, `R[1][1] = cos b`, `R[0][1] = sin a sin b`, `R[2][1] = cos a sin b`,
    * `R[1][0] = sin b sin c`, `R[1][2] = -sin b cos c`, so with `sin b <= 0`: `a = atan2(-R[0][1], -R[2][1])`, `c = atan2(-R[1][0], R[1][2])`.
    */
   export function eulerYXY(r: M3): [number, number, number] {

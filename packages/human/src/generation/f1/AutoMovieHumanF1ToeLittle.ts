@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's toe.little tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -20,9 +21,9 @@ import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
  */
 export const AutoMovieHumanF1ToeLittle: AutoMovieHumanConicLoft.IFamily = {
   name: "toe.little",
-  centres: [AutoMovieHumanF1Joints.littletoe1, AutoMovieHumanF1Joints.littletoe2, AutoMovieHumanF1Joints.beyond(AutoMovieHumanF1Joints.littletoe2, AutoMovieHumanF1Joints.littletoePad, 4)],
+  centres: [AutoMovieHumanF1Joints.littletoe1, AutoMovieHumanF1Joints.littletoe2, AutoMovieHumanF1Joints.littletoeEnd],
   halves: [5],
-  up: [0, 1, 0],
+  up: AutoMovieHumanF1Placement.direction("toe.little.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [20, 25, 30],
   values: [
