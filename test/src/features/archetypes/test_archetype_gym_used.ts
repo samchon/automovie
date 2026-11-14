@@ -5,9 +5,9 @@ import {
   createSled,
 } from "@automovie/archetypes";
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
@@ -28,13 +28,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * The gym machines serve the workouts that bear on them: a rowing workout sits on the rowing machine's `seat`, a cycling workout on the exercise bike's `saddle`, a sit-up lies on the exercise mat's `surface`, and a sled push takes the sled's `left` and `right` handles and moves it.
  *
- * A body sitting or lying is read by its hip joints: above the support's place, within a fifth of the stature of it (a seated or lying pelvis's own depth with room, an estimate), and within 0.3 m of it on the floor plan. The sled stands 0.6 m ahead of the pusher and is pushed 4 m.
+ * A body sitting or lying is read by its hip joints: above the support's place, within a fifth of the stature of it (a seated or lying pelvis's own depth with room, an estimate), and within 0.3 m of it on the floor plan. The sled stands 0.35 m ahead of the pusher, its handles within the arms' reach (a sled 0.6 m ahead is refused, the fists short of its handles) and is pushed 4 m.
  *
  * Scenarios, on the average man and the small woman, the rowing machine 1.5 m to the left, the bike 1.5 m to the right and the mat 1.5 m behind:
  * 1. Rowing `on` the machine's `seat`: at `catch1` the hip joints are 0 to a fifth of the stature above the seat and within 0.3 m of it on the floor plan.
  * 2. Cycling `on` the bike's `saddle`: the same at `leftBottom1`.
  * 3. A sit-up `on` the mat's `surface`: the same at `down1`.
- * 4. The sled push plans; from its `gripped` instant to its end, read every quarter of a second, the sled rides a gripping hand by its own handle: one handle keeps its place in its hand's frame within 1 mm (the campaign's grip bound), and the sled moves at least 2 m along the push.
+ * 4. The sled push plans; from its `gripped` instant to its end, read every quarter of a second, the sled is held in both fists by its own handles: each handle lies within 15 mm of its hand's grip socket (the campaign's contact bound), and the sled moves at least 2 m along the push.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the workouts and the push through the public chain with the real machines and reads displayed joints and prop frames against the machines' own affordances; a body that sits or lies where its own measure would put it, or a push that leaves the handles or the sled behind, fails with the distance.
  * @evidence contracts/development/testing.md#independent-expectations The places are the archetypes' affordances carried by the props' placements; the bounds are one stated estimate and one provisional bound; nothing is read from the laws but their events.
@@ -164,7 +164,7 @@ export function test_archetype_gym_used(): void {
 
     // 4. The sled push.
     try {
-      const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.6 };
+      const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.35 };
       const film: HumanPerformance = new HumanPerformance({
         seed: "sled",
         laws: [HumanSportCarry.sledPush],
@@ -178,42 +178,38 @@ export function test_archetype_gym_used(): void {
       const end: number = film.duration;
       const frame: IHumanProp.IFrame = film.prop("sled", end);
       const gripped: number = when(film, "sledPush", "gripped");
-      const drifts: string[] = [];
-      let held: number = Infinity;
+      const offs: string[] = [];
+      let off: number = 0;
       for (const side of ["left", "right"] as const) {
-        // The handle in its hand's frame.
-        const seat = (seconds: number): IAutoMovieVector3 => {
-          const hand: IAutoMovieResolvedBone = film
-            .bones("a", seconds)
-            .get(side === "left" ? "leftHand" : "rightHand")!;
-          const placed: IHumanProp.IFrame = film.prop("sled", seconds);
-          return Quaternion.rotateVector(
-            Quaternion.inverse(hand.worldRotation),
-            Vector3.subtract(
-              Vector3.add(
-                placed.position,
-                Quaternion.rotateVector(
-                  placed.rotation,
-                  sled.affordance(side).frame.translation,
-                ),
-              ),
-              hand.worldPosition,
+        // The handle against its fist, the grip socket closed on it.
+        let worst: number = 0;
+        for (let s: number = gripped + 0.05; s <= end; s += 0.25) {
+          const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+            body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
+          const fist: IAutoMovieVector3 =
+            resolveAutoMovieHumanoidSurfaces.place(
+              socket,
+              film.bones("a", s).get(socket.bone)!,
+            ).point;
+          const placed: IHumanProp.IFrame = film.prop("sled", s);
+          const handle: IAutoMovieVector3 = Vector3.add(
+            placed.position,
+            Quaternion.rotateVector(
+              placed.rotation,
+              sled.affordance(side).frame.translation,
             ),
           );
-        };
-        const first: IAutoMovieVector3 = seat(gripped + 0.05);
-        let drift: number = 0;
-        for (let s: number = gripped + 0.05; s <= end; s += 0.25)
-          drift = Math.max(
-            drift,
-            Vector3.length(Vector3.subtract(seat(s), first)),
+          worst = Math.max(
+            worst,
+            Vector3.length(Vector3.subtract(fist, handle)),
           );
-        held = Math.min(held, drift);
-        drifts.push(`${side} ${(drift * 1000).toFixed(1)} mm`);
+        }
+        off = Math.max(off, worst);
+        offs.push(`${side} ${(worst * 1000).toFixed(1)} mm`);
       }
-      if (!(held <= 0.001))
+      if (!(off <= 0.015))
         complaints.push(
-          `${name} sled: after the grip the handles move in their hands' frames by ${drifts.join(", ")}, one within 1 mm expected`,
+          `${name} sled: after the grip the handles lie off their fists by ${offs.join(", ")}, within 15 mm expected`,
         );
       const moved: number = frame.position.z - start.z;
       if (!(moved >= 2))
