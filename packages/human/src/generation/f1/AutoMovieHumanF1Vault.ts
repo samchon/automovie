@@ -1,5 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's vault tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,9 +21,9 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1Vault: AutoMovieHumanConicLoft.IFamily = {
   name: "vault",
-  centres: [[16, 1290, 149.5], [-1, 1276, 148.5]],
+  centres: AutoMovieHumanF1Joints.vault,
   halves: [],
-  up: [0, 1, 0],
+  up: AutoMovieHumanF1Placement.direction("vault.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [2, 10, 18],
   values: [

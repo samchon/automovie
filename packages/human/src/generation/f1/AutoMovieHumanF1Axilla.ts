@@ -1,5 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 
 /**
  * f1's axilla tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -19,9 +21,9 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  */
 export const AutoMovieHumanF1Axilla: AutoMovieHumanConicLoft.IFamily = {
   name: "axilla",
-  centres: [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5]],
+  centres: AutoMovieHumanF1Joints.axilla,
   halves: [8, 5],
-  up: [0, 1, 0],
+  up: AutoMovieHumanF1Placement.direction("axilla.up"),
   layout: AutoMovieHumanConicSection.inflected(1, [0]),
   knots: [25, 51.5, 78],
   values: [

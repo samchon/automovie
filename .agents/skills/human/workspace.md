@@ -10,4 +10,4 @@
 
 `test/.shots`, `test/src/executable`, `.shots`, `.references` and `packages/human/.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning. New Human captures belong in `packages/human/.shots`.
 
-Work only in the local checkout, never in another clone or worktree, so every worker and the supervisor see one tree. Commit work in progress instead of stashing it, because one worker's pop applies another's changes. Use `git clean` without `-x` and `--all`, and compare a branch's added paths with the disk before switching to it.
+Work only in the local checkout, never in another clone or worktree, so every worker and the supervisor see one tree. Give every file write and output redirect an absolute path, because a relative one resolves against the process's own directory and lands a stray file elsewhere in the tree. Commit work in progress instead of stashing it, because one worker's pop applies another's changes. Use `git clean` without `-x` and `--all`, and compare a branch's added paths with the disk before switching to it.
