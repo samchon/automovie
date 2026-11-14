@@ -114,7 +114,7 @@ export function createHorse(
 
   // The saddle on the back behind the withers, and what the rider holds and stands in.
   const top: number = back + 0.04;
-  const centre: number = half - 0.45;
+  const centre: number = half - createHorse.SADDLE;
   builder.box(
     "saddle",
     v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
@@ -404,6 +404,9 @@ export namespace createHorse {
     fore: [4.6, 0.9, 0.3, 0.3],
     hind: [6.9, 1, 0.4, 0.3],
   };
+
+  /** The saddle's middle behind the shoulder joints, metres: an estimate, no source read gives it. A harness's tugs hang on the saddle pad there, so a cart's shafts are held there too. */
+  export const SADDLE: number = 0.45;
 
   /** The saddle's seat width, metres: an estimate, no source read gives it. */
   export const SEAT_WIDTH: number = 0.3;

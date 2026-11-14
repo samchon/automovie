@@ -1,0 +1,497 @@
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { createHorse } from "../animals/createHorse";
+import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { createCart } from "./createCart";
+
+/**
+ * The drawn carriers on one axle: a horse's cart, a runner's rickshaw, a pair's chariot and an artillery limber, each built on its drawn dimensions with its axle along `X` under the origin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what it builds and where the axle stands.
+ * @evidence contracts/development/design.md#principled-representation Each kind's body on its axle, its road wheels on spin knobs, and its coupling ahead where it is drawn from.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The four builders `createCart` calls for its two-wheeled drawn kinds.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The wheels are one helper over the track and the diameter, not a copy per kind.
+ */
+export namespace CartDrawn {
+  /**
+   * A horse's two-wheeled cart: a body on the axle, a seat over it, and two shafts reaching forward level at the horse's tugs.
+   *
+   * @param builder The carrier under construction.
+   * @param d The drawn dimensions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, which stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The horse's places, then the body, the shafts and the wheels.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SINGLE_TREE` is a named provisional value and the seat's height a band seen only in search results; the body's own boards, a construction no act reads, are sized from the track and the seat.
+   * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function cart(
+    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const radius: number = d.wheelDiameter! / 2;
+    const horse: createHorse.IRig = createHorse.rig({
+      withersHeight: d.withersHeight!,
+      girth: d.girth!,
+    });
+    const barrel: number = d.girth! / (2 * Math.PI);
+    const tug: number = horse.back - barrel;
+    const tree: number = createCart.SINGLE_TREE;
+    const tip: number = tree + d.shaftLength!;
+    const coupling: number = tip - createHorse.SADDLE;
+    const seat: number = d.seatHeight!;
+    const half: number = d.track! / 2 - 0.08;
+
+    // The body: a floor on the axle from behind it to the single tree, a dash at its front, and the seat over the axle.
+    builder.box(
+      "floor",
+      v(2 * half, 0.04, tree + 0.3),
+      v(0, radius + 0.02, (tree - 0.3) / 2),
+      {
+        color: BODY,
+      },
+    );
+    builder.box("dash", v(2 * half, 0.4, 0.03), v(0, radius + 0.24, tree), {
+      color: BODY,
+    });
+    builder.box(
+      "seat-box",
+      v(2 * half, seat - 0.05 - radius, 0.4),
+      v(0, (seat - 0.05 + radius) / 2, -0.05),
+      {
+        color: BODY,
+      },
+    );
+    builder.box(
+      "cushion",
+      v(2 * half - 0.1, 0.05, 0.4),
+      v(0, seat - 0.025, -0.05),
+      { color: CLOTH, density: 0.2 },
+    );
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, seat, 0.15)),
+      extent: null,
+      depth: 0.4,
+      width: 2 * half - 0.1,
+    });
+    builder.affordance({
+      id: "footboard",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, radius + 0.04, (tree + 0.15) / 2)),
+      extent: null,
+      width: 2 * half,
+      depth: tree - 0.15,
+    });
+
+    // The shafts: level at the tugs either side of the barrel, from their tips back to the dash, each held up on a strut from the floor.
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      const x: number = sign * (barrel + SHAFT);
+      builder.rod(`shaft-${side}`, SHAFT, v(x, tug, tree), v(x, tug, tip), {
+        color: WOOD,
+      });
+      builder.rod(
+        `strut-${side}`,
+        SHAFT,
+        v(sign * half, radius + 0.04, tree),
+        v(x, tug, tree),
+        { color: WOOD },
+      );
+    }
+    builder.affordance({
+      id: "coupling",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, tug, coupling)),
+      extent: null,
+    });
+    wheels(builder, d.track!, radius, 12);
+  }
+
+  /**
+   * A runner's rickshaw: a seat over the axle, a footboard ahead of it, and two shafts reaching forward to the runner's hands.
+   *
+   * @param builder The carrier under construction.
+   * @param d The drawn dimensions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The shafts are held level at the standing runner's hanging hands, so they stand at `gripHeight`, the measured wrist's height; their tips are the rickshaw's front, `length` ahead of its wheels' rear; each grip is a `handle` along its shaft at the tip, and the `coupling` is the middle between the grips. The floor rests on the axle; the seat (`RICKSHAW_SEAT`, `RICKSHAW_SEAT_WIDTH`) stands over it, and the footboard ends `RICKSHAW_FOOTBOARD` ahead of the seat's front edge.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Body, shafts, wheels.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat's height and the shafts' spacing are named provisional values; the hood is not modelled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rickshaw(
+    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const radius: number = d.wheelDiameter! / 2;
+    const track: number = d.width! - TYRE;
+    const half: number = createCart.RICKSHAW_SEAT_WIDTH / 2;
+    const seat: number = createCart.RICKSHAW_SEAT;
+    const front: number = 0.2;
+    const board: number = front + createCart.RICKSHAW_FOOTBOARD;
+    const tip: number = d.length! - radius;
+    const grip: number = d.gripHeight!;
+    builder.box(
+      "floor",
+      v(2 * half, 0.04, board + 0.25),
+      v(0, radius + 0.02, (board - 0.25) / 2),
+      {
+        color: BODY,
+      },
+    );
+    builder.box(
+      "seat-box",
+      v(2 * half, seat - 0.05 - radius, 0.45),
+      v(0, (seat - 0.05 + radius) / 2, front - 0.225),
+      {
+        color: BODY,
+      },
+    );
+    builder.box(
+      "cushion",
+      v(2 * half, 0.05, 0.45),
+      v(0, seat - 0.025, front - 0.225),
+      { color: CLOTH, density: 0.2 },
+    );
+    builder.box(
+      "backrest",
+      v(2 * half, 0.45, 0.05),
+      v(0, seat + 0.225, front - 0.475),
+      { color: CLOTH, density: 0.2 },
+    );
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, seat, front)),
+      extent: null,
+      depth: 0.45,
+      width: 2 * half,
+      back: 0.45,
+    });
+    builder.affordance({
+      id: "footboard",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, radius + 0.04, (front + board) / 2)),
+      extent: null,
+      width: 2 * half,
+      depth: board - front,
+    });
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      const x: number = (sign * createCart.RICKSHAW_SHAFTS) / 2;
+      builder.rod(`shaft-${side}`, SHAFT, v(x, grip, board), v(x, grip, tip), {
+        color: WOOD,
+      });
+      builder.rod(
+        `strut-${side}`,
+        SHAFT,
+        v(sign * half, radius + 0.04, board),
+        v(x, grip, board),
+        { color: WOOD },
+      );
+      builder.affordance({
+        id: `${side}Shaft`,
+        kind: "handle",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          v(x, grip, tip - GRIP / 2),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: 2 * SHAFT,
+        length: GRIP,
+      });
+    }
+    builder.affordance({
+      id: "coupling",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, grip, tip - GRIP / 2)),
+      extent: null,
+    });
+    wheels(builder, track, radius, 12);
+  }
+
+  /**
+   * A pair's chariot: a floor on the axle with a siding round its front, and a pole rising from the axle to the yoke on the horses' withers.
+   *
+   * @param builder The carrier under construction.
+   * @param d The drawn dimensions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The floor, `floorWidth` across and `floorDepth` deep, rests on the axle at its rear edge, so its height is the wheel's radius; the siding rises `railHeight` round its front, its top the `rim` the crew holds. The pole runs `poleLength` from the axle up to the yoke, which sits on the pair's withers, so the yoke's height is the horse's `withersHeight`; the `coupling` is the pole's end at the yoke. The wheels have the six spokes of the Tutankhamun chariots.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Floor, siding, pole, wheels.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The D-shaped floor is a rectangle and the siding three panels; the floor's place on the axle is the chariots' arrangement as described, its boards a construction no act reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function chariot(
+    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const radius: number = d.wheelDiameter! / 2;
+    const width: number = d.floorWidth!;
+    const depth: number = d.floorDepth!;
+    const floor: number = radius + 0.03;
+    const rail: number = floor + d.railHeight!;
+    builder.box(
+      "floor",
+      v(width, 0.03, depth),
+      v(0, radius + 0.015, depth / 2),
+      { color: WOOD, density: 0.4 },
+    );
+    builder.box(
+      "siding-front",
+      v(width, d.railHeight!, 0.02),
+      v(0, (floor + rail) / 2, depth),
+      {
+        color: BODY,
+        density: 0.3,
+      },
+    );
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const)
+      builder.box(
+        `siding-${side}`,
+        v(0.02, d.railHeight!, depth),
+        v((sign * width) / 2, (floor + rail) / 2, depth / 2),
+        {
+          color: BODY,
+          density: 0.3,
+        },
+      );
+    builder.rod(
+      "rim",
+      0.015,
+      v(-width / 2, rail, depth),
+      v(width / 2, rail, depth),
+      { color: WOOD },
+    );
+    builder.affordance({
+      id: "floor",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, floor, depth / 2)),
+      extent: null,
+      width,
+      depth,
+    });
+    builder.affordance({
+      id: "rim",
+      kind: "bar",
+      symmetry: "round",
+      frame: ArchetypeFrame.upright(v(0, rail, depth)),
+      extent: null,
+      grip: "power",
+      aperture: 0.03,
+      length: width,
+    });
+    const yoke: number = d.withersHeight!;
+    const rise: number = yoke - radius;
+    const reach: number = Math.sqrt(d.poleLength! ** 2 - rise ** 2);
+    builder.rod("pole", 0.028, v(0, radius, 0), v(0, yoke, reach), {
+      color: WOOD,
+    });
+    builder.affordance({
+      id: "coupling",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, yoke, reach)),
+      extent: null,
+    });
+    wheels(builder, d.track!, radius, 6);
+  }
+
+  /**
+   * An artillery limber: a frame on the axle carrying the ammunition chest, a pole ahead and the pintle hook behind.
+   *
+   * @param builder The carrier under construction.
+   * @param d The drawn dimensions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The frame, `length` long, rests on the axle from `LIMBER.rear` behind it, and the pole runs `poleLength` on from its front, level, its end the `coupling`. The chest, its inside the Ordnance Manual's, stands over the axle on the frame; its lid hinges at its rear edge, opening a quarter turn to stand upright, and is the gunners' forward-facing `seat`. The `pintle` hook is at the frame's rear end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, chest, pole, hook, wheels.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chest's boards (`LIMBER.board`) are a construction estimate and the pintle's height (`LIMBER.pintle`) a named provisional value; the pole is level until a team's harness holds it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms About ten parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function limber(
+    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const radius: number = d.wheelDiameter! / 2;
+    const rear: number = -createCart.LIMBER.rear;
+    const front: number = rear + d.length!;
+    const tip: number = front + d.poleLength!;
+    const chest: typeof createCart.LIMBER.chest = createCart.LIMBER.chest;
+    const board: number = createCart.LIMBER.board;
+    const width: number = chest.width + 2 * board;
+    const across: number = chest.length + 2 * board;
+    const base: number = radius + 0.08;
+    const lid: number = base + chest.depth + 2 * board;
+    builder.box(
+      "frame",
+      v(0.5, 0.08, d.length!),
+      v(0, radius + 0.04, (rear + front) / 2),
+      { color: WOOD },
+    );
+    builder.box(
+      "chest",
+      v(across, lid - base - board, width),
+      v(0, (base + lid - board) / 2, 0),
+      { color: BODY },
+    );
+    builder.box(
+      "chest-lid",
+      v(across, board, width),
+      v(0, lid - board / 2, 0),
+      { color: BODY, density: 0.5 },
+    );
+    builder.affordance({
+      id: "chest",
+      kind: "hinge",
+      frame: ArchetypeFrame.facing(
+        v(0, lid, -width / 2),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      travel: 90,
+      parts: ["chest-lid"],
+    });
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, lid, width / 2)),
+      extent: null,
+      depth: width,
+      width: across,
+    });
+    builder.rod(
+      "pole",
+      0.04,
+      v(0, radius + 0.04, front),
+      v(0, radius + 0.04, tip),
+      { color: WOOD },
+    );
+    builder.affordance({
+      id: "coupling",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, radius + 0.04, tip)),
+      extent: null,
+    });
+    const pintle: number = createCart.LIMBER.pintle;
+    builder.rod("pintle", 0.02, v(0, pintle, rear), v(0, pintle, rear - 0.1), {
+      color: METAL,
+    });
+    builder.affordance({
+      id: "pintle",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, pintle, rear - 0.08)),
+      extent: null,
+    });
+    wheels(builder, d.track!, radius, 12);
+  }
+}
+
+/** A shaft's radius, metres: a construction estimate no act reads beyond the grip's aperture. */
+const SHAFT: number = 0.025;
+
+/** A rickshaw shaft's held run at its tip, metres: a hand's breadth, a construction estimate. */
+const GRIP: number = 0.12;
+
+/** A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track is the overall width less it. */
+const TYRE: number = 0.0254;
+
+/** The body's paint. */
+const BODY: string = "#2f4f3f";
+
+/** Bare wood. */
+const WOOD: string = "#8b6a43";
+
+/** A seat's cloth. */
+const CLOTH: string = "#6b2f2f";
+
+/** Iron. */
+const METAL: string = "#55595f";
+
+/**
+ * Add the two road wheels on the axle: each a disc with spokes, spinning on a `knob` about the axle, a positive travel rolling it forward. The spokes' count is read for the chariot's six only; for the others it is a construction no act reads.
+ *
+ * @param builder The carrier under construction.
+ * @param track Between the wheels, centre to centre, metres.
+ * @param radius The wheel's radius, metres.
+ * @param spokes How many spokes each wheel shows.
+ */
+function wheels(
+  builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+  track: number,
+  radius: number,
+  spokes: number,
+): void {
+  const v: typeof Vector3.create = Vector3.create;
+  builder.rod("axle", 0.03, v(-track / 2, radius, 0), v(track / 2, radius, 0), {
+    color: METAL,
+  });
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
+    const centre: IAutoMovieVector3 = v((sign * track) / 2, radius, 0);
+    const parts: string[] = [`wheel-${side}`];
+    builder.rod(
+      `wheel-${side}`,
+      radius,
+      v(centre.x - 0.03, radius, 0),
+      v(centre.x + 0.03, radius, 0),
+      {
+        color: WOOD,
+        density: 0.2,
+      },
+    );
+    for (let k: number = 0; k < spokes / 2; k++) {
+      const angle: number = (2 * Math.PI * k) / spokes;
+      const along: IAutoMovieVector3 = v(
+        0,
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+      );
+      builder.rod(
+        `spoke-${side}-${k}`,
+        0.012,
+        Vector3.subtract(v(centre.x + sign * 0.035, radius, 0), along),
+        Vector3.add(v(centre.x + sign * 0.035, radius, 0), along),
+        {
+          color: BODY,
+        },
+      );
+      parts.push(`spoke-${side}-${k}`);
+    }
+    builder.affordance({
+      id: `${side}Spin`,
+      kind: "knob",
+      frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
+      extent: null,
+      travel: 360,
+      parts,
+    });
+  }
+}
