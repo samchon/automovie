@@ -47,6 +47,14 @@ export namespace motionHumanLawTouchRows {
       target: self("shoulderLeft"),
       other: self("shoulderRight"),
       kind: "squeeze",
+      rests: [
+        { hand: "first", part: "lowerArm", on: "leftLowerArm" },
+        { hand: "first", part: "lowerArm", on: "chest" },
+        { hand: "first", part: "upperArm", on: "chest" },
+        { hand: "other", part: "lowerArm", on: "rightLowerArm" },
+        { hand: "other", part: "lowerArm", on: "chest" },
+        { hand: "other", part: "upperArm", on: "chest" },
+      ],
     },
     "cover-ears": {
       target: self("earRight"),

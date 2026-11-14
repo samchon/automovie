@@ -2458,6 +2458,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -2480,6 +2487,214 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         },
         "required": [],
         "additionalProperties": false
+      },
+      "AutoMovieMotionHumanTouchContacts.IDeclared": {
+        "type": "object",
+        "properties": {
+          "hand": {
+            "oneOf": [
+              {
+                "const": "first"
+              },
+              {
+                "const": "other"
+              }
+            ],
+            "description": "Whose arm: the leading hand's or the other's."
+          },
+          "part": {
+            "oneOf": [
+              {
+                "const": "lowerArm"
+              },
+              {
+                "const": "upperArm"
+              }
+            ],
+            "description": "The arm's segment."
+          },
+          "on": {
+            "$ref": "#/components/schemas/AutoMovieHumanoidBone",
+            "description": "The bone it lies along, named as for the right hand leading; its side is exchanged when the left hand leads."
+          }
+        },
+        "required": [
+          "hand",
+          "part",
+          "on"
+        ],
+        "additionalProperties": false,
+        "description": "A rest as a touch row declares it."
+      },
+      "AutoMovieHumanoidBone": {
+        "oneOf": [
+          {
+            "const": "chest"
+          },
+          {
+            "const": "head"
+          },
+          {
+            "const": "hips"
+          },
+          {
+            "const": "jaw"
+          },
+          {
+            "const": "leftEye"
+          },
+          {
+            "const": "leftFoot"
+          },
+          {
+            "const": "leftHand"
+          },
+          {
+            "const": "leftIndexDistal"
+          },
+          {
+            "const": "leftIndexIntermediate"
+          },
+          {
+            "const": "leftIndexProximal"
+          },
+          {
+            "const": "leftLittleDistal"
+          },
+          {
+            "const": "leftLittleIntermediate"
+          },
+          {
+            "const": "leftLittleProximal"
+          },
+          {
+            "const": "leftLowerArm"
+          },
+          {
+            "const": "leftLowerLeg"
+          },
+          {
+            "const": "leftMiddleDistal"
+          },
+          {
+            "const": "leftMiddleIntermediate"
+          },
+          {
+            "const": "leftMiddleProximal"
+          },
+          {
+            "const": "leftRingDistal"
+          },
+          {
+            "const": "leftRingIntermediate"
+          },
+          {
+            "const": "leftRingProximal"
+          },
+          {
+            "const": "leftShoulder"
+          },
+          {
+            "const": "leftThumbDistal"
+          },
+          {
+            "const": "leftThumbMetacarpal"
+          },
+          {
+            "const": "leftThumbProximal"
+          },
+          {
+            "const": "leftToes"
+          },
+          {
+            "const": "leftUpperArm"
+          },
+          {
+            "const": "leftUpperLeg"
+          },
+          {
+            "const": "neck"
+          },
+          {
+            "const": "rightEye"
+          },
+          {
+            "const": "rightFoot"
+          },
+          {
+            "const": "rightHand"
+          },
+          {
+            "const": "rightIndexDistal"
+          },
+          {
+            "const": "rightIndexIntermediate"
+          },
+          {
+            "const": "rightIndexProximal"
+          },
+          {
+            "const": "rightLittleDistal"
+          },
+          {
+            "const": "rightLittleIntermediate"
+          },
+          {
+            "const": "rightLittleProximal"
+          },
+          {
+            "const": "rightLowerArm"
+          },
+          {
+            "const": "rightLowerLeg"
+          },
+          {
+            "const": "rightMiddleDistal"
+          },
+          {
+            "const": "rightMiddleIntermediate"
+          },
+          {
+            "const": "rightMiddleProximal"
+          },
+          {
+            "const": "rightRingDistal"
+          },
+          {
+            "const": "rightRingIntermediate"
+          },
+          {
+            "const": "rightRingProximal"
+          },
+          {
+            "const": "rightShoulder"
+          },
+          {
+            "const": "rightThumbDistal"
+          },
+          {
+            "const": "rightThumbMetacarpal"
+          },
+          {
+            "const": "rightThumbProximal"
+          },
+          {
+            "const": "rightToes"
+          },
+          {
+            "const": "rightUpperArm"
+          },
+          {
+            "const": "rightUpperLeg"
+          },
+          {
+            "const": "spine"
+          },
+          {
+            "const": "upperChest"
+          }
+        ],
+        "description": "Closed 55-name vocabulary matching the VRM 1.0 humanoid specification.\n\nTyped authoring and runtime admission use these semantic names. A valid name does not guarantee membership in a particular rig or compatibility of its rest basis; retargeting must check both.\n\nVRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest, fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may be absent from an imported rig.\n\nThirty names address fingers; a pose can author only the joints its target rig declares.\n\nReference: VRM 1.0 humanoid specification (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md)."
       },
       "OmitIParamskind": {
         "type": "object",
@@ -2854,6 +3069,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "Where the elbow lies while the hand is on the region: `natural`, the\nplace of least strain, or `level`, raised to the shoulder's height so\nthe upper arm is horizontal, as a salute or a hand shading the eyes\nholds it. `natural` when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -3109,6 +3331,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -3352,6 +3581,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "count": {
             "type": "number",
@@ -3976,7 +4212,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "palm"
               }
             ],
-            "description": "The part of the hand; the palm when absent. `forefinger` is the end of\nthe forefinger of a flat hand held in line with its forearm, the palm\nturned down, as a salute meets the brow."
+            "description": "The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow."
           },
           "side": {
             "oneOf": [
@@ -4209,6 +4445,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "hold": {
             "type": "number",
@@ -5048,6 +5291,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -5102,7 +5352,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "palm"
               }
             ],
-            "description": "The part of the hand; the palm when absent. `forefinger` is the end of\nthe forefinger of a flat hand held in line with its forearm, the palm\nturned down, as a salute meets the brow."
+            "description": "The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow."
           },
           "side": {
             "oneOf": [
@@ -5339,6 +5589,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -7154,6 +7411,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -7435,6 +7699,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -7702,6 +7973,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "count": {
             "type": "number",
@@ -8107,6 +8385,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "hold": {
             "type": "number",
             "description": "Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent."
@@ -8488,6 +8773,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "hold": {
             "type": "number",
             "description": "Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent."
@@ -8744,6 +9036,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "tangent": {
             "oneOf": [
@@ -9228,6 +9527,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
           },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
+          },
           "count": {
             "type": "number",
             "description": "Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent."
@@ -9636,6 +9942,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "hold": {
             "type": "number",
@@ -11829,6 +12142,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "count": {
             "type": "number",
@@ -15196,176 +15516,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "AutoMovieHumanoidBone": {
-        "oneOf": [
-          {
-            "const": "chest"
-          },
-          {
-            "const": "head"
-          },
-          {
-            "const": "hips"
-          },
-          {
-            "const": "jaw"
-          },
-          {
-            "const": "leftEye"
-          },
-          {
-            "const": "leftFoot"
-          },
-          {
-            "const": "leftHand"
-          },
-          {
-            "const": "leftIndexDistal"
-          },
-          {
-            "const": "leftIndexIntermediate"
-          },
-          {
-            "const": "leftIndexProximal"
-          },
-          {
-            "const": "leftLittleDistal"
-          },
-          {
-            "const": "leftLittleIntermediate"
-          },
-          {
-            "const": "leftLittleProximal"
-          },
-          {
-            "const": "leftLowerArm"
-          },
-          {
-            "const": "leftLowerLeg"
-          },
-          {
-            "const": "leftMiddleDistal"
-          },
-          {
-            "const": "leftMiddleIntermediate"
-          },
-          {
-            "const": "leftMiddleProximal"
-          },
-          {
-            "const": "leftRingDistal"
-          },
-          {
-            "const": "leftRingIntermediate"
-          },
-          {
-            "const": "leftRingProximal"
-          },
-          {
-            "const": "leftShoulder"
-          },
-          {
-            "const": "leftThumbDistal"
-          },
-          {
-            "const": "leftThumbMetacarpal"
-          },
-          {
-            "const": "leftThumbProximal"
-          },
-          {
-            "const": "leftToes"
-          },
-          {
-            "const": "leftUpperArm"
-          },
-          {
-            "const": "leftUpperLeg"
-          },
-          {
-            "const": "neck"
-          },
-          {
-            "const": "rightEye"
-          },
-          {
-            "const": "rightFoot"
-          },
-          {
-            "const": "rightHand"
-          },
-          {
-            "const": "rightIndexDistal"
-          },
-          {
-            "const": "rightIndexIntermediate"
-          },
-          {
-            "const": "rightIndexProximal"
-          },
-          {
-            "const": "rightLittleDistal"
-          },
-          {
-            "const": "rightLittleIntermediate"
-          },
-          {
-            "const": "rightLittleProximal"
-          },
-          {
-            "const": "rightLowerArm"
-          },
-          {
-            "const": "rightLowerLeg"
-          },
-          {
-            "const": "rightMiddleDistal"
-          },
-          {
-            "const": "rightMiddleIntermediate"
-          },
-          {
-            "const": "rightMiddleProximal"
-          },
-          {
-            "const": "rightRingDistal"
-          },
-          {
-            "const": "rightRingIntermediate"
-          },
-          {
-            "const": "rightRingProximal"
-          },
-          {
-            "const": "rightShoulder"
-          },
-          {
-            "const": "rightThumbDistal"
-          },
-          {
-            "const": "rightThumbMetacarpal"
-          },
-          {
-            "const": "rightThumbProximal"
-          },
-          {
-            "const": "rightToes"
-          },
-          {
-            "const": "rightUpperArm"
-          },
-          {
-            "const": "rightUpperLeg"
-          },
-          {
-            "const": "spine"
-          },
-          {
-            "const": "upperChest"
-          }
-        ],
-        "description": "Closed 55-name vocabulary matching the VRM 1.0 humanoid specification.\n\nTyped authoring and runtime admission use these semantic names. A valid name does not guarantee membership in a particular rig or compatibility of its rest basis; retargeting must check both.\n\nVRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest, fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may be absent from an imported rig.\n\nThirty names address fingers; a pose can author only the joints its target rig declares.\n\nReference: VRM 1.0 humanoid specification (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md)."
-      },
       "IHumanProp.IFrame": {
         "type": "object",
         "properties": {
@@ -16075,6 +16225,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "hold": {
             "type": "number",
@@ -18706,7 +18863,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "palm"
               }
             ],
-            "description": "The part of the hand; the palm when absent. `forefinger` is the end of\nthe forefinger of a flat hand held in line with its forearm, the palm\nturned down, as a salute meets the brow."
+            "description": "The part of the hand; the palm when absent. `forefinger` is the end of the forefinger of a flat hand held in line with its forearm, the palm turned down, as a salute meets the brow."
           },
           "side": {
             "oneOf": [
@@ -18943,6 +19100,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The other hand's region, touched the same way at the same time; one hand when absent."
+          },
+          "rests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoMovieMotionHumanTouchContacts.IDeclared"
+            },
+            "description": "The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent."
           },
           "count": {
             "type": "number",
@@ -19737,6 +19901,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The direction of the hand laid along the region's tangent; the surface's own forward when absent."
+          },
+          "curl": {
+            "type": "number",
+            "description": "Extra flexion of the fingers over the shape, degrees, as the touch's kind curls them (`AutoMovieMotionHumanTouchForm.curled`); none when absent."
           }
         },
         "required": [
