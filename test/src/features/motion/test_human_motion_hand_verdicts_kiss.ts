@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { motionKissVerdicts } from "../internal/motionKissVerdicts";
+import { motionRowVerdicts } from "../internal/motionRowVerdicts";
 
 /**
  * The lexicon's `blownKiss` row, the fingertips brought to the lips, holds
@@ -11,7 +11,7 @@ import { motionKissVerdicts } from "../internal/motionKissVerdicts";
  * part of the body more than 10 mm inside another, every joint centre on a
  * continuous path, no bone spinning more than 5 turns a second, every joint
  * within its range. One report of the whole film took up to a minute, so
- * each half is its own spec (`motionKissVerdicts`), the halves overlapping
+ * each half is its own spec (`motionRowVerdicts`), the halves overlapping
  * by two frames. With the hand upright before the face the forearm's turn
  * stood at the end of its range and the arm's fit changed its solution
  * between instants; the hand now leans half way to level.
@@ -31,7 +31,7 @@ import { motionKissVerdicts } from "../internal/motionKissVerdicts";
 export function test_human_motion_hand_verdicts_kiss(): void {
   TestValidator.equals(
     "a blown kiss holds the physical bounds over the first half",
-    motionKissVerdicts(1),
+    motionRowVerdicts("blownKiss", "f-small", 1),
     "clean",
   );
 }
