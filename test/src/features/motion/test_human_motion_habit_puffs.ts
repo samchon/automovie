@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds two hundred performances through the public chain and reads each plan's events; a puff of one fixed length, a puff outside the measured band or seeds that are ignored fail.
  * @evidence contracts/development/testing.md#independent-expectations The band is #3346's cited range and the 200 seeds its count; the spread's two ends and the count of distinct values are the test's own, stated here.
- * @evidence contracts/development/testing.md#distinguishing-cases Two hundred seeds of one row; the cigarette at the lips is `test_human_motion_hand_verdicts_smoke`'s and `test_human_motion_prop_held_attitude`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two hundred seeds of one row; the cigarette at the lips is `test_human_motion_hand_verdicts_smoke`'s and the `test_human_motion_prop_held_attitude_*` specs'.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds 200 one-row performances without reading a posture; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its source, what is not read, why no posture is read and the 4 scenarios with their bounds.
  */

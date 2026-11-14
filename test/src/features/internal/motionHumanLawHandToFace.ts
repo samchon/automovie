@@ -59,7 +59,7 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    level at the lips asks the elbow up to the shoulder's height, and a
  *    drinker tips the cup at the lips with the elbow low (Murphy, Willén and
  *    Sunnerhagen 2011), so the lean is the drinking arm's answer and not a
- *    fixed angle; `test_human_motion_prop_held_attitude` bounds a held glass
+ *    fixed angle; `motionPropHeldAttitude` bounds a held glass
  *    the same way.
  * 8. Reading flexes the neck and head 33 to 45 degrees from the upright
  *    entry at the sheet (Lee et al. 2015).

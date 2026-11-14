@@ -37,7 +37,7 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * elbow at least 50 mm below the shoulder joint, and the wrist within a
  * hand length of the mouth region (provisional limits). The real glass
  * stands at waist height before the right shoulder, 0.6 of the arm's length
- * ahead, as `test_human_motion_prop_held_attitude` places it.
+ * ahead, as `motionPropHeldAttitude` places it.
  *
  * With `least`, the search's least lean is read as well: the drink's lean
  * one `LEAN_STEP` below the one the law took must admit no drinking arm,

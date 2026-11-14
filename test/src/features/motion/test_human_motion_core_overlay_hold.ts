@@ -23,7 +23,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the average man; a glass stands at waist height ahead, is
  * picked up with the right hand for its use (`pickUp` with `use`: the lip
  * at the mouth, the glass upright), as a person takes a glass to drink from
- * it and as `test_human_motion_prop_held_attitude` takes it, then the person
+ * it and as the `test_human_motion_prop_held_attitude_*` specs take it, then the person
  * walks 2 m with a drink from that glass put over the walk. A glass taken by
  * a grip chosen for reach alone may leave no drinking arm at the lips; that
  * refusal is `test_human_motion_core_overlay_hold_refusal_drink`'s. One body is enough: the rule is the

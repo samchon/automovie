@@ -47,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places a real archetype, builds the performance through the public chain and reads the displayed prop frame, hand and mouth region; a sip refused over the walk, a glass away from the mouth, tipped, or sliding in the hand fails.
  * @evidence contracts/development/testing.md#independent-expectations The rim's and the grip's bounds are acceptance lines of #3361 and #3358 and the lean's is the law's own asked lean plus one search step; the rim is the archetype's own lip affordance.
- * @evidence contracts/development/testing.md#distinguishing-cases The held prop under an overlay; the same task standing is `test_human_motion_prop_held_use`'s and the overlay without a prop `test_human_motion_hand_overlay_wave`'s.
+ * @evidence contracts/development/testing.md#distinguishing-cases The held prop under an overlay; the same task standing is the `test_human_motion_prop_held_use_*` specs' and the overlay without a prop `test_human_motion_hand_overlay_wave`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and one archetype and builds one performance; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why one body is enough and the 3 scenarios with their bounds, sources and sampling.
  */
