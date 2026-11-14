@@ -42,6 +42,7 @@ export function test_archetype_contract_direction(): void {
     racket: { face: normal, sweetSpot: along },
     golfClub: { face: normal, head: along },
     glove: { pocket: normal },
+    boxingGlove: { face: normal },
     javelin: { point: along },
     hammerThrow: { head: along },
     relayBaton: { front: along, back: along },

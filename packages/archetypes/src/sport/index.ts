@@ -7,6 +7,7 @@ export * from "./createHighJump";
 export * from "./createHurdle";
 export * from "./createJavelin";
 export * from "./createLandingMat";
+export * from "./createPoolEdge";
 export * from "./createRacket";
 export * from "./createRelayBaton";
 export * from "./createShot";

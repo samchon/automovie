@@ -22,6 +22,7 @@ import {
   createStorage,
   createTable,
 } from "../furniture";
+import { createBoxingGlove, createHeavyBag } from "../gym";
 import {
   createBag,
   createBox,
@@ -39,6 +40,7 @@ import {
   createUmbrella,
   createVessel,
 } from "../props";
+import { createHighJump, createPoolEdge } from "../sport";
 import {
   createBicycle,
   createCar,
@@ -430,6 +432,16 @@ export function archetypeCaptureCatalog(): Readonly<
       "carbine-extended": carbine.articulate({
         stock: carbine.affordance("stock").travel!,
       }),
+    }),
+    "sport-venues": still({
+      "pole-vault": createHighJump({ kind: "poleVault" }),
+      ...kinds(
+        "poolEdge",
+        createPoolEdge.KINDS,
+        (kind: createPoolEdge.Kind): Archetype => createPoolEdge({ kind }),
+      ),
+      boxingGlove: createBoxingGlove(),
+      heavyBag: createHeavyBag(),
     }),
     "ride-car": moving("car", driveCar(car, COURSE)),
     "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),

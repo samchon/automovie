@@ -9,6 +9,7 @@ import {
   createBench,
   createBicycle,
   createBox,
+  createBoxingGlove,
   createCar,
   createCareItem,
   createCart,
@@ -26,6 +27,7 @@ import {
   createGolfClub,
   createHammerThrow,
   createHandgun,
+  createHeavyBag,
   createHighJump,
   createHolster,
   createHorse,
@@ -49,6 +51,7 @@ import {
   createPell,
   createPlyoBox,
   createPolearm,
+  createPoolEdge,
   createPram,
   createPullUpBar,
   createRack,
@@ -309,6 +312,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     (seed?: number | string): Archetype => createJumpRope({}, seed),
   );
   add("ring", (seed?: number | string): Archetype => createRing({}, seed));
+  add(
+    "boxingGlove",
+    (seed?: number | string): Archetype => createBoxingGlove({}, seed),
+  );
+  add(
+    "heavyBag",
+    (seed?: number | string): Archetype => createHeavyBag({}, seed),
+  );
   for (const kind of createPullUpBar.KINDS)
     add(
       `pull-up-bar-${kind}`,
@@ -417,6 +428,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "highJump",
     (seed?: number | string): Archetype => createHighJump({}, seed),
   );
+  add(
+    "highJump-poleVault",
+    (seed?: number | string): Archetype =>
+      createHighJump({ kind: "poleVault" }, seed),
+  );
+  for (const kind of createPoolEdge.KINDS)
+    add(
+      `poolEdge-${kind}`,
+      (seed?: number | string): Archetype => createPoolEdge({ kind }, seed),
+    );
   for (const kind of createLandingMat.KINDS)
     add(
       `landingMat-${kind}`,
