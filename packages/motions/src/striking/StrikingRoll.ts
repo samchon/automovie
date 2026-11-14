@@ -40,6 +40,9 @@ export namespace StrikingRoll {
   /** How many of the candidate frames, the nearest by the arm's two-segment reach, are fitted before one is chosen. */
   export const TRIED: number = 16;
 
+  /** How near a fitted hand's miss must be to none for a pose to count as held exactly, metres, and the margin a later candidate must win by. */
+  export const EXACT: number = 1e-4;
+
   /**
    * How far the arm, fitted to a tool's pose, leaves the tool from where the
    * pose asks it.
@@ -142,19 +145,6 @@ export namespace StrikingRoll {
   ): StrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     const from: IAutoMovieVector3 = shoulder(context, tool.side, posture);
-    const grip: IAutoMovieVector3 = HumanHand.offset(
-      context.body,
-      tool.side,
-      "grip",
-    ).point;
-
-    // The wrist to the knuckles in the hand's own frame, the forearm's line
-    // through a straight wrist.
-    const fingers: IAutoMovieVector3 = {
-      x: tool.side === "left" ? 1 : -1,
-      y: 0,
-      z: 0,
-    };
     const aside: IAutoMovieVector3 = Vector3.normalize(
       Vector3.cross(
         along,
@@ -179,23 +169,10 @@ export namespace StrikingRoll {
               Vector3.cross(run, aside),
             ),
           );
-          const elbow: IAutoMovieVector3 = Vector3.subtract(
-            Vector3.subtract(
-              frame.point,
-              Quaternion.rotateVector(frame.rotation, grip),
-            ),
-            Vector3.scale(
-              Quaternion.rotateVector(frame.rotation, fingers),
-              context.body.measure.forearm,
-            ),
-          );
           candidates.push({
             frame,
             rank:
-              Math.abs(
-                Vector3.length(Vector3.subtract(elbow, from)) -
-                  context.body.measure.upperArm,
-              ) +
+              strained(context, tool, frame, from) +
               (0.1 * tilt * Math.PI) / 180,
           });
         }
@@ -217,12 +194,90 @@ export namespace StrikingRoll {
         back,
         posture,
       );
-      if (missed < least - 1e-4) {
+      if (missed < least - EXACT) {
         least = missed;
         best = candidate.frame;
       }
     }
     return best;
+  }
+
+  /**
+   * How far a tool pose is from one the arm holds with a straight wrist,
+   * metres: a straight wrist puts the elbow one forearm back from the wrist
+   * along the hand, and the arm holds the pose when that elbow lies one upper
+   * arm from the shoulder, so the residual of that distance ranks poses
+   * before any is fitted.
+   *
+   * @param context The action's context.
+   * @param tool The tool.
+   * @param frame The hand frame asked.
+   * @param posture The body as it stands at the decisive instant.
+   * @returns Metres, not negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is measured, why it ranks and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the grip frame and the elbow from a straight wrist; the arm holds the pose only with the elbow one upper arm from the shoulder.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shoulder read and one closed form, the one `hand` ranks its candidates by.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A ranking only: no pose is accepted by it, `best` and `reachable` fit.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One trunk resolution and constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function strain(
+    context: Pick<IHumanActionContext, "body">,
+    tool: StrikingHeld.ITool,
+    frame: StrikingHeld.IHandFrame,
+    posture: IHumanPosture,
+  ): number {
+    return strained(
+      context,
+      tool,
+      frame,
+      shoulder(context, tool.side, posture),
+    );
+  }
+
+  /**
+   * Of a law's candidate tool poses, in its order of preference, the first
+   * the arm holds exactly, else the one the fitted hand misses least: what a
+   * law that leaves a pose's freedom to the arm chooses by.
+   *
+   * @param context The action's context.
+   * @param tool The tool.
+   * @param candidates The poses, each built only when it is tried, preferred first.
+   * @param back The point of the tool the pose keeps, metres behind its working point.
+   * @param posture The body as it stands at the decisive instant.
+   * @returns The chosen hand frame.
+   * @throws {Error} When there is no candidate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, the rule and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation Each candidate is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges; an exact hold (under 0.1 mm) cannot be beaten, so the search ends there, and a later candidate wins only by more than that.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop with one early end.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The choice is the fit's; the caller's refusal (`reachable`) still judges the chosen pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Candidates are built and fitted lazily, so a law whose first pose holds pays one fit.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function best(
+    context: Pick<IHumanActionContext, "body">,
+    tool: StrikingHeld.ITool,
+    candidates: readonly (() => StrikingHeld.IHandFrame)[],
+    back: number,
+    posture: IHumanPosture,
+  ): StrikingHeld.IHandFrame {
+    let chosen: StrikingHeld.IHandFrame | undefined;
+    let least: number = Infinity;
+    for (const candidate of candidates) {
+      if (least <= EXACT) break;
+      const frame: StrikingHeld.IHandFrame = candidate();
+      const missed: number = miss(context, tool, frame, back, posture);
+      if (missed < least - EXACT) {
+        least = missed;
+        chosen = frame;
+      }
+    }
+    if (chosen === undefined) throw new Error("A tool pose has no candidate");
+    return chosen;
   }
 
   /**
@@ -294,4 +349,39 @@ export namespace StrikingRoll {
   ): IAutoMovieVector3 =>
     HumanTrunk.resolve(context.body, posture).get(`${side}UpperArm`)!
       .worldPosition;
+
+  /** `strain` from a shoulder already read. */
+  const strained = (
+    context: Pick<IHumanActionContext, "body">,
+    tool: StrikingHeld.ITool,
+    frame: StrikingHeld.IHandFrame,
+    from: IAutoMovieVector3,
+  ): number => {
+    const grip: IAutoMovieVector3 = HumanHand.offset(
+      context.body,
+      tool.side,
+      "grip",
+    ).point;
+    // The wrist to the knuckles in the hand's own frame, the forearm's line
+    // through a straight wrist.
+    const fingers: IAutoMovieVector3 = {
+      x: tool.side === "left" ? 1 : -1,
+      y: 0,
+      z: 0,
+    };
+    const elbow: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.subtract(
+        frame.point,
+        Quaternion.rotateVector(frame.rotation, grip),
+      ),
+      Vector3.scale(
+        Quaternion.rotateVector(frame.rotation, fingers),
+        context.body.measure.forearm,
+      ),
+    );
+    return Math.abs(
+      Vector3.length(Vector3.subtract(elbow, from)) -
+        context.body.measure.upperArm,
+    );
+  };
 }

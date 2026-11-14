@@ -21,6 +21,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSkill } from "../striking/StrikingSkill";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { HumanSwordLanding } from "./HumanSwordLanding";
 
 /**
  * Blade work with the blade as the effector: the cut on the eight lines,
@@ -119,9 +120,6 @@ export namespace HumanSword {
 
   /** The share of the arm's length a target may lie from the shoulder, less the blade, before an advance is taken (provisional). */
   export const REACH: number = 0.9;
-
-  /** The leans of a cut's blade at contact that are tried, back toward where the cut came from as a share of the line to the target (provisional). */
-  export const LEANS: readonly number[] = [0.35, 0.7, 0.1, 1];
 
   /** The share of its path a parried attack is stopped at (provisional). */
   export const STOPPED: number = 0.85;
@@ -383,10 +381,10 @@ export namespace HumanSword {
    * Cut along one of the eight lines: the blade's landing part passes through the target at the decisive instant (`stroke`), edge leading. A target beyond the arm with the chosen advance is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` of the blade from the hand) on the target with the edge along the travel; the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` of the blade from the hand) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING`, the lean of the blade at contact (0.35) and the chamber's place are provisional values named in code and documentation; an unreachable target is refused, never shortened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan; each posture costs the stroke planner's two elbow searches.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING`, the leans and turns of the blade at contact and the chamber's place are provisional values named in code and documentation; an unreachable target is refused, never shortened.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
@@ -407,38 +405,16 @@ export namespace HumanSword {
       const travel: IAutoMovieVector3 = Vector3.scale(origin, -1);
       const back: number = (1 - LANDS.cut) * s.tool.length;
 
-      // The contact pose: the landing point on the target, the blade along
-      // the arm's line and still leaning back toward where it came from.
-      const leaning = (lean: number): StrikingHeld.IHandFrame =>
-        StrikingHeld.hand(
-          s.tool,
-          back,
-          a.target,
-          Vector3.add(
-            Vector3.normalize(Vector3.subtract(a.target, a.reach)),
-            Vector3.scale(origin, lean),
-          ),
-          travel,
-        );
-
-      // The edge must lead, so only the blade's lean back toward where it
-      // came from is free: of the leans tried, the one the arm holds best.
-      const landed: StrikingHeld.IHandFrame = LEANS.map(leaning)
-        .map(
-          (
-            frame: StrikingHeld.IHandFrame,
-          ): [StrikingHeld.IHandFrame, number] => [
-            frame,
-            StrikingRoll.miss(context, s.tool, frame, back, a.posture),
-          ],
-        )
-        .reduce(
-          (
-            best: [StrikingHeld.IHandFrame, number],
-            next: [StrikingHeld.IHandFrame, number],
-          ): [StrikingHeld.IHandFrame, number] =>
-            next[1] < best[1] - 1e-4 ? next : best,
-        )[0];
+      // The contact pose: the landing part on the target, the edge leading
+      // along the travel, the blade's lean and turn as the arm holds them.
+      const landed: StrikingHeld.IHandFrame = HumanSwordLanding.frame(context, {
+        tool: s.tool,
+        back,
+        target: a.target,
+        reach: a.reach,
+        travel,
+        posture: a.posture,
+      });
       if (context.params.target !== undefined)
         StrikingRoll.reachable(context, s.tool, landed, back, a.posture, FIX);
       const axis: IAutoMovieVector3 = Quaternion.rotateVector(
