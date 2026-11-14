@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, type AutoMovieViewLoft } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
+import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
@@ -436,8 +436,210 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
+  /** The turn's half-lengths at the derived corner, as shares of the arm's radius: the supervisor's brief for R3a. */
+  const TURN_KS: number[] = [0.5, 1, 1.5];
+
+  /**
+   * A section of the skin on a course frame, kept lateral of the girdle's plane and closed along it, with its star check about the course
+   * point (the clipped form of `capSection`, on any frame).
+   */
+  function clippedSection(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame, gh: V, girdle: V): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
+    const origin: V = frame.origin as V;
+    const cut: C.P[] | null = R.cut(mesh, frame).loop;
+    if (cut === null) return null;
+    const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+    const side = (p: C.P): number => dot(sub(world(p), gh), girdle);
+    const kept: C.P[] = [];
+    for (let i: number = 0; i < cut.length; ++i) {
+      const [a, b]: C.P[] = [cut[i]!, cut[(i + 1) % cut.length]!];
+      if (side(a!) >= 0) kept.push(a!);
+      if (side(a!) * side(b!) < 0) {
+        const t: number = side(a!) / (side(a!) - side(b!));
+        kept.push([a![0] + t * (b![0] - a![0]), a![1] + t * (b![1] - a![1])]);
+      }
+    }
+    if (kept.length < 3) return null;
+    const crossings = (d: C.P): number[] => {
+      const out: number[] = [];
+      for (let i: number = 0; i < kept.length; ++i) {
+        const a: C.P = kept[i]!;
+        const e: C.P = [kept[(i + 1) % kept.length]![0] - a[0], kept[(i + 1) % kept.length]![1] - a[1]];
+        const den: number = d[0] * e[1] - d[1] * e[0];
+        if (den === 0) continue;
+        const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+        const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0) out.push(t);
+      }
+      return out.sort((x: number, y: number): number => x - y);
+    };
+    let folds: number = 0;
+    let deepest: number = 0;
+    let range: [number, number] | null = null;
+    for (let j: number = 0; j < RAYS; ++j) {
+      const phi: number = (2 * Math.PI * j) / RAYS;
+      const ts: number[] = crossings([Math.cos(phi), Math.sin(phi)]);
+      if (ts.length > 1) {
+        ++folds;
+        deepest = Math.max(deepest, ts.at(-1)! - ts[0]!);
+        const d: number = Math.round(degrees(phi));
+        range = range === null ? [d, d] : [Math.min(range[0], d), Math.max(range[1], d)];
+      }
+    }
+    return { loop: kept.map(world), inside: crossings([1, 0]).length % 2 === 1, folds, deepest, phases: range };
+  }
+
+  /**
+   * R3a: the arm's course by rule. It leaves the girdle's ring square to it and turns into the humerus: its first centre the ring's centre,
+   * its corner the midpoint of the common perpendicular of the ring's normal line through that centre and the humerus's long-axis line
+   * (GH to the elbow centre), its next centres today's (elbow, wrist, the middle finger's first joint, the hand's end); the turn's half
+   * `k r` at the corner, today's halves after it. At the neutral pose the corner is read from the posed humerus line and the halves keep
+   * their set-backs (`AutoMovieHumanConicPose.halves`).
+   */
+  async function armCourse(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const generatedIndices: number[] = [];
+    let offset: number = 0;
+    for (const piece of pieces) {
+      for (const i of piece.indices) generatedIndices.push(i + offset);
+      offset += piece.positions.length / 3;
+    }
+    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
+    const centre: V = scale(ringPoints.reduce((s: V, p: V): V => add(s, p), [0, 0, 0]), 1 / ringPoints.length);
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const lines: string[] = [`R3a: the arm's course by rule; the girdle's ring centre ${fixed(centre)}, its normal ${fixed(n, 3)}; r = ${r.toFixed(2)} mm`, ""];
+
+    // The axilla's slit: its cutter's skin, lofted, against the girdle's plane.
+    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
+    const cutterLoft = H.create({ ...cutter, tips: undefined, reliefs: undefined }, cutter.knots.length >= 2 ? Array.from({ length: 21 }, (_: unknown, i: number): number => cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20) : cutter.knots);
+    const slit: V[] = [];
+    if (cutterLoft.chain !== null)
+      for (let i: number = 0; i <= 20; ++i) {
+        const read = AutoMovieLoftChain.sampler(cutterLoft.chain, cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20);
+        for (let j: number = 0; j < 36; ++j) slit.push(read((2 * Math.PI * j) / 36) as V);
+      }
+    const gh0: V = P.frame("humerus").origin as V;
+    const sides: number[] = slit.map((p: V): number => dot(sub(p, gh0), n));
+    lines.push(`THE AXILLA'S SLIT (its cutter's skin, ${slit.length} points): ${Math.min(...sides).toFixed(1)} .. ${Math.max(...sides).toFixed(1)} mm from the girdle's plane (negative: the trunk's side, medial); ${sides.filter((x: number): boolean => x > 0).length} points on the arm's side`, "");
+
+    const drawn: { k: number; curves: N.Curve[] }[] = [];
+    const stored: Map<number, V[]> = new Map();
+    for (const pose of ["reference", "neutral"] as const) {
+      const frames: P.IFrames = pose === "reference" ? P.frames() : P.frames(P.NEUTRAL);
+      const gh: V = frames.get("humerus")!.origin as V;
+      const elbow: V = frames.get("forearm")!.origin as V;
+      const d: V = unit(sub(elbow, gh));
+      // The common perpendicular of the ring's normal line (centre + a n) and the humerus line (gh + b d).
+      const w0: V = sub(centre, gh);
+      const [aa, bb, cc, dd, ee]: number[] = [dot(n, n), dot(n, d), dot(d, d), dot(n, w0), dot(d, w0)];
+      const den: number = aa! * cc! - bb! * bb!;
+      const a: number = (bb! * ee! - cc! * dd!) / den;
+      const b: number = (aa! * ee! - bb! * dd!) / den;
+      const [p1, p2]: V[] = [add(centre, scale(n, a)), add(gh, scale(d, b))];
+      const corner: V = scale(add(p1!, p2!), 0.5);
+      const turnAngle: number = degrees(Math.acos(Math.max(-1, Math.min(1, dot(n, d)))));
+      lines.push(`${pose.toUpperCase()}: corner ${fixed(corner)}, ${a.toFixed(1)} mm along the ring's normal from its centre and ${b.toFixed(1)} mm along the humerus from GH; the two lines miss by ${norm(sub(p1!, p2!)).toFixed(1)} mm; the turn at the corner ${turnAngle.toFixed(1)} deg`);
+      const later: V[] = (T_COURSE_AFTER as readonly string[]).map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V);
+      for (const k of TURN_KS) {
+        const referenceCentres: V[] = [centre, corner, ...later];
+        const given: number[] = [k * r, ...arm.halves.slice(1)];
+        // At the neutral pose the halves keep their set-backs at the reference pose (`AutoMovieHumanConicPose.halves`).
+        const atReference: V[] | undefined = stored.get(k);
+        if (pose === "reference") stored.set(k, referenceCentres);
+        const halves: number[] = atReference === undefined ? given : AutoMovieHumanConicPose.halves(atReference, given, referenceCentres);
+        const family = { centres: referenceCentres, halves, up: P.direction("arm.up", frames) as V };
+        let axis: ReturnType<typeof H.axis>;
+        try {
+          axis = H.axis(family);
+        } catch (error: unknown) {
+          lines.push(`  k ${k}: the course is refused: ${(error as Error).message.slice(0, 200)}`);
+          continue;
+        }
+        // The elbow's station: the course's nearest approach to the elbow centre.
+        let elbowStation: number = 0;
+        for (let s: number = 0; s < 800; s += 0.5) if (norm(sub(axis.at(s).origin as V, elbow)) < norm(sub(axis.at(elbowStation).origin as V, elbow))) elbowStation = s;
+        const curves: N.Curve[] = [];
+        for (const [skin, mesh] of (pose === "reference" ? [["reference", source.all], ["generated", generated]] : [["generated", generated]]) as [string, M.IMesh][]) {
+          const bad: string[] = [];
+          let index: number = -1;
+          for (let s: number = 0; s <= elbowStation; s += CAP_STEP_MM) {
+            ++index;
+            const section = clippedSection(mesh, axis.at(s), gh0, n);
+            if (section === null) {
+              bad.push(`${s}: no section`);
+              continue;
+            }
+            if (section.folds > 0 || !section.inside) bad.push(`${s}: ${section.inside ? "" : "course point OUTSIDE; "}${section.folds} rays, ${section.deepest.toFixed(1)} mm${section.phases === null ? "" : ` at ${section.phases[0]}..${section.phases[1]} deg`}`);
+            if (pose === "reference" && skin === "reference" && index % 5 === 0) curves.push({ id: "s" + s, points: section.loop, closed: true, xray: true, colour: section.folds > 0 || !section.inside ? "c0392b" : "1f9d3a" });
+          }
+          lines.push(`  k ${k} (half ${(k * r).toFixed(1)} mm), ${skin}: elbow at station ${elbowStation.toFixed(1)}; ${bad.length} of ${index + 1} sections not star-shaped about the course or off it${bad.length === 0 ? "" : ": " + bad.slice(0, 16).join("; ") + (bad.length > 16 ? `; ... ${bad.length - 16} more` : "")}`);
+        }
+        // The band: the girdle's ring to the arm's first ring at its rail on this course.
+        const first = clippedSection(source.all, axis.at(ARM_RAIL_MM), gh0, n);
+        if (first !== null && pose === "reference") {
+          const gaps: number[] = first.loop.map((p: V): number => distanceTo(p, ringPoints));
+          const tangent: V = unit(sub(axis.at(ARM_RAIL_MM + 0.5).origin as V, axis.at(ARM_RAIL_MM - 0.5).origin as V));
+          lines.push(`  k ${k}: band from the ring to the arm's ring ${ARM_RAIL_MM} mm in: nearest-point gap ${Math.min(...gaps).toFixed(1)} .. ${Math.max(...gaps).toFixed(1)} mm; turn ${degrees(Math.acos(Math.min(1, Math.abs(dot(tangent, n))))).toFixed(1)} deg`);
+          // Where the slit stands against the arm's first sections: its points' nearest course station.
+          const stations: number[] = slit.map((p: V): number => {
+            let best: number = 0;
+            for (let s: number = 0; s <= 120; s += 1) if (norm(sub(axis.at(s).origin as V, p)) < norm(sub(axis.at(best).origin as V, p))) best = s;
+            return best;
+          });
+          lines.push(`  k ${k}: the slit's points stand nearest to course stations ${Math.min(...stations)} .. ${Math.max(...stations)} mm`);
+        }
+        if (pose === "reference") drawn.push({ k, curves: [...curves, { id: "course", points: Array.from({ length: 80 }, (_: unknown, i: number): V => axis.at((elbowStation * i) / 79).origin as V), closed: false, xray: true, colour: "202020" }, { id: "ring", points: ringPoints, closed: true, xray: true, colour: "9a3fb5" }, { id: "slit", points: slit, closed: false, xray: true, colour: "d08a1f" }] });
+      }
+      lines.push("");
+    }
+
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "course-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const remap: Map<number, number> = new Map();
+    const focus: V = add(gh0, scale(unit(sub(P.frame("forearm").origin as V, gh0)), 120));
+    const near = (i: number): boolean => norm(sub([source.all.positions[3 * i]!, source.all.positions[3 * i + 1]!, source.all.positions[3 * i + 2]!], focus)) <= 230;
+    for (let t: number = 0; t + 2 < source.all.indices.length; t += 3) {
+      const tri: number[] = [source.all.indices[t]!, source.all.indices[t + 1]!, source.all.indices[t + 2]!];
+      if (!tri.every(near)) continue;
+      for (const i of tri) {
+        let j: number | undefined = remap.get(i);
+        if (j === undefined) {
+          j = positions.length / 3;
+          remap.set(i, j);
+          positions.push(source.all.positions[3 * i]!, source.all.positions[3 * i + 1]!, source.all.positions[3 * i + 2]!);
+        }
+        indices.push(j);
+      }
+    }
+    const mesh: N.Mesh = { id: "reference", positions, indices, colour: [0.64, 0.65, 0.67] };
+    const bounds: N.Point[] = [];
+    for (let i: number = 0; i < positions.length; i += 3) bounds.push([positions[i]!, positions[i + 1]!, positions[i + 2]!]);
+    for (const { k, curves } of drawn)
+      for (const view of ["front", "back", "left", "low-oblique"]) {
+        const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 900);
+        await fs.writeFile(path.join(out, `course.k${k}.${view}.reference.png`), NodeCanvasRaster.render(camera, [mesh], curves, "depth", `f1 arm course by rule, half ${k} r | sections every 10 mm: green star-shaped, red not; black course; purple ring; orange slit | ${view}`).png);
+      }
+    await fs.writeFile(path.join(out, "course.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /** Today's arm centres after `armTurn`, by their placing names: the elbow, the wrist, the middle finger's first joint and the hand's end. */
+  const T_COURSE_AFTER: readonly string[] = ["lowerarm", "hand", "middle1", "handEnd"];
+
+  /** The placing table's points, for the centres the course reads through a pose's frames. */
+  const PLACED: Record<string, { frame: string; local: [number, number, number] }> = Object.fromEntries(T_COURSE_AFTER.map((name: string): [string, { frame: string; local: [number, number, number] }] => [name, AutoMovieHumanF1Placing.POINTS[name]!]));
+
   export async function main(): Promise<void> {
     if (process.argv[2] === "cap") return cap();
+    if (process.argv[2] === "course") return armCourse();
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
     const trunk: M.IMesh = trunkMesh();
