@@ -59,9 +59,9 @@ import {
   createPell,
   createPlyoBox,
   createPolearm,
-  createProjectile,
   createPoolEdge,
   createPram,
+  createProjectile,
   createPullUpBar,
   createRack,
   createRacket,
@@ -475,6 +475,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `light-${kind}`,
       (seed?: number | string): Archetype => createLight({ kind }, seed),
+      Object.values(createLight.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const open of [false, true])
     add(

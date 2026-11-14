@@ -5,18 +5,19 @@ import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
 /**
- * Lights stay inside their cited dimensions for every seed, measured on the produced thing; each flame stands on top of what burns and the pendant shines down from its shade.
+ * Lights stay inside their cited dimensions for every seed, measured on the produced thing; each flame stands on top of what burns, the pendant shines down from its shade, and a standing lamp's bulb sits on its lampholder over a heavy base.
  *
  * Scenarios:
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a taper 25 to 26 cm long; a fire torch 16 to 24 in long whose shaft lies in the 30 to 40 mm comfortable power grip band, 205 to 265 g; a pendant's shade 15 in across hanging 4 ft 11 in plus its 11 in shade below its hook.
  * 2. For three seeds of the candle and the torch, the `light` frame is at the top of the taper or the head, `+Y` up.
  * 3. For three seeds of the pendant, the `light` frame is at the shade's lowest point with `+Y` straight down, and its `hook` at the top of its cord.
+ * 4. For three seeds of the table lamp (41 cm, base 15 cm, shade 19 by 15 cm, 0.81 kg) and the floor lamp (153 cm, base 29 cm, shade 42 by 31 cm, 3.55 kg), each also swept in scenario 1: the `light` frame is at the lampholder's read height, 30 or 130 cm, inside the shade, `+Y` up, and the centre of mass lies below half that height, as a heavy base under a light shade puts it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each light for 200 seeds and measures colliders, grip widths, masses and the light's and hook's frames; a band other than the citation's, a seed that does not vary it, a flame off the top of the wick or head, or a beam off the shade or pointing up is caught.
- * @evidence contracts/development/testing.md#independent-expectations The taper's sizes are IKEA's VINTERFINT and KLOKHET listings; the torch's lengths and masses fire-performance torches'; the shaft band Kong and Lowe 2005; the pendant's sizes IKEA's SKURUP page; a flame burns from the top of what burns and a shaded lamp's light leaves its shade's mouth.
- * @evidence contracts/development/testing.md#distinguishing-cases Each kind's sourced dimensions; a flame against a lamp's beam.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces each light for 200 seeds and measures colliders, grip widths, masses, the centre of mass and the light's and hook's frames; a band other than the citation's, a seed that does not vary it, a flame off the top of the wick or head, a beam off the shade or pointing up, a bulb off its lampholder, or a lamp balanced in its shade is caught.
+ * @evidence contracts/development/testing.md#independent-expectations The taper's sizes are IKEA's VINTERFINT and KLOKHET listings; the torch's lengths and masses fire-performance torches'; the shaft band Kong and Lowe 2005; the pendant's sizes IKEA's SKURUP page; the standing lamps' sizes and net weights IKEA's RINGSTA and SKAFTET pages; a flame burns from the top of what burns, a shaded lamp's light leaves its shade's mouth, and a standing lamp's bulb sits on its lampholder.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each kind's sourced dimensions; a flame against a hanging lamp's beam and a standing lamp's bulb.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
 export function test_archetype_props_light_bands(): void {
   const row = (
@@ -76,6 +77,71 @@ export function test_archetype_props_light_bands(): void {
         archetypeExtent(createLight({ kind: "pendant" }, seed), "x", ["shade"])
           .size,
     ),
+    ...(
+      [
+        ["tableLamp", 0.41, 0.15, 0.19, 0.15, 0.62 + 0.19],
+        ["floorLamp", 1.53, 0.29, 0.42, 0.31, 3.06 + 0.49],
+      ] as const
+    ).flatMap(
+      ([
+        kind,
+        overall,
+        base,
+        shade,
+        height,
+        mass,
+      ]): archetypeBandSweep.IRow[] => {
+        const lamp = (seed: number): ReturnType<typeof createLight> =>
+          createLight({ kind }, seed);
+        const source: string = `IKEA RINGSTA/SKAFTET ${kind}`;
+        return [
+          row(
+            `${kind} overall`,
+            overall,
+            overall,
+            source,
+            (s: number): number => archetypeExtent(lamp(s), "y").size,
+          ),
+          row(
+            `${kind} base`,
+            base,
+            base,
+            source,
+            (s: number): number => archetypeExtent(lamp(s), "x", ["base"]).size,
+          ),
+          row(
+            `${kind} shade`,
+            shade,
+            shade,
+            source,
+            (s: number): number =>
+              archetypeExtent(lamp(s), "x", ["shade"]).size,
+          ),
+          row(
+            `${kind} shade height`,
+            height,
+            height,
+            source,
+            (s: number): number =>
+              archetypeExtent(lamp(s), "y", ["shade"]).size,
+          ),
+          row(
+            `${kind} grip`,
+            shade,
+            shade,
+            source,
+            (s: number): number => lamp(s).affordance("grip").aperture!,
+          ),
+          row(
+            `${kind} mass`,
+            mass,
+            mass,
+            source,
+            (s: number): number => lamp(s).body.mass,
+          ),
+        ];
+      },
+    ),
   ]);
   for (const seed of [0, 1, 2]) {
     // 2. A flame on top of the taper or the head.
@@ -109,6 +175,29 @@ export function test_archetype_props_light_bands(): void {
       ) > 1e-9
     )
       findings.push(`pendant@${seed}: the beam or the hook is off`);
+
+    // 4. A standing lamp's light at its lampholder inside its shade, its balance below its stem's middle.
+    for (const [kind, stem] of [
+      ["tableLamp", 0.3],
+      ["floorLamp", 1.3],
+    ] as const) {
+      const lamp: ReturnType<typeof createLight> = createLight({ kind }, seed);
+      const bulb: ReturnType<typeof lamp.affordance> = lamp.affordance("light");
+      const shade: ReturnType<typeof archetypeExtent> = archetypeExtent(
+        lamp,
+        "y",
+        ["shade"],
+      );
+      if (
+        Math.abs(bulb.frame.translation.y - stem) > 1e-9 ||
+        bulb.frame.translation.y < shade.low ||
+        bulb.frame.translation.y > shade.high ||
+        Math.abs(ArchetypeFrame.axis(bulb.frame, "y").y - 1) > 1e-12 ||
+        lamp.body.centerOfMass === null ||
+        lamp.body.centerOfMass.y > stem / 2
+      )
+        findings.push(`${kind}@${seed}: the light or the balance is off`);
+    }
   }
   TestValidator.equals("lights stay in their cited bands", findings, []);
 }
