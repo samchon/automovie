@@ -1,4 +1,4 @@
-import type { IAutoMovieLoftRelief } from "@automovie/engine";
+import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 
 import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicProject";
 
@@ -13,9 +13,11 @@ import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicPr
  * 3. The three outer rings of every projection are exactly zero, on the own grid and on a coarser one.
  * 4. `symmetrised` gives each pair of mirror controls their mean, written here as a closed form, and the result is its own reversal.
  * 5. A grid under 7 controls a side and an even column count with symmetry held are refused.
+ * 6. `fitSamples` fitted to a net's own surface, read by the engine at uneven stations and phases, returns the net exactly, plain and
+ *    mirrored with its symmetry held; with samples only under the lower third of the window's stations it returns null.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `project`, `difference`, `symmetrised` and `symmetric` of `FamilyConicProject`.
- * @evidence contracts/development/testing.md#independent-expectations A projection onto the space a net already lies in is the net; a mirror pair's mean and the zero rings are closed forms written here.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `project`, `difference`, `symmetrised`, `symmetric` and `fitSamples` of `FamilyConicProject`.
+ * @evidence contracts/development/testing.md#independent-expectations A projection onto the space a net already lies in is the net, and so is a fit to samples of the net's own surface; a mirror pair's mean and the zero rings are closed forms written here.
  * @evidence contracts/development/testing.md#distinguishing-cases Heights that differ in every row and column tell a transposed or shifted solve from the right one; the symmetric net on its own grid fails when a mirror column's weight is left out of the solve.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_project`, with no reference body or figure.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with what it is checked against.
@@ -77,6 +79,18 @@ export function test_human_conic_project(): void {
   // 5. Refusals.
   refused("six rows", (): IAutoMovieLoftRelief => P.project(plain, 6, 12, false, 2, 4));
   refused("an even column count with symmetry", (): IAutoMovieLoftRelief => P.project(mirrored, 10, 12, true, 2, 4));
+
+  // 6. A net fitted to samples of a surface: its own surface read by the engine at uneven stations covering part of the window's
+  // stations and at uneven phases, so the fit returns the net exactly; the mirrored net with its symmetry held likewise; and none
+  // where a free row has no sample under its span.
+  const read = (net: IAutoMovieLoftRelief, stations: number[], phases: number[]): number[][] => stations.map((s: number): number[] => phases.map((t: number): number => AutoMovieLoftRelief.height(net, s, t)[0]));
+  const uneven = (from: number, to: number, count: number): number[] => Array.from({ length: count }, (_: unknown, k: number): number => from + (to - from) * ((k + 0.5) / count) ** 1.3);
+  const window = { name: "made", stations: [100, 190] as [number, number], phases: [-0.6, 0.6] as [number, number], axis: [-1, 0, 0] as [number, number, number] };
+  const [stations, phases]: number[][] = [uneven(100, 190, 61), uneven(-0.6, 0.6, 53)];
+  same("fitted to its own surface", P.fitSamples(window, 10, 12, false, 2, { stations: stations!, phases: phases!, heights: read(plain, stations!, phases!) })?.heights ?? [], plain.heights);
+  same("mirrored, fitted to its own surface", P.fitSamples(window, 10, 13, true, 2, { stations: stations!, phases: phases!, heights: read(mirrored, stations!, phases!) })?.heights ?? [], mirrored.heights);
+  const low: number[] = stations!.filter((s: number): boolean => s < 130);
+  if (P.fitSamples(window, 10, 12, false, 2, { stations: low, phases: phases!, heights: read(plain, low, phases!) }) !== null) failures.push("a fit whose upper rows have no sample is not refused");
 
   if (failures.length > 0) throw new Error("conic project:\n" + failures.join("\n"));
 }

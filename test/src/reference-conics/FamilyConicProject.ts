@@ -140,6 +140,64 @@ export namespace FamilyConicProject {
   }
 
   /**
+   * A net of `rows` by `columns` controls on a window, fitted by least squares to heights sampled on a grid of given stations and phases:
+   * a surface that is no stored net, such as the residual between two skins (issue #3197, phase 2.5's measure-back), which `project`
+   * cannot take because it reads a net's own surface at even steps over its whole window. The samples may cover part of the window's
+   * stations, as long as every free row and column has samples under its span. The solve is `project`'s: the engine's basis, the three
+   * outer rings held at zero, one direction at a time, each column paired with its mirror under `symmetric`, every control rounded to
+   * `decimals` places.
+   *
+   * @param window The net's name, window and directions.
+   * @param rows Rows, at least 7.
+   * @param columns Columns, at least 7; odd with `symmetric`.
+   * @param symmetric Hold the net to its own mirror image.
+   * @param decimals Decimal places of a stored height.
+   * @param samples Stations (mm) and phases (radians) of the sample grid, and the height at each, by station then phase.
+   * @returns The net, or null when a free row or column has no sample under its span.
+   */
+  export function fitSamples(window: Omit<IAutoMovieLoftRelief, "rows" | "columns" | "heights">, rows: number, columns: number, symmetric: boolean, decimals: number, samples: { stations: readonly number[]; phases: readonly number[]; heights: readonly (readonly number[])[] }): IAutoMovieLoftRelief | null {
+    if (rows < 7 || columns < 7) throw new Error("fitSamples: a net has at least 7 rows and 7 columns, not " + rows + " by " + columns);
+    if (symmetric && columns % 2 !== 1) throw new Error("fitSamples: a mirrored net of " + columns + " columns has no middle column");
+    const span: number = AutoMovieLoftRelief.width({ ...window, rows, columns, heights: [] });
+    const weights = (x: number, count: number): number[] => {
+      const out: number[] = new Array<number>(count).fill(0);
+      const [i, w]: [number, number[]] = basis(x, count);
+      for (let c: number = 0; c < 4; ++c) out[i + c]! += w[c]!;
+      return out;
+    };
+    const freeRows: number[] = Array.from({ length: rows - 6 }, (_: unknown, k: number): number => k + 3);
+    const middle: number = (columns - 1) / 2;
+    const freeColumns: number[] = Array.from({ length: columns - 6 }, (_: unknown, k: number): number => k + 3).filter((b: number): boolean => !symmetric || b <= middle);
+    const A: number[][] = samples.stations.map((s: number): number[] => {
+      const w: number[] = weights(((s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (rows - 3), rows);
+      return freeRows.map((a: number): number => w[a]!);
+    });
+    const B: number[][] = samples.phases.map((t: number): number[] => {
+      const offset: number = (((t - window.phases[0]) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const w: number[] = weights((Math.min(offset, span) / span) * (columns - 3), columns);
+      return freeColumns.map((b: number): number => w[b]! + (symmetric && b < middle ? w[columns - 1 - b]! : 0));
+    });
+    const gram = (M: number[][]): number[][] => M[0]!.map((_: number, p: number): number[] => M[0]!.map((__: number, q: number): number => M.reduce((sum: number, r: number[]): number => sum + r[p]! * r[q]!, 0)));
+    const [GA, GB]: number[][][] = [gram(A), gram(B)];
+    // A free control with no sample under its span has a zero diagonal and no least-squares value.
+    if (GA!.some((r: number[], p: number): boolean => !(r[p]! > 0)) || GB!.some((r: number[], p: number): boolean => !(r[p]! > 0))) return null;
+    const AtF: number[][] = freeRows.map((_: number, p: number): number[] => samples.phases.map((__: number, j: number): number => A.reduce((sum: number, r: number[], i: number): number => sum + r[p]! * samples.heights[i]![j]!, 0)));
+    const X: number[][] = solve(GA!, AtF);
+    const XB: number[][] = X.map((r: number[]): number[] => freeColumns.map((_: number, q: number): number => r.reduce((sum: number, x: number, j: number): number => sum + x * B[j]![q]!, 0)));
+    const Yt: number[][] = solve(GB!, freeColumns.map((_: number, q: number): number[] => XB.map((r: number[]): number => r[q]!)));
+    if (!Yt.every((r: number[]): boolean => r.every(Number.isFinite))) return null;
+    const heights: number[] = new Array<number>(rows * columns).fill(0);
+    freeRows.forEach((a: number, p: number): void =>
+      freeColumns.forEach((b: number, q: number): void => {
+        const h: number = rounded(Yt[q]![p]!, decimals);
+        heights[a * columns + b] = h;
+        if (symmetric) heights[a * columns + (columns - 1 - b)] = h;
+      }),
+    );
+    return { ...window, rows, columns, heights };
+  }
+
+  /**
    * The difference of another net's surface from a net's on the same window, sampled `perSpan` times a control spacing of the finer of
    * the two each way.
    *
