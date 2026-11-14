@@ -16,7 +16,7 @@ A changed or withdrawn requirement reaches its consumers through [repair](../cor
 
 ## Asking the user
 
-When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated, and a generated film's look stays the user's whoever writes the screenplay. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
+When the agent writes the story, its events, people, ending, tone, form, running time and frame stay the user's unless delegated, and so, unless delegated, does a generated film's look, whoever writes the screenplay, recorded in [project context](../../production/project-context.md) rather than in `docs/instructions`. A story built on a guessed element is rewritten once the user reads it, with every layer written on it. Each layer's own decisions within what the user decided, such as a researched fact, are delegated and not asked; decide delegated choices through [direction](direction.md).
 
 Before direction, ask about each such element the user neither fixed nor delegated. Ask in rounds and record each round's answers at their owners, because an answer often raises a new element. Stop when the conversation and the user's materials leave none, or when the user delegates the rest, recorded as one delegated choice.
 

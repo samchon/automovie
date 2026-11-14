@@ -6,7 +6,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 End a request at a screenplay cut, and inside a continuous shot only where the model's length, or a beat its takes cannot hold, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
-On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take under [place takes in time](generation.md#place-takes-in-time), retiming only a take without generated speech. A still-frame model's interval is one of its fixed lengths, because a trim removes its last frame; where no length fits the beats, tell the user, as [adherence](#adherence) sets.
+On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take under [place takes in time](generation.md#place-takes-in-time), retiming only a take without generated speech. Never trim a take conditioned on a last frame, because a trim removes it; retime it if it has no generated speech, and otherwise tell the user, as [adherence](#adherence) sets.
 
 A request spans a cut only when the model takes several shots in one request.
 
@@ -33,7 +33,7 @@ At every level the prompt and the references give the faces and surfaces, becaus
 
 The scale is about motion; keep the hint's shapes only as closely as the forms are true, as [dense passes](../motion/control-channels.md#dense-passes) explains. Where the model sets shape apart from motion, such as by a structure setting or a depth blur, set shape there.
 
-Choose a default level for the film from the scale and record it in [project context](../production/project-context.md), then give a request another level where the scale suits its content better. Contacts, overlapping movement, and a pose and screen direction the next shot continues are what some models lose first, so a request that holds them takes a level that keeps them.
+Choose a default level for the film from the scale and record it in [project context](../production/project-context.md), then give a request another level where the scale suits its content better.
 
 A proprietary model's settings apply to the whole request. An open model's control adapter may vary its control over frames and regions through a [mask](../motion/control-channels.md) that scales it; a mask that keeps source pixels keeps the gray forms, so read which kind the adapter takes.
 
@@ -46,7 +46,7 @@ Adherence reaches the model in the way it takes the hint, and [diffusion models]
 | Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, if any, and the wording its guide sets |
 | Proprietary, moves one figure onto a character | Nothing documented |
 | Proprietary, takes still frames | Nothing: it keeps only those frames, so a contact or outcome must land at a held pose on one of them |
-| Open weights with control adapters | Each adapter's strength and the steps where it acts, and a mask as its documentation defines one |
+| Open weights with control adapters | Each adapter's strength and the steps where it acts |
 
 A model that moves one figure onto a character takes only the largest figure, so give it only shots where one figure, or one clearly the largest, moves, with a [shot frame](../image/SKILL.md#shot-frames) as its character image. When the chosen model cannot carry a scene's beats, such as a contact between still frames or a second moving figure, tell the user, who may choose another model, and follow their choice.
 
