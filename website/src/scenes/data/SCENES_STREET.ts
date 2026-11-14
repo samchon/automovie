@@ -71,7 +71,7 @@ export const SCENES_STREET: readonly IScene[] = [
         act("chase", { target: at("run", "upperBack") }),
       ]),
       person("cut", "f1", 3, 2, 270, [act("intercept", { target: "run" })]),
-      person("tag", "f2", -2, -3, 0, [
+      person("tag", "f2", -2.5, -5, 0, [
         act("follow", { target: at("cop", "upperBack"), pace: "normal" }),
       ]),
       person("vip", "f1", -3, 1.6, 90, [act("stroll", { to: to(1, 1.6) })]),

@@ -97,7 +97,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         act("restrain", { partner: "abe" }),
         act("hairPull", { target: at("abe", "crown") }, { anchor: "pull" }),
       ]),
-      person("abe", "m1", 0, 0.5, 180, [
+      person("abe", "m1", 0, 0.6, 180, [
         act("stand", { seconds: 6 }),
         act(
           "grabbed",
