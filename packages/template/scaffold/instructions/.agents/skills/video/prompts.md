@@ -2,7 +2,7 @@
 
 A video prompt tells a model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
-Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md). The rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion/SKILL.md). The rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
 
 ## Sources
 

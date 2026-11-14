@@ -1,6 +1,11 @@
+---
+name: 3d-modeling-diffusion
+description: Generates a mesh with a text- or image-to-3D model, namely what to request, what comes back and which models exist. Use when a form is generated rather than crafted or found.
+---
+
 # Diffusion
 
-A diffusion model turns a prompt or images into a mesh. This guide covers what to ask of it, what comes back and which models exist; [Conditioning](conditioning.md) takes the result into the project.
+A diffusion model turns a prompt or images into a mesh. This guide covers what to ask of it, what comes back and which models exist; [Conditioning](../conditioning.md) takes the result into the project.
 
 Repainting rendered frames into video is a separate lane. A generated 2D image serves as appearance reference and supplies no geometry until an image-to-geometry model turns it into a mesh.
 
@@ -13,7 +18,7 @@ Generating again with a better request costs less than repairing a mesh, so ask 
 | One subject per generation, alone on a plain background in an input image | Several subjects fused into one surface |
 | A rest pose with the arms and legs apart, an A-pose or a T-pose, for a body that will deform | Limbs fused to the body or to each other |
 | Part-aware generation or segmentation, or each part generated alone, for parts that move | Moving parts fused into one surface |
-| The triangle count [Conditioning](conditioning.md#reduce) would reduce to | Far more triangles than any view needs |
+| The triangle count [Conditioning](../conditioning.md#reduce) would reduce to | Far more triangles than any view needs |
 | Separate material channels | Light and shadow baked into the texture |
 | Several views of the subject, in the views and order the model names, front first | Invented hidden sides |
 

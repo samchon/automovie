@@ -19,7 +19,7 @@ Contract: [entities.md](../entities.md).
 2. It is composed of small fragments rather than inherited.
 3. It imports no other entity.
 4. Each capability returns an immutable intent record and never a pose, coordinate, offset or time.
-5. A person's capability returns the installed motion vocabulary's own composition of the action, an action the production [registered](../../../motion/extend.md) with it included. The entity adds no motion of its own.
+5. A person's capability returns the installed motion vocabulary's own composition of the action, an action the production [registered](../../../motion/laws/SKILL.md) with it included. The entity adds no motion of its own.
 6. State such as wardrobe by story day, wounds, fatigue or a learned habit exists only as an explicit snapshot computed at schedule resolution.
 7. A habit is a trigger-to-response rule, with the trigger and response its fact describes and the timing its research supports.
 

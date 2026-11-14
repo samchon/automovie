@@ -9,9 +9,9 @@ An asset is reproducible, rigged when it moves, and judged on screen. The projec
 
 | Task | Read |
 | --- | --- |
-| Building or changing a form from dimensions and formulas | [Crafting](crafting.md) |
-| Building or fitting a form from related sections and guides | [Lofting](lofting.md) |
-| Generating a form with a diffusion model | [Diffusion](diffusion.md) |
+| Building or changing a form from dimensions and formulas | [Crafting](crafting/SKILL.md) |
+| Building or fitting a form from related sections and guides | [Lofting](crafting/lofting.md) |
+| Generating a form with a diffusion model | [Diffusion](diffusion/SKILL.md) |
 | Looking for an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
 | Taking a found or generated mesh into the project, or varying it by a parameter | [Conditioning](conditioning.md) |
 | Rebuilding a fixed mesh as curves or surfaces, reconstructing saved coefficients, or judging a reverse render | [Recovery](recovery.md) |

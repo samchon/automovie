@@ -1,6 +1,6 @@
 # Physical feedback
 
-How a production uses the installed engine's physical computations: to solve the goals of a law for [what is not a person](extend.md#what-is-not-a-person), and to choose and review each scene's physical mode.
+How a production uses the installed engine's physical computations: to solve the goals of a law for [what is not a person](laws/SKILL.md#what-is-not-a-person), and to choose and review each scene's physical mode.
 
 The installed motion vocabulary and archetypes resolve a person's goals, supports and contacts, on a seat, a vehicle or a mount as on the ground, so a production solves none of them here.
 
@@ -8,7 +8,7 @@ Read the installed engine's public contracts for the physical interaction at iss
 
 ## Solve a production law's goals
 
-Realize the law's [end-effector goals](authoring.md) with the installed engine's solvers, as its README and public types give them. Order the fits as [end-effector goals](authoring.md#order-the-fits) sets, and solve several goals together where a solver accepts several targets.
+Realize the law's [end-effector goals](laws/authoring.md) with the installed engine's solvers, as its README and public types give them. Order the fits as [end-effector goals](laws/authoring.md#order-the-fits) sets, and solve several goals together where a solver accepts several targets.
 
 A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as [staging](staging.md) directs. A solver the engine lacks follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
 

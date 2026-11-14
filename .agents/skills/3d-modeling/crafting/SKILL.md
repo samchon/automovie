@@ -1,8 +1,13 @@
+---
+name: 3d-modeling-crafting
+description: Builds a form in code from named dimensions and formulas, or lofts and fits it from related sections and guides. Use when a form is shaped in code rather than generated or found.
+---
+
 # Crafting
 
 A crafted form is code: named dimensions and formulas that the engine turns into geometry the same way every time.
 
-Organize its parts and groups by [Modularization](modularization.md), and test its construction as [Tests](#tests) describes, within the project's [testing](../development/testing.md) rules.
+Organize its parts and groups by [Modularization](../modularization.md), and test its construction as [Tests](#tests) describes, within the project's [testing](../../development/testing.md) rules.
 
 ## Representation
 
@@ -18,7 +23,7 @@ Pick the representation by the form, then optimize the form within it:
 
 Take boolean and offset operations from the installed packages or an established solid-modeling kernel, because a hand-written boolean leaves open and self-intersecting surfaces.
 
-Crafting pays where dimensions define the form or a parameter must control it. For an organic form no parameter controls, such as an animal, a face or draped cloth, propose [Diffusion](diffusion.md) or [Sources](sources.md) to the user first, because authoring that surface costs far more than [Conditioning](conditioning.md) a mesh.
+Crafting pays where dimensions define the form or a parameter must control it. For an organic form no parameter controls, such as an animal, a face or draped cloth, propose [Diffusion](../diffusion/SKILL.md) or [Sources](../sources.md) to the user first, because authoring that surface costs far more than [Conditioning](../conditioning.md) a mesh.
 
 Never shape a form by placing vertices, triangles, or polygons by hand; vertices are only what the formulas emit.
 
@@ -37,7 +42,7 @@ Keep a loft's sections, guides and parameter directions related through one gene
 
 Tessellation is the last step, made for renderers and exporters, and nothing is read back from it; a quantity found by reading, searching, clipping, ray casting or relaxing the emitted triangles moves with the detail setting, so it drifts between preview and final render and answers to no input.
 
-A directly used or generated mesh, an imported mesh's weights under [Rigging](rigging.md), and a fixed source observed for [Recovery](recovery.md) have no generating definition, so their own triangles are what is measured.
+A directly used or generated mesh, an imported mesh's weights under [Rigging](../rigging.md), and a fixed source observed for [Recovery](../recovery.md) have no generating definition, so their own triangles are what is measured.
 
 ## Dimensions
 
@@ -59,7 +64,7 @@ On a subdivision surface, place extraordinary vertices where curvature is low an
 
 Set up each section or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside a solver loop.
 
-Slow generation lengthens every [correction round](../visual-debugging/correction-rounds.md), and a round that costs too much invites local patches in place of repairs at the cause.
+Slow generation lengthens every [correction round](../../visual-debugging/correction-rounds.md), and a round that costs too much invites local patches in place of repairs at the cause.
 
 ## Tests
 
@@ -77,6 +82,6 @@ Express stylization, such as exaggerated proportions or fantasy features, as a s
 
 Build the whole form first, then each finer detail as the block-out of a smaller region placed on the coarser form, so a coarse change carries its details with it.
 
-Scale orders construction and inspection, never correction. Each [correction round](../visual-debugging/correction-rounds.md) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
+Scale orders construction and inspection, never correction. Each [correction round](../../visual-debugging/correction-rounds.md) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
 
 Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.

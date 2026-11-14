@@ -1,12 +1,12 @@
 # Lofting
 
-Choose the [representation](crafting.md#representation) by the form and organize ownership by [Modularization](modularization.md).
+Choose the [representation](SKILL.md#representation) by the form and organize ownership by [Modularization](../modularization.md).
 
-For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before fitting the section family.
+For a fixed mesh or ordered line source, follow [Recovery](../recovery.md) before fitting the section family.
 
 ## One section family
 
-Define one section family from independent [dimensions](crafting.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
+Define one section family from independent [dimensions](SKILL.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
 
 A family can be defined by a few view curves: front and side outline pairs, an axis and a fullness control, the value that sets how far each section bulges between its outline points. Each section is the chain of conic or rational arcs through the outline points at its station, shaped by that fullness, as in conic lofting. Measured section dimensions then check the loft instead of being authored loop by loop.
 
@@ -62,4 +62,4 @@ Where geometry gives a value in closed form, such as an inflection's tangent fro
 
 When one part of a fitted family changes, such as a relief, refit that part alone on the stored wall beneath it. Refitting the whole family, or starting from an earlier stored state, drops every later correction without a diagnostic.
 
-Trace the same observations through sampling, fitting and refinement to the displayed surface. Isolate downstream loss instead of compensating with shape coefficients, and accept through [form inspection](inspection.md).
+Trace the same observations through sampling, fitting and refinement to the displayed surface. Isolate downstream loss instead of compensating with shape coefficients, and accept through [form inspection](../inspection.md).

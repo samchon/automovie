@@ -1,6 +1,6 @@
 # Conditioning
 
-Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. It applies alike to a mesh from [Sources](sources.md) and from [Diffusion](diffusion.md).
+Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. It applies alike to a mesh from [Sources](sources.md) and from [Diffusion](diffusion/SKILL.md).
 
 Do only what the asset's use needs. Each step makes a derivative to keep and verify, and work no view shows buys nothing.
 
@@ -39,8 +39,8 @@ Remove a defect at the first of these places that can remove it, listed from lea
 
 | Place | Removes | Examples |
 | --- | --- | --- |
-| The request, generated again | What [Diffusion](diffusion.md#request) says to ask for | |
-| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion.md#models) that remesh, convert or segment |
+| The request, generated again | What [Diffusion](diffusion/SKILL.md#request) says to ask for | |
+| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion/SKILL.md#models) that remesh, convert or segment |
 | A script over a mesh library in the project's own language | Duplicate vertices, pieces too small to see, excess triangles and unused data | [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer) |
 | A mesh repair tool, or a digital content creation tool run from the command line | Holes, inner surfaces and irregular triangles | [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab), [Blender](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html) |
 
@@ -72,7 +72,7 @@ What the parameter changes decides whether the mesh can stay:
 | The size or placement of the whole or of one part | Transform that part |
 | The proportions of a rigged body | Change the bone lengths, let the skin follow, and hand the change to [motion](../motion/SKILL.md) |
 | Bulk or bend, smoothly | Deform the mesh through a coarse lattice the parameter drives |
-| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting.md) or by [Recovery](recovery.md) with the mesh as its source |
+| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting/SKILL.md) or by [Recovery](recovery.md) with the mesh as its source |
 | A person's build | Use the parametric figure the installed packages provide |
 
 A few fixed variants need no parameter. Generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.

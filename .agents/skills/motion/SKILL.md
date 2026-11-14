@@ -13,13 +13,13 @@ Motion starts from interaction: the body acting on the floor, a prop, a partner 
 
 | Rule | Covers |
 | --- | --- |
-| [Effector goals](authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
-| [Laws](laws.md) | What every action declares: its plan, entry state, events, outcome and time scale |
-| [Variation](variation.md) | Parameters, skill and seed, and draws that replay |
-| [Transitions](transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
-| [Contacts](contacts.md) | Support frames, feet, held objects and contact between performers |
-| [Layers](layers.md) | Gaze, breathing and other motion that runs over every action |
-| [Verification](verification.md) | Bounded checks, body sweeps and frame review |
+| [Effector goals](laws/authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
+| [Laws](laws/declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
+| [Variation](laws/variation.md) | Parameters, skill and seed, and draws that replay |
+| [Transitions](laws/transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
+| [Contacts](laws/contacts.md) | Support frames, feet, held objects and contact between performers |
+| [Layers](laws/layers.md) | Gaze, breathing and other motion that runs over every action |
+| [Verification](laws/verification.md) | Bounded checks, body sweeps and frame review |
 
 Those files hold only what is true of motion in any project and name roles rather than this repository's packages and paths, because the shared ones ship to productions unchanged. This file holds what applies only here.
 
@@ -44,19 +44,19 @@ Work in this order, because each step fixes what the next one builds on.
 
    The study gives the key poses, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
 
-2. Declare the law's surface under [laws](laws.md).
+2. Declare the law's surface under [laws](laws/declaration.md).
 
-   The surface is the law's parameters and targets, its events and decisive instant, its outcomes and its [out-of-reach rule](authoring.md#out-of-reach).
+   The surface is the law's parameters and targets, its events and decisive instant, its outcomes and its [out-of-reach rule](laws/authoring.md#out-of-reach).
 
-3. Write the plan as [effector goals](authoring.md) with their [contact windows](contacts.md).
+3. Write the plan as [effector goals](laws/authoring.md) with their [contact windows](laws/contacts.md).
 
-   The plan starts from the entry state and takes every quantity that varies from [skill and seed](variation.md).
+   The plan starts from the entry state and takes every quantity that varies from [skill and seed](laws/variation.md).
 
-4. Declare the action's [cuts](transitions.md#declared-cuts) in both directions.
+4. Declare the action's [cuts](laws/transitions.md#declared-cuts) in both directions.
 
    One direction is the actions this one may be cut into. The other is this action as a cut target, among the cuts of the actions that lead into it.
 
-5. Specify the action in tests with bounded checks under [verification](verification.md).
+5. Specify the action in tests with bounded checks under [verification](laws/verification.md).
 
    A test states what a person does with a number from the study, never what the code returned. Use few tests that cover widely: a covering set of bodies, variants and supports, and relations that must hold between two runs.
 
@@ -75,7 +75,7 @@ The [package boundaries](../project/SKILL.md#packages) say which package owns ac
 
 ### Bodies
 
-Verify human motion only on polygon men generated at Human parameters, across the bodies [verification](verification.md) requires, under [human](../human/SKILL.md).
+Verify human motion only on polygon men generated at Human parameters, across the bodies [verification](laws/verification.md) requires, under [human](../human/SKILL.md).
 
 ### Studies
 
@@ -89,6 +89,6 @@ Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @au
 
 The specification tests and the vocabulary's own report of its physical bounds decide whether an action is right here. Run the tests that concern the change by name.
 
-[Verification](verification.md#look-at-the-frames) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
+[Verification](laws/verification.md#look-at-the-frames) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
 
 The motions package's capture script draws the cases when the user asks.

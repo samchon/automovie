@@ -11,18 +11,11 @@ A video model turns the motion hint into finished picture and, when it can, soun
 
 Its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
 
-1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md).
-2. [Read its documentation](#read-the-model) for every value the plan depends on.
-3. Write the [shared description](prompts.md#shared-description), then prepare the canon references under [image](../image/SKILL.md).
-4. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes.
-5. Prepare any shot frame each request takes under image.
-6. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
-7. Submit, inspect and adopt takes under [generation](generation.md).
-
-## Read the model
-
-Read the chosen model's current documentation for its input and output lengths, frame rate and frame grid, sizes, the controls and references it accepts with their roles, the settings or wording that set how closely it follows its input, how a request continues a previous take, prompt length, negative prompt, seed, and sound with the languages its speech takes. The model decides which controls are used, and this step is the one place its input contract is verified. When a page cannot be read, ask the user for the values the plan depends on rather than assume them.
-
-When the model's output size or frame rate differs from the [delivery profile](../production/project-context.md), ask the user whether to change the profile or to upscale or retime the takes.
+1. Choose the model with the user and read its documentation under [video diffusion](diffusion/SKILL.md).
+2. Write the [shared description](prompts.md#shared-description), then prepare the canon references under [image](../image/SKILL.md).
+3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes.
+4. Prepare any shot frame each request takes under image.
+5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
+6. Submit, inspect and adopt takes under [generation](generation.md).
 
 Generate takes only from a hint that passed [segment review](../motion/segment-review.md) and a screenplay whose review has closed, because a repair to either discards the takes made from it.

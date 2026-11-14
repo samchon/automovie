@@ -6,7 +6,7 @@ Author the shape through anatomical points, construction lines and visible curve
 
 Define a segment by a few 2D view curves in its own frame: the front outline pair, the side outline pair, its axis and a fullness control. Each cross-section is the chain of conic arcs through the outline points at its station, shaped by the fullness. This is conic lofting, the long-established method for fuselages and hulls. Draw lines, circles and arcs as such where the anatomy calls for them.
 
-[Lofting](../3d-modeling/lofting.md#one-section-family) owns how a section turns inward along an inflection line and where the method ends. On the body, the alar groove, the scapha and the valley between two knuckles are inflection lines. The helix's curl and an eyelid over the globe fold back over themselves, so each is its own segment, joined to its host.
+[Lofting](../3d-modeling/crafting/lofting.md#one-section-family) owns how a section turns inward along an inflection line and where the method ends. On the body, the alar groove, the scapha and the valley between two knuckles are inflection lines. The helix's curl and an eyelid over the globe fold back over themselves, so each is its own segment, joined to its host.
 
 A published girth checks the lofted section at its site: solve the outline or fullness law so the perimeter matches, rather than authoring loops station by station, because hand-built loops multiply the numbers and drift from the outlines.
 

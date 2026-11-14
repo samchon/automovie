@@ -45,7 +45,7 @@ Take the weights from the first of these the asset allows, listed from least wor
 | Automatic weights computed from the skeleton and the surface | The surface is one closed piece | Weights crossing between touching surfaces, and failure on open or disconnected geometry |
 | A learned rigging model that predicts skeleton and weights | No existing skeleton fits, such as an unusual creature | Its skeleton is its own, so it needs a joint mapping and its motion needs retargeting |
 
-A crafted form evaluates its weights on its [generating definition](crafting.md#generating-definition) instead.
+A crafted form evaluates its weights on its [generating definition](crafting/SKILL.md#generating-definition) instead.
 
 Prove one representative export, import and deformation path before rigging many assets the same way.
 

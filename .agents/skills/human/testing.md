@@ -25,7 +25,7 @@ Surface defect detectors find an error in any sculpted surface: open or non-mani
 
 ## Levels
 
-Test the mechanism once where it lives, as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes, so a defect of shared mathematics is found once and a part's change rewrites no test.
+Test the mechanism once where it lives, as 3D modeling's [Crafting](../3d-modeling/crafting/SKILL.md#tests) describes, so a defect of shared mathematics is found once and a part's change rewrites no test.
 
 | Level | Reads | Expectation from |
 | --- | --- | --- |

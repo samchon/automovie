@@ -41,7 +41,7 @@ When a package misbehaves or lacks something the work needs:
 
 A workspace's own `packages/<name>` is the exception: the workspace owns that code and repairs it in place.
 
-A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
+A row or a law registered with the motion vocabulary under [extend](../motion/laws/SKILL.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
 ## One module
 

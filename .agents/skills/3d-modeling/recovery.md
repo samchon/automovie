@@ -12,13 +12,13 @@ Start from a mesh frozen and normalized under [Conditioning](conditioning.md) an
 
 Prepare evaluated triangles under the package's coordinate, unit, pose and face-orientation contracts. Bind the observation to the exact source bytes, selected components, evaluated pose and applied transform, converting coordinate conventions at one named boundary, and keep that registration fixed for comparison.
 
-Extract observations algorithmically and fit compact coefficients, preserving their parameterization, continuation and shared boundary relationships. Follow [Lofting](lofting.md) for section families.
+Extract observations algorithmically and fit compact coefficients, preserving their parameterization, continuation and shared boundary relationships. Follow [Lofting](crafting/lofting.md) for section families.
 
 ## Generate independently
 
 Reconstruct from the saved representation alone through the recovery API and the engine and interface model path. Never use original positions, topology or normal fields as a reconstruction fallback. Derive the surface and displayed construction from the same coefficients.
 
-Recovered coefficients reproduce one shape. When the asset must vary, derive its shared dimensions and formulas under [Crafting](crafting.md).
+Recovered coefficients reproduce one shape. When the asset must vary, derive its shared dimensions and formulas under [Crafting](crafting/SKILL.md).
 
 ## Compare and correct
 

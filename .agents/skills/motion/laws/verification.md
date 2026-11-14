@@ -27,10 +27,10 @@ Run the cases across bodies of different statures and proportions, and against d
 
 Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
 
-Sample the stills in time as [capture](../visual-debugging/capture.md#times) sets.
+Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
 
 ## Judge rounds honestly
 
-Keep each round's capture as [capture](../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../visual-debugging/correction-rounds.md#compare-again) allow.
+Keep each round's capture as [capture](../../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../../visual-debugging/correction-rounds.md#compare-again) allow.
 
-Unit tests of the laws answer the [testing contract](../contracts/development/testing.md).
+Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md).

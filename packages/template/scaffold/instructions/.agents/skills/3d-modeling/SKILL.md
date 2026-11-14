@@ -13,15 +13,15 @@ A subject the hint does not need takes no form and stays a description in the ge
 
 ## Requested detail
 
-Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. When the user chooses a diffusion model, give it the subject's turnaround views, made under [image](../image/SKILL.md) as the model's [request](diffusion.md#request) sets.
+Go further only when the user asks for it, as a [detail option](../development/entities.md#detail), or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. When the user chooses a diffusion model, give it the subject's turnaround views, made under [image](../image/SKILL.md) as the model's [request](diffusion/SKILL.md#request) sets.
 
 Build only what the request names and the subject's visible role needs. Finer geometry than that takes the time motion needed, and diffusion repaints it anyway.
 
 | Task | Read |
 | --- | --- |
-| Generate the form with a diffusion model | [Diffusion](diffusion.md) |
-| Shape it in code from dimensions and formulas | [Crafting](crafting.md) |
-| Build or fit it from sections and guides | [Lofting](lofting.md) |
+| Generate the form with a diffusion model | [Diffusion](diffusion/SKILL.md) |
+| Shape it in code from dimensions and formulas | [Crafting](crafting/SKILL.md) |
+| Build or fit it from sections and guides | [Lofting](crafting/lofting.md) |
 | Find an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
 | Take a found or generated mesh into the production, or vary it by a parameter | [Conditioning](conditioning.md) |
 | Rebuild a fixed mesh as curves or surfaces | [Recovery](recovery.md) |
