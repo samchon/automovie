@@ -38,7 +38,7 @@ import { hipJoints } from "./hipJoints";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus up to four limb fits, each a bounded bend search.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A limb's fit is a pure function of the body, the pose before it, the limb and its goal, so it is remembered by those and read again by the displayed pose of the instant a plan already solved and by every instant of a held pose; the body's topology is shared.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 512 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 4,096 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
  */
 export function resolveHumanPosture(
   body: IHumanBody,

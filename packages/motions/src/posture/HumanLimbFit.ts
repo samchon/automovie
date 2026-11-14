@@ -402,8 +402,16 @@ export namespace HumanLimbFit {
   /** Whether limb fits are remembered (`memory`). */
   const REMEMBERING: { on: boolean } = { on: true };
 
-  /** How many limb fits a body keeps (a few seconds of four limbs at a film's rate). */
-  const FIT_MEMORY: number = 512;
+  /**
+   * How many limb fits a body keeps: about 8 s of four limbs at the 120 Hz
+   * of the contact scan (`HumanPerformanceContacts`). The scan reads every
+   * body at each step of every strike's window, and reads them again after
+   * each stop it commits, and a display reads them once more. The boxing
+   * class (four performers over 13.4 s) asks under 2,048 distinct fits of a
+   * body. At 512 it solved 7,258 of its 17,214 fits again after dropping
+   * them, and at 4,096 none.
+   */
+  const FIT_MEMORY: number = 4096;
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
   type IObstruction = (
