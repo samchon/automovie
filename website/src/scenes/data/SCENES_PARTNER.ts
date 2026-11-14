@@ -11,7 +11,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "partner-dance",
       title: "Partner dance",
       summary:
-        "A pair in closed hold, an underarm turn and a spin, then a walking promenade: he leads, she follows at his right and lays her hand on his shoulder; a hold kept while walking arrives with the two-body campaign.",
+        "A pair in closed hold: both spin and she turns under his arm, then a walking promenade: he leads, she follows at his right, closes in and lays her hand on his shoulder.",
       setting: "partner",
       roles: { lea: "lead", fol: "follower" },
       needs: [],
@@ -21,7 +21,6 @@ export const SCENES_PARTNER: readonly IScene[] = [
     [
       person("lea", "m1", 0, 0, 0, [
         act("closedHold"),
-        act("underarmTurn"),
         act("spin"),
         act("danceLead", { to: to(0, 2) }),
         act("stand", { seconds: 2 }),
@@ -67,7 +66,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "carried-off",
       title: "Carried off",
       summary:
-        "A firefighter carries a fainted guest out over the shoulder, the guest's body going with the carrier's chest.",
+        "A firefighter walks out carrying a fainted guest over the shoulder, the guest's body going with the carrier's chest.",
       setting: "partner",
       roles: { fir: "firefighter", gst: "guest" },
       needs: [],
@@ -75,10 +74,21 @@ export const SCENES_PARTNER: readonly IScene[] = [
     "carried-off",
     [
       person("fir", "m2", 0, 0, 0, [
-        act("bearing", { carry: "overShoulder", seconds: 4 }),
+        act(
+          "walk",
+          { to: to(0, -3) },
+          {
+            anchor: "carry",
+            over: [act("bearing", { carry: "overShoulder", seconds: 4 })],
+          },
+        ),
       ]),
       person("gst", "f1", 0, 0.35, 180, [
-        act("carried", { by: "fir", on: "chest", seconds: 4 }),
+        act(
+          "carried",
+          { by: "fir", on: "chest", seconds: 4 },
+          { sync: { of: "carry" } },
+        ),
       ]),
     ],
   ),
@@ -87,7 +97,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "judo-randori",
       title: "Judo randori",
       summary:
-        "The first half of a judo throw: tori takes the collar-and-sleeve grip as uke is drawn off balance forward; the turn in, the lift over the hip and the fall wait on force exchange.",
+        "The first half of a judo throw: tori takes the collar-and-sleeve grip as uke is drawn off balance forward over the toes.",
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
       needs: [],
@@ -105,7 +115,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "rescue",
       title: "Rescue",
       summary:
-        "One person kneels by another, carries them over the shoulder and walks off; the carried body rides rigidly until two-body contact lands.",
+        "One person hurries to another, kneels, and walks off carrying them over the shoulder.",
       setting: "partner",
       roles: { res: "rescuer", hur: "the hurt" },
       needs: [],
@@ -115,10 +125,21 @@ export const SCENES_PARTNER: readonly IScene[] = [
       person("res", "m2", 0, 0, 0, [
         act("hurry", { to: to(0, 1) }),
         act("kneelBriefly"),
-        act("bearing", { carry: "overShoulder", seconds: 4 }),
+        act(
+          "walk",
+          { to: to(0, -2) },
+          {
+            anchor: "carry",
+            over: [act("bearing", { carry: "overShoulder", seconds: 4 })],
+          },
+        ),
       ]),
       person("hur", "f1", 0, 1.6, 180, [
-        act("borne", { by: "res", carry: "overShoulder", seconds: 4 }),
+        act(
+          "borne",
+          { by: "res", carry: "overShoulder", seconds: 4 },
+          { sync: { of: "carry" } },
+        ),
       ]),
     ],
   ),
@@ -127,7 +148,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "ride-out",
       title: "Ride out",
       summary:
-        "A rider mounts a horse, rides at the walk and rises to the trot, then dismounts.",
+        "A rider takes the saddle of a horse and rides it for six seconds.",
       setting: "ride",
       roles: { rid: "rider" },
       needs: [],
