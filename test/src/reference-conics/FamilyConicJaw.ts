@@ -21,8 +21,8 @@ import { FamilyConicStar as S } from "./FamilyConicStar";
  *   turns most sharply outward between the chin's front and the neck.
  * - Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle.
  * - The course: a smooth curve (centripetal Catmull-Rom) through the border set `INSET_MM` inside the edge toward the jaw's interior, from
- *   gonion to menton and out to the other gonion. A jointed course turned sharply at menton, and its sections there crossed each other; the
- *   sections read no farther from the course than its least bend radius (`FamilyConicStar`, `radius`).
+ *   gonion to menton and out to the other gonion, smoothed with fewer control points until its least bend radius is no tighter than the
+ *   sections' half-width (`RADIUS_MM`): a jointed course turned sharply at menton, and its sections there crossed each other.
  *
  * Usage, from `test`: `node <bundle>`; it writes `jaw.txt` under `test/.shots/family-conic-jaw/<stamp>/`.
  */
@@ -38,8 +38,19 @@ namespace FamilyConicJaw {
   /** How near `DOWN_DEG` a point's normal must stand to lie on the line, degrees: the outline's points are about 1 to 3 mm apart. */
   export const DOWN_BAND_DEG: number = 8;
 
-  /** How far apart the course's control points stand, mm. */
+  /** How far apart the course's control points stand at first, mm, and by how much and up to where the spacing grows to smooth it. */
   export const CONTROL_MM: number = 10;
+  export const CONTROL_STEP_MM: number = 5;
+  export const CONTROL_MOST_MM: number = 60;
+
+  /** How far a border point may stand from the last one in the next plane, mm, two planes being 2 mm apart. */
+  export const STEP_MM: number = 6;
+
+  /** The mouth's corner, mm forward: in front of it the border is read below the lower lip (y 1,505), behind it up to the ear lobe. */
+  export const MOUTH_CORNER_X: number = 95;
+
+  /** The ear lobe's lower edge, mm high (the ear's plate starts at 1,538): behind the mouth's corner the border is read below it. */
+  export const LOBE_Y: number = 1538;
 
   /** How far apart the course is sampled, mm. */
   export const SAMPLE_MM: number = 2;
@@ -120,67 +131,82 @@ namespace FamilyConicJaw {
     const border: { world: V3; down: number }[] = [];
     let misses: number = 0;
     for (let x: number = Math.floor(menton.world[0]) - 2; x >= -10; x -= 2) {
-      const side = cut(mesh, [[x + 1, 1500, 0], [x - 1, 1500, 0]], [0, 1, 0], [x, 1530, 0]).filter((q) => q.world[1] > 1430 && q.world[1] < 1505 && q.world[2] > 4 && q.world[2] < 95 && Math.abs(q.down - DOWN_DEG) <= DOWN_BAND_DEG);
-      if (side.length === 0) {
+      // Below the lower lip in front of the mouth's corner; behind it, up to the ear lobe's lower edge, where the border rises to the angle.
+      const top: number = x >= MOUTH_CORNER_X ? 1505 : LOBE_Y;
+      const side = cut(mesh, [[x + 1, 1500, 0], [x - 1, 1500, 0]], [0, 1, 0], [x, 1530, 0]).filter((q) => q.world[1] > 1430 && q.world[1] < top && q.world[2] > 4 && q.world[2] < 95 && Math.abs(q.down - DOWN_DEG) <= DOWN_BAND_DEG);
+      // The trace is one line: the first plane's point is the one nearest menton, every later one within `STEP_MM` of the last.
+      const last: V3 = border.at(-1)?.world ?? menton.world;
+      const near = border.length === 0 ? side : side.filter((q) => Math.hypot(q.world[1] - last[1], q.world[2] - last[2]) <= STEP_MM);
+      if (near.length === 0) {
         if (++misses >= 3 && border.length > 0) break;
         continue;
       }
       misses = 0;
-      const best = side.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
+      const best = border.length === 0 ? near.reduce((a, b) => (Math.hypot(b.world[1] - last[1], b.world[2] - last[2]) < Math.hypot(a.world[1] - last[1], a.world[2] - last[2]) ? b : a)) : near.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
       border.push({ world: best.world, down: best.down });
-    }
-    lines.push(`border, +z side, frontal planes (point, normal's angle below the horizontal, deg), at ${DOWN_DEG} +- ${DOWN_BAND_DEG} deg:`, ...border.map((q) => `  ${f(q.world)} ${q.down.toFixed(1)}`));
+    }    lines.push(`border, +z side, frontal planes (point, normal's angle below the horizontal, deg), at ${DOWN_DEG} +- ${DOWN_BAND_DEG} deg:`, ...border.map((q) => `  ${f(q.world)} ${q.down.toFixed(1)}`));
 
     // Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle, behind x 50.
     const gonion = border.filter((q) => q.world[0] < 50).reduce((a, b) => (b.world[2] > a.world[2] ? b : a), border.at(-1)!);
     lines.push(`gonion ${f(gonion.world)}: the border's most lateral point behind x 50`);
 
     // The course: a smooth curve through the inset border from gonion to menton and its reflection, the centripetal Catmull-Rom spline
-    // through control points about `CONTROL_MM` apart, sampled every `SAMPLE_MM`; its bend radius is read over `BEND_SPAN_MM`, and the
-    // sections read no farther from the course than the least bend radius, so neighbouring sections do not cross within it.
+    // through control points `CONTROL_MM` apart or more, sampled every `SAMPLE_MM`; its bend radius is read over `BEND_SPAN_MM`.
     const inset = (p: V3): V3 => {
       const d: V3 = [0, 20, -p[2]];
       const l: number = Math.hypot(...d);
       return [p[0] + (INSET_MM * d[0]) / l, p[1] + (INSET_MM * d[1]) / l, p[2] + (INSET_MM * d[2]) / l];
     };
     const half: V3[] = border.filter((q) => q.world[0] >= gonion.world[0] - 1e-9).map((q) => inset(q.world)).reverse();
-    const controls: V3[] = [];
-    for (const p of [...half, inset(menton.world)]) if (controls.length === 0 || Math.hypot(p[0] - controls.at(-1)![0], p[1] - controls.at(-1)![1], p[2] - controls.at(-1)![2]) >= CONTROL_MM) controls.push(p);
-    const ring: V3[] = [...controls, ...controls.slice(0, -1).reverse().map((p: V3): V3 => [p[0], p[1], -p[2]])];
-    const spline = (p0: V3, p1: V3, p2: V3, p3: V3, u: number): V3 => {
-      const knot = (a: V3, b: V3): number => Math.sqrt(Math.max(1e-9, Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])));
-      const t1: number = knot(p0, p1), t2: number = t1 + knot(p1, p2), t3: number = t2 + knot(p2, p3);
-      const t: number = t1 + u * (t2 - t1);
-      const lerp = (a: V3, b: V3, ta: number, tb: number): V3 => [0, 1, 2].map((c: number): number => ((tb - t) * a[c]! + (t - ta) * b[c]!) / (tb - ta)) as V3;
-      const a1: V3 = lerp(p0, p1, 0, t1), a2: V3 = lerp(p1, p2, t1, t2), a3: V3 = lerp(p2, p3, t2, t3);
-      return lerp(lerp(a1, a2, 0, t2), lerp(a2, a3, t1, t3), t1, t2);
-    };
-    const dense: V3[] = [];
-    for (let k: number = 0; k + 1 < ring.length; ++k) {
-      const p0: V3 = ring[Math.max(0, k - 1)]!, p1: V3 = ring[k]!, p2: V3 = ring[k + 1]!, p3: V3 = ring[Math.min(ring.length - 1, k + 2)]!;
-      const steps: number = Math.max(1, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]) / SAMPLE_MM));
-      for (let j: number = 0; j < steps; ++j) dense.push(spline(k === 0 ? [2 * p1[0] - p2[0], 2 * p1[1] - p2[1], 2 * p1[2] - p2[2]] : p0, p1, p2, k + 2 >= ring.length ? [2 * p2[0] - p1[0], 2 * p2[1] - p1[1], 2 * p2[2] - p1[2]] : p3, j / steps));
-    }
-    dense.push(ring.at(-1)!);
-    // Samples closer than half the spacing (a control segment's last step) are dropped, so every joint's turn fits its segments.
-    for (let k: number = dense.length - 2; k > 0; --k) if (Math.hypot(dense[k + 1]![0] - dense[k]![0], dense[k + 1]![1] - dense[k]![1], dense[k + 1]![2] - dense[k]![2]) < SAMPLE_MM / 2) dense.splice(k, 1);
-    let bend: number = Infinity;
-    let bendAt: V3 = dense[0]!;
-    const span: number = Math.max(1, Math.round(BEND_SPAN_MM / SAMPLE_MM));
-    for (let k: number = span; k + span < dense.length; ++k) {
-      const a: V3 = dense[k - span]!, p: V3 = dense[k]!, b: V3 = dense[k + span]!;
-      const ab: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), ap: number = Math.hypot(p[0] - a[0], p[1] - a[1], p[2] - a[2]), pb: number = Math.hypot(b[0] - p[0], b[1] - p[1], b[2] - p[2]);
-      const cross: number = Math.hypot((p[1] - a[1]) * (b[2] - a[2]) - (p[2] - a[2]) * (b[1] - a[1]), (p[2] - a[2]) * (b[0] - a[0]) - (p[0] - a[0]) * (b[2] - a[2]), (p[0] - a[0]) * (b[1] - a[1]) - (p[1] - a[1]) * (b[0] - a[0]));
-      const radius: number = cross < 1e-9 ? Infinity : (ab * ap * pb) / (2 * cross);
-      if (radius < bend) {
-        bend = radius;
-        bendAt = p;
+    // The course through control points `spacing` apart: the dense samples, and its least bend radius with where it falls.
+    const course = (spacing: number): { dense: V3[]; bend: number; bendAt: V3; controls: number; ring: number } => {
+      const controls: V3[] = [];
+      for (const p of [...half, inset(menton.world)]) if (controls.length === 0 || Math.hypot(p[0] - controls.at(-1)![0], p[1] - controls.at(-1)![1], p[2] - controls.at(-1)![2]) >= spacing) controls.push(p);
+      const ring: V3[] = [...controls, ...controls.slice(0, -1).reverse().map((p: V3): V3 => [p[0], p[1], -p[2]])];
+      const spline = (p0: V3, p1: V3, p2: V3, p3: V3, u: number): V3 => {
+        const knot = (a: V3, b: V3): number => Math.sqrt(Math.max(1e-9, Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])));
+        const t1: number = knot(p0, p1), t2: number = t1 + knot(p1, p2), t3: number = t2 + knot(p2, p3);
+        const t: number = t1 + u * (t2 - t1);
+        const lerp = (a: V3, b: V3, ta: number, tb: number): V3 => [0, 1, 2].map((c: number): number => ((tb - t) * a[c]! + (t - ta) * b[c]!) / (tb - ta)) as V3;
+        const a1: V3 = lerp(p0, p1, 0, t1), a2: V3 = lerp(p1, p2, t1, t2), a3: V3 = lerp(p2, p3, t2, t3);
+        return lerp(lerp(a1, a2, 0, t2), lerp(a2, a3, t1, t3), t1, t2);
+      };
+      const dense: V3[] = [];
+      for (let k: number = 0; k + 1 < ring.length; ++k) {
+        const p0: V3 = ring[Math.max(0, k - 1)]!, p1: V3 = ring[k]!, p2: V3 = ring[k + 1]!, p3: V3 = ring[Math.min(ring.length - 1, k + 2)]!;
+        const steps: number = Math.max(1, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]) / SAMPLE_MM));
+        for (let j: number = 0; j < steps; ++j) dense.push(spline(k === 0 ? [2 * p1[0] - p2[0], 2 * p1[1] - p2[1], 2 * p1[2] - p2[2]] : p0, p1, p2, k + 2 >= ring.length ? [2 * p2[0] - p1[0], 2 * p2[1] - p1[1], 2 * p2[2] - p1[2]] : p3, j / steps));
       }
+      dense.push(ring.at(-1)!);
+      // Samples closer than half the spacing (a control segment's last step) are dropped, so every joint's turn fits its segments.
+      for (let k: number = dense.length - 2; k > 0; --k) if (Math.hypot(dense[k + 1]![0] - dense[k]![0], dense[k + 1]![1] - dense[k]![1], dense[k + 1]![2] - dense[k]![2]) < SAMPLE_MM / 2) dense.splice(k, 1);
+      let bend: number = Infinity;
+      let bendAt: V3 = dense[0]!;
+      const span: number = Math.max(1, Math.round(BEND_SPAN_MM / SAMPLE_MM));
+      for (let k: number = span; k + span < dense.length; ++k) {
+        const a: V3 = dense[k - span]!, p: V3 = dense[k]!, b: V3 = dense[k + span]!;
+        const ab: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), ap: number = Math.hypot(p[0] - a[0], p[1] - a[1], p[2] - a[2]), pb: number = Math.hypot(b[0] - p[0], b[1] - p[1], b[2] - p[2]);
+        const cross: number = Math.hypot((p[1] - a[1]) * (b[2] - a[2]) - (p[2] - a[2]) * (b[1] - a[1]), (p[2] - a[2]) * (b[0] - a[0]) - (p[0] - a[0]) * (b[2] - a[2]), (p[0] - a[0]) * (b[1] - a[1]) - (p[1] - a[1]) * (b[0] - a[0]));
+        const radius: number = cross < 1e-9 ? Infinity : (ab * ap * pb) / (2 * cross);
+        if (radius < bend) {
+          bend = radius;
+          bendAt = p;
+        }
+      }
+      return { dense, bend, bendAt, controls: controls.length, ring: ring.length };
+    };
+    // The bend radius may be no tighter than the sections' half-width, or neighbouring sections cross within it: the course is smoothed with
+    // fewer control points until it holds, and the sections are never cut shorter.
+    let spacing: number = CONTROL_MM;
+    let laid = course(spacing);
+    while (laid.bend < RADIUS_MM && spacing < CONTROL_MOST_MM) {
+      spacing += CONTROL_STEP_MM;
+      laid = course(spacing);
     }
-    const reach: number = Math.min(RADIUS_MM, bend);
+    const { dense, bend, bendAt } = laid;
     const centres: V3[] = dense;
-    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => JOINT_HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: reach, step: 1 };
-    lines.push(`course: ${controls.length} control points a side (${ring.length} in all), ${dense.length} samples ${SAMPLE_MM} mm apart; least bend radius ${bend.toFixed(1)} mm at ${f(bendAt)}; sections read within ${reach.toFixed(1)} mm`);
+    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => JOINT_HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: RADIUS_MM, step: 1 };
+    lines.push(`course: control points ${spacing} mm apart, ${laid.controls} a side (${laid.ring} in all), ${dense.length} samples ${SAMPLE_MM} mm apart; least bend radius ${bend.toFixed(1)} mm at ${f(bendAt)} against the sections' half-width ${RADIUS_MM} mm${bend < RADIUS_MM ? " (STILL TIGHTER)" : ""}`);
     // Star share and closure share per station.
     const length: number = centres.slice(1).reduce((sum: number, c: V3, k: number): number => sum + Math.hypot(c[0] - centres[k]![0], c[1] - centres[k]![1], c[2] - centres[k]![2]), 0);
     const sections = S.regionSections(source, trial, 0, length, mesh);
@@ -195,6 +221,8 @@ namespace FamilyConicJaw {
     const out: string = path.join(root, "test/.shots/family-conic-jaw", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     await fs.writeFile(path.join(out, "jaw.txt"), lines.join("\n") + "\n");
+    // The course as a trial for `FamilyConicStar`, whose report names why a station has no star-shaped piece.
+    await fs.writeFile(path.join(out, "jaw.trial.json"), JSON.stringify([trial]));
     process.stdout.write(JSON.stringify({ out }) + "\n" + lines.filter((l: string): boolean => !l.startsWith("  ")).join("\n") + "\n");
   }
 }
