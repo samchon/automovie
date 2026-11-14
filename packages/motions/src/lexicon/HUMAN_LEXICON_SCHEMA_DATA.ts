@@ -12341,9 +12341,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "OmitIParamscyclestool": {
         "type": "object",
         "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
+          },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -12354,7 +12358,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -12421,9 +12425,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "OmitIParamstool": {
         "type": "object",
         "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
+          },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -12434,7 +12442,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "cycles": {
             "type": "integer",
@@ -12448,6 +12456,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
+          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -12476,6 +12485,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
+          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -20656,12 +20666,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "tool": {
-            "$ref": "#/components/schemas/useTool.Kind",
-            "description": "The tool."
+            "$ref": "#/components/schemas/HumanToolWork.Kind",
+            "description": "The work: hammering, sawing, stirring or driving a screw."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
           },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -20672,7 +20686,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "cycles": {
             "type": "integer",
@@ -20687,12 +20701,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         },
         "required": [
           "tool",
+          "prop",
           "on"
         ],
         "additionalProperties": false,
         "description": "Parameters."
       },
-      "useTool.Kind": {
+      "HumanToolWork.Kind": {
         "oneOf": [
           {
             "const": "hammer"
@@ -20707,7 +20722,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "stir"
           }
         ],
-        "description": "A tool kind."
+        "description": "A kind of work."
       },
       "wipe.IParams": {
         "type": "object",

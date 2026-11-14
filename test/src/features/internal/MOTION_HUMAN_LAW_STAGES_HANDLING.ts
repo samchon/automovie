@@ -1,3 +1,4 @@
+import { createTool, createVessel } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -6,6 +7,7 @@ import type {
 import {
   HumanChain,
   HumanFoot,
+  HumanObject,
   type IHumanBody,
   type IHumanProp,
   catchObject,
@@ -171,7 +173,9 @@ const wall = (
  * chest, short of it by the catching reach; a button at 1.1 m, a knob at
  * 0.95 m turned 90 degrees, a drawer at 0.85 m pulled 0.25 m and a door
  * handle at 1 m swung 35 degrees; a ball of 0.11 m radius 0.15 m ahead of
- * the toes; the work point of each tool; and a table top 0.225 m below the
+ * the toes; each tool taken up from a bench 0.15 m below the elbow and
+ * worked on its work point, a stir in a saucepan on the bench before the
+ * body; and a table top 0.225 m below the
  * elbow wiped three times.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and each staging with its numbers.
@@ -289,21 +293,59 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
   ): motionHumanLawSweep.IScene => {
-    const hand: string | undefined = pick("hand");
+    const hand: string = pick("hand") ?? "right";
     const tool: string = pick("tool") ?? "hammer";
+    const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
+    const props: IHumanProp[] = [
+      HumanObject.prop(
+        "tool",
+        createTool({
+          kind: tool === "stir" ? "spoon" : (tool as createTool.Kind),
+        }),
+        {
+          position: {
+            x: a.rest.get(hand === "left" ? "leftUpperArm" : "rightUpperArm")!
+              .x,
+            y: bench,
+            z: 0.3,
+          },
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+      ),
+    ];
+    if (tool === "stir")
+      props.push(
+        HumanObject.prop("pot", createVessel({ kind: "saucepan" }), {
+          at: { x: 0, y: bench, z: 0.4 },
+          yaw: 0,
+        }),
+      );
     return S.solo(
       a,
-      S.chain().act("useTool", {
-        tool,
-        on:
-          tool === "stir"
-            ? wall(hand, 0.15, 0.95, 0.4)
-            : tool === "screwdriver"
-              ? wall(hand, 0.2, 1.15, 0.55)
-              : wall(hand, 0.2, 0.85, 0.5),
-        cycles: 3,
-        ...(hand === undefined ? {} : { hand }),
-      }),
+      S.chain()
+        .act("stand", { seconds: 0.3 })
+        .act("pickUp", {
+          prop: "tool",
+          handle: "grip",
+          hand,
+          use: {
+            tip: "face",
+            line: tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+          },
+        })
+        .act("useTool", {
+          tool,
+          prop: "tool",
+          on:
+            tool === "stir"
+              ? { kind: "prop", subject: "pot", point: "inside" }
+              : tool === "screwdriver"
+                ? wall(hand, 0.2, 1.15, 0.55)
+                : wall(hand, 0.2, 0.85, 0.5),
+          cycles: 3,
+          hand,
+        }),
+      props,
     );
   },
   wipe: (

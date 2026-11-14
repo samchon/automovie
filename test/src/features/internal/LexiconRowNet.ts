@@ -87,10 +87,6 @@ export namespace LexiconRowNet {
     carryOnHip: ahead,
     pushCart: ahead,
     haul: ahead,
-    hammer: bench,
-    saw: bench,
-    stir: bench,
-    screw: bench,
     scrub: bench,
     // The reload's palm goes to the performer's own abdomen, standing in
     // for a magazine well; a kick has its ball on the floor ahead.
@@ -223,6 +219,12 @@ export namespace LexiconRowNet {
     "handspringVault",
     "vaultOnPole",
     "fosburyFlop",
+    // A tool row works with the tool in hand, and a stir in its vessel,
+    // which `test_archetype_tool_use_m_average` and its twin stage.
+    "hammer",
+    "saw",
+    "stir",
+    "screw",
   ];
 
   /** The two builds, each performing with the other as its partner. */

@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
@@ -36,7 +37,7 @@ const FORK: string =
 /**
  * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon or a fork.
  *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl and a fork's tines. The hand takes the `grip` from the `-Z` side with the thumb toward the working end.
+ * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl and a fork's tines. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -90,27 +91,61 @@ export function createTool(
           : kind === "spoon"
             ? length - 2 * createTool.BOWL
             : length - createTool.TINES.length;
-  builder.rod(
-    "handle",
-    radius,
-    Vector3.create(0, 0, 0),
-    Vector3.create(0, handle, 0),
-    { color: kind === "spoon" || kind === "fork" ? "#b9bcc0" : "#8a5a35" },
-  );
-  const held: number = Math.min(handle, createTool.GRIP);
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(0, kind === "hammer" ? held / 2 : handle - held / 2, 0),
-      Vector3.create(0, 0, -1),
-      Vector3.create(0, 1, 0),
-    ),
-    extent: null,
-    grip: kind === "spoon" || kind === "fork" ? "precision" : "power",
-    aperture: 2 * radius,
-    length: held,
-  });
+  if (kind === "saw") {
+    // A saw's grip runs across its heel, square to the line from the grip to
+    // the tooth line's middle (the hang), so the fist thrusts along that line.
+    const centre: IAutoMovieVector3 = Vector3.create(0, handle / 2, 0);
+    const toTeeth: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.create(0, handle + d.blade! / 2, createTool.BLADE_DEPTH / 2),
+      centre,
+    );
+    const across: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.create(0, -toTeeth.z, toTeeth.y),
+    );
+    const held: number = createTool.GRIP;
+    builder.rod(
+      "handle",
+      radius,
+      Vector3.subtract(centre, Vector3.scale(across, held / 2)),
+      Vector3.add(centre, Vector3.scale(across, held / 2)),
+      { color: "#8a5a35" },
+    );
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(
+        centre,
+        Vector3.create(1, 0, 0),
+        Vector3.scale(across, -1),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length: held,
+    });
+  } else {
+    builder.rod(
+      "handle",
+      radius,
+      Vector3.create(0, 0, 0),
+      Vector3.create(0, handle, 0),
+      { color: kind === "spoon" || kind === "fork" ? "#b9bcc0" : "#8a5a35" },
+    );
+    const held: number = Math.min(handle, createTool.GRIP);
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, kind === "hammer" ? held / 2 : handle - held / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: kind === "spoon" || kind === "fork" ? "precision" : "power",
+      aperture: 2 * radius,
+      length: held,
+    });
+  }
 
   if (kind === "hammer") {
     builder.box(
@@ -132,7 +167,7 @@ export function createTool(
   } else if (kind === "saw") {
     builder.box(
       "blade",
-      Vector3.create(0.001, d.blade!, 0.1),
+      Vector3.create(0.001, d.blade!, createTool.BLADE_DEPTH),
       Vector3.create(0, handle + d.blade! / 2, 0),
       { color: "#b9bcc0", density: 11 },
     );
@@ -140,7 +175,7 @@ export function createTool(
       id: "face",
       kind: "ledge",
       frame: ArchetypeFrame.facing(
-        Vector3.create(0, handle + d.blade! / 2, 0.05),
+        Vector3.create(0, handle + d.blade! / 2, createTool.BLADE_DEPTH / 2),
         Vector3.create(0, 0, 1),
         Vector3.create(0, 1, 0),
       ),
@@ -231,6 +266,9 @@ export namespace createTool {
     length: 0.045,
   };
 
+  /** A saw blade's depth from its spine to its teeth, metres: an estimate, not read at a source. */
+  export const BLADE_DEPTH: number = 0.1;
+
   /** The length of handle a hand holds, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
   export const GRIP: number = 0.12;
 
@@ -240,7 +278,7 @@ export namespace createTool {
   /**
    * The affordance ids:
    *
-   * - `grip`: the handle, held at its butt end on a hammer and next to the working part on the others.
+   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others.
    * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines.
    */
   export type Affordance = "grip" | "face";
