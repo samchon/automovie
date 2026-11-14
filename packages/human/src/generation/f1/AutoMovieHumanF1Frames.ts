@@ -27,6 +27,11 @@ import { AutoMovieHumanF1Placing } from "./AutoMovieHumanF1Placing";
  * origin elsewhere (the forearm at US, the tibia at IM, a phalanx midway between its base and head), that is a constant translation inside
  * the segment that changes no axis and no joint angle. Rigid parts keep the origins named in their rules.
  *
+ * Joints and rigid parts: the articulated joints are the shoulder, the elbow, the wrist, the fingers' and the thumb's, the hip, the knee,
+ * the ankle and the toes' (`AutoMovieHumanF1Placement.ARTICULATED`), and the neutral pose sets those to the identity. The ear, the nose
+ * and the breast are rigid parts (`AutoMovieHumanF1Placement.RIGID`): their rotation says how the part stands on its parent and is a
+ * constant of the body, so the neutral pose keeps it.
+ *
  * Two readings of the reference pose that look unanatomical are the definitions' own, and no frame is tuned to mend them:
  * - The elbow reads 27.0 degrees of flexion, while the lines through the joint centres (GH to the elbow centre, the elbow centre to the
  *   wrist centre) stand 36.6 degrees apart. ISB's long axes are not those lines: the humerus's runs from the epicondyles' midpoint to
