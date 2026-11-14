@@ -22,10 +22,10 @@ export namespace FamilyConicFit {
     s: number;
 
     /** Observed polygon in the section chart, mm. */
+    points: C.P[];
+
     /** Phase spans, counterclockwise from-to, where the section closes across its part's opening rather than following skin; no extreme anchor is read there. */
     opening?: [number, number][];
-
-    points: C.P[];
 
     /** Withheld from the fit and read only as validation. */
     heldout: boolean;

@@ -231,10 +231,19 @@ export namespace FamilyConicSection {
 
   /** One end of an arc of a section's conic conversion: its point, its unit tangent, whether its two arcs bend opposite ways, and the arc it starts. */
   export interface IEnd {
+    /** The arc's start in the section's chart, mm. */
     point: P;
+
+    /** The unit tangent there, along the arc's control leg. */
     tangent: P;
+
+    /** Whether the arc before and this one bend opposite ways: a sign change of the chain's curvature. */
     inflection: boolean;
+
+    /** Of an inflection, the lesser of the turns, radians, of the same-signed arcs on either side; absent on a split point. */
     strength?: number;
+
+    /** The arc this end starts, its rational quadratic controls and middle weight; null on a split point (`split`). */
     arc: { controls: readonly [readonly [number, number], readonly [number, number], readonly [number, number]]; weight: number } | null;
   }
 
@@ -743,7 +752,7 @@ export namespace FamilyConicSection {
     const onHull = (hull: readonly P[], x: number): { y: number; p: P; q: P } => {
       let j: number = 0;
       while (j + 1 < hull.length - 1 && hull[j + 1]![0] < x) ++j;
-      const [p, q] = [hull[j]!, hull[j + 1] ?? hull[j]!];
+      const [p, q] = [hull[j]!, hull[Math.min(j + 1, hull.length - 1)]!];
       return { y: q[0] === p[0] ? p[1] : p[1] + ((q[1] - p[1]) * (x - p[0])) / (q[0] - p[0]), p, q };
     };
     let moved: number = 0;
