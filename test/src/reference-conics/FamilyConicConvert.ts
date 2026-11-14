@@ -1,177 +1,276 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieRecoveryConicApproximation as V, approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
-import type { FamilyConicSection as C } from "./FamilyConicSection";
-import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import { FamilyConicFair as F } from "./FamilyConicFair";
+import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
 /**
- * Convert a part's sections to conics in one shot (campaign 1 plan, steps 2 and 3): each section through the recovery converter
- * (`approximateAutoMovieRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`), broken where invented points meet skin, and
- * the arc count per station read as the layout: a station range with one count is one family.
+ * The one-shot conversion of a part's sections to conics (#3401, #3412 stage 1): each source section faired to the form's scale
+ * (`FamilyConicFair`, the periodic smoothing spline of `FamilyConicSection.FAIR_MM`), converted by the recovery converter
+ * (`approximateAutoMovieRecoveryConicsAhn`, contract `AutoMovieRecoveryConicApproximation`) with breaks at the faired inflections and at an
+ * invented closure's ends, and its arcs read as the layout: the skin-arc count and the grooves (maximal runs of inward arcs) per station,
+ * runs of equal count along the stations as families, and each groove tracked along the stations as a line.
  *
- * A section's polygon is resampled every `STEP_MM` of arclength and read as a closed C1 cubic Hermite curve with Catmull-Rom tangents on
- * a chord-length parameter: the cut's own vertices are a faceted mesh's, and a curve through each of them turns at every facet.
- *
- * Run from `test` after bundling: `node .shots/esbuild/FamilyConicConvert.cjs <part>`; it writes `<part>.convert.txt` and
- * `<part>.convert.json` (every station's arcs) into `test/.shots/family-conic-convert/<time>`.
+ * A region entry (`FamilyConicConvert<Region>.ts`) reads its sections in their course's chart and hands them to `report`; this file holds no
+ * region. Its output goes to `test/.shots/family-conic-convert/<time>/<part>.*`: `convert.txt` (the ladder, run and line tables) and
+ * `convert.json` (every station's arcs at every tolerance).
  */
 export namespace FamilyConicConvert {
-  /** One part to convert: where its sections come from, and the course point's place in their chart. */
-  export interface IEntry {
-    /** The part's name, as the command line gives it. */
-    name: string;
+  /** One source section in its course's chart, mm, the course point at the origin. */
+  export interface ISection {
+    /** Its station along the course, mm. */
+    s: number;
 
-    /** The excursion it is cut as (`FamilyConicExcursion.PARTS`), or none when its sections come from `dump`. */
-    excursion?: string;
+    /** Its points, counter-clockwise about the course. */
+    points: C.P[];
 
-    /**
-     * A `FamilyConicBody.ts --dump=<file>` of the part's observed sections, read from `test`, each already in its course's chart with its
-     * invented points flagged (the air provider's floor and reach), which break the conversion as a closure does.
-     */
-    dump?: string;
-
-    /** The course point in the excursion's chart, mm: the section is converted about it. */
-    course: C.P;
+    /** Where an invented closure leaves and rejoins the skin, phases about the course, radians, counter-clockwise from the first. */
+    closure?: [number, number];
   }
 
-  /** The parts, the nose first: its course runs down the median plane 11 mm in front of x 100 (`FamilyConicBody.ts nose --nose-vertical`). */
-  export const ENTRIES: IEntry[] = [
-    { name: "nose", excursion: "nose", course: [11, 0] },
-    // The armpit's slit and vault cutters: their sections are the air round each course (`FamilyConicBody.ts axilla` and `vault`, `IPart.air`).
-    { name: "axilla", dump: ".shots/family-conic-convert/axilla.rows.json", course: [0, 0] },
-    { name: "vault", dump: ".shots/family-conic-convert/vault.rows.json", course: [0, 0] },
-  ];
-
-  /** Arclength step a section is resampled at before conversion, mm. */
-  const STEP_MM: number = 1;
-
-  /** The converter's tolerance, mm: the reference pack's own fit tolerance (policy `toleranceMm` 0.2). */
-  const TOLERANCE_MM: number = 0.2;
-
-  /** One converted station. */
+  /** One station converted at one tolerance. */
   export interface IStation {
-    /** Height of the level plane, mm. */
-    y: number;
-
-    /** The converter's status. */
-    status: V.IResult["status"];
-
-    /** The converter's largest sampled error, mm. */
+    s: number;
+    toleranceMm: number;
+    status: string;
     errorMm: number;
 
-    /** Arcs on the skin. */
+    /** Arcs on skin, on the closure, and of the skin's arcs those that bend inward. */
     skin: number;
-
-    /** Arcs on the invented closure. */
     closure: number;
+    inward: number;
 
-    /** Every arc, in the course's chart: controls and middle weight, and whether it lies on the closure. */
-    arcs: { controls: V.IArc["controls"]; weight: number; closure: boolean }[];
+    /** The grooves of at least `FamilyConicSection.FEATURE_LEAST` turn, and the shallower ones apart. */
+    grooves: F.IGroove[];
+    faint: F.IGroove[];
+
+    fairMaxMm: number;
+    fairMeanMm: number;
+    folds: number;
+    diagnostics: string[];
+    arcs: F.IArc[];
+
+    /** The source's own hollows under its convex hull, measured before fairing (`hollows`). */
+    hollows: IHollow[];
   }
 
-  /** A closed polygon resampled every `step` of arclength, with a flag carried from the nearest original vertex. */
-  function resample(points: readonly C.P[], flags: readonly boolean[], step: number): { points: C.P[]; flags: boolean[] } {
-    const n: number = points.length;
-    const along: number[] = [0];
-    for (let i: number = 0; i < n; ++i) along.push(along[i]! + Math.hypot(points[(i + 1) % n]![0] - points[i]![0], points[(i + 1) % n]![1] - points[i]![1]));
-    const total: number = along[n]!;
-    const count: number = Math.max(8, Math.round(total / step));
-    const out: C.P[] = [];
-    const outFlags: boolean[] = [];
-    let i: number = 0;
-    for (let k: number = 0; k < count; ++k) {
-      const s: number = (total * k) / count;
-      while (along[i + 1]! < s) ++i;
-      const t: number = (s - along[i]!) / Math.max(1e-12, along[i + 1]! - along[i]!);
-      const [a, b] = [points[i]!, points[(i + 1) % n]!];
-      out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
-      outFlags.push(t < 0.5 ? flags[i]! : flags[(i + 1) % n]!);
+  /** A hollow of the source section under its convex hull (the tape), read along the rays from the course. */
+  export interface IHollow {
+    /** Phase of its deepest point, radians. */
+    middle: number;
+
+    /** Its depth there, mm along the ray, and its width where it is deeper than `HOLLOW_MM`, mm along the hull. */
+    depthMm: number;
+    widthMm: number;
+
+    /** The faired section's depth under the same hull at the same phase, mm: what the fairing keeps of it. */
+    fairedMm: number;
+  }
+
+  /** The least depth under the hull that counts as a hollow, mm: the reference pack's own fit tolerance (policy `toleranceMm` 0.2). */
+  export const HOLLOW_MM: number = 0.2;
+
+  /** The source's hollows under its hull over 720 rays, each a run of rays deeper than `HOLLOW_MM`. */
+  export function hollows(points: readonly C.P[], faired: (phi: number) => number): IHollow[] {
+    const M: number = 720;
+    const hull: C.P[] = R.hull(points);
+    const rows = Array.from({ length: M }, (_: unknown, k: number) => {
+      const phi: number = (2 * Math.PI * k) / M;
+      const top: number = C.radius(hull, phi);
+      return { phi, top, depth: top - C.radius(points, phi), faired: top - faired(phi) };
+    });
+    const start: number = rows.findIndex((r): boolean => !(r.depth > HOLLOW_MM));
+    if (start < 0) return [];
+    const out: IHollow[] = [];
+    for (let m: number = 1; m <= M; ++m) {
+      const k: number = (start + m) % M;
+      if (!(rows[k]!.depth > HOLLOW_MM) || rows[(k - 1 + M) % M]!.depth > HOLLOW_MM) continue;
+      let best = rows[k]!, width: number = 0;
+      for (let j: number = k; rows[j % M]!.depth > HOLLOW_MM && width < 1e6; ++j) {
+        const r = rows[j % M]!;
+        width += (r.top * 2 * Math.PI) / M;
+        if (r.depth > best.depth) best = r;
+      }
+      out.push({ middle: best.phi, depthMm: best.depth, widthMm: width, fairedMm: best.faired });
     }
-    return { points: out, flags: outFlags };
+    return out.sort((a: IHollow, b: IHollow): number => a.middle - b.middle);
   }
-  /** The closed C1 Hermite curve through points one parameter unit apart, with Catmull-Rom tangents, as the converter's source. */
-  function curve(points: readonly C.P[], breaks: number[]): V.ICurve {
-    const n: number = points.length;
-    const at = (i: number): C.P => points[((i % n) + n) % n]!;
-    const tangent = (i: number): C.P => [(at(i + 1)[0] - at(i - 1)[0]) / 2, (at(i + 1)[1] - at(i - 1)[1]) / 2];
-    const hermite = (t: number, order: number): V.Point => {
-      const w: number = ((t % n) + n) % n;
-      const i: number = Math.min(n - 1, Math.floor(w));
-      const u: number = w - i;
-      const [p0, p1, m0, m1] = [at(i), at(i + 1), tangent(i), tangent(i + 1)];
-      const b: number[] =
-        order === 0 ? [2 * u ** 3 - 3 * u ** 2 + 1, u ** 3 - 2 * u ** 2 + u, -2 * u ** 3 + 3 * u ** 2, u ** 3 - u ** 2]
-        : order === 1 ? [6 * u ** 2 - 6 * u, 3 * u ** 2 - 4 * u + 1, -6 * u ** 2 + 6 * u, 3 * u ** 2 - 2 * u]
-        : order === 2 ? [12 * u - 6, 6 * u - 4, -12 * u + 6, 6 * u - 2]
-        : order === 3 ? [12, 6, -12, 6]
-        : [0, 0, 0, 0];
-      return [b[0]! * p0[0] + b[1]! * m0[0] + b[2]! * p1[0] + b[3]! * m1[0], b[0]! * p0[1] + b[1]! * m0[1] + b[2]! * p1[1] + b[3]! * m1[1]];
+
+  /** A run of stations with one value. */
+  export interface IRun {
+    value: string;
+    from: number;
+    to: number;
+    stations: number;
+  }
+
+  /** One groove followed along the stations. */
+  export interface ILine {
+    id: number;
+    stations: number[];
+    phases: number[];
+    turns: number[];
+    depths: number[];
+  }
+
+  /** The tolerance ladder of #3401, mm. */
+  export const LADDER: number[] = [0.2, 0.5, 1.0, 2.0];
+
+  /** The tolerance the layout is read at: `FamilyConicSection.converted`'s own, mm. */
+  export const LAYOUT_TOLERANCE_MM: number = 0.25;
+
+  /**
+   * How far a groove's middle may move between neighbouring stations and still be the same line, radians of phase: 12 degrees, about a
+   * third of the narrowest spacing between f1's dorsal hand valleys and the nose's two alar creases seen from their courses (35 to 40 degrees).
+   */
+  export const TRACK: number = (12 * Math.PI) / 180;
+
+  const degrees = (x: number): number => (x * 180) / Math.PI;
+  const wrap = (x: number): number => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const centre = (g: F.IGroove): number => wrap(g.from + wrap(g.to - g.from) / 2);
+  const gap = (a: number, b: number): number => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+
+  /** Convert one section at one tolerance. */
+  export function convert(section: ISection, toleranceMm: number): IStation {
+    const got: F.IConversion = F.convert(section.points, { toleranceMm, ...(section.closure === undefined ? {} : { closure: section.closure }) });
+    const skin: F.IArc[] = got.arcs.filter((a: F.IArc): boolean => !a.closure);
+    return {
+      s: section.s,
+      toleranceMm,
+      status: got.status,
+      errorMm: got.errorMm,
+      skin: skin.length,
+      closure: got.arcs.length - skin.length,
+      inward: skin.filter((a: F.IArc): boolean => a.bend < 0).length,
+      grooves: got.grooves.filter((g: F.IGroove): boolean => g.turn >= C.FEATURE_LEAST),
+      faint: got.grooves.filter((g: F.IGroove): boolean => g.turn < C.FEATURE_LEAST),
+      fairMaxMm: got.fairMaxMm,
+      fairMeanMm: got.fairMeanMm,
+      folds: got.folds,
+      diagnostics: got.diagnostics,
+      arcs: got.arcs,
+      hollows: hollows(section.points, got.faired),
     };
-    return { domain: [0, n], breaks, closed: true, evaluate: (t: number): V.Point => hermite(t, 0), derivative: (t: number, order: 1 | 2 | 3 | 4 | 5): V.Point => hermite(t, order) };
   }
 
-  /** Convert one section about the course point. */
-  export function convert(section: X.ISection, course: C.P, invented?: readonly boolean[]): Omit<IStation, "y"> {
-    const shifted: C.P[] = section.points.map((p: C.P): C.P => [p[0] - course[0], p[1] - course[1]]);
-    // `ends` (the excursion's closure ends) exists where the excursion carries it; a section read from elsewhere has none.
-    const ends: readonly [C.P, C.P] | undefined = (section as X.ISection & { ends?: readonly [C.P, C.P] }).ends;
-    const behind: number | null = ends === undefined ? null : Math.min(ends[0][0], ends[1][0]) - course[0];
-    const flags: boolean[] = invented !== undefined && invented.length === shifted.length ? [...invented] : shifted.map((p: C.P): boolean => behind !== null && p[0] < behind - 0.01);
-    const even = resample(shifted, flags, STEP_MM);
-    const n: number = even.points.length;
-    const breaks: number[] = even.flags.map((f: boolean, i: number): number => (f !== even.flags[(i + 1) % n] ? i + 1 : -1)).filter((i: number): boolean => i > 0 && i < n);
-    const result: V.IResult = approximateAutoMovieRecoveryConicsAhn(curve(even.points, breaks), { toleranceMm: TOLERANCE_MM, maximumArcs: 256, maximumDepth: 24 });
-    const arcs: IStation["arcs"] = result.arcs.map((arc: V.IArc) => ({ controls: arc.controls, weight: arc.weight, closure: even.flags[Math.min(n - 1, Math.floor((arc.domain[0] + arc.domain[1]) / 2))] === true }));
-    const closure: number = arcs.filter((a): boolean => a.closure).length;
-    return { status: result.status, errorMm: result.maximumSampleErrorMm, skin: arcs.length - closure, closure, arcs };
-  }
-
-  /** Convert every section of the named part and write the table and the arcs. */
-  export async function main(): Promise<void> {
-    const name: string = process.argv[2] ?? "nose";
-    const entry: IEntry | undefined = ENTRIES.find((e: IEntry): boolean => e.name === name);
-    if (entry === undefined) throw new Error("No convert entry " + name);
-    const root: string = path.resolve(process.cwd(), "..");
-    let stations: IStation[];
-    if (entry.dump !== undefined) {
-      // A dump's rows: `y` is the station along the part's course.
-      const dumped = JSON.parse(await fs.readFile(path.resolve(process.cwd(), entry.dump), "utf8")) as { rows: { s: number; points: C.P[]; invented: boolean[] | null }[] };
-      stations = dumped.rows.map((row): IStation => ({ y: row.s, ...convert({ points: row.points } as X.ISection, entry.course, row.invented ?? undefined) }));
-    } else {
-      const part: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === entry.excursion);
-      if (part === undefined) throw new Error("No excursion " + entry.excursion);
-      const source: R.ISource = await R.load(root);
-      stations = X.sections(source, part)
-        .filter((row): boolean => row.section !== null)
-        .map((row): IStation => ({ y: row.y, ...convert(row.section!, entry.course) }));
+  /** Runs of equal value along the stations. */
+  export function runs(rows: readonly { s: number; value: string }[]): IRun[] {
+    const out: IRun[] = [];
+    for (const row of rows) {
+      const last: IRun | undefined = out.at(-1);
+      if (last !== undefined && last.value === row.value) {
+        last.to = row.s;
+        ++last.stations;
+      } else out.push({ value: row.value, from: row.s, to: row.s, stations: 1 });
     }
+    return out;
+  }
+
+  /**
+   * Features followed along the stations: each matched to the nearest line seen at the station before, within `TRACK`, one to one.
+   *
+   * @param rows Per station, its features' phases and two measures each (a groove's turn and depth; a hollow's width and depth).
+   */
+  export function lines(rows: readonly { s: number; items: { phase: number; turn: number; depth: number }[] }[]): ILine[] {
+    const all: ILine[] = [];
+    let open: ILine[] = [];
+    for (const row of rows) {
+      const pairs: { line: ILine; k: number; d: number }[] = [];
+      row.items.forEach((g, k: number): void => {
+        for (const line of open) pairs.push({ line, k, d: gap(line.phases.at(-1)!, g.phase) });
+      });
+      pairs.sort((a, b): number => a.d - b.d);
+      const used: Set<number> = new Set();
+      const taken: Set<ILine> = new Set();
+      for (const pair of pairs) {
+        if (pair.d > TRACK || used.has(pair.k) || taken.has(pair.line)) continue;
+        used.add(pair.k);
+        taken.add(pair.line);
+        const g = row.items[pair.k]!;
+        pair.line.stations.push(row.s);
+        pair.line.phases.push(g.phase);
+        pair.line.turns.push(g.turn);
+        pair.line.depths.push(g.depth);
+      }
+      row.items.forEach((g, k: number): void => {
+        if (used.has(k)) return;
+        const line: ILine = { id: all.length, stations: [row.s], phases: [g.phase], turns: [g.turn], depths: [g.depth] };
+        all.push(line);
+        taken.add(line);
+      });
+      open = [...taken];
+    }
+    return all;
+  }
+
+  /** Convert every section at the layout tolerance and the ladder, and write the tables and the arcs. */
+  export async function report(name: string, sections: readonly ISection[], options: { ladder?: number[]; note?: string } = {}): Promise<string> {
+    // Run from `test`, as every reference-conics command is.
+    const root: string = path.resolve(process.cwd(), "..");
     const out: string = path.join(root, "test/.shots/family-conic-convert", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
-    // Families: runs of stations with one skin-arc count.
-    const families: string[] = [];
-    for (const station of stations) {
-      const last: string | undefined = families.at(-1);
-      const key: string = String(station.skin);
-      if (last !== undefined && last.split(":")[0] === key) families[families.length - 1] = key + ":" + last.split(":")[1]!.split("-")[0] + "-" + station.y;
-      else families.push(key + ":" + station.y + "-" + station.y);
+    const tolerances: number[] = [LAYOUT_TOLERANCE_MM, ...(options.ladder ?? [])];
+    const table: Map<number, IStation[]> = new Map(tolerances.map((t: number): [number, IStation[]] => [t, sections.map((s: ISection): IStation => convert(s, t))]));
+    // `FamilyConicSection.converted` at its own tolerance, on a section with no closure: the same fairing and converter, so its arc count
+    // must equal this file's at the layout tolerance.
+    const check: string[] = sections.map((section: ISection, k: number): string => {
+      if (section.closure !== undefined) return "-";
+      try {
+        const ends: number = C.converted(section.points).ends.length;
+        return ends === table.get(LAYOUT_TOLERANCE_MM)![k]!.arcs.length ? "same" : "differs:" + ends;
+      } catch (error: unknown) {
+        return "threw:" + String(error instanceof Error ? error.message : error).slice(0, 40);
+      }
+    });
+    const f2 = (x: number): string => x.toFixed(2);
+    const groovesOf = (st: IStation): string => st.grooves.map((g: F.IGroove): string => `${degrees(centre(g)).toFixed(0)}deg/${degrees(g.turn).toFixed(1)}deg/${f2(g.depthMm)}mm`).join(" ");
+    const lines_: string[] = [`# ${name}: faired at ${C.FAIR_MM} mm (periodic smoothing spline of the radius by phase), converted by approximateAutoMovieRecoveryConicsAhn`];
+    if (options.note !== undefined) lines_.push("# " + options.note);
+    lines_.push("", `## Stations at the layout tolerance ${LAYOUT_TOLERANCE_MM} mm`, "station  status    skin closure inward grooves faint  err-mm  fair-max fair-mean folds  converted  grooves(middle/turn/depth)");
+    table.get(LAYOUT_TOLERANCE_MM)!.forEach((st: IStation, k: number): void => {
+      lines_.push([st.s.toFixed(1).padStart(7), st.status.padStart(9), String(st.skin).padStart(5), String(st.closure).padStart(7), String(st.inward).padStart(6), String(st.grooves.length).padStart(7), String(st.faint.length).padStart(5), st.errorMm.toFixed(3).padStart(7), f2(st.fairMaxMm).padStart(9), f2(st.fairMeanMm).padStart(9), String(st.folds).padStart(5), check[k]!.padStart(10), " " + groovesOf(st)].join(" "));
+    });
+    if ((options.ladder ?? []).length > 0) {
+      lines_.push("", "## Tolerance ladder: skin arcs / inward arcs / grooves per station", "station  " + tolerances.map((t: number): string => (t + " mm").padStart(14)).join(""));
+      sections.forEach((section: ISection, k: number): void => {
+        lines_.push(section.s.toFixed(1).padStart(7) + "  " + tolerances.map((t: number): string => { const st: IStation = table.get(t)![k]!; return `${st.skin}/${st.inward}/${st.grooves.length}${st.status === "complete" ? "" : "p"}`.padStart(14); }).join(""));
+      });
+      lines_.push("(p: partial)");
     }
-    const lines: string[] = [
-      "# " + name + " converted by " + "approximateAutoMovieRecoveryConicsAhn at " + TOLERANCE_MM + " mm, resampled every " + STEP_MM + " mm",
-      "level-y  status  skin-arcs  closure-arcs  max-error-mm",
-      ...stations.map((s: IStation): string => [s.y.toFixed(1).padStart(7), s.status.padStart(8), String(s.skin).padStart(9), String(s.closure).padStart(12), s.errorMm.toFixed(3).padStart(12)].join("  ")),
-      "",
-      "# runs of one skin-arc count (count: from-to level)",
-      ...families,
-    ];
-    await fs.writeFile(path.join(out, name + ".convert.txt"), lines.join("\n") + "\n");
-    await fs.writeFile(path.join(out, name + ".convert.json"), JSON.stringify({ name, toleranceMm: TOLERANCE_MM, stations }));
-    process.stdout.write(JSON.stringify({ event: "convert-complete", part: name, out, stations: stations.length }) + "\n");
+    for (const t of tolerances) {
+      const st: IStation[] = table.get(t)!;
+      lines_.push("", `## Runs at ${t} mm (value: from-to station, count)`);
+      lines_.push("skin arcs:  " + runs(st.map((x: IStation) => ({ s: x.s, value: String(x.skin) }))).map((r: IRun): string => `${r.value}:${r.from}-${r.to}(${r.stations})`).join("  "));
+      lines_.push("grooves:    " + runs(st.map((x: IStation) => ({ s: x.s, value: String(x.grooves.length) }))).map((r: IRun): string => `${r.value}:${r.from}-${r.to}(${r.stations})`).join("  "));
+      lines_.push("inward:     " + runs(st.map((x: IStation) => ({ s: x.s, value: String(x.inward) }))).map((r: IRun): string => `${r.value}:${r.from}-${r.to}(${r.stations})`).join("  "));
+    }
+    const layout: IStation[] = table.get(LAYOUT_TOLERANCE_MM)!;
+    const tracked: ILine[] = lines(layout.map((st: IStation) => ({ s: st.s, items: st.grooves.map((g: F.IGroove) => ({ phase: centre(g), turn: g.turn, depth: g.depthMm })) })));
+    const span = (xs: number[], f: (x: number) => number, d: number): string => `${f(Math.min(...xs)).toFixed(d)}..${f(Math.max(...xs)).toFixed(d)}`;
+    const table_ = (title: string, head: string, found: ILine[], first: (x: number) => number, d: number): void => {
+      lines_.push("", title, head);
+      for (const line of found)
+        lines_.push([String(line.id).padStart(4), line.stations[0]!.toFixed(1).padStart(7), line.stations.at(-1)!.toFixed(1).padStart(7), String(line.stations.length).padStart(9), span(line.phases, degrees, 0).padStart(21), span(line.turns, first, d).padStart(19), span(line.depths, (x) => x, 2).padStart(19)].join("  "));
+    };
+    table_(`## Groove lines at ${LAYOUT_TOLERANCE_MM} mm, tracked within ${degrees(TRACK).toFixed(0)} deg between neighbouring stations`, "line  from     to       stations  middle-deg(min..max)  turn-deg(min..max)  depth-mm(min..max)", tracked, degrees, 1);
+    // The source's own hollows, before fairing: what the fairing had to keep.
+    lines_.push("", `## Source hollows under the convex hull, deeper than ${HOLLOW_MM} mm, per station (deepest-phase-deg/depth-mm/width-mm/faired-depth-mm)`);
+    for (const st of layout) lines_.push(st.s.toFixed(1).padStart(7) + "  " + st.hollows.map((h: IHollow): string => `${degrees(h.middle).toFixed(0)}/${f2(h.depthMm)}/${h.widthMm.toFixed(1)}/${f2(h.fairedMm)}`).join("  "));
+    const hollowLines: ILine[] = lines(layout.map((st: IStation) => ({ s: st.s, items: st.hollows.map((h: IHollow) => ({ phase: h.middle, turn: h.widthMm, depth: h.depthMm })) })));
+    table_(`## Source hollow lines, tracked within ${degrees(TRACK).toFixed(0)} deg`, "line  from     to       stations  middle-deg(min..max)  width-mm(min..max)  depth-mm(min..max)", hollowLines, (x) => x, 1);
+    const diagnostics: Set<string> = new Set(table.get(LAYOUT_TOLERANCE_MM)!.flatMap((x: IStation): string[] => x.diagnostics));
+    if (diagnostics.size > 0) lines_.push("", "## Converter diagnostics at the layout tolerance (numbers as #)", ...[...diagnostics].slice(0, 12));
+    await fs.writeFile(path.join(out, name + ".convert.txt"), lines_.join("\n") + "\n");
+    await fs.writeFile(path.join(out, name + ".convert.json"), JSON.stringify({ name, fairMm: C.FAIR_MM, tolerances, sections, stations: Object.fromEntries([...table].map(([t, st]) => [String(t), st])), lines: tracked, hollowLines }));
+    process.stdout.write(JSON.stringify({ event: "convert-complete", part: name, out, stations: sections.length }) + "\n");
+    return out;
+  }
+
+  /** A command's entry: run `body` and report a failure as the process's exit code. */
+  export function run(body: () => Promise<unknown>): void {
+    body().catch((error: unknown): void => {
+      process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
+      process.exitCode = 1;
+    });
   }
 }
-
-if (/FamilyConicConvert\.c?[jt]s$/.test(process.argv[1] ?? ""))
-  FamilyConicConvert.main().catch((error: unknown): void => {
-    process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
-    process.exitCode = 1;
-  });
