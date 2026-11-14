@@ -313,12 +313,22 @@ namespace FamilyConicBody {
    * walk was lost there).
    */
   const PLATE_LOBE: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--plate-lobe="))?.slice("--plate-lobe=".length).split(",").map(Number);
+  /**
+   * The floor over the auricle's top (`--plate-top=<deepest>,<from>,<to>`): from station `from` the plate's floor may lie only `deepest` mm
+   * inside its cranial skin, reached at station `to` by the same smoothstep. There the antihelix and its crura are families of their own
+   * merged on the plate, and the plate is the sheet under them: f1's sheet is 1.8 to 4.1 mm thick over the scapha (stations 46 to 64),
+   * where the floor held at 8 mm let the lens's hull span the antihelix's fold (9 to 11 mm) and stand 9.5 to 10 mm thick.
+   */
+  const PLATE_TOP: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--plate-top="))?.slice("--plate-top=".length).split(",").map(Number);
   // The fall is the smoothstep `3 x^2 - 2 x^3` of the share `x` between the two stations, so the floor's slope along the course does not
   // jump at either end: a linear fall left a crease across the plate's face at each of its ends.
   const plateDeepest = (s: number): number => {
-    if (PLATE_LOBE === undefined) return PLATE_DEEPEST;
-    const x: number = Math.min(1, Math.max(0, (s - PLATE_LOBE[1]!) / (PLATE_LOBE[2]! - PLATE_LOBE[1]!)));
-    return PLATE_LOBE[0]! + (PLATE_DEEPEST - PLATE_LOBE[0]!) * x * x * (3 - 2 * x);
+    const rise = (from: number, to: number): number => {
+      const x: number = Math.min(1, Math.max(0, (s - from) / (to - from)));
+      return x * x * (3 - 2 * x);
+    };
+    const lobe: number = PLATE_LOBE === undefined ? PLATE_DEEPEST : PLATE_LOBE[0]! + (PLATE_DEEPEST - PLATE_LOBE[0]!) * rise(PLATE_LOBE[1]!, PLATE_LOBE[2]!);
+    return PLATE_TOP === undefined ? lobe : lobe + (PLATE_TOP[0]! - lobe) * rise(PLATE_TOP[1]!, PLATE_TOP[2]!);
   };
   /** The plate's roll (`--plate-roll=<station>:<radians>,...`), laid through its lenses' `principal` angles; absent, none. */
   const PLATE_ROLL: K.IStored["roll"] = ((text: string | undefined): K.IStored["roll"] => {
