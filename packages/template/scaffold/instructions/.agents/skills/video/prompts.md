@@ -2,7 +2,7 @@
 
 A video prompt tells a model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
-Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are what those guides share.
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
 
 ## Sources
 
@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and recurring prop once, from its settings or brief record and its canon references, and the film's look once, from the settings' or the brief's cinematography record. Keep them in one generation request file under [media records](../production/media-records.md#files) and reuse the identical words in every request that shows them, because a reworded description is a different character to the model.
+Write each person, place and recurring prop once, from its settings or brief record and its canon references, and the film's look once, from the settings' or the brief's cinematography record. Keep them in one generation request file under [media records](../production/media-records.md#files) and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
@@ -23,13 +23,13 @@ Write what happens in the request's interval from the [beat records](../story/la
 | Dialogue | Each line, written as [sound](#sound) sets |
 | Camera | The lens, depth of field and focus the beat's camera entry decides, or else the lens character of the film's look; the hint carries framing and moves |
 
-Leave out what the hint performs: positions, actions, contacts, timing, framing and camera moves.
+Leave out what the hint performs: positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some gray-render adapters do, write them from the same beat records and the hint, in words that match it.
 
 ## Content
 
 ### Plain prose
 
-Write the prompt in plain prose, in this order: the inputs' roles, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
+Write the prompt in plain prose, in this order: any trigger words the adapter's documentation puts first, the inputs' roles, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
 
 ### What to show
 
@@ -53,15 +53,15 @@ State the video's role in one sentence, in the model's wording for an edit or a 
 
 ### First frame or keyframe
 
-When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera.
+When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera. Describe the same appearance in the prompt as the frame shows, because a prompt that disagrees with the frame pulls the shot away from it.
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because several in one request blur, morph or drop; split the request instead, or use the model's own timestamp or multi-shot syntax when it has one.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because a chain of several in one request is followed less reliably; split the request instead, or use the model's own timestamp or multi-shot syntax when it has one.
 
 ## Sound
 
-Write the shot's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: usually each line in quotes after a named speaker whose name matches the visual description, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the shot's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: each line after a named speaker whose name matches the visual description, marked by quotes, a colon or a dialogue block as the guide sets, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 

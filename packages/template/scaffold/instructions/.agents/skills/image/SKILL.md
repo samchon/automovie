@@ -7,7 +7,7 @@ description: Generates the still images that carry the appearance of a productio
 
 A generated image carries what polygon men and coarse forms cannot: the appearance of a person, place or object. A video request takes it for identity and appearance, and, for a requested detail option, an image-to-3D model generates a form from it, while every shot's pose and camera come from the motion hint. One accepted image then travels through settings or brief records, video references and shot frames.
 
-Most hosted image models expose no seed, so a prompt cannot reproduce an image: keep each accepted file and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
+Many hosted image models expose no seed, and a seed does not guarantee the same image where one exists, so a prompt cannot reproduce an image: keep each accepted file and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
 
 ## Choose a generator
 
@@ -15,7 +15,7 @@ These are representative examples, not a complete or required list; read the cho
 
 | Generator | Reached through | Note |
 | --- | --- | --- |
-| Codex built-in image generation | The `$imagegen` skill or a plain request, under the ChatGPT plan with no API key | It saves into Codex's own home directory, so copy each accepted image into the production; its edits work only on images visible in the conversation |
+| Codex built-in image generation | The `$imagegen` skill or a plain request, under the ChatGPT plan with no API key | It saves into Codex's own home directory, so copy each accepted image into the production; its edits work only on images visible in the conversation, so view a saved file before editing it |
 | A hosted image API, such as [OpenAI GPT Image](https://developers.openai.com/api/docs/guides/image-generation) or [Google Gemini image generation](https://aistudio.google.com/docs/image-generation) | A script with the user's key | |
 | Open weights, such as the Stable Diffusion family with [ControlNet](https://huggingface.co/docs/diffusers/main/en/using-diffusers/controlnet) and [IP-Adapter](https://huggingface.co/docs/diffusers/main/en/using-diffusers/ip_adapter), or an editing model that takes depth, edge and pose, such as [Qwen-Image-Edit](https://huggingface.co/Qwen/Qwen-Image-Edit-2509) | diffusers or ComfyUI | The route that conditions on a rendered form and repeats from a fixed seed |
 
@@ -23,11 +23,11 @@ These are representative examples, not a complete or required list; read the cho
 
 Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
 
-Video models cap references per subject at about three or four images and read each image as one view. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
+Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view in a neutral pose;
-- a face close-up;
-- three-quarter or profile views as the shots need.
+- a face close-up with a neutral expression;
+- three-quarter or profile views as the shots need, unless the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with the shared description its [video prompts](../video/prompts.md) reuse, because the same words keep the same subject in both.
 
@@ -41,13 +41,13 @@ Render every control image from the scene itself under control channels, because
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as pose and outline control. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint render and regenerate when silhouettes, horizon or facing move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
+Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as pose and outline control. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint render and regenerate when silhouettes, horizon or facing move. When the image model's sizes differ from the video model's, generate at the same aspect and crop or resize the frame to the exact size. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
 
 ## Turnaround views for modeling
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, render its own turnaround from fixed cameras and restyle each view with a pose skeleton, an outline or a weakened depth, passed as control images are, and the identity references, so the views agree by construction. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+When the hint already has the form, pose it as the [request](../3d-modeling/diffusion.md#request) of the chosen image-to-3D model asks, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with a pose skeleton, an outline or a weakened depth, passed as control images are, and the identity references, so the views agree by construction. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 
