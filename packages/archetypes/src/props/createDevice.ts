@@ -30,6 +30,10 @@ const CAMERA: string =
 const REMOTE: string =
   "Apple TV 4K technical specifications, Siri Remote (https://www.apple.com/apple-tv-4k/specs/); the larger end from Roku and Amazon remote listings seen only in search results";
 
+/** Apple's tablet, read. */
+const TABLET: string =
+  "Apple iPad (10th generation) technical specifications: 248.6 mm high, 179.5 mm wide, 7 mm deep, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840)";
+
 /** The travel of a small push button, for which no specification was read. */
 const PRESS: string = "typical tactile switch travel, not read at a source";
 
@@ -38,12 +42,13 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
   phone: "smartphone",
   camera: "compact camera",
   remote: "remote control",
+  tablet: "tablet",
 };
 
 /**
- * A handheld device: a smartphone, a compact camera or a remote control.
+ * A handheld device: a smartphone, a compact camera, a remote control or a tablet.
  *
- * The model is a slab, with a camera's lens barrel and hand grip: what tells the three apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone and a remote and along `+X` for a camera.
+ * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote and a tablet and along `+X` for a camera. A tablet is held across its back at its middle and its `screen` is its whole front; no maker read places its lens, so it declares none.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -96,6 +101,40 @@ export function createDevice(
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
     );
+
+  if (kind === "tablet") {
+    // A tablet: one slab, held across its back at its middle and looked at on its front.
+    builder.box(
+      "body",
+      Vector3.create(width, height, depth),
+      Vector3.create(0, height / 2, 0),
+      { color: "#2c2f33" },
+    );
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, height / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: depth,
+      length: height,
+    });
+    builder.affordance({
+      id: "screen",
+      kind: "surface",
+      direction: "normal",
+      frame: front(height / 2),
+      extent: null,
+      width,
+      depth: height,
+    });
+    return builder.build(d.mass!);
+  }
 
   if (kind === "camera") {
     // The body, a grip bar on the photographer's right (-X) and the lens barrel in front.
@@ -266,18 +305,18 @@ export function createDevice(
  */
 export namespace createDevice {
   /** The kinds of device. */
-  export type Kind = "phone" | "camera" | "remote";
+  export type Kind = "phone" | "camera" | "remote" | "tablet";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["phone", "camera", "remote"];
+  export const KINDS: readonly Kind[] = ["phone", "camera", "remote", "tablet"];
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold, a power grip: across the back of a phone or a remote, on a camera's grip bar at its `-X` end.
+   * - `grip`: the hold, a power grip: across the back of a phone, a remote or a tablet, on a camera's grip bar at its `-X` end.
    * - `support`: a camera's other hold, the far `+X` end of its body taken from the front, where the second hand steadies it.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
-   * - `screen`: the face that is looked at: a phone's front, a camera's back.
+   * - `screen`: the face that is looked at: a phone's or a tablet's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
    * - `button`: a camera's shutter release on its top, a remote's keys on its face.
    */
@@ -332,6 +371,12 @@ export namespace createDevice {
       thickness: ArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
       press: ArchetypeBand.metres(0.0005, 0.001, PRESS, true),
       mass: kg(0.0434, 0.085, REMOTE, true),
+    },
+    tablet: {
+      width: ArchetypeBand.metres(0.1795, 0.1795, TABLET),
+      height: ArchetypeBand.metres(0.2486, 0.2486, TABLET),
+      thickness: ArchetypeBand.metres(0.007, 0.007, TABLET),
+      mass: kg(0.477, 0.481, TABLET),
     },
   };
 }
