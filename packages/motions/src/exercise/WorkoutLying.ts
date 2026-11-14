@@ -18,7 +18,9 @@ import { WorkoutKind } from "./WorkoutKind";
  * First pass: the bench, the rower's seat and rail and the bicycle are not
  * props, so nothing is shown under the body; a barbell is not held; a
  * bridge's shoulders and a side plank's forearm are kept by the angles
- * alone and may slide by the difference between the keys.
+ * alone and may slide by the difference between the keys. The side
+ * plank's roll is solved on the body so its forearm rests on the floor
+ * level with its feet.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, what is provisional with its sources and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -185,12 +187,19 @@ export namespace WorkoutLying {
       enter: 2.4,
       reps: 1,
       route: (body: IHumanBody): WorkoutKind.IStep[] => [
+        // Tipped until the left forearm rests on the floor level with the
+        // feet: both supports bear (`WorkoutFloor.rolled`).
         WorkoutKind.pose(
-          ExerciseKey.of(
-            { roll: -WorkoutFloor.plank(body, body.measure.upperArm) },
-            { raise: 0, elbow: 5 },
-            { raise: 80, elbow: 90 },
-            { spread: -9 },
+          WorkoutFloor.rolled(
+            body,
+            /^left(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/,
+            (roll: number): ExerciseKey.IKey =>
+              ExerciseKey.of(
+                { roll },
+                { raise: 0, elbow: 5 },
+                { raise: 80, elbow: 90 },
+                { spread: -9 },
+              ),
           ),
           0,
           20,

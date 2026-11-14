@@ -106,15 +106,27 @@ export namespace WorkoutPlace {
       ),
       1 / kind.pin.length,
     );
-    // Feet or toes that bear on the floor are as high above it as when the
-    // body stands on them, and hands as high as a laid palm's wrist; only a
-    // body that bears on its trunk is rested by its shapes.
+    // Feet or toes that bear on the floor on their soles are as high above
+    // it as when the body stands on them, and hands as high as a laid palm's
+    // wrist; a body that bears on its trunk, or on the sides of its feet as
+    // a side plank does, is rested by its shapes.
+    const keyed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, based),
+    );
+    const soles: boolean = kind.pin.every(
+      (bone: AutoMovieHumanoidBone): boolean =>
+        /(Foot|Toes)$/.test(bone) &&
+        Quaternion.rotateVector(keyed.get(bone)!.worldRotation, {
+          x: 0,
+          y: 1,
+          z: 0,
+        }).y > Math.SQRT1_2,
+    );
     const grounded: number | null =
       kind.anchor !== "hips" || kind.raise !== undefined || borne !== null
         ? null
-        : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
-              /(Foot|Toes)$/.test(bone),
-            )
+        : soles
           ? shown.y
           : kind.pin.every((bone: AutoMovieHumanoidBone): boolean =>
                 bone.endsWith("Hand"),
