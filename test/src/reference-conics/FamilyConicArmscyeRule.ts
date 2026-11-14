@@ -1849,31 +1849,7 @@ namespace FamilyConicArmscyeRule {
       }
       return k < rule.stations.length && walked >= ARM_RAIL_MM ? { s: rule.stations[k]!, p: rule.points[k]![j]! } : { s: NaN, p: null };
     });
-    const tris: number = source.all.indices.length / 3;
-    const corner = (t: number, c: number): V => {
-      const v: number = source.all.indices[3 * t + c]!;
-      return [source.all.positions[3 * v]!, source.all.positions[3 * v + 1]!, source.all.positions[3 * v + 2]!];
-    };
-    const grid: Map<string, number[]> = new Map();
-    const cell = (p: V): string => p.map((x: number): number => Math.floor(x / 10)).join(",");
-    for (let t: number = 0; t < tris; ++t) {
-      const key: string = cell(scale(add(add(corner(t, 0), corner(t, 1)), corner(t, 2)), 1 / 3));
-      const list: number[] | undefined = grid.get(key);
-      if (list === undefined) grid.set(key, [t]);
-      else list.push(t);
-    }
-    const normalAt = (p: V): V => {
-      let best: { d: number; t: number } = { d: Infinity, t: -1 };
-      const [x, y, z]: number[] = p.map((u: number): number => Math.floor(u / 10));
-      for (let i: number = -1; i <= 1; ++i)
-        for (let j: number = -1; j <= 1; ++j)
-          for (let k: number = -1; k <= 1; ++k)
-            for (const t of grid.get(`${x! + i},${y! + j},${z! + k}`) ?? []) {
-              const d: number = norm(sub(scale(add(add(corner(t, 0), corner(t, 1)), corner(t, 2)), 1 / 3), p));
-              if (d < best.d) best = { d, t };
-            }
-      return unit(cross(sub(corner(best.t, 1), corner(best.t, 0)), sub(corner(best.t, 2), corner(best.t, 0))));
-    };
+    const normalAt = normalsOf(source.all);
     const span: number[] = ringAt.map((p: V | null, j: number): number => (p === null || railAt[j]!.p === null ? NaN : norm(sub(railAt[j]!.p!, p))));
     const angle: number[] = ringAt.map((p: V | null, j: number): number => (p === null || railAt[j]!.p === null ? NaN : degrees(Math.acos(Math.max(-1, Math.min(1, dot(normalAt(p), normalAt(railAt[j]!.p!))))))));
     const outward: number = railAt.filter((x): boolean => x.p !== null && dot(normalAt(x.p), sub(x.p, axis15.at(x.s).origin as V)) > 0).length;
@@ -1918,10 +1894,361 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
+  /** One ray's outermost crossing of pieces from their chart's origin at an angle: its distance, NaN where it meets none. */
+  function rayHit(pieces: readonly IPiece[], phi: number): number {
+    const d: C.P = [Math.cos(phi), Math.sin(phi)];
+    let best: number = NaN;
+    for (const { points, closed } of pieces)
+      for (let i: number = 0; i < (closed ? points.length : points.length - 1); ++i) {
+        const a: C.P = points[i]!;
+        const e: C.P = [points[(i + 1) % points.length]![0] - a[0], points[(i + 1) % points.length]![1] - a[1]];
+        const den: number = d[0] * e[1] - d[1] * e[0];
+        if (den === 0) continue;
+        const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+        const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0 && !(t <= best)) best = t;
+      }
+    return best;
+  }
+
+  /** A mesh's surface normal at a point: the nearest triangle's (by centroid, through a grid of 10 mm cells), by the triangle's winding. */
+  function normalsOf(mesh: M.IMesh): (p: V) => V {
+    const corner = (t: number, c: number): V => {
+      const v: number = mesh.indices[3 * t + c]!;
+      return [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+    };
+    const centroid = (t: number): V => scale(add(add(corner(t, 0), corner(t, 1)), corner(t, 2)), 1 / 3);
+    const cell = (p: V): string => p.map((x: number): number => Math.floor(x / 10)).join(",");
+    const grid: Map<string, number[]> = new Map();
+    for (let t: number = 0; t < mesh.indices.length / 3; ++t) {
+      const key: string = cell(centroid(t));
+      const list: number[] | undefined = grid.get(key);
+      if (list === undefined) grid.set(key, [t]);
+      else list.push(t);
+    }
+    return (p: V): V => {
+      let best: { d: number; t: number } = { d: Infinity, t: -1 };
+      const [x, y, z]: number[] = p.map((u: number): number => Math.floor(u / 10));
+      for (let i: number = -1; i <= 1; ++i)
+        for (let j: number = -1; j <= 1; ++j)
+          for (let k: number = -1; k <= 1; ++k)
+            for (const t of grid.get(`${x! + i},${y! + j},${z! + k}`) ?? []) {
+              const d: number = norm(sub(centroid(t), p));
+              if (d < best.d) best = { d, t };
+            }
+      return best.t < 0 ? [NaN, NaN, NaN] : unit(cross(sub(corner(best.t, 1), corner(best.t, 0)), sub(corner(best.t, 2), corner(best.t, 0))));
+    };
+  }
+
+  /**
+   * The trunk's chart (`trunkChart`) read back onto a wall: at a station the plane square to the chart's course, and in it the wall's
+   * outermost crossing of the ray from the course along a phase; null where the ray meets none. `axis` is the chart's course point.
+   */
+  function lifter(wall: M.IMesh): { lift: (station: number, phase: number) => V | null; axis: (station: number) => V } {
+    const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
+    const pelvis: SF.IFrame = P.frame("pelvis");
+    const floor: V = SF.toLocal(pelvis, trunk.centres[0]!) as V;
+    const t: V = unit(sub(SF.toLocal(pelvis, trunk.centres[1]!) as V, floor));
+    const u: V = perpendicular(SF.toLocalDirection(pelvis, trunk.up) as V, t);
+    const v: V = cross(u, t);
+    const [tw, uw, vw]: V[] = [t, u, v].map((d: V): V => SF.toWorldDirection(pelvis, d) as V);
+    const axis = (station: number): V => SF.toWorld(pelvis, add(floor, scale(t, station))) as V;
+    return {
+      axis,
+      lift: (station: number, phase: number): V | null => {
+        const origin: V = axis(station);
+        const pieces: IPiece[] = M.outline(wall, { origin, axes: [tw!, uw!, vw!] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+        const r: number = rayHit(pieces, phase);
+        return Number.isFinite(r) ? add(origin, add(scale(uw!, r * Math.cos(phase)), scale(vw!, r * Math.sin(phase)))) : null;
+      },
+    };
+  }
+
+  /**
+   * A closed loop resampled by arc length to `count` points from its highest point (largest y), turning counter-clockwise about `normal`,
+   * so two loops' points pair by the share of their length from the top.
+   */
+  function resample(loop: readonly V[], count: number, normal: V): V[] {
+    const middle: V = scale(loop.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / loop.length);
+    const turning: number = loop.reduce((t: number, p: V, i: number): number => t + dot(cross(sub(p, middle), sub(loop[(i + 1) % loop.length]!, middle)), normal), 0);
+    const ordered: V[] = turning >= 0 ? [...loop] : [...loop].reverse();
+    const top: number = ordered.reduce((best: number, p: V, i: number): number => (p[1] > ordered[best]![1] ? i : best), 0);
+    const ring: V[] = [...ordered.slice(top), ...ordered.slice(0, top)];
+    const lengths: number[] = [0];
+    for (let i: number = 0; i < ring.length; ++i) lengths.push(lengths[i]! + norm(sub(ring[(i + 1) % ring.length]!, ring[i]!)));
+    const total: number = lengths.at(-1)!;
+    let i: number = 0;
+    return Array.from({ length: count }, (_: unknown, k: number): V => {
+      const at: number = (total * k) / count;
+      while (lengths[i + 1]! < at) ++i;
+      const w: number = (at - lengths[i]!) / Math.max(1e-12, lengths[i + 1]! - lengths[i]!);
+      return add(ring[i]!, scale(sub(ring[(i + 1) % ring.length]!, ring[i]!), w));
+    });
+  }
+
+  /** How far apart two neighbouring rays' envelope points must stand in the trunk's chart to count as a bridge, mm: over three times the rays' spacing (0.6 mm at 70 mm). */
+  const BRIDGE_MM: number = 2;
+
+  /** The shoulder's pieces of the girdle plane's cut: within this distance of the girdle ring's centre, mm (the ring reaches about 90 mm from it; the plane's other crossing of the trunk lies by its foot, over 400 mm away). */
+  const SHOULDER_PIECES_MM: number = 200;
+
+  /**
+   * The armscye's port loop by rule against today's (the supervisor's ruling on #3151, R3b, after k = 1.5 was kept). The rule loop: the girdle
+   * plane's cut of the trunk family's own wall (realized alone: the port cuts the host's face, not the cutter's result) has a notch and an
+   * island in the axillary pocket, so the loop is the cut's star-shaped envelope in the trunk's chart (station, and phase as mm at the
+   * armpit's side distance), read by rays from the loop's centre in the chart, the outermost crossing per ray. Where neighbouring rays' points
+   * jump across the pocket the envelope's bridge is the chart's straight line between them read back onto the skin (`lifter`), a curve on
+   * the skin and not a chord through air, and the region inside it goes with the port. Measured against today's armRoot and armTurn course
+   * and today's `armscye` loop: (1) the two courses; (2) the two loops on the skin and the region the envelope bridges; (3) with today's arm
+   * family's ring at the ordinary margin (`ARM_RAIL_MM`), each port's band length and surface angle per 10 degrees; (4) frames.
+   */
+  async function port(): Promise<void> {
+    const started: number = Date.now();
+    const progress = (what: string): void => {
+      process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
+    };
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const gh: V = P.frame("humerus").origin as V;
+    const elbow: V = P.frame("forearm").origin as V;
+    const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
+    const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const lines: string[] = ["R3b, the armscye's port loop by rule and the k 1.5 course against today's shoulder; measurement only", ""];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "port-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+
+    // 1. The k = 1.5 rule course against today's armRoot, armTurn course.
+    let s15: number = TURN_K * r;
+    for (let i: number = 0; i < 100; ++i) {
+      const next: number = TURN_K * r * AutoMovieHumanConicPose.share(AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s15)), elbow])[0]!);
+      if (Math.abs(next - s15) < 1e-9) break;
+      s15 = next;
+    }
+    const frames: P.IFrames = P.frames();
+    const centres15: V[] = [centre, add(centre, scale(n, s15 + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
+    const halves15: number[] = [TURN_K * r, ...arm.halves.slice(1)];
+    const axis15: IAxis = H.axis({ centres: centres15, halves: halves15, up: P.direction("arm.up", frames) as V });
+    const armAxis: IAxis = H.axis(arm);
+    const s0: number = arm.knots[0]!;
+    const nearestTo = (axis: IAxis, from: number, p: V): number => {
+      let best: number = from;
+      for (let s: number = from; s < from + 800; s += 0.5) if (norm(sub(axis.at(s).origin as V, p)) < norm(sub(axis.at(best).origin as V, p))) best = s;
+      return best;
+    };
+    const ruleElbow: number = nearestTo(axis15, 0, elbow);
+    const todayElbow: number = nearestTo(armAxis, s0, elbow);
+    const todayPath: V[] = [];
+    for (let s: number = s0; s <= todayElbow + 20; s += 0.5) todayPath.push(armAxis.at(s).origin as V);
+    const toToday = (p: V): number => {
+      let best: number = Infinity;
+      for (let i: number = 0; i + 1 < todayPath.length; ++i) {
+        const [a, b]: V[] = [todayPath[i]!, todayPath[i + 1]!];
+        const e: V = sub(b!, a!);
+        const w: number = Math.max(0, Math.min(1, dot(sub(p, a!), e) / Math.max(1e-12, dot(e, e))));
+        best = Math.min(best, norm(sub(p, add(a!, scale(e, w)))));
+      }
+      return best;
+    };
+    let agree: number = 0;
+    for (let s: number = ruleElbow; s >= 0; s -= 1)
+      if (toToday(axis15.at(s).origin as V) >= 1) {
+        agree = s + 1;
+        break;
+      }
+    const names: string[] = ["the corner", "the elbow", "the wrist", "the middle finger's first joint"];
+    const ruleAngles: number[] = AutoMovieHumanConicPose.angles(centres15);
+    const todayAngles: number[] = AutoMovieHumanConicPose.angles(arm.centres.map((c): V => [c[0], c[1], c[2]]));
+    lines.push(
+      `1. THE k ${TURN_K} RULE COURSE (the ring's centre, the set-back corner ${s15.toFixed(2)} mm along the ring's normal, today's later centres) AGAINST TODAY'S (armRoot, armTurn, its own halves), stations from each course's start to its elbow (the rule's ${ruleElbow.toFixed(1)} mm, today's ${todayElbow.toFixed(1)} mm from its first knot at ${s0.toFixed(1)}):`,
+      `  turns, the rule's: ${halves15.map((h: number, k: number): string => `${names[k]} ${degrees(ruleAngles[k]!).toFixed(1)} deg, half ${h.toFixed(1)} mm`).join("; ")}`,
+      `  turns, today's: ${arm.halves.map((h: number, k: number): string => `${k === 0 ? "armTurn" : names[k]} ${degrees(todayAngles[k]!).toFixed(1)} deg, half ${h.toFixed(1)} mm`).join("; ")}`,
+      `  the rule course's distance from today's every 10 mm of its station: ${Array.from({ length: Math.floor(ruleElbow / 10) + 1 }, (_: unknown, k: number): string => `${k * 10} ${toToday(axis15.at(k * 10).origin as V).toFixed(1)}`).join(", ")} (mm)`,
+      `  the two agree within 1 mm from the rule's station ${agree.toFixed(0)} mm to the elbow`,
+      "",
+    );
+    progress("1. the courses");
+
+    // 2. The rule port loop (the chart envelope of the girdle plane's cut of the trunk family's own wall) against today's armscye loop.
+    const trunkWall: M.IMesh = alone(AutoMovieHumanF1.BODY.trunk.name);
+    const armWall: M.IMesh = alone(arm.name);
+    progress("realized the trunk's and the arm's own walls");
+    const chart = trunkChart();
+    const armpitV: number = chart(P.point("armpit") as V).v;
+    const toQ = (p: V): C.P => {
+      const c = chart(p);
+      return [c.station, armpitV * Math.atan2(c.v, c.u)];
+    };
+    const { lift, axis: trunkAxis } = lifter(trunkWall);
+    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+    const planeOrigin: V = [...frame.origin] as V;
+    const planeWorld = (p: C.P): V => add(planeOrigin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+    const cutPieces: { world: V[]; closed: boolean }[] = M.outline(trunkWall, { origin: planeOrigin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!
+      .loops.map((loop: M.ILoop): { world: V[]; closed: boolean } => ({ world: loop.points.map(planeWorld), closed: loop.closed }))
+      .filter((piece: { world: V[]; closed: boolean }): boolean => piece.world.some((p: V): boolean => norm(sub(p, centre)) < SHOULDER_PIECES_MM));
+    const charted: IPiece[] = cutPieces.map((piece): IPiece => ({ points: piece.world.map(toQ), closed: piece.closed }));
+    const main: number = charted.reduce((best: number, piece: IPiece, k: number): number => (piece.closed && (best < 0 || area(piece.points) > area(charted[best]!.points)) ? k : best), -1);
+    const qc: C.P = [charted[main]!.points.reduce((t: number, q: C.P): number => t + q[0], 0) / charted[main]!.points.length, charted[main]!.points.reduce((t: number, q: C.P): number => t + q[1], 0) / charted[main]!.points.length];
+    const shifted: IPiece[] = charted.map((piece: IPiece): IPiece => ({ points: piece.points.map((q: C.P): C.P => [q[0] - qc[0], q[1] - qc[1]]), closed: piece.closed }));
+    const owners: { piece: number; i: number }[] = shifted.flatMap((piece: IPiece, k: number): { piece: number; i: number }[] => Array.from({ length: piece.closed ? piece.points.length : piece.points.length - 1 }, (_: unknown, i: number): { piece: number; i: number } => ({ piece: k, i })));
+    // A ray's hit on chart pieces read back to the world along the hit segment's own world points.
+    const onSegment = (pieces: readonly IPiece[], worlds: readonly (readonly (V | null)[])[], hit: { t: number; segment: number }, j: number, table: readonly { piece: number; i: number }[]): { q: C.P; p: V | null } => {
+      const h: C.P = [hit.t * Math.cos((2 * Math.PI * j) / RAYS), hit.t * Math.sin((2 * Math.PI * j) / RAYS)];
+      const { piece, i } = table[hit.segment]!;
+      const points: C.P[] = pieces[piece]!.points;
+      const [a, b]: C.P[] = [points[i]!, points[(i + 1) % points.length]!];
+      const w: number = ((h[0] - a![0]) * (b![0] - a![0]) + (h[1] - a![1]) * (b![1] - a![1])) / Math.max(1e-12, (b![0] - a![0]) ** 2 + (b![1] - a![1]) ** 2);
+      const [pa, pb] = [worlds[piece]![i]!, worlds[piece]![(i + 1) % points.length]!];
+      return { q: [h[0] + qc[0], h[1] + qc[1]], p: pa === null || pb === null ? null : add(pa, scale(sub(pb, pa), w)) };
+    };
+    const envelope: { q: C.P; p: V | null }[] = cast(shifted, (): boolean => true).map((hit, j: number): { q: C.P; p: V | null } => (Number.isFinite(hit.t) ? onSegment(shifted, cutPieces.map((piece): V[] => piece.world), hit, j, owners) : { q: [NaN, NaN], p: null }));
+    // The bridges: neighbouring rays whose points jump across the pocket, each read back onto the skin along the chart's straight line.
+    const bridges: { from: number; gap: number; chord: number; skin: number; sag: number; points: V[] }[] = [];
+    envelope.forEach((a, j: number): void => {
+      const b = envelope[(j + 1) % RAYS]!;
+      const gap: number = Math.hypot(b.q[0] - a.q[0], b.q[1] - a.q[1]);
+      if (!(gap > BRIDGE_MM) || a.p === null || b.p === null) return;
+      const count: number = Math.ceil(gap);
+      const inner: V[] = Array.from({ length: count - 1 }, (_: unknown, k: number): V | null => {
+        const q: C.P = [a.q[0] + ((b.q[0] - a.q[0]) * (k + 1)) / count, a.q[1] + ((b.q[1] - a.q[1]) * (k + 1)) / count];
+        return lift(q[0], q[1] / armpitV);
+      }).filter((p: V | null): p is V => p !== null);
+      const path: V[] = [a.p, ...inner, b.p];
+      const chord: V = sub(b.p, a.p);
+      bridges.push({ from: j, gap, chord: norm(chord), skin: path.reduce((t: number, p: V, k: number): number => (k === 0 ? t : t + norm(sub(p, path[k - 1]!))), 0), sag: Math.max(0, ...inner.map((p: V): number => norm(sub(sub(p, a.p!), scale(unit(chord), dot(sub(p, a.p!), unit(chord))))))), points: path });
+    });
+    const ruleLoop: V[] = envelope.flatMap((x, j: number): V[] => {
+      const bridge = bridges.find((b): boolean => b.from === j);
+      return x.p === null ? [] : bridge === undefined ? [x.p] : bridge.points.slice(0, -1);
+    });
+    const envelopeChart: C.P[] = envelope.filter((x): boolean => Number.isFinite(x.q[0])).map((x): C.P => x.q);
+    // The other closed pieces (the island) and how many of their points the envelope encloses, by the crossing count in the chart.
+    const enclosed = (q: C.P): boolean => {
+      let inside: boolean = false;
+      for (let i: number = 0, k: number = envelopeChart.length - 1; i < envelopeChart.length; k = i++) {
+        const [a, b]: C.P[] = [envelopeChart[i]!, envelopeChart[k]!];
+        if ((a![1] > q[1]) !== (b![1] > q[1]) && q[0] < ((b![0] - a![0]) * (q[1] - a![1])) / (b![1] - a![1]) + a![0]) inside = !inside;
+      }
+      return inside;
+    };
+    const islands: string = charted
+      .map((piece: IPiece, k: number): string => (piece.closed && k !== main ? `piece ${k}, ${area(piece.points).toFixed(0)} sq mm, ${piece.points.filter(enclosed).length} of its ${piece.points.length} points inside the envelope` : ""))
+      .filter((x: string): boolean => x !== "")
+      .join("; ");
+
+    // Today's loop: its ILoop in the trunk's chart, its shares read at 720 clocks, each point read back onto the trunk's own wall.
+    const today = AutoMovieHumanF1.armscye(1);
+    const shape: number[] = today.shape === undefined ? [1] : [...today.shape];
+    const todayQ: C.P[] = Array.from({ length: RAYS }, (_: unknown, k: number): C.P => {
+      const clock: number = (2 * Math.PI * k) / RAYS;
+      const x: number = (shape.length * k) / RAYS;
+      const share: number = shape[Math.floor(x) % shape.length]! + (shape[(Math.floor(x) + 1) % shape.length]! - shape[Math.floor(x) % shape.length]!) * (x - Math.floor(x));
+      return [1000 * (today.centre[0] + share * today.semi[0] * Math.cos(clock)), armpitV * (today.centre[1] + (share * today.semi[1] * Math.sin(clock)) / today.sense)];
+    });
+    const todayP: (V | null)[] = todayQ.map((q: C.P): V | null => lift(q[0], q[1] / armpitV));
+    progress(`read today's loop onto the trunk's wall: ${todayP.filter((p): boolean => p !== null).length} of ${RAYS} points`);
+    const todayShifted: IPiece[] = [{ points: todayQ.map((q: C.P): C.P => [q[0] - qc[0], q[1] - qc[1]]), closed: true }];
+    const todayTable: { piece: number; i: number }[] = todayQ.map((_: C.P, i: number): { piece: number; i: number } => ({ piece: 0, i }));
+    const todayOnRays: { q: C.P; p: V | null }[] = cast(todayShifted, (): boolean => true).map((hit, j: number): { q: C.P; p: V | null } => (Number.isFinite(hit.t) ? onSegment(todayShifted, [todayP], hit, j, todayTable) : { q: [NaN, NaN], p: null }));
+    const apart: number[] = envelope.map((x, j: number): number => (x.p === null || todayOnRays[j]!.p === null ? NaN : norm(sub(x.p, todayOnRays[j]!.p!))));
+    const chartApart: number[] = envelope.map((x, j: number): number => Math.hypot(x.q[0] - todayOnRays[j]!.q[0], x.q[1] - todayOnRays[j]!.q[1]));
+    lines.push(
+      `2. THE RULE PORT LOOP (the star-shaped envelope, in the trunk's chart, of the girdle plane's cut of the trunk family's own wall; phase as mm at the armpit's side distance ${armpitV.toFixed(1)} mm) AGAINST TODAY'S armscye LOOP, both on the trunk's own wall:`,
+      `  the cut near the shoulder: ${charted.length} pieces (${charted.map((piece: IPiece): string => `${piece.closed ? "closed" : "open"}, ${area(piece.points).toFixed(0)} sq mm in the chart`).join("; ")}); the envelope's centre in the chart: station ${qc[0].toFixed(1)}, ${qc[1].toFixed(1)} mm of phase`,
+      `  the envelope encloses ${area(envelopeChart).toFixed(0)} sq mm in the chart against the main loop's ${area(charted[main]!.points).toFixed(0)}: it bridges ${(area(envelopeChart) - area(charted[main]!.points)).toFixed(0)} sq mm of the pocket; the other closed pieces: ${islands === "" ? "none" : islands}`,
+      `  ${bridges.length} bridges (neighbouring rays over ${BRIDGE_MM} mm apart in the chart):`,
+      ...bridges.map((b): string => `    from ray ${b.from} (${((360 * b.from) / RAYS).toFixed(1)} deg about the centre): ${b.gap.toFixed(1)} mm in the chart; on the skin ${b.skin.toFixed(1)} mm against a chord through the air of ${b.chord.toFixed(1)} mm, standing up to ${b.sag.toFixed(1)} mm off that chord; starting at ${where3(envelope[b.from]!.p!)}`),
+      "  the two loops' distance on the skin, ray by ray from the envelope's centre in the chart, per 10 deg (mm):",
+      ...everyTen(apart).map((x: string): string => `    ${x}`),
+      "  the same in the chart (mm):",
+      ...everyTen(chartApart).map((x: string): string => `    ${x}`),
+      "",
+    );
+    progress("2. the loops");
+
+    // 3. The bands: each loop to today's arm family's ring at the ordinary margin, paired by the share of their lengths from their tops.
+    const loft: AutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
+    if (loft.chain === null) throw new Error("the arm's first stations do not loft");
+    const railRead = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const rail: V[] = resample(Array.from({ length: RAYS }, (_: unknown, j: number): V => railRead((2 * Math.PI * j) / RAYS) as V), RAYS, n);
+    const trunkNormal = normalsOf(trunkWall);
+    const armNormal = normalsOf(armWall);
+    const railCentre: V = armAxis.at(s0 + ARM_RAIL_MM).origin as V;
+    const outwardArm: number = rail.filter((p: V): boolean => dot(armNormal(p), sub(p, railCentre)) > 0).length;
+    const band = (loop: V[]): { span: number[]; angle: number[]; outward: number; at: V[] } => {
+      const at: V[] = resample(loop, RAYS, n);
+      return {
+        at,
+        span: at.map((p: V, k: number): number => norm(sub(rail[k]!, p))),
+        angle: at.map((p: V, k: number): number => degrees(Math.acos(Math.max(-1, Math.min(1, dot(trunkNormal(p), armNormal(rail[k]!))))))),
+        outward: at.filter((p: V): boolean => {
+          const station: number = chart(p).station;
+          return dot(trunkNormal(p), sub(p, trunkAxis(station))) > 0;
+        }).length,
+      };
+    };
+    const todayBand = band(todayP.filter((p: V | null): p is V => p !== null));
+    const ruleBand = band(ruleLoop);
+    const bin = (values: number[], b: number): number[] => values.slice((b * RAYS) / 36, ((b + 1) * RAYS) / 36);
+    const worse: string[] = [];
+    lines.push(
+      `3. THE BANDS to today's arm ring at the ordinary margin (${ARM_RAIL_MM} mm past the arm's first knot), each loop and the ring paired by the share of their lengths from their highest points, both turning the same way about the girdle's normal; normals by each wall's winding (outward: the ring's ${outwardArm} of ${RAYS} from the arm's course, today's loop's ${todayBand.outward} and the rule's ${ruleBand.outward} of ${RAYS} from the trunk chart's course):`,
+      "  per 10 deg of the share from the top: band length today | rule (mm); surface angle today | rule (deg)",
+      ...Array.from({ length: 36 }, (_: unknown, b: number): string => {
+        const range = (values: number[]): string => `${Math.min(...values).toFixed(1)}..${Math.max(...values).toFixed(1)}`;
+        const more: number = Math.max(...bin(ruleBand.angle, b)) - Math.max(...bin(todayBand.angle, b));
+        if (more > 0) worse.push(`${b * 10}..${b * 10 + 10} deg by ${more.toFixed(1)} deg`);
+        return `    ${b * 10}..${b * 10 + 10} deg: ${range(bin(todayBand.span, b))} | ${range(bin(ruleBand.span, b))} mm; ${range(bin(todayBand.angle, b))} | ${range(bin(ruleBand.angle, b))} deg${more > 0 ? `; the rule's greatest angle ${more.toFixed(1)} deg more` : ""}`;
+      }),
+      `  where the rule's greatest angle is more than today's: ${worse.length === 0 ? "nowhere" : worse.join("; ")}`,
+      "",
+    );
+    progress("3. the bands");
+
+    // 4. Frames.
+    NodeCanvasRaster.initialize();
+    const files: string[] = [];
+    const figure: N.Mesh = cropMesh("generated", skinsOf(await realizedSkin(root, "reference", progress), source.all, "reference").generated, gh, 200);
+    const loops: N.Curve[] = [
+      { id: "rule", points: ruleLoop, closed: true, xray: true, colour: "e01b1b" },
+      { id: "today", points: todayP.filter((p: V | null): p is V => p !== null), closed: true, xray: true, colour: "2f6fd0" },
+    ];
+    const armpitView: N.Camera = facing("armpit", n, [0, 1, 0], meshPoints(figure), 900, 900);
+    for (const [view, camera] of [["armpit", armpitView], ["front", NodeCanvasCamera.fit("front", meshPoints(figure), 900, 900)], ["back", NodeCanvasCamera.fit("back", meshPoints(figure), 900, 900)]] as [string, N.Camera][]) {
+      const file: string = path.join(out, `port.loops.${view}.png`);
+      await fs.writeFile(file, NodeCanvasRaster.render(camera, [figure], loops, "depth", `f1 as generated | red: the rule's port loop (the chart envelope of the girdle plane's cut); blue: today's armscye loop | ${view}`).png);
+      files.push(file);
+    }
+    const strokes = (at: V[], colour: string, id: string): N.Curve[] => Array.from({ length: 36 }, (_: unknown, b: number): N.Curve => ({ id: id + b, points: [at[(b * RAYS) / 36]!, rail[(b * RAYS) / 36]!], closed: false, xray: true, colour }));
+    const bandFile: string = path.join(out, "port.bands.armpit.png");
+    await fs.writeFile(bandFile, NodeCanvasRaster.render(armpitView, [figure], [...loops, { id: "rail", points: rail, closed: true, xray: true, colour: "202020" }, ...strokes(todayBand.at, "2f6fd0", "today"), ...strokes(ruleBand.at, "e01b1b", "rule")], "depth", `f1 as generated | the bands every 10 deg to today's arm ring at ${ARM_RAIL_MM} mm (black): blue today's, red the rule's | armpit`).png);
+    files.push(bandFile);
+    lines.push("4. FRAMES:", ...files.map((file: string): string => `  ${file}`));
+    await fs.writeFile(path.join(out, "port.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /** Where a point stands in the trunk's chart and against the axillary fold's line, for a report. */
+  function where3(p: V): string {
+    const c = trunkChart()(p);
+    const fold: V[] = AutoMovieHumanF1.CUTTERS[0]!.family.centres.map((q): V => [q[0], q[1], q[2]]);
+    let distance: number = Infinity;
+    for (let i: number = 0; i + 1 < fold.length; ++i) {
+      const e: V = sub(fold[i + 1]!, fold[i]!);
+      const w: number = Math.max(0, Math.min(1, dot(sub(p, fold[i]!), e) / dot(e, e)));
+      distance = Math.min(distance, norm(sub(p, add(fold[i]!, scale(e, w)))));
+    }
+    return `trunk station ${c.station.toFixed(1)}, phase ${degrees(Math.atan2(c.v, c.u)).toFixed(1)} deg, ${distance.toFixed(1)} mm from the fold's line`;
+  }
+
   export async function main(): Promise<void> {
     if (process.argv[2] === "cause") return cause();
     if (process.argv[2] === "bend") return bend();
     if (process.argv[2] === "rails") return rails();
+    if (process.argv[2] === "port") return port();
     if (process.argv[2] === "precheck") return precheck();
     if (process.argv[2] === "cap") return cap();
     if (process.argv[2] === "course") return armCourse();
