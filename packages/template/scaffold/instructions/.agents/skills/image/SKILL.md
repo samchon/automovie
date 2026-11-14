@@ -21,13 +21,15 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Canon references
 
-Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
 
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view in a neutral pose;
-- a face close-up with a neutral expression, unless the chosen model's terms reject realistic faces;
+- a face close-up with a neutral expression;
 - three-quarter or profile views as the shots need, unless the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
+
+Where the chosen model's terms reject realistic faces, follow them for every view.
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with its record's wording, which the shared description in its [video prompts](../video/prompts.md) reuses, because the same words keep the same subject in both.
 
@@ -39,7 +41,7 @@ For a canon reference, a plate or any other image without the hint's structure, 
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as pose and edge control. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move. When the image model's sizes differ from the video model's, generate at the same aspect and crop or resize the frame to the exact size. Make a last frame, or a keyframe at another frame the model takes, the same way from the hint's frame there, where the shot must keep a pose: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
+Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move. When the image model's sizes differ from the video model's, generate at the same aspect and crop or resize the frame to the exact size. Make a last frame, or a keyframe at another frame the model takes, the same way from the hint's frame there, where the shot must keep a pose: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
 
 ## Turnaround views for modeling
 

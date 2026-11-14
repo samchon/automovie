@@ -12,7 +12,7 @@ Promise and scope:
 4. Where the user delegated these, a provisional plan is derived from the promise, material and production limits, names its grounds and uncertainty, and is revised when those grounds change.
 5. A series establishes what recurs, what closes per release and what develops across releases. Scripts choose the release boundaries.
 6. Scale serves the audience and available material, not copied size rules or padding.
-7. The adopted representation is declared with what it cannot show, such as faceless polygon men, so later layers stage only what it carries.
+7. The adopted representation is declared with what it cannot show, such as faceless polygon men, so later layers can tell what it carries.
 8. A dimension the commission excludes is excluded once here, not in every record.
 
 Ownership and depth:

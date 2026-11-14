@@ -1,6 +1,6 @@
 # Requests
 
-A request is one generation job: an interval of the motion hint with its inputs, settings and prompt. Plan each scene's requests from its screenplay scene file and the rendered hint, once the [video skill](SKILL.md) has chosen the model and read its documentation.
+A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt, and each take is one job of it. Plan each scene's requests from its screenplay scene file and the rendered hint, once the [video skill](SKILL.md) has chosen the model and read its documentation.
 
 ## Boundaries
 
@@ -33,7 +33,7 @@ Start from the default adherence [project context](../production/project-context
 
 Whatever the level, the request locks the frames and figures where its beats' outcomes land, contacts happen, and the pose and screen direction the next shot continues are held, and loosens only frames and regions that hold none of these, because some models keep overlapping and fast movement least well.
 
-A hosted model's settings apply to the whole request, which therefore takes the strictest level its frames need; an open model's control adapter takes a [mask](../motion/control-channels.md) as its documentation defines one: a mask that scales the control, such as LTX IC-LoRA's, holds the locked region and frames and loosens the rest, while one that marks what is generated and what is kept, such as VACE's, does not loosen.
+A hosted model's settings apply to the whole request, which therefore takes the strictest level its frames need; an open model's control adapter may take a [mask](../motion/control-channels.md) over the locked region and frames, but read in its documentation whether the mask scales the control or keeps source pixels before rendering one.
 
 Adherence reaches the model in the way it takes the hint, and [diffusion models](diffusion.md) gives each model's controls:
 
@@ -42,7 +42,7 @@ Adherence reaches the model in the way it takes the hint, and [diffusion models]
 | Hosted, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
 | Hosted, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
 | Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, and wording that says what each form stands for |
-| Hosted, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots with one moving figure |
+| Hosted, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots with one moving figure, and a [shot frame](../image/SKILL.md#shot-frames) as its character image |
 | Hosted, takes still frames | Nothing: it keeps only those frames, so give it no beat whose outcome or contact falls between them |
 | Open weights with control adapters | Each adapter's strength and the steps where it acts, and a mask as its documentation defines one |
 

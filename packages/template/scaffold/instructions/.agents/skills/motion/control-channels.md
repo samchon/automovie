@@ -4,7 +4,7 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 ## Render what the receiver takes
 
-Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, edge or a semantic mask, and read the installed packages' documentation for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
+Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline, which models take as an edge pass, or a semantic mask, and read the installed packages' documentation for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
 
 Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one.
 
@@ -12,7 +12,7 @@ Render from the scene the masks and handles a [request](../video/requests.md) as
 
 ## Dense passes
 
-A dense pass, such as the hint video or depth, carries a form's shape as well as its place, so a control adapter returns it at full strength: the coarse form's boxes and the polygon man's smooth surface. A control adapter conditions a model on one structural pass, such as pose, depth or edge. Give it a pose pass for people and, for other forms, a depth pass weakened by reduced strength or blur, because these carry the place with less of the shape; keep dense passes for what must keep its exact shape.
+A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video or depth, carries a form's shape as well as its place, so at full strength a control adapter reproduces the coarse form's boxes and the polygon man's smooth surface. Give it a pose pass for people and, for other forms, a depth pass weakened by reduced strength or blur, because these carry the place with less of the shape; where the model takes one pass, give it the one that carries what the request locks, and keep unweakened dense passes for what must keep its exact shape.
 
 An adapter trained on gray layouts is the exception: it takes the whole hint video at full strength and replaces its forms, as its documentation states.
 

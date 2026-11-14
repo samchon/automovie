@@ -22,7 +22,7 @@ Write what happens in the request's interval from the [beat records](../story/la
 | Reaction | Each facial expression and reaction the hint cannot show, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
 | Camera | The depth of field and focus the screenplay's camera entry or standing state decides; the hint carries framing, moves and lens |
 
-Leave out what the hint performs: positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some adapters trained on gray layouts do, write them from the same beat records and the hint, in words that match it. A model that takes only still frames needs them too, as [still frames only](#still-frames-only) sets.
+Leave out what the request keeps from the hint, such as positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some adapters trained on gray layouts do, write them from the same beat records and the hint, in words that match it. A model that takes only still frames needs them too, as [still frames only](#still-frames-only) sets.
 
 ## Content
 
