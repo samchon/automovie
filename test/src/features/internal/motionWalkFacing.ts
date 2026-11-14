@@ -11,6 +11,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
+import { motionWalkFacingAbout } from "./motionWalkFacingAbout";
 
 /**
  * A walk that does not face its way, on one body, which the
@@ -39,10 +40,14 @@ import { motionHumanBody } from "./motionHumanBody";
  *    stride to 0.79 of a forward one (Laufer 2005; Hreljac et al. 2005),
  *    give or take the ramps into and out of the gait.
  *
- * @param name The body.
- * @param which The backpedal with its forward walk (`back`), the side-walk (`side`) or the backward arc (`arc`).
+ * And, with no `facing`, the walks a person sets off on from standing
+ * toward a way behind or beside them (`about`, `motionWalkFacingAbout`
+ * states its scenarios 6 to 9).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the walks and the 5 scenarios with their bounds and sources.
+ * @param name The body.
+ * @param which The backpedal with its forward walk (`back`), the side-walk (`side`), the backward arc (`arc`) or the walks set off toward a way not faced (`about`).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the walks and the 5 scenarios with their bounds and sources, and where the turn-about's are stated.
  * @evidence contracts/development/implementation.md#principled-implementation Builds the walks through the public chain and reads displayed joints and soles against the asked headings and the plan's declared plants.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per scenario, gathered as complaints and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A walk that does not plan is a complaint with the refusal's words.
@@ -52,7 +57,7 @@ import { motionHumanBody } from "./motionHumanBody";
  */
 export function motionWalkFacing(
   name: motionHumanBody.Name,
-  which: "back" | "side" | "arc",
+  which: "back" | "side" | "arc" | "about",
 ): void {
   const body: IHumanBody = motionHumanBody(name);
   const complaints: string[] = [];
@@ -112,9 +117,12 @@ export function motionWalkFacing(
   for (const one of walks.filter(
     (w: { label: string }): boolean =>
       w.label ===
-      { back: "the backpedal", side: "the side-walk", arc: "the backward arc" }[
-        which
-      ],
+      {
+        back: "the backpedal",
+        side: "the side-walk",
+        arc: "the backward arc",
+        about: "",
+      }[which],
   )) {
     let performance: HumanPerformance;
     try {
@@ -187,6 +195,9 @@ export function motionWalkFacing(
         `${name}: ${one.label}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
       );
   }
+
+  // 6 to 9. A walk set off from standing toward a way it does not face.
+  if (which === "about") motionWalkFacingAbout(name, body, perform, complaints);
 
   // 5. Backward against forward.
   if (which === "back")

@@ -1,4 +1,5 @@
 import {
+  DEFAULT_HUMANOID_ROM,
   Vector3,
   bracketedRoot,
   minimumJerk,
@@ -6,6 +7,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAngleRange,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -125,7 +127,9 @@ export namespace walkReach {
 
   /**
    * Turn the pelvis toward its stances: no further than `TWIST` from each
-   * claiming foot, a foot with its heel up taking the rest as a pivot turn.
+   * claiming foot, a foot with its heel up taking the rest as a pivot turn;
+   * feet turned further apart than that, in a stepping turn, hold it between
+   * them, each by its claim.
    *
    * @param body The body.
    * @param root The unconstrained root, world metres.
@@ -143,6 +147,10 @@ export namespace walkReach {
   ): IPelvis {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
+    // Each claiming foot's band: its pivoted heading, near the planned one,
+    // give or take `TWIST` over its claim.
+    type IBand = { centre: number; half: number };
+    const bands: IBand[] = [];
     for (const side of SIDES) {
       const w: number = weight(feet[side]);
       if (w <= 0) continue;
@@ -153,9 +161,25 @@ export namespace walkReach {
         Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
       pivots[side] =
         excess * Math.min(1, Math.max(0, -HumanFoot.pitch(rotation) / HEEL_UP));
+      bands.push({
+        centre: planned + wrapDegrees(heading + pivots[side] - planned),
+        half: TWIST / w,
+      });
       const turned: number = wrapDegrees(yaw - (heading + pivots[side]));
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
+    }
+    // Feet further apart than their bands, as in a stepping turn, hold the
+    // pelvis in the gap between the bands, at the planned heading as near as
+    // the gap allows, so the pelvis turns on with the plan as the claims pass
+    // from one foot to the other.
+    if (bands.length === 2) {
+      const a: IBand =
+        bands[0]!.centre <= bands[1]!.centre ? bands[0]! : bands[1]!;
+      const b: IBand = a === bands[0] ? bands[1]! : bands[0]!;
+      const upper: number = a.centre + a.half;
+      const lower: number = b.centre - b.half;
+      if (upper < lower) yaw = Math.min(lower, Math.max(upper, planned));
     }
     return {
       yaw,
@@ -401,8 +425,38 @@ export namespace walkReach {
   /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
   const KNEE: number = 10;
 
-  /** The largest heading, degrees, a foot may keep from the pelvis: 25° inside the hip's 45° rotation (DEFAULT_HUMANOID_ROM), room for the pitch a toe-off and the list a turned leg also ask of it. */
-  export const TWIST: number = 20;
+  /**
+   * The hips' rotation in a range-of-motion table: the least of either
+   * hip's internal and external rotation, degrees.
+   *
+   * @param rom The table.
+   * @returns Degrees, the lesser way of the stiffer hip.
+   * @throws {Error} When the table gives a hip no rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Each hip's twist interval, the smaller of its two sides, the smaller hip.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read per hip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A table without a hip's rotation is refused, never read as no limit.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once, into `TWIST`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function hipTwist(rom: typeof DEFAULT_HUMANOID_ROM): number {
+    return Math.min(
+      ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
+        (bone: "leftUpperLeg" | "rightUpperLeg"): number => {
+          const twist: IAutoMovieAngleRange | null | undefined =
+            rom[bone]?.twist;
+          if (twist === null || twist === undefined)
+            throw new Error(`The range-of-motion table gives ${bone} no twist`);
+          return Math.min(-twist.min, twist.max);
+        },
+      ),
+    );
+  }
+
+  /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (DEFAULT_HUMANOID_ROM, 45° either way, `hipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
+  export const TWIST: number = hipTwist(DEFAULT_HUMANOID_ROM);
 
   /** Pitch, degrees toes-down, at which a planted foot's heel is far enough up to take the whole pivot turn on its toe pad (provisional). */
   const HEEL_UP: number = 30;
