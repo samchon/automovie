@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's torch reads as, not read at a source. */
-const MAKER: string = "a common maker's handheld torch, not read at a source";
+/** The maker's torch, read. */
+const MAGLITE: string =
+  "Maglite 2-Cell D LED: 10 in (254 mm) long, a 1 9/16 in (39.67 mm) barrel, a 2.25 in (57 mm) head, 23 oz (674 g) with batteries (https://maglite.com/pages/specifications-maglite-2-cell-d-led-flashlight), the 23 oz given as 652 g by a retailer (https://www.adorama.com/mlst2d015.html)";
 
 /**
  * A handheld electric torch (a flashlight): a barrel with a wider head and a switch on the barrel.
@@ -23,7 +24,7 @@ const MAKER: string = "a common maker's handheld torch, not read at a source";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the torch stands and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the drawn length and diameter and a head rod a third wider at its top, the switch a point on the barrel's side below the head.
+ * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the drawn length and diameter and a head rod of the maker's head diameter at its top, the switch a point on the barrel's side below the head.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, two parts, three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The switch is a contact on the barrel, not a part; the head's size and the switch's travel are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
@@ -54,7 +55,7 @@ export function createTorch(
   const barrel: number = d.length - head;
   const r: number = d.diameter / 2;
   builder.rod("barrel", r, v(0, 0, 0), v(0, barrel, 0), { color: "#2c2f33" });
-  builder.rod("head", r * 1.35, v(0, barrel, 0), v(0, d.length, 0), {
+  builder.rod("head", createTorch.HEAD_DIAMETER / 2, v(0, barrel, 0), v(0, d.length, 0), {
     color: "#3a3d42",
   });
   builder.affordance({
@@ -92,10 +93,13 @@ export function createTorch(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The barrel a hand takes, the lens an aim reads and the switch a thumb presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read, so every band is provisional; the head's length and the switch's travel are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The length, the barrel's diameter and the mass are the maker's as read; the head's length and the switch's travel are named estimates.
  */
 export namespace createTorch {
-  /** The head's length, metres: an estimate. */
+  /** The head's diameter, metres: the Maglite 2-Cell D's 57 mm. */
+  export const HEAD_DIAMETER: number = 0.057;
+
+  /** The head's length, metres: an estimate; the maker's page read does not give it. */
   export const HEAD: number = 0.04;
 
   /** The switch's press, metres: an estimate. */
@@ -127,8 +131,8 @@ export namespace createTorch {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.13, 0.25, MAKER, true),
-    diameter: ArchetypeBand.metres(0.022, 0.035, MAKER, true),
-    mass: ArchetypeBand.of("kg", 0.1, 0.4, MAKER, true),
+    length: ArchetypeBand.metres(0.254, 0.254, MAGLITE),
+    diameter: ArchetypeBand.metres(0.03967, 0.03967, MAGLITE),
+    mass: ArchetypeBand.of("kg", 0.652, 0.674, MAGLITE),
   };
 }

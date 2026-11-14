@@ -13,9 +13,9 @@ import {
 const RULE: string =
   "World Athletics Competition Rules, Book C2.1, Rule 28.8 (pole vault): the pole may be of any material or combination of materials and of any length or diameter, the basic surface smooth (https://worldathletics.org/about-iaaf/documents/book-of-rules)";
 
-/** The commercial range of vaulting poles. */
+/** A maker's range of vaulting poles, read. */
 const POLES: string =
-  "fibreglass vaulting poles sold from 10 ft to 17 ft (3.05 to 5.18 m) in 6 in steps, as the makers' size charts list them (UCS Spirit, Essx); no single chart was read, so the band is marked provisional";
+  "UCS Spirit vaulting poles, from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series) (https://ucsspirit.com/products/ucs-spirit-vaulting-poles)";
 
 /**
  * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box and swings on (#3529).
@@ -140,11 +140,11 @@ export namespace createVaultingPole {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(3.05, 5.18, `${RULE}; ${POLES}`, true),
+    length: ArchetypeBand.metres(2.337, 5.207, `${RULE}; ${POLES}`),
     diameter: ArchetypeBand.metres(
       0.03,
       0.045,
-      `${RULE}; an estimate of a fibreglass pole's outer diameter, no maker's figure was read`,
+      `${RULE}; an estimate of a fibreglass pole's outer diameter; the UCS Spirit pages read give no diameter`,
       true,
     ),
     hold: ArchetypeBand.metres(
@@ -163,7 +163,7 @@ export namespace createVaultingPole {
       "kg",
       1.5,
       3,
-      "an estimate of a fibreglass pole of these lengths; no maker's figure was read",
+      "an estimate of a fibreglass pole of these lengths; the UCS Spirit pages read give no mass",
       true,
     ),
   };

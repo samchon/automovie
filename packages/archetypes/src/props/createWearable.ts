@@ -9,8 +9,20 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's size reads as, not read at a source. */
-const MAKER: string = "a common maker's size, not read at a source";
+/** A wristwatch, read. */
+const CASIO: string =
+  "Casio F-91W, a 38.2 x 35.2 x 8.5 mm case, 21 g (https://halifaxwatch.com/products/casio-vintage-f91)";
+
+/** Fedoras, read. */
+const STETSON: string =
+  "Stetson fedoras: brims of 2 in (Selby) to 4 1/8 in (Sol), crowns of 3 3/4 to 4 1/2 in, sizes for heads 20 1/4 to 22 1/4 in round (https://www.villagehatshop.com/products/selby-fur-felt-fedora-hat, https://www.villagehatshop.com/products/sol-wide-brim-wool-felt-fedora-hat, https://www.dapperfam.com/collections/hats/products/stetson-midtown-wool-pinch-front-wide-brim-fedora)";
+
+/** Spectacles, read. */
+const RAYBAN: string =
+  "Ray-Ban RB2140 Original Wayfarer 50-22-150: 50 mm lenses 41 mm high, a 22 mm bridge, 150 mm temples (https://www.lenscrafters.com/lc-us/ray-ban/805289126577)";
+
+/** What no source read gives. */
+const UNREAD: string = "the makers' pages read do not give it";
 
 /**
  * A small thing worn on the body and put on or taken off by hand: a wristwatch, a hat or a pair of spectacles.
@@ -171,7 +183,7 @@ export function createWearable(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the three things and one band per dimension each; the dimensions' meanings per kind are listed.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The hold a hand takes, the socket a body part goes into and a watch's dial.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read, so every band is provisional; the strap's width and every thickness are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, the hat's from its brim, crown and head size; what no page read gives is provisional; the strap's width and every thickness are named estimates.
  */
 export namespace createWearable {
   /** The kinds. */
@@ -219,27 +231,34 @@ export namespace createWearable {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     watch: {
-      width: ArchetypeBand.metres(0.036, 0.045, MAKER, true),
-      depth: ArchetypeBand.metres(0.2, 0.24, MAKER, true),
-      height: ArchetypeBand.metres(0.009, 0.014, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.18, MAKER, true),
+      width: ArchetypeBand.metres(0.0352, 0.0382, CASIO),
+      depth: ArchetypeBand.metres(0.2, 0.24, `the strap's length: ${UNREAD}`, true),
+      height: ArchetypeBand.metres(0.0085, 0.0085, CASIO),
+      mass: ArchetypeBand.of("kg", 0.021, 0.021, CASIO),
     },
     hat: {
-      width: ArchetypeBand.metres(0.3, 0.4, MAKER, true),
-      depth: ArchetypeBand.metres(
-        0.17,
-        0.2,
-        "a head's breadth and length inside the crown, an estimate",
-        true,
+      width: ArchetypeBand.metres(
+        (20.25 * 0.0254) / Math.PI + 2 * 2 * 0.0254,
+        (22.25 * 0.0254) / Math.PI + 2 * 4.125 * 0.0254,
+        `${STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
-      height: ArchetypeBand.metres(0.1, 0.15, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.08, 0.2, MAKER, true),
+      depth: ArchetypeBand.metres(
+        (20.25 * 0.0254) / Math.PI,
+        (22.25 * 0.0254) / Math.PI,
+        `${STETSON}: the head's round as a circle's across`,
+      ),
+      height: ArchetypeBand.metres(3.75 * 0.0254, 4.5 * 0.0254, STETSON),
+      mass: ArchetypeBand.of("kg", 0.08, 0.2, `the hat's weight: ${UNREAD}`, true),
     },
     spectacles: {
-      width: ArchetypeBand.metres(0.13, 0.145, MAKER, true),
-      depth: ArchetypeBand.metres(0.135, 0.15, MAKER, true),
-      height: ArchetypeBand.metres(0.035, 0.05, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.02, 0.04, MAKER, true),
+      width: ArchetypeBand.metres(
+        0.122,
+        0.122,
+        `${RAYBAN}: two lenses and the bridge; the rims' width outside them ${UNREAD}`,
+      ),
+      depth: ArchetypeBand.metres(0.15, 0.15, RAYBAN),
+      height: ArchetypeBand.metres(0.041, 0.041, RAYBAN),
+      mass: ArchetypeBand.of("kg", 0.02, 0.04, `the frame's weight: ${UNREAD}`, true),
     },
   };
 }

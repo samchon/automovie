@@ -10,9 +10,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The amateur ring rules as recalled, not read here. */
-const RULES: string =
-  "the IBA and WAKO competition ring rules, recalled and not read";
+/** The amateur boxing body's ring guide, read. */
+const AIBA: string =
+  "AIBA Ring Manufacturer Guide, 12 February 2014 (https://www.iba.sport/wp-content/uploads/2019/02/AIBA_RING_MANUFACTURER_GUIDE_12.02.2014.pdf)";
 
 /** The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`. */
 const SIDES: readonly ["north", "south", "east", "west"] = [
@@ -33,7 +33,7 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A platform box of the drawn height whose square is the drawn inside size and an apron; a post rod at each corner of the inside square rising to the top rope; the drawn number of ropes on each side, evenly spaced up to the drawn top rope's height.
+ * @evidence contracts/development/implementation.md#principled-implementation A platform box of the drawn height whose square is the drawn inside size and an apron; a post rod at each corner of the inside square rising to the top rope; four ropes on each side at the guide's heights, scaled to the drawn top rope's height.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the platform, the posts, the ropes, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ropes are straight rigid rods, not slack; no turnbuckles, pads or steps; the apron's width and the parts' sizes are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms One platform, four posts and four ropes per level.
@@ -75,7 +75,7 @@ export function createRing(
       `${id}Post`,
       createRing.POST / 2,
       v(x, floor, z),
-      v(x, top + 0.1, z),
+      v(x, top, z),
       {
         color: "#c9ccd1",
       },
@@ -83,14 +83,15 @@ export function createRing(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(x, top + 0.1, z)),
+      frame: ArchetypeFrame.upright(v(x, top, z)),
       extent: null,
     });
   }
   const rope: number = createRing.ROPE;
   const levels: number = createRing.ROPES;
   for (let level: number = 1; level <= levels; level++) {
-    const y: number = floor + (d.topRope * level) / levels;
+    const y: number =
+      floor + (d.topRope * createRing.LEVELS[level - 1]!) / createRing.LEVELS[levels - 1]!;
     for (const side of SIDES) {
       const along: boolean = side === "north" || side === "south";
       const sign: number = side === "north" || side === "east" ? 1 : -1;
@@ -145,22 +146,25 @@ export function createRing(
  * Companion types, constants and bands of {@link createRing}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension the rules bound: the inside square, the platform's height and the top rope's height above the canvas.
+ * @evidence contracts/development/design.md#principled-representation One band per dimension the guide sets: the inside square, the platform's height and the top rope's height above the canvas.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The canvas fighters stand on, the top ropes and the corners a bout reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rules were recalled and not read here, so every band is provisional; the apron's, posts' and ropes' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the AIBA guide's as read; it states no mass, so the mass band is provisional; the posts' section is a named estimate.
  */
 export namespace createRing {
-  /** The platform beyond the ropes on each side, metres: an estimate under the rules' 0.5 m or so. */
-  export const APRON: number = 0.5;
+  /** The apron beyond the ropes on each side, metres: the AIBA guide's 85 cm. */
+  export const APRON: number = 0.85;
 
   /** The posts' diameter, metres: an estimate. */
   export const POST: number = 0.1;
 
-  /** The ropes' diameter, metres: an estimate. */
+  /** The ropes' thickness, metres: the AIBA guide's 4 cm, without the cover. */
   export const ROPE: number = 0.04;
 
-  /** The ropes on each side: four, as the amateur rules ask. */
+  /** The ropes on each side: the AIBA guide's four. */
   export const ROPES: number = 4;
+
+  /** The ropes' heights above the canvas, metres: the AIBA guide's 40, 70, 100 and 130 cm, scaled with the drawn top rope. */
+  export const LEVELS: readonly number[] = [0.4, 0.7, 1, 1.3];
 
   /**
    * The affordance ids:
@@ -199,23 +203,26 @@ export namespace createRing {
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     size: ArchetypeBand.metres(
-      4.9,
       6.1,
-      `${RULES}: 4.9 to 6.1 m square inside the ropes`,
-      true,
+      6.1,
+      `${AIBA}, canvas: 6.10 m square inside the line of the ropes`,
     ),
     platform: ArchetypeBand.metres(
-      0.91,
-      1.22,
-      `${RULES}: the platform 0.91 to 1.22 m high`,
-      true,
+      1,
+      1,
+      `${AIBA}, poles: 230 cm in all and 130 cm above the canvas, so the canvas stands 100 cm high`,
     ),
     topRope: ArchetypeBand.metres(
       1.3,
-      1.35,
-      `${RULES}: the top rope 1.30 m above the canvas`,
+      1.3,
+      `${AIBA}, ropes: the four at 40, 70, 100 and 130 cm from the canvas`,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      800,
+      2000,
+      "the AIBA guide states no mass; an estimate",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 800, 2000, "a ring's mass, an estimate", true),
   };
 }

@@ -24,7 +24,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. The razor and the lipstick, the fork, every vessel, wearable, keyboard, cleaning thing and carrier, the torch, the pram, both scabbards, both weapon carriers and the weapon rack, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the razor 0.13 to 0.15 m long; the keyboard's home row two and a half key pitches (47.6 mm) behind its key field's front, the third row's middle; the sword's scabbard 0.80 to 1.08 m long; the pram's handle 0.95 to 1.1 m high (all provisional sources the producers name).
+ * 2. Over 200 seeds: the razor 0.129 to 0.137 m long (two Mach3 razors); the keyboard's home row two and a half key pitches (47.6 mm) behind its key field's front, the third row's middle; the sword's scabbard 0.793 to 1.055 m long (Wulflund's fit on createSword's blades); the pram's handle 41.3 in high (the Bugaboo Fox 5).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the sources each producer cites; the home row's place is the standard key pitch's arithmetic.
@@ -123,9 +123,9 @@ export function test_archetype_everyday_placed(): void {
     ...archetypeBandSweep([
       row(
         "razor length",
-        0.13,
-        0.15,
-        "makers' cartridge razors",
+        0.129,
+        5.4 * 0.0254,
+        "Mach3 razors, 129 mm and 5.4 in",
         (seed: number): number =>
           archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size,
       ),
@@ -147,17 +147,17 @@ export function test_archetype_everyday_placed(): void {
       ),
       row(
         "sword scabbard length",
-        0.8,
-        1.08,
-        "createSword's blades with room",
+        0.7779 + 0.015,
+        1.04 + 0.015,
+        "Wulflund's 1.5 cm beyond createSword's blades",
         (seed: number): number =>
           archetypeExtent(createScabbard({ kind: "sword" }, seed), "y").size,
       ),
       row(
         "pram handle height",
-        0.95,
-        1.1,
-        "makers' prams",
+        41.3 * 0.0254,
+        41.3 * 0.0254,
+        "Bugaboo Fox 5, 41.3 in open",
         (seed: number): number =>
           createPram({}, seed).affordance("handle").frame.translation.y,
       ),

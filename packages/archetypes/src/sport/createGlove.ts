@@ -89,7 +89,7 @@ export function createGlove(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two gloves the rules size and one band per dimension per kind, the rules' limits at the top.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The opening a hand enters and the pocket a catch reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional; the padding's thickness is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the rule's limits as read, which the model takes; the rule leaves the weight free and no maker's weight was read, so the masses are provisional; the padding's thickness is a named estimate.
  */
 export namespace createGlove {
   /** The kinds. */
@@ -130,12 +130,13 @@ export namespace createGlove {
     id?: string;
   }
 
-  /** A provisional band in metres. */
-  const m = (
-    minimum: number,
-    maximum: number,
-    source: string,
-  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
+  /** The Official Baseball Rules 2024. */
+  const OBR: string =
+    "Official Baseball Rules 2024 (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
+
+  /** A band in metres at a rule's limit. */
+  const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
+    ArchetypeBand.metres(minimum, maximum, source);
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -143,39 +144,39 @@ export namespace createGlove {
   > = {
     fielder: {
       length: m(
-        11 * INCH,
         13 * INCH,
-        "Official Baseball Rules 3.06: a fielder's glove at most 13 in long; the shorter end is an infielder's 11 in",
+        13 * INCH,
+        `${OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
       ),
       width: m(
-        7 * INCH,
         7.75 * INCH,
-        "Official Baseball Rules 3.06: at most 7 3/4 in wide across the palm; the narrower end is a maker's",
+        7.75 * INCH,
+        `${OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
       ),
       mass: ArchetypeBand.of(
         "kg",
         0.5,
         0.7,
-        "a maker's glove, not read at a source",
+        `${OBR}, 3.06: the glove can be of any weight; no maker's weight was read`,
         true,
       ),
     },
     catcher: {
       length: m(
-        14 * INCH,
         15.5 * INCH,
-        "Official Baseball Rules 3.04: a catcher's mitt at most 15 1/2 in from top to bottom; the shorter end is a maker's",
+        15.5 * INCH,
+        `${OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
       width: m(
-        11 * INCH,
-        12.1 * INCH,
-        "Official Baseball Rules 3.04: at most 38 in round, read as a width a third of it; an estimate",
+        2 * ((38 * INCH) / Math.PI - (15.5 * INCH) / 2),
+        2 * ((38 * INCH) / Math.PI - (15.5 * INCH) / 2),
+        `${OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
       ),
       mass: ArchetypeBand.of(
         "kg",
         0.6,
         0.9,
-        "a maker's mitt, not read at a source",
+        `${OBR}, 3.04: the rule states no weight; no maker's weight was read`,
         true,
       ),
     },

@@ -10,7 +10,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. The kerb and the step on the floor and the tap on a 0.9 m counter's height, placed on a line through the public chain, each turned a different way: each rests at its placement, its lowest point on its support within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the kerb's upstand 0.10 to 0.15 m and the step's riser 0.15 to 0.197 m high, and the step's tread at least 0.254 m deep (the recalled codes); the tap's spout reaching 0.12 to 0.22 m out from its body's axis (makers').
+ * 2. Over 200 seeds: the kerb's upstand 0.10 to 0.15 m (Wheels for Wellbeing's kerb profiles), the step's riser 0.196 m and its tread 0.254 m (the IRC's limits); the tap's spout reaching 0.106 to 0.109 m out from its body's axis (GROHE's).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the sources each producer cites.
@@ -50,25 +50,25 @@ export function test_archetype_kerb_placed(): void {
       ),
       row(
         "step riser",
-        0.15,
-        0.197,
-        "building codes' risers",
+        0.196,
+        0.196,
+        "IRC R311.7.5.1, 7 3/4 in at most",
         (seed: number): number =>
           archetypeExtent(createKerb({ kind: "step" }, seed), "y").high,
       ),
       row(
         "step tread",
         0.254,
-        0.35,
-        "building codes' treads",
+        0.254,
+        "IRC R311.7.5.2, 10 in at least",
         (seed: number): number =>
           archetypeExtent(createKerb({ kind: "step" }, seed), "z").size,
       ),
       row(
         "tap reach",
-        0.12,
-        0.22,
-        "makers' mixer taps",
+        0.106,
+        0.109,
+        "GROHE Eurosmart S-size, 106 to 109 mm",
         (seed: number): number =>
           archetypeExtent(createTap({}, seed), "z", ["spout"]).high,
       ),

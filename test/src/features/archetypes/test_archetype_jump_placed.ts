@@ -15,7 +15,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. The vaulting pole standing on its tip, the high jump, both landing mats and both vaulting tables, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the pole 3.05 to 5.18 m from its tip to its top (the commercial range, the rules leaving the length free); the high jump's crossbar 3.98 to 4.02 m long and its top 1 to 2.45 m high; the high jump mat's top 0.7 to 0.75 m and the pole vault mat's 0.8 to 0.85 m high (the rules' least heights); the men's vaulting table's top 1.34 to 1.36 m and the women's 1.24 to 1.26 m high (the norms' heights to a centimetre).
+ * 2. Over 200 seeds: the pole 2.337 to 5.207 m from its tip to its top (UCS Spirit's 7 ft 8 in to 17 ft 1 in poles, the rules leaving the length free); the high jump's crossbar 3.98 to 4.02 m long and its top 1 to 2.45 m high (a setting); the high jump mat's top 0.7 m and the pole vault mat's 0.8 m high (the rules' least heights); the men's vaulting table's top 1.34 to 1.36 m and the women's 1.24 to 1.26 m high (the norms' heights to a centimetre).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every jump archetype through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; an archetype that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from their sources: World Athletics' columns of the 2025 rules comparison sheets, the FIG norms as Wikipedia gives them, the makers' pole lengths.
@@ -60,9 +60,9 @@ export function test_archetype_jump_placed(): void {
     ...archetypeBandSweep([
       row(
         "vaulting pole length",
-        3.05,
-        5.18,
-        "makers' 10 to 17 ft poles",
+        2.337,
+        5.207,
+        "UCS Spirit poles, 7 ft 8 in to 17 ft 1 in",
         (seed: number): number =>
           archetypeExtent(createVaultingPole({}, seed), "y").size,
       ),
@@ -78,15 +78,15 @@ export function test_archetype_jump_placed(): void {
         "crossbar height",
         1,
         2.45,
-        "a beginner's 1 m to the 2.45 m record",
+        "a beginner's 1 m to the 2.45 m record, a setting",
         (seed: number): number =>
           archetypeExtent(createHighJump({}, seed), "y", ["crossbar"]).high,
       ),
       row(
         "high jump mat height",
         0.7,
-        0.75,
-        "World Athletics, landing surface 0.7 m high at least",
+        0.7,
+        "World Athletics TR27.10, at least 0.7 m high",
         (seed: number): number =>
           archetypeExtent(createLandingMat({ kind: "highJump" }, seed), "y")
             .high,
@@ -94,8 +94,8 @@ export function test_archetype_jump_placed(): void {
       row(
         "pole vault mat height",
         0.8,
-        0.85,
-        "World Athletics, landing area 0.8 m high at least",
+        0.8,
+        "World Athletics, at least 0.8 m high",
         (seed: number): number =>
           archetypeExtent(createLandingMat({ kind: "poleVault" }, seed), "y")
             .high,

@@ -121,7 +121,7 @@ export function createGolfClub(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the three clubs a round is played with and one band per dimension per kind; the Equipment Rules bound the length and the head, the makers' sizes fill the rest.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The grip the hands take, the face and the head a swing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rules were recalled and not read here, so every band is provisional; the head's height, the shaft's diameter and the grip's length are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the R&A rule or a maker's figure as read; a figure no source read gives is provisional and says so; the head's height, the shaft's diameter and the grip's length are named estimates inside the rule's limits.
  */
 export namespace createGolfClub {
   /** The kinds: a driver, a mid iron (a 7-iron) and a putter. */
@@ -177,28 +177,38 @@ export namespace createGolfClub {
     id?: string;
   }
 
-  /** A provisional band in metres. */
+  /** A band in metres. */
   const m = (
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
+    provisional: boolean = false,
+  ): IArchetypeBand =>
+    ArchetypeBand.metres(minimum, maximum, source, provisional);
 
-  /** A provisional mass band. */
+  /** A mass band. */
   const kg = (
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.of("kg", minimum, maximum, source, true);
+    provisional: boolean = false,
+  ): IArchetypeBand =>
+    ArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
-  /** What a maker's size reads as, not read at a source. */
-  const MAKER: string = "a common maker's size, not read at a source";
+  /** The R&A Rules of Equipment, Part 2. */
+  const RANDA: string =
+    "R&A Rules of Equipment, Part 2 (https://www.randa.org/roe/the-rules-of-equipment/part-2-conformance-of-clubs)";
 
-  /** The grip's band, every club alike. */
+  /** What no source read gives. */
+  const UNREAD: string =
+    "no source read gives it; the makers' pages read do not state it";
+
+  /** The grip's band, every club alike: under the rule's limit, its size unread. */
   const GRIP: IArchetypeBand = m(
     0.02,
     0.024,
-    "R&A and USGA Equipment Rules, Part 2, 5: the grip at most 1.75 in across; the band is a maker's standard to midsize grip",
+    `${RANDA}, 2.3b(iii): the grip at most 1.75 in across; the band inside it ${UNREAD}`,
+    true,
   );
 
   /** The band of each free dimension, by kind. */
@@ -207,40 +217,57 @@ export namespace createGolfClub {
   > = {
     driver: {
       length: m(
-        43.5 * INCH,
+        45.5 * INCH,
         46 * INCH,
-        "R&A and USGA Equipment Rules, Part 2, 1c: at most 46 in for a club other than a putter; the shorter end is a maker's",
+        "PING G440 MAX driver, standard 45 1/2 and 46 in by shaft (https://ping.com/clubs/drivers/g440-max), inside the R&A rule 2.1c's 48 in",
       ),
       headWidth: m(
         0.11,
         5 * INCH,
-        "R&A and USGA Equipment Rules, Part 2, 4b: a wood's head at most 5 in from heel to toe",
+        `${RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${UNREAD}`,
+        true,
       ),
-      headDepth: m(0.1, 0.12, MAKER),
+      headDepth: m(
+        0.1,
+        0.12,
+        `${RANDA}, 2.4b(i): less than the heel to toe; the band ${UNREAD}`,
+        true,
+      ),
       gripDiameter: GRIP,
-      mass: kg(0.29, 0.33, MAKER),
+      mass: kg(
+        0.29,
+        0.33,
+        `PING G440 head of 203 g (https://ping.com/clubs/drivers/g440-k) with a 50 g class shaft; the grip's mass ${UNREAD}`,
+        true,
+      ),
     },
     iron: {
-      length: m(36.25 * INCH, 37.5 * INCH, MAKER),
-      headWidth: m(0.075, 0.085, MAKER),
-      headDepth: m(0.02, 0.03, MAKER),
+      length: m(37 * INCH, 37 * INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
+      headWidth: m(0.075, 0.085, UNREAD, true),
+      headDepth: m(0.02, 0.03, UNREAD, true),
       gripDiameter: GRIP,
-      mass: kg(0.4, 0.45, MAKER),
+      mass: kg(0.4, 0.45, UNREAD, true),
     },
     putter: {
       length: m(
         33 * INCH,
         35 * INCH,
-        "R&A and USGA Equipment Rules, Part 2, 1c: a putter at least 18 in long; the band is a maker's",
+        "PING putters, the G Le4 Anser 2D's 33 in and the 2024 Anser D's 35 in standard lengths (https://ping.com/en-us/golf-clubs/womens/g-le4-anser-2d-putter, https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter)",
       ),
       headWidth: m(
         0.1,
         0.12,
-        "R&A and USGA Equipment Rules, Part 2, 4b: a putter's head at most 7 in from heel to toe; the band is a maker's",
+        `${RANDA}, 2.4b(iii): a putter's head at most 7 in from heel to toe; the band ${UNREAD}`,
+        true,
       ),
-      headDepth: m(0.025, 0.08, MAKER),
+      headDepth: m(0.025, 0.08, UNREAD, true),
       gripDiameter: GRIP,
-      mass: kg(0.5, 0.6, MAKER),
+      mass: kg(
+        0.5,
+        0.52,
+        "PING Anser heads of 350 to 365 g (https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter) with a shaft and a grip whose mass no source read gives",
+        true,
+      ),
     },
   };
 }

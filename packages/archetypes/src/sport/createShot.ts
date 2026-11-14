@@ -10,8 +10,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' implement rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the shot";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 33.5, the shot";
 
 /**
  * A competition shot, the men's or the women's.
@@ -77,7 +78,7 @@ export function createShot(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The size and mass a put reads and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit.
  */
 export namespace createShot {
   /** The categories. */
@@ -106,14 +107,14 @@ export namespace createShot {
     id?: string;
   }
 
-  /** A provisional band of the rule. */
+  /** A band of the rule. */
   const band = (
     unit: IArchetypeBand["unit"],
     minimum: number,
     maximum: number,
     what: string,
   ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`, true);
+    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
@@ -124,8 +125,8 @@ export namespace createShot {
       mass: band(
         "kg",
         7.26,
-        7.285,
-        "the men's at least 7.26 kg; the upper end is a maker's tolerance",
+        7.26,
+        "the men's at least 7.26 kg for admission, the minimum the model takes",
       ),
     },
     women: {
@@ -133,8 +134,8 @@ export namespace createShot {
       mass: band(
         "kg",
         4,
-        4.025,
-        "the women's at least 4 kg; the upper end is a maker's tolerance",
+        4,
+        "the women's at least 4 kg for admission, the minimum the model takes",
       ),
     },
   };

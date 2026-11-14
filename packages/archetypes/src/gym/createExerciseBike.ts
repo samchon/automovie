@@ -10,8 +10,13 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's bike reads as, not read at a source. */
-const MAKER: string = "a common maker's indoor cycle, not read at a source";
+/** The maker's bike read. */
+const PELOTON: string =
+  "Peloton Bike user manual, specifications: 135 lb (61 kg), a 4 x 2 ft (120 x 60 cm) footprint (https://manualshive.com/en/manual/peloton/pl-01/1523449?page=7)";
+
+/** What no source read gives. */
+const UNREAD: string =
+  "the Peloton manual read lists the saddle and the handlebar as adjustable but gives no figure";
 
 /**
  * A stationary exercise bike (an indoor cycle): a frame on a floor base with a saddle, a handlebar, a crank and two pedals.
@@ -65,7 +70,7 @@ export function createExerciseBike(
     d.handlebarHeight,
     createExerciseBike.REACH,
   );
-  builder.box("base", v(0.5, 0.06, 1.1), v(0, 0.03, 0), { color: "#2c2f33" });
+  builder.box("base", v(createExerciseBike.FOOTPRINT.width, 0.06, createExerciseBike.FOOTPRINT.length), v(0, 0.03, 0), { color: "#2c2f33" });
   builder.rod(
     "seatPost",
     tube,
@@ -185,9 +190,15 @@ export function createExerciseBike(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension a rider sets or a maker varies; the saddle's height is the one a seated workout reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The saddle, the grips, the crank and the pedals, named as `createBicycle` names them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for an indoor cycle, so every band is provisional; the parts' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the footprint are a maker's as read; no source read gives the saddle's, the handlebar's or the crank's settings, so those bands are provisional; the parts' sizes are named estimates.
  */
 export namespace createExerciseBike {
+  /** The floor footprint, metres: the Peloton Bike's 120 x 60 cm (see the source). */
+  export const FOOTPRINT: Readonly<{ length: number; width: number }> = {
+    length: 1.2,
+    width: 0.6,
+  };
+
   /** The bottom bracket's height above the floor, metres: an estimate. */
   export const BRACKET: number = 0.3;
 
@@ -257,16 +268,16 @@ export namespace createExerciseBike {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    saddleHeight: ArchetypeBand.metres(0.8, 1.05, MAKER, true),
-    handlebarHeight: ArchetypeBand.metres(0.95, 1.2, MAKER, true),
-    handlebarWidth: ArchetypeBand.metres(0.45, 0.55, MAKER, true),
-    saddleWidth: ArchetypeBand.metres(0.14, 0.18, MAKER, true),
+    saddleHeight: ArchetypeBand.metres(0.8, 1.05, UNREAD, true),
+    handlebarHeight: ArchetypeBand.metres(0.95, 1.2, UNREAD, true),
+    handlebarWidth: ArchetypeBand.metres(0.45, 0.55, UNREAD, true),
+    saddleWidth: ArchetypeBand.metres(0.14, 0.18, UNREAD, true),
     crank: ArchetypeBand.metres(
       0.165,
       0.175,
-      "the common 165 to 175 mm crank arms, recalled and not read",
+      "the common 165 to 175 mm crank arms; the Peloton manual read gives no crank length",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 35, 60, MAKER, true),
+    mass: ArchetypeBand.of("kg", 61, 61, PELOTON),
   };
 }

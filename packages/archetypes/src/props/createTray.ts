@@ -9,8 +9,16 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's size reads as, not read at a source. */
-const MAKER: string = "a common maker's size, not read at a source";
+/** IKEA's trays, read. */
+const TRAYS: string =
+  "IKEA serving trays: SMÖRLING 36 x 20 x 3 cm, GRILLTIDER 40 x 30 x 2 cm, SMULA 52 x 35 x 3 cm, GOKVÄLLÅ 56 x 37 cm (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/, https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/, https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/, https://www.ikea.com/gb/en/p/gokvaella-serving-tray-gold-colour-70615651/)";
+
+/** IKEA's handled baskets, read. */
+const BASKETS: string =
+  "IKEA RISATORP baskets with a wooden handle, 25 x 26 x 18 cm and 42 x 27 x 23 cm (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/, https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/)";
+
+/** What no source read gives. */
+const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 
 /**
  * A carrier things are set in and carried by hand: a serving tray or a basket.
@@ -136,7 +144,7 @@ export function createTray(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two carriers and one band per dimension each.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The floor things are set on and the holds it is carried by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read, so every band is provisional; the wall's and the handle's sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read; their weights are not given, so the mass bands are provisional; the wall's and the handle's sizes are named estimates.
  */
 export namespace createTray {
   /** The kinds. */
@@ -187,16 +195,16 @@ export namespace createTray {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     tray: {
-      width: ArchetypeBand.metres(0.4, 0.5, MAKER, true),
-      depth: ArchetypeBand.metres(0.28, 0.35, MAKER, true),
-      height: ArchetypeBand.metres(0.03, 0.05, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.4, 1, MAKER, true),
+      width: ArchetypeBand.metres(0.36, 0.56, TRAYS),
+      depth: ArchetypeBand.metres(0.2, 0.37, TRAYS),
+      height: ArchetypeBand.metres(0.02, 0.03, TRAYS),
+      mass: ArchetypeBand.of("kg", 0.4, 1, UNREAD, true),
     },
     basket: {
-      width: ArchetypeBand.metres(0.35, 0.45, MAKER, true),
-      depth: ArchetypeBand.metres(0.25, 0.32, MAKER, true),
-      height: ArchetypeBand.metres(0.18, 0.25, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.3, 0.8, MAKER, true),
+      width: ArchetypeBand.metres(0.25, 0.42, BASKETS),
+      depth: ArchetypeBand.metres(0.26, 0.27, BASKETS),
+      height: ArchetypeBand.metres(0.18, 0.23, BASKETS),
+      mass: ArchetypeBand.of("kg", 0.3, 0.8, UNREAD, true),
     },
   };
 }

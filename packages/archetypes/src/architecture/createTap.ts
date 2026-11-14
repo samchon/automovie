@@ -9,9 +9,12 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's tap reads as, not read at a source. */
-const MAKER: string =
-  "a common maker's single-lever mixer tap, not read at a source";
+/** The maker's taps, read. */
+const GROHE: string =
+  "GROHE Eurosmart single-lever basin mixers, S-size: 146 to 169 mm high, the outlet 56 to 95 mm high, a projection of 106 to 109 mm (https://weinmann-schanz.de/de/en/Plumbing/Brand-search/Grohe/Bath-fittings/Series/Eurosmart/Grohe-Eurosmart-S-size-washbasin-mixer-sid1384227.html, https://www.galaxus.de/en/s4/product/grohe-eurosmart-single-lever-basin-mixer-s-size-bathroom-fittings-11042650)";
+
+/** What no source read gives. */
+const UNREAD: string = "the listings read do not give it";
 
 /**
  * A single-lever mixer tap of a sink or a basin.
@@ -24,7 +27,7 @@ const MAKER: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tap stands, which way the spout reaches and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A body rod of the drawn height and diameter, a spout rod from its upper part out to the drawn reach, and a lever box on its top that turns with the `lever` knob.
+ * @evidence contracts/development/implementation.md#principled-implementation A body rod of the drawn height and diameter, a spout rod at the drawn outlet's height out to the drawn reach, and a lever box on its top that turns with the `lever` knob.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the body, the spout, the lever, then the two contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lever turns but does not tilt, so the flow is not modelled; the spout's and lever's sizes and the lever's turn are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
@@ -51,7 +54,7 @@ export function createTap(
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
   const spout: number = createTap.SPOUT;
-  const at: number = d.height - 2 * spout;
+  const at: number = d.outlet + spout / 2;
   builder.rod("body", r, v(0, 0, 0), v(0, d.height, 0), { color: "#c9ccd1" });
   builder.rod("spout", spout / 2, v(0, at, 0), v(0, at, d.reach), {
     color: "#c9ccd1",
@@ -92,7 +95,7 @@ export function createTap(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The lever a hand turns and the spout a hand is held under.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read, so every band is provisional; the spout's diameter and the lever's turn are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The height, the outlet's height and the projection are the maker's as read; the body's diameter and the weight are given by none, so they are provisional; the spout's diameter and the lever's turn are named estimates.
  */
 export namespace createTap {
   /** The spout's diameter, metres: an estimate. */
@@ -115,9 +118,10 @@ export namespace createTap {
    * - `height`: the body's top above the counter.
    * - `diameter`: the body's.
    * - `reach`: the spout's mouth out from the body's axis.
+   * - `outlet`: the spout's mouth above the counter.
    * - `mass`: kilograms.
    */
-  export type Dimension = "height" | "diameter" | "reach" | "mass";
+  export type Dimension = "height" | "diameter" | "reach" | "outlet" | "mass";
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -127,9 +131,10 @@ export namespace createTap {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(0.15, 0.3, MAKER, true),
-    diameter: ArchetypeBand.metres(0.035, 0.05, MAKER, true),
-    reach: ArchetypeBand.metres(0.12, 0.22, MAKER, true),
-    mass: ArchetypeBand.of("kg", 0.8, 2, MAKER, true),
+    height: ArchetypeBand.metres(0.146, 0.169, GROHE),
+    diameter: ArchetypeBand.metres(0.035, 0.05, `the body's diameter: ${UNREAD}`, true),
+    reach: ArchetypeBand.metres(0.106, 0.109, GROHE),
+    outlet: ArchetypeBand.metres(0.056, 0.095, GROHE),
+    mass: ArchetypeBand.of("kg", 0.8, 2, `the weight: ${UNREAD}`, true),
   };
 }

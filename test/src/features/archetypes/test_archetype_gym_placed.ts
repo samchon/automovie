@@ -17,7 +17,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. The sled, the rowing machine, the exercise bike, both exercise mats, the skipping rope and the ring, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the rowing machine's seat top 0.36 to 0.51 m high (the maker's standard and tall legs); the ring's canvas 0.91 to 1.22 m high and its top rope 1.30 to 1.35 m above it (the rules); the skipping rope 2.4 to 3 m end to end (makers'); the sled's handles 0.95 to 1.2 m high (makers').
+ * 2. Over 200 seeds: the rowing machine's seat top 14 to 20 in high (Concept2's standard and tall legs); the ring's canvas 1 m high and its top rope 1.3 m above it (the AIBA guide); the skipping rope's cable 120 to 132 in long (Rogue's); the sled's handles 37.25 to 37.5 in high (Rogue's).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the sources each producer cites.
@@ -58,25 +58,25 @@ export function test_archetype_gym_placed(): void {
     ...archetypeBandSweep([
       row(
         "rowing seat height",
-        0.36,
-        0.51,
+        14 * 0.0254,
+        20 * 0.0254,
         "Concept2, 14 and 20 in seats",
         (seed: number): number =>
           archetypeExtent(createRowingMachine({}, seed), "y", ["seat"]).high,
       ),
       row(
         "ring canvas height",
-        0.91,
-        1.22,
-        "the ring rules, 0.91 to 1.22 m",
+        1,
+        1,
+        "the AIBA guide, 230 cm poles 130 cm above the canvas",
         (seed: number): number =>
           archetypeExtent(createRing({}, seed), "y", ["platform"]).high,
       ),
       row(
         "ring top rope",
         1.3,
-        1.35,
-        "the ring rules, 1.30 m",
+        1.3,
+        "the AIBA guide, the top rope 130 cm above the canvas",
         (seed: number): number =>
           archetypeExtent(createRing({}, seed), "y", ["northRope4"]).high -
           createRing({}, seed).dimensions.platform! -
@@ -84,17 +84,17 @@ export function test_archetype_gym_placed(): void {
       ),
       row(
         "skipping rope length",
-        2.4,
-        3,
-        "makers' ropes",
+        120 * 0.0254,
+        132 * 0.0254,
+        "Rogue SR-1, 120 in to 11 ft cables",
         (seed: number): number =>
-          archetypeExtent(createJumpRope({}, seed), "x").size,
+          archetypeExtent(createJumpRope({}, seed), "x", ["cord"]).size,
       ),
       row(
         "sled handle height",
-        0.95,
-        1.2,
-        "makers' sleds",
+        37.25 * 0.0254,
+        37.5 * 0.0254,
+        "Rogue's sleds, 37.25 and 37.5 in",
         (seed: number): number =>
           archetypeExtent(createSled({}, seed), "y", ["leftPole"]).high,
       ),

@@ -29,13 +29,13 @@ const BRUSH: string =
 const TUBE: string =
   "Alltub laminate tubes data sheet, diameters 19 to 50 mm and lengths 75 to 190 mm (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
 
-/** Cartridge razors, from makers' listings recalled and not read. */
+/** Cartridge razors, read. */
 const RAZOR: string =
-  "Gillette Mach3 and Fusion cartridge razors, handles of about 13 to 15 cm, recalled and not read";
+  "Edwin Jagger Mach3 razor, 129 mm overall and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and the Gillette Mach3, 5.4 in long and 35 g (https://www.toolsofmen.com/?p=46812)";
 
-/** Lipsticks, from makers' listings recalled and not read. */
+/** Lipstick cases, read. */
 const LIPSTICK: string =
-  "bullet lipsticks of about 7 to 8.5 cm closed and 1.7 to 2.2 cm across, recalled and not read";
+  "Quadpack magnetic lipstick case, 21 mm across and 74 mm high (https://americas.quadpack.com/?p=16738), and Ellemental's case, 75 mm high for a 12.1 mm bullet (https://www.ellemental.com/lipstick-tube)";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createCareItem.Kind, string>> = {
@@ -332,13 +332,13 @@ export namespace createCareItem {
     "lipstick",
   ];
 
-  /** A razor's cartridge across and from front to back, metres: an estimate. */
+  /** A razor's cartridge across and from front to back, metres: an estimate; the razors' pages read do not give it. */
   export const CARTRIDGE: Readonly<{ width: number; depth: number }> = {
     width: 0.04,
     depth: 0.015,
   };
 
-  /** A lipstick's bullet out of its case, metres: an estimate. */
+  /** A lipstick's bullet out of its case, metres: an estimate; the cases read give its 12.1 mm across but not how far it stands out. */
   export const BULLET: number = 0.015;
 
   /**
@@ -406,13 +406,18 @@ export namespace createCareItem {
       mass: kg(0.02, 0.3),
     },
     razor: {
-      length: ArchetypeBand.metres(0.13, 0.15, RAZOR, true),
-      width: ArchetypeBand.metres(0.012, 0.016, RAZOR, true),
-      mass: kg(0.02, 0.06),
+      length: ArchetypeBand.metres(0.129, 5.4 * 0.0254, RAZOR),
+      width: ArchetypeBand.metres(
+        0.012,
+        0.016,
+        "the handle's diameter; the razors' pages read do not give it",
+        true,
+      ),
+      mass: ArchetypeBand.of("kg", 0.035, 0.087, RAZOR),
     },
     lipstick: {
-      length: ArchetypeBand.metres(0.07, 0.085, LIPSTICK, true),
-      width: ArchetypeBand.metres(0.017, 0.022, LIPSTICK, true),
+      length: ArchetypeBand.metres(0.074, 0.075, LIPSTICK),
+      width: ArchetypeBand.metres(0.021, 0.021, LIPSTICK),
       mass: kg(0.01, 0.03),
     },
   };

@@ -99,7 +99,7 @@ export function createWeaponLoop(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two carriers and one band per dimension each, the opening sized to the club it holds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The opening a draw leaves and the strap it is worn by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a carrier, so every band is provisional, set from `createClub`'s baton and bat; the strap's length is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A belt ring's opening is the makers' as read; no source gives a ring's depth or a bat sleeve's size, so those bands are provisional, set from the bat the rule allows; the strap's length is a named estimate.
  */
 export namespace createWeaponLoop {
   /** The kinds: a belt loop a baton hangs through, a back sleeve a bat stands in. */
@@ -140,28 +140,27 @@ export namespace createWeaponLoop {
     id?: string;
   }
 
+  /** Baton rings, read. */
+  const RINGS: string =
+    "baton rings of 35 mm (Safariland 692S, https://varusteleka.com/en-us/products/safariland-model-692s-baton-ring-unissued) to 1.5 in inside (Rothco, https://rothco.com/product/rothco-two-ring-baton-flashlight-holder; High Speed Gear, https://www.highspeedgear.com/products/duty-baton-ring-holder)";
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     belt: {
-      aperture: ArchetypeBand.metres(
-        0.04,
-        0.05,
-        "wider than a baton's shaft and narrower than its grip's end, an estimate",
-        true,
-      ),
+      aperture: ArchetypeBand.metres(0.035, 1.5 * 0.0254, RINGS),
       length: ArchetypeBand.metres(
         0.025,
         0.04,
-        "a ring's depth, an estimate",
+        "a ring's depth; the rings' pages read do not give it",
         true,
       ),
       mass: ArchetypeBand.of(
         "kg",
         0.05,
         0.12,
-        ArchetypeBand.TYPICAL_MASS,
+        "the rings' pages read give no weight",
         true,
       ),
     },
@@ -169,16 +168,22 @@ export namespace createWeaponLoop {
       aperture: ArchetypeBand.metres(
         0.075,
         0.09,
-        "wider than a bat's barrel, at most 2.61 in across, an estimate",
+        "wider than a bat's barrel, at most 2.61 in across by the Official Baseball Rules 2024, 3.02(a); no bat sleeve's size was found",
         true,
       ),
       length: ArchetypeBand.metres(
         0.25,
         0.35,
-        "a sleeve holding a bat's barrel, an estimate",
+        "a sleeve holding a bat's barrel; no bat sleeve's size was found",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.2, 0.5, ArchetypeBand.TYPICAL_MASS, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.2,
+        0.5,
+        "no bat sleeve's weight was found",
+        true,
+      ),
     },
   };
 }

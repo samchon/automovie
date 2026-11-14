@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's rope reads as, not read at a source. */
-const MAKER: string = "a common maker's skipping rope, not read at a source";
+/** The maker's ropes read. */
+const ROGUE: string =
+  "Rogue SR-1 bearing speed ropes: a coated 3/32 in cable of 120 in, or 10 and 11 ft, handles of 5.25 (SR-1S), 6.75 (SR-1) and 7.5 in (SR-1L), tapering to a 7/8 in grip (https://www.roguecanada.ca/rogue-bearing-speed-rope, https://www.roguefitness.com/ca/sr-1s-short-handle-bearing-speed-rope-color-series, https://www.rogueeurope.eu/rogue-sr-1-l-long-handle-speed-rope-eu?locale=en)";
 
 /**
  * A skipping rope: two handles joined by a cord, laid straight on the floor.
@@ -23,7 +24,7 @@ const MAKER: string = "a common maker's skipping rope, not read at a source";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the rope lies and its two handles.
- * @evidence contracts/development/implementation.md#principled-implementation Two handle rods of the drawn length and diameter at the ends of a cord rod, the whole the drawn length end to end, all resting on the floor.
+ * @evidence contracts/development/implementation.md#principled-implementation A cord rod of the drawn cable length with a handle rod of the drawn length and diameter beyond each end, all resting on the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cord, then each handle with its contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cord is one straight rigid rod; a rope that bends is a rig the act would own; the cord's diameter is a named estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
@@ -51,8 +52,8 @@ export function createJumpRope(
   });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.gripDiameter / 2;
-  const end: number = d.length / 2;
-  const inner: number = end - d.handleLength;
+  const inner: number = d.length / 2;
+  const end: number = inner + d.handleLength;
   builder.rod(
     "cord",
     createJumpRope.CORD / 2,
@@ -88,11 +89,11 @@ export function createJumpRope(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two handles a skip holds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a rope, so every band is provisional; the cord's diameter is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The cable's length, the handles' and the cable's diameter are a maker's as read; the maker gives no weight, so the mass band is provisional.
  */
 export namespace createJumpRope {
-  /** The cord's diameter, metres: an estimate. */
-  export const CORD: number = 0.005;
+  /** The cable's diameter, metres: the maker's 3/32 in (see the source). */
+  export const CORD: number = (3 / 32) * 0.0254;
 
   /**
    * The affordance ids:
@@ -104,7 +105,7 @@ export namespace createJumpRope {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `length`: end to end, handles included.
+   * - `length`: the cable's, between the handles.
    * - `handleLength`, `gripDiameter`: each handle's.
    * - `mass`: kilograms.
    */
@@ -118,9 +119,9 @@ export namespace createJumpRope {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.4, 3, MAKER, true),
-    handleLength: ArchetypeBand.metres(0.13, 0.18, MAKER, true),
-    gripDiameter: ArchetypeBand.metres(0.022, 0.03, MAKER, true),
-    mass: ArchetypeBand.of("kg", 0.1, 0.3, MAKER, true),
+    length: ArchetypeBand.metres(120 * 0.0254, 132 * 0.0254, ROGUE),
+    handleLength: ArchetypeBand.metres(5.25 * 0.0254, 7.5 * 0.0254, ROGUE),
+    gripDiameter: ArchetypeBand.metres(0.875 * 0.0254, 0.875 * 0.0254, ROGUE),
+    mass: ArchetypeBand.of("kg", 0.1, 0.3, "the Rogue pages read give no weight", true),
   };
 }

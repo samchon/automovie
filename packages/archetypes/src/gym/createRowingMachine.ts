@@ -10,9 +10,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** Concept2's published RowErg figures as recalled, not read here. */
+/** Concept2's published RowErg figures, read. */
 const CONCEPT2: string =
-  "Concept2 RowErg specifications, recalled and not read";
+  "Concept2 RowErg (https://www.concept2.com/ergs/rowerg)";
 
 /**
  * A rowing machine (an ergometer): a monorail with a sliding seat, a flywheel at the front, two foot stretchers and a handle on its chain.
@@ -168,9 +168,9 @@ export function createRowingMachine(
  * Companion types, constants and bands of {@link createRowingMachine}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the maker's figures where recalled; the seat's height is the one a seated workout reads.
+ * @evidence contracts/development/design.md#principled-representation One band per dimension, the maker's figures as read; the seat's height is the one a seated workout reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The seat, the handle and the two stretchers a rower uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The maker's figures were recalled and not read, so every band is provisional; the parts' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat's height, the footprint and the mass are the maker's as read; the maker gives no handle width, so its band is provisional; the parts' sizes are named estimates.
  */
 export namespace createRowingMachine {
   /** The rail's section, metres: an estimate. */
@@ -233,19 +233,27 @@ export namespace createRowingMachine {
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     seatHeight: ArchetypeBand.metres(
-      0.36,
-      0.51,
-      `${CONCEPT2}: the seat 14 in high on the standard legs and 20 in on the tall legs`,
-      true,
+      14 * 0.0254,
+      20 * 0.0254,
+      `${CONCEPT2}: the seat 14 in (36 cm) from the floor on the standard legs and 20 in (51 cm) on the tall legs`,
     ),
-    length: ArchetypeBand.metres(2.3, 2.44, `${CONCEPT2}: 8 ft long`, true),
-    width: ArchetypeBand.metres(0.55, 0.61, `${CONCEPT2}: 2 ft wide`, true),
+    length: ArchetypeBand.metres(
+      96 * 0.0254,
+      96 * 0.0254,
+      `${CONCEPT2}: 96 in long`,
+    ),
+    width: ArchetypeBand.metres(24 * 0.0254, 24 * 0.0254, `${CONCEPT2}: 2 ft wide`),
     handleWidth: ArchetypeBand.metres(
       0.45,
       0.55,
-      "a maker's handle, not read at a source",
+      "Concept2's page read gives no handle width",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 26, 30, `${CONCEPT2}: 57 lb`, true),
+    mass: ArchetypeBand.of(
+      "kg",
+      57 * 0.45359237,
+      68 * 0.45359237,
+      `${CONCEPT2}: 57 lb on the standard legs, 68 lb on the tall legs`,
+    ),
   };
 }

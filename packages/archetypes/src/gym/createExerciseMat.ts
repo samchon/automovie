@@ -76,7 +76,7 @@ export function createExerciseMat(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two mats and one band per dimension each.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The one top a floor exercise bears on.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a mat, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a maker's mat as read.
  */
 export namespace createExerciseMat {
   /** The kinds. */
@@ -105,24 +105,29 @@ export namespace createExerciseMat {
     id?: string;
   }
 
-  /** What a maker's mat reads as, not read at a source. */
-  const MAKER: string = "a common maker's mat, not read at a source";
+  /** Manduka's PRO mat, read. */
+  const MANDUKA: string =
+    "Manduka PRO yoga mat 6 mm: 68, 71 and 85 in long, 26 in (66 cm) wide, 7.5 lb (3.4 kg) at 71 in and 4.3 kg at 85 in (https://www.manduka.com/products/manduka-pro-yoga-mat, https://eu.manduka.com/blogs/faq/help-center-pro-series-yoga-mats-manduka-eu)";
+
+  /** A thick exercise mat, read. */
+  const THICK: string =
+    "Amazon Basics 1/2 in extra thick exercise mat, 74 x 24 x 0.5 in and 2.2 lb, its black variant 73.2 x 24.3 x 0.5 in (https://www.desertcart.com.sa/products/47384932-amazon-basics-1-2-inch-extra-thick-exercise-yoga-mat)";
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     yoga: {
-      length: ArchetypeBand.metres(1.73, 1.83, MAKER, true),
-      width: ArchetypeBand.metres(0.61, 0.66, MAKER, true),
-      thickness: ArchetypeBand.metres(0.003, 0.006, MAKER, true),
-      mass: ArchetypeBand.of("kg", 1, 2.5, MAKER, true),
+      length: ArchetypeBand.metres(68 * 0.0254, 85 * 0.0254, MANDUKA),
+      width: ArchetypeBand.metres(0.66, 0.66, MANDUKA),
+      thickness: ArchetypeBand.metres(0.006, 0.006, MANDUKA),
+      mass: ArchetypeBand.of("kg", 3.4, 4.3, MANDUKA),
     },
     gym: {
-      length: ArchetypeBand.metres(1.8, 2, MAKER, true),
-      width: ArchetypeBand.metres(0.6, 1, MAKER, true),
-      thickness: ArchetypeBand.metres(0.01, 0.05, MAKER, true),
-      mass: ArchetypeBand.of("kg", 2, 8, MAKER, true),
+      length: ArchetypeBand.metres(73.2 * 0.0254, 74 * 0.0254, THICK),
+      width: ArchetypeBand.metres(24 * 0.0254, 24.3 * 0.0254, THICK),
+      thickness: ArchetypeBand.metres(0.5 * 0.0254, 0.5 * 0.0254, THICK),
+      mass: ArchetypeBand.of("kg", 1, 1, THICK),
     },
   };
 }

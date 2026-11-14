@@ -84,7 +84,7 @@ export function createKerb(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each; the height is the one a stepping act reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The top a foot lands on and the edge it clears.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The standards were recalled and not read here, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The kerb's unit and upstand and the step's riser and tread are the sources as read, a code's limit where it gives one; a step's width and mass are given by none, so they are provisional.
  */
 export namespace createKerb {
   /** The kinds: a road kerb unit and a single free-standing step. */
@@ -120,61 +120,42 @@ export namespace createKerb {
     id?: string;
   }
 
+  /** A kerb unit, read. */
+  const HB2: string =
+    "Marshalls half battered kerb HB2 to BS EN 1340, 125 x 255 x 915 mm work size (https://media.marshalls.co.uk/image/upload/v1523957771/125_x_255_Half_Battered_Kerb_Datasheet.pdf), 72 kg (https://the-landscape-centre.co.uk/125x255-915mm-hb-straight-kerb-g05080040)";
+
+  /** A kerb's upstand above the road, read. */
+  const UPSTAND: string =
+    "Wheels for Wellbeing, Common kerb profiles: kerbs of 100 to 150 mm, bus stop kerbs 125 to 140 mm (https://wheelsforwellbeing.org.uk/common-kerb-profiles/)";
+
+  /** The residential stair code, read. */
+  const IRC: string =
+    "2021 International Residential Code, R311.7.5.1 risers not more than 7 3/4 in (196 mm) and R311.7.5.2 treads not less than 10 in (254 mm) (https://codes.iccsafe.org/s/IRC2021P3/chapter-3-building-planning/IRC2021P3-Pt03-Ch03-SecR311.7.5.1)";
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     kerb: {
-      height: ArchetypeBand.metres(
-        0.1,
-        0.15,
-        "a road kerb's upstand of 100 to 150 mm (UK Manual for Streets and US 6 in curbs), recalled and not read",
-        true,
-      ),
-      depth: ArchetypeBand.metres(
-        0.125,
-        0.15,
-        "BS EN 1340 kerb units 125 to 150 mm wide, recalled and not read",
-        true,
-      ),
-      length: ArchetypeBand.metres(
-        0.914,
-        1,
-        "BS EN 1340 kerb units 914 mm to 1 m long, recalled and not read",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        40,
-        80,
-        "a precast concrete unit of the drawn size, an estimate",
-        true,
-      ),
+      height: ArchetypeBand.metres(0.1, 0.15, UPSTAND),
+      depth: ArchetypeBand.metres(0.125, 0.125, HB2),
+      length: ArchetypeBand.metres(0.915, 0.915, HB2),
+      mass: ArchetypeBand.of("kg", 72, 72, `${HB2}: the whole unit, its bedded part below the road not modelled`),
     },
     step: {
-      height: ArchetypeBand.metres(
-        0.15,
-        0.197,
-        "building codes' risers, the IRC's 7 3/4 in at most, recalled and not read",
-        true,
-      ),
-      depth: ArchetypeBand.metres(
-        0.254,
-        0.35,
-        "building codes' treads, the IRC's 10 in at least, recalled and not read",
-        true,
-      ),
+      height: ArchetypeBand.metres(0.196, 0.196, `${IRC}: the riser's limit, which the model takes`),
+      depth: ArchetypeBand.metres(0.254, 0.254, `${IRC}: the tread's limit, which the model takes`),
       length: ArchetypeBand.metres(
         0.9,
         1.2,
-        "a step's width, an estimate",
+        "a step's width; the code read sets the riser and the tread only",
         true,
       ),
       mass: ArchetypeBand.of(
         "kg",
         40,
         150,
-        "a concrete or timber step, an estimate",
+        "a concrete or timber step; no source read gives a weight",
         true,
       ),
     },

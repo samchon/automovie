@@ -9,14 +9,14 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's stand reads as, not read at a source. */
-const MAKER: string =
-  "a common floor stand for swords, clubs and bats, not read at a source";
+/** The makers' racks, read. */
+const RACKS: string =
+  "six-slot floor sword stands: Medieval Extreme's, a 66 x 23 x 3 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), and Gladney's, 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html)";
 
 /**
  * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
  *
- * The base lies on the floor centred over the origin, its row of slots along `X` and its front toward `+Z`; two end posts carry the top rail at the drawn height. `slot1` to `slot4`, counted from `-X`, are each slot's floor on the base's top, facing up, where a weapon's lower end (a sword's point, a bat's barrel, a club's tip) rests; `rail1` to `rail4` the notch above it in the top rail's front, facing `+Z`, against which the weapon leans. A weapon set in a slot keeps its own `grip` for a hand to reach.
+ * The base lies on the floor centred over the origin, its row of slots along `X` and its front toward `+Z`; two end posts carry the top rail at the drawn height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the base's top, facing up, where a weapon's lower end (a sword's point, a bat's barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top rail's front, facing `+Z`, against which the weapon leans. A weapon set in a slot keeps its own `grip` for a hand to reach.
  *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -79,14 +79,16 @@ export function createWeaponRack(
     ["slot2", "rail2", 1],
     ["slot3", "rail3", 2],
     ["slot4", "rail4", 3],
+    ["slot5", "rail5", 4],
+    ["slot6", "rail6", 5],
   ] as const) {
-    const x: number = -inner / 2 + (inner * (k + 0.5)) / 4;
+    const x: number = -inner / 2 + (inner * (k + 0.5)) / createWeaponRack.SLOTS;
     builder.affordance({
       id: slot,
       kind: "surface",
       frame: ArchetypeFrame.upright(v(x, base, 0)),
       extent: null,
-      width: inner / 4,
+      width: inner / createWeaponRack.SLOTS,
       depth: createWeaponRack.DEPTH,
     });
     builder.affordance({
@@ -108,15 +110,18 @@ export function createWeaponRack(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension; the rail's height is the one that decides which weapons lean in it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four places to stand a weapon, each a floor and a notch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a rack, so every band is provisional; the parts' sizes are named estimates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Six places to stand a weapon, each a floor and a notch.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The width, the height, the base's depth and thickness and the six slots are the makers' as read; no weight is given, so the mass band is provisional; the posts' and rail's sizes are named estimates.
  */
 export namespace createWeaponRack {
   /** The base's height, metres: an estimate. */
-  export const BASE: number = 0.05;
+  export const BASE: number = 0.03;
 
   /** The base's depth front to back, metres: an estimate. */
-  export const DEPTH: number = 0.3;
+  export const DEPTH: number = 0.23;
+
+  /** The slots along the base: the makers' six. */
+  export const SLOTS: number = 6;
 
   /** The posts' and the rail's section, metres: an estimate. */
   export const POST: number = 0.04;
@@ -124,18 +129,22 @@ export namespace createWeaponRack {
   /**
    * The affordance ids:
    *
-   * - `slot1` to `slot4`: each slot's floor on the base's top, facing up, from `-X`.
-   * - `rail1` to `rail4`: the notch over each in the rail's front, facing `+Z`.
+   * - `slot1` to `slot6`: each slot's floor on the base's top, facing up, from `-X`.
+   * - `rail1` to `rail6`: the notch over each in the rail's front, facing `+Z`.
    */
   export type Affordance =
     | "slot1"
     | "slot2"
     | "slot3"
     | "slot4"
+    | "slot5"
+    | "slot6"
     | "rail1"
     | "rail2"
     | "rail3"
-    | "rail4";
+    | "rail4"
+    | "rail5"
+    | "rail6";
 
   /**
    * The free dimensions, metres unless stated:
@@ -154,8 +163,8 @@ export namespace createWeaponRack {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(0.8, 1.2, MAKER, true),
-    height: ArchetypeBand.metres(0.7, 0.9, MAKER, true),
-    mass: ArchetypeBand.of("kg", 8, 20, MAKER, true),
+    width: ArchetypeBand.metres(0.66, 0.695, RACKS),
+    height: ArchetypeBand.metres(0.66, 0.84, RACKS),
+    mass: ArchetypeBand.of("kg", 8, 20, "the stands' pages read give no weight", true),
   };
 }

@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' implement rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the hammer";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
 
 /**
  * A competition hammer of the hammer throw, the men's or the women's: a metal head on a steel wire with a two-hand handle.
@@ -99,7 +100,7 @@ export function createHammerThrow(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The handle the hands take and the head a swing whirls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional; the wire's and the handle's sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the wire's and the handle's sizes are named estimates.
  */
 export namespace createHammerThrow {
   /** The categories. */
@@ -143,14 +144,14 @@ export namespace createHammerThrow {
     id?: string;
   }
 
-  /** A provisional band of the rule. */
+  /** A band of the rule. */
   const band = (
     unit: IArchetypeBand["unit"],
     minimum: number,
     maximum: number,
     what: string,
   ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`, true);
+    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
@@ -159,31 +160,31 @@ export namespace createHammerThrow {
     men: {
       length: band(
         "m",
-        1.175,
         1.215,
-        "the men's 1175 to 1215 mm from the head to the handle's inside",
+        1.215,
+        "the men's at most 1215 mm measured from the inside of the handle, the limit the model takes",
       ),
       diameter: band("m", 0.11, 0.13, "the men's head 110 to 130 mm across"),
       mass: band(
         "kg",
         7.26,
-        7.285,
-        "the men's at least 7.26 kg; the upper end is a maker's tolerance",
+        7.26,
+        "the men's at least 7.26 kg for admission, the minimum the model takes",
       ),
     },
     women: {
       length: band(
         "m",
-        1.16,
         1.195,
-        "the women's 1160 to 1195 mm from the head to the handle's inside",
+        1.195,
+        "the women's at most 1195 mm measured from the inside of the handle, the limit the model takes",
       ),
       diameter: band("m", 0.095, 0.11, "the women's head 95 to 110 mm across"),
       mass: band(
         "kg",
         4,
-        4.025,
-        "the women's at least 4 kg; the upper end is a maker's tolerance",
+        4,
+        "the women's at least 4 kg for admission, the minimum the model takes",
       ),
     },
   };

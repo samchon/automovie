@@ -118,7 +118,7 @@ export function createRacket(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the sports and one band per dimension per kind; the rules bound the length and the head, the makers' sizes the rest.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes, the face and the line a swing reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rules were recalled and not read here, so every band is provisional; the head's thickness is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is a rule or a maker's figure as read, the rule's own limit where it states only one; a figure no source read gives is provisional and says so; the head's thickness is a named estimate.
  */
 export namespace createRacket {
   /** The kinds. */
@@ -183,22 +183,47 @@ export namespace createRacket {
     id?: string;
   }
 
-  /** A provisional band in metres. */
+  /** A band in metres. */
   const m = (
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source, true);
+    provisional: boolean = false,
+  ): IArchetypeBand =>
+    ArchetypeBand.metres(minimum, maximum, source, provisional);
 
-  /** A provisional mass band. */
+  /** A mass band. */
   const kg = (
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.of("kg", minimum, maximum, source, true);
+    provisional: boolean = false,
+  ): IArchetypeBand =>
+    ArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
-  /** What a maker's size reads as, not read at a source. */
-  const MAKER: string = "a common maker's size, not read at a source";
+  /** ITF, Rules of Tennis 2026, Appendix II. */
+  const ITF: string =
+    "ITF Rules of Tennis 2026, Appendix II c (https://www.world.tennis/media/7221/2026-rules-of-tennis-english.pdf)";
+
+  /** A maker's tennis racket. */
+  const BABOLAT: string =
+    "Babolat Pure Drive Gen11, 685 mm long, a 645 cm2 head, 300 g +/- 7 unstrung (https://www.babolat.com/us/pure-drive-gen11-unstrung/100-101552.html)";
+
+  /** The BWF Laws of Badminton, Law 4. */
+  const BWF: string =
+    "BWF Laws of Badminton, Law 4.1 and 4.2.2 (https://worldbadminton.com/laws/index.html)";
+
+  /** Butterfly's blade sizes. */
+  const BUTTERFLY: string =
+    "Butterfly Timo Boll ALC, a 157 x 150 mm blade, a 100 x 22 to 24 mm handle, 84 to 86 g (https://www.butterflyonline.com/butterfly-blade-specifications, https://tabletennisstore.us/products/butterfly-timo-boll-alc-offensive-table-tennis-blade)";
+
+  /** The squash specification as third-party pages give it. */
+  const WSF: string =
+    "the World Squash Federation racket limits of 686 mm, 215 mm and 255 g as third-party pages give them; the WSF's own specification was searched for and could not be opened";
+
+  /** What no source read gives. */
+  const UNREAD: string =
+    "no source read gives it; the makers' pages read do not state it";
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -206,79 +231,68 @@ export namespace createRacket {
   > = {
     tennis: {
       length: m(
-        0.686,
+        0.685,
         0.737,
-        "ITF Rules of Tennis, Appendix II: the frame at most 73.7 cm long; the shorter end is the common 27 in racket",
+        `${BABOLAT}, to ${ITF}: at most 73.7 cm long`,
       ),
       headWidth: m(
-        0.25,
+        0.247,
         0.292,
-        "ITF Rules of Tennis, Appendix II: the strung surface at most 29.2 cm wide; the narrower end is a maker's",
+        `${ITF}: the hitting surface at most 29.2 cm wide; the narrower end is the ${BABOLAT} head read as an ellipse of the rule's proportions`,
       ),
       headLength: m(
-        0.32,
+        0.333,
         0.394,
-        "ITF Rules of Tennis, Appendix II: the strung surface at most 39.4 cm long; the shorter end is a maker's",
+        `${ITF}: the hitting surface at most 39.4 cm long; the shorter end is the ${BABOLAT} head read as an ellipse of the rule's proportions`,
       ),
-      handleLength: m(0.17, 0.2, MAKER),
+      handleLength: m(0.17, 0.2, UNREAD, true),
       gripDiameter: m(
-        0.032,
-        0.038,
-        "grip sizes of 4 to 4 3/4 in round, a maker's chart recalled and not read",
+        (4 * 0.0254) / Math.PI,
+        (4.5 * 0.0254) / Math.PI,
+        "grip sizes 4 to 4 1/2 in round, Babolat Pure Drive Lite (https://tennisracquets.com/products/babolat-pure-drive-lite-tennis-racquet), as a diameter",
       ),
-      mass: kg(0.25, 0.34, MAKER),
+      mass: kg(0.293, 0.307, BABOLAT),
     },
     badminton: {
       length: m(
-        0.665,
-        0.68,
-        "BWF Laws of Badminton, Law 4: the frame at most 680 mm long",
+        0.673,
+        0.677,
+        "Yonex Astrox 10DG, 675 mm +/- 2 (https://www.badmintonbay.com/yonex-astrox-10dg-navy-turquoise-4ug5-badminton-racket.html), inside the BWF Law 4.1's 680 mm",
       ),
-      headWidth: m(
-        0.2,
-        0.23,
-        "BWF Laws of Badminton, Law 4: the frame at most 230 mm wide",
+      headWidth: m(0.23, 0.23, `${BWF}: the frame at most 230 mm wide, the limit the model takes`),
+      headLength: m(0.28, 0.28, `${BWF}: the strung area at most 280 mm long, the limit the model takes`),
+      handleLength: m(0.19, 0.21, UNREAD, true),
+      gripDiameter: m(
+        0.08 / Math.PI,
+        0.084 / Math.PI,
+        "a Yonex G5 grip, 80 to 84 mm round (https://www.badmintonbay.com/yonex-astrox-10dg-navy-turquoise-4ug5-badminton-racket.html), as a diameter",
       ),
-      headLength: m(
-        0.25,
-        0.28,
-        "BWF Laws of Badminton, Law 4: the strung area at most 280 mm long",
+      mass: kg(
+        0.08,
+        0.0899,
+        "Yonex weight grades 4U, 80 to 84.9 g, and 3U, 85 to 89.9 g (https://centralsports.co.uk/products/yonex-astrox-100-tour-kurenai)",
       ),
-      handleLength: m(0.19, 0.21, MAKER),
-      gripDiameter: m(0.024, 0.028, MAKER),
-      mass: kg(0.07, 0.1, MAKER),
     },
     squash: {
-      length: m(
-        0.67,
-        0.686,
-        "World Squash Federation racket specification: at most 686 mm long",
-      ),
-      headWidth: m(
-        0.19,
-        0.215,
-        "World Squash Federation racket specification: at most 215 mm wide",
-      ),
-      headLength: m(0.25, 0.28, MAKER),
-      handleLength: m(0.18, 0.2, MAKER),
-      gripDiameter: m(0.03, 0.034, MAKER),
-      mass: kg(
-        0.11,
-        0.255,
-        "World Squash Federation racket specification: at most 255 g",
-      ),
+      length: m(0.67, 0.686, WSF, true),
+      headWidth: m(0.19, 0.215, WSF, true),
+      headLength: m(0.25, 0.28, UNREAD, true),
+      handleLength: m(0.18, 0.2, UNREAD, true),
+      gripDiameter: m(0.03, 0.034, UNREAD, true),
+      mass: kg(0.11, 0.255, WSF, true),
     },
     tableTennis: {
-      length: m(
-        0.25,
-        0.27,
-        "ITTF Laws 2.4: the blade's size is free; a common bat's",
+      length: m(0.257, 0.257, `${BUTTERFLY}: the blade's 157 mm and the handle's 100 mm`),
+      headWidth: m(0.15, 0.15, BUTTERFLY),
+      headLength: m(0.157, 0.157, BUTTERFLY),
+      handleLength: m(0.1, 0.1, BUTTERFLY),
+      gripDiameter: m(0.022, 0.024, BUTTERFLY),
+      mass: kg(
+        0.15,
+        0.2,
+        `${BUTTERFLY} for the blade alone; the two rubbers' mass ${UNREAD}`,
+        true,
       ),
-      headWidth: m(0.15, 0.16, MAKER),
-      headLength: m(0.155, 0.165, MAKER),
-      handleLength: m(0.095, 0.105, MAKER),
-      gripDiameter: m(0.025, 0.03, MAKER),
-      mass: kg(0.15, 0.2, MAKER),
     },
   };
 }

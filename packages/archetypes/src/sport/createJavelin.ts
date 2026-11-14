@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' implement rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the javelin";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 38.8 and 38.10, the javelin";
 
 /**
  * A competition javelin, the men's or the women's.
@@ -103,7 +104,7 @@ export function createJavelin(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The cord a hand takes and the point a throw leads with.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional; the cord's thickness is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit; the cord's thickness is a named estimate.
  */
 export namespace createJavelin {
   /** The categories. */
@@ -112,7 +113,7 @@ export namespace createJavelin {
   /** Every category, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["men", "women"];
 
-  /** The cord's thickness over the shaft, metres: an estimate. */
+  /** The cord's thickness over the shaft, metres: an estimate inside Technical Rule 38.8's 8 mm over the shaft's diameter. */
   export const CORD: number = 0.003;
 
   /** The cord's width along the shaft, metres, by category: the rule's 150 to 160 mm and 140 to 150 mm, their middles. */
@@ -148,9 +149,9 @@ export namespace createJavelin {
     id?: string;
   }
 
-  /** A provisional band in metres. */
+  /** A band in metres of the rule. */
   const m = (minimum: number, maximum: number, what: string): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, `${RULE}: ${what}`, true);
+    ArchetypeBand.metres(minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
@@ -171,9 +172,8 @@ export namespace createJavelin {
       mass: ArchetypeBand.of(
         "kg",
         0.8,
-        0.825,
-        `${RULE}: the men's at least 800 g; the upper end is a maker's tolerance`,
-        true,
+        0.8,
+        `${RULE}: the men's at least 800 g for admission, the minimum the model takes`,
       ),
     },
     women: {
@@ -191,9 +191,8 @@ export namespace createJavelin {
       mass: ArchetypeBand.of(
         "kg",
         0.6,
-        0.625,
-        `${RULE}: the women's at least 600 g; the upper end is a maker's tolerance`,
-        true,
+        0.6,
+        `${RULE}: the women's at least 600 g for admission, the minimum the model takes`,
       ),
     },
   };

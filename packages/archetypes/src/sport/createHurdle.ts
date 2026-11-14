@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' hurdle rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the hurdles";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 22.3 and 22.4, the hurdles";
 
 /**
  * A track hurdle of a sprint or a 400 m hurdles race.
@@ -114,7 +115,7 @@ export function createHurdle(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the senior races, each its rule's height to 3 mm; the width and the mass shared.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The edge a hurdler clears and the bar a hand takes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional; the feet's and uprights' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, the width and the least mass are the rule as read; the rule sets no greatest mass, so the mass band's upper end is provisional; the feet's and uprights' sizes are named estimates inside the rule's limits.
  */
 export namespace createHurdle {
   /** The races: the men's 110 m and the women's 100 m sprint hurdles, and the men's and the women's 400 m hurdles. */
@@ -171,8 +172,7 @@ export namespace createHurdle {
     ArchetypeBand.metres(
       metres - 0.003,
       metres + 0.003,
-      `${RULE}: the ${race} ${metres.toFixed(3)} m, to 3 mm`,
-      true,
+      `${RULE}: the ${race} ${metres.toFixed(3)} m, with a 3 mm tolerance above and below`,
     );
 
   /** The height band of each race. */
@@ -189,13 +189,12 @@ export namespace createHurdle {
       1.18,
       1.2,
       `${RULE}: 1.18 to 1.20 m wide`,
-      true,
     ),
     mass: ArchetypeBand.of(
       "kg",
       10,
       12,
-      `${RULE}: at least 10 kg; the upper end is a maker's`,
+      `${RULE}: not less than 10 kg; the rule sets no upper end, and no maker's weight was read`,
       true,
     ),
   };

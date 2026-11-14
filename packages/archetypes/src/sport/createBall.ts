@@ -87,7 +87,7 @@ export function createBall(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the games and one band per dimension per kind, each a rule's limits; a rule's circumference becomes a diameter by dividing by pi.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The size and mass a kick, a throw or a catch reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, so the table is total; the rules were recalled and not read here, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, so the table is total; each band is its rule as read, the rule's own limit where it states only one; the softball's bands, its rule book not opened, and the golf ball's mass, whose least the rule leaves open, are provisional.
  */
 export namespace createBall {
   /** The kinds of ball. */
@@ -158,104 +158,117 @@ export namespace createBall {
     minimum: number,
     maximum: number,
     source: string,
+    provisional: boolean = false,
   ): IArchetypeBand =>
-    ArchetypeBand.metres(minimum / Math.PI, maximum / Math.PI, source, true);
+    ArchetypeBand.metres(
+      minimum / Math.PI,
+      maximum / Math.PI,
+      source,
+      provisional,
+    );
 
   /** A mass band, kilograms. */
   const kg = (
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.of("kg", minimum, maximum, source, true);
+    provisional: boolean = false,
+  ): IArchetypeBand =>
+    ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+
+  /** IFAB, Laws of the Game, Law 2, the ball. */
+  const IFAB: string =
+    "IFAB Laws of the Game, Law 2 (https://www.theifab.com/laws/latest/the-ball/)";
+
+  /** FIBA, Official Basketball Rules 2026, Basketball Equipment, Table 1. */
+  const FIBA: string =
+    "FIBA Official Basketball Rules 2026, Basketball Equipment, 2.4 and Table 1, size 7 (https://assets.fiba.basketball/image/upload/documents-corporate-fiba-official-rules-2026-equipment-v1-0.pdf)";
+
+  /** FIVB, Official Volleyball Rules 2025-2028, rule 3.1. */
+  const FIVB: string =
+    "FIVB Official Volleyball Rules 2025-2028, French edition, 3.1 (https://www.fivb.com/wp-content/uploads/2025/06/FIVB-Volleyball_Rules2025_2028-FR-v04.pdf)";
+
+  /** IHF, Ball Regulations, Article 2.1, size 3 with resin. */
+  const IHF: string =
+    "IHF Technical Regulations, Ball Regulations, 9 December 2020, Article 2.1, size 3 with resin (https://www.ihf.info/sites/default/files/2025-02/13A%20-%20Ball%20Regulations_E.pdf)";
+
+  /** ITF, Rules of Tennis 2026, Appendix I, Types 1 and 2. */
+  const ITF: string =
+    "ITF Rules of Tennis 2026, Appendix I, Types 1 and 2 (https://www.world.tennis/media/7221/2026-rules-of-tennis-english.pdf)";
+
+  /** Official Baseball Rules 2024, rule 3.01. */
+  const OBR: string =
+    "Official Baseball Rules 2024, rule 3.01 (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
+
+  /** The R&A Rules of Equipment, Part 4. */
+  const RANDA: string =
+    "R&A Rules of Equipment, Part 4, 4.2 and 4.3 (https://www.randa.org/roe/the-rules-of-equipment/part-4-conformance-of-balls)";
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     football: {
-      diameter: round(
-        0.68,
-        0.7,
-        "IFAB Laws of the Game, Law 2: circumference 68 to 70 cm (size 5)",
-      ),
-      mass: kg(0.41, 0.45, "IFAB Laws of the Game, Law 2: 410 to 450 g"),
+      diameter: round(0.68, 0.7, `${IFAB}: circumference 68 to 70 cm`),
+      mass: kg(0.41, 0.45, `${IFAB}: 410 to 450 g at the start of the match`),
     },
     basketball: {
-      diameter: round(
-        0.749,
-        0.78,
-        "FIBA Basketball Equipment, size 7: circumference 749 to 780 mm",
-      ),
-      mass: kg(0.567, 0.65, "FIBA Basketball Equipment, size 7: 567 to 650 g"),
+      diameter: round(0.75, 0.77, `${FIBA}: circumference 750 to 770 mm`),
+      mass: kg(0.58, 0.62, `${FIBA}: 580 to 620 g`),
     },
     volleyball: {
-      diameter: round(
-        0.65,
-        0.67,
-        "FIVB Official Volleyball Rules, 3.1: circumference 65 to 67 cm",
-      ),
-      mass: kg(0.26, 0.28, "FIVB Official Volleyball Rules, 3.1: 260 to 280 g"),
+      diameter: round(0.65, 0.67, `${FIVB}: circumference 65 to 67 cm`),
+      mass: kg(0.26, 0.28, `${FIVB}: 260 to 280 g`),
     },
     handball: {
-      diameter: round(
-        0.58,
-        0.6,
-        "IHF Rules of the Game, Rule 3, size 3: circumference 58 to 60 cm",
-      ),
-      mass: kg(
-        0.425,
-        0.475,
-        "IHF Rules of the Game, Rule 3, size 3: 425 to 475 g",
-      ),
+      diameter: round(0.58, 0.6, `${IHF}: circumference 58 to 60 cm`),
+      mass: kg(0.425, 0.475, `${IHF}: 425 to 475 g`),
     },
     tennis: {
       diameter: ArchetypeBand.metres(
         0.0654,
         0.0686,
-        "ITF Rules of Tennis, Appendix I: diameter 6.54 to 6.86 cm",
-        true,
+        `${ITF}: size 6.54 to 6.86 cm`,
       ),
-      mass: kg(
-        0.056,
-        0.0594,
-        "ITF Rules of Tennis, Appendix I: 56.0 to 59.4 g",
-      ),
+      mass: kg(0.056, 0.0594, `${ITF}: 56.0 to 59.4 g`),
     },
     baseball: {
       diameter: round(
         9 * INCH,
         9.25 * INCH,
-        "Official Baseball Rules 3.01: circumference 9 to 9 1/4 in",
+        `${OBR}: not less than nine nor more than 9 1/4 in round`,
       ),
       mass: kg(
         5 * OUNCE,
         5.25 * OUNCE,
-        "Official Baseball Rules 3.01: 5 to 5 1/4 oz",
+        `${OBR}: not less than five nor more than 5 1/4 oz`,
       ),
     },
     softball: {
       diameter: round(
         11.88 * INCH,
         12.13 * INCH,
-        "the 12 in fastpitch softball: circumference 11.88 to 12.13 in",
+        "the 12 in fastpitch softball, 11.88 to 12.13 in round, as recalled; the WBSC rule book was searched for and not opened",
+        true,
       ),
       mass: kg(
         6.25 * OUNCE,
         7 * OUNCE,
-        "the 12 in fastpitch softball: 6.25 to 7 oz",
+        "the 12 in fastpitch softball, 6.25 to 7 oz, as recalled; the WBSC rule book was searched for and not opened",
+        true,
       ),
     },
     golf: {
       diameter: ArchetypeBand.metres(
         0.04267,
-        0.043,
-        "R&A and USGA Equipment Rules, Part 4: at least 1.680 in (42.67 mm) across; the upper end is an estimate",
-        true,
+        0.04267,
+        `${RANDA}: not less than 1.680 in (42.67 mm) across, the limit the model takes`,
       ),
       mass: kg(
         0.045,
         0.04593,
-        "R&A and USGA Equipment Rules, Part 4: at most 1.620 oz (45.93 g); the lower end is an estimate",
+        `${RANDA}: not greater than 1.620 oz (45.93 g); the rule sets no least weight and no maker's ball weight was read, so the lower end is provisional`,
+        true,
       ),
     },
   };

@@ -13,9 +13,9 @@ import {
 const RULES: string =
   "2025 High Jump Rules Comparison, Pacific Association USATF, World Athletics column: uprights 4.00 to 4.04 m apart, crossbar 3.98 to 4.02 m long (https://pausatf.org/wp-content/uploads/2025/01/High-Jump-Rules-Comparison-Color-2025.pdf)";
 
-/** The crossbar's section and mass, from a secondary summary. */
+/** The crossbar's section, read in the World Athletics rule. */
 const BAR: string =
-  "a crossbar of 30 mm diameter and at most 2 kg, as secondary summaries of World Athletics Technical Rule 27 give it; the rulebook was not read";
+  "World Athletics Competition and Technical Rules, 2020 edition, Technical Rule 26.7: the circular part of the crossbar 30 mm +/- 1 mm across, the bar at most 2 kg (https://athletics.lv/file/download/61151)";
 
 /**
  * A high jump: two uprights and the crossbar laid across them at the height the competition sets.
@@ -132,7 +132,7 @@ export namespace createHighJump {
       true,
     ),
     length: ArchetypeBand.metres(3.98, 4.02, RULES),
-    diameter: ArchetypeBand.metres(0.029, 0.031, BAR, true),
+    diameter: ArchetypeBand.metres(0.029, 0.031, BAR),
     span: ArchetypeBand.metres(4, 4.04, RULES),
     mass: ArchetypeBand.of(
       "kg",

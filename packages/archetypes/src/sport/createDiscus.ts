@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' implement rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the discus";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 34.2, the discus";
 
 /**
  * A competition discus, the men's or the women's.
@@ -90,7 +91,7 @@ export function createDiscus(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation The two senior categories and one band per dimension each, the rule's limits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the rim a throw reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each band is the rule as read; where the rule gives only a minimum mass or a maximum length, the model takes that limit.
  */
 export namespace createDiscus {
   /** The categories. */
@@ -125,14 +126,14 @@ export namespace createDiscus {
     id?: string;
   }
 
-  /** A provisional band of the rule. */
+  /** A band of the rule. */
   const band = (
     unit: IArchetypeBand["unit"],
     minimum: number,
     maximum: number,
     what: string,
   ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`, true);
+    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
@@ -149,8 +150,8 @@ export namespace createDiscus {
       mass: band(
         "kg",
         2,
-        2.025,
-        "the men's at least 2 kg; the upper end is a maker's tolerance",
+        2,
+        "the men's at least 2 kg for admission, the minimum the model takes",
       ),
     },
     women: {
@@ -164,8 +165,8 @@ export namespace createDiscus {
       mass: band(
         "kg",
         1,
-        1.025,
-        "the women's at least 1 kg; the upper end is a maker's tolerance",
+        1,
+        "the women's at least 1 kg for admission, the minimum the model takes",
       ),
     },
   };

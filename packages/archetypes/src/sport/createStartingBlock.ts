@@ -13,8 +13,13 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's block reads as, not read at a source. */
-const MAKER: string = "a common maker's starting block, not read at a source";
+/** The makers' blocks read. */
+const POLANIK: string =
+  "Polanik competition blocks: the steel PBS-01 with an 85 x 7.5 cm centre bar and 19 x 11.5 cm footplates, 7.7 kg, the aluminium PBS15-02-W with a 90.8 x 8 cm bar and 24.5 x 13 cm plates, 5.4 kg (https://www.athleticsdirect.co.uk/product/polanik-competition-steel-starting-blocks, https://www.athleticsdirect.co.uk/product/polanik-competition-aluminium-starting-block), and the Polanik TEAM block of 8.1 kg (https://www.galaxus.be/en/s3/product/polanik-team-starting-block-standard-version-8100-g-athletics-34534450)";
+
+/** What no source read gives. */
+const UNREAD: string =
+  "World Athletics Technical Rule 15.2 (2020 edition, https://athletics.lv/file/download/61151) sets no size or setting, and the makers' pages read state none";
 
 /**
  * A sprinter's starting block: a rail along the lane with a front and a rear foot plate.
@@ -116,20 +121,20 @@ export function createStartingBlock(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension, the setting a sprinter adjusts: how far back the plates stand, how far apart and how steep.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two plates a crouch start presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a block, so every band is provisional; the rail's and plates' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the plates' and rail's sizes are a maker's as read; the rule and the makers set no setback, spacing or angle, so those bands are provisional.
  */
 export namespace createStartingBlock {
-  /** The rail's width, metres; its height is half of it: an estimate. */
-  export const RAIL: number = 0.06;
+  /** The rail's width, metres: the Polanik steel block's 7.5 cm centre bar; its height, half of it, is an estimate. */
+  export const RAIL: number = 0.075;
 
-  /** Each plate's width across the foot, height along its face and thickness, metres: estimates. */
+  /** Each plate's width across the foot and height along its face, metres: the Polanik steel block's 19 x 11.5 cm footplates; the thickness is an estimate. */
   export const PLATE: Readonly<{
     width: number;
     height: number;
     thick: number;
   }> = {
-    width: 0.12,
-    height: 0.2,
+    width: 0.115,
+    height: 0.19,
     thick: 0.02,
   };
 
@@ -159,20 +164,9 @@ export namespace createStartingBlock {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    setback: ArchetypeBand.metres(0.1, 0.25, MAKER, true),
-    spacing: ArchetypeBand.metres(
-      0.25,
-      0.45,
-      "a bunched to an elongated start's plate spacing, recalled and not read",
-      true,
-    ),
-    angle: ArchetypeBand.of(
-      "degrees",
-      25,
-      50,
-      "plates 40 to 65 degrees from the track, recalled and not read, read as a tilt back from upright",
-      true,
-    ),
-    mass: ArchetypeBand.of("kg", 5, 10, MAKER, true),
+    setback: ArchetypeBand.metres(0.1, 0.25, UNREAD, true),
+    spacing: ArchetypeBand.metres(0.25, 0.45, UNREAD, true),
+    angle: ArchetypeBand.of("degrees", 25, 50, UNREAD, true),
+    mass: ArchetypeBand.of("kg", 5.4, 8.1, POLANIK),
   };
 }

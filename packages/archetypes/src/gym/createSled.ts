@@ -9,9 +9,13 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's sled reads as, not read at a source. */
-const MAKER: string =
-  "a common maker's push sled (a prowler), not read at a source";
+/** The makers' sleds read. */
+const ROGUE: string =
+  "Rogue Slice Sled, 27.5 x 22.75 in and 37.25 in to the handles' tops, 65 lb (https://support.roguefitness.com/hc/en-us/articles/47308098443156-Product-Guide-Rogue-Slice-Sled), and Rogue Echo Dog Sled, 36.5 x 25 in and 37.5 in high with its uprights, 87 lb (https://www.roguefitness.com/rogue-echo-dog-sled)";
+
+/** What no source read gives. */
+const UNREAD: string =
+  "the Rogue pages read give no distance between the uprights; inside the base's width";
 
 /**
  * A push sled: a weighted base on the floor with two upright poles a pusher leans into.
@@ -99,7 +103,7 @@ export function createSled(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One band per dimension; the handle's height and spacing are the two a push reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two handles a push takes, named as `pushSled` reads them by default, and the deck.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a sled, so every band is provisional; the base's and the poles' thickness and the hand's breadth are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The height, the base's size and the mass are two makers' sleds as read; no source gives the uprights' spacing, so its band is provisional; the base's and the poles' thickness and the hand's breadth are named estimates.
  */
 export namespace createSled {
   /** The base's thickness, metres: an estimate. */
@@ -137,11 +141,11 @@ export namespace createSled {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(0.95, 1.2, MAKER, true),
-    spacing: ArchetypeBand.metres(0.45, 0.6, MAKER, true),
-    length: ArchetypeBand.metres(0.9, 1.1, MAKER, true),
-    // At least the widest spacing and a pole, so both poles stand on it.
-    width: ArchetypeBand.metres(0.65, 0.75, MAKER, true),
-    mass: ArchetypeBand.of("kg", 30, 50, MAKER, true),
+    height: ArchetypeBand.metres(37.25 * 0.0254, 37.5 * 0.0254, ROGUE),
+    // Inside the narrowest base less a pole, so both poles stand on it.
+    spacing: ArchetypeBand.metres(0.45, 0.53, UNREAD, true),
+    length: ArchetypeBand.metres(27.5 * 0.0254, 36.5 * 0.0254, ROGUE),
+    width: ArchetypeBand.metres(22.75 * 0.0254, 25 * 0.0254, ROGUE),
+    mass: ArchetypeBand.of("kg", 65 * 0.45359237, 87 * 0.45359237, ROGUE),
   };
 }

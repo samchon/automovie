@@ -9,8 +9,13 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** What a maker's size reads as, not read at a source. */
-const MAKER: string = "a common maker's size, not read at a source";
+/** A cloth, read. */
+const CLOTH: string =
+  "E-Cloth General Purpose Cloth, 32 x 32 x 0.3 cm, 19 g (https://www.thenile.co.nz/home/general-purpose-cloth-32x32x03cm/5037284206656), listed elsewhere at 31.75 x 31.75 x 0.3 cm (https://www.desertcart.co.za/products/53864487-e-cloth-general-purpose-cleaning-cloths)";
+
+/** A sponge, read. */
+const SPONGE: string =
+  "Scotch-Brite Heavy Duty Scrub Sponge, 4.4 x 2.6 x 0.6 to 0.7 in (https://www.target.com/p/scotch-brite-heavy-duty-sponge-3pk/-/A-76165590)";
 
 /**
  * A thing a hand wipes or scrubs with: a cloth folded flat or a sponge.
@@ -90,7 +95,7 @@ export function createCleaning(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The hold and the wiping face.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, the cloth's folded in four; the sponge's weight is not given, so its mass band is provisional.
  */
 export namespace createCleaning {
   /** The kinds: a cloth folded in four, a kitchen sponge. */
@@ -129,26 +134,16 @@ export namespace createCleaning {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     cloth: {
-      width: ArchetypeBand.metres(
-        0.15,
-        0.2,
-        `${MAKER}: a 30 to 40 cm cloth folded in four`,
-        true,
-      ),
-      length: ArchetypeBand.metres(
-        0.15,
-        0.2,
-        `${MAKER}: a 30 to 40 cm cloth folded in four`,
-        true,
-      ),
-      thickness: ArchetypeBand.metres(0.004, 0.008, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.02, 0.05, MAKER, true),
+      width: ArchetypeBand.metres(0.15875, 0.16, `${CLOTH}: folded in four`),
+      length: ArchetypeBand.metres(0.15875, 0.16, `${CLOTH}: folded in four`),
+      thickness: ArchetypeBand.metres(0.012, 0.012, `${CLOTH}: four layers`),
+      mass: ArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
     },
     sponge: {
-      width: ArchetypeBand.metres(0.06, 0.075, MAKER, true),
-      length: ArchetypeBand.metres(0.09, 0.11, MAKER, true),
-      thickness: ArchetypeBand.metres(0.025, 0.045, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.005, 0.02, MAKER, true),
+      width: ArchetypeBand.metres(2.6 * 0.0254, 2.6 * 0.0254, SPONGE),
+      length: ArchetypeBand.metres(4.4 * 0.0254, 4.4 * 0.0254, SPONGE),
+      thickness: ArchetypeBand.metres(0.6 * 0.0254, 0.7 * 0.0254, SPONGE),
+      mass: ArchetypeBand.of("kg", 0.005, 0.02, "the sponge's weight: the listings read do not give it", true),
     },
   };
 }

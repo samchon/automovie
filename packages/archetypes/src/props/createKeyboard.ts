@@ -10,12 +10,13 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The key pitch of a standard keyboard. */
-const PITCH_SOURCE: string =
-  "ISO/IEC 9995 and common practice, a 19.05 mm key pitch, recalled and not read";
+/** Apple's keyboard, read. */
+const APPLE_KEYBOARD: string =
+  "Apple Magic Keyboard with Numeric Keypad, 41.87 cm wide, 11.49 cm deep, 0.41 to 1.09 cm high, 0.369 to 0.39 kg (https://support.apple.com/en-us/112037, https://support.apple.com/en-us/121953)";
 
-/** What a maker's size reads as, not read at a source. */
-const MAKER: string = "a common maker's size, not read at a source";
+/** Apple's laptop, read. */
+const APPLE_LAPTOP: string =
+  "MacBook Air M4, the 13-inch 30.41 x 21.5 x 1.13 cm closed and 1.24 kg (https://support.apple.com/en-us/122209), the 15-inch 34.04 x 23.76 x 1.15 cm and 1.51 kg (https://support.apple.com/en-us/122210)";
 
 /**
  * A computer keyboard, or a laptop open on its base.
@@ -136,7 +137,7 @@ export function createKeyboard(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two and one band per dimension each; the rows follow the standard key pitch.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The key field and the home row a typing act reads, and a laptop's screen and lid.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pitch was recalled and not read, and no maker's size was read, so every band is provisional; the margins and the lid's tilt and thickness are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The pitch and the sizes are read; a laptop's base is its closed height less the lid's estimated thickness; the margins and the lid's tilt are named estimates.
  */
 export namespace createKeyboard {
   /** The kinds: a full-size keyboard and a laptop. */
@@ -145,7 +146,7 @@ export namespace createKeyboard {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["keyboard", "laptop"];
 
-  /** The key pitch, metres: 19.05 mm (see the source). */
+  /** The key pitch, metres: full-size keys on 0.750 in (19.05 mm) centres, the withdrawn ISO 1091's 19 mm +/- 1 mm, which ISO/IEC 9995 does not state (Deskthority wiki, Key pitch, https://deskthority.net/wiki/Key_pitch). */
   export const PITCH: number = 0.01905;
 
   /** The margin from the base's edge to the key field, metres: an estimate. */
@@ -189,26 +190,20 @@ export namespace createKeyboard {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     keyboard: {
-      width: ArchetypeBand.metres(
-        0.43,
-        0.46,
-        `${PITCH_SOURCE}: some 22.5 keys wide; ${MAKER}`,
-        true,
-      ),
-      depth: ArchetypeBand.metres(
-        0.13,
-        0.16,
-        `${PITCH_SOURCE}: six rows deep; ${MAKER}`,
-        true,
-      ),
-      height: ArchetypeBand.metres(0.02, 0.035, MAKER, true),
-      mass: ArchetypeBand.of("kg", 0.5, 1.2, MAKER, true),
+      width: ArchetypeBand.metres(0.4187, 0.4187, APPLE_KEYBOARD),
+      depth: ArchetypeBand.metres(0.1149, 0.1149, APPLE_KEYBOARD),
+      height: ArchetypeBand.metres(0.0109, 0.0109, `${APPLE_KEYBOARD}: its back edge`),
+      mass: ArchetypeBand.of("kg", 0.369, 0.39, APPLE_KEYBOARD),
     },
     laptop: {
-      width: ArchetypeBand.metres(0.3, 0.36, MAKER, true),
-      depth: ArchetypeBand.metres(0.21, 0.25, MAKER, true),
-      height: ArchetypeBand.metres(0.012, 0.02, MAKER, true),
-      mass: ArchetypeBand.of("kg", 1.1, 2.2, MAKER, true),
+      width: ArchetypeBand.metres(0.3041, 0.3404, APPLE_LAPTOP),
+      depth: ArchetypeBand.metres(0.215, 0.2376, APPLE_LAPTOP),
+      height: ArchetypeBand.metres(
+        0.0113 - LID_THICKNESS,
+        0.0115 - LID_THICKNESS,
+        `${APPLE_LAPTOP}: the closed height less the lid's`,
+      ),
+      mass: ArchetypeBand.of("kg", 1.24, 1.51, APPLE_LAPTOP),
     },
   };
 }

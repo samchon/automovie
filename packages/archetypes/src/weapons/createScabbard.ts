@@ -90,7 +90,7 @@ export function createScabbard(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the sword's scabbard and the knife's sheath, each sized to hold the blades `createSword`'s bands give its kinds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The mouth a draw leaves and the hanger it is worn by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source was read for a scabbard, so every band is provisional, set from the blades it must hold; the throat's size is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The length and width are a maker's rule of fit on the blades createSword draws, as read; no source gives a scabbard's thickness or weight, so those bands are provisional; the throat's size is a named estimate.
  */
 export namespace createScabbard {
   /** The kinds: a sword's scabbard and a knife's or a dagger's sheath. */
@@ -129,57 +129,45 @@ export namespace createScabbard {
     id?: string;
   }
 
+  /** A scabbard maker's rule of fit, read. */
+  const WULFLUND: string =
+    "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
+
+  /** What no source read gives. */
+  const UNREAD: string =
+    "no scabbard's thickness or weight was found in the makers' pages read";
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     sword: {
       length: ArchetypeBand.metres(
-        0.8,
-        1.08,
-        "a blade of createSword's arming sword to rapier, 0.78 to 1.04 m, and a few centimetres beyond its point",
-        true,
+        0.7779 + 0.015,
+        1.04 + 0.015,
+        `${WULFLUND}, on createSword's arming sword to rapier blades of 0.7779 to 1.04 m`,
       ),
       width: ArchetypeBand.metres(
-        0.05,
-        0.07,
-        "a blade's width and the leather round it, an estimate",
-        true,
+        0.025 + 0.02,
+        0.0556 + 0.02,
+        `${WULFLUND}, on createSword's rapier to arming sword blades of 25 to 55.6 mm`,
       ),
-      thickness: ArchetypeBand.metres(
-        0.015,
-        0.025,
-        "a blade's thickness and the leather round it, an estimate",
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 0.3, 0.6, ArchetypeBand.TYPICAL_MASS, true),
+      thickness: ArchetypeBand.metres(0.015, 0.025, UNREAD, true),
+      mass: ArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
     },
     knife: {
       length: ArchetypeBand.metres(
-        0.18,
-        0.38,
-        "a blade of createSword's knife to dagger, 0.178 to 0.36 m, and a little beyond its point",
-        true,
+        0.178 + 0.015,
+        0.36 + 0.015,
+        `${WULFLUND}, on createSword's knife to dagger blades of 0.178 to 0.36 m`,
       ),
       width: ArchetypeBand.metres(
-        0.035,
-        0.05,
-        "a blade's width and the leather round it, an estimate",
-        true,
+        0.02 + 0.02,
+        0.032 + 0.02,
+        `${WULFLUND}, on createSword's dagger to knife blades of 20 to 32 mm`,
       ),
-      thickness: ArchetypeBand.metres(
-        0.012,
-        0.02,
-        "a blade's thickness and the leather round it, an estimate",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.05,
-        0.15,
-        ArchetypeBand.TYPICAL_MASS,
-        true,
-      ),
+      thickness: ArchetypeBand.metres(0.012, 0.02, UNREAD, true),
+      mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
     },
   };
 }

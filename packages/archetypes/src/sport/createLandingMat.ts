@@ -11,11 +11,11 @@ import {
 
 /** The high jump's landing area in the rules' comparison sheet. */
 const HIGH: string =
-  "2025 High Jump Rules Comparison, Pacific Association USATF, World Athletics column: landing surface 6 m by 4 m by 0.7 m (https://pausatf.org/wp-content/uploads/2025/01/High-Jump-Rules-Comparison-Color-2025.pdf), taken as the least; the upper ends are estimates";
+  "2025 High Jump Rules Comparison, Pacific Association USATF, World Athletics column: landing surface 6 m by 4 m by 0.7 m (https://pausatf.org/wp-content/uploads/2025/01/High-Jump-Rules-Comparison-Color-2025.pdf), the least the rule allows, which the model takes";
 
 /** The pole vault's landing area in the rules' comparison sheet. */
 const POLE: string =
-  "2025 Pole Vault Rules Comparison, Pacific Association USATF, World Athletics column: landing area 6 m by 6 m by 0.8 m behind the box, 8 m with the front pads (https://pausatf.org/wp-content/uploads/2025/01/Pole-Vault-Rules-Comparison-Color-2025.pdf), taken as the least; the upper ends are estimates";
+  "2025 Pole Vault Rules Comparison, Pacific Association USATF, World Athletics column: landing area 6 m by 6 m by 0.8 m behind the box, 8 m with the front pads (https://pausatf.org/wp-content/uploads/2025/01/Pole-Vault-Rules-Comparison-Color-2025.pdf), the least the rule allows, which the model takes";
 
 /**
  * A landing mat: the foam bed a high jumper or a pole vaulter comes down on.
@@ -120,9 +120,9 @@ export namespace createLandingMat {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     highJump: {
-      length: ArchetypeBand.metres(4, 4.5, HIGH),
-      width: ArchetypeBand.metres(6, 6.5, HIGH),
-      height: ArchetypeBand.metres(0.7, 0.75, HIGH),
+      length: ArchetypeBand.metres(4, 4, HIGH),
+      width: ArchetypeBand.metres(6, 6, HIGH),
+      height: ArchetypeBand.metres(0.7, 0.7, HIGH),
       mass: ArchetypeBand.of(
         "kg",
         250,
@@ -133,8 +133,8 @@ export namespace createLandingMat {
     },
     poleVault: {
       length: ArchetypeBand.metres(6, 8, POLE),
-      width: ArchetypeBand.metres(6, 6.5, POLE),
-      height: ArchetypeBand.metres(0.8, 0.85, POLE),
+      width: ArchetypeBand.metres(6, 6, POLE),
+      height: ArchetypeBand.metres(0.8, 0.8, POLE),
       mass: ArchetypeBand.of(
         "kg",
         450,

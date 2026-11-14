@@ -9,8 +9,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** World Athletics' baton rule as recalled, not read here. */
-const RULE: string = "World Athletics Technical Rules, the relay baton";
+/** The World Athletics rule as read. */
+const RULE: string =
+  "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 24.5, the relay baton";
 
 /**
  * A relay baton: a smooth hollow tube of round section.
@@ -99,7 +100,7 @@ export function createRelayBaton(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation One band per dimension, the rule's limits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The tube a hand takes and the two ends a pass pushes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rule was recalled and not read here, so every band is provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The length and the diameter are the rule as read; the rule sets only a least mass, so the mass band is provisional.
  */
 export namespace createRelayBaton {
   /**
@@ -128,18 +129,17 @@ export namespace createRelayBaton {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.28, 0.3, `${RULE}: 28 to 30 cm long`, true),
+    length: ArchetypeBand.metres(0.28, 0.3, `${RULE}: 0.28 to 0.30 m long`),
     diameter: ArchetypeBand.metres(
       0.038,
       0.042,
-      `${RULE}: 40 mm across, to 2 mm`,
-      true,
+      `${RULE}: an outside diameter of 40 mm +/- 2 mm`,
     ),
     mass: ArchetypeBand.of(
       "kg",
       0.05,
       0.07,
-      `${RULE}: at least 50 g; the upper end is a maker's aluminium baton`,
+      `${RULE}: not less than 50 g; the rule sets no upper end, and no maker's weight was read`,
       true,
     ),
   };

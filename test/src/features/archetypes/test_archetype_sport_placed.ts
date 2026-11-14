@@ -22,7 +22,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. Every kind of ball, racket, golf club, glove, javelin, shot, discus, hammer and hurdle, the starting block and the baton, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the football 0.2165 to 0.2228 m, the basketball 0.2384 to 0.2483 m, the tennis ball 65.4 to 68.6 mm and the golf ball 42.67 to 43 mm across (each rule's circumference or diameter); the tennis racket 0.686 to 0.737 m long; the driver 1.105 to 1.168 m long; the men's javelin 2.6 to 2.7 m long; the men's shot 110 to 130 mm and the men's discus 219 to 221 mm across; the men's 110 m hurdle's top 1.064 to 1.070 m high; the baton 0.28 to 0.30 m long and 38 to 42 mm across.
+ * 2. Over 200 seeds: the football 0.2165 to 0.2228 m, the basketball 0.2387 to 0.2451 m, the tennis ball 65.4 to 68.6 mm and the golf ball 42.67 mm across (each rule's circumference or diameter as read); the tennis racket 0.685 to 0.737 m long; the driver 1.156 to 1.168 m long; the men's javelin 2.6 to 2.7 m long; the men's shot 110 to 130 mm and the men's discus 219 to 221 mm across; the men's 110 m hurdle's top 1.064 to 1.070 m high; the baton 0.28 to 0.30 m long and 38 to 42 mm across.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the rules each producer cites, a circumference divided by pi where the rule gives one.
@@ -146,9 +146,9 @@ export function test_archetype_sport_placed(): void {
       ),
       row(
         "basketball diameter",
-        0.749 / Math.PI,
-        0.78 / Math.PI,
-        "FIBA size 7, 749 to 780 mm round",
+        0.75 / Math.PI,
+        0.77 / Math.PI,
+        "FIBA 2026 size 7, 750 to 770 mm round",
         across((seed: number): archetypePlaced.IRow["archetype"] =>
           createBall({ kind: "basketball" }, seed),
         ),
@@ -165,26 +165,26 @@ export function test_archetype_sport_placed(): void {
       row(
         "golf ball diameter",
         0.04267,
-        0.043,
-        "R&A and USGA, at least 42.67 mm",
+        0.04267,
+        "R&A 4.3, not less than 42.67 mm",
         across((seed: number): archetypePlaced.IRow["archetype"] =>
           createBall({ kind: "golf" }, seed),
         ),
       ),
       row(
         "tennis racket length",
-        0.686,
+        0.685,
         0.737,
-        "ITF Appendix II, at most 73.7 cm",
+        "Babolat's 685 mm to ITF Appendix II's 73.7 cm",
         tall((seed: number): archetypePlaced.IRow["archetype"] =>
           createRacket({ kind: "tennis" }, seed),
         ),
       ),
       row(
         "driver length",
-        43.5 * 0.0254,
+        45.5 * 0.0254,
         46 * 0.0254,
-        "R&A and USGA, at most 46 in",
+        "PING G440 MAX, 45 1/2 and 46 in",
         tall((seed: number): archetypePlaced.IRow["archetype"] =>
           createGolfClub({ kind: "driver" }, seed),
         ),
