@@ -1,16 +1,30 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
+const { act, at, object, person, scene }: typeof SceneBuild = SceneBuild;
 
-/** The sport scenes of the lexicon's football, throwing, gymnastics and swimming rows. */
+/**
+ * A ball resting on the floor, as a kick's target: its centre a football's
+ * radius up (0.11 m), ahead of where the support foot plants.
+ *
+ * @param x To the left of a person facing +Z, metres.
+ * @param z Forward, metres.
+ * @returns The target.
+ */
+const ball = (x: number, z: number): Record<string, unknown> => ({
+  kind: "point",
+  at: { x, y: 0.11, z },
+  frame: "world",
+});
+
+/** The sport scenes of the lexicon's football, basketball, gymnastics and swimming rows. */
 export const SCENES_FIELD: readonly IScene[] = [
   scene(
     {
       id: "five-a-side",
       title: "Five-a-side",
       summary:
-        "A small-sided game: a throw-in, a header, a chest and a thigh trap, a dribble and a left-footed shot the keeper dives right for, and a chest pass caught in both hands.",
+        "A small-sided game: a throw-in, a header, a chest and a thigh trap, and a left-footed shot the keeper dives right for at the instant it is struck.",
       setting: "sport",
       roles: {
         ali: "winger",
@@ -22,24 +36,39 @@ export const SCENES_FIELD: readonly IScene[] = [
     },
     "five-a-side",
     [
-      person("ali", "m1", -3, 0, 90, [
-        act("throwIn"),
-        act("pushPass", { at: at("bea", "sternum") }, { anchor: "pass" }),
-      ]),
-      person("bea", "f1", 0, 0, 270, [
-        act("header"),
-        act("twoHandCatch", { from: "pass" }),
-      ]),
+      person("ali", "m1", -3, 0, 90, [act("throwIn")]),
+      person("bea", "f1", 0, 0, 270, [act("header")]),
       person("cyr", "m2", 0, 3, 0, [
         act("chestTrap"),
         act("thighTrap"),
-        act("dribble"),
-        act("kickLeft", { ball: at("cyr", "footTopLeft") }),
+        act("kickLeft", { ball: ball(0, 3.3) }, { anchor: "shot" }),
       ]),
       person("dag", "m1", 0, 11, 180, [
         act("readyPosition"),
-        act("stand", { seconds: 0.3 }),
-        act("goalkeeperDiveRight"),
+        act("stand", { seconds: 6 }),
+        act("goalkeeperDiveRight", {}, { sync: { of: "shot" } }),
+      ]),
+    ],
+  ),
+  scene(
+    {
+      id: "shoot-around",
+      title: "Shoot-around",
+      summary:
+        "Two basketball players: one dribbles on the spot and throws a chest pass, the other catches it in both hands.",
+      setting: "sport",
+      roles: { eli: "guard", fen: "forward" },
+      needs: [],
+    },
+    "shoot-around",
+    [
+      person("eli", "f2", 0, 0, 0, [
+        act("dribble", { count: 4 }),
+        act("pushPass", { at: at("fen", "sternum") }, { anchor: "chest" }),
+      ]),
+      person("fen", "m1", 0, 4, 180, [
+        act("stand", { seconds: 1 }),
+        act("twoHandCatch", { from: "chest" }),
       ]),
     ],
   ),
@@ -48,7 +77,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "vault-hall",
       title: "Vault hall",
       summary:
-        "Two gymnasts: a cartwheel and a round-off to the right, and a handspring vault over a box out of a run.",
+        "Two gymnasts: a cartwheel and a round-off to the right, and a handspring vault over a box from standing.",
       setting: "sport",
       roles: { eun: "gymnast", flo: "gymnast" },
       needs: [],
@@ -60,8 +89,8 @@ export const SCENES_FIELD: readonly IScene[] = [
         act("cartwheelRight"),
         act("roundOffRight"),
       ]),
-      person("flo", "f2", -4, 1, 90, [
-        act("run", { to: to(-1.2, 1), pace: "run" }),
+      person("flo", "f2", -1.5, 1, 90, [
+        act("stand", { seconds: 0.5 }),
         act("handspringVault", { on: "box" }),
       ]),
     ],
@@ -72,7 +101,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "swim-strokes",
       title: "Swim strokes",
       summary:
-        "Three swimmers in the lexicon's strokes: breaststroke, backstroke and floating on the back, still without water forces.",
+        "Three swimmers: breaststroke, backstroke and floating on the back.",
       setting: "sport",
       roles: { hed: "swimmer", ivo: "swimmer", jul: "swimmer" },
       needs: [],
