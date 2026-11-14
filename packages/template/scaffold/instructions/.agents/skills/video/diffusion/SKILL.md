@@ -1,11 +1,11 @@
 ---
 name: video-diffusion
-description: Chooses the video generation model with the user, reads its documentation for every value the plan depends on, and writes the prompts it takes, with a page per representative model. Use when choosing or changing the video model or writing a video prompt.
+description: Chooses the video generation model with the user, reads its documentation for every value the plan depends on, and writes the prompts it takes. Use when choosing or changing the video model or writing a video prompt.
 ---
 
 # Video diffusion
 
-Choose the model with the user and record it in [project context](../../production/project-context.md). Write each request's prompt under [prompts](prompts.md), following the model's page and its own guide.
+Choose the model with the user and record it in [project context](../../production/project-context.md). Write each request's prompt under [prompts](prompts.md), following the model's own guide.
 
 ## Read the model
 
@@ -15,24 +15,4 @@ When the model's output size or frame rate differs from the [delivery profile](.
 
 ## Models
 
-These are representative examples, not a complete or required list; any model the user prefers or a newer release can serve. Each page records how one model takes a motion hint, how a request sets its [adherence](../requests.md#adherence), and how it continues a take, as its documentation stated them; the documentation owns the values.
-
-| Model | Takes the hint as | Page |
-| --- | --- | --- |
-| Runway Aleph 2.0 | A video to edit or restyle | [Runway Aleph](runway-aleph.md) |
-| Kling 4.0 Omni | A video to edit, or videos as references | [Kling Omni](kling-omni.md) |
-| Kling Motion Control 3.0 | One figure's body motion | [Kling Motion Control](kling-motion-control.md) |
-| Seedance 2.5 | A video to edit or extend, or reference videos | [Seedance](seedance.md) |
-| MiniMax-H3 | Reference videos with roles | [MiniMax-H3](minimax-h3.md) |
-| fal H3 Max 3D to video | A gray layout it turns into the shot | [fal H3 Max](fal-h3-max.md) |
-| Gemini Omni Flash | A video to edit, or short reference videos | [Gemini Omni](gemini-omni.md) |
-| Veo 3.1 | Still frames only | [Veo](veo.md) |
-| Luma Ray 3.2 | A video to edit, with keyframes | [Luma Ray](luma-ray.md) |
-| LTX | The RGB hint, or one control pass | [LTX](ltx.md) |
-| Wan VACE and Fun Control | Control passes | [Wan](wan.md) |
-
-Proprietary models take the hint as RGB video at most and derive any structure from it themselves. Open models with control adapters take depth, edge or pose videos directly, so choose one when exact positions, contacts and camera outweigh its setup cost.
-
-When adding a model, give it a page in the same form.
-
-Read each model's terms before adopting it: territory limits, rejected reference content such as real human faces, revenue thresholds and labeling duties for open weights, and price per second.
+[Video models](models.md) shows, by current examples, how differently models take the hint, set adherence and continue a take.

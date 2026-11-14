@@ -1,24 +1,15 @@
 ---
 name: image-diffusion
-description: Chooses the image generator and writes image prompts, with a page per representative generator. Use when choosing an image generator or writing an image prompt; image owns what each image is for.
+description: Chooses the image generator and writes image prompts. Use when choosing an image generator or writing an image prompt; image owns what each image is for.
 ---
 
 # Image diffusion
 
 ## Choose a generator
 
-These are representative examples, not a complete or required list. Read the chosen generator's current documentation for sizes, input-image count, license and price, and record the choice in [project context](../../production/project-context.md).
-
-| Generator | Reached through | Page |
-| --- | --- | --- |
-| Codex built-in image generation | Codex, under the ChatGPT plan with no API key | [Codex image generation](codex-imagegen.md) |
-| OpenAI GPT Image | A script with the user's key | [GPT Image](gpt-image.md) |
-| Google Gemini image generation | A script with the user's key | [Gemini image](gemini-image.md) |
-| Open weights with control adapters | diffusers or ComfyUI | [Open weights](open-weights.md) |
+Choose the generator with the user from [image generators](models.md) or another they prefer, read its current documentation, and record the choice in [project context](../../production/project-context.md).
 
 Hosted generators take a rendered frame only as an image to follow. An open model conditions on the rendered form through a control adapter and repeats from a fixed seed, so choose one when a shot frame must hold the hint's pose and camera exactly.
-
-When adding a generator, give it a page in the same form.
 
 ## Prompts
 
