@@ -18,6 +18,8 @@ const RULE: string =
  *
  * It stands on its back end at the origin along `+Y`. `grip` is the tube a hand closes on, along its whole length; `front` and `back` are its two ends, each `+Y` out of the tube: the incoming runner pushes one end into the outgoing runner's palm (`relayPass`'s `end`).
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The baton.

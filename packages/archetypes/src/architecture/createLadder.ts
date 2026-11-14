@@ -27,6 +27,8 @@ const RUNG: string =
  *
  * The ladder's foot is on the floor at the origin and it is climbed facing `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back toward the wall at the pitch its bands give, its foot a quarter of its length out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar` along the ladder.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind, the number of rungs and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ladder.

@@ -22,6 +22,8 @@ const UNREAD: string =
  *
  * The base runs forward along `+Z` from its back edge at the origin, centred on `X`, and the pusher stands behind it at `-Z`, facing `+Z`. The two poles rise from the base's back corners; `left` and `right` are the upper reach of each, the pusher's left and right hand's handle, taken from behind (`-Z`) with the pole's axis along `+X` of the frame; `deck` is the base's top, where plates are loaded.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The sled.

@@ -28,6 +28,8 @@ const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossb
  *
  * `bar` is the crossbar's axis, a bar along `+X` facing up: its height is the one a jump reads and its length the bar's. A pole vault also declares `box`, the socket at the stop board's foot where the pole's tip plants, `+Y` up out of the box. The landing area is its own archetype (`createLandingMat`), placed beyond the bar on `+Z`.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind, `highJump` when absent, and any dimension the author fixes; `height` is the bar's.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The apparatus.

@@ -34,6 +34,8 @@ const MODELS: readonly [IModel, IModel] = [
  *
  * Its size lies between the smallest and largest of the maker's boards read, by the drawn `size`, so every draw is one coherent board. `deck` is its top, the surface the feet stand on and the chest lies on; `rail` its `+X` edge at its middle and half its thickness, where a hand carries it under the arm. Riding it is balance on a moving support, which no motion law covers yet (#3468 N11), so it is built for static use and carrying.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The board.

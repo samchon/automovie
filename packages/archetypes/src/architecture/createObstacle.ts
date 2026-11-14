@@ -14,6 +14,8 @@ import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
  *
  * Each stands centred on `X` with its back at the origin's `Z` and its front toward `+Z`, the side it is approached from, as `createKerb` stands. A crosstie, a sandbag and a concrete barrier declare `top`, the top face, and `edge`, the top's front edge along `+X` with `+Y` up and `+Z` out of the face below: the near side and depth a stepping-over act reads (`stepOver`), so a crosstie and a sandbag are stepped over and a concrete barrier, 0.81 m high, is refused as cover too high to step. A sandbag also declares `leftEnd` and `rightEnd`, handles on its two ends' tops where it is lifted. A crowd barrier declares `rail`, its top rail, a bar a body leans on or grips. The stanchions declare `rope`, the rope between their tops, and `leftPost` and `rightPost`, the posts gripped to move them, each a bar.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The obstacle.

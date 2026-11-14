@@ -21,6 +21,8 @@ const NAMES: Readonly<Record<createStorage.Kind, string>> = {
  *
  * The cabinet stands on the floor at the origin with its front toward `+Z`. Its doors and drawers are parts on their articulations: a wardrobe door turns out about its outer edge, a drawer slides out toward `+Z` with the box behind its front, and each carries its pull. The `push` face on the `+X` side is where the cabinet is pushed when it is moved. `StorageConstruction` builds each kind and says what the locker and the bookcase add.
  *
+ * A locker rests on its steel legs, so its body's friction is steel on concrete (`ArchetypeFriction`); no source read names what the other kinds rest on, so they keep the builder's 0.5 placeholder.
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cabinet.
@@ -64,7 +66,7 @@ export function createStorage(
   if (kind === "chest" || kind === "filingCabinet")
     StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
   else StorageConstruction[kind](builder, d);
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
 }
 
 /**

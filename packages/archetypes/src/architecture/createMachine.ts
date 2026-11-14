@@ -18,6 +18,8 @@ const MERCHANT: string =
  *
  * The cabinet stands on the floor at the origin with its glass front toward `+Z`. `front` is the front, the face a person stands at, looks through, leans on or rocks; `side` is the `+X` side face, where it is pushed. Its keypad, coin slot and delivery bin are not declared, since no source read places them on the front; keying a selection is a keyed sequence with no motion law yet (#3446).
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The machine.

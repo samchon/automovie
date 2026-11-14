@@ -21,6 +21,8 @@ const FIG: string =
  * the bar along `X`. `bar` is the bar's middle, on its axis, with `+Y` up:
  * hands take it from below at any place along its length.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bar.

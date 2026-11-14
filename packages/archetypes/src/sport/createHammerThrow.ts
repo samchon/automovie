@@ -18,6 +18,8 @@ const RULE: string =
  *
  * It stands on its head with the wire straight up along `+Y`, the handle level along `X` at the top. `handle` is the loop both hands close on; `head` the ball's centre, its `+Y` out along the wire's line away from the handle, the end a swing whirls.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hammer.

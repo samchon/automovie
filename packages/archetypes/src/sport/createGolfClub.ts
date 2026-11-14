@@ -17,6 +17,8 @@ const INCH: number = 0.0254;
  *
  * It stands on its head's sole at the origin, the shaft straight up along `+Y` to the grip's end, the head's toe toward `+X` and its face toward `+Z`. `grip` is the grip both hands close on; `face` the striking face, its `+Y` out of it; `head` the head's centre, its `+Y` running out of the club down the shaft's line: a swing carries `head` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The club.

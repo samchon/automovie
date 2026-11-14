@@ -17,6 +17,8 @@ import { ApplianceConstruction } from "./ApplianceConstruction";
  * - A microwave's `door` hinges on its `-X` edge, stating no travel since the maker gives no opening angle; `floor` is the cavity's floor and `top` its top, each a `stack-top`.
  * - A washing machine's `door` is the round door hinged on its `-X` edge, opening 90 degrees; `top` is the worktop, a `stack-top`.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The appliance.

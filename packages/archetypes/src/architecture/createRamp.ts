@@ -18,6 +18,8 @@ const ADA: string =
  *
  * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the drawn slope, then runs level for a landing. The `slope` is the walking surface, its frame at the middle of the incline with `+Y` square to it; `top` is the edge where the incline meets the landing.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ramp.

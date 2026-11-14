@@ -38,6 +38,8 @@ const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
  *
  * The pipe runs along `X` lying on the floor, its axis a bore's radius up over the origin; the valve's bonnet and stem rise along `+Y` to the handwheel, which lies level at the valve's height open above the pipe's axis. Its size lies between the maker's two valves read, by the drawn `size`. `wheel` is the handwheel, a wheel turned about `+Y`; it states no travel, since no source read gives its turns from open to closed.
  *
+ * It rests on its iron pipe, so the body's friction is steel on concrete (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The valve.
@@ -113,7 +115,7 @@ export function createValve(
     grip: "power",
     radius,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "steel" });
 }
 
 /**

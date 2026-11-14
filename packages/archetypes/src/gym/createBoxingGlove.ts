@@ -18,6 +18,8 @@ const IBA: string =
  *
  * `wear` is the socket the hand goes into: the fist's hollow where the palm's middle sits, `+Y` out of the cuff's mouth along `-Z`, the way the hand comes in. `face` is the striking face, the knuckle end of the fist, `+Y` out along `+Z`, the way a punch lands.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The glove.

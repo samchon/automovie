@@ -19,6 +19,8 @@ const CONCEPT2: string =
  *
  * The rail runs along `Z` centred over the origin, its front (the flywheel's end) toward `+Z`, so the rower sits facing `+Z`. `seat` is the seat at its catch-most place near the feet, `+Z` the way the rower faces; `handle` the bar the hands pull, along `X` in front of the stretchers at rest on its hook; `leftFoot` and `rightFoot` the stretchers' plates, tilted back toward the rower.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rowing machine.

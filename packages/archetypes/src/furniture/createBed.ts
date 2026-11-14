@@ -15,6 +15,8 @@ import { CareBedConstruction } from "./CareBedConstruction";
  *
  * The lying surface is centred over the origin, the head toward `-Z`. A single or a double bed is a mattress on a base with a headboard, a mattress on the floor the mattress alone; each long side is also a seat, facing out, for sitting on the edge and rising from the bed. A hospital bed, a crib and a bunk bed are built by `CareBedConstruction`, whose functions say what each adds: a hospital bed's siderails, a crib's top rails, a bunk's upper bed and guardrail.
  *
+ * A bunk bed rests on its pine posts, so its body's friction is wood on concrete (`ArchetypeFriction`); no source read names what the other beds rest on, so they keep the builder's 0.5 placeholder.
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bed.
@@ -55,7 +57,7 @@ export function createBed(
     });
   if (kind === "hospital" || kind === "crib" || kind === "bunk") {
     CareBedConstruction[kind](builder, d);
-    return builder.build(d.mass!);
+    return builder.build(d.mass!, kind === "bunk" ? { rests: "wood" } : {});
   }
   const width: number = d.width!;
   const length: number = d.length!;

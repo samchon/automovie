@@ -90,6 +90,8 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
  *
  * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along its back top edge. Its outline lies between the maker's two models read, by the drawn `size`, so every draw is one coherent container. A wheeled bin is its body, its lid and two wheels at its back's foot; `handle` is the bar behind its body by the sheet's difference of total and bin depth, at the bin's height, where it is gripped to tip the bin onto its wheels and haul it. A dumpster is its body, narrower at the base than at the lid, under a lid level at its mean height. `lid` is the lid's hinge on both; it states no travel, since no source read gives how far a lid opens. `front` is the front face a person pushes.
  *
+ * A dumpster rests on its steel body, so its friction is steel on concrete (`ArchetypeFriction`); no source read names a wheeled bin's wheels, so it keeps the builder's 0.5 placeholder.
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The container.
@@ -221,7 +223,7 @@ export function createBin(
     width,
     depth: height,
   });
-  return builder.build(at("mass"));
+  return builder.build(at("mass"), kind === "dumpster" ? { rests: "steel" } : {});
 }
 
 /**

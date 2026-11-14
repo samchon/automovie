@@ -23,6 +23,8 @@ const SACK: string =
  *
  * The load lies on the floor at the origin, its length along `+X`. A crate is held by the grip holes in the middle of its two short ends, a sack by a hand closed on each end at half its thickness; both have a top another load rests on.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind, the crate's contents and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The load.

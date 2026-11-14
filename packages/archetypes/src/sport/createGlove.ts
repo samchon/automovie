@@ -17,6 +17,8 @@ const INCH: number = 0.0254;
  *
  * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and the wrist opening toward `-Z`, its centre over the origin. `hand` is the wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the catching face a ball comes to, facing up. A glove is worn on the hand (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The glove.

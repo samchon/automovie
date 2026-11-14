@@ -21,6 +21,8 @@ const UNREAD: string = "the listings read do not give it";
  *
  * It stands on the counter at the origin, its body rising along `+Y` and its spout reaching out along `+Z` over the basin, toward whoever uses it. `lever` is the lever's hub on the body's top, a knob turned about its upright axis, `+Y` up toward the hand that comes from above; `spout` the spout's mouth, facing down, where the water comes out and a hand or a glass is held under.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tap.

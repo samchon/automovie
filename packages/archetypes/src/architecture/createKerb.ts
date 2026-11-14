@@ -14,6 +14,8 @@ import {
  *
  * It stands on the ground centred on `X` with its back face at the origin's `Z` and its front face toward `+Z`, the side it is approached from, its top at the drawn height. `top` is the top face, facing up, where a foot lands; `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face below, which a foot clears going up or a stepping-over act clears going across.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The kerb or step.

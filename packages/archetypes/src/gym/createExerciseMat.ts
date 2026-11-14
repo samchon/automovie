@@ -14,6 +14,8 @@ import {
  *
  * It lies flat, centred over the origin, its length along `Z`. `surface` is its top, where a body lies, kneels or stands for a floor exercise.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The mat.

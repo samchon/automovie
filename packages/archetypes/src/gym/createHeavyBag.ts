@@ -20,6 +20,8 @@ const EVERLAST: string =
  *
  * A bag swinging after a hit is the force law of #3417, not this archetype's.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The heavy bag.

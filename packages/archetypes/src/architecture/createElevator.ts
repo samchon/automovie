@@ -30,6 +30,8 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number }> = {
  *
  * The car is built for static use: riding it between floors is standing on a moving support, which no motion law covers yet (#3491). Its hall and car buttons are not declared, since no source read places them across the wall.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The lift car.

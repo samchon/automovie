@@ -24,6 +24,8 @@ const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
  *
  * The chair stands on the floor at the origin, facing `+Z`. Its legs run from the corners of the maker's footprint up to the seat's corners; the seat lies at the maker's seat height and its back stands at the seat's rear edge up to the chair's height. `seat` is the seat a child is set on and lifted from, facing `+Z`. The tray is not built, since no source read sizes or places it; setting a child in and lifting one out is a two-body act with no motion law yet (#3440).
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The chair.

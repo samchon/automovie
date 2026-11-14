@@ -23,6 +23,8 @@ const IWF: string =
  * `+X`) and `gripRight` are where the two hands hold it, taken from the
  * `-Z` side, `grip` apart.
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind, any dimension the author fixes, and the load.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The barbell.

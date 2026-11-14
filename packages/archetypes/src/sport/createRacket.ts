@@ -14,6 +14,8 @@ import {
  *
  * It stands along `+Y` from the butt of its handle at the origin to the top of its head, the strung face toward `+Z`. `grip` is the handle a hand closes on, `face` the strung surface that meets the ball, its `+Y` out of the strings, and `sweetSpot` the head's centre on the racket's axis, its `+Y` running along the racket toward the head's top: a swing carries `sweetSpot` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
  *
+ * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The racket.

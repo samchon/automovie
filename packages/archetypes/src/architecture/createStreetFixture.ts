@@ -55,6 +55,8 @@ const NAMES: Readonly<Record<createStreetFixture.Kind, string>> = {
  *
  * Each stands upright on `y = 0`. A cone is a square base plate under a cone in the Brimar cone's proportions, held at its top. A bollard is a steel pipe, a post to lean on or swing round with a top to sit or set things on. A hydrant is a barrel with its pumper nozzle toward `+Z` and its hose nozzles toward `+X` and `-X` at the maker's height, each a socket at its face where a hose couples, and its operating nut on top. A lamp post is a base under a round shaft to its mounting height, a post to lean on or swing round, with a post-top luminaire on it. A sign post is a square post carrying a STOP sign's blank facing `+Z` with its bottom edge at the mounting height, the post below the sign a bar.
  *
+ * A bollard's steel pipe gives its body steel on concrete (`ArchetypeFriction`); no source read names what the cone, the hydrant, the lamp post or the sign post rests on, so they keep the builder's 0.5 placeholder.
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The fixture.
@@ -95,7 +97,7 @@ export function createStreetFixture(
   else if (kind === "bollard" || kind === "lampPost") post(builder, d, kind);
   else if (kind === "signPost") sign(builder, d);
   else hydrant(builder, d);
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, kind === "bollard" ? { rests: "steel" } : {});
 }
 
 /**
