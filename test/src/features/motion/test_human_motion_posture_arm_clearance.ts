@@ -63,7 +63,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    `room` of an arm raised sideways is 0; `posed` writes an arm's three
  *    joints and keeps every other joint.
  *
- * The clearing is `test_human_motion_posture_arm_clearing`'s and the
+ * The clearing is the `test_human_motion_posture_arm_clearing_*` specs' and the
  * colliders `test_human_motion_posture_colliders`'s.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places forearms against the displayed colliders of real bodies and calls each public function; a wrong unit, a lost median plane, a wrist excused against another body, a wrong room or a misplaced forearm fails with its cell.
