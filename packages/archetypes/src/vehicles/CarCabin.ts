@@ -32,8 +32,8 @@ export namespace CarCabin {
     builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
     l: CarBody.ILayout,
   ): void {
-    door(builder, l, "driver", l.side, l.firewall, l.pillar, true);
-    door(builder, l, "passenger", -l.side, l.firewall, l.pillar, true);
+    door(builder, l, "driver", l.side, l.door, l.pillar, true);
+    door(builder, l, "passenger", -l.side, l.door, l.pillar, true);
     if (l.kind !== "van") {
       door(builder, l, "rearLeft", 1, l.pillar, l.back, false);
       door(builder, l, "rearRight", -1, l.pillar, l.back, false);
@@ -119,7 +119,7 @@ export namespace CarCabin {
     const sz: number = l.reference.z;
     const tilt: number = (d.steeringAngle! * Math.PI) / 180;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
-    const hub: IAutoMovieVector3 = v(sx, l.heel.y + createCar.WHEEL_HEIGHT, l.ball.z - createCar.WHEEL_AFT);
+    const hub: IAutoMovieVector3 = l.wheel;
     builder.rod("steering-rim", d.steeringDiameter! / 2, Vector3.subtract(hub, Vector3.scale(axis, 0.015)), Vector3.add(hub, Vector3.scale(axis, 0.015)), { color: DARK });
     builder.rod("steering-column", 0.02, Vector3.subtract(hub, Vector3.scale(axis, 0.3)), hub, { color: GREY });
     builder.rod(
@@ -145,7 +145,7 @@ export namespace CarCabin {
     const slope: number = (l.pedal * Math.PI) / 180;
     const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
     for (const [id, offset, width] of [
-      ["accelerator", -0.1, 0.05],
+      ["accelerator", -createCar.FOOT, 0.05],
       ["brake", 0.02, 0.1],
     ] as const) {
       const at: IAutoMovieVector3 = v(sx + offset, l.ball.y, l.ball.z);
@@ -280,8 +280,8 @@ function door(
     height: l.top - 0.04 - l.floor,
   });
 
-  // The window between the door's edges, clear of the windscreen's slope at the front, sliding down into the door.
-  const forward: number = role === "driver" || role === "passenger" ? l.firewall - 0.38 : hinge - 0.03;
+  // The window between the door's edges, sliding down into the door.
+  const forward: number = hinge - 0.03;
   const length: number = forward - (end + 0.03);
   const height: number = l.top - 0.04 - l.belt;
   const middle: number = (forward + end + 0.03) / 2;

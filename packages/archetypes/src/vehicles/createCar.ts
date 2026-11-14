@@ -22,7 +22,7 @@ import { CarRear } from "./CarRear";
  * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
  * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the rear and the cabin are their own modules, each building from the one layout.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pedals and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17; the seating reference point's station behind the front axle (`REFERENCE`), the cabin floor (`FLOOR`), the belt line (`BELT`), the footwell (`FOOTWELL`), the H-point's height over the cushion (`HIP`), the pedals' sideways offsets and the gear lever, belt, mirror and handles' places remain named estimates not read at a source; bands read at search results only are marked provisional.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pedals and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17; the firewall and the front doors' span are the 2023 Honda Accord's NCAP measurements; the seating reference point's station behind the front axle (`REFERENCE`), the cabin floor (`FLOOR`), the belt line (`BELT`), the H-point's height over the cushion (`HIP`), the brake's sideways offset and the gear lever, belt grip, mirror, rear seat and handles' places remain named provisional estimates, to be read from the 2023 Accord's side-impact NCAP report (H-point height, sill and belt heights) and Honda's 2023 Accord specification sheet (overhangs, for the front axle's station) or marked not built; bands read at search results only are marked provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms About sixty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -96,8 +96,19 @@ export namespace createCar {
   /** The seating reference point above the cushion's surface, metres: the 97.5 mm of the SAE J826 H-point machine, recalled and not read at a source. */
   export const HIP: number = 0.0975;
 
-  /** The bulkhead ahead of the accelerator heel point, metres: the pedal pads stand on the pedal plane ahead of the heel and travel on from there; an estimate, not read at a source. */
-  export const FOOTWELL: number = 0.16;
+  /** The firewall ahead of the steering wheel's centre, metres: 952 mm, the 2023 Honda Accord LX's firewall (3804 mm) less its steering column (2852 mm), both from the rear bumper (NHTSA NCAP report NCAP-MGA-23-030, data sheet 12, p. 21); a mid-size sedan's, applied to every class. */
+  export const FIREWALL: number = 0.952;
+
+  /** The front door's lower leading edge aft of the firewall, metres: 390.5 mm, the same report's firewall (3804) less the mean of its doors' lower leading edges (3409 and 3418). */
+  export const DOOR_LEAD: number = 0.3905;
+
+  /** The front door's length at its foot, metres: 1155 mm, the same report's mean lower leading edge (3413.5) less its mean lower trailing edge (2258.5). */
+  export const DOOR_SPAN: number = 1.155;
+  /** The driver's occupant centreline outboard of the car's centreline, metres: 381 mm (SAE J826, 1995, 5.3.4), mirrored for the front passenger. */
+  export const OCCUPANT: number = 0.381;
+
+  /** The right foot's offset to the right of the occupant's centreline, metres: half the 254 mm between a seated occupant's feet, centre to centre (ISO 6549:1999, 5.7.2.1 and 5.7.1.1.1); the accelerator lies under it. */
+  export const FOOT: number = 0.127;
 
   /** The ball of foot's distance from the accelerator heel point along the pedal plane, metres: 203 mm (SAE J1516, reaffirmed 1990, 3.3.4; ISO 20176:2020 p. vii, consistent with ISO 6549 and SAE J1100, where it replaced an earlier 200 mm). */
   export const BALL: number = 0.203;

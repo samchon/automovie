@@ -11,13 +11,15 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios, for every class at four seeds and both driving sides:
  * 1. The accelerator's plate faces the sole out of SAE J1516's pedal plane, at 78.96 - 0.15 z - 0.0173 z squared degrees from the floor with z the seat height H30 in centimetres, within 1e-9.
  * 2. The accelerator's plate lies at the ball of foot, 203 mm up that plane from the heel point on the cabin floor: its height above the floor is 203 mm times the sine of the angle (plus the frame's 5 mm lift off the plate along the sole), within 1e-9 m.
- * 3. The steering wheel's centre lies 550 mm aft of the ball of foot (SAE J1100's L6) and 646 mm above the heel point (H17), the values of a mid-size sedan package, within 1e-9 m.
+ * 3. The driver's centreline is 381 mm outboard of the car's on the driving side (SAE J826 5.3.4): the steering wheel is centred on it and the accelerator lies 127 mm to its right, under the right foot of feet 254 mm apart (ISO 6549 5.7.2.1).
+ * 4. The steering wheel's centre lies 550 mm aft of the ball of foot (SAE J1100's L6) and 646 mm above the heel point (H17), the values of a mid-size sedan package, within 1e-9 m.
+ * 5. The front door's hinge stands 952 mm (the firewall ahead of the steering column) less 390.5 mm (the door's leading edge aft of the firewall) ahead of the steering wheel, and its opening is 1155 mm long, the 2023 Honda Accord's NCAP measurements.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces cars and reads the pedal and wheel contacts' frames; a pedal on another plane, off the ball of foot, or a wheel at another distance from the pedals is caught.
- * @evidence contracts/development/testing.md#independent-expectations The angle is SAE J1516's equation 2 (reaffirmed 1990), the 203 mm its 3.3.4 and ISO 20176:2020's, and L6 and H17 Park et al. 2018's sedan package, each worked here from the car's drawn seat height and its floor, not read from the producer's layout.
+ * @evidence contracts/development/testing.md#independent-expectations The angle is SAE J1516's equation 2 (reaffirmed 1990), the 203 mm its 3.3.4 and ISO 20176:2020's, L6 and H17 Park et al. 2018's sedan package, the door's stations NHTSA report NCAP-MGA-23-030's, each worked here from the car's drawn seat height and its floor, not read from the producer's layout.
  * @evidence contracts/development/testing.md#distinguishing-cases Four classes, four seeds spreading the seat height through its band, and both driving sides; the seat's own place belongs to the seating tests.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
 export function test_archetype_car_controls(): void {
   const findings: string[] = [];
@@ -43,7 +45,15 @@ export function test_archetype_car_controls(): void {
           y: pedal.translation.y - lift,
           z: pedal.translation.z + 0.005 * Math.sin(angle),
         };
+        const centreline: number = (drive === "left" ? 1 : -1) * 0.381;
+        if (Math.abs(pedal.translation.x - (centreline - 0.127)) > 1e-9)
+          findings.push(`${label}: the accelerator is not under the right foot`);
         const wheel: IAutoMovieVector3 = car.affordance("wheel").frame.translation;
+        if (Math.abs(wheel.x - centreline) > 1e-9)
+          findings.push(`${label}: the steering wheel is off the driver's centreline`);
+        const hinge: number = car.affordance("driverDoor").frame.translation.z;
+        if (Math.abs(hinge - wheel.z - (0.952 - 0.3905)) > 1e-9 || Math.abs(car.affordance("driverAperture").width! - 1.155) > 1e-9)
+          findings.push(`${label}: the front door does not span the Accord's measured opening`);
         if (Math.abs(ball.z - wheel.z - 0.55) > 1e-9 || Math.abs(wheel.y - floor - 0.646) > 1e-9)
           findings.push(`${label}: the steering wheel is ${ball.z - wheel.z} m aft and ${wheel.y - floor} m up`);
       }
