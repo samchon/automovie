@@ -274,7 +274,7 @@ export namespace HumanPerformanceRead {
     return HumanPerformanceRead.person(self, subject).overlays;
   }
 
-  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction. */
+  /** Every grip window on a prop across every person, and every span it is worn on a bone, in film order, computed once after construction; none for a fixture, which no grip carries. */
   export function grips(
     self: HumanPerformanceState,
     subject: string,
@@ -284,6 +284,11 @@ export namespace HumanPerformanceRead {
     if (known !== undefined) return known;
     const out: HumanPerformanceState.IGrip[] = [];
     const worn: HumanPerformanceState.IGrip[] = [];
+    // A fixture bears the hands that grip it and is never carried by them.
+    if (self.props.get(subject)?.fixed === true) {
+      if (!self.resolving) self.gripCache.set(subject, out);
+      return out;
+    }
     const declared: IHumanProp.IWorn | undefined =
       self.props.get(subject)?.worn;
     if (declared !== undefined)

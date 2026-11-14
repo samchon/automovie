@@ -1,4 +1,5 @@
-import type { IHumanBody } from "@automovie/motions";
+import { createLadder } from "@automovie/archetypes";
+import { HumanObject, type IHumanBody } from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -98,7 +99,15 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
   climbLadder: (
     _pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
-  ): motionHumanLawSweep.IScene => S.solo(a, S.chain().act("climbLadder", {})),
+  ): motionHumanLawSweep.IScene =>
+    S.solo(a, S.chain().act("climbLadder", { ladder: "ladder" }), [
+      // A fixed ladder 0.35 m ahead, its rungs facing the climber.
+      HumanObject.prop("ladder", createLadder({ kind: "fixed" }), {
+        at: { x: 0, y: 0, z: 0.35 },
+        yaw: 180,
+        fixed: true,
+      }),
+    ]),
   crawl: (
     _pick: motionHumanLawSweep.Pick,
     a: IHumanBody,

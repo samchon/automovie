@@ -126,11 +126,11 @@ export class HumanChainTravel extends HumanChainCore {
   /**
    * Climb a fixed ladder in the four-beat pattern, three limbs always on it.
    *
-   * @param params The rungs climbed, their spacing and the first rung.
+   * @param params The ladder, a fixture prop of the scene, and the rungs climbed.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
-  public climbLadder(params: climbLadder.IParams = {}, anchor?: string): this {
+  public climbLadder(params: climbLadder.IParams, anchor?: string): this {
     return this.act("climbLadder", params, anchor);
   }
 }

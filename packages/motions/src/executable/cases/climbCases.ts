@@ -1,9 +1,14 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { climbLadder } from "../../climbing/climbLadder";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
+import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -13,7 +18,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
 /**
  * Capture cases of the climbing family (#3238): `climb-ladder`, three rungs
  * of a fixed ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat
- * pattern, from quiet standing before it.
+ * pattern, from quiet standing before it; the ladder is a fixture prop whose
+ * rungs stand 0.35 m ahead of the climber's feet.
  *
  * It reports foot slip at most 5 mm in the plant windows and no
  * range-of-motion overshoot; each gripping hand's grip socket within 10 mm
@@ -41,11 +47,12 @@ export function climbCases(
   for (const id of bodies) {
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
-    const params: climbLadder.IParams = { rungs: 3 };
+    const params: climbLadder.IParams = { ladder: "ladder", rungs: 3 };
     const performance: HumanPerformance = FamilyCaseKit.perform(
       "climb",
       [{ subject: "a", body: who.body }],
       HumanChain.subject("a").act("climbLadder", params),
+      [ladderProp()],
     );
     const segment = performance.segments("a")[0]!;
     const ladder: climbLadder.ILadder = (segment.plan as climbLadder.IPlan)
@@ -136,4 +143,46 @@ export function climbCases(
     });
   }
   return out;
+}
+
+/**
+ * A fixed ladder as a fixture prop: ten rungs `rung1` upward at 0.3 m (OSHA
+ * 1910.23(b)(2)), 0.41 m wide and 30 mm round, its rungs 0.35 m ahead of the
+ * origin along `+Z`, each facing the climber at `-Z` as `createLadder`'s do.
+ *
+ * @returns The ladder.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the ladder's rungs, spacing, place and facing.
+ * @evidence contracts/development/implementation.md#principled-implementation Each rung a bar affordance one spacing above the last, as the archetype declares them, the prop a fixture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One list of rungs and one prop.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the ladder's contacts itself.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Ten rungs.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
+ */
+function ladderProp(): IHumanProp {
+  // Each rung's frame turns +Y to -Z, toward the climber.
+  const out: IAutoMovieQuaternion = { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
+  const affordances: IAutoMovieAffordance[] = Array.from(
+    { length: 10 },
+    (_: unknown, i: number): IAutoMovieAffordance => ({
+      id: `rung${i + 1}`,
+      kind: "bar",
+      frame: { translation: { x: 0, y: 0.3 * (i + 1), z: 0 }, rotation: out },
+      extent: null,
+      grip: "power",
+      aperture: 0.03,
+      length: 0.41,
+    }),
+  );
+  return {
+    subject: "ladder",
+    frame: {
+      position: { x: 0, y: 0, z: 0.35 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    },
+    points: {},
+    affordances,
+    fixed: true,
+  };
 }

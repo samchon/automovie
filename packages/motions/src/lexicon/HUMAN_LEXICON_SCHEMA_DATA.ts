@@ -20431,29 +20431,24 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "climbLadder.IParams": {
         "type": "object",
         "properties": {
+          "ladder": {
+            "type": "string",
+            "description": "The ladder's prop subject: a fixture whose rungs are its `rung1` upward."
+          },
           "rungs": {
             "type": "integer",
             "minimum": 1,
             "description": "How many rungs the feet climb; 3 when absent.",
             "x-unit": ""
           },
-          "spacing": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 0.36,
-            "description": "Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent.",
-            "x-unit": "m"
-          },
-          "start": {
-            "type": "number",
-            "description": "The rungs' distance ahead of the toes, metres; 0.15 when absent."
-          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
           }
         },
-        "required": [],
+        "required": [
+          "ladder"
+        ],
         "additionalProperties": false,
         "description": "Parameters."
       },
