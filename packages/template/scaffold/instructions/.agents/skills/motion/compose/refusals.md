@@ -8,7 +8,7 @@ A refusal names who was to act, the action, the axis at fault, the value given, 
 
 ## Repair at the axis
 
-Change the one [axis](compose.md#decide-each-action) the refusal names, as it says, then build again.
+Change the one [axis](SKILL.md#decide-each-action) the refusal names, as it says, then build again.
 
 The change is often to what precedes the action rather than to the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow.
 
@@ -18,6 +18,6 @@ A refusal that is caught and passed over leaves the person standing still in the
 
 ## When no repair holds
 
-A beat that no repair can keep asks for what a body cannot do, and returns to the screenplay under [upstream defects](../story/correction/repair.md#upstream-defects).
+A beat that no repair can keep asks for what a body cannot do, and returns to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
 
-A refusal whose stated change does not make the composition plan, or that names no axis, is a defect of the package. Hand it to the user with the composition and the refusal's text under [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
+A refusal whose stated change does not make the composition plan, or that names no axis, is a defect of the package. Hand it to the user with the composition and the refusal's text under [a defect or a gap](../../development/reuse.md#a-defect-or-a-gap).

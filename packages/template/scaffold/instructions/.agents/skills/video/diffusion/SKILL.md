@@ -1,11 +1,11 @@
 ---
 name: video-diffusion
-description: Chooses the video generation model with the user and reads its documentation for every value the plan depends on, with representative models by how each takes a motion hint. Use when choosing or changing the video model.
+description: Chooses the video generation model with the user, reads its documentation for every value the plan depends on, and writes the prompts it takes, with a page per representative model. Use when choosing or changing the video model or writing a video prompt.
 ---
 
 # Video diffusion
 
-Choose the model with the user and record it in [project context](../../production/project-context.md).
+Choose the model with the user and record it in [project context](../../production/project-context.md). Write each request's prompt under [prompts](prompts.md), following the model's page and its own guide.
 
 ## Read the model
 

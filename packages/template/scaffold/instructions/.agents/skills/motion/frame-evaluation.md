@@ -6,7 +6,7 @@ The installed engine and renderer own frame schedules, trims, transitions and sh
 
 Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state.
 
-Join actions at their named instants through the installed motion vocabulary's [operators](compose.md#join-the-actions), which carry the exit pose, velocity, support and held objects into the successor, and synchronize interacting participants and their sound to the same resolved contact event.
+Join actions at their named instants through the installed motion vocabulary's [operators](compose/SKILL.md#join-the-actions), which carry the exit pose, velocity, support and held objects into the successor, and synchronize interacting participants and their sound to the same resolved contact event.
 
 Verify the first and last frames, both sides of cuts and trim boundaries against the plan; a duration in seconds does not fix the encoded frame count.
 

@@ -2,7 +2,7 @@
 
 Choose the [representation](SKILL.md#representation) by the form and organize ownership by [Modularization](../modularization.md).
 
-For a fixed mesh or ordered line source, follow [Recovery](../recovery.md) before fitting the section family.
+For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before fitting the section family.
 
 ## One section family
 

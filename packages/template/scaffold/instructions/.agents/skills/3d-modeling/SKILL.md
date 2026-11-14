@@ -24,7 +24,7 @@ Build only what the request names and the subject's visible role needs. Finer ge
 | Build or fit it from sections and guides | [Lofting](crafting/lofting.md) |
 | Find an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
 | Take a found or generated mesh into the production, or vary it by a parameter | [Conditioning](conditioning.md) |
-| Rebuild a fixed mesh as curves or surfaces | [Recovery](recovery.md) |
+| Rebuild a fixed mesh as curves or surfaces | [Recovery](crafting/recovery.md) |
 | Define parts, groups, placements or shared boundaries | [Modularization](modularization.md) |
 | Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
 | Inspect a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |

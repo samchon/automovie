@@ -25,7 +25,7 @@ Where the chosen model's terms reject references with real human faces or minors
 
 A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place a plate without people in the shot's light, and each prop a plain-background view.
 
-Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both.
+Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both.
 
 ## Control images
 

@@ -14,7 +14,7 @@ An asset is reproducible, rigged when it moves, and judged on screen. The projec
 | Generating a form with a diffusion model | [Diffusion](diffusion/SKILL.md) |
 | Looking for an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
 | Taking a found or generated mesh into the project, or varying it by a parameter | [Conditioning](conditioning.md) |
-| Rebuilding a fixed mesh as curves or surfaces, reconstructing saved coefficients, or judging a reverse render | [Recovery](recovery.md) |
+| Rebuilding a fixed mesh as curves or surfaces, reconstructing saved coefficients, or judging a reverse render | [Recovery](crafting/recovery.md) |
 | Defining parts, groups, placements or shared boundaries, whatever the asset's source | [Modularization](modularization.md) |
 | Adding or changing a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
 | Inspecting a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |

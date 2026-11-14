@@ -72,7 +72,7 @@ What the parameter changes decides whether the mesh can stay:
 | The size or placement of the whole or of one part | Transform that part |
 | The proportions of a rigged body | Change the bone lengths, let the skin follow, and hand the change to [motion](../motion/SKILL.md) |
 | Bulk or bend, smoothly | Deform the mesh through a coarse lattice the parameter drives |
-| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting/SKILL.md) or by [Recovery](recovery.md) with the mesh as its source |
+| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting/SKILL.md) or by [Recovery](crafting/recovery.md) with the mesh as its source |
 | A person's build | Use the parametric figure the installed packages provide |
 
 A few fixed variants need no parameter. Generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.

@@ -19,7 +19,7 @@ Work in this order, because each step uses what the one before settled:
 
 1. Study what [when to study](../story/planning/research.md#when-to-study) assigns to code.
 2. Build the coarse entities under [entity work](../development/entities.md#coarse-first).
-3. [Compose](compose.md) each person's performance, and repair what an installed package [refuses](refusals.md).
+3. [Compose](compose/SKILL.md) each person's performance, and repair what an installed package [refuses](compose/refusals.md).
 4. [Extend](laws/SKILL.md) only for what composing cannot express.
 5. Accept every entity and motion module alone in its [catalog cases](catalog-cases.md).
 6. Stage the film segment by segment under [staging](staging.md), and pass [segment review](segment-review.md) before extending from a segment's accepted ending.

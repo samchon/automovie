@@ -9,7 +9,7 @@ What to do when a beat needs an action or a moving body the installed packages d
 
 ## Compose again
 
-Read the nearest action's parameters and the [operators](../compose.md#join-the-actions) again in the vocabulary's types. Most missing actions are an existing one with another target, effector, object or manner, two joined as an overlay or a mutual join, or the same one at another seed.
+Read the nearest action's parameters and the [operators](../compose/SKILL.md#join-the-actions) again in the vocabulary's types. Most missing actions are an existing one with another target, effector, object or manner, two joined as an overlay or a mutual join, or the same one at another seed.
 
 ## Register a row
 
