@@ -457,9 +457,14 @@ const REGIONS: Readonly<Partial<Record<AutoMovieHumanoidRegion, IRegionDef>>> =
         station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0 },
         direction: v(x, 0, 0),
       });
+      // The top of the shoulder over the acromion, on the thorax's collider
+      // at nine tenths of the way from the chest's joint to the shoulder's,
+      // facing up and a little out along the trapezius' slope
+      // (provisional). It rode the upper arm's capsule before; with the arm
+      // hanging, that point and its normal turned to the arm's outer side.
       set("shoulder", {
-        station: { bone: s("UpperArm"), toward: s("LowerArm"), share: 0.05 },
-        direction: v(0.5 * x, 0.85, 0),
+        station: { bone: "chest", toward: s("UpperArm"), share: 0.9 },
+        direction: v(0.3 * x, 1, 0),
       });
       set("upperArm", {
         station: { bone: s("UpperArm"), toward: s("LowerArm"), share: 0.5 },
