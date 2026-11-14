@@ -150,6 +150,55 @@ export const SCENES_GESTURES: readonly IScene[] = [
   ),
   scene(
     {
+      id: "wine-toast",
+      title: "Wine toast",
+      summary:
+        "Four friends take up wine glasses from a table; two clink first, then all four bring their glasses together over it.",
+      setting: "everyday",
+      roles: { val: "host", wes: "guest", xio: "friend", yeo: "friend" },
+      needs: [],
+      refusedUntil: 3528,
+    },
+    "wine-toast",
+    [
+      person("val", "f1", -0.35, -0.75, 0, [
+        act("pickUp", { prop: "g1", handle: "stem" }),
+      ]),
+      person("wes", "m1", 0.35, -0.75, 0, [
+        act("pickUp", { prop: "g2", handle: "stem" }),
+      ]),
+      person("xio", "m2", -0.35, 0.75, 180, [
+        act("pickUp", { prop: "g3", handle: "stem" }),
+      ]),
+      person("yeo", "f2", 0.35, 0.75, 180, [
+        act("pickUp", { prop: "g4", handle: "stem" }),
+      ]),
+    ],
+    [
+      object("table", "createTable", "dining", 0, 0),
+      object("g1", "createDrinkware", "wineGlass", -0.45, -0.3, 0, 0.75),
+      object("g2", "createDrinkware", "wineGlass", 0.25, -0.3, 0, 0.75),
+      object("g3", "createDrinkware", "wineGlass", -0.25, 0.3, 180, 0.75),
+      object("g4", "createDrinkware", "wineGlass", 0.45, 0.3, 180, 0.75),
+    ],
+    [
+      mutual(
+        "toast",
+        { host: "val", guest: "wes" },
+        { glasses: { host: "g1", guest: "g2" } },
+      ),
+      mutual(
+        "toastOfFour",
+        { host: "val", guest: "wes", third: "xio", fourth: "yeo" },
+        {
+          glasses: { host: "g1", guest: "g2", third: "g3", fourth: "g4" },
+          at: { x: 0, y: 1.15, z: 0 },
+        },
+      ),
+    ],
+  ),
+  scene(
+    {
       id: "arm-wrestle",
       title: "Arm wrestle",
       summary:
@@ -160,23 +209,23 @@ export const SCENES_GESTURES: readonly IScene[] = [
     },
     "arm-wrestle",
     [
-      person("tad", "m1", 0, -0.7, 0, [
+      person("tad", "m1", 0, -0.6, 0, [
         act("sit", { seat: seat("chairT"), seconds: 1 }),
       ]),
-      person("uri", "m2", 0, 0.7, 180, [
+      person("uri", "m2", 0, 0.6, 180, [
         act("sit", { seat: seat("chairU"), seconds: 1 }),
       ]),
     ],
     [
       object("table", "createTable", "dining", 0, 0),
-      object("chairT", "createSeat", "dining", 0, -0.7, 0),
-      object("chairU", "createSeat", "dining", 0, 0.7, 180),
+      object("chairT", "createSeat", "dining", 0, -0.6, 0),
+      object("chairU", "createSeat", "dining", 0, 0.6, 180),
     ],
     [
       mutual(
         "armWrestle",
         { one: "tad", other: "uri" },
-        { table: { x: 0, y: 0.75, z: 0 }, winner: "other" },
+        { table: { x: 0, y: 0.75, z: 0 }, winner: "other", pin: 30 },
       ),
     ],
   ),
