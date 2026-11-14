@@ -137,7 +137,15 @@ export namespace AutoMovieHumanoidSurfaceRays {
     return near <= far ? far : -Infinity;
   }
 
-  /** A point where a ray leaves a segment's colliders, with their outward normal there. */
+  /**
+   * A point where a ray leaves a segment's colliders, with their outward
+   * normal there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the point and the normal are and in which frame.
+   * @evidence contracts/development/design.md#principled-representation A surface sample: a world point and the collider's outward unit normal at it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members a region frame is built from.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the normal is the exited collider's own, not the ray's direction.
+   */
   export interface ISurfacePoint {
     /** The point, world metres in the rest pose. */
     point: IAutoMovieVector3;
@@ -146,7 +154,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
     normal: IAutoMovieVector3;
   }
 
-  /** The rest pose readers every surface is resolved with: bones, segments, collider bounds, bone-local frames, stations and ray exits of one body. */
+  /**
+   * The rest pose readers every surface is resolved with: bones, segments,
+   * collider bounds, bone-local frames, stations and ray exits of one body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each reader the record returns and the body it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation The rest pose resolved once; bounds are the union of the colliders' exact bounds; a ray's exit is the farthest exit over the segment's convex colliders, its normal that collider's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Six small closures over one rest pose map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pose resolution; each read is linear in one segment's colliders.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every reader shares the one resolved rest pose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The closures retain only the one body's rest pose, released with them.
+   */
   export function tools(skeleton: IAutoMovieSkeleton, profile: P) {
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
       resolvePose(

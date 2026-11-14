@@ -23,9 +23,12 @@ import type { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoi
  * tolerance a hand on it is read against.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what an extent is, the two bounds with their anatomical basis and the floor.
- * @evidence contracts/development/design.md#principled-representation A region is an area of the skin between its neighbours: a disc about its point, bounded by the half distance to the nearest neighbour facing the same way and by its segment's half breadth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function from the regions and the rest pose to a radius per region.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every length is the body's own: its regions' places and its colliders' bounds; no region is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation A region is an area of the skin between its neighbours: a disc about its point, bounded by the half distance to the nearest neighbour facing the same way and by its segment's half breadth.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass places every region in the world, a second reads each one's two bounds and the floor.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own: its regions' places and its colliders' bounds; no region is special-cased.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Quadratic in the regions, a few dozen per body, resolved once per body.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; its caller resolves once per body.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record and retains nothing.
  */
 export function AutoMovieHumanoidSurfaceExtents(
   regions: Readonly<
