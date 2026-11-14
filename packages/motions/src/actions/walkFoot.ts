@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 
@@ -25,10 +26,15 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within 12 mm of the floor; its
- * heading and pitch turn between the two placements' on the minimum-jerk
- * profile, and the toes relax over the first half and take the landing's
- * flexion over the second.
+ * further wherever the toe or heel would come within 12 mm of the floor. The
+ * travel, the turn and the descent of the placements end early, at the share
+ * of the swing where the lift has fallen to the contact height of the floor
+ * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
+ * clearance): in terminal swing the foot comes to rest over its landing and
+ * only then sets down, the heel's horizontal velocity falling through
+ * terminal swing as it descends (Winter 1992), so no sole is on the floor
+ * while it still travels. The toes relax over the first half and take the
+ * landing's flexion over the second.
  */
 export namespace walkFoot {
   /** A foot's placement and toes at an instant. */
@@ -177,8 +183,10 @@ export namespace walkFoot {
    *   rates its pitch and its toes leave the first with (degrees per second,
    *   carried over the first half of the swing by the engine's `carriedRate`;
    *   none when absent), the share of the swing, its duration in seconds and
-   *   the mid-swing lift in hip heights, and whether the leg is kept
-   *   straight (`STIFF`, `LEVEL`).
+   *   the mid-swing lift in hip heights, whether the leg is kept
+   *   straight (`STIFF`, `LEVEL`), and whether the foot sets down at rest
+   *   over its landing in terminal swing (a walking foot; a running one
+   *   strikes moving), true when absent.
    * @returns The swinging foot.
    */
   export function swing(
@@ -193,13 +201,31 @@ export namespace walkFoot {
       seconds: number;
       lift: number;
       stiff?: boolean;
+      settles?: boolean;
     },
   ): IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
-    const s: number = minimumJerk(u).s;
-    const carried: number = carriedRate(props.seconds, u * props.seconds);
-    const bump: number = Math.sin(Math.PI * u) ** 2;
     const stiff: boolean = props.stiff === true;
+
+    // Terminal swing: the travel ends where the lift, `sin²(π u)` of its
+    // height, has fallen to the floor's contact height, and the foot then
+    // sets down at rest over its landing.
+    const height: number =
+      (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight;
+    const settle: number =
+      props.settles === false ||
+      height <= AutoMovieMotionHumanAuditContact.HEIGHT
+        ? 0
+        : Math.asin(
+            Math.sqrt(AutoMovieMotionHumanAuditContact.HEIGHT / height),
+          ) / Math.PI;
+    const travel: number = Math.min(1, u / (1 - settle));
+    const s: number = minimumJerk(travel).s;
+    const carried: number = carriedRate(
+      (1 - settle) * props.seconds,
+      travel * (1 - settle) * props.seconds,
+    );
+    const bump: number = Math.sin(Math.PI * u) ** 2;
 
     // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
     const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
