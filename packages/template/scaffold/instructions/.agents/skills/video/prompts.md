@@ -2,25 +2,24 @@
 
 A video prompt tells a model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
-Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins. When it asks for a short prompt, keep the inputs' roles and the request paragraph, and let the first frame carry the appearance.
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
 
 ## Sources
 
-A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made at its owner under [repair](../story/correction/repair.md), never in the prompt: a missing reaction returns the screenplay to its author, and a missing detail of a subject's appearance or of the film's look returns to its settings or brief record, both under [upstream defects](../story/correction/repair.md#upstream-defects).
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made at its owner under [repair](../story/correction/repair.md), never in the prompt: a missing reaction returns the screenplay to its author, and a missing detail of a subject's appearance or of the film's look is added under [concretization](../story/correction/repair.md#concretization) to the record that owns it.
 
 ### Shared description
 
-Write each person, place and recurring prop once, from its settings or brief record and its canon references, and the film's lighting style, lens character and grade once, from the settings' or the brief's cinematography record. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and recurring prop once, from the record that owns it, and the film's lighting style, lens character and grade once, from the settings' or the brief's cinematography record. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
-Write what happens in the request's interval from the [beat records](../story/layers/notation.md#records) and dialogue of its beats:
+Write what happens in the request's interval from the [beat records](../story/layers/notation.md#records) of its beats:
 
 | From the beats | The paragraph says |
 | --- | --- |
 | Cast | Which polygon man becomes which person, by the reference token or element name when the model binds references, and by screen position |
 | Reaction | Each facial expression and reaction the hint cannot show, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
-| Dialogue | Each line, written as [sound](#sound) sets |
 | Camera | The lens, depth of field and focus the beat's camera entry decides; the hint carries framing and moves |
 
 Leave out what the hint performs: positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some adapters trained on gray layouts do, write them from the same beat records and the hint, in words that match it. A model that takes only still frames needs them too, as [still frames only](#still-frames-only) sets.
@@ -45,11 +44,11 @@ The hint's figures are gray and coarse, so motion and appearance arrive through 
 
 ### Structural control
 
-With a pose, depth, edge or layout control, describe appearance, material, light and style only. The control carries the motion, and words about motion or structure fight it.
+With a pose, depth, edge or layout control, write no motion or structure, because the control carries them and such words fight it.
 
 ### Hint video
 
-State the video's role in one sentence, in the model's wording for an edit or a reference, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name the gray forms only as what each one becomes, never as the appearance to produce: one guide asks to say what the render's forms stand for and another to keep words such as clay or 3D out, so follow the selected model's.
+Where the model's guide asks for the video's role, state it in one sentence, in the model's wording for an edit or a reference, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name the gray forms only as what each one becomes, never as the appearance to produce: one guide asks to say what the render's forms stand for and another to keep words such as clay or 3D out, so follow the selected model's.
 
 ### First frame or keyframe
 
