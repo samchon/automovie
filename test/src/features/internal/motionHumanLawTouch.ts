@@ -55,7 +55,10 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    row does not use strays no more than 80 mm from where it hangs in the
  *    trunk's frame (the chest's joint and turn): the idle arm's claim is to
  *    stay at rest on the body, so a lean or a rise that carries the trunk
- *    carries it too, as it carries the shoulder it hangs from.
+ *    carries it too, as it carries the shoulder it hangs from. An arm whose
+ *    own region the row touches is presented, not idle (`touchPresented`):
+ *    from `ready` to `relax` it holds within 10 mm of where it is at
+ *    `ready` in that frame, the bound a held effector keeps (6).
  * 8. A one-hand row performed by the left hand on the mirrored region is
  *    the mirror image of the right hand's film within 5 mm, read 4 times a
  *    second. On a partner the claim is about the performer's act, not the
@@ -120,8 +123,12 @@ export function motionHumanLawTouch(
   const kind: AutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
   const form: AutoMovieMotionHumanTouchForm.IForm =
     AutoMovieMotionHumanTouchForm.FORMS[kind];
+  // The effector as the law reads it: curled as the kind curls the fingers.
   const effector: AutoMovieMotionHumanTouchEffector.IEffector =
-    touch.EFFECTORS[params.with ?? "palm"];
+    AutoMovieMotionHumanTouchForm.curled(
+      touch.EFFECTORS[params.with ?? "palm"],
+      kind,
+    );
   const hand: number = body.measure.hand;
   const count: number =
     params.count ?? (["tap", "pat", "rub", "scratch"].includes(kind) ? 3 : 1);
@@ -403,15 +410,36 @@ export function motionHumanLawTouch(
       ),
     );
   }
-  if (params.other === undefined) {
-    // The idle wrist in the trunk's frame: where it hangs from the chest.
-    const hung = (t: number): IAutoMovieVector3 => {
-      const chest: IAutoMovieResolvedBone = film.bones("a", t).get("chest")!;
-      return Quaternion.rotateVector(
-        Quaternion.inverse(chest.worldRotation),
-        minus(wrist("left", t), chest.worldPosition),
-      );
-    };
+  // The other hand's wrist in the trunk's frame.
+  const hung = (t: number): IAutoMovieVector3 => {
+    const chest: IAutoMovieResolvedBone = film.bones("a", t).get("chest")!;
+    return Quaternion.rotateVector(
+      Quaternion.inverse(chest.worldRotation),
+      minus(wrist("left", t), chest.worldPosition),
+    );
+  };
+  // A region on the other arm presents that arm to the touching hand: it is
+  // not idle, but it holds still while it is touched, within the bound a
+  // held effector keeps (scenario 6).
+  const presented: boolean =
+    params.other === undefined &&
+    params.target.kind === "self" &&
+    /^left(UpperArm|LowerArm|Hand)$/.test(
+      body.surfaces.regions[params.target.region].bone,
+    );
+  if (presented) {
+    const moved: number = Math.max(
+      ...held.map((t: number): number => length(minus(hung(t), hung(ready)))),
+    );
+    out.push(
+      ...motionHumanLaw.expect(
+        `${label}: the presented hand moves ${mm(moved)} mm in the trunk's frame while it is touched (limit 10.0)`,
+        moved <= 0.01,
+      ),
+    );
+  }
+  if (params.other === undefined && !presented) {
+    // The idle wrist strays from where it hangs from the chest.
     const strays: number[] = times.map((t: number): number =>
       length(minus(hung(t), hung(0))),
     );
