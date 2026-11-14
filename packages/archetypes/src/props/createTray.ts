@@ -92,6 +92,7 @@ export function createTray(
       builder.affordance({
         id,
         kind: "handle",
+        symmetry: "none",
         frame: ArchetypeFrame.facing(
           v(sign * (hx - wall / 2), up, 0),
           v(sign, 0, 0),
@@ -128,6 +129,7 @@ export function createTray(
     builder.affordance({
       id: "handle",
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(v(0, bar, 0), v(0, 1, 0), v(0, 0, 1)),
       extent: null,
       grip: "power",

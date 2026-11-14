@@ -80,6 +80,7 @@ export function createShield(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(v(0, 0, -half - bar), v(0, 0, -1), v(1, 0, 0)),
     extent: null,
     grip: "power",

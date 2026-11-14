@@ -73,6 +73,7 @@ export function createJumpRope(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(v((sign * (inner + end)) / 2, r, 0)),
       extent: null,
       grip: "power",

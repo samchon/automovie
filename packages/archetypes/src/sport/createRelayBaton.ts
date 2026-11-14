@@ -61,6 +61,7 @@ export function createRelayBaton(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, d.length / 2, 0),
       Vector3.create(0, 0, -1),

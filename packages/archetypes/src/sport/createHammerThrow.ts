@@ -79,6 +79,7 @@ export function createHammerThrow(
   builder.affordance({
     id: "handle",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
     grip: "two-hand",

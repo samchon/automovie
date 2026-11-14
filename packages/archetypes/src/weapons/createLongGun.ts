@@ -115,6 +115,7 @@ export function createLongGun(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       v(0, -0.0825, pull - 0.055),
       v(0, 0, -1),
@@ -136,6 +137,7 @@ export function createLongGun(
   builder.affordance({
     id: "foreEnd",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(v(0, 0, fore), v(0, -1, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",

@@ -96,6 +96,7 @@ export function createHurdle(
   builder.affordance({
     id: "bar",
     kind: "bar",
+    symmetry: "half",
     frame: ArchetypeFrame.facing(
       v(0, d.height - bar / 2, 0),
       v(0, 0, -1),

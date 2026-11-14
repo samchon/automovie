@@ -121,6 +121,7 @@ export function createKeyboard(
     builder.affordance({
       id: "lid",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(top, out, v(1, 0, 0)),
       extent: null,
       grip: "precision",

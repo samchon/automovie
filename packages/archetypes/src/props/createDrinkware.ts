@@ -151,6 +151,7 @@ export function createDrinkware(
   builder.affordance({
     id: "body",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, (stem + top) / 2, 0),
       Vector3.create(-1, 0, 0),
@@ -192,6 +193,7 @@ export function createDrinkware(
     builder.affordance({
       id: "handle",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(reach, height / 2, 0),
         Vector3.create(1, 0, 0),
@@ -223,6 +225,7 @@ export function createDrinkware(
     builder.affordance({
       id: "stem",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, (0.004 + stem) / 2, 0),
         Vector3.create(-1, 0, 0),
@@ -248,6 +251,7 @@ export function createDrinkware(
     builder.affordance({
       id: "neck",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, top + neck / 2, 0),
         Vector3.create(-1, 0, 0),

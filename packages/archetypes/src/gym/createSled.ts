@@ -75,6 +75,7 @@ export function createSled(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         v(x, d.height - createSled.HAND, pole),
         v(0, 0, -1),

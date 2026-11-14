@@ -99,6 +99,7 @@ export function createPram(
   builder.affordance({
     id: "handle",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.upright(v(0, d.handleHeight, back)),
     extent: null,
     grip: "power",

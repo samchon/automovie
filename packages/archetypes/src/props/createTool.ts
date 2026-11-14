@@ -113,6 +113,7 @@ export function createTool(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         centre,
         Vector3.create(1, 0, 0),
@@ -135,6 +136,7 @@ export function createTool(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: kind === "screwdriver" ? "round" : "half",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, kind === "hammer" ? held / 2 : handle - held / 2, 0),
         Vector3.create(0, 0, -1),

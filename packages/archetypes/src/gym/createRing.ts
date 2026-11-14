@@ -120,6 +120,7 @@ export function createRing(
     builder.affordance({
       id,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         at,
         along ? v(0, 0, -sign) : v(-sign, 0, 0),

@@ -86,6 +86,11 @@ export interface IAutoMovieAffordance {
   direction?: "along" | "normal";
 
   /**
+   * How a `handle`'s, a `bar`'s or a `rein`'s grip repeats as the hand turns about the axis it wraps (`+X`): `round` when the same grasp exists at any turn, the hand meeting the same part whichever way round it closes (a bottle's body, a bat's handle, a rung, a bar, a rope); `half` when it repeats only after half a turn, two equal faces either side of the axis (a flat handle); `none` when it exists at one turn only (a pistol's grip, a knife's handle, a mug's handle, a racket's flats). A grasp chooser reads it to know which turns about the handle are the same grasp. Every `handle`, `bar` and `rein` declares it; other kinds leave it absent.
+   */
+  symmetry?: "round" | "half" | "none";
+
+  /**
    * Id of the articulation affordance of the same model that carries this affordance: its frame moves rigidly with that articulation's travel, as a door's handle rides the door's hinge and a pedal its crank, and when this affordance is itself an articulation its `parts` move with both. The chain of `rides` ends without returning to itself. Absent, the affordance is fixed in the model.
    */
   rides?: string;

@@ -71,6 +71,7 @@ export function createPolearm(
   builder.affordance({
     id: "shaft",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(v(0, length / 2, 0), v(0, 0, -1), v(0, 1, 0)),
     extent: null,
     grip: "two-hand",

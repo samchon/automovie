@@ -159,6 +159,7 @@ export function createSword(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(hilt[1]!, v(0, 0, -1), v(0, sign, 0)),
       extent: null,
       grip: shape.hands === 2 ? "two-hand" : "power",

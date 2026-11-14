@@ -130,6 +130,7 @@ export function createVessel(
     builder.affordance({
       id: "handle",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         v(r + length / 2, d.height - grip, 0),
         v(0, 1, 0),
@@ -158,6 +159,7 @@ export function createVessel(
       builder.affordance({
         id,
         kind: "handle",
+        symmetry: "none",
         frame: ArchetypeFrame.facing(
           v(x, d.height - grip, 0),
           v(0, 1, 0),
@@ -173,6 +175,7 @@ export function createVessel(
     builder.affordance({
       id: "body",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(v(0, wall / 2, 0), v(0, -1, 0), v(1, 0, 0)),
       extent: null,
       grip: kind === "bowl" ? "two-hand" : "precision",

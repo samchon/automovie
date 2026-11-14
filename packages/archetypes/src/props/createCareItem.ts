@@ -106,6 +106,7 @@ export function createCareItem(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.upright(Vector3.create(0, thick / 2, 0)),
       extent: null,
       grip: "precision",
@@ -140,6 +141,7 @@ export function createCareItem(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "half",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, width * 0.8, length / 2),
         Vector3.create(1, 0, 0),
@@ -187,6 +189,7 @@ export function createCareItem(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, width / 2, (length - head) / 2),
         Vector3.create(0, 1, 0),
@@ -230,6 +233,7 @@ export function createCareItem(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, width / 2, (length - createCareItem.BULLET) / 2),
         Vector3.create(0, 1, 0),
@@ -273,6 +277,7 @@ export function createCareItem(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, width / 2, (length - cap) / 2),
       Vector3.create(0, 1, 0),

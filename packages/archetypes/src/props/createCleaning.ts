@@ -69,6 +69,7 @@ export function createCleaning(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.upright(Vector3.create(0, d.thickness / 2, 0)),
     extent: null,
     grip: kind === "cloth" ? "precision" : "power",

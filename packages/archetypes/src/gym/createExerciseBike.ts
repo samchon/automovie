@@ -120,6 +120,7 @@ export function createExerciseBike(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(
         v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z),
       ),

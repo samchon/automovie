@@ -77,6 +77,7 @@ export function createRacket(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       v(0, d.handleLength / 2, 0),
       v(0, 0, -1),

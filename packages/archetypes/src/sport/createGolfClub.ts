@@ -81,6 +81,7 @@ export function createGolfClub(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       v(0, d.length - hold / 2, 0),
       v(0, 0, -1),

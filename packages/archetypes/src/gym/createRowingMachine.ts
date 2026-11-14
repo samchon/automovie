@@ -151,6 +151,7 @@ export function createRowingMachine(
   builder.affordance({
     id: "handle",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       v(0, held, front - 0.32),
       v(0, 0, -1),

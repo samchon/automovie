@@ -61,6 +61,7 @@ export function createTorch(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(v(0, barrel / 2, 0), v(0, 0, -1), v(0, 1, 0)),
     extent: null,
     grip: "power",

@@ -123,6 +123,7 @@ export function createDevice(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(-width / 2 + grip, height / 2, 0),
         Vector3.create(-1, 0, 0),
@@ -140,6 +141,7 @@ export function createDevice(
     builder.affordance({
       id: "support",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(width / 2 - grip, height / 2, 0),
         Vector3.create(0, 0, 1),
@@ -197,6 +199,7 @@ export function createDevice(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, height * 0.4, 0),
       Vector3.create(0, 0, -1),
@@ -210,6 +213,7 @@ export function createDevice(
   builder.affordance({
     id: "pinch",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0.02, 0),
       Vector3.create(0, 0, -1),

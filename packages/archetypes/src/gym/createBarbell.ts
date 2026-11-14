@@ -121,6 +121,7 @@ export function createBarbell(
     builder.affordance({
       id: side === 1 ? "gripLeft" : "gripRight",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         along((side * d.grip!) / 2),
         Vector3.create(0, 0, -1),

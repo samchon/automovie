@@ -82,6 +82,7 @@ export function createVaultingPole(
     builder.affordance({
       id,
       kind: id === "shaft" ? "bar" : "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(v(0, middle, 0), v(0, 0, -1), v(0, 1, 0)),
       extent: null,
       grip: id === "shaft" ? "two-hand" : "power",

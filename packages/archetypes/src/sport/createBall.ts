@@ -63,6 +63,7 @@ export function createBall(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       centre,
       Vector3.create(0, 1, 0),

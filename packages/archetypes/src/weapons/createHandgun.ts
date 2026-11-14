@@ -115,6 +115,7 @@ export function createHandgun(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       v(0, under / 2, d.gripDepth / 2),
       v(0, 0, -1),

@@ -86,6 +86,7 @@ export function createWearable(
     builder.affordance({
       id: "hold",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         v(0, thin + d.height / 2, 0),
         v(1, 0, 0),
@@ -121,6 +122,7 @@ export function createWearable(
     builder.affordance({
       id: "hold",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         v(0, thin / 2, d.width / 2 - 0.02),
         v(0, 1, 0),
@@ -155,6 +157,7 @@ export function createWearable(
     builder.affordance({
       id: "hold",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         v(0, d.height / 2, 0),
         v(0, 0, 1),
