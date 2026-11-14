@@ -78,6 +78,7 @@ export function createMotorcycle(
   ] as const)
     builder.rod(name, radius, v(-0.05, radius, z), v(0.05, radius, z), {
       color: "#22262b",
+      surface: "rubber",
     });
 
   // The seat is behind the middle, and a scooter's floorboard ahead of it.
@@ -200,7 +201,7 @@ export function createMotorcycle(
         depth: 0.03,
       });
     }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
 /**

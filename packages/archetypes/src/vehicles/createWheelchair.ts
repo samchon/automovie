@@ -40,13 +40,14 @@ export function createWheelchair(
     params.kind ?? "selfPropelled",
     createWheelchair.KINDS,
   );
-  const d: Record<createWheelchair.Dimension, number> = ArchetypeDraw.dimensions(
-    "wheelchair",
-    createWheelchair.BANDS[kind],
-    seed,
-    params,
-    createWheelchair.BANDS,
-  );
+  const d: Record<createWheelchair.Dimension, number> =
+    ArchetypeDraw.dimensions(
+      "wheelchair",
+      createWheelchair.BANDS[kind],
+      seed,
+      params,
+      createWheelchair.BANDS,
+    );
   const builder: ArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
@@ -68,18 +69,43 @@ export function createWheelchair(
 
   // The seat: its front edge at the seat height, the sling falling toward the back by the seat plane angle.
   const frontEdge: IAutoMovieVector3 = v(0, d.seatHeight, d.seatDepth);
-  const rearEdge: IAutoMovieVector3 = v(0, d.seatHeight - d.seatDepth * Math.tan(tilt), 0);
-  builder.box("seat", v(d.seatWidth, 0.03, d.seatDepth / Math.cos(tilt)), Vector3.scale(Vector3.add(frontEdge, rearEdge), 0.5), {
-    color: cloth,
-    rotation: ArchetypeFrame.facing(rearEdge, v(0, Math.cos(tilt), Math.sin(tilt)), v(1, 0, 0)).rotation,
-  });
+  const rearEdge: IAutoMovieVector3 = v(
+    0,
+    d.seatHeight - d.seatDepth * Math.tan(tilt),
+    0,
+  );
+  builder.box(
+    "seat",
+    v(d.seatWidth, 0.03, d.seatDepth / Math.cos(tilt)),
+    Vector3.scale(Vector3.add(frontEdge, rearEdge), 0.5),
+    {
+      color: cloth,
+      rotation: ArchetypeFrame.facing(
+        rearEdge,
+        v(0, Math.cos(tilt), Math.sin(tilt)),
+        v(1, 0, 0),
+      ).rotation,
+    },
+  );
 
   // The back, reclined from upright by the backrest angle, its top where the push handles leave it.
-  const backTop: IAutoMovieVector3 = Vector3.add(rearEdge, v(0, d.backHeight * Math.cos(recline), -d.backHeight * Math.sin(recline)));
-  builder.box("back", v(d.seatWidth, d.backHeight, 0.03), Vector3.scale(Vector3.add(rearEdge, backTop), 0.5), {
-    color: cloth,
-    rotation: ArchetypeFrame.facing(rearEdge, v(0, Math.cos(recline), -Math.sin(recline)), v(1, 0, 0)).rotation,
-  });
+  const backTop: IAutoMovieVector3 = Vector3.add(
+    rearEdge,
+    v(0, d.backHeight * Math.cos(recline), -d.backHeight * Math.sin(recline)),
+  );
+  builder.box(
+    "back",
+    v(d.seatWidth, d.backHeight, 0.03),
+    Vector3.scale(Vector3.add(rearEdge, backTop), 0.5),
+    {
+      color: cloth,
+      rotation: ArchetypeFrame.facing(
+        rearEdge,
+        v(0, Math.cos(recline), -Math.sin(recline)),
+        v(1, 0, 0),
+      ).rotation,
+    },
+  );
   builder.affordance({
     id: "seat",
     kind: "seat",
@@ -99,34 +125,71 @@ export function createWheelchair(
   for (const [sign, side] of sides) {
     const x: number = sign * half;
     const upright: IAutoMovieVector3 = v(x, handle - 0.014, backTop.z);
-    builder.rod(`frame-${side}`, 0.012, v(x, caster * 2, rearEdge.z), upright, { color: frame });
-    builder.rod(`handle-${side}`, 0.014, upright, Vector3.add(upright, v(0, 0, -0.12)), { color: tyre });
+    builder.rod(`frame-${side}`, 0.012, v(x, caster * 2, rearEdge.z), upright, {
+      color: frame,
+    });
+    builder.rod(
+      `handle-${side}`,
+      0.014,
+      upright,
+      Vector3.add(upright, v(0, 0, -0.12)),
+      { color: tyre },
+    );
     builder.affordance({
       id: `${side}Handle`,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(Vector3.add(upright, v(0, 0.014, 0)), v(0, 1, 0), v(sign, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        Vector3.add(upright, v(0, 0.014, 0)),
+        v(0, 1, 0),
+        v(sign, 0, 0),
+      ),
       extent: null,
       grip: "power",
     });
     const arm: number = d.seatHeight + d.armHeight;
-    builder.rod(`arm-${side}`, 0.015, v(x, arm, 0), v(x, arm, d.seatDepth), { color: frame });
+    builder.rod(`arm-${side}`, 0.015, v(x, arm, 0), v(x, arm, d.seatDepth), {
+      color: frame,
+    });
     builder.affordance({
       id: `${side}Arm`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, arm + 0.015, d.seatDepth / 2), v(0, 1, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(x, arm + 0.015, d.seatDepth / 2),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       length: d.seatDepth,
     });
-    const plate: IAutoMovieVector3 = v(sign * half * 0.5, d.seatHeight - d.footDrop, d.length - wheel - createWheelchair.PLATE / 2);
-    builder.rod(`hanger-${side}`, 0.01, v(x, d.seatHeight, d.seatDepth), v(x, plate.y, plate.z), { color: frame });
-    builder.box(`footplate-${side}`, v(half, 0.01, createWheelchair.PLATE), plate, { color: tyre });
+    const plate: IAutoMovieVector3 = v(
+      sign * half * 0.5,
+      d.seatHeight - d.footDrop,
+      d.length - wheel - createWheelchair.PLATE / 2,
+    );
+    builder.rod(
+      `hanger-${side}`,
+      0.01,
+      v(x, d.seatHeight, d.seatDepth),
+      v(x, plate.y, plate.z),
+      { color: frame },
+    );
+    builder.box(
+      `footplate-${side}`,
+      v(half, 0.01, createWheelchair.PLATE),
+      plate,
+      { color: tyre },
+    );
     builder.affordance({
       id: `${side}Footplate`,
       kind: "pedal",
-      frame: ArchetypeFrame.facing(Vector3.add(plate, v(0, 0.005, 0)), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        Vector3.add(plate, v(0, 0.005, 0)),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       width: half,
     });
@@ -134,8 +197,19 @@ export function createWheelchair(
     // The rear wheel at the overall width, its axle under the seat's rear edge; a self-propelled chair's rim just inside it.
     const outer: number = sign * (d.width / 2);
     const centre: IAutoMovieVector3 = v(outer - sign * 0.015, wheel, 0);
-    builder.rod(`wheel-${side}`, wheel, v(outer - sign * 0.03, wheel, 0), v(outer, wheel, 0), { color: tyre });
-    builder.box(`spoke-${side}`, v(0.006, wheel * 1.8, 0.02), v(outer - sign * 0.015, wheel, 0), { color: frame });
+    builder.rod(
+      `wheel-${side}`,
+      wheel,
+      v(outer - sign * 0.03, wheel, 0),
+      v(outer, wheel, 0),
+      { color: tyre, surface: "rubber" },
+    );
+    builder.box(
+      `spoke-${side}`,
+      v(0.006, wheel * 1.8, 0.02),
+      v(outer - sign * 0.015, wheel, 0),
+      { color: frame },
+    );
     builder.affordance({
       id: `${side}Spin`,
       kind: "knob",
@@ -148,16 +222,32 @@ export function createWheelchair(
       builder.affordance({
         id: `${side}Rim`,
         kind: "wheel",
-        frame: ArchetypeFrame.facing(Vector3.add(centre, v(sign * 0.02, 0, 0)), v(-sign, 0, 0), v(0, 0, 1)),
+        frame: ArchetypeFrame.facing(
+          Vector3.add(centre, v(sign * 0.02, 0, 0)),
+          v(-sign, 0, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         grip: "power",
         radius: createWheelchair.RIM / 2,
         rides: `${side}Spin`,
       });
-    builder.rod(`caster-${side}`, caster, v(x - 0.015, caster, d.seatDepth), v(x + 0.015, caster, d.seatDepth), { color: tyre });
-    builder.rod(`fork-${side}`, 0.01, v(x, caster, d.seatDepth), v(x, d.seatHeight, d.seatDepth), { color: frame });
+    builder.rod(
+      `caster-${side}`,
+      caster,
+      v(x - 0.015, caster, d.seatDepth),
+      v(x + 0.015, caster, d.seatDepth),
+      { color: tyre, surface: "rubber" },
+    );
+    builder.rod(
+      `fork-${side}`,
+      0.01,
+      v(x, caster, d.seatDepth),
+      v(x, d.seatHeight, d.seatDepth),
+      { color: frame },
+    );
   }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber" });
 }
 
 /**
@@ -246,15 +336,36 @@ export namespace createWheelchair {
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
-  > = ((): Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> => {
+  > = ((): Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > => {
     const sheet: string =
       "Karma Medical 2025 global manual wheelchair specification, pp. 66-67, Ergo 2, Ergo 3, S-Ergo 115 and S-Ergo 125 (https://www.karmamedical.com/wp-content/uploads/2021/05/2025-Karma-Medical-Global-Manual-Wheelchair-Specification.pdf)";
-    const m = (minimum: number, maximum: number, what: string): IArchetypeBand =>
+    const m = (
+      minimum: number,
+      maximum: number,
+      what: string,
+    ): IArchetypeBand =>
       ArchetypeBand.metres(minimum, maximum, `${sheet}: ${what}`);
-    const shared: Readonly<Record<"seatWidth" | "backHeight" | "backAngle" | "armHeight" | "footDrop" | "casterDiameter", IArchetypeBand>> = {
+    const shared: Readonly<
+      Record<
+        | "seatWidth"
+        | "backHeight"
+        | "backAngle"
+        | "armHeight"
+        | "footDrop"
+        | "casterDiameter",
+        IArchetypeBand
+      >
+    > = {
       seatWidth: m(0.4, 0.51, "nominal seat width"),
       backHeight: m(0.43, 0.435, "backrest height"),
-      backAngle: ArchetypeBand.of("degrees", 12, 20, `${sheet}: backrest angle`),
+      backAngle: ArchetypeBand.of(
+        "degrees",
+        12,
+        20,
+        `${sheet}: backrest angle`,
+      ),
       armHeight: m(0.22, 0.23, "armrest to seat distance"),
       footDrop: m(0.355, 0.46, "footrest to seat distance"),
       casterDiameter: m(7 * 0.0254, 7 * 0.0254, "front caster, 7 in"),
@@ -263,22 +374,48 @@ export namespace createWheelchair {
       selfPropelled: {
         ...shared,
         seatDepth: m(0.42, 0.435, "nominal seat depth of the 24-inch models"),
-        seatHeight: m(0.485, 0.495, "seat surface height at the front edge of the 24-inch models"),
+        seatHeight: m(
+          0.485,
+          0.495,
+          "seat surface height at the front edge of the 24-inch models",
+        ),
         wheelDiameter: m(24 * 0.0254, 24 * 0.0254, "rear wheel, 24 in"),
-        length: m(1.0, 1.03, "overall length with legrest of the 24-inch models"),
+        length: m(
+          1.0,
+          1.03,
+          "overall length with legrest of the 24-inch models",
+        ),
         width: m(0.58, 0.695, "overall width of the 24-inch models"),
         height: m(0.905, 0.935, "overall height of the 24-inch models"),
-        mass: ArchetypeBand.of("kg", 13.6, 14.6, `${sheet}: total mass of the 24-inch models`),
+        mass: ArchetypeBand.of(
+          "kg",
+          13.6,
+          14.6,
+          `${sheet}: total mass of the 24-inch models`,
+        ),
       },
       transport: {
         ...shared,
         seatDepth: m(0.43, 0.435, "nominal seat depth of the 14-inch models"),
-        seatHeight: m(0.435, 0.5, "seat surface height at the front edge of the 14-inch models"),
+        seatHeight: m(
+          0.435,
+          0.5,
+          "seat surface height at the front edge of the 14-inch models",
+        ),
         wheelDiameter: m(14 * 0.0254, 14 * 0.0254, "rear wheel, 14 in"),
-        length: m(1.01, 1.03, "overall length with legrest of the 14-inch models"),
+        length: m(
+          1.01,
+          1.03,
+          "overall length with legrest of the 14-inch models",
+        ),
         width: m(0.575, 0.675, "overall width of the 14-inch models"),
         height: m(0.885, 0.935, "overall height of the 14-inch models"),
-        mass: ArchetypeBand.of("kg", 11.8, 13.1, `${sheet}: total mass of the 14-inch models`),
+        mass: ArchetypeBand.of(
+          "kg",
+          11.8,
+          13.1,
+          `${sheet}: total mass of the 14-inch models`,
+        ),
       },
     };
   })();

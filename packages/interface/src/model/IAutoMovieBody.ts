@@ -8,7 +8,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * Rough numbers, as everywhere in `interface`: units and ranges live here in the JSDoc and are enforced at runtime by `@automovie/engine`, not by the type.
  *
  * @evidence contracts/development/design.md#principled-representation validateBody admits positive finite mass, nullable finite local centre and bounded contact coefficients. Available collision and centre helpers consume mass/restitution or centre; friction remains declared metadata and the detectors are not automatically wired into product execution.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four model-owned properties remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four model-owned properties, and the optional kinetic friction a sliding prop reads (#3433), remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No named object selects mass or grip presets; an authored centre overrides uniform-density geometric estimation, and physical advice remains distinct from rejecting malformed numeric inputs.
  * @evidence contracts/development/common.md#meaningful-documentation Defines authored kilograms, local metre centre and contact coefficients, distinct null-body helper behavior, friction's unread status and current detector wiring limits.
  */
@@ -27,6 +27,11 @@ export interface IAutoMovieBody {
    * Coulomb friction coefficient, `0` (frictionless) to `1` (high grip), dimensionless. A hint for how much a contact resists sliding.
    */
   friction: number;
+
+  /**
+   * Kinetic (sliding) Coulomb friction coefficient, `0` to `1`, dimensionless, no greater than `friction`, the static one: how much a contact already sliding resists. Absent when no measured pair gives it.
+   */
+  kineticFriction?: number;
 
   /**
    * Coefficient of restitution, `0` (perfectly inelastic: no bounce) to `1` (perfectly elastic). Shapes the rebound the engine suggests on impact.

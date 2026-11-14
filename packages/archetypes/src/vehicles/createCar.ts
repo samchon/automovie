@@ -66,7 +66,7 @@ export function createCar(
   CarCabin.doors(builder, layout);
   CarCabin.seats(builder, layout);
   CarCabin.controls(builder, layout);
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, { rests: "rubber", ground: "asphalt" });
 }
 
 /**

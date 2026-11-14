@@ -8,6 +8,7 @@ import type {
 import { Archetype } from "./Archetype";
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import type { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
@@ -63,20 +64,23 @@ export class ArchetypeAssembly<
    * @throws {ArchetypeRefusal} When there is no member, a key is empty or contains `/`, or a placement is not rigid with unit scale.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's role, what a member keeps and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, its parts' transforms and affordances' frames composed under its placement and every id and reference prefixed; mass properties by `ArchetypeMass.combine`; the members' set travels become the assembly's under their prefixes. Friction and restitution are the members' mass-weighted means, a stand-in because the model's body carries one coefficient of each for the whole.
+   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, its parts' transforms and affordances' frames composed under its placement and every id and reference prefixed; mass properties by `ArchetypeMass.combine`; the members' set travels become the assembly's under their prefixes. Static and kinetic friction and restitution are the members' mass-weighted means, a stand-in because the model's body carries one coefficient of each for the whole, the kinetic one only when every member has one; each part keeps its member's declared surface under its prefixed id.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the members, merge them, construct.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-rigid placement is refused rather than having its scale dropped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assembly holds its members and its merged rest model for as long as its caller keeps it.
    */
-  public static of<M extends Readonly<Record<string, ArchetypeAssembly.IMember>>>(
-    id: string,
-    name: string,
-    members: M,
-  ): ArchetypeAssembly<M> {
+  public static of<
+    M extends Readonly<Record<string, ArchetypeAssembly.IMember>>,
+  >(id: string, name: string, members: M): ArchetypeAssembly<M> {
     const keys: string[] = Object.keys(members);
-    const refuse = (axis: string, value: unknown, reason: string, fix: string): never => {
+    const refuse = (
+      axis: string,
+      value: unknown,
+      reason: string,
+      fix: string,
+    ): never => {
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: ArchetypeAssembly.ARCHETYPE,
@@ -99,7 +103,9 @@ export class ArchetypeAssembly<
     const placed: ArchetypeMass.IPlaced[] = [];
     const state: Partial<Record<ArchetypeAssembly.Ids<M>, number>> = {};
     let friction: number = 0;
+    let kinetic: number | null = 0;
     let restitution: number = 0;
+    const surfaces: Record<string, ArchetypeFriction.Material> = {};
     let mass: number = 0;
     for (const key of keys) {
       const member: ArchetypeAssembly.IMember = members[key]!;
@@ -130,7 +136,11 @@ export class ArchetypeAssembly<
         e.affordance !== undefined
           ? { affordance: prefix(e.affordance) }
           : { part: prefix(e.part), at: e.at };
-      for (const part of rest.parts)
+      for (const part of rest.parts) {
+        const surface: ArchetypeFriction.Material | null = rest.surface(
+          part.id,
+        );
+        if (surface !== null) surfaces[prefix(part.id)] = surface;
         parts.push({
           ...part,
           id: prefix(part.id),
@@ -139,6 +149,7 @@ export class ArchetypeAssembly<
             part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
           ),
         });
+      }
       for (const affordance of rest.affordances)
         affordances.push({
           ...affordance,
@@ -146,13 +157,20 @@ export class ArchetypeAssembly<
           frame: ArchetypeFrame.compose(placement, affordance.frame),
           ...(affordance.parts === undefined
             ? {}
-            : { parts: affordance.parts.map((p: string): string => prefix(p)) }),
+            : {
+                parts: affordance.parts.map((p: string): string => prefix(p)),
+              }),
           ...(affordance.rides === undefined
             ? {}
             : { rides: prefix(affordance.rides) }),
           ...(affordance.follows === undefined
             ? {}
-            : { follows: { ...affordance.follows, id: prefix(affordance.follows.id) } }),
+            : {
+                follows: {
+                  ...affordance.follows,
+                  id: prefix(affordance.follows.id),
+                },
+              }),
         });
       for (const material of rest.materials)
         if (!materials.has(material.id)) materials.set(material.id, material);
@@ -166,6 +184,10 @@ export class ArchetypeAssembly<
       placed.push({ properties: rest.properties, placement });
       const weight: number = rest.properties.mass;
       friction += rest.body.friction * weight;
+      kinetic =
+        kinetic === null || rest.body.kineticFriction === undefined
+          ? null
+          : kinetic + rest.body.kineticFriction * weight;
       restitution += rest.body.restitution * weight;
       mass += weight;
       for (const [own, travel] of Object.entries(member.archetype.state))
@@ -183,6 +205,8 @@ export class ArchetypeAssembly<
         materials: [...materials.values()],
         properties: ArchetypeMass.combine(placed),
         friction: friction / mass,
+        kineticFriction: kinetic === null ? null : kinetic / mass,
+        surfaces,
         restitution: restitution / mass,
         dimensions: {},
         spans,
@@ -211,9 +235,10 @@ export class ArchetypeAssembly<
     follower: ArchetypeAssembly.Ids<M>,
     follows: IAutoMovieAffordance.Follows & { id: ArchetypeAssembly.Ids<M> },
   ): ArchetypeAssembly<M> {
-    const found: IAutoMovieAffordance | undefined = this.#props.affordances.find(
-      (a: IAutoMovieAffordance): boolean => a.id === follower,
-    );
+    const found: IAutoMovieAffordance | undefined =
+      this.#props.affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === follower,
+      );
     if (found === undefined || !ArchetypeArticulation.KINDS.has(found.kind))
       throw new ArchetypeRefusal({
         kind: "articulation",
@@ -356,7 +381,10 @@ export namespace ArchetypeAssembly {
    * @template I The member's affordance ids.
    * @template D The member's free dimensions.
    */
-  export interface IMember<I extends string = string, D extends string = string> {
+  export interface IMember<
+    I extends string = string,
+    D extends string = string,
+  > {
     /** The member, at the articulation state it enters the assembly with. */
     archetype: Archetype<I, D>;
 

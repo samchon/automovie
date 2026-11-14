@@ -14,6 +14,7 @@ import type {
 
 import { Archetype } from "./Archetype";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
@@ -51,6 +52,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 
   /** The spans so far. */
   readonly #spans: ArchetypeSpan.ISpan[] = [];
+
+  /** Surface materials declared so far, by part id. */
+  readonly #surfaces: Record<string, ArchetypeFriction.Material> = {};
 
   /** The producer's identity and drawn dimensions. */
   readonly #props: ArchetypeBuilder.IProps<Dimension>;
@@ -243,22 +247,35 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact Friction and restitution coefficients, 0 to 1; 0.5 and 0.2 when absent, the mid-range a dry everyday object has.
+   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. Without `rests` the body's friction is 0.5, a placeholder no source gives, until the producer declares what it rests on.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
+   * @throws {ArchetypeRefusal} When no source measured the resting pair.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Mass properties from the recorded parts under the stated total mass, then one `Archetype` over the recorded lists.
+   * @evidence contracts/development/implementation.md#principled-implementation Mass properties from the recorded parts under the stated total mass, the body's friction from the measured pair of what it rests on and its ground, then one `Archetype` over the recorded lists with the declared surfaces.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; the 0.5 placeholder stays only for a producer that has not yet declared what it rests on, named here so it is not mistaken for a measurement.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `ArchetypeMass.of`.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
    */
   public build(
     mass: number,
-    contact?: { friction?: number; restitution?: number },
+    contact?: {
+      rests?: ArchetypeFriction.Material;
+      ground?: ArchetypeFriction.Material;
+      restitution?: number;
+    },
   ): Archetype<Id, Dimension> {
+    const pair: ArchetypeFriction.ICoefficients | null =
+      contact?.rests === undefined
+        ? null
+        : ArchetypeFriction.pair(
+            contact.rests,
+            contact.ground ?? ArchetypeFriction.GROUND,
+            this.#props.archetype,
+          );
     return new Archetype<Id, Dimension>({
       archetype: this.#props.archetype,
       id: this.#props.id ?? this.#props.archetype,
@@ -272,7 +289,12 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
         this.#density,
         this.#shares,
       ),
-      friction: contact?.friction ?? 0.5,
+      friction: pair === null ? 0.5 : ArchetypeFriction.value(pair.static),
+      kineticFriction:
+        pair === null || pair.kinetic === null
+          ? null
+          : ArchetypeFriction.value(pair.kinetic),
+      surfaces: this.#surfaces,
       restitution: contact?.restitution ?? 0.2,
       dimensions: this.#props.dimensions,
       spans: this.#spans,
@@ -310,6 +332,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       });
     if (options?.density !== undefined) this.#density[id] = options.density;
     if (options?.share !== undefined) this.#shares[id] = options.share;
+    if (options?.surface !== undefined) this.#surfaces[id] = options.surface;
     this.#parts.push({
       id,
       name: null,
@@ -375,5 +398,8 @@ export namespace ArchetypeBuilder {
 
     /** The part's rotation in the model's space, a unit quaternion; unrotated when absent. */
     rotation?: IAutoMovieQuaternion;
+
+    /** What the part's surface is made of, for a part something touches: a tyre, a grip, a seat, a sole; undeclared when absent. `Archetype.friction` reads it against another material. */
+    surface?: ArchetypeFriction.Material;
   }
 }

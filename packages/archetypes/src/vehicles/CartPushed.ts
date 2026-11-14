@@ -161,7 +161,7 @@ export namespace CartPushed {
       wheel,
       v(-0.04, wheel, length / 2 - wheel),
       v(0.04, wheel, length / 2 - wheel),
-      { color: "#22262b" },
+      { color: "#22262b", surface: "rubber" },
     );
     for (const [side, sign] of [
       ["left", 1],

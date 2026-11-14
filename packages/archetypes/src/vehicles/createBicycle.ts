@@ -87,6 +87,7 @@ export function createBicycle(
     builder.rod(name, radius, v(-0.012, at.y, at.z), v(0.012, at.y, at.z), {
       color: "#22262b",
       density: 0.2,
+      surface: "rubber",
     });
   for (const [name, from, to] of [
     ["seat-tube", bracket, v(0, saddle.y - 0.03, saddle.z)],
@@ -192,7 +193,7 @@ export function createBicycle(
       rides: "crank",
     });
   }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
 /**

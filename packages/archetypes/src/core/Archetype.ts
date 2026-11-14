@@ -11,6 +11,7 @@ import type {
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
@@ -25,7 +26,8 @@ import { ArchetypeSpan } from "./ArchetypeSpan";
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
  * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
  * - `dimensions` gives the value drawn for each free dimension, and `properties` the mass, centre of mass and inertia;
- * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world.
+ * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
+ * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
  *
  * Lengths are metres, masses kilograms and angles degrees. The model's space has `+Y` up and `+Z` to the front of a thing that has one; an archetype that stands on the floor has its origin on the floor.
  *
@@ -113,6 +115,9 @@ export class Archetype<
       mass: props.properties.mass,
       centerOfMass: { ...props.properties.centerOfMass },
       friction: props.friction,
+      ...(props.kineticFriction === null
+        ? {}
+        : { kineticFriction: props.kineticFriction }),
       restitution: props.restitution,
     };
     this.affordances = posed.affordances;
@@ -202,7 +207,9 @@ export class Archetype<
         value: id,
         feasible: {
           kind: "alternatives",
-          values: this.#rest.spans.map((s: ArchetypeSpan.ISpan): string => s.id),
+          values: this.#rest.spans.map(
+            (s: ArchetypeSpan.ISpan): string => s.id,
+          ),
         },
         reason: `${this.name ?? this.id} has no span "${id}"`,
         fix: "name one of the spans this archetype declares",
@@ -330,6 +337,61 @@ export class Archetype<
   }
 
   /**
+   * What a part's surface is made of.
+   *
+   * @param part The part's id.
+   * @returns The material its producer declared, or null when it declared none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what null means.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the producer's declarations, which posing never changes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An undeclared surface is null, never a default material.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A lookup with nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public surface(part: string): ArchetypeFriction.Material | null {
+    return this.#rest.surfaces[part] ?? null;
+  }
+
+  /**
+   * The friction between a part and a material, as a measured pair gives it.
+   *
+   * @param part The part's id.
+   * @param against The other surface's material: a hand's, a floor's, another part's.
+   * @returns The pair's static and kinetic coefficients and their source.
+   * @throws {ArchetypeRefusal} When the part declares no surface, listing the parts that do, or no source measured the pair.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and both refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The part's declared material and `ArchetypeFriction.pair`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An undeclared surface or an unmeasured pair is refused, never given a default coefficient.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFriction.pair`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public friction(
+    part: string,
+    against: ArchetypeFriction.Material,
+  ): ArchetypeFriction.ICoefficients {
+    const material: ArchetypeFriction.Material | null = this.surface(part);
+    if (material === null)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: this.#rest.archetype,
+        axis: "surface",
+        value: part,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(this.#rest.surfaces),
+        },
+        reason: `${this.name ?? this.id} declares no surface for its part "${part}"`,
+        fix: "name a part whose surface the producer declares",
+      });
+    return ArchetypeFriction.pair(material, against, this.#rest.archetype);
+  }
+
+  /**
    * The archetype's colliders at the current articulation state, in the model's space.
    *
    * @returns One solid per part, as {@link ArchetypeShapes} maps them.
@@ -403,8 +465,14 @@ export namespace Archetype {
     /** Mass, centre of mass and inertia. */
     properties: ArchetypeMass.IProperties;
 
-    /** Coulomb friction coefficient, 0 to 1. */
+    /** Static Coulomb friction coefficient of what the model rests on against its ground, 0 to 1. */
     friction: number;
+
+    /** Kinetic Coulomb friction coefficient of the same pair, 0 to 1; null when no measured pair gives it. */
+    kineticFriction: number | null;
+
+    /** What each part's surface is made of, by part id, for the parts whose producer declared it. */
+    surfaces: Readonly<Record<string, ArchetypeFriction.Material>>;
 
     /** Coefficient of restitution, 0 to 1. */
     restitution: number;

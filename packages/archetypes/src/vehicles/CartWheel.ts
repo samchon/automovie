@@ -1,7 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type ArchetypeBuilder,
+  ArchetypeFrame,
+  type ArchetypeFriction,
+} from "../core";
 import type { createCart } from "./createCart";
 
 /**
@@ -35,6 +39,9 @@ export namespace CartWheel {
 
     /** The articulation the pair rides, such as a turning front axle. */
     rides?: createCart.Affordance;
+
+    /** What the wheels' tyres are made of, where a source says. */
+    surface?: ArchetypeFriction.Material;
   }
 
   /**
@@ -75,7 +82,11 @@ ides.
         radius,
         v(centre.x - 0.03, radius, z),
         v(centre.x + 0.03, radius, z),
-        { color: WOOD, density: 0.2 },
+        {
+          color: WOOD,
+          density: 0.2,
+          ...(pair.surface === undefined ? {} : { surface: pair.surface }),
+        },
       );
       for (let n: number = 0; n < pair.spokes / 2; n++) {
         const angle: number = (2 * Math.PI * n) / pair.spokes;

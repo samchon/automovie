@@ -2,6 +2,7 @@ import {
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  type ArchetypeFriction,
   type IArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
@@ -60,7 +61,7 @@ export function createCart(
   else if (kind === "limber") CartDrawn.limber(builder, d);
   else if (kind === "wagon") CartCoach.wagon(builder, d);
   else CartCoach.carriage(builder, d);
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, createCart.RESTS[kind]);
 }
 
 /**
@@ -105,6 +106,28 @@ export namespace createCart {
     limber: "limber",
     wagon: "wagon",
     carriage: "brougham",
+  };
+
+  /**
+   * What each kind rests on and on what ground, for its body's friction (`ArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so they keep the builder's placeholder until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
+   */
+  export const RESTS: Readonly<
+    Record<
+      Kind,
+      {
+        rests?: ArchetypeFriction.Material;
+        ground?: ArchetypeFriction.Material;
+      }
+    >
+  > = {
+    trolley: {},
+    wheelbarrow: { rests: "rubber" },
+    cart: {},
+    rickshaw: {},
+    chariot: {},
+    limber: {},
+    wagon: { rests: "steel", ground: "stone" },
+    carriage: {},
   };
 
   /** A wheelbarrow handgrip's length, metres: the 130 mm of the Matador M-130-L4 data sheet. */

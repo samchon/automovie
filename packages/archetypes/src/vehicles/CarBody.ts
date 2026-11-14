@@ -278,7 +278,7 @@ export namespace CarBody {
         radius,
         v(x * (l.half - 0.18), radius, z),
         v(x * (l.half + 0.02), radius, z),
-        { color: TYRE },
+        { color: TYRE, surface: "rubber" },
       );
       builder.box(
         `hub-${name}`,

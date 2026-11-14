@@ -6,6 +6,7 @@ export * from "./ArchetypeBuilder";
 export * from "./ArchetypeCourse";
 export * from "./ArchetypeDraw";
 export * from "./ArchetypeFrame";
+export * from "./ArchetypeFriction";
 export * from "./ArchetypeMarks";
 export * from "./ArchetypeMass";
 export * from "./ArchetypeRefusal";

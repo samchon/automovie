@@ -106,7 +106,12 @@ export function createHorse(
           (k === 0 ? 0.055 : k === 1 ? 0.035 : 0.022) * h,
           joints[k]!,
           joints[k + 1]!,
-          { color: coat, share: shares[k]! },
+          {
+            color: coat,
+            share: shares[k]!,
+            // The digit ends in the hoof, shod.
+            ...(k === 3 ? { surface: "hoof" as const } : {}),
+          },
         );
       },
     );
@@ -242,7 +247,7 @@ export function createHorse(
     aperture: createHorse.LEAD,
     length: createHorse.HELD.lead,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "hoof" });
 }
 
 /**

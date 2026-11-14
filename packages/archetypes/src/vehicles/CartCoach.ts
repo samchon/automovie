@@ -1,7 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type ArchetypeBuilder,
+  ArchetypeFrame,
+  type ArchetypeFriction,
+} from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
@@ -21,7 +25,7 @@ export namespace CartCoach {
    * @param d The drawn dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The specification's wheels, track, king-bolt station and tongue on the running gear, the tongue's end hanging `WAGON.drop` above the ground; the body's inside length, width and depth, its floor `WAGON.bed` above the hind axle, centred between the axles; the `bed` affordance on its floor. The hind wheels have fourteen spokes and the front twelve, as specified.
+   * @evidence contracts/development/implementation.md#principled-implementation The specification's wheels, track, king-bolt station and tongue on the running gear, the tongue's end hanging `WAGON.drop` above the ground; the body's inside length, width and depth, its floor `WAGON.bed` above the hind axle, centred between the axles; the `bed` affordance on its floor. The hind wheels have fourteen spokes and the front twelve, as specified, and iron tyres: the specification's tyre, 2.5 in wide and 5/8 in thick, is bolted through each felloe, as only a metal tyre is (p. 1), so the wagon rests on iron, measured against stone.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Running gear, then the body.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's floor height and the front axle's lock are named provisional values; the cover, the bows and the feed trough are not built.
    * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts, most of them spokes.
@@ -39,6 +43,7 @@ export namespace CartCoach {
       tip: createCart.WAGON.drop,
       lock: createCart.WAGON.lock,
       spokes: [12, 14],
+      surface: "steel",
     });
     const floor: number = d.wheelDiameter! / 2 + createCart.WAGON.bed;
     const length: number = d.length!;
@@ -245,7 +250,7 @@ const CLOTH: string = "#6b2f2f";
  *
  * @param builder The carrier under construction.
  * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and `wheelbase` are read.
- * @param gear The track, the pole's length and its end's height at rest, the lock and the front and rear spoke counts.
+ * @param gear The track, the pole's length and its end's height at rest, the lock, the front and rear spoke counts, and the tyres' material where a source gives it.
  */
 function gear(
   builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
@@ -256,6 +261,7 @@ function gear(
     tip: number;
     lock: number;
     spokes: readonly [number, number];
+    surface?: ArchetypeFriction.Material;
   },
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -268,6 +274,7 @@ function gear(
     z: 0,
     prefix: "rear-",
     spins: ["rearLeftSpin", "rearRightSpin"],
+    ...(gear.surface === undefined ? {} : { surface: gear.surface }),
   });
   const axle: string[] = CartWheel.pair(builder, {
     track: gear.track,
@@ -277,6 +284,7 @@ function gear(
     prefix: "front-",
     spins: ["frontLeftSpin", "frontRightSpin"],
     rides: "frontAxle",
+    ...(gear.surface === undefined ? {} : { surface: gear.surface }),
   });
   const reach: number = Math.sqrt(gear.pole ** 2 - (front - gear.tip) ** 2);
   const tip: IAutoMovieVector3 = v(0, gear.tip, wheelbase + reach);
