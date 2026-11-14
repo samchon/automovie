@@ -20,6 +20,7 @@ import {
   createDumbbell,
   createExerciseBike,
   createExerciseMat,
+  createFood,
   createGlove,
   createGolfClub,
   createHammerThrow,
@@ -35,6 +36,7 @@ import {
   createKeyboard,
   createLadder,
   createLandingMat,
+  createLight,
   createLoad,
   createLongGun,
   createLongTool,
@@ -64,6 +66,7 @@ import {
   createSwitch,
   createSword,
   createTable,
+  createTableware,
   createTap,
   createTool,
   createTorch,
@@ -359,6 +362,21 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     );
   add("torch", (seed?: number | string): Archetype => createTorch({}, seed));
   add("pram", (seed?: number | string): Archetype => createPram({}, seed));
+  for (const kind of createTableware.KINDS)
+    add(
+      `tableware-${kind}`,
+      (seed?: number | string): Archetype => createTableware({ kind }, seed),
+    );
+  for (const kind of createFood.KINDS)
+    add(
+      `food-${kind}`,
+      (seed?: number | string): Archetype => createFood({ kind }, seed),
+    );
+  for (const kind of createLight.KINDS)
+    add(
+      `light-${kind}`,
+      (seed?: number | string): Archetype => createLight({ kind }, seed),
+    );
   // Sport: the jump apparatus.
   add(
     "vaultingPole",

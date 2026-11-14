@@ -39,6 +39,13 @@ const BORDEAUX: string =
 const MUG: string =
   "IKEA 365+ mug 24 cl (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/) and ITI 82245-02 diner mug 10 oz (https://www.katom.com/129-8224502.html)";
 
+/** A cup read at a maker. */
+const CUP: string =
+  "IKEA 365+ cup with saucer 13 cl: the cup 6 cm high, 7 cm on its saucer; the cup with its saucer packed at 0.25 kg and the saucer alone at 0.18 kg (https://www.ikea.com/gb/en/p/ikea-365-cup-with-saucer-white-70283406)";
+
+/** The cup's bore, metres: the diameter of a cylinder that holds its stated 13 cl over its 6 cm height less a 5 mm floor, 54.9 mm. */
+const CUP_BORE: number = 2 * Math.sqrt(0.13e-3 / (Math.PI * 0.055));
+
 /** Two bar glasses read at distributor listings only. */
 const GLASS: string =
   "Libbey 5139 pint and Libbey 2045 highball glasses, distributor listings seen only in search results";
@@ -46,6 +53,7 @@ const GLASS: string =
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createDrinkware.Kind, string>> = {
   mug: "mug",
+  cup: "cup",
   glass: "drinking glass",
   wineGlass: "wine glass",
   beerBottle: "beer bottle",
@@ -56,6 +64,7 @@ const NAMES: Readonly<Record<createDrinkware.Kind, string>> = {
 /** The flat colour each kind is drawn in, picture only: a glazed mug, clear glass, brown glass for beer, a clear pale blue for water and dark green glass for wine, so the bottles are told apart on a still. */
 const COLORS: Readonly<Record<createDrinkware.Kind, string>> = {
   mug: "#e8e4da",
+  cup: "#f2efe8",
   glass: "#a9c8d8",
   wineGlass: "#a9c8d8",
   beerBottle: "#6b3f1d",
@@ -66,6 +75,7 @@ const COLORS: Readonly<Record<createDrinkware.Kind, string>> = {
 /** What each kind holds when full, litres: the capacity its sources state. */
 const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
   mug: 0.24,
+  cup: 0.13,
   glass: 0.473,
   wineGlass: 0.215,
   beerBottle: 0.33,
@@ -74,11 +84,11 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
 };
 
 /**
- * A drinking vessel: a mug, a drinking glass, a wine glass, or a beer, water or wine bottle.
+ * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer, water or wine bottle.
  *
- * The model is the vessel's body as one upright cylinder, with a mug's handle as three bars, a wine glass's stem and foot, and a bottle's neck; with each kind's flat colour, brown for a beer bottle, pale blue for a water bottle and dark green for a wine bottle, that is what tells the six apart. What a hand and a mouth read is exact: each grip's frame lies on the axis of the part it wraps with the part's diameter as its `aperture`, and the `lip` stands on the rim on the vessel's `+Z` side, where the drinker's mouth meets it.
+ * The model is the vessel's body as one upright cylinder, with a mug's or a cup's handle as three bars, a wine glass's stem and foot, and a bottle's neck; with each kind's flat colour, brown for a beer bottle, pale blue for a water bottle and dark green for a wine bottle, that is what tells the six apart. What a hand and a mouth read is exact: each grip's frame lies on the axis of the part it wraps with the part's diameter as its `aperture`, and the `lip` stands on the rim on the vessel's `+Z` side, where the drinker's mouth meets it.
  *
- * The vessel stands on its base at the origin, `+Y` up. A mug's handle is on `+X`, the right of a drinker who faces the `+Z` side.
+ * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's handle is on `+X`, the right of a drinker who faces the `+Z` side. A cup stands on `createTableware`'s saucer by that saucer's `top`.
  *
  * @param params The kind, how full it is and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -163,7 +173,7 @@ export function createDrinkware(
     length: top - stem,
   });
 
-  if (kind === "mug") {
+  if (kind === "mug" || kind === "cup") {
     // The handle: an upright bar the fingers wrap, held off the body by two stubs.
     const bar: number = d.handleDiameter! / 2;
     const reach: number = radius + d.handleOpening! + bar;
@@ -292,6 +302,7 @@ export namespace createDrinkware {
   /** The kinds of vessel. */
   export type Kind =
     | "mug"
+    | "cup"
     | "glass"
     | "wineGlass"
     | "beerBottle"
@@ -301,6 +312,7 @@ export namespace createDrinkware {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "mug",
+    "cup",
     "glass",
     "wineGlass",
     "beerBottle",
@@ -312,7 +324,7 @@ export namespace createDrinkware {
    * The affordance ids:
    *
    * - `body`: a power grip round the body, taken from the `-X` side; every kind.
-   * - `handle`: a mug's handle bar.
+   * - `handle`: a mug's or a cup's handle bar.
    * - `stem`: a wine glass's stem, pinched.
    * - `neck`: a bottle's neck.
    * - `mouth`: a bottle's opening, a socket facing up.
@@ -331,8 +343,8 @@ export namespace createDrinkware {
    *
    * - `height`: the rim above the base.
    * - `diameter`: the body's outer diameter.
-   * - `handleDiameter`: the thickness of a mug's handle bar.
-   * - `handleOpening`: the gap between a mug's body and its handle bar, which the fingers pass through.
+   * - `handleDiameter`: the thickness of a mug's or a cup's handle bar.
+   * - `handleOpening`: the gap between a mug's or a cup's body and its handle bar, which the fingers pass through.
    * - `stemLength`: the top of a wine glass's stem above its base.
    * - `stemDiameter`: a wine glass's stem.
    * - `baseDiameter`: a wine glass's foot.
@@ -385,6 +397,33 @@ export namespace createDrinkware {
         0.25,
         0.35,
         "IKEA 365+ mug package weight 0.29 kg (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/)",
+        true,
+      ),
+    },
+    cup: {
+      height: ArchetypeBand.metres(0.06, 0.06, CUP),
+      diameter: ArchetypeBand.metres(
+        CUP_BORE + 2 * 0.003,
+        CUP_BORE + 2 * 0.005,
+        `${CUP}: no diameter is given, so it is the bore that holds the 13 cl over the 6 cm less a 5 mm floor, with a wall of 3 to 5 mm`,
+        true,
+      ),
+      handleDiameter: ArchetypeBand.metres(
+        0.008,
+        0.013,
+        "no cup handle measurement was found; the 8 to 13 mm where the precision handle ranges of CCOHS (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html) and NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf) overlap",
+        true,
+      ),
+      handleOpening: ArchetypeBand.metres(
+        0.015,
+        0.025,
+        "no cup handle measurement was found; room for one or two fingers, not read at a source",
+        true,
+      ),
+      mass: kg(
+        0.06,
+        0.08,
+        `${CUP}: the cup is the difference of the two packages, 0.07 kg, whose packing is not stated`,
         true,
       ),
     },

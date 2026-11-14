@@ -25,10 +25,14 @@ import {
   createCareItem,
   createDevice,
   createDrinkware,
+  createFood,
+  createLight,
   createLongTool,
   createSmoking,
   createStationery,
+  createTableware,
   createTool,
+  createVessel,
 } from "../props";
 import {
   createBicycle,
@@ -204,6 +208,28 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createLongTool.Kind): Archetype => createLongTool({ kind }),
       ),
     }),
+    tableware: still({
+      ...kinds(
+        "tableware",
+        createTableware.KINDS,
+        (kind: createTableware.Kind): Archetype => createTableware({ kind }),
+      ),
+      ...kinds(
+        "food",
+        createFood.KINDS,
+        (kind: createFood.Kind): Archetype => createFood({ kind }),
+      ),
+      ...kinds(
+        "light",
+        createLight.KINDS,
+        (kind: createLight.Kind): Archetype => createLight({ kind }),
+      ),
+      ...kinds(
+        "vessel",
+        createVessel.KINDS,
+        (kind: createVessel.Kind): Archetype => createVessel({ kind }),
+      ),
+    }),
     seats: still(
       kinds(
         "seat",
@@ -339,6 +365,9 @@ export function archetypeCaptureCatalog(): Readonly<
       }),
       "book-open": createStationery({ kind: "book" }).articulate({
         hinge: 150,
+      }),
+      "bread-torn": createFood({ kind: "bread" }).articulate({
+        tear: createFood.TEAR,
       }),
       "car-doors-open": car.articulate({
         driverDoor: 65,

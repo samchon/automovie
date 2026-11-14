@@ -34,10 +34,14 @@ const SPOON: string =
 const FORK: string =
   "IKEA DRAGON fork, stainless steel, 19 cm, sold in fours at 0.18 kg the pack (https://www.ikea.com/de/en/p/dragon-fork-stainless-steel-00515527/)";
 
+/** A table knife, read. */
+const KNIFE: string =
+  "IKEA DRAGON knife, stainless steel, 21 cm, sold in fours at 0.32 kg the pack (https://www.ikea.com/gb/en/p/dragon-knife-stainless-steel-40515530/)";
+
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon or a fork.
+ * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork or a table knife.
  *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl and a fork's tines. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
+ * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines and a table knife's edge toward `+Z`, under the index finger that lies along the spine. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -90,7 +94,11 @@ export function createTool(
           ? length - d.blade!
           : kind === "spoon"
             ? length - 2 * createTool.BOWL
-            : length - createTool.TINES.length;
+            : kind === "tableKnife"
+              ? length - createTool.KNIFE_BLADE.length
+              : length - createTool.TINES.length;
+  const cutlery: boolean =
+    kind === "spoon" || kind === "fork" || kind === "tableKnife";
   if (kind === "saw") {
     // A saw's grip runs across its heel, square to the line from the grip to
     // the tooth line's middle (the hang), so the fist thrusts along that line.
@@ -130,20 +138,27 @@ export function createTool(
       radius,
       Vector3.create(0, 0, 0),
       Vector3.create(0, handle, 0),
-      { color: kind === "spoon" || kind === "fork" ? "#b9bcc0" : "#8a5a35" },
+      { color: cutlery ? "#b9bcc0" : "#8a5a35" },
     );
     const held: number = Math.min(handle, createTool.GRIP);
+
+    // A knife's handle is taken one way only, its edge under the fist; the other handles are round or two-faced.
     builder.affordance({
       id: "grip",
       kind: "handle",
-      symmetry: kind === "screwdriver" ? "round" : "half",
+      symmetry:
+        kind === "screwdriver"
+          ? "round"
+          : kind === "tableKnife"
+            ? "none"
+            : "half",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, kind === "hammer" ? held / 2 : handle - held / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),
       ),
       extent: null,
-      grip: kind === "spoon" || kind === "fork" ? "precision" : "power",
+      grip: cutlery ? "precision" : "power",
       aperture: 2 * radius,
       length: held,
     });
@@ -201,6 +216,28 @@ export function createTool(
       frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
       extent: null,
     });
+  } else if (kind === "tableKnife") {
+    // The blade is one flat plate on the handle's end, its flats toward X, its edge on +Z and its spine on -Z.
+    const blade: Readonly<{ width: number; length: number }> =
+      createTool.KNIFE_BLADE;
+    builder.box(
+      "blade",
+      Vector3.create(0.002, blade.length, blade.width),
+      Vector3.create(0, handle + blade.length / 2, 0),
+      { color: "#b9bcc0" },
+    );
+    builder.affordance({
+      id: "face",
+      kind: "ledge",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, handle + blade.length / 2, blade.width / 2),
+        Vector3.create(0, 0, 1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      length: blade.length,
+    });
   } else if (kind === "fork") {
     // The tines are one flat plate on the handle's end, ending the fork's drawn length.
     const tines: Readonly<{ width: number; length: number }> = createTool.TINES;
@@ -256,7 +293,13 @@ export function createTool(
  */
 export namespace createTool {
   /** The kinds of tool. */
-  export type Kind = "hammer" | "saw" | "screwdriver" | "spoon" | "fork";
+  export type Kind =
+    | "hammer"
+    | "saw"
+    | "screwdriver"
+    | "spoon"
+    | "fork"
+    | "tableKnife";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -265,7 +308,14 @@ export namespace createTool {
     "screwdriver",
     "spoon",
     "fork",
+    "tableKnife",
   ];
+
+  /** A table knife's blade as one plate, from its spine to its edge and along, metres: an estimate, not read at a source; the maker's page gives the knife's whole length only. */
+  export const KNIFE_BLADE: Readonly<{ width: number; length: number }> = {
+    width: 0.02,
+    length: 0.09,
+  };
 
   /** A fork's tines as one plate, across and along, metres: an estimate, not read at a source. */
   export const TINES: Readonly<{ width: number; length: number }> = {
@@ -286,7 +336,7 @@ export namespace createTool {
    * The affordance ids:
    *
    * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a table knife's edge.
    */
   export type Affordance = "grip" | "face";
 
@@ -365,6 +415,21 @@ export namespace createTool {
         0.045,
         0.045,
         `${FORK}: a quarter of the pack`,
+      ),
+    },
+    tableKnife: {
+      length: ArchetypeBand.metres(0.21, 0.21, KNIFE),
+      gripDiameter: ArchetypeBand.metres(
+        0.006,
+        0.013,
+        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a table knife's handle",
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.08,
+        0.08,
+        `${KNIFE}: a quarter of the pack`,
       ),
     },
   };
