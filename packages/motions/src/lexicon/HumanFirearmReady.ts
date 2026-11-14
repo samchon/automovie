@@ -179,12 +179,31 @@ export namespace HumanFirearmReady {
           nominal[3]!,
         ]),
       ],
-      steps: [5, 15, 0.05, 0.05],
-      bounds: [
-        [region.elevation[0], region.elevation[1]],
-        [-region.roll, region.roll],
-        [region.ahead[0], region.ahead[1]],
-        [region.rise[0], region.rise[1] ?? (props.shoulder.y - chest.y) / arm],
+      freedoms: [
+        {
+          kind: "bounded",
+          step: 5,
+          least: region.elevation[0],
+          greatest: region.elevation[1],
+        },
+        {
+          kind: "bounded",
+          step: 15,
+          least: -region.roll,
+          greatest: region.roll,
+        },
+        {
+          kind: "bounded",
+          step: 0.05,
+          least: region.ahead[0],
+          greatest: region.ahead[1],
+        },
+        {
+          kind: "bounded",
+          step: 0.05,
+          least: region.rise[0],
+          greatest: region.rise[1] ?? (props.shoulder.y - chest.y) / arm,
+        },
       ],
       back: tool.length,
       posture,

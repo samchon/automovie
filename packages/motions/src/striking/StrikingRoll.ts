@@ -5,6 +5,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -39,9 +40,6 @@ export namespace StrikingRoll {
 
   /** How many of the candidate frames, the nearest by the arm's two-segment reach, are fitted before one is chosen. */
   export const TRIED: number = 16;
-
-  /** How near a fitted hand's miss must be to none for a pose to count as held exactly, metres, and the margin a later candidate must win by. */
-  export const EXACT: number = 1e-4;
 
   /**
    * How far the arm, fitted to a tool's pose, leaves the tool from where the
@@ -195,11 +193,10 @@ export namespace StrikingRoll {
       tried: candidates
         .slice(0, TRIED)
         .map((c: { values: number[]; rank: number }): number[] => c.values),
-      steps: [cone > 0 ? 5 : 0, 22.5, 15],
-      bounds: [
-        [0, cone],
-        [-Infinity, Infinity],
-        [-Infinity, Infinity],
+      freedoms: [
+        { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
+        { kind: "wrapped", step: 22.5, period: 360 },
+        { kind: "wrapped", step: 15, period: 360 },
       ],
       back,
       posture,
@@ -241,37 +238,28 @@ export namespace StrikingRoll {
     );
   }
 
-  /** The shares of each freedom's step a refinement takes in turn, halving: the last is an eighth of the first. */
-  export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
-
-  /** The most fits a refinement makes, a search budget: each fit is one posture resolution. */
-  export const FITS: number = 48;
-
   /**
    * The tool pose the arm holds, chosen from the freedoms a law leaves it.
    *
    * A law states a pose by values (a roll about the tool's line, a lean of
    * the line inside a cone, an offset of the placed point inside a region)
-   * and the frame those values give. The arm is fitted to the law's tried
-   * values in its order of preference, nearest the asked pose first, and the
-   * first it holds exactly is taken. When none is held exactly, the least
-   * missed is refined by a pattern search (Hooke and Jeeves 1961): each
-   * freedom is stepped either way by `REFINE` of its step, a step that
-   * lessens the miss is kept, and the steps halve when none does, inside the
-   * freedoms' bounds and within `FITS` fits. `reachable` then judges the
-   * result, so a pose no freedom lets the arm hold is still refused.
+   * and the frame those values give; the shared chooser
+   * (`HumanFreedomChoice.chosen`) tries them in the law's order and refines
+   * the least missed, each judged at the decisive instant by `miss`.
+   * `reachable` then judges the result, so a pose no freedom lets the arm
+   * hold is still refused.
    *
    * @param context The action's context.
    * @param tool The tool.
-   * @param props The pose's frame by its values, the tried values in order of preference, each freedom's step and bounds, the point of the tool the pose keeps and the body at the decisive instant.
+   * @param props The pose's frame by its values, the tried values in order of preference, each freedom, the point of the tool the pose keeps and the body at the decisive instant.
    * @returns The chosen hand frame.
    * @throws {Error} When no values are tried.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the stop, the refinement, its source and budget, and who judges the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each pose is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges, so the angle chosen is one the wrist can make; an exact hold (under `EXACT`) ends the search, and a later value wins only by more than that.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tried values in order, then one pattern search.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms and their bounds are the law's; nothing is moved outside them, and the result is still judged by `reachable`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fits are made lazily and stop at the first exact hold; a refinement makes at most `FITS`.
+   * @evidence contracts/development/common.md#meaningful-documentation States who chooses, by which judge, and who judges the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Each pose is judged by `miss`, the fit that counts the shoulder's, the forearm's and the wrist's ranges, so the angle chosen is one the wrist can make.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation with a one-instant judge, then the frame of the chosen values.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freedoms are the law's; the result is still judged by `reachable`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's: lazy fits that stop at the first exact hold, a refinement within `HumanFreedomChoice.FITS`.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -280,47 +268,16 @@ export namespace StrikingRoll {
     tool: StrikingHeld.ITool,
     props: IChoice,
   ): StrikingHeld.IHandFrame {
-    const { frame, tried, steps, bounds, back, posture } = props;
-    if (tried.length === 0) throw new Error("A tool pose has no candidate");
-    const within = (values: readonly number[]): number[] =>
-      values.map((v: number, i: number): number =>
-        Math.min(bounds[i]![1], Math.max(bounds[i]![0], v)),
-      );
-    let best: number[] = within(tried[0]!);
-    let least: number = Infinity;
-    for (const values of tried) {
-      if (least <= EXACT) break;
-      const v: number[] = within(values);
-      const missed: number = miss(context, tool, frame(v), back, posture);
-      if (missed < least - EXACT) {
-        least = missed;
-        best = v;
-      }
-    }
-    let fits: number = 0;
-    for (const share of REFINE)
-      for (let moved: boolean = true; moved; ) {
-        moved = false;
-        for (let d: number = 0; d < best.length && !moved; d++)
-          for (const sign of [1, -1]) {
-            if (least <= EXACT || fits >= FITS || steps[d] === 0) break;
-            const v: number[] = within(
-              best.map((x: number, i: number): number =>
-                i === d ? x + sign * share * steps[d]! : x,
-              ),
-            );
-            if (v[d] === best[d]) continue;
-            fits++;
-            const missed: number = miss(context, tool, frame(v), back, posture);
-            if (missed < least - EXACT) {
-              least = missed;
-              best = v;
-              moved = true;
-              break;
-            }
-          }
-      }
-    return frame(best);
+    const { frame, tried, freedoms, back, posture } = props;
+    return frame(
+      HumanFreedomChoice.chosen({
+        tried,
+        freedoms,
+        judge: (values: readonly number[]): number[] => [
+          miss(context, tool, frame(values), back, posture),
+        ],
+      }).values,
+    );
   }
 
   /** A tool pose's freedoms as a law states them for `chosen`. */
@@ -331,11 +288,8 @@ export namespace StrikingRoll {
     /** The values to fit first, in the law's order of preference, nearest the asked pose first. */
     tried: readonly (readonly number[])[];
 
-    /** Each freedom's refinement step, in its own unit (degrees or metres); 0 holds the freedom at its tried value. */
-    steps: readonly number[];
-
-    /** Each freedom's least and greatest value. */
-    bounds: readonly (readonly [number, number])[];
+    /** Each value's freedom: its bounds or period and its refinement step. */
+    freedoms: readonly HumanFreedomChoice.Freedom[];
 
     /** The point of the tool the pose keeps, metres behind its working point. */
     back: number;
@@ -375,10 +329,10 @@ export namespace StrikingRoll {
     let chosen: StrikingHeld.IHandFrame | undefined;
     let least: number = Infinity;
     for (const candidate of candidates) {
-      if (least <= EXACT) break;
+      if (least <= HumanFreedomChoice.EXACT) break;
       const frame: StrikingHeld.IHandFrame = candidate();
       const missed: number = miss(context, tool, frame, back, posture);
-      if (missed < least - EXACT) {
+      if (missed < least - HumanFreedomChoice.EXACT) {
         least = missed;
         chosen = frame;
       }

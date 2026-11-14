@@ -190,13 +190,19 @@ export namespace HumanSwordLanding {
         ]),
         ...ranked,
       ],
-      steps: [LEAN_STEP, TURN_STEP, tool.rolls ? ROLL_STEP : 0, TILT_STEP, 45],
-      bounds: [
-        [0, 1],
-        [-180, 180],
-        [-180, 180],
-        [0, props.cone],
-        [-Infinity, Infinity],
+      // The turn and the roll stay inside the half turn either way they are
+      // tried in; the direction of the lean goes the whole way round.
+      freedoms: [
+        { kind: "bounded", step: LEAN_STEP, least: 0, greatest: 1 },
+        { kind: "bounded", step: TURN_STEP, least: -180, greatest: 180 },
+        {
+          kind: "bounded",
+          step: tool.rolls ? ROLL_STEP : 0,
+          least: -180,
+          greatest: 180,
+        },
+        { kind: "bounded", step: TILT_STEP, least: 0, greatest: props.cone },
+        { kind: "wrapped", step: 45, period: 360 },
       ],
       back,
       posture,
