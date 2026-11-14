@@ -8,7 +8,7 @@ Render only the channels the actual receiver needs, such as the hint video, pose
 
 Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one.
 
-Render from the scene any control mask a [request](../video/requests.md) asks for, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess, and its handle frames with the rest of its hint.
+Render from the scene any control mask a [request](../video/requests.md) asks for, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess. Render a request's handle frames with the rest of its hint.
 
 ## Dense passes
 

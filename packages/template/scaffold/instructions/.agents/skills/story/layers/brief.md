@@ -10,7 +10,7 @@ Hold only what the [needed-decisions statements](../../contracts/story/shared/st
 
 ## Records
 
-Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md`, in the settings domain of its kind: `cast` for people, `sets` for places, `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, so never reuse or renumber one.
+Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md`, in the settings domain of its kind: `cast` for people, `sets` for places and `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, so never reuse or renumber one.
 
 Keep measurements out, under the [settings rule](settings.md#records). User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 

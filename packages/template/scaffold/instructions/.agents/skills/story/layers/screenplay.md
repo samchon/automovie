@@ -12,7 +12,7 @@ On the long route, extract concise notes of the required identities, decisions, 
 
 On the short route, decide the events, action and realization here from the instructions, citing the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 
-On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them, apart from what a commissioned generated film's prompt carries: the reactions the [beat decisions](../../contracts/story/shared/statements/principles/screenplay.md#beat-decisions) statements name and, on a short, in the standing state, the appearance of a person, place or object only this scene shows. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon references and the generation prompt.
+On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them, apart from what the [beat decisions](../../contracts/story/shared/statements/principles/screenplay.md#beat-decisions) statements let a commissioned generated film's prompt carry. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon references and the generation prompt.
 
 ## Beats
 
