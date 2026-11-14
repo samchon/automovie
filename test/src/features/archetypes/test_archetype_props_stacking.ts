@@ -58,7 +58,7 @@ function seated(
  * Scenarios:
  * 1. Five dinner plates of five seeds, each standing on the `top` of the one below: every pair is at least -1e-6 m apart, and each plate touches the one beneath, the pair less than 1e-6 m apart.
  * 2. The same for five side plates, for five platters, and for a cup on a saucer.
- * 3. A loaf, an apple and a drumstick each on a platter's `top`: each rests on it, neither entering nor floating.
+ * 3. A loaf and an apple each on a platter's `top`: each rests on it, neither entering nor floating.
  * 4. The negative case: a plate set a millimetre lower than the `top` it should stand on enters the plate beneath, and the measure reports it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces plates, a cup and food, seats each on the `stack-top` beneath and measures every pair of colliders with the engine's signed distance; a `top` below or above the face, a foot that sinks into the plate beneath, or a stacked thing that floats is caught.
