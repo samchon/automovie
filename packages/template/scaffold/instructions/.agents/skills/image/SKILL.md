@@ -21,9 +21,9 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Canon references
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
 
-On a short, a subject only one scene shows has its canon references embedded in that scene file's standing state. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
+On a short, a subject only one scene shows has its canon references embedded in that scene file's standing state; a user's fixed screenplay is never edited, so its one-scene canon references go with the instructions.
 
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
@@ -43,7 +43,7 @@ For a canon reference, a plate or any other image without the hint's structure, 
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect. Prompt it with the [shared description](../video/prompts.md#shared-description) of its video prompts, the film's look included, where a generated film has one, and give it with the canon references to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
+Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect. Prompt the image with the [shared description](../video/prompts.md#shared-description), the film's look included, where a generated film has one, and give the hint's frame with the canon references to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
 
 When the image model's sizes differ from the video model's, render the hint's frame at a size the image model takes, with the video frame inside it, and crop the result to the video frame.
 
