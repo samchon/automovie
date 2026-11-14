@@ -4,13 +4,15 @@ import {
   createDumbbell,
   createKettlebell,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanObject,
   HumanPerformance,
   type HumanSegment,
@@ -60,10 +62,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    grip, and the bell is more than a quarter of the stature higher at
  *    `float1` (from between the legs to the chest's height, an estimate).
  * 6. In the deadlift, at `bottom1` and at the lift's end, the bar's middle stands within
- *    30 mm, along the performer's heading, of the middle between the ankle
- *    joints and the toes' joints. Provisional: that the bar travels over
- *    the mid-foot is the law's stated rule, not a measured one. The 30 mm
- *    and the joints' middle as the mid-foot are estimates; for scale,
+ *    30 mm, along the performer's heading, of the mid-foot as the law states
+ *    it: the middle between the heel and the toe of each foot, read on the
+ *    displayed feet. Provisional: that the bar travels over the mid-foot is
+ *    the law's stated rule, not a measured one. The 30 mm is an estimate;
+ *    for scale,
  *    Hancock, Wyatt and Kilgore (Int J Exerc Sci 5(3):183-195, 2012,
  *    https://digitalcommons.wku.edu/ijes/vol5/iss3/1, abstract) measured a
  *    mid-foot start's bar moving 37.5 +/- 13.7 mm horizontally backward
@@ -229,10 +232,24 @@ export function test_human_motion_sport_loaded(): void {
       }
     }
     for (const seconds of [bottom, lift.end]) {
+      // The mid-foot as the law states it: each foot's heel and toe,
+      // placed on its displayed bone.
       const feet: number =
-        (["leftFoot", "rightFoot", "leftToes", "rightToes"] as const).reduce(
-          (sum: number, bone: AutoMovieHumanoidBone): number =>
-            sum + HumanSignature.joint(reader, seconds, bone).z,
+        (["left", "right"] as const).reduce(
+          (sum: number, side: "left" | "right"): number => {
+            const foot: IAutoMovieResolvedBone = film
+              .bones("a", seconds)
+              .get(`${side}Foot`)!;
+            const at = (point: "heel" | "toe"): number =>
+              Vector3.add(
+                foot.worldPosition,
+                Quaternion.rotateVector(
+                  foot.worldRotation,
+                  HumanFoot.offset(body, side, point),
+                ),
+              ).z;
+            return sum + at("heel") + at("toe");
+          },
           0,
         ) / 4;
       const off: number =
