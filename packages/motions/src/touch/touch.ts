@@ -11,6 +11,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
+import { AutoMovieMotionHumanTouchContacts } from "../compose/AutoMovieMotionHumanTouchContacts";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
@@ -154,6 +155,9 @@ export namespace touch {
     /** The other hand's region, touched the same way at the same time; one hand when absent. */
     other?: AutoMovieMotionTarget;
 
+    /** The arms' segments that lie on the performer's own body while the hands are on their regions, as a self-hug's forearms lie on each other and on the chest (`AutoMovieMotionHumanTouchContacts.sided`); none when absent. */
+    rests?: readonly AutoMovieMotionHumanTouchContacts.IDeclared[];
+
     /** Repetitions; 3 for a tap, a pat, a rub or a scratch and 1 otherwise when absent. */
     count?: number;
 
@@ -175,7 +179,7 @@ export namespace touch {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the clearance is not positive, a site's radius is negative, the region is out of reach, `prop` names a prop the hand does not hold or a point it lacks, or `grasp` comes without a prop, its point or a region of the performer's own.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, the clearance is not positive, a site's radius is negative, the region is out of reach, `prop` names a prop the hand does not hold or a point it lacks, `grasp` comes without a prop, its point or a region of the performer's own, or a rest names the other hand's arm on a touch of one hand.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the timing and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation A phrase clock from the free-space transport of the farther hand, the kind's repetitions and the hold, with one touch stroke per hand over the base it was entered on or its carrier; a region the arm does not reach as it stands is closed by the girdle, the heels and the lean of `AutoMovieMotionHumanTouchStance`.
@@ -201,6 +205,12 @@ export namespace touch {
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const first: HumanHand.Side = p.side ?? "right";
+    const resting = AutoMovieMotionHumanTouchContacts.sided(
+      p.rests,
+      first,
+      p.other !== undefined,
+      context.subject,
+    );
 
     // The hand part that touches, or the point of the prop the hand holds.
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
@@ -439,6 +449,7 @@ export namespace touch {
           ...(from === undefined ? {} : { from }),
           ...(p.elbow === undefined ? {} : { elbow: p.elbow }),
           entry: risen,
+          ...(resting(side).length === 0 ? {} : { rests: resting(side) }),
           ...(p.prop !== undefined && side === first
             ? { fingers: "keep" as const }
             : {}),
