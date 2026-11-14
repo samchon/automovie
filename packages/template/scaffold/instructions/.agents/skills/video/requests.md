@@ -4,11 +4,13 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Boundaries
 
-End a request at a screenplay cut, and inside a continuous shot only where the model's length forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
+End a request at a screenplay cut, and inside a continuous shot only where the model's length, or a beat its takes cannot hold, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
-On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take under [place takes in time](generation.md#place-takes-in-time), retiming only a take without generated speech.
+On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take under [place takes in time](generation.md#place-takes-in-time), retiming only a take without generated speech. A still-frame model's interval is one of its fixed lengths, because a trim removes its last frame; where no length fits the beats, tell the user, as [adherence](#adherence) sets.
 
-A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
+A request spans a cut only when the model takes several shots in one request.
+
+Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
 Begin each request where every key subject it shows is already in frame, because a subject the model first meets after the opening frame drifts from its references; when one must enter later, give it a [keyframe](../image/SKILL.md#shot-frames) where the model takes one; otherwise name the entering subject in the prompt.
 
