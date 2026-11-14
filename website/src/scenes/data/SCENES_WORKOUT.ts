@@ -29,7 +29,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     },
     "dumbbell-corner",
     [
-      person("ann", "f1", -1.2, 0, 0, [
+      person("ann", "f1", -1.8, 0, 0, [
         act("curl", { reps: 3 }),
         act("tricepsExtension", { reps: 3 }),
       ]),
@@ -37,7 +37,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("lateralRaise", { reps: 3 }),
         act("frontRaise", { reps: 3 }),
       ]),
-      person("cid", "m2", 1.2, 0, 0, [
+      person("cid", "m2", 1.8, 0, 0, [
         act("shrug", { reps: 3 }),
         act("bentOverRow", { reps: 3 }),
       ]),
@@ -83,7 +83,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "leg-day",
       title: "Leg day",
       summary:
-        "Leg day for four: split squats and a wall sit, calf raises and squats, step-ups onto a plyo box and a jump onto its top, hip thrusts off a bench and lunges.",
+        "Leg day for four: split squats and a sit against the wall, calf raises and squats, step-ups onto a plyo box and a jump onto its top, hip thrusts off a bench and lunges.",
       setting: "gym",
       roles: { hap: "member", ike: "member", jem: "member", kai: "member" },
       needs: [],
@@ -92,7 +92,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     [
       person("hap", "m1", -2.4, 0, 0, [
         act("splitSquat", { reps: 2 }),
-        act("wallSit", { hold: 2 }),
+        act("wallSit", { hold: 2, on: { prop: "wall", affordance: "face" } }),
       ]),
       person("ike", "f2", -0.8, 0, 0, [
         act("calfRaise", { reps: 3 }),
@@ -124,6 +124,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         depth: BOX.side,
       }),
       object("bench", "createBench", "flat", 2.4, -0.6, 270),
+      object("wall", "createWall", "full", -2.4, -0.6),
     ],
   ),
   scene(
@@ -138,7 +139,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     },
     "push-up-ladder",
     [
-      person("lia", "f1", -2.4, 0, 90, [
+      person("lia", "f1", -2.4, 0, 0, [
         act("pushUp", { reps: 2 }),
         act("widePushUp", { reps: 2 }),
       ]),
@@ -152,11 +153,11 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           on: { prop: "bench", affordance: "surface" },
         }),
       ]),
-      person("nat", "f2", 0.8, 0, 90, [
+      person("nat", "f2", 0.8, 0, 0, [
         act("pikePushUp", { reps: 2 }),
         act("plank", { hold: 2 }),
       ]),
-      person("oz", "m2", 2.4, 0, 90, [act("burpee", { reps: 2 })]),
+      person("oz", "m2", 2.4, 0, 0, [act("burpee", { reps: 2 })]),
     ],
     [object("bench", "createBench", "flat", -0.8, 1.1, 90)],
   ),
@@ -211,18 +212,22 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "cardio-corner",
       title: "Cardio corner",
       summary:
-        "Warming up: a rower and a cyclist, a skipping rope, step-touch and box steps, and strides down the hall.",
+        "Warming up: one rows on a mimed machine and then pedals a bicycle, one skips a mimed rope, one steps touch and box steps, and one runs strides down the hall.",
       setting: "gym",
       roles: { uli: "member", val: "member", wil: "member", xen: "member" },
       needs: [],
     },
     "cardio-corner",
     [
-      person("uli", "m1", -2.4, 0, 0, [act("rowing"), act("cycling")]),
+      person("uli", "m1", -2.4, 0, 0, [
+        act("rowing"),
+        act("cycling", { on: { prop: "bike", affordance: "saddle" } }),
+      ]),
       person("val", "f2", -0.8, 0, 0, [act("jumpRope", { reps: 6 })]),
       person("wil", "f1", 0.8, 0, 0, [act("stepTouch"), act("boxStep")]),
       person("xen", "m2", 2.4, -3, 0, [act("strides", { to: to(2.4, 4) })]),
     ],
+    [object("bike", "createBicycle", undefined, -2.4, 0.9)],
   ),
   scene(
     {
@@ -294,25 +299,25 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     },
     "cool-down",
     [
-      person("ama", "f1", -2.4, 0, 0, [
+      person("ama", "f1", -3.6, 0, 0, [
         act("chairPose"),
         act("childsPose"),
         act("corpsePose"),
       ]),
-      person("bex", "m1", -0.8, 0, 0, [
+      person("bex", "m1", -1.2, 0, 0, [
         act("sunSalutation"),
         act("triangle"),
         act("cobra"),
         act("hipFlexorStretch"),
       ]),
-      person("cas", "f2", 0.8, 0, 0, [
+      person("cas", "f2", 1.2, 0, 0, [
         act("toeTouch"),
         act("neckStretch"),
         act("chestStretch"),
         act("tricepsStretch"),
         act("lungeTwist"),
       ]),
-      person("dov", "m2", 2.4, 0, 0, [
+      person("dov", "m2", 3.6, 0, 0, [
         act("seatedFold"),
         act("hurdlerStretch"),
       ]),

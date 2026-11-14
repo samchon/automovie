@@ -107,19 +107,19 @@ export const SCENES_GYM: readonly IScene[] = [
     },
     "core",
     [
-      person("gi", "f1", -1.5, 0, 90, [
+      person("gi", "f1", -1.5, 0, 0, [
         act("crunch", { reps: 2, hold: 0.3 }),
         act("deadBug", { reps: 2, hold: 0.3 }),
       ]),
-      person("ha", "m1", -0.5, 0, 90, [
+      person("ha", "m1", -0.5, 0, 0, [
         act("birdDog", { reps: 2, hold: 0.3 }),
         act("superman", { reps: 1, hold: 1 }),
       ]),
-      person("io", "f2", 0.5, 0, 90, [
+      person("io", "f2", 0.5, 0, 0, [
         act("russianTwist", { reps: 3, hold: 0.2 }),
         act("sidePlank", { reps: 1, hold: 1.5 }),
       ]),
-      person("ju", "m2", 1.5, 0, 90, [
+      person("ju", "m2", 1.5, 0, 0, [
         act("gluteBridge", { reps: 2, hold: 0.3 }),
         act("mountainClimber", { reps: 3, hold: 0 }),
       ]),
@@ -165,22 +165,29 @@ export const SCENES_GYM: readonly IScene[] = [
     },
     "boxing",
     [
-      person("coa", "m2", 0, 2.4, 180, [
+      person("coa", "m2", 0, 1.0, 180, [
         act("jab", { at: at("m2", "face") }),
         act("cross", { at: at("m2", "face") }),
         act("guard"),
         act("frontKick", { at: at("m2", "abdomen") }),
       ]),
-      ...[-1.2, 0, 1.2].map(
-        (x: number, i: number): SceneBuild.Performer =>
-          person(`m${i + 1}`, ["f1", "m1", "f2"][i]!, x, 0, 0, [
-            act("jab", { at: at("coa", "face") }),
-            act("cross", { at: at("coa", "face") }),
-            act("hook", { at: at("coa", "jawRight") }),
-            act("uppercut", { at: at("coa", "chin") }),
-            act("roundKick", { at: at("coa", "ribsLeft") }),
-            act("jumpingJacks", { reps: 3 }),
-          ]),
+      ...[-40, 0, 40].map(
+        (angle: number, i: number): SceneBuild.Performer =>
+          person(
+            `m${i + 1}`,
+            ["f1", "m1", "f2"][i]!,
+            Math.sin((angle * Math.PI) / 180),
+            1 - Math.cos((angle * Math.PI) / 180),
+            -angle,
+            [
+              act("jab", { at: at("coa", "face") }),
+              act("cross", { at: at("coa", "face") }),
+              act("hook", { at: at("coa", "jawRight") }),
+              act("uppercut", { at: at("coa", "chin") }),
+              act("roundKick", { at: at("coa", "ribsLeft") }),
+              act("jumpingJacks", { reps: 3 }),
+            ],
+          ),
       ),
     ],
   ),
