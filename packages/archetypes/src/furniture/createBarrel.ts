@@ -36,7 +36,7 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
  *
  * The barrel stands upright on the floor at the origin, its axis along `+Y`. Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a keg's top skirt are gripped to tip, lift or walk it; its top is a face another load rests on.
  *
- * Both barrels rest on their steel chimes, so the body's friction is steel on concrete (`ArchetypeFriction`).
+ * Both barrels rest on their steel chimes: steel on concrete (`ArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.

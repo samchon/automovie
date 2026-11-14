@@ -19,7 +19,7 @@ const BOX: string =
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
  *
- * The wooden box rests on its wooden base, so its body's friction is wood on concrete (`ArchetypeFriction`).
+ * The wooden box rests on its wooden base: wood on concrete (`ArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.

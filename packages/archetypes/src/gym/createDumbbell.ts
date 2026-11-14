@@ -18,8 +18,6 @@ import {
  * the two heads and the handle weigh the dumbbell's mass, so a heavier one
  * is larger. `grip` is the handle, taken from the `-Z` side.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The dumbbell.

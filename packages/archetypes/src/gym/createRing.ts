@@ -27,8 +27,6 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
  *
  * The platform stands on the floor centred over the origin, its square along `X` and `Z`. `canvas` is the floor inside the ropes; each side's top rope (`northRope` along `+Z`'s side, `southRope`, `eastRope` along `+X`'s, `westRope`) is a bar a fighter leans on or a hand takes, its `+Y` toward the ring's middle; `corner<n>` is the top of each post, counted round from `+X +Z`.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ring.

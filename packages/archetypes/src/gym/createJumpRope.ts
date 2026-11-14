@@ -18,8 +18,6 @@ const ROGUE: string =
  *
  * It lies along `X` centred over the origin, a handle at each end and the cord between them. `leftGrip` (at `+X`) and `rightGrip` (at `-X`) are the handles, taken from above, each along `X`; the cord is rigid and straight here, its swing the act's.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rope.

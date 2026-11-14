@@ -18,8 +18,6 @@ const RULE: string =
  *
  * It stands across the lane, its top bar along `X` centred over the origin with its face toward `-Z`, the way the runner comes, and its two feet running back along `+Z` from the uprights. `top` is the top bar's upper edge, the edge a hurdler's lead leg clears, along `+X` with `+Y` up and `+Z` out of its face toward the runner; `bar` the top bar itself, a rod a hand may take.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The race and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hurdle.

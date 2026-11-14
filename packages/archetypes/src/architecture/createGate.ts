@@ -30,8 +30,6 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
  *
  * The arm and the wings are drawn at their cabinet's middle and declared as no contact, since no source read places them along the cabinet; turning an arm or swinging a wing has no motion law yet (#3468 N7), so the gate is built for static use.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The gate.

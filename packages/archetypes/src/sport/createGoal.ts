@@ -51,8 +51,6 @@ const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
  *
  * Each stands in the `XY` plane through the origin on the ground, its span along `X` and the field toward `+Z`; a basketball hoop's backboard faces `+Z` from that plane with its ring out over the court, and is mounted by the production on a wall or a stand. Each kind's construction says what it declares.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The goal or net.

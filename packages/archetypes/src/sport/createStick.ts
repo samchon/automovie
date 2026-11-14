@@ -40,8 +40,6 @@ const NAMES: Readonly<Record<createStick.Kind, string>> = {
  *
  * It stands upright on its striking end at the origin, its shaft straight up along `+Y` and its striking face toward `+Z`: an ice hockey blade runs from the heel at the origin along `+X` on the floor, a field hockey head sits under the shaft, a cricket bat's blade stands on its toe. `grip` is where both hands hold it: an ice hockey or field hockey stick's whole shaft above its blade or head, a cricket bat's handle. `blade` is the striking face, its `+Y` out of it.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The stick.

@@ -21,8 +21,6 @@ const TRAVEL: string = "switch travel, not read at a source";
  *
  * The control sits on a wall plate in the `XY` plane, facing `+Z`, at its mounting height above the origin on the floor. Its moving face is a part on the `press` button, so pressing it sinks it into the plate.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The control.

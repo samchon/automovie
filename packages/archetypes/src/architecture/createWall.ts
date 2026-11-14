@@ -17,8 +17,6 @@ const PICTURE: string = "a piece of wall for the picture, not read at a source";
  *
  * The wall stands in the `XY` plane on the floor, centred on the origin, its front face toward `+Z`. `face` is that front face, leaned or pushed on; `top` is the front edge of its top, a ledge a body climbs or hangs from; a low wall's top is also a `seat` facing `+Z`.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The wall.

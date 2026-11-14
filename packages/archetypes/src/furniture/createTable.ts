@@ -47,8 +47,6 @@ const KNEE: number = 0.305;
  *
  * The model is a top on four legs, or on a solid base for a counter, a bar counter and a service counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.

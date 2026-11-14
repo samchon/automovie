@@ -18,8 +18,6 @@ const RULE: string =
  *
  * It stands on its point at the origin, the shaft straight up along `+Y` to its tail. `grip` is the cord binding over the centre of gravity, where the throwing hand closes, taken from `-Z`; `point` the metal tip, its `+Y` running out of the javelin, which the throw leads with and the landing plants.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The javelin.

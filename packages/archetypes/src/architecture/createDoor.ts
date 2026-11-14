@@ -20,8 +20,6 @@ const BAR: number = 0.011;
  *
  * `pull` and `push` are where a hand takes the door from the `+Z` and the `-Z` side; `aperture` is the clear opening a body passes through.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind, the hinge side, the hardware and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The door.

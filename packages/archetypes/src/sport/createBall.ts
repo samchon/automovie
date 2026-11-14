@@ -21,8 +21,6 @@ const OUNCE: number = 0.028349523125;
  *
  * The ball rests on the floor, its lowest point at the origin and its centre a radius above it. `grip` is the ball itself as a hand or two hands take it, at its centre with its diameter as the aperture: a kick, a throw or a catch reads the ball's centre and size from it. `top` is its highest point, facing up, where a head or a palm meets it from above. A rugby ball and an American football lie on their side with their long axis along `X`, a capsule of the rule's length and short diameter; a puck lies flat, a disc whose thickness is its `length` and its aperture. A bowling ball's finger holes are not drawn, since no source read places them.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ball.

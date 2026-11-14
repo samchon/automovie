@@ -24,8 +24,6 @@ const ADA: string =
  *
  * The flight rises along `+Z` from the floor at the origin: the first riser stands at `z = 0`, and each of the `steps` risers lifts by the same `riser` onto a tread of the same `tread` depth, the last onto the landing. Every nosing is a `ledge` named `step1` upward, facing down the flight, so a foot is placed from the nosing by the tread's depth. A handrail is a `bar` along the flight's slope at the rail height above the line of the nosings, on the climber's left (`+X`) or right.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The number of risers, the rails and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The flight.

@@ -24,8 +24,6 @@ const BALL: number = 2.25 * INCH;
  *
  * The table stands on the floor at the origin, its length along `Z` and its width along `X`. Its cabinet fills the space under the bed; the rails stand round the bed as wide as the drawn rail width, their caps drawn level with the cushions' nose. `bed` is the playing surface, where the balls lie and the bridge hand rests; `headRail`, `footRail`, `leftRail` and `rightRail` are the cushions' nose lines at the `-Z`, `+Z`, `+X` and `-X` ends, ledges a hand or a cue rests on. The pockets are not cut, and the cue is not modelled, since no source read gives its length beyond the 40 in least.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.

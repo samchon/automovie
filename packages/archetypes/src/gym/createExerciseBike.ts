@@ -23,8 +23,6 @@ const UNREAD: string =
  *
  * It stands with its bottom bracket over the origin and its front toward `+Z`, the rider facing `+Z`. The `crank` turns both arms, the left one (`+X`) straight up at rest and a positive travel pedalling forward; each pedal rides it and stays level. The rider sits astride the `saddle`, behind and above the bracket, and holds `leftGrip` and `rightGrip` at the handlebar's ends.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bike.

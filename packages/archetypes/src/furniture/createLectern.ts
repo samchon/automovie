@@ -24,8 +24,6 @@ const ESTIMATES: Readonly<{ slab: number }> = { slab: 0.02 };
  *
  * The lectern stands on the floor at the origin, the speaker on its `+Z` side facing `-Z`. Its reading surface's back edge is the maker's height and its front edge lower by the surface's depth at the maker's slope. `top` is the reading surface, its `+Y` the tilted normal; `front` its lower front edge, a ledge the hands rest on and a book stops against.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The lectern.

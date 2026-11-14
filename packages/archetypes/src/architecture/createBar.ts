@@ -21,8 +21,6 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
  *
  * The bar runs along `+X`, centred above the origin on the floor, and is gripped from above. A grab bar stands off a wall behind it by the clearance the standard fixes; the wall is not part of the model.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bar.

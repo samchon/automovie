@@ -51,8 +51,6 @@ const METAL: string = "#5b5f66";
  *
  * The origin is on the floor under the middle of the seat.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind, the number of places and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The seat.

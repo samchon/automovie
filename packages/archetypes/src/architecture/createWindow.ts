@@ -26,8 +26,6 @@ const REACH: string =
  *
  * The window stands in the `XY` plane, its wall's foot at the origin and the room on the `+Z` side. The sash is a part on its articulation and carries its handle: a casement's and a sliding sash's on the stile that leaves the frame, at the drawn handle height, and a hung sash's on its bottom rail. The `sill` is the ledge under the opening, facing into the room, and the `aperture` is the opening itself.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The window.

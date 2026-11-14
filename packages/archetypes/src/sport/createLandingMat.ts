@@ -22,8 +22,6 @@ const POLE: string =
  *
  * The mat lies on the floor with the middle of its footprint at the origin, its length along `Z` (the direction of the jump) and its width along `X`. `surface` is its top, the place a landing lies on.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The mat.

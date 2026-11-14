@@ -24,8 +24,6 @@ const AURAY: string =
  *
  * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's top, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; no source read says where the stand is gripped, so it declares no grip; `clip` the socket at the boom's tip where a microphone's adapter seats, riding `height`.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The microphone or stand.

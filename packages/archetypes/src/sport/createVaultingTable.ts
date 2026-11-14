@@ -18,8 +18,6 @@ const NORMS: string =
  *
  * It stands on the floor with the middle of its base at the origin, the gymnast running in from `-Z`. The top is a padded block whose long side runs along `Z`; `surface` is its top, where the hands come down.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.

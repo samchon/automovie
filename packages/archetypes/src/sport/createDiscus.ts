@@ -18,8 +18,6 @@ const RULE: string =
  *
  * It lies flat on the floor, its centre over the origin. `grip` is the disc as the throwing hand holds it, laid flat on its top with the fingertips over the rim, its thickness the aperture; `rim` is the edge the fingertips hook, toward `+Z`.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The discus.

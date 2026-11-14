@@ -17,8 +17,6 @@ import { SanitaryConstruction } from "./SanitaryConstruction";
  * - A bath's `rim` is the apron's top edge, a ledge sat on or stepped over; `bottom` the floor of the well, a surface lain on. Its controls are on the room's end wall (ADA 607.5), which is not the bath's: a production places a `createTap` or `createSwitch` there.
  * - A transfer shower is a one-piece stall open at the front: `tray` its floor, `threshold` the front edge stepped over, `entry` the opening, `seat` the folding seat on the `+X` wall facing `-X`, and `control` the valve on the `-X` wall, a knob.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The fixture.

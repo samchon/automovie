@@ -26,8 +26,6 @@ const UNREAD: string =
  *
  * The rail runs back along `-Z` from its front end at the origin, the runner facing `+Z`. The front plate stands `setback` behind the front end and the rear plate `spacing` behind that, each tilted back by `angle` from upright and set a little to its own side of the rail. `front` and `rear` are the plates the soles press, each `+Y` out of its plate toward the sole and `+X` across the foot; which foot goes forward is the runner's.
  *
- * No source read names what it rests on, so its body's friction is the builder's 0.5 placeholder (`ArchetypeFriction`).
- *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The starting block.
