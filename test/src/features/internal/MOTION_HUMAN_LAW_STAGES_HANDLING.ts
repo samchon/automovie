@@ -405,7 +405,17 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
       a,
       S.chain()
         .act("stand", { seconds: 0.3 })
-        .act("pickUp", { prop: "item", handle: "hold", hand: "right" })
+        .act("pickUp", {
+          prop: "item",
+          handle: "hold",
+          hand: "right",
+          use: {
+            tip: "wear",
+            line: "worn",
+            at: { region: item === "hat" ? "crown" : "noseBridge" },
+            round: item === "hat",
+          },
+        })
         .act("dress", { item, prop: "item", hand: "right" }),
       [
         HumanObject.prop(
