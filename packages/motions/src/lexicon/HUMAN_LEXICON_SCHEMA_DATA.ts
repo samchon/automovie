@@ -18832,21 +18832,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "keyboard": {
-            "type": "object",
-            "properties": {
-              "at": {
-                "$ref": "#/components/schemas/IAutoMovieVector3"
-              },
-              "yaw": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "at",
-              "yaw"
-            ],
-            "additionalProperties": false,
-            "description": "The keyboard: the middle of its home row, world metres, and the heading its user faces."
+            "type": "string",
+            "description": "The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts)."
           },
           "text": {
             "type": "string",

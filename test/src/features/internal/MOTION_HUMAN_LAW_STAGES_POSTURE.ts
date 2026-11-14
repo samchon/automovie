@@ -1,8 +1,39 @@
-import { type HumanChain, type IHumanBody, seated } from "@automovie/motions";
+import { createKeyboard } from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  type HumanChain,
+  HumanObject,
+  type IHumanBody,
+  type IHumanProp,
+  seated,
+} from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
+
+/** A keyboard whose home row stands at standing elbow height a forearm and half a hand ahead of the shoulders, its typist's side toward the body. */
+const keyboard = (a: IHumanBody): IHumanProp => {
+  const board: ReturnType<typeof createKeyboard> = createKeyboard({
+    kind: "keyboard",
+  });
+  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    180,
+  );
+  return HumanObject.prop("keyboard", board, {
+    position: Vector3.subtract(
+      {
+        x: 0,
+        y: a.measure.shoulderHeight - a.measure.upperArm - 0.005,
+        z: a.rest.get("rightUpperArm")!.z + a.measure.forearm + 0.5 * a.measure.hand,
+      },
+      Quaternion.rotateVector(turn, board.affordance("homeRow").frame.translation),
+    ),
+    rotation: turn,
+  });
+};
 
 /** A chair under the body: its popliteal height, 0.1 m behind the heels. */
 const seat = (a: IHumanBody): object => ({
@@ -167,19 +198,7 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
   ): motionHumanLawSweep.IScene =>
     S.solo(
       a,
-      S.chain().act("typeText", {
-        keyboard: {
-          at: {
-            x: 0,
-            y: a.measure.shoulderHeight - a.measure.upperArm - 0.005,
-            z:
-              a.rest.get("rightUpperArm")!.z +
-              a.measure.forearm +
-              0.5 * a.measure.hand,
-          },
-          yaw: 0,
-        },
-        text: "hello world",
-      }),
+      S.chain().act("typeText", { keyboard: "keyboard", text: "hello world" }),
+      [keyboard(a)],
     ),
 };

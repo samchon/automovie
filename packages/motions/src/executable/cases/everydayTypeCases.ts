@@ -1,10 +1,11 @@
-﻿import { Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
@@ -32,8 +33,10 @@ export function everydayTypeCases(
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
   const { figure } = everydayCaseKit;
-  const one = (chain: HumanChain): HumanPerformance =>
-    everydayCaseKit.one(c, chain);
+  const one = (
+    chain: HumanChain,
+    props: readonly IHumanProp[] = [],
+  ): HumanPerformance => everydayCaseKit.one(c, chain, props);
   // Seated at a desk: the keyboard at seated elbow height ahead of the
   // shoulders by the forearm (ANSI/HFES 100-2007 posture), the desk top
   // under it; and standing at a standing desk at standing elbow height.
@@ -72,10 +75,11 @@ export function everydayTypeCases(
     ],
   ];
   for (const [label, start, at] of setups) {
-    const keyboard = { at, yaw: 0 };
+    const keyboard: typeText.IBoard = { at, yaw: 0 };
     const text: string = "hello world";
     const performance: HumanPerformance = one(
-      start.typeText({ keyboard, text }),
+      start.typeText({ keyboard: "keyboard", text }),
+      [board(at)],
     );
     const segment = performance.segments("a").at(-1)!;
     const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
@@ -158,4 +162,50 @@ export function everydayTypeCases(
     });
   }
   return out;
+}
+
+/**
+ * A keyboard as a prop: a home row contact at its origin and a key field as
+ * wide as the letter rows, the prop placed
+ * there and turned so its `+Z` side, where a typist sits, faces the typist
+ * at the origin facing `+Z`.
+ *
+ * @param at The home row's middle, world metres.
+ * @returns The keyboard.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contact, the placement and the turn.
+ * @evidence contracts/development/implementation.md#principled-implementation The `homeRow` and `keys` contacts `createKeyboard` declares, here at the prop's origin, turned half round about `+Y`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the keyboard's contact itself.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
+ */
+function board(at: IAutoMovieVector3): IHumanProp {
+  return {
+    subject: "keyboard",
+    frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
+    points: {},
+    affordances: [
+      {
+        id: "homeRow",
+        kind: "surface",
+        frame: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        },
+        extent: null,
+      },
+      {
+        id: "keys",
+        kind: "surface",
+        frame: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        },
+        extent: null,
+        width: typeText.WIDTH,
+      },
+    ],
+  };
 }
