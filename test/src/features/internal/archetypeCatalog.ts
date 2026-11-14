@@ -1,6 +1,7 @@
 import {
   type Archetype,
   createBag,
+  createBall,
   createBar,
   createBarbell,
   createBed,
@@ -12,13 +13,19 @@ import {
   createCart,
   createClub,
   createDevice,
+  createDiscus,
   createDoor,
   createDrinkware,
   createDumbbell,
+  createGlove,
+  createGolfClub,
+  createHammerThrow,
   createHandgun,
   createHighJump,
   createHolster,
   createHorse,
+  createHurdle,
+  createJavelin,
   createKettlebell,
   createLadder,
   createLandingMat,
@@ -32,11 +39,15 @@ import {
   createPolearm,
   createPullUpBar,
   createRack,
+  createRacket,
   createRamp,
+  createRelayBaton,
   createSeat,
   createShield,
+  createShot,
   createSmoking,
   createStairs,
+  createStartingBlock,
   createStationery,
   createStorage,
   createSwitch,
@@ -283,6 +294,27 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype =>
         createVaultingTable({ kind }, seed),
     );
+  // Sport: the balls, the struck and thrown implements and the track.
+  for (const kind of createBall.KINDS)
+    add(`ball-${kind}`, (seed?: number | string): Archetype => createBall({ kind }, seed));
+  for (const kind of createRacket.KINDS)
+    add(`racket-${kind}`, (seed?: number | string): Archetype => createRacket({ kind }, seed));
+  for (const kind of createGolfClub.KINDS)
+    add(`golfClub-${kind}`, (seed?: number | string): Archetype => createGolfClub({ kind }, seed));
+  for (const kind of createGlove.KINDS)
+    add(`glove-${kind}`, (seed?: number | string): Archetype => createGlove({ kind }, seed));
+  for (const kind of createJavelin.KINDS)
+    add(`javelin-${kind}`, (seed?: number | string): Archetype => createJavelin({ kind }, seed));
+  for (const kind of createShot.KINDS)
+    add(`shot-${kind}`, (seed?: number | string): Archetype => createShot({ kind }, seed));
+  for (const kind of createDiscus.KINDS)
+    add(`discus-${kind}`, (seed?: number | string): Archetype => createDiscus({ kind }, seed));
+  for (const kind of createHammerThrow.KINDS)
+    add(`hammerThrow-${kind}`, (seed?: number | string): Archetype => createHammerThrow({ kind }, seed));
+  for (const kind of createHurdle.KINDS)
+    add(`hurdle-${kind}`, (seed?: number | string): Archetype => createHurdle({ kind }, seed));
+  add("startingBlock", (seed?: number | string): Archetype => createStartingBlock({}, seed));
+  add("relayBaton", (seed?: number | string): Archetype => createRelayBaton({}, seed));
   return rows;
 }
 

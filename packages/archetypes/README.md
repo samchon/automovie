@@ -46,7 +46,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | `/animals` | `createHorse`, the ride `rideHorse`, and the gait timing `HorseGait` |
 | `/weapons` | `createHandgun`, `createHolster`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack` |
-| `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable` |
+| `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton` |
 
 Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
 
