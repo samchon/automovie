@@ -1885,6 +1885,20 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanFoot.BEARING",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.outline",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanFoot.rotation",
       "tests": [
         "test_motion_heel_off",
