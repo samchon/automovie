@@ -16,7 +16,7 @@ const MM: number = 1e-3;
  *
  * Scenarios:
  * 1. The cue is 58 in long along `X`, its butt and shaft 29 in each.
- * 2. Over the seeds its tip is 11.5 to 13.25 mm across and its mass 18 to 21 oz.
+ * 2. Over the seeds its butt is Viking's 1.205 to 1.295 in across, its tip 11.5 to 13.25 mm and its mass 18 to 21 oz; the `butt` handle's aperture is the butt's diameter.
  * 3. `tip` lies at the cue's `+X` end, `butt` and `shaft` at their halves' middles, each as long as its half.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a cue off its makers' length, tip or weight is caught with the numbers.
@@ -42,6 +42,14 @@ export function test_archetype_cue(): void {
   findings.push(
     ...archetypeBandSweep([
       {
+        name: "cue butt",
+        measure: (seed: number): number =>
+          archetypeExtent(createCue({}, seed), "y", ["butt"]).size,
+        minimum: 1.205 * INCH,
+        maximum: 1.295 * INCH,
+        source: "Viking skinny and average standard butts",
+      },
+      {
         name: "cue tip",
         measure: (seed: number): number => createCue({}, seed).dimensions.tip!,
         minimum: 0.0115,
@@ -56,6 +64,11 @@ export function test_archetype_cue(): void {
         source: "Viking and McDermott",
       },
     ]),
+  );
+  near(
+    "the butt's aperture",
+    cue.affordance("butt").aperture!,
+    archetypeExtent(cue, "y", ["butt"]).size,
   );
   const tip: IAutoMovieAffordance = cue.affordance("tip");
   near("the tip's place", tip.frame.translation.x, 29 * INCH);
