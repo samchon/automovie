@@ -5,13 +5,14 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
+import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRom } from "./clampJointRom";
 import { getConstraint } from "./getConstraint";
 
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default table. Unconstrained joints return by identity. This targeted seam lets derived contact/retarget corrections leave authored neighboring joints alone.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Find the skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a new clamped record.
+ * @evidence contracts/development/implementation.md#principled-implementation Find the skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a new clamped record; a swing-twist joint is clamped in the frame the skeleton resolves for the bone (`swingTwistRange.of`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective retarget/contact correction without changing authored neighbors.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
  * @evidence contracts/development/common.md#meaningful-documentation Docs state precedence, borrowed unconstrained result and targeted use, with numerical clamp limitations delegated.
@@ -33,5 +34,13 @@ export const clampJointToSkeleton: (
     joint.bone,
     bone?.constraint ?? null,
   );
-  return constraint === null ? joint : clampJointRom(joint, constraint);
+  // A joint gated by swing and twist is read in the frame this skeleton
+  // resolves for its bone, the frame its angles are written in.
+  return constraint === null
+    ? joint
+    : clampJointRom(
+        joint,
+        constraint,
+        swingTwistRange.of(joint.bone, skeleton),
+      );
 };

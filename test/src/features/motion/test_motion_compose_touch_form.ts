@@ -22,23 +22,26 @@ import { TestValidator } from "@nestia/e2e";
  *    twice as long on a hand twice as long and ignores the span's seconds.
  * 3. Every other kind's repetition is the span's seconds, whatever the hand.
  * 4. On a chest facing +Z of a performer heading +Z, `up` is +Y and `across`
- *    is the performer's left, +X. The normal's length does not matter.
+ *    runs toward the body's other side: the performer's left, +X, for the
+ *    right hand and their right, -X, for the left hand, so a left-hand
+ *    stroke mirrors a right-hand one. The normal's length does not matter.
  * 5. On a surface leaning back by 30 degrees, normal `(0, sin 30, cos 30)`,
  *    `up` is the steepest ascent `(0, cos 30, -sin 30)`.
- * 6. On a surface facing up, `up` is the performer's heading: +Z heading 0,
- *    +X heading 90 degrees; `across` is their left, +X heading 0 and -Z
- *    heading 90 degrees.
+ * 6. On a surface facing up, `up` is the performer's heading for either
+ *    hand: +Z heading 0, +X heading 90 degrees; `across` is their left for
+ *    the right hand, +X heading 0 and -Z heading 90 degrees, and their right
+ *    for the left hand, -X and +Z.
  * 7. On a surface facing the performer's left, `across` is their heading.
  * 8. The boundary: a normal 18 degrees off the world's up toward +Z has an
  *    upward part of `sin 18 = 0.309` across it, so `up` is the ascent
  *    `(0, sin 18, -cos 18)`; at 17 degrees (`sin 17 = 0.292`) the heading is
  *    taken instead, `(0, -sin 17, cos 17)`.
- * 9. Every tangent returned, over normals around the sphere, four headings
- *    and both names, is a unit vector perpendicular to the normal.
+ * 9. Every tangent returned, over normals around the sphere, four headings,
+ *    both names and both hands, is a unit vector perpendicular to the normal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public table, period and tangent; a stroke off its speed, a period that follows the span, a tangent off the surface or a fallback taken on the wrong side of the boundary fails.
  * @evidence contracts/development/testing.md#independent-expectations The peak speed is read by differentiating a sine numerically, the tangents are written from the geometry of each surface, and the range is the cited one.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind, two hands, vertical, leaning and level surfaces, two headings, both sides of the 0.3 boundary and a sweep of the sphere.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every kind, two hand lengths, both acting hands, vertical, leaning and level surfaces, two headings, both sides of the 0.3 boundary and a sweep of the sphere.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on written numbers. It runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned and lists the 9 scenarios with their numbers.
  */
@@ -137,16 +140,24 @@ export function test_motion_compose_touch_form(): void {
     const chest: IAutoMovieVector3 = { x: 0, y: 0, z: length };
     TestValidator.predicate(
       "up a chest is the world's up",
-      same(AutoMovieMotionHumanTouchForm.tangent(chest, 0, "up"), {
+      same(AutoMovieMotionHumanTouchForm.tangent(chest, 0, "up", "right"), {
         x: 0,
         y: 1,
         z: 0,
       }),
     );
     TestValidator.predicate(
-      "across a chest is the performer's left",
-      same(AutoMovieMotionHumanTouchForm.tangent(chest, 0, "across"), {
+      "across a chest is the performer's left for the right hand",
+      same(AutoMovieMotionHumanTouchForm.tangent(chest, 0, "across", "right"), {
         x: 1,
+        y: 0,
+        z: 0,
+      }),
+    );
+    TestValidator.predicate(
+      "across a chest is the performer's right for the left hand",
+      same(AutoMovieMotionHumanTouchForm.tangent(chest, 0, "across", "left"), {
+        x: -1,
         y: 0,
         z: 0,
       }),
@@ -161,6 +172,7 @@ export function test_motion_compose_touch_form(): void {
         { x: 0, y: Math.sin(rad(30)), z: Math.cos(rad(30)) },
         0,
         "up",
+        "right",
       ),
       { x: 0, y: Math.cos(rad(30)), z: -Math.sin(rad(30)) },
     ),
@@ -168,22 +180,33 @@ export function test_motion_compose_touch_form(): void {
 
   // 6. a surface facing up
   const top: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  for (const [yaw, tangent, expected] of [
-    [0, "up", { x: 0, y: 0, z: 1 }],
-    [90, "up", { x: 1, y: 0, z: 0 }],
-    [0, "across", { x: 1, y: 0, z: 0 }],
-    [90, "across", { x: 0, y: 0, z: -1 }],
+  for (const [yaw, tangent, side, expected] of [
+    [0, "up", "right", { x: 0, y: 0, z: 1 }],
+    [0, "up", "left", { x: 0, y: 0, z: 1 }],
+    [90, "up", "right", { x: 1, y: 0, z: 0 }],
+    [0, "across", "right", { x: 1, y: 0, z: 0 }],
+    [0, "across", "left", { x: -1, y: 0, z: 0 }],
+    [90, "across", "right", { x: 0, y: 0, z: -1 }],
+    [90, "across", "left", { x: 0, y: 0, z: 1 }],
   ] as const)
     TestValidator.predicate(
-      `${tangent} a level surface heading ${yaw}`,
-      same(AutoMovieMotionHumanTouchForm.tangent(top, yaw, tangent), expected),
+      `${tangent} a level surface heading ${yaw} for the ${side} hand`,
+      same(
+        AutoMovieMotionHumanTouchForm.tangent(top, yaw, tangent, side),
+        expected,
+      ),
     );
 
   // 7. a surface facing the performer's left
   TestValidator.predicate(
     "across a surface facing left is the heading",
     same(
-      AutoMovieMotionHumanTouchForm.tangent({ x: 1, y: 0, z: 0 }, 0, "across"),
+      AutoMovieMotionHumanTouchForm.tangent(
+        { x: 1, y: 0, z: 0 },
+        0,
+        "across",
+        "right",
+      ),
       { x: 0, y: 0, z: 1 },
     ),
   );
@@ -196,6 +219,7 @@ export function test_motion_compose_touch_form(): void {
         { x: 0, y: Math.cos(rad(18)), z: Math.sin(rad(18)) },
         0,
         "up",
+        "right",
       ),
       { x: 0, y: Math.sin(rad(18)), z: -Math.cos(rad(18)) },
     ),
@@ -207,6 +231,7 @@ export function test_motion_compose_touch_form(): void {
         { x: 0, y: Math.cos(rad(17)), z: Math.sin(rad(17)) },
         0,
         "up",
+        "right",
       ),
       { x: 0, y: -Math.sin(rad(17)), z: Math.cos(rad(17)) },
     ),
@@ -218,25 +243,31 @@ export function test_motion_compose_touch_form(): void {
   for (let polar: number = 0; polar <= 180; polar += 15)
     for (let around: number = 0; around < 360; around += 15)
       for (const yaw of [0, 45, 90, 200])
-        for (const tangent of ["up", "across"] as const) {
-          const normal: IAutoMovieVector3 = {
-            x: Math.sin(rad(polar)) * Math.cos(rad(around)),
-            y: Math.cos(rad(polar)),
-            z: Math.sin(rad(polar)) * Math.sin(rad(around)),
-          };
-          const t: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
-            normal,
-            yaw,
-            tangent,
-          );
-          swept++;
-          if (
-            !near(Math.hypot(t.x, t.y, t.z), 1) ||
-            !near(t.x * normal.x + t.y * normal.y + t.z * normal.z, 0)
-          )
-            wrong++;
-        }
-  TestValidator.equals("the sweep covers the sphere", swept, 13 * 24 * 4 * 2);
+        for (const tangent of ["up", "across"] as const)
+          for (const side of ["right", "left"] as const) {
+            const normal: IAutoMovieVector3 = {
+              x: Math.sin(rad(polar)) * Math.cos(rad(around)),
+              y: Math.cos(rad(polar)),
+              z: Math.sin(rad(polar)) * Math.sin(rad(around)),
+            };
+            const t: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
+              normal,
+              yaw,
+              tangent,
+              side,
+            );
+            swept++;
+            if (
+              !near(Math.hypot(t.x, t.y, t.z), 1) ||
+              !near(t.x * normal.x + t.y * normal.y + t.z * normal.z, 0)
+            )
+              wrong++;
+          }
+  TestValidator.equals(
+    "the sweep covers the sphere",
+    swept,
+    13 * 24 * 4 * 2 * 2,
+  );
   TestValidator.equals("every tangent lies on its surface", wrong, 0);
 }
 

@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -13,6 +14,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -69,10 +71,10 @@ export namespace climbLadder {
    */
   export interface IParams {
     /** How many rungs the feet climb; 3 when absent. */
-    rungs?: number;
+    rungs?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
-    /** Rung spacing, metres; 0.3 when absent. */
-    spacing?: number;
+    /** Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent. */
+    spacing?: number & tags.Minimum<0.25> & tags.Maximum<0.36> & HumanUnit<"m">;
 
     /** The rungs' distance ahead of the toes, metres; 0.15 when absent. */
     start?: number;

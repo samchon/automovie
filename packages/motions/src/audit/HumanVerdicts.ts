@@ -1,3 +1,4 @@
+import { HumanBound } from "../law/HumanBound";
 import type { HumanPerformance } from "../perform/HumanPerformance";
 import type { IHumanPerformer } from "../perform/IHumanPerformer";
 import { AutoMovieMotionHumanAudit } from "./AutoMovieMotionHumanAudit";
@@ -98,17 +99,44 @@ export namespace HumanVerdicts {
   }
 
   /**
-   * Read every bound on a performance.
+   * Read every bound on a performance, or on one span of its film.
+   *
+   * A span lets a long film be read in parts, each by its own caller: the
+   * bounds are read over the span as a film of its own, starting at its
+   * `from`, and every finding is placed at its film second. A bound that
+   * reads a step between frames reads it only where both frames lie in the
+   * span, so parts that are to cover a film whole overlap by two frames of
+   * the grid. The timing faults belong to the schedule, not to a span, and
+   * are read whatever the span.
    *
    * @param performance The performance.
    * @param rate Grid samples per second for the bounds read on a grid; 24 when absent.
+   * @param span The film seconds the bounds are read over; the whole film when absent.
    * @returns The report.
+   * @throws {HumanRefusal} When the span does not lie within the film or ends before it starts.
    */
   export function of(
     performance: HumanPerformance,
     rate: number = 24,
+    span?: { from: number; to: number },
   ): IReport {
-    const motion: IAutoMovieMotionHumanAuditMotion = remember(performance);
+    const from: number = span?.from ?? 0;
+    const to: number = span?.to ?? performance.duration;
+    HumanBound.within("span.from", from, 0, performance.duration, "s");
+    HumanBound.within("span.to", to, from, performance.duration, "s");
+    const motion: IAutoMovieMotionHumanAuditMotion = shifted(
+      remember(performance),
+      from,
+      to,
+    );
+    const posed: AutoMovieMotionHumanAuditRange.IPosed = {
+      duration: to - from,
+      pose: (
+        subject: string,
+        seconds: number,
+      ): ReturnType<AutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
+        performance.pose(subject, from + seconds),
+    };
     const people: readonly IHumanPerformer[] = performance.performers;
     const findings: IFinding[] = [];
     const place = (
@@ -138,10 +166,10 @@ export namespace HumanVerdicts {
         findings.push({
           check,
           subject,
-          ...place(owner, measure.seconds),
+          ...place(owner, from + measure.seconds),
           value: measure.value,
           limit,
-          seconds: measure.seconds,
+          seconds: from + measure.seconds,
           where: measure.where,
         });
     };
@@ -150,7 +178,7 @@ export namespace HumanVerdicts {
       const who: string = person.subject;
       const spans = performance.segments(who);
       const airborne: boolean = spans.some((s): boolean =>
-        AIRBORNE.includes(s.name),
+        AIRBORNE.includes(s.law.family ?? s.name),
       );
       for (const fault of AutoMovieMotionHumanAuditTiming.faults(spans))
         findings.push({
@@ -190,7 +218,7 @@ export namespace HumanVerdicts {
         who,
         who,
         "range",
-        AutoMovieMotionHumanAuditRange.measure(performance, who, 6).overshoot,
+        AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
         0.01,
       );
       measured(
@@ -237,6 +265,37 @@ export namespace HumanVerdicts {
       .join("; ");
   }
 }
+
+/**
+ * A motion's span from `from` to `to` as a motion of its own: its seconds
+ * start at `from`, and its actions' spans are moved by as much.
+ */
+const shifted = (
+  motion: IAutoMovieMotionHumanAuditMotion,
+  from: number,
+  to: number,
+): IAutoMovieMotionHumanAuditMotion =>
+  from === 0 && to === motion.duration
+    ? motion
+    : {
+        duration: to - from,
+        bones: (
+          subject: string,
+          seconds: number,
+        ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
+          motion.bones(subject, from + seconds),
+        segments: (subject: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+          motion.segments(subject).map(
+            (
+              span: IAutoMovieMotionHumanAuditMotion.ISpan,
+            ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
+              ...span,
+              start: span.start - from,
+              entryTime: span.entryTime - from,
+              end: span.end - from,
+            }),
+          ),
+      };
 
 /** The performance as a motion that resolves each person's instant once, for the span of one report. */
 const remember = (

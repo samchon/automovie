@@ -1,18 +1,10 @@
 import {
   DEFAULT_HUMANOID_ROM,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
-  Quaternion,
   Vector3,
-  fitChainToTarget,
-  indexSkeletonTopology,
-  resolvePose,
-  rotationBetween,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -20,6 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { motionFitArms } from "../internal/motionFitArms";
+
+const { arms, fit, fk, hand, inRange, joint } = motionFitArms;
 
 /**
  * Arm reaches that need the shoulder's whole range land on their targets
@@ -54,7 +50,7 @@ import { TestValidator } from "@nestia/e2e";
  *    full length, within 1 mm: the residual is honest, not a pretended reach.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public fit and reads the result through forward kinematics; a missed reach, an out-of-range or abducted elbow, an elbow on the wrong side, an asymmetric solve, an unturned hand or a faked unreachable reach fails.
- * @evidence contracts/development/testing.md#independent-expectations Distances and rotations come from forward kinematics and the targets written here; ranges are read from DEFAULT_HUMANOID_ROM; the mirror relation is the rig's sagittal symmetry; the unreachable expectation is the straight arm's length along the target line.
+ * @evidence contracts/development/testing.md#independent-expectations Distances and rotations come from forward kinematics and the targets written here; ranges are read from DEFAULT_HUMANOID_ROM by the engine's own `jointRomOvershoot`, the measure the fit clamps by, so the range check shows the fit keeps its given range and is no independent oracle of that range or its measure; the mirror relation is the rig's sagittal symmetry; the unreachable expectation is the straight arm's length along the target line.
  * @evidence contracts/development/testing.md#distinguishing-cases Shoulder extremes (overhead and external rotation, extension and internal rotation, cross-body adduction), a plain reach, both sides, supination and a neutral palm, and an unreachable target; leg chains are owned by the plant and walk tests.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory engine unit with no body or render; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
@@ -381,137 +377,5 @@ export function test_motion_fit_chain_reach(): void {
   TestValidator.predicate(
     failures.join("; ") || "all checks",
     failures.length === 0,
-  );
-}
-
-/** A trunk with two T-posed arms. */
-function arms(): IAutoMovieSkeleton {
-  const bone = (
-    name: AutoMovieHumanoidBone,
-    parent: AutoMovieHumanoidBone | null,
-    x: number,
-    y: number,
-  ): IAutoMovieBone => ({
-    bone: name,
-    parent,
-    rest: {
-      translation: { x, y, z: 0 },
-      rotation: Quaternion.identity(),
-      scale: { x: 1, y: 1, z: 1 },
-    },
-    constraint: null,
-  });
-  return {
-    id: "arms",
-    bones: [
-      bone("hips", null, 0, 1),
-      bone("spine", "hips", 0, 0.15),
-      bone("chest", "spine", 0, 0.2),
-      bone("leftUpperArm", "chest", 0.18, 0.15),
-      bone("leftLowerArm", "leftUpperArm", 0.3, 0),
-      bone("leftHand", "leftLowerArm", 0.25, 0),
-      bone("rightUpperArm", "chest", -0.18, 0.15),
-      bone("rightLowerArm", "rightUpperArm", -0.3, 0),
-      bone("rightHand", "rightLowerArm", -0.25, 0),
-    ],
-  };
-}
-
-/** Fit one arm. */
-function fit(
-  skeleton: IAutoMovieSkeleton,
-  side: "left" | "right",
-  target: IAutoMovieVector3,
-  bend: IAutoMovieVector3,
-  effectorRotation?: IAutoMovieQuaternion,
-): IAutoMoviePose {
-  return fitChainToTarget({
-    skeleton,
-    pose: { skeleton: skeleton.id, root: null, joints: [] },
-    chain: {
-      upper: `${side}UpperArm`,
-      lower: `${side}LowerArm`,
-      effector: `${side}Hand`,
-    },
-    target,
-    bend,
-    ...(effectorRotation === undefined ? {} : { effectorRotation }),
-    topology: indexSkeletonTopology(skeleton),
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
-  });
-}
-
-/** World bones of a pose. */
-function fk(
-  skeleton: IAutoMovieSkeleton,
-  pose: IAutoMoviePose,
-): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return new Map(
-    resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-    ),
-  );
-}
-
-/** A joint of a pose, at rest when absent. */
-function joint(
-  pose: IAutoMoviePose,
-  bone: AutoMovieHumanoidBone,
-): IAutoMovieJointPose {
-  return (
-    pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone) ?? {
-      bone,
-      flexion: 0,
-      abduction: 0,
-      twist: 0,
-    }
-  );
-}
-
-/** Whether a joint lies inside its default range, 1e-6 degrees allowed for rounding. */
-function inRange(j: IAutoMovieJointPose): boolean {
-  const c = DEFAULT_HUMANOID_ROM[j.bone]!;
-  const within = (
-    v: number | null,
-    r: { min: number; max: number } | null,
-  ): boolean =>
-    r === null
-      ? Math.abs(v ?? 0) < 1e-6
-      : (v ?? 0) >= r.min - 1e-6 && (v ?? 0) <= r.max + 1e-6;
-  return (
-    within(j.flexion, c.flexion) &&
-    within(j.abduction, c.abduction) &&
-    within(j.twist, c.twist)
-  );
-}
-
-/** A hand's world rotation from rest for where its fingers point and its palm faces (rest: left fingers +X, right fingers -X, palms -Y). */
-function hand(
-  fingers: IAutoMovieVector3,
-  palm: IAutoMovieVector3,
-  side: "left" | "right" = "left",
-): IAutoMovieQuaternion {
-  const swing: IAutoMovieQuaternion = rotationBetween(
-    { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-    fingers,
-  );
-  const turned: IAutoMovieVector3 = Quaternion.rotateVector(swing, {
-    x: 0,
-    y: -1,
-    z: 0,
-  });
-  const axis: IAutoMovieVector3 = Vector3.normalize(fingers);
-  const angle: number =
-    (Math.atan2(
-      Vector3.dot(axis, Vector3.cross(turned, palm)),
-      Vector3.dot(turned, palm),
-    ) *
-      180) /
-    Math.PI;
-  return Quaternion.normalize(
-    Quaternion.multiply(Quaternion.fromAxisAngle(axis, angle), swing),
   );
 }

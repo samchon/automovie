@@ -170,6 +170,8 @@ export namespace gestureJoints {
       case "beckon":
       case "clap":
       case "rubHands":
+      case "palmsTogether":
+      case "thumbsDown":
       case "touchFace":
       case "pushGlasses":
       case "scratchHead":

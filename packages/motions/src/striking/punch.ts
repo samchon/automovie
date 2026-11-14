@@ -173,7 +173,7 @@ export namespace punch {
     let delivery: number = StrikingSkill.JAB_DELIVERY;
     if (
       from !== undefined &&
-      from.name === "punch" &&
+      from.family === "punch" &&
       from.plan.contact !== undefined
     ) {
       const elapsed: number =
@@ -238,17 +238,14 @@ export namespace punch {
     // upper arm from the shoulder to the elbow, the forearm from the elbow to
     // the wrist and the fist from the wrist to the knuckles, so a punch stops
     // where its arm first meets a body anywhere along it (as when two crosses
-    // cross), and the resolution meets exactly the arm the figure shows.
+    // cross), and the resolution meets the arm the figure shows, the upper
+    // arm tapered from the shoulder's girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
-      radii: [
-        context.body.measure.upperArmRadius,
-        context.body.measure.forearmRadius,
-        context.body.measure.forearmRadius,
-      ],
+      radii: StrikingWeapon.armRadii(context.body),
       from: context.start,
       to: context.start + shown + 0.1,
       ends: (seconds: number): IAutoMovieVector3[] =>

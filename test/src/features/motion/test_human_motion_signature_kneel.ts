@@ -36,7 +36,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real kneel on real bodies and reads displayed joints and soles; a knee hovering above the floor, a thigh tipped forward, a front shin slanted or a heel sit not folded fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The postures are the standard kneeling postures; every numeric bound is marked provisional with its reason.
  * @evidence contracts/development/testing.md#distinguishing-cases Three kinds and both kneeling knees, each row on one body and every body in some row (`motionHumanSignature.cells`).
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every posture and bound with its status.
  */
 export function test_human_motion_signature_kneel(): void {

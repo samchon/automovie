@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -7,12 +7,10 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrip } from "./HumanGrip";
@@ -31,8 +29,10 @@ import { HumanPreshape } from "./HumanPreshape";
  * The hand holds still through the transfer time while the giver lets go, and
  * then brings the prop in front of the body: the wrist where the elbow hangs
  * at the side flexed to a right angle (the upper arm's length below the
- * shoulder and the forearm's ahead of it), the common carrying posture. The
- * rest of the body holds the posture it was entered in.
+ * shoulder and the forearm's ahead of it), the common carrying posture,
+ * the prop kept upright and turned about the vertical as the arm keeps it
+ * so (`HumanHandover.upright`). The rest of the body holds the posture it
+ * was entered in.
  *
  * Outcomes: `transfer` as above; `withdraw`, the hand stops short by the
  * approach setback as the offer is pulled back, and returns empty; `decline`,
@@ -52,6 +52,9 @@ export namespace receive {
     ],
     walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
+
+  /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */
+  export const PITCHES: readonly number[] = [0, 15, 30, 45];
 
   /** Parameters. */
   export interface IParams {
@@ -131,39 +134,68 @@ export namespace receive {
     );
 
     // After the transfer: the carrying place in front of the body, or home.
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, held).get(
-      `${side}UpperArm`,
-    )!.worldPosition;
-    const carry: IAutoMovieVector3 = HumanFrame.point(
-      {
-        origin: {
-          x: shoulder.x,
-          y: shoulder.y - body.measure.upperArm,
-          z: shoulder.z,
-        },
-        yaw: held.yaw,
-      },
-      { x: 0, y: 0, z: body.measure.forearm },
+    // The forearm is raised as far of `PITCHES` as the arm needs to hold the
+    // prop upright there in the hand that took it, at its best turn about
+    // the vertical: the grip a giver's height put the hand in may not stay
+    // upright with the forearm level.
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      held,
+      side,
     );
+    let carry: IAutoMovieVector3 = HumanHandover.carried(body, held, side);
+    if (takes) {
+      let least: number = Infinity;
+      for (const pitch of PITCHES) {
+        const place: IAutoMovieVector3 = HumanHandover.carried(
+          body,
+          held,
+          side,
+          pitch,
+        );
+        for (const yaw of HumanHandover.YAWS) {
+          const tip: number =
+            HumanHandover.tipped(body, side, {
+              ...held,
+              limbs: {
+                ...held.limbs,
+                [side === "left" ? "leftArm" : "rightArm"]: {
+                  point: place,
+                  rotation: Quaternion.multiply(
+                    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+                    shared.receiverShown.rotation,
+                  ),
+                  bend,
+                },
+              },
+            }) +
+            0.1 * pitch;
+          if (tip < least - 1e-9) {
+            least = tip;
+            carry = place;
+          }
+        }
+      }
+    }
     const end: IAutoMovieVector3 = takes ? carry : shared.receiverFrom.point;
     // A hand that took the prop carries it; an empty one returns as it reached.
     const travel: number = Vector3.length(Vector3.subtract(end, arrive));
     const back: number = takes
       ? HumanPrehension.carry(travel)
       : HumanPrehension.nominal(travel, 0);
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      held,
-      side,
-    );
+
     const home: HumanPrehension.ITransport = HumanPrehension.transport(
       arrive,
       end,
       { x: 0, y: 0, z: 0 },
       0,
       {
-        from: shared.receiverAt.rotation,
-        to: takes ? shared.receiverAt.rotation : shared.receiverFrom.rotation,
+        from: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverAt.rotation,
+        to: takes
+          ? shared.receiverShown.rotation
+          : shared.receiverFrom.rotation,
       },
       back,
     );
@@ -193,6 +225,95 @@ export namespace receive {
       closed,
     };
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
+    // The body at a second with the carried hand turned by a yaw, degrees,
+    // about the world's up: a hand that took the prop keeps the rotation it
+    // showed at the grip, not the one it was asked there, since the prop sits
+    // in the hand as the hand was shown, and its upright carry leaves only
+    // the turn about the vertical, which the take-away chooses
+    // (`HumanHandover.upright`).
+    const pose = (seconds: number, yaw: number): IHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      let wrist: IAutoMovieVector3;
+      let rotation: IAutoMovieQuaternion;
+      let digits: IHumanPosture["joints"];
+      if (shared.outcome === "decline" || t <= shared.reachStart) {
+        wrist = shared.receiverFrom.point;
+        rotation = shared.receiverFrom.rotation;
+        digits = shapes.entry;
+      } else if (t <= shared.gripClosed) {
+        wrist = out.wrist(t - shared.reachStart);
+        rotation = out.turn(t - shared.reachStart);
+        digits = HumanPrehension.shape(
+          shapes,
+          peak,
+          (t - shared.reachStart) / shared.reach,
+        );
+      } else if (t <= leave) {
+        wrist = arrive;
+        rotation = shared.receiverAt.rotation;
+        digits = closed;
+      } else {
+        wrist = home.wrist(t - leave);
+        rotation = takes
+          ? Quaternion.multiply(
+              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+              shared.receiverShown.rotation,
+            )
+          : home.turn(t - leave);
+        digits = takes
+          ? closed
+          : HumanPrehension.shape(
+              { entry: open, open: shapes.entry, closed: shapes.entry },
+              1,
+              minimumJerk((t - leave) / back).s,
+            );
+      }
+      return {
+        ...held,
+        joints: { ...held.joints, ...digits },
+        limbs: {
+          ...held.limbs,
+          [limb]: {
+            point: wrist,
+            rotation,
+            bend,
+            // The grasp's own arm solution anchors the hold, the reach
+            // more and more as it arrives, and the take-away less and
+            // less as it leaves: at the carrying place the arm is another
+            // arm, and a full reference there is paid for by the hand's
+            // rotation, which tips what it carries.
+            ...(takes && t > leave
+              ? {
+                  reference: {
+                    ...shared.receiverReference,
+                    // The share is held at 1 first: at the take-away's end it
+                    // rounds a hair past 1, and its complement below 0.
+                    weight: 1 - Math.min(1, minimumJerk((t - leave) / back).s),
+                  },
+                }
+              : takes && t >= shared.gripClosed
+                ? { reference: shared.receiverReference }
+                : takes && t > shared.reachStart
+                  ? {
+                      reference: {
+                        ...shared.receiverReference,
+                        weight: minimumJerk(
+                          (t - shared.reachStart) / shared.reach,
+                        ).s,
+                      },
+                    }
+                  : {}),
+            ...(takes && t >= shared.gripClosed && t <= leave
+              ? { planted: true }
+              : {}),
+          },
+        },
+      };
+    };
+    const turn: (seconds: number) => number = takes
+      ? HumanHandover.upright(body, side, pose, leave, duration, [0, undefined])
+      : (): number => 0;
+
     const part: IHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
     return {
@@ -248,68 +369,7 @@ export namespace receive {
         : {}),
       hands: [side],
       contact: shared.gripClosed,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        let wrist: IAutoMovieVector3;
-        let rotation: IAutoMovieQuaternion;
-        let digits: IHumanPosture["joints"];
-        if (shared.outcome === "decline" || t <= shared.reachStart) {
-          wrist = shared.receiverFrom.point;
-          rotation = shared.receiverFrom.rotation;
-          digits = shapes.entry;
-        } else if (t <= shared.gripClosed) {
-          wrist = out.wrist(t - shared.reachStart);
-          rotation = out.turn(t - shared.reachStart);
-          digits = HumanPrehension.shape(
-            shapes,
-            peak,
-            (t - shared.reachStart) / shared.reach,
-          );
-        } else if (t <= leave) {
-          wrist = arrive;
-          rotation = shared.receiverAt.rotation;
-          digits = closed;
-        } else {
-          wrist = home.wrist(t - leave);
-          rotation = home.turn(t - leave);
-          digits = takes
-            ? closed
-            : HumanPrehension.shape(
-                { entry: open, open: shapes.entry, closed: shapes.entry },
-                1,
-                minimumJerk((t - leave) / back).s,
-              );
-        }
-        return {
-          ...held,
-          joints: { ...held.joints, ...digits },
-          limbs: {
-            ...held.limbs,
-            [limb]: {
-              point: wrist,
-              rotation,
-              bend,
-              // The grasp's own arm solution anchors the hold and the
-              // take-away, and the reach more and more as it arrives.
-              ...(takes && t >= shared.gripClosed
-                ? { reference: shared.receiverReference }
-                : takes && t > shared.reachStart
-                  ? {
-                      reference: {
-                        ...shared.receiverReference,
-                        weight: minimumJerk(
-                          (t - shared.reachStart) / shared.reach,
-                        ).s,
-                      },
-                    }
-                  : {}),
-              ...(takes && t >= shared.gripClosed && t <= leave
-                ? { planted: true }
-                : {}),
-            },
-          },
-        };
-      },
+      posture: (seconds: number): IHumanPosture => pose(seconds, turn(seconds)),
     };
   }
 }

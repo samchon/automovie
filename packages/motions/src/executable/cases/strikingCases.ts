@@ -9,6 +9,7 @@ import { StrikingRecord } from "../../striking/StrikingRecord";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 import { strikingScenarios } from "./strikingScenarios";
@@ -68,7 +69,11 @@ export function* strikingCases(
       const name: string = `${scenario}-${who}`;
       if (only !== undefined && !only(name)) continue;
       const partner: string =
-        who === "m-tall" ? "f-small" : who === "f-small" ? "m-tall" : "m-average";
+        who === "m-tall"
+          ? "f-small"
+          : who === "f-small"
+            ? "m-tall"
+            : "m-average";
       yield build(name, scenario, person(who), person(partner), partner);
     }
 }
@@ -108,10 +113,9 @@ function build(
   B: IPerson,
   partner: string,
 ): IMotionCaptureCase {
-  const s: strikingScenarios.IScenario = strikingScenarios(
-    A.body,
-    B.body,
-  )[scenario]!();
+  const s: strikingScenarios.IScenario = strikingScenarios(A.body, B.body)[
+    scenario
+  ]!();
   const perform = (a: HumanChain): HumanPerformance =>
     new HumanPerformance({
       seed: scenario,
@@ -156,7 +160,8 @@ function build(
   const chambers: Record<string, Record<string, number>> = {};
   for (const p of people)
     for (const g of performance.segments(p.id)) {
-      if (g.name === "defend") verdicts.push(StrikingVerdicts.defence(p.id, g));
+      if (g.name === "defend")
+        verdicts.push(StrikingEventVerdicts.defence(p.id, g));
       if (g.name !== "punch" && g.name !== "kick" && g.name !== "knee")
         continue;
       const record: StrikingRecord.IRecord | undefined = StrikingRecord.of(
@@ -241,7 +246,9 @@ function build(
   // A redirect after the chamber key must be refused.
   if (s.late !== undefined) {
     const late: HumanChain = s.late;
-    verdicts.push(StrikingVerdicts.refusal((): HumanPerformance => perform(late)));
+    verdicts.push(
+      StrikingEventVerdicts.refusal((): HumanPerformance => perform(late)),
+    );
   }
   times.sort(
     (x: IMotionCaptureCase.ITime, y: IMotionCaptureCase.ITime): number =>

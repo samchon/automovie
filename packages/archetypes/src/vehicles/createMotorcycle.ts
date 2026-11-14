@@ -120,6 +120,9 @@ export function createMotorcycle(
     extent: null,
     depth: createMotorcycle.SEAT.depth,
     width: createMotorcycle.SEAT.width,
+
+    // A scooter is sat on with the legs ahead on its floorboard.
+    astride: kind === "motorcycle",
   });
   const bar: IAutoMovieVector3 = v(0, d.seatHeight + 0.22, half - 0.32);
   builder.rod(

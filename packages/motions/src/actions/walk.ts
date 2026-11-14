@@ -14,20 +14,32 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { IWalkGait } from "./IWalkGait";
+import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
+import { walkCarriage } from "./walkCarriage";
+import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
+import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
+import { walkTempo } from "./walkTempo";
 
 /** Seconds before a toe-off over which the ankle's velocity there is read. */
 const TICK: number = 1e-3;
+
+/** The cut a standing action makes into a walk: only once both feet are down. */
+const SETTLED: readonly IHumanInterruptRow[] = [
+  { window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+];
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
@@ -39,7 +51,8 @@ const TICK: number = 1e-3;
  * comfortable and fast adult ranges (Bohannon 1997). Step length grows with
  * the square root of speed (Grieve and Gear 1966): `1.2 l sqrt(sqrt(Fr))`,
  * 0.8 hip heights at the normal pace (about 0.4 stature, Perry and Burnfield);
- * the step count is rounded up so every step is at most that long.
+ * the step count is rounded up so every step is at most that long, at the
+ * pace's own cadence (`WalkPace`).
  *
  * Each foot follows the three rockers of stance with its contact point fixed
  * on the floor, and swings between footprints on a minimum-jerk path lifted
@@ -96,39 +109,20 @@ export namespace walk {
     jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     approach: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    look: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    gesture: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    rest: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
-    sit: [
-      {
-        window: ["lastFootfall", 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.3,
-      },
-    ],
+    look: SETTLED,
+    gesture: SETTLED,
+    rest: SETTLED,
+    sit: SETTLED,
   };
+
+  /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
+  export const yields: IHumanActionLaw["yields"] = [
+    "head",
+    "leftHand",
+    "rightHand",
+    "leftArm",
+    "rightArm",
+  ];
 
   /** Parameters. */
   export interface IParams {
@@ -145,42 +139,21 @@ export namespace walk {
     face?: number;
 
     /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
-    stride?: number;
+    stride?: import("../law/HumanUnit").HumanUnit.Bounded<0.6, 1.3, 1, "">;
 
     /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. */
-    armSwing?: number;
+    armSwing?: import("../law/HumanUnit").HumanUnit.Bounded<0, 2, 1, "">;
 
     /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
-    elbows?: number;
+    elbows?: import("../law/HumanUnit").HumanUnit.Bounded<0, 30, 0, "degrees">;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
   export const FROUDE: Readonly<Record<NonNullable<IParams["pace"]>, number>> =
     { slow: 0.12, normal: 0.2, fast: 0.32 };
 
-  /** A gait the stepping plan runs: its speed, its step and swing, its pelvis and its arms. */
-  export interface IGait {
-    /** Froude number, `v² / (g l)`. */
-    froude: number;
-
-    /** The longest step in hip heights for the Froude number. */
-    step(froude: number): number;
-
-    /** Swing duration in step periods. */
-    swing: number;
-
-    /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. */
-    bob?: { mean: number; amplitude: number };
-
-    /** Mid-swing ankle lift, hip heights. */
-    lift: number;
-
-    /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
-    arms: { shoulder: number; elbow: number; swing: number };
-
-    /** The trunk's forward inclination from the upright alignment, degrees, shared between the pelvis and the spine by the lumbopelvic rhythm (`HumanTrunk.incline`) and tipped about the hips. */
-    lean: number;
-  }
+  /** A gait the stepping plan runs (`IWalkGait`). */
+  export type IGait = IWalkGait;
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
@@ -237,6 +210,7 @@ export namespace walk {
     HumanBound.within("stride", stride, 0.6, 1.3);
     HumanBound.within("armSwing", arms, 0, 2);
     HumanBound.within("elbows", elbows, 0, 30, "degrees");
+    walkClear(context);
     const longest: number = stride * l * gait.step(froude);
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
@@ -247,9 +221,11 @@ export namespace walk {
       speed,
       longest,
       period: (seconds: number): number =>
-        HumanSkill.jitter(context.skill, context.random("period"), seconds),
+        gait.called === true
+          ? seconds
+          : HumanSkill.jitter(context.skill, walkSteps.tempo(context), seconds),
       swing: gait.swing,
-      ...(gait.bob === undefined ? {} : { bob: gait.bob }),
+      gait,
     });
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map((e) => ({
@@ -281,8 +257,7 @@ export namespace walk {
         toes: foot.toes,
       };
     };
-    // A swinging foot between two stances as `at` has them, leaving the first
-    // with the rates that stance ends with.
+    // A swinging foot between two stances as `at` has them, leaving the first with the rates that stance ends with.
     const swung = (
       side: "left" | "right",
       swing: { off: number; on: number },
@@ -308,11 +283,12 @@ export namespace walk {
         u,
         seconds: swing.on - swing.off,
         lift: gait.lift,
+        stiff: gait.stiff === side,
+        // A running foot strikes moving; a walking one sets down at rest.
+        settles: gait.swing <= 1,
       });
     };
-    // The lowering a swinging leg asks of the pelvis at a share of its swing
-    // for the ankle the schedule swings there, read from the schedule alone
-    // so that it needs no settled pelvis and every instant settles the same.
+    // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
     const reaching = (
       side: "left" | "right",
       swing: { off: number; on: number },
@@ -330,6 +306,7 @@ export namespace walk {
     };
     // A swing's scheduled descent, memoised by its toe-off.
     const descents: Map<string, walkDescent.IPlan> = new Map();
+    const flights: Map<string, [number, number]> = new Map();
     const settle = (
       t: number,
       feet: Record<"left" | "right", walkFoot.IScheduled>,
@@ -337,7 +314,21 @@ export namespace walk {
       const claims: Partial<Record<"left" | "right", number>> = {};
       for (const side of ["left", "right"] as const) {
         const swing = feet[side].swing;
-        if (swing === undefined || swing.u < walkDescent.START) continue;
+        if (swing === undefined) continue;
+
+        // A foot in flight bears nothing: it claims what its stance claimed
+        // when it left and what the next claims when it lands, blended.
+        if (gait.swing > 1) {
+          const key: string = `${side}:${swing.off}`;
+          const held: [number, number] = flights.get(key) ?? [
+            reaching(side, swing, 0),
+            reaching(side, swing, 1),
+          ];
+          flights.set(key, held);
+          claims[side] = runStance.airborne(held, swing.u);
+          continue;
+        }
+        if (swing.u < walkDescent.START) continue;
         const key: string = `${side}:${swing.off}`;
         let descent: walkDescent.IPlan | undefined = descents.get(key);
         if (descent === undefined) {
@@ -360,10 +351,12 @@ export namespace walk {
         pelvis(t),
         feet,
         claims,
+
+        // The forefoot rocker is a stepping foot's: it comes in with the gait and goes with it, so a walk stands flat where it starts and stops.
+        walkLeg.ROCKER * steps.amount(t),
       );
     };
-    // A foot's stance as reached at a swing's end, memoised by its second:
-    // every sample of that swing reads the same three.
+    // A foot's stance as reached at a swing's end, memoised by its second: every sample of that swing reads the same three.
     const ends: Map<string, walkFoot.IEnd> = new Map();
     const end = (side: "left" | "right", t: number): walkFoot.IEnd => {
       const key: string = `${side}:${t}`;
@@ -405,85 +398,96 @@ export namespace walk {
       }
       return { feet, hips: pelvis(t), settled, reached };
     };
-    return {
+    // The take's posture before its arms are carried.
+    const unswung = (seconds: number): IHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const phase: number = steps.phase(t);
+      const amount: number = steps.amount(t);
+      const swing: number = Math.sin(2 * Math.PI * phase) * amount;
+      const { feet, hips, settled, reached } = solve(t);
+      const root: IAutoMovieVector3 = settled.root;
+      const yaw: number = settled.yaw;
+      // The trunk inclines by the gait's lean, the pelvis and the spine
+      // sharing it, from the upright alignment. The lean grows and fades
+      // with the gait itself, as the pelvis' sway and the arms' swing do,
+      // so a walk leaves a standstill upright and comes to one upright.
+      const inclined = HumanTrunk.incline(
+        standUpright.of(body).joints,
+        gait.lean * amount,
+      );
+      const joints: Partial<
+        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+      > = {
+        ...stand.RELAXED,
+        ...inclined.joints,
+        hips,
+        leftToes: [reached.left.toes, 0, 0],
+        rightToes: [reached.right.toes, 0, 0],
+        chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
+        leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+        rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+        leftLowerArm: [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0],
+        rightLowerArm: [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0],
+      };
+      const limbs: IHumanPosture["limbs"] = {};
+      for (const side of ["left", "right"] as const) {
+        const planted: boolean = feet[side].swing === undefined;
+        // The knee points over the foot's own heading: the foot has no axial
+        // joint, so its toe-out comes from the hip's twist this hint sets.
+        // The heading is read off the lateral axis, because a folded shank
+        // pitches a swinging foot past vertical.
+        const knee: IAutoMovieVector3 = HumanFrame.point(
+          {
+            origin: HumanFrame.point(
+              { origin: root, yaw },
+              body.rest.get(`${side}LowerLeg`)!,
+            ),
+            yaw: HumanFoot.heading(reached[side].rotation),
+          },
+          { x: 0, y: 0, z: 1 },
+        );
+        limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
+          point: reached[side].ankle,
+          bend: knee,
+          rotation: reached[side].rotation,
+          ...(planted
+            ? { planted: true, contact: settled.contacts[side] }
+            : {}),
+        };
+      }
+      // The pelvis's share tips the body about the hips, so the legs stay
+      // on their footprints.
+      return AutoMovieMotionHumanLean.pivot(
+        body,
+        { root, yaw, pitch: 0, roll: 0, joints, limbs },
+        { pitch: inclined.pitch, roll: 0 },
+      );
+    };
+
+    // The swinging arms are carried clear of the body, the hands passing the
+    // thighs no nearer than they hang beside them, by one abduction read
+    // over one of its strides (`walkCarriage`).
+    let carried: Record<"left" | "right", number> | undefined;
+    const planned: IHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const phase: number = steps.phase(t);
-        const amount: number = steps.amount(t);
-        const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-        const { feet, hips, settled, reached } = solve(t);
-        const root: IAutoMovieVector3 = settled.root;
-        const yaw: number = settled.yaw;
-        // The trunk inclines by the gait's lean, the pelvis and the spine
-        // sharing it, from the upright alignment.
-        const inclined = HumanTrunk.incline(
-          standUpright.of(body).joints,
-          gait.lean,
-        );
-        const joints: Partial<
-          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-        > = {
-          ...stand.RELAXED,
-          ...inclined.joints,
-          hips,
-          leftToes: [reached.left.toes, 0, 0],
-          rightToes: [reached.right.toes, 0, 0],
-          chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
-          leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
-          rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
-          leftLowerArm: [
-            gait.arms.elbow - gait.arms.swing * arms * swing,
-            0,
-            0,
-          ],
-          rightLowerArm: [
-            gait.arms.elbow + gait.arms.swing * arms * swing,
-            0,
-            0,
-          ],
-        };
-        const limbs: IHumanPosture["limbs"] = {};
-        for (const side of ["left", "right"] as const) {
-          const planted: boolean = feet[side].swing === undefined;
-          // The knee points over the foot's own heading: the foot has no axial
-          // joint, so its toe-out comes from the hip's twist this hint sets.
-          // The heading is read off the lateral axis, because a folded shank
-          // pitches a swinging foot past vertical.
-          const knee: IAutoMovieVector3 = HumanFrame.point(
-            {
-              origin: HumanFrame.point(
-                { origin: root, yaw },
-                body.rest.get(`${side}LowerLeg`)!,
-              ),
-              yaw: HumanFoot.heading(reached[side].rotation),
-            },
-            { x: 0, y: 0, z: 1 },
-          );
-          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: reached[side].ankle,
-            bend: knee,
-            rotation: reached[side].rotation,
-            ...(planted
-              ? { planted: true, contact: settled.contacts[side] }
-              : {}),
-          };
-        }
-        // The pelvis's share tips the body about the hips, so the legs stay
-        // on their footprints; the swinging arms then keep clear of the body,
-        // the hands passing the thighs no nearer than they hang beside them.
-        return HumanArmClearance.swung(
-          body,
-          AutoMovieMotionHumanLean.pivot(
-            body,
-            { root, yaw, pitch: 0, roll: 0, joints, limbs },
-            { pitch: inclined.pitch, roll: 0 },
-          ),
-          ["left", "right"],
-        );
-      },
+      posture: (seconds: number): IHumanPosture =>
+        HumanArmSwing.carry(
+          unswung(seconds),
+          (carried ??= walkCarriage.of(body, steps.events, duration, unswung)),
+        ),
     };
+
+    // The steps are taken a little unevenly in time: a stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3 % of healthy adults, Hausdorff; the mapping onto skill is provisional), which each step's own draw carries as the square root of two times that, two independent steps making a stride.
+    return walkTempo(
+      planned,
+      (index: number): number =>
+        Math.SQRT2 *
+        HumanSkill.quantity(context.skill, "timing", 0.03, 0.01) *
+        (gait.unevenness ?? 1) *
+        HumanSkill.normal(context.random("stride"), 2 * index),
+      gait.limp,
+    );
   }
 }

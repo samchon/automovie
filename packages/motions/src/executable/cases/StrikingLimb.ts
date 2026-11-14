@@ -14,6 +14,7 @@ import type { HumanPerformance } from "../../perform/HumanPerformance";
 import type { HumanSegment } from "../../perform/HumanSegment";
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingRecord } from "../../striking/StrikingRecord";
+import { StrikingWeapon } from "../../striking/StrikingWeapon";
 
 /**
  * A striking limb as the capture audits it, measured on the displayed bones
@@ -22,9 +23,9 @@ import { StrikingRecord } from "../../striking/StrikingRecord";
  * another posed body, and the bare limb's length from its root joint.
  *
  * The capsules are the upper arm, the forearm and the fist, or the thigh, the
- * shank and the foot. Every gap is the exact segment distance of
- * `HumanColliders.distanceToSegment` less the capsule's radius, so a depth is
- * the limb's own wherever along it the other body is met.
+ * shank and the foot, each tapered between its joints' girths. Every gap is
+ * the exact tapered-capsule distance of `HumanColliders.distanceToSegment`,
+ * so a depth is the limb's own wherever along it the other body is met.
  */
 export namespace StrikingLimb {
   /** The end joint that carries a strike. */
@@ -47,8 +48,11 @@ export namespace StrikingLimb {
     /** The other end. */
     b: IAutoMovieVector3;
 
-    /** Its radius, metres. */
+    /** Its radius at `a`, metres. */
     radius: number;
+
+    /** Its radius at `b`, metres: the capsule tapers linearly between the two. */
+    tail: number;
   }
 
   /** A limb's signed gap to another body. */
@@ -179,13 +183,13 @@ export namespace StrikingLimb {
   /**
    * A limb's capsules on shown bones, measured from the body.
    *
-   * A leg is the thigh from the hip to the knee with the thigh's radius, the
-   * shank from the knee to the ankle with the shank's radius, and the foot
-   * from the ankle to the ball with half the ankle's height. An arm is the
-   * upper arm from the shoulder to the elbow with its radius, the forearm
-   * from the elbow to the wrist, and the fist from the wrist to one forearm
-   * radius behind the knuckles, both of the forearm's radius, so the fist's
-   * front is the knuckles.
+   * A leg is the thigh from the hip to the knee, the shank from the knee to
+   * the ankle and the foot from the ankle to the ball; an arm is the upper
+   * arm from the shoulder to the elbow, the forearm from the elbow to the
+   * wrist, and the fist from the wrist to one forearm radius behind the
+   * knuckles, so the fist's front is the knuckles. Each is tapered between
+   * the girths the strikes' own weapons carry (`StrikingWeapon.legRadii`,
+   * `StrikingWeapon.armRadii`).
    *
    * @param body The limb's body.
    * @param bones Its posed bones.
@@ -201,18 +205,25 @@ export namespace StrikingLimb {
     if (leg(limb)) {
       const foot: IAutoMovieResolvedBone = bones.get(`${s}Foot`)!;
       const knee: IAutoMovieVector3 = bones.get(`${s}LowerLeg`)!.worldPosition;
+      const [thigh, shank, sole]: [
+        readonly [number, number],
+        readonly [number, number],
+        number,
+      ] = StrikingWeapon.legRadii(body);
       return [
         {
           name: "thigh",
           a: bones.get(`${s}UpperLeg`)!.worldPosition,
           b: knee,
-          radius: body.measure.thighRadius,
+          radius: thigh[0],
+          tail: thigh[1],
         },
         {
           name: "shank",
           a: knee,
           b: foot.worldPosition,
-          radius: body.measure.shankRadius,
+          radius: shank[0],
+          tail: shank[1],
         },
         {
           name: "foot",
@@ -221,7 +232,8 @@ export namespace StrikingLimb {
             body.surfaces.sockets[s === "left" ? "ballLeft" : "ballRight"],
             foot,
           ).point,
-          radius: 0.5 * body.measure.ankleHeight,
+          radius: sole,
+          tail: sole,
         },
       ];
     }
@@ -235,15 +247,17 @@ export namespace StrikingLimb {
       hand.worldPosition,
     );
     const span: number = Vector3.length(reach);
-    const r: number = body.measure.forearmRadius;
+    const [upper, r]: [readonly [number, number], number, number] =
+      StrikingWeapon.armRadii(body);
     return [
       {
         name: "upper arm",
         a: bones.get(`${s}UpperArm`)!.worldPosition,
         b: elbow,
-        radius: body.measure.upperArmRadius,
+        radius: upper[0],
+        tail: upper[1],
       },
-      { name: "forearm", a: elbow, b: hand.worldPosition, radius: r },
+      { name: "forearm", a: elbow, b: hand.worldPosition, radius: r, tail: r },
       {
         name: "fist",
         a: hand.worldPosition,
@@ -252,14 +266,54 @@ export namespace StrikingLimb {
           Vector3.scale(reach, Math.max(0, span - r) / Math.max(1e-9, span)),
         ),
         radius: r,
+        tail: r,
       },
     ];
   }
 
   /**
+   * The signed distance from a point to a tapered capsule's surface, metres:
+   * the least over the axis of the distance to the axis point less the
+   * radius there. With `s` the point's coordinate along the axis from `a`,
+   * `h` its distance from the axis line and `k` the radius's change per
+   * metre, the derivative of `sqrt((s - u)^2 + h^2) - r(u)` vanishes at `u =
+   * s + k h / sqrt(1 - k^2)`; the function is convex, so that point clamped
+   * to the axis is the least. A capsule whose radius changes by its length or
+   * more is one end's sphere around the other, read at both ends.
+   *
+   * @param point The point, world metres.
+   * @param capsule The capsule.
+   * @returns Metres, negative inside.
+   */
+  export function surface(point: IAutoMovieVector3, capsule: ICapsule): number {
+    const axis: IAutoMovieVector3 = Vector3.subtract(capsule.b, capsule.a);
+    const length: number = Vector3.length(axis);
+    const at = (u: number): number =>
+      Vector3.length(
+        Vector3.subtract(
+          point,
+          length > 1e-12
+            ? Vector3.add(capsule.a, Vector3.scale(axis, u / length))
+            : capsule.a,
+        ),
+      ) -
+      (capsule.radius +
+        (length > 1e-12 ? ((capsule.tail - capsule.radius) * u) / length : 0));
+    if (!(length > 1e-12)) return at(0);
+    const k: number = (capsule.tail - capsule.radius) / length;
+    if (!(Math.abs(k) < 1)) return Math.min(at(0), at(length));
+    const from: IAutoMovieVector3 = Vector3.subtract(point, capsule.a);
+    const s: number = Vector3.dot(from, axis) / length;
+    const h: number = Math.sqrt(Math.max(0, Vector3.dot(from, from) - s * s));
+    return at(
+      Math.min(length, Math.max(0, s + (k * h) / Math.sqrt(1 - k * k))),
+    );
+  }
+
+  /**
    * A limb's signed gap to another posed body: the least over the limb's
-   * capsules of the exact distance from the capsule's axis to the other
-   * body's colliders, less the capsule's radius.
+   * capsules of the exact distance from the tapered capsule to the other
+   * body's colliders.
    *
    * @param body The limb's body.
    * @param bones Its posed bones.
@@ -282,10 +336,11 @@ export namespace StrikingLimb {
         others,
         c.a,
         c.b,
+        [c.radius, c.tail],
       );
-      if (near.distance - c.radius < best.distance)
+      if (near.distance < best.distance)
         best = {
-          distance: near.distance - c.radius,
+          distance: near.distance,
           bone: near.bone,
           part: c.name,
         };

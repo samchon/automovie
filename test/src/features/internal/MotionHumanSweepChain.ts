@@ -9,7 +9,7 @@ import { type HumanActionName, HumanChain } from "@automovie/motions";
  * parameters. No static type can check a value that is only known when the
  * ledger is read, so the sweep's stages append through this chain, whose
  * `act` accepts any parameter object for a vocabulary name. The typed chain
- * is pinned by `test_human_chain_vocabulary`; a row whose value the law
+ * is pinned by `test_human_motion_chain_vocabulary`; a row whose value the law
  * does not accept is refused by the law when the sweep performs it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States why the sweep needs run-time parameters and what still checks them.

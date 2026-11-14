@@ -391,15 +391,12 @@ export namespace knee {
     const stop = (seconds: number): number | undefined =>
       fixed !== null && fixed <= seconds ? fixed : undefined;
 
-    // The shown leg as capsules: the thigh, the shank and the foot.
+    // The shown leg as capsules tapered between the girths at its joints:
+    // the thigh, the shank and the foot.
     const chain: StrikingWeapon.IChain = {
       ids: ["thigh", "shin", "foot"],
       limb: leg,
-      radii: [
-        m.thighRadius,
-        m.shankRadius,
-        KickForm.FOOT_RADIUS_SHARE * m.ankleHeight,
-      ],
+      radii: StrikingWeapon.legRadii(context.body),
       from: t0 + prep,
       to: t0 + impact + KickForm.WEAPON_TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>

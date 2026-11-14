@@ -29,6 +29,10 @@ import { seated } from "./seated";
  * refused and takes several shifts, as people edge along a bench a few tens
  * of centimetres at a time.
  *
+ * On a seat above 1.2 of the popliteal height, where a foot is off the
+ * floor, the shift is refused: getting off and sitting down again moves
+ * the body there.
+ *
  * Events `seatOff` and `seatContact`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
@@ -89,6 +93,25 @@ export namespace shift {
       });
     const entry: IHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
+
+    // The shift pushes off the feet planted on the floor, which a high seat takes off it.
+    if (
+      start.y / seated.popliteal(body) > seated.RATIO[1] &&
+      (["left", "right"] as const).some(
+        (side: "left" | "right"): boolean =>
+          !context.entry.feet[side].planted ||
+          context.entry.feet[side].ankle.y >
+            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+      )
+    )
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "base",
+        value: "a high seat",
+        feasible: { kind: "alternatives", values: ["rise", "sit"] },
+        reason: `a seated shift edges along on both planted feet, and this seat holds a foot off the floor`,
+        fix: "get off the seat and sit down again where the shift would end",
+      });
     const goal: IAutoMovieVector3 = HumanFrame.point(
       { origin: start, yaw: entry.yaw },
       { x: context.params.by, y: 0, z: 0 },

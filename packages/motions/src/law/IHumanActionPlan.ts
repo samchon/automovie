@@ -5,7 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBase } from "./HumanBase";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
 
 /**
@@ -27,6 +30,31 @@ export interface IHumanActionPlan {
 
   /** Contact windows, shares of the duration. */
   contacts: IHumanContactWindow[];
+
+  /**
+   * The channels the plan's own movements write, when it is composed of part
+   * primitives over a base: what an overlay takes from its carrier. Absent
+   * for a plan that writes the whole body.
+   */
+  channels?: readonly AutoMovieMotionHumanChannel[];
+
+  /**
+   * The base the action leaves the body on at its end, declared by an
+   * action that changes what carries the body: sitting down declares the
+   * seat, kneeling the kneel, rising the stand. Absent for an action that
+   * keeps the base it is entered on, which the performance then passes on
+   * to the next action unchanged (`IHumanEntryState.base`).
+   */
+  base?: HumanBase;
+
+  /**
+   * The tool the action works with in a hand: the held prop and which of
+   * its affordances are its working point and its edge. Another performer's
+   * law that answers this action (a parry of a cut, a flinch from a muzzle)
+   * reads the tool here through `IHumanActionContext.action`. Absent for an
+   * action performed with the bare body.
+   */
+  wields?: IHumanActionPlan.ITool;
 
   /** Seconds from the start to the decisive instant (an impact, a landing, a grip), when the action has one. */
   contact?: number;
@@ -66,6 +94,14 @@ export interface IHumanActionPlan {
    * the prop rides the hand.
    */
   holds?: readonly IHumanActionPlan.IHold[];
+
+  /**
+   * Props this action puts on the performer's body: from its instant the
+   * prop rides the named bone with the offset it has there, as a worn hat,
+   * holster or watch does, until a later grip takes it off
+   * (`IHumanProp.worn`).
+   */
+  wears?: readonly IHumanActionPlan.IWear[];
 
   /**
    * Hands this action drives with no contact window, such as a wave or a
@@ -117,10 +153,18 @@ export namespace IHumanActionPlan {
     id: string;
 
     /** The limb that carries it; frozen at its stop while contacts resolve. */
-    limb: "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+    limb: IHumanPosture.Limb;
 
-    /** Radius of the striking sphere, metres. */
+    /** Radius of the striking sphere, metres; a capsule's radius at `path`. */
     radius: number;
+
+    /**
+     * A tapered capsule's radius at `tail`, metres: the capsule narrows (or
+     * widens) linearly from `radius` at `path` to this, as a limb's girth
+     * changes from one joint to the next. Absent for a sphere and for a
+     * capsule of one radius.
+     */
+    tailRadius?: number;
 
     /** Film second it becomes live. */
     from: number;
@@ -159,10 +203,37 @@ export namespace IHumanActionPlan {
     seconds: number;
   }
 
+  /** A held prop an action works with. */
+  export interface ITool {
+    /** The prop's subject id. */
+    prop: string;
+
+    /** The holding hand. */
+    side: HumanHand.Side;
+
+    /** The affordance id of its working point: a blade's point, a muzzle, a hammer's face. */
+    tip: string;
+
+    /** The affordance id of its edge or sighting direction, where it has one. */
+    edge?: string;
+  }
+
+  /** A prop put on one of the performer's bones. */
+  export interface IWear {
+    /** The prop's subject. */
+    prop: string;
+
+    /** The bone it rides. */
+    bone: AutoMovieHumanoidBone;
+
+    /** Share of this action from which the prop is worn. */
+    from: number;
+  }
+
   /** A prop left held in one hand. */
   export interface IHold {
     /** The holding hand. */
-    side: "left" | "right";
+    side: HumanHand.Side;
 
     /** The prop's subject. */
     prop: string;

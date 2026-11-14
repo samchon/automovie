@@ -19,6 +19,7 @@ import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingReach } from "./StrikingReach";
+import { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * The kicking leg at contact: the two-segment solve ({@link StrikingReach})
@@ -125,14 +126,20 @@ export namespace KickChain {
     const m: IHumanBody["measure"] = props.body.measure;
     const round: boolean = props.technique === "round";
 
-    // The round kick lands the shin's surface, so its axis point lies one
-    // shank radius behind the planned point; the push kick lands the ball of
-    // the foot, so its ankle lies behind the planned point by the ball's
-    // offset under the sole-forward rotation.
+    // The round kick lands the shin's surface, so its axis point lies the
+    // tapered shin's radius there behind the planned point; the push kick
+    // lands the ball of the foot, so its ankle lies behind the planned point
+    // by the ball's offset under the sole-forward rotation.
     const point: IAutoMovieVector3 = round
       ? Vector3.subtract(
           props.planned,
-          Vector3.scale(props.direction, m.shankRadius),
+          Vector3.scale(
+            props.direction,
+            StrikingWeapon.girth(
+              StrikingWeapon.legRadii(props.body)[1],
+              KickForm.SHIN_SHARE,
+            ),
+          ),
         )
       : Vector3.subtract(props.planned, ball(props));
     return StrikingReach.chain({
@@ -258,8 +265,10 @@ export namespace KickChain {
         },
       },
     });
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, pose);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      pose,
+    );
     const knee: IAutoMovieVector3 = bones.get(
       `${side}LowerLeg` as AutoMovieHumanoidBone,
     )!.worldPosition;
@@ -270,7 +279,13 @@ export namespace KickChain {
       props.technique === "round"
         ? Vector3.add(
             Vector3.lerp(knee, foot.worldPosition, solved.along / m.shank),
-            Vector3.scale(props.direction, m.shankRadius),
+            Vector3.scale(
+              props.direction,
+              StrikingWeapon.girth(
+                StrikingWeapon.legRadii(body)[1],
+                solved.along / m.shank,
+              ),
+            ),
           )
         : Vector3.add(
             foot.worldPosition,

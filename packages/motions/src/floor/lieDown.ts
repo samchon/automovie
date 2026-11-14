@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -11,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -18,6 +20,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { floorSeat } from "./floorSeat";
 
 /**
  * Lying down on the floor from standing into a position: supine, prone, or
@@ -60,7 +63,14 @@ export namespace lieDown {
   };
 
   /** A lying position. */
-  export type Position = "supine" | "prone" | "lateralLeft" | "lateralRight";
+  export type Position =
+    | "supine"
+    | "prone"
+    | "lateralLeft"
+    | "lateralRight"
+    | "sitLong"
+    | "sitCrossed"
+    | "sitSide";
 
   /**
    * Parameters.
@@ -75,7 +85,7 @@ export namespace lieDown {
     position?: Position;
 
     /** Seconds held lying; 2 when absent. */
-    hold?: number;
+    hold?: number & tags.Minimum<0> & tags.Default<2> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -146,6 +156,22 @@ export namespace lieDown {
       { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
       "right",
     ),
+
+    // Seated on the floor with the legs ahead (provisional angles).
+    sitLong: pose(-8, 0, { hip: 82, knee: 5, shoulder: -25, elbow: 15 }),
+
+    // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
+    sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
+    sitSide: bent(
+      pose(0, 0, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
+      [-25, -15],
+    ),
+  };
+
+  /** The sittings whose legs `floorSeat` folds. */
+  const FOLDED: Readonly<Partial<Record<Position, floorSeat.Kind>>> = {
+    sitCrossed: "crossed",
+    sitSide: "side",
   };
 
   /** The route of postures to each position, after standing, with each arrival's event. */
@@ -170,6 +196,18 @@ export namespace lieDown {
         ["supine", "supine"],
         ["lateralRight", "lateral"],
       ],
+      sitLong: [
+        ["sit", "seatContact"],
+        ["sitLong", "seated"],
+      ],
+      sitCrossed: [
+        ["sit", "seatContact"],
+        ["sitCrossed", "seated"],
+      ],
+      sitSide: [
+        ["sit", "seatContact"],
+        ["sitSide", "seated"],
+      ],
     };
 
   /**
@@ -192,6 +230,7 @@ export namespace lieDown {
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const route = ROUTES[position];
+    const folds: floorSeat.Kind | undefined = FOLDED[position];
     const keys: IPose[] = [
       { pitch: 0, roll: 0, joints: stand.RELAXED },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
@@ -219,6 +258,7 @@ export namespace lieDown {
         body.rest.get("hips")!,
       ),
     );
+    let held: IHumanPosture | undefined;
     const at = (seconds: number): IHumanPosture => {
       let index: number = 0;
       for (let i: number = 0; i < route.length; i++)
@@ -228,6 +268,10 @@ export namespace lieDown {
         phases[index + 1]!.name,
         seconds,
       );
+
+      // Arrived, the posture no longer changes: it is rested on the floor once and held.
+      const arrived: boolean = index === route.length - 1 && u >= 1;
+      if (arrived && held !== undefined) return held;
       const a: IPose = keys[index]!;
       const b: IPose = keys[index + 1]!;
       const joints: AutoMovieMotionHumanJoints.Angles = {};
@@ -259,7 +303,7 @@ export namespace lieDown {
         resolveHumanPosture.heading(posed),
         body.rest.get("hips")!,
       );
-      return {
+      const rested: IHumanPosture = {
         ...posed,
         root: {
           x: hips.x - offset.x,
@@ -267,6 +311,14 @@ export namespace lieDown {
           z: hips.z - offset.z,
         },
       };
+
+      // A folded sitting folds its legs over the last phase of its route.
+      const out: IHumanPosture =
+        folds === undefined || index < route.length - 1
+          ? rested
+          : floorSeat.place(body, rested, folds, u);
+      if (arrived) held = out;
+      return out;
     };
 
     const lying: IAutoMovieMotionHumanPrimitive = {
@@ -284,23 +336,61 @@ export namespace lieDown {
       write: (_: IHumanPosture, seconds: number): IHumanPosture => at(seconds),
     };
     const settled: number = clock.at("settled") / duration;
+    const sitting: boolean = position.startsWith("sit");
     const contacts: IHumanContactWindow[] = [
-      {
-        // The contact parts have no chest or side; the trunk's window is
-        // named by the back for every position.
-        part: "back",
-        kind: "lie",
+      sitting
+        ? {
+            // Seated on the floor, the seat bears, and the base the next action is entered on is a seated one.
+            part: "seat",
+            kind: "seat",
+            from: settled,
+            to: 1,
+            support: { kind: "ground" },
+          }
+        : {
+            // The contact parts have no chest or side; the trunk's window is
+            // named by the back for every lying position.
+            part: "back",
+            kind: "lie",
+            from: settled,
+            to: 1,
+            support: { kind: "ground" },
+          },
+    ];
+    // Side sitting leans on the left hand.
+    if (folds === "side")
+      contacts.push({
+        part: "leftHand",
+        kind: "plant",
         from: settled,
         to: 1,
         support: { kind: "ground" },
-      },
-    ];
-    return composeAutoMovieMotionHumanAction({
+      });
+    const planned: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
       clock,
       contact: "settled",
       primitives: [lying],
     });
+    return sitting ? { ...planned, base: { kind: "seated" } } : planned;
+  }
+
+  /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
+  function bent(posture: IPose, side: readonly [number, number]): IPose {
+    const spine: readonly [number, number, number] = posture.joints.spine ?? [
+      0, 0, 0,
+    ];
+    const chest: readonly [number, number, number] = posture.joints.chest ?? [
+      0, 0, 0,
+    ];
+    return {
+      ...posture,
+      joints: {
+        ...posture.joints,
+        spine: [spine[0], spine[1] + side[0], spine[2]],
+        chest: [chest[0], chest[1] + side[1], chest[2]],
+      },
+    };
   }
 
   /**

@@ -172,6 +172,7 @@ export namespace AutoMovieMotionHumanAudit {
           subject,
           rate,
           limits.jump ?? LIMITS.jump,
+          limits.reversal ?? LIMITS.reversal,
         );
       if (limits.jump !== null) measures.jump = continuity.jump;
       if (limits.reversal !== null) measures.reversal = continuity.reversal;

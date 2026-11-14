@@ -30,12 +30,18 @@ import { motionAuditPoints } from "../internal/motionAuditPoints";
  * 4. A hand on a straight line at constant speed reads no reversal.
  * 5. The hand spikes 20 mm while the elbow spikes 80 mm on the same frame:
  *    the worse one, the elbow, is reported.
+ * 6. Read on a grid of 6 samples a second: a hand rubbing 47.5 mm each way
+ *    at 2 Hz goes out and back within two of the grid's intervals, yet it
+ *    reads no more than its turn over one 24 Hz frame, 47.5 (1 - cos 30°)
+ *    = 6.4 mm, and with the verdict's 50 mm as the floor below which a grid
+ *    turn is taken as read, it stays within 50 mm; the elbow's 80 mm
+ *    one-frame spike at 0.5 s, a grid instant, still reads 80 mm there.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure on paths with an injected spike; a spike read as its outward distance when it returns less, missed because each step is slow, or blamed on another bone fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure on paths with an injected spike; a spike read as its outward distance when it returns less, missed because each step is slow, blamed on another bone, or a designed oscillation read as a spike on a coarse grid fails.
  * @evidence contracts/development/testing.md#independent-expectations Each reversal is the scalar product of the two written displacements over the longer one, by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases A full return, a partial return, an oblique turn, no turn, and two bones.
+ * @evidence contracts/development/testing.md#distinguishing-cases A full return, a partial return, an oblique turn, no turn, two bones, and on a coarse grid an oscillation by design against a spike.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on hand-made joint centres. It runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the measure and lists the 5 scenarios with their numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation States the measure and lists the 6 scenarios with their numbers.
  */
 export function test_motion_audit_continuity_reversal(): void {
   const frame: number = 10 / 24;
@@ -137,5 +143,65 @@ export function test_motion_audit_continuity_reversal(): void {
     "the worse of two spiking bones is reported",
     Math.abs(both.reversal.value - 0.08) <= 1e-9 &&
       both.reversal.where === "rightLowerArm",
+  );
+
+  // 6. On a grid of 6 a second, a stroke that oscillates by design is read
+  // on the reversal's own frame, while a spike still is its height.
+  const coarse = (
+    elbow: (seconds: number) => number,
+    hand: (seconds: number) => number,
+  ): AutoMovieMotionHumanAuditContinuity.IResult =>
+    AutoMovieMotionHumanAuditContinuity.measure(
+      motionAuditPoints(
+        1,
+        (
+          t: number,
+        ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> => ({
+          hips: { x: 0, y: 1, z: 0 },
+          rightLowerArm: { x: 0.3, y: 1.2 + elbow(t), z: 0 },
+          rightHand: { x: 0.3 + hand(t), y: 1, z: 0.2 },
+        }),
+      ),
+      "a",
+      6,
+    );
+  const rub = (t: number): number => 0.0475 * Math.sin(4 * Math.PI * t);
+  const rubbed: AutoMovieMotionHumanAuditContinuity.IResult = coarse(
+    (): number => 0,
+    rub,
+  );
+  TestValidator.predicate(
+    "a 2 Hz rub of 47.5 mm read at 6 a second turns by its frame's share",
+    rubbed.reversal.value <= 0.0475 * (1 - Math.cos(Math.PI / 6)) + 1e-9,
+  );
+  const floored: AutoMovieMotionHumanAuditContinuity.IResult =
+    AutoMovieMotionHumanAuditContinuity.measure(
+      motionAuditPoints(
+        1,
+        (
+          t: number,
+        ): Partial<Record<AutoMovieHumanoidBone, IAutoMovieVector3>> => ({
+          hips: { x: 0, y: 1, z: 0 },
+          rightHand: { x: 0.3 + rub(t), y: 1, z: 0.2 },
+        }),
+      ),
+      "a",
+      6,
+      0.005,
+      0.05,
+    );
+  TestValidator.predicate(
+    "with the verdict's 50 mm as the floor, the rub's turns over it are still read on the frame",
+    floored.reversal.value <= 0.05,
+  );
+  const spiked: AutoMovieMotionHumanAuditContinuity.IResult = coarse(
+    (t: number): number => (Math.abs(t - 0.5) < half ? 0.08 : 0),
+    (): number => 0,
+  );
+  TestValidator.predicate(
+    "a one-frame spike read at 6 a second is still its height",
+    Math.abs(spiked.reversal.value - 0.08) <= 1e-9 &&
+      Math.abs(spiked.reversal.seconds - 0.5) <= 1e-9 &&
+      spiked.reversal.where === "rightLowerArm",
   );
 }

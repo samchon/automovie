@@ -5,18 +5,25 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanHeld } from "../handling/HumanHeld";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * A high five, a low five or a fist bump between two standing partners: both
@@ -32,6 +39,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * arrives, both stay 0.1 s (provisional, the rebound) and go back in the
  * reach's time. The palms (or the fists) face each other, each surface's
  * skin on the point.
+ *
+ * With `prop`, each role brings the prop its hand holds instead of the hand:
+ * the prop's point (a glass's `lip`) comes to the shared point with the
+ * vessel upright, so two glasses meet rim to rim as in a toast, and the
+ * hand keeps its prop afterwards (`HumanHeld`).
  *
  * Events: the phrase instants, with `meet` at `ready` and `rebound` at
  * `relax`; both partners share `meet`.
@@ -58,7 +70,7 @@ export namespace highFive {
 
   /** Each variant's meeting height. */
   export const HEIGHTS: Readonly<
-    Record<Kind, AutoMovieMotionHumanTarget.Height>
+    Record<Kind, AutoMovieMotionHumanTargetGrid.Height>
   > = { high: "crown", low: "waist", fist: "chest" };
 
   /** How long the hands stay together, seconds (provisional). */
@@ -81,7 +93,31 @@ export namespace highFive {
 
     /** The hand; `right` when absent. */
     side?: HumanHand.Side;
+
+    /** The subject id of the prop the hand holds, whose point meets the partner's in place of the hand: two glasses clinked in a toast. No prop when absent. */
+    prop?: string;
+
+    /** The prop's point that meets, one of its affordance ids; `lip` when absent. */
+    point?: string;
+
+    /** The film seconds the hands meet over (`AutoMovieMotionMeeting.IWindow`), which both roles give alike: they meet no earlier than `from`, each hand leaving its rest only its own reach's time before, and part at `to`; the natural meeting when absent. */
+    window?: AutoMovieMotionMeeting.IWindow;
+
+    /** A world point the hand is brought to in place of the pair's own meeting point, metres: the one point several pairs meet at, as glasses in a toast of four. The pair's shared instants are kept. The pair's own point when absent. */
+    at?: IAutoMovieVector3;
   }
+
+  /** How a held prop is brought to the meeting: stood upright in the closed hand, the side of its rim the palm faces toward the partner. */
+  export const HELD: HumanHeld.IUse = {
+    effector: {
+      surface: "grip",
+      shape: "fist",
+      facing: "palm",
+      along: "grasp",
+    },
+    upright: true,
+    point: "lip",
+  };
 
   /**
    * The meeting kind of a variant for a hand.
@@ -102,7 +138,7 @@ export namespace highFive {
     kind: Kind,
     side: HumanHand.Side,
   ): AutoMovieMotionMeeting.IKind {
-    const height: AutoMovieMotionHumanTarget.Height = HEIGHTS[kind];
+    const height: AutoMovieMotionHumanTargetGrid.Height = HEIGHTS[kind];
     const surface: HumanHand.Surface = kind === "fist" ? "fist" : "palm";
     return {
       name: `highFive-${kind}`,
@@ -114,7 +150,7 @@ export namespace highFive {
           sum = Vector3.add(sum, {
             x: r.posture.root.x,
             y:
-              AutoMovieMotionHumanTarget.height(r.body, height) *
+              AutoMovieMotionHumanTargetGrid.height(r.body, height) *
               r.body.measure.stature,
             z: r.posture.root.z,
           });
@@ -143,11 +179,11 @@ export namespace highFive {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan; the law's doc gives the geometry and timing.
-   * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand is a press of the touch stroke on the meeting point.
+   * @evidence contracts/development/implementation.md#principled-implementation Both roles read one meeting and pin their phrase clocks to its shared instants; the hand, or the point of the prop it holds stood upright on its steadiest side (`HumanHeld`), is a press of the touch stroke on the meeting point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Meeting, clock, one stroke, composition.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A meeting instant before the action's start is lifted to 0.05 s of reach rather than a negative phase.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting and one elbow solve per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionMeeting` and the touch stroke.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting and one elbow solve per plan; with a held prop, the eight sides of its rim are each solved once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionMeeting`, the touch stroke, the laid arm and `HumanHeld`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the meeting's place and the clock.
    */
   export function plan(
@@ -162,19 +198,58 @@ export namespace highFive {
       meeting(kind, side),
       "slapper",
       { role: "slapper", subject: p.partner },
+      p.window,
     );
     const local: AutoMovieMotionMeeting.ITiming = AutoMovieMotionMeeting.local(
       met,
       context.start,
     );
-    const place: AutoMovieMotionHumanTarget.IPlace =
+    const paired: AutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionMeeting.place(met, "meet", entry);
-    const reach: number = Math.max(0.05, local.ready);
+
+    // A stated point is faced as the pair's own is: its normal looks back at
+    // this performer, level.
+    const back: IAutoMovieVector3 | undefined =
+      p.at === undefined
+        ? undefined
+        : { x: entry.root.x - p.at.x, y: 0, z: entry.root.z - p.at.z };
+    const place: AutoMovieMotionHumanTarget.IPlace =
+      p.at === undefined || back === undefined
+        ? paired
+        : {
+            ...paired,
+            point: p.at,
+            normal:
+              Vector3.length(back) > 1e-6
+                ? Vector3.normalize(back)
+                : paired.normal,
+          };
+    // A meeting a window holds later than this hand needs is waited for at
+    // rest: the hand leaves only its own reach's time before it.
+    const own: number = AutoMovieMotionHumanTiming.transport(
+      Vector3.length(
+        Vector3.subtract(
+          AutoMovieMotionMeeting.place(met, "meet", entry).point,
+          HumanHand.frame(
+            body,
+            poseBones(body, context.entry.pose),
+            side,
+            kind === "fist" ? "fist" : "palm",
+            "relaxed",
+          ).point,
+        ),
+      ),
+    );
+    const lead: number =
+      p.window === undefined
+        ? 0
+        : Math.max(0, local.ready - Math.max(0.05, own));
+    const reach: number = Math.max(0.05, local.ready - lead);
     const timed: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
       prepare: reach,
       attack: 0,
       hold: Math.max(0, local.relax - local.ready),
-      retract: reach,
+      retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       timed.duration,
@@ -185,9 +260,37 @@ export namespace highFive {
       ],
     );
     const effector: AutoMovieMotionHumanTouchEffector.IEffector =
-      kind === "fist"
-        ? { surface: "fist", shape: "fist" }
-        : { surface: "palm", shape: "flat" };
+      p.prop !== undefined
+        ? HumanHeld.steadiest(
+            context,
+            HELD,
+            side,
+            p.prop,
+            p.point,
+            entry,
+            place,
+          )
+        : kind === "fist"
+          ? { surface: "fist", shape: "fist" }
+          : { surface: "palm", shape: "flat" };
+
+    // A held vessel stands upright at the meeting and the fingers keep it.
+    const lay: "upright" | "tangent" =
+      p.prop === undefined ? "tangent" : "upright";
+
+    // A held vessel faces the way its arm turns it best at the meeting.
+    const facing: IAutoMovieVector3 | undefined =
+      p.prop === undefined
+        ? undefined
+        : AutoMovieMotionHumanTouchUpright.solve(
+            body,
+            entry,
+            side,
+            effector,
+            place,
+            AutoMovieMotionHumanBend.hang(body, entry, side),
+          ).facing;
+
     // The palm faces the partner with the fingers up: the region's normal
     // faces back at this performer, so laying the palm against it turns it
     // toward the partner.
@@ -195,20 +298,18 @@ export namespace highFive {
       AutoMovieMotionHumanTarget.IPlace,
       "point" | "normal"
     > => place;
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       entry,
       side,
       effector,
       place,
       "up",
+      lay,
+      facing,
     );
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+    const plan: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: AutoMovieMotionHumanTouch.touch({
         body,
@@ -221,7 +322,7 @@ export namespace highFive {
         count: 1,
         tangent: "up",
         bend,
-        reference: AutoMovieMotionHumanTouch.laid(
+        reference: AutoMovieMotionHumanTouchLaid.laid(
           body,
           entry,
           side,
@@ -229,10 +330,56 @@ export namespace highFive {
           place,
           "up",
           bend,
+          lay,
+          facing,
         ),
+        lay,
+        ...(facing === undefined ? {} : { facing }),
+        ...(p.prop === undefined ? {} : { fingers: "keep" as const }),
         entry,
       }),
       contact: "meet",
     });
+    const waited: IHumanActionPlan = lead > 0 ? delayed(plan, lead) : plan;
+    return p.prop === undefined
+      ? waited
+      : HumanHeld.kept(context, waited, side, p.prop);
+  }
+
+  /**
+   * A plan begun later: the body holds the plan's first posture for `lead`
+   * seconds, then performs it.
+   *
+   * @param plan The plan.
+   * @param lead Seconds of waiting before it, positive.
+   * @returns The longer plan, its events and contact windows at the same film seconds after the wait.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is held, for how long, and where the instants move.
+   * @evidence contracts/development/implementation.md#principled-implementation Waiting at rest is the plan's first posture held; every share is rescaled to the longer duration so each instant keeps its seconds after the wait.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of the same plan with its time moved.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is the plan's own, read at a clamped second; nothing is written for the wait.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the plan's events and windows.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the plan.
+   */
+  export function delayed(
+    plan: IHumanActionPlan,
+    lead: number,
+  ): IHumanActionPlan {
+    const duration: number = plan.duration + lead;
+    const share = (s: number): number => (lead + s * plan.duration) / duration;
+    return {
+      ...plan,
+      duration,
+      events: plan.events.map((e) => ({ ...e, share: share(e.share) })),
+      contacts: plan.contacts.map((c: IHumanContactWindow) =>
+        c.from <= 0 && c.to >= 1
+          ? c
+          : { ...c, from: c.from <= 0 ? 0 : share(c.from), to: share(c.to) },
+      ),
+      ...(plan.contact === undefined ? {} : { contact: plan.contact + lead }),
+      posture: (seconds: number): IHumanPosture =>
+        plan.posture(Math.max(0, seconds - lead)),
+    };
   }
 }

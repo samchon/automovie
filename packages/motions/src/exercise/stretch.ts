@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -9,6 +10,7 @@ import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
@@ -16,6 +18,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -23,6 +26,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { stretchCrossBody } from "./stretchCrossBody";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
 /**
@@ -39,9 +43,9 @@ import { stretchQuadriceps } from "./stretchQuadriceps";
  *
  * - Neck side bend: the neck and head bend to one side by the share of the
  *   neck's lateral range.
- * - Cross-body: the stretched arm crosses the chest to beyond the other
- *   shoulder (provisional place), and the other palm presses the stretched
- *   arm near its elbow.
+ * - Cross-body: the stretched arm crosses the chest until its wrist is
+ *   beyond the other shoulder (provisional place), and the other palm
+ *   presses the stretched arm near its elbow (`stretchCrossBody`).
  * - Overhead side bend: both arms overhead, palms facing, the spine and
  *   the chest bent to one side by the share of their lateral ranges, the
  *   pelvis level over the planted feet and the arms riding the chest.
@@ -112,7 +116,7 @@ export namespace stretch {
     side?: "left" | "right";
 
     /** Seconds held; `HOLD` when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How far into the range; `moderate` when absent. */
     intensity?: "mild" | "moderate";
@@ -244,7 +248,7 @@ export namespace stretch {
         from: 0,
         to: clock.duration,
         placement: (_: IHumanPosture, seconds: number): HumanFoot.IPlacement =>
-          AutoMovieMotionHumanLeg.between(
+          AutoMovieMotionHumanLegPhrase.between(
             stance[side],
             placement,
             weight(seconds),
@@ -278,59 +282,18 @@ export namespace stretch {
           ),
         );
         break;
-      case "crossBody": {
-        const reach = (posture: IHumanPosture): IAutoMovieVector3 =>
-          HumanFrame.point(
-            {
-              origin: { x: posture.root.x, y: 0, z: posture.root.z },
-              yaw: posture.yaw,
-            },
-            {
-              x: -sign * 1.2 * m.shoulderHalfWidth,
-              y: m.shoulderHeight,
-              z: 0.35 * (m.upperArm + m.forearm),
-            },
-          );
+      case "crossBody":
         primitives.push(
-          ...AutoMovieMotionHumanPlaced.arm({
+          ...stretchCrossBody.arms({
             body,
             side,
-            from: 0,
-            to: clock.duration,
-            rest: rest(side),
+            duration: clock.duration,
+            rest,
             weight,
-            place: (posture: IHumanPosture) => ({
-              point: reach(posture),
-              facing: facing(posture, { x: 0, y: 0, z: -1 }),
-              forward: facing(posture, { x: -sign, y: 0, z: 0 }),
-            }),
-            bend: "forward",
-          }),
-          ...AutoMovieMotionHumanPlaced.arm({
-            body,
-            side: other,
-            from: 0,
-            to: clock.duration,
-            rest: rest(other),
-            weight,
-            place: (posture: IHumanPosture) => {
-              const shoulder: IAutoMovieVector3 = HumanFrame.point(
-                { origin: posture.root, yaw: posture.yaw },
-                body.rest.get(`${side}UpperArm`)!,
-              );
-              return {
-                point: Vector3.add(
-                  Vector3.lerp(reach(posture), shoulder, 0.45),
-                  Vector3.scale(forward, m.forearmRadius + m.upperArmRadius),
-                ),
-                facing: facing(posture, { x: 0, y: 0, z: -1 }),
-              };
-            },
-            bend: "folded",
+            forward,
           }),
         );
         break;
-      }
       case "overheadSide": {
         // The bend is the spine's: a pelvis rolled with it would take the
         // hip joints off the planted legs.

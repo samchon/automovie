@@ -9,7 +9,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * takes until it meets something), or a capsule, a segment swept by that
  * radius, when it also gives the axis's other end: a shin, a forearm, any
  * limb segment that strikes along its length, so another body crossing the
- * segment between its ends is met, not passed between sparse points. Every
+ * segment between its ends is met, not passed between sparse points; a
+ * tapered capsule's radius runs linearly from one end to the other, as a
+ * limb narrows from one joint to the next. Every
  * body is a signed distance at a second, from a point and, for capsule
  * weapons, from a segment (the least signed distance over the segment's
  * points). Both may depend on which weapons have already stopped, because a
@@ -24,7 +26,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * bisections of the first crossing, so the result is deterministic; a
  * contact shorter than one step (a weapon and a body passing through each
  * other within it) is the scan's stated blind spot, so the step must stay
- * below the time either needs to cross the other's thickness. Ties in
+ * below the time either needs to cross the other's thickness. A weapon
+ * that states the span it is live in (`from`, `to`) is scanned only on the
+ * scan's own steps that reach into that span, since outside it the weapon
+ * meets nothing; the steps are the same as a scan of the whole span, so the
+ * result is too, and a performance of many strikes scans each strike over
+ * its own window instead of over the whole performance. Since only the
+ * earliest impact is stopped, each round scans the weapons in the order
+ * they become live and no weapon past the earliest impact found so far: one
+ * that becomes live after it cannot be earlier. Ties in
  * time are broken by the weapons' ids, and a weapon that touches the moment
  * another stops is stopped at that same second, so the result does not
  * depend on the order the weapons are listed in.
@@ -44,13 +54,13 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @param input The weapons, the bodies and the span.
  * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, a weapon id repeats, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
+ * @throws {Error} When the span or the step is not positive, a weapon id repeats, a weapon's live span is not finite or ends before it begins, a tail radius is given without a tail or is not a finite non-negative length, a capsule weapon meets a body that measures no segment, or a body names a carried weapon that is not its own.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, its determinism, its tie rule and what it does not model.
  * @evidence contracts/development/implementation.md#principled-implementation The time-ordered event loop of impulse-based simulation over continuous first-impact times.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over events and one first-impact search.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid spans, steps and repeated ids throw, and a capsule weapon is never reduced to its end points when a body cannot measure a segment: that throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons: quadratic in weapons times the scan's samples, for the handful of weapons one exchange holds.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each event re-scans the remaining weapons, each over the scan's samples inside its own live span and no later than the earliest impact found in that round: a performance of many strikes in sequence costs in proportion to its strikes, where scanning every weapon over the whole span after every event cost the square of them.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; callers memoise.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -64,26 +74,57 @@ export function resolveAutoMovieContactEvents(
   for (const w of input.weapons) {
     if (ids.has(w.id)) throw new Error(`Repeated contact weapon ${w.id}`);
     ids.add(w.id);
+    if (
+      (w.from !== undefined && !Number.isFinite(w.from)) ||
+      (w.to !== undefined && !Number.isFinite(w.to)) ||
+      (w.from !== undefined && w.to !== undefined && w.to < w.from)
+    )
+      throw new Error(
+        `Contact weapon ${w.id} has a live span that is not finite or ends before it begins`,
+      );
+    if (
+      w.tailRadius !== undefined &&
+      (w.tail === undefined ||
+        !Number.isFinite(w.tailRadius) ||
+        w.tailRadius < 0)
+    )
+      throw new Error(
+        `Contact weapon ${w.id} has a tail radius without a tail, or one that is not a finite non-negative length`,
+      );
   }
   const stopped: Map<string, number> = new Map();
   const events: resolveAutoMovieContactEvents.IEvent[] = [];
-  const weapons = [...input.weapons].sort((a, b) =>
-    a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+  // In the order the weapons become live, so the earliest impact is found
+  // early and bounds the scans after it; ties in time go to the lesser id.
+  const weapons: resolveAutoMovieContactEvents.IWeapon[] = [
+    ...input.weapons,
+  ].sort(
+    (
+      a: resolveAutoMovieContactEvents.IWeapon,
+      b: resolveAutoMovieContactEvents.IWeapon,
+    ): number =>
+      (a.from ?? -Infinity) - (b.from ?? -Infinity) ||
+      (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
   for (;;) {
     let best: resolveAutoMovieContactEvents.IEvent | undefined;
     const after: number = events.at(-1)?.seconds ?? input.from;
     for (const weapon of weapons) {
       if (stopped.has(weapon.id)) continue;
-      const hit = firstImpact(
+      if (best !== undefined && (weapon.from ?? -Infinity) > best.seconds)
+        break;
+      const hit: { against: string; seconds: number } | undefined = firstImpact(
         weapon,
         input,
         stopped,
         Math.max(input.from, after),
+        best?.seconds ?? Infinity,
       );
       if (
         hit !== undefined &&
-        (best === undefined || hit.seconds < best.seconds)
+        (best === undefined ||
+          hit.seconds < best.seconds ||
+          (hit.seconds === best.seconds && weapon.id < best.weapon))
       )
         best = { weapon: weapon.id, ...hit };
     }
@@ -129,7 +170,7 @@ export function resolveAutoMovieContactEvents(
  * Companion types of {@link resolveAutoMovieContactEvents}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's frame and unit.
- * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
+ * @evidence contracts/development/design.md#principled-representation Weapons are moving spheres or capsules (an optional axis end, and an optional radius there for a tapered one), bodies signed distances from a point and optionally from a segment, both functions of seconds and of the stops so far.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What callers provide and read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
  */
@@ -145,8 +186,22 @@ export namespace resolveAutoMovieContactEvents {
     /** The body carrying it, whose own distance it ignores. */
     owner: string;
 
-    /** The sphere's radius, metres. */
+    /** The sphere's radius, metres; a capsule's radius at `position`. */
     radius: number;
+
+    /**
+     * A tapered capsule's radius at `tail`, metres: the capsule then narrows
+     * (or widens) linearly from `radius` at `position` to this, the round
+     * cone of a limb whose girth changes from one joint to the next. Absent
+     * for a sphere and for a capsule of one radius.
+     */
+    tailRadius?: number;
+
+    /** When the weapon starts to be live, seconds, finite; it meets nothing before, whatever its path says. The span's start when absent. */
+    from?: number;
+
+    /** When it stops being live, seconds, finite and not before `from`; it meets nothing after, whatever its path says. The span's end when absent. */
+    to?: number;
 
     /**
      * The sphere's centre on its free path at a second, world metres.
@@ -189,11 +244,16 @@ export namespace resolveAutoMovieContactEvents {
      * The signed distance from a segment to the body's surface at a second,
      * metres: the least signed distance over the segment's points, positive
      * when the whole segment is outside. Required to meet capsule weapons.
+     * Given a taper, the segment is widened by a radius running linearly
+     * from its first end's to its other end's, and the distance is that
+     * tapered capsule's: the least over its points of the distance less the
+     * radius there.
      *
      * @param a The segment's first end, world metres.
      * @param b Its other end, world metres.
      * @param seconds Seconds.
      * @param stops The stops so far.
+     * @param taper The radii at `a` and at `b`, metres, for a tapered capsule weapon.
      * @returns Metres.
      */
     axis?(
@@ -201,6 +261,7 @@ export namespace resolveAutoMovieContactEvents {
       b: IAutoMovieVector3,
       seconds: number,
       stops: IStops,
+      taper?: readonly [number, number],
     ): number;
 
     /**
@@ -256,14 +317,20 @@ export namespace resolveAutoMovieContactEvents {
   }
 }
 
-/** A weapon's first impact from a second on, against the bodies it does not belong to. */
+/** A weapon's first impact from a second on, against the bodies it does not belong to; undefined when it has none, or none before `horizon`. */
 function firstImpact(
   weapon: resolveAutoMovieContactEvents.IWeapon,
   input: resolveAutoMovieContactEvents.IInput,
   stops: resolveAutoMovieContactEvents.IStops,
   from: number,
+  horizon: number,
 ): { against: string; seconds: number } | undefined {
+  const live: number = weapon.from ?? -Infinity;
+  const until: number = Math.min(input.to, weapon.to ?? Infinity);
   const gap = (t: number): { distance: number; against: string } => {
+    // Outside its live span the weapon meets nothing, whatever its path.
+    if (t < live || t > (weapon.to ?? Infinity))
+      return { distance: Infinity, against: "" };
     const p: IAutoMovieVector3 = weapon.position(t, stops);
     const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
     let best: { distance: number; against: string } = {
@@ -281,17 +348,29 @@ function firstImpact(
           `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
         );
       const d: number =
-        (q === undefined
-          ? body.distance(p, t, stops)
-          : body.axis!(p, q, t, stops)) - weapon.radius;
+        q === undefined
+          ? body.distance(p, t, stops) - weapon.radius
+          : weapon.tailRadius === undefined
+            ? body.axis!(p, q, t, stops) - weapon.radius
+            : body.axis!(p, q, t, stops, [weapon.radius, weapon.tailRadius]);
       if (d < best.distance) best = { distance: d, against: body.id };
     }
     return best;
   };
-  const start = gap(from);
-  if (start.distance <= 0) return { against: start.against, seconds: from };
-  let previous: number = from;
-  for (let k: number = 1; ; k++) {
+  // Outside its live span the weapon meets nothing, so the scan starts at
+  // the last of its steps before that span and ends at the first step past
+  // it: the same steps, and so the same result, as scanning from `from`.
+  if (until < from) return undefined;
+  const first: number =
+    live > from ? Math.max(1, Math.floor((live - from) / input.step)) : 1;
+  if (first === 1) {
+    const start: { distance: number; against: string } = gap(from);
+    if (start.distance <= 0) return { against: start.against, seconds: from };
+  }
+  let previous: number = first === 1 ? from : from + (first - 1) * input.step;
+  for (let k: number = first; ; k++) {
+    // An impact found past this step would come after `horizon`.
+    if (previous >= horizon) return undefined;
     const t: number = Math.min(input.to, from + k * input.step);
     if (gap(t).distance <= 0) {
       let lo: number = previous;
@@ -303,7 +382,7 @@ function firstImpact(
       }
       return { against: gap(hi).against, seconds: hi };
     }
-    if (t >= input.to) return undefined;
+    if (t >= until) return undefined;
     previous = t;
   }
 }

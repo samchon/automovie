@@ -29,6 +29,8 @@ export type AutoMovieHumanoidRegion =
   | "chin"
   | "jawLeft"
   | "jawRight"
+  | "cheekLeft"
+  | "cheekRight"
   | "templeLeft"
   | "templeRight"
   | "earLeft"

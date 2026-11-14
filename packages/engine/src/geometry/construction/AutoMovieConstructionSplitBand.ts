@@ -967,13 +967,17 @@ export namespace AutoMovieConstructionSplitBand {
    * @param forward The forward columns, in their order.
    * @returns The scale of every column, or the refusal when a column has no monotone scale.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Scaling one column's first derivatives by `f` and its second by `f^2` reparameterizes it across the band, so each rail stays G2; a field smooth in the clock keeps the columns' periodic spline interpolation smooth along the loop, and the envelope keeps every forward column monotone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Envelope, smoothing, one lowering, and a check per column, repeated only for a column that fails.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No column is given more than its own monotone scale; a column with none refuses the band as the common scale does.
-   * @evidence contracts/development/common.md#meaningful-documentation States the field, its two constants and the backward columns' treatment.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(n^2) for n columns per pass, a few hundred columns once per band.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A numeric field over already built columns coordinates no work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one array of n numbers.
+   * Scaling one column's first derivatives by `f` and its second by `f^2`
+   * reparameterizes it across the band, so each rail stays G2; a field smooth
+   * in the clock keeps the columns' periodic spline interpolation smooth along
+   * the loop, and the envelope keeps every forward column monotone. No column
+   * is given more than its own monotone scale; a column with none refuses the
+   * band as the common scale does. The work is one envelope, one smoothing,
+   * one lowering and a check per column, repeated only for a column that
+   * fails: O(n^2) for n columns per pass, a few hundred columns once per band,
+   * returning one array of n numbers. It is a numeric field over already built
+   * columns and coordinates no work, and `create` answers the contracts for
+   * the band it builds.
    */
   function local(columns: readonly IColumn[], backward: readonly number[], factors: readonly number[], forward: readonly IColumn[]): number[] | string {
     const n: number = columns.length;

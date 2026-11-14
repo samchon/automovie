@@ -11,8 +11,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * How far the hips move back so the whole-body centre of mass stands over
@@ -26,10 +26,12 @@ import { poseBones } from "../posture/poseBones";
  * middle of the feet's soles along the heading, the static balance
  * condition. The posture is solved (legs on their planted goals, arms on
  * theirs) and the centre placed from the solved bones at each trial of a
- * scan and bisection over the shift. Laws solve it once per plan at the
- * movement's deepest pitch and scale the shift with the sine of the pitch in
- * between, which is exact for a rigid upper body and leaves only the legs'
- * reconfiguration unmodelled at intermediate pitches; their captures check
+ * scan and bisection over the shift. A bow solves it once per plan at its
+ * deepest pitch and scales the shift with the sine of the pitch in between,
+ * which is exact for a rigid upper body and leaves only the legs'
+ * reconfiguration unmodelled at intermediate pitches; a lean into work,
+ * whose reaching arm is no rigid part of the trunk, solves it at steps of
+ * the pitch (`AutoMovieMotionHumanLeanInto`). Their captures check
  * the margin of stability (Hof et al. 2005) on every frame they draw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
@@ -38,15 +40,28 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; one gap remains: `margin` is read only by the balance test, a member only a test reads.
  */
 export namespace HumanBalance {
-  /** Grid steps of the balance search over shifts from 0 to 0.4 hip heights. */
+  /** Grid steps of the balance search over shifts from 0 to `RANGE` hip heights. */
   export const STEPS: number = 16;
+
+  /** How far back the balance search looks unless told otherwise, hip heights: the shift of a trunk pitched over hips that stand over the feet. */
+  export const RANGE: number = 0.4;
+
+  /**
+   * How far back the balance search looks for a posture whose hips may stand
+   * anywhere the planted legs let them, hip heights: a leg's length ahead of
+   * the feet, about one hip height, back to a foot's length behind them,
+   * about 0.3.
+   */
+  export const REACH: number = 1.3;
 
   /**
    * The hips' backward shift that puts the whole-body centre of mass over
-   * the middle of the feet's soles along the heading.
+   * the middle of the feet's soles along the heading, or a stated distance
+   * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * The shifts from 0 to 0.4 hip heights are scanned on a grid for the first
-   * one at which the centre of mass no longer lies ahead of the soles, and
+   * The shifts from 0 to `range` hip heights are scanned on a grid, of the
+   * same step whatever the range, for the first one at which the centre of
+   * mass no longer lies ahead of the soles, and
    * the crossing is refined by bisection to 0.5 mm. The scan is needed
    * because the centre stops following the hips once the planted legs reach
    * the limit of their range (in a deep squat the ankles cannot dorsiflex
@@ -56,28 +71,35 @@ export namespace HumanBalance {
    *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres.
-   * @returns The shift, metres.
+   * @param range How far back the search looks, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
+   * @param target How far ahead of the soles' middle the centre is put, metres; 0, the middle itself, when absent.
+   * @returns The shift, metres; 0 when the centre lies no farther ahead than the target without one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
    * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass over the middle of the soles along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and the error stops responding to the shift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One root find over the caller's posture builder; the error is `offset`, so the balance measure lives in one place.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range (0.4 hip heights) and tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most `STEPS` + 1 posture solves for the scan plus about log2(range / 0.5 mm), near 10, for the bisection, each a forward-kinematics pass with limb fits.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most `STEPS` + 1 posture solves for the scan over `RANGE` (in proportion more over a wider range) plus about log2(range / 0.5 mm), near 10, for the bisection, each a forward-kinematics pass with limb fits.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: callers solve once per plan at the deepest pitch and scale the result, so no two calls share a posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function shift(
     body: IHumanBody,
     build: (back: number) => IHumanPosture,
+    range: number = RANGE,
+    target: number = 0,
   ): number {
-    const error = (back: number): number => offset(body, build(back));
-    const top: number = 0.4 * body.measure.hipHeight;
+    const error = (back: number): number => offset(body, build(back)) - target;
+    // One grid step is `RANGE / STEPS` hip heights whatever the range, so a
+    // wider search finds the same first crossing a narrower one does.
+    const step: number = (RANGE * body.measure.hipHeight) / STEPS;
+    const steps: number = Math.ceil((STEPS * range) / RANGE - 1e-9);
     let previous: number = 0;
     const before: number = error(0);
     if (before <= 0) return 0;
     let best: { back: number; error: number } = { back: 0, error: before };
-    for (let k: number = 1; k <= STEPS; k++) {
-      const back: number = (top * k) / STEPS;
+    for (let k: number = 1; k <= steps; k++) {
+      const back: number = step * k;
       const e: number = error(back);
       if (e <= 0) {
         let lo: number = previous;

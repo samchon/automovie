@@ -14,8 +14,9 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * forehead, a reach for a shelf) raises its root by `lift` and adds `legs`.
  *
  * The heel's angle is the foot's pitch about the joint, degrees; the ankle
- * rises by the joint-to-ankle lever's turn, about 5 cm at 35 degrees on an
- * average foot.
+ * rises by the joint-to-ankle lever's turn, about 7 cm at 35 degrees on an
+ * average foot (74 mm measured on the average polygon man, whose ankle
+ * stands 129 mm behind the toes' joint).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, what stays on the floor, who uses it and the angle's meaning with a magnitude.
  * @evidence contracts/development/design.md#principled-representation A foot placement pivoted about a sole point, the representation the lunge's trailing foot uses.
@@ -23,7 +24,14 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No height is stated: it follows from the foot's own lever.
  */
 export namespace AutoMovieMotionHumanRise {
-  /** Both feet as they stand flat. */
+  /**
+   * Both feet as they stand flat.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that it holds one placement per foot, standing flat, in the placement frame of `HumanFoot`.
+   * @evidence contracts/development/design.md#principled-representation A record keyed by the two sides, each a foot placement, the form `foot` and `lift` read.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here for the rise and read by the stance solver and the kiss; it reuses `HumanFoot.IPlacement` instead of a second foot type.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed pair of keys, so neither a third foot nor a missing one can be written.
+   */
   export type Stance = Record<"left" | "right", HumanFoot.IPlacement>;
 
   /**

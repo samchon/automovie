@@ -27,7 +27,9 @@ async function main(): Promise<void> {
     prefix: "test_",
     location: path.join(__dirname, "features"),
     parameters: (): [] => [],
-    extension: "ts",
+    // The program finds tests with its own extension, so it runs from the
+    // sources and from a build of them alike.
+    extension: path.extname(__filename).slice(1),
   };
   const filter: (name: string) => boolean = await prepareScenarioFilter(
     process.argv.slice(2),

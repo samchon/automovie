@@ -1,3 +1,4 @@
+import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -12,7 +13,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a base is and what most actions take as theirs.
  * @evidence contracts/development/design.md#principled-representation A base is an action plan like any other, so a moving base (a walk) and a held one compose the same way.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions: the held base and the supports of a body standing on both feet.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions: the held base, the base of an action that may ride a carrier, and the supports of a body standing on both feet.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the plan and contact-window types; no base type of its own.
  */
 export namespace AutoMovieMotionHumanBase {
@@ -42,6 +43,47 @@ export namespace AutoMovieMotionHumanBase {
       events: [],
       contacts: [...contacts],
       posture: (): IHumanPosture => posture,
+    };
+  }
+
+  /**
+   * The base of an action that may be performed over another: the carrier's
+   * posture, instant by instant, when the action is an overlay, and
+   * otherwise the posture it was entered in, held on the supports given.
+   *
+   * @param context The action's context.
+   * @param duration Seconds; the composed action's clock lasts as long.
+   * @param contacts The supports a held base stands on, shares of the duration; when absent, the supports the body rests on at the entry, held throughout. A carrier declares its own.
+   * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two cases, each input and whose supports count.
+   * @evidence contracts/development/implementation.md#principled-implementation A base is a plan, so a moving one (the carrier) and a held one compose the same way; the overlay's primitives then write on the body the carrier places at that instant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the context's carrier.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overlay declares none of the carrier's supports a second time.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `still` for an action that carries the body itself.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the carrier's posture function.
+   */
+  export function under(
+    context: Pick<IHumanActionContext, "carrier" | "entry">,
+    duration: number,
+    contacts?: readonly IHumanContactWindow[],
+  ): IHumanActionPlan {
+    const carrier: IHumanActionContext.ICarrier | undefined = context.carrier;
+    if (carrier === undefined)
+      return still(
+        duration,
+        context.entry.posture,
+        contacts ??
+          context.entry.supports.map(
+            (s): IHumanContactWindow => ({ ...s, from: 0, to: 1 }),
+          ),
+      );
+    return {
+      duration,
+      events: [],
+      contacts: [],
+      posture: (seconds: number): IHumanPosture => carrier.posture(seconds),
     };
   }
 

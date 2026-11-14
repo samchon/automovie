@@ -27,6 +27,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingQuality } from "../striking/StrikingQuality";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { ReactionSource } from "./ReactionSource";
 
 /**
  * A flinch: the protective startle away from a sudden threat or a blow, the
@@ -72,6 +73,11 @@ export namespace flinch {
       stagger: ["anytime", "reflex"],
       knockdown: ["anytime", "reflex"],
     });
+
+  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  export const accepts: IHumanActionLaw["accepts"] = {
+    any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
+  };
 
   /**
    * Parameters.
@@ -175,7 +181,7 @@ export namespace flinch {
       cached = HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
         AutoMovieMotionHumanTarget.away(
-          AutoMovieMotionHumanTarget.resolve(
+          ReactionSource.at(
             context,
             p.from,
             context.start - StrikingTarget.LOOK,

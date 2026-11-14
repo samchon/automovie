@@ -3,10 +3,12 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -44,9 +46,17 @@ export namespace stand {
 
   /** Cancel table: a stand can be cut anywhere. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
+
+  /** What quiet standing lets an overlay take: the arms, the hands and the head. */
+  export const yields: IHumanActionLaw["yields"] = [
+    "head",
+    "leftHand",
+    "rightHand",
+    "leftArm",
+    "rightArm",
+  ];
 
   /**
    * Plan a stand.
@@ -113,7 +123,7 @@ export namespace stand {
   /** Parameters. */
   export interface IParams {
     /** How long to stand, seconds; 1.5 when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -7,11 +8,13 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -38,9 +41,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
  * (`relax`), with the phrase instants.
  *
- * Not drafted: rolls, cartwheels, round-offs, handsprings, salti, the vault,
- * bars and rings; they need ballistic flight (A4), angular momentum checks
- * and floor and bar supports.
+ * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
+ * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
+ * the vault (`vault`). Not drafted: bars and rings, which need swings about
+ * a bar support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the placement, the entry's two halves, the inverted pose, the timing, the source of the balance and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of a root row, leg rows and placed arms over one phrase.
@@ -79,7 +83,7 @@ export namespace gymnastics {
    */
   export interface IParams {
     /** Seconds held inverted; 2 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -267,7 +271,11 @@ export namespace gymnastics {
               ),
               rotation: turn,
             };
-            return AutoMovieMotionHumanLeg.between(stance, carried, swing(s));
+            return AutoMovieMotionHumanLegPhrase.between(
+              stance,
+              carried,
+              swing(s),
+            );
           },
           planted: (s: number): boolean => swing(s) <= 0,
         }),

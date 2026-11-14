@@ -26,7 +26,7 @@ const bone: (
   constraint: IAutoMovieJointConstraint | null,
 ): IAutoMovieBone => ({ bone: name, parent: null, rest: REST, constraint });
 
-// leftLowerArm carries an explicit override; leftUpperArm falls back to the
+// leftLowerArm carries an explicit override; leftHand falls back to the
 // default table; hips has no constraint anywhere (pass-through).
 const SKELETON: IAutoMovieSkeleton = {
   id: "s",
@@ -36,6 +36,7 @@ const SKELETON: IAutoMovieSkeleton = {
       abduction: null,
       twist: null,
     }),
+    bone("leftHand", null),
     bone("leftUpperArm", null),
     bone("hips", null),
   ],
@@ -48,8 +49,10 @@ const SKELETON: IAutoMovieSkeleton = {
  *
  * 1. Per-bone override: leftLowerArm flexion 120 → 90 (above max), its `null`
  *    abduction 30 → 0 (immobile axis), its `null`-angle twist stays `null`.
- * 2. Default-table fallback: leftUpperArm flexion −200 → −60 (below min), and its
- *    in-range abduction 50 is left untouched.
+ * 2. Default-table fallback: leftHand flexion -200 goes to -80 (below min), and its
+ *    in-range abduction 10 is left untouched. (The shoulder's default is gated by
+ *    swing and twist, where -200 of flexion is the in-range 160, so a three-angle
+ *    joint shows the fallback.)
  * 3. Bone not in the skeleton resolves to the default table (rightLowerArm flexion
  *    200 → 150).
  * 4. A bone with no constraint anywhere (hips) passes through unchanged, and the
@@ -58,7 +61,7 @@ const SKELETON: IAutoMovieSkeleton = {
  *    the clamp output remains finite.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs clampJointRom/clampPose and observes override/default/unconstrained values, null preservation, root preservation and neutral repair of specified nonfinite angles.
- * @evidence contracts/development/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply shoulder min-60 and elbow max150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
+ * @evidence contracts/development/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply the wrist's (leftHand) flexion min -80 and the elbow's max 150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
  * @evidence contracts/development/testing.md#distinguishing-cases Override/default/absent-bone/unconstrained paths, in-range/null axes, borrowed root and NaN/Infinity repair contrast projection with preservation; coupled cone behavior and broad fixed-point sweeps have separate tests.
  * @evidence contracts/development/testing.md#execution-ownership The named test_rom_clamp_pose entry directly executes portable synchronous angular projection on existing records, without new Human assets, live inspection or physiological validation.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Per-bone override: leftLowerArm flexion 120 → 90 (above max), its `null`).
@@ -69,7 +72,7 @@ export function test_rom_clamp_pose(): void {
     root: REST,
     joints: [
       { bone: "leftLowerArm", flexion: 120, abduction: 30, twist: null },
-      { bone: "leftUpperArm", flexion: -200, abduction: 50, twist: 0 },
+      { bone: "leftHand", flexion: -200, abduction: 10, twist: null },
       { bone: "rightLowerArm", flexion: 200, abduction: null, twist: null },
       { bone: "hips", flexion: 999, abduction: null, twist: null },
     ],
@@ -98,11 +101,11 @@ export function test_rom_clamp_pose(): void {
   // 2. default-table fallback
   TestValidator.predicate(
     "flexion clamped to table min",
-    nclose(byBone("leftUpperArm").flexion!, -60, 0),
+    nclose(byBone("leftHand").flexion!, -80, 0),
   );
   TestValidator.predicate(
     "in-range abduction untouched",
-    nclose(byBone("leftUpperArm").abduction!, 50, 0),
+    nclose(byBone("leftHand").abduction!, 10, 0),
   );
 
   // 3. bone absent from the skeleton → default table

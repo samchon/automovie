@@ -5,11 +5,14 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -30,17 +33,17 @@ import { seated } from "./seated";
  * the legs are solved onto the unmoved feet. The trunk flexes on a
  * minimum-jerk profile over the first half of the rise to a peak of at least
  * `35 + 50 (1 - r)` degrees, so it is still flexing fast when the seat is
- * left (peak trunk flexion follows seat-off, Schenkman et al.). Seat-off
- * comes at the first frame, from 15 to 45 % of the rise, at which the
- * extrapolated centre of mass of the engine's whole-body model (Hof,
- * Gazendam and Sinke 2005) enters the feet's base of support: the forward
- * momentum of the flexing trunk then carries the body over the feet. When no
- * frame does, the peak is raised in 5 degree steps up to 70 degrees, then
- * the feet are drawn further back (below), and a rise whose feet stand too
- * far ahead even then is refused. From seat-off
- * the socket travels forward and up to standing at 85 %, the trunk returns
- * upright by the end, and the hands leave the thighs over the next 30 %. The
- * time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
+ * left (peak trunk flexion closely follows seat-off, Schenkman et al.).
+ * Seat-off comes at the first frame from 40 % of the rise (the flexion then
+ * 94 % of its peak; provisional) to 45 %, at which the extrapolated centre
+ * of mass of the engine's whole-body model (Hof, Gazendam and Sinke 2005)
+ * enters the feet's base of support: the forward momentum of the flexing
+ * trunk then carries the body over the feet. When no frame does, the peak
+ * is raised in 5 degree steps up to 70 degrees, then the feet are drawn
+ * further back (below), and a rise whose feet stand too far ahead even then
+ * is refused. From seat-off the socket travels forward and up to standing
+ * at 85 %, the trunk returns upright by the end, and the hands leave the
+ * thighs, or the armrests they pushed on, over the next 30 %. The time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
  * height, the seat height being where the socket rests (provisional, as the
  * sit's).
  *
@@ -67,6 +70,11 @@ import { seated } from "./seated";
  * The rise reads only the seated posture it is entered from, so it follows
  * a sit, a shift or any posture with the socket on a seat. Events `seatOff`
  * and `standing`; the seat window ends at seat-off.
+ *
+ * A seat above 1.2 of the popliteal height with a foot off the floor, as a
+ * bar stool or a saddle is sat on, is got off instead
+ * ({@link HumanMountOff}), ahead of the seat or to the side `to` names, with
+ * the same events.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
@@ -103,8 +111,21 @@ export namespace rise {
   /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees (12 provisional, Shepherd and Koh 1996; 20 the ankle's dorsiflexion range). */
   export const SHANK: readonly number[] = [12, 14, 16, 18, 20];
 
-  /** Parameters: none; the rise starts from the seated entry. */
-  export type IParams = Record<string, never>;
+  /** Parameters; the rise starts from the seated entry. */
+  export interface IParams {
+    /**
+     * Where the body gets off a high seat: ahead of it, or to one side of a
+     * seat sat astride. When absent, the left of a seat the entry's base
+     * names as sat astride (the side horses and cycles are mounted from, a
+     * provisional convention) and ahead of any other. Read only where the
+     * feet are off the floor; a seat inside the band is risen from over the
+     * planted feet.
+     */
+    to?: "front" | "left" | "right";
+
+    /** How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. */
+    manner?: AutoMovieMotionManner.IManner;
+  }
 
   /**
    * Plan a rise.
@@ -119,8 +140,27 @@ export namespace rise {
     const body: IHumanBody = context.body;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const r: number = start.y / seated.popliteal(body);
-    const rising: number = 2 * (1 + 0.6 * (1 - r));
+
+    // A seat above the band with a foot off the floor is got off, not risen from over the feet.
+    if (
+      r > seated.RATIO[1] &&
+      (["left", "right"] as const).some(
+        (side: "left" | "right"): boolean =>
+          !context.entry.feet[side].planted ||
+          context.entry.feet[side].ankle.y >
+            body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
+      )
+    )
+      return HumanMountOff.plan(context, start, r);
+    const rising: number =
+      2 *
+      (1 + 0.6 * (1 - r)) *
+      AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
+    const rests: HumanBase.ISeat["armrests"] =
+      context.entry.base.kind === "seated"
+        ? context.entry.base.seat?.armrests
+        : undefined;
     const pitch0: number = context.entry.posture.pitch;
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
@@ -149,7 +189,7 @@ export namespace rise {
     );
     const from = context.entry.from;
     const sat =
-      from !== undefined && from.name === "sit"
+      from !== undefined && from.family === "sit"
         ? (from.params as { seat?: seated.ISeat }).seat
         : undefined;
     if (sat !== undefined)
@@ -242,7 +282,7 @@ export namespace rise {
         peak += 5
       )
         for (
-          let t: number = 0.15 * rising;
+          let t: number = 0.4 * rising;
           t <= 0.45 * rising + 1e-9;
           t += 1 / 24
         )
@@ -345,38 +385,24 @@ export namespace rise {
         kind: "seat",
         from: 0,
         to: share(seatOff),
-        support: { kind: "ground" },
+        support: GROUND,
       },
     ];
     for (const side of ["left", "right"] as const) {
-      const part: "leftFoot" | "rightFoot" =
-        side === "left" ? "leftFoot" : "rightFoot";
       const swing: [number, number] | undefined = swings[side];
-      if (swing === undefined)
-        contacts.push({
-          part,
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        });
-      else
-        contacts.push(
-          {
-            part,
-            kind: "plant",
-            from: 0,
-            to: share(swing[0]),
-            support: { kind: "ground" },
-          },
-          {
-            part,
-            kind: "plant",
-            from: share(swing[1]),
-            to: 1,
-            support: { kind: "ground" },
-          },
-        );
+      const windows: [IHumanContactWindow["part"], number, number][] =
+        swing === undefined
+          ? [[`${side}Foot`, 0, 1]]
+          : [
+              [`${side}Foot`, 0, share(swing[0])],
+              [`${side}Foot`, share(swing[1]), 1],
+            ];
+
+      // A hand on an armrest pushes on it until the seat leaves the seat.
+      if (rests?.[side] !== undefined)
+        windows.push([`${side}Hand`, 0, share(seatOff)]);
+      for (const [part, from, to] of windows)
+        contacts.push({ part, kind: "plant", from, to, support: GROUND });
     }
 
     return {
@@ -386,6 +412,7 @@ export namespace rise {
         { name: "standing", share: share(prepared + 0.85 * rising) },
       ],
       contacts,
+      base: { kind: "standing" },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const joints: IHumanPosture["joints"] = {
@@ -402,7 +429,7 @@ export namespace rise {
             pitch: pitch0,
             roll: 0,
           });
-          return seated.arms(
+          return seated.rested(
             body,
             resolveHumanPosture.lower(body, {
               root,
@@ -412,6 +439,8 @@ export namespace rise {
               joints,
               limbs: legsAt(root, t),
             }),
+            rests,
+            yaw,
             1,
           );
         }
@@ -454,12 +483,17 @@ export namespace rise {
           joints: tilt.joints,
           limbs: stand.legs(body, root, yaw, drawn),
         });
-        return seated.arms(
+        return seated.rested(
           body,
           posture,
+          rests,
+          yaw,
           1 - minimumJerk((u - away) / (0.3 * rising)).s,
         );
       },
     };
   }
 }
+
+/** What a foot on the floor, or a hand on an armrest of a seat that stands on it, bears on. */
+const GROUND: IHumanContactWindow["support"] = { kind: "ground" };

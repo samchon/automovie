@@ -5,14 +5,15 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /**
- * The meeting of an action two performers do together: one frame with the
- * place of each shared contact, and the film seconds both arrive at, hold
- * and leave.
+ * The meeting of an action two or more performers do together: one frame
+ * with the place of each shared contact, and the film seconds all arrive
+ * at, hold and leave.
  *
  * A meeting is computed once, by a pure function of where the roles stand
  * when it starts, and every role's law reads the same record, so no law
@@ -24,7 +25,7 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
  * @evidence contracts/development/design.md#principled-representation A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four records and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Five records and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
@@ -132,6 +133,26 @@ export namespace AutoMovieMotionMeeting {
   }
 
   /**
+   * The film seconds a meeting holds over, as the composition states them:
+   * the contact is made no earlier than `from` and left at `to`, and the
+   * partners are free before and after. A meeting whose natural contact
+   * comes before `from` is moved later as a whole; one that would leave
+   * before `to` is held until then.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each bound does and what is free outside them.
+   * @evidence contracts/development/design.md#principled-representation A held meeting (a hug, a clasp) lasts as long as the story says, which only the composition knows; its two ends are film seconds every role reads alike.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional numbers, read by `of`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A window cannot shorten a meeting below its natural contact: `of` refuses it instead of cutting the reach.
+   */
+  export interface IWindow {
+    /** The earliest film second of the contact; the natural one when absent. */
+    from?: number;
+
+    /** The film second the contact is left; the natural one when absent. */
+    to?: number;
+  }
+
+  /**
    * A meeting.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning, frame and unit; the frame states both its two-role and its one-role form.
@@ -145,8 +166,9 @@ export namespace AutoMovieMotionMeeting {
 
     /**
      * The shared frame: its origin on the floor at the mean of the roles'
-     * floor points, heading from the first role to the second; one role's
-     * own floor point and heading when it is alone.
+     * floor points, heading from the first role to the second, or to the
+     * mean floor point of the others when more than two meet; one role's own
+     * floor point and heading when it is alone.
      */
     frame: HumanFrame.IFrame;
 
@@ -169,13 +191,14 @@ export namespace AutoMovieMotionMeeting {
    * @param kind The kind.
    * @param roles The roles present, in any order.
    * @param context The film second the meeting starts at.
+   * @param window The film seconds it holds over; its natural instants when absent.
    * @returns The meeting.
-   * @throws {Error} With no role, more roles than the kind has, or a role the kind does not name.
+   * @throws {HumanRefusal} A `participant` refusal on `roles` with the kind's range of roles, with no role or more roles than the kind has; on `role` listing the kind's roles, for a role it does not name; and a `parameter` refusal on `window` when the window ends before the contact can be made.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free and the three refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The roles are sorted by name and then subject before anything is read, so the result does not depend on who asks. The frame sits at the mean floor point heading from the first role to the second; each contact is the kind's own placement or the mean of the roles' default places; each shared instant is the latest of the roles' natural ones, since the pair can meet only when the slower role arrives.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the roles' order is free, the two `participant` refusals (the count of roles with its range, a role the kind does not name with its roles) and the `window` refusal that names the earliest second the contact can be made.
+   * @evidence contracts/development/implementation.md#principled-implementation The roles are sorted by name and then subject before anything is read, so the result does not depend on who asks. The frame sits at the mean floor point heading from the first role to the second; each contact is the kind's own placement or the mean of the roles' default places; each shared instant is the latest of the roles' natural ones, since the pair can meet only when the slower role arrives; a window moves the instants later to its start and holds the contact to its end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate, order, frame, contacts, instants, record, in that order with one local each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list throws with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An empty, oversized or misnamed role list is refused with the kind's roles named. Roles on one floor point take the first role's heading instead of an undefined direction. A role count is checked against the kind's, not each name's multiplicity.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two roles and a few contacts; one sort and one pass each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Default places resolve through `AutoMovieMotionHumanTarget.fallback` and the frame change through `HumanFrame.local`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body, posture or bone.
@@ -184,16 +207,33 @@ export namespace AutoMovieMotionMeeting {
     kind: IKind,
     roles: readonly IRole[],
     context: { start: number },
+    window?: IWindow,
   ): IMeeting {
     if (roles.length === 0 || roles.length > kind.roles.length)
-      throw new Error(
-        `A ${kind.name} meets ${kind.roles.length} roles at most and one at least`,
-      );
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "roles",
+        value: roles.length,
+        feasible: {
+          kind: "range",
+          minimum: 1,
+          maximum: kind.roles.length,
+          unit: "",
+          whole: true,
+        },
+        reason: `a ${kind.name} meets ${kind.roles.length} roles at most and one at least, and ${roles.length} were given`,
+        fix: `give between one and ${kind.roles.length} of its roles: ${kind.roles.join(", ")}`,
+      });
     for (const role of roles)
       if (!kind.roles.includes(role.name))
-        throw new Error(
-          `A ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
-        );
+        throw new HumanRefusal({
+          kind: "participant",
+          axis: "role",
+          value: role.name,
+          feasible: { kind: "alternatives", values: [...new Set(kind.roles)] },
+          reason: `a ${kind.name} has no role "${role.name}"; its roles are ${kind.roles.join(", ")}`,
+          fix: "name one of the kind's roles",
+        });
     const ordered: IRole[] = [...roles].sort((a: IRole, b: IRole): number =>
       a.name !== b.name
         ? a.name < b.name
@@ -214,10 +254,14 @@ export namespace AutoMovieMotionMeeting {
       }),
     );
     const origin: IAutoMovieVector3 = mean(floors);
+
+    // From the first role toward the others: the second role of two, and
+    // the middle of the rest when more meet, so no later role's place alone
+    // turns the frame.
     const across: IAutoMovieVector3 =
       ordered.length < 2
         ? { x: 0, y: 0, z: 0 }
-        : Vector3.subtract(floors[1]!, floors[0]!);
+        : Vector3.subtract(mean(floors.slice(1)), floors[0]!);
     const frame: HumanFrame.IFrame = {
       origin,
       yaw:
@@ -253,6 +297,23 @@ export namespace AutoMovieMotionMeeting {
     );
     const latest = (key: keyof ITiming): number =>
       context.start + Math.max(...timings.map((t: ITiming): number => t[key]));
+
+    // A window moves the whole meeting later to its start and holds the
+    // contact to its end.
+    const shift: number =
+      window?.from === undefined
+        ? 0
+        : Math.max(0, window.from - latest("stroke"));
+    const stroke: number = latest("stroke") + shift;
+    if (window?.to !== undefined && !(window.to >= stroke - 1e-9))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "window",
+        value: window.to,
+        feasible: { kind: "range", minimum: stroke, maximum: null, unit: "s" },
+        reason: `the ${kind.name} cannot make its contact before ${stroke.toFixed(2)} s, so a window that ends at ${window.to.toFixed(2)} s holds nothing`,
+        fix: "end the window later, or start the action earlier",
+      });
     return {
       kind: kind.name,
       frame,
@@ -265,9 +326,9 @@ export namespace AutoMovieMotionMeeting {
         ),
       ),
       instants: {
-        ready: latest("ready"),
-        stroke: latest("stroke"),
-        relax: latest("relax"),
+        ready: latest("ready") + shift,
+        stroke,
+        relax: window?.to ?? latest("relax") + shift,
       },
       roles: ordered.map(
         (r: IRole): Pick<IRole, "name" | "subject"> => ({
@@ -287,7 +348,7 @@ export namespace AutoMovieMotionMeeting {
    * @param contact The contact's name.
    * @param posture Where the performer stands.
    * @returns The place, solid when the meeting is.
-   * @throws {Error} On a contact the meeting lacks.
+   * @throws {HumanRefusal} A `parameter` refusal on `contact` that lists the meeting's contacts, on a contact the meeting lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the place's point and facing, when it is solid and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A contact between two people is approached from each one's own side, so the place faces back at the asking performer along the floor and the two roles get opposite normals on one point.
@@ -304,9 +365,17 @@ export namespace AutoMovieMotionMeeting {
   ): AutoMovieMotionHumanTarget.IPlace {
     const local: IAutoMovieVector3 | undefined = meeting.contacts[contact];
     if (local === undefined)
-      throw new Error(
-        `The ${meeting.kind} has no contact "${contact}"; its contacts are ${Object.keys(meeting.contacts).join(", ")}`,
-      );
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "contact",
+        value: contact,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(meeting.contacts),
+        },
+        reason: `the ${meeting.kind} has no contact "${contact}"; its contacts are ${Object.keys(meeting.contacts).join(", ")}`,
+        fix: "name one of the meeting's contacts",
+      });
     const point: IAutoMovieVector3 = HumanFrame.point(meeting.frame, local);
     const back: IAutoMovieVector3 = {
       x: posture.root.x - point.x,

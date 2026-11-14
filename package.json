@@ -15,6 +15,7 @@
     "automovie": "ttsx --no-plugins -P packages/cli/tsconfig.json packages/cli/src/bin.ts",
     "build": "pnpm --filter=./packages/** -r build",
     "test": "pnpm --filter @automovie/test start",
+    "test:esbuild": "pnpm --filter @automovie/test esbuild",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
     "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence",

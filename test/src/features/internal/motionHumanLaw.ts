@@ -21,7 +21,7 @@ import {
  * at their places, that performance as a film whose instants are resolved
  * once however many measures read them, the film second of a named event, the
  * farthest a joint centre travels in one frame, the generic audit as a list
- * of complaints, and the gathering of every complaint of a test into one
+ * of complaints, whole or in parts a spec each, and the gathering of every complaint of a test into one
  * assertion.
  *
  * A law test reads several measures off the same displayed frames, and one
@@ -30,7 +30,7 @@ import {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each helper builds or measures and why the film is remembered.
  * @evidence contracts/development/implementation.md#principled-implementation Every measure reads displayed bones of the real performance through the package entry point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Six small helpers over `HumanPerformance` and the audit.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Seven small helpers over `HumanPerformance` and the audit.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing event throws instead of reading as zero.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the frames read.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A film resolves each person's instant once for every measure of a test.
@@ -177,7 +177,7 @@ export namespace motionHumanLaw {
    * @returns One complaint per finding; empty when clean.
    */
   export function audit(
-    film: IFilm,
+    film: IAutoMovieMotionHumanAuditMotion,
     label: string,
     subject: string,
     body: IHumanBody,
@@ -200,6 +200,86 @@ export namespace motionHumanLaw {
                   .join(", ")}]`
           }`,
         ];
+  }
+
+  /**
+   * A part of the generic audit, so a law's audit can be read by several
+   * specs each within the time a test may take: `tangle` reads the tangle
+   * over the whole film, and `motion-1` to `motion-6` the audit's other
+   * checks (the ground, the continuity and the balance) over one sixth of
+   * the film each.
+   */
+  export type AuditPart = "tangle" | `motion-${1 | 2 | 3 | 4 | 5 | 6}`;
+
+  /** The parts of the film the audit's other checks are read over: an arm's carries cost most of a film's audit, and a sixth holds at most about half of one. */
+  export const PARTS: number = 6;
+
+  /**
+   * One part of the generic audit of a subject, as complaints. The sixths
+   * meet at frames of the 24 Hz grid and overlap by two frames, so an
+   * interval, its two neighbours and an out-and-back across a meeting are
+   * read whole in one of them; each is audited as a view of the film
+   * shifted to its start.
+   *
+   * @param film The film.
+   * @param label What the complaints are prefixed with; a sixth adds its start.
+   * @param subject The subject.
+   * @param body Their body.
+   * @param part The part.
+   * @returns One complaint per finding of the part; empty when clean.
+   */
+  export function auditPart(
+    film: IAutoMovieMotionHumanAuditMotion,
+    label: string,
+    subject: string,
+    body: IHumanBody,
+    part: AuditPart,
+  ): string[] {
+    if (part === "tangle")
+      return audit(film, label, subject, body, {
+        limits: {
+          tangle: AutoMovieMotionHumanAudit.LIMITS.tangle,
+          floor: null,
+          slip: null,
+          lift: null,
+          jump: null,
+          reversal: null,
+          speed: null,
+          balance: null,
+        },
+      });
+    const rate: number = 24;
+    const sixth: number = Number(part.slice("motion-".length)) - 1;
+    const meet = (k: number): number =>
+      k <= 0
+        ? 0
+        : k >= PARTS
+          ? film.duration
+          : Math.round(((film.duration * k) / PARTS) * rate) / rate;
+    const from: number = Math.max(0, meet(sixth) - (sixth > 0 ? 2 / rate : 0));
+    const to: number = Math.min(
+      film.duration,
+      meet(sixth + 1) + (sixth < PARTS - 1 ? 2 / rate : 0),
+    );
+    const view: IAutoMovieMotionHumanAuditMotion = {
+      duration: to - from,
+      bones: (who: string, seconds: number): Bones =>
+        film.bones(who, from + seconds),
+      segments: (who: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+        film.segments(who).map(
+          (
+            span: IAutoMovieMotionHumanAuditMotion.ISpan,
+          ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
+            ...span,
+            start: span.start - from,
+            entryTime: span.entryTime - from,
+            end: span.end - from,
+          }),
+        ),
+    };
+    return audit(view, `${label} ${from.toFixed(3)} s on`, subject, body, {
+      limits: { tangle: null },
+    });
   }
 
   /**

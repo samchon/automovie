@@ -200,7 +200,7 @@ catalogs:
       version: 1.62.0
     playwright-core:
       specifier: ^1.60.0
-      version: 1.62.0
+      version: 1.60.0
     pngjs:
       specifier: ^7.0.0
       version: 7.0.0
@@ -725,6 +725,9 @@ importers:
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
+      typia:
+        specifier: catalog:samchon
+        version: 15.4.0(ttsc@0.37.0(typescript@7.0.2))
       vite:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.19.20)(terser@5.51.2)

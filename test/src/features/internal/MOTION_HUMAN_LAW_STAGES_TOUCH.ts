@@ -62,7 +62,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
     S.duo(a, b, 0.45, [
       S.chain().act("kiss", {
         partner: "b",
-        region: pick("region") ?? "jawLeft",
+        region: pick("region") ?? "cheekLeft",
         ...S.set(pick, "side"),
       }),
       S.chain("b").act("stand", { seconds: 6 }),

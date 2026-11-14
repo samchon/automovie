@@ -34,7 +34,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real step over on real bodies and reads displayed soles and joints; a foot that grazes or sails over the box, a stiff lead leg or a trunk tipped back fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is a cited obstacle-crossing value or marked provisional with its reason.
  * @evidence contracts/development/testing.md#distinguishing-cases Both lead feet and the default, each row on one body and every body in some row (`motionHumanSignature.cells`).
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_step_over(): void {

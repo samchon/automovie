@@ -1,8 +1,8 @@
 {
   "extends": "../../config/tsconfig.json",
   "compilerOptions": {
-    "module": "node16",
-    "moduleResolution": "node16",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "types": ["node"],
     "rootDir": "src",
     "outDir": "lib",
@@ -13,6 +13,5 @@
       }
     ]
   },
-  "include": ["src"],
-  "exclude": ["src/capture", "src/executable"]
+  "include": ["src"]
 }

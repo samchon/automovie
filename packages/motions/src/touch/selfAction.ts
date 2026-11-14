@@ -10,6 +10,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -31,7 +32,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * transport of the hand's travel (`AutoMovieMotionHumanTiming.transport`), or
  * 0.4 s for the head and the shoulders, perform the stroke, hold and return
  * in the rise's time. The arms are carried in joint space from the entry's
- * angles to a named place of the air (`AutoMovieMotionHumanTarget.place`):
+ * angles to a named place of the air (`AutoMovieMotionHumanTargetGrid.place`):
  * overhead above the shoulders for the stretch, overhead and outside them
  * for victory, at eye height a forearm ahead of the shoulder for the fist
  * pump, the forearm rising to it from an elbow near the body; its fist drops
@@ -97,19 +98,25 @@ export namespace selfAction {
 
   /** Each arm action's place for the right hand (the left mirrors). */
   const PLACES: Readonly<
-    Record<"stretch" | "victory" | "fistPump", AutoMovieMotionHumanTarget.IGrid>
+    Record<
+      "stretch" | "victory" | "fistPump",
+      AutoMovieMotionHumanTargetGrid.IGrid
+    >
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
     victory: { height: "overhead", lateral: "outside", distance: "close" },
     fistPump: { height: "eye", lateral: "outside", distance: "mid" },
   };
 
+  /** May be performed over a carrier: it claims only the parts it moves. */
+  export const overlay: boolean = true;
+
   /**
    * Where the pumping arm's elbow hangs, which the fist's forearm rises
    * from: the knuckles face away from it. With the fist a forearm ahead of
    * the shoulder, the whole drop stays within the elbow's flexion range.
    */
-  const ELBOW: AutoMovieMotionHumanTarget.IGrid = {
+  const ELBOW: AutoMovieMotionHumanTargetGrid.IGrid = {
     height: "shoulder",
     lateral: "outside",
     distance: "near",
@@ -141,7 +148,6 @@ export namespace selfAction {
     HumanBound.whole("count", count);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const entry: IHumanPosture = context.entry.posture;
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const rise: number =
@@ -169,7 +175,7 @@ export namespace selfAction {
 
     const raise = (
       side: HumanHand.Side,
-      grid: AutoMovieMotionHumanTarget.IGrid,
+      grid: AutoMovieMotionHumanTargetGrid.IGrid,
       shape: HumanHand.Shape,
       pump: boolean,
     ): void => {
@@ -190,7 +196,7 @@ export namespace selfAction {
             const place = AutoMovieMotionHumanTarget.fallback(
               body,
               posture,
-              AutoMovieMotionHumanTarget.place(body, side, grid),
+              AutoMovieMotionHumanTargetGrid.place(body, side, grid),
             );
             const drop: number = pump
               ? 0.2 *
@@ -221,7 +227,11 @@ export namespace selfAction {
                         AutoMovieMotionHumanTarget.fallback(
                           body,
                           posture,
-                          AutoMovieMotionHumanTarget.place(body, side, ELBOW),
+                          AutoMovieMotionHumanTargetGrid.place(
+                            body,
+                            side,
+                            ELBOW,
+                          ),
                         ).point,
                         place.point,
                       )
@@ -317,11 +327,7 @@ export namespace selfAction {
       }
     }
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives,
       contact: "stroke",

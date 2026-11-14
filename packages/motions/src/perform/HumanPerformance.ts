@@ -1,39 +1,26 @@
 import {
   type AutoMovieComposition,
-  type IAutoMovieIntent,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
-  Quaternion,
-  Vector3,
   checkAutoMovieLegality,
-  resolveAutoMovieContactEvents,
-  resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
-  segmentSegmentDistance,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMoviePose,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
-import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
-import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import { HumanRefusal } from "../law/HumanRefusal";
-import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
-import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanLayer } from "../law/IHumanLayer";
-import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanSkill } from "../skill/HumanSkill";
+import type { HumanObstacle } from "./HumanObstacle";
+import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
 import type { IHumanProp } from "./IHumanProp";
@@ -75,32 +62,8 @@ export class HumanPerformance {
   /** The people, as the performance was given them. */
   public readonly performers: readonly IHumanPerformer[];
 
-  private readonly people: Map<string, HumanSegment.IPerson>;
-
-  private readonly props: Map<string, IHumanProp>;
-
-  private readonly anchors: Map<
-    string,
-    HumanSegment.ISegment & { subject: string }
-  >;
-
-  private readonly gripCache: Map<
-    string,
-    {
-      subject: string;
-      side: "left" | "right";
-      from: number;
-      to: number;
-      offset?: IHumanProp.IFrame;
-    }[]
-  > = new Map();
-
-  private readonly meetings: Map<
-    string,
-    { subject: string; meeting: AutoMovieMotionMeeting.IMeeting }
-  > = new Map();
-
-  private resolving: boolean = true;
+  /** Everything the performance resolved, which its readers share. */
+  private readonly state: HumanPerformanceState;
 
   /**
    * Resolve a performance.
@@ -108,126 +71,10 @@ export class HumanPerformance {
    * @param input The chain seed, the performers, the props and the composition.
    */
   public constructor(input: HumanPerformance.IInput) {
-    this.props = new Map(
-      (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
-        p.subject,
-        p,
-      ]),
-    );
-    this.performers = [...input.performers];
-    this.people = new Map();
-    this.anchors = new Map();
-    for (const performer of input.performers) {
-      if (this.people.has(performer.subject))
-        throw new HumanRefusal({
-          kind: "participant",
-          performer: performer.subject,
-          axis: "performers",
-          value: performer.subject,
-          reason: `two performers are named ${performer.subject}`,
-          fix: "give every performer its own subject id",
-        });
-      const initial: IHumanPosture = stand.posture(
-        performer.body,
-        performer.at,
-        performer.yaw,
-      );
-      const skill: HumanSkill.ISkill = HumanSkill.resolve(
-        performer.proficiency,
-        input.seed,
-      );
-      const body = performer.body;
-      this.people.set(performer.subject, {
-        performer,
-        skill,
-        segments: [],
-        initial,
-        cache: new Map(),
-        resolving: true,
-        holds: [],
-        stops: new Map(),
-        layers: input.layers?.[performer.subject] ?? [],
-        layer: {
-          subject: performer.subject,
-          body,
-          skill,
-          aim: (target: AutoMovieMotionTarget, seconds: number) => {
-            const posture: IHumanPosture = this.posture(
-              performer.subject,
-              seconds,
-            );
-            return this.aim(target, seconds, {
-              root: posture.root,
-              yaw: posture.yaw,
-              heights: {
-                low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-                middle: body.measure.chestHeight,
-                high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-              },
-              range: 0.9 * (body.measure.thigh + body.measure.shank),
-              body,
-              bones: () => poseBones(body, resolveHumanPosture(body, posture)),
-            });
-          },
-          random: (channel: string) =>
-            HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
-        },
-      });
-    }
-    this.schedule = resolveAutoMovieSchedule(input.composition, {
-      timing: (intent: IAutoMovieIntent, context) => {
-        const where: HumanRefusal.IWhere = this.where(intent);
-        try {
-          return this.place(intent, context.start, context.entries, where);
-        } catch (error) {
-          throw error instanceof HumanRefusal ? error.locate(where) : error;
-        }
-      },
-      until: (
-        intent: IAutoMovieIntent,
-        placed: { start: number; duration: number },
-      ): number | undefined => this.proximity(intent, placed),
-    });
-    // A production's rules (a sport's fouls, a scene's constraints) judge the
-    // placed schedule before any contact is resolved: an illegal performance is
-    // refused outright, the way an undeclared cut is, instead of being shown.
-    const violations: checkAutoMovieLegality.IViolation[] =
-      input.rules === undefined
-        ? []
-        : checkAutoMovieLegality(this.schedule, input.rules);
-    if (violations.length !== 0)
-      throw new HumanRefusal({
-        kind: "rule",
-        axis: "rules",
-        value: violations.map(
-          (v: checkAutoMovieLegality.IViolation): string => v.rule,
-        ),
-        reason: `the performance breaks its rules: ${violations
-          .map(
-            (v: checkAutoMovieLegality.IViolation): string =>
-              `${v.rule} at entry ${v.entry}: ${v.detail}`,
-          )
-          .join("; ")}`,
-        fix: "change the entries named so that each rule holds, or leave the rule out of the performance",
-      });
-    // Placement evaluated plans while later actions and people were not yet
-    // placed; the contact resolution reads every plan as the whole placed
-    // performance shows it. Every action is placed now, so displayed poses
-    // are kept from here: the contact search reads each person's pose at the
-    // same seconds once per weapon and per stop hypothesis, and `contacts`
-    // forgets everyone whenever the applied stops change.
-    for (const person of this.people.values()) HumanSegment.settle(person);
-    this.contacts();
-    for (const person of this.people.values()) HumanSegment.settle(person);
-    this.resolving = false;
-    for (const entry of this.schedule.entries) {
-      const person: HumanSegment.IPerson = this.person(entry.subject);
-      const segment: HumanSegment.ISegment | undefined = person.segments.find(
-        (s: HumanSegment.ISegment): boolean => s.entry === entry.index,
-      );
-      if (segment !== undefined) segment.end = entry.end;
-    }
-    this.duration = this.schedule.duration;
+    this.state = new HumanPerformanceState(input);
+    this.schedule = this.state.schedule;
+    this.duration = this.state.duration;
+    this.performers = this.state.performers;
   }
 
   /**
@@ -238,7 +85,7 @@ export class HumanPerformance {
    * @returns The pose.
    */
   public pose(subject: string, seconds: number): IAutoMoviePose {
-    return HumanSegment.displayed(this.person(subject), seconds);
+    return HumanPerformanceRead.pose(this.state, subject, seconds);
   }
 
   /**
@@ -250,15 +97,7 @@ export class HumanPerformance {
    * @returns The posture.
    */
   public posture(subject: string, seconds: number): IHumanPosture {
-    const person: HumanSegment.IPerson = this.person(subject);
-    let active: HumanSegment.ISegment | undefined;
-    for (const s of person.segments)
-      if (s.entryTime <= seconds + 1e-12) active = s;
-    return active === undefined
-      ? person.initial
-      : active.plan.posture(
-          Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
-        );
+    return HumanPerformanceRead.posture(this.state, subject, seconds);
   }
 
   /**
@@ -272,8 +111,7 @@ export class HumanPerformance {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const person: HumanSegment.IPerson = this.person(subject);
-    return poseBones(person.performer.body, this.pose(subject, seconds));
+    return HumanPerformanceRead.bones(this.state, subject, seconds);
   }
 
   /**
@@ -296,57 +134,19 @@ export class HumanPerformance {
    * @returns Its frame.
    */
   public prop(subject: string, seconds: number): IHumanProp.IFrame {
-    const prop: IHumanProp | undefined = this.props.get(subject);
-    if (prop === undefined)
-      throw this.missing("prop", subject, [...this.props.keys()]);
-    const grips = this.grips(subject);
-    // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: (typeof grips)[number] | undefined;
-    let released: (typeof grips)[number] | undefined;
-    for (const g of grips) {
-      if (g.from > seconds) continue;
-      if (seconds <= g.to) active = g;
-      else if (released === undefined || g.to >= released.to) released = g;
-    }
-    const window: (typeof grips)[number] | undefined = active ?? released;
-    if (window === undefined) return prop.frame;
-    const at: number = Math.min(seconds, window.to);
-    // A window opening on a hand that already holds the prop (a put down
-    // after a pick up) keeps that grip's offset: the hand never re-seats what
-    // it holds, so no action boundary moves the prop in the hand.
-    const seat = (w: (typeof grips)[number]): IHumanProp.IFrame => {
-      if (w.offset !== undefined) return w.offset;
-      const earlier: (typeof grips)[number] | undefined = grips.find(
-        (g: (typeof grips)[number]): boolean =>
-          g !== w &&
-          g.subject === w.subject &&
-          g.side === w.side &&
-          g.from < w.from &&
-          g.to >= w.from - 1e-6,
-      );
-      if (earlier !== undefined) return (w.offset = seat(earlier));
-      const before: IHumanProp.IFrame = this.prop(subject, w.from - 1e-6);
-      const hand: IHumanProp.IFrame = this.hand(w.subject, w.side, w.from);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
-      return (w.offset = {
-        position: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(before.position, hand.position),
-        ),
-        rotation: Quaternion.multiply(inverse, before.rotation),
-      });
-    };
-    const offset: IHumanProp.IFrame = seat(window);
-    const hand: IHumanProp.IFrame = this.hand(window.subject, window.side, at);
-    return {
-      position: Vector3.add(
-        hand.position,
-        Quaternion.rotateVector(hand.rotation, offset.position),
-      ),
-      rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, offset.rotation),
-      ),
-    };
+    return HumanPerformanceRead.prop(this.state, subject, seconds);
+  }
+
+  /**
+   * The film second of an instant: a second as given, or a named instant of
+   * an anchored action or of a cue track.
+   *
+   * @param at The instant.
+   * @returns The film second.
+   * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
+   */
+  public instant(at: IHumanLayer.Instant): number {
+    return HumanPerformanceLayers.instant(this.state, at);
   }
 
   /**
@@ -356,7 +156,18 @@ export class HumanPerformance {
    * @returns The segments.
    */
   public segments(subject: string): readonly HumanSegment.ISegment[] {
-    return this.person(subject).segments;
+    return HumanPerformanceRead.segments(this.state, subject);
+  }
+
+  /**
+   * The actions a person performs over their placed actions, in placement
+   * order: each rides a carrier and takes only its claimed channels.
+   *
+   * @param subject The person.
+   * @returns The overlays.
+   */
+  public overlays(subject: string): readonly HumanSegment.IOverlay[] {
+    return HumanPerformanceRead.overlays(this.state, subject);
   }
 
   /**
@@ -379,777 +190,7 @@ export class HumanPerformance {
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const yaw: number = (frame.yaw * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin(yaw),
-      y: 0,
-      z: Math.cos(yaw),
-    };
-    const left: IAutoMovieVector3 = {
-      x: Math.cos(yaw),
-      y: 0,
-      z: -Math.sin(yaw),
-    };
-    switch (target.kind) {
-      case "person": {
-        const other: HumanSegment.IPerson = this.person(target.subject);
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
-          other.performer.body.surfaces.regions[target.region],
-          this.bones(target.subject, seconds).get(
-            other.performer.body.surfaces.regions[target.region].bone,
-          )!,
-        );
-        return { point: placed.point, normal: placed.normal };
-      }
-      case "self": {
-        const region = frame.body.surfaces.regions[target.region];
-        const placed = resolveAutoMovieHumanoidSurfaces.place(
-          region,
-          frame.bones().get(region.bone)!,
-        );
-        return { point: placed.point, normal: placed.normal };
-      }
-      case "prop": {
-        const prop: IHumanProp | undefined = this.props.get(target.subject);
-        const local = prop?.points[target.point];
-        if (prop === undefined)
-          throw this.missing("prop", target.subject, [...this.props.keys()]);
-        if (local === undefined)
-          throw new HumanRefusal({
-            kind: "affordance",
-            axis: "target",
-            value: `${target.subject}.${target.point}`,
-            feasible: {
-              kind: "alternatives",
-              values: Object.keys(prop.points),
-            },
-            reason: `prop ${target.subject} has no point named ${target.point}`,
-            fix: `aim at a point the prop declares, or declare ${target.point} in the prop's points`,
-          });
-        const at: IHumanProp.IFrame = this.prop(target.subject, seconds);
-        return {
-          point: Vector3.add(
-            at.position,
-            Quaternion.rotateVector(at.rotation, local.point),
-          ),
-          normal: Quaternion.rotateVector(at.rotation, local.normal),
-        };
-      }
-      case "point": {
-        // A performer-frame vector in the world: x left, y up, z forward.
-        const turned = (v: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(
-            Vector3.add(Vector3.scale(left, v.x), { x: 0, y: v.y, z: 0 }),
-            Vector3.scale(forward, v.z),
-          );
-        return {
-          point:
-            target.frame === "world"
-              ? target.at
-              : Vector3.add(
-                  { x: frame.root.x, y: 0, z: frame.root.z },
-                  turned(target.at),
-                ),
-          normal:
-            target.normal === undefined
-              ? Vector3.scale(forward, -1)
-              : Vector3.normalize(
-                  target.frame === "world"
-                    ? target.normal
-                    : turned(target.normal),
-                ),
-        };
-      }
-      case "none":
-        return {
-          point: Vector3.add(
-            {
-              x: frame.root.x,
-              y: frame.heights[target.line ?? "middle"],
-              z: frame.root.z,
-            },
-            Vector3.scale(forward, target.range ?? frame.range),
-          ),
-          normal: Vector3.scale(forward, -1),
-        };
-    }
-  }
-
-  /** The schedule's timing law: plan the intent from the state its person is in. */
-  private place(
-    intent: IAutoMovieIntent,
-    start: number,
-    entries: readonly IAutoMovieSchedule.IEntry[],
-    where: HumanRefusal.IWhere,
-  ) {
-    const person: HumanSegment.IPerson = this.person(intent.subject);
-    const name: HumanActionName = intent.capability as HumanActionName;
-    const law: IHumanActionLaw<never> | undefined = HUMAN_ACTIONS[name];
-    if (law === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "act",
-        value: intent.capability,
-        feasible: { kind: "alternatives", values: Object.keys(HUMAN_ACTIONS) },
-        reason: `no action is named ${intent.capability}`,
-        fix: "name an action of the vocabulary",
-      });
-    const params: object =
-      (intent.parameters?.params as object | undefined) ?? {};
-
-    // The parameter through which this action named an id, so a refusal of a
-    // missing performer, prop or anchor points at what the author wrote.
-    const named = (id: string, otherwise: string): string =>
-      Object.entries(params).find(
-        ([, value]: [string, unknown]): boolean => value === id,
-      )?.[0] ?? otherwise;
-    const previous: HumanSegment.ISegment | undefined = person.segments.at(-1);
-    const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
-      .reverse()
-      .find(
-        (e: IAutoMovieSchedule.IEntry): boolean => e.subject === intent.subject,
-      );
-    if (previous !== undefined && before !== undefined)
-      previous.end = before.end;
-    const row = HumanSegment.row(intent.subject, previous, before, name, start);
-    const entry = HumanSegment.entry(person, previous, start);
-    const instance: number = person.segments.filter(
-      (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
-    ).length;
-    const body = person.performer.body;
-    const range: number = 0.9 * (body.measure.thigh + body.measure.shank);
-    const context: IHumanActionContext<never> = {
-      subject: intent.subject,
-      body,
-      params: params as never,
-      skill: person.skill,
-      entry,
-      start,
-      aim: (target: AutoMovieMotionTarget, seconds: number) =>
-        this.aim(target, seconds, {
-          root: entry.posture.root,
-          yaw: entry.posture.yaw,
-          heights: {
-            low: body.measure.hipHeight - 0.3 * body.measure.thigh,
-            middle: body.measure.chestHeight,
-            high: body.measure.headHeight - 0.5 * body.measure.headRadius,
-          },
-          range,
-          body,
-          bones: () => poseBones(body, entry.pose),
-        }),
-      random: (channel: string) =>
-        HumanSkill.stream(
-          person.skill,
-          intent.subject,
-          intent.anchor ?? name,
-          instance,
-          channel,
-        ),
-      series: (channel: string): IHumanActionContext.ISeries => ({
-        random: HumanSkill.series(
-          person.skill,
-          intent.subject,
-          intent.anchor ?? name,
-          channel,
-        ),
-        index: instance,
-      }),
-      performer: (subject: string): IHumanActionContext.IPerformer => {
-        if (!this.people.has(subject))
-          throw this.missing(
-            "performer",
-            subject,
-            [...this.people.keys()],
-            named(subject, "performer"),
-          );
-        return {
-          body: this.person(subject).performer.body,
-          bones: (seconds: number) => this.bones(subject, seconds),
-        };
-      },
-      prop: (subject: string): IHumanActionContext.IProp => {
-        const prop: IHumanProp | undefined = this.props.get(subject);
-        if (prop === undefined)
-          throw this.missing(
-            "prop",
-            subject,
-            [...this.props.keys()],
-            named(subject, "prop"),
-          );
-        return {
-          prop,
-          frame: (seconds: number): IHumanProp.IFrame =>
-            this.prop(subject, seconds),
-        };
-      },
-      meeting: (
-        kind: AutoMovieMotionMeeting.IKind,
-        role: string,
-        partner?: { role: string; subject: string },
-      ): AutoMovieMotionMeeting.IMeeting => {
-        const own: AutoMovieMotionMeeting.IRole = {
-          name: role,
-          subject: intent.subject,
-          body,
-          posture: entry.posture,
-          bones: poseBones(body, entry.pose),
-        };
-        if (partner === undefined)
-          return AutoMovieMotionMeeting.of(kind, [own], context);
-        // The role planned first computes the meeting; the other reads that
-        // record while it still lies ahead of its own start.
-        const key: string = `${kind.name}|${(intent.subject < partner.subject ? [intent.subject, partner.subject] : [partner.subject, intent.subject]).join("|")}`;
-        const kept = this.meetings.get(key);
-        if (
-          kept !== undefined &&
-          kept.subject !== intent.subject &&
-          kept.meeting.instants.relax > context.start
-        )
-          return kept.meeting;
-        const meeting: AutoMovieMotionMeeting.IMeeting =
-          AutoMovieMotionMeeting.of(
-            kind,
-            [
-              own,
-              {
-                name: partner.role,
-                subject: partner.subject,
-                body: this.person(partner.subject).performer.body,
-                posture: this.posture(partner.subject, context.start),
-                bones: this.bones(partner.subject, context.start),
-              },
-            ],
-            context,
-          );
-        this.meetings.set(key, { subject: intent.subject, meeting });
-        return meeting;
-      },
-      action: (anchor: string): IHumanActionContext.IPlaced => {
-        const placed = this.anchors.get(anchor);
-        if (placed === undefined)
-          throw new HumanRefusal({
-            kind: "participant",
-            axis: named(anchor, "anchor"),
-            value: anchor,
-            feasible: {
-              kind: "alternatives",
-              values: [...this.anchors.keys()],
-            },
-            reason: `the action anchored ${anchor} is not placed earlier in the composition`,
-            fix: `give the answered action the anchor ${anchor} and compose it before this one`,
-          });
-        return {
-          subject: placed.subject,
-          name: placed.name,
-          params: placed.params,
-          plan: placed.plan,
-          start: placed.start,
-          entryTime: placed.entryTime,
-          end: placed.end,
-        };
-      },
-    };
-    let plan = law.plan(context);
-    const share: number =
-      row === undefined ? 0 : HumanSegment.share(row.entry, plan);
-    if (share > 0) {
-      context.start = start - share * plan.duration;
-      plan = law.plan(context);
-    }
-
-    // A law may refuse only once a posture is asked of it (a goal that turns
-    // out beyond reach at some second), long after it was placed; that
-    // refusal is located here, where the action's place in the film is known.
-    const posture: IHumanActionPlan["posture"] = plan.posture;
-    plan.posture = (seconds: number): IHumanPosture => {
-      try {
-        return posture(seconds);
-      } catch (error) {
-        throw error instanceof HumanRefusal ? error.locate(where) : error;
-      }
-    };
-    const active: number = (1 - share) * plan.duration;
-    const segment: HumanSegment.ISegment = {
-      index: person.segments.length,
-      entry: entries.length,
-      id: intent.anchor ?? name,
-      name,
-      params,
-      law,
-      context,
-      plan,
-      start: context.start,
-      entryTime: start,
-      end: start + active,
-      transition:
-        previous === undefined
-          ? undefined
-          : {
-              kind: row?.kind ?? "inertialize",
-              blend: row?.blend ?? 0.25,
-              source: previous,
-              cut: start,
-            },
-    };
-    // A held hand: a grip window on its prop takes it over; any other use of it is refused.
-    for (const held of person.holds) {
-      if (held.until !== Infinity) continue;
-      const take = plan.contacts.find(
-        (c) =>
-          c.part === `${held.side}Hand` &&
-          c.kind === "grip" &&
-          c.support.kind === "prop" &&
-          c.support.subject === held.prop,
-      );
-      if (take !== undefined)
-        held.until = Math.max(
-          held.from,
-          context.start + take.from * plan.duration,
-        );
-      else if (HumanSegment.drives(plan, held.side))
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "hand",
-          value: held.side,
-          feasible: {
-            kind: "alternatives",
-            values: person.holds.some(
-              (h: HumanSegment.IHeld): boolean =>
-                h.until === Infinity && h.side !== held.side,
-            )
-              ? []
-              : [held.side === "left" ? "right" : "left"],
-          },
-          reason: `${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id})`,
-          fix: `put ${held.prop} down or hand it over first, or perform ${name} with the free hand`,
-        });
-    }
-    person.segments.push(segment);
-    for (const hold of plan.holds ?? [])
-      person.holds.push({
-        side: hold.side,
-        prop: hold.prop,
-        fingers: hold.fingers ?? {},
-        source: segment,
-        from: context.start + hold.from * plan.duration,
-        until: Infinity,
-      });
-    if (intent.anchor !== undefined)
-      this.anchors.set(
-        intent.anchor,
-        Object.assign(segment, { subject: intent.subject }),
-      );
-    return {
-      duration: active,
-      ...(plan.contact === undefined || plan.contact < share * plan.duration
-        ? {}
-        : { contact: plan.contact - share * plan.duration }),
-      events: plan.events
-        .filter((e): boolean => e.share >= share)
-        .map((e) => ({
-          name: e.name,
-          share: active === 0 ? 0 : (e.share - share) / (1 - share),
-        })),
-    };
-  }
-
-  /** The share of the latest segment's active span at which a proximity cut happens. */
-  private proximity(
-    intent: IAutoMovieIntent,
-    placed: { start: number; duration: number },
-  ): number | undefined {
-    const until = intent.until;
-    if (until === undefined || !("proximity" in until)) return undefined;
-    const person: HumanSegment.IPerson = this.person(intent.subject);
-    const segment: HumanSegment.ISegment = person.segments.at(-1)!;
-    const frame =
-      person.performer.body.surfaces.regions[until.proximity.effector];
-    const gap = (seconds: number): number => {
-      const effector: IAutoMovieVector3 =
-        resolveAutoMovieHumanoidSurfaces.place(
-          frame,
-          this.bones(intent.subject, seconds).get(frame.bone)!,
-        ).point;
-      return (
-        Vector3.length(
-          Vector3.subtract(
-            effector,
-            segment.context.aim(until.proximity.target, seconds).point,
-          ),
-        ) - until.proximity.distance
-      );
-    };
-    const step: number = 1 / 24;
-    const end: number = placed.start + placed.duration;
-    let previous: number = placed.start;
-    if (gap(previous) <= 0) return 0;
-    // The grid's last sample is the span's own end, so a gap that closes
-    // inside the final partial step is still found.
-    for (let k: number = 1; previous < end; k++) {
-      const t: number = Math.min(end, placed.start + k * step);
-      if (gap(t) <= 0) {
-        let lo: number = previous;
-        let hi: number = t;
-        for (let i: number = 0; i < 20; i++) {
-          const mid: number = (lo + hi) / 2;
-          if (gap(mid) <= 0) hi = mid;
-          else lo = mid;
-        }
-        return placed.duration === 0
-          ? 0
-          : (hi - placed.start) / placed.duration;
-      }
-      previous = t;
-    }
-    return undefined;
-  }
-
-  /**
-   * Resolve every weapon's first contact at once, in time order, each later
-   * weapon seeing the earlier stops as they will be shown: a plan that takes
-   * its stops is handed each one as it is committed and settled, so its own
-   * dwell and recoil are what later weapons meet; a plan that does not is
-   * shown with that limb frozen at the stop. Weapons are live only inside
-   * their window clipped to their action's span; bodies are the other
-   * people's colliders, and the person a stop met is the nearest of them.
-   * A contact is mutual: when the limb a weapon meets is striking too, its
-   * capsule nearest the striker stops at the same second.
-   */
-  private contacts(): void {
-    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
-    const owners: Map<
-      string,
-      {
-        person: HumanSegment.IPerson;
-        segment: HumanSegment.ISegment;
-        id: string;
-        limb: IHumanActionPlan.IWeapon["limb"];
-        from: number;
-        to: number;
-      }
-    > = new Map();
-    const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
-    let from: number = Infinity;
-    let to: number = -Infinity;
-    for (const person of this.people.values())
-      for (const segment of person.segments)
-        for (const w of segment.plan.weapons ?? []) {
-          const a: number = Math.max(w.from, segment.entryTime);
-          const b: number = Math.min(w.to, segment.end);
-          if (!(b > a)) continue;
-          const key: string = `${person.performer.subject}|${HumanSegment.weapon(segment, w.id)}`;
-          owners.set(key, {
-            person,
-            segment,
-            id: w.id,
-            limb: w.limb,
-            from: a,
-            to: b,
-          });
-          const tail = w.tail;
-          weapons.push({
-            id: key,
-            owner: person.performer.subject,
-            radius: w.radius,
-            position: (t: number) => (t < a || t > b ? far : w.path(t)),
-            ...(tail === undefined
-              ? {}
-              : { tail: (t: number) => (t < a || t > b ? far : tail(t)) }),
-          });
-          from = Math.min(from, a);
-          to = Math.max(to, b);
-        }
-    if (weapons.length === 0) return;
-    const paths: Map<
-      string,
-      (t: number) => [IAutoMovieVector3, IAutoMovieVector3]
-    > = new Map(
-      weapons.map((w) => [
-        w.id,
-        (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
-          const p: IAutoMovieVector3 = w.position(t, new Map());
-          return [p, w.tail?.(t, new Map()) ?? p];
-        },
-      ]),
-    );
-    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
-      new Map();
-    let applied: string = "";
-    const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
-      const signature: string = [...stops]
-        .map(([k, s]) => `${k}@${s}`)
-        .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-        .join(";");
-      if (signature === applied) return;
-      applied = signature;
-      for (const person of this.people.values()) person.stops.clear();
-      const changed: Set<HumanSegment.ISegment> = new Set();
-      for (const [key, seconds] of stops) {
-        const owner = owners.get(key)!;
-        owner.person.stops.set(
-          HumanSegment.weapon(owner.segment, owner.id),
-          seconds,
-        );
-        if (met.get(key)?.seconds !== seconds) {
-          met.set(key, {
-            key,
-            weapon: owner.id,
-            against: nearest(owner.person, paths.get(key)!(seconds), seconds),
-            seconds,
-          });
-          changed.add(owner.segment);
-        }
-      }
-      for (const [key, event] of [...met])
-        if (!stops.has(key)) {
-          met.delete(key);
-          changed.add(owners.get(event.key)!.segment);
-        }
-      for (const segment of changed) {
-        if (segment.plan.stop === undefined) continue;
-        segment.plan.stop(
-          [...met.values()]
-            .filter((e) => owners.get(e.key)!.segment === segment)
-            .map(({ weapon, against, seconds }) => ({
-              weapon,
-              against,
-              seconds,
-            })),
-        );
-      }
-
-      // A stop changes what its owner shows, and whoever reads the owner (a
-      // strike aimed at it, a guard watching it) planned against the earlier
-      // showing, so everyone's memos go, not the owner's alone.
-      for (const person of this.people.values()) HumanSegment.forget(person);
-    };
-    const nearest = (
-      owner: HumanSegment.IPerson,
-      [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
-      seconds: number,
-    ): string => {
-      let best: { subject: string; distance: number } = {
-        subject: "",
-        distance: Infinity,
-      };
-      for (const person of this.people.values()) {
-        if (person === owner) continue;
-        const d: number = HumanColliders.distanceToSegment(
-          person.performer.body,
-          this.bones(person.performer.subject, seconds),
-          point,
-          end,
-        ).distance;
-        if (d < best.distance)
-          best = { subject: person.performer.subject, distance: d };
-      }
-      return best.subject;
-    };
-    const events: resolveAutoMovieContactEvents.IEvent[] =
-      resolveAutoMovieContactEvents({
-        weapons,
-        bodies: [...this.people.values()].map(
-          (person: HumanSegment.IPerson) => ({
-            id: person.performer.subject,
-            distance: (
-              point: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): number => {
-              apply(stops);
-              return HumanColliders.distance(
-                person.performer.body,
-                this.bones(person.performer.subject, seconds),
-                point,
-              ).distance;
-            },
-            axis: (
-              a: IAutoMovieVector3,
-              b: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): number => {
-              apply(stops);
-              return HumanColliders.distanceToSegment(
-                person.performer.body,
-                this.bones(person.performer.subject, seconds),
-                a,
-                b,
-              ).distance;
-            },
-
-            // The limb a weapon met may be striking too. Its capsule and the
-            // collider the striker measured are two measures of that one
-            // limb, so the capsule nearest the striker's axis stops with it.
-            carried: (
-              a: IAutoMovieVector3,
-              b: IAutoMovieVector3,
-              seconds: number,
-              stops: resolveAutoMovieContactEvents.IStops,
-            ): string | undefined => {
-              apply(stops);
-              const bone: AutoMovieHumanoidBone =
-                HumanColliders.distanceToSegment(
-                  person.performer.body,
-                  this.bones(person.performer.subject, seconds),
-                  a,
-                  b,
-                ).bone;
-              const part: RegExpExecArray | null =
-                /^(left|right)(?:(UpperLeg|LowerLeg|Foot|Toes)|(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little))/.exec(
-                  bone,
-                );
-              if (part === null) return undefined;
-              const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
-              let best: { key: string; distance: number } | undefined;
-              for (const [key, owner] of owners) {
-                if (
-                  owner.person !== person ||
-                  owner.limb !== limb ||
-                  stops.has(key) ||
-                  seconds < owner.from ||
-                  seconds > owner.to
-                )
-                  continue;
-                const [p, q] = paths.get(key)!(seconds);
-                const distance: number = segmentSegmentDistance(a, b, p, q);
-                if (best === undefined || distance < best.distance)
-                  best = { key, distance };
-              }
-              return best?.key;
-            },
-          }),
-        ),
-        from,
-        to,
-        step: 1 / 120,
-      });
-    apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
-    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
-      new Map();
-    for (const owner of owners.values()) plans.set(owner.segment, []);
-    for (const e of events) {
-      const owner = owners.get(e.weapon)!;
-      plans
-        .get(owner.segment)!
-        .push({ weapon: owner.id, against: e.against, seconds: e.seconds });
-    }
-    for (const [segment, own] of plans) segment.plan.stop?.(own);
-  }
-
-  /** Every grip window on a prop across every person, in film order, computed once after construction. */
-  private grips(subject: string): {
-    subject: string;
-    side: "left" | "right";
-    from: number;
-    to: number;
-    offset?: IHumanProp.IFrame;
-  }[] {
-    const known = this.gripCache.get(subject);
-    if (known !== undefined) return known;
-    const out: {
-      subject: string;
-      side: "left" | "right";
-      from: number;
-      to: number;
-      offset?: IHumanProp.IFrame;
-    }[] = [];
-    for (const person of this.people.values()) {
-      for (const held of person.holds)
-        if (held.prop === subject)
-          out.push({
-            subject: person.performer.subject,
-            side: held.side,
-            from: held.from,
-            to: held.until,
-          });
-      for (const segment of person.segments)
-        for (const c of segment.plan.contacts)
-          if (
-            c.kind === "grip" &&
-            c.support.kind === "prop" &&
-            c.support.subject === subject &&
-            (c.part === "leftHand" || c.part === "rightHand")
-          ) {
-            const from: number = Math.max(
-              segment.entryTime,
-              segment.start + c.from * segment.plan.duration,
-            );
-            const to: number = Math.min(
-              segment.end,
-              segment.start + c.to * segment.plan.duration,
-            );
-            if (to >= from)
-              out.push({
-                subject: person.performer.subject,
-                side: c.part === "leftHand" ? "left" : "right",
-                from,
-                to,
-              });
-          }
-    }
-    out.sort((a, b): number => a.from - b.from);
-    if (!this.resolving) this.gripCache.set(subject, out);
-    return out;
-  }
-
-  /** A hand's grip-socket frame: the socket's point with the hand bone's world rotation. */
-  private hand(
-    subject: string,
-    side: "left" | "right",
-    seconds: number,
-  ): IHumanProp.IFrame {
-    const person: HumanSegment.IPerson = this.person(subject);
-    const frame =
-      person.performer.body.surfaces.sockets[
-        side === "left" ? "gripLeft" : "gripRight"
-      ];
-    const bone: IAutoMovieResolvedBone = this.bones(subject, seconds).get(
-      frame.bone,
-    )!;
-    return {
-      position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
-      rotation: bone.worldRotation,
-    };
-  }
-
-  /** A person by subject, or an error naming the performers. */
-  private person(subject: string): HumanSegment.IPerson {
-    const person: HumanSegment.IPerson | undefined = this.people.get(subject);
-    if (person === undefined)
-      throw this.missing("performer", subject, [...this.people.keys()]);
-    return person;
-  }
-
-  /** The place of an intent in the film: its performer, its action and which occurrence of the action's id this is. */
-  private where(intent: IAutoMovieIntent): HumanRefusal.IWhere {
-    const id: string = intent.anchor ?? intent.capability;
-    return {
-      performer: intent.subject,
-      act: intent.capability,
-      instance:
-        (this.people.get(intent.subject)?.segments ?? []).filter(
-          (s: HumanSegment.ISegment): boolean => s.id === id,
-        ).length + 1,
-    };
-  }
-
-  /** The refusal of a performer or prop the performance does not hold, listing the ones it does. */
-  private missing(
-    what: "performer" | "prop",
-    subject: string,
-    known: readonly string[],
-    axis: string = what,
-  ): HumanRefusal {
-    return new HumanRefusal({
-      kind: what === "prop" ? "affordance" : "participant",
-      axis,
-      value: subject,
-      feasible: { kind: "alternatives", values: known },
-      reason: `the performance has no ${what} named ${subject}`,
-      fix: `name one of the performance's ${what}s, or add ${subject} to them`,
-    });
+    return HumanPerformanceAim.aim(this.state, target, seconds, frame);
   }
 }
 
@@ -1184,7 +225,41 @@ export namespace HumanPerformance {
      */
     rules?: readonly checkAutoMovieLegality.IRule[];
 
-    /** Additive layers per subject, applied in order over every action. */
-    layers?: Readonly<Record<string, readonly IHumanLayer[]>>;
+    /**
+     * Laws of the production's own, performed like the vocabulary's under
+     * the names they carry: an act the vocabulary lacks, written on the same
+     * kernel (a clock, a base and part primitives), or a row of an existing
+     * law with some of its parameters fixed. A name the vocabulary already
+     * has, or one given twice, refuses the performance. A registered law
+     * draws from streams keyed by its own name, so registering it changes no
+     * other action's draws. `HumanChain.extend` gives its typed method.
+     */
+    laws?: readonly IHumanActionLaw<never>[];
+
+    /**
+     * Additive layers per subject, applied in order over the person's
+     * actions: each for the whole film, or scheduled in a window between two
+     * instants (`IHumanLayer.IScheduled`).
+     */
+    layers?: Readonly<
+      Record<string, readonly (IHumanLayer | IHumanLayer.IScheduled)[]>
+    >;
+
+    /**
+     * Tracks of named instants that belong to no action, by track name: a
+     * dialogue's line starts and accents, a score's beats (`HumanCue` builds
+     * both). An action is synced to one (`HumanChain.sync`) and cut on one
+     * (`until`) as on another action's events; a track's name is used like
+     * an anchor, so no action may be anchored under it.
+     */
+    cues?: Readonly<Record<string, readonly resolveAutoMovieSchedule.ICue[]>>;
+
+    /**
+     * What stands in the performers' way: the scene's walls and solid
+     * objects with their openings (`HumanObstacle`). A law that moves a body
+     * across the floor reads them through its context and refuses a path
+     * through a solid; none when absent, and then every path is free.
+     */
+    obstacles?: readonly HumanObstacle.IObstacle[];
   }
 }

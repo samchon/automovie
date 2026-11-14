@@ -189,7 +189,7 @@ export namespace punchGeometry {
     const lag: number = StrikingSkill.lag(context.skill) * shown;
 
     // A feint is shown to its declared share, never into a person's guard.
-    const reached: IAutoMovieVector3 =
+    const landed: IAutoMovieVector3 =
       p.feint === undefined
         ? solved.end
         : Vector3.lerp(
@@ -205,6 +205,10 @@ export namespace punchGeometry {
               launch: t0,
             }),
           );
+    // The delivery aims at the launch plan and the tracker's corrections
+    // carry it the rest of the way to where the arm was solved to land.
+    const reached: IAutoMovieVector3 =
+      p.feint === undefined ? Vector3.subtract(landed, contact.drift) : landed;
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,
@@ -215,6 +219,11 @@ export namespace punchGeometry {
       launch: t0 + lag,
       contact: t0 + shown,
       speed: p.feint === undefined ? StrikingSkill.IMPACT_SPEED_SHARE.punch : 1,
+      // The fist's own movement reaches the measured peak; the body turns
+      // and steps over the whole delivery.
+      ...(p.feint === undefined
+        ? { peak: StrikingSkill.punchPeak(context.skill) }
+        : {}),
     });
     // The stop is the performance's joint resolution of the arm's capsules
     // (`fixed`); the stroke scans nothing itself.
@@ -248,7 +257,7 @@ export namespace punchGeometry {
         anchoring = true;
         try {
           anchor = resolveHumanPosture.reference(
-            resolveHumanPosture(body, compose(shown, reached)),
+            resolveHumanPosture(body, compose(shown, landed)),
             arm,
           );
         } finally {

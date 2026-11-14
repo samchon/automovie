@@ -1,26 +1,21 @@
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { swingTwist } from "../math/swingTwist";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import { basisOf } from "./basisOf";
+import { fitHingedRotationError } from "./fitHingedRotationError";
 import type { prepareChainPlant } from "./prepareChainPlant";
 
 /**
@@ -73,7 +68,7 @@ export function fitHingedChainCandidate(
     | null =
     rotation === undefined
       ? null
-      : rotationError(props, prepared, axes, rotation);
+      : fitHingedRotationError(props, prepared, axes, rotation);
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
   const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
   if (Vector3.length(reach) < 1e-9) return null;
@@ -164,7 +159,7 @@ export function fitHingedChainCandidate(
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
-      ): { overshoot: number; deviation: number } => {
+      ): { overshoot: number; deviation: number; exact?: () => number } => {
         const [u, l] = joints(upper, lower);
         const mid: IAutoMovieVector3 = Vector3.add(
           root,
@@ -195,11 +190,16 @@ export function fitHingedChainCandidate(
                   ),
                 ),
               );
+        // The hint's side weighs as the mid joint leaves the line to the
+        // target: a straight limb has no side, and a rounding-sized offset's
+        // direction must not rank swivels.
         const offset: IAutoMovieVector3 = across(mid);
+        const off: number = Vector3.length(offset);
         const away: number =
-          side === null || Vector3.length(offset) < 1e-9
+          side === null || off < 1e-12
             ? 0
-            : 1 - Vector3.dot(Vector3.normalize(offset), side);
+            : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+              Math.min(1, off / SIDED);
         const effort: number =
           clinicalDeviation({
             flexion: u.flexion ?? 0,
@@ -211,18 +211,28 @@ export function fitHingedChainCandidate(
             abduction: l.abduction ?? 0,
             twist: l.twist ?? 0,
           });
+        const overshoot: number =
+          jointRomOvershoot(u, prepared.upperDomain.constraint) +
+          jointRomOvershoot(l, prepared.lowerDomain.constraint) +
+          blocked;
+        const turned: number =
+          anchor *
+          (apart(Quaternion.normalize(upper), before[0]) +
+            apart(Quaternion.normalize(lower), before[1]));
+        // The effector's error is the costly term and is never negative, so
+        // the sum without it, added in the same order, is a lower bound of
+        // the tie-break (rounding is monotone), and the error is computed
+        // only for a comparison the bound cannot decide.
+        if (turn === null)
+          return {
+            overshoot,
+            deviation: 0 + 2 * away + turned + 1e-9 * effort,
+          };
         return {
-          overshoot:
-            jointRomOvershoot(u, prepared.upperDomain.constraint) +
-            jointRomOvershoot(l, prepared.lowerDomain.constraint) +
-            blocked,
-          deviation:
-            (turn === null ? 0 : turn(upper, lower)) +
-            2 * away +
-            anchor *
-              (apart(Quaternion.normalize(upper), before[0]) +
-                apart(Quaternion.normalize(lower), before[1])) +
-            1e-9 * effort,
+          overshoot,
+          deviation: 0 + 2 * away + turned + 1e-9 * effort,
+          exact: (): number =>
+            turn(upper, lower) + 2 * away + turned + 1e-9 * effort,
         };
       },
     });
@@ -278,116 +288,6 @@ function hingeRange(
   return {
     min: (Math.min(...ends) * Math.PI) / 180,
     max: (Math.max(...ends) * Math.PI) / 180,
-  };
-}
-
-/**
- * A joint's clinical basis as `decomposeJointRotationOnBasis` reads it: the
- * given axes, or the default ones, admitted and normalized exactly as
- * `decomposeJointRotation` would for each call, done here once per fit.
- *
- * @param axes The bone's clinical axes; omitted, the default basis.
- * @returns The orthonormal basis.
- */
-function basisOf(axes: IAutoMovieJointAxes | undefined): IAutoMovieJointAxes {
-  return normalizeJointAxes(
-    axes ?? DEFAULT_JOINT_AXES,
-    "decomposeJointRotation axes",
-  );
-}
-
-/**
- * How far, in degrees, the effector misses a requested rotation once a
- * hinged candidate's mid bone has taken its distal twist share and the
- * effector its swing, each clamped to the rig's range: the split that
- * `splitDistalTwist` and `orientChainEffector` later apply to the chosen
- * candidate, evaluated here for every candidate so the ranking sees the
- * hand the fit will actually show. The twist share comes from the engine's
- * single swing-twist owner (`swingTwist`); each joint is clamped through its
- * clinical domain as the fit clamps it; the error is the geodesic angle
- * between the shown and the requested rotation, from `Quaternion.angle`,
- * which stays exact for an error near zero so the swivel refinement settles
- * on mirrored swivels for mirrored requests.
- *
- * @param props The fit request.
- * @param prepared The chain's preparation.
- * @param axes The mid bone's axes.
- * @param rotation The requested effector rotation.
- * @returns The error of a candidate's bone-local root and mid rotations.
- */
-function rotationError(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
-  axes: IAutoMovieJointAxes,
-  rotation: IAutoMovieQuaternion,
-): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {
-  const effector: AutoMovieHumanoidBone = props.chain.effector;
-  const rest: IAutoMovieQuaternion =
-    props.skeleton.bones.find((b): boolean => b.bone === effector)?.rest
-      .rotation ?? Quaternion.identity();
-  const effectorAxes: IAutoMovieJointAxes | undefined =
-    props.jointAxes?.[effector];
-  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
-  const effectorBasis: IAutoMovieJointAxes = basisOf(effectorAxes);
-  const clamped = (
-    bone: AutoMovieHumanoidBone,
-    q: IAutoMovieQuaternion,
-    boneAxes: IAutoMovieJointAxes | undefined,
-    basis: IAutoMovieJointAxes,
-    domain?: IAutoMovieJointRotationDomain,
-  ): IAutoMovieQuaternion => {
-    const a: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-      q,
-      basis,
-      props.restFrames?.[bone],
-      domain,
-    );
-    return jointToQuaternion(
-      clampJointToSkeleton(
-        { bone, flexion: a.flexion, abduction: a.abduction, twist: a.twist },
-        props.skeleton,
-      ),
-      boneAxes,
-      props.restFrames?.[bone],
-    );
-  };
-  const wanted: IAutoMovieQuaternion = Quaternion.normalize(rotation);
-  return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
-    const above: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(prepared.upper.worldRotation, upper),
-      prepared.lowerRotation,
-    );
-    const needed: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.inverse(Quaternion.multiply(above, lower)),
-        rotation,
-      ),
-    );
-    // The share the mid bone takes, exactly as splitDistalTwist assigns it.
-    const { twist } = swingTwist(needed, axes.twist);
-    const mid: IAutoMovieQuaternion = Quaternion.multiply(
-      above,
-      clamped(
-        props.chain.lower,
-        Quaternion.multiply(lower, twist),
-        axes,
-        lowerBasis,
-        prepared.lowerDomain,
-      ),
-    );
-    const local: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.inverse(rest),
-        Quaternion.multiply(Quaternion.inverse(mid), rotation),
-      ),
-    );
-    const shown: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(mid, rest),
-      clamped(effector, local, effectorAxes, effectorBasis),
-    );
-    return (
-      (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI
-    );
   };
 }
 
@@ -463,3 +363,6 @@ function posedSwing(
   const flexion: number = lowerJoint.flexion ?? 0;
   return Vector3.subtract(end(flexion + 1), end(flexion));
 }
+
+/** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
+const SIDED: number = 1e-3;

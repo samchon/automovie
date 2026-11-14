@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../../body/IHumanBody";
-import type { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
+import type { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
 import type { gestureStroke } from "../../everyday/gestureStroke";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFrame } from "../../posture/HumanFrame";
@@ -122,7 +122,7 @@ export function everydayGestureVerdicts(
     );
   const placed = (
     name: string,
-    expected: AutoMovieMotionHumanTarget.IGrid,
+    expected: AutoMovieMotionHumanTargetGrid.IGrid,
   ): IMotionCaptureCase.IVerdict => {
     // The law places the hand from the rig origin, not from the hips bone.
     const root = performance.pose("a", mid).root;
@@ -369,6 +369,8 @@ export function everydayGestureVerdicts(
     case "clap":
     case "touchFace":
     case "pushGlasses":
+    case "palmsTogether":
+    case "thumbsDown":
     case "bow":
       return [];
   }

@@ -1,7 +1,6 @@
 import {
   Vector3,
   clampPose,
-  pointSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -169,10 +168,7 @@ export namespace StrikingVerdicts {
     const g: HumanSegment.ISegment = strike.segment;
     const name: string = `${strike.id} ${g.id} contact`;
     const params: { feint?: number | boolean; accuracy?: unknown } = g.params;
-    if (
-      g.plan.contact !== undefined &&
-      g.end < g.start + g.plan.contact - 1e-9
-    )
+    if (g.plan.contact !== undefined && g.end < g.start + g.plan.contact - 1e-9)
       return {
         name,
         passed: strike.stop === undefined,
@@ -270,9 +266,8 @@ export namespace StrikingVerdicts {
         strike.body,
         strike.performance.bones(strike.id, second),
         strike.limb,
-      ).map(
-        (c: StrikingLimb.ICapsule): number =>
-          pointSegmentDistance(record.planned, c.a, c.b) - c.radius,
+      ).map((c: StrikingLimb.ICapsule): number =>
+        StrikingLimb.surface(record.planned, c),
       ),
     );
     const length: number = StrikingLimb.length(
@@ -424,9 +419,8 @@ export namespace StrikingVerdicts {
     let when: number = from;
     let samples: number = 0;
     for (let t: number = from; t <= to + 1e-9; t += 1 / 48) {
-      const asked: IHumanPosture.IGoal | undefined = g.plan.posture(
-        t - g.start,
-      ).limbs[`${side}Leg`];
+      const asked: IHumanPosture.IGoal | undefined = g.plan.posture(t - g.start)
+        .limbs[`${side}Leg`];
       if (asked === undefined) continue;
       samples++;
       const d: number = Vector3.length(
@@ -448,66 +442,6 @@ export namespace StrikingVerdicts {
         samples === 0
           ? "the plan asks no ankle goal between the launch and the peak"
           : `the ankle lies at most ${(1000 * worst).toFixed(2)} mm from its goal (at ${when.toFixed(3)} s, ${samples} samples from ${from.toFixed(3)} to ${to.toFixed(3)} s); bound 2 mm`,
-    };
-  }
-
-  /**
-   * Whether a defence's own events class as its declared outcome: in time
-   * when the guard is set by the contact, late when it is set within half its
-   * movement after it, and failed otherwise.
-   *
-   * @param id The defender's subject id.
-   * @param segment The defence's segment.
-   * @returns The defence verdict; a plan missing its read, set or contact event fails.
-   */
-  export function defence(
-    id: string,
-    segment: HumanSegment.ISegment,
-  ): IMotionCaptureCase.IVerdict {
-    const name: string = `${id} ${segment.id} defence`;
-    const read: number | undefined = at(segment, "read");
-    const set: number | undefined = at(segment, "set");
-    const met: number | undefined = at(segment, "contact");
-    if (read === undefined || set === undefined || met === undefined)
-      return {
-        name,
-        passed: false,
-        detail: `the plan lacks its ${[
-          ...(read === undefined ? ["read"] : []),
-          ...(set === undefined ? ["set"] : []),
-          ...(met === undefined ? ["contact"] : []),
-        ].join(", ")} event`,
-      };
-    const margin: number = met - set;
-    const movement: number = set - read;
-    const shown: string =
-      margin >= 0 ? "inTime" : margin > -0.5 * movement ? "late" : "fail";
-    const params: { outcome?: string } = segment.params;
-    return {
-      name,
-      passed: params.outcome === undefined || params.outcome === shown,
-      detail: `read at ${read.toFixed(3)} s, set at ${set.toFixed(3)} s, contact at ${met.toFixed(3)} s: ${shown} (margin ${(1000 * margin).toFixed(0)} ms over a ${(1000 * movement).toFixed(0)} ms movement); declared ${params.outcome ?? "none"}`,
-    };
-  }
-
-  /**
-   * Whether a redirect after the chamber key is refused as an illegal cut
-   * into a kick; any other error, or none, fails.
-   *
-   * @param attempt Builds the late redirect.
-   * @returns The refusal verdict.
-   */
-  export function refusal(attempt: () => unknown): IMotionCaptureCase.IVerdict {
-    let message: string | undefined;
-    try {
-      attempt();
-    } catch (error) {
-      message = error instanceof Error ? error.message : String(error);
-    }
-    return {
-      name: "redirect after the chamber key refused",
-      passed: message !== undefined && message.includes("cannot be cut into kick"),
-      detail: `${message ?? "accepted"}; bound the "cannot be cut into kick" refusal`,
     };
   }
 

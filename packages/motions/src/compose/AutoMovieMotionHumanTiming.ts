@@ -120,7 +120,10 @@ export namespace AutoMovieMotionHumanTiming {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each with a shipped law that uses its length.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A length between two names is the scale rung of `Span`, never a fifth name without a user.
    */
-  export type Pause = "none" | "brief" | "beat" | "long";
+  export type Pause = (typeof PAUSE_NAMES)[number];
+
+  /** The pauses of {@link Pause}, as data. */
+  export const PAUSE_NAMES = ["none", "brief", "beat", "long"] as const;
 
   /**
    * The seconds of each pause (provisional): `none` is no time, `brief` 0.15

@@ -81,12 +81,18 @@ const chain: (overrides: {
  *    candidate can never outrank a legal one. `clinicalDeviation` is the
  *    squared distance from the engine's zero-angle convention, not measured
  *    anatomical effort or energy.
+ * 7. Overshoots that differ only in their last digits tie: a straight chain
+ *    whose every swivel overshoots by 1.27 degrees plus a 1e-14 scatter is
+ *    turned to the swivel of least deviation, 37 degrees, within 1e-6.
+ * 8. Legality stays exact: when only the swivels from 100 to 101 degrees are
+ *    legal and the rest overshoot by 1e-12 degree, the chosen swivel is a
+ *    legal one, though the least deviation lies outside them.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Solves a conventional isolated hinge chain, checking hinge-only deltas, endpoint clamps, degenerate refusal and scoring outputs; an off-axis lower rotation or a malformed candidate scoring as usable fails.
- * @evidence contracts/development/testing.md#independent-expectations Segment lengths 0.3/0.25 imply the shell 0.05..0.55 and straight/folded hinge rotations. Authored interval excess 20+12 equals 32, and squared coordinates 3/4/12 sum 169. This isolated case observes lower-rotation components and score, not effector contact or the scorer's candidate ordering; full reach tests supplement contact. These are scalar geometry/policy checks, not measured anatomical energy or range.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps reachable/far/near targets, parallel hinge, zero mid/end/hinge/root-target degeneracies, unconstrained/constrained/nonfinite scores and deviation; reachPose owns full skeleton and ROM selection integration.
+ * @evidence contracts/development/testing.md#independent-expectations Segment lengths 0.3/0.25 imply the shell 0.05..0.55 and straight/folded hinge rotations. Authored interval excess 20+12 equals 32, and squared coordinates 3/4/12 sum 169. This isolated case observes lower-rotation components and score, and in 7 and 8 the ordering of a supplied score whose least deviation is 37 degrees by construction, not effector contact; full reach tests supplement contact. These are scalar geometry/policy checks, not measured anatomical energy or range.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps reachable/far/near targets, parallel hinge, zero mid/end/hinge/root-target degeneracies, unconstrained/constrained/nonfinite scores and deviation, a scattered constant overshoot against an exactly legal sliver; reachPose owns full skeleton and ROM selection integration.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable exported CPU entry owns its local chain and deliberately supplied score callback, an ordinary supported input rather than a foreign monkeypatch; actual source runs with no renderer, native build or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A target inside the span solves, and the mid joint's delta is a rotation).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A target inside the span solves, and the mid joint's delta is a rotation).
  */
 export function test_kinematics_hinged_arm_articulation(): void {
   // 1. an ordinary solve, and the hinge invariant at the quaternion level
@@ -219,5 +225,49 @@ export function test_kinematics_hinged_arm_articulation(): void {
   TestValidator.predicate(
     "clinical deviation is the squared distance from the neutral",
     nclose(clinicalDeviation({ flexion: 3, abduction: 4, twist: 12 }), 169, 0),
+  );
+
+  // 7 and 8. A straight chain along +X: the aim is the identity, so the root's
+  // rotation is the swivel about +X alone, read back as its angle.
+  const swivel = (q: { x: number; w: number }): number =>
+    ((((2 * Math.atan2(q.x, q.w) * 180) / Math.PI) % 360) + 360) % 360;
+  const straight = (
+    overshoot: (degrees: number) => number,
+  ): IAutoMovieHingedArticulation | null =>
+    hingedArmArticulation({
+      upper: AT_ORIGIN,
+      midOffset: { x: 0.3, y: 0, z: 0 },
+      midRest: IDENTITY,
+      endOffset: { x: 0.25, y: 0, z: 0 },
+      hinge: { x: 0, y: 1, z: 0 },
+      target: { x: 2, y: 0, z: 0 },
+      score: (upper: {
+        x: number;
+        w: number;
+      }): { overshoot: number; deviation: number } => {
+        const degrees: number = swivel(upper);
+        return {
+          overshoot: overshoot(degrees),
+          deviation: 1 - Math.cos(((degrees - 37) * Math.PI) / 180),
+        };
+      },
+    });
+  const scattered: IAutoMovieHingedArticulation | null = straight(
+    (degrees: number): number =>
+      1.27 + 1e-14 * (((Math.sin(degrees * 12.9898) * 43758.5453) % 1) + 1),
+  );
+  TestValidator.predicate(
+    "overshoots apart by their last digits leave the swivel to the deviation",
+    scattered !== null && Math.abs(swivel(scattered.upper) - 37) <= 1e-6,
+  );
+  const sliver: IAutoMovieHingedArticulation | null = straight(
+    (degrees: number): number => (degrees >= 100 && degrees <= 101 ? 0 : 1e-12),
+  );
+  TestValidator.predicate(
+    "a candidate 1e-12 degree past a limit never ties a legal one",
+    sliver !== null &&
+      sliver.overshoot === 0 &&
+      swivel(sliver.upper) >= 100 &&
+      swivel(sliver.upper) <= 101,
   );
 }

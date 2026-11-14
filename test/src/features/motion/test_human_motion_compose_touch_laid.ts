@@ -13,6 +13,8 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanTouch,
   AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchLaid,
+  AutoMovieMotionHumanTouchUpright,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanBody,
@@ -44,8 +46,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    forearm, without the hand's turn) whose displayed wrist lies within the
  *    palm's reach of the region, plus the pad and 10 mm.
  *    `rest`'s goal stands the effector exactly a pad off the region along
- *    its normal; `upright` faces a level unit direction, and the region's
- *    own normal when that has no level part.
+ *    its normal; an upright vessel's facing
+ *    (`AutoMovieMotionHumanTouchUpright.solve`) is a level unit direction,
+ *    and the region's own normal when that has no level part.
  * 3. `touch` refuses a count of 0 or 1.5, claims the arm and the hand, holds
  *    the rest angles at the start and, held between `ready` and
  *    `strokeStart`, shows the palm on the region within 10 mm beyond the pad.
@@ -53,7 +56,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Lays real arms through the touch owner and reads displayed bones; a region read on the wrong pose, a hint that sends the arm elsewhere, a reference off the region, a missing refusal or a hold off its region fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The region is a stated place; the displayed palm is read from the engine's forward kinematics, the pad from the effector owner.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, a limb and a trunk region, the start and the hold of a touch, two refused counts.
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a touch solves fitted postures, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a touch solves fitted postures; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the region, the effector, the pad's allowance and the 3 scenarios.
  */
 export function test_human_motion_compose_touch_laid(): void {
@@ -140,7 +143,7 @@ export function test_human_motion_compose_touch_laid(): void {
       );
 
     // 2. Bend and laid.
-    const hint: IAutoMovieVector3 = AutoMovieMotionHumanTouch.bend(
+    const hint: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       quiet,
       side,
@@ -148,7 +151,7 @@ export function test_human_motion_compose_touch_laid(): void {
       place,
       "up",
     );
-    const reference = AutoMovieMotionHumanTouch.laid(
+    const reference = AutoMovieMotionHumanTouchLaid.laid(
       body,
       quiet,
       side,
@@ -192,7 +195,7 @@ export function test_human_motion_compose_touch_laid(): void {
 
     // The rest goal stands the effector a pad off the region along its
     // normal; an upright vessel faces a level direction.
-    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouch.rest(
+    const goal: IHumanPosture.IGoal = AutoMovieMotionHumanTouchLaid.rest(
       body,
       quiet,
       side,
@@ -220,22 +223,22 @@ export function test_human_motion_compose_touch_laid(): void {
         z: place.point.z - pad,
       }) <= 1e-6,
     );
-    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouch.upright(
+    const level: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
       body,
       quiet,
       side,
       effector,
       { point: place.point, normal: { x: 0.2, y: 0.5, z: -1 } },
       hint,
-    );
-    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouch.upright(
+    ).facing;
+    const flat: IAutoMovieVector3 = AutoMovieMotionHumanTouchUpright.solve(
       body,
       quiet,
       side,
       effector,
       { point: place.point, normal: { x: 0, y: 1, z: 0 } },
       hint,
-    );
+    ).facing;
     complaints.check(
       `${side}: an upright vessel faces a level unit direction, and a level region keeps its normal`,
       Math.abs(level.y) <= 1e-9 &&

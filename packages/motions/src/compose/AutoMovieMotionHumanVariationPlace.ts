@@ -5,6 +5,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanHand } from "../posture/HumanHand";
 import { HumanSkill } from "../skill/HumanSkill";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
@@ -40,7 +41,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
     seconds: number;
 
     /** The direction of arrival in the nudge frame (`out`, `up`, `forward`); forward when absent. */
-    direction?: AutoMovieMotionHumanTarget.INudge;
+    direction?: AutoMovieMotionHumanTargetGrid.INudge;
   }
 
   /**
@@ -51,7 +52,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
    * arm))^2)`: `intent` is `SPREADS.place`, the second term is
    * `HumanSkill.scatter` of the travel, and `a` is 1 along the arrival and
    * `ACROSS` across it. On each axis the bound is the smaller of
-   * `AutoMovieMotionHumanTarget.NUDGE` and the cell rule over that axis's
+   * `AutoMovieMotionHumanTargetGrid.NUDGE` and the cell rule over that axis's
    * names, and each axis has its own factor, so an axis whose names stand
    * close together flattens the ellipse across it and takes nothing from the
    * other two. An axis with no room, such as the height of a place on the
@@ -113,7 +114,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
     const bounds: IAutoMovieVector3 = {
       x:
         (AutoMovieMotionHumanVariationDraw.cell(
-          Object.values(AutoMovieMotionHumanTarget.LATERALS),
+          Object.values(AutoMovieMotionHumanTargetGrid.LATERALS),
           sign * (record.lateral ?? 0),
         ) *
           m.shoulderHalfWidth) /
@@ -122,9 +123,9 @@ export namespace AutoMovieMotionHumanVariationPlace {
         (Math.min(
           record.height,
           AutoMovieMotionHumanVariationDraw.cell(
-            AutoMovieMotionHumanTarget.HEIGHTS.map(
-              (name: AutoMovieMotionHumanTarget.Height): number =>
-                AutoMovieMotionHumanTarget.height(body, name),
+            AutoMovieMotionHumanTargetGrid.HEIGHTS.map(
+              (name: AutoMovieMotionHumanTargetGrid.Height): number =>
+                AutoMovieMotionHumanTargetGrid.height(body, name),
             ),
             record.height,
           ),
@@ -132,7 +133,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
           m.stature) /
         arm,
       z: AutoMovieMotionHumanVariationDraw.cell(
-        Object.values(AutoMovieMotionHumanTarget.DISTANCES),
+        Object.values(AutoMovieMotionHumanTargetGrid.DISTANCES),
         record.range,
       ),
     };
@@ -148,7 +149,7 @@ export namespace AutoMovieMotionHumanVariationPlace {
           0,
         );
       const bound: number = Math.min(
-        AutoMovieMotionHumanTarget.NUDGE,
+        AutoMovieMotionHumanTargetGrid.NUDGE,
         bounds[axis],
       );
       if (!(bound > 0)) fit[axis] = 0;

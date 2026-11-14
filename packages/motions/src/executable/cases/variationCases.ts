@@ -5,6 +5,7 @@ import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../../compose/AutoMovieMotionHumanVariationPlace";
@@ -92,7 +93,7 @@ interface IRepeat {
 
 /** The names `wave` and `stopPalm` state. */
 const PLACES: Readonly<
-  Record<"wave" | "stopPalm", AutoMovieMotionHumanTarget.IGrid>
+  Record<"wave" | "stopPalm", AutoMovieMotionHumanTargetGrid.IGrid>
 > = {
   wave: { height: "eye", lateral: "outside", distance: "near" },
   stopPalm: { height: "shoulder", lateral: "inside", distance: "far" },

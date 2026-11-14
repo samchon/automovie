@@ -128,6 +128,10 @@ export function createHorse(
     extent: null,
     depth: d.seatSize,
     width: createHorse.SEAT_WIDTH,
+    astride: true,
+
+    // A horse is mounted from its near side, the left.
+    mount: "left",
   });
   for (const [id, z] of [
     ["pommel", centre + d.seatSize / 2],

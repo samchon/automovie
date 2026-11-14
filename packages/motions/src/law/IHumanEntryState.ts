@@ -5,9 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBase } from "./HumanBase";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
+import type { IHumanContactWindow } from "./IHumanContactWindow";
 
 /**
  * The displayed state an action is entered from: the pose and its velocity
@@ -43,6 +45,32 @@ export interface IHumanEntryState {
   /** Each foot's displayed state. */
   feet: Record<"left" | "right", IHumanEntryState.IFoot>;
 
+  /**
+   * What the body rests on at the entry: every support the action it leaves
+   * declares open at that instant (a foot planted, the seat on a chair, the
+   * body lying), and both feet on the ground before the first action. An
+   * action that keeps the posture it is entered in keeps these supports, so
+   * a drink taken seated declares the seat it sits on.
+   */
+  supports: IHumanEntryState.ISupport[];
+
+  /**
+   * What carries the body at the entry: standing before the first action,
+   * then the base the last action that changed it declared, passed on
+   * through every action that keeps it. A seated base carries the seat sat
+   * on, so the action that leaves it knows its height, its heading and
+   * whether it is sat astride without the composition restating it.
+   */
+  base: HumanBase;
+
+  /**
+   * The prop each hand holds at the entry, by its subject id: what an
+   * earlier action left held and none has taken over or put down since. An
+   * act performed with what the hand holds reads it here instead of judging
+   * from how near the prop lies.
+   */
+  holds: Partial<Record<"left" | "right", string>>;
+
   /** The interrupted action, when the entry is a cut. */
   from?: IHumanEntryState.IFrom;
 }
@@ -76,10 +104,25 @@ export namespace IHumanEntryState {
     spin: IAutoMovieVector3;
   }
 
+  /** One support the body rests on. */
+  export interface ISupport {
+    /** The body part that bears. */
+    part: IHumanContactWindow["part"];
+
+    /** How it bears. */
+    kind: IHumanContactWindow["kind"];
+
+    /** The frame it bears on. */
+    support: IHumanContactWindow.Support;
+  }
+
   /** The interrupted action. */
   export interface IFrom {
     /** Its name. */
-    name: HumanActionName;
+    name: HumanActionKey;
+
+    /** The action it is a row of; its own name when it is none. */
+    family: HumanActionKey;
 
     /** Its parameters. */
     params: object;

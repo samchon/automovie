@@ -85,7 +85,7 @@ export function affectionCases(
       [
         "cup-cheek",
         {
-          target: { kind: "person", subject: "b", region: "jawLeft" },
+          target: { kind: "person", subject: "b", region: "cheekLeft" },
           kind: "hold",
         },
         true,
@@ -229,8 +229,8 @@ export function affectionCases(
       });
     }
 
-    for (const region of ["jawLeft", "forehead"] as const) {
-      const name: string = `affection-kiss-${region === "jawLeft" ? "cheek" : "forehead"}${suffix}`;
+    for (const region of ["cheekLeft", "forehead"] as const) {
+      const name: string = `affection-kiss-${region === "cheekLeft" ? "cheek" : "forehead"}${suffix}`;
       const performance: HumanPerformance | null = attempt(
         out,
         name,

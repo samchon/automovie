@@ -11,13 +11,16 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { KickForm } from "./KickForm";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
  * resolution sweeps: the limb's joints read from the performer's own shown
  * bones, which are the free path until the performance commits a stop, so
- * the resolution meets exactly the limb the figure shows, wherever along it
- * a body is first met.
+ * the resolution meets the limb the figure shows, wherever along it a body
+ * is first met. A limb that narrows from one joint to the next is a tapered
+ * capsule between the two girths, so a capsule never carries the widest
+ * girth of its segment to the joint where the shown limb has narrowed.
  */
 export namespace StrikingWeapon {
   /** Whose limb is read. */
@@ -121,8 +124,12 @@ export namespace StrikingWeapon {
     /** The limb that carries them. */
     limb: IHumanActionPlan.IWeapon["limb"];
 
-    /** One radius per capsule, metres. */
-    radii: readonly number[];
+    /**
+     * One radius per capsule, metres: one number for a capsule of one
+     * radius, or the radii at its two axis ends for a tapered capsule, as a
+     * limb narrows from one joint's girth to the next.
+     */
+    radii: readonly (number | readonly [number, number])[];
 
     /** Film second they become live. */
     from: number;
@@ -154,7 +161,7 @@ export namespace StrikingWeapon {
       (id: string, i: number): IHumanActionPlan.IWeapon => ({
         id,
         limb: chain.limb,
-        radius: chain.radii[i]!,
+        ...radius(chain.radii[i]!),
         from: chain.from,
         to: chain.to,
         path: (seconds: number): IAutoMovieVector3 => chain.ends(seconds)[i]!,
@@ -162,6 +169,70 @@ export namespace StrikingWeapon {
           chain.ends(seconds)[i + 1]!,
       }),
     );
+  }
+
+  /**
+   * A shown leg's girths at its joints, metres, as its tapered capsules'
+   * radii: the thigh narrows from its own radius at the hip to the shank's
+   * at the knee, where the shown thigh meets the shank, and the shank from
+   * there to the foot capsule's radius at the ankle (half the foot's depth,
+   * `KickForm.FOOT_RADIUS_SHARE`), which the foot keeps to the ball.
+   *
+   * @param body The leg's body.
+   * @returns The thigh's, the shank's and the foot's radii.
+   */
+  export function legRadii(
+    body: IHumanBody,
+  ): [readonly [number, number], readonly [number, number], number] {
+    const m: IHumanBody["measure"] = body.measure;
+    const foot: number = KickForm.FOOT_RADIUS_SHARE * m.ankleHeight;
+    return [[m.thighRadius, m.shankRadius], [m.shankRadius, foot], foot];
+  }
+
+  /**
+   * A shown arm's girths at its joints, metres, as its capsules' radii: the
+   * upper arm narrows from its own radius at the shoulder to the forearm's
+   * at the elbow, where the shown upper arm meets the forearm; the forearm
+   * and the fist keep the forearm's radius, which places the fist's axis end
+   * one radius behind the knuckles ({@link posed}).
+   *
+   * @param body The arm's body.
+   * @returns The upper arm's, the forearm's and the fist's radii.
+   */
+  export function armRadii(
+    body: IHumanBody,
+  ): [readonly [number, number], number, number] {
+    const m: IHumanBody["measure"] = body.measure;
+    return [
+      [m.upperArmRadius, m.forearmRadius],
+      m.forearmRadius,
+      m.forearmRadius,
+    ];
+  }
+
+  /**
+   * A chain capsule's radius at a share of its axis from its first end.
+   *
+   * @param radii The capsule's radius or its two end radii.
+   * @param share 0 at the first end, 1 at the other.
+   * @returns Metres.
+   */
+  export function girth(
+    radii: number | readonly [number, number],
+    share: number,
+  ): number {
+    return typeof radii === "number"
+      ? radii
+      : radii[0] + (radii[1] - radii[0]) * share;
+  }
+
+  /** A capsule's radius members as a weapon carries them. */
+  function radius(
+    radii: number | readonly [number, number],
+  ): Pick<IHumanActionPlan.IWeapon, "radius" | "tailRadius"> {
+    return typeof radii === "number"
+      ? { radius: radii }
+      : { radius: radii[0], tailRadius: radii[1] };
   }
 
   /**
