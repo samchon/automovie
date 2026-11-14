@@ -10,7 +10,7 @@ Each layer makes its own contribution and hands usable decisions to its next rec
 | Layer | Owns | Hands onward |
 | --- | --- | --- |
 | [Settings](settings.md), long route | Facts about the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Specific decisions with stable addresses and one owner |
-| [Brief](brief.md), short route | The decisions about people, places and recurring props that several scenes must keep true | Decisions with stable addresses the screenplay cites |
+| [Brief](brief.md), short route | The decisions about people, places and recurring props that several scenes must keep true, and a generated film's look | Decisions with stable addresses the screenplay cites |
 | [Treatments](treatments.md) | Events, causes, choices, consequences, setup and payoff, and information release | A progression that needs no invented decisive event |
 | [Scripts](scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
 | [Screenplay](screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions, scene by scene | Complete production text the scenes realize |

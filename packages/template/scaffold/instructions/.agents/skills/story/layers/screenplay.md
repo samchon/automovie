@@ -10,9 +10,9 @@ Each film's screenplay is a folder, and each scene is one file in it, because a 
 
 On the long route, extract concise notes of the required identities, decisions, states, chronology, space and audience knowledge from the completed treatments and scripts, draft in an [isolated context](../correction/inspection.md#isolated-context) with those notes, the requirements and fixed quotations, then compare against the actual parents. The decided event order holds while the realization is composed afresh under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
 
-On the short route, decide the events, action and realization here from the instructions, citing the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
+On the short route, decide the events, action and realization here from the instructions, citing the [brief](brief.md) for the people, places, recurring props and film's look it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 
-On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon images and the generation prompt.
+On either route, stage only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon images and the generation prompt. When a generated film is commissioned, the beat's reaction also decides each facial expression, because the prompt carries only a performance the screenplay decided, and no later owner may decide one.
 
 ## Beats
 

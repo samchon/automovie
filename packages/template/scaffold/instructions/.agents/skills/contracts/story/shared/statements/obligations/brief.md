@@ -6,8 +6,8 @@ Contract: [obligations/brief.md](../../obligations/brief.md).
 
 Scope and coherence:
 
-1. Every person, place and recurring prop that several scenes rely on has one owner.
-2. The decisions agree with one another, such as a person's body and look with the practice level the brief gives them.
+1. Every person, place and recurring prop that several scenes rely on has one owner, and so does a generated film's look.
+2. The decisions agree with one another, such as a person's body and appearance with the practice level the brief gives them.
 3. Where two of the brief's decisions disagree, the disagreement is repaired in the earliest record that owns the decision, and no later record works around it.
 4. Where a [factual basis](../../../../../story/planning/requirements.md#factual-basis) is declared, the chronology, ages, distances, travel, money and capacities derived from the records agree, and quantities the fiction invents are left to research and code.
 

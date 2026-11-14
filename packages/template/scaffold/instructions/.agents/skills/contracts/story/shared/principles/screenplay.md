@@ -10,4 +10,4 @@ Does the unit realize its established action, performance, staging, view, speech
 
 ## Beat decisions
 
-Does each beat decide everything motion, sound and assembly will realize, in terms the production's modules can perform, so that code composes and never chooses? A beat that leaves an intent, an outcome or a reaction open hands that decision to whoever writes the scene, a beat that restates what has not changed buries the decisions that did, and a number written where a decision belongs freezes a value the code should derive.
+Does each beat decide everything motion, sound, generation and assembly will realize, in terms the production's modules can perform, so that code composes and never chooses? A beat that leaves an intent, an outcome or a reaction open hands that decision to whoever writes the scene, a beat that restates what has not changed buries the decisions that did, and a number written where a decision belongs freezes a value the code should derive.

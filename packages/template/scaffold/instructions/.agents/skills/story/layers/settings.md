@@ -21,7 +21,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 | `crowds` | Makeup, arrangement and what the crowd does and reacts to |
 | `props` | Form, material and markings; how people hold, use or ride it; state changes; vehicles and animals included |
 | `sets` | Shape, zones and landmarks; routes, entrances and levels; dressing; how people use the space; state changes |
-| `cinematography` | The look: framing grammar, camera movement style, lighting style and grade |
+| `cinematography` | The film's look: framing grammar, camera movement style, lighting style, lens character and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
 User-fixed interpretations are canon. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
