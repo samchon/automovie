@@ -101,6 +101,13 @@ export namespace FamilyConicConvert {
     /** Its width where it is deeper than the threshold, mm along the hull. */
     widthMm: number;
 
+    /**
+     * Its full width at half its own depth, mm along the hull: a measure of its form that does not shrink with its depth, as the width over a
+     * fixed threshold does (a dip of 0.31 mm is over 0.25 mm for under a third of its width). A dip shaped as one cosine period is twice
+     * this wide from rim to rim, its wavelength.
+     */
+    halfMm: number;
+
     /** The faired section's depth under the same hull at the same phase, mm: what the fairing keeps of it. */
     fairedMm: number;
   }
@@ -198,13 +205,18 @@ export namespace FamilyConicConvert {
     for (let m: number = 1; m <= M; ++m) {
       const k: number = (start + m) % M;
       if (!(rows[k]!.depth > least) || rows[(k - 1 + M) % M]!.depth > least) continue;
-      let best = rows[k]!, width: number = 0;
+      let deepest: number = k, width: number = 0;
       for (let j: number = k; rows[j % M]!.depth > least && width < 1e6; ++j) {
         const r = rows[j % M]!;
         width += (r.top * 2 * Math.PI) / M;
-        if (r.depth > best.depth) best = r;
+        if (r.depth > rows[deepest]!.depth) deepest = j % M;
       }
-      out.push({ middle: best.phi, depthMm: best.depth, widthMm: width, fairedMm: best.faired });
+      const best = rows[deepest]!;
+      // The width at half its own depth, both ways from its deepest ray.
+      let half: number = (best.top * 2 * Math.PI) / M;
+      for (const step of [1, -1])
+        for (let j: number = deepest + step, n: number = 0; n < M && rows[((j % M) + M) % M]!.depth > best.depth / 2; j += step, ++n) half += (rows[((j % M) + M) % M]!.top * 2 * Math.PI) / M;
+      out.push({ middle: best.phi, depthMm: best.depth, widthMm: width, halfMm: half, fairedMm: best.faired });
     }
     return out.sort((a: IHollow, b: IHollow): number => a.middle - b.middle);
   }
@@ -213,18 +225,20 @@ export namespace FamilyConicConvert {
    * The region's fairing cutoff, mm of girth, from its narrowest kept feature (lofting.md: "fair each section to the scale of the form, which
    * means removing the ripples smaller than the features the form keeps"). A kept feature is a source hollow deeper than the tolerance that
    * holds as a line over at least `RUN` neighbouring star-shaped stations (a hollow on one cut alone, or on a section the rays fold over, is
-   * no feature of the wall); its width is the median of its widths along the line. The cutoff is the narrowest kept width, on the trunk's
-   * basis (`FamilyConicFair.FAIR_MM`: "a cutoff at the grooves' upper width"), so the narrowest kept hollow keeps half its amplitude and a
-   * ripple of half its width a seventeenth. A region with no kept feature takes `FamilyConicFair.FAIR_MM`.
+   * no feature of the wall). Its wavelength is twice the median of its widths at half depth along the line (`IHollow.halfMm`), the rim-to-rim
+   * width of a dip one cosine period wide. The cutoff is the narrowest kept wavelength, on the trunk's basis (`FamilyConicFair.FAIR_MM`: "a
+   * cutoff at the grooves' upper width"), so the narrowest kept hollow keeps half its amplitude and a ripple of half its wavelength a
+   * seventeenth. A region with no kept feature takes `FamilyConicFair.FAIR_MM`.
    */
   export function cutoff(sections: readonly ISection[], toleranceMm: number): { fairMm: number; basis: string; kept: ILine[] } {
     const star: ISection[] = sections.filter((s: ISection): boolean => folds(s.points) === 0);
-    const found: ILine[] = lines(star.map((s: ISection) => ({ s: s.s, items: hollows(s.points, toleranceMm).map((h: IHollow) => ({ phase: h.middle, turn: h.widthMm, depth: h.depthMm })) })));
+    const found: ILine[] = join(lines(star.map((s: ISection) => ({ s: s.s, items: hollows(s.points, toleranceMm).map((h: IHollow) => ({ phase: h.middle, turn: h.halfMm, depth: h.depthMm })) }))));
     const kept: ILine[] = found.filter((line: ILine): boolean => line.stations.length >= RUN);
     if (kept.length === 0) return { fairMm: F.FAIR_MM, basis: `no source hollow deeper than ${toleranceMm} mm holds over ${RUN} star-shaped stations; the trunk's ${F.FAIR_MM} mm`, kept };
     const narrowest: ILine = kept.reduce((a: ILine, b: ILine): ILine => (median(b.turns) < median(a.turns) ? b : a));
-    const fairMm: number = Math.round(median(narrowest.turns) * 10) / 10;
-    return { fairMm, basis: `the narrowest kept hollow, line ${narrowest.id} at ${degrees(median(narrowest.phases)).toFixed(0)} deg over ${narrowest.stations[0]}-${narrowest.stations.at(-1)} (${narrowest.stations.length} stations), median width ${f2(median(narrowest.turns))} mm where deeper than ${toleranceMm} mm, median depth ${f2(median(narrowest.depths))} mm; ${kept.length} kept lines of ${found.length}`, kept };
+    const fairMm: number = Math.round(2 * median(narrowest.turns) * 10) / 10;
+    const listed: string = kept.map((line: ILine): string => `${line.id}@${degrees(median(line.phases)).toFixed(0)}deg ${line.stations[0]}-${line.stations.at(-1)} half-width ${f2(median(line.turns))} depth ${f2(median(line.depths))}`).join("; ");
+    return { fairMm, basis: `twice the half-depth width of the narrowest kept hollow, line ${narrowest.id} at ${degrees(median(narrowest.phases)).toFixed(0)} deg over ${narrowest.stations[0]}-${narrowest.stations.at(-1)} (${narrowest.stations.length} stations), median half-depth width ${f2(median(narrowest.turns))} mm, median depth ${f2(median(narrowest.depths))} mm; kept lines (${kept.length} of ${found.length}): ${listed}`, kept };
   }
 
   /** Convert one section at one tolerance and cutoff. */
@@ -299,6 +313,27 @@ export namespace FamilyConicConvert {
       open = [...taken];
     }
     return all;
+  }
+
+  /**
+   * Lines that are one feature fading and returning, joined: a line that starts after another has ended, within twice `TRACK` of its last
+   * phase, continues it. f1's nose holds its right supra-alar hollow under the tolerance at 1,555.5 to 1,557.5 mm, and read as two lines the
+   * short one stood on the long one's phases and their runs' features left their chord's order.
+   */
+  export function join(found: readonly ILine[]): ILine[] {
+    const joined: ILine[] = [];
+    for (const piece of [...found].sort((a: ILine, b: ILine): number => a.stations[0]! - b.stations[0]!)) {
+      const before: ILine | undefined = joined.find((line: ILine): boolean => piece.stations[0]! > line.stations.at(-1)! && gap(line.phases.at(-1)!, piece.phases[0]!) <= 2 * TRACK);
+      if (before === undefined) joined.push({ ...piece, stations: [...piece.stations], phases: [...piece.phases], turns: [...piece.turns], depths: [...piece.depths], items: [...piece.items] });
+      else {
+        before.stations.push(...piece.stations);
+        before.phases.push(...piece.phases);
+        before.turns.push(...piece.turns);
+        before.depths.push(...piece.depths);
+        before.items.push(...piece.items);
+      }
+    }
+    return joined;
   }
 
   /**
@@ -403,8 +438,8 @@ export namespace FamilyConicConvert {
         text.push([String(line.id).padStart(4), line.stations[0]!.toFixed(1).padStart(7), line.stations.at(-1)!.toFixed(1).padStart(7), String(line.stations.length).padStart(9), span(line.phases, degrees, 0).padStart(21), span(line.turns, first, d).padStart(19), span(line.depths, (x) => x, 2).padStart(19)].join("  "));
     };
     lineTable(`## Groove lines at ${LAYOUT_TOLERANCE_MM} mm, tracked within ${degrees(TRACK).toFixed(0)} deg between neighbouring stations`, "line  from     to       stations  middle-deg(min..max)  turn-deg(min..max)  depth-mm(min..max)", tracked, degrees, 1);
-    text.push("", `## Source hollows under the convex hull, deeper than ${LAYOUT_TOLERANCE_MM} mm, per station (deepest-phase-deg/depth-mm/width-mm/faired-depth-mm)`);
-    for (const st of layoutStations) text.push(st.s.toFixed(1).padStart(7) + "  " + st.hollows.map((h: IHollow): string => `${degrees(h.middle).toFixed(0)}/${f2(h.depthMm)}/${h.widthMm.toFixed(1)}/${f2(h.fairedMm)}`).join("  "));
+    text.push("", `## Source hollows under the convex hull, deeper than ${LAYOUT_TOLERANCE_MM} mm, per station (deepest-phase-deg/depth-mm/width-mm/half-depth-width-mm/faired-depth-mm)`);
+    for (const st of layoutStations) text.push(st.s.toFixed(1).padStart(7) + "  " + st.hollows.map((h: IHollow): string => `${degrees(h.middle).toFixed(0)}/${f2(h.depthMm)}/${h.widthMm.toFixed(1)}/${h.halfMm.toFixed(1)}/${f2(h.fairedMm)}`).join("  "));
     const hollowLines: ILine[] = lines(layoutStations.map((st: IStation) => ({ s: st.s, items: st.hollows.map((h: IHollow) => ({ phase: h.middle, turn: h.widthMm, depth: h.depthMm })) })));
     lineTable(`## Source hollow lines, tracked within ${degrees(TRACK).toFixed(0)} deg`, "line  from     to       stations  middle-deg(min..max)  width-mm(min..max)  depth-mm(min..max)", hollowLines, (x) => x, 1);
     const ledger = account(layoutStations);
@@ -412,7 +447,7 @@ export namespace FamilyConicConvert {
     const diagnostics: Set<string> = new Set(layoutStations.flatMap((x: IStation): string[] => x.diagnostics));
     if (diagnostics.size > 0) text.push("", "## Converter diagnostics at the layout tolerance (numbers as #)", ...[...diagnostics].slice(0, 12));
     let lofted: object | null = null;
-    if (options.loft !== undefined) lofted = await loft(name, sections, layoutStations, tracked, options.loft, out, text);
+    if (options.loft !== undefined) lofted = await loft(name, sections, layoutStations, options.loft, out, text);
     await fs.writeFile(path.join(out, name + ".convert.txt"), text.join("\n") + "\n");
     await fs.writeFile(path.join(out, name + ".convert.json"), JSON.stringify({ name, fairMm, basis: scale.basis, tolerances, sections, stations: Object.fromEntries([...table].map(([t, st]) => [String(t), st])), lines: tracked, hollowLines, ledger, loft: lofted }));
     process.stdout.write(JSON.stringify({ event: "convert-complete", part: name, out, stations: sections.length }) + "\n");
@@ -425,7 +460,7 @@ export namespace FamilyConicConvert {
    * natural cubic of each field on knots `KNOT_MM` apart, the family lofted alone through the engine (`AutoMovieHumanConicLoft.create`), its
    * sections measured against the source, rendered in clay beside the reference in four views, and admitted every `ADMIT_STEP_MM`.
    */
-  async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], tracked: readonly ILine[], course: ICourse, out: string, text: string[]): Promise<object> {
+  async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], course: ICourse, out: string, text: string[]): Promise<object> {
     // The longest run of neighbouring star-shaped stations: a section the rays fold over is not a wall's (lofting.md, the method's limit).
     let best: [number, number] = [0, -1];
     for (let i: number = 0; i < stations.length; ) {
@@ -438,48 +473,100 @@ export namespace FamilyConicConvert {
       if (j - i > best[1] - best[0]) best = [i, j];
       i = j + 1;
     }
-    const range: IStation[] = stations.slice(best[0], best[1] + 1);
-    const inRange = (s: number): boolean => s >= range[0]!.s - 1e-9 && s <= range.at(-1)!.s + 1e-9;
+    let range: IStation[] = stations.slice(best[0], best[1] + 1);
     text.push("", `## Loft: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), the longest run of star-shaped stations`);
-    // The groove lines inside the range that hold over RUN stations; the others are named.
-    const used: ILine[] = [];
-    for (const line of tracked) {
-      const within: number = line.stations.filter(inRange).length;
-      if (within >= RUN) used.push(line);
-      else if (within > 0) text.push(`dropped groove line ${line.id} at ${degrees(median(line.phases)).toFixed(0)} deg: ${within} station(s) in the range, depth ${span2(line.depths)} mm`);
-    }
-    // Each line's three phases at every station of the range, held from the nearest station that has it where it is not seen.
-    const lineOf: L.ILine[] = used.map((line: ILine): L.ILine => ({
-      phases: range.map((st: IStation): [number, number, number] | null => {
+    // The layout's lines are the source's own hollow lines over the range (deeper than the tolerance), not the faired grooves tracked
+    // alone: a faired groove that doubles for a few stations split one source groove into two overlapping lines, and their runs' features
+    // interleaved. A hollow line that resumes within RUN stations of where another ended, within twice `TRACK` of its phase, continues it.
+    const pieces: ILine[] = lines(range.map((st: IStation) => ({ s: st.s, items: st.hollows.map((h: IHollow) => ({ phase: h.middle, turn: h.halfMm, depth: h.depthMm })) })));
+    const joined: ILine[] = join(pieces);
+    // At each station, the groove that holds the line's hollow (its inflections round the hollow's phase, else its middle within TRACK), each
+    // groove to one line, the longest lines first.
+    const lineOf: L.ILine[] = [];
+    const named: string[] = [];
+    const claimed: Set<string> = new Set();
+    for (const line of [...joined].sort((a: ILine, b: ILine): number => b.stations.length - a.stations.length)) {
+      const phases: ([number, number, number] | null)[] = range.map((st: IStation, i: number): [number, number, number] | null => {
         const k: number = line.stations.findIndex((s: number): boolean => Math.abs(s - st.s) < 1e-9);
         if (k < 0) return null;
-        const g: F.IGroove = st.grooves[line.items[k]!]!;
+        const phi: number = line.phases[k]!;
+        const candidates: number[] = st.grooves.map((_: F.IGroove, g: number): number => g).filter((g: number): boolean => !claimed.has(i + ":" + g));
+        const holding: number | undefined = candidates.find((g: number): boolean => wrap(phi - st.grooves[g]!.from) <= wrap(st.grooves[g]!.to - st.grooves[g]!.from)) ?? candidates.filter((g: number): boolean => gap(centre(st.grooves[g]!), phi) <= TRACK).sort((a: number, b: number): number => gap(centre(st.grooves[a]!), phi) - gap(centre(st.grooves[b]!), phi))[0];
+        if (holding === undefined) return null;
+        claimed.add(i + ":" + holding);
+        const g: F.IGroove = st.grooves[holding]!;
         return [g.from, g.floor, g.to];
-      }),
-    }));
+      });
+      const seen: number = phases.filter((x): boolean => x !== null).length;
+      if (line.stations.length >= RUN && seen >= RUN) lineOf.push({ phases });
+      else named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)} (${line.stations.length} stations, a groove at ${seen}), depth ${span2(line.depths)} mm`);
+    }
+    text.push(`groove lines from the source's hollow lines: ${lineOf.length} kept of ${joined.length} (${pieces.length} pieces)`, ...named);
+    // Families: runs of stations with one count of seen groove lines (#3401: "runs of equal count are families; a change of count is where a
+    // family ends"). A line carried through stations where its groove is not seen stands at zero depth there, and the engine refuses its
+    // parallel end tangents (#3412, Section model); the longest family is lofted, the others named for the survey.
+    const counts: number[] = range.map((_: IStation, i: number): number => lineOf.filter((line: L.ILine): boolean => line.phases[i] !== null).length);
+    const families: { from: number; to: number; count: number }[] = [];
+    counts.forEach((c: number, i: number): void => {
+      const last = families.at(-1);
+      if (last !== undefined && last.count === c) last.to = i;
+      else families.push({ from: i, to: i, count: c });
+    });
+    const chosen = families.reduce((a, b) => (b.to - b.from > a.to - a.from || (b.to - b.from === a.to - a.from && b.count > a.count) ? b : a));
+    text.push(`families by seen groove lines: ${families.map((f): string => `${f.count}:${range[f.from]!.s}-${range[f.to]!.s}(${f.to - f.from + 1})`).join("  ")}; lofted ${range[chosen.from]!.s}-${range[chosen.to]!.s}`);
+    range = range.slice(chosen.from, chosen.to + 1);
+    for (let l: number = lineOf.length - 1; l >= 0; --l) {
+      lineOf[l]!.phases = lineOf[l]!.phases.slice(chosen.from, chosen.to + 1);
+      if (lineOf[l]!.phases.every((x): boolean => x === null)) lineOf.splice(l, 1);
+    }
+    // Where a kept line's groove is not seen, its phases between the nearest stations that see it, linearly in the station; past its ends, held.
     const held: [number, number, number][][] = lineOf.map((line: L.ILine): [number, number, number][] =>
       line.phases.map((x, i: number): [number, number, number] => {
         if (x !== null) return x;
-        let nearest: number = -1;
-        line.phases.forEach((y, j: number): void => {
-          if (y !== null && (nearest < 0 || Math.abs(range[j]!.s - range[i]!.s) < Math.abs(range[nearest]!.s - range[i]!.s))) nearest = j;
-        });
-        return line.phases[nearest]!;
+        let p: number = i, n: number = i;
+        while (p >= 0 && line.phases[p] === null) --p;
+        while (n < line.phases.length && line.phases[n] === null) ++n;
+        if (p < 0) return line.phases[n]!;
+        if (n >= line.phases.length) return line.phases[p]!;
+        const t: number = (range[i]!.s - range[p]!.s) / (range[n]!.s - range[p]!.s);
+        const a: [number, number, number] = line.phases[p]!, b: [number, number, number] = line.phases[n]!;
+        return [0, 1, 2].map((c: number): number => wrap(a[c]! + t * Math.atan2(Math.sin(b[c]! - a[c]!), Math.cos(b[c]! - a[c]!)))) as [number, number, number];
       }),
     );
-    const plan = L.layout(course.depth, lineOf);
-    text.push(`layout: limb(${course.depth}) with ${plan.runs.length} groove run(s) after base anchors ${plan.runs.map((r: S.IFeatureRun): number => r.after).join(",") || "-"}: ${plan.layout.anchors.length} anchors, ${S.units(plan.layout).length} fields`);
+    // Two runs whose phases overlap at a station would leave their features out of order on the chord: the shorter line (later in the
+    // list, which runs longest first) is dropped and named.
+    const overlap = (x: readonly number[], y: readonly number[]): boolean => wrap(y[0]! - x[0]!) <= wrap(x[2]! - x[0]!) || wrap(x[0]! - y[0]!) <= wrap(y[2]! - y[0]!);
+    for (let b: number = held.length - 1; b >= 1; --b)
+      for (let a: number = 0; a < b; ++a) {
+        const at: number = held[b]!.findIndex((x, i: number): boolean => overlap(held[a]![i]!, x));
+        if (at < 0) continue;
+        text.push(`dropped groove line ${b}: its phases overlap line ${a}'s at ${range[at]!.s}`);
+        held.splice(b, 1);
+        lineOf.splice(b, 1);
+        break;
+      }
+    text.push("kept lines' phases per station, deg (from/floor/to; * where not seen and carried):");
+    range.forEach((st: IStation, i: number): void => {
+      text.push(st.s.toFixed(1).padStart(7) + "  " + held.map((line, l: number): string => line[i]!.map((x: number): string => degrees(x).toFixed(0)).join("/") + (lineOf[l]!.phases[i] === null ? "*" : "")).join("  "));
+    });
+    const ends: [number, number, number, number][] = range.map((st: IStation): [number, number, number, number] => L.extremes(st.arcs));
+    const plan = L.layout(course.depth, lineOf, ends);
+    text.push(`extremes (u+, v+, u-, v-) deg, first and last station: ${ends[0]!.map((x: number): string => degrees(x).toFixed(0)).join(",")} / ${ends.at(-1)!.map((x: number): string => degrees(x).toFixed(0)).join(",")}`);
+    text.push(`layout: limb(${course.depth}) with ${plan.runs.length} groove run(s) after base anchors ${plan.runs.map((r: S.IFeatureRun): number => r.after).join(",") || "-"}: ${plan.layout.anchors.length} anchors, ${S.units(plan.layout).length} fields; ${plan.outside.length} station(s) where a line leaves its quarter${plan.outside.length > 0 ? ": " + plan.outside.slice(0, 8).join(", ") : ""}`);
     // Every station's fields read off its own chain, and how far that layout chain lies from the converted chain.
     const rows: number[][] = [];
     let missed: number = 0;
     const readError: number[] = [];
+    const faults: string[] = [];
     range.forEach((st: IStation, i: number): void => {
       const got: L.IReading = L.read(st.arcs, plan.layout, plan.order.map((line: number): [number, number, number] => held[line]![i]!));
       rows.push(got.values);
       missed += got.missed;
-      readError.push(chainGap(S.chain(got.values, plan.layout), st.arcs));
+      const section = S.chain(got.values, plan.layout);
+      if (section.fault !== null) faults.push(`${st.s}: ${section.fault.slice(0, 100)}; anchor phases deg ${S.resolve(got.values, plan.layout).input.points.map((p): string => degrees(wrap(Math.atan2(p[1]!, p[0]!))).toFixed(0)).join(",")}`);
+      else readError.push(chainGap(section, st.arcs));
     });
-    text.push(`read: layout chain to converted chain, max ${f2(Math.max(...readError))} mm, median ${f2(median(readError))} mm; ${missed} median or shoulder crossings missed (read as the model's middle)`);
+    text.push(`read: ${readError.length} of ${range.length} stations' layout chains admitted, ${missed} median or shoulder crossings missed (read as the model's middle)${readError.length > 0 ? `; layout chain to converted chain max ${f2(Math.max(...readError))} mm, median ${f2(median(readError))} mm` : ""}`, ...faults.slice(0, 8).map((x: string): string => "read refused " + x));
     // Smoothing along the stations.
     const s0: number = course.station(range[0]!.s), s1: number = course.station(range.at(-1)!.s);
     const count: number = Math.max(2, Math.round((s1 - s0) / KNOT_MM) + 1);
@@ -502,10 +589,30 @@ export namespace FamilyConicConvert {
     const fitted = L.admit(reader, plan.layout, s0, s1, ADMIT_STEP_MM, MARGIN.fitted);
     const constructed = L.admit(reader, plan.layout, s0, s1, ADMIT_STEP_MM, MARGIN.constructed);
     text.push(`admission every ${ADMIT_STEP_MM} mm (${fitted.checked} stations), least meeting share ${f2(fitted.least)}: ${fitted.refused.length} under ${MARGIN.fitted}, ${constructed.refused.length} under ${MARGIN.constructed}`, ...constructed.refused.slice(0, 12).map((r: string): string => "refused " + r));
-    // The loft alone, through the engine.
-    const lofted: AutoMovieViewLoft.IResult = H.create(family, Array.from({ length: Math.round((s1 - s0) / 0.5) + 1 }, (_: unknown, k: number): number => s0 + k * 0.5));
-    text.push(`engine loft: ${lofted.chain === null ? "no chain" : "chain"}; diagnostics ${lofted.diagnostics.length}${lofted.diagnostics.length > 0 ? ": " + JSON.stringify(lofted.diagnostics.slice(0, 3)).slice(0, 400) : ""}`);
-    const frames: string[] = lofted.chain === null ? [] : await render(name, lofted.chain, s0, s1, course, out);
+    // The loft alone, through the engine, over the family's whole span; where the engine refuses a station, the frames are drawn over the
+    // longest stretch the admission passes, and the refusal stays in the admission line above.
+    const every = (a: number, b: number): number[] => Array.from({ length: Math.round((b - a) / 0.5) + 1 }, (_: unknown, k: number): number => a + k * 0.5);
+    let lofted: AutoMovieViewLoft.IResult = H.create(family, every(s0, s1));
+    text.push(`engine loft over ${f2(s0)}..${f2(s1)}: ${lofted.chain === null ? "no chain" : "chain"}; diagnostics ${lofted.diagnostics.length}${lofted.diagnostics.length > 0 ? ": " + JSON.stringify(lofted.diagnostics.slice(0, 3)).slice(0, 400) : ""}`);
+    let [r0, r1]: [number, number] = [s0, s1];
+    if (lofted.chain === null && constructed.at.length > 0) {
+      const grid: number[] = Array.from({ length: constructed.checked }, (_: unknown, k: number): number => s0 + k * ADMIT_STEP_MM);
+      let best: [number, number] = [0, -1];
+      for (let i: number = 0; i < grid.length; ) {
+        if (constructed.at.some((x: number): boolean => Math.abs(x - grid[i]!) < 1e-9)) {
+          ++i;
+          continue;
+        }
+        let j: number = i;
+        while (j + 1 < grid.length && !constructed.at.some((x: number): boolean => Math.abs(x - grid[j + 1]!) < 1e-9)) ++j;
+        if (j - i > best[1] - best[0]) best = [i, j];
+        i = j + 1;
+      }
+      [r0, r1] = [Math.ceil(grid[best[0]]! * 2) / 2, Math.floor(grid[best[1]]! * 2) / 2];
+      lofted = H.create(family, every(r0, r1));
+      text.push(`engine loft over the admitted ${f2(r0)}..${f2(r1)}: ${lofted.chain === null ? "no chain" : "chain"}; diagnostics ${lofted.diagnostics.length}${lofted.diagnostics.length > 0 ? ": " + JSON.stringify(lofted.diagnostics.slice(0, 3)).slice(0, 400) : ""}`);
+    }
+    const frames: string[] = lofted.chain === null ? [] : await render(name, lofted.chain, r0, r1, course, out);
     text.push(`frames (${frames.length}) in ${out}`, ...frames.map((f: string): string => "  " + f));
     return { range: [range[0]!.s, range.at(-1)!.s], layout: plan.layout, knots, fields: values.length, readError, sourceError, admission: { fitted, constructed }, diagnostics: lofted.diagnostics, frames };
   }

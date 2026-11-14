@@ -94,22 +94,57 @@ export namespace FamilyConicLayout {
     return null;
   }
 
+  /** The chain's extreme of a chart coordinate (`u` 0, `v` 1) at its greatest (`sign` 1) or least: sampled every eighth of a degree, refined by a golden search. */
+  export function extreme(chain: IChain, axis: 0 | 1, sign: number): { phi: number; point: P } {
+    let best: number = 0, most: number = -Infinity;
+    for (let k: number = 0; k < 2880; ++k) {
+      const value: number = sign * on(chain, (2 * Math.PI * k) / 2880).point[axis];
+      if (value > most) [best, most] = [(2 * Math.PI * k) / 2880, value];
+    }
+    let lo: number = best - (2 * Math.PI) / 2880, hi: number = best + (2 * Math.PI) / 2880;
+    const g: number = (Math.sqrt(5) - 1) / 2;
+    for (let i: number = 0; i < 40; ++i) {
+      const x1: number = hi - g * (hi - lo), x2: number = lo + g * (hi - lo);
+      if (sign * on(chain, x1).point[axis] > sign * on(chain, x2).point[axis]) hi = x2;
+      else lo = x1;
+    }
+    return { phi: wrap((lo + hi) / 2), point: on(chain, (lo + hi) / 2).point };
+  }
+
+  /** The phases of a chain's four extremes in the limb layout's order: greatest `u`, greatest `v`, least `u`, least `v`. */
+  export function extremes(chain: IChain): [number, number, number, number] {
+    return [extreme(chain, 0, 1).phi, extreme(chain, 1, 1).phi, extreme(chain, 0, -1).phi, extreme(chain, 1, -1).phi];
+  }
+
   /**
-   * The family's layout: `limb(depth)` with a run of three feature anchors (inflection, floor, inflection) after the base anchor whose
-   * nominal phase (an even share of the turn by its order) last precedes each line's mean phase.
+   * The family's layout: `limb(depth)` with a run of three feature anchors (inflection, floor, inflection) right after the extreme that
+   * precedes each line on the sections, by the stations' measured extremes (their circular means), so every run stands between the two
+   * extremes its frame's chord joins.
    *
-   * @returns The layout, its runs in the layout's order, and for each run the index of its line.
+   * @param ends Per station, its four extremes' phases (`extremes`).
+   * @returns The layout, its runs in the layout's order, for each run the index of its line, and the stations where a line's phases leave
+   *   the extremes either side of its run.
    */
-  export function layout(depth: number, lines: readonly ILine[]): { layout: S.ILayout; runs: S.IFeatureRun[]; order: number[] } {
+  export function layout(depth: number, lines: readonly ILine[], ends: readonly (readonly number[])[]): { layout: S.ILayout; runs: S.IFeatureRun[]; order: number[]; outside: string[] } {
     const base: S.ILayout = S.limb(depth);
     const K: number = base.anchors.length;
-    const means: number[] = lines.map((line: ILine): number => {
-      const seen: [number, number, number][] = line.phases.filter((x): x is [number, number, number] => x !== null);
-      return wrap(Math.atan2(seen.reduce((s: number, x): number => s + Math.sin(x[1]), 0), seen.reduce((s: number, x): number => s + Math.cos(x[1]), 0)));
+    const circular = (xs: readonly number[]): number => wrap(Math.atan2(xs.reduce((s: number, x: number): number => s + Math.sin(x), 0), xs.reduce((s: number, x: number): number => s + Math.cos(x), 0)));
+    const means: number[] = lines.map((line: ILine): number => circular(line.phases.filter((x): x is [number, number, number] => x !== null).map((x): number => x[1])));
+    const extremeMeans: number[] = [0, 1, 2, 3].map((q: number): number => circular(ends.map((e): number => e[q]!)));
+    // The quarter a line stands in: the extreme last before it counter-clockwise.
+    const quarter = (phi: number): number => [0, 1, 2, 3].reduce((best: number, q: number): number => (wrap(phi - extremeMeans[q]!) < wrap(phi - extremeMeans[best]!) ? q : best), 0);
+    const order: number[] = lines.map((_: ILine, i: number): number => i).sort((a: number, b: number): number => quarter(means[a]!) - quarter(means[b]!) || wrap(means[a]! - extremeMeans[quarter(means[a]!)]!) - wrap(means[b]! - extremeMeans[quarter(means[b]!)]!));
+    const runs: S.IFeatureRun[] = order.map((i: number): S.IFeatureRun => ({ after: (quarter(means[i]!) * K) / 4, anchors: [{ kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, { kind: "f", feature: "inflection" }] }));
+    const outside: string[] = [];
+    lines.forEach((line: ILine, i: number): void => {
+      const q: number = quarter(means[i]!);
+      line.phases.forEach((x, s: number): void => {
+        if (x === null) return;
+        const a: number = ends[s]![q]!, b: number = ends[s]![(q + 1) % 4]!;
+        if (!x.every((phi: number): boolean => wrap(phi - a) < wrap(b - a))) outside.push(`line ${i} at station index ${s}`);
+      });
     });
-    const order: number[] = lines.map((_: ILine, i: number): number => i).sort((a: number, b: number): number => means[a]! - means[b]!);
-    const runs: S.IFeatureRun[] = order.map((i: number): S.IFeatureRun => ({ after: Math.floor((means[i]! / (2 * Math.PI)) * K) % K, anchors: [{ kind: "f", feature: "inflection" }, { kind: "f", feature: "concave" }, { kind: "f", feature: "inflection" }] }));
-    return { layout: S.featured(base, runs), runs, order };
+    return { layout: S.featured(base, runs), runs, order, outside };
   }
 
   /** A station's reading: its field vector and the arcs whose median or shoulder the chain did not cross (read as the model's middle). */
@@ -134,24 +169,13 @@ export namespace FamilyConicLayout {
     const points: (P | null)[] = new Array<P | null>(K).fill(null);
     const tangents: (P | null)[] = new Array<P | null>(K).fill(null);
     const phase: number[] = new Array<number>(K).fill(NaN);
-    // Extremes: the chain sampled every eighth of a degree, refined by a golden search on the coordinate.
-    const dense: { phi: number; point: P }[] = Array.from({ length: 2880 }, (_: unknown, k: number) => ({ phi: (2 * Math.PI * k) / 2880, point: on(chain, (2 * Math.PI * k) / 2880).point }));
+    // Extremes: the chain's greatest and least chart coordinates (`extreme`).
     target.anchors.forEach((anchor: S.IAnchor, k: number): void => {
       if (anchor.kind !== "u" && anchor.kind !== "v") return;
-      const axis: 0 | 1 = anchor.kind === "u" ? 0 : 1;
-      const sign: number = anchor.pick === "min" ? -1 : 1;
-      let best = dense[0]!;
-      for (const d of dense) if (sign * d.point[axis] > sign * best.point[axis]) best = d;
-      let lo: number = best.phi - (2 * Math.PI) / 2880, hi: number = best.phi + (2 * Math.PI) / 2880;
-      const g: number = (Math.sqrt(5) - 1) / 2;
-      for (let i: number = 0; i < 40; ++i) {
-        const x1: number = hi - g * (hi - lo), x2: number = lo + g * (hi - lo);
-        if (sign * on(chain, x1).point[axis] > sign * on(chain, x2).point[axis]) hi = x2;
-        else lo = x1;
-      }
-      const p: P = on(chain, (lo + hi) / 2).point;
+      const got: { phi: number; point: P } = extreme(chain, anchor.kind === "u" ? 0 : 1, anchor.pick === "min" ? -1 : 1);
+      const p: P = got.point;
       points[k] = p;
-      phase[k] = wrap((lo + hi) / 2);
+      phase[k] = got.phi;
       tangents[k] = anchor.kind === "u" ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
       out[at[k]!] = p[0];
       out[at[k]! + 1] = p[1];
@@ -261,10 +285,11 @@ export namespace FamilyConicLayout {
    * Admission as the engine reads a family: every `step` mm between its first and last knot, the field vector read from the stored knots and
    * rounded as stored, resolved, and every arc's tangent lines meeting at least `margin` of its chord ahead and behind.
    *
-   * @returns The stations refused, with the arc and its least meeting share, and the least meeting share over all.
+   * @returns The stations refused, with the arc and its least meeting share, as text and as stations, the least meeting share over all, and how many stations were checked.
    */
-  export function admit(read: (s: number) => number[], target: S.ILayout, from: number, to: number, step: number, margin: number): { refused: string[]; least: number; checked: number } {
+  export function admit(read: (s: number) => number[], target: S.ILayout, from: number, to: number, step: number, margin: number): { refused: string[]; at: number[]; least: number; checked: number } {
     const refused: string[] = [];
+    const atStations: number[] = [];
     let least: number = Infinity, checked: number = 0;
     for (let s: number = from; s <= to + 1e-9; s += step) {
       ++checked;
@@ -286,8 +311,9 @@ export namespace FamilyConicLayout {
       }
       const fault: string | null = S.chain(values, target).fault;
       least = Math.min(least, worst);
+      if (fault !== null || worst < margin) atStations.push(s);
       if (fault !== null || worst < margin) refused.push(`${s.toFixed(2)}: arc ${where} meets at ${Number.isFinite(worst) ? worst.toFixed(3) : "none"}${fault === null ? "" : "; " + fault.slice(0, 80)}`);
     }
-    return { refused, least, checked };
+    return { refused, at: atStations, least, checked };
   }
 }
