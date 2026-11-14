@@ -2,7 +2,9 @@ import {
   type Archetype,
   createFood,
   createLight,
+  createMobilityAid,
   createTableware,
+  createUmbrella,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,7 +14,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  * The tableware, the food and the lights are placed in a scene where they were put, on the floor and on a table top.
  *
  * Scenarios:
- * 1. Every tableware, food and light kind, placed on a line through the public chain on the floor, each turned a different way: each rests at its placement, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
+ * 1. Every tableware and food kind, every light but the pendant (which hangs from its hook at its origin), a closed and an open umbrella and every walking aid, placed on a line through the public chain on the floor, each turned a different way: each rests at its placement, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
  * 2. A plate, an apple and a candle placed on a support 0.74 m high, a dining table's top: each rests on it the same way.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the three producers through the public chain and reads the displayed prop frames and contacts; one that floats, sinks below its support or drops a contact fails with the numbers.
@@ -52,9 +54,24 @@ export function test_archetype_props_table_placed(): void {
       ),
       ...kinds(
         "light",
-        createLight.KINDS,
+        createLight.KINDS.filter(
+          (kind: createLight.Kind): boolean => kind !== "pendant",
+        ),
         (kind: createLight.Kind): Archetype => createLight({ kind }),
         180,
+      ),
+      { name: "umbrella", archetype: createUmbrella(), yaw: 270 },
+      {
+        name: "umbrella-open",
+        archetype: createUmbrella({ open: true }),
+        yaw: 285,
+      },
+      ...kinds(
+        "mobilityAid",
+        createMobilityAid.KINDS,
+        (kind: createMobilityAid.Kind): Archetype =>
+          createMobilityAid({ kind }),
+        300,
       ),
       {
         name: "plate-on-table",

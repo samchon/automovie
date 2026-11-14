@@ -34,7 +34,9 @@ import {
   createSmoking,
   createStationery,
   createTableware,
+  createMobilityAid,
   createTool,
+  createUmbrella,
   createVessel,
 } from "../props";
 import {
@@ -227,6 +229,14 @@ export function archetypeCaptureCatalog(): Readonly<
         "light",
         createLight.KINDS,
         (kind: createLight.Kind): Archetype => createLight({ kind }),
+      ),
+      umbrella: createUmbrella(),
+      "umbrella-open": createUmbrella({ open: true }),
+      ...kinds(
+        "mobilityAid",
+        createMobilityAid.KINDS,
+        (kind: createMobilityAid.Kind): Archetype =>
+          createMobilityAid({ kind }),
       ),
       ...kinds(
         "vessel",

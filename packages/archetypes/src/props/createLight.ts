@@ -29,10 +29,14 @@ const TORCH: string =
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a torch's shaft, whose own diameter no maker states";
 
+/** IKEA's lamps, read. */
+const LAMPS: string =
+  "IKEA FORSÅ work lamp, 35 cm high, base 15 cm, shade 12 cm (https://www.ikea.com/gb/en/p/forsa-work-lamp-nickel-plated-10146766/); TERTIAL work lamp, shade 17 cm (https://www.ikea.com/gb/en/p/tertial-work-lamp-dark-grey-40450802/); HEKTAR floor lamp, 176 cm high, base 30 cm, shade 16.0 cm (https://www.ikea.com/gb/en/p/hektar-floor-lamp-with-3-spot-dark-grey-60393603/); SKURUP pendant lamp, 15 in across, 11 in high, cord 4 ft 11 in (https://www.ikea.com/us/en/p/skurup-pendant-lamp-black-70407124/)";
+
 /**
- * A light a person carries or hangs: a taper candle in its holder, a hurricane lantern or a hand-held fire torch.
+ * A light a person carries, hangs or switches: a taper candle in its holder, a hurricane lantern, a hand-held fire torch, a desk lamp, a floor lamp or a pendant lamp.
  *
- * Each stands upright on the floor of its own space, `+Y` up. `grip` is where a hand holds it: the candle holder's socket, the lantern's bail over its top along `X`, the torch's shaft taken from `-Z`. `light` is where the flame is, its `+Y` up the flame, the frame a production places a light at; the light itself is the render's, not the archetype's. A lantern also declares `hook`, its bail's middle, to hang it by.
+ * Each but the pendant stands upright on the floor of its own space, `+Y` up. `grip` is where a hand holds it: the candle holder's socket, the lantern's bail over its top along `X`, the torch's shaft taken from `-Z`, a lamp's shade, taken from the side to aim it. `light` is where the light comes from, the frame a production places a light at: a flame's point with `+Y` up the flame, a lamp's shade mouth with `+Y` down along its beam; the light itself is the render's, not the archetype's. A lantern also declares `hook`, its bail's middle, to hang it by. A desk or floor lamp stands on a round base with a stem to its shade, and `switch` is a push button on the base's top at its `+Z` side. A pendant hangs from its `hook` at the origin, on the ceiling, its cord down to the shade.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -76,6 +80,68 @@ export function createLight(
   });
   const v: typeof Vector3.create = Vector3.create;
   const flame: number = createLight.FLAME;
+
+  if (kind === "deskLamp" || kind === "floorLamp" || kind === "pendant") {
+    // A lamp: a shade whose mouth faces down, on a stem from a round base, or on a cord from the ceiling.
+    const shade: number = d.shade! / 2;
+    const pendant: boolean = kind === "pendant";
+    const deep: number = pendant ? d.height! : createLight.SHADE;
+    const mouth: number = pendant ? -d.cord! - deep : d.height! - deep;
+    const metal: string = "#2c2f33";
+    if (pendant)
+      builder.rod("cord", createLight.CORD, v(0, 0, 0), v(0, mouth + deep, 0), {
+        color: metal,
+        density: 0.2,
+      });
+    else {
+      const base: number = createLight.BASE;
+      builder.rod("base", d.base! / 2, v(0, 0, 0), v(0, base, 0), {
+        color: metal,
+        density: 3,
+      });
+      builder.rod("stem", createLight.STEM, v(0, base, 0), v(0, mouth, 0), {
+        color: metal,
+      });
+      builder.affordance({
+        id: "switch",
+        kind: "button",
+        frame: ArchetypeFrame.upright(v(0, base, d.base! / 4)),
+        extent: null,
+        travel: createLight.PRESS,
+      });
+    }
+    builder.rod("shade", shade, v(0, mouth, 0), v(0, mouth + deep, 0), {
+      color: "#d9d4c7",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(0, mouth + deep / 2, 0),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "precision",
+      aperture: d.shade!,
+    });
+    builder.affordance({
+      id: "light",
+      kind: "socket",
+      direction: "along",
+      frame: ArchetypeFrame.facing(v(0, mouth, 0), v(0, -1, 0), v(1, 0, 0)),
+      extent: null,
+    });
+    if (pendant)
+      builder.affordance({
+        id: "hook",
+        kind: "hook",
+        frame: ArchetypeFrame.upright(v(0, 0, 0)),
+        extent: null,
+      });
+    return builder.build(d.mass!);
+  }
 
   if (kind === "candle") {
     // The dish, the socket rising from it to the holder's height, and the taper standing on the socket.
@@ -222,16 +288,44 @@ export function createLight(
  * Companion types, constants and bands of {@link createLight}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of three flame lights, one cited band per dimension per kind; the flame is a frame, never a part.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a lantern hangs by and the flame a production lights (#3501); the electric flashlight is `createTorch`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying and lighting are written once. Bands seen only in search results are provisional; the parts no source sizes are named estimates.
+ * @evidence contracts/development/design.md#principled-representation A closed union of three flame lights and three electric lamps, one cited band per dimension per kind; the flame and the beam are frames, never parts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a lantern or a pendant hangs by, a lamp's switch, and the light a production places (#3501, #3468's N1); the electric flashlight is `createTorch`'s.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once. Bands seen only in search results are provisional, and a lamp's mass, which no page read gives, is a typical mass; the parts no source sizes are named estimates.
  */
 export namespace createLight {
-  /** The kinds: a taper candle in its holder, a hurricane lantern and a hand-held fire torch. */
-  export type Kind = "candle" | "lantern" | "fireTorch";
+  /** The kinds: a taper candle in its holder, a hurricane lantern, a hand-held fire torch, a desk lamp, a floor lamp and a pendant lamp. */
+  export type Kind =
+    | "candle"
+    | "lantern"
+    | "fireTorch"
+    | "deskLamp"
+    | "floorLamp"
+    | "pendant";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["candle", "lantern", "fireTorch"];
+  export const KINDS: readonly Kind[] = [
+    "candle",
+    "lantern",
+    "fireTorch",
+    "deskLamp",
+    "floorLamp",
+    "pendant",
+  ];
+
+  /** A desk or floor lamp's shade depth, metres: an estimate; the pages read give its diameter only. */
+  export const SHADE: number = 0.1;
+
+  /** A lamp base's thickness, metres: an estimate. */
+  export const BASE: number = 0.02;
+
+  /** A lamp stem's radius, metres: an estimate. */
+  export const STEM: number = 0.008;
+
+  /** A pendant cord's radius, metres: an estimate. */
+  export const CORD: number = 0.003;
+
+  /** A lamp switch's press, metres: an estimate. */
+  export const PRESS: number = 0.003;
 
   /** The flame's frame above the wick's top, metres: an estimate. */
   export const FLAME: number = 0.015;
@@ -266,11 +360,12 @@ export namespace createLight {
   /**
    * The affordance ids:
    *
-   * - `grip`: a candle holder's socket, a lantern's bail, a torch's shaft.
-   * - `hook`: a lantern's bail at its middle, to hang it by.
-   * - `light`: the flame, `+Y` up it.
+   * - `grip`: a candle holder's socket, a lantern's bail, a torch's shaft, a lamp's shade.
+   * - `hook`: a lantern's bail at its middle, or a pendant's ceiling end, to hang it by.
+   * - `light`: the flame, `+Y` up it, or a lamp's shade mouth, `+Y` down its beam.
+   * - `switch`: a desk or floor lamp's push button on its base.
    */
-  export type Affordance = "grip" | "hook" | "light";
+  export type Affordance = "grip" | "hook" | "light" | "switch";
 
   /**
    * The free dimensions, metres unless stated:
@@ -278,10 +373,12 @@ export namespace createLight {
    * - `taper`, `taperDiameter`: a candle's length and thickness.
    * - `holder`: a candle holder's height, where the taper stands.
    * - `dishDiameter`: a candle holder's dish.
-   * - `height`: a lantern's to its top, the bail down.
-   * - `base`: a lantern's fount across.
+   * - `height`: a lantern's to its top, the bail down; a desk or floor lamp's to its shade's top; a pendant's shade.
+   * - `base`: a lantern's fount, a lamp's base, across.
    * - `length`: a torch's, butt to wick top.
    * - `shaftDiameter`, `headDiameter`: a torch's shaft and wick head.
+   * - `shade`: a lamp's shade across.
+   * - `cord`: a pendant's cord from the ceiling to its shade.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -294,6 +391,8 @@ export namespace createLight {
     | "length"
     | "shaftDiameter"
     | "headDiameter"
+    | "shade"
+    | "cord"
     | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
@@ -349,6 +448,28 @@ export namespace createLight {
         ArchetypeBand.TYPICAL_MASS,
         true,
       ),
+    },
+    deskLamp: {
+      height: ArchetypeBand.metres(0.35, 0.35, LAMPS),
+      base: ArchetypeBand.metres(0.15, 0.15, LAMPS),
+      shade: ArchetypeBand.metres(0.12, 0.17, LAMPS),
+      mass: ArchetypeBand.of("kg", 0.8, 1.5, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    floorLamp: {
+      height: ArchetypeBand.metres(1.76, 1.76, LAMPS),
+      base: ArchetypeBand.metres(0.3, 0.3, LAMPS),
+      shade: ArchetypeBand.metres(0.16, 0.16, LAMPS),
+      mass: ArchetypeBand.of("kg", 3, 6, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    pendant: {
+      height: ArchetypeBand.metres(11 * 0.0254, 11 * 0.0254, LAMPS),
+      shade: ArchetypeBand.metres(15 * 0.0254, 15 * 0.0254, LAMPS),
+      cord: ArchetypeBand.metres(
+        (4 * 12 + 11) * 0.0254,
+        (4 * 12 + 11) * 0.0254,
+        LAMPS,
+      ),
+      mass: ArchetypeBand.of("kg", 0.5, 1, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }

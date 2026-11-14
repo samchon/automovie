@@ -42,6 +42,7 @@ import {
   createLongGun,
   createLongTool,
   createMagazine,
+  createMobilityAid,
   createMotorcycle,
   createObstacle,
   createParallelBars,
@@ -74,6 +75,7 @@ import {
   createTool,
   createTorch,
   createTray,
+  createUmbrella,
   createVaultingPole,
   createVaultingTable,
   createVessel,
@@ -395,6 +397,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `light-${kind}`,
       (seed?: number | string): Archetype => createLight({ kind }, seed),
+    );
+  for (const open of [false, true])
+    add(
+      `umbrella-${open ? "open" : "closed"}`,
+      (seed?: number | string): Archetype => createUmbrella({ open }, seed),
+    );
+  for (const kind of createMobilityAid.KINDS)
+    add(
+      `mobilityAid-${kind}`,
+      (seed?: number | string): Archetype => createMobilityAid({ kind }, seed),
     );
   // Sport: the jump apparatus.
   add(
