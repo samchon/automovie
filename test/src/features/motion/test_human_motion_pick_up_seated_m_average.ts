@@ -13,5 +13,5 @@ import { motionPickUpSeated } from "../internal/motionPickUpSeated";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the body, where the stage and scenarios are stated and the split.
  */
 export function test_human_motion_pick_up_seated_m_average(): void {
-  motionPickUpSeated("m-average");
+  motionPickUpSeated("m-average", "pick");
 }

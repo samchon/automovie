@@ -1,35 +1,31 @@
 import {
   type IAutoMovieResolvedBone,
-  Quaternion,
   Vector3,
   minimumJerk,
 } from "@automovie/engine";
-import type {
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { pickUpPosture } from "./pickUpPosture";
+import { pickUpSearch } from "./pickUpSearch";
 
 /**
  * Reaching for a prop's grip, grasping it and lifting it clear.
@@ -166,11 +162,17 @@ export namespace pickUp {
 
     // The grasp chosen from the entry's body; where its arm does not reach,
     // from the body lowered toward the grip (`pickUpPosture`).
-    let found: ISearched = search(context, side, lift, authored, {
-      posture: context.entry.posture,
-      at: (): IHumanPosture => context.entry.posture,
-      lower: (posture: IHumanPosture): IHumanPosture => posture,
-    });
+    let found: pickUpSearch.ISearched = pickUpSearch.of(
+      context,
+      side,
+      lift,
+      authored,
+      {
+        posture: context.entry.posture,
+        at: (): IHumanPosture => context.entry.posture,
+        lower: (posture: IHumanPosture): IHumanPosture => posture,
+      },
+    );
     const lowered: pickUpPosture.IStance | null = pickUpPosture.reaches(
       context,
       side,
@@ -178,8 +180,8 @@ export namespace pickUp {
       ? null
       : pickUpPosture.lowered(context, side, authored.point);
     if (lowered !== null)
-      found = search(context, side, lift, authored, lowered);
-    const { chosen, bend, stance }: ISearched = found;
+      found = pickUpSearch.of(context, side, lift, authored, lowered);
+    const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IHumanPosture = stance.posture;
     const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
     const grasp: HumanHand.IWrist = chosen.wrist;
@@ -282,6 +284,20 @@ export namespace pickUp {
           to: 1,
           support: { kind: "ground" },
         },
+        // What else the body rests on at the entry, a seat or a back, it
+        // keeps throughout.
+        ...context.entry.supports
+          .filter(
+            (s: IHumanEntryState.ISupport): boolean =>
+              s.part !== "leftFoot" && s.part !== "rightFoot",
+          )
+          .map(
+            (s: IHumanEntryState.ISupport): IHumanContactWindow => ({
+              ...s,
+              from: 0,
+              to: 1,
+            }),
+          ),
         {
           part: hand,
           kind: "grip",
@@ -391,123 +407,4 @@ export namespace pickUp {
   /** Refuse a wrist goal beyond the straight arm's reach from its shoulder (`pickUpPosture.reachable`), which the put down reads too. */
   export const reachable: typeof pickUpPosture.reachable =
     pickUpPosture.reachable;
-}
-
-/** A grasp chosen from a stance, the elbow hint its arm hangs by, and the stance. */
-interface ISearched {
-  chosen: HumanGrasp.IReach;
-  bend: IAutoMovieVector3;
-  stance: pickUpPosture.IStance;
-}
-
-/** The grasp the arm reaches best from a stance's posture, the lifted pose and any use's pose its keys (`HumanGrasp.reachable`). */
-function search(
-  context: IHumanActionContext<pickUp.IParams>,
-  side: HumanHand.Side,
-  lift: number,
-  authored: HumanGrasp.ITarget,
-  stance: pickUpPosture.IStance,
-): ISearched {
-  const body: IHumanBody = context.body;
-  const held: IHumanPosture = stance.posture;
-  // The same grip must still hold at the top of the lift, so the lifted
-  // pose is a key of the choice.
-  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-    body,
-    held,
-    side,
-  );
-
-  // The hand's own rotation at a place: what the arm gives it there when
-  // no rotation is asked. Fitted once per place.
-  const limbOf: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-  const owned: Map<string, IAutoMovieQuaternion> = new Map();
-  const natural = (point: IAutoMovieVector3): IAutoMovieQuaternion => {
-    const key: string = `${point.x},${point.y},${point.z}`;
-    let found: IAutoMovieQuaternion | undefined = owned.get(key);
-    if (found === undefined) {
-      found =
-        poseBones(
-          body,
-          resolveHumanPosture(body, {
-            ...held,
-            limbs: { ...held.limbs, [limbOf]: { point, bend } },
-          }),
-        ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity();
-      owned.set(key, found);
-    }
-    return found;
-  };
-  const goal = (turn: number, tilt: number): HumanHand.IWrist =>
-    HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
-  const tilts: readonly number[] =
-    context.params.use === undefined
-      ? [-45, -30, -15, 0, 15, 30, 45]
-      : HumanGraspUse.OBLIQUE;
-  const turnsAsked: readonly number[] =
-    context.params.use === undefined ? HumanGrasp.TURNS : HumanGraspUse.AROUND;
-  // A grasp whose wrist lies beyond the straight arm is tried only when
-  // every one does: the choice and the refusal below read the same reach,
-  // so a grip a millimetre beyond it is never chosen over one within it for
-  // a cheaper fit. Each turn and tilt is judged on its own; a turn kept
-  // only while all its tilts were within reach fell back to every turn when
-  // none kept all seven, and a glass across the body was refused a grip
-  // 9 mm beyond the arm while others lay within it.
-
-  const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
-    body,
-    held,
-    side,
-    bend,
-    goal,
-    tilts,
-    (wrist: HumanHand.IWrist, shown: HumanHand.IWrist): HumanGrasp.IKey[] => [
-      ...(lift > 0
-        ? [
-            {
-              posture: held,
-              // Lifted, the hand keeps the rotation it shows at the grasp,
-              // as the lift holds it (`HumanHandAttitude`).
-              wrist: {
-                point: { ...wrist.point, y: wrist.point.y + lift },
-                rotation: shown.rotation,
-              },
-              bend,
-            },
-          ]
-        : []),
-      ...(context.params.use === undefined
-        ? []
-        : [
-            HumanGraspUse.presented({
-              context,
-              prop: context.params.prop,
-              handle: context.params.handle,
-              side,
-
-              // The tool is rigid in the hand the arm shows at the grasp,
-              // which may differ from the hand asked: the fingers close
-              // on it where it is shown.
-              wrist: shown,
-              use: context.params.use,
-              natural,
-            }),
-          ]),
-    ],
-
-    // A grasp for a use may have to come from the far side of the handle.
-    turnsAsked,
-
-    // A grasp that holds the use's pose comes before any that does not,
-    // whatever else each costs; the use's pose is the stroke's last key.
-    context.params.use === undefined
-      ? undefined
-      : {
-          bound: HumanGraspUse.UNMET,
-          measure: (keys: readonly number[]): number =>
-            keys[keys.length - 1] ?? 0,
-        },
-    pickUpPosture.reaches(context, side, held),
-  );
-  return { chosen, bend, stance };
 }

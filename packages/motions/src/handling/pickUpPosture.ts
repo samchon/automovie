@@ -5,6 +5,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
 import { bendLower } from "../everyday/bendLower";
 import { seated } from "../everyday/seated";
+import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
@@ -139,6 +140,9 @@ export namespace pickUpPosture {
     reach?: number,
   ): IStance => {
     const entry: IHumanPosture = context.entry.posture;
+    const base: HumanBase = context.entry.base;
+    if (base.kind !== "seated")
+      throw new Error("A seated lean of a body that is not seated");
     const limit: number =
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
     const lower = (posture: IHumanPosture, pitch: number): IHumanPosture => {
@@ -151,12 +155,55 @@ export namespace pickUpPosture {
         pitch: posture.pitch + tilt.pitch,
         roll: posture.roll,
       };
-      return resolveHumanPosture.lower(context.body, {
+      const leant: IHumanPosture = resolveHumanPosture.lower(context.body, {
         ...posture,
         ...heading,
         root: seated.root(context.body, socket, heading),
         joints: tilt.joints,
       });
+      // A free hand rests where the leaned body sets it, on the thigh or
+      // the armrest, as it rested sitting; a hand that holds keeps its goal.
+      const rested: IHumanPosture = seated.rested(
+        context.body,
+        leant,
+        base.seat?.armrests,
+        posture.yaw,
+        1,
+      );
+      // The hand slides forward on the thigh as far as the shoulder has come
+      // forward, up to the knee, half a thigh ahead of the rest (provisional),
+      // so the arm keeps the shape it rested in.
+      const yaw: number = (posture.yaw * Math.PI) / 180;
+      const ahead: IAutoMovieVector3 = {
+        x: Math.sin(yaw),
+        y: 0,
+        z: Math.cos(yaw),
+      };
+      const limbs: IHumanPosture["limbs"] = { ...leant.limbs };
+      for (const hand of ["left", "right"] as const) {
+        const goal: IHumanPosture.IGoal | undefined =
+          rested.limbs[`${hand}Arm`];
+        if (context.entry.holds[hand] !== undefined || goal === undefined)
+          continue;
+        const slide: number = Math.min(
+          0.5 * context.body.measure.thigh,
+          Math.max(
+            0,
+            Vector3.dot(
+              Vector3.subtract(
+                shoulder(context, hand, leant),
+                shoulder(context, hand, posture),
+              ),
+              ahead,
+            ),
+          ),
+        );
+        limbs[`${hand}Arm`] = {
+          ...goal,
+          point: Vector3.add(goal.point, Vector3.scale(ahead, slide)),
+        };
+      }
+      return { ...leant, limbs };
     };
     const far = (pitch: number): number =>
       Vector3.length(
