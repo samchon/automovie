@@ -14,11 +14,11 @@ An image gives the model far more than words, so prefer image-to-3D whenever the
 
 Glass, mirrors, hair and thin wires reconstruct poorly; give such a subject an opaque reference, or build its thin parts in code.
 
-Make the input under [image](../../image/SKILL.md), from the subject's frozen canon references: prompt it as a front or three-quarter view of the whole subject on a white background in its rest pose, and turn off any enhancement the 3D model offers that redraws the input, because it changes details.
+Make the input with an image generator from the subject's accepted references: prompt it as a front or three-quarter view of the whole subject on a white background in its rest pose, and turn off any enhancement the 3D model offers that redraws the input, because it changes details.
 
 ## Views
 
-Several views constrain the hidden sides. Give them only to a model that takes them, under the same light and framing, in the views it names: the front is required or read first, and the others are left, back and right or three-quarter views. Make them as [turnaround views](../../image/SKILL.md#turnaround-views-for-modeling) are made. A model that takes one image gains nothing from more.
+Several views constrain the hidden sides. Give them only to a model that takes them, under the same light and framing, in the views it names: the front is required or read first, and the others are left, back and right or three-quarter views. Render them from fixed cameras around the subject, restyle each one from the same references, and check that they agree. A model that takes one image gains nothing from more.
 
 ## Text prompt
 
