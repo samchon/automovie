@@ -15,19 +15,22 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Two hands on one rod are planned as one problem whose grasp is an allowed
- * contact: each hand's site is the rod's pose times its grip, so the chain
- * closes through the rod, and the two hands that meet on it are not read as
- * colliding.
+ * Two hands on one rod are planned as one closed chain whose grasp is an
+ * allowed contact: the lead hand's site is the rod's pose times its grip,
+ * the second hand's grip rides the lead hand as the plan puts it on its
+ * site, and the two hands that meet on the rod are not read as colliding.
  *
  * Scenario: the average man lays both palms side by side, 6 cm apart, on a
  * rod held across his body ahead at waist height, from the quiet stance
  * over 0.6 s, then lifts the rod 0.15 m with both hands between 0.65 s
  * and 1.05 s and lets go by 1.5 s, each hand held to a 4 mm disc about its
- * grip (`ICarry.disc`), both declaring their hands and forearms as the grasp
- * (`ICarry.grasp`): every frame at 60 a second is finite, each palm moves
- * within the audit's travel bound, each lies within 5 mm of its place on
- * the rod over the hold, and the two palms keep their spacing within 5 mm.
+ * grip (`ICarry.disc`), the left riding the right (`ICarry.on`), both
+ * declaring their hands and forearms as the grasp (`ICarry.grasp`): every
+ * frame at 60 a second is finite, each palm moves within the audit's
+ * travel bound, the lead palm lies within 5 mm of its place on the rod over
+ * the hold, and the two palms keep their spacing within 5 mm, each the
+ * bound its row holds a grip to: one 4 mm disc and the planner's 1 mm
+ * tolerance; the second palm's place follows from the two.
  * The same rod undeclared is refused
  * (`test_human_motion_core_bimanual_rod_undeclared`).
  *
@@ -83,6 +86,7 @@ export function test_human_motion_core_bimanual_rod(): void {
           together,
           disc: 0.004,
           grasp: ["hand", "lowerArm"],
+          ...(side === "left" ? { on: "rightHand" as const } : {}),
         }),
     );
   };
@@ -132,11 +136,9 @@ export function test_human_motion_core_bimanual_rod(): void {
         distance(p.right, read[i - 1]!.right),
       );
     if (seconds >= span.ready && seconds <= span.relax) {
-      off = Math.max(
-        off,
-        distance(p.left, place("left", seconds)),
-        distance(p.right, place("right", seconds)),
-      );
+      // The lead hand is held to its place; the second to the lead, so its
+      // place follows from the lead's and the spacing.
+      off = Math.max(off, distance(p.right, place("right", seconds)));
       spacing = Math.max(spacing, Math.abs(distance(p.left, p.right) - 0.06));
     }
   });
@@ -145,7 +147,7 @@ export function test_human_motion_core_bimanual_rod(): void {
     step <= (0.08 * 24) / rate,
   );
   TestValidator.predicate(
-    `the palms stay within ${(off * 1000).toFixed(1)} mm of their places over the hold`,
+    `the lead palm stays within ${(off * 1000).toFixed(1)} mm of its place over the hold`,
     off <= 0.005,
   );
   TestValidator.predicate(

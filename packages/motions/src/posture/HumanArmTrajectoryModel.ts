@@ -58,8 +58,8 @@ export namespace HumanArmTrajectoryModel {
       owner: "upper" | "lower" | "hand";
       /** The point in the segment's frame. */
       point: IAutoMovieVector3;
-      /** The touched collider's outward normal there, in the segment's frame. */
-      normal: IAutoMovieVector3;
+      /** The touched collider's outward normal there, in the segment's frame; none for a grip on an object both hands hold, a closed chain whose contact is held to the point on every axis. */
+      normal?: IAutoMovieVector3;
       /** The hand's rotation in the segment's frame. */
       rotation?: IAutoMovieQuaternion;
     };

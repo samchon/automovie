@@ -190,7 +190,7 @@ export namespace HumanArmTrajectory {
             on: {
               ...site.on,
               point: HumanArmMirror.flip(site.on.point),
-              normal: HumanArmMirror.flip(site.on.normal),
+              ...(site.on.normal === undefined ? {} : { normal: HumanArmMirror.flip(site.on.normal) }),
               ...(site.on.rotation === undefined ? {} : { rotation: HumanArmMirror.turn(site.on.rotation) }),
             },
           }),

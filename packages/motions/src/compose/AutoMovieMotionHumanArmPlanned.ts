@@ -356,7 +356,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
             if (!holding(t)) return undefined;
             const { posture, pose } = at(t);
             const own: HumanArmTrajectory.ISite = site(body, pose, c, aim(c, posture, t));
-            return rider < 0 ? own : { ...own, on: { ...riding(body, pose, carries[rider]!.side, c.on!, own.point, own.rotation), arm: rider } };
+            if (rider < 0) return own;
+            const lead: IPlanned = carries[rider]!;
+            // A grip on an object both hands hold rides the lead hand's own
+            // site, the hand as the plan puts it there: a closed chain
+            // through the plan, not the hand as posed when it is read.
+            if (c.grasp !== undefined && c.on!.endsWith("Hand")) {
+              const held: HumanArmTrajectory.ISite = site(body, pose, lead, aim(lead, posture, t));
+              if (held.rotation !== undefined) return { ...own, on: { ...gripped(held, own), arm: rider } };
+            }
+            return { ...own, on: { ...riding(body, pose, lead.side, c.on!, own.point, own.rotation), arm: rider } };
           }),
           guess: guesses[a]!,
         };
@@ -423,6 +432,27 @@ export namespace AutoMovieMotionHumanArmPlanned {
       ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
     };
   }
+}
+
+/**
+ * A grip on an object both hands hold, in the lead hand's frame as the lead's
+ * site puts it: the grip's point and the hand's rotation relative to the lead
+ * hand at its own site, and no surface normal, so the contact is held to the
+ * point on every axis (a closed chain, the second hand's pose the object's
+ * times its grasp offset).
+ */
+function gripped(
+  lead: HumanArmTrajectory.ISite,
+  own: HumanArmTrajectory.ISite,
+): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
+  const turn: IAutoMovieQuaternion = lead.rotation!;
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(turn);
+  const wrist: IAutoMovieVector3 = Vector3.subtract(lead.point, Quaternion.rotateVector(turn, lead.contact));
+  return {
+    owner: "hand",
+    point: Quaternion.rotateVector(inverse, Vector3.subtract(own.point, wrist)),
+    ...(own.rotation === undefined ? {} : { rotation: Quaternion.multiply(inverse, own.rotation) }),
+  };
 }
 
 /**

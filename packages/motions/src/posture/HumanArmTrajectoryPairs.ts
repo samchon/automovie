@@ -273,12 +273,17 @@ export namespace HumanArmTrajectoryPairs {
     const theirs: G.IPlaced = placed[on.arm]![k]!;
     const [origin, turn]: [IAutoMovieVector3, IAutoMovieQuaternion] =
       on.owner === "upper" ? [theirs.shoulder, theirs.upper] : on.owner === "lower" ? [theirs.elbow, theirs.lower] : [theirs.wrist, theirs.hand];
+    const point: IAutoMovieVector3 = Vector3.add(origin, Quaternion.rotateVector(turn, on.point));
+    const rotation: { rotation?: IAutoMovieQuaternion } = on.rotation === undefined ? {} : { rotation: Quaternion.multiply(turn, on.rotation) };
+    // A grip on an object both hands hold touches no surface of the other
+    // arm: the contact is held to the point on every axis, a closed chain.
+    if (on.normal === undefined) return { point, ...rotation, gap: (): number => 0, normalAt: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0 }), on: { arm: on.arm, owner: on.owner, origin } };
     const shape: G.IShape | undefined = where < 0 ? undefined : G.colliders(c.frames[on.arm]![k]!, theirs)[where];
     const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, on.normal);
     return {
-      point: Vector3.add(origin, Quaternion.rotateVector(turn, on.point)),
+      point,
       normal,
-      ...(on.rotation === undefined ? {} : { rotation: Quaternion.multiply(turn, on.rotation) }),
+      ...rotation,
       ...(shape === undefined ? {} : { shape }),
       gap: (p: IAutoMovieVector3): number => (shape === undefined ? 0 : physicalShapeSegmentDistance(shape.pose, shape.shape, p, p)),
       normalAt: (p: IAutoMovieVector3): IAutoMovieVector3 => (shape === undefined ? normal : physicalShapeNormal(shape.pose, shape.shape, p, normal)),

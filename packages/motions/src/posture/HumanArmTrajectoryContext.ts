@@ -184,7 +184,9 @@ export namespace HumanArmTrajectoryContext {
     const touched: number[][] = sites.map((arm: (M.ISite | undefined)[]): number[] => arm.map((): number => -1));
     const normals: (IAutoMovieVector3 | undefined)[][] = sites.map((arm: (M.ISite | undefined)[], a: number): (IAutoMovieVector3 | undefined)[] =>
       arm.map((site: M.ISite | undefined, k: number): IAutoMovieVector3 | undefined => {
-        if (site === undefined) return undefined;
+        // A grip on a held object touches no surface of the body: it is
+        // held to its point on every axis, so it has no touched collider.
+        if (site === undefined || problem.arms[a]!.grasp !== undefined) return undefined;
         const on: M.ISite["on"] = site.on;
         const candidates: G.IShape[] = on === undefined ? frames[a]![k]!.shapes : G.colliders(frames[on.arm]![k]!, restPlaced[on.arm]![k]!);
         const owners: ("upper" | "lower" | "hand")[] =
