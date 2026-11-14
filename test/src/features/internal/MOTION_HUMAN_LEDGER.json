@@ -1456,6 +1456,22 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.footing",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.planted",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTrunk.crouch",
       "tests": [
         "test_human_motion_compose_trunk_turn_m_average",
