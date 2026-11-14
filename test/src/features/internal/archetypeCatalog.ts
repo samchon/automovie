@@ -1,5 +1,6 @@
 import {
   type Archetype,
+  type IArchetypeBand,
   createAppliance,
   createBag,
   createBall,
@@ -107,8 +108,9 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   const add = (
     name: string,
     create: (seed?: number | string) => Archetype,
+    fixed?: boolean,
   ): void => {
-    rows.push({ name, create });
+    rows.push({ name, create, ...(fixed === true ? { fixed } : {}) });
   };
   for (const kind of createDrinkware.KINDS)
     add(
@@ -294,6 +296,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `projectile-${kind}`,
       (seed?: number | string): Archetype => createProjectile({ kind }, seed),
+      Object.values(createProjectile.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const kind of createLongGun.KINDS)
     add(
@@ -419,6 +425,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tableware-${kind}`,
       (seed?: number | string): Archetype => createTableware({ kind }, seed),
+      Object.values(createTableware.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const kind of createFood.KINDS)
     add(
@@ -552,5 +562,8 @@ export namespace archetypeCatalog {
 
     /** The archetype for a seed; the middle of every band when the seed is absent. */
     create(seed?: number | string): Archetype;
+
+    /** True when every band of the row's variant has zero width, as a standardised munition's read single figures do, so no seed varies it. */
+    fixed?: boolean;
   }
 }

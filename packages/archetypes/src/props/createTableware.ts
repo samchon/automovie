@@ -18,12 +18,16 @@ const PLATES: string =
 const PLATTER: string =
   "IKEA 365+ serving plates 27 by 15 cm, 3 cm high, packed at 0.52 kg (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364), and 36 by 20 cm (https://mgmt.ikea.gr/en/products/ikea-365-serving-plate-36x20-cm/00607367); the largest's 1.12 kg from dimensions.com seen only in search results";
 
+/** A maker's saucer, read. */
+const SAUCER: string =
+  "Rosenthal Sonetto espresso saucer 12 cm: 1.4 cm high, 106 g (https://www.rosenthal.de/en-gb/espresso-saucer-12-cm/10600-405234-14716.html)";
+
 /** What a packed weight means for a plate's own. */
 const PACKED: string =
   "the page's packed weight, which the plate alone is lighter than by an amount no page gives";
 
 /**
- * A plate food is served on and eaten from: a round plate, from a side plate to a dinner plate, or an oblong serving platter.
+ * A plate food is served on and eaten from: a round plate, from a side plate to a dinner plate, an oblong serving platter, or a cup's saucer.
  *
  * The plate lies flat on the origin, a slab of the drawn size and height; a platter's long side runs along `X`. Its well and rim are not drawn, so its face is level at its full height. `top` is that face, where food sits and another plate stacks, a `stack-top` whose extent is the plate's outline; `leftRim` and `rightRim` are the plate's edge at `+X` and `-X`, pinched across its height between a thumb on the face and the fingers beneath; `underside` is its base facing down, the whole plate's size, where two hands carry it from below.
  *
@@ -69,7 +73,7 @@ export function createTableware(
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
-  const round: boolean = kind === "plate";
+  const round: boolean = kind !== "platter";
   const length: number = round ? d.diameter! : d.length!;
   const width: number = round ? d.diameter! : d.width!;
   const color: string = "#f2efe8";
@@ -139,16 +143,16 @@ export function createTableware(
  * Companion types, constants and bands of {@link createTableware}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the round plate and the platter, the round plate drawn by its diameter and the platter by its length and width, one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the round plate, the platter and the saucer, a round one drawn by its diameter and the platter by its length and width, one cited band per dimension per kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The face food and other plates rest on, the edge a hand pinches and the underside two hands carry from (#3501); a bowl is `createVessel`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every plate has the same four contacts, so serving, clearing and stacking are written once; the bands run between the plates read, the masses between their packed weights.
  */
 export namespace createTableware {
-  /** The kinds: a round plate, from a side plate to a dinner plate, and an oblong serving platter. */
-  export type Kind = "plate" | "platter";
+  /** The kinds: a round plate, from a side plate to a dinner plate, an oblong serving platter and a cup's saucer. */
+  export type Kind = "plate" | "platter" | "saucer";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["plate", "platter"];
+  export const KINDS: readonly Kind[] = ["plate", "platter", "saucer"];
 
   /** The number of points of a round plate's stacking outline. */
   export const OUTLINE: number = 16;
@@ -165,7 +169,7 @@ export namespace createTableware {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `diameter`: a round plate's, across.
+   * - `diameter`: a round plate's or a saucer's, across.
    * - `length`, `width`: a platter's, along `X` and `Z`.
    * - `height`: the face above the base.
    * - `mass`: kilograms.
@@ -195,6 +199,11 @@ export namespace createTableware {
       width: ArchetypeBand.metres(0.15, 0.2, PLATTER),
       height: ArchetypeBand.metres(0.03, 0.03, PLATTER),
       mass: ArchetypeBand.of("kg", 0.52, 1.12, `${PLATTER}; ${PACKED}`, true),
+    },
+    saucer: {
+      diameter: ArchetypeBand.metres(0.12, 0.12, SAUCER),
+      height: ArchetypeBand.metres(0.014, 0.014, SAUCER),
+      mass: ArchetypeBand.of("kg", 0.106, 0.106, SAUCER),
     },
   };
 }

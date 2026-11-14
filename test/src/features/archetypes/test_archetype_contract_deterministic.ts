@@ -8,7 +8,7 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
  * Scenarios:
  * 1. Each row of the catalog produced twice with one seed serialises to identical text, for a number seed and a text seed.
  * 2. A number seed and the text of that number are the same seed.
- * 3. Across sixteen seeds each row gives more than one model, unless every one of its dimensions is fixed by its source (the catalog's rows all have at least one free dimension).
+ * 3. Across sixteen seeds each row gives more than one model, unless the catalog marks it fixed, every one of its dimensions a single figure its source reads (a standardised munition such as the M67 grenade), when it gives exactly one.
  * 4. A model's serialisation carries only model members: it reads back with exactly the keys of a rigid generated model.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each archetype repeatedly and compares the serialised models; a producer that reads a clock, an unkeyed random source or iteration order fails the first scenario, and one that ignores its seed fails the third.
@@ -28,8 +28,10 @@ export function test_archetype_contract_deterministic(): void {
     const distinct: Set<string> = new Set();
     for (let seed: number = 0; seed < 16; seed++)
       distinct.add(JSON.stringify(row.create(seed)));
-    if (distinct.size < 2)
+    if (row.fixed !== true && distinct.size < 2)
       findings.push(`${row.name}: sixteen seeds gave one model`);
+    if (row.fixed === true && distinct.size !== 1)
+      findings.push(`${row.name}: fixed, yet sixteen seeds gave ${distinct.size} models`);
     const keys: string = Object.keys(
       JSON.parse(JSON.stringify(row.create(1))) as object,
     )
