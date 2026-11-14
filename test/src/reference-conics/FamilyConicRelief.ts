@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
@@ -62,6 +64,16 @@ export namespace FamilyConicRelief {
 
     /** The same toward the window's first and last phase, radians: a window's edge down the skin creases as its edge across it does. */
     fadePhase?: [number, number];
+
+    /**
+     * Least angle between a cast and the skin's tangent plane, degrees, for the cast to be observed; absent, any. The angle is judged on the
+     * skin's 3D normal (`IRow.slope`), since a section's chart sees only its in-plane part: where the skin faces along the course, a cast in
+     * the section plane runs along it and measures where an edge-on face begins, not how deep the skin lies, and the net builds a cliff there
+     * (lofting.md, Composition before lofting: "Leave unobserved an observation whose cast meets the skin at a grazing angle"). Over the
+     * shoulder's up-facing slope `trunk.chest.side`'s casts met the skin 4 to 13 degrees from its plane with heights of 8 to 23 mm and drew
+     * the notch over each collar bone; its sound neighbours stood 36 to 43 degrees off.
+     */
+    graze?: number;
   }
 
   /** One observed section with the wall beneath it. */
@@ -87,8 +99,20 @@ export namespace FamilyConicRelief {
     /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
     open?: (p: C.P) => boolean;
 
-    /** Whether the net is held where a cast lands: the height observed there is zero, whatever the cast measured, so the wall stays as it was. */
-    hold?: (p: C.P) => boolean;
+    /**
+     * Whether, or how much, the net is held where a cast lands: the share of the observed height taken away, 1 or `true` for all of it (the
+     * height observed there is zero, whatever the cast measured, so the wall stays as it was). A share that rises smoothly across the held
+     * region's edge keeps the target C2 there; a held region asked for zero inside and the whole depth just outside is a step in the target,
+     * and the net turns within one row along its edge (lofting.md, Composition before lofting: "A hard clamp ... becomes a crease"). The
+     * ear's hard hold drew creases of 41 to 44 deg/mm round the bowl on `trunk.head`, against 2 to 4 beside them.
+     */
+    hold?: (p: C.P) => boolean | number;
+
+    /**
+     * How fast the skin moves out along its in-plane normal per millimetre of station at a chart point, given that normal; null where it
+     * cannot be read. With it the skin's 3D normal is known and a window's `graze` applies.
+     */
+    slope?: (p: C.P, normal: C.P) => number | null;
   }
 
   /** A fitted relief and its sampled errors along the axis. */
@@ -170,6 +194,13 @@ export namespace FamilyConicRelief {
       const [first, last]: [number, number] = window.fadePhase ?? [0, 0];
       return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
     };
+    // `--relief-dump=<directory>` with `--relief-dump-names=<name>,...`: every cast of the named windows written as `<name>.samples.json`
+    // (station, phase, the height asked for, the share, the hold, the height fitted, and why a cast was left unobserved), to read a net's
+    // misfit sample by sample on the failing place and its neighbours.
+    const dumpDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump="))?.slice("--relief-dump=".length);
+    const dumped: boolean = dumpDir !== undefined && (process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump-names="))?.slice("--relief-dump-names=".length).split(",") ?? []).includes(window.name);
+    const records: { s: number; phi: number; heldout: boolean; why?: string; along?: number; share?: number; held?: number; target?: number; sample?: number }[] = [];
+    const sine: number = window.graze === undefined ? 0 : Math.sin((window.graze * Math.PI) / 180);
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
       const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
@@ -183,15 +214,33 @@ export namespace FamilyConicRelief {
         const inPlane: number = Math.hypot(axis[0], axis[1]);
 
         // Where the axis runs along the wall instead of through it, a cast measures the wall's slope, not a depth: such phases are left to the net's fairness.
-        if (Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) / inPlane < FACING) continue;
+        if (Math.abs(axis[0] * Math.cos(phi) + axis[1] * Math.sin(phi)) / inPlane < FACING) {
+          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why: "facing" });
+          continue;
+        }
         const from: C.P = row.wall(window.phases[0] + offset);
-        const along: number | null = cast(row.skin, from, [axis[0] / inPlane, axis[1] / inPlane]);
-        if (along === null) continue;
+        const direction: C.P = [axis[0] / inPlane, axis[1] / inPlane];
+        const hit: { along: number; normal: C.P } | null = crossing(row.skin, from, direction);
+        if (hit === null) {
+          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why: "miss" });
+          continue;
+        }
+        const along: number = hit.along;
         const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
-        const held: boolean = row.hold?.(landing) === true || row.hold?.(from) === true;
-        if (!held && window.reach !== undefined && Math.abs(along) / inPlane > window.reach) continue;
-        if (!held && row.open?.(landing) === true) continue;
-        const target: number = held ? 0 : (share(row.s, phi) * along) / inPlane;
+        const portion = (value: boolean | number | undefined): number => (value === true ? 1 : typeof value === "number" ? Math.min(1, Math.max(0, value)) : 0);
+        const held: number = Math.max(portion(row.hold?.(landing)), portion(row.hold?.(from)));
+        const why: string | undefined =
+          held >= 1 ? undefined
+          : window.reach !== undefined && Math.abs(along) / inPlane > window.reach ? "reach"
+          : row.open?.(landing) === true ? "open"
+          : window.graze !== undefined && row.slope !== undefined && ((rise: number | null): boolean => rise !== null && Math.abs(direction[0] * hit.normal[0] + direction[1] * hit.normal[1]) / Math.hypot(1, rise) < sine)(row.slope(landing, hit.normal)) ? "graze"
+          : undefined;
+        if (why !== undefined) {
+          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why, along: along / inPlane });
+          continue;
+        }
+        const taken: number = share(row.s, phi);
+        const target: number = held >= 1 ? 0 : ((1 - held) * taken * along) / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)
@@ -200,6 +249,7 @@ export namespace FamilyConicRelief {
             if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
           }
         deepest = Math.max(deepest, Math.abs(target));
+        if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, along: along / inPlane, share: taken, held, target, sample: samples.length });
         samples.push({ weights, target, heldout: row.heldout });
       }
     }
@@ -255,12 +305,32 @@ export namespace FamilyConicRelief {
       if (sample.heldout) heldMaxMm = Math.max(heldMaxMm, miss);
       else trainMaxMm = Math.max(trainMaxMm, miss);
     }
+    if (dumped) {
+      const fitted = (i: number): number => samples[i]!.weights.reduce((sum: number, [j, w]: [number, number]): number => sum + w * Math.round(solved[j]! * 100) / 100, 0);
+      fs.mkdirSync(dumpDir!, { recursive: true });
+      fs.writeFileSync(path.join(dumpDir!, window.name + ".samples.json"), JSON.stringify({ window: { ...window }, records: records.map((record) => (record.sample === undefined ? record : { ...record, fitted: fitted(record.sample) })) }));
+    }
     return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
   }
 
   /** Signed distance from a chart point along a unit direction to the nearest crossing of a polygon; null when the line misses it. */
   export function cast(polygon: readonly C.P[], from: C.P, direction: C.P): number | null {
+    return crossing(polygon, from, direction)?.along ?? null;
+  }
+
+  /** Where a cast crosses a polygon. */
+  export interface ICrossing {
+    /** Signed distance along the cast's unit direction, mm. */
+    along: number;
+
+    /** Unit normal of the crossed edge in the chart; its sign follows the polygon's winding. */
+    normal: C.P;
+  }
+
+  /** The nearest crossing as `cast` finds it, with the unit normal of the polygon's edge there. */
+  export function crossing(polygon: readonly C.P[], from: C.P, direction: C.P): ICrossing | null {
     let best: number | null = null;
+    let normal: C.P = [0, 0];
     for (let i: number = 0; i < polygon.length; ++i) {
       const a: C.P = polygon[i]!;
       const e: C.P = polygon[(i + 1) % polygon.length]!;
@@ -271,9 +341,13 @@ export namespace FamilyConicRelief {
       const along: number = (delta[0] * direction[1] - delta[1] * direction[0]) / den;
       if (along < 0 || along > 1) continue;
       const t: number = (delta[0] * edge[1] - delta[1] * edge[0]) / den;
-      if (best === null || Math.abs(t) < Math.abs(best)) best = t;
+      if (best === null || Math.abs(t) < Math.abs(best)) {
+        best = t;
+        const length: number = Math.hypot(edge[0], edge[1]);
+        normal = [edge[1] / length, -edge[0] / length];
+      }
     }
-    return best;
+    return best === null ? null : { along: best, normal };
   }
 
   /** The engine's uniform cubic B-spline span and weights at a parameter (`AutoMovieLoftRelief`'s private `basis`). */
