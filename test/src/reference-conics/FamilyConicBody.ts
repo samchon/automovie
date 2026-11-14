@@ -429,12 +429,6 @@ namespace FamilyConicBody {
   const NOSE_FLOOR_MM: [number, number] = [20, 8];
 
   /**
-   * How far outside a neighbour's footprint (`IPart.unseen`) a net's landing starts to weigh less, mm: the smooth step spans a row of the
-   * finest net that reads the face (`trunk.mouth`, 1.5 mm; `trunk.face`, 2.6 mm), so the observed region ends over a row and not at once.
-   */
-  const UNSEEN_EDGE_MM: number = 3;
-
-  /**
    * Where the head's nets are held on the wall under the ear, mm, positive inside: the ear's cut (`ear`) less the concha's bowl. Held over
    * the whole cut, the head's skin under the bowl stood up to 8.3 mm farther out ([10.5, 1566, 77.9]), past the rail the concha's cutter
    * trims on the antihelix, and its cut kept neither side; the bowl, x 5 to 23, 1,557 to 1,569 mm high on the merged ear, keeps its nets.
@@ -844,11 +838,11 @@ namespace FamilyConicBody {
     hold?: (p: R.V) => number;
 
     /**
-     * How far inside the held region the hold becomes whole, mm; absent, the hold is whole right up to its edge. Held at zero inside and
-     * asked for the whole depth just outside, the net turned within one row along the edge: `trunk.head` drew creases of 41 to 44 deg/mm
-     * round the ear's bowl. The width is at least the net's row pitch, so the edge spans a row (lofting.md: targets from C2 functions).
+     * How far inside the held region the hold becomes whole, mm, or `span` for the control spacing of the net that reads it (C4a); absent, the
+     * hold is whole right up to its edge. Held at zero inside and asked for the whole depth just outside, the net turned within one row
+     * along the edge: `trunk.head` drew creases of 41 to 44 deg/mm round the ear's bowl (lofting.md: targets from C2 functions).
      */
-    holdWidth?: number;
+    holdWidth?: number | "span";
   }
 
   /** One part to fit. */
@@ -1371,11 +1365,16 @@ namespace FamilyConicBody {
           // them). Over the ear's footprint (`ear`) both are held on the wall: casts there land in the ear's cut and are not observed, and the
           // nets carried the heights round it (up to 17 mm) under the ear, fitted for the old ear's band. With the hold the concha's cut on the
           // new ear loses its kept side (`cut.concha` trim), to be fixed on the held skin with the ear's owner.
-          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 30], hold: earHeld },
+          // The ear's hold is judged where a cast lands (`holdLanding`) and spans the net's control spacing at its edge (`holdWidth: "span"`): held
+          // where its wall point stood in the ear's box, the net left the head 4 to 7 mm proud of the skin round the bowl (s 796, x 4 to 24, the
+          // skin 72.5 to 75.5 mm out against the wall's 77 to 80), a shelf the helix's crus and the inferior crus sink into (E4). Its edges down
+          // the back hand over to `trunk.head.back` (`fadePhase`): whole up to them, it drew an upright pair 0.115 rad inside them, 10.09
+          // against 0.94 deg/mm at s 880 (lofting.md: "A relief's window must contain the whole region where its height is nonzero").
+          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld, holdLanding: true, holdWidth: "span" },
           // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
           // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
           // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
-          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld },
+          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld, holdLanding: true, holdWidth: "span" },
           // The crown's own net, over the cap to its pole, fitted after the head's two nets so their rows below stay as they were (the concha's
           // rails stand on them). The head's nets end at the cap's base and leave the plain wall's misfit there, 2.3 mm inside the skull at
           // x -34 (the hull wall on convex skin), from which the cap rose 1.4 mm proud by x -24, a corner at the crown's back. Its rows are
@@ -2544,25 +2543,30 @@ namespace FamilyConicBody {
             const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
             const left: ((p: R.V) => number) | undefined = window.uncut === true ? part.kept : window.chord === true ? undefined : part.clip;
-            // Skin a neighbour owns (`IPart.unseen`) weighs less the nearer a landing is to it, from `UNSEEN_EDGE_MM` outside it to its edge, by
-            // the quintic smooth step (`H.IRow.open`). The nose box's floor fades into the face for the sections alone (`noseCut`): between
-            // 1,544 and 1,550 mm its receding front let the face's nets land on the nose's own base, and at 0.15 rad the face net's targets
-            // swung from 1.21 to -4.71 to 0.02 mm over s 764 to 770 and the head net's from 9.63 to 5.10 to 9.47, every landing inside the box.
+            // C4a: an observed region's edge, an unseen footprint (`IPart.unseen`) or a hold (`holdWidth: "span"`), spans at least the control
+            // spacing of the net that reads it: its row pitch along the station or its column pitch round the section at the landing's radius,
+            // the larger (lofting.md: an edge is resolved only when every sampling across it is at most a quarter of its roll). At 3 mm the nose
+            // box's unseen edge stood under `trunk.head`'s 6.2 mm column and drew a line round the section, 5.97 against 1.36 deg/mm at s 771.
+            const span = (p: C.P): number => Math.max((window.stations[1] - window.stations[0]) / (window.rows - 3), ((window.phases[1] - window.phases[0]) / (window.columns - 3)) * Math.hypot(p[0], p[1]));
+            const quintic = (x: number): number => x * x * x * (10 - 15 * x + 6 * x * x);
+            // Skin a neighbour owns (`IPart.unseen`) weighs less the nearer a landing is to it, from a span outside it to its edge, by the quintic
+            // smooth step (`H.IRow.open`). The nose box's floor fades into the face for the sections alone (`noseCut`): between 1,544 and
+            // 1,550 mm its receding front let the face's nets land on the nose's own base, and at 0.15 rad the face net's targets swung from
+            // 1.21 to -4.71 to 0.02 mm over s 764 to 770 and the head net's from 9.63 to 5.10 to 9.47, every landing inside the box.
             const unseen: ((p: R.V) => number) | undefined = window.uncut === true || window.chord === true ? undefined : part.unseen;
             const open = left === undefined ? undefined : (p: C.P): boolean | number => {
               const q: R.V = [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
               if (left(q) > 0.05) return true;
               if (unseen === undefined) return false;
-              const x: number = Math.min(1, Math.max(0, (unseen(q) + UNSEEN_EDGE_MM) / UNSEEN_EDGE_MM));
-              return x * x * x * (10 - 15 * x + 6 * x * x);
+              const width: number = span(p);
+              return quintic(Math.min(1, Math.max(0, (unseen(q) + width) / width)));
             };
             // With `holdWidth` the hold is a share that rises from none at the held region's edge to all of it that far inside, by the quintic
             // smooth step, so the target is C2 across the edge (`H.IRow.hold`).
             const hold = window.hold === undefined ? undefined : (p: C.P): boolean | number => {
               const inside: number = window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]);
               if (window.holdWidth === undefined) return inside > 0;
-              const x: number = Math.min(1, Math.max(0, inside / window.holdWidth));
-              return x * x * x * (10 - 15 * x + 6 * x * x);
+              return quintic(Math.min(1, Math.max(0, inside / (window.holdWidth === "span" ? span(p) : window.holdWidth))));
             };
             // A window that leaves grazing casts unobserved (`graze`) reads the skin's rise along the station from the uncut reference sections
             // 1 mm either side, along the in-plane normal where the cast lands.
