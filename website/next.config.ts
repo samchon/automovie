@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import nextra from "nextra";
 import path from "node:path";
 
+import { SITE_BASE } from "./src/SITE_BASE";
+
 const withNextra = nextra({});
 
 /**
@@ -24,7 +26,7 @@ const config: NextConfig = {
   trailingSlash: true,
 
   // GitHub Pages serves the site under the repository name.
-  basePath: "/automovie",
+  basePath: SITE_BASE,
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -13,8 +13,11 @@ import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition
  * request there and refuses a key it does not know.
  */
 export namespace PlaygroundAddress {
-  /** The composition format this page reads and writes. */
-  export const VERSION: number = 1;
+  /** The newest composition format, which a composition this site writes carries; version 1, which has no objects, is still read. */
+  export const VERSION: IPlaygroundComposition["version"] = 2;
+
+  /** Every version this page reads. */
+  const READS: readonly number[] = [1, 2];
 
   /** The fragment key the composition is kept under. */
   const KEY: string = "c";
@@ -52,13 +55,16 @@ export namespace PlaygroundAddress {
       throw new Error("The address carries a composition that cannot be read");
 
     const version: unknown = (value as { version?: unknown }).version;
-    if (version !== VERSION)
+    if (typeof version !== "number" || !READS.includes(version))
       throw new Error(
-        `The address carries a composition of version ${String(version)}; this page reads version ${VERSION}`,
+        `The address carries a composition of version ${String(version)}; this page reads versions ${READS.join(" and ")}`,
       );
     const composition: IPlaygroundComposition = value as IPlaygroundComposition;
     if (
       typeof composition.seed !== "string" ||
+      (composition.objects !== undefined &&
+        (!Array.isArray(composition.objects) ||
+          !composition.objects.every(object))) ||
       !Array.isArray(composition.performers) ||
       !composition.performers.every(performer) ||
       !Array.isArray(composition.mutuals) ||
@@ -85,6 +91,44 @@ export namespace PlaygroundAddress {
     record(value.params) &&
     (value.over === undefined ||
       (Array.isArray(value.over) && value.over.every(action)));
+
+  /** Whether a value is a quaternion's four numbers. */
+  const quaternion: (value: unknown) => boolean = (value: unknown): boolean =>
+    record(value) &&
+    ["x", "y", "z", "w"].every(
+      (k: string): boolean => typeof value[k] === "number",
+    );
+
+  /** Whether a value has the members the adapter reads of a placed object. */
+  const object: (value: unknown) => boolean = (value: unknown): boolean =>
+    record(value) &&
+    typeof value.subject === "string" &&
+    typeof value.producer === "string" &&
+    (value.kind === undefined || typeof value.kind === "string") &&
+    (value.seed === undefined || typeof value.seed === "string") &&
+    (value.params === undefined ||
+      (record(value.params) &&
+        Object.values(value.params).every(
+          (n: unknown): boolean => typeof n === "number",
+        ))) &&
+    typeof value.x === "number" &&
+    typeof value.z === "number" &&
+    (value.y === undefined || typeof value.y === "number") &&
+    (value.rotation === undefined || quaternion(value.rotation)) &&
+    (value.worn === undefined ||
+      (record(value.worn) &&
+        typeof value.worn.subject === "string" &&
+        typeof value.worn.bone === "string" &&
+        record(value.worn.offset) &&
+        record(value.worn.offset.position) &&
+        ["x", "y", "z"].every(
+          (k: string): boolean =>
+            typeof (
+              value.worn as { offset: { position: Record<string, unknown> } }
+            ).offset.position[k] === "number",
+        ) &&
+        quaternion(value.worn.offset.rotation))) &&
+    typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */
   const performer = (value: unknown): boolean =>

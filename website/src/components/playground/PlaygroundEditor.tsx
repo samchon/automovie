@@ -2,9 +2,10 @@
 
 import type { ReactElement } from "react";
 
-import { PLAYGROUND_PRESETS } from "../../playground/data/PLAYGROUND_PRESETS";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundVocabulary } from "../../playground/structures/IPlaygroundVocabulary";
+import { SCENES } from "../../scenes/SCENES";
+import type { IScene } from "../../scenes/structures/IScene";
 import { PlaygroundActionEditor } from "./PlaygroundActionEditor";
 import { PlaygroundJsonField } from "./PlaygroundJsonField";
 import { movePlaygroundItem } from "./movePlaygroundItem";
@@ -110,24 +111,24 @@ export function PlaygroundEditor(props: {
     <div className="am-stack">
       <div className="am-row">
         <label className="am-field">
-          <span className="am-label">Preset</span>
+          <span className="am-label">Scene</span>
           <select
             value=""
             onChange={(event): void => {
-              const preset: PLAYGROUND_PRESETS.IPreset | undefined =
-                PLAYGROUND_PRESETS[Number(event.target.value)];
-              if (event.target.value !== "" && preset !== undefined)
-                props.onChange(structuredClone(preset.composition));
+              const scene: IScene | undefined = SCENES.find(
+                (s: IScene): boolean => s.id === event.target.value,
+              );
+              if (scene !== undefined && scene.composition !== null)
+                props.onChange(structuredClone(scene.composition));
             }}
           >
-            <option value="">Load a preset</option>
-            {PLAYGROUND_PRESETS.map(
-              (
-                preset: PLAYGROUND_PRESETS.IPreset,
-                index: number,
-              ): ReactElement => (
-                <option key={preset.label} value={index}>
-                  {preset.label}
+            <option value="">Load a scene</option>
+            {SCENES.filter((s: IScene): boolean =>
+              vocabulary.scenes.includes(s.id),
+            ).map(
+              (scene: IScene): ReactElement => (
+                <option key={scene.id} value={scene.id}>
+                  {scene.title}
                 </option>
               ),
             )}

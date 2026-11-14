@@ -6,6 +6,7 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
 import type { IPlaygroundRefusal } from "../../playground/structures/IPlaygroundRefusal";
 import type { IPlaygroundVocabulary } from "../../playground/structures/IPlaygroundVocabulary";
 import { PlaygroundJsonField } from "./PlaygroundJsonField";
+import { PlaygroundSchemaForm } from "./PlaygroundSchemaForm";
 import { movePlaygroundItem } from "./movePlaygroundItem";
 
 /** The most accepted values a refusal offers as buttons; a longer list is read from the refusal itself. */
@@ -62,6 +63,23 @@ export function PlaygroundActionEditor(props: {
         (a: IPlaygroundVocabulary.IAction): boolean => a.overlay !== false,
       )
     : vocabulary.actions;
+
+  // An action or a lexicon row with a schema is edited through fields
+  // generated from it; anything else through JSON. The name is looked up as
+  // an own key, so a name such as `constructor` is not read off a prototype.
+  const fields: IPlaygroundVocabulary.IParameter[] | undefined =
+    vocabulary.actions.find(
+      (a: IPlaygroundVocabulary.IAction): boolean => a.name === action.name,
+    )?.parameters ??
+    vocabulary.lexicon
+      .filter((f: IPlaygroundVocabulary.IFamily): boolean =>
+        Object.hasOwn(f.parameters, action.name),
+      )
+      .map(
+        (
+          f: IPlaygroundVocabulary.IFamily,
+        ): IPlaygroundVocabulary.IParameter[] => f.parameters[action.name]!,
+      )[0];
 
   const set = (patch: Partial<IPlaygroundComposition.IAction>): void => {
     const next: IPlaygroundComposition.IAction = { ...action, ...patch };
@@ -137,12 +155,22 @@ export function PlaygroundActionEditor(props: {
         </label>
       </div>
 
-      <PlaygroundJsonField
-        label="Parameters (JSON)"
-        value={action.params}
-        optional={false}
-        onChange={(value): void => set({ params: value ?? {} })}
-      />
+      {fields === undefined ? (
+        <PlaygroundJsonField
+          label="Parameters (JSON)"
+          value={action.params}
+          optional={false}
+          onChange={(value: Record<string, unknown> | undefined): void =>
+            set({ params: value ?? {} })
+          }
+        />
+      ) : (
+        <PlaygroundSchemaForm
+          fields={fields}
+          value={action.params}
+          onChange={(params: Record<string, unknown>): void => set({ params })}
+        />
+      )}
       {vocabulary.operators.until ? (
         <PlaygroundJsonField
           label="Cut early (until)"

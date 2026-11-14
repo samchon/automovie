@@ -11,6 +11,7 @@ import { mountAutoMovieInspectorPage } from "@automovie/viewer";
 import * as THREE from "three";
 
 import type { IPlaygroundAdapter } from "../IPlaygroundAdapter";
+import type { PlaygroundPerformance } from "./PlaygroundPerformance";
 
 /**
  * Draws a performance with the shipped instrument: the polygon man of
@@ -33,13 +34,7 @@ export namespace PlaygroundStage {
   const MARGIN: number = 1.2;
 
   /** One performer to draw. */
-  export interface IFigure {
-    /** The performer's subject id, which names the figure in the scene. */
-    subject: string;
-
-    /** The performer's canonical body. */
-    canonical: AutoMovieHumanCanonicalBody.IBody;
-  }
+  export type IFigure = PlaygroundPerformance.IFigure;
 
   /**
    * Mount the inspector over a performance.

@@ -3,21 +3,42 @@ import "nextra-theme-docs/style.css";
 import { getPageMap } from "nextra/page-map";
 import type { ReactElement, ReactNode } from "react";
 
+import { SITE_BASE } from "../../SITE_BASE";
+
 const footer: ReactElement = (
   <Footer>
-    Released under the MIT License.
-    <br />
-    <br />
-    Copyright {new Date().getFullYear()}{" "}
-    <a
-      href="https://github.com/samchon"
-      target="_blank"
-      rel="noreferrer"
-      style={{ color: "initial" }}
-    >
-      <u>Samchon</u>
-    </a>{" "}
-    & Contributors
+    <div className="automovie-site-footer">
+      <nav aria-label="Footer" className="automovie-site-footer-links">
+        <a href={`${SITE_BASE}/docs/`}>Docs</a>
+        <a
+          href="https://github.com/samchon/automovie"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+        <a
+          href="https://www.npmjs.com/package/automovie"
+          target="_blank"
+          rel="noreferrer"
+        >
+          npm
+        </a>
+      </nav>
+      <p>Released under the MIT License.</p>
+      <p>
+        Copyright {new Date().getFullYear()}{" "}
+        <a
+          href="https://github.com/samchon"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "initial" }}
+        >
+          <u>Samchon</u>
+        </a>{" "}
+        & Contributors
+      </p>
+    </div>
   </Footer>
 );
 
@@ -38,7 +59,7 @@ export default async function DocsLayout(props: {
           logo={
             <span className="automovie-site-logo">
               <img
-                src="/automovie/favicon.svg"
+                src={`${SITE_BASE}/favicon.svg`}
                 width={28}
                 height={28}
                 alt=""
