@@ -98,7 +98,10 @@ export namespace FamilyConicSection {
   export const chain: (values: readonly number[], layout: ILayout) => Q.ISection = S.chain;
 
   /** A stored shoulder as the model reads it, inside its bounds. */
-  export const shoulder: (value: number, layout: ILayout) => number = S.shoulder;
+  export const shoulder: (value: number, layout: ILayout, arc?: number) => number = S.shoulder;
+
+  /** The least shoulder of one arc (`AutoMovieHumanConicSection.leastOf`). */
+  export const leastOf: (layout: ILayout, arc: number) => number | undefined = S.leastOf;
 
   /** The field vector with the two arcs at an anchor given the shoulders that make the curvature continuous there. */
   export const continuous: (values: readonly number[], layout: ILayout, k: number) => number[] = S.continuous;

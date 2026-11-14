@@ -2155,7 +2155,22 @@ namespace FamilyConicBody {
       // `--least=<shoulder>`: the wall is fitted with every arc's shoulder held at that or more (`ILayout.least`), and stored with its shoulder
       // values raised to it and the layout without it, so a wall spliced onto another fitted without the bound keeps one layout: the leg's
       // knee, fitted at 0.3 and spliced into the stored wall, loses the crease its arcs of 0.06 to 0.14 drew while the foot keeps its own.
-      const least: number | undefined = ((value: string | undefined): number | undefined => (value === undefined ? undefined : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
+      // `--least=<a>,<b>,...`: one least per arc, in the order of the shoulders (`ILayout.least`), so the bound holds only the arcs that need
+      // it. f1's foot end was fitted under 0.3 for the two arcs at its top, whose corner drew a slot at the big toe's root; the same bound held
+      // the sole's arc at 0.3 from 896 to 960 mm, where each section fitted alone without it came within 0.4 to 0.85 mm and the bounded wall
+      // stood 1.0 to 1.7 mm under the sole.
+      const least: number | number[] | undefined = ((value: string | undefined): number | number[] | undefined => (value === undefined ? undefined : value.includes(",") ? value.split(",").map(Number) : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
+      // A part is fitted at each depth of its layouts in turn (`LIMB`: 4 arcs, then 8), every arc of a depth halved by the next, so a list
+      // given for one depth is read at another by its arcs: a coarser arc takes the largest least of the finer arcs it covers, a finer arc
+      // its coarser arc's.
+      const leastAt = (layout: C.ILayout): number | number[] | undefined => {
+        if (least === undefined || typeof least === "number") return least;
+        const arcs: number = layout.mirror ? layout.anchors.length - 1 : layout.anchors.length;
+        if (least.length % arcs === 0) return Array.from({ length: arcs }, (_: unknown, arc: number): number => Math.max(...least.slice((arc * least.length) / arcs, ((arc + 1) * least.length) / arcs)));
+        if (arcs % least.length === 0) return Array.from({ length: arcs }, (_: unknown, arc: number): number => least[Math.floor((arc * least.length) / arcs)]!);
+        throw new Error(`--least: ${part.name}'s layout has ${arcs} arcs, which the list of ${least.length} does not divide`);
+      };
+      if (least !== undefined && typeof least === "object" && least.some((x: number): boolean => !Number.isFinite(x))) throw new Error(`--least: ${least.join(",")} is not a list of shoulders`);
       // `--construct`: the part's sections read by rule and carried on its own knots, with no fit (`IPart.construct`). Each corner between
       // invented points and skin, the sharpest convex turn within `CONSTRUCT_SEARCH_MM` of where the two meet, is drawn round by its
       // `corner` radius, and the section's top, its skin point farthest along `u`, by its `apex` radius; the section is then read along its
@@ -2220,7 +2235,7 @@ namespace FamilyConicBody {
       // the knots its neighbours were sewn on.
       const seedHeld: boolean = seeded !== null && process.argv.includes("--held");
       for (const { layout: plain, depth } of reuse !== undefined || constructed ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : part.layouts) {
-        const layout: C.ILayout = least === undefined ? plain : { ...plain, least };
+        const layout: C.ILayout = least === undefined ? plain : { ...plain, least: leastAt(plain)! };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
         const lined: boolean = FEATURE_KNOT_MM !== undefined && layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f");
@@ -2265,7 +2280,10 @@ namespace FamilyConicBody {
         }
         const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
         const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
-        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values.map((field: number[], f: number): number[] => (least !== undefined && f >= C.units(layout).length - (layout.mirror ? layout.anchors.length - 1 : layout.anchors.length) ? field.map((x: number): number => Math.max(least, x)) : field)) : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
+        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length > 0 ? seeded.values.map((field: number[], f: number): number[] => {
+          const first: number = C.units(layout).length - (layout.mirror ? layout.anchors.length - 1 : layout.anchors.length);
+          return least !== undefined && f >= first ? field.map((x: number): number => Math.max(C.leastOf(layout, f - first) ?? 0, x)) : field;
+        }) : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
         // The feature knots inserted into the first fit, one trial, kept as any growth round is.
         const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
         if (result.fault === null && inserted.length > 0) {
@@ -2338,12 +2356,17 @@ namespace FamilyConicBody {
       // and 1.4 and 0.26 mm, since the heel sweeps faster than knots 12 mm apart follow; its arcs of 0.11 to 0.24 drew a crescent round the
       // lateral malleolus.
       const raise: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--raise="))?.slice(8);
-      if (raise !== undefined) best = { ...best, layout: { ...best.layout, least: Math.max(best.layout.least ?? 0, Number(raise)) } };
+      // A least per arc is raised arc by arc, each shoulder field to its own arc's least.
+      if (raise !== undefined) {
+        const held: C.ILayout = best.layout;
+        const arcs: number = held.mirror ? held.anchors.length - 1 : held.anchors.length;
+        best = { ...best, layout: { ...held, least: held.least === undefined || typeof held.least === "number" ? Math.max(held.least ?? 0, Number(raise)) : Array.from({ length: arcs }, (_: unknown, arc: number): number => Math.max(C.leastOf(held, arc) ?? 0, Number(raise))) } };
+      }
       if (best.layout.least !== undefined) {
-        const bound: number = best.layout.least;
+        const bounded: C.ILayout = best.layout;
         const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
         const first: number = C.units(unbounded).length - (unbounded.mirror ? unbounded.anchors.length - 1 : unbounded.anchors.length);
-        best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(bound, x)) : field)) };
+        best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(C.leastOf(bounded, f - first) ?? 0, x)) : field)) };
       }
 
       // Every shoulder is stored as the model reads it (`AutoMovieHumanConicSection.shoulder`), so the stored wall is the one generated. The
@@ -2355,7 +2378,7 @@ namespace FamilyConicBody {
         const arcs: number = best.layout.mirror ? best.layout.anchors.length - 1 : best.layout.anchors.length;
         const first: number = C.units(best.layout).length - arcs;
         const layout: C.ILayout = best.layout;
-        best = { ...best, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => C.shoulder(x, layout)) : field)) };
+        best = { ...best, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => C.shoulder(x, layout, f - first)) : field)) };
       }
       // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
       // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.

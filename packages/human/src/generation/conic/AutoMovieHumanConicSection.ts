@@ -92,8 +92,13 @@ export namespace AutoMovieHumanConicSection {
      * millimetres: f1's trunk held 0.22 to 0.36 either side of its side extreme over the hips, turned 1.06 degrees a half millimetre there
      * against 0.2 elsewhere, and drew an upright line down each hip. It is a family's own number, not the model's, because other walls
      * (the face's, the leg's) were fitted with lower shoulders where their skin wants them.
+     *
+     * A list holds one least per arc, in the order of the shoulders (`leastOf`). The bound belongs to the arcs that need it, not to the
+     * whole section: f1's foot end was fitted under 0.3 for the two arcs at its top, whose corner drew a slot at the big toe's root, and
+     * the same bound held the sole's arc at 0.3 from 896 to 960 mm, where the skin wants a flatter arc, so the wall stood 1.0 to 1.7 mm
+     * under the sole and each section fitted alone without it came within 0.4 to 0.85 mm.
      */
-    least?: number;
+    least?: number | readonly number[];
   }
 
   /** What a field measures: millimetres, a share in (0, 1), or an angle in radians. */
@@ -212,6 +217,8 @@ export namespace AutoMovieHumanConicSection {
    * @param freed Indices in `base` of median anchors (`m`) turned into feature anchors.
    */
   export function featured(base: ILayout, runs: readonly IFeatureRun[], freed: readonly number[] = []): ILayout {
+    // A least per arc names the base's arcs, which the inserted features split; it has no reading on the featured layout.
+    if (typeof base.least === "object") throw new Error("featured: a least per arc does not carry over to inserted features");
     for (const k of freed) if (base.anchors[k]?.kind !== "m") throw new Error(`featured: anchor ${k} of the base is not a median`);
     return {
       mirror: base.mirror,
@@ -444,9 +451,24 @@ export namespace AutoMovieHumanConicSection {
    *
    * @param value The stored shoulder.
    * @param layout The layout it belongs to.
+   * @param arc The arc's index among the shoulders, which selects its least when the layout lists one per arc.
    */
-  export function shoulder(value: number, layout: ILayout): number {
-    return Math.min(FAIR, Math.max(layout.least ?? 0, clamp(value)));
+  export function shoulder(value: number, layout: ILayout, arc: number = 0): number {
+    return Math.min(FAIR, Math.max(leastOf(layout, arc) ?? 0, clamp(value)));
+  }
+
+  /**
+   * The least shoulder of one arc of a layout (`ILayout.least`): the layout's one number, or that arc's entry of its list; undefined
+   * where the layout sets none.
+   *
+   * @param layout The layout.
+   * @param arc The arc's index among the shoulders.
+   */
+  export function leastOf(layout: ILayout, arc: number): number | undefined {
+    if (layout.least === undefined || typeof layout.least === "number") return layout.least;
+    const own: number | undefined = layout.least[arc];
+    if (own === undefined) throw new Error(`leastOf: the layout lists ${layout.least.length} least shoulders and has no arc ${arc}`);
+    return own;
   }
 
   /** Confine a share to the model's bounds. */
@@ -522,7 +544,7 @@ export namespace AutoMovieHumanConicSection {
     }
     const input: AutoMovieViewChain.IInput = { points: [], tangents: [], shoulders: [] };
     const guides: number[] = [];
-    const rho = (arc: number): number => shoulder(values[shoulders + arc]!, layout);
+    const rho = (arc: number): number => shoulder(values[shoulders + arc]!, layout, arc);
     for (let k: number = 0; k < K; ++k) {
       if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
       input.points.push(points[k]!);
@@ -569,14 +591,14 @@ export namespace AutoMovieHumanConicSection {
     const after: number = turn([a0, a1, a2], Math.hypot(a1[0] - a0[0], a1[1] - a0[1]));
     const weight = (rho: number): number => rho / (1 - rho);
     const target: number = Math.sqrt((before / weight(chain.shoulders[k - 1]!) ** 2) * (after / weight(chain.shoulders[k]!) ** 2));
-    const shoulder = (factor: number): number => {
+    const shoulder = (factor: number, arc: number): number => {
       const w: number = Math.sqrt(factor / target);
-      return Math.min(FAIR, Math.max(layout.least ?? EDGE, w / (1 + w)));
+      return Math.min(FAIR, Math.max(leastOf(layout, arc) ?? EDGE, w / (1 + w)));
     };
     const out: number[] = [...values];
     const { shoulders }: { shoulders: number } = offsets(layout);
-    out[shoulders + k - 1] = shoulder(before);
-    out[shoulders + k] = shoulder(after);
+    out[shoulders + k - 1] = shoulder(before, k - 1);
+    out[shoulders + k] = shoulder(after, k);
     return out;
   }
 

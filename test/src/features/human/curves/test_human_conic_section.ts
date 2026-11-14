@@ -17,6 +17,7 @@ import { AutoMovieHumanConicSection } from "@automovie/human";
  * 10. Feature anchors keep their order wherever their frame moves: two features after the forward extreme with fixed numbers stay admitted with rising phases while the side extreme stands at four places.
  * 11. The features of a run share one chord: moving the first off it, or turning it, leaves the second where it was.
  * 12. The lens layout reads an ellipse 6 by 40 mm, its length along `v`, from its faces' extremes on the median line and its ends' extremes, with its four guides in order.
+ * 13. A least per arc holds only its own arc: on the ellipse's box with every stored shoulder 0.2, a layout listing least shoulders 0.3, 0, 0.25 and 0 reads its chain's shoulders as 0.3, 0.2, 0.25 and 0.2, and a layout with the one least 0.3 reads all four as 0.3; `continuous` at a side extreme keeps each of its two arcs at or above that arc's own least.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -197,6 +198,21 @@ export function test_human_conic_section(): void {
       const actual: number = radius(thin, lens, phi);
       if (!(Math.abs(actual - expected) <= 1e-9)) failures.push(`lens ellipse at ${phi.toFixed(3)}: radius ${actual}, expected ${expected}`);
     }
+  }
+
+  // 13. A least per arc: the bound is the larger of the stored shoulder and that arc's own least (`ILayout.least`), so with every stored
+  // shoulder at 0.2 the arcs read the listed least where it is larger and 0.2 elsewhere; one number holds every arc.
+  {
+    const flat: number[] = [40, 0, 0, 25, -40, 0, 0, -25, ...new Array<number>(4).fill(0.2)];
+    const perArc: AutoMovieHumanConicSection.ILayout = { ...S.limb(0), least: [0.3, 0, 0.25, 0] };
+    const read: number[] = S.resolve(flat, perArc).input.shoulders.map((x: number): number => Math.round(x * 1e9) / 1e9);
+    if (read.join(",") !== "0.3,0.2,0.25,0.2") failures.push(`a least per arc read shoulders ${read.join(",")}, expected 0.3,0.2,0.25,0.2`);
+    const whole: number[] = S.resolve(flat, { ...S.limb(0), least: 0.3 }).input.shoulders.map((x: number): number => Math.round(x * 1e9) / 1e9);
+    if (whole.join(",") !== "0.3,0.3,0.3,0.3") failures.push(`one least read shoulders ${whole.join(",")}, expected 0.3,0.3,0.3,0.3`);
+    // At the side extreme (anchor 1) the arcs before and after it are arcs 0 and 1, held at 0.3 and 0.
+    const matched: number[] = S.continuous(flat, perArc, 1);
+    if (!(matched[8]! >= 0.3 - 1e-12)) failures.push(`continuous at anchor 1 set arc 0 to ${matched[8]}, under its least 0.3`);
+    if (!(matched[9]! >= 0.03 - 1e-12 && matched[9]! < 0.3)) failures.push(`continuous at anchor 1 set arc 1 to ${matched[9]}, expected its own bound, not arc 0's 0.3`);
   }
 
   if (failures.length > 0) throw new Error("human conic section:\n" + failures.join("\n"));

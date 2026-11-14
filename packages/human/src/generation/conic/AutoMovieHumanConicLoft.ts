@@ -531,7 +531,13 @@ export namespace AutoMovieHumanConicLoft {
       up: flip(family.up),
       // The reflected chart's `v` is the reflection's negated, so a turn from `u` toward `v` is the reflected turn negated.
       ...(family.roll === undefined ? {} : { roll: { knots: [...family.roll.knots], values: family.roll.values.map((angle: number): number => -angle) } }),
-      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => resolved(anchors[(K - j) % K]!, (K - j) % K)), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
+      // The twin's anchor `j` is the original's `(K - j) % K`, so its arc `j`, from anchor `j` to `j + 1`, is the original's arc `K - 1 - j`
+      // run backwards, and a least per arc is read in that order.
+      layout: {
+        mirror: false,
+        anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => resolved(anchors[(K - j) % K]!, (K - j) % K)),
+        ...(family.layout.least === undefined ? {} : { least: typeof family.layout.least === "number" ? family.layout.least : anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): number => AutoMovieHumanConicSection.leastOf(family.layout, K - 1 - j)!) }),
+      },
       knots: [...family.knots],
       values,
       // A cap's centre lies in the chart, whose `v` the twin negates.
