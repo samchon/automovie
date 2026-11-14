@@ -144,6 +144,9 @@ export namespace FamilyConicFair {
      * one for a part closed across its root, two for a trunk loop closed across both arm cuts.
      */
     closures?: readonly (readonly [number, number])[];
+
+    /** Whether to read the closure guard (`IConversion.closureGuardMm`); a measure of the source and its fairing, so read once, at one tolerance. */
+    guard?: boolean;
   }
 
   /** Sampled phases of the radius. */
@@ -370,7 +373,7 @@ export namespace FamilyConicFair {
           closure: onClosure((arc.domain[0] + arc.domain[1]) / 2),
         };
       });
-    return { status: result.status, errorMm: result.maximumSampleErrorMm, arcs, grooves: grooves(arcs), fairMaxMm: fairMax, fairMeanMm: fairSum / Math.max(1, fairCount), folds: folds.count, girthMm: source.girth, diagnostics: [...new Set(result.diagnostics.map((d: string): string => d.replace(/-?\d[\d.]*(e-?\d+)?/g, "#")))], faired: source.radius, closureGuardMm: guard(points, options, source.radius) };
+    return { status: result.status, errorMm: result.maximumSampleErrorMm, arcs, grooves: grooves(arcs), fairMaxMm: fairMax, fairMeanMm: fairSum / Math.max(1, fairCount), folds: folds.count, girthMm: source.girth, diagnostics: [...new Set(result.diagnostics.map((d: string): string => d.replace(/-?\d[\d.]*(e-?\d+)?/g, "#")))], faired: source.radius, closureGuardMm: options.guard === false ? 0 : guard(points, options, source.radius) };
   }
 
   /** The maximal runs of inward skin arcs, round the closed chain (a line inside a run belongs to it). */

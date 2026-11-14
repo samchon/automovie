@@ -292,7 +292,7 @@ export namespace FamilyConicConvert {
 
   /** Convert one section at one tolerance and cutoff. */
   export function convert(section: ISection, toleranceMm: number, fairMm: number, measure: boolean = true): IStation {
-    const got: F.IConversion = F.convert(section.points, { toleranceMm, fairMm, closures: closuresOf(section) });
+    const got: F.IConversion = F.convert(section.points, { toleranceMm, fairMm, closures: closuresOf(section), guard: measure });
     const skin: F.IArc[] = got.arcs.filter((a: F.IArc): boolean => !a.closure);
     return {
       s: section.s,
