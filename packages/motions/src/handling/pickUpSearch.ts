@@ -1,7 +1,5 @@
-import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -10,8 +8,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
@@ -67,10 +63,10 @@ export namespace pickUpSearch {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The grip's turns and tilts judged by the arm's fit over the grasp, the lift and any use's pose (`HumanGrasp.reachable`), the use's pose first when one is asked.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The elbow hint, the hand's own rotation per place, the goals, one search.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The elbow hint, the goals, one search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grasp beyond the straight arm is tried only when every one is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The hand's own rotation is fitted once per place.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The per-place rotations are cached for the search.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One grasp search; a use's roll is fitted once per roll and candidate (`HumanGraspUse.presented`).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each use roll's fit is kept for its candidate's search (`HumanGraspUse.presented`).
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(
@@ -90,26 +86,7 @@ export namespace pickUpSearch {
       side,
     );
 
-    // The hand's own rotation at a place: what the arm gives it there when
-    // no rotation is asked. Fitted once per place.
-    const limbOf: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const owned: Map<string, IAutoMovieQuaternion> = new Map();
-    const natural = (point: IAutoMovieVector3): IAutoMovieQuaternion => {
-      const key: string = `${point.x},${point.y},${point.z}`;
-      let found: IAutoMovieQuaternion | undefined = owned.get(key);
-      if (found === undefined) {
-        found =
-          poseBones(
-            body,
-            resolveHumanPosture(body, {
-              ...held,
-              limbs: { ...held.limbs, [limbOf]: { point, bend } },
-            }),
-          ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity();
-        owned.set(key, found);
-      }
-      return found;
-    };
+
     const goal = (turn: number, tilt: number): HumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
     // Without a use, the hand takes the grip as the archetype declares it:
@@ -172,7 +149,6 @@ export namespace pickUpSearch {
                 // on it where it is shown.
                 wrist: shown,
                 use: context.params.use,
-                natural,
               }),
             ]),
       ],
