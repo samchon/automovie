@@ -214,6 +214,7 @@ export * from "./handling/HumanHeldUse";
 export * from "./touch/armWrestle";
 export * from "./touch/legTouch";
 export * from "./touch/touch";
+export * from "./touch/touchEffectors";
 export * from "./touch/touchSite";
 export * from "./touch/highFive";
 export * from "./touch/kiss";
