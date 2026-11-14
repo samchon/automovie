@@ -90,13 +90,15 @@ export function test_human_motion_core_joint_blend_sweep(): void {
     swingTwistRange.overshoot(q, rom, joint) <= 1e-6;
   const complaints: string[] = [];
 
-  // 1. The region stays clear of the rest direction's antipode.
+  // 1. The region stays within the record's own reach, which stays clear
+  // of the rest direction's antipode.
+  const reach: number = rom.swingTwist?.reach ?? 180;
   let widest: number = 0;
   for (let azimuth: number = 0; azimuth < 360; azimuth += 0.5)
     widest = Math.max(widest, swingTwistRange.radius(rom, joint, azimuth));
-  if (!(widest <= 135))
+  if (!(reach < 180 && widest <= reach + 1e-6))
     complaints.push(
-      `the region's radius reaches ${widest.toFixed(2)} degrees, at most 135 expected`,
+      `the region's radius reaches ${widest.toFixed(2)} degrees against the record's reach of ${reach}, which must stay short of the antipode (180)`,
     );
 
   const rng: () => number = makeRng(0x3400b1e);
