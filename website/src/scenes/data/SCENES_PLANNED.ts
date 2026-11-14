@@ -5,7 +5,7 @@ const { planned }: typeof SceneBuild = SceneBuild;
 
 /**
  * The scenes the follow-up programme (#3503) plans, each with the issues it
- * waits on beside #3392: crowds and troops (#3452), film props (#3468) and
+ * waits on: crowds and troops (#3452), film props (#3468) and
  * the motion capabilities composition alone cannot express (#3414). Each
  * becomes a composed record when its pieces land.
  */
@@ -17,7 +17,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A battalion marches in step to the drum, halts, makes ready, presents and fires: tight for the elite, ragged for the militia, five misfires chosen by the seed.",
       setting: "troops",
-      needs: [3392, 3457, 3458, 3461, 3462, 3465, 3483, 3488, 3478, 3479, 3480],
+      needs: [3457, 3458, 3461, 3462, 3465, 3483, 3488, 3478, 3479, 3480],
     },
     {
       cast: "120 soldiers, an officer and a drummer; muskets",
@@ -32,7 +32,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A column deploys into line, the farther companies stepping off first; then it forms a square against cavalry with the front rank kneeling.",
       setting: "troops",
-      needs: [3392, 3459, 3465],
+      needs: [3459, 3465],
     },
     {
       cast: "a battalion",
@@ -47,7 +47,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A squadron of two ranks advances knee to knee at the walk, trot and canter, and charges with sabres; the line loosens through the gallop.",
       setting: "troops",
-      needs: [3392, 3457, 3458, 3462, 3466, 3491, 3493, 3494],
+      needs: [3457, 3458, 3462, 3466, 3491, 3493, 3494],
     },
     {
       cast: "48 riders; horses, sabres",
@@ -62,7 +62,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A rabble scatters from a threat through a street, each at their own speed and start, glancing back.",
       setting: "troops",
-      needs: [3392, 3457, 3460, 3467],
+      needs: [3457, 3460, 3467],
     },
     {
       cast: "a rabble",
@@ -77,7 +77,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Two flows of pedestrians, many in twos and threes, part around a horse-drawn carriage and close behind it, turning their heads as it nears.",
       setting: "street",
-      needs: [3392, 3460, 3467, 3495],
+      needs: [3460, 3467, 3495],
     },
     {
       cast: "two flows of pedestrians; a carriage and its horses",
@@ -91,7 +91,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A shot rings out in a crowded square and every member turns to it after their own reaction time.",
       setting: "street",
-      needs: [3392, 3462, 3467, 3480],
+      needs: [3462, 3467, 3480],
     },
     {
       cast: "a crowd",
@@ -105,7 +105,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A rider at a canter takes an arrow from the quiver, nocks, draws and looses; the arrow flies and strikes a target.",
       setting: "ride",
-      needs: [3392, 3476, 3478, 3479, 3480, 3481, 3485, 3487, 3491, 3493, 3494],
+      needs: [3476, 3478, 3479, 3480, 3481, 3485, 3487, 3491, 3493, 3494],
     },
     {
       cast: "a rider; a horse, a horse bow, a quiver, arrows, a target",
@@ -119,7 +119,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A crew sponges, loads, rams, primes, points and fires a field gun; the carriage recoils and the ball bounces through a column.",
       setting: "troops",
-      needs: [3392, 3475, 3476, 3478, 3479, 3480, 3482, 3484, 3489, 3495, 3430],
+      needs: [3475, 3476, 3478, 3479, 3480, 3482, 3484, 3489, 3495, 3430],
     },
     {
       cast: "a gun crew; a field gun, its tools, round shot, a limber and horses",
@@ -134,7 +134,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A gunman draws a revolver, cocks and fires; the man at the bar is hit and falls, and a stray shot breaks a bottle.",
       setting: "combat",
-      needs: [3392, 3476, 3479, 3480, 3483, 3488, 3499],
+      needs: [3476, 3479, 3480, 3483, 3488, 3499],
     },
     {
       cast: "a gunman and a man at the bar; a revolver, a bottle",
@@ -149,7 +149,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A trebuchet looses a stone against a wall that breaks; on the wall, crossbowmen span with stirrup and cranequin and shoot.",
       setting: "troops",
-      needs: [3392, 3475, 3476, 3481, 3486, 3487, 3499],
+      needs: [3475, 3476, 3481, 3486, 3487, 3499],
     },
     {
       cast: "a trebuchet crew and crossbowmen; a trebuchet, crossbows, a wall",
@@ -164,7 +164,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A charioteer drives two horses while an archer beside him draws and looses in the chariot's moving frame.",
       setting: "ride",
-      needs: [3392, 3477, 3487, 3491, 3495],
+      needs: [3477, 3487, 3491, 3495],
     },
     {
       cast: "a driver and an archer; a chariot and two horses",
@@ -178,7 +178,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       title: "Rowing on a swell",
       summary: "Two rowers pull a rowboat over a seeded swell.",
       setting: "ride",
-      needs: [3392, 3497],
+      needs: [3497],
     },
     {
       cast: "two rowers; a rowboat",
@@ -192,7 +192,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A javelin, a spear, a knife, a grenade, a stone and a sling, each thrown and flying to its mark.",
       setting: "combat",
-      needs: [3392, 3478, 3479, 3482, 3490],
+      needs: [3478, 3479, 3482, 3490],
     },
     {
       cast: "four throwers; a javelin, a spear, a knife, a grenade, a stone, a sling",
@@ -206,7 +206,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A chair broken over a back, a window shattered, a door kicked in.",
       setting: "combat",
-      needs: [3392, 3480, 3499],
+      needs: [3480, 3499],
     },
     {
       cast: "three people; a chair, a window, a door",
@@ -220,7 +220,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Two knights in helmets, cuirasses and mail fight with longswords.",
       setting: "combat",
-      needs: [3392, 3500],
+      needs: [3500],
     },
     {
       cast: "two knights; helmets, cuirasses, mail, longswords",
@@ -234,7 +234,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       title: "Dinner",
       summary: "Four diners at a lit table pass dishes, eat and drink.",
       setting: "everyday",
-      needs: [3392, 3501],
+      needs: [3501],
     },
     {
       cast: "four diners; tableware, food, lights",
@@ -248,7 +248,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A walker with a dog on a lead, and an ox drawing a cart behind its driver.",
       setting: "ride",
-      needs: [3392, 3495, 3496],
+      needs: [3495, 3496],
     },
     {
       cast: "a walker, a driver; a dog, an ox, a cart",
@@ -262,7 +262,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Three people load a van through its rear doors and a pickup over its tailgate, and open the bonnet.",
       setting: "ride",
-      needs: [3392, 3498],
+      needs: [3498],
     },
     {
       cast: "three people; a van, a pickup",
@@ -276,7 +276,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A shove that sends a man stepping or falling by its impulse, a slip on ice, and standing passengers in a braking bus.",
       setting: "everyday",
-      needs: [3392, 3429, 3430, 3431],
+      needs: [3429, 3430, 3431],
     },
     {
       cast: "three people; a bus",
@@ -291,7 +291,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Breaststroke, floating, wading and a dive's entry, moved by the water's forces.",
       setting: "sport",
-      needs: [3392, 3432],
+      needs: [3432],
     },
     {
       cast: "three swimmers",
@@ -305,7 +305,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Two people push a loaded cart, drag a crate and open a heavy door, each moved by the force applied.",
       setting: "work",
-      needs: [3392, 3433],
+      needs: [3433],
     },
     {
       cast: "two people; a cart, a crate, a heavy door",
@@ -319,7 +319,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A twisting salto, a platform dive and a tour en l'air, the turns following from the shape in flight.",
       setting: "sport",
-      needs: [3392, 3422, 3423, 3424, 3426, 3427, 3428],
+      needs: [3422, 3423, 3424, 3426, 3427, 3428],
     },
     {
       cast: "two divers",
@@ -334,7 +334,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Two runners vault a wall, scramble up a ledge, get up from the floor and climb.",
       setting: "sport",
-      needs: [3392, 3425, 3435, 3436],
+      needs: [3425, 3435, 3436],
     },
     {
       cast: "two runners; a wall, a bar",
@@ -349,7 +349,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A dance lift, a fireman's carry lifted in, a hand to help someone up, a support walk.",
       setting: "partner",
-      needs: [3392, 3437, 3440],
+      needs: [3437, 3440],
     },
     {
       cast: "pairs",
@@ -363,7 +363,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A judo throw by force exchange, a takedown, arm wrestling and a tug of war.",
       setting: "partner",
-      needs: [3392, 3439, 3440, 3451],
+      needs: [3439, 3440, 3451],
     },
     {
       cast: "pairs; a rope",
@@ -378,7 +378,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "Touch typing, a piano, a guitar fretted and strummed, writing with a pen, thumb texting, and turning an object in the hand.",
       setting: "work",
-      needs: [3392, 3442, 3443, 3444, 3445, 3446, 3447],
+      needs: [3442, 3443, 3444, 3445, 3446, 3447],
     },
     {
       cast: "four people; a keyboard, a piano, a guitar, a pen, a phone",
@@ -393,7 +393,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       summary:
         "A towel folded, a flag waved, a sheet shaken out, a rope pulled and a shoelace tied.",
       setting: "work",
-      needs: [3392, 3448, 3449, 3450, 3451, 3504],
+      needs: [3448, 3449, 3450, 3451, 3504],
     },
     {
       cast: "four people; a towel, a flag, a sheet, a rope",
