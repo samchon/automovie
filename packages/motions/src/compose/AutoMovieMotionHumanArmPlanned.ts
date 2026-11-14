@@ -231,13 +231,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
       for (const c of carries) delete limbs[`${c.side}Arm`];
       return { ...p, limbs };
     };
-    // A count of pieces read from a length, blind to its last bits of round-off,
-    // so a hold of exactly a second takes six pieces whichever way it was summed.
-    const pieces = (share: number): number => Math.ceil(share - ROUNDING);
     const spaced = (seconds: number, arc: number): number =>
-      Math.min(pieces(seconds / STEP), Math.max(pieces(seconds * LEAST), pieces(arc / SPACING), 1));
+      Math.min(Math.ceil(seconds / STEP), Math.max(Math.ceil(seconds * LEAST), Math.ceil(arc / SPACING), 1));
     cut(span.start, span.ready, spaced(span.ready - span.start, travel(span.ready, 1)), false);
-    cut(span.ready, span.relax, Math.max(1, pieces((span.relax - span.ready) * LEAST)), false);
+    cut(span.ready, span.relax, Math.max(1, Math.ceil((span.relax - span.ready) * LEAST)), false);
     cut(span.relax, span.end, spaced(span.end - span.relax, travel(span.relax, -1)), true);
 
     // Each instant's posture so far and its pose with the planned arms left
@@ -398,9 +395,6 @@ const LEAST: number = 6;
 
 /** The farthest probe's travel between two waypoints of a reach, metres. */
 const SPACING: number = 0.08;
-
-/** The round-off a count of pieces ignores, a billionth of a piece. */
-const ROUNDING: number = 1e-9;
 
 /** Samples along a blend whose arc is measured. */
 const ARC: number = 32;

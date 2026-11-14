@@ -1,3 +1,5 @@
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanArmClearance } from "./HumanArmClearance";
@@ -23,8 +25,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * between them (`HumanArmRefine`). Two arms that move over one span are one problem, their probes kept
  * clear of each other as they both move: planning one after the other is
  * incomplete where their paths are coupled (Erdmann and Lozano-Pérez 1987,
- * Algorithmica 2:477). One arm alone is solved as the right arm in the
- * mirror image of its world, so mirrored scenes give mirrored paths. A
+ * Algorithmica 2:477). A problem whose first arm is the left is solved as its mirror image, the arms on the other side, so mirrored scenes give mirrored paths. A
  * problem still infeasible at the last penalty is refused.
  */
 export namespace HumanArmTrajectory {
@@ -81,8 +82,8 @@ export namespace HumanArmTrajectory {
    */
   export function solve(read: (times: readonly number[]) => IProblem, times: readonly number[]): Trajectory[] {
     const first: IProblem = read(times);
-    const reading: (times: readonly number[]) => IProblem = alone(first) ? (t: readonly number[]): IProblem => mirrored(read(t)) : read;
-    let problem: IProblem = alone(first) ? mirrored(first) : first;
+    const reading: (times: readonly number[]) => IProblem = leftFirst(first) ? (t: readonly number[]): IProblem => mirrored(read(t)) : read;
+    let problem: IProblem = leftFirst(first) ? mirrored(first) : first;
     let context: M.IContext = HumanArmTrajectoryContext.of(problem);
     // The frame grid over the span, the instants between waypoints are read at.
     const start: number = times[0]!;
@@ -135,27 +136,35 @@ export namespace HumanArmTrajectory {
     );
   }
 
-  /** Whether the problem is one left arm, which is solved as the right arm in the mirror. */
-  function alone(problem: IProblem): boolean {
-    return problem.arms.length === 1 && problem.arms[0]!.side === "left";
+  /**
+   * Whether the problem is solved in the mirror image of its world: when its
+   * first arm is the left. The mirror takes every arm to the other side in
+   * order, so of a problem and its mirror image exactly one begins with the
+   * right arm, and that one is solved; the other is its mirror. A left arm
+   * alone and a pair listed left first are solved as their mirrors, so
+   * mirrored scenes give mirrored paths to the bit.
+   */
+  function leftFirst(problem: IProblem): boolean {
+    return problem.arms[0]!.side === "left";
   }
 
-  /** One left arm's problem in the mirror image of its world, as the right arm. */
+  /** A problem in the mirror image of its world: every arm on the other side, its sites, rests and bases mirrored. */
   function mirrored(problem: IProblem): IProblem {
-    const arm: IArm = problem.arms[0]!;
     return {
       ...problem,
       bases: problem.bases.map(HumanArmMirror.mirrored),
-      arms: [
-        {
+      arms: problem.arms.map(
+        (arm: IArm): IArm => ({
           ...arm,
-          side: "right",
+          side: arm.side === "left" ? "right" : "left",
           sites: arm.sites.map((s: ISite | undefined): ISite | undefined => (s === undefined ? undefined : mirroredSite(s))),
-        },
-      ],
+          ...(arm.rests === undefined
+            ? {}
+            : { rests: arm.rests.map((r: M.IRest): M.IRest => ({ ...r, on: HumanArmMirror.opposite(r.on as AutoMovieHumanoidBone) })) }),
+        }),
+      ),
     };
   }
-
   /** A site's mirror image across the world's x = 0 plane. */
   function mirroredSite(site: ISite): ISite {
     return {
@@ -165,6 +174,17 @@ export namespace HumanArmTrajectory {
       ...(site.rotation === undefined
         ? {}
         : { rotation: HumanArmMirror.turn(site.rotation) }),
+      // A site riding another arm's segment, in that segment's own frame.
+      ...(site.on === undefined
+        ? {}
+        : {
+            on: {
+              ...site.on,
+              point: HumanArmMirror.flip(site.on.point),
+              normal: HumanArmMirror.flip(site.on.normal),
+              ...(site.on.rotation === undefined ? {} : { rotation: HumanArmMirror.turn(site.on.rotation) }),
+            },
+          }),
     };
   }
 }
