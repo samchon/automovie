@@ -262,6 +262,9 @@ namespace FamilyConicBody {
   /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
   const ARM_TUBE_MM: number = 75;
 
+  /** How far proximal of the shoulder joint the arm's ISB course starts, mm, on the humerus's axis: past the armscye loop's most proximal point, 44 mm. */
+  const ISB_PROXIMAL_MM: number = 60;
+
   /** The least shoulder of a closure across an opening (`without`): the model's share bound (`AutoMovieHumanConicSection`'s `EDGE`). */
   const CLOSURE_LEAST: number = 0.03;
 
@@ -1073,19 +1076,58 @@ namespace FamilyConicBody {
       return { shift, up, plane: ARMPIT_MM - ARM_ROOT[2], turned: next[1]!.start };
     })();
     const handHalves: number[] = [SHOULDER_HALF_MM, 30, 10, HAND_KNUCKLE_HALF];
-    // The arm's sections leave out the thumb past where it stands free of the palm, and the trunk's side medial of the armpit's plane.
-    const armClip: (p: R.V) => number = (p: R.V): number => {
-          // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
-          // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
-          const a: R.V = joint("thumb_01_r");
-          const b: R.V = joint("thumb_03_r");
-          const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-          const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
-          const thumb: number = Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
-
-          // The arm owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
-          return Math.max(thumb, ARMPIT_MM - p[2]);
-        };
+    // The arm on the ISB humerus course (Wu et al., ISB recommendation on definitions of joint coordinate systems, Part II: shoulder,
+    // elbow, wrist and hand, J Biomech 38, 2005: the humerus's long axis from the glenohumeral rotation centre toward the elbow), its first
+    // centre `ISB_PROXIMAL_MM` proximal of the shoulder joint on that axis, so the field reaches past the armscye's landmark loop, which
+    // spans 44 mm proximal to 76.5 mm distal of the joint along the axis. From the elbow on it is the arm's former course, so every
+    // station there is the current course's plus `delta`. Its `up` keeps the forearm's chart where the current course has it, so the wrist's
+    // band meets the hand's ring at the same phases.
+    const isbCentres: R.V[] = [toward(joint("upperarm_r"), [[joint("lowerarm_r"), joint("upperarm_r")]], ISB_PROXIMAL_MM), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
+    const isbHalves: number[] = [30, 10, KNUCKLE.half];
+    const isb: { delta: number; up: R.V } = ((): { delta: number; up: R.V } => {
+      const now: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as AutoMovieViewAxis.IRun[];
+      const next: AutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(isbCentres, isbHalves) as AutoMovieViewAxis.IRun[];
+      const delta: number = round(next[1]!.start - next[1]!.from - (now[2]!.start - now[2]!.from));
+      const at: number = (now[2]!.start + now[2]!.end) / 2;
+      const old: AutoMovieLoftFrame.IFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, arm.up) as AutoMovieViewAxis.IAxis).at(at);
+      const d: R.V = [isbCentres[1]![0] - isbCentres[0]![0], isbCentres[1]![1] - isbCentres[0]![1], isbCentres[1]![2] - isbCentres[0]![2]];
+      const l: number = Math.hypot(d[0], d[1], d[2]);
+      const t: R.V = [d[0] / l, d[1] / l, d[2] / l];
+      // Two directions square to the first segment, and the up among them, by the angle, whose forearm chart turns least from the old one.
+      const e1: R.V = ((): R.V => { const x: R.V = [1 - t[0] * t[0], -t[0] * t[1], -t[0] * t[2]]; const n: number = Math.hypot(x[0], x[1], x[2]); return [x[0] / n, x[1] / n, x[2] / n]; })();
+      const e2: R.V = [t[1] * e1[2] - t[2] * e1[1], t[2] * e1[0] - t[0] * e1[2], t[0] * e1[1] - t[1] * e1[0]];
+      const roll = (theta: number): number => {
+        const up: R.V = [Math.cos(theta) * e1[0] + Math.sin(theta) * e2[0], Math.cos(theta) * e1[1] + Math.sin(theta) * e2[1], Math.cos(theta) * e1[2] + Math.sin(theta) * e2[2]];
+        const frame: AutoMovieLoftFrame.IFrame = (AutoMovieViewAxis.jointed(isbCentres, isbHalves, up) as AutoMovieViewAxis.IAxis).at(at + delta);
+        return Math.atan2(old.u[0] * frame.v[0] + old.u[1] * frame.v[1] + old.u[2] * frame.v[2], old.u[0] * frame.u[0] + old.u[1] * frame.u[1] + old.u[2] * frame.u[2]);
+      };
+      let best: number = 0;
+      for (let k: number = 0; k < 720; ++k) if (Math.abs(roll((2 * Math.PI * k) / 720)) < Math.abs(roll(best))) best = (2 * Math.PI * k) / 720;
+      let [lo, hi]: number[] = [best - Math.PI / 360, best + Math.PI / 360];
+      for (let k: number = 0; k < 40; ++k) {
+        const [a, b]: number[] = [lo! + (hi! - lo!) / 3, hi! - (hi! - lo!) / 3];
+        if (Math.abs(roll(a!)) < Math.abs(roll(b!))) hi = b;
+        else lo = a;
+      }
+      const theta: number = (lo! + hi!) / 2;
+      const up: R.V = [0, 1, 2].map((c: number): number => round4(Math.cos(theta) * e1[c]! + Math.sin(theta) * e2[c]!)) as R.V;
+      log("family-body-arm-isb", { delta, up, rollAfter: roll(theta) });
+      return { delta, up };
+    })();
+    // The arm's sections keep the skin on the arm's side of the armscye's landmark loop (`FamilyConicLoop`), the thumb past where it stands
+    // free of the palm left out as before; across the trunk's side each section closes by the shared opening closure (`without`).
+    const armOpening = (p: R.V): number => -armscye.side(p);    // The arm's sections leave out the thumb past where it stands free of the palm, and the trunk's side medial of the armpit's plane.
+    // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
+    // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
+    const thumbOut = (p: R.V): number => {
+      const a: R.V = joint("thumb_01_r");
+      const b: R.V = joint("thumb_03_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
+      return Math.min(along - 40, 16 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+    };
+    // The hand owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
+    const armClip: (p: R.V) => number = (p: R.V): number => Math.max(thumbOut(p), ARMPIT_MM - p[2]);
     const parts: IPart[] = (
       [
         ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], [1, 0, 0])),
@@ -1097,7 +1139,7 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: armHalves, up: arm.up, domain: [arm.plane + 2, KNUCKLE.end], gap: (s: number): number => (s < arm.turned ? 6 : GAP_MM), tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: isbHalves, up: isb.up, domain: [ISB_PROXIMAL_MM - 46, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
@@ -1105,16 +1147,16 @@ namespace FamilyConicBody {
           // wrist (`hand.high-oblique` px 360..415 x 150..215, `figure.left` px 455..470 x 615..640), gone with both nets off. The forearm's
           // now hands over (`fade`) over its last 40 mm and the hand's starts at 400 mm and fades in over 30; faded over 15 mm each the
           // oval stayed.
-          { name: "fore", stations: [300, 440], rows: 19, columns: 26, reach: 10, fade: [0, 40] },
-          { name: "hand", stations: [400, KNUCKLE.relief], rows: 36, columns: 38, reach: 14, hold: thumbHold, fade: [30, 0] },
+          { name: "fore", stations: [300 + isb.delta, 440 + isb.delta], rows: 19, columns: 26, reach: 10, fade: [0, 40] },
+          { name: "hand", stations: [400 + isb.delta, KNUCKLE.relief + isb.delta], rows: 36, columns: 38, reach: 14, hold: thumbHold, fade: [30, 0] },
           // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
-          { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
-        ], clip: armClip, reliefEnd: KNUCKLE.relief },
+          { name: "palm", stations: [PALM.stations[0] + isb.delta, PALM.stations[1] + isb.delta], rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
+        ], clip: (p: R.V): number => Math.max(thumbOut(p), armOpening(p)), opening: armOpening, reliefEnd: KNUCKLE.relief + isb.delta },
         // The hand from the wrist on, its own family on the arm's course with a wider knuckle turn (`HAND_KNUCKLE_HALF`), continued from the
         // arm's open end by a band (`IAutoMovieConstructionContinuation.band`): on the arm's turn of 16 mm a side (radius 78 mm) the hand's
         // ulnar edge stands 69 mm inside the turn and its sections nearly cross there, a crease along the palm side of the little finger's root.
         { name: "hand", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: handHalves, up: arm.up, domain: [HAND_FROM, KNUCKLE.end], gap: GAP_MM, tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: HAND_FEATURES.length > 0 ? featureGrooves(HAND_FEATURES) : LIMB, ...(process.argv.includes("--hand-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
-          { name: "hand", stations: [HAND_FROM + 4, KNUCKLE.relief], rows: 31, columns: 38, reach: 14, hold: thumbHold, fade: [15, 0] },
+          { name: "hand", stations: [HAND_FROM + 4, KNUCKLE.relief], rows: 31, columns: 38, reach: 14, hold: thumbHold, fade: [15, 25] },
           { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
         ], clip: armClip, reliefEnd: KNUCKLE.relief },
 
