@@ -26,14 +26,18 @@ No request removes the rest: an arbitrary scale, facing and origin, melted thin 
 
 ## Models
 
-Use the model or service the user chooses, local or hosted. The entries below are representative examples, not a complete or required list. Their controls, limits and terms change between releases, so the linked documentation, read when choosing, owns them.
+Use the model or service the user chooses, local or hosted. These are representative examples, not a complete or required list. Each page records a model's input, what it gives beyond the mesh, and its terms, as its documentation stated them; the documentation owns the values.
 
-| Model | Runs as | Input | Beyond the mesh | Documentation |
-| --- | --- | --- | --- | --- |
-| Meshy | Hosted API | Text, one image or several | Rest pose; remeshing to a face count and quad or triangle topology, at generation when enabled or of an uploaded mesh; rigging of a textured biped humanoid, with walk and run clips | [Image to 3D](https://docs.meshy.ai/api/image-to-3d), [remesh](https://docs.meshy.ai/api/remesh), [rigging](https://docs.meshy.ai/api/rigging) |
-| Tripo | Hosted API | Text, one image or several views | Segmentation into parts, retopology, texture coordinates, format conversion, a rig check with automatic rigging, animation retargeting | [Quick start](https://developers.tripo3d.com/en/docs/quick-start) |
-| Rodin | Hosted API | Text, or one to five images | Quality tiers and texture resolution | [API](https://docs.hyper3d.ai/en/api-specification/rodin-gen2-5) |
-| Hunyuan3D-2.1 | Open weights, about 10 GB of GPU memory for shape and 21 GB for texture | One image | Material channels | [Repository](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1), [license](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/main/LICENSE) |
-| TRELLIS.2 | Open weights under MIT, an NVIDIA GPU with 24 GB, tested on Linux | One image | Material channels with opacity | [Repository](https://github.com/microsoft/TRELLIS.2) |
+| Model | Runs as | Input | Page |
+| --- | --- | --- | --- |
+| Meshy | Hosted API | Text, one image or up to four | [Meshy](meshy.md) |
+| Tripo | Hosted API | Text, one image or keyed views | [Tripo](tripo.md) |
+| Rodin | Hosted API | Text, or up to five images | [Rodin](rodin.md) |
+| Hunyuan3D-2.1 | Open weights | One image | [Hunyuan3D](hunyuan3d.md) |
+| TRELLIS.2 | Open weights | One image | [TRELLIS.2](trellis.md) |
 
-Read each model's terms before adopting it: plan requirements, limits on using the output, and territory, such as the Hunyuan3D-2.1 license, which excludes the European Union, the United Kingdom and South Korea.
+A model that takes one image gains nothing from a turnaround; one that takes views reads them in its own order, front first.
+
+When adding a model, give it a page in the same form.
+
+Read each model's terms before adopting it: plan requirements, the output's license, and territory.
