@@ -154,7 +154,7 @@ export namespace HumanHabit {
   export const blowNose = HumanActionRow.of("blowNose", handToFace, {
     task: {
       region: "nose",
-      effector: { surface: "palm", shape: "relaxed" },
+      effector: { surface: "palm", shape: "flat" },
       kind: "hold",
       count: 1,
       hold: 1,

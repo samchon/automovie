@@ -227,7 +227,7 @@ export namespace handToFaceRows {
     },
     wipeMouth: {
       region: "mouth",
-      effector: { surface: "palm", shape: "relaxed" },
+      effector: { surface: "palm", shape: "flat" },
       kind: "rub",
       count: 2,
       hold: 0.2,
