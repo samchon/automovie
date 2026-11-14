@@ -1909,7 +1909,7 @@ namespace FamilyConicBody {
       let best: F.IResult | null = null;
 
       // The other wall of a splice and its station, kept so its reliefs past that station come with its knots.
-      let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[]; window?: [number, number] } | null = null;
+      let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[]; window?: [number, number]; tips?: K.IStored["tips"] } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
         const fitted: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
@@ -2005,7 +2005,7 @@ namespace FamilyConicBody {
               return out;
             });
             log("family-body-window-held", { part: part.name, window: [from, to], momentMiss: worst });
-            spliced = { tail, at: from!, head: wall.reliefs ?? [], window: [from!, to!] };
+            spliced = { tail, at: from!, head: wall.reliefs ?? [], window: [from!, to!], ...(wall.tips === undefined ? {} : { tips: wall.tips }) };
             log("family-body-window-splice", { part: part.name, window: [from, to], replaced: inside.map((k: number): number => tail.knots[k]!), knots: wall.knots.length });
           } else {
 
@@ -2463,7 +2463,9 @@ namespace FamilyConicBody {
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
-      if (tip !== null) definition.tips = [part.first !== undefined ? { from: domain[0], tip: part.first } : part.foot !== undefined ? { from: domain[0], tip: domain[0] - part.foot } : null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
+      // A window splice keeps the stored wall's ends: recomputed from the cut, the trunk's crown cap moved up to 4 mm at 908 to 912 mm.
+      if (spliced?.window !== undefined && spliced.tips !== undefined) definition.tips = spliced.tips;
+      else if (tip !== null) definition.tips = [part.first !== undefined ? { from: domain[0], tip: part.first } : part.foot !== undefined ? { from: domain[0], tip: domain[0] - part.foot } : null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
 
       // Cast reliefs: skin that faces along the course, which no section sees. From points of the finished surface, by station and phase,
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
