@@ -47,7 +47,7 @@ Render the hint's first frame at the video model's exact output size and aspect,
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, pose it as the image-to-3D [request](../3d-modeling/diffusion.md#request) sets for the chosen model, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view, passed as a shot frame's hint frame is, with the canon references; then check that the views agree before use. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+When the hint already has the form, pose it as the image-to-3D [request](../3d-modeling/diffusion.md#request) sets for the chosen model, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with the canon references as [shot frames](#shot-frames) restyle the hint's frame; then check that the views agree before use. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 
