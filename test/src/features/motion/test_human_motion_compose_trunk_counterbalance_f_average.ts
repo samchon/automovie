@@ -1,7 +1,7 @@
-import { motionComposeTrunk } from "../internal/motionComposeTrunk";
+import { motionComposeTrunkCounterbalance } from "../internal/motionComposeTrunkCounterbalance";
 
 /**
- * The trunk's counterbalance on the f-average body: the hips moved straight back under limbs held out ahead until the centre of mass stands over the feet, and a pose no place of the hips balances refused (`motionComposeTrunk.counterbalance` states
+ * The trunk's counterbalance on the f-average body: the hips moved straight back under limbs held out ahead until the centre of mass stands over the feet, and a pose no place of the hips balances refused (`motionComposeTrunkCounterbalance.counterbalance` states
  * the scenarios and their bounds). One spec per body of the sweep, so every
  * body is read and each runs alone in its time.
  *
@@ -12,5 +12,5 @@ import { motionComposeTrunk } from "../internal/motionComposeTrunk";
  * @evidence contracts/development/common.md#meaningful-documentation States the phrase, the body, where the scenarios are stated and the split.
  */
 export function test_human_motion_compose_trunk_counterbalance_f_average(): void {
-  motionComposeTrunk.counterbalance("f-average");
+  motionComposeTrunkCounterbalance.counterbalance("f-average");
 }
