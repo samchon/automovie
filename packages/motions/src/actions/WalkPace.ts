@@ -2,14 +2,27 @@
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
  *
+ * The step period is the pace's own, the time its longest step takes at the
+ * asked speed, whatever the distance: a distance that is not a whole number
+ * of longest steps is walked in shorter steps at the same cadence, and so a
+ * little slower, as a walker regulates the last steps to a target by their
+ * length (Lee, Lishman and Thomson 1982, J Exp Psychol Hum Percept Perform
+ * 8:448). A period shrunk with the step instead would quicken the cadence
+ * by a fifth on a 3 m walk of five steps where four fall just short, and
+ * without bound on a short one.
+ *
  * The pelvis gathers its speed over a ramp, cruises one step per period and
  * sheds the speed over a second ramp, each ramp a smooth step of the speed
  * (zero rate and zero rate of rate at both ends). At a heel strike the
  * landing footprint lies `front` steps ahead of the pelvis. A gait with a
- * flight passes over each footprint at that foot's mid-stance, the inverted
- * pendulum of stance (Perry and Burnfield), which puts the landing
- * `1 - swing / 2T` steps ahead; a gait with double support shares the step
- * between the two legs, so the footprint lies no more than half a step ahead.
+ * flight passes at a foot's mid-stance over the middle of the way its
+ * centre of pressure travels, from the heel to the ball: the spring-mass leg
+ * of running is symmetric about its contact (Blickhan 1989, J Biomech
+ * 22:1217), so the leg lands as far ahead of that contact as it leaves it
+ * behind. That puts the landing `1 - swing / 2T` steps ahead less the
+ * `lead` the middle lies ahead of the ankle; a gait with double support
+ * shares the step between the two legs, so the footprint lies no more than
+ * half a step ahead.
  * Cruising, the pelvis is `j - front` steps along at heel strike j when the
  * ramp up lasts twice the time from the start to `1 - front` periods before
  * the first heel strike, and it ends over the closing pair when the ramp down
@@ -19,7 +32,7 @@
  * left standing at the start, by the time it lifts one period after the first
  * toe-off, further than a cruising stance carries it past its footprint: a
  * leg trails no further at the start than in full stride. The period then
- * lengthens so the cruising speed stays the asked one, and a plan too short
+ * lengthens so the longer ramp does not quicken the cruise, and a plan too short
  * for both ramps shrinks them in proportion.
  */
 export class WalkPace {
@@ -54,17 +67,27 @@ export class WalkPace {
   private readonly speed: number;
 
   /**
-   * @param props The distance in metres, the number of steps, the asked
-   *   speed in m/s, the swing in step periods, and the realised period for a
-   *   planned one.
+   * @param props The distance in metres, the number of steps, the longest
+   *   step in metres, the asked speed in m/s, the swing in step periods, and
+   *   the realised period for a planned one.
    */
-  public constructor(props: WalkPace.IProps & { steps: number }) {
+  public constructor(
+    props: WalkPace.IProps & { steps: number; longest: number },
+  ) {
     const first: number = WalkPace.FIRST;
     const n: number = props.steps;
     const base: number = props.period(
-      Math.max(props.distance / n, 0.05) / props.speed,
+      Math.max(props.longest, 0.05) / props.speed,
     );
-    const front: number = Math.min(0.5, 1 - props.share / 2);
+    const front: number =
+      props.share > 1
+        ? Math.max(
+            0.05,
+            1 -
+              props.share / 2 -
+              (props.lead ?? 0) / Math.max(props.distance / n, 0.05),
+          )
+        : Math.min(0.5, 1 - props.share / 2);
 
     // The time a cruising stance carries the pelvis past its footprint, in
     // periods: from `front` periods after the heel strike to the toe-off.
@@ -129,7 +152,7 @@ export class WalkPace {
       props.distance < 1e-6 ? 1 : 2,
       Math.ceil(props.distance / longest - 1e-9),
     );
-    let pace: WalkPace = new WalkPace({ ...props, steps: least });
+    let pace: WalkPace = new WalkPace({ ...props, steps: least, longest });
     for (
       let extra: number = 1;
       extra <= 4 &&
@@ -137,7 +160,7 @@ export class WalkPace {
       pace.stride > longest * (1 + 1e-6);
       extra++
     )
-      pace = new WalkPace({ ...props, steps: least + extra });
+      pace = new WalkPace({ ...props, steps: least + extra, longest });
     return pace;
   }
 
@@ -159,9 +182,7 @@ export class WalkPace {
       t > this.last - this.decel
         ? this.decel *
           (0.5 -
-            WalkPace.integral(
-              1 - (t - (this.last - this.decel)) / this.decel,
-            ))
+            WalkPace.integral(1 - (t - (this.last - this.decel)) / this.decel))
         : 0;
     return this.speed * (rise + cruise + fall);
   }
@@ -185,5 +206,8 @@ export namespace WalkPace {
 
     /** The realised step period for a planned one, seconds. */
     period(seconds: number): number;
+
+    /** How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent. */
+    lead?: number;
   }
 }

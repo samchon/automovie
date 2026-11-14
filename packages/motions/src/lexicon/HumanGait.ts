@@ -129,14 +129,16 @@ export namespace HumanGait {
 
       // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them.
       const way: number = distance(context);
+      // The stepping plan measures the way along its own path; 2 % of slack
+      // keeps it on this count of steps. Its period is the longest step at
+      // the speed (`WalkPace`), so the speed is the slack step's at the
+      // cadence, and the drill step itself is taken at the cadence.
       const step: number =
-        way / Math.max(2, Math.round(way / (MARCH.step * l)));
+        (1.02 * way) / Math.max(2, Math.round(way / (MARCH.step * l)));
       const speed: number = (step * MARCH.cadence) / 60;
       return {
         ...walk.walking((speed * speed) / (9.81 * l)),
-
-        // The stepping plan measures the way along its own path; 2 % of slack keeps it on this count of steps.
-        step: (): number => (1.02 * step) / l,
+        step: (): number => step / l,
         arms: MARCH.arms,
         unevenness: MARCH.unevenness,
         called: true,
@@ -161,15 +163,16 @@ export namespace HumanGait {
     (context: IHumanActionContext<IParams>): walk.IGait => {
       const l: number = context.body.measure.hipHeight;
 
-      // As the march: the nearest whole number of drill steps, taken at the cadence.
+      // As the march: the nearest whole number of drill steps, with its
+      // slack, taken at the cadence.
       const way: number = distance(context);
       const step: number =
-        way / Math.max(2, Math.round(way / (DOUBLE.step * l)));
+        (1.02 * way) / Math.max(2, Math.round(way / (DOUBLE.step * l)));
       const speed: number = (step * DOUBLE.cadence) / 60;
       return {
         ...run.GAITS.jog,
         froude: (speed * speed) / (9.81 * l),
-        step: (): number => (1.02 * step) / l,
+        step: (): number => step / l,
         unevenness: MARCH.unevenness,
         called: true,
       };

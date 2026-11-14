@@ -1,10 +1,11 @@
-import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanSignature as M } from "../internal/motionHumanSignature";
+import type { motionComplaints } from "./motionComplaints";
+import type { motionHumanBody } from "./motionHumanBody";
+import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * A walk looks like human walking: its kinematic signature, read on the
- * four extreme bodies at each pace over the steady middle half of a 3 m walk.
+ * The walking signature of one body (the specs
+ * `test_human_motion_signature_walk_<body>`), read at each pace over the
+ * steady middle half of a 3 m walk.
  *
  * Bounds and sources:
  * - Trunk: walking carries the trunk inclined forward a few degrees, and the
@@ -40,15 +41,25 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * the quiet stance must read within 3 degrees of vertical under it
  * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real walk law on real bodies and reads displayed bones; a trunk tipped back, a gait without double support, a wrong cadence, a centre of mass that dips at mid-stance or a head looking up fails with its cell, value, bound and source.
- * @evidence contracts/development/testing.md#independent-expectations Every bound is a cited human-gait value or marked provisional with its reason; none is read from the law.
- * @evidence contracts/development/testing.md#distinguishing-cases Three paces and the default on four bodies from the lightest to the heaviest.
- * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
+ * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, and how the specs share the reading.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads displayed joints, soles and the centre of mass over the steady middle half of each film; every bound is a cited gait value or marked provisional.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader for one body: a pass per pace, then the checks across paces.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every limit is marked provisional or cited; nothing is skipped.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four films, read on 30 and 120 Hz grids.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and readings come from `motionHumanSignature`.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
-export function test_human_motion_signature_walk(): void {
-  const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES) {
+export namespace motionHumanWalkSignature {
+  /**
+   * Read one body's walks into a gatherer.
+   *
+   * @param name The body.
+   * @param complaints Receives every check.
+   */
+  export function read(
+    name: motionHumanBody.Name,
+    complaints: motionComplaints.IGatherer,
+  ): void {
     const lean: Record<string, number> = {};
     const cadence: Record<string, number> = {};
     for (const row of ["pace=slow", "pace=normal", "pace=fast", "default"]) {
@@ -57,7 +68,7 @@ export function test_human_motion_signature_walk(): void {
       const from: number = 0.25 * s.film.duration;
       const to: number = 0.75 * s.film.duration;
       const ts: number[] = M.times(from, to, 30);
-      lean[row] = M.mean(ts, (t) => M.trunk(s, t));
+      lean[row] = M.mean(ts, (t: number): number => M.trunk(s, t));
       complaints.check(
         `${cell}: mean trunk inclination ${lean[row]!.toFixed(2)} deg outside [0, 10] (Thorstensson et al. 1984; Krebs et al. 1992)`,
         lean[row]! >= 0 && lean[row]! <= 10,
@@ -86,7 +97,8 @@ export function test_human_motion_signature_walk(): void {
       // Only supports wholly inside the window: one cut by the window's start
       // is not a whole support, and its middle is not mid-support.
       singles = singles.filter(
-        (p) => p.from > from + 1e-9 && p.to - p.from >= 0.1,
+        (p: { from: number; to: number }): boolean =>
+          p.from > from + 1e-9 && p.to - p.from >= 0.1,
       );
       complaints.check(
         `${cell}: ${doubles} instants of double support over ${g.strikes.length} strikes (Alexander 1984)`,
@@ -101,17 +113,21 @@ export function test_human_motion_signature_walk(): void {
           `${cell}: the centre of mass at mid single support (${p.side}, ${mid.toFixed(2)} s) stands ${(rise * 1000).toFixed(1)} mm above its ends, at least 5 mm expected (Cavagna et al. 1976)`,
           rise >= 0.005,
         );
-        const c = M.centre(s, mid);
-        const ankle = M.joint(s, mid, `${p.side}Foot`);
-        const other = M.joint(
+        const c: { x: number; z: number } = M.centre(s, mid);
+        const ankle: { x: number; z: number } = M.joint(
+          s,
+          mid,
+          `${p.side}Foot`,
+        );
+        const other: { x: number; z: number } = M.joint(
           s,
           mid,
           p.side === "left" ? "rightFoot" : "leftFoot",
         );
-        const f = M.forward(s.yaw);
+        const f: { x: number; z: number } = M.forward(s.yaw);
         const along: number = (c.x - ankle.x) * f.x + (c.z - ankle.z) * f.z;
-        const lateral = (p: { x: number; z: number }): number =>
-          p.x * f.z - p.z * f.x;
+        const lateral = (q: { x: number; z: number }): number =>
+          q.x * f.z - q.z * f.x;
         const between: boolean =
           (lateral(c) - lateral(ankle)) * (lateral(c) - lateral(other)) <= 0;
         complaints.check(
@@ -119,7 +135,7 @@ export function test_human_motion_signature_walk(): void {
           Math.abs(along) <= 0.15 && between,
         );
       }
-      const pitch: number = M.mean(ts, (t) => M.head(s, t));
+      const pitch: number = M.mean(ts, (t: number): number => M.head(s, t));
       complaints.check(
         `${cell}: mean head pitch ${pitch.toFixed(1)} deg outside [-15, 25] (Pozzo et al. 1990; provisional)`,
         pitch >= -15 && pitch <= 25,
@@ -137,8 +153,6 @@ export function test_human_motion_signature_walk(): void {
         cadence["pace=slow"]! < cadence["pace=normal"]! &&
         cadence["pace=normal"]! < cadence["pace=fast"]!,
     );
-  }
-  for (const name of motionHumanBody.EXTREMES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
-  complaints.assert("the walk has the signature of human walking");
+  }
 }
