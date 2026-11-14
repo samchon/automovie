@@ -1088,14 +1088,19 @@ namespace FamilyConicBody {
       return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
     };
     const toes: [R.V, R.V][] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
-    // Within 15 mm of the thumb's course from 30 mm past its first joint: the web beside the thumb and the face the thumb comes out of, where
-    // the hand's nets hold the wall so the thumb's merge finds its meeting.
+    // Within 15 mm of the thumb's course from 42 mm past its first joint: the face the thumb comes out of, where the hand's nets hold the
+    // wall so the thumb's merge finds its meeting. Read on the reference (`FamilyConicScan.ts thumbweb`): toward the index finger the thumb's
+    // skin first stands free at 42 mm along (11.8 mm from the line, then the web's air; before that the ray runs through the hand's flesh
+    // to 48 to 51 mm), and from there it lies at most 14.0 mm from the line in any of five directions, so 15 mm holds it with 1 mm to spare.
+    // Held from 30 mm, the hold also took the hand's own skin over the thumb's base, 32 to 37 mm along and 13.0 to 14.0 mm from the line,
+    // where the hand's wall laid on its sound neighbours stood 2 to 4 mm proud and the nets could not take it back (`--skin-held`, hold
+    // depths 0.47 to 1.99 mm at 556 to 564 mm on the hand).
     const thumbHold = (p: R.V): number => {
       const a: R.V = joint("thumb_01_r");
       const b: R.V = joint("thumb_03_r");
       const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
       const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
-      return Math.min(along - 30, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
+      return Math.min(along - 42, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
     };
     const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
