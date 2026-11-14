@@ -81,6 +81,13 @@ namespace FamilyConicFigure {
       const c: number[] = [at[0]! / 1000, at[1]! / 1000, Math.abs(at[2]!) / 1000];
       return (p: N.Point): boolean => Math.hypot(p[0] - c[0]!, p[1] - c[1]!, p[2] - c[2]!) < radius;
     };
+    // Within `radius` metres of the midpoint of two reference joints, taken on the +Z side: a web between two digits, a row of knuckles.
+    const between = (a: string, b: string, radius: number): ((p: N.Point) => boolean) => {
+      const [p, q]: (number[] | undefined)[] = [source.joints.get(a), source.joints.get(b)];
+      if (p === undefined || q === undefined) throw new Error("no joint " + (p === undefined ? a : b));
+      const c: number[] = [(p[0]! + q[0]!) / 2000, (p[1]! + q[1]!) / 2000, (Math.abs(p[2]!) + Math.abs(q[2]!)) / 2000];
+      return (x: N.Point): boolean => Math.hypot(x[0] - c[0]!, x[1] - c[1]!, x[2] - c[2]!) < radius;
+    };
     // Close frames: the same pair framed on the reference's points inside one zone of the figure, metres.
     const zones: [string, (p: N.Point) => boolean][] = [
       ["head", (p: N.Point): boolean => p[1] > 1.45],
@@ -103,9 +110,15 @@ namespace FamilyConicFigure {
       // below, which the armscye's folds and the cubital fossa need.
       ["armpit", near("upperarm_l", 0.11)],
       ["elbow", near("lowerarm_l", 0.07)],
+      // The hand's close frames: the web between the thumb and the index finger (30 mm round the midpoint of the thumb's second joint and
+      // the index finger's first), the back of the hand over the knuckles (45 mm round the middle and ring fingers' first joints), and the
+      // finger roots where the hand's end splits (32 mm round the same point).
+      ["hand.web", between("thumb_02_l", "index_01_l", 0.03)],
+      ["hand.dorsum", between("middle_01_l", "ring_01_l", 0.045)],
+      ["hand.roots", between("middle_01_l", "ring_01_l", 0.032)],
     ];
     const views = (zone: string): string[] =>
-      zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : zone === "nose" ? ["front", "left", "high-oblique", "low-oblique"] : zone === "armpit" ? ["front", "back", "left", "high-oblique", "low-oblique"] : zone === "elbow" ? ["front", "back", "left", "high-oblique"] : ["front", "left", "high-oblique"];
+      zone.startsWith("shoulder") ? ["front", "back", zone === "shoulder" ? "left" : "right", "high-oblique"] : zone === "nose" ? ["front", "left", "high-oblique", "low-oblique"] : zone === "armpit" || zone === "hand" ? ["front", "back", "left", "high-oblique", "low-oblique"] : zone === "elbow" ? ["front", "back", "left", "high-oblique"] : zone === "hand.web" ? ["front", "high-oblique", "left"] : zone === "hand.dorsum" ? ["left", "back", "high-oblique"] : zone === "hand.roots" ? ["left", "high-oblique", "low-oblique", "front"] : ["front", "left", "high-oblique"];
     // `--zones=<zone,...>`: only those close frames.
     const only: string[] = (process.argv.find((arg: string): boolean => arg.startsWith("--zones="))?.slice("--zones=".length) ?? "").split(",").filter((name: string): boolean => name.length > 0);
     for (const [zone, inside] of zones) {

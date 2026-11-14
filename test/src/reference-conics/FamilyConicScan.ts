@@ -9,6 +9,12 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * station's count of loops round the axis, the loop's area and its vertex
  * count, so each part's single-loop domain is read from the data before any
  * family is fitted.
+ *
+ * Its modes (the first argument) read one place each. Among them, `saddles`
+ * reads the hand's dorsal hollows and the stations where its digits part,
+ * along the hand family's own course, with the wall's standoff. `thumbweb`
+ * reads where the thumb's skin ends toward the web, against the hand nets'
+ * hold round the thumb.
  */
 namespace FamilyConicScan {
   /** Mean of a loop's vertices in its chart, mm. */
@@ -540,6 +546,112 @@ namespace FamilyConicScan {
         for (let r: number = crest; r > Math.max(0, crest - band); r -= h) if (skin(r) < skin(low)) low = r;
         const f = (r: number): string => ("(" + (cx + r * dx!).toFixed(1) + "," + (cy + r * dy!).toFixed(1) + "," + skin(r).toFixed(1) + ")").padEnd(22);
         process.stdout.write(String(deg).padStart(4) + " " + f(edge) + f(crest) + (edge - crest).toFixed(1).padStart(4) + "  " + f(low) + (skin(crest) - skin(low)).toFixed(1) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "saddles") {
+      // `saddles [from] [to]`: along the hand family's own course (`AutoMovieHumanF1Hand`, open at its last knot as the construction lofts
+      // it), every millimetre: the reference's loops in the plane (count, chart centre, area), and on the loop nearest the course every
+      // hollow under its hull deeper than 0.3 mm (polar phase range and deepest point, rad and mm), with the hand wall's standoff from the
+      // skin at that deepest phase where the family reaches the station. A saddle is where a hollow's floor opens into a second loop: the
+      // station at which the plane first cuts two digits apart along that phase.
+      const family: AutoMovieHumanConicLoft.IFamily = { ...AutoMovieHumanF1.BODY.hand, tips: [null, null] };
+      const course: AutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
+      const last: number = family.knots.at(-1)!;
+      const chain = AutoMovieHumanConicLoft.create(family, family.knots).chain;
+      const polar = (p: C.P): number => ((Math.atan2(p[1], p[0]) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const from: number = Number(process.argv[3] ?? 556);
+      const to: number = Number(process.argv[4] ?? 610);
+      for (let s: number = from; s <= to; s += 1) {
+        const frame = course.at(s);
+        const loops: C.P[][] = R.loops(source.body, frame).filter((loop: C.P[]): boolean => Math.hypot(...centre(loop)) < 90);
+        const main: C.P[] | undefined = loops.reduce((best: C.P[] | undefined, loop: C.P[]): C.P[] => (best === undefined || Math.hypot(...centre(loop)) < Math.hypot(...centre(best)) ? loop : best), undefined);
+        const cells: string[] = loops.map((loop: C.P[]): string => "(" + centre(loop).map((x: number): string => x.toFixed(0)).join(",") + " a" + (R.area(loop) / 100).toFixed(1) + ")");
+        const hollows: string[] = [];
+        if (main !== undefined) {
+          const hull: C.P[] = R.hull(main);
+          // Depth of a point under the hull: its least distance to the hull's edges, the point lying inside the hull.
+          const depth = (p: C.P): number =>
+            Math.min(
+              ...hull.map((a: C.P, k: number): number => {
+                const b: C.P = hull[(k + 1) % hull.length]!;
+                const e: C.P = [b[0] - a[0], b[1] - a[1]];
+                const t: number = Math.max(0, Math.min(1, ((p[0] - a[0]) * e[0] + (p[1] - a[1]) * e[1]) / (e[0] * e[0] + e[1] * e[1] || 1)));
+                return Math.hypot(p[0] - a[0] - t * e[0], p[1] - a[1] - t * e[1]);
+              }),
+            );
+          const depths: number[] = main.map(depth);
+          // Runs of consecutive vertices deeper than 0.3 mm, round the closed loop from a vertex that is not.
+          const start: number = Math.max(0, depths.findIndex((d: number): boolean => d <= 0.3));
+          let run: number[] = [];
+          const flush = (): void => {
+            if (run.length === 0) return;
+            const deepest: number = run.reduce((b: number, k: number): number => (depths[k]! > depths[b]! ? k : b), run[0]!);
+            const t: number = polar(main[deepest]!);
+            let standoff: string = "";
+            if (chain !== null && s <= last) {
+              // The wall's point at the chain sample whose polar angle is nearest the hollow's deepest phase.
+              const gap = (x: C.P): number => Math.abs(Math.atan2(Math.sin(polar(x) - t), Math.cos(polar(x) - t)));
+              let best: C.P | null = null;
+              for (let j: number = 0; j < 720; ++j) {
+                const q: number[] = AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 720);
+                const d: number[] = [q[0]! - frame.origin[0], q[1]! - frame.origin[1], q[2]! - frame.origin[2]];
+                const c: C.P = [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
+                if (best === null || gap(c) < gap(best)) best = c;
+              }
+              standoff = " wall " + (Math.hypot(...best!) - Math.hypot(...main[deepest]!)).toFixed(2) + "mm";
+            }
+            hollows.push("[" + polar(main[run[0]!]!).toFixed(2) + ".." + polar(main[run.at(-1)!]!).toFixed(2) + " deepest " + depths[deepest]!.toFixed(2) + "mm@" + t.toFixed(2) + standoff + "]");
+            run = [];
+          };
+          for (let i: number = 0; i < main.length; ++i) {
+            const k: number = (start + i) % main.length;
+            if (depths[k]! > 0.3) run.push(k);
+            else flush();
+          }
+          flush();
+        }
+        process.stdout.write(s + ": loops " + loops.length + " " + cells.join(" ") + (hollows.length === 0 ? "" : "\n    hollows " + hollows.join(" ")) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "thumbweb") {
+      // `thumbweb`: where the thumb's skin ends toward the web. In planes square to the line from the thumb's first joint to its third, every
+      // 2 mm from 24 to 56 mm along it (`FamilyConicBody.ts` `thumbHold` holds the hand's nets inside 15 mm of that line from 30 mm on),
+      // the crossings of the reference skin, mm from the line, along the ray toward the index finger's first joint (`web`) and along the
+      // rays 45 and 90 degrees either side of it: the first is the thumb's skin on that side, and a gap before the next is the web's air.
+      const a: R.V = joint("thumb_01_r");
+      const b: R.V = joint("thumb_03_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const k: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
+      const index: R.V = joint("index_01_r");
+      for (let along: number = 24; along <= 56; along += 2) {
+        const o: R.V = [a[0] + along * k[0], a[1] + along * k[1], a[2] + along * k[2]];
+        const w: R.V = [index[0] - o[0], index[1] - o[1], index[2] - o[2]];
+        const dot: number = w[0] * k[0] + w[1] * k[1] + w[2] * k[2];
+        const square: R.V = [w[0] - dot * k[0], w[1] - dot * k[1], w[2] - dot * k[2]];
+        const l: number = Math.hypot(...square);
+        const u: R.V = [square[0] / l, square[1] / l, square[2] / l];
+        const v: R.V = [k[1] * u[2] - k[2] * u[1], k[2] * u[0] - k[0] * u[2], k[0] * u[1] - k[1] * u[0]];
+        const loops: C.P[][] = R.loops(source.body, { origin: o, u, v });
+        const cells: string[] = [-90, -45, 0, 45, 90].map((deg: number): string => {
+          const r: C.P = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+          const hits: number[] = loops
+            .flatMap((loop: C.P[]): number[] =>
+              loop.flatMap((p: C.P, i: number): number[] => {
+                const q: C.P = loop[(i + 1) % loop.length]!;
+                const e: C.P = [q[0] - p[0], q[1] - p[1]];
+                const den: number = r[0] * e[1] - r[1] * e[0];
+                if (Math.abs(den) < 1e-12) return [];
+                const t: number = (p[0] * e[1] - p[1] * e[0]) / den;
+                const m: number = (p[0] * r[1] - p[1] * r[0]) / den;
+                return t > 0 && m >= 0 && m <= 1 ? [t] : [];
+              }),
+            )
+            .sort((x: number, y: number): number => x - y);
+          return (deg === 0 ? "web" : deg + "deg") + " " + hits.slice(0, 4).map((t: number): string => t.toFixed(1)).join("/");
+        });
+        process.stdout.write("along " + along + ": " + cells.join("  ") + "\n");
       }
       return;
     }
