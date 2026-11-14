@@ -51,7 +51,7 @@ Size a feature on a surface in physical units through the surface's metric. A fe
 
 ## Resolution
 
-Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette rather than evenly. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
+Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette rather than evenly. Keep defining dimensions and feature locations independent of tessellation, and keep the tessellation independent of how densely a form's data is stored, so a more compact store of the same form keeps its mesh. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 
