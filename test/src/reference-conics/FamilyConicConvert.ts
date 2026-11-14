@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftChain, AutoMovieViewChain as Q, type AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewChain as Q, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import type { AutoMovieConstructionNode } from "@automovie/interface";
 import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection as S } from "@automovie/human";
 import { FamilyConicFair as F } from "./FamilyConicFair";
 import { FamilyConicLayout as L } from "./FamilyConicLayout";
@@ -446,8 +447,7 @@ export namespace FamilyConicConvert {
     text.push("", `## Source hollows deeper than ${LAYOUT_TOLERANCE_MM} mm: ${ledger.kept} held by a tracked groove, ${ledger.dropped.length} dropped`, ...ledger.dropped.map((d: string): string => "dropped " + d));
     const diagnostics: Set<string> = new Set(layoutStations.flatMap((x: IStation): string[] => x.diagnostics));
     if (diagnostics.size > 0) text.push("", "## Converter diagnostics at the layout tolerance (numbers as #)", ...[...diagnostics].slice(0, 12));
-    let lofted: object | null = null;
-    if (options.loft !== undefined) lofted = await loft(name, sections, layoutStations, options.loft, out, text);
+    const lofted: object = await loft(name, sections, layoutStations, options.loft, out, text, fairMm);
     await fs.writeFile(path.join(out, name + ".convert.txt"), text.join("\n") + "\n");
     await fs.writeFile(path.join(out, name + ".convert.json"), JSON.stringify({ name, fairMm, basis: scale.basis, tolerances, sections, stations: Object.fromEntries([...table].map(([t, st]) => [String(t), st])), lines: tracked, hollowLines, ledger, loft: lofted }));
     process.stdout.write(JSON.stringify({ event: "convert-complete", part: name, out, stations: sections.length }) + "\n");
@@ -460,7 +460,7 @@ export namespace FamilyConicConvert {
    * natural cubic of each field on knots `KNOT_MM` apart, the family lofted alone through the engine (`AutoMovieHumanConicLoft.create`), its
    * sections measured against the source, rendered in clay beside the reference in four views, and admitted every `ADMIT_STEP_MM`.
    */
-  async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], course: ICourse, out: string, text: string[]): Promise<object> {
+  async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], course: ICourse | undefined, out: string, text: string[], fairMm: number): Promise<object> {
     // The longest run of neighbouring star-shaped stations: a section the rays fold over is not a wall's (lofting.md, the method's limit).
     let best: [number, number] = [0, -1];
     for (let i: number = 0; i < stations.length; ) {
@@ -473,24 +473,26 @@ export namespace FamilyConicConvert {
       if (j - i > best[1] - best[0]) best = [i, j];
       i = j + 1;
     }
-    let range: IStation[] = stations.slice(best[0], best[1] + 1);
-    text.push("", `## Loft: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), the longest run of star-shaped stations`);
+    const range: IStation[] = stations.slice(best[0], best[1] + 1);
+    text.push("", `## Families: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), the longest run of star-shaped stations; the family's domain ends at its last star-shaped station`);
     // The layout's lines are the source's own hollow lines over the range (deeper than the tolerance), not the faired grooves tracked
     // alone: a faired groove that doubles for a few stations split one source groove into two overlapping lines, and their runs' features
     // interleaved. A hollow line that resumes within RUN stations of where another ended, within twice `TRACK` of its phase, continues it.
     const pieces: ILine[] = lines(range.map((st: IStation) => ({ s: st.s, items: st.hollows.map((h: IHollow) => ({ phase: h.middle, turn: h.halfMm, depth: h.depthMm })) })));
     const joined: ILine[] = join(pieces);
-    // At each station, the groove that holds the line's hollow (its inflections round the hollow's phase, else its middle within TRACK), each
-    // groove to one line, the longest lines first.
+    // Which hollow lines persist: a groove line is a longitudinal control curve that runs along the form (lofting.md, One section family),
+    // so a hollow is kept as a line only where it runs along the course at least as far as its own wavelength, twice its median width at
+    // half depth (`IHollow.halfMm`); a shorter one is a pit, named and left to the wall's fairing. The rule is the region's own scale, as
+    // the fairing cutoff is (`cutoff`): on f1's hand short hollows split its runs fourteen times over 25 stations.
     const lineOf: L.ILine[] = [];
-    // Per kept line, at each station, whether its groove is resolved: at least the converter's tolerance deep. A groove under it is no
-    // feature the conversion can carry (the branches of the left groove's fork at 1,570.5 mm are 0.05 and 0.10 mm deep; the grooves at the
-    // first station of 1,558.5 mm were 0.10 mm deep, and a cubic through their onset to 0.40 mm at 1,560.5 mm drew an inverted S there).
-    const resolved: boolean[][] = [];
+    const spans: [number, number][] = [];
     const named: string[] = [];
     const claimed: Set<string> = new Set();
     for (const line of [...joined].sort((a: ILine, b: ILine): number => b.stations.length - a.stations.length)) {
-      const deep: boolean[] = range.map((): boolean => false);
+      const wavelength: number = 2 * median(line.turns);
+      const extent: number = Math.abs((course?.station ?? ((s: number): number => s))(line.stations.at(-1)!) - (course?.station ?? ((s: number): number => s))(line.stations[0]!));
+      // At each station, the groove that holds the line's hollow (its inflections round the hollow's phase, else its middle within TRACK),
+      // each groove to one line, the longest lines first.
       const phases: ([number, number, number] | null)[] = range.map((st: IStation, i: number): [number, number, number] | null => {
         const k: number = line.stations.findIndex((s: number): boolean => Math.abs(s - st.s) < 1e-9);
         if (k < 0) return null;
@@ -500,32 +502,27 @@ export namespace FamilyConicConvert {
         if (holding === undefined) return null;
         claimed.add(i + ":" + holding);
         const g: F.IGroove = st.grooves[holding]!;
-        deep[i] = g.depthMm >= LAYOUT_TOLERANCE_MM;
         return [g.from, g.floor, g.to];
       });
       const seen: number = phases.filter((x): boolean => x !== null).length;
-      if (line.stations.length >= RUN && seen >= RUN) {
+      if (extent >= wavelength && seen >= 2) {
         lineOf.push({ phases });
-        resolved.push(deep);
-      }
-      else named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)} (${line.stations.length} stations, a groove at ${seen}), depth ${span2(line.depths)} mm`);
+        spans.push([range.findIndex((st: IStation): boolean => Math.abs(st.s - line.stations[0]!) < 1e-9), range.findIndex((st: IStation): boolean => Math.abs(st.s - line.stations.at(-1)!) < 1e-9)]);
+      } else named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)}: runs ${f2(extent)} mm along the course against its wavelength ${f2(wavelength)} mm, a groove at ${seen} station(s), depth ${span2(line.depths)} mm`);
     }
     text.push(`groove lines from the source's hollow lines: ${lineOf.length} kept of ${joined.length} (${pieces.length} pieces)`, ...named);
-    // Families: runs of stations with one count of resolved groove lines (#3401: "runs of equal count are families; a change of count is
-    // where a family ends"). A line carried through stations where its groove is not resolved stands near zero depth there, and the engine
-    // refuses its parallel end tangents (#3412, Section model); the longest family is lofted, the others named for the survey.
-    // Families: runs of stations with one set of resolved groove lines (#3401: "runs of equal count are families; a change of count is
-    // where a family ends"). A line carried through stations where its groove is not resolved stands near zero depth there, and the engine
-    // refuses its parallel end tangents (#3412, Section model). Every family of at least two stations is lofted with the lines it resolves;
-    // a one-station family is named for the survey.
-    const keyAt = (i: number): string => resolved.map((deep: boolean[]): string => (deep[i] === true ? "1" : "0")).join("");
+    // Families: runs of stations with one set of present lines (#3401: "runs of equal count are families; a change of count is where a family
+    // ends"). A kept line is present from its first station to its last, carried where its groove is not seen, so only a line's start or end
+    // is a family boundary, never a dip of its depth.
+    const keyAt = (i: number): string => spans.map(([a, b]): string => (i >= a && i <= b ? "1" : "0")).join("");
     const families: { from: number; to: number; key: string }[] = [];
     range.forEach((_: IStation, i: number): void => {
       const last = families.at(-1);
       if (last !== undefined && last.key === keyAt(i)) last.to = i;
       else families.push({ from: i, to: i, key: keyAt(i) });
     });
-    text.push(`families by resolved groove lines (one digit a line): ${families.map((f): string => `${f.key || "-"}:${range[f.from]!.s}-${range[f.to]!.s}(${f.to - f.from + 1})`).join("  ")}`);
+    text.push(`families by present groove lines (one digit a line), over the longest star-shaped run ${range[0]!.s}-${range.at(-1)!.s}: ${families.map((f): string => `${f.key || "-"}:${range[f.from]!.s}-${range[f.to]!.s}(${f.to - f.from + 1})`).join("  ")}`);
+    if (course === undefined) return { families };
     // One family's steps 4 to 7: layout, read, smoothing, admission and the engine's loft.
     const build = async (tag: string, range: IStation[], lineOf: L.ILine[]): Promise<{ chain: AutoMovieViewLoft.IResult["chain"]; r0: number; r1: number; family: H.IFamily; summary: object }> => {
       text.push("", `### family ${tag}: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), ${lineOf.length} groove line(s)`);      // Where a kept line's groove is not seen, its phases between the nearest stations that see it, linearly in the station; past its ends, held.
@@ -581,7 +578,10 @@ export namespace FamilyConicConvert {
       const count: number = Math.max(2, Math.round((s1 - s0) / KNOT_MM) + 1);
       const knots: number[] = Array.from({ length: count }, (_: unknown, k: number): number => s0 + ((s1 - s0) * k) / (count - 1));
       const values: number[][] = L.smooth(range.map((st: IStation): number => course.station(st.s)), rows, knots);
-      const family: H.IFamily = { name: "convert." + tag, centres: course.centres, halves: course.halves, up: course.up, layout: plan.layout, knots, values: values.map((field: number[], f: number): number[] => field.map((y: number): number => (S.units(plan.layout)[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4))) };
+      // Its phase pitch a quarter of the region's narrowest kept wavelength, the fairing cutoff (lofting.md: "An edge with a roll is resolved
+      // only when every sampling across it ... is at most a quarter of the roll"), and no coarser than the bands' columns that join it: at a
+      // quarter alone (2.6 mm) the nose's two long families were tessellated 2.4 mm round against their bands' 0.5 mm and read as fluting.
+      const family: H.IFamily = { name: "convert." + tag, centres: course.centres, halves: course.halves, up: course.up, pitch: Math.min(fairMm / 4, girthOf(range) / JOIN.count), layout: plan.layout, knots, values: values.map((field: number[], f: number): number[] => field.map((y: number): number => (S.units(plan.layout)[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4))) };
       await fs.writeFile(path.join(out, tag + ".family.json"), JSON.stringify(family));
       text.push(`smooth: ${knots.length} knots ${f2(knots[0]!)}..${f2(knots.at(-1)!)} mm, ${values.length} fields, ${knots.length * values.length} stored numbers`);
       // The smoothed family against the source at every station: each source point to the family's section.
@@ -651,7 +651,52 @@ export namespace FamilyConicConvert {
     // The closure's phases at a course station: the nearest source section's.
     const closureAt = (s: number): readonly [number, number] | undefined => sections.reduce((a: ISection, b: ISection): ISection => (Math.abs(course.station(b.s) - s) < Math.abs(course.station(a.s) - s) ? b : a)).closure;
     const shown = built.filter((b): boolean => b.chain !== null).map((b) => ({ chain: b.chain!, s0: b.r0, s1: b.r1, family: b.family }));
-    const frames: string[] = shown.length === 0 ? [] : await render(name, shown, course, out, closureAt);
+    // The families joined in station order (construction.md, Connections: "Two compatible open ends continue each other": a continuation).
+    // Neighbouring families' sections carry other layouts, so each is continued across a band (`IAutoMovieConstructionContinuation.band`),
+    // as the hand continues the arm: from the host's last ring to a rail inside the part, G2 to both, the part keeping its stations past it.
+    const sources: Map<string, IAutoMovieViewPart> = new Map();
+    let root: AutoMovieConstructionNode | null = null;
+    shown.forEach((piece, k: number): void => {
+      const stationsOf: number[] = Array.from({ length: Math.round((piece.s1 - piece.s0) / 0.5) + 1 }, (_: unknown, i: number): number => piece.s0 + i * 0.5);
+      sources.set(piece.family.name, H.part(piece.family, stationsOf));
+      const leaf: AutoMovieConstructionNode = { type: "source", name: piece.family.name, source: piece.family.name };
+      if (root === null) root = leaf;
+      else {
+        const rail: number = Math.min(JOIN.rail, (piece.s1 - piece.s0) / 2);
+        root = { type: "continue", name: `join.${name}.${k}`, host: root, hostFace: shown[k - 1]!.family.name, hostEnd: "top", part: leaf, partFace: piece.family.name, partEnd: "bottom", band: { rail: rail / 1000, count: JOIN.count, rows: JOIN.rows, correspondence: "length" } };
+      }
+    });
+    // Each owner's span of stations: a family keeps its own past its rail, and a band spans from its host's last ring to that rail.
+    const owners: IOwner[] = shown.flatMap((piece, k: number): IOwner[] => {
+      const rail: number = k === 0 ? 0 : Math.min(JOIN.rail, (piece.s1 - piece.s0) / 2);
+      return [...(k === 0 ? [] : [{ from: shown[k - 1]!.s1, to: piece.s0 + rail, owner: `band ${k - 1}-${k}` }]), { from: piece.s0 + rail, to: piece.s1, owner: piece.family.name }];
+    });
+    text.push("owners by station: " + owners.map((o: IOwner): string => `${o.owner} ${f2(o.from)}..${f2(o.to)}`).join(", "));
+    let skin: { positions: readonly number[]; indices: readonly number[] } | undefined;
+    if (root !== null && shown.length > 1) {
+      try {
+        const real = realizeAutoMovieConstruction({ name: "convert." + name, root }, { chord: 0.001, sources });
+        text.push("", `joined: ${shown.length} families by ${shown.length - 1} continuation bands (rail up to ${JOIN.rail} mm, ${JOIN.count} columns, ${JOIN.rows} rows); ${real.mesh.positions.length / 3} vertices, ${real.mesh.indices.length / 3} triangles; diagnostics ${real.diagnostics.length}`, ...real.diagnostics.slice(0, 12).map((d): string => `  ${d.node} (${d.contract}): ${d.detail.slice(0, 220)}`));
+        skin = { positions: Array.from(real.mesh.positions), indices: Array.from(real.mesh.indices) };
+        // The skin's tessellation by owner: the median length of its edges that run round the course (columns) and along it (rows), mm.
+        const stationOf = along(course);
+        const spacing: Map<string, { round: number[]; along: number[] }> = new Map(owners.map((o: IOwner) => [o.owner, { round: [] as number[], along: [] as number[] }]));
+        for (let t: number = 0; t + 2 < skin.indices.length; t += 3)
+          for (let e: number = 0; e < 3; ++e) {
+            const a: number = skin.indices[t + e]!, b: number = skin.indices[t + ((e + 1) % 3)]!;
+            const pa: number[] = [0, 1, 2].map((k: number): number => skin!.positions[3 * a + k]! * 1000), pb: number[] = [0, 1, 2].map((k: number): number => skin!.positions[3 * b + k]! * 1000);
+            const length: number = Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!);
+            const ds: number = Math.abs(stationOf(pb) - stationOf(pa));
+            const owner: IOwner | undefined = owners.find((o: IOwner): boolean => (stationOf(pa) + stationOf(pb)) / 2 >= o.from && (stationOf(pa) + stationOf(pb)) / 2 <= o.to);
+            if (owner === undefined || !(length > 0)) continue;
+            (ds < 0.3 * length ? spacing.get(owner.owner)!.round : spacing.get(owner.owner)!.along).push(length);
+          }
+        text.push("skin edges by owner, median mm (round the course / along it): " + [...spacing].map(([o, v]): string => `${o} ${v.round.length > 0 ? f2(median(v.round)) : "-"}/${v.along.length > 0 ? f2(median(v.along)) : "-"}`).join(", "));
+      } catch (error: unknown) {
+        text.push("", `joined: refused, ${String(error instanceof Error ? error.message : error).slice(0, 300)}`);
+      }
+    }
+    const frames: string[] = shown.length === 0 ? [] : await render(name, shown, course, out, closureAt, skin, owners);
     text.push("", `frames (${frames.length}) of ${shown.length} lofted families together, in ${out}`, ...frames.map((x: string): string => "  " + x));
     return { families: built.map((b) => b.summary), frames };
   }
@@ -690,6 +735,41 @@ export namespace FamilyConicConvert {
   /** The colour an invented closure is drawn in, so no reader judges geometry the source does not back as skin. */
   const CLOSURE_COLOUR: [number, number, number] = [0.86, 0.55, 0.32];
 
+  /**
+   * The continuation band between neighbouring families (`IAutoMovieConstructionContinuation.IBand`): its rail into the part, mm, at most
+   * half the part's span so the part keeps stations of its own past it; 256 columns, as f1's wrist band, space a nose section's 120 to 140 mm
+   * girth (closure included) about 0.5 mm apart, finer than the families' phases; 8 rows space a band of 1 to 3 mm a quarter to 0.4 mm apart.
+   */
+  const JOIN: { rail: number; count: number; rows: number } = { rail: 2, count: 256, rows: 8 };
+
+  /** The largest girth of the stations' converted chains, mm: each chain's arcs' chords summed, round the course. */
+  function girthOf(stations: readonly IStation[]): number {
+    return Math.max(...stations.map((st: IStation): number => st.arcs.reduce((sum: number, arc: F.IArc): number => sum + Math.hypot(arc.controls[2][0] - arc.controls[0][0], arc.controls[2][1] - arc.controls[0][1]), 0)));
+  }
+
+  /** Who draws a span of stations of a joined skin: a family past its rail, or the band before it. */
+  export interface IOwner {
+    /** First station, mm. */
+    from: number;
+
+    /** Last station, mm. */
+    to: number;
+
+    /** The family's name, or `band <host>-<part>`. */
+    owner: string;
+  }
+
+  /** A point's station on a straight course, from its first centre toward its last, mm (the nose's course is straight). */
+  function along(course: ICourse): (p: readonly number[]) => number {
+    const c0: number[] = course.centres[0]!, c1: number[] = course.centres.at(-1)!;
+    const length: number = Math.hypot(c1[0]! - c0[0]!, c1[1]! - c0[1]!, c1[2]! - c0[2]!);
+    const dir: number[] = [0, 1, 2].map((k: number): number => (c1[k]! - c0[k]!) / length);
+    return (p: readonly number[]): number => [0, 1, 2].reduce((sum: number, k: number): number => sum + (p[k]! - c0[k]!) * dir[k]!, 0);
+  }
+
+  /** The colour a continuation band is drawn in on the owner frames. */
+  const BAND_COLOUR: [number, number, number] = [0.82, 0.32, 0.3];
+
   /** Colours of neighbouring lofted families, alternated so each family's ends show. */
   const FAMILY_COLOURS: [number, number, number][] = [
     [0.64, 0.65, 0.67],
@@ -703,8 +783,10 @@ export namespace FamilyConicConvert {
    * 2 mm and at its ends drawn over it, so the clay is compared place for place.
    *
    * @param closureAt The closure's phases at a course station, or undefined where the section has none.
+   * @param joined The families realized joined by their continuations, metres: drawn as the clay in place of the separate families, its
+   *   closure told apart by each vertex's station on the straight course and its phase in that station's chart.
    */
-  async function render(name: string, lofted: readonly { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: H.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly [number, number] | undefined): Promise<string[]> {
+  async function render(name: string, lofted: readonly { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: H.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly [number, number] | undefined, joined?: { positions: readonly number[]; indices: readonly number[] }, owners: readonly IOwner[] = []): Promise<string[]> {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const reference: N.Mesh[] = [source.body, source.head].map((mesh, i: number): N.Mesh => ({ id: "reference." + i, positions: Array.from(mesh.positions, (x: number): number => x / 1000), indices: Array.from(mesh.indices), colour: [0.64, 0.65, 0.67] }));
     const near: N.Point[] = [];
@@ -714,6 +796,7 @@ export namespace FamilyConicConvert {
         if (course.zone(p)) near.push(p);
       }
     const clay: N.Mesh[] = [];
+    const owned: N.Mesh[] = [];
     const rings: N.Curve[] = [];
     const about: number = 256;
     lofted.forEach(({ chain, s0, s1, family }, k: number): void => {
@@ -748,12 +831,50 @@ export namespace FamilyConicConvert {
         }
       clay.push({ id: family.name, positions, indices: skin, colour: FAMILY_COLOURS[k % FAMILY_COLOURS.length]! }, { id: family.name + ".closure", positions, indices: closed, colour: CLOSURE_COLOUR });
     });
+    if (joined !== undefined && lofted.length > 0) {
+      // The joined skin in place of the separate families: each vertex's station on the course's straight line from its first centre to its
+      // last (the nose's course), and its phase in that station's chart.
+      const axis = H.axis(lofted[0]!.family);
+      const c0: number[] = course.centres[0]!, c1: number[] = course.centres.at(-1)!;
+      const length: number = Math.hypot(c1[0]! - c0[0]!, c1[1]! - c0[1]!, c1[2]! - c0[2]!);
+      const dir: number[] = [0, 1, 2].map((k: number): number => (c1[k]! - c0[k]!) / length);
+      const invented: boolean[] = [];
+      for (let i: number = 0; i < joined.positions.length; i += 3) {
+        const p: number[] = [0, 1, 2].map((k: number): number => joined.positions[i + k]! * 1000);
+        const s: number = [0, 1, 2].reduce((sum: number, k: number): number => sum + (p[k]! - c0[k]!) * dir[k]!, 0);
+        const frame = axis.at(s);
+        const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
+        const phi: number = Math.atan2(d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2], d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2]);
+        const closure: readonly [number, number] | undefined = closureAt(s);
+        invented.push(closure !== undefined && wrap(phi - closure[0]) < wrap(closure[1] - closure[0]));
+      }
+      const skin: number[] = [], closed: number[] = [];
+      for (let t: number = 0; t + 2 < joined.indices.length; t += 3) {
+        const [a, b, c] = [joined.indices[t]!, joined.indices[t + 1]!, joined.indices[t + 2]!];
+        (Number(invented[a]) + Number(invented[b]) + Number(invented[c]) >= 2 ? closed : skin).push(a, b, c);
+      }
+      // The owner frame: each triangle by its first corner's station, a family in its colour, a band in `BAND_COLOUR`, the closure apart.
+      const stationOf = along(course);
+      const groups: Map<string, number[]> = new Map();
+      for (let t: number = 0; t + 2 < joined.indices.length; t += 3) {
+        const [a, b, c] = [joined.indices[t]!, joined.indices[t + 1]!, joined.indices[t + 2]!];
+        const s: number = stationOf([0, 1, 2].map((k: number): number => joined.positions[3 * a + k]! * 1000));
+        const key: string = Number(invented[a]) + Number(invented[b]) + Number(invented[c]) >= 2 ? "closure" : (owners.find((o: IOwner): boolean => s >= o.from - 1e-6 && s <= o.to + 1e-6)?.owner ?? "none");
+        groups.set(key, [...(groups.get(key) ?? []), a, b, c]);
+      }
+      let familyIndex: number = 0;
+      for (const o of owners)
+        if (groups.has(o.owner)) owned.push({ id: "owner." + o.owner, positions: joined.positions, indices: groups.get(o.owner)!, colour: o.owner.startsWith("band") ? BAND_COLOUR : FAMILY_COLOURS[familyIndex++ % FAMILY_COLOURS.length]! });
+      if (groups.has("closure")) owned.push({ id: "owner.closure", positions: joined.positions, indices: groups.get("closure")!, colour: CLOSURE_COLOUR });
+      clay.length = 0;
+      clay.push({ id: "convert." + name + ".joined", positions: joined.positions, indices: skin, colour: [0.64, 0.65, 0.67] }, { id: "convert." + name + ".joined.closure", positions: joined.positions, indices: closed, colour: CLOSURE_COLOUR });
+    }
     NodeCanvasRaster.initialize();
     const files: string[] = [];
     for (const view of ["front", "left", "high-oblique", "low-oblique"]) {
       // One camera for every stage of a view: the reference's zone fixes it.
       const camera: N.Camera = NodeCanvasCamera.fit(view, near, 900, 900);
-      for (const [stage, shown, curves] of [["reference", reference, []], ["family-clay", clay, []], ["reference-rings", reference, rings]] as [string, N.Mesh[], N.Curve[]][]) {
+      for (const [stage, shown, curves] of [["reference", reference, []], ["family-clay", clay, []], ["reference-rings", reference, rings], ...(owned.length > 0 ? [["owners", owned, []]] : [])] as [string, N.Mesh[], N.Curve[]][]) {
         const file: string = name + "." + view + "." + stage + ".png";
         const png: Buffer = NodeCanvasRaster.render(camera, shown, curves, "depth", "f1 | " + stage + " | " + name + " " + view).png;
         await fs.writeFile(path.join(out, file), png);
