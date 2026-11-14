@@ -1,38 +1,40 @@
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
+import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
 /**
  * A composition as the TypeScript an agent writes against
  * `@automovie/motions`: the archetypes it places, one `HumanChain` per
- * performer, each action appended by name with its parameters, cut with
- * `until`, timed with `sync` and with the actions performed over it in
- * `over`. A seat is written as `HumanObject.seat` of the archetype that
- * carries it.
+ * performer, each vocabulary action appended with `act` and each lexicon
+ * row with `registered`, cut with `until`, timed with `sync` and with the
+ * actions performed over it in `over`; the people's chains joined with
+ * `with`, each mutual action after them with `next`; and the laws the
+ * performance registers. A seat is written as `HumanObject.seat` of the
+ * archetype that carries it, and an opening as `HumanObstacle.apertures`.
  *
  * @param composition The composition.
+ * @param names The exported names its code refers to, read from the packages when the site is built.
  * @returns The source text.
  */
-export function formatSceneChain(composition: IPlaygroundComposition): string {
+export function formatSceneChain(
+  composition: IPlaygroundComposition,
+  names: ISceneChainNames,
+): string {
   const objects: readonly IPlaygroundComposition.IObject[] =
     composition.objects ?? [];
-  const lines: string[] =
-    objects.length === 0
-      ? ['import { HumanChain } from "@automovie/motions";', ""]
-      : [
-          'import { HumanChain, HumanObject } from "@automovie/motions";',
-          'import * as archetypes from "@automovie/archetypes";',
-          "",
-          ...objects.flatMap((o: IPlaygroundComposition.IObject): string[] => [
-            `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
-            `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`,
-          ]),
-          "",
-        ];
+  const imports: Set<string> = new Set<string>(["HumanChain"]);
+  const body: string[] = [];
   const indent: (text: string, by: string) => string = (
     text: string,
     by: string,
   ): string => text.split("\n").join(`\n${by}`);
   const value: (v: unknown) => string = (v: unknown): string =>
-    indent(literal(v), "  ");
+    indent(literal(v, imports), "  ");
+
+  // The namespace a qualified name such as `HumanSocial.toast` is imported by.
+  const use: (expression: string) => string = (expression: string): string => {
+    imports.add(expression.split(".")[0]!);
+    return expression;
+  };
 
   const calls: (
     actions: IPlaygroundComposition.IAction[],
@@ -42,8 +44,10 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
     by: string,
   ): string[] =>
     actions.flatMap((action: IPlaygroundComposition.IAction): string[] => {
+      const method: string =
+        names.rows[action.name] === undefined ? "act" : "registered";
       const out: string[] = [
-        `${by}.act(${JSON.stringify(action.name)}, ${indent(value(action.params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
+        `${by}.${method}(${JSON.stringify(action.name)}, ${indent(value(action.params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
       ];
       if (action.until !== undefined)
         out.push(`${by}.until(${indent(value(action.until), by)})`);
@@ -59,56 +63,116 @@ export function formatSceneChain(composition: IPlaygroundComposition): string {
       return out;
     });
 
+  for (const o of objects) {
+    const key: string = names.frames.includes(o.producer) ? "frame" : "kind";
+    body.push(
+      `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
+      `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`,
+    );
+  }
+  if (objects.length !== 0) body.push("");
+
   for (const performer of composition.performers) {
-    lines.push(
+    if (performer.actions.length === 0) continue;
+    body.push(
       `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}°, ${performer.proficiency}`,
       `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
       ...calls(performer.actions, "  "),
     );
-    lines[lines.length - 1] += ";";
-    lines.push("");
+    body[body.length - 1] += ";";
+    body.push("");
   }
-  for (const mutual of composition.mutuals)
-    lines.push(
-      `// ${mutual.name}, after every chain above: ${Object.entries(mutual.cast)
+
+  // The people's chains run at once and each mutual action follows them, as
+  // the performance joins them: `with` the others, then `next` the mutuals.
+  const acting: string[] = composition.performers
+    .filter(
+      (p: IPlaygroundComposition.IPerformer): boolean => p.actions.length !== 0,
+    )
+    .map((p: IPlaygroundComposition.IPerformer): string =>
+      identifier(p.subject),
+    );
+  const mutuals: string[] = composition.mutuals.map(
+    (mutual: IPlaygroundComposition.IMutual): string =>
+      `HumanChain.mutual(\n  ${use(names.mutuals[mutual.name] ?? mutual.name)},\n  { ${Object.entries(
+        mutual.cast,
+      )
         .map(
           ([role, subject]: [string, string]): string =>
-            `${subject} as ${role}`,
+            `${role}: HumanChain.subject(${JSON.stringify(subject)})`,
         )
-        .join(", ")}`,
-    );
-  lines.push(
-    `const scene = ${composition.performers
-      .map((p: IPlaygroundComposition.IPerformer): string =>
-        identifier(p.subject),
-      )
-      .reduce((a: string, b: string): string => `${a}.with(${b})`)};`,
+        .join(", ")} },\n  ${indent(value(mutual.params), "  ")},\n)`,
   );
-  return lines.join("\n");
-}
+  const people: string | undefined =
+    acting.length === 0
+      ? undefined
+      : acting.length === 1
+        ? acting[0]!
+        : `${acting[0]}.with(${acting.slice(1).join(", ")})`;
+  const head: string = people ?? mutuals[0]!;
+  const rest: string[] = people === undefined ? mutuals.slice(1) : mutuals;
+  body.push(
+    rest.length === 0
+      ? `const scene = ${head};`
+      : `const scene = ${head}.next(\n  ${rest.map((m: string): string => indent(m, "  ")).join(",\n  ")},\n);`,
+  );
+  if (names.laws.length !== 0)
+    body.push(
+      "",
+      "// The lexicon's laws this scene's rows perform, registered with the performance.",
+      `const laws = [${names.laws.map(use).join(", ")}];`,
+    );
 
-/** A subject id as a variable name. */
+  const header: string[] = [
+    `import { ${[...imports].sort().join(", ")} } from "@automovie/motions";`,
+    ...(objects.length === 0
+      ? []
+      : ['import * as archetypes from "@automovie/archetypes";']),
+    "",
+  ];
+  return [...header, ...body].join("\n");
+}
+/** The words a variable cannot be named. */
+const RESERVED: ReadonlySet<string> = new Set<string>(
+  "break case catch class const continue debugger default delete do else enum export extends false finally for function if import in instanceof new null return super switch this throw true try typeof var void while with yield let static implements interface package private protected public await arguments eval".split(
+    " ",
+  ),
+);
+
+/** A subject id as a variable name: a reserved word, or one that starts with a digit, is changed so it is not one. */
 function identifier(subject: string): string {
   const name: string = subject.replace(/[^A-Za-z0-9_$]/g, "_");
-  return /^[0-9]/.test(name) ? `_${name}` : name;
+  return /^[0-9]/.test(name)
+    ? `_${name}`
+    : RESERVED.has(name)
+      ? `${name}_`
+      : name;
 }
 
-/** A value as a TypeScript literal: short objects on one line, longer ones one member a line. */
-function literal(value: unknown): string {
+/** A value as a TypeScript literal: short objects on one line, longer ones one member a line; it records the namespaces it names. */
+function literal(value: unknown, imports: Set<string>): string {
   if (Array.isArray(value)) {
-    const items: string[] = value.map(literal);
+    const items: string[] = value.map((v: unknown): string =>
+      literal(v, imports),
+    );
     const flat: string = `[${items.join(", ")}]`;
     return flat.length <= 60 ? flat : `[\n  ${items.join(",\n  ")},\n]`;
   }
   if (typeof value === "object" && value !== null) {
     const seat: unknown = (value as Record<string, unknown>)["$seat"];
-    if (typeof seat === "string") {
+    const aperture: unknown = (value as Record<string, unknown>)["$aperture"];
+    if (typeof seat === "string" || typeof aperture === "string") {
       const id: unknown = (value as Record<string, unknown>)["id"];
-      return `HumanObject.seat(${identifier(seat)}, ${identifier(seat)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
+      if (typeof aperture === "string") {
+        imports.add("HumanObstacle");
+        return `HumanObstacle.apertures(${identifier(aperture)}, ${identifier(aperture)}At)${typeof id === "string" ? `.find((o) => o.id === ${JSON.stringify(id)})!` : "[0]!"}`;
+      }
+      imports.add("HumanObject");
+      return `HumanObject.seat(${identifier(seat as string)}, ${identifier(seat as string)}At${typeof id === "string" ? `, ${JSON.stringify(id)}` : ""})`;
     }
     const entries: string[] = Object.entries(value).map(
       ([key, inner]: [string, unknown]): string =>
-        `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${literal(inner).replaceAll("\n", "\n  ")}`,
+        `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${literal(inner, imports).replaceAll("\n", "\n  ")}`,
     );
     if (entries.length === 0) return "{}";
     const flat: string = `{ ${entries.join(", ")} }`;
@@ -119,11 +183,11 @@ function literal(value: unknown): string {
   return JSON.stringify(value);
 }
 
-/** A producer's options as code: the stated dimensions, then the kind; `{}` when there are none. */
-function options(object: IPlaygroundComposition.IObject): string {
+/** A producer's options as code: the stated dimensions, then the kind under the producer's key (`kind` or `frame`); `{}` when there are none. */
+function options(object: IPlaygroundComposition.IObject, key: string): string {
   const entries: [string, unknown][] = Object.entries({
     ...(object.params ?? {}),
-    ...(object.kind === undefined ? {} : { kind: object.kind }),
+    ...(object.kind === undefined ? {} : { [key]: object.kind }),
   });
   return entries.length === 0
     ? "{}"

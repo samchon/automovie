@@ -21,6 +21,7 @@ import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
 import { formatSceneChain } from "../scenes/formatSceneChain";
 import type { IScene } from "../scenes/structures/IScene";
+import type { ISceneChainNames } from "../scenes/structures/ISceneChainNames";
 import type { ISceneManifest } from "../scenes/structures/ISceneManifest";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 
@@ -43,13 +44,14 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
  * A scene the build did not bake, because it waits on a release or is
  * planned, shows what it will compose and the issues it waits on.
  *
- * @param props The scene's record, its baked takes if any, and the reference page of each action by name.
+ * @param props The scene's record, its baked takes if any, the reference page of each action by name, and the exported names its code refers to.
  * @returns The page.
  */
 export default function SceneMovie(props: {
   scene: IScene;
   baked: ISceneManifest.IScene | null;
   pages: Record<string, string>;
+  names: ISceneChainNames | null;
 }): ReactElement {
   const { scene, baked }: typeof props = props;
   const clock: SceneClock = useSceneClock();
@@ -85,6 +87,18 @@ export default function SceneMovie(props: {
     <header className="am-app-head">
       <h1>{scene.title}</h1>
       <p className="am-lede">{scene.summary}</p>
+      {scene.refusedUntil === undefined ? null : (
+        <p className="am-scene-refused" role="note">
+          The packages refuse this scene today, in their own words on each take
+          below;{" "}
+          <a
+            href={`https://github.com/samchon/automovie/issues/${scene.refusedUntil}`}
+          >
+            #{scene.refusedUntil}
+          </a>{" "}
+          fixes it, and the scene plays once that lands.
+        </p>
+      )}
     </header>
   );
 
@@ -131,7 +145,7 @@ export default function SceneMovie(props: {
             <>
               <h2>What it composes</h2>
               <pre className="am-code">
-                <code>{formatSceneChain(scene.composition)}</code>
+                <code>{formatSceneChain(scene.composition, props.names!)}</code>
               </pre>
             </>
           )}
@@ -322,7 +336,7 @@ export default function SceneMovie(props: {
             parts.
           </p>
           <pre className="am-code">
-            <code>{formatSceneChain(composition)}</code>
+            <code>{formatSceneChain(composition, props.names!)}</code>
           </pre>
           <h2>Timeline</h2>
           <SceneTimeline take={baked.takes[0]!} roles={roles} />

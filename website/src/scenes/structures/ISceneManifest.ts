@@ -76,6 +76,9 @@ export namespace ISceneManifest {
 
     /** The digest of everything the take was computed from, so an unchanged take is not baked again. */
     digest: string;
+
+    /** The packages' refusal, in their words, for a take of a scene its record says is refused until an issue lands; then `file` is empty and nothing is drawn. Absent for a baked take. */
+    refusal?: string;
   }
 
   /** One placed action of a figure. */

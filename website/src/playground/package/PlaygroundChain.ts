@@ -35,6 +35,12 @@ export namespace PlaygroundChain {
 
     /** Perform other actions over the last one. */
     over?(build: (overlay: ILoose) => ILoose): ILoose;
+
+    /** Run other parts at the same instant. */
+    with(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
+
+    /** Follow with other parts. */
+    next(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
   }
 
   /** A law record of the lexicon: anything with a name and a plan. */
@@ -231,10 +237,10 @@ export namespace PlaygroundChain {
           mutual: IMutual,
           cast: Record<string, ILoose>,
           params: object,
-        ) => { node: AutoMovieComposition })
+        ) => ILoose)
       | undefined;
-    const joined: AutoMovieComposition[] = data.mutuals.map(
-      (mutual: IPlaygroundComposition.IMutual): AutoMovieComposition => {
+    const joined: ILoose[] = data.mutuals.map(
+      (mutual: IPlaygroundComposition.IMutual): ILoose => {
         const record: IMutual | undefined = known[mutual.name];
         if (record === undefined || join === undefined)
           throw new Error(
@@ -269,23 +275,24 @@ export namespace PlaygroundChain {
             ]),
           ),
           mutual.params,
-        ).node;
+        );
       },
     );
 
+    // The people's chains run at once and each mutual action follows them,
+    // joined with the chain's own `with` and `next`, as an agent's code
+    // joins them.
+    const people: ILoose | undefined =
+      chains.length <= 1 ? chains[0] : chains[0]!.with(...chains.slice(1));
+    const head: ILoose | undefined = people ?? joined[0];
+    const rest: ILoose[] = people === undefined ? joined.slice(1) : joined;
+    if (head === undefined)
+      throw new Error("The composition has no action; add one to a performer");
+    const scene: AutoMovieComposition = (
+      rest.length === 0 ? head : head.next(...rest)
+    ).node;
     return {
-      composition: {
-        kind: "sequence",
-        parts: [
-          {
-            kind: "parallel",
-            parts: chains.map(
-              (chain: ILoose): AutoMovieComposition => chain.node,
-            ),
-          },
-          ...joined,
-        ],
-      },
+      composition: scene,
       laws: [...laws.values()],
     };
   }

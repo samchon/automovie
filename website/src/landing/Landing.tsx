@@ -18,7 +18,13 @@ export function Landing(): ReactElement {
   const reference: IMotionReference = MotionReference.read();
   return (
     <LandingMovie
-      baked={Object.keys(manifest?.scenes ?? {})}
+      baked={Object.entries(manifest?.scenes ?? {})
+        .filter(([, scene]: [string, ISceneManifest.IScene]): boolean =>
+          scene.takes.every(
+            (take: ISceneManifest.ITake): boolean => take.refusal === undefined,
+          ),
+        )
+        .map(([id]: [string, ISceneManifest.IScene]): string => id)}
       counts={{
         actions: reference.actions.length,
         families: reference.families.length,

@@ -44,6 +44,15 @@ export interface IScene {
    */
   needs: number[];
 
+  /**
+   * The issue whose fix lets the packages perform this scene, when they
+   * refuse or fail on it today. The scene is built exactly as it should
+   * play; the bake keeps each refused take's refusal in place of its track
+   * and the page shows it, so a motion the code cannot perform yet is on
+   * the site with its reason. An unmarked refusal still fails the bake.
+   */
+  refusedUntil?: number;
+
   /** For a planned scene: the pieces it will compose and what it will show. */
   planned?: IScene.IPlanned;
 

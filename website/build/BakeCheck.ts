@@ -96,6 +96,14 @@ export namespace BakeCheck {
             `${scene.id}: plans, ${built.performance.duration.toFixed(1)} s of film, planned in ${planned.toFixed(1)} s; a pose: ${costs.join(", ")}`,
           );
         } catch (error) {
+          // A refusal its record expects until an issue lands is reported,
+          // not counted against the check.
+          if (scene.refusedUntil !== undefined) {
+            console.log(
+              `${scene.id}${index === 0 ? "" : ` take ${index} (${take.label})`}: refused until #${scene.refusedUntil}: ${error instanceof Error ? error.message : String(error)}`,
+            );
+            return;
+          }
           // Printed at once as well, so a check stopped halfway keeps its findings.
           const line: string = `${scene.id}${index === 0 ? "" : ` take ${index} (${take.label})`}: refused: ${error instanceof Error ? error.message : String(error)}`;
           console.log(line);

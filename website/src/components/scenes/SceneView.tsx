@@ -11,6 +11,7 @@ import {
 } from "react";
 import * as THREE from "three";
 
+import { SCENE_REFUSAL } from "../../scenes/SCENE_REFUSAL";
 import type { SceneClock } from "../../scenes/SceneClock";
 import { loadScenePlayer } from "../../scenes/loadScenePlayer";
 import type { IScene } from "../../scenes/structures/IScene";
@@ -31,6 +32,10 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
   const [state, setState]: [string, Dispatch<SetStateAction<string>>] =
     useState<string>("loading");
+  const [refusal, setRefusal]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
   const { scene, take, clock, orbit }: SceneView.IProps = props;
   const name: string =
     props.label === undefined ? scene.title : `${scene.title}, ${props.label}`;
@@ -81,8 +86,10 @@ export function SceneView(props: SceneView.IProps): ReactElement {
         setState("ready");
       })
       .catch((error: unknown): void => {
-        if (alive)
-          setState(error instanceof Error ? error.message : String(error));
+        if (!alive) return;
+        if (error instanceof Error && error.name === SCENE_REFUSAL)
+          setRefusal(error.message);
+        setState(error instanceof Error ? error.message : String(error));
       });
     return (): void => {
       alive = false;
@@ -118,7 +125,15 @@ export function SceneView(props: SceneView.IProps): ReactElement {
         <p className="am-scene-view-note" role="status">
           Loading the take.
         </p>
-      ) : state === "ready" ? null : (
+      ) : state === "ready" ? null : refusal !== null ? (
+        <p className="am-scene-view-note am-scene-view-refusal" role="note">
+          Refused today
+          {scene.refusedUntil === undefined
+            ? ""
+            : `, until #${scene.refusedUntil}`}
+          : {refusal}
+        </p>
+      ) : (
         <p className="am-scene-view-note am-danger-text" role="alert">
           {state}
         </p>

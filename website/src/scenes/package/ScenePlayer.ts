@@ -7,6 +7,7 @@ import {
 import * as THREE from "three";
 
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
+import { SCENE_REFUSAL } from "../SCENE_REFUSAL";
 import { SceneTrack } from "../SceneTrack";
 import type { IScene } from "../structures/IScene";
 import type { ISceneManifest } from "../structures/ISceneManifest";
@@ -80,6 +81,11 @@ export namespace ScenePlayer {
       read.scenes[scene.id]?.takes[take];
     if (baked === undefined)
       throw new Error(`The scene ${scene.id} has no baked take ${take}`);
+    if (baked.refusal !== undefined) {
+      const refused: Error = new Error(baked.refusal);
+      refused.name = SCENE_REFUSAL;
+      throw refused;
+    }
 
     const [values, rests]: [Int16Array, AutoMovieHumanPolygon.IBone[][]] =
       await Promise.all([

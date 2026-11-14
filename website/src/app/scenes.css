@@ -94,6 +94,18 @@
   font-size: var(--am-text-xs);
 }
 
+/* A take the packages refuse today shows their refusal over the empty view. */
+.am-scene-view-refusal {
+  inset: var(--am-space-2);
+  overflow: auto;
+  color: var(--am-fg);
+}
+
+.am-scene-refused {
+  max-width: 60rem;
+  color: var(--am-fg-muted);
+}
+
 /* The gallery */
 .am-filters {
   display: flex;

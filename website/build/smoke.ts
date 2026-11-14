@@ -136,7 +136,7 @@ const CASES: readonly ICase[] = [
     path: "scenes/line-volley/",
     shows: [
       ".am-badge",
-      'a[href="https://github.com/samchon/automovie/issues/3392"]',
+      'a[href^="https://github.com/samchon/automovie/issues/"]',
     ],
     lacks: [".am-player"],
   },

@@ -8,10 +8,11 @@ import type { IPlaygroundComposition } from "../structures/IPlaygroundCompositio
  * The archetypes a composition places, as the props and seats its actions
  * read, through `HumanObject` of `@automovie/motions`.
  *
- * A composition is plain data, so an action names a seat by the object that
- * carries it: a parameter value `{ "$seat": "<object subject>" }`, with an
- * optional `"id"` for the seat's affordance, is replaced by that object's
- * seat before the chain is built. A release without `HumanObject` cannot
+ * A composition is plain data, so an action names a seat or an opening by
+ * the object that carries it: a parameter value `{ "$seat": "<object
+ * subject>" }` or `{ "$aperture": "<object subject>" }`, with an optional
+ * `"id"` for the affordance, is replaced by that object's seat or opening
+ * before the chain is built. A release without `HumanObject` cannot
  * place objects, and a composition that does is refused with that reason.
  */
 export namespace PlaygroundObjects {

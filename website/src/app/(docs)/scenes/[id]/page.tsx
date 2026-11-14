@@ -5,6 +5,7 @@ import { MotionReference } from "../../../../motions/package/MotionReference";
 import type { IMotionReference } from "../../../../motions/structures/IMotionReference";
 import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
+import { SceneChainNames } from "../../../../scenes/package/SceneChainNames";
 import { readBakedManifest } from "../../../../scenes/readBakedManifest";
 import type { IScene } from "../../../../scenes/structures/IScene";
 import type { ISceneManifest } from "../../../../scenes/structures/ISceneManifest";
@@ -78,6 +79,11 @@ export default async function ScenePage(
       scene={scene}
       baked={manifest?.scenes[id] ?? null}
       pages={pages}
+      names={
+        scene.composition === null
+          ? null
+          : SceneChainNames.read(scene.composition)
+      }
     />
   );
 }

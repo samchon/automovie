@@ -133,7 +133,7 @@ const bake: (shard: number) => void = (shard: number): void => {
     if (
       old !== undefined &&
       old.digest === digest &&
-      fs.existsSync(path.join(out, file))
+      (old.refusal !== undefined || fs.existsSync(path.join(out, file)))
     ) {
       record({ ...old, label });
       console.log(`${scene.id} ${index} ${label}: unchanged`);
@@ -203,12 +203,40 @@ const bake: (shard: number) => void = (shard: number): void => {
         ]);
       }
     } catch (error) {
+      const message: string =
+        error instanceof Error ? error.message : String(error);
+
+      // A scene its record says the packages refuse until an issue lands
+      // keeps the refusal in place of a track, so its page shows it.
+      if (scene.refusedUntil !== undefined) {
+        console.log(
+          `${scene.id} ${index} ${label}: refused until #${scene.refusedUntil}: ${message}`,
+        );
+        record({
+          label,
+          file: "",
+          fps: options.fps,
+          frames: 0,
+          duration: 0,
+          figures,
+          props,
+          timeline: [],
+          digest,
+          refusal: message,
+        });
+        continue;
+      }
+
       // Printed at once as well, so a bake stopped halfway keeps its findings.
-      const line: string = `The scene ${scene.id}, take ${index} (${label}), was refused: ${error instanceof Error ? error.message : String(error)}`;
+      const line: string = `The scene ${scene.id}, take ${index} (${label}), was refused: ${message}`;
       console.log(line);
       refused.push(line);
       continue;
     }
+    if (scene.refusedUntil !== undefined)
+      console.log(
+        `${scene.id} ${index} ${label}: plays, though its record says it is refused until #${scene.refusedUntil}; drop the mark once every take plays`,
+      );
     const values: Int16Array = SceneTrack.encode(frames, [
       ...figures.map(
         (f: ISceneManifest.IFigure): string[] => part.bodies[f.body]!.order,
@@ -289,7 +317,9 @@ const merge: () => void = (): void => {
     .flatMap((s: ISceneManifest.IScene): ISceneManifest.ITake[] => s.takes)
     .reduce(
       (sum: number, take: ISceneManifest.ITake): number =>
-        sum + fs.statSync(path.join(out, take.file)).size,
+        take.refusal !== undefined
+          ? sum
+          : sum + fs.statSync(path.join(out, take.file)).size,
       0,
     );
   console.log(

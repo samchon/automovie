@@ -1,59 +1,84 @@
+import * as archetypes from "@automovie/archetypes";
 import type { AutoMovieComposition } from "@automovie/engine";
-import { HumanChain } from "@automovie/motions";
+import * as motions from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
+import ts from "typescript";
 
 import { PlaygroundChain } from "../../src/playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../src/scenes/SCENES";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
+import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
 import { SceneStatus } from "../../src/scenes/package/SceneStatus";
 import type { IScene } from "../../src/scenes/structures/IScene";
+import type { ISceneChainNames } from "../../src/scenes/structures/ISceneChainNames";
 
 /**
- * The code a scene page shows under "How is this made?" is the composition the scene plays: run against `@automovie/motions`, it builds each person's chain exactly as the playground and the bake build it.
+ * The code a scene page shows under "How is this made?" is the composition the scene plays: run against the packages, it builds exactly the composition and registers exactly the laws the playground and the bake build.
  *
  * Scenarios:
- * 1. For every scene that plays and places no object, the shown code, run with the package's `HumanChain`, gives one chain per performer whose composition node equals the playground's chain of that performer.
- * 2. The code names every performer's subject, and joins the chains with `with`.
+ * 1. For every scene that plays, objects and mutual actions included, the shown code, compiled from TypeScript and run with the names it imports from `@automovie/motions` and with `@automovie/archetypes`, gives a `scene` whose composition node equals the playground's, and a `laws` list of the same laws.
+ * 2. The code names every performer's subject.
  */
 export function test_website_scene_chain(): void {
+  const exported: Readonly<Record<string, unknown>> = motions as Readonly<
+    Record<string, unknown>
+  >;
   const findings: string[] = [];
+  let checked: number = 0;
   for (const scene of SCENES) {
     if (scene.composition === null || SceneStatus.of(scene).kind !== "plays")
       continue;
-    if ((scene.composition.objects ?? []).length !== 0) continue;
     const composition: IPlaygroundComposition = scene.composition;
-    const code: string = formatSceneChain(composition);
+    const names: ISceneChainNames = SceneChainNames.read(composition);
+    const code: string = formatSceneChain(composition, names);
 
-    // 1. Run the shown code: its import is the package's chain, its
-    // constants are the chains.
-    const identifiers: string[] = composition.performers.map(
-      (p: IPlaygroundComposition.IPerformer): string =>
-        p.subject.replace(/[^A-Za-z0-9_$]/g, "_"),
-    );
-    const body: string = code.replace(/^import[^\n]*\n/, "");
-    const chains: { node: AutoMovieComposition }[] = new Function(
-      "HumanChain",
-      `${body}\nreturn [${identifiers.join(", ")}];`,
-    )(HumanChain) as { node: AutoMovieComposition }[];
-    const built: AutoMovieComposition =
-      PlaygroundChain.build(composition).composition;
+    // 1. Run the shown code with what it imports.
+    const imported: string[] = (
+      /^import \{ ([^}]+) \} from "@automovie\/motions";/m.exec(code)?.[1] ?? ""
+    )
+      .split(",")
+      .map((name: string): string => name.trim())
+      .filter((name: string): boolean => name !== "");
+    // The shown code is TypeScript; it runs as the JavaScript it compiles to.
+    const body: string = ts.transpileModule(
+      code.replace(/^import[^\n]*\n/gm, ""),
+      { compilerOptions: { target: ts.ScriptTarget.ES2022 } },
+    ).outputText;
+    let shown: { scene: { node: AutoMovieComposition }; laws: unknown[] };
+    try {
+      shown = new Function(
+        ...imported,
+        "archetypes",
+        `${body}\nreturn { scene, laws: typeof laws === "undefined" ? [] : laws };`,
+      )(
+        ...imported.map((name: string): unknown => exported[name]),
+        archetypes,
+      ) as { scene: { node: AutoMovieComposition }; laws: unknown[] };
+    } catch (error) {
+      findings.push(
+        `${scene.id}: the shown code does not run: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      continue;
+    }
+    const built: PlaygroundChain.IBuilt = PlaygroundChain.build(composition);
+    if (JSON.stringify(shown.scene.node) !== JSON.stringify(built.composition))
+      findings.push(
+        `${scene.id}: the shown composition differs from the played one`,
+      );
+    const lawNames: (laws: readonly unknown[]) => string[] = (
+      laws: readonly unknown[],
+    ): string[] =>
+      laws.map((law: unknown): string => (law as { name: string }).name);
+    if (
+      JSON.stringify(lawNames(shown.laws)) !==
+      JSON.stringify(lawNames(built.laws))
+    )
+      findings.push(
+        `${scene.id}: the shown laws differ from the registered ones`,
+      );
 
-    // The playground's composition is a sequence whose first part runs every
-    // person's chain in parallel.
-    const parallel: unknown = (built as unknown as { parts: unknown[] })
-      .parts[0];
-    const parts: AutoMovieComposition[] = (
-      parallel as { parts: AutoMovieComposition[] }
-    ).parts;
-    chains.forEach((chain: { node: AutoMovieComposition }, i: number): void => {
-      if (JSON.stringify(chain.node) !== JSON.stringify(parts[i]))
-        findings.push(
-          `${scene.id}: ${identifiers[i]}'s chain differs from the playground's`,
-        );
-    });
-
-    // 2. Every subject, and the join.
+    // 2. Every subject.
     for (const performer of composition.performers)
       if (
         !code.includes(
@@ -61,8 +86,7 @@ export function test_website_scene_chain(): void {
         )
       )
         findings.push(`${scene.id}: ${performer.subject} is not named`);
-    if (composition.performers.length > 1 && !code.includes(".with("))
-      findings.push(`${scene.id}: the chains are not joined`);
+    checked++;
   }
   TestValidator.equals(
     "the shown code is the played composition",
@@ -70,12 +94,19 @@ export function test_website_scene_chain(): void {
     [],
   );
   TestValidator.predicate(
-    "at least one scene was checked",
-    SCENES.some(
-      (s: IScene): boolean =>
-        s.composition !== null &&
-        (s.composition.objects ?? []).length === 0 &&
-        SceneStatus.of(s).kind === "plays",
-    ),
+    "scenes with objects and mutual actions were checked",
+    checked > 0 &&
+      SCENES.some(
+        (s: IScene): boolean =>
+          s.composition !== null &&
+          (s.composition.objects ?? []).length !== 0 &&
+          SceneStatus.of(s).kind === "plays",
+      ) &&
+      SCENES.some(
+        (s: IScene): boolean =>
+          s.composition !== null &&
+          s.composition.mutuals.length !== 0 &&
+          SceneStatus.of(s).kind === "plays",
+      ),
   );
 }
