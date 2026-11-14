@@ -1,3 +1,4 @@
+import { SCENES_BLADES } from "./data/SCENES_BLADES";
 import { SCENES_COMBAT } from "./data/SCENES_COMBAT";
 import { SCENES_COMPOSITION } from "./data/SCENES_COMPOSITION";
 import { SCENES_DAILY } from "./data/SCENES_DAILY";
@@ -31,6 +32,7 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_GAMES,
   ...SCENES_FIGHT,
   ...SCENES_STAGE_FIGHT,
+  ...SCENES_BLADES,
   ...SCENES_PARTNER,
   ...SCENES_PLANNED,
 ];
