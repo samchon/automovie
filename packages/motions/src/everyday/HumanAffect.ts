@@ -3,6 +3,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
@@ -75,7 +76,7 @@ export namespace HumanAffect {
     at: number;
 
     /** How long, seconds; the display's own length when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0>;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
 
     /** Amplitude scale; 1 when absent. */
     intensity?: number;

@@ -9,6 +9,7 @@ import type { tags } from "typia";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -51,7 +52,7 @@ export namespace HumanTravelLeaf {
     handle: string;
 
     /** Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`. */
-    seconds: number & tags.ExclusiveMinimum<0.6>;
+    seconds: number & tags.ExclusiveMinimum<0.6> & HumanUnit<"s">;
 
     /** The hand; the right when absent. */
     side?: "left" | "right";

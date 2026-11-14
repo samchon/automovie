@@ -12,6 +12,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -98,7 +99,7 @@ export namespace sit {
     back?: "upright" | "lean" | "slump";
 
     /** Seconds to stay seated after `seated`; 1 when absent. */
-    seconds?: number & tags.Minimum<0>;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /**
      * How the legs rest once seated on a seat inside the band: `parallel`,

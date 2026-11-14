@@ -16,6 +16,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -129,7 +130,7 @@ export namespace crouch {
     heels?: Heels;
 
     /** Seconds held at the lowest pose; 1 when absent. */
-    hold?: number & tags.Minimum<0>;
+    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

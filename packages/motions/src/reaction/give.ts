@@ -24,6 +24,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -87,7 +88,10 @@ export namespace give {
     way?: "away" | "toward";
 
     /** How strong, in (0, 1]; 1 when absent. */
-    intensity?: number & tags.ExclusiveMinimum<0> & tags.Maximum<1>;
+    intensity?: number &
+      tags.ExclusiveMinimum<0> &
+      tags.Maximum<1> &
+      HumanUnit<"">;
   }
 
   /** The head's turn at full intensity, degrees (provisional), inside the neck's rotation of about 80 degrees each way. */

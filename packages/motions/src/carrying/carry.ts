@@ -10,6 +10,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -110,7 +111,7 @@ export namespace carry {
     side?: HumanHand.Side;
 
     /** The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. */
-    load?: number & tags.Minimum<0> & tags.Maximum<0.25>;
+    load?: number & tags.Minimum<0> & tags.Maximum<0.25> & HumanUnit<"">;
 
     /** The walk's pace; `normal` when absent. */
     pace?: "slow" | "normal" | "fast";

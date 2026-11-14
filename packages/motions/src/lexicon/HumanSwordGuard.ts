@@ -3,6 +3,7 @@ import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -98,7 +99,7 @@ export namespace HumanSwordGuard {
     guard?: Guard;
 
     /** Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent. */
-    seconds?: number & tags.Minimum<0>;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
   }
 
   /**

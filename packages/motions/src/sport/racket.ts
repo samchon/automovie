@@ -15,6 +15,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -87,7 +88,7 @@ export namespace racket {
     side?: "left" | "right";
 
     /** Seconds held; 0.6 when absent. */
-    seconds?: number & tags.Minimum<0>;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

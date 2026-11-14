@@ -17,6 +17,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -87,7 +88,7 @@ export namespace wipe {
     hand?: HumanHand.Side;
 
     /** How many circles; 3 when absent. */
-    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

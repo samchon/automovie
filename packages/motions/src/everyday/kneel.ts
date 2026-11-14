@@ -13,6 +13,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -96,7 +97,7 @@ export namespace kneel {
     knee?: "left" | "right";
 
     /** Seconds held kneeling; 1.5 when absent. */
-    hold?: number & import("typia").tags.Minimum<0>;
+    hold?: number & import("typia").tags.Minimum<0> & HumanUnit<"s">;
 
     /** Whether the body rises again at the end; `true` when absent. */
     rise?: boolean;

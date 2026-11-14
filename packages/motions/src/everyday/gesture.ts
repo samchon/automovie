@@ -22,6 +22,7 @@ import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHu
 import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -125,10 +126,10 @@ export namespace gesture {
     region?: gestureStroke.FaceRegion;
 
     /** Stroke repetitions (waves, nods, claps); the gesture's own count when absent. */
-    count?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    count?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** Post-stroke hold, seconds; 0 when absent. */
-    hold?: number & tags.Minimum<0>;
+    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** A bow's depth, degrees in (0, 60], refused outside that range only for a bow, so it carries no schema bound; 30 when absent. */
     depth?: number;

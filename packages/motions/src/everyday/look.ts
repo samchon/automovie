@@ -10,6 +10,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -84,7 +85,7 @@ export namespace look {
     cue?: "seen" | "signal";
 
     /** How long the action lasts, seconds; 0.6 s after `settled` when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0>;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** Half the attended field ahead, degrees. */

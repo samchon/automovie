@@ -26,6 +26,7 @@ import type { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -127,7 +128,7 @@ export namespace handToFace {
 
     /** Seconds at the face after the repetitions, or two bounds the seed draws them between, evenly (a puff on a cigarette lasts 1.6 to 2.1 s); the row's when absent. */
     seconds?:
-      | (number & tags.Minimum<0>)
+      | (number & tags.Minimum<0> & HumanUnit<"s">)
       | { between: readonly [number, number] };
 
     /** The subject id of the prop the acting hand holds, performed with instead of the implied tool; no prop when absent. */

@@ -9,6 +9,7 @@ import { jump } from "../actions/jump";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -79,7 +80,7 @@ export namespace salto {
     way?: "forward" | "backward";
 
     /** Whole turns; 1 when absent. */
-    turns?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    turns?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
   }
 
   /**

@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -140,13 +139,13 @@ export namespace walk {
     face?: number;
 
     /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
-    stride?: number & tags.Minimum<0.6> & tags.Maximum<1.3> & tags.Default<1>;
+    stride?: import("../law/HumanUnit").HumanUnit.Bounded<0.6, 1.3, 1, "">;
 
     /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. */
-    armSwing?: number & tags.Minimum<0> & tags.Maximum<2> & tags.Default<1>;
+    armSwing?: import("../law/HumanUnit").HumanUnit.Bounded<0, 2, 1, "">;
 
     /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
-    elbows?: number & tags.Minimum<0> & tags.Maximum<30> & tags.Default<0>;
+    elbows?: import("../law/HumanUnit").HumanUnit.Bounded<0, 30, 0, "degrees">;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */

@@ -8,6 +8,7 @@ import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -150,7 +151,10 @@ export namespace HumanSword {
     outcome?: "lands" | "parried";
 
     /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
-    feint?: number & tags.ExclusiveMinimum<0> & tags.ExclusiveMaximum<1>;
+    feint?: number &
+      tags.ExclusiveMinimum<0> &
+      tags.ExclusiveMaximum<1> &
+      HumanUnit<"">;
   }
 
   /** Parameters of a cut. */

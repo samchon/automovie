@@ -7,6 +7,7 @@ import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -57,7 +58,7 @@ export namespace HumanRide {
     on: string;
 
     /** Seconds ridden, more than none. */
-    seconds: number & tags.ExclusiveMinimum<0>;
+    seconds: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
 
     /**
      * A rising trot: the mount's stride time, seconds, or the cue track of
@@ -68,7 +69,9 @@ export namespace HumanRide {
      * On a cue track the seat is down at each of its instants and seated
      * before the first and after the last. Seated throughout when absent.
      */
-    rising?: (number & tags.ExclusiveMinimum<0>) | { cue: string };
+    rising?:
+      | (number & tags.ExclusiveMinimum<0> & HumanUnit<"s">)
+      | { cue: string };
 
     /**
      * The support's point each foot stays on, by its id, for a part that

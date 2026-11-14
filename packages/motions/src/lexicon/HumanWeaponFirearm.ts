@@ -13,6 +13,7 @@ import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -85,7 +86,7 @@ export namespace HumanWeaponFirearm {
     carriage?: Carriage;
 
     /** Seconds the carriage is held once reached; 1 when absent. */
-    seconds?: number & tags.Minimum<0>;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
   }
 
   /** The widest angle between the heading and the target the arms present to without a turn of the feet, degrees (provisional). */

@@ -131,7 +131,7 @@ const typed = (value: unknown, type: string): boolean => {
   }
 };
 
-/** A number's bounds as the range a refusal offers; null when it has none. */
+/** A number's bounds as the range a refusal offers, in the unit its type carries into the schema (`HumanUnit`, `x-unit`); null when it has none. */
 const bounds = (own: Record<string, unknown>): HumanRefusal.IRange | null => {
   const low: number | undefined =
     typeof own.minimum === "number"
@@ -151,7 +151,7 @@ const bounds = (own: Record<string, unknown>): HumanRefusal.IRange | null => {
     kind: "range",
     minimum: low ?? null,
     maximum: high ?? null,
-    unit: "",
+    unit: typeof own["x-unit"] === "string" ? own["x-unit"] : "",
     ...(own.type === "integer" ? { whole: true } : {}),
     ...(typeof own.exclusiveMinimum === "number" &&
     typeof own.exclusiveMaximum === "number"

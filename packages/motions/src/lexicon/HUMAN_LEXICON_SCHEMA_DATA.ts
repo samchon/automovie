@@ -1739,12 +1739,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -2106,7 +2108,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "oneOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -2879,12 +2882,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -3799,12 +3804,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -4009,12 +4016,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -4131,7 +4140,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "oneOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -4623,7 +4633,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "oneOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -4856,7 +4867,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -4969,7 +4981,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "oneOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -5026,31 +5039,46 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "stride": {
-            "type": "number",
-            "minimum": 0.6,
-            "maximum": 1.3,
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
           },
           "armSwing": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2,
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o1",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           }
         },
         "required": [
           "to"
         ],
         "additionalProperties": false
+      },
+      "HumanUnit.Bounded": {
+        "type": "number",
+        "minimum": 0.6,
+        "maximum": 1.3,
+        "description": "A number from `Min` to `Max` with a default, in a unit: the bounds, the default and the unit carried into the schema as one type.",
+        "default": 1,
+        "x-unit": ""
+      },
+      "HumanUnit.Bounded-o1": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 2,
+        "description": "A number from `Min` to `Max` with a default, in a unit: the bounds, the default and the unit carried into the schema as one type.",
+        "default": 1,
+        "x-unit": ""
+      },
+      "HumanUnit.Bounded-o2": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 30,
+        "description": "A number from `Min` to `Max` with a default, in a unit: the bounds, the default and the unit carried into the schema as one type.",
+        "default": 0,
+        "x-unit": "degrees"
       },
       "OmitIParamskindtargetwith": {
         "type": "object",
@@ -5706,7 +5734,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "How long, seconds; 2 when absent."
+            "description": "How long, seconds; 2 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -6488,11 +6517,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           }
         },
         "required": [
@@ -6643,11 +6669,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           }
         },
         "required": [
@@ -6710,11 +6733,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           },
           "side": {
             "oneOf": [
@@ -6748,7 +6768,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0.6,
-            "description": "Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`."
+            "description": "Seconds the hand holds the handle, from the start of the reach; more than the reach's `TAKE`.",
+            "x-unit": "s"
           },
           "side": {
             "oneOf": [
@@ -6821,11 +6842,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "stride": {
-            "type": "number",
-            "minimum": 0.6,
-            "maximum": 1.3,
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
           }
         },
         "required": [
@@ -7004,7 +7022,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "metres": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "How far to run, metres; `FLIGHT` hip heights when absent."
+            "description": "How far to run, metres; `FLIGHT` hip heights when absent.",
+            "x-unit": "m"
           },
           "pace": {
             "oneOf": [
@@ -9239,7 +9258,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "maximum": 1,
-            "description": "How strong, in (0, 1]; 1 when absent."
+            "description": "How strong, in (0, 1]; 1 when absent.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -10200,7 +10220,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "depth": {
             "type": "number",
@@ -10369,7 +10390,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "reps": {
             "type": "integer",
             "minimum": 1,
-            "description": "Repetitions; 3 when absent."
+            "description": "Repetitions; 3 when absent.",
+            "x-unit": ""
           },
           "depth": {
             "oneOf": [
@@ -10571,12 +10593,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "bpm": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Beats per minute; `BPM` when absent."
+            "description": "Beats per minute; `BPM` when absent.",
+            "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many beats; 8 when absent."
+            "description": "How many beats; 8 when absent.",
+            "x-unit": ""
           },
           "side": {
             "oneOf": [
@@ -10738,7 +10762,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent."
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -10944,7 +10969,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -11212,7 +11238,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -11633,7 +11660,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -11700,7 +11728,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent."
+            "description": "Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -11909,7 +11938,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the carriage is held once reached; 1 when absent."
+            "description": "Seconds the carriage is held once reached; 1 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -12285,7 +12315,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "minimum": 0,
             "maximum": 0.25,
-            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent."
+            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.",
+            "x-unit": ""
           },
           "pace": {
             "oneOf": [
@@ -12408,7 +12439,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many cycles; 4 when absent."
+            "description": "How many cycles; 4 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -12471,13 +12503,15 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Seconds ridden, more than none."
+            "description": "Seconds ridden, more than none.",
+            "x-unit": "s"
           },
           "rising": {
             "oneOf": [
               {
                 "type": "number",
-                "exclusiveMinimum": 0
+                "exclusiveMinimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -12583,7 +12617,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Seconds held, more than none; 2 when absent."
+            "description": "Seconds held, more than none; 2 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -12596,12 +12631,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "lift": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the lift into the carry takes, at the start; none when absent."
+            "description": "Seconds the lift into the carry takes, at the start; none when absent.",
+            "x-unit": "s"
           },
           "setDown": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the set-down takes, at the end; none when absent."
+            "description": "Seconds the set-down takes, at the end; none when absent.",
+            "x-unit": "s"
           },
           "by": {
             "type": "string",
@@ -12639,7 +12676,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Seconds carried, more than none; 2 when absent."
+            "description": "Seconds carried, more than none; 2 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -12998,7 +13036,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "Cycles; 3 when absent."
+            "description": "Cycles; 3 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13014,7 +13053,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; 1 when absent."
+            "description": "Seconds held; 1 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13067,7 +13107,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Dribble bounces; 4 when absent."
+            "description": "Dribble bounces; 4 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13094,7 +13135,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; 0.6 when absent."
+            "description": "Seconds held; 0.6 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13110,7 +13152,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held inverted; 2 when absent."
+            "description": "Seconds held inverted; 2 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13126,12 +13169,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Punches of a choku-zuki series; 4 when absent."
+            "description": "Punches of a choku-zuki series; 4 when absent.",
+            "x-unit": ""
           },
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the stance is held; 1 when absent."
+            "description": "Seconds the stance is held; 1 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13158,7 +13203,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; `HOLD` when absent."
+            "description": "Seconds held; `HOLD` when absent.",
+            "x-unit": "s"
           },
           "intensity": {
             "oneOf": [
@@ -13196,7 +13242,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held in the set; 1.5 when absent."
+            "description": "Seconds held in the set; 1.5 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13372,7 +13419,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many crawl cycles; 3 when absent."
+            "description": "How many crawl cycles; 3 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -13388,12 +13436,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "reps": {
             "type": "integer",
             "minimum": 1,
-            "description": "Repetitions; the kind's own count when absent."
+            "description": "Repetitions; the kind's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds a held pose is stayed in; the kind's own when absent."
+            "description": "Seconds a held pose is stayed in; the kind's own when absent.",
+            "x-unit": "s"
           },
           "bar": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
@@ -13527,18 +13577,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "stride": {
-            "type": "number",
-            "minimum": 0.6,
-            "maximum": 1.3,
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           }
         },
         "required": [
@@ -13886,7 +13930,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -13921,7 +13966,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent."
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -14195,7 +14241,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "turns": {
             "type": "integer",
             "minimum": 1,
-            "description": "Whole turns; 1 when absent."
+            "description": "Whole turns; 1 when absent.",
+            "x-unit": ""
           }
         },
         "required": [
@@ -14217,7 +14264,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "apex": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Apex height of the flight above take-off, metres; positive."
+            "description": "Apex height of the flight above take-off, metres; positive.",
+            "x-unit": "m"
           }
         },
         "required": [
@@ -14231,7 +14279,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Seconds the cartwheel takes; `SECONDS` when absent."
+            "description": "Seconds the cartwheel takes; `SECONDS` when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -14746,7 +14795,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Seconds the round-off takes; `SECONDS` when absent."
+            "description": "Seconds the round-off takes; `SECONDS` when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -14998,7 +15048,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           },
           "from": {
             "oneOf": [
@@ -15100,7 +15151,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent."
+            "description": "Seconds, at least the 0.5 s (provisional) the guard takes to set; 1 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -15168,7 +15220,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent."
+            "description": "Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -15375,7 +15428,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -15748,7 +15802,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the carriage is held once reached; 1 when absent."
+            "description": "Seconds the carriage is held once reached; 1 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -15988,7 +16043,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "exclusiveMinimum": 0,
             "exclusiveMaximum": 1,
-            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried."
+            "description": "A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.",
+            "x-unit": ""
           }
         },
         "required": [],
@@ -16568,7 +16624,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "How long to stand, seconds; 1.5 when absent."
+            "description": "How long to stand, seconds; 1.5 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -16608,25 +16665,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
           "stride": {
-            "type": "number",
-            "minimum": 0.6,
-            "maximum": 1.3,
-            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded",
+            "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
           },
           "armSwing": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 2,
-            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent.",
-            "default": 1
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o1",
+            "description": "Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent."
           },
           "elbows": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 30,
-            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent.",
-            "default": 0
+            "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
+            "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
           }
         },
         "required": [
@@ -16700,7 +16748,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "apex": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Apex height of the flight above take-off, metres; positive."
+            "description": "Apex height of the flight above take-off, metres; positive.",
+            "x-unit": "m"
           }
         },
         "required": [
@@ -16837,7 +16886,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "How long the action lasts, seconds; 0.6 s after `settled` when absent."
+            "description": "How long the action lasts, seconds; 0.6 s after `settled` when absent.",
+            "x-unit": "s"
           }
         },
         "required": [
@@ -17033,12 +17083,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent."
+            "description": "Stroke repetitions (waves, nods, claps); the gesture's own count when absent.",
+            "x-unit": ""
           },
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Post-stroke hold, seconds; 0 when absent."
+            "description": "Post-stroke hold, seconds; 0 when absent.",
+            "x-unit": "s"
           },
           "depth": {
             "type": "number",
@@ -17270,7 +17322,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "How long, seconds; 2 when absent."
+            "description": "How long, seconds; 2 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [],
@@ -17580,7 +17633,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "steps": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many steps; 1 when absent."
+            "description": "How many steps; 1 when absent.",
+            "x-unit": ""
           },
           "length": {
             "type": "number",
@@ -18148,7 +18202,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds to stay seated after `seated`; 1 when absent."
+            "description": "Seconds to stay seated after `seated`; 1 when absent.",
+            "x-unit": "s"
           },
           "legs": {
             "oneOf": [
@@ -18254,7 +18309,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the hand stays at the target; 0.5 when absent."
+            "description": "Seconds the hand stays at the target; 0.5 when absent.",
+            "x-unit": "s"
           }
         },
         "required": [
@@ -18284,7 +18340,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "pumps": {
             "type": "integer",
             "minimum": 1,
-            "description": "Pump cycles; 2 when absent."
+            "description": "Pump cycles; 2 when absent.",
+            "x-unit": ""
           }
         },
         "required": [
@@ -19198,7 +19255,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "oneOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0,
+                "x-unit": "s"
               },
               {
                 "type": "object",
@@ -19958,7 +20016,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held at the lowest pose; 1 when absent."
+            "description": "Seconds held at the lowest pose; 1 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20000,7 +20059,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held kneeling; 1.5 when absent."
+            "description": "Seconds held kneeling; 1.5 when absent.",
+            "x-unit": "s"
           },
           "rise": {
             "type": "boolean",
@@ -20324,7 +20384,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "minimum": 0,
             "description": "Seconds held lying; 2 when absent.",
-            "default": 2
+            "default": 2,
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20355,7 +20416,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many crawl cycles; 3 when absent."
+            "description": "How many crawl cycles; 3 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20372,13 +20434,15 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "rungs": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many rungs the feet climb; 3 when absent."
+            "description": "How many rungs the feet climb; 3 when absent.",
+            "x-unit": ""
           },
           "spacing": {
             "type": "number",
             "minimum": 0.25,
             "maximum": 0.36,
-            "description": "Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent."
+            "description": "Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent.",
+            "x-unit": "m"
           },
           "start": {
             "type": "number",
@@ -20425,7 +20489,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "hold": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the grip is held; 2 when absent."
+            "description": "Seconds the grip is held; 2 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20630,7 +20695,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many cycles; 4 when absent."
+            "description": "How many cycles; 4 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20682,7 +20748,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many circles; 3 when absent."
+            "description": "How many circles; 3 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20750,7 +20817,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "minimum": 0,
             "maximum": 0.25,
-            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent."
+            "description": "The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent.",
+            "x-unit": ""
           },
           "pace": {
             "oneOf": [
@@ -20947,7 +21015,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "reps": {
             "type": "integer",
             "minimum": 1,
-            "description": "Repetitions; 3 when absent."
+            "description": "Repetitions; 3 when absent.",
+            "x-unit": ""
           },
           "depth": {
             "oneOf": [
@@ -21039,7 +21108,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; `HOLD` when absent."
+            "description": "Seconds held; `HOLD` when absent.",
+            "x-unit": "s"
           },
           "intensity": {
             "oneOf": [
@@ -21093,12 +21163,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "bpm": {
             "type": "number",
             "exclusiveMinimum": 0,
-            "description": "Beats per minute; `BPM` when absent."
+            "description": "Beats per minute; `BPM` when absent.",
+            "x-unit": "beats/min"
           },
           "beats": {
             "type": "integer",
             "minimum": 1,
-            "description": "How many beats; 8 when absent."
+            "description": "How many beats; 8 when absent.",
+            "x-unit": ""
           },
           "side": {
             "oneOf": [
@@ -21156,7 +21228,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held in the set; 1.5 when absent."
+            "description": "Seconds held in the set; 1.5 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21173,7 +21246,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held inverted; 2 when absent."
+            "description": "Seconds held inverted; 2 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21194,12 +21268,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Punches of a choku-zuki series; 4 when absent."
+            "description": "Punches of a choku-zuki series; 4 when absent.",
+            "x-unit": ""
           },
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds the stance is held; 1 when absent."
+            "description": "Seconds the stance is held; 1 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21247,7 +21323,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "count": {
             "type": "integer",
             "minimum": 1,
-            "description": "Dribble bounces; 4 when absent."
+            "description": "Dribble bounces; 4 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21287,7 +21364,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; 1 when absent."
+            "description": "Seconds held; 1 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21335,7 +21413,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "seconds": {
             "type": "number",
             "minimum": 0,
-            "description": "Seconds held; 0.6 when absent."
+            "description": "Seconds held; 0.6 when absent.",
+            "x-unit": "s"
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -21376,7 +21455,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "cycles": {
             "type": "integer",
             "minimum": 1,
-            "description": "Cycles; 3 when absent."
+            "description": "Cycles; 3 when absent.",
+            "x-unit": ""
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",

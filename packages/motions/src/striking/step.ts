@@ -7,6 +7,7 @@ import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -64,7 +65,7 @@ export namespace step {
     direction: "forward" | "back" | "left" | "right";
 
     /** How many steps; 1 when absent. */
-    steps?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    steps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** Each step's length, metres; half a stance length when absent. */
     length?: number;

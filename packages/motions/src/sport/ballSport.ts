@@ -15,6 +15,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -116,7 +117,7 @@ export namespace ballSport {
     side?: "left" | "right";
 
     /** Dribble bounces; 4 when absent. */
-    count?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    count?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;

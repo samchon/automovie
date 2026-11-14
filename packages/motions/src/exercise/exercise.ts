@@ -14,6 +14,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -116,7 +117,8 @@ export namespace exercise {
     /** Repetitions; 3 when absent. */
     reps?: number &
       import("typia").tags.Type<"uint32"> &
-      import("typia").tags.Minimum<1>;
+      import("typia").tags.Minimum<1> &
+      HumanUnit<"">;
 
     /** A squat's depth; `parallel` when absent. */
     depth?: Depth;

@@ -8,6 +8,7 @@ import { approach } from "../everyday/approach";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -148,7 +149,7 @@ export namespace HumanPursuit {
     from: string;
 
     /** How far to run, metres; `FLIGHT` hip heights when absent. */
-    metres?: number & tags.ExclusiveMinimum<0>;
+    metres?: number & tags.ExclusiveMinimum<0> & HumanUnit<"m">;
 
     /** The pace; `run` when absent. */
     pace?: run.IParams["pace"];

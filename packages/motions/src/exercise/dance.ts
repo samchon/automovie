@@ -12,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -101,10 +102,10 @@ export namespace dance {
     kind: Kind;
 
     /** Beats per minute; `BPM` when absent. */
-    bpm?: number & tags.ExclusiveMinimum<0>;
+    bpm?: number & tags.ExclusiveMinimum<0> & HumanUnit<"beats/min">;
 
     /** How many beats; 8 when absent. */
-    beats?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    beats?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** The foot that steps first; `right` when absent. */
     side?: "left" | "right";

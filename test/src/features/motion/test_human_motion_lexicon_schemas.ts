@@ -30,13 +30,16 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  *    tenth below a least value, at an exclusive least value, a tenth above
  *    a greatest value, and half a unit off a whole number. The refusal is a
  *    `HumanRefusal` on that member whose feasible range names the same
- *    value. A row the net stages in a test of its own is not built here.
+ *    value and the unit the schema states for it. A row the net stages in
+ *    a test of its own is not built here.
+ * 4. Every bounded number anywhere in the schemas states its unit
+ *    (`x-unit`, empty for a pure number), so no refusal of a bound loses it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the exported schemas and builds every row through the public chain past each stated bound; a row without a schema, an open object, a bound the law does not refuse or a refusal naming another range fails.
  * @evidence contracts/development/testing.md#independent-expectations The rows are the lexicon's own and the refusals the laws' own; the test only checks that the generated and the hand-written readings agree, neither being taken as the other's oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row for coverage and closure; every tagged member past each least, exclusive least, greatest and whole-number bound.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every row for coverage and closure; every tagged member past each least, exclusive least, greatest and whole-number bound, with its unit; every bounded number for a stated unit.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men once and builds refused plans only, never a displayed pose.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it matters and the 3 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, why it matters and the 4 scenarios.
  */
 export function test_human_motion_lexicon_schemas(): void {
   const complaints: string[] = [];
@@ -81,11 +84,13 @@ export function test_human_motion_lexicon_schemas(): void {
           minimum?: number;
           exclusiveMinimum?: number;
           maximum?: number;
+          "x-unit"?: string;
         } = (resolved(value as ISchema) ?? {}) as {
           type?: unknown;
           minimum?: number;
           exclusiveMinimum?: number;
           maximum?: number;
+          "x-unit"?: string;
         };
         const least: number | undefined =
           member.minimum ?? member.exclusiveMinimum;
@@ -113,7 +118,11 @@ export function test_human_motion_lexicon_schemas(): void {
           const thrown: unknown = LexiconRowNet.attempt(law.name, {
             [key]: asked,
           });
-          const range: { minimum?: number | null; maximum?: number | null } =
+          const range: {
+            minimum?: number | null;
+            maximum?: number | null;
+            unit?: string;
+          } =
             thrown instanceof HumanRefusal && thrown.feasible?.kind === "range"
               ? thrown.feasible
               : {};
@@ -122,13 +131,37 @@ export function test_human_motion_lexicon_schemas(): void {
           if (
             !(thrown instanceof HumanRefusal) ||
             thrown.axis !== key ||
-            range[end] !== named
+            range[end] !== named ||
+            range.unit !== (member["x-unit"] ?? "")
           )
             complaints.push(
-              `${family} ${law.name}: ${key} ${asked} (${what} ${named}) expected a refusal on ${key} naming ${named}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+              `${family} ${law.name}: ${key} ${asked} (${what} ${named}) expected a refusal on ${key} naming ${named} ${JSON.stringify(member["x-unit"] ?? "")}, got ${thrown instanceof HumanRefusal ? `${thrown.message} (unit ${JSON.stringify(range.unit)})` : thrown instanceof Error ? thrown.message : String(thrown)}`,
             );
         }
       }
     }
+
+  // 4. Every bounded number states its unit, so its refusal names it.
+  const visit = (node: unknown, where: string): void => {
+    if (Array.isArray(node)) {
+      node.forEach((item: unknown, i: number): void =>
+        visit(item, `${where}[${i}]`),
+      );
+      return;
+    }
+    if (typeof node !== "object" || node === null) return;
+    const own: Record<string, unknown> = node as Record<string, unknown>;
+    if (
+      (own.type === "number" || own.type === "integer") &&
+      ["minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum"].some(
+        (bound: string): boolean => typeof own[bound] === "number",
+      ) &&
+      typeof own["x-unit"] !== "string"
+    )
+      complaints.push(`${where}: a bounded number states no unit (x-unit)`);
+    for (const [key, child] of Object.entries(own))
+      visit(child, `${where}.${key}`);
+  };
+  visit(HUMAN_LEXICON_SCHEMAS, "schemas");
   TestValidator.equals("the schemas match the lexicon", complaints, []);
 }

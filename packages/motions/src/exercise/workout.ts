@@ -15,6 +15,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -117,10 +118,10 @@ export namespace workout {
     kind: Kind;
 
     /** Repetitions; the kind's own count when absent. */
-    reps?: number & tags.Type<"uint32"> & tags.Minimum<1>;
+    reps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** Seconds a held pose is stayed in; the kind's own when absent. */
-    hold?: number & tags.Minimum<0>;
+    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** The middle of the bar between the hands, world metres, for a hanging kind; `WorkoutPlace.BAR` above the standing reach when absent. */
     bar?: IAutoMovieVector3;

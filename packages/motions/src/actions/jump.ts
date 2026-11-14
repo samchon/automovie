@@ -13,6 +13,7 @@ import type { tags } from "typia";
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -115,7 +116,7 @@ export namespace jump {
     on?: string;
 
     /** Apex height of the flight above take-off, metres; positive. */
-    apex?: number & tags.ExclusiveMinimum<0>;
+    apex?: number & tags.ExclusiveMinimum<0> & HumanUnit<"m">;
   }
 
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */

@@ -11,6 +11,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -88,7 +89,7 @@ export namespace cartwheel {
     to?: "left" | "right";
 
     /** Seconds the cartwheel takes; `SECONDS` when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0>;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** The joints a wheel may bear on. */

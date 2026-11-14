@@ -20,6 +20,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -275,7 +276,7 @@ export namespace HumanCarried {
     carry?: Carry;
 
     /** Seconds carried, more than none; 2 when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0>;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** Parameters of the carrier's hold in a named carry. */
@@ -284,7 +285,7 @@ export namespace HumanCarried {
     carry?: Carry;
 
     /** Seconds held, more than none; 2 when absent. */
-    seconds?: number & tags.ExclusiveMinimum<0>;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** A region's point on resolved bones. */
