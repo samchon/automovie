@@ -12,6 +12,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
+import { physicalShapeNormal } from "../physics/physicalShapeNormal";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 
@@ -26,8 +27,12 @@ import { resolvePose } from "./resolvePose";
  * frame; its point is where a ray from the station along the direction
  * leaves the bone's colliders (exact ray exits of spheres, capsules and boxes;
  * the colliders are convex and closed, so the union's exit is the largest and
- * a station on a face counts as inside), and its
- * normal is the direction. This is how authored hit and touch locations are
+ * a station on a face counts as inside), and its normal is the outward normal
+ * of the collider it leaves there (surfaceNormal): the authored direction
+ * only finds the point, as a contact frame's normal is the collision
+ * geometry's. A normal read from the direction instead stood up to 44 degrees
+ * off the surface (the nape's 24), so a palm laid flat on it sank its heel
+ * 14.8 mm into the neck. This is how authored hit and touch locations are
  * placed on character physics bodies in game engines (a bone plus a local
  * offset on its collider), generalised so the offset comes from the body's
  * own shapes and fits any size. The palm, sole, heel and seat regions share
@@ -56,8 +61,8 @@ import { resolvePose } from "./resolvePose";
  * @returns Every region and socket.
  * @throws {Error} When a bone or segment a definition needs is missing, or a ray misses its colliders.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the frame premise, how each kind of surface is placed, the cited grip size and the local frame of the result.
- * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits through convex colliders from anatomical stations and directions, and exact collider bounds for the sole, seat and back.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame premise, how each kind of surface is placed and its normal read, the measured defect, the cited grip size and the local frame of the result.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact ray exits through convex colliders from anatomical stations and directions, each region's normal the exited collider's outward normal there (smoothed across a box's or a hull's edges), and exact collider bounds for the sole, seat and back.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two definition tables, one ray routine and one bounds routine.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone, segment or hit throws rather than inventing a point.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in definitions times colliders per bone.
@@ -68,7 +73,10 @@ export function resolveAutoMovieHumanoidSurfaces(
   skeleton: IAutoMovieSkeleton,
   profile: P,
 ): resolveAutoMovieHumanoidSurfaces.ISurfaces {
-  const { at, bounds, local, station, exit } = tools(skeleton, profile);
+  const { at, bounds, local, station, exit, surface } = tools(
+    skeleton,
+    profile,
+  );
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
@@ -79,11 +87,8 @@ export function resolveAutoMovieHumanoidSurfaces(
     IRegionDef,
   ][]) {
     const origin: IAutoMovieVector3 = station(def.station);
-    regions[name] = local(
-      def.station.bone,
-      exit(def.station.bone, origin, def.direction),
-      def.direction,
-    );
+    const hit: ISurfacePoint = surface(def.station.bone, origin, def.direction);
+    regions[name] = local(def.station.bone, hit.point, hit.normal);
   }
 
   const sockets = {} as Record<
@@ -203,10 +208,11 @@ export function resolveAutoMovieHumanoidSurfaces(
     )
       ? bone("IndexDistal")
       : bone("Hand");
+    const tip: ISurfacePoint = surface(phalanx, distal, along);
     regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(
       bone("IndexDistal"),
-      exit(phalanx, distal, along),
-      along,
+      tip.point,
+      tip.normal,
     );
   }
   const thorax = bounds("chest");
@@ -307,7 +313,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * colliders at the region's point. The offset names a point of the plane
    * through that point, perpendicular to the direction. The result is where
    * the ray from the same station through the offset point leaves the
-   * colliders, with that ray's direction as its normal, so it lies on the
+   * colliders, with the colliders' outward normal there, so it lies on the
    * body's surface for any offset and equals the region's frame at zero.
    *
    * @param skeleton The canonical rig.
@@ -326,7 +332,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     const def: IRegionDef | undefined = REGIONS[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
-    const { local, station, exit } = tools(skeleton, profile);
+    const { local, station, exit, surface } = tools(skeleton, profile);
     const origin: IAutoMovieVector3 = station(def.station);
     const d: IAutoMovieVector3 = Vector3.normalize(def.direction);
     const reference: IAutoMovieVector3 =
@@ -346,11 +352,8 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       origin,
     );
     const toward: IAutoMovieVector3 = Vector3.length(ray) > BOUNDARY ? ray : d;
-    return local(
-      def.station.bone,
-      exit(def.station.bone, origin, toward),
-      toward,
-    );
+    const hit: ISurfacePoint = surface(def.station.bone, origin, toward);
+    return local(def.station.bone, hit.point, hit.normal);
   }
 }
 
@@ -620,6 +623,15 @@ function shapeExit(
   return near <= far ? far : -Infinity;
 }
 
+/** A point where a ray leaves a segment's colliders, with their outward normal there. */
+interface ISurfacePoint {
+  /** The point, world metres in the rest pose. */
+  point: IAutoMovieVector3;
+
+  /** The outward unit normal there. */
+  normal: IAutoMovieVector3;
+}
+
 /** The rest pose readers every surface is resolved with: bones, segments, collider bounds, bone-local frames, stations and ray exits of one body. */
 function tools(skeleton: IAutoMovieSkeleton, profile: P) {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
@@ -697,19 +709,31 @@ function tools(skeleton: IAutoMovieSkeleton, profile: P) {
       s.share,
     );
   };
+  const surface = (
+    bone: AutoMovieHumanoidBone,
+    origin: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+  ): ISurfacePoint => {
+    const d: IAutoMovieVector3 = Vector3.normalize(direction);
+    const s: P.ISegment = segment(bone);
+    let far: number = -Infinity;
+    let left: P.IShape | undefined;
+    for (const shape of s.shapes) {
+      const t: number = shapeExit(s.neutral, shape, origin, d);
+      if (t > far) {
+        far = t;
+        left = shape;
+      }
+    }
+    if (!(far > -Infinity) || left === undefined)
+      throw new Error(`A surface ray from ${bone} misses its colliders`);
+    const point: IAutoMovieVector3 = Vector3.add(origin, Vector3.scale(d, far));
+    return { point, normal: physicalShapeNormal(s.neutral, left, point, d) };
+  };
   const exit = (
     bone: AutoMovieHumanoidBone,
     origin: IAutoMovieVector3,
     direction: IAutoMovieVector3,
-  ): IAutoMovieVector3 => {
-    const d: IAutoMovieVector3 = Vector3.normalize(direction);
-    const s: P.ISegment = segment(bone);
-    let far: number = -Infinity;
-    for (const shape of s.shapes)
-      far = Math.max(far, shapeExit(s.neutral, shape, origin, d));
-    if (!(far > -Infinity))
-      throw new Error(`A surface ray from ${bone} misses its colliders`);
-    return Vector3.add(origin, Vector3.scale(d, far));
-  };
-  return { at, bounds, local, station, exit };
+  ): IAutoMovieVector3 => surface(bone, origin, direction).point;
+  return { at, bounds, local, station, exit, surface };
 }
