@@ -49,6 +49,7 @@ export * from "./gestureMotion";
 export * from "./holdMotion";
 export * from "./importedNodeClipToAutoMovieMotion";
 export * from "./inertializeOffset";
+export * from "./integrateMotionTrajectory";
 export * from "./inertializePose";
 export * from "./locomoteMotion";
 export * from "./minimumJerk";
