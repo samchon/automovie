@@ -12,7 +12,8 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * reference under the same cameras, the same frames coloured by the face that owns each triangle, and the realized mesh written with its
  * owners so a later round can show what moved.
  *
- * Usage, from `test/`: `FamilyConicEarRound.ts [--before=<directory of an earlier round>]`, or `--crossing[=<plate family json>]` alone (below). Frames, `mesh.*` and `receipt.json` go to
+ * Usage, from `test/`: `FamilyConicEarRound.ts [--before=<directory of an earlier round>]`, or `--crossing[=<plate family json>]` or
+ * `--map=<box>` alone (below). Frames, `mesh.*` and `receipt.json` go to
  * `test/.shots/family-conic-ear-round/<time>`. With `--before`, the receipt lists, for every owner, how far its vertices moved: each
  * vertex's distance to the nearest vertex of the same owner in the earlier round, its largest value and how many moved more than
  * 0.01 mm; for the trunk, which the ear's merges trim, only vertices farther than `NEAR_EAR_MM` from every ear vertex count.
@@ -142,9 +143,117 @@ namespace FamilyConicEarRound {
     return lines;
   };
 
+  /** The outermost side distance (largest z) of a triangle soup over a grid of (x, y), millimetres; NaN where nothing lies over a cell. */
+  const outermost = (positions: ArrayLike<number>, indices: ArrayLike<number>, keep: (t: number) => boolean, xs: readonly number[], ys: readonly number[], least: number): Float64Array => {
+    const z: Float64Array = new Float64Array(xs.length * ys.length).fill(NaN);
+    const [x0, y0]: number[] = [xs[0]!, ys[0]!];
+    const step: number = xs.length > 1 ? xs[1]! - xs[0]! : 1;
+    for (let t: number = 0; t + 2 < indices.length; t += 3) {
+      if (!keep(t / 3)) continue;
+      const p: number[][] = [0, 1, 2].map((k: number): number[] => [positions[3 * indices[t + k]!]!, positions[3 * indices[t + k]! + 1]!, positions[3 * indices[t + k]! + 2]!]);
+      if (p.every((q: number[]): boolean => q[2]! < least)) continue;
+      const d: number = (p[1]![0]! - p[0]![0]!) * (p[2]![1]! - p[0]![1]!) - (p[1]![1]! - p[0]![1]!) * (p[2]![0]! - p[0]![0]!);
+      if (d === 0) continue;
+      const [lx, hx]: number[] = [Math.min(...p.map((q) => q[0]!)), Math.max(...p.map((q) => q[0]!))];
+      const [ly, hy]: number[] = [Math.min(...p.map((q) => q[1]!)), Math.max(...p.map((q) => q[1]!))];
+      for (let i: number = Math.max(0, Math.ceil((lx - x0!) / step)); i < xs.length && xs[i]! <= hx; ++i)
+        for (let j: number = Math.max(0, Math.ceil((ly - y0!) / step)); j < ys.length && ys[j]! <= hy; ++j) {
+          const [x, y]: number[] = [xs[i]!, ys[j]!];
+          const a: number = ((x! - p[0]![0]!) * (p[2]![1]! - p[0]![1]!) - (y! - p[0]![1]!) * (p[2]![0]! - p[0]![0]!)) / d;
+          const b: number = ((p[1]![0]! - p[0]![0]!) * (y! - p[0]![1]!) - (p[1]![1]! - p[0]![1]!) * (x! - p[0]![0]!)) / d;
+          if (a < 0 || b < 0 || a + b > 1) continue;
+          const v: number = p[0]![2]! + a * (p[1]![2]! - p[0]![2]!) + b * (p[2]![2]! - p[0]![2]!);
+          const k: number = j * xs.length + i;
+          if (!(z[k]! >= v)) z[k] = v;
+        }
+    }
+    return z;
+  };
+
+  /**
+   * `--map=<x0>,<x1>,<y0>,<y1>[,<step>]` (mm; step 1): the outermost skin over a box, seen from the side, row by row, before a part is laid
+   * out or after a round. For the reference: its side distance, and in each row (level `y`) its crests along `x` (a cell higher than every
+   * cell within 1.5 mm either side and at least 0.8 mm above the lowest cell between it and the crest before it), so a ridge such as the
+   * tragus or a crus is read where it stands. With `--before=<round>`, the same of that round's realized skin (every owner) and the owner
+   * of its outermost cell, and in each row the extent in `x` past `--edge=<mm>` (default 72, the skull's level beside the ear) on both, so
+   * an outline's width and slant are compared at every level.
+   */
+  const map = async (root: string, spec: string, dumpDir: string | undefined): Promise<string[]> => {
+    const [x0, x1, y0, y1, step]: number[] = [...spec.split(",").map(Number), 1].slice(0, 5) as number[];
+    const xs: number[] = [];
+    for (let x: number = x0!; x <= x1! + 1e-9; x += step!) xs.push(Math.round(x * 1000) / 1000);
+    const ys: number[] = [];
+    for (let y: number = y1!; y >= y0! - 1e-9; y -= step!) ys.push(Math.round(y * 1000) / 1000);
+    const ascending: number[] = [...ys].reverse();
+    const edge: number = Number(process.argv.find((a: string): boolean => a.startsWith("--edge="))?.slice("--edge=".length) ?? 72);
+    const source: R.ISource = await R.load(root);
+    const ref: Float64Array = outermost(source.head.positions, source.head.indices, (): boolean => true, xs, ascending, 50);
+    let gen: Float64Array | null = null;
+    let ownerAt: ((i: number, j: number) => string) | null = null;
+    if (dumpDir !== undefined) {
+      const pb: Buffer = await fs.readFile(path.join(dumpDir, "mesh.positions.f64"));
+      const ib: Buffer = await fs.readFile(path.join(dumpDir, "mesh.indices.u32"));
+      const ob: { names: string[]; triangle: number[] } = JSON.parse(await fs.readFile(path.join(dumpDir, "mesh.owners.json"), "utf8"));
+      const positions: Float64Array = new Float64Array(pb.buffer, pb.byteOffset, pb.length / 8);
+      const indices: Uint32Array = new Uint32Array(ib.buffer, ib.byteOffset, ib.length / 4);
+      gen = outermost(positions, indices, (): boolean => true, xs, ascending, 50);
+      const per: Map<string, Float64Array> = new Map(ob.names.filter((n: string): boolean => !n.endsWith(".mirror")).map((name: string): [string, Float64Array] => [name, outermost(positions, indices, (t: number): boolean => ob.names[ob.triangle[t]!] === name, xs, ascending, 50)]));
+      ownerAt = (i: number, j: number): string => {
+        let best: [string, number] | null = null;
+        for (const [name, z] of per) {
+          const v: number = z[j * xs.length + i]!;
+          if (Number.isFinite(v) && (best === null || v > best[1])) best = [name, v];
+        }
+        return best === null ? "." : best[0];
+      };
+    }
+    const at = (z: Float64Array, i: number, y: number): number => z[ascending.indexOf(y) * xs.length + i]!;
+    const lines: string[] = [`box x ${x0}..${x1}, y ${y0}..${y1}, step ${step} mm; edge ${edge} mm; reference = the f1 head's outermost skin${dumpDir === undefined ? "" : "; generated = " + dumpDir}`];
+    const grid = (title: string, cell: (i: number, y: number) => string): void => {
+      lines.push("", "# " + title, "     y\\x " + xs.map((x: number): string => String(x).padStart(5)).join(""));
+      for (const y of ys) lines.push(String(y).padStart(8) + " " + xs.map((_: number, i: number): string => cell(i, y).padStart(5)).join(""));
+    };
+    grid("reference side distance, mm", (i: number, y: number): string => (Number.isFinite(at(ref, i, y)) ? at(ref, i, y).toFixed(1) : "."));
+    if (gen !== null) {
+      grid("generated side distance, mm", (i: number, y: number): string => (Number.isFinite(at(gen!, i, y)) ? at(gen!, i, y).toFixed(1) : "."));
+      grid("generated - reference, mm", (i: number, y: number): string => (Number.isFinite(at(gen!, i, y)) && Number.isFinite(at(ref, i, y)) ? (at(gen!, i, y) - at(ref, i, y)).toFixed(1) : "."));
+      grid("owner of the generated outermost cell (first four letters)", (i: number, y: number): string => ownerAt!(i, ascending.indexOf(y)).replace("ridge.", "r.").slice(0, 4));
+    }
+    lines.push("", "# per row: reference crests along x (x, z, rise over the low before it); extent past the edge (x from..to, width) on the reference and the generated skin");
+    for (const y of ys) {
+      const row: number[] = xs.map((_: number, i: number): number => at(ref, i, y));
+      const crests: string[] = [];
+      let low: number = Infinity;
+      row.forEach((v: number, i: number): void => {
+        if (!Number.isFinite(v)) return;
+        low = Math.min(low, v);
+        const reach: number = Math.round(1.5 / step!);
+        for (let k: number = Math.max(0, i - reach); k <= Math.min(row.length - 1, i + reach); ++k) if (k !== i && row[k]! > v) return;
+        if (v - low >= 0.8) {
+          crests.push(`(${xs[i]}, ${v.toFixed(1)}, +${(v - low).toFixed(1)})`);
+          low = v;
+        }
+      });
+      const extent = (values: number[]): string => {
+        const inside: number[] = xs.filter((_: number, i: number): boolean => values[i]! > edge);
+        return inside.length === 0 ? "none" : `${inside[0]}..${inside.at(-1)} (${(inside.at(-1)! - inside[0]!).toFixed(1)})`;
+      };
+      lines.push(`${String(y).padStart(8)} | crests ${crests.join(" ") || "none"} | extent ref ${extent(row)}${gen === null ? "" : " gen " + extent(xs.map((_: number, i: number): number => at(gen!, i, y)))}`);
+    }
+    return lines;
+  };
+
   /** Realize, render and write the round. */
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
+    const mapArgument: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--map="));
+    if (mapArgument !== undefined) {
+      const out: string = path.join(root, "test/.shots/family-conic-ear-round", "map-" + new Date().toISOString().replaceAll(":", "-") + ".txt");
+      await fs.mkdir(path.dirname(out), { recursive: true });
+      await fs.writeFile(out, (await map(root, mapArgument.slice("--map=".length), process.argv.find((a: string): boolean => a.startsWith("--before="))?.slice("--before=".length))).join("\n") + "\n");
+      process.stdout.write(JSON.stringify({ out }) + "\n");
+      return;
+    }
     const crossingArgument: string | undefined = process.argv.find((a: string): boolean => a === "--crossing" || a.startsWith("--crossing="));
     if (crossingArgument !== undefined) {
       const out: string = path.join(root, "test/.shots/family-conic-ear-round", "crossing-" + new Date().toISOString().replaceAll(":", "-") + ".txt");
