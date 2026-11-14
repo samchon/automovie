@@ -49,10 +49,12 @@ import { StrikingHeld } from "../striking/StrikingHeld";
  * mid-foot) moved it 37.5 +/- 13.7 mm horizontally backward, against
  * 66.7 +/- 12.9 mm when started over the metatarsophalangeal joint; a
  * vertical path is the limit that start approaches, and no source was read
- * for the press. The holding hand is swung about its shoulder, forward or
- * back at the arm's own reach, by what the key's arms leave the bar's
- * middle off that line; the mid-foot is
- * the middle between the heel and the toe of each foot the entry stands on.
+ * for the press. The holding hand is swung about its shoulder at the arm's
+ * own reach, forward or back and to either side, by what the key's arms
+ * leave the bar's middle off that line, so the bar hangs centred between
+ * the hands and each handle is as far out of its own shoulder; the mid-foot
+ * is the middle between the heel and the toe of each foot the entry stands
+ * on.
  *
  * First pass: the load weighs nothing in the motion (no lean, no slower
  * tempo, no bar path round the knees); a bar is kept level across the body
@@ -249,12 +251,17 @@ export namespace WorkoutLoad {
           point: HumanHand.frame(body, bones, side, "grip").point,
           rotation: turn,
         };
-        // The bar's middle is carried over the mid-foot: the hand swings
-        // about its shoulder, in the plane of the performer's heading, by
-        // what the key leaves the bar off along that heading. It keeps its
-        // distance from the shoulder: moved level instead, a straight arm
-        // fell short of the handle and the other hand slid 20.6 mm along
-        // the bar on the small woman.
+        // The bar's middle is carried over the mid-foot, along the heading
+        // and across it: the hand swings about its shoulder by what the key
+        // leaves the bar's middle off the mid-foot, so a bar in both hands
+        // hangs centred between them, each handle as far out of its own
+        // shoulder. Held where the key put the holding hand across, the other
+        // handle lay out of the other arm's reach at a deadlift's bottom (on
+        // the small woman 504 mm from the shoulder against a 462 mm arm), so
+        // the other hand fell short of it by the grasp's chance. The hand
+        // keeps its distance from the shoulder: moved level instead, a
+        // straight arm fell short of the handle and the other hand slid
+        // 20.6 mm along the bar on the small woman.
         const ahead: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
           { x: 0, y: 0, z: 1 },
@@ -266,34 +273,25 @@ export namespace WorkoutLoad {
           keyed.point,
           shoulder,
         );
-        const radius: number = Math.hypot(Vector3.dot(reach, ahead), reach.y);
+        const off: IAutoMovieVector3 = Vector3.subtract(
+          balance,
+          Vector3.lerp(keyed.point, StrikingHeld.point(tool, keyed, 0), 0.5),
+        );
+        const aside: number =
+          Vector3.dot(reach, across) + Vector3.dot(off, across);
+        const radius: number = Math.sqrt(
+          Math.max(0, Vector3.dot(reach, reach) - aside * aside),
+        );
         const forth: number = Math.max(
           -radius,
-          Math.min(
-            radius,
-            Vector3.dot(reach, ahead) +
-              Vector3.dot(
-                Vector3.subtract(
-                  balance,
-                  Vector3.lerp(
-                    keyed.point,
-                    StrikingHeld.point(tool, keyed, 0),
-                    0.5,
-                  ),
-                ),
-                ahead,
-              ),
-          ),
+          Math.min(radius, Vector3.dot(reach, ahead) + Vector3.dot(off, ahead)),
         );
         const frame: StrikingHeld.IHandFrame = !midfoot
           ? keyed
           : {
               ...keyed,
               point: Vector3.add(
-                Vector3.add(
-                  shoulder,
-                  Vector3.scale(across, Vector3.dot(reach, across)),
-                ),
+                Vector3.add(shoulder, Vector3.scale(across, aside)),
                 Vector3.add(Vector3.scale(ahead, forth), {
                   x: 0,
                   y:
