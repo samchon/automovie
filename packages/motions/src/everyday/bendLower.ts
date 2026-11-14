@@ -157,6 +157,7 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param lean The balance shift per unit sine of the inclination, metres.
+   * @param reach How near the shoulder must come to the target, metres; 0.92 of the arm plus the palm's offset when absent, a palm laid on the target.
    * @returns Degrees.
    * @throws {HumanRefusal} When even 150 degrees leaves the target out of reach.
    *
@@ -175,10 +176,9 @@ export namespace bendLower {
     side: HumanHand.Side,
     strategy: Exclude<bend.Strategy, "auto">,
     lean: number,
+    reach: number = 0.92 * (body.measure.upperArm + body.measure.forearm) +
+      Vector3.length(HumanHand.offset(body, side, "palm").point),
   ): number {
-    const reach: number =
-      0.92 * (body.measure.upperArm + body.measure.forearm) +
-      Vector3.length(HumanHand.offset(body, side, "palm").point);
     const gap = (deg: number): number => {
       const lowered: IHumanPosture = lower(
         body,
@@ -240,6 +240,7 @@ export namespace bendLower {
    * @param target The target.
    * @param side The hand.
    * @param strategy The strategy.
+   * @param reach How near the shoulder must come to the target, metres; `pitch`'s palm reach when absent.
    * @returns The solved lowering.
    * @throws {HumanRefusal} As `pitch`, when the strategy cannot reach the target.
    *
@@ -257,6 +258,7 @@ export namespace bendLower {
     target: IAutoMovieVector3,
     side: HumanHand.Side,
     strategy: Exclude<bend.Strategy, "auto">,
+    reach?: number,
   ): ISolved {
     const shift = (deg: number): number =>
       HumanBalance.shift(
@@ -265,10 +267,10 @@ export namespace bendLower {
           lower(body, upright, strategy, deg, 1, back),
       ) / Math.sin((deg * Math.PI) / 180);
     let lean: number = shift(60);
-    let deg: number = pitch(body, upright, target, side, strategy, lean);
+    let deg: number = pitch(body, upright, target, side, strategy, lean, reach);
     if (deg > 5) {
       lean = shift(deg);
-      deg = pitch(body, upright, target, side, strategy, lean);
+      deg = pitch(body, upright, target, side, strategy, lean, reach);
     }
     return { strategy, lean, pitch: deg };
   }

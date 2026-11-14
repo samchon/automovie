@@ -41,6 +41,9 @@ export namespace pickUpPosture {
 
     /** The body at a share of the way down, from the entry at 0 to `posture` at 1. */
     at: (share: number) => IHumanPosture;
+
+    /** Any standing posture lowered the same way, a share of it: the lowering carried onto a body that walks. */
+    lower: (posture: IHumanPosture, share: number) => IHumanPosture;
   }
 
   /**
@@ -49,6 +52,7 @@ export namespace pickUpPosture {
    * @param context The action's context; its entry posture is lowered.
    * @param side The reaching arm.
    * @param grip The grip point, world metres.
+   * @param reach How near the shoulder must come to the grip, metres; a palm laid on it when absent (`bendLower.pitch`).
    * @returns The lowered stance.
    * @throws {HumanRefusal} When the entry is not standing, or no lowering brings the shoulder within reach: the person steps closer first.
    *
@@ -64,6 +68,7 @@ export namespace pickUpPosture {
     context: IHumanActionContext<object>,
     side: HumanHand.Side,
     grip: IAutoMovieVector3,
+    reach?: number,
   ): IStance {
     const entry: IHumanPosture = context.entry.posture;
     if (context.entry.base.kind !== "standing")
@@ -77,7 +82,7 @@ export namespace pickUpPosture {
       });
     let solved: bendLower.ISolved;
     try {
-      solved = bend.lowering(context.body, entry, grip, side, "auto");
+      solved = bend.lowering(context.body, entry, grip, side, "auto", reach);
     } catch (error) {
       throw new HumanRefusal({
         kind: "reach",
@@ -87,16 +92,17 @@ export namespace pickUpPosture {
         fix: "step closer to the prop first",
       });
     }
-    const at = (share: number): IHumanPosture =>
+    const lower = (posture: IHumanPosture, share: number): IHumanPosture =>
       bendLower.lower(
         context.body,
-        entry,
+        posture,
         solved.strategy,
         solved.pitch * share,
         share,
         solved.lean * Math.sin((solved.pitch * share * Math.PI) / 180),
       );
-    return { posture: at(1), at };
+    const at = (share: number): IHumanPosture => lower(entry, share);
+    return { posture: at(1), at, lower };
   }
 
   /**

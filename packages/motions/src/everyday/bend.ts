@@ -314,6 +314,7 @@ export namespace bend {
    * @param target The target.
    * @param side The hand.
    * @param strategy The requested strategy.
+   * @param reach How near the shoulder must come to the target, metres; the bend's palm reach when absent.
    * @returns The solved lowering.
    * @throws {HumanRefusal} When the strategy, and for `auto` the squat after it, cannot reach the target.
    *
@@ -331,13 +332,14 @@ export namespace bend {
     target: IAutoMovieVector3,
     side: HumanHand.Side,
     strategy: Strategy,
+    reach?: number,
   ): bendLower.ISolved {
     const chosen: Exclude<Strategy, "auto"> = choose(body, target, strategy);
     try {
-      return bendLower.solve(body, upright, target, side, chosen);
+      return bendLower.solve(body, upright, target, side, chosen, reach);
     } catch (error) {
       if (strategy !== "auto" || chosen !== "semiSquat") throw error;
-      return bendLower.solve(body, upright, target, side, "squat");
+      return bendLower.solve(body, upright, target, side, "squat", reach);
     }
   }
 

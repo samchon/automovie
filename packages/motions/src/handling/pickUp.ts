@@ -169,6 +169,7 @@ export namespace pickUp {
     let found: ISearched = search(context, side, lift, authored, {
       posture: context.entry.posture,
       at: (): IHumanPosture => context.entry.posture,
+      lower: (posture: IHumanPosture): IHumanPosture => posture,
     });
     const lowered: pickUpPosture.IStance | null = pickUpPosture.reaches(
       context,

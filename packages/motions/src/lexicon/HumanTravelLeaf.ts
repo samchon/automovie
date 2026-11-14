@@ -8,6 +8,7 @@ import type { tags } from "typia";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -19,11 +20,13 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
+import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
 
 /**
  * Opening a door by its handle and holding it: the hand reaches the
- * handle, closes on it and goes with it while the leaf swings, the feet
- * standing where they stood. Register `HumanTravelLeaf.openDoor` to use it.
+ * handle, closes on it and goes with it while the leaf swings, the person
+ * standing, and walking round with the leaf when the arm alone would lose
+ * the handle. Register `HumanTravelLeaf.openDoor` to use it.
  *
  * The leaf's swing is the scene's: the door is a prop whose handle moves
  * within it (`IHumanProp.point`, as `HumanObject.prop` gives an archetype's
@@ -31,13 +34,18 @@ import { HumanMountRider } from "./HumanMountRider";
  * The hand turns to the handle's frame and closes on the door's own
  * colliders (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it
  * over `TAKE` seconds on the minimum-jerk profile (Flash and Hogan 1985).
- * A handle that travels beyond `REACH` of the arm's length from the
- * shoulder at any of `SAMPLES` instants is refused as a `reach` refusal on
- * `handle`, with the farthest share of the arm it would need. First pass:
- * the body does not step or lean with the leaf, and the closure is the
- * one at the instant the hand arrives.
+ * A handle the standing arm does not reach as the hand takes it, such as a
+ * car door's below the shoulder, is taken leaning toward it, the body
+ * lowered as a pick up lowers it. While the arm's own fit keeps the wrist
+ * within `HOLD` of the hold from where the person stands the feet stay
+ * there; otherwise the person walks with the leaf, backward and round it,
+ * facing it, keeping the place relative to it the handle was taken from,
+ * at the handle's pace (`HumanTravelLeafWalk`). A swing the hand still
+ * loses, faster or farther than the person can walk with it, is refused as
+ * a `reach` refusal on `handle` naming the largest swing followed. First
+ * pass: the closure is the one at the instant the hand arrives.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, the timing and its source, the refusal and what the first pass leaves out.
+ * @evidence contracts/development/common.md#meaningful-documentation States who moves the leaf, how the hand follows it, when the person leans and walks, the timing and its source, the refusal and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A law record over the stand, with one arm's goal on a prop's moving point.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and its named constants.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased: the handle, its frame, its width and the leaf's colliders are the prop's own.
@@ -58,14 +66,14 @@ export namespace HumanTravelLeaf {
     side?: "left" | "right";
   }
 
+  /** How far the arm's fit may leave the wrist from where the hold asks it, metres (the campaign's 5 mm contact bound). */
+  export const HOLD: number = 0.005;
+
   /** Seconds the hand takes to reach the handle (provisional). */
   export const TAKE: number = 0.6;
 
   /** The most of the arm's length, shoulder to wrist, the handle may be from the shoulder (provisional: the elbow is not locked straight). */
   export const REACH: number = 0.97;
-
-  /** Instants of the hold at which the handle's reach is checked. */
-  export const SAMPLES: number = 24;
 
   /** Open a door by its handle, standing. */
   export const openDoor: IHumanActionLaw<IParams> = {
@@ -116,7 +124,7 @@ export namespace HumanTravelLeaf {
         );
 
       // The handle at a film second: the moving point the door knows, or its rest point carried by the door's frame; its axis is its rest frame's +X carried by the door's frame.
-      const grip = (
+      const handle = (
         film: number,
       ): Parameters<typeof HumanMountRider.hold>[3] => {
         const frame: IHumanProp.IFrame = door.frame(film);
@@ -153,7 +161,29 @@ export namespace HumanTravelLeaf {
         params: { seconds },
       });
 
-      // The handle must stay within the arm's reach of the standing shoulder.
+      // The hand keeps the side of the handle's axis it took it from, the
+      // side the body faced as the hand arrived, however the body turns with
+      // the leaf after.
+      const taken: Parameters<typeof HumanMountRider.hold>[3] = handle(
+        context.start + TAKE,
+      );
+      const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+        resolveHumanPosture.heading(standing.posture(0)),
+        { x: 0, y: 0, z: 1 },
+      );
+      const across: 1 | -1 =
+        taken.axis !== undefined &&
+        Vector3.dot(Vector3.cross(taken.axis, taken.normal), facing) < 0
+          ? -1
+          : 1;
+      const grip = (
+        film: number,
+      ): Parameters<typeof HumanMountRider.hold>[3] => ({
+        ...handle(film),
+        across,
+      });
+
+      // The wrist must stay within the arm's reach of the shoulder.
       const bones: ReturnType<typeof poseBones> = poseBones(
         body,
         resolveHumanPosture(body, { ...standing.posture(0), limbs: {} }),
@@ -174,40 +204,151 @@ export namespace HumanTravelLeaf {
             bones.get(`${side}LowerArm`)!.worldPosition,
           ),
         );
-      let farthest: number = 0;
-      for (let k: number = 0; k <= SAMPLES; ++k)
-        farthest = Math.max(
-          farthest,
-          Vector3.length(
-            Vector3.subtract(
-              grip(context.start + TAKE + (k / SAMPLES) * (seconds - TAKE))
-                .point,
-              shoulder,
-            ),
-          ) / arm,
+      // Where the hold puts the wrist on the handle at a second.
+      const wristAt = (t: number, posture: IHumanPosture): IAutoMovieVector3 =>
+        HumanMountRider.hold(
+          body,
+          side,
+          posture,
+          grip(context.start + t),
+          1,
+          {},
+        ).arm.point;
+
+      // A handle the standing arm does not reach as the hand takes it, such
+      // as a car door's below the shoulder, is taken leaning toward it, the
+      // body lowered over the reach as a pick up lowers it.
+      const start: IHumanPosture = standing.posture(0);
+      const lowered: pickUpPosture.IStance | null =
+        Vector3.length(Vector3.subtract(wristAt(TAKE, start), shoulder)) <=
+        REACH * arm
+          ? null
+          : // Lowered until the wrist the hold asks is within the bend's near
+            // full extension of the arm, 0.92 of it, the reach the bend
+            // lowers a palm to.
+            pickUpPosture.lowered(
+              context,
+              side,
+              wristAt(TAKE, start),
+              0.92 * arm,
+            );
+      const base = (t: number): IHumanPosture =>
+        lowered === null
+          ? standing.posture(t)
+          : lowered.at(minimumJerk(Math.min(1, t / TAKE)).s);
+
+      // Whether the arm keeps the hand on the handle from a posture: its own
+      // fit shows the wrist within `HOLD` of where the hold asks it.
+      const holds = (posture: IHumanPosture, t: number): boolean => {
+        const goal: IHumanPosture.IGoal = HumanMountRider.hold(
+          body,
+          side,
+          posture,
+          grip(context.start + t),
+          1,
+          {},
+        ).arm;
+        const wrist: IAutoMovieVector3 = poseBones(
+          body,
+          resolveHumanPosture(body, {
+            ...posture,
+            limbs: { [`${side}Arm`]: goal },
+          }),
+        ).get(`${side}Hand`)!.worldPosition;
+        return Vector3.length(Vector3.subtract(wrist, goal.point)) <= HOLD;
+      };
+      const readings: number[] = [];
+      for (let t: number = TAKE; t <= seconds + 1e-9; t += 1 / 24)
+        readings.push(t);
+
+      // Standing while the arm holds the handle from there throughout;
+      // otherwise walking with the leaf (`HumanTravelLeafWalk`).
+      const walked: IHumanActionPlan | null = readings.every(
+        (t: number): boolean => holds(base(t), t),
+      )
+        ? null
+        : HumanTravelLeafWalk.plan({
+            context,
+            seconds,
+            take: TAKE,
+            handle: (
+              t: number,
+            ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => ({
+              point: wristAt(t, base(t)),
+              normal: grip(context.start + t).normal,
+            }),
+          });
+      const shown = (t: number): IHumanPosture => {
+        if (walked === null) return base(t);
+        const walking: IHumanPosture = walked.posture(
+          Math.min(walked.duration, t),
         );
-      if (farthest > REACH)
+        return lowered === null
+          ? walking
+          : lowered.lower(walking, minimumJerk(Math.min(1, t / TAKE)).s);
+      };
+
+      // A swing the walk cannot follow is refused with the largest followed.
+      const heading = (v: IAutoMovieVector3): number =>
+        (Math.atan2(v.x, v.z) * 180) / Math.PI;
+      const swing = (t: number): number =>
+        Math.abs(
+          ((((heading(grip(context.start + t).normal) -
+            heading(grip(context.start + TAKE).normal)) %
+            360) +
+            540) %
+            360) -
+            180,
+        );
+      const lost: number | undefined = readings.find(
+        (t: number): boolean => !holds(shown(t), t),
+      );
+      if (lost !== undefined) {
+        const followed: number = swing(Math.max(TAKE, lost - 1 / 24));
         throw new HumanRefusal({
           kind: "reach",
           axis: "handle",
-          value: farthest,
-          feasible: { kind: "range", minimum: 0, maximum: REACH, unit: "" },
-          reason: `the handle goes ${farthest.toFixed(2)} of the arm's length from the shoulder as the door swings, beyond the ${REACH} an arm reaches without locking`,
-          fix: "stand nearer the handle, or open the door less",
+          value: swing(lost),
+          feasible: {
+            kind: "range",
+            minimum: 0,
+            maximum: followed,
+            unit: "degrees",
+          },
+          reason: `the hand loses the handle at ${lost.toFixed(2)} s, the door swung ${swing(lost).toFixed(1)} degrees, ${walked === null ? "where the leaf does not turn" : "faster or farther than the person can walk round with it"}; the largest swing followed is ${followed.toFixed(1)} degrees`,
+          fix: `open the door at most ${followed.toFixed(1)} degrees, or swing it more slowly`,
         });
+      }
       const closed: IHumanPosture["joints"] =
         (door.prop.shapes ?? []).length === 0
           ? {}
           : HumanMountRider.closed(
               body,
               side,
-              standing.posture(TAKE),
+              shown(TAKE),
               grip(context.start + TAKE),
               door.prop.shapes!,
               door.frame(context.start + TAKE),
             );
+      // The walk's plants, read on the action's clock.
+      const plants: IHumanContactWindow[] =
+        walked === null
+          ? standing.contacts
+          : walked.contacts
+              .filter(
+                (c: IHumanContactWindow): boolean =>
+                  c.part === "leftFoot" || c.part === "rightFoot",
+              )
+              .map(
+                (c: IHumanContactWindow): IHumanContactWindow => ({
+                  ...c,
+                  from: Math.min(1, (c.from * walked.duration) / seconds),
+                  to: Math.min(1, (c.to * walked.duration) / seconds),
+                }),
+              )
+              .filter((c: IHumanContactWindow): boolean => c.to > c.from);
       const contacts: IHumanContactWindow[] = [
-        ...standing.contacts,
+        ...plants,
         // The hand bears on the door, which the scene moves; a `grip` would make the door ride the hand instead.
         {
           part: `${side}Hand`,
@@ -223,7 +364,7 @@ export namespace HumanTravelLeaf {
         contacts,
         posture: (t: number): IHumanPosture => {
           const at: number = Math.min(seconds, Math.max(0, t));
-          const posture: IHumanPosture = standing.posture(at);
+          const posture: IHumanPosture = shown(at);
           const held: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
               body,

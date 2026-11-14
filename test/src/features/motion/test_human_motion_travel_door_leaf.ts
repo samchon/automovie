@@ -8,7 +8,6 @@ import {
   HumanFoot,
   HumanObject,
   HumanPerformance,
-  HumanRefusal,
   type HumanSegment,
   HumanSignature,
   HumanTravelLeaf,
@@ -21,7 +20,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * A person opens a door by its handle and holds it: the hand takes the
  * handle and goes with it as the leaf swings, closed on it, while the feet
- * stay where they stood; a door swung beyond the arm's reach is refused.
+ * stay where they stood, since the swing stays within the arm's reach (a
+ * swing beyond it, walked with, is `test_human_motion_travel_door_follow_*`).
  *
  * Scenarios, the average man and the small woman, each standing on the
  * pull side of a mid-band right-hinged door with a pull bar, a quarter of
@@ -36,16 +36,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    is provisional), and the middle finger's last joint is nearer the
  *    wrist than its knuckle is (the hand is closed).
  * 3. The balls of both feet move at most 5 mm over the hold (the
- *    campaign's slip bound).
- * 4. The same door swung its hinge's whole travel (the archetype's own
- *    range, 90 degrees mid-band), which carries the handle past the
- *    person's shoulder, is refused as a `reach` refusal on `handle`.
+ *    campaign's slip bound): the person does not step.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Places a real door archetype whose leaf the scene swings, performs the opening through the public chain and reads the displayed wrist, fingers and feet; a hand left where the handle was, an open hand, a body dragged by the door or an impossible swing accepted fails.
- * @evidence contracts/development/testing.md#independent-expectations Where the handle is at each instant comes from the archetype's own articulation, the 5 mm is the campaign's bound; neither is read from the law. Limitation: whether the person should step with a wide swing is not read.
- * @evidence contracts/development/testing.md#distinguishing-cases A swing within reach against one beyond it, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two openings and two refused plans in memory, reading about a dozen instants of each opening.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Places a real door archetype whose leaf the scene swings, performs the opening through the public chain and reads the displayed wrist, fingers and feet; a hand left where the handle was, an open hand or a body dragged by the door or stepping fails.
+ * @evidence contracts/development/testing.md#independent-expectations Where the handle is at each instant comes from the archetype's own articulation, the 5 mm is the campaign's bound; neither is read from the law.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite build; the swing beyond the arm, walked with, is the follow specs' case against this one.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two openings in memory, reading about a dozen instants of each.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios with their bounds.
  */
 export function test_human_motion_travel_door_leaf(): void {
   const complaints: string[] = [];
@@ -60,7 +57,6 @@ export function test_human_motion_travel_door_leaf(): void {
   };
   const where: HumanObject.Placement = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };
   const bar: IAutoMovieVector3 = door.placed("pull", placement).translation;
-  const full: number = door.affordance("hinge").travel!;
   const OPEN: number = 0.5;
   const SWING: number = 2;
   const swung =
@@ -160,24 +156,6 @@ export function test_human_motion_travel_door_leaf(): void {
     if (slip > 0.005)
       complaints.push(
         `${name}: a sole moves ${(slip * 1000).toFixed(1)} mm while the door is held, within 5 mm expected`,
-      );
-
-    // 4. A swing beyond the arm.
-    let thrown: unknown = null;
-    try {
-      perform(body, full);
-    } catch (error) {
-      thrown = error;
-    }
-    if (
-      !(
-        thrown instanceof HumanRefusal &&
-        thrown.kind === "reach" &&
-        thrown.axis === "handle"
-      )
-    )
-      complaints.push(
-        `${name}: a door swung its full ${full} degrees, expected a reach refusal on handle, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
       );
   }
   TestValidator.equals("a door is opened and held", complaints, []);
