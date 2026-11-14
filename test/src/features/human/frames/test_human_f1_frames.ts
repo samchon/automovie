@@ -10,9 +10,12 @@ import { AutoMovieHumanF1Frames, AutoMovieHumanF1Joints as J, AutoMovieHumanF1La
  * 3. Every articulated segment's origin is the joint centre it pivots about, from the joint table: GH, the elbow, the wrist, each finger's
  *    and the thumb's joints, the hip, the knee, the ankle and each toe's joints; the thorax's origin is IJ and the head's the bitragion
  *    midpoint on the median plane.
- * 4. The chain at the reference rotations returns every frame within 1e-12 of the stature (1,700 mm); at identity rotations every axis is
- *    parallel to the pelvis's (the neutral body) while each origin keeps its offset in its parent.
+ * 4. The stored chain (`joints`) at the reference rotations returns every frame the rules build (`segments`) within 1e-12 of the stature
+ *    (1,700 mm); at identity rotations every axis is parallel to the pelvis's (the neutral body) while each origin keeps its offset in
+ *    its parent.
  * 5. The twin: every mirrored frame is right-handed and its joint rotation is `D R D`.
+ * 6. The rules stay the stored chain's definition: `AutoMovieHumanSegmentFrame.chain` of the frames the rules build has every segment
+ *    of the stored chain, with the same parent, its offset within 1e-12 of the stature and its rotation within 1e-12.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Frames.segments`, `joints` and `world` and the law's `mirror` and `relative`.
  * @evidence contracts/development/testing.md#independent-expectations Joint centres from the joint table, the triple product of a right-handed frame and a reflection's effect on a rotation owe nothing to the tree's rules.
@@ -102,6 +105,19 @@ export function test_human_f1_frames(): void {
     near(joint.name + " twin triple product", [F.dot(child.axes[0], F.cross(child.axes[1], child.axes[2]))], [1]);
     near(joint.name + " twin rotation", F.relative(parent, child).rotation.flat(), F.multiply(F.multiply(D, joint.rotation), D).flat());
   }
+
+  // 6: the rules return the stored chain.
+  const ruled: F.IJoint[] = F.chain(segments);
+  near("chain length", [ruled.length], [joints.length], 0);
+  ruled.forEach((joint: F.IJoint, i: number): void => {
+    const stored: F.IJoint | undefined = joints[i];
+    if (stored === undefined || stored.name !== joint.name || stored.parent !== joint.parent) {
+      failures.push(`${joint.name}: the stored chain holds ${stored?.name ?? "nothing"} under ${stored?.parent ?? "none"} there`);
+      return;
+    }
+    near(joint.name + " stored offset", stored.offset, joint.offset, tolerance);
+    near(joint.name + " stored rotation", stored.rotation.flat(), joint.rotation.flat());
+  });
 
   if (failures.length > 0) throw new Error(`f1 frames: ${failures.length} finding(s):\n${failures.join("\n")}`);
 }
