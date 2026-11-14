@@ -12,6 +12,7 @@ import { SCENES_PLANNED } from "./data/SCENES_PLANNED";
 import { SCENES_SPORT } from "./data/SCENES_SPORT";
 import { SCENES_STAGE_FIGHT } from "./data/SCENES_STAGE_FIGHT";
 import { SCENES_STREET } from "./data/SCENES_STREET";
+import { SCENES_WORKOUT } from "./data/SCENES_WORKOUT";
 import type { IScene } from "./structures/IScene";
 
 /**
@@ -29,6 +30,7 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_STREET,
   ...SCENES_COMPOSITION,
   ...SCENES_GYM,
+  ...SCENES_WORKOUT,
   ...SCENES_GAMES,
   ...SCENES_FIGHT,
   ...SCENES_STAGE_FIGHT,
