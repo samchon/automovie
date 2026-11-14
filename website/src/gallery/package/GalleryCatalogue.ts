@@ -4,6 +4,7 @@ import {
   type IArchetypeBand,
 } from "@automovie/archetypes";
 
+import { formatArchetypeLabel } from "../formatArchetypeLabel";
 import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
 
 /**
@@ -137,13 +138,7 @@ export namespace GalleryCatalogue {
                 const { key, list } = variants(made);
                 return {
                   id,
-                  // `createLongTool` reads as "Long tool".
-                  label: id
-                    .slice("create".length)
-                    .replace(
-                      /(?!^)[A-Z]/g,
-                      (letter: string): string => ` ${letter.toLowerCase()}`,
-                    ),
+                  label: formatArchetypeLabel(id),
                   group: name,
                   variantKey: key,
                   variants: list.map(

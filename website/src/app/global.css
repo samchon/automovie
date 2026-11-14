@@ -648,7 +648,7 @@
   color: var(--am-danger);
 }
 
-/* An archetype's page: the view and the facts; scenes.css places them */
+/* An archetype's page: the view and the facts; pages.css places them */
 .am-gallery {
   display: grid;
   align-items: start;

@@ -7,6 +7,7 @@ import { MotionReference } from "../../src/motions/package/MotionReference";
 import type { IMotionReference } from "../../src/motions/structures/IMotionReference";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../src/scenes/SCENES";
+import { SceneStatus } from "../../src/scenes/package/SceneStatus";
 import type { IScene } from "../../src/scenes/structures/IScene";
 
 /**
@@ -15,7 +16,7 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * Scenarios:
  * 1. The actions are the keys of `HUMAN_ACTIONS`, in the package's order.
  * 2. Every row of the installed `HUMAN_LEXICON` is on exactly one family page.
- * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it; its trial is either one person performing that name after a standing start, or, when the first use names another person, an object or an anchor, that first scene, so a trial never names someone who is not there.
+ * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it; its trial is either one person performing that name after a standing start, or, when the first use names another person, an object or an anchor, the first of those scenes that plays on the installed packages, and none only when no such scene plays, so a trial never names someone who is not there or opens a scene the packages refuse.
  */
 export function test_website_motion_reference(): void {
   const reference: IMotionReference = MotionReference.read();
@@ -69,20 +70,24 @@ export function test_website_motion_reference(): void {
       findings.push(
         `${name}: lists ${found.join(", ")} for ${expected.join(", ")}`,
       );
-    const trial: MotionUsage.ITrial = MotionUsage.trial(name);
-    const first: IScene | undefined = SCENES.find(
-      (scene: IScene): boolean => scene.id === found[0],
+    const trial: MotionUsage.ITrial | null = MotionUsage.trial(name);
+    const playing: IScene | undefined = SCENES.find(
+      (scene: IScene): boolean =>
+        found.includes(scene.id) && SceneStatus.of(scene).kind === "plays",
     );
-    if (trial.label === "Try it alone") {
+    if (trial === null) {
+      if (playing !== undefined)
+        findings.push(`${name}: no trial, though ${playing.id} plays`);
+    } else if (trial.label === "Try it alone") {
       if (trial.composition.performers[0]!.actions.at(-1)!.name !== name)
         findings.push(`${name}: the trial performs something else`);
     } else if (
-      first === undefined ||
-      trial.label !== `Try it in ${first.title}` ||
+      playing === undefined ||
+      trial.label !== `Try it in ${playing.title}` ||
       JSON.stringify(trial.composition.performers) !==
-        JSON.stringify(first.composition!.performers)
+        JSON.stringify(playing.composition!.performers)
     )
-      findings.push(`${name}: the trial is not its first scene`);
+      findings.push(`${name}: the trial is not its first playing scene`);
   }
   TestValidator.equals("each name's scenes", findings, []);
 }

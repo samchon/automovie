@@ -14,6 +14,7 @@ import { SceneView } from "../components/scenes/SceneView";
 import { useSceneClock } from "../components/scenes/useSceneClock";
 import { Transport } from "../components/stage/Transport";
 import { TransportKeys } from "../components/stage/TransportKeys";
+import { formatArchetypeLabel } from "../gallery/formatArchetypeLabel";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { SceneClock } from "../scenes/SceneClock";
@@ -209,9 +210,11 @@ export default function SceneMovie(props: {
                   (o: IPlaygroundComposition.IObject): ReactElement => (
                     <li key={o.subject}>
                       <span className="am-mono">{o.subject}</span>,{" "}
-                      <Link href={`/objects/?subject=${o.producer}`}>
-                        {o.producer.replace(/^create/, "")}
-                      </Link>
+                      <a
+                        href={`/automovie/objects/?subject=${o.producer}${o.kind === undefined ? "" : `&variant=${o.kind}`}`}
+                      >
+                        {formatArchetypeLabel(o.producer)}
+                      </a>
                       {o.kind === undefined ? "" : ` (${o.kind})`}
                     </li>
                   ),

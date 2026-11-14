@@ -98,11 +98,20 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       <canvas
         ref={canvas}
         tabIndex={orbit === true ? 0 : -1}
-        role={orbit === true ? "application" : "img"}
+        role={
+          props.decorative === true
+            ? undefined
+            : orbit === true
+              ? "application"
+              : "img"
+        }
+        aria-hidden={props.decorative === true ? true : undefined}
         aria-label={
-          orbit === true
-            ? `${name}: drag to turn, double-click to frame again`
-            : name
+          props.decorative === true
+            ? undefined
+            : orbit === true
+              ? `${name}: drag to turn, double-click to frame again`
+              : name
         }
       />
       {state === "loading" ? (
@@ -134,6 +143,9 @@ export namespace SceneView {
 
     /** The take's label, named with the scene's title; the title alone when absent. */
     label?: string;
+
+    /** Whether the picture is decoration beside its own visible name, as in a card's link, and so hidden from assistive technology. */
+    decorative?: boolean;
 
     /** Called with the loaded take, for a toolbar that moves its camera. */
     onLoad?: (player: IScenePlayer) => void;

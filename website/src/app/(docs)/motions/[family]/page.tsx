@@ -108,7 +108,9 @@ export default async function MotionFamilyPage(
           </nav>
           {rows.map((row: IMotionReference.IRow): ReactElement => {
             const use: MotionUsage.IUse = MotionUsage.of(row.name);
-            const trial: MotionUsage.ITrial = MotionUsage.trial(row.name);
+            const trial: MotionUsage.ITrial | null = MotionUsage.trial(
+              row.name,
+            );
             return (
               <section
                 key={row.name}
@@ -168,11 +170,13 @@ export default async function MotionFamilyPage(
                       .
                     </>
                   )}{" "}
-                  <Link
-                    href={`/playground/${PlaygroundAddress.encode(trial.composition)}`}
-                  >
-                    {trial.label}
-                  </Link>
+                  {trial === null ? null : (
+                    <Link
+                      href={`/playground/${PlaygroundAddress.encode(trial.composition)}`}
+                    >
+                      {trial.label}
+                    </Link>
+                  )}
                 </p>
               </section>
             );

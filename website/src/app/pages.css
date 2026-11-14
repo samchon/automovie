@@ -101,10 +101,6 @@
 }
 
 @media (max-width: 1023px) {
-  .am-scene-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .am-app .am-gallery.am-gallery-detail {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -219,8 +215,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .am-app * {
-    transition: none !important;
-  }
-}

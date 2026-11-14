@@ -200,6 +200,13 @@
   align-items: start;
 }
 
+/* Below a laptop's width the aside goes under the player. */
+@media (max-width: 1023px) {
+  .am-scene-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .am-player {
   display: flex;
   flex-direction: column;

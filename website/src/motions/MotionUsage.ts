@@ -1,6 +1,7 @@
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import { SCENES } from "../scenes/SCENES";
+import { SceneStatus } from "../scenes/package/SceneStatus";
 import type { IScene } from "../scenes/structures/IScene";
 
 /**
@@ -71,12 +72,13 @@ export namespace MotionUsage {
    * What a "Try it" link opens. A first use that names no one and nothing
    * else is tried alone: one person performing the name with its parameters.
    * A first use that names another person, an object or an anchor needs them,
-   * so its whole scene is opened instead, where those exist.
+   * so the first scene using it that plays on the installed packages is
+   * opened instead, where those exist; with no such scene there is no trial.
    *
    * @param name The action's or row's name.
-   * @returns The link's text and composition.
+   * @returns The link's text and composition, or null when no trial would play.
    */
-  export function trial(name: string): ITrial {
+  export function trial(name: string): ITrial | null {
     const use: IUse = of(name);
     const scene: IScene | undefined = SCENES.find(
       (s: IScene): boolean => s.id === use.scenes[0]?.id,
@@ -85,14 +87,23 @@ export namespace MotionUsage {
       scene !== undefined &&
       scene.composition !== null &&
       names(scene.composition, use.params)
-    )
+    ) {
+      // The first scene that plays on the installed packages and uses the
+      // name; none, and the name is offered nowhere it would be refused.
+      const playing: IScene | undefined = SCENES.find(
+        (s: IScene): boolean =>
+          use.scenes.some((u: { id: string }): boolean => u.id === s.id) &&
+          SceneStatus.of(s).kind === "plays",
+      );
+      if (playing === undefined || playing.composition === null) return null;
       return {
-        label: `Try it in ${scene.title}`,
+        label: `Try it in ${playing.title}`,
         composition: {
-          ...scene.composition,
+          ...playing.composition,
           version: PlaygroundAddress.VERSION,
         },
       };
+    }
     return {
       label: "Try it alone",
       composition: {

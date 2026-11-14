@@ -32,10 +32,10 @@ export function GrammarTable(): ReactElement {
       <p>
         The installed release composes a sequence of actions per person, people
         in parallel, a cut with <code>until</code>, actions two people do
-        together with <code>HumanChain.pair</code>, and anchors other actions
-        name. Overlays (<code>over</code>), timing to another instant (
-        <code>sync</code>) and the named rows of the lexicon arrive with the
-        composition campaign.
+        together with <code>HumanChain.pair</code>, and anchors that another
+        person's action answers. Overlays (<code>over</code>), timing to another
+        instant (<code>sync</code>) and the named rows of the lexicon arrive
+        with the composition campaign.
       </p>
     );
   const { axes, operators }: { axes: IEntry[]; operators: IEntry[] } =

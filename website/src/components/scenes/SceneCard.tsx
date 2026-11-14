@@ -38,6 +38,7 @@ export function SceneCard(props: { scene: IScene }): ReactElement {
           scene={scene}
           take={0}
           clock={clock}
+          decorative
           onLoad={(player: IScenePlayer): void => {
             clock.duration = player.duration;
             clock.fps = player.fps;
