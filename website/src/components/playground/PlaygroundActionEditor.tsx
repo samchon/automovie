@@ -64,20 +64,22 @@ export function PlaygroundActionEditor(props: {
       )
     : vocabulary.actions;
 
-  // A lexicon row with a schema is edited through fields generated from it;
-  // anything else through JSON.
+  // An action or a lexicon row with a schema is edited through fields
+  // generated from it; anything else through JSON. The name is looked up as
+  // an own key, so a name such as `constructor` is not read off a prototype.
   const fields: IPlaygroundVocabulary.IParameter[] | undefined =
+    vocabulary.actions.find(
+      (a: IPlaygroundVocabulary.IAction): boolean => a.name === action.name,
+    )?.parameters ??
     vocabulary.lexicon
+      .filter((f: IPlaygroundVocabulary.IFamily): boolean =>
+        Object.hasOwn(f.parameters, action.name),
+      )
       .map(
         (
           f: IPlaygroundVocabulary.IFamily,
-        ): IPlaygroundVocabulary.IParameter[] | undefined =>
-          f.parameters[action.name],
-      )
-      .find(
-        (found: IPlaygroundVocabulary.IParameter[] | undefined): boolean =>
-          found !== undefined,
-      );
+        ): IPlaygroundVocabulary.IParameter[] => f.parameters[action.name]!,
+      )[0];
 
   const set = (patch: Partial<IPlaygroundComposition.IAction>): void => {
     const next: IPlaygroundComposition.IAction = { ...action, ...patch };

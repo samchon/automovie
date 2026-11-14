@@ -253,15 +253,19 @@ export namespace PlaygroundChain {
           throw new Error(
             `The mutual action ${mutual.name} has no performer cast as ${uncast.join(", ")}; choose one for each role`,
           );
+
+        // A seat or an opening named by its object becomes that object's,
+        // as in a person's own action.
+        const params: Record<string, unknown> =
+          objects.length === 0
+            ? mutual.params
+            : PlaygroundObjects.resolve(mutual.params, objects);
+
         // Each role's action is a vocabulary name, a lexicon row or a law
         // the package exports; a row or a law is registered with the
         // performance, as the mutual's own documentation asks.
         for (const role of record.roles) {
-          const name: string = record.act(
-            role,
-            mutual.params,
-            mutual.cast,
-          ).name;
+          const name: string = record.act(role, params, mutual.cast).name;
           if (name in HUMAN_ACTIONS) continue;
           const law: ILaw | undefined = rows.get(name) ?? exported().get(name);
           if (law !== undefined) laws.set(law.name, law);
@@ -274,7 +278,7 @@ export namespace PlaygroundChain {
               empty(mutual.cast[role]!),
             ]),
           ),
-          mutual.params,
+          params,
         );
       },
     );

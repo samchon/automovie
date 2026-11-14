@@ -1,10 +1,11 @@
 /**
- * The motion vocabulary as the reference pages list it: the actions, the
- * lexicon's families with each row's parameters, and the grammar.
+ * The motion vocabulary as the reference pages list it: the actions and the
+ * lexicon's families, each action and row with its parameters, and the
+ * grammar.
  */
 export interface IMotionReference {
-  /** The actions of `HUMAN_ACTIONS`, in the package's order. */
-  actions: string[];
+  /** The actions of `HUMAN_ACTIONS`, in the package's order, each with its parameters from the action's schema. */
+  actions: IMotionReference.IRow[];
 
   /** The lexicon's families, in the package's order; empty when the release has no lexicon. */
   families: IMotionReference.IFamily[];
@@ -22,7 +23,7 @@ export namespace IMotionReference {
     rows: IRow[];
   }
 
-  /** One row of the lexicon. */
+  /** One action of the vocabulary or row of the lexicon. */
   export interface IRow {
     /** The name a chain appends it by. */
     name: string;
@@ -31,12 +32,12 @@ export namespace IMotionReference {
     parameters: IParameter[] | null;
   }
 
-  /** One parameter of a row. */
+  /** One parameter of an action or a row. */
   export interface IParameter {
     /** Its name. */
     name: string;
 
-    /** Whether the row needs it. */
+    /** Whether the action or row needs it. */
     required: boolean;
 
     /** Its type in short: a set of values, a number's bounds, an object's members. */

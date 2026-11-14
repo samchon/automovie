@@ -7,9 +7,16 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * performer, each vocabulary action appended with `act` and each lexicon
  * row with `registered`, cut with `until`, timed with `sync` and with the
  * actions performed over it in `over`; the people's chains joined with
- * `with`, each mutual action after them with `next`; and the laws the
- * performance registers. A seat is written as `HumanObject.seat` of the
+ * `with`, each mutual action after them with `next`; the laws the
+ * performance registers; each placed archetype as a prop through
+ * `HumanObject.prop`, with the person and bone it starts worn on; and the
+ * input `HumanPerformance` is built from, as `PlaygroundPerformance` builds
+ * it, ending in the one line `const performance = new
+ * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
  * archetype that carries it, and an opening as `HumanObstacle.apertures`.
+ * Each person's body is read from `bodies`, declared as the `IHumanBody`
+ * of each of the site's body ids, since a body is prepared from measures
+ * the code does not show.
  *
  * @param composition The composition.
  * @param names The exported names its code refers to, read from the packages when the site is built.
@@ -70,11 +77,6 @@ export function formatSceneChain(
       o.rotation === undefined
         ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw} };`
         : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)} };`,
-      ...(o.worn === undefined
-        ? []
-        : [
-            `// ${o.subject} starts worn: ${literal(o.worn, imports).replaceAll("\n", " ")}`,
-          ]),
     );
   }
   if (objects.length !== 0) body.push("");
@@ -129,6 +131,47 @@ export function formatSceneChain(
       "// The lexicon's laws this scene's rows perform, registered with the performance.",
       `const laws = [${names.laws.map(use).join(", ")}];`,
     );
+
+  // Each placed archetype is a prop the actions name; one worn at the start
+  // rides the wearer's bone until a hand draws it.
+  if (objects.length !== 0) {
+    imports.add("HumanObject");
+    body.push(
+      "",
+      "const props = [",
+      ...objects.map((o: IPlaygroundComposition.IObject): string => {
+        const made: string = `HumanObject.prop(${JSON.stringify(o.subject)}, ${identifier(o.subject)}, ${identifier(o.subject)}At)`;
+        return o.worn === undefined
+          ? `  ${made},`
+          : `  { ...${made}, worn: ${indent(literal(o.worn, imports), "  ")} },`;
+      }),
+      "];",
+    );
+  }
+
+  // The performance is built from the people, the composition, the props
+  // and the laws, each list given only where the scene has one.
+  imports.add("HumanPerformance");
+  imports.add("IHumanBody");
+  body.push(
+    "",
+    "// Each body id's `IHumanBody`, prepared by @automovie/human from the site's measures.",
+    "declare const bodies: Record<string, IHumanBody>;",
+    "",
+    "const input: HumanPerformance.IInput = {",
+    `  seed: ${JSON.stringify(composition.seed)},`,
+    "  performers: [",
+    ...composition.performers.map(
+      (p: IPlaygroundComposition.IPerformer): string =>
+        `    { subject: ${JSON.stringify(p.subject)}, body: bodies[${JSON.stringify(p.body)}]!, at: { x: ${p.x}, y: 0, z: ${p.z} }, yaw: ${p.yaw}, proficiency: { level: ${JSON.stringify(p.proficiency)} } },`,
+    ),
+    "  ],",
+    "  composition: scene.node,",
+    ...(objects.length === 0 ? [] : ["  props,"]),
+    ...(names.laws.length === 0 ? [] : ["  laws,"]),
+    "};",
+    "const performance = new HumanPerformance(input);",
+  );
 
   const header: string[] = [
     `import { ${[...imports].sort().join(", ")} } from "@automovie/motions";`,

@@ -62,8 +62,8 @@ export default async function ScenePage(
   // Each action links to its page of the motion reference.
   const reference: IMotionReference = MotionReference.read();
   const pages: Record<string, string> = Object.fromEntries([
-    ...reference.actions.map((name: string): [string, string] => [
-      name,
+    ...reference.actions.map((a: IMotionReference.IRow): [string, string] => [
+      a.name,
       "actions",
     ]),
     ...reference.families.flatMap(

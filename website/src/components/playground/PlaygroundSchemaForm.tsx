@@ -1,13 +1,14 @@
 "use client";
 
-import type { ChangeEvent, ReactElement } from "react";
+import { type ChangeEvent, type ReactElement, useId } from "react";
 
 import type { IPlaygroundVocabulary } from "../../playground/structures/IPlaygroundVocabulary";
 import { PlaygroundJsonField } from "./PlaygroundJsonField";
 
 /**
- * A row's parameters as fields generated from its schema: a select for a
- * closed set, a number input within its bounds, a text input, a switch.
+ * An action's or a row's parameters as fields generated from its schema: a
+ * select for a closed set, a number input within its bounds, a text input,
+ * a switch, each described to assistive technology by its meaning.
  * Members a field cannot take, and any member the schema does not list,
  * stay in one JSON field under them, so nothing the composition carries is
  * lost. An empty field leaves the member out, so the row takes its default.
@@ -26,6 +27,7 @@ export function PlaygroundSchemaForm(props: {
   onChange: (value: Record<string, unknown>) => void;
 }): ReactElement {
   const { fields, value }: typeof props = props;
+  const id: string = useId();
   const simple: IPlaygroundVocabulary.IParameter[] = fields.filter(
     (f: IPlaygroundVocabulary.IParameter): boolean => f.kind !== "json",
   );
@@ -51,11 +53,26 @@ export function PlaygroundSchemaForm(props: {
     <div className="am-stack">
       <div className="am-row">
         {simple.map((field: IPlaygroundVocabulary.IParameter): ReactElement => {
+          // The description is read with the control through
+          // `aria-describedby`, and shown on hover through `title`. It is
+          // hidden, so the label's own text stays the control's name; a
+          // reference still reads hidden text.
+          const described: string | undefined =
+            field.description === ""
+              ? undefined
+              : `${id}-${field.name}-description`;
           const label: ReactElement = (
-            <span className="am-label" title={field.description}>
-              {field.name}
-              {field.required ? " *" : ""}
-            </span>
+            <>
+              <span className="am-label" title={field.description}>
+                {field.name}
+                {field.required ? " *" : ""}
+              </span>
+              {described === undefined ? null : (
+                <span id={described} hidden>
+                  {field.description}
+                </span>
+              )}
+            </>
           );
           const current: unknown = value[field.name];
           if (field.kind === "choice")
@@ -63,6 +80,7 @@ export function PlaygroundSchemaForm(props: {
               <label key={field.name} className="am-field am-medium">
                 {label}
                 <select
+                  aria-describedby={described}
                   value={typeof current === "string" ? current : ""}
                   onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
                     set(
@@ -93,6 +111,7 @@ export function PlaygroundSchemaForm(props: {
               <label key={field.name} className="am-field am-narrow">
                 {label}
                 <select
+                  aria-describedby={described}
                   value={typeof current === "boolean" ? String(current) : ""}
                   onChange={(event: ChangeEvent<HTMLSelectElement>): void =>
                     set(
@@ -113,6 +132,7 @@ export function PlaygroundSchemaForm(props: {
             <label key={field.name} className="am-field am-narrow">
               {label}
               <input
+                aria-describedby={described}
                 type={field.kind === "number" ? "number" : "text"}
                 value={
                   typeof current === "number" || typeof current === "string"

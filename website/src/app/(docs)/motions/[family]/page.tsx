@@ -61,12 +61,7 @@ export default async function MotionFamilyPage(
   const reference: IMotionReference = MotionReference.read();
   const rows: IMotionReference.IRow[] =
     family === ACTIONS
-      ? reference.actions.map(
-          (name: string): IMotionReference.IRow => ({
-            name,
-            parameters: null,
-          }),
-        )
+      ? reference.actions
       : reference.families.find(
           (f: IMotionReference.IFamily): boolean => f.name === family,
         )!.rows;
@@ -77,7 +72,7 @@ export default async function MotionFamilyPage(
         <h1>{family === ACTIONS ? "Actions" : family}</h1>
         <p className="am-lede">
           {family === ACTIONS
-            ? "The vocabulary's actions. Each takes its own parameters, which the package's types state."
+            ? "The vocabulary's actions, each with the parameters its schema states."
             : `A family of the lexicon: ${rows.length} named rows, each appended to a chain by its name.`}
         </p>
       </header>
@@ -110,6 +105,7 @@ export default async function MotionFamilyPage(
             const use: MotionUsage.IUse = MotionUsage.of(row.name);
             const trial: MotionUsage.ITrial | null = MotionUsage.trial(
               row.name,
+              row.parameters,
             );
             return (
               <section

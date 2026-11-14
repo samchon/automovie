@@ -45,13 +45,15 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
     const grammar: unknown = exported["HUMAN_GRAMMAR"];
     const schemas: Record<string, IPlaygroundVocabulary.IParameter[]> =
       PlaygroundSchema.rows();
+    const actions: Record<string, IPlaygroundVocabulary.IParameter[]> =
+      PlaygroundSchema.actions();
     return {
       actions: Object.keys(laws).map(
         (name: string): IPlaygroundVocabulary.IAction => ({
           name,
 
-          // The package exports no descriptor of an action's parameters yet.
-          parameters: null,
+          // An action the release ships no schema for is edited as JSON.
+          parameters: Object.hasOwn(actions, name) ? actions[name]! : null,
           overlay: PlaygroundChain.has("over")
             ? laws[name]!.overlay === true
             : null,
@@ -63,7 +65,9 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
           rows: rows.map((row: { name: string }): string => row.name),
           parameters: Object.fromEntries(
             rows
-              .filter((row: { name: string }): boolean => row.name in schemas)
+              .filter((row: { name: string }): boolean =>
+                Object.hasOwn(schemas, row.name),
+              )
               .map(
                 (row: {
                   name: string;
@@ -91,6 +95,8 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
           label: entry.label,
         }),
       ),
+      // A refused scene, like one that waits, is not offered: it would only
+      // open on the packages' refusal.
       scenes: SCENES.filter(
         (scene: IScene): boolean =>
           scene.hidden !== true && SceneStatus.of(scene).kind === "plays",

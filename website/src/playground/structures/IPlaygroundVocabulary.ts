@@ -20,7 +20,7 @@ export interface IPlaygroundVocabulary {
   /** The bodies a performer can take. */
   bodies: IPlaygroundVocabulary.IBody[];
 
-  /** The ids of the site's scenes the installed packages can play, which the editor loads. */
+  /** The ids of the site's listed scenes whose status is `plays`, which the editor loads; a refused scene is left out. */
   scenes: string[];
 
   /** Which operators the adapter can build; the editor disables the others. */
@@ -35,7 +35,7 @@ export namespace IPlaygroundVocabulary {
     /** The name a chain appends it by. */
     name: string;
 
-    /** Its parameters as a descriptor, or null while the package exports none; the editor then takes them as JSON. */
+    /** Its parameters from its schema in `HUMAN_LEXICON_SCHEMAS`, or null when the release ships none; the editor then takes them as JSON. */
     parameters: IParameter[] | null;
 
     /** Whether it can be performed over a carrier; null when the package does not say. */
