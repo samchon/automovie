@@ -166,9 +166,21 @@ export namespace pickUpPosture {
       });
       // A free hand rests where the leaned body sets it, on the thigh or
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
+      // The rest is read from the leaned body's legs alone, as `seated.rested`
+      // takes it: the arms' own goals would only be solved to be replaced.
       const rested: IHumanPosture = seated.rested(
         context.body,
-        leant,
+        {
+          ...leant,
+          limbs: {
+            ...(leant.limbs.leftLeg === undefined
+              ? {}
+              : { leftLeg: leant.limbs.leftLeg }),
+            ...(leant.limbs.rightLeg === undefined
+              ? {}
+              : { rightLeg: leant.limbs.rightLeg }),
+          },
+        },
         base.seat?.armrests,
         posture.yaw,
         1,
