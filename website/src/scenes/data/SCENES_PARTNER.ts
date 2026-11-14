@@ -4,6 +4,18 @@ import { SceneBuild } from "./SceneBuild";
 const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
   SceneBuild;
 
+/**
+ * A work point on the workshop's bench top, just behind its front edge.
+ *
+ * @param x Along the bench, metres.
+ * @returns The target.
+ */
+const work = (x: number): Record<string, unknown> => ({
+  kind: "point",
+  at: { x, y: SceneBuild.COUNTER_TOP, z: 0.4 },
+  frame: "world",
+});
+
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
   scene(
@@ -22,6 +34,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       person("lea", "m1", 0, 0, 0, [
         act("closedHold"),
         act("spin"),
+        act("stand", { seconds: 2.5 }),
         act("danceLead", { to: to(0, 2) }),
         act("stand", { seconds: 2 }),
       ]),
@@ -44,7 +57,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "goodnight",
       title: "Goodnight",
       summary:
-        "At the door a parent kisses a grown child on the forehead, and the child flicks a speck off the parent's shoulder.",
+        "At night a parent kisses a grown child on the forehead, and the child flicks a speck off the parent's shoulder.",
       setting: "partner",
       roles: { par: "parent", kid: "grown child" },
       needs: [],
@@ -66,7 +79,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "carried-off",
       title: "Carried off",
       summary:
-        "A firefighter walks out carrying a fainted guest over the shoulder, the guest's body going with the carrier's chest.",
+        "A firefighter lifts a fainted guest over the shoulder and walks out carrying her.",
       setting: "partner",
       roles: { fir: "firefighter", gst: "guest" },
       needs: [],
@@ -85,8 +98,8 @@ export const SCENES_PARTNER: readonly IScene[] = [
       ]),
       person("gst", "f1", 0, 0.35, 180, [
         act(
-          "carried",
-          { by: "fir", on: "chest", seconds: 4 },
+          "borne",
+          { by: "fir", carry: "overShoulder", seconds: 4, lift: 1 },
           { sync: { of: "carry" } },
         ),
       ]),
@@ -137,7 +150,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       person("hur", "f1", 0, 1.6, 180, [
         act(
           "borne",
-          { by: "res", carry: "overShoulder", seconds: 4 },
+          { by: "res", carry: "overShoulder", seconds: 4, lift: 1 },
           { sync: { of: "carry" } },
         ),
       ]),
@@ -148,7 +161,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "ride-out",
       title: "Ride out",
       summary:
-        "A rider takes the saddle of a horse and rides it for six seconds.",
+        "A rider takes the saddle of a standing horse and sits it for six seconds.",
       setting: "ride",
       roles: { rid: "rider" },
       needs: [],
@@ -206,20 +219,20 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "workshop",
       title: "Workshop",
       summary:
-        "Four workers: a hammer, a saw and a screwdriver, a box carried across, a cart pushed, a load carried on the hip and tossed over.",
+        "Four workers: at the bench one hammers and saws, another drives a screw and hammers a nail; a porter carries a mimed box across in both hands and pushes a mimed cart back, and another carries a load in both hands, then on the hip, and tosses something to the porter.",
       setting: "work",
-      roles: { w1: "carpenter", w2: "carpenter", w3: "carrier", w4: "cleaner" },
+      roles: { w1: "carpenter", w2: "carpenter", w3: "porter", w4: "porter" },
       needs: [],
     },
     "workshop",
     [
-      person("w1", "m1", -1, 0, 0, [
-        act("hammer", { on: at("w1", "palmLeft") }),
-        act("saw", { on: at("w1", "palmLeft"), cycles: 3 }),
+      person("w1", "m2", -0.95, 0.12, 0, [
+        act("hammer", { on: work(-1.05) }),
+        act("saw", { on: work(-1.05), cycles: 3 }),
       ]),
-      person("w2", "f1", 0, 0, 0, [
-        act("screw", { on: at("w2", "palmLeft") }),
-        act("useTool", { tool: "screwdriver", on: at("w2", "palmLeft") }),
+      person("w2", "f1", -0.05, 0.12, 0, [
+        act("screw", { on: work(-0.15) }),
+        act("useTool", { tool: "hammer", on: work(-0.15) }),
       ]),
       person("w3", "m2", 1.5, -1, 0, [
         act("carryBox", { to: to(1.5, 2) }),
@@ -231,11 +244,6 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("toss", { at: at("w3", "sternum") }),
       ]),
     ],
-    [
-      object("bench", "createTable", "counter", -0.5, 0.6),
-      object("box", "createBox", undefined, 1.5, -0.6),
-      object("cart", "createCart", "trolley", 2.3, 0),
-      object("broom", "createLongTool", "broom", -2.8, 0.6),
-    ],
+    [object("bench", "createTable", "counter", -0.5, 0.65, 180)],
   ),
 ];
