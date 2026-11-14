@@ -27,8 +27,14 @@ export namespace FamilyConicStar {
     /** The direction the chart's `u` starts from. */
     up: [number, number, number];
 
+    /** Each joint's half turn arclength, mm, for a course of more than two centres (`AutoMovieViewAxis.jointed`); absent, none. */
+    halves?: number[];
+
     /** The region's box, `[x0, x1, y0, y1, z0, z1]`, mm: only skin inside it is the region's. */
     box: [number, number, number, number, number, number];
+
+    /** With it, only skin within this distance of the course point in the section's plane is the region's as well, mm: a box cannot follow a curved course. */
+    radius?: number;
 
     /** Station step along the course, mm. */
     step: number;
@@ -74,7 +80,7 @@ export namespace FamilyConicStar {
    * read it as skin). A station with no such piece is left out.
    */
   export function regionSections(source: R.ISource, trial: ITrial, from: number, to: number, mesh: R.ISource["all"] = source.all): IRegionSection[] {
-    const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
+    const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: trial.halves ?? [], up: trial.up });
     const [x0, x1, y0, y1, z0, z1] = trial.box;
     const out: IRegionSection[] = [];
     for (let s: number = from; s <= to + 1e-9; s += trial.step) {
@@ -83,7 +89,7 @@ export namespace FamilyConicStar {
       if (loop === null) continue;
       const inside = (p: C.P): boolean => {
         const w: number[] = [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
-        return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1;
+        return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && (trial.radius === undefined || Math.hypot(p[0], p[1]) <= trial.radius);
       };
       const piece: C.P[] | undefined = pieces(loop, inside).find((candidate: C.P[]): boolean => X.star(candidate, RAYS, "inner")?.folds === 0);
       if (piece === undefined) continue;
@@ -172,7 +178,7 @@ export namespace FamilyConicStar {
     const mesh: R.ISource["all"] = kept?.mesh ?? source.all;
     if (kept !== null) lines.push(`components of the reference (triangles, largest first): ${kept.sizes.slice(0, 16).join(", ")}${kept.sizes.length > 16 ? ` and ${kept.sizes.length - 16} more` : ""}; kept those of ${least} or more`, "");
     for (const trial of trials) {
-      const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
+      const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: trial.halves ?? [], up: trial.up });
       const length: number = trial.centres.slice(1).reduce((sum: number, c, k: number): number => sum + Math.hypot(c[0] - trial.centres[k]![0], c[1] - trial.centres[k]![1], c[2] - trial.centres[k]![2]), 0);
       const [x0, x1, y0, y1, z0, z1] = trial.box;
       const rows: string[] = [];
@@ -183,7 +189,7 @@ export namespace FamilyConicStar {
         const world = (p: C.P): number[] => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
         const inside = (p: C.P): boolean => {
           const w: number[] = world(p);
-          return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1;
+          return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && (trial.radius === undefined || Math.hypot(p[0], p[1]) <= trial.radius);
         };
         const found: C.P[][] = loop === null ? [] : pieces(loop, inside);
         if (found.length === 0) {
