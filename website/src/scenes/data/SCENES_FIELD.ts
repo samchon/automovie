@@ -75,7 +75,7 @@ export const SCENES_FIELD: readonly IScene[] = [
         "Three swimmers in the lexicon's strokes: breaststroke, backstroke and floating on the back, still without water forces.",
       setting: "sport",
       roles: { hed: "swimmer", ivo: "swimmer", jul: "swimmer" },
-      needs: [3432],
+      needs: [],
     },
     "swim-strokes",
     [
