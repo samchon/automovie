@@ -111,10 +111,27 @@ export namespace SceneBuild {
    * A seat, named by the object that carries it, which the adapter resolves.
    *
    * @param subject The object's id.
+   * @param id The seat's affordance id, for an object with several seats; its only seat when absent.
    * @returns The seat reference.
    */
-  export function seat(subject: string): Record<string, string> {
-    return { $seat: subject };
+  export function seat(subject: string, id?: string): Record<string, string> {
+    return id === undefined ? { $seat: subject } : { $seat: subject, id };
+  }
+
+  /**
+   * A mutual action: what several performers do together.
+   *
+   * @param name The mutual action's name.
+   * @param cast The performer cast in each role.
+   * @param params The shared parameters.
+   * @returns The mutual action.
+   */
+  export function mutual(
+    name: string,
+    cast: Record<string, string>,
+    params: Record<string, unknown> = {},
+  ): IPlaygroundComposition.IMutual {
+    return { name, cast, params };
   }
 
   /** What a scene record needs beside its composition. */
@@ -154,6 +171,7 @@ export namespace SceneBuild {
    * @param seed The seed every draw starts from.
    * @param performers Who does what.
    * @param objects What is placed.
+   * @param mutuals What several of them do together, each after every performer's own actions.
    * @returns The record.
    */
   export function scene(
@@ -161,12 +179,13 @@ export namespace SceneBuild {
     seed: string,
     performers: IPlaygroundComposition.IPerformer[],
     objects: IPlaygroundComposition.IObject[] = [],
+    mutuals: IPlaygroundComposition.IMutual[] = [],
   ): IScene {
     const composition: IPlaygroundComposition = {
       version: objects.length === 0 ? 1 : 2,
       seed,
       performers,
-      mutuals: [],
+      mutuals,
       ...(objects.length === 0 ? {} : { objects }),
     };
     return {
