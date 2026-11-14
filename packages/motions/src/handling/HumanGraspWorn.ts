@@ -7,6 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanWorn } from "../dressing/HumanWorn";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
@@ -36,11 +37,11 @@ export namespace HumanGraspWorn {
   /**
    * The key pose of a grasp taken to wear a thing.
    *
-   * @param props The action's context, the held thing and its `wear` contact, the region and its point on the entry's body, the holding shoulder and the arm's length, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
+   * @param props The action's context, the held thing and its `wear` contact, the region and its point on the entry's body, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
    * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss.
+   * @evidence contracts/development/implementation.md#principled-implementation The thing is rigid in the hand from the grasp on, so the hand's pose at the key is the worn frame times the inverse of the thing's frame in the hand. A round thing's turn about the region is the shared chooser's (`HumanFreedomChoice`, a wrapped freedom), the turn the arm, fitted within its ranges, brings the wear socket nearest the region at, the closed hand's depth inside the body added as a cost; the key is judged by the same miss. Each fit's elbow is hinted at its place of least joint strain (`AutoMovieMotionHumanBend.solve`), never placed by a share of the arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The hand's offset, the key of a turn, its fitted miss, one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The judge is the quantity `dress` judges, never a mix of degrees and millimetres.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each turn is fitted once, kept in a map, however often the search returns to it; a thing not round is fitted at its one turn.
@@ -53,14 +54,13 @@ export namespace HumanGraspWorn {
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;
     site: IAutoMovieVector3;
-    shoulder: IAutoMovieVector3;
-    arm: number;
+
     side: HumanHand.Side;
     wrist: HumanHand.IWrist;
     round?: boolean;
     clear?: (wrist: HumanHand.IWrist) => number;
   }): HumanGrasp.IKey {
-    const { context, held, tip, at, site, shoulder, arm } = props;
+    const { context, held, tip, at, site } = props;
     const world: IHumanProp.IFrame = held.frame(context.start);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
@@ -102,10 +102,32 @@ export namespace HumanGraspWorn {
         rotation,
       };
     };
+    // The elbow's hint at a turn's key: the place of least joint strain for
+    // that wrist (`AutoMovieMotionHumanBend.solve`), solved once per turn.
+    const hints: Map<number, IAutoMovieVector3> = new Map();
+    const hinted = (
+      degrees: number,
+      wrist: HumanHand.IWrist,
+    ): IAutoMovieVector3 => {
+      let found: IAutoMovieVector3 | undefined = hints.get(degrees);
+      if (found === undefined) {
+        found = AutoMovieMotionHumanBend.solve({
+          body: context.body,
+          posture: context.entry.posture,
+          side: props.side,
+          point: wrist.point,
+          rotation: wrist.rotation,
+          fallback: "hang",
+        });
+        hints.set(degrees, found);
+      }
+      return found;
+    };
+
     // How far the arm, fitted to the key within its ranges, leaves the
     // wear socket off the region, metres, and how far the closed hand
-    // would lie inside the body there, added as a cost.
-    // Each turn fitted once, however often the search comes back to it.
+    // would lie inside the body there, added as a cost. Each turn is
+    // fitted once, however often the search comes back to it.
     const fitted: Map<number, number> = new Map();
     const missed = (degrees: number): number => {
       const known: number | undefined = fitted.get(degrees);
@@ -116,11 +138,7 @@ export namespace HumanGraspWorn {
       limbs[`${props.side}Arm`] = {
         point: wrist.point,
         rotation: wrist.rotation,
-        bend: {
-          x: (shoulder.x + wrist.point.x) / 2,
-          y: (shoulder.y + wrist.point.y) / 2 - 0.5 * arm,
-          z: (shoulder.z + wrist.point.z) / 2,
-        },
+        bend: hinted(degrees, wrist),
       };
       const hand: IAutoMovieResolvedBone = poseBones(
         context.body,
@@ -148,8 +166,7 @@ export namespace HumanGraspWorn {
     if (props.round === true)
       for (let k: number = ROUND; k <= 180; k += ROUND)
         seeds.push(...(k < 180 ? [k, -k] : [k]));
-    const chosen: HumanHand.IWrist = keyed(
-      HumanFreedomChoice.chosen({
+    const turned: number = HumanFreedomChoice.chosen({
         tried: seeds.map((degrees: number): number[] => [degrees]),
         freedoms: [
           {
@@ -161,16 +178,12 @@ export namespace HumanGraspWorn {
         judge: (values: readonly number[]): number[] => [
           missed(values[0]!),
         ],
-      }).values[0]!,
-    );
+      }).values[0]!;
+    const chosen: HumanHand.IWrist = keyed(turned);
     return {
       posture: context.entry.posture,
       wrist: chosen,
-      bend: {
-        x: (shoulder.x + chosen.point.x) / 2,
-        y: (shoulder.y + chosen.point.y) / 2 - 0.5 * arm,
-        z: (shoulder.z + chosen.point.z) / 2,
-      },
+      bend: hinted(turned, chosen),
       // Judged as dress judges it: the fitted hand's wear socket off the
       // region it is worn on.
       judge: (

@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
@@ -293,8 +294,6 @@ export namespace HumanGraspUse {
         tip,
         at: at!,
         site: site!,
-        shoulder,
-        arm,
         side: props.side,
         wrist: props.wrist,
         ...(props.use.round === undefined ? {} : { round: props.use.round }),
@@ -366,9 +365,6 @@ export namespace HumanGraspUse {
         ? ahead
         : Vector3.subtract(site, Quaternion.rotateVector(rotation, inHand));
 
-    // The elbow's hint of this pose, not the reach's: below the middle of
-    // the line from the shoulder to the wrist, by half the arm, where an
-    // elbow hangs under a hand held up before the body (provisional share).
     // The use is judged by where the working point is once the arm is fitted
     // to the key: rigid in the hand, its stray from where the key asks it is
     // the hand's place and turn read in the tool's own metres.
@@ -379,11 +375,16 @@ export namespace HumanGraspUse {
     return {
       posture: context.entry.posture,
       wrist: { point, rotation },
-      bend: {
-        x: (shoulder.x + point.x) / 2,
-        y: (shoulder.y + point.y) / 2 - 0.5 * arm,
-        z: (shoulder.z + point.z) / 2,
-      },
+      // The elbow's hint of this pose: its place of least joint strain for
+      // the presented wrist (`AutoMovieMotionHumanBend.solve`).
+      bend: AutoMovieMotionHumanBend.solve({
+        body: context.body,
+        posture: context.entry.posture,
+        side: props.side,
+        point,
+        rotation,
+        fallback: "hang",
+      }),
       judge: (
         bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       ): number => {
