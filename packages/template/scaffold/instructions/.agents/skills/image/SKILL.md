@@ -29,7 +29,7 @@ Video models cap references per subject at about three or four images and read e
 - a face close-up;
 - three-quarter or profile views as the shots need.
 
-A wardrobe, makeup or wound state of a story day is its own set. Give each set a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Write each subject's description once and reuse it as the video prompt's [shared description](../video/prompts.md#shared-description), because the same words keep the same subject in both.
+A wardrobe, makeup or wound state of a story day is its own set. Give each set a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Write each subject's description once and reuse it as the shared description of every [video prompt](../video/prompts.md) that shows the subject, because the same words keep the same subject in both.
 
 ## Proportion guide
 
