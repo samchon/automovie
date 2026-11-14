@@ -41,7 +41,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | --- | --- |
 | `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch` |
 | `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad` |
-| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder` |
+| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap` |
 | `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle` |
 | `/animals` | `createHorse`, the ride `rideHorse`, and the gait timing `HorseGait` |
 | `/weapons` | `createHandgun`, `createHolster`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell`, `createScabbard`, `createWeaponLoop`, `createWeaponRack` |
