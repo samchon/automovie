@@ -289,8 +289,11 @@ export namespace AutoMovieMotionHumanBendSearch {
           share(degrees(split.swing), wrist);
         // A turn the forearm and the wrist cannot make leaves the hand off its
         // rotation, so such a place ranks behind every place that makes it.
-        // Each turn is read signed about its own axis, since a wrist's range
-        // is not symmetric about its rest.
+        // Each turn is read signed, since a wrist's range is not symmetric
+        // about its rest: the forearm's about its own axis, the wrist's as
+        // the clinical angles of its joint (the engine's decomposition on the
+        // hand's own chart), whose signs name the same motion on either hand,
+        // where a sign read about a rig axis is the other hand's opposite.
         const about = (
           q: IAutoMovieQuaternion,
           axis: IAutoMovieVector3 | undefined,
@@ -314,13 +317,24 @@ export namespace AutoMovieMotionHumanBendSearch {
                 range.min + RESERVE * (range.max - range.min) - value,
                 value - range.max + RESERVE * (range.max - range.min),
               );
+        const bent: IAngles | null =
+          handAxes === undefined
+            ? null
+            : decomposeJointRotation(
+                Quaternion.normalize(split.swing),
+                handAxes,
+                HUMANOID_REST_FRAME[`${side}Hand`],
+                { bone: `${side}Hand`, constraint: hand },
+              );
         const unmade: number =
           past(
             about(split.twist, lowerAxes.twist),
             prepared.lowerDomain.constraint?.twist,
           ) +
-          past(about(split.swing, handAxes?.flexion), hand?.flexion) +
-          past(about(split.swing, handAxes?.abduction), hand?.abduction);
+          (bent === null
+            ? 0
+            : past(bent.flexion, hand?.flexion) +
+              past(bent.abduction, hand?.abduction));
         if (unmade > 0) strain = UNMADE + unmade;
       }
       return {

@@ -274,7 +274,8 @@ export namespace AutoMovieMotionHumanBend {
    * rotation needs, each squared and divided by half its range. The weights
    * are 1 and provisional. A place whose forearm twist, wrist flexion or
    * wrist deviation would come within `RESERVE` of the end of its range,
-   * each read signed about its own axis, is one where the hand cannot make
+   * each read signed as its joint's clinical angle (so the same motion reads
+   * the same on either hand), is one where the hand cannot make
    * the rotation with room to spare; it ranks behind every place that makes
    * it, by the degrees left unmade.
    *
