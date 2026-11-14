@@ -1979,7 +1979,9 @@ namespace FamilyConicBody {
             admitted = (error instanceof Error ? error.message : String(error)).slice(0, 80);
           }
           const closure = closures.find((c): boolean => c.s === row.s && c.kind !== "short");
-          log("family-body-closed", { part: part.name, s: row.s, closure: closure === undefined ? "none" : (closure.detail ?? closure.kind), clearanceMm: round(clearance), against, admitted });
+          // The closure's span in the chart, from the skin's exit to its entry, degrees counter-clockwise from +u.
+          const spanDeg: number[] | null = closure?.span === undefined ? null : closure.span.map((a: number): number => Math.round((((a * 180) / Math.PI) % 360 + 360) % 360));
+          log("family-body-closed", { part: part.name, s: row.s, closure: closure === undefined ? "none" : (closure.detail ?? closure.kind), spanDeg, clearanceMm: round(clearance), against, admitted });
         }
       }
       log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
@@ -3343,10 +3345,10 @@ namespace FamilyConicBody {
     // skin there. Where none does, the shoulder goes on down to the model's lower share bound (`CLOSURE_LEAST`), a conic close to its chord,
     // never the chord itself: a closure that switched between a conic and its chord from one station to the next moved the side extreme
     // 30 to 47 mm (f1 at 1,330 mm). The shoulder used is the smoothed one along the stations (`cap`) where that is smaller.
-    const fullest = (side: number, build: (rho: number) => C.P[]): { points: C.P[]; most: number; used: number } => {
+    const fullest = (side: number, build: (rho: number) => C.P[], holds: (points: readonly C.P[]) => boolean = contained): { points: C.P[]; most: number; used: number } => {
       let most: number = CLOSURE_LEAST;
       for (let rho: number = 0.5; rho > CLOSURE_LEAST; rho -= 0.01)
-        if (contained(build(rho))) {
+        if (holds(build(rho))) {
           most = rho;
           break;
         }
@@ -3384,10 +3386,16 @@ namespace FamilyConicBody {
           const M: C.P = [share * mean * Math.cos(middle), share * mean * Math.sin(middle)];
           const m1 = meet(e1, t1, M, [-tM[0], -tM[1]]), m2 = meet(M, tM, e2, [-t2[0], -t2[1]]);
           if (!(m1.a > 0 && m1.b > 0 && m2.a > 0 && m2.b > 0)) continue;
-          // One closure a section, so its shoulder is smoothed along the stations as one (side 0), whichever side its ends lie on.
-          const wrapped = fullest(0, (rho: number): C.P[] => [...arc(e1, m1.X, M, rho), M, ...arc(M, m2.X, e2, rho)]);
+          // One closure a section, so its shoulder is smoothed along the stations as one (side 0), whichever side its ends lie on. It needs
+          // only to stay on the parent's side of the opening, not inside the reference's cut: the port removes the child's field there,
+          // short of its rail (construction.md, Ports). Held inside the cut as well, its shoulders fell to the model's least, 0.03, and
+          // the closed section became three near-chords with corners at its ends and its far point; the tape wall across them had arcs
+          // whose tangents met at shares down to 0.028, under the fit's margin of 0.1, and the arm's limb(1) seed was refused at 710 of
+          // 3,010 readings, all of them within the closure's stations (24 to 120 mm) and its phases.
+          const trunkSide = (points: readonly C.P[]): boolean => points.every((p: C.P): boolean => opening!(world(p)) >= -0.5);
+          const wrapped = fullest(0, (rho: number): C.P[] => [...arc(e1, m1.X, M, rho), M, ...arc(M, m2.X, e2, rho)], trunkSide);
           const lowest: number = Math.min(...wrapped.points.map((p: C.P): number => opening!(world(p))));
-          report?.(contained(wrapped.points) ? "around" : "outside", `around: share ${share.toFixed(2)}, gap ${((gap * 180) / Math.PI).toFixed(1)} deg, opening down to ${lowest.toFixed(1)} mm${contained(wrapped.points) ? "" : ", " + leaves(wrapped.points)}`, [a1, Math.atan2(e2[1], e2[0])], { side: 0, most: wrapped.most, used: wrapped.used });
+          report?.(trunkSide(wrapped.points) ? "around" : "outside", `around: share ${share.toFixed(2)}, gap ${((gap * 180) / Math.PI).toFixed(1)} deg, rho ${wrapped.used.toFixed(2)}, opening down to ${lowest.toFixed(1)} mm`, [a1, Math.atan2(e2[1], e2[0])], { side: 0, most: wrapped.most, used: wrapped.used });
           return wrapped.points;
         }
         // Where the opening has narrowed so far that no far point admits both corners ahead (f1's arm past 125 mm, a gap under 40
