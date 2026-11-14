@@ -66,12 +66,13 @@ export namespace PlaygroundObjects {
 
   /**
    * Replace every seat reference in an action's parameters by the seat of
-   * the object it names.
+   * the object it names, and every aperture reference (`{ "$aperture":
+   * "<object subject>", "id"?: "<opening id>" }`) by that object's opening.
    *
    * @param params The action's parameters.
    * @param objects The composition's objects.
-   * @returns The parameters with each `{ "$seat": ... }` resolved; the same object when it holds none.
-   * @throws {Error} When a reference names no placed object.
+   * @returns The parameters with each `{ "$seat": ... }` and `{ "$aperture": ... }` resolved; the same object when it holds none.
+   * @throws {Error} When a reference names no placed object, or an object no such opening.
    */
   export function resolve(
     params: Record<string, unknown>,
@@ -96,6 +97,12 @@ export namespace PlaygroundObjects {
           typeof record["id"] === "string" ? record["id"] : undefined,
         );
       }
+      if (typeof record["$aperture"] === "string")
+        return aperture(
+          record["$aperture"],
+          typeof record["id"] === "string" ? record["id"] : undefined,
+          objects,
+        );
       return Object.fromEntries(
         Object.entries(record).map(
           ([key, inner]: [string, unknown]): [string, unknown] => [
@@ -106,6 +113,49 @@ export namespace PlaygroundObjects {
       );
     };
     return walk(params) as Record<string, unknown>;
+  }
+
+  /**
+   * The opening an object declares, placed where the composition puts it,
+   * as `HumanObstacle.apertures` reads it from the archetype's own
+   * `aperture` affordances.
+   */
+  function aperture(
+    subject: string,
+    id: string | undefined,
+    objects: readonly IPlaygroundComposition.IObject[],
+  ): unknown {
+    const object: IPlaygroundComposition.IObject | undefined = objects.find(
+      (o: IPlaygroundComposition.IObject): boolean => o.subject === subject,
+    );
+    if (object === undefined)
+      throw new Error(
+        `An aperture names the object ${subject}, which the composition does not place; it places ${objects.map((o: IPlaygroundComposition.IObject): string => o.subject).join(", ") || "none"}`,
+      );
+    const obstacle: unknown = MOTIONS["HumanObstacle"];
+    const read: unknown =
+      typeof obstacle === "object" && obstacle !== null
+        ? (obstacle as Record<string, unknown>)["apertures"]
+        : undefined;
+    if (typeof read !== "function")
+      throw new Error(
+        "The installed @automovie/motions has no HumanObstacle.apertures, so an object's opening cannot be named yet",
+      );
+    const openings: { id: string }[] = (
+      read as (
+        model: object,
+        at: ReturnType<typeof placement>,
+      ) => { id: string }[]
+    )(model(object), placement(object));
+    const found: { id: string } | undefined =
+      id === undefined
+        ? openings[0]
+        : openings.find((o: { id: string }): boolean => o.id === id);
+    if (found === undefined)
+      throw new Error(
+        `The object ${subject} declares ${id === undefined ? "no opening" : `no opening ${id}`}; it declares ${openings.map((o: { id: string }): string => o.id).join(", ") || "none"}`,
+      );
+    return found;
   }
 
   /** The archetype of a placed object. */

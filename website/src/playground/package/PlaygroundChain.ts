@@ -50,6 +50,13 @@ export namespace PlaygroundChain {
 
     /** The roles it casts. */
     roles: readonly string[];
+
+    /** The action one role performs, for the shared parameters and the cast. */
+    act(
+      role: string,
+      params: object,
+      cast: Readonly<Record<string, string>>,
+    ): { name: string };
   }
 
   /** The package's exports by name, for the tables only some releases have. */
@@ -92,6 +99,25 @@ export namespace PlaygroundChain {
   }
 
   /**
+   * The laws the package exports by name at its top level, beside the
+   * lexicon's rows: a law a mutual action names but no family lists.
+   *
+   * @returns Each law by its name.
+   */
+  export function exported(): Map<string, ILaw> {
+    const found: Map<string, ILaw> = new Map();
+    for (const value of Object.values(EXPORTS))
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        typeof (value as ILaw).name === "string" &&
+        typeof (value as { plan?: unknown }).plan === "function"
+      )
+        found.set((value as ILaw).name, value as ILaw);
+    return found;
+  }
+
+  /**
    * The mutual actions: every record the package exports, in any namespace
    * (`HumanMutual`, and the lexicon's social and partner families), that
    * names itself and casts roles.
@@ -111,7 +137,8 @@ export namespace PlaygroundChain {
           typeof value === "object" &&
           value !== null &&
           typeof (value as IMutual).name === "string" &&
-          Array.isArray((value as IMutual).roles)
+          Array.isArray((value as IMutual).roles) &&
+          typeof (value as IMutual).act === "function"
         )
           found[(value as IMutual).name] = value as IMutual;
     }
@@ -220,6 +247,19 @@ export namespace PlaygroundChain {
           throw new Error(
             `The mutual action ${mutual.name} has no performer cast as ${uncast.join(", ")}; choose one for each role`,
           );
+        // Each role's action is a vocabulary name, a lexicon row or a law
+        // the package exports; a row or a law is registered with the
+        // performance, as the mutual's own documentation asks.
+        for (const role of record.roles) {
+          const name: string = record.act(
+            role,
+            mutual.params,
+            mutual.cast,
+          ).name;
+          if (name in HUMAN_ACTIONS) continue;
+          const law: ILaw | undefined = rows.get(name) ?? exported().get(name);
+          if (law !== undefined) laws.set(law.name, law);
+        }
         return join(
           record,
           Object.fromEntries(

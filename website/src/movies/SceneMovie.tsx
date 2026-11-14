@@ -222,6 +222,18 @@ export default function SceneMovie(props: {
               </ul>
             </>
           )}
+          {SceneFacts.features(scene).length === 0 ? null : (
+            <>
+              <h2>Composed</h2>
+              <ul className="am-plain">
+                {SceneFacts.features(scene).map(
+                  (feature: string): ReactElement => (
+                    <li key={feature}>{feature}</li>
+                  ),
+                )}
+              </ul>
+            </>
+          )}
           <h2>Actions</h2>
           <p className="am-mono am-small">
             {SceneFacts.actions(scene).map(

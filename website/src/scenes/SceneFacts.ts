@@ -29,6 +29,61 @@ export namespace SceneFacts {
   }
 
   /**
+   * The ways a scene composes its actions beyond one action after another,
+   * as its page lists them: performed over another action, cut early,
+   * timed to another person's instant, done together, seated, riding, and
+   * holding or using a placed object.
+   *
+   * @param scene The scene.
+   * @returns The features in that order, each a short phrase; empty for a planned scene or a plain sequence.
+   */
+  export function features(scene: IScene): string[] {
+    const found: Set<string> = new Set();
+    const objects: Set<string> = new Set(
+      (scene.composition?.objects ?? []).map(
+        (o: IPlaygroundComposition.IObject): string => o.subject,
+      ),
+    );
+    // A parameter that names a placed object, as a prop, a seat or a point.
+    const names: (value: unknown) => boolean = (value: unknown): boolean =>
+      typeof value === "string"
+        ? objects.has(value)
+        : Array.isArray(value)
+          ? value.some(names)
+          : typeof value === "object" && value !== null
+            ? Object.values(value).some(names)
+            : false;
+    const visit: (action: IPlaygroundComposition.IAction) => void = (
+      action: IPlaygroundComposition.IAction,
+    ): void => {
+      if (action.over !== undefined && action.over.length !== 0)
+        found.add("performed over another action");
+      if (action.until !== undefined) found.add("cut early and redirected");
+      if (action.sync !== undefined)
+        found.add("timed to another person's instant");
+      if (JSON.stringify(action.params).includes('"$seat"'))
+        found.add("seated");
+      if (action.name === "ride") found.add("riding");
+      if (names(action.params)) found.add("with a placed object");
+      action.over?.forEach(visit);
+    };
+    for (const performer of scene.composition?.performers ?? [])
+      performer.actions.forEach(visit);
+    if ((scene.composition?.mutuals.length ?? 0) !== 0)
+      found.add("done together");
+    const order: string[] = [
+      "performed over another action",
+      "cut early and redirected",
+      "timed to another person's instant",
+      "done together",
+      "seated",
+      "riding",
+      "with a placed object",
+    ];
+    return order.filter((feature: string): boolean => found.has(feature));
+  }
+
+  /**
    * The line a card shows under its title.
    *
    * @param scene The scene.
