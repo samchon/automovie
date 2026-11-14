@@ -165,19 +165,34 @@ export namespace FamilyConicFair {
     // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (fairMm / girth)^4. A least-squares spline on
     // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
     const H: number = M / 2;
-    const A: number[] = [], B: number[] = [], W: number[] = [];
+    const A: number[] = new Array<number>(H + 1).fill(0), B: number[] = new Array<number>(H + 1).fill(0), W: number[] = [];
     const cut: number = girth / fairMm;
-    for (let n: number = 0; n <= H; ++n) {
-      let a: number = 0, b: number = 0;
+    for (let n: number = 0; n <= H; ++n) W.push(1 / (1 + (n / cut) ** 4));
+    const cosine: Float64Array = new Float64Array((H + 1) * M), sine: Float64Array = new Float64Array((H + 1) * M);
+    for (let n: number = 0; n <= H; ++n)
       for (let k: number = 0; k < M; ++k) {
-        a += radii[k]! * Math.cos((2 * Math.PI * n * k) / M);
-        b += radii[k]! * Math.sin((2 * Math.PI * n * k) / M);
+        cosine[n * M + k] = Math.cos((2 * Math.PI * n * k) / M);
+        sine[n * M + k] = Math.sin((2 * Math.PI * n * k) / M);
       }
-      const half: boolean = n === 0 || n === H;
-      A.push(((half ? 1 : 2) * a) / M);
-      B.push(((half ? 1 : 2) * b) / M);
-      W.push(1 / (1 + (n / cut) ** 4));
-    }
+    // The spline of the samples `data`: each harmonic of the data shrunk by its weight, and its values back at the samples.
+    const fit = (data: readonly number[]): number[] => {
+      for (let n: number = 0; n <= H; ++n) {
+        let a: number = 0, b: number = 0;
+        for (let k: number = 0; k < M; ++k) {
+          a += data[k]! * cosine[n * M + k]!;
+          b += data[k]! * sine[n * M + k]!;
+        }
+        const half: boolean = n === 0 || n === H;
+        A[n] = ((half ? 1 : 2) * a) / M;
+        B[n] = ((half ? 1 : 2) * b) / M;
+      }
+      return Array.from({ length: M }, (_: unknown, k: number): number => {
+        let sum: number = 0;
+        for (let n: number = 0; n <= H; ++n) sum += W[n]! * (A[n]! * cosine[n * M + k]! + B[n]! * sine[n * M + k]!);
+        return sum;
+      });
+    };
+    fit(radii);
     // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
     const rAt = (phi: number, order: number): number => {
       const c1: number = Math.cos(phi), s1: number = Math.sin(phi);

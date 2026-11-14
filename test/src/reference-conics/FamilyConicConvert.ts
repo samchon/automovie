@@ -512,23 +512,41 @@ export namespace FamilyConicConvert {
    * sections measured against the source, rendered in clay beside the reference in four views, and admitted every `ADMIT_STEP_MM`.
    */
   async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], course: ICourse | undefined, out: string, text: string[], fairMm: number): Promise<object> {
-    // The longest run of neighbouring star-shaped stations: a section the rays fold over is not a wall's (lofting.md, the method's limit). A
-    // fold counts where its folded rays span at least a quarter of the narrowest kept wavelength round the section (lofting.md: a form is
-    // resolved by samplings at most a quarter of its roll): a single grazing ray on f1's hand at 560 and 562 mm, 0.3 mm of its 200 mm
-    // girth, ended its domain 16 mm before its fingers part. Counted along the course instead, the nose's wing, folded over 4 mm of
-    // stations, would have passed under its 10.5 mm cutoff.
-    const folded = (st: IStation): boolean => (st.folds / 720) * st.girthMm >= fairMm / 4;
-    let best: [number, number] = [0, -1];
+    // The family's domain: the longest run of stations between the folds that end it (lofting.md, the method's limit: a section the rays fold
+    // over is not a wall's). A run of folded sections ends the domain where it persists without a gap through to the source run's end, as
+    // a parent opening into a split does (construction.md, Splits; f1's hand folds from 578 mm through 594 as its fingers part), or where its
+    // widest overhang covers a quarter of the narrowest kept wavelength round the section (lofting.md: a form is resolved by samplings at
+    // most a quarter of its roll), as a part folded over itself does (f1's nose's wing, up to 134 of 720 rays, 15 mm of its girth). A run
+    // that does neither is a blip: f1's hand's single grazing rays at 560 and 562 mm, 0.3 mm of its 200 mm girth.
+    const runsOfFolds: { from: number; to: number; ends: boolean; split: boolean }[] = [];
     for (let i: number = 0; i < stations.length; ) {
-      if (folded(stations[i]!)) {
+      if (stations[i]!.folds === 0) {
         ++i;
         continue;
       }
       let j: number = i;
-      while (j + 1 < stations.length && !folded(stations[j + 1]!)) ++j;
+      while (j + 1 < stations.length && stations[j + 1]!.folds > 0) ++j;
+      const split: boolean = i === 0 || j === stations.length - 1;
+      const overhang: boolean = stations.slice(i, j + 1).some((st: IStation): boolean => (st.folds / 720) * st.girthMm >= fairMm / 4);
+      runsOfFolds.push({ from: i, to: j, ends: split || overhang, split });
+      i = j + 1;
+    }
+    const ending = (i: number): boolean => runsOfFolds.some((r): boolean => r.ends && i >= r.from && i <= r.to);
+    let best: [number, number] = [0, -1];
+    for (let i: number = 0; i < stations.length; ) {
+      if (ending(i)) {
+        ++i;
+        continue;
+      }
+      let j: number = i;
+      while (j + 1 < stations.length && !ending(j + 1)) ++j;
       if (j - i > best[1] - best[0]) best = [i, j];
       i = j + 1;
     }
+    // Whether each end of the domain opens into a split: the fold run beyond it persists to the source run's end.
+    const splitBelow: boolean = runsOfFolds.some((r): boolean => r.split && r.ends && r.to === best[0] - 1);
+    const splitAbove: boolean = runsOfFolds.some((r): boolean => r.split && r.ends && r.from === best[1] + 1);
+    text.push(`fold runs (stations, ending the domain or a blip): ${runsOfFolds.map((r): string => `${stations[r.from]!.s}-${stations[r.to]!.s} ${r.split ? "to the source's end" : r.ends ? "overhang" : "blip"}`).join(", ") || "none"}`);
     const range: IStation[] = stations.slice(best[0], best[1] + 1);
     if (range.length === 0) {
       text.push("", `## Families: no star-shaped station among ${stations.length}; nothing to lay out`);
@@ -556,8 +574,15 @@ export namespace FamilyConicConvert {
       // Carried over its whole source extent with its groove's floor held 0.25 mm deep instead, 11 of the nose's 31 reads were refused
       // (the arc from its first inflection to the held floor met behind its end): the groove cannot be deeper than the fairing drew it.
       const kept: number[] = line.stations.filter((_: number, k: number): boolean => 2 * line.turns[k]! >= fairMm);
-      const first: number = kept.length > 0 ? kept[0]! : line.stations[0]!, last: number = kept.length > 0 ? kept[kept.length - 1]! : line.stations[0]!;
-      const extent: number = kept.length === 0 ? 0 : Math.abs((course?.station ?? ((s: number): number => s))(last) - (course?.station ?? ((s: number): number => s))(first));
+      // A line that reaches the domain's end where the parent opens into a split is no short line: it runs on as a valley into the split's
+      // seams (construction.md, Splits), so it is carried to the end and its run is not measured against its wavelength. On f1's hand two
+      // dorsal valleys reaching 582 mm were dropped as running 10 and 8 mm against their wavelengths of 11.4 and 14.0 mm.
+      const spacing: number = range.length > 1 ? Math.abs(range[1]!.s - range[0]!.s) : 0;
+      const intoSplitAbove: boolean = splitAbove && line.stations.at(-1)! >= range.at(-1)!.s - spacing - 1e-9;
+      const intoSplitBelow: boolean = splitBelow && line.stations[0]! <= range[0]!.s + spacing + 1e-9;
+      const first: number = intoSplitBelow ? range[0]!.s : kept.length > 0 ? kept[0]! : line.stations[0]!;
+      const last: number = intoSplitAbove ? range.at(-1)!.s : kept.length > 0 ? kept[kept.length - 1]! : line.stations.at(-1)!;
+      const extent: number = intoSplitAbove || intoSplitBelow ? Infinity : kept.length === 0 ? 0 : Math.abs((course?.station ?? ((s: number): number => s))(last) - (course?.station ?? ((s: number): number => s))(first));
       // At each station, the groove that holds the line's hollow (its inflections round the hollow's phase, else its middle within TRACK),
       // each groove to one line, the longest lines first.
       const phases: ([number, number, number] | null)[] = range.map((st: IStation, i: number): [number, number, number] | null => {
@@ -576,10 +601,11 @@ export namespace FamilyConicConvert {
         lineOf.push({ phases: phases.map((x, i: number): [number, number, number] | null => (range[i]!.s >= first - 1e-9 && range[i]!.s <= last + 1e-9 ? x : null)) });
         spans.push([range.findIndex((st: IStation): boolean => Math.abs(st.s - first) < 1e-9), range.findIndex((st: IStation): boolean => Math.abs(st.s - last) < 1e-9)]);
       } else {
-        // A short line at the domain's end, next to the sections that fold, is the neighbouring family's (on f1's nose, the wing's).
+        // A short line at a domain's end next to a part folded over itself (not a split) is the neighbouring family's (on f1's nose, the
+        // wing's).
         const atEnd: string =
-          line.stations[0]! <= range[0]!.s + wavelength && best[0] > 0 ? "; at the domain's start, next to the folded sections below: the neighbouring family's"
-          : line.stations.at(-1)! >= range.at(-1)!.s - wavelength && best[1] < stations.length - 1 ? "; at the domain's end, next to the folded sections above: the neighbouring family's"
+          line.stations[0]! <= range[0]!.s + wavelength && best[0] > 0 && !splitBelow ? "; at the domain's start, next to the folded sections below: the neighbouring family's"
+          : line.stations.at(-1)! >= range.at(-1)!.s - wavelength && best[1] < stations.length - 1 && !splitAbove ? "; at the domain's end, next to the folded sections above: the neighbouring family's"
           : "";
         named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)}: runs ${f2(extent)} mm along the course against its wavelength ${f2(wavelength)} mm, a groove at ${seen} station(s), depth ${span2(line.depths)} mm${atEnd}`);
       }
