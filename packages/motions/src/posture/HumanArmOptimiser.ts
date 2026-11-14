@@ -11,7 +11,9 @@ import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
  * where the merit falls by a tenth of what the model predicts and the trust
  * region shrunk where not, and the penalty raised tenfold while the
  * constraints are not met. A problem still infeasible at the last penalty
- * is left to the caller to refuse.
+ * is left to the caller to refuse. A solve continued from another's result
+ * on refined waypoints starts at that result's penalty, the continuation of
+ * a penalty method, in place of the first.
  */
 export namespace HumanArmOptimiser {
   /**
@@ -19,18 +21,24 @@ export namespace HumanArmOptimiser {
    *
    * @param context The problem's context.
    * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
-   * @returns The last iterate and its evaluation.
+   * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
+   * @returns The last iterate, its evaluation and the penalty it was reached at.
    */
   export function optimise(
     context: M.IContext,
     start: readonly (readonly (readonly number[])[])[],
-  ): { x: number[][][]; evaluation: M.IEvaluation } {
+    from?: number,
+  ): { x: number[][][]; evaluation: M.IEvaluation; penalty: number } {
     const x: number[][][] = start.map((arm: readonly (readonly number[])[]): number[][] => arm.map((v: readonly number[]): number[] => [...v]));
     let current: M.IEvaluation = M.evaluate(context, x);
     // The last accepted subproblem's multipliers, which the next starts from.
     let duals: Map<string, number> | undefined;
     let radius: number = TRUST;
+    let penalty: number = PENALTIES[0]!;
     for (const mu of PENALTIES) {
+      // A continued solve keeps the penalty its iterate was reached at.
+      if (from !== undefined && mu < from) continue;
+      penalty = mu;
       for (let round: number = 0; round < ROUNDS; ++round) {
         const model: QP.IProblem = HumanArmTrajectoryConvex.convexify(context, x, current, mu, 1.5 * radius);
         const merit: number = current.objective + mu * current.violation;
@@ -80,7 +88,7 @@ export namespace HumanArmOptimiser {
       if (current.worst.value <= M.TOLERANCE) break;
       radius = TRUST;
     }
-    return { x, evaluation: current };
+    return { x, evaluation: current, penalty };
   }
 }
 

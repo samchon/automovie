@@ -109,10 +109,10 @@ export namespace HumanArmTrajectory {
     };
     let seed: number[][][] = HumanArmSeed.seed(problem, context);
     for (let again: number[][][] | undefined = refined(seed); again !== undefined; again = refined(seed)) seed = again;
-    let solved: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(context, seed);
+    let solved: { x: number[][][]; evaluation: M.IEvaluation; penalty: number } = HumanArmOptimiser.optimise(context, seed);
     for (let again: number[][][] | undefined = refined(solved.x, solved.evaluation); again !== undefined; again = refined(solved.x, solved.evaluation))
-      solved = HumanArmOptimiser.optimise(context, again);
-    const { x, evaluation: current }: { x: number[][][]; evaluation: M.IEvaluation } = solved;
+      solved = HumanArmOptimiser.optimise(context, again, solved.penalty);
+    const { x, evaluation: current }: { x: number[][][]; evaluation: M.IEvaluation; penalty: number } = solved;
     const n: number = context.n;
     const at: readonly number[] = context.times;
     if (current.worst.value > M.TOLERANCE)
