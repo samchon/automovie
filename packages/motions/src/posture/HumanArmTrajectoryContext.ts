@@ -244,7 +244,15 @@ export namespace HumanArmTrajectoryContext {
   }
 }
 
-/** Each coordinate's hard bounds: the twist interval and the elbow's and wrist's ranges, widened to the rest and the back arm's own values; none for the chart's two, which the chart's disc bounds. */
+/**
+ * Each coordinate's hard bounds, every QP's box constraints as in TrajOpt:
+ * the twist interval and the elbow's and wrist's ranges of the skeleton,
+ * not widened, so no iterate leaves the range forward kinematics clamps to;
+ * the rest and the back arm enter clamped (`HumanArmGeometry.encode`). The
+ * shoulder's twist stays widened to the rest and the back arm's chart
+ * reading, which a clamped clinical triple meets only to its rounding. None
+ * for the chart's two, which the chart's disc bounds.
+ */
 function boxes(setup: G.ISetup, rest: readonly number[], back: readonly number[]): ([number, number] | null)[] {
   const out: ([number, number] | null)[] = new Array(G.DIMENSIONS).fill(null);
   const twist: { min: number; max: number } = setup.constraint.upper.swingTwist!.twist;
@@ -255,7 +263,7 @@ function boxes(setup: G.ISetup, rest: readonly number[], back: readonly number[]
       [setup.constraint.hand, 6],
     ] as const) {
       const r: { min: number; max: number } | null | undefined = constraint?.[key];
-      if (r !== null && r !== undefined) out[o + i] = [Math.min(r.min, rest[o + i]!, back[o + i]!), Math.max(r.max, rest[o + i]!, back[o + i]!)];
+      if (r !== null && r !== undefined) out[o + i] = [r.min, r.max];
     }
   });
   return out;

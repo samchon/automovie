@@ -137,6 +137,7 @@ export * from "./posture/HumanColliders";
 export * from "./posture/HumanFoot";
 export * from "./posture/HumanFrame";
 export * from "./posture/HumanJacobian";
+export * from "./posture/HumanArmJacobian";
 export * from "./posture/HumanFreedomChoice";
 export * from "./posture/HumanHand";
 export * from "./posture/HumanHandAttitude";

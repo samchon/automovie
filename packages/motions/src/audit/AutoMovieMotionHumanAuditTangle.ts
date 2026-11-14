@@ -11,6 +11,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditTangleModel } from "./AutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
@@ -79,7 +80,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * limit for a tangle. Two colliders deeper in each other than that while
    * the body stands at rest cannot be told apart by their corners.
    */
-  export const BUILT: number = AutoMovieMotionHumanAuditTangleModel.BUILT;
+  export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /** One pair of segments that pass into each other. */
   export interface IPair {

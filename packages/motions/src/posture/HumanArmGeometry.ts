@@ -3,6 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
+  clampJointToSkeleton,
   decomposeJointRotation,
   getConstraint,
   jointToQuaternion,
@@ -247,7 +248,9 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * A joint's articulation from its clinical triple.
+   * A joint's articulation from its clinical triple, clamped to the
+   * skeleton's range as the engine's forward kinematics clamps it
+   * (`clampJointToSkeleton`), so the arm planned is the arm shown.
    *
    * @param setup The arm.
    * @param bone The joint's bone.
@@ -255,7 +258,22 @@ export namespace HumanArmGeometry {
    * @returns The rotation from the bone's rest.
    */
   export function rotation(setup: ISetup, bone: AutoMovieHumanoidBone, of: readonly [number, number, number]): IAutoMovieQuaternion {
-    return Quaternion.normalize(jointToQuaternion({ flexion: of[0], abduction: of[1], twist: of[2] }, setup.axes[bone], HUMANOID_REST_FRAME[bone]));
+    const [flexion, abduction, twist]: [number, number, number] = clamped(setup, bone, of);
+    return Quaternion.normalize(jointToQuaternion({ flexion, abduction, twist }, setup.axes[bone], HUMANOID_REST_FRAME[bone]));
+  }
+
+  /**
+   * A joint's clinical triple clamped to the skeleton's range, the angles
+   * forward kinematics reads (`rotation`).
+   *
+   * @param setup The arm.
+   * @param bone The joint's bone.
+   * @param of Its flexion, abduction and twist, degrees.
+   * @returns The clamped triple.
+   */
+  export function clamped(setup: ISetup, bone: AutoMovieHumanoidBone, of: readonly [number, number, number]): [number, number, number] {
+    const joint: ReturnType<typeof clampJointToSkeleton> = clampJointToSkeleton({ bone, flexion: of[0], abduction: of[1], twist: of[2] }, setup.body.skeleton);
+    return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
   }
 
   /**
@@ -271,7 +289,8 @@ export namespace HumanArmGeometry {
       setup.constraint.upper,
       setup.joint,
     );
-    return [place.x * SCALE, place.y * SCALE, place.twist, ...arm.lower, ...arm.hand];
+    // An arm already past a range enters as it is shown, clamped.
+    return [place.x * SCALE, place.y * SCALE, place.twist, ...clamped(setup, setup.bones.lower, arm.lower), ...clamped(setup, setup.bones.hand, arm.hand)];
   }
 
   /**

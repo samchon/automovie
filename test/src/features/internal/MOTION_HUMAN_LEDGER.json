@@ -281,6 +281,35 @@
     },
     {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.stated",
+      "tests": [
+        "test_human_motion_core_carry_continuity"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.together",
+      "tests": [
+        "test_human_motion_core_bimanual_rod",
+        "test_human_motion_core_bimanual_rod_undeclared"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmJacobian.read",
+      "tests": [
+        "test_human_motion_core_arm_jacobian"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmJacobian.columns",
+      "tests": [
+        "test_human_motion_core_arm_jacobian"
+      ]
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanArmFollow.follower",
       "tests": [
         "test_human_motion_compose_arm_follow"
