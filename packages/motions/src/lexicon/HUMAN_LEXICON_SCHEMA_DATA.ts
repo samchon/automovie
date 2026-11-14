@@ -12341,9 +12341,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "OmitIParamscyclestool": {
         "type": "object",
         "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
+          },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -12354,7 +12358,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -12421,9 +12425,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "OmitIParamstool": {
         "type": "object",
         "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
+          },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -12434,7 +12442,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "cycles": {
             "type": "integer",
@@ -12448,6 +12456,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
+          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -12476,6 +12485,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
+          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -13445,10 +13455,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "Seconds a held pose is stayed in; the kind's own when absent.",
             "x-unit": "s"
           },
-          "bar": {
-            "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "The middle of the bar between the hands, world metres, for a hanging kind; `WorkoutPlace.BAR` above the standing reach when absent."
-          },
           "on": {
             "type": "object",
             "properties": {
@@ -13467,7 +13473,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               "affordance"
             ],
             "additionalProperties": false,
-            "description": "The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent."
+            "description": "The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent."
           },
           "stay": {
             "type": "boolean",
@@ -14304,13 +14310,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The catching hand when one; `right` when absent."
           },
-          "radius": {
-            "type": "number",
-            "description": "The object's radius, metres; 0.11 when absent (a handball, provisional)."
+          "ball": {
+            "type": "string",
+            "description": "The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts)."
+          },
+          "glove": {
+            "type": "string",
+            "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
           }
         },
         "required": [
-          "from"
+          "from",
+          "ball"
         ],
         "additionalProperties": false
       },
@@ -14318,12 +14329,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "ball": {
-            "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The ball's centre."
-          },
-          "radius": {
-            "type": "number",
-            "description": "The ball's radius, metres; 0.11 when absent (a size 5 football)."
+            "type": "string",
+            "description": "The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts)."
           },
           "toward": {
             "oneOf": [
@@ -14737,8 +14744,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The prop landed on, its subject id; the floor when absent."
           },
           "bar": {
-            "type": "number",
-            "description": "The bar's height, metres: the height the centre of mass peaks at."
+            "type": "string",
+            "description": "The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at."
           }
         },
         "required": [
@@ -18630,25 +18637,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "obstacle": {
-            "type": "object",
-            "properties": {
-              "at": {
-                "$ref": "#/components/schemas/IAutoMovieVector3"
-              },
-              "height": {
-                "type": "number"
-              },
-              "depth": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "at",
-              "height",
-              "depth"
-            ],
-            "additionalProperties": false,
-            "description": "The obstacle: the middle of its near side on the floor, its height and its depth along the heading, metres."
+            "type": "string",
+            "description": "The obstacle's prop subject: a kerb or a hurdle, whose near edge, height and depth its contacts declare (`HumanObstacle`)."
           },
           "lead": {
             "oneOf": [
@@ -18832,21 +18822,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "keyboard": {
-            "type": "object",
-            "properties": {
-              "at": {
-                "$ref": "#/components/schemas/IAutoMovieVector3"
-              },
-              "yaw": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "at",
-              "yaw"
-            ],
-            "additionalProperties": false,
-            "description": "The keyboard: the middle of its home row, world metres, and the heading its user faces."
+            "type": "string",
+            "description": "The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts)."
           },
           "text": {
             "type": "string",
@@ -20210,13 +20187,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The catching hand when one; `right` when absent."
           },
-          "radius": {
-            "type": "number",
-            "description": "The object's radius, metres; 0.11 when absent (a handball, provisional)."
+          "ball": {
+            "type": "string",
+            "description": "The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts)."
+          },
+          "glove": {
+            "type": "string",
+            "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
           }
         },
         "required": [
-          "from"
+          "from",
+          "ball"
         ],
         "additionalProperties": false,
         "description": "Parameters."
@@ -20431,29 +20413,24 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "climbLadder.IParams": {
         "type": "object",
         "properties": {
+          "ladder": {
+            "type": "string",
+            "description": "The ladder's prop subject: a fixture whose rungs are its `rung1` upward."
+          },
           "rungs": {
             "type": "integer",
             "minimum": 1,
             "description": "How many rungs the feet climb; 3 when absent.",
             "x-unit": ""
           },
-          "spacing": {
-            "type": "number",
-            "minimum": 0.25,
-            "maximum": 0.36,
-            "description": "Rung spacing, metres, from 0.25 to 0.36; 0.3 when absent.",
-            "x-unit": "m"
-          },
-          "start": {
-            "type": "number",
-            "description": "The rungs' distance ahead of the toes, metres; 0.15 when absent."
-          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
           }
         },
-        "required": [],
+        "required": [
+          "ladder"
+        ],
         "additionalProperties": false,
         "description": "Parameters."
       },
@@ -20507,12 +20484,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "ball": {
-            "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The ball's centre."
-          },
-          "radius": {
-            "type": "number",
-            "description": "The ball's radius, metres; 0.11 when absent (a size 5 football)."
+            "type": "string",
+            "description": "The ball's prop subject: its `grip` contact is its centre and that grip's aperture its diameter (`createBall`'s contacts)."
           },
           "foot": {
             "oneOf": [
@@ -20674,12 +20647,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "tool": {
-            "$ref": "#/components/schemas/useTool.Kind",
-            "description": "The tool."
+            "$ref": "#/components/schemas/HumanToolWork.Kind",
+            "description": "The work: hammering, sawing, stirring or driving a screw."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The held tool's prop subject, in `hand` since a pick-up: its `face` contact is the working point and its line runs from its `grip` to its `face`."
           },
           "on": {
             "$ref": "#/components/schemas/AutoMovieMotionTarget",
-            "description": "The work point: a nail, a cut line's middle, a pot's centre, a screw."
+            "description": "The work point: a nail, a cut line's middle, a screw; for a stir, the vessel's `inside` (`{ kind: \"prop\", subject, point: \"inside\" }`), whose `rim` bounds the circle."
           },
           "hand": {
             "oneOf": [
@@ -20690,7 +20667,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "right"
               }
             ],
-            "description": "The working hand; `right` when absent."
+            "description": "The working hand; the hand that holds `prop` when absent, `right` if both or neither do."
           },
           "cycles": {
             "type": "integer",
@@ -20705,12 +20682,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         },
         "required": [
           "tool",
+          "prop",
           "on"
         ],
         "additionalProperties": false,
         "description": "Parameters."
       },
-      "useTool.Kind": {
+      "HumanToolWork.Kind": {
         "oneOf": [
           {
             "const": "hammer"
@@ -20725,7 +20703,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "const": "stir"
           }
         ],
-        "description": "A tool kind."
+        "description": "A kind of work."
       },
       "wipe.IParams": {
         "type": "object",
@@ -20767,7 +20745,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "properties": {
           "item": {
             "$ref": "#/components/schemas/dress.Item",
-            "description": "The item."
+            "description": "The item: where it is worn and how the free hand steadies it."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The wearable's prop subject, held since a pick-up: its `wear` socket is put on the head (`createWearable`'s contacts)."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that holds it; the one the entry holds it in when absent, `right` if neither."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20775,7 +20768,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
-          "item"
+          "item",
+          "prop"
         ],
         "additionalProperties": false,
         "description": "Parameters."

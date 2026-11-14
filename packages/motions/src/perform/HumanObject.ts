@@ -39,11 +39,14 @@ export namespace HumanObject {
 
   /**
    * Where the scene puts an object: a rigid world frame, or the floor point
-   * under its origin and the heading its own `+Z` faces, degrees about +Y.
+   * under its origin and the heading its own `+Z` faces, degrees about +Y;
+   * `fixed` sets it as a fixture, which hands grip and never carry
+   * (`IHumanProp.fixed`).
    */
-  export type Placement =
+  export type Placement = (
     | IHumanProp.IFrame
-    | { at: IAutoMovieVector3; yaw: number };
+    | { at: IAutoMovieVector3; yaw: number }
+  ) & { fixed?: boolean };
 
   /**
    * A placement as a rigid world frame.
@@ -54,14 +57,14 @@ export namespace HumanObject {
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
    * @evidence contracts/development/implementation.md#principled-implementation A heading is a rotation about the world's up by that angle.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on which form was given.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A frame given as one is returned unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A frame given as one is returned as its position and rotation.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function frame(placement: Placement): IHumanProp.IFrame {
     return "position" in placement
-      ? placement
+      ? { position: placement.position, rotation: placement.rotation }
       : {
           position: placement.at,
           rotation: Quaternion.fromAxisAngle(
@@ -127,6 +130,7 @@ export namespace HumanObject {
         ]),
       ),
       affordances,
+      ...(placement.fixed === true ? { fixed: true } : {}),
       ...(shapes === undefined ? {} : { shapes }),
       ...(motion === undefined
         ? {}

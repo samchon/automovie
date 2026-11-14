@@ -1,10 +1,11 @@
-﻿import { Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import type { IHumanProp } from "../../perform/IHumanProp";
 import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -40,18 +41,24 @@ export namespace everydayCaseKit {
    *
    * @param c The context.
    * @param chain The chain.
+   * @param props The scene's props; none when absent.
    * @returns The performance.
    */
-  export const one = (c: IContext, chain: HumanChain): HumanPerformance =>
-    perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain);
+  export const one = (
+    c: IContext,
+    chain: HumanChain,
+    props: readonly IHumanProp[] = [],
+  ): HumanPerformance => perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
 
-  /** A performance of polygon men at places and headings, the first `a` and the second `b`. */
+  /** A performance of polygon men at places and headings, the first `a` and the second `b`, among the scene's props. */
   export function perform(
     people: [humanPolygonMan.IPolygonMan, IAutoMovieVector3, number][],
     chain: HumanChain,
+    props: readonly IHumanProp[] = [],
   ): HumanPerformance {
     return new HumanPerformance({
       seed: "everyday",
+      props: [...props],
       performers: people.map(([man, at, yaw], i: number) => ({
         subject: i === 0 ? "a" : "b",
         body: createHumanBody(man.body.skeleton, man.body.profile),

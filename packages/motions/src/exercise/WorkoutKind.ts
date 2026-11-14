@@ -1,5 +1,3 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanBase } from "../law/HumanBase";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
@@ -27,8 +25,8 @@ export interface WorkoutKind {
    */
   anchor: "stance" | "hips" | "bar";
 
-  /** The bones whose mean place is kept while the body works. */
-  pin: readonly AutoMovieHumanoidBone[];
+  /** The bones whose mean place is kept while the body works, or the grip sockets of hands closed on a bar, the bar in the fists. */
+  pin: readonly ExerciseKey.Pin[];
 
   /**
    * The height of what the first posture rests on (a bench, a seat, a

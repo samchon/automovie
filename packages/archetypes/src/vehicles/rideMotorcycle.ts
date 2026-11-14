@@ -5,13 +5,13 @@ import type { createMotorcycle } from "./createMotorcycle";
  * A motorcycle or a scooter ridden along a course: its root on the path, leaned into each turn by the balance of its speed and the turn's radius.
  *
  * @param machine The machine.
- * @param course The course its root follows.
+ * @param course The course its root follows, or its plan, such as a timed course's.
  * @returns The ride, with the course's instants.
- * @throws {ArchetypeRefusal} When a turn at the course's cruising speed needs more than `rideMotorcycle.LEAN` degrees of lean, giving the least radius at that speed, or the course is malformed.
+ * @throws {ArchetypeRefusal} When a bend at the fastest the course lets it be taken needs more than `rideMotorcycle.LEAN` degrees of lean, as `ArchetypeCourse.admitLean` refuses, or the course is malformed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The steady-turn lean of `ArchetypeCourse.lean`; `ArchetypeCourse.admitLean` checks the limit at the cruising speed, the fastest the course lets a turn be taken.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Check every turn against the limit, then one pose function.
+ * @evidence contracts/development/implementation.md#principled-implementation The steady-turn lean of `ArchetypeCourse.lean`; `ArchetypeCourse.admitLean` checks the limit at each bend's top speed, the fastest the course lets it be taken.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan unless planned, check every bend against the limit, then one pose function.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A turn beyond the limit is refused, never flattened.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per sample.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's plan is shared by every sample, and the lean check is the one the bicycle's ride uses.
@@ -19,15 +19,17 @@ import type { createMotorcycle } from "./createMotorcycle";
  */
 export function rideMotorcycle(
   machine: Archetype<createMotorcycle.Affordance, createMotorcycle.Dimension>,
-  course: ArchetypeCourse.ICourse,
+  course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
 ): ArchetypeRide.IRide<
   createMotorcycle.Affordance,
   createMotorcycle.Dimension
 > {
-  ArchetypeCourse.admitLean("motorcycle", course, rideMotorcycle.LEAN);
+  const plan: ArchetypeCourse.IPlan =
+    "legs" in course ? ArchetypeCourse.plan("motorcycle", course) : course;
+  ArchetypeCourse.admitLean("motorcycle", plan, rideMotorcycle.LEAN);
   return ArchetypeRide.along(
     machine,
-    course,
+    plan,
     (
       state: ArchetypeCourse.IState,
     ): ArchetypeRide.IPose<

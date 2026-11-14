@@ -112,7 +112,12 @@ function build(
   constraint: IAutoMovieJointConstraint,
   joint: swingTwistRegion.IJoint,
 ): Float64Array {
-  return raise(widen(reach(constraint, joint), constraint, joint));
+  // The limb points no farther from rest than its stated reach, which keeps
+  // the rest direction's antipode outside (`ISwingTwist.reach`).
+  const cap: number = constraint.swingTwist?.reach ?? 180;
+  return raise(widen(reach(constraint, joint), constraint, joint)).map(
+    (radius: number): number => Math.min(cap, radius),
+  );
 }
 
 /**

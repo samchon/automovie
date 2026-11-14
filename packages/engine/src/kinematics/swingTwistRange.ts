@@ -245,21 +245,12 @@ export namespace swingTwistRange {
    * there, and its twist clamped to its interval. A rotation inside is
    * returned unchanged.
    *
-   * A twist outside the interval is read as its alias nearer the interval
-   * unless `toward` names the twist it moves with, then as its alias nearest
-   * that. The nearer end swaps at the middle of the turn outside the
-   * interval: a shoulder blended from a hanging arm to a hand on the nape
-   * read its twist 166, -173 and -146 degrees on the way, and clamped to 135
-   * and then to -110 between two frames. Read about a twist the blend moves
-   * through inside the interval, the clamp keeps one end.
-   *
    * @param q The joint's rest-relative rotation.
    * @param constraint The constraint, with `swingTwist`.
    * @param joint The joint's axes and rest frame.
-   * @param toward A twist, clinical degrees, an outside twist is read nearest before it is clamped; the interval when absent.
    * @returns The rotation in range.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States how the swing and the twist are each brought back, how an outside twist is read with the measured defect, and that a rotation inside is returned as given.
+   * @evidence contracts/development/common.md#meaningful-documentation States how the swing and the twist are each brought back and that a rotation inside is returned as given.
    * @evidence contracts/development/implementation.md#principled-implementation The swing is brought back along its own great circle from the rest direction, a radial map onto a region star-shaped about the rest direction, which moves continuously with the rotation wherever the radius does; the twist is clamped to its interval.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius, one shortest turn (`rotationBetween`) and one twist.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest point is sought, since a nearest point jumps where two tie.
@@ -271,17 +262,11 @@ export namespace swingTwistRange {
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
     joint: IJoint,
-    toward?: number,
   ): IAutoMovieQuaternion {
     const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
     const reading: IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
-    const inside: number = nearestAngleAlias(reading.twist, interval);
-    // An outside twist read about `toward`, so its clamp keeps one end.
-    const turned: number =
-      toward === undefined || (inside >= interval.min && inside <= interval.max)
-        ? inside
-        : toward + wrapDegrees(reading.twist - toward);
+    const turned: number = nearestAngleAlias(reading.twist, interval);
     const twist: number = swingTwistBasis.clamp(
       turned,
       interval.min,
@@ -305,6 +290,143 @@ export namespace swingTwistRange {
     );
   }
 
+  /**
+   * A rotation's place in the range's chart: its swing as a share of the
+   * region's radius on its own great circle, laid out on the unit disc by its
+   * azimuth (`x`, `y`), and its twist read inside the interval (`twist`). The
+   * region is star-shaped about the rest direction with a radius below 180
+   * degrees on every great circle (`ISwingTwist.reach`), so the region is the
+   * unit disc exactly, the rest direction its centre, and the chart is
+   * continuous and one to one over it: the rest direction's antipode, where a
+   * direction has no azimuth and a rotation no twist, lies outside.
+   *
+   * @param q The joint's rest-relative rotation.
+   * @param constraint The constraint, with `swingTwist`.
+   * @param joint The joint's axes and rest frame.
+   * @returns The disc coordinates and the twist, clinical degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three coordinates, why the region is the unit disc and why the chart is continuous over it.
+   * @evidence contracts/development/implementation.md#principled-implementation A star-shaped region about a pole is mapped onto the unit disc by the swing's share of its radius along the azimuth, the polar form of the pole's chart, whose only singularity, the pole's antipode, lies outside the region.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading, one radius and two products.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The twist is the reading's alias nearest the interval, never clamped.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `read`, `radius` and `nearestAngleAlias`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function chart(
+    q: IAutoMovieQuaternion,
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): { x: number; y: number; twist: number } {
+    const reading: IReading = read(q, joint);
+    const k: number =
+      reading.swing / radius(constraint, joint, reading.azimuth);
+    const turn: number = reading.azimuth / DEG;
+    return {
+      x: k * Math.cos(turn),
+      y: k * Math.sin(turn),
+      twist: nearestAngleAlias(reading.twist, constraint.swingTwist!.twist),
+    };
+  }
+
+  /**
+   * The rotation at a place of the range's chart (`chart`), its inverse.
+   *
+   * @param place The disc coordinates and the twist, clinical degrees.
+   * @param constraint The constraint, with `swingTwist`.
+   * @param joint The joint's axes and rest frame.
+   * @returns The joint's rest-relative rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The direction the swing of the disc's share of the radius reaches along the disc's azimuth, then the twist about the rest axis, composed as `project` composes a rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One azimuth, one radius, one direction and one composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A place off the disc gives a rotation outside the region, never a clamped one.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `radius`, `swingTwistBasis.direction`, `rotationBetween` and `toRigAngle`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function placed(
+    place: { x: number; y: number; twist: number },
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): IAutoMovieQuaternion {
+    const basis: swingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+    const k: number = Math.hypot(place.x, place.y);
+    const azimuth: number = k > 1e-12 ? Math.atan2(place.y, place.x) * DEG : 0;
+    return Quaternion.normalize(
+      Quaternion.multiply(
+        rotationBetween(
+          basis.u,
+          swingTwistBasis.direction(
+            basis,
+            k * radius(constraint, joint, azimuth),
+            azimuth,
+          ),
+        ),
+        Quaternion.fromAxisAngle(
+          basis.u,
+          toRigAngle(place.twist, joint.frame?.twist)!,
+        ),
+      ),
+    );
+  }
+
+  /**
+   * A rotation part of the way between two, blended in the range's chart
+   * (`chart`): the two places moved straight across the unit disc and the
+   * twist straight between the two. The disc and the interval are convex, so
+   * two ends inside the range give a blend inside it at every share; the
+   * chart is continuous and one to one over the region, so the blend is
+   * continuous in its share and in both ends, and meets each end exactly.
+   *
+   * A spherical interpolation of the two rotations leaves the region where it
+   * is not convex: a shoulder carried from a hanging arm to a hand on the nape
+   * ran 40 degrees outside it, and its projection onto a radius that rose from
+   * 68.5 to 106.7 degrees over 16 degrees of azimuth moved the elbow 200 to
+   * 690 mm in a frame.
+   *
+   * @param a The joint's rest-relative rotation at share 0.
+   * @param b The same at share 1.
+   * @param share How far from `a` to `b`, in [0, 1].
+   * @param constraint The constraint, with `swingTwist`.
+   * @param joint The joint's axes and rest frame.
+   * @returns The rotation: inside the range when both ends are.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the blend, why it stays inside and is continuous and meets its ends, and the measured defect of the spherical interpolation.
+   * @evidence contracts/development/implementation.md#principled-implementation A straight line between two points of a convex set stays in it, and the chart is a homeomorphism of the region onto the disc times the interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two charts, one straight blend and one inverse.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No projection is needed and none is taken.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work once the radius table is built.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `chart` and `placed`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function blend(
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion,
+    share: number,
+    constraint: IAutoMovieJointConstraint,
+    joint: IJoint,
+  ): IAutoMovieQuaternion {
+    const from: { x: number; y: number; twist: number } = chart(
+      a,
+      constraint,
+      joint,
+    );
+    const to: { x: number; y: number; twist: number } = chart(
+      b,
+      constraint,
+      joint,
+    );
+    return placed(
+      {
+        x: from.x + (to.x - from.x) * share,
+        y: from.y + (to.y - from.y) * share,
+        twist: from.twist + (to.twist - from.twist) * share,
+      },
+      constraint,
+      joint,
+    );
+  }
   /**
    * The swing region's radius on one great circle, degrees, read off the
    * cached table by linear interpolation between its two nearest rays.

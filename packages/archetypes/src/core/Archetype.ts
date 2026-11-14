@@ -15,6 +15,7 @@ import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
+import { ArchetypeSpan } from "./ArchetypeSpan";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride or fight with, with typed access to what a person's act reads from it.
@@ -22,7 +23,7 @@ import { ArchetypeSite } from "./ArchetypeSite";
  * An archetype is an `IAutoMovieModel`: its own enumerable members are exactly a rigid generated model's (`id`, `name`, `origin`, `parts`, `skeleton`, `body`, `affordances`, `materials`, `asset`), so it goes wherever a model goes, serialises as one, and two archetypes from the same parameters and seed serialise to the same text. Everything else is reached through accessors that a copy or a serialisation leaves behind:
  *
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
- * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
+ * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
  * - `dimensions` gives the value drawn for each free dimension, and `properties` the mass, centre of mass and inertia;
  * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world.
  *
@@ -73,12 +74,15 @@ export class Archetype<
   /** The travel of each articulation that is away from rest. */
   readonly #state: Partial<Record<Id, number>>;
 
+  /** Every articulation's travel at this state, set or followed. */
+  readonly #travels: ReadonlyMap<string, number>;
+
   /**
    * An archetype from what a producer built, at an articulation state.
    *
    * @param props The archetype at rest; the records are kept, not copied, so a producer hands over ownership.
    * @param state The travel of each articulation; at rest when absent.
-   * @throws {ArchetypeRefusal} As {@link ArchetypeArticulation.pose} does for a state the model does not admit.
+   * @throws {ArchetypeRefusal} As {@link ArchetypeArticulation.pose} does for a state the model does not admit, and as {@link ArchetypeSpan.lay} does for a span whose ends meet.
    */
   public constructor(
     props: Archetype.IProps<Id, Dimension>,
@@ -91,14 +95,20 @@ export class Archetype<
       if (travel !== undefined) travels.set(id, travel);
     }
 
-    const posed: ArchetypeArticulation.IPosed = ArchetypeArticulation.pose(
+    const posed: ArchetypeArticulation.IResult = ArchetypeArticulation.pose(
       props.archetype,
       { parts: props.parts, affordances: props.affordances },
       travels,
     );
     this.id = props.id;
     this.name = props.name;
-    this.parts = posed.parts;
+    this.parts = ArchetypeSpan.lay(
+      props.archetype,
+      props.spans,
+      posed.parts,
+      posed.affordances,
+    );
+    this.#travels = posed.travels;
     this.body = {
       mass: props.properties.mass,
       centerOfMass: { ...props.properties.centerOfMass },
@@ -126,9 +136,83 @@ export class Archetype<
     return this.#rest.properties;
   }
 
-  /** The travel of each articulation that was set, by id. */
+  /** The travel of each articulation that was set, by id; a follower's is read through `travel`. */
   public get state(): Partial<Record<Id, number>> {
     return this.#state;
+  }
+
+  /** The spans this archetype lays between moving frames, at rest. */
+  public get spans(): readonly ArchetypeSpan.ISpan[] {
+    return this.#rest.spans;
+  }
+
+  /**
+   * An articulation's travel at this state: the travel set for a leader, 0 for one not set, and the travel its leader gives a follower.
+   *
+   * @param id The articulation's id.
+   * @returns The travel, degrees for the turning kinds and metres for the others.
+   * @throws {ArchetypeRefusal} When the id is no articulation of the archetype, listing those it has.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units, what a follower reads and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the travels the pose resolved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, or refuse with the alternatives.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An id that is no articulation is refused, never read as 0.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the travels the constructor's pose resolved.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public travel(id: Id): number {
+    const travel: number | undefined = this.#travels.get(id);
+    if (travel !== undefined) return travel;
+    throw new ArchetypeRefusal({
+      kind: "articulation",
+      archetype: this.#rest.archetype,
+      axis: "articulation",
+      value: id,
+      feasible: { kind: "alternatives", values: [...this.#travels.keys()] },
+      reason: `"${id}" is not an articulation of this model`,
+      fix: "name one of the model's articulations",
+    });
+  }
+
+  /**
+   * One of the archetype's spans at the current articulation state: where its ends are and whether it is slack.
+   *
+   * @param id The span's part id.
+   * @returns Its state, in the model's space.
+   * @throws {ArchetypeRefusal} When the archetype has no such span, listing those it has.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the space and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeSpan.state` over the posed parts and affordances, the same ends the parts were laid between.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, then one call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown span is refused, never undefined.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the spans and of the parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeSpan.state`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public span(id: string): ArchetypeSpan.IState {
+    const found: ArchetypeSpan.ISpan | undefined = this.#rest.spans.find(
+      (s: ArchetypeSpan.ISpan): boolean => s.id === id,
+    );
+    if (found === undefined)
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: this.#rest.archetype,
+        axis: "span",
+        value: id,
+        feasible: {
+          kind: "alternatives",
+          values: this.#rest.spans.map((s: ArchetypeSpan.ISpan): string => s.id),
+        },
+        reason: `${this.name ?? this.id} has no span "${id}"`,
+        fix: "name one of the spans this archetype declares",
+      });
+    return ArchetypeSpan.state(
+      this.#rest.archetype,
+      found,
+      this.parts,
+      this.affordances,
+    );
   }
 
   /**
@@ -327,5 +411,8 @@ export namespace Archetype {
 
     /** The value of each free dimension the variant has. */
     dimensions: Readonly<Partial<Record<Dimension, number>>>;
+
+    /** The spans laid between moving frames after every pose; empty for most archetypes. */
+    spans: readonly ArchetypeSpan.ISpan[];
   }
 }

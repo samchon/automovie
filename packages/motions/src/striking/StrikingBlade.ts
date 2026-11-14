@@ -90,6 +90,9 @@ export namespace StrikingBlade {
     /** How the body goes with it. */
     advance: Advance;
 
+    /** How far the advance carries the leading foot, metres; the advance's full travel (`StrikingAdvance.travel`) when absent. */
+    travel?: number;
+
     /** The horizontal unit line an advance travels. */
     line: IAutoMovieVector3;
 
@@ -111,10 +114,11 @@ export namespace StrikingBlade {
    * @param side The arm.
    * @param advance How the body goes.
    * @param line The horizontal unit line of the advance.
+   * @param travel How far the advance carries the leading foot, metres; its full travel when absent.
    * @returns The shoulder joint at the decisive instant, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instant and the result's frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulder of the body as the advance leaves it at the decisive instant: the leading foot placed its full travel ahead, the pelvis carried and lowered until both legs reach, the same posture the plan shows then.
+   * @evidence contracts/development/implementation.md#principled-implementation The shoulder of the body as the advance leaves it at the decisive instant: the leading foot placed its travel ahead, the pelvis carried and lowered until both legs reach, the same posture the plan shows then.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one translation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The advance's own posture is used, so the reach is measured on the body that performs it.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One trunk resolution.
@@ -126,18 +130,13 @@ export namespace StrikingBlade {
     side: HumanHand.Side,
     advance: Advance,
     line: IAutoMovieVector3,
+    travel: number = StrikingAdvance.travel(context, advance),
   ): IAutoMovieVector3 {
     return HumanTrunk.resolve(
       context.body,
       advance === "none"
         ? context.entry.posture
-        : StrikingAdvance.stood(
-            context,
-            side,
-            line,
-            StrikingAdvance.travel(context, advance),
-            null,
-          ),
+        : StrikingAdvance.stood(context, side, line, travel, null),
     ).get(`${side}UpperArm`)!.worldPosition;
   }
 

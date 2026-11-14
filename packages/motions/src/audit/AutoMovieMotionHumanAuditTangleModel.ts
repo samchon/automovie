@@ -17,6 +17,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 
 /**
  * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`)
@@ -35,13 +36,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every probe and sphere is read from the body's own colliders and joints.
  */
 export namespace AutoMovieMotionHumanAuditTangleModel {
-  /**
-   * The reference overlap beyond which two segments' surfaces are one volume
-   * by their build, metres: the 10 mm a pressed skin gives, the audit's own
-   * limit for a tangle. Two colliders deeper in each other than that while
-   * the body stands at rest cannot be told apart by their corners.
-   */
-  export const BUILT: number = 0.01;
+  /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
+  export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /** One collider segment's probes and bounding sphere in its own frame. */
   export interface IPart {
@@ -314,29 +310,24 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /**
-   * How deep each probe of segment `i` lies in segment `j` beyond its own
-   * reference depth there.
+   * Each probe of segment `i`'s reference depth in segment `j`: the depth it
+   * may keep there before the audit reads it as a tangle, which a planner
+   * keeps its probes within.
    *
    * @param m The body's model.
-   * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @returns Metres per probe; zero or less where it lies no deeper.
+   * @returns Metres per probe; `Infinity` for a corner of a pair whose colliders overlap past the skin by their build.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the sign.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, who reads it and the value of a pair the audit sets aside.
    * @evidence contracts/development/implementation.md#principled-implementation The reference depth is the deeper of the rest pose's and the quiet stance's; corners share their pair's deepest reference depth, set aside past `BUILT`, and a point of the bone's axis keeps its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The remembered baseline, then one subtraction per probe.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two depth readings, one maximum per probe, then the corners' shared depth.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the corners share a depth, so a crossing limb's axis is read in full.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The baseline is computed once per ordered pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in the model's baseline map.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Computed once per ordered pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in the model's baseline map, which `beyond` reads too.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The baselines live with the model, bounded by the segment pairs.
    */
-  export function beyond(
-    m: IModel,
-    placed: readonly HumanColliders.IPlaced[],
-    i: number,
-    j: number,
-  ): Float64Array {
+  export function reference(m: IModel, i: number, j: number): Float64Array {
     const key: number = i * m.parts.length + j;
     const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
     let baseline: Float64Array | undefined = m.baseline.get(key);
@@ -361,6 +352,35 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         baseline[k] = shared > BUILT ? Infinity : shared;
       m.baseline.set(key, baseline);
     }
+    return baseline;
+  }
+
+  /**
+   * How deep each probe of segment `i` lies in segment `j` beyond its own
+   * reference depth there (`reference`).
+   *
+   * @param m The body's model.
+   * @param placed The body's placed segments.
+   * @param i The segment whose probes are read.
+   * @param j The segment they are read in.
+   * @returns Metres per probe; zero or less where it lies no deeper.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The depth now less the reference depth, probe by probe.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The reference, then one subtraction per probe.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every probe is read against its own reference, none skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading per call; the reference is computed once per ordered pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `reference`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and retains nothing.
+   */
+  export function beyond(
+    m: IModel,
+    placed: readonly HumanColliders.IPlaced[],
+    i: number,
+    j: number,
+  ): Float64Array {
+    const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
+    const baseline: Float64Array = reference(m, i, j);
     const now: Float64Array = depths(probes, placed[i]!, placed[j]!);
     for (let k: number = 0; k < now.length; k++)
       now[k] = now[k]! - baseline[k]!;

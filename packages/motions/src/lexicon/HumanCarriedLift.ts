@@ -2,12 +2,14 @@ import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type { tags } from "typia";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
  * The lift into a carry and the set-down out of it (#3349): the carried
@@ -24,10 +26,11 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *
  * First pass: the body is carried through the blend by nothing that is
  * shown (the carrier's hands arrive by `bearing`'s own take-up, and no hand
- * is placed under the body while it rises); the arms that cling take their
- * hold at the blend's half, since a limb goal cannot be weighted; the body
- * is set down standing, whatever the carry, on the floor under where its
- * root is carried.
+ * is placed under the body while it rises); the arms that cling are blended
+ * from where they hung to where their hold's goal puts them, as joint angles,
+ * and take the goal itself once the lift is done; the body is set down
+ * standing, whatever the carry, on the floor under where its root is
+ * carried.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the two phases do, what the blend is, when the contact is declared and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A wrapper of the carried plan: the carry's law is unchanged and the two phases are one blend each over its posture.
@@ -55,8 +58,8 @@ export namespace HumanCarriedLift {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is taken whole at the half, stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One blend over the joints per evaluated second of a phase.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution of the carry and one blend over the joints per evaluated second of a phase; the entry is resolved once.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the carry's plan and the entry posture.
    */
@@ -73,14 +76,19 @@ export namespace HumanCarriedLift {
     const lift: number = asked[0] * fit;
     const setDown: number = asked[1] * fit;
     const entry: IHumanPosture = context.entry.posture;
+    const body: IHumanBody = context.body;
+
+    // Each end of a blend is written by its solved joint angles alone
+    // (`GymnasticsFlight.frozen`), so a limb a goal places at one end is
+    // blended from where that goal put it, never dropped at the start or
+    // taken whole half way, and the blend meets each end's displayed pose.
+    const stood: IHumanPosture = GymnasticsFlight.frozen(body, entry);
     const ease = (x: number): number => minimumJerk(x).s;
     const mix = (
       from: IHumanPosture,
       to: IHumanPosture,
       w: number,
     ): IHumanPosture => {
-      if (w <= 0) return from;
-      if (w >= 1) return to;
       const joints: IHumanPosture["joints"] = {};
       for (const bone of new Set([
         ...Object.keys(from.joints),
@@ -109,7 +117,7 @@ export namespace HumanCarriedLift {
         pitch: from.pitch + (to.pitch - from.pitch) * w,
         roll: from.roll + (to.roll - from.roll) * w,
         joints,
-        limbs: w < 0.5 ? {} : to.limbs,
+        limbs: {},
       };
     };
     return {
@@ -128,18 +136,26 @@ export namespace HumanCarriedLift {
       ),
       posture: (at: number): IHumanPosture => {
         const held: IHumanPosture = plan.posture(at);
-        if (lift > 0 && at < lift) return mix(entry, held, ease(at / lift));
-        if (setDown > 0 && at > plan.duration - setDown)
-          return mix(
-            held,
-            {
-              ...entry,
-              root: { x: held.root.x, y: entry.root.y, z: held.root.z },
-              yaw: held.yaw,
-              limbs: {},
-            },
-            ease((at - (plan.duration - setDown)) / setDown),
-          );
+        if (lift > 0 && at < lift) {
+          const w: number = ease(at / lift);
+          return w <= 0
+            ? entry
+            : mix(stood, GymnasticsFlight.frozen(body, held), w);
+        }
+        if (setDown > 0 && at > plan.duration - setDown) {
+          const w: number = ease((at - (plan.duration - setDown)) / setDown);
+          return w <= 0
+            ? held
+            : mix(
+                GymnasticsFlight.frozen(body, held),
+                {
+                  ...stood,
+                  root: { x: held.root.x, y: stood.root.y, z: held.root.z },
+                  yaw: held.yaw,
+                },
+                w,
+              );
+        }
         return held;
       },
     };

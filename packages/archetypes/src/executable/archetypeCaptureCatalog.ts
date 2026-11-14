@@ -2,10 +2,13 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
+  createAppliance,
   createBar,
   createDoor,
   createLadder,
+  createObstacle,
   createRamp,
+  createSanitary,
   createStairs,
   createSwitch,
   createWall,
@@ -19,22 +22,32 @@ import {
   createStorage,
   createTable,
 } from "../furniture";
+import { createBoxingGlove, createHeavyBag } from "../gym";
+import { createInstrument, createMicrophone } from "../music";
 import {
   createBag,
   createBox,
   createCareItem,
   createDevice,
   createDrinkware,
+  createFood,
+  createLight,
   createLongTool,
   createSmoking,
   createStationery,
+  createTableware,
+  createMobilityAid,
   createTool,
+  createUmbrella,
+  createVessel,
 } from "../props";
+import { createHighJump, createPoolEdge } from "../sport";
 import {
   createBicycle,
   createCar,
   createCart,
   createMotorcycle,
+  createWheelchair,
   driveCar,
   rideBicycle,
   rideMotorcycle,
@@ -44,6 +57,7 @@ import {
   createHandgun,
   createHolster,
   createLongGun,
+  createMagazine,
   createPell,
   createPolearm,
   createShield,
@@ -204,6 +218,36 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createLongTool.Kind): Archetype => createLongTool({ kind }),
       ),
     }),
+    tableware: still({
+      ...kinds(
+        "tableware",
+        createTableware.KINDS,
+        (kind: createTableware.Kind): Archetype => createTableware({ kind }),
+      ),
+      ...kinds(
+        "food",
+        createFood.KINDS,
+        (kind: createFood.Kind): Archetype => createFood({ kind }),
+      ),
+      ...kinds(
+        "light",
+        createLight.KINDS,
+        (kind: createLight.Kind): Archetype => createLight({ kind }),
+      ),
+      umbrella: createUmbrella(),
+      "umbrella-open": createUmbrella({ open: true }),
+      ...kinds(
+        "mobilityAid",
+        createMobilityAid.KINDS,
+        (kind: createMobilityAid.Kind): Archetype =>
+          createMobilityAid({ kind }),
+      ),
+      ...kinds(
+        "vessel",
+        createVessel.KINDS,
+        (kind: createVessel.Kind): Archetype => createVessel({ kind }),
+      ),
+    }),
     seats: still(
       kinds(
         "seat",
@@ -269,6 +313,25 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createWall.Kind): Archetype => createWall({ kind }),
       ),
     }),
+    fixtures: still({
+      ...kinds(
+        "sanitary",
+        createSanitary.KINDS,
+        (kind: createSanitary.Kind): Archetype => createSanitary({ kind }),
+      ),
+      ...kinds(
+        "appliance",
+        createAppliance.KINDS,
+        (kind: createAppliance.Kind): Archetype => createAppliance({ kind }),
+      ),
+    }),
+    obstacles: still(
+      kinds(
+        "obstacle",
+        createObstacle.KINDS,
+        (kind: createObstacle.Kind): Archetype => createObstacle({ kind }),
+      ),
+    ),
     vehicles: still({
       ...kinds(
         "car",
@@ -286,6 +349,11 @@ export function archetypeCaptureCatalog(): Readonly<
         createCart.KINDS,
         (kind: createCart.Kind): Archetype => createCart({ kind }),
       ),
+      ...kinds(
+        "wheelchair",
+        createWheelchair.KINDS,
+        (kind: createWheelchair.Kind): Archetype => createWheelchair({ kind }),
+      ),
     }),
     horse: still({ horse }),
     weapons: still({
@@ -294,7 +362,16 @@ export function archetypeCaptureCatalog(): Readonly<
         createHandgun.FRAMES,
         (frame: createHandgun.Frame): Archetype => createHandgun({ frame }),
       ),
-      holster: createHolster(),
+      ...kinds(
+        "holster",
+        createHolster.KINDS,
+        (kind: createHolster.Kind): Archetype => createHolster({ kind }),
+      ),
+      ...kinds(
+        "magazine",
+        createMagazine.KINDS,
+        (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
+      ),
       ...kinds(
         "longGun",
         createLongGun.KINDS,
@@ -346,9 +423,40 @@ export function archetypeCaptureCatalog(): Readonly<
         wheel: 90,
       }),
       "bicycle-quarter": bicycle.articulate({ crank: 90 }),
+      "toilet-lid-down": createSanitary({ kind: "toilet" }).articulate({
+        lid: createSanitary.LIFT,
+      }),
+      "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
+        fridgeDoor: 90,
+      }),
+      "oven-open": createAppliance({ kind: "cooker" }).articulate({
+        ovenDoor: 90,
+      }),
       "carbine-extended": carbine.articulate({
         stock: carbine.affordance("stock").travel!,
       }),
+    }),
+    "sport-venues": still({
+      "pole-vault": createHighJump({ kind: "poleVault" }),
+      ...kinds(
+        "poolEdge",
+        createPoolEdge.KINDS,
+        (kind: createPoolEdge.Kind): Archetype => createPoolEdge({ kind }),
+      ),
+      boxingGlove: createBoxingGlove(),
+      heavyBag: createHeavyBag(),
+    }),
+    music: still({
+      ...kinds(
+        "instrument",
+        createInstrument.KINDS,
+        (kind: createInstrument.Kind): Archetype => createInstrument({ kind }),
+      ),
+      ...kinds(
+        "microphone",
+        createMicrophone.KINDS,
+        (kind: createMicrophone.Kind): Archetype => createMicrophone({ kind }),
+      ),
     }),
     "ride-car": moving("car", driveCar(car, COURSE)),
     "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),

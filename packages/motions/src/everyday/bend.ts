@@ -20,7 +20,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
-import { HumanBalance } from "./HumanBalance";
+import type { HumanBalance } from "./HumanBalance";
 import { HumanGaze } from "./HumanGaze";
 import { bendLower } from "./bendLower";
 import { handGoals } from "./handGoals";
@@ -74,6 +74,9 @@ export namespace bend {
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     bend: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
+    // A pick up continues the deepest point of a bend, the body held as it
+    // is lowered and the arm taken from the target over to the grip.
+    pickUp: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
 
   /**
@@ -132,7 +135,7 @@ export namespace bend {
    * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The choice is `choose`, the lowered body `lower`, the inclination `pitch`; the plan composes them and the posture closure only interpolates and adds the hand goals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses, is the documented strategy rule; bendLower's HIPS and HEEL, FITTS, the 0.2 and 0.3 elbow hints and the 0.6 brace point are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two 30-step bisections, each step one lowered posture with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
    */
@@ -153,53 +156,13 @@ export namespace bend {
       params: { seconds: 1 },
     });
     const upright: IHumanPosture = probe.posture(0);
-    // Balance: the hips' shift found on the solved posture at a nominal pitch, then again at the pitch the reach needs.
-    const solve = (
-      strategy: Exclude<Strategy, "auto">,
-    ): { strategy: Exclude<Strategy, "auto">; lean: number; pitch: number } => {
-      let lean: number =
-        HumanBalance.shift(
-          body,
-          (back: number): IHumanPosture =>
-            bendLower.lower(body, upright, strategy, 60, 1, back),
-        ) / Math.sin(Math.PI / 3);
-      let pitch: number = bendLower.pitch(
-        body,
-        upright,
-        target,
-        side,
-        strategy,
-        lean,
-      );
-      if (pitch > 5) {
-        lean =
-          HumanBalance.shift(
-            body,
-            (back: number): IHumanPosture =>
-              bendLower.lower(body, upright, strategy, pitch, 1, back),
-          ) / Math.sin((pitch * Math.PI) / 180);
-        pitch = bendLower.pitch(body, upright, target, side, strategy, lean);
-      }
-      return { strategy, lean, pitch };
-    };
-    const chosen: Exclude<Strategy, "auto"> = bend.choose(
+    const { strategy, lean, pitch }: bendLower.ISolved = bend.lowering(
       body,
+      upright,
       target,
+      side,
       requested,
     );
-    const solved = ((): {
-      strategy: Exclude<Strategy, "auto">;
-      lean: number;
-      pitch: number;
-    } => {
-      try {
-        return solve(chosen);
-      } catch (error) {
-        if (requested !== "auto" || chosen !== "semiSquat") throw error;
-        return solve("squat");
-      }
-    })();
-    const { strategy, lean, pitch } = solved;
 
     // Fitts's time for the hand's travel, scaled by skill.
     const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -339,6 +302,45 @@ export namespace bend {
         );
       },
     };
+  }
+
+  /**
+   * The lowering that brings a hand within reach of a target: the strategy
+   * `choose` gives, solved by `bendLower.solve`, and for `auto` a squat where
+   * the semi-squat cannot reach.
+   *
+   * @param body The body.
+   * @param upright The standing posture lowered.
+   * @param target The target.
+   * @param side The hand.
+   * @param strategy The requested strategy.
+   * @param reach How near the shoulder must come to the target, metres; the bend's palm reach when absent.
+   * @returns The solved lowering.
+   * @throws {HumanRefusal} When the strategy, and for `auto` the squat after it, cannot reach the target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the choice, the solve and the fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The campaign's strategy rule (`choose`) and the documented squat fallback over the shared lowering solve.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One choice and at most two solves.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only `auto` falls back, and only from a semi-squat; any other refusal is passed on.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One solve, two when `auto` falls back.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the bend law and by the pick-up's lowering, so both choose and lower alike.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function lowering(
+    body: IHumanBody,
+    upright: IHumanPosture,
+    target: IAutoMovieVector3,
+    side: HumanHand.Side,
+    strategy: Strategy,
+    reach?: number,
+  ): bendLower.ISolved {
+    const chosen: Exclude<Strategy, "auto"> = choose(body, target, strategy);
+    try {
+      return bendLower.solve(body, upright, target, side, chosen, reach);
+    } catch (error) {
+      if (strategy !== "auto" || chosen !== "semiSquat") throw error;
+      return bendLower.solve(body, upright, target, side, "squat", reach);
+    }
   }
 
   /**

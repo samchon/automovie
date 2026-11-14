@@ -154,6 +154,7 @@ export namespace baseball {
     const crouch = (
       depth: number,
       pitch: number,
+      legs?: readonly ("left" | "right")[],
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanTrunk.crouch({
         body,
@@ -163,6 +164,7 @@ export namespace baseball {
         fall: ["relax", "end"],
         depth: depth * modifiers.extent,
         pitch,
+        ...(legs === undefined ? {} : { legs }),
       });
     const placed = (
       side: "left" | "right",
@@ -323,8 +325,10 @@ export namespace baseball {
           ankle: context.entry.feet.left.ankle,
           rotation: context.entry.feet.left.rotation,
         };
+
+        // The crouch plants the right foot; the left steps out on its own.
         primitives.push(
-          crouch(0.03 * m.stature, 10),
+          crouch(0.03 * m.stature, 10, ["right"]),
           AutoMovieMotionHumanLeg.place({
             body,
             side: "left",

@@ -1,7 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionEvent,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -13,7 +12,6 @@ import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -26,12 +24,15 @@ import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
+
 import { walkDescent } from "./walkDescent";
+import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
 import { walkTempo } from "./walkTempo";
+import { walkWindows } from "./walkWindows";
 
 /** Seconds before a toe-off over which the ankle's velocity there is read. */
 const TICK: number = 1e-3;
@@ -138,6 +139,9 @@ export namespace walk {
     /** The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent. */
     face?: number;
 
+    /** Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent. */
+    facing?: walkFacing.IFacing;
+
     /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
     stride?: import("../law/HumanUnit").HumanUnit.Bounded<0.6, 1.3, 1, "">;
 
@@ -211,14 +215,22 @@ export namespace walk {
     HumanBound.within("armSwing", arms, 0, 2);
     HumanBound.within("elbows", elbows, 0, 30, "degrees");
     walkClear(context);
-    const longest: number = stride * l * gait.step(froude);
+    const forward: number = stride * l * gait.step(froude);
+    // A walk that does not face its way keeps the share of its speed and
+    // step its direction allows, at the same cadence.
+    const share: number =
+      p.facing === undefined
+        ? 1
+        : walkFacing.share(body, context.entry, p, p.facing, forward);
+    const longest: number = forward * share;
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
       to: p.to,
       ...(p.via === undefined ? {} : { via: p.via }),
       ...(p.face === undefined ? {} : { face: p.face }),
-      speed,
+      ...(p.facing === undefined ? {} : { facing: p.facing }),
+      speed: speed * share,
       longest,
       period: (seconds: number): number =>
         gait.called === true
@@ -228,17 +240,7 @@ export namespace walk {
       gait,
     });
     const duration: number = steps.duration;
-    const events: IAutoMovieMotionEvent[] = steps.events.map((e) => ({
-      name: e.name,
-      share: e.seconds / duration,
-    }));
-    const contacts: IHumanContactWindow[] = steps.stances.map((s) => ({
-      part: s.side === "left" ? "leftFoot" : "rightFoot",
-      kind: "plant",
-      from: s.from / duration,
-      to: s.to / duration,
-      support: { kind: "ground" },
-    }));
+
     const pelvis = (t: number): readonly [number, number, number] => {
       const phase: number = steps.phase(t);
       const amount: number = steps.amount(t);
@@ -248,6 +250,8 @@ export namespace walk {
         4 * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
+    const { events, contacts }: ReturnType<typeof walkWindows.of> =
+      walkWindows.of(body, steps, pelvis);
     // A foot as its schedule alone has it, before any pelvis is settled.
     const scheduled = (side: "left" | "right", t: number): walkFoot.IEnd => {
       const foot: walkFoot.IScheduled = steps.foot(side, t);
@@ -432,10 +436,9 @@ export namespace walk {
       const limbs: IHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const) {
         const planted: boolean = feet[side].swing === undefined;
-        // The knee points over the foot's own heading: the foot has no axial
-        // joint, so its toe-out comes from the hip's twist this hint sets.
-        // The heading is read off the lateral axis, because a folded shank
-        // pitches a swinging foot past vertical.
+        // The knee points over the foot's own heading (the foot has no axial
+        // joint, so its toe-out comes from the hip's twist this hint sets),
+        // read off the lateral axis: a folded shank pitches a swinging foot.
         const knee: IAutoMovieVector3 = HumanFrame.point(
           {
             origin: HumanFrame.point(

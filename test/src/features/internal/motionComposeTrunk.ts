@@ -6,6 +6,7 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanTrunk,
+  GymnasticsFlight,
   HumanBalance,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanBody,
@@ -175,12 +176,16 @@ export namespace motionComposeTrunk {
    * Scenarios:
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.
    * 2. For depths of 0, 0.15 and 0.3 hip heights and pitches of 0 and 30
-   *    degrees it claims the root and the trunk from its first to its last
-   *    instant, leaves the standing body at both ends, is at its depth and
-   *    its pitch between `ready` and `relax`, and sinks only part of the way
-   *    at the middle of its rise.
+   *    degrees it claims the root, the trunk and both legs from its first to
+   *    its last instant, leaves the standing body at both ends, is at its
+   *    depth and its pitch between `ready` and `relax`, and sinks only part
+   *    of the way at the middle of its rise.
    * 3. At every sampled second both feet keep their plants within 1 mm and
    *    the body keeps its balance.
+   * 4. Given the standing posture written by joint angles alone, with no
+   *    leg goal (as an exercise of keyed angles leaves it), a crouch of 0.3
+   *    hip heights and 30 degrees keeps both feet on their plants within
+   *    1 mm at every sampled second: the crouch plants the legs itself.
    *
    * @param name The body.
    */
@@ -235,7 +240,7 @@ export namespace motionComposeTrunk {
         all.equals(
           `${cell} claims the root and the trunk over its instants`,
           [phrase.channels, phrase.from, phrase.to],
-          [["root", "trunk"], 0, 1.25],
+          [["root", "trunk", "leftLeg", "rightLeg"], 0, 1.25],
         );
         for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
           const written: IHumanPosture = phrase.write(standing, seconds);
@@ -274,6 +279,26 @@ export namespace motionComposeTrunk {
           );
         }
       }
+
+    // 4. A standing posture of joint angles alone.
+    const angles: IHumanPosture = GymnasticsFlight.frozen(body, standing);
+    const bare: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanTrunk.crouch({
+        body,
+        standing: angles,
+        clock: CLOCK,
+        rise: RISE,
+        fall: FALL,
+        depth: 0.3 * hipHeight,
+        pitch: 30,
+      });
+    for (const seconds of [0, 0.125, 0.25, 0.625, 1, 1.125, 1.25]) {
+      const pose: Bones = bones(bare.write(angles, seconds));
+      all.check(
+        `${name}: a crouch from joint angles alone at ${seconds} s keeps both feet on their plants, the farther ball off by ${mm(slip(pose, upright))} mm`,
+        slip(pose, upright) <= 0.001,
+      );
+    }
     all.assert(`the trunk's crouch holds (${name})`);
   }
 

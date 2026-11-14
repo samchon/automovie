@@ -17,10 +17,14 @@ const HANDLES: string =
 const SHOVEL: string =
   "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
 
+/** A maker's spinning rods, read. */
+const ROD: string =
+  "Daiwa Ninja X spin rods, 7 ft 0 in (213 cm), 131 and 133 g (https://www.daiwa.com/scandinavia/product/n753a5g)";
+
 /**
- * A two-hand tool that works on the floor or the ground: a broom, a mop or a shovel.
+ * A long tool: a broom, a mop or a shovel that works on the floor or the ground, or a fishing rod.
  *
- * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down.
+ * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -31,7 +35,7 @@ const SHOVEL: string =
  * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the shaft and the head, then a shovel's grip.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom or a mop, a head and a shaft; four for a shovel, with its grip and yoke.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom or a mop, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -65,6 +69,36 @@ export function createLongTool(
     dimensions: d,
   });
 
+  if (kind === "fishingRod") {
+    // A rod on its butt: the grip a hand takes and the tip it casts with.
+    const grip: number = createLongTool.ROD_GRIP;
+    builder.rod("rod", radius, Vector3.create(0, 0, 0), Vector3.create(0, length, 0), {
+      color: "#2c2f33",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, grip / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length: grip,
+    });
+    builder.affordance({
+      id: "tip",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
+
   // The head on the floor: a broom's block, a mop's pad, a shovel's blade standing on its edge.
   const head: number =
     kind === "shovel" ? 0.29 : kind === "broom" ? 0.08 : 0.03;
@@ -84,6 +118,7 @@ export function createLongTool(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
@@ -104,6 +139,7 @@ export function createLongTool(
   builder.affordance({
     id: "shaft",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, (head + top) / 2, 0),
       Vector3.create(0, 0, -1),
@@ -133,6 +169,7 @@ export function createLongTool(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(Vector3.create(0, length - radius, 0)),
       extent: null,
       grip: "power",
@@ -153,10 +190,13 @@ export function createLongTool(
  */
 export namespace createLongTool {
   /** The kinds of tool. */
-  export type Kind = "broom" | "mop" | "shovel";
+  export type Kind = "broom" | "mop" | "shovel" | "fishingRod";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["broom", "mop", "shovel"];
+  export const KINDS: readonly Kind[] = ["broom", "mop", "shovel", "fishingRod"];
+
+  /** A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
+  export const ROD_GRIP: number = 0.12;
 
   /** The width of a broom's or a mop's head along `+X`, metres, which its `face` publishes. An estimate, not read at a source. */
   export const HEAD_WIDTH: number = 0.3;
@@ -171,10 +211,11 @@ export namespace createLongTool {
    * The affordance ids:
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
-   * - `grip`: a shovel's D grip at its top, held from above.
+   * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
    * - `face`: the working side of the head, facing down onto the floor or the ground.
+   * - `tip`: a fishing rod's end, `+Y` along it.
    */
-  export type Affordance = "shaft" | "grip" | "face";
+  export type Affordance = "shaft" | "grip" | "face" | "tip";
 
   /**
    * The free dimensions, metres unless stated:
@@ -198,6 +239,16 @@ export namespace createLongTool {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
+    fishingRod: {
+      length: ArchetypeBand.metres(2.13, 2.13, ROD),
+      shaftDiameter: ArchetypeBand.metres(
+        0.032,
+        0.038,
+        "no rod grip diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a rod's grip",
+        true,
+      ),
+      mass: ArchetypeBand.of("kg", 0.131, 0.133, ROD),
+    },
     broom: {
       length: ArchetypeBand.metres(
         1.524,

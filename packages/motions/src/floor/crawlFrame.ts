@@ -6,19 +6,20 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its
- * flat palm, a body tilted forward by a pitch with its pelvis turned about
- * the spine's axis, and the root that puts the hip joints' middle at a
- * place.
+ * flat palm, the palms laid on their floor points, a body tilted forward by
+ * a pitch with its pelvis turned about the spine's axis, and the root that
+ * puts the hip joints' middle at a place.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three pieces and what each gives.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four pieces and what each gives.
  * @evidence contracts/development/design.md#principled-representation Pure functions of the body and a posture, shared by the crawl's kinds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three functions and the one share they use.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The four functions and the one share they use.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is solved on the body; nothing is a length typed in metres.
  */
 export namespace crawlFrame {
@@ -63,6 +64,54 @@ export namespace crawlFrame {
         ).point,
       );
     return { left: wrist("left"), right: wrist("right") };
+  }
+
+  /**
+   * A posture with both palms laid flat on floor points: each hand shaped
+   * flat and its arm's goal the one that puts the palm on its point facing
+   * up, the fingers along the heading.
+   *
+   * @param body The body.
+   * @param posture The posture whose trunk the arms hang from.
+   * @param palm Each palm's floor point, world metres.
+   * @param forward The heading's unit vector.
+   * @returns The posture with the two arm goals and the flat hands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is written and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm's own palm target and goal place each wrist, as `wrists` does at the origin.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target and one goal per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two goals per call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function laid(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    palm: (side: "left" | "right") => IAutoMovieVector3,
+    forward: IAutoMovieVector3,
+  ): IHumanPosture {
+    let out: IHumanPosture = posture;
+    for (const side of ["left", "right"] as const)
+      out = {
+        ...out,
+        joints: { ...out.joints, ...HumanHand.shape(side, "flat") },
+        limbs: {
+          ...out.limbs,
+          [`${side}Arm`]: AutoMovieMotionHumanArm.goal(
+            body,
+            side,
+            AutoMovieMotionHumanTarget.hand(
+              body,
+              out,
+              side,
+              { point: palm(side), normal: { x: 0, y: 1, z: 0 } },
+              { surface: "palm", shape: "flat", forward },
+            ),
+          ),
+        },
+      };
+    return out;
   }
 
   /**

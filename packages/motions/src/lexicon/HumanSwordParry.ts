@@ -10,6 +10,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -262,7 +263,10 @@ export namespace HumanSwordParry {
           (1 - found.share) * s.tool.length,
           context.entry.posture,
         );
-        if (chosen === undefined || missed < least - StrikingRoll.EXACT) {
+        if (
+          chosen === undefined ||
+          missed < least - HumanFreedomChoice.EXACT
+        ) {
           least = missed;
           m = meeting;
           chosen = found;

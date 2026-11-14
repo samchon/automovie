@@ -21,6 +21,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -154,6 +155,18 @@ export namespace AutoMovieMotionHumanTouch {
     /** The arm's segments that lie on a person's segment while the hand is on the region, each declared as a contact from `ready` to `relax` (a self-hug's forearm on the other forearm or on the chest); none when absent. */
     rests?: readonly AutoMovieMotionHumanTouchContacts.IRest[];
 
+    /** The arms of a touch with two hands, planned as one trajectory (`AutoMovieMotionHumanArmPlanned.ITogether`); this arm alone when absent. */
+    together?: AutoMovieMotionHumanArmPlanned.ITogether;
+
+    /** The radius about its site the hand may land within on the region, metres: the site's own, or the region's extent; the audit's contact skin when absent. */
+    disc?: number;
+
+    /** The region and the colliders as a plan perceives them, for a touch of another person (`AutoMovieMotionHumanArm.ICarry.perceived`); the hand then follows the person on the hold. */
+    perceived?: Pick<ITouch, "region" | "others">;
+
+    /** The performer's own bone the region rides, for a region of the performer, so a region on the other arm of the touch rides that arm as it is planned. */
+    on?: AutoMovieHumanoidBone;
+
     /**
      * Another body's placed colliders the arm keeps clear of at a second (`IHumanPosture.IGoal.clear`), and the ones it lays the hand on (`IHumanPosture.IGoal.rests`); none when absent.
      *
@@ -223,11 +236,11 @@ export namespace AutoMovieMotionHumanTouch {
   }
 
   /**
-   * A touch: the arm and the fingers on one clock. The arm is carried in
-   * joint space from its entry angles to the arm laid on the region by
-   * `ready` and back from `relax`, so the elbow keeps one course and the hand
-   * turns with the arm; a hand path solved second by second would let the
-   * elbow change sides between seconds while the hand is far from the region.
+   * A touch: the arm and the fingers on one clock. The arm's whole touch is
+   * planned as one trajectory (`AutoMovieMotionHumanArmPlanned`): its reach
+   * from its entry angles, its hold on the goal laid on the region from
+   * `ready` to `relax` and its return, clear of the body all the way; a hand
+   * path solved second by second would let the elbow change sides between them.
    * Between `strokeStart` and `strokeEnd` the goal is lifted along the
    * region's normal by `lift sin^2(pi n u)`, which touches down at every
    * repetition's end, and moved along its tangent by the clock's windowed
@@ -239,10 +252,10 @@ export namespace AutoMovieMotionHumanTouch {
    * @throws {Error} When the count is not a positive whole number.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the phases, the lift and travel formulas and the contact window.
-   * @evidence contracts/development/implementation.md#principled-implementation A free arm movement is smooth in joint space (Soechting and Lacquaniti 1981) and carries the hand with it (Desmurget et al. 1996), so the transport is the joint-space carry on the clock's envelope toward the goal laid on the region frame each second, with the kind's offsets in that frame.
+   * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a region is a motion-planning problem: the arm's whole action is one trajectory optimisation toward the goal laid on the region frame at each second of the hold, with the kind's offsets in that frame (`AutoMovieMotionHumanArm.carried` with a span).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm carry and one hand form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lift and travel are shares of the hand; a count that is not whole throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per written second two goal evaluations, each one region read (the second's and the arrival's), and the carry's two posture solves; a vessel laid upright adds the attitude's three hand readings and one hand solve (`AutoMovieMotionHumanArm.ICarry.attitude`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory planned per touch (or per pair of hands), its goal read once per waypoint; per written second one cubic read of it; a vessel laid upright adds the attitude's three hand readings and one hand solve (`AutoMovieMotionHumanArm.ICarry.attitude`).
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArm.carried`, `AutoMovieMotionHumanHand.form` and the effector's goal.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over their props and one hint.
    */
@@ -259,12 +272,15 @@ export namespace AutoMovieMotionHumanTouch {
         rest: props.rest,
         weight: (seconds: number): number => share(clock, seconds),
         goal: goal(props),
-        // There from `start` to `ready`, back from `end` (held) to `relax`:
-        // the goal fitted at keyed seconds, the course planned on the arrival.
-        stretch: (seconds: number): readonly [number, number] =>
-          seconds < clock.at("relax")
-            ? [clock.at("start"), clock.at("ready")]
-            : [clock.at("end"), clock.at("relax")],
+        // A person read as perceived when the plan starts, then followed on the hold.
+        ...(props.perceived === undefined ? {} : { perceived: goal({ ...props, ...props.perceived }), tracked: true }),
+        // The whole touch planned as one trajectory: the reach from `start`,
+        // the hold from `ready` to `relax` and the return by `end`.
+        span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
+        ...(props.together === undefined ? {} : { together: props.together }),
+        ...(props.rests === undefined ? {} : { rests: props.rests }),
+        ...(props.disc === undefined ? {} : { disc: props.disc }),
+        ...(props.on === undefined ? {} : { on: props.on }),
         ...(props.lay !== "upright"
           ? {}
           : {
@@ -397,19 +413,13 @@ export namespace AutoMovieMotionHumanTouch {
               props.count,
               seconds,
             );
-      // Arriving and leaving, the goal stands off the region along its
-      // normal by the share of the carry still to go, up to a hand's
-      // length, so the hand comes onto the region and draws back off it
-      // along the normal instead of sinking along the surface.
-      const carried: number = share(clock, seconds);
-      const off: number = APPROACH * hand * (1 - carried);
       // The vessel as it is held at the lips: the arm is carried toward the
       // arm that holds it there, the one the drinking search admitted, and
       // the vessel's own tip on the way is the hand's attitude's (`TIP`,
       // `AutoMovieMotionHumanDrinkingArm.carried`).
       const lean: number = props.lean ?? 0;
       const at: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(place.point, Vector3.scale(normal, standoff + lift + off)),
+        Vector3.add(place.point, Vector3.scale(normal, standoff + lift)),
         Vector3.scale(along, travel),
       );
       const frame: HumanFrame.IFrame = {
@@ -438,34 +448,18 @@ export namespace AutoMovieMotionHumanTouch {
       );
 
       // A held rotation turns with the heading and leans with the vessel.
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw - props.entry.yaw);
       const rotation: IAutoMovieQuaternion | undefined =
         props.held === undefined
           ? undefined
-          : Quaternion.normalize(
-              Quaternion.multiply(
-                AutoMovieMotionHumanTouchUpright.tip(normal, lean),
-                Quaternion.multiply(
-                  Quaternion.fromAxisAngle(
-                    { x: 0, y: 1, z: 0 },
-                    posture.yaw - props.entry.yaw,
-                  ),
-                  props.held,
-                ),
-              ),
-            );
+          : Quaternion.normalize(Quaternion.multiply(AutoMovieMotionHumanTouchUpright.tip(normal, lean), Quaternion.multiply(turn, props.held)));
       return {
         ...laid,
         ...(rotation === undefined
           ? {}
           : {
               rotation,
-              point: Vector3.subtract(
-                at,
-                Quaternion.rotateVector(
-                  rotation,
-                  laid.contact ?? { x: 0, y: 0, z: 0 },
-                ),
-              ),
+              point: Vector3.subtract(at, Quaternion.rotateVector(rotation, laid.contact ?? { x: 0, y: 0, z: 0 })),
             }),
         ...(props.reference === undefined
           ? {}
@@ -475,9 +469,6 @@ export namespace AutoMovieMotionHumanTouch {
     };
   }
 }
-
-/** How far off a region along its normal a touch's goal stands at the start of the arrival and the end of the leave, hand lengths (provisional: a hand draws back about its own length before it turns away). */
-const APPROACH: number = 1;
 
 /** The bones a posture places without solving a limb. */
 const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =

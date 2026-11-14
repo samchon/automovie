@@ -1,3 +1,9 @@
+import {
+  createBall,
+  createTool,
+  createVessel,
+  createWearable,
+} from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -6,6 +12,7 @@ import type {
 import {
   HumanChain,
   HumanFoot,
+  HumanObject,
   type IHumanBody,
   type IHumanProp,
   catchObject,
@@ -131,7 +138,12 @@ const throwing = (
 ): motionHumanLawSweep.IScene => {
   const distance: number =
     style === "overarm" ? 6 : style === "underarm" ? 4 : 2.5;
-  return S.duo(a, b, distance, [
+  const ball: ReturnType<typeof createBall> = createBall({ kind: "handball" });
+  return S.duo(
+    a,
+    b,
+    distance,
+    [
     S.chain().act(
       "throwObject",
       {
@@ -146,8 +158,19 @@ const throwing = (
       },
       "throw",
     ),
-    S.chain("b").act("catchObject", { from: "throw", ...catcher }),
-  ]);
+      S.chain("b").act("catchObject", {
+        from: "throw",
+        ball: "ball",
+        ...catcher,
+      }),
+    ],
+    [
+      HumanObject.prop("ball", ball, {
+        at: { x: 0, y: 0, z: 0.3 },
+        yaw: 0,
+      }),
+    ],
+  );
 };
 
 /** A point on a wall facing the performer, on a hand's side. */
@@ -170,9 +193,12 @@ const wall = (
  * over 6 m, an underarm one over 4 m and a toss over 2.5 m at the catcher's
  * chest, short of it by the catching reach; a button at 1.1 m, a knob at
  * 0.95 m turned 90 degrees, a drawer at 0.85 m pulled 0.25 m and a door
- * handle at 1 m swung 35 degrees; a ball of 0.11 m radius 0.15 m ahead of
- * the toes; the work point of each tool; and a table top 0.225 m below the
- * elbow wiped three times.
+ * handle at 1 m swung 35 degrees; a football (`createBall`) 0.15 m ahead of
+ * the toes; each tool taken up from a bench 0.15 m below the elbow and
+ * worked on its work point, a stir in a saucepan on the bench before the
+ * body; and a table top 0.225 m below the
+ * elbow wiped three times; a hat or spectacles (`createWearable`) taken up
+ * from hip height before the right hand and put on.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and each staging with its numbers.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
@@ -271,39 +297,85 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   ): motionHumanLawSweep.IScene => {
     const foot: "left" | "right" = pick("foot") === "left" ? "left" : "right";
     const ankle: IAutoMovieVector3 = a.rest.get(`${foot}Foot`)!;
-    const radius: number = 0.11;
+    const football: ReturnType<typeof createBall> = createBall({
+      kind: "football",
+    });
+    const radius: number = football.affordance("grip").aperture! / 2;
     return S.solo(
       a,
       S.chain().act("kickBall", {
-        ball: S.point(
-          ankle.x,
-          radius,
-          ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
-        ),
-        radius,
+        ball: "ball",
         ...S.set(pick, "foot"),
       }),
+      [
+        HumanObject.prop("ball", football, {
+          at: {
+            x: ankle.x,
+            y: 0,
+            z: ankle.z + HumanFoot.offset(a, foot, "toe").z + 0.15 + radius,
+          },
+          yaw: 0,
+        }),
+      ],
     );
   },
   useTool: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
   ): motionHumanLawSweep.IScene => {
-    const hand: string | undefined = pick("hand");
+    const hand: string = pick("hand") ?? "right";
     const tool: string = pick("tool") ?? "hammer";
+    const bench: number = a.measure.shoulderHeight - a.measure.upperArm - 0.15;
+    const props: IHumanProp[] = [
+      HumanObject.prop(
+        "tool",
+        createTool({
+          kind: tool === "stir" ? "spoon" : (tool as createTool.Kind),
+        }),
+        {
+          position: {
+            x: a.rest.get(hand === "left" ? "leftUpperArm" : "rightUpperArm")!
+              .x,
+            y: bench,
+            z: 0.3,
+          },
+          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+        },
+      ),
+    ];
+    if (tool === "stir")
+      props.push(
+        HumanObject.prop("pot", createVessel({ kind: "saucepan" }), {
+          at: { x: 0, y: bench, z: 0.4 },
+          yaw: 0,
+        }),
+      );
     return S.solo(
       a,
-      S.chain().act("useTool", {
-        tool,
-        on:
-          tool === "stir"
-            ? wall(hand, 0.15, 0.95, 0.4)
-            : tool === "screwdriver"
-              ? wall(hand, 0.2, 1.15, 0.55)
-              : wall(hand, 0.2, 0.85, 0.5),
-        cycles: 3,
-        ...(hand === undefined ? {} : { hand }),
-      }),
+      S.chain()
+        .act("stand", { seconds: 0.3 })
+        .act("pickUp", {
+          prop: "tool",
+          handle: "grip",
+          hand,
+          use: {
+            tip: "face",
+            line: tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+          },
+        })
+        .act("useTool", {
+          tool,
+          prop: "tool",
+          on:
+            tool === "stir"
+              ? { kind: "prop", subject: "pot", point: "inside" }
+              : tool === "screwdriver"
+                ? wall(hand, 0.2, 1.15, 0.55)
+                : wall(hand, 0.2, 0.85, 0.5),
+          cycles: 3,
+          hand,
+        }),
+      props,
     );
   },
   wipe: (
@@ -327,6 +399,24 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   dress: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
-  ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("dress", { item: pick("item") ?? "hat" })),
+  ): motionHumanLawSweep.IScene => {
+    const item: string = pick("item") ?? "hat";
+    return S.solo(
+      a,
+      S.chain()
+        .act("stand", { seconds: 0.3 })
+        .act("pickUp", { prop: "item", handle: "hold", hand: "right" })
+        .act("dress", { item, prop: "item", hand: "right" }),
+      [
+        HumanObject.prop(
+          "item",
+          createWearable({ kind: item === "hat" ? "hat" : "spectacles" }),
+          {
+            at: { x: -0.2, y: a.measure.hipHeight, z: 0.35 },
+            yaw: item === "hat" ? 0 : 180,
+          },
+        ),
+      ],
+    );
+  },
 };

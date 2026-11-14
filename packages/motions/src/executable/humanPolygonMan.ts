@@ -138,6 +138,7 @@ const ENGINE_SOURCES: readonly string[] = [
   "physics/physicalHullFaces.ts",
   "physics/physicalHullMass.ts",
   "physics/physicalHullNearest.ts",
+  "physics/physicalHullSegment.ts",
   "physics/physicalPrincipalAxes.ts",
 ];
 

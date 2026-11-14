@@ -163,6 +163,103 @@ export namespace ArchetypeMass {
   }
 
   /**
+   * A rigid body's mass properties placed in a common space.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
+   * @evidence contracts/development/design.md#principled-representation Mass properties in the body's own space and a rigid placement in metres with a unit quaternion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the input of `combine`, written by `ArchetypeAssembly`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The placement carries no scale, which mass properties cannot follow.
+   */
+  export interface IPlaced {
+    /** The body's mass properties in its own space. */
+    properties: IProperties;
+
+    /** Where its space sits in the common one. */
+    placement: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+  }
+
+  /**
+   * The mass properties of rigid bodies placed together, such as the members of an assembly.
+   *
+   * @param bodies Each body's mass properties in its own space and its placement in the common space, with unit scale.
+   * @returns The total mass, the common centre of mass and the inertia about it, in the common space.
+   * @throws {Error} When the list is empty, a caller's defect.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' spaces, the result and the failure.
+   * @evidence contracts/development/implementation.md#principled-implementation The centre is the mass-weighted mean of the placed centres; each body's tensor about its own centre is turned into the common axes as R I R transposed, then gathered at the common centre by the parallel-axis theorem, m (|d| squared E - d d transposed), the same law `of` applies to parts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the mass and centre, one for the tensor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bodies that overlap are counted twice, as `of` counts overlapping parts.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the bodies.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Computed once per assembly.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function combine(bodies: readonly IPlaced[]): IProperties {
+    if (bodies.length === 0)
+      throw new Error("Mass properties combine at least one body");
+    let mass: number = 0;
+    let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const centres: IAutoMovieVector3[] = bodies.map(
+      (body: IPlaced): IAutoMovieVector3 =>
+        Vector3.add(
+          body.placement.translation,
+          Quaternion.rotateVector(
+            body.placement.rotation,
+            body.properties.centerOfMass,
+          ),
+        ),
+    );
+    bodies.forEach((body: IPlaced, k: number): void => {
+      mass += body.properties.mass;
+      weighted = Vector3.add(
+        weighted,
+        Vector3.scale(centres[k]!, body.properties.mass),
+      );
+    });
+    const centre: IAutoMovieVector3 = Vector3.scale(weighted, 1 / mass);
+
+    // I = sum of R I_k R^T + m_k (|d|^2 E - d d^T), d from the common centre.
+    const keys: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
+    const inertia: IInertia = { xx: 0, yy: 0, zz: 0, xy: 0, xz: 0, yz: 0 };
+    bodies.forEach((body: IPlaced, k: number): void => {
+      const own: IInertia = body.properties.inertia;
+      const rows: Record<"x" | "y" | "z", Record<"x" | "y" | "z", number>> = {
+        x: { x: own.xx, y: own.xy, z: own.xz },
+        y: { x: own.xy, y: own.yy, z: own.yz },
+        z: { x: own.xz, y: own.yz, z: own.zz },
+      };
+      const tensor = (a: "x" | "y" | "z", b: "x" | "y" | "z"): number =>
+        rows[a][b];
+      const axes: IAutoMovieVector3[] = keys.map(
+        (axis: "x" | "y" | "z"): IAutoMovieVector3 =>
+          Quaternion.rotateVector(body.placement.rotation, {
+            x: axis === "x" ? 1 : 0,
+            y: axis === "y" ? 1 : 0,
+            z: axis === "z" ? 1 : 0,
+          }),
+      );
+      const d: IAutoMovieVector3 = Vector3.subtract(centres[k]!, centre);
+      const dd: number = Vector3.dot(d, d);
+      const m: number = body.properties.mass;
+      const entry = (a: "x" | "y" | "z", b: "x" | "y" | "z"): number => {
+        let turned: number = 0;
+        keys.forEach((p: "x" | "y" | "z", i: number): void =>
+          keys.forEach((q: "x" | "y" | "z", j: number): void => {
+            turned += axes[i]![a] * tensor(p, q) * axes[j]![b];
+          }),
+        );
+        return turned + m * ((a === b ? dd : 0) - d[a] * d[b]);
+      };
+      inertia.xx += entry("x", "x");
+      inertia.yy += entry("y", "y");
+      inertia.zz += entry("z", "z");
+      inertia.xy += entry("x", "y");
+      inertia.xz += entry("x", "z");
+      inertia.yz += entry("y", "z");
+    });
+    return { mass, centerOfMass: centre, inertia };
+  }
+
+  /**
    * The moment of inertia about a line, such as the axis a bat is swung about through the hands.
    *
    * @param properties The mass properties.

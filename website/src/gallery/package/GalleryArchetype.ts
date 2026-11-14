@@ -98,7 +98,8 @@ export namespace GalleryArchetype {
         ),
 
         // The rest archetype states each articulation's range; the posed one
-        // carries the same travel.
+        // carries the same travel. A follower is set by its leader, so it
+        // offers no travel of its own.
         affordances: rest.affordances.map(
           (affordance): IGalleryView.IAffordance => {
             const range: { minimum: number | null; maximum: number | null } =
@@ -115,6 +116,7 @@ export namespace GalleryArchetype {
               color: color(affordance.kind),
               travel:
                 ArchetypeArticulation.KINDS.has(affordance.kind) &&
+                affordance.follows === undefined &&
                 range.minimum !== null &&
                 range.maximum !== null &&
                 range.maximum > range.minimum

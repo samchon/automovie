@@ -1,5 +1,6 @@
 export * from "./Archetype";
 export * from "./ArchetypeArticulation";
+export * from "./ArchetypeAssembly";
 export * from "./ArchetypeBand";
 export * from "./ArchetypeBuilder";
 export * from "./ArchetypeCourse";
@@ -11,4 +12,5 @@ export * from "./ArchetypeRefusal";
 export * from "./ArchetypeRide";
 export * from "./ArchetypeShapes";
 export * from "./ArchetypeSite";
+export * from "./ArchetypeSpan";
 export * from "./IArchetypeBand";

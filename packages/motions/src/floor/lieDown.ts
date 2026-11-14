@@ -20,11 +20,14 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { floorEntry } from "./floorEntry";
 import { floorSeat } from "./floorSeat";
 
 /**
  * Lying down on the floor from standing into a position: supine, prone, or
- * on the left or right side.
+ * on the left or right side. Entered on the knees or crouched over the
+ * hands, as a crawl ends, the body goes from the posture it displays
+ * through the route's postures after the kneel; any other base is refused (`floorEntry`).
  *
  * The movement passes through the floor postures people use to get down
  * (VanSant 1988, Phys Ther 68:185, codes the components of the reverse
@@ -226,13 +229,27 @@ export namespace lieDown {
     HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const standing: IHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
-    const route = ROUTES[position];
+
+    // Entered standing, the body goes down the position's route. Entered on
+    // the knees or crouched over the hands, it is already past the route's
+    // kneel, so it goes from the posture the entry displays through the
+    // rest of the route, about the entry's own hips (`floorEntry`).
+    const { standing, entered }: floorEntry.IStart = floorEntry.start(
+      context,
+      name,
+      "hips",
+      (): IHumanPosture =>
+        stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
+    );
+    const route: readonly [string, string][] =
+      entered === null
+        ? ROUTES[position]
+        : ROUTES[position].filter(([key]): boolean => key !== "kneel");
     const folds: floorSeat.Kind | undefined = FOLDED[position];
     const keys: IPose[] = [
-      { pitch: 0, roll: 0, joints: stand.RELAXED },
+      entered === null
+        ? { pitch: 0, roll: 0, joints: stand.RELAXED }
+        : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
       ...route.map(([key]) => POSES[key as keyof typeof POSES]),
     ];
     const phases: AutoMovieMotionClock.IPhase[] = [
@@ -251,10 +268,11 @@ export namespace lieDown {
     const duration: number = clock.duration;
 
     // The pelvis's place over the floor, kept as the body goes down.
+    const from: IHumanPosture = entered ?? standing;
     const hips: IAutoMovieVector3 = Vector3.add(
-      standing.root,
+      from.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(standing),
+        resolveHumanPosture.heading(from),
         body.rest.get("hips")!,
       ),
     );

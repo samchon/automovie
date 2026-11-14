@@ -15,6 +15,8 @@ import type {
 import { Archetype } from "./Archetype";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeMass } from "./ArchetypeMass";
+import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeSpan } from "./ArchetypeSpan";
 
 /**
  * What every producer assembles an archetype with: primitive parts stated by their dimensions and place, the affordances an act reads, and the total mass.
@@ -28,7 +30,7 @@ import { ArchetypeMass } from "./ArchetypeMass";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a producer writes with it, the coarseness rule it serves and what `build` derives.
  * @evidence contracts/development/design.md#principled-representation Code CAD over dimensioned primitives, the representation the 3D modeling skill names for furniture, tools and machines; every placement is a named dimension of the producer, none a vertex.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three part calls (`box`, `rod`, `ball`), one affordance call and `build`, each used by producers of this package.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three part calls (`box`, `rod`, `ball`), a line between moving frames (`span`), one affordance call and `build`, each used by producers of this package or, for `span`, by the bow and harness producers #3475 unblocks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No call knows a kind of object; a repeated part id is a producer's defect and throws at once.
  */
 export class ArchetypeBuilder<Id extends string, Dimension extends string> {
@@ -46,6 +48,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 
   /** Mass shares stated so far, by part id. */
   readonly #shares: Record<string, number> = {};
+
+  /** The spans so far. */
+  readonly #spans: ArchetypeSpan.ISpan[] = [];
 
   /** The producer's identity and drawn dimensions. */
   readonly #props: ArchetypeBuilder.IProps<Dimension>;
@@ -160,6 +165,62 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   }
 
   /**
+   * A span: a taut line between two frames of the model, laid again between them after every pose (`ArchetypeSpan`), such as a bowstring between its limbs' tips.
+   *
+   * @param id Part id of the line, unique in the archetype.
+   * @param from One end: a part already recorded with a point in its own coordinates, or an affordance already recorded.
+   * @param to The other end, likewise.
+   * @param radius The line's radius, metres.
+   * @param options Colour and relative density; a rotation is ignored, because the two ends fix it.
+   * @param length The line's rest length, metres, when it has one: the span reports itself slack whenever its ends are closer.
+   * @returns This builder.
+   * @throws {Error} When the id repeats one already used, a producer's defect.
+   * @throws {ArchetypeRefusal} When an end names a part or affordance not yet recorded, or the two ends meet at rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, what an end may name and when, and what is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation The ends are located at rest by `ArchetypeSpan.locate` and the line recorded as a `rod` between them, a cylinder, so its mass counts at rest as every part's does; the archetype lays it again after each pose.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Locate, record the rod, record the span.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An end must already exist, so the rest line is the one every pose lays; coincident ends are refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts and affordances so far, tens at most.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rod` and `ArchetypeSpan.locate`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
+   */
+  public span(
+    id: string,
+    from: ArchetypeSpan.End,
+    to: ArchetypeSpan.End,
+    radius: number,
+    options?: ArchetypeBuilder.IOptions,
+    length?: number,
+  ): this {
+    const start: IAutoMovieVector3 = ArchetypeSpan.locate(
+      this.#props.archetype,
+      from,
+      this.#parts,
+      this.#affordances,
+    );
+    const end: IAutoMovieVector3 = ArchetypeSpan.locate(
+      this.#props.archetype,
+      to,
+      this.#parts,
+      this.#affordances,
+    );
+    if (!(Vector3.length(Vector3.subtract(end, start)) > 0))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: this.#props.archetype,
+        axis: id,
+        value: 0,
+        feasible: null,
+        reason: `the span "${id}" has both ends at one point at rest`,
+        fix: "end the span at two distinct places",
+      });
+    this.rod(id, radius, start, end, { ...options, round: false });
+    this.#spans.push({ id, from, to, radius, length: length ?? null });
+    return this;
+  }
+
+  /**
    * An affordance.
    *
    * @param affordance The contact at rest, its frame in the model's space; `extent` is null for every kind but `stack-top`.
@@ -214,6 +275,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       friction: contact?.friction ?? 0.5,
       restitution: contact?.restitution ?? 0.2,
       dimensions: this.#props.dimensions,
+      spans: this.#spans,
     });
   }
 

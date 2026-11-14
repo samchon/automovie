@@ -4,6 +4,7 @@ import type { kneel } from "../everyday/kneel";
 import type { rise } from "../everyday/rise";
 import type { shift } from "../everyday/shift";
 import type { sit } from "../everyday/sit";
+import type { getUp } from "../floor/getUp";
 import type { lieDown } from "../floor/lieDown";
 import { HumanChainTravel } from "./HumanChainTravel";
 
@@ -93,5 +94,17 @@ export class HumanChainPosture extends HumanChainTravel {
    */
   public lieDown(params: lieDown.IParams = {}, anchor?: string): this {
     return this.act("lieDown", params, anchor);
+  }
+
+  /**
+   * Get up from the floor to standing: from the back, the front, or the
+   * hands and knees.
+   *
+   * @param params The pattern, the leading foot and the manner.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public getUp(params: getUp.IParams = {}, anchor?: string): this {
+    return this.act("getUp", params, anchor);
   }
 }
