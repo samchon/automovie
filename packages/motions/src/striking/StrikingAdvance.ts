@@ -21,9 +21,10 @@ import { StrikingTarget } from "./StrikingTarget";
  * or presentation. The leading foot, the one on the tool's side, leaves the
  * floor, lands its travel ahead along a line and comes back; the pelvis is
  * carried a share of that travel and lowered until both legs reach their
- * feet. A lunge's travel is `LUNGE` of the stature and a step's `STEP`
+ * feet. A lunge's full travel is `LUNGE` of the stature and a step's `STEP`
  * (both provisional: fencing studies report lunge lengths, and none was
- * read for this pass).
+ * read for this pass); a stroke takes less when its target needs less, as
+ * fencing measure works (`HumanSword.aim`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, by how much and that the lengths are provisional.
  * @evidence contracts/development/design.md#principled-representation The root decided once from the advance: one posture function of the foot's travel, and a base plan that runs it on a phrase clock.
@@ -43,7 +44,7 @@ export namespace StrikingAdvance {
   /** The pelvis's travel as a share of the leading foot's (provisional). */
   export const CARRY: number = 0.55;
 
-  /** The leading foot's travel of an advance, metres. */
+  /** The leading foot's full travel of an advance, metres. */
   export const travel = (
     context: Pick<IHumanActionContext, "body">,
     advance: Advance,
@@ -52,12 +53,13 @@ export namespace StrikingAdvance {
       ? 0
       : (advance === "lunge" ? LUNGE : STEP) * context.body.measure.stature;
 
-  /** The base of a stroke on a phrase clock: the entry's posture, or the advance of the leading foot from `strokeStart` to `stroke` and, unless the stroke stays, its recovery from `relax` to the end. */
+  /** The base of a stroke on a phrase clock: the entry's posture, or the advance of the leading foot from `strokeStart` to `stroke` (its `travel`, metres, the advance's full travel when absent) and, unless the stroke stays, its recovery from `relax` to the end. */
   export const base = (
     context: IHumanActionContext,
     stroke: {
       clock: AutoMovieMotionClock.IClock;
       advance: Advance;
+      travel?: number;
       line: IAutoMovieVector3;
       stay: boolean;
       tool: { side: "left" | "right" };
@@ -67,7 +69,7 @@ export namespace StrikingAdvance {
     const duration: number = clock.duration;
     if (stroke.advance === "none")
       return AutoMovieMotionHumanBase.under(context, duration);
-    const length: number = travel(context, stroke.advance);
+    const length: number = stroke.travel ?? travel(context, stroke.advance);
     const lead: "left" | "right" = stroke.tool.side;
     const rear: "left" | "right" = lead === "left" ? "right" : "left";
     const lift: number = 0.02 * context.body.measure.stature;

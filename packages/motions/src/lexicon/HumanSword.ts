@@ -110,7 +110,7 @@ export namespace HumanSword {
   /** The blade's turn from its chamber to the cut's contact, degrees (provisional). */
   export const SWING: number = 110;
 
-  /** The share of the blade's length from the hand at which a cut lands and a parry receives (provisional: the centre of percussion and the strong are not measured on the archetypes). */
+  /** Where a cut lands, as a share of the held thing's edge from its end by the hand (`StrikingHeld.ITool.span`), and where a parry receives, as a share of the blade's length from the hand (provisional: the centre of percussion and the strong are not measured on the archetypes). A thing that declares no edge lands a cut with its working point. */
   export const LANDS: Readonly<Record<"cut" | "parry", number>> = {
     cut: 0.7,
     parry: 0.3,
@@ -263,6 +263,9 @@ export namespace HumanSword {
     /** The advance taken. */
     advance: StrikingBlade.Advance;
 
+    /** How far it carries the leading foot, metres: the least of its travel that brings the target within reach. */
+    travel: number;
+
     /** The blade hand's shoulder at the decisive instant, world metres. */
     reach: IAutoMovieVector3;
 
@@ -290,24 +293,56 @@ export namespace HumanSword {
     );
     const yaw: number = StrikingTarget.heading(line);
 
-    // With no advance named, the least one that reaches: none, step, lunge.
-    const within = (candidate: StrikingBlade.Advance): boolean =>
+    // The arm reaches a target `span` nearer than the held thing's landing
+    // part: the target lies within reach where it is no farther from the
+    // shoulder than `REACH` of the arm and that span together.
+    const within = (
+      candidate: StrikingBlade.Advance,
+      travel: number = StrikingAdvance.travel(context, candidate),
+    ): boolean =>
       given === undefined ||
       Vector3.length(
         Vector3.subtract(
           given,
-          StrikingBlade.shoulder(context, s.tool.side, candidate, line),
+          StrikingBlade.shoulder(context, s.tool.side, candidate, line, travel),
         ),
       ) -
         span <=
         REACH * s.arm;
+
+    // With no advance named, the least one that reaches: none, step, lunge.
     const advance: StrikingBlade.Advance =
-      p.advance ?? (["none", "step"] as const).find(within) ?? "lunge";
+      p.advance ??
+      (["none", "step"] as const).find(
+        (candidate: StrikingBlade.Advance): boolean => within(candidate),
+      ) ??
+      "lunge";
+
+    // An advance carries the body no farther than brings the target within
+    // that reach: a lunge with a long blade at a near target is a short one.
+    // The least travel that reaches is bisected on the advance's own posture;
+    // one that reaches nothing at its full travel keeps it, and the arm's
+    // reach then refuses.
+    const full: number = StrikingAdvance.travel(context, advance);
+    let travel: number = full;
+    if (given !== undefined && advance !== "none" && within(advance, full)) {
+      let lo: number = 0;
+      let hi: number = full;
+      if (within(advance, 0)) hi = 0;
+      else
+        for (let i: number = 0; i < TRAVEL_BISECTIONS; i++) {
+          const mid: number = (lo + hi) / 2;
+          if (within(advance, mid)) hi = mid;
+          else lo = mid;
+        }
+      travel = hi;
+    }
     const reach: IAutoMovieVector3 = StrikingBlade.shoulder(
       context,
       s.tool.side,
       advance,
       line,
+      travel,
     );
     return {
       target:
@@ -326,19 +361,17 @@ export namespace HumanSword {
       line,
       yaw,
       advance,
+      travel,
       reach,
       posture:
         advance === "none"
           ? context.entry.posture
-          : StrikingAdvance.stood(
-              context,
-              s.tool.side,
-              line,
-              StrikingAdvance.travel(context, advance),
-              null,
-            ),
+          : StrikingAdvance.stood(context, s.tool.side, line, travel, null),
     };
   };
+
+  /** The bisections of an advance's travel down to the least that reaches: the full travel's 2^-20, under a micrometre. */
+  const TRAVEL_BISECTIONS: number = 20;
 
   /** The clock of an attack: its attack lasts as a minimum-jerk unit of the path's length at the peak speed. `carried` is the part of that length an advancing body covers: the body arrives at rest (a whole unit) while an arrested point arrives at its peak (half a unit), so the two speeds peak apart and the attack is timed on the greatest of their sum. */
   export const timed = (
@@ -385,7 +418,7 @@ export namespace HumanSword {
    * Cut along one of the eight lines: the blade's landing part passes through the target at the decisive instant (`stroke`), edge leading. A target beyond the arm with the chosen advance is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` of the blade from the hand) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING`, the leans and turns of the blade at contact and the chamber's place are provisional values named in code and documentation; an unreachable target is refused, never shortened.
    * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches.
@@ -397,17 +430,23 @@ export namespace HumanSword {
     interrupts: follows("strokeEnd"),
     plan: (context: IHumanActionContext<ICut>): IHumanActionPlan => {
       const s: ISetup = setup(context);
+      // What lands is the held thing's own striking part: `LANDS.cut` along
+      // its edge from the hand's end, or its working point when it declares
+      // no edge.
+      const back: number =
+        s.tool.span === null
+          ? 0
+          : s.tool.span[1] - LANDS.cut * (s.tool.span[1] - s.tool.span[0]);
       const a: IAim = aim(
         context,
         s,
         { out: 0, up: -0.1, forward: 0.6 },
-        LANDS.cut * s.tool.length,
+        s.tool.length - back,
       );
       const [out, up]: readonly [number, number] =
         LINES[context.params.from ?? "above"];
       const origin: IAutoMovieVector3 = s.world({ out, up, forward: 0 }, a.yaw);
       const travel: IAutoMovieVector3 = Vector3.scale(origin, -1);
-      const back: number = (1 - LANDS.cut) * s.tool.length;
 
       // The contact pose: the landing part on the target, the edge leading
       // along the travel, the blade's lean and turn as the arm holds them.
@@ -461,6 +500,7 @@ export namespace HumanSword {
         back,
         support: s.support,
         advance: a.advance,
+        travel: a.travel,
         line: a.line,
         stay: false,
         stop: stopped(context.params),

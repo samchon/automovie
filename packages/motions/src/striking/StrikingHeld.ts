@@ -57,6 +57,16 @@ export namespace StrikingHeld {
     /** The working length behind the point along the axis, metres: a blade's length, a barrel's; 0 for the bare hand. */
     length: number;
 
+    /**
+     * The run of the tool's edge along its axis, metres behind the working
+     * point: its end by the point, then its end by the hand, read from the
+     * edge affordance's centre and `length` (a sword's true edge, the length
+     * of its blade). Null when the tool declares no such edge: its working
+     * point is then all that strikes (a racket's `sweetSpot`, a club's
+     * `strike`, the bare hand's grip).
+     */
+    span: readonly [number, number] | null;
+
     /** The prop as the hand holds it; absent for the bare hand. */
     held?: AutoMovieMotionHumanHeld.IHeld;
 
@@ -123,6 +133,7 @@ export namespace StrikingHeld {
         axis,
         edge: square(axis, Vector3.scale(grip.forward, -1)),
         length: 0,
+        span: null,
       };
     }
     // The prop as the hand holds it, read by the one owner of that frame.
@@ -134,29 +145,43 @@ export namespace StrikingHeld {
     const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
       AutoMovieMotionHumanHeld.point(held, points.tip);
     const axis: IAutoMovieVector3 = Vector3.normalize(tip.direction);
-    const sided: boolean =
+    const edged:
+      | { point: IAutoMovieVector3; direction: IAutoMovieVector3 }
+      | undefined =
       points.edge !== undefined &&
       held.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.id === points.edge,
-      );
+      )
+        ? AutoMovieMotionHumanHeld.point(held, points.edge)
+        : undefined;
+    const run: number | undefined = held.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === points.edge,
+    )?.length;
+    const length: number = Math.max(0, Vector3.dot(tip.point, axis));
     return {
       prop,
       side,
       tip: tip.point,
       axis,
-      edge: square(
-        axis,
-        sided && points.edge !== undefined
-          ? AutoMovieMotionHumanHeld.point(held, points.edge).direction
-          : { x: 0, y: 1, z: 0 },
-      ),
-      length: Math.max(0, Vector3.dot(tip.point, axis)),
+      edge: square(axis, edged?.direction ?? { x: 0, y: 1, z: 0 }),
+      length,
+      span:
+        edged === undefined || run === undefined
+          ? null
+          : [
+              Vector3.dot(Vector3.subtract(tip.point, edged.point), axis) -
+                run / 2,
+              Vector3.dot(Vector3.subtract(tip.point, edged.point), axis) +
+                run / 2,
+            ],
       held,
       wields: {
         prop,
         side,
         tip: points.tip,
-        ...(sided && points.edge !== undefined ? { edge: points.edge } : {}),
+        ...(edged !== undefined && points.edge !== undefined
+          ? { edge: points.edge }
+          : {}),
       },
     };
   }

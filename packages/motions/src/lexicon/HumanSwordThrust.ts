@@ -81,9 +81,11 @@ export namespace HumanSwordThrust {
           // A pose the arm cannot hold with the hand folded in against the
           // shoulder fails for one cause: the target stands inside the
           // tool's own length, and no turn of the wrist makes room.
-          const room: number = Vector3.length(
-            Vector3.subtract(landed.point, a.reach),
-          );
+          // The room is what the tool leaves of the line from the shoulder
+          // to the target: where the hand stands before the shoulder with
+          // the tool on that line, behind it when negative.
+          const room: number =
+            Vector3.length(Vector3.subtract(a.target, a.reach)) - s.tool.length;
           if (!(error instanceof HumanRefusal) || room >= NEAR * s.arm)
             throw error;
           throw new HumanRefusal({
@@ -96,7 +98,7 @@ export namespace HumanSwordThrust {
               maximum: HumanSword.REACH * s.arm,
               unit: "m",
             },
-            reason: `the target is so near that the ${s.tool.side} hand would land ${room.toFixed(3)} m from its shoulder behind the tool's ${s.tool.length.toFixed(2)} m, and the arm cannot hold the tool there`,
+            reason: `the target is ${(room + s.tool.length).toFixed(3)} m from the ${s.tool.side} shoulder and the tool is ${s.tool.length.toFixed(2)} m long, so the hand would stand ${room.toFixed(3)} m before its shoulder (behind it when negative), and the arm cannot hold the tool there`,
             fix: "step back first (a retreat or a void), thrust from farther away, or answer with a cut",
           });
         }
@@ -146,6 +148,7 @@ export namespace HumanSwordThrust {
         back: 0,
         support: s.support,
         advance: a.advance,
+        travel: a.travel,
         line: a.line,
         stay: false,
         stop: HumanSword.stopped(context.params),
