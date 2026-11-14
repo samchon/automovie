@@ -5,6 +5,7 @@ import type { tags } from "typia";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -31,9 +32,12 @@ import { HumanSword } from "./HumanSword";
  * time meets its attack; `sync` with `align: "stroke"` starts it in time.
  * With no attack named it closes a line as a drill.
  *
- * A blade to meet that lies beyond the arm is refused. First pass: the
- * meeting is where the stopped attack stands, so a parry does not beat the
- * attacking blade aside, and a bind is not planned.
+ * It meets the attacking blade on its weak and, while the arm cannot hold
+ * its own blade across it there, slides the meeting back along that blade
+ * (`SLIDE`), where the stopped blade stands farther from the defender. A
+ * blade to meet that lies beyond the arm is refused. First pass: the meeting
+ * is where the stopped attack stands, so a parry does not beat the attacking
+ * blade aside, and a bind is not planned.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a parry answers, where and when the blades meet, the drill, the refusal and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner; the attack is read through its anchor, the outcome having been declared on the attack.
@@ -51,6 +55,9 @@ export namespace HumanSwordParry {
   /** Where a parry meets the attacking blade, a share of that blade's length back from its point: its weak (provisional). */
   export const WEAK: number = 0.25;
 
+  /** The shares of the attacking blade back from its point a parry slides its meeting to, in order, when the arm cannot hold its blade across the weak: the stopped blade stands anywhere along its length, and farther back it stands farther from the defender (provisional). */
+  export const SLIDE: readonly number[] = [WEAK, 0.35, 0.45, 0.55];
+
   /** How far a parrying blade may lean from the line square to the attacker's, degrees, and it turns freely about its own line, so the hand that holds it as it took it can close the parry (provisional). */
   export const LEAN: number = 30;
 
@@ -63,7 +70,7 @@ export namespace HumanSwordParry {
     line?: Opening;
 
     /** Seconds the blades stay together after they meet: a beat leaves at once, a bind stays; 0.15 when absent. */
-    hold?: number & tags.Minimum<0>;
+    hold?: number & tags.Minimum<0> & HumanUnit<"s">;
   }
 
   /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, and the seconds from the start to the attack's decisive instant (null for a drill). */
@@ -74,10 +81,11 @@ export namespace HumanSwordParry {
     lead: number | null;
   }
 
-  /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor. */
+  /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor, `weak` of its length back from its point. */
   const meet = (
     context: IHumanActionContext<IParry>,
     s: HumanSword.ISetup,
+    weak: number,
   ): IMeet => {
     const p: IParry = context.params;
     const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
@@ -138,7 +146,7 @@ export namespace HumanSwordParry {
         frame.position,
         Quaternion.rotateVector(frame.rotation, tip.point),
       ),
-      Vector3.scale(along, WEAK * length),
+      Vector3.scale(along, weak * length),
     );
 
     // The parrying blade crosses the attacker's, point up for a high line
@@ -187,7 +195,6 @@ export namespace HumanSwordParry {
     interrupts: HumanSword.follows("stroke"),
     plan: (context: IHumanActionContext<IParry>): IHumanActionPlan => {
       const s: HumanSword.ISetup = HumanSword.setup(context);
-      const m: IMeet = meet(context, s);
 
       // The parry receives as near its hilt as the arm allows: the strong
       // first, then farther up the blade while the wrist is out of reach.
@@ -196,43 +203,83 @@ export namespace HumanSwordParry {
         s.tool.side,
         "grip",
       ).point;
-      const receive = (share: number): StrikingHeld.IHandFrame =>
+      const receive = (
+        meeting: IMeet,
+        share: number,
+      ): StrikingHeld.IHandFrame =>
         StrikingRoll.hand(
           context,
           s.tool,
           (1 - share) * s.tool.length,
-          m.at,
-          m.point,
+          meeting.at,
+          meeting.point,
           LEAN,
           context.entry.posture,
         );
-      const share: number =
-        [0, 0.1, 0.2, 0.3, 0.4, 0.5]
-          .map((more: number): number => HumanSword.LANDS.parry + more)
-          .find((candidate: number): boolean => {
-            const frame: StrikingHeld.IHandFrame = receive(candidate);
-            return (
-              Vector3.length(
+      const received = (
+        meeting: IMeet,
+      ): { share: number; frame: StrikingHeld.IHandFrame } => {
+        for (const more of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {
+          const share: number = HumanSword.LANDS.parry + more;
+          const frame: StrikingHeld.IHandFrame = receive(meeting, share);
+          if (
+            Vector3.length(
+              Vector3.subtract(
                 Vector3.subtract(
-                  Vector3.subtract(
-                    frame.point,
-                    Quaternion.rotateVector(frame.rotation, grip),
-                  ),
-                  s.shoulder,
+                  frame.point,
+                  Quaternion.rotateVector(frame.rotation, grip),
                 ),
-              ) <=
-              HumanSword.REACH * s.arm
-            );
-          }) ?? HumanSword.LANDS.parry;
+                s.shoulder,
+              ),
+            ) <=
+            HumanSword.REACH * s.arm
+          )
+            return { share, frame };
+        }
+        return {
+          share: HumanSword.LANDS.parry,
+          frame: receive(meeting, HumanSword.LANDS.parry),
+        };
+      };
+
+      // It meets the attacking blade on its weak, and slides the meeting
+      // back along that blade (`SLIDE`) while the arm cannot hold its own
+      // blade across it there: the first meeting the fitted hand holds within
+      // `StrikingRoll.MISS`, else the one it holds best.
+      let m: IMeet | undefined;
+      let chosen: { share: number; frame: StrikingHeld.IHandFrame } | undefined;
+      let least: number = Infinity;
+      for (const weak of context.params.against === undefined
+        ? [WEAK]
+        : SLIDE) {
+        const meeting: IMeet = meet(context, s, weak);
+        const found: { share: number; frame: StrikingHeld.IHandFrame } =
+          received(meeting);
+        const missed: number = StrikingRoll.miss(
+          context,
+          s.tool,
+          found.frame,
+          (1 - found.share) * s.tool.length,
+          context.entry.posture,
+        );
+        if (chosen === undefined || missed < least - StrikingRoll.EXACT) {
+          least = missed;
+          m = meeting;
+          chosen = found;
+        }
+        if (least <= StrikingRoll.MISS) break;
+      }
+      const share: number = chosen!.share;
       const back: number = (1 - share) * s.tool.length;
-      const closed: StrikingHeld.IHandFrame = receive(share);
+      const closed: StrikingHeld.IHandFrame = chosen!.frame;
+      const met: IMeet = m!;
       StrikingRoll.reachable(
         context,
         s.tool,
         closed,
         back,
         context.entry.posture,
-        `stand closer to the blade to parry, which is met at ${m.at.x.toFixed(2)}, ${m.at.y.toFixed(2)}, ${m.at.z.toFixed(2)} m, or have the attack aim nearer`,
+        `stand closer to the blade to parry, which is met at ${met.at.x.toFixed(2)}, ${met.at.y.toFixed(2)}, ${met.at.z.toFixed(2)} m, or have the attack aim nearer`,
       );
       const bones: ReturnType<typeof poseBones> = poseBones(
         context.body,
@@ -249,11 +296,11 @@ export namespace HumanSwordParry {
         0.15,
         (1.875 *
           Vector3.length(
-            Vector3.subtract(m.at, StrikingHeld.point(s.tool, held, back)),
+            Vector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
           )) /
           s.skill(HumanSword.SPEED.thrust),
       );
-      const lead: number = m.lead ?? natural;
+      const lead: number = met.lead ?? natural;
       const recovery: number = StrikingSkill.recovery(context.skill);
       return StrikingBlade.plan(context, {
         tool: s.tool,
