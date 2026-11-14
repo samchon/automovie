@@ -12,7 +12,7 @@ const MM: number = 1e-3;
  *
  * Scenarios:
  * 1. A turnstile's lane is 457 to 559 mm wide, centred on the origin beside its cabinet's face, its cabinet 965 mm high, and its arm at 838 mm reaching 416 mm into the lane from the cabinet's face.
- * 2. A speed gate's lane is 615 to 915 mm between its two cabinets' faces, the cabinets 1035 mm high, the wings 940 mm high and meeting at the lane's middle.
+ * 2. A speed gate's lane is 615 to 915 mm between its two cabinets' faces, the cabinets 1035 mm high, the wings from 200 to 940 mm and meeting at the lane's middle.
  * 3. On both, `passage` is the lane's width and the cabinets' height, and `top` lies on the `-X` cabinet's top.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a lane, arm or wing off the maker's figures is caught with the numbers.
@@ -90,6 +90,11 @@ export function test_archetype_gates(): void {
       `speed gate ${seed}: the wings`,
       archetypeExtent(gate, "y", ["wing-left", "wing-right"]).high,
       0.94,
+    );
+    near(
+      `speed gate ${seed}: the wings' lower edge`,
+      archetypeExtent(gate, "y", ["wing-left", "wing-right"]).low,
+      0.2,
     );
     near(
       `speed gate ${seed}: the wings meet`,

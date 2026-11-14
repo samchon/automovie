@@ -13,11 +13,11 @@ const MM: number = 1e-3;
  * Scenarios:
  * 1. A toilet's lid, standing open at rest, lies on the seat ring at its full travel: its underside at the seat's height and its far edge at the bowl's front, within a millimetre.
  * 2. A fridge's door at its full travel, 90 degrees, stands out toward `+Z` from its `+X` hinge edge by the fridge's width, its handle with it; the freezer door at rest is unmoved.
- * 3. A washing machine's door at its full travel, 90 degrees, stands out toward `+Z` from its `-X` hinge edge by its own width.
+ * 3. A washing machine's door opens the maker's 160 degrees, and opened square it stands out toward `+Z` from its `-X` hinge edge by its own width.
  * 4. A microwave's door states no travel: any travel but 0 is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Poses produced archetypes and measures the moved colliders; a lid that lifts instead of lowering, a door that swings into the cabinet or about the wrong edge, a handle left behind, or a door opened past what its source gives is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Expected places come from each thing's own drawn dimensions and the geometry of a quarter turn about the door's edge (a leaf of width `w` turned square reaches `w` out), not from the articulation code; the 90 degrees are the makers' and the millimetre is #3368's tolerance.
+ * @evidence contracts/development/testing.md#independent-expectations Expected places come from each thing's own drawn dimensions and the geometry of a quarter turn about the door's edge (a leaf of width `w` turned square reaches `w` out), not from the articulation code; the fridge's 90 and the washer's 160 degrees are the makers' and the millimetre is #3368's tolerance.
  * @evidence contracts/development/testing.md#distinguishing-cases A lid lowered from open, side-hung doors on both edges, a moved and an unmoved door on one model, and a door that does not open; the shared articulation rules belong to `test_archetype_contract_articulation`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
@@ -93,6 +93,10 @@ export function test_archetype_fixture_articulation(): void {
     { kind: "washingMachine" },
     6,
   );
+  if (washer.affordance("door").travel !== 160)
+    findings.push(
+      `the washer door opens ${washer.affordance("door").travel} degrees, the maker's 160 expected`,
+    );
   const at: IAutoMovieVector3 = washer.affordance("door").frame.translation;
   const shut: { low: number; high: number; size: number } = archetypeExtent(
     washer,

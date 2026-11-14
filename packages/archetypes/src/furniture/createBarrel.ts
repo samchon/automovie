@@ -14,9 +14,13 @@ import {
 const DRUM: string =
   "Pipeline Packaging 55 gallon steel drums: DWG20459 tight head, diameter 22.5 in, outside height 34.75 in, 38.4 lb (https://images.salsify.com/image/upload/s--qux83p23--/qul3km981gfsrgolci19.pdf); DWG20443 open head, diameter 22 1/2 in, outside height 35 1/4 in, 43 lb (https://images.salsify.com/image/upload/s--Va7JVN6o--/zemdshut43rl5xcftlfj.pdf)";
 
-/** The keg, from a search only. */
+/** The keg read. */
 const KEG: string =
-  "US half-barrel beer keg (15.5 US gal): 16.1 to 16.8 in across, 23.25 to 23.3 in high, about 30 lb (13.5 kg) empty, as search results give brewers' and suppliers' listings; not read";
+  "KegLand 50 L DIN keg drawing KL09485: 381 +/- 2 mm across the rolling rings, 600 +/- 3 mm high (https://www.kegland.com.au/cdn/shop/files/KL09485_-_50L_DIN_KegLand_1.8mm.pdf)";
+
+/** The keg's empty mass, from a search only. */
+const KEG_MASS: string =
+  "50 L DIN kegs 11.2 to 12.1 kg empty (Czech Mini Breweries, Rotzmeier), as search results give the makers' listings; not read";
 
 /** How many sides the top's outline has. */
 const SIDES: number = 16;
@@ -28,7 +32,7 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
 };
 
 /**
- * A barrel moved by hand: a 55 gallon steel drum or a beer keg.
+ * A barrel moved by hand: a 55 gallon steel drum or a 50 L beer keg.
  *
  * The barrel stands upright on the floor at the origin, its axis along `+Y`. Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a keg's top skirt are gripped to tip, lift or walk it; its top is a face another load rests on.
  *
@@ -163,9 +167,9 @@ export namespace createBarrel {
       mass: ArchetypeBand.of("kg", 17.42, 19.5, DRUM),
     },
     keg: {
-      diameter: ArchetypeBand.metres(0.409, 0.4267, KEG, true),
-      height: ArchetypeBand.metres(0.5906, 0.5918, KEG, true),
-      mass: ArchetypeBand.of("kg", 13.5, 13.5, KEG, true),
+      diameter: ArchetypeBand.metres(0.379, 0.383, KEG),
+      height: ArchetypeBand.metres(0.597, 0.603, KEG),
+      mass: ArchetypeBand.of("kg", 11.2, 12.1, KEG_MASS, true),
     },
   };
 }

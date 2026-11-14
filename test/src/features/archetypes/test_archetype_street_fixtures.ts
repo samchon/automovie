@@ -15,13 +15,14 @@ const MM: number = 1e-3;
  * 1. A cone stands between the MUTCD's 18 and 28 in, its base 13.4 in for every 28 in of height as the Brimar cone's, lifted by a handle at its top.
  * 2. A bollard stands Reliance's 36 in, between its 4.50 and 10.75 in pipes, its post a bar the shaft's height and its top a face at the top.
  * 3. A hydrant stands Mueller's 32 in with its nozzles' centreline 24 in up, the pumper toward `+Z` and the hose nozzles toward `+X` and `-X`, its nut a knob on top.
- * 4. A lamp post stands Wave's 12 ft on a 9 1/4 in base, its post a bar from the base's top to its top.
+ * 4. A lamp post's shaft stands Wave's 12 ft on a 9 1/4 in base under Sternberg's 21 in by 40 in luminaire, its post a bar from the base's top to the shaft's top.
+ * 5. A sign post holds a 30 to 36 in STOP sign with its bottom edge at the MUTCD's 7 ft on Atkore's 2 in post, the post below the sign a bar.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a fixture off its source's size or a contact off its part is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is the MUTCD's or the makers' restated here in metres.
- * @evidence contracts/development/testing.md#distinguishing-cases Four kinds with different contacts: a handle, a post with a top, a knob, a post on a base.
+ * @evidence contracts/development/testing.md#distinguishing-cases Five kinds with different contacts: a handle, a post with a top, a knob, a post on a base, a post under a sign.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  */
 export function test_archetype_street_fixtures(): void {
   const findings: string[] = [];
@@ -105,7 +106,9 @@ export function test_archetype_street_fixtures(): void {
 
   // 4. The lamp post.
   const lamp: ReturnType<typeof createStreetFixture> = make("lampPost", 3);
-  near("the lamp post's height", archetypeExtent(lamp, "y").high, 3.6576);
+  near("the lamp post's height", archetypeExtent(lamp, "y", ["shaft"]).high, 3.6576);
+  near("the luminaire's width", archetypeExtent(lamp, "x", ["luminaire"]).size, 0.5334);
+  near("the luminaire's height", archetypeExtent(lamp, "y", ["luminaire"]).size, 1.016);
   near("the lamp post's base", archetypeExtent(lamp, "x", ["base"]).size, 0.235);
   const post: IAutoMovieAffordance = lamp.affordance("post");
   near(
@@ -113,6 +116,23 @@ export function test_archetype_street_fixtures(): void {
     post.length!,
     3.6576 - archetypeExtent(lamp, "y", ["base"]).high,
   );
+  // 5. The sign post.
+  findings.push(
+    ...archetypeBandSweep([
+      {
+        name: "STOP sign side",
+        measure: (seed: number): number =>
+          archetypeExtent(make("signPost", seed), "x", ["sign"]).size,
+        minimum: 0.762,
+        maximum: 0.9144,
+        source: "MUTCD Table 2B-1",
+      },
+    ]),
+  );
+  const sign: ReturnType<typeof createStreetFixture> = make("signPost", 3);
+  near("the sign's bottom edge", archetypeExtent(sign, "y", ["sign"]).low, 2.1336);
+  near("the sign post's side", archetypeExtent(sign, "x", ["post"]).size, 0.0508);
+  near("the sign post's bar", sign.affordance("post").length!, 2.1336);
   TestValidator.equals(
     "street fixtures stand at their sources",
     findings,

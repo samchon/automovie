@@ -21,6 +21,10 @@ const NKBA: string =
 const SEATING: string =
   "NKBA Kitchen Planning Guidelines with Access Standards, Guideline 9 Seating Clearance: 42 in (1067 mm) high counters with a 24 in wide by 12 in (305 mm) deep knee space for each seated diner (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)";
 
+/** The service counter read. */
+const SERVICE: string =
+  "Delfield Shelleysteel SCS mobile cashier's counter sheet: 30.00 in (76 cm) deep, 36.00 in (91 cm) high, 30, 36 or 50 in long (https://cdn.restaurantsupply.com/pdf/9/6/4/9644b43a-1127-42c0-87fa-1935fe9071fa.pdf); 2010 ADA Standards 904.4, a service counter's accessible portion at most 36 in (915 mm) high (https://www.access-board.gov/ada/chapter/ch09/)";
+
 /** The office desk standard. */
 const EN527: string =
   "EN 527-1:2011 Table 1 (https://cdn.standards.iteh.ai/samples/26022/6cc3729a004c4ce9a231c68a38e8620c/SIST-EN-527-1-2012.pdf)";
@@ -32,15 +36,16 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   counter: "counter",
   coffee: "coffee table",
   bar: "bar counter",
+  serviceCounter: "service counter",
 };
 
 /** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
 const KNEE: number = 0.305;
 
 /**
- * A table: a dining table, a desk, a counter, a coffee table or a raised bar counter.
+ * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter or a service counter.
  *
- * The model is a top on four legs, or on a solid base for a counter and a bar counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
+ * The model is a top on four legs, or on a solid base for a counter, a bar counter and a service counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -50,7 +55,7 @@ const KNEE: number = 0.305;
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's and a service counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -89,7 +94,7 @@ export function createTable(
     Vector3.create(0, height - slab / 2, 0),
     { color: "#a9825a" },
   );
-  if (kind === "counter" || kind === "bar") {
+  if (kind === "counter" || kind === "bar" || kind === "serviceCounter") {
     const overhang: number = kind === "bar" ? KNEE : 0.05;
     builder.box(
       "base",
@@ -167,7 +172,13 @@ export function createTable(
  */
 export namespace createTable {
   /** The kinds of table. */
-  export type Kind = "dining" | "desk" | "counter" | "coffee" | "bar";
+  export type Kind =
+    | "dining"
+    | "desk"
+    | "counter"
+    | "coffee"
+    | "bar"
+    | "serviceCounter";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -176,6 +187,7 @@ export namespace createTable {
     "counter",
     "coffee",
     "bar",
+    "serviceCounter",
   ];
 
   /**
@@ -301,6 +313,12 @@ export namespace createTable {
         `${NKBA}: a 508 to 635 mm deep counter under the top, the top reaching the 305 mm knee space further over it; ${SEATING}`,
       ),
       mass: ArchetypeBand.of("kg", 50, 110, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    serviceCounter: {
+      height: ArchetypeBand.metres(0.9144, 0.9144, SERVICE),
+      length: ArchetypeBand.metres(0.762, 1.27, `${SERVICE}: the three lengths`),
+      depth: ArchetypeBand.metres(0.762, 0.762, SERVICE),
+      mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }

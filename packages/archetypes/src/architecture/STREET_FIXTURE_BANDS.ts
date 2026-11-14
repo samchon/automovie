@@ -21,6 +21,18 @@ const MUELLER: string =
 const WAVE: string =
   "Wave Lighting 3692 pole sheet: 12 ft mounting height, 3 in butt and 2.95 in top diameter, base 9 1/4 in across and 11 7/8 in high (https://cdn.shopify.com/s/files/1/1916/1697/files/wave-lighting-3600-pdf-4.pdf)";
 
+/** The luminaire read. */
+const STERNBERG: string =
+  "Sternberg 1521LEDPT Omega post-top luminaire sheet: 21 in outside diameter and 40 in overall height (https://cdn.shopify.com/s/files/1/1916/1697/files/sternberg-lighting-1527led-medium-omega-pdf-1.pdf)";
+
+/** The sign mounting and sizes read. */
+const SIGN: string =
+  "2009 MUTCD 2A.18: the sign's bottom 7 ft above the ground in business, commercial or residential areas (https://mutcd.fhwa.dot.gov/htm/2009/part2/part2a.htm); Table 2B-1: STOP R1-1 30 x 30 in on single-lane and 36 x 36 in on multi-lane conventional roads (https://mutcd.fhwa.dot.gov/htm/2009/part2/part2b.htm)";
+
+/** The sign post read. */
+const POST: string =
+  "Atkore Telespar Qwik Punch square sign post: 2 x 2 in outside, 14 gauge (https://dam.atkore.com/api/public/content/ATCM-SSTelespar-Qwik-Punch-ATC-L-1609-1-1-22-WEB)";
+
 /**
  * The band of each free dimension of {@link createStreetFixture}, by kind.
  *
@@ -75,6 +87,14 @@ export const STREET_FIXTURE_BANDS: Readonly<
       `${WAVE}: the 11 7/8 in is unlabelled and taken as the base's`,
       true,
     ),
+    head: ArchetypeBand.metres(0.5334, 0.5334, STERNBERG),
+    headHeight: ArchetypeBand.metres(1.016, 1.016, STERNBERG),
     mass: ArchetypeBand.of("kg", 20, 40, ArchetypeBand.TYPICAL_MASS, true),
+  },
+  signPost: {
+    height: ArchetypeBand.metres(2.1336, 2.1336, SIGN),
+    head: ArchetypeBand.metres(0.762, 0.9144, `${SIGN}: the STOP sign's side`),
+    diameter: ArchetypeBand.metres(0.0508, 0.0508, POST),
+    mass: ArchetypeBand.of("kg", 8, 15, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

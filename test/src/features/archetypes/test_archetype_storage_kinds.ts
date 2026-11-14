@@ -41,7 +41,7 @@ const BILLY: Readonly<Record<string, number>> = {
  *
  * Scenarios:
  * 1. A filing cabinet has the HON 510's four drawers, equal up its height, each sliding its front and box out by the drawn filing length; it declares no pull, which no source places.
- * 2. A locker stands Lyon's height on its legs, as wide and deep as Lyon's range; its door hinge states no travel, so any opening is refused, and it declares no handle.
+ * 2. A locker stands Lyon's height on its legs, as wide and deep as Lyon's range, its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
  * 3. A bookcase is the BILLY's size and its five shelves divide its height into six equal steps, each shelf's extent inside the sides.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the drawers; a drawer that does not carry its front, a door that opens without a source, or a shelf off its step is caught with the numbers.
@@ -126,6 +126,11 @@ export function test_archetype_storage_kinds(): void {
     "the locker's door bottom",
     archetypeExtent(locker, "y", ["door"]).low,
     LYON.legs,
+  );
+  near(
+    "the locker's hat shelf",
+    locker.affordance("shelf1").frame.translation.y,
+    LYON.legs + 48 * 0.0254,
   );
   if (locker.affordance("door").travel !== undefined)
     findings.push("the locker door states a travel no source gives");

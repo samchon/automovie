@@ -69,6 +69,9 @@ export namespace StorageConstruction {
     filingCabinet: { count: 4, pulls: false, color: STEEL },
   };
 
+  /** A single-tier locker's hat shelf above the locker's bottom, metres: Penco Vanguard specification, "Hat shelf 48 inches from locker bottom" (https://www.pencoproducts.com/media/3677/vanguard-snapshot-specs_jan2019.pdf). */
+  export const LOCKER_SHELF: number = 48 * 0.0254;
+
   /** A bookcase's shelves above its bottom, as the BILLY's one fixed and four adjustable. */
   export const SHELVES: number = 5;
 
@@ -284,17 +287,17 @@ export namespace StorageConstruction {
   }
 
   /**
-   * A single-tier steel locker on its legs: a hollow body of back, sides, roof and bottom, closed by a door hung on its `-X` edge.
+   * A single-tier steel locker on its legs: a hollow body of back, sides, roof and bottom with its hat shelf, closed by a door hung on its `-X` edge.
    *
-   * `door` is the door's hinge; it states no travel, since no source read gives a locker door's opening, so the door stays shut. No handle is declared, since no source read places the recessed handle.
+   * `door` is the door's hinge; it states no travel, since no source read gives a locker door's opening, so the door stays shut. `shelf1` is the hat shelf, a `stack-top` 48 in above the locker's bottom. No handle is declared, since no source read places the recessed handle.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built, its one contact and why the door does not open.
-   * @evidence contracts/development/implementation.md#principled-implementation The maker's width, depth and height above its 6 in legs; the hinge on the door's `-X` edge at half its height, its axis down so a positive travel would swing the door out toward `+Z`.
+   * @evidence contracts/development/implementation.md#principled-implementation The maker's width, depth and height above its 6 in legs; the hat shelf at Penco's 48 in above the bottom; the hinge on the door's `-X` edge at half its height, its axis down so a positive travel would swing the door out toward `+Z`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Legs, walls, door, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No louvres, shelf, hooks, handle or lock; the walls' and legs' sections are construction estimates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No louvres, hooks, handle or lock; the walls' and legs' sections are construction estimates.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Ten parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one cabinet.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -343,6 +346,20 @@ export namespace StorageConstruction {
         v(0, y, back + t + (body - t) / 2),
         { color: STEEL },
       );
+    const shelf: number = legs + LOCKER_SHELF;
+    const inside: number = back + t + (body - t) / 2;
+    builder.box(
+      "shelf",
+      v(width - 2 * t, t, body - t),
+      v(0, shelf - t / 2, inside),
+      { color: STEEL },
+    );
+    builder.affordance({
+      id: "shelf1",
+      kind: "stack-top",
+      frame: ArchetypeFrame.upright(v(0, shelf, inside)),
+      extent: rectangle(width - 2 * t, body - t),
+    });
     const face: number = back + depth;
     builder.box("door", v(width, top - legs, t), v(0, mid, face - t / 2), {
       color: "#a3acb4",

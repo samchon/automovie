@@ -16,11 +16,11 @@ const MM: number = 1e-3;
  * A steel drum and a keg stand at their sources' sizes, taken by two hands at the top rim's ends and stacked on along their tops.
  *
  * Scenarios:
- * 1. The steel drum is Pipeline Packaging's 22.5 in across and 34.75 to 35.25 in high; the keg 16.1 to 16.8 in across and 23.25 to 23.3 in high.
+ * 1. The steel drum is Pipeline Packaging's 22.5 in across and 34.75 to 35.25 in high; the keg KegLand's 50 L DIN keg, 381 +/- 2 mm across and 600 +/- 3 mm high.
  * 2. Each barrel's `left` and `right` lie on the top rim at the `+X` and `-X` ends of its diameter, `+Y` pointing out, and its `top` outline lies inside the rim at the top.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider and contact frames over the seeds; a barrel off its source's size or a hand off its rim is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The expected sizes are the drum sheets' and the keg listings' figures restated in metres; the rim places follow from the measured collider, not from the producer's code.
+ * @evidence contracts/development/testing.md#independent-expectations The expected sizes are the drum sheets' and the keg drawing's figures restated in metres; the rim places follow from the measured collider, not from the producer's code.
  * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, a fixed and a ranging diameter; both hands on opposite ends.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
@@ -53,8 +53,8 @@ export function test_archetype_barrel(): void {
         0.8954,
         "Pipeline Packaging, 34.75 and 35.25 in outside",
       ),
-      sweep("keg", "x", 0.409, 0.4267, "half-barrel keg, 16.1 to 16.8 in"),
-      sweep("keg", "y", 0.5906, 0.5918, "half-barrel keg, 23.25 to 23.3 in"),
+      sweep("keg", "x", 0.379, 0.383, "KegLand 50 L DIN, 381 +/- 2 mm"),
+      sweep("keg", "y", 0.597, 0.603, "KegLand 50 L DIN, 600 +/- 3 mm"),
     ]),
   );
 

@@ -103,7 +103,7 @@ export namespace createStorage {
    * - `drawer1` upward: a chest's or a filing cabinet's drawers from the bottom, each a slider running out along `+Z`.
    * - `pull1` upward: a chest's drawer pulls, each riding its slider.
    * - `door`: a locker's door hinge on its `-X` edge.
-   * - `shelf1` upward: a bookcase's shelves from the bottom, each a `stack-top`.
+   * - `shelf1` upward: a bookcase's shelves from the bottom, each a `stack-top`; a locker's hat shelf, `shelf1`.
    */
   export type Affordance =
     | "push"

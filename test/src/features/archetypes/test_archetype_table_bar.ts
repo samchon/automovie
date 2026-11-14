@@ -24,12 +24,13 @@ const NKBA: Readonly<{
  * Scenarios:
  * 1. The top, its `stack` and its `front` edge lie 1067 mm up.
  * 2. The base stands under the top's back, as deep as NKBA's counter range, and the top reaches 305 mm past the base's front on `+Z`, where a seated person's knees go.
+ * 3. A service counter's top lies at Delfield's and the ADA's 36 in, 30 in deep, 30 to 50 in long.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced top and base colliders and the contact frames over the seeds; a bar at a kitchen counter's height or with no knee space is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The 1067 and 305 mm and the counter depths are NKBA's figures restated here.
  * @evidence contracts/development/testing.md#distinguishing-cases The raised bar against the plain counter's 50 mm overhang, which `test_archetype_furniture_bands` covers.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
  */
 export function test_archetype_table_bar(): void {
   const findings: string[] = [];
@@ -66,6 +67,29 @@ export function test_archetype_table_bar(): void {
         minimum: NKBA.counter[0],
         maximum: NKBA.counter[1],
         source: "NKBA counter depth",
+      },
+    ]),
+  );
+  // 3. The service counter.
+  const counter: ReturnType<typeof createTable> = createTable(
+    { kind: "serviceCounter" },
+    5,
+  );
+  if (!(Math.abs(counter.affordance("top").frame.translation.y - 0.9144) <= MM))
+    findings.push("the service counter is not 36 in high");
+  if (!(Math.abs(archetypeExtent(counter, "z", ["top"]).size - 0.762) <= MM))
+    findings.push("the service counter is not 30 in deep");
+  findings.push(
+    ...archetypeBandSweep([
+      {
+        name: "service counter length",
+        measure: (seed: number): number =>
+          archetypeExtent(createTable({ kind: "serviceCounter" }, seed), "x", [
+            "top",
+          ]).size,
+        minimum: 0.762,
+        maximum: 1.27,
+        source: "Delfield SCS",
       },
     ]),
   );

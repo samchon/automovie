@@ -24,9 +24,9 @@ const CRIB: string =
 const ISOFLEX: string =
   "Stryker IsoFlex LAL support surface, 6 in (15 cm) thick, as a search result gives Stryker's sheet; not read";
 
-/** The siderail height, from a search only. */
+/** The siderail height read. */
 const SIDERAIL: string =
-  "a hospital bed's siderail top at least 220 mm above the mattress, after IEC 60601-2-52 as a bed supplier's risk-assessment guideline gives it (Algeos), a search result only; not read";
+  "MHRA, Safe use of bed rails (30 August 2023), Appendix 2 quoting BS EN 60601-2-52:2010+A1:2015: the top edge of the side rail at least 220 mm above the mattress without compression; the model takes the least (https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/871247/Safe_use_of_bed_rails.pdf)";
 
 /** The crib's height, from a search only. */
 const CRIB_TOP: string =
@@ -81,7 +81,7 @@ export const BED_BANDS: Readonly<
       `${GOBED}: the litter top's range`,
     ),
     thickness: ArchetypeBand.metres(0.152, 0.152, ISOFLEX, true),
-    rail: ArchetypeBand.metres(0.22, 0.22, SIDERAIL, true),
+    rail: ArchetypeBand.metres(0.22, 0.22, SIDERAIL),
     mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
   },
   crib: {

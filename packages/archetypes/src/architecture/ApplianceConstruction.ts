@@ -75,8 +75,8 @@ export namespace ApplianceConstruction {
   /** A fridge door's opening, degrees: the 90 degrees a Bosch KGN 36A63's door opens to 55 mm from the wall (https://www.manualsdir.com/manuals/17511/bosch-kgn-36a63.html?page=6). */
   export const FRIDGE_SWING: number = 90;
 
-  /** A washing machine door's opening, degrees: the 90 degrees at which Bosch gives the WAN28255GB's depth with the door open. */
-  export const WASHER_SWING: number = 90;
+  /** A washing machine door's opening, degrees: the WAN28255GB's "160° opening" on Bosch's sheet (https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf). */
+  export const WASHER_SWING: number = 160;
 
   /** A cooker's hob zones and their diameters, metres, as the Bosch PKF675FP2E hob gives them (https://bosch-home.com/za/en/mkt-product/PKF675FP2E). */
   export const ZONES: readonly number[] = [0.145, 0.145, 0.18, 0.21];

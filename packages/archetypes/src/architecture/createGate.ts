@@ -17,6 +17,9 @@ const TRILOCK: string =
 const SPEEDLANE: string =
   "Boon Edam Lifeline Speedlane Swing brochure: cabinet 106 mm wide, 1035 mm high, 1776 mm long; passage 615 mm, wide 915 mm; wing height 940 mm (https://www.barbourproductsearch.info/BEL_Lifeline%20Speedlane%20Swing_A4%20Brochure_2023-file133773.pdf)";
 
+/** A speed gate wing's lower edge above the floor, metres: the Speedlane Swing elevation's 200 mm. */
+const WING_FOOT: number = 0.2;
+
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wing`, a swing gate's wing thickness. */
 const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
 
@@ -35,7 +38,7 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
  * @evidence contracts/development/common.md#meaningful-documentation States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes, passage widths and barrier and wing heights; the arm's reach and section from the Trilock drawing.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cabinets, the barrier, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One arm stands for the tripod's three; a wing is a slab from the floor; their place along the cabinet and the wing's thickness are construction estimates.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One arm stands for the tripod's three; a wing is a slab from the elevation's 200 mm up to its height; their place along the cabinet and the wing's thickness are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most four parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -99,8 +102,8 @@ export function createGate(
     ] as const)
       builder.box(
         id,
-        v(lane / 2, barrier, ESTIMATES.wing),
-        v((sign * lane) / 4, barrier / 2, 0),
+        v(lane / 2, barrier - WING_FOOT, ESTIMATES.wing),
+        v((sign * lane) / 4, (barrier + WING_FOOT) / 2, 0),
         { color: "#d6e6ef" },
       );
   builder.affordance({
