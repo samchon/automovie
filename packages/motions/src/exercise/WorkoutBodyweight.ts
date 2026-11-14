@@ -1,3 +1,4 @@
+import type { IHumanBody } from "../body/IHumanBody";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
@@ -11,8 +12,12 @@ import { WorkoutKind } from "./WorkoutKind";
  * (ACSM's Guidelines, 11th ed.; NSCA's Essentials of Strength Training and
  * Conditioning, 4th ed., for the dip); none is a measured value.
  *
- * First pass: the bars of a dip are places unless the author names a prop
- * (`on`); a bird dog's hands are kept by the angles alone.
+ * The bars of a dip are places at the standing hips' height beside the body
+ * unless the author names a prop (`on`): a support exercise's bars stand
+ * within the standing body's reach. First pass: the dip's base is the
+ * grammar's `hanging`, the body borne by its hands with its feet off the
+ * floor, there being no base of a body supported above its hands; a bird
+ * dog's hands are kept by the angles alone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the sources and that the angles are provisional, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One `WorkoutKind` per exercise: data over the one planner.
@@ -261,6 +266,7 @@ export namespace WorkoutBodyweight {
       base: "hanging",
       anchor: "bar",
       pin: ["gripLeft", "gripRight"],
+      bars: (body: IHumanBody): number => body.measure.hipHeight,
       supports: [
         { part: "leftHand", kind: "grip" },
         { part: "rightHand", kind: "grip" },
