@@ -15,7 +15,8 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  *
  * Usage: `FamilyConicArmscye.ts [railMm] [--table]`; the rail is the one the body declares unless given, and several may be given as `a,b,c`
  * to see how far the declared loop holds. `FamilyConicArmscye.ts port` reads the port's loop and rails off the reference instead (`port`),
- * and `FamilyConicArmscye.ts folds` the axillary folds' lowest points (`folds`).
+ * `FamilyConicArmscye.ts folds` the axillary folds' lowest points (`folds`), and `FamilyConicArmscye.ts owner` which part's skin lies
+ * under the landmark loop (`owner`), and `FamilyConicArmscye.ts realize` the construction's diagnostics alone (`realize`).
  */
 namespace FamilyConicArmscye {
   type V3 = [number, number, number];
@@ -119,8 +120,8 @@ namespace FamilyConicArmscye {
    * caps) crosses onto the arm's side of the loop for good (it stays there over the next 20 mm), and that station plus `into` mm, less
    * the arm's first station, for `ARM_RAILS_MM`.
    *
-   * Usage: `FamilyConicArmscye.ts port [intoMm] [count] [--wall=<directory>]`, 10 mm and 48 by default, the emitted arm unless a run's
-   * directory is given.
+   * Usage: `FamilyConicArmscye.ts port [intoMm] [count] [--wall=<directory>] [--lift=<mm>]`, 10 mm and 48 by default, the emitted arm
+   * unless a run's directory is given, the landmark loop itself unless a lift reads its parallel.
    */
   export async function port(): Promise<void> {
     const plain: string[] = process.argv.slice(3).filter((argument: string): boolean => !argument.startsWith("--"));
@@ -129,8 +130,12 @@ namespace FamilyConicArmscye {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const loop: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
     const foot: number = AutoMovieHumanF1Joints.axisFloor[1];
+    // `--lift=<mm>`: the outline is the loop's parallel that far along its plane's normal (`FamilyConicLoop.ILoop.parallel`), the port's
+    // loop on the trunk's skin beside the landmark loop.
+    const lift: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--lift="))?.slice("--lift=".length) ?? 0);
+    const traced: V3[] = lift === 0 ? (loop.points as V3[]) : (loop.parallel(lift) as V3[]);
     const outline: [number, number][] = Array.from({ length: count }, (_: unknown, k: number): [number, number] => {
-      const p: V3 = loop.points[Math.round((k * FamilyConicLoop.SAMPLES) / count) % FamilyConicLoop.SAMPLES]!;
+      const p: V3 = traced[Math.round((k * FamilyConicLoop.SAMPLES) / count) % FamilyConicLoop.SAMPLES]!;
       return [Math.round((p[1] - foot) * 10) / 10, Math.round(Math.atan2(p[2], p[0]) * 1e4) / 1e4];
     });
     process.stdout.write("loop " + JSON.stringify(outline) + "\n");
@@ -219,7 +224,54 @@ namespace FamilyConicArmscye {
     }
   }
 }
-if (process.argv[2] === "folds")
+namespace FamilyConicArmscye {
+  /**
+   * Which part owns the skin under the armscye's landmark loop: at each of `count` points round the loop (`FamilyConicLoop`, at equal steps
+   * of its phase, +Z side), the distance to the Human package's trunk as stored (`AutoMovieHumanF1.BODY.trunk`, its reliefs on), lofted
+   * every millimetre over the loop's heights and read at 720 phases. Where it is under a millimetre the trunk's own skin carries the loop;
+   * where it is more, the trunk's wall there is its closure across the arm's hole, and another part must own the loop's skin.
+   *
+   * Usage: `FamilyConicArmscye.ts owner [count]`, 48 by default.
+   */
+  export async function owner(): Promise<void> {
+    const count: number = Number(process.argv[3] ?? 48);
+    const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
+    const loop: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
+    const foot: number = AutoMovieHumanF1Joints.axisFloor[1];
+    const heights: number[] = loop.points.map((p: number[]): number => p[1]! - foot);
+    const [low, high]: number[] = [Math.floor(Math.min(...heights)) - 10, Math.ceil(Math.max(...heights)) + 10];
+    const stations: number[] = Array.from({ length: high - low + 1 }, (_: unknown, i: number): number => low + i);
+    const trunk = AutoMovieHumanConicLoft.create(AutoMovieHumanF1.BODY.trunk, stations).chain;
+    if (trunk === null) throw new Error("the trunk does not loft over the loop's heights");
+    const skin: number[][] = stations.flatMap((s: number): number[][] => Array.from({ length: 720 }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(trunk, s, (2 * Math.PI * j) / 720)));
+    for (let k: number = 0; k < count; ++k) {
+      const p: number[] = loop.points[Math.round((k * FamilyConicLoop.SAMPLES) / count) % FamilyConicLoop.SAMPLES]!;
+      let best: number = Infinity;
+      for (const q of skin) best = Math.min(best, Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!));
+      process.stdout.write(`loop ${String(k).padStart(2)} [${p.map((x: number): string => x.toFixed(1)).join(", ")}]: stored trunk ${best.toFixed(2)} mm${best < 1 ? "" : " (not the trunk's skin)"}\n`);
+    }
+  }
+}
+namespace FamilyConicArmscye {
+  /**
+   * The figure's construction realized once, no frame drawn, and every diagnostic it reports listed, so a port's band is known to be
+   * admitted (or which node refuses it) before the slower whole-figure rounds.
+   *
+   * Usage: `FamilyConicArmscye.ts realize`.
+   */
+  export function realize(): void {
+    const declared = AutoMovieHumanF1.construction();
+    const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    process.stdout.write(JSON.stringify({ diagnostics: real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => d.node + " (" + d.contract + "): " + d.detail) }) + "\n");
+  }
+}
+if (process.argv[2] === "realize") FamilyConicArmscye.realize();
+else if (process.argv[2] === "owner")
+  void FamilyConicArmscye.owner().catch((error: unknown): void => {
+    process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
+    process.exitCode = 1;
+  });
+else if (process.argv[2] === "folds")
   void FamilyConicArmscye.folds().catch((error: unknown): void => {
     process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
     process.exitCode = 1;

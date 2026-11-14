@@ -29,6 +29,13 @@ export namespace FamilyConicLoop {
 
     /** How far a point stands past the loop toward the arm, mm along the plane's normal; positive on the arm's side. */
     side: (p: V) => number;
+
+    /**
+     * The loop's parallel on the skin `distance` mm from it (negative: toward the trunk), `SAMPLES` points at the loop's own phases: each
+     * ray's plane lifted along the normal by at most the distance, so its skin point stands no farther than that from the loop's, and the
+     * lifts and the reach faired as the loop's reach is.
+     */
+    parallel: (distance: number) => V[];
   }
 
   /** Phases round the loop. */
@@ -199,9 +206,53 @@ export namespace FamilyConicLoop {
       const th: number = (2 * Math.PI * k) / SAMPLES;
       return add(add(o0, n, delta(th)), dir(th), radius(th));
     });
+    // The loop's parallel `distance` mm from it on the skin, toward the trunk for a negative distance: at each phase the ray's plane is
+    // lifted along the normal by the amount, at most the distance, whose skin point stands that far from the loop's own (bisection on the
+    // raw rays). Over the shoulder's top and the sides the normal runs along the skin and the lift is the whole distance; under the axilla
+    // the skin turns level, and a lift of 6 mm there carried the ray past the vault onto the chest 30 mm below the loop. The lifts and
+    // then the reach are faired by the loop's own B-spline, no landmark held (none lies on the parallel).
+    const fair = (values: readonly number[]): ((th: number) => number) => {
+      const F: number[][] = Array.from({ length: NB }, (): number[] => new Array<number>(NB + 1).fill(0));
+      values.forEach((value: number, k: number): void => {
+        if (!Number.isFinite(value)) return;
+        const b = basis((2 * Math.PI * k) / SAMPLES);
+        for (const [i, wi] of b) {
+          for (const [j, wj] of b) F[i]![j]! += wi * wj;
+          F[i]![NB]! += wi * value;
+        }
+      });
+      const c: number[] = solve(F);
+      return (th: number): number => basis(th).reduce((s: number, [i, w]): number => s + w * c[i]!, 0);
+    };
+    const parallel = (distance: number): V[] => {
+      const at = (th: number, lift: number): V => add(add(o0, n, delta(th) + lift), dir(th), ray(add(o0, n, delta(th) + lift), dir(th)));
+      const lifts: number[] = Array.from({ length: SAMPLES }, (_, k: number): number => {
+        const th: number = (2 * Math.PI * k) / SAMPLES;
+        const home: V = points[k]!;
+        const far = (lift: number): number => Math.hypot(...sub(at(th, lift), home));
+        if (!(far(distance) > Math.abs(distance))) return distance;
+        let [near, out]: number[] = [0, distance];
+        for (let i: number = 0; i < 24; i++) {
+          const middle: number = (near! + out!) / 2;
+          if (far(middle) > Math.abs(distance)) out = middle;
+          else near = middle;
+        }
+        return near!;
+      });
+      const lift: (th: number) => number = fair(lifts);
+      const reach: (th: number) => number = fair(Array.from({ length: SAMPLES }, (_, k: number): number => {
+        const th: number = (2 * Math.PI * k) / SAMPLES;
+        return ray(add(o0, n, delta(th) + lift(th)), dir(th));
+      }));
+      return Array.from({ length: SAMPLES }, (_, k: number): V => {
+        const th: number = (2 * Math.PI * k) / SAMPLES;
+        return add(add(o0, n, delta(th) + lift(th)), dir(th), reach(th));
+      });
+    };
     return {
       points,
       landmarks,
+      parallel,
       side: (p: V): number => {
         const q = polar(p);
         return q.off - delta(q.theta);
