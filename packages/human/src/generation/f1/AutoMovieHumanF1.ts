@@ -660,6 +660,22 @@ export namespace AutoMovieHumanF1 {
   const TRUNK_PHASE: number = 0.016;
 
   /**
+   * The rows by which a net cuts its family's layers (`leaf`), where they are not the net's own: a layer interval inside a net's window is
+   * cut as fine as `(stations[1] - stations[0]) / (rows - 3)`, and these nets were stored at coarser grids for their numbers' sake
+   * (issue #3197, stage B2), which would have thinned the layers with them (the nose's from 54 to 41).
+   * Each entry is the row count the net had when its family's layers were last accepted, so the mesh stays as it was; a twin and a
+   * mirrored family's net read their original's entry. Tessellation, not shape.
+   */
+  const NET_LAYER_ROWS: Record<string, number> = { "leg.hollow.1": 18, "nose.under": 31 };
+
+  /**
+   * The nose's largest phase step, radians (`IFamily.phase`): the column of its finest net as it was last accepted, `nose.under` at 39
+   * columns over its window of 2.0416 to 4.2416 rad, which gave the nose 104 phases. That net is stored at 21 columns now (issue #3197,
+   * stage B2), and the nose's phases would have followed it down to 64. Tessellation, not shape.
+   */
+  const NOSE_PHASE: number = (4.2416 - 2.0416) / (39 - 3);
+
+  /**
    * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
    * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
    * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
@@ -1122,7 +1138,7 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.name === BODY.trunk.name && s > TRUNK_FACE_LAYERS[0] && before < TRUNK_FACE_LAYERS[1] ? [TRUNK_FACE_LAYERS[2]] : []), ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.name === BODY.trunk.name && s > TRUNK_FACE_LAYERS[0] && before < TRUNK_FACE_LAYERS[1] ? [TRUNK_FACE_LAYERS[2]] : []), ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / ((NET_LAYER_ROWS[relief.name.replace(/(\.twin)?(\.mirror)?$/, "")] ?? relief.rows) - 3)));
         const cuts: number = Math.ceil((s - before) / step - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
@@ -1363,7 +1379,7 @@ export namespace AutoMovieHumanF1 {
       const breast: AutoMovieHumanConicLoft.IFamily = side > 0 ? { ...placed.body.breast, pitch: BREAST_PITCH_MM } : twin({ ...placed.body.breast, pitch: BREAST_PITCH_MM });
       root = { type: "port", name: "mammary." + breast.name, host: root, hostFace: trunk, loop: mammary(side, placed), band: "band." + breast.name, part: leaf(breast, Infinity, BREAST_LAYER_MM), partFace: breast.name, partEnd: "bottom", rail: RAIL_MM.breast / 1000, count: SHOULDER_COLUMNS, rows: BAND.rows };
     }
-    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(placed), band: "band." + BODY.nose.name, part: leaf(placed.body.nose), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", profiles: NOSE_PROFILES, count: NOSE_COLUMNS, rows: BAND.rows };
+    root = { type: "port", name: "nostril." + BODY.nose.name, host: root, hostFace: trunk, loop: nostril(placed), band: "band." + BODY.nose.name, part: leaf({ ...placed.body.nose, phase: NOSE_PHASE }), partFace: BODY.nose.name, partEnd: "bottom", rail: Math.min(...NOSE_RAILS_MM) / 1000, rails: NOSE_RAILS_MM.map((rail: number): number => rail / 1000), correspondence: "length", profiles: NOSE_PROFILES, count: NOSE_COLUMNS, rows: BAND.rows };
     // Each nostril is cut from the head: its loft comes up out of the nose's underside and closes inside it. The band lands behind it, so the
     // cut lies wholly on the nose's own face and its blend may be as wide as the rim's roll; while the cut crossed the band at the sill only
     // a blend 0.15 mm wide found its rails there.

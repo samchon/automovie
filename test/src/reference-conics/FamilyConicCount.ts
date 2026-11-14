@@ -66,6 +66,8 @@ namespace FamilyConicCount {
     CROWN_MM: ["tessellation", "station from which the crown's layers are cut by ring travel"],
     TRUNK_FACE_LAYERS: ["tessellation", "the face's layer window and spacing"],
     TRUNK_PHASE: ["tessellation", "largest phase step of the trunk"],
+    NET_LAYER_ROWS: ["tessellation", "the rows by which a net stored at a coarser grid still cuts its family's layers"],
+    NOSE_PHASE: ["tessellation", "largest phase step of the nose, its finest net's column before that net was stored coarser"],
     FINGER_LAYER_MM: ["tessellation", "layer spacing of a finger"],
     FINGER_TURN: ["tessellation", "largest ring turn between a finger's phases"],
     WEB_REACH_MM: ["tessellation", "how far the thumb's fine layers reach"],
