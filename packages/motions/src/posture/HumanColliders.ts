@@ -228,8 +228,12 @@ export namespace HumanColliders {
    * Every profile segment of a posed body with the frame its shapes are placed
    * in. The canonical rig rests unrotated and a segment's neutral frame is its
    * rest frame, so the posed frame is the bone's world rotation applied to the
-   * neutral offset from the bone's rest joint. This is the single owner of
-   * collider placement; distances and bounds read it.
+   * neutral offset from the bone's rest joint. A left segment is its right
+   * twin's mirror image in the median plane (`mirrored`), its offset, turn and
+   * shapes, point for point, as the surfaces are (8d750b565), so a left-hand
+   * problem mirrored to the right reads the very colliders a right-hand one
+   * does. This is the single owner of collider placement; distances and
+   * bounds read it.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
@@ -243,32 +247,78 @@ export namespace HumanColliders {
     // and taking the bone from the posed entry avoids casting the string.
     const byName: ReadonlyMap<string, IAutoMovieResolvedBone> = bones;
     const out: IPlaced[] = [];
-    for (const segment of body.profile.segments) {
+    for (const segment of sided(body)) {
       const posed: IAutoMovieResolvedBone | undefined = byName.get(
         segment.bone,
       );
       if (posed === undefined) continue;
-      const rest: IAutoMovieVector3 | undefined = body.rest.get(posed.bone);
-      if (rest === undefined) continue;
       out.push({
         bone: posed.bone,
         pose: {
           position: Vector3.add(
             posed.worldPosition,
-            Quaternion.rotateVector(
-              posed.worldRotation,
-              Vector3.subtract(segment.neutral.position, rest),
-            ),
+            Quaternion.rotateVector(posed.worldRotation, segment.offset),
           ),
-          rotation: Quaternion.multiply(
-            posed.worldRotation,
-            segment.neutral.rotation,
-          ),
+          rotation: Quaternion.multiply(posed.worldRotation, segment.rotation),
         },
         shapes: segment.shapes,
       });
     }
     return out;
+  }
+
+  /** A profile segment as placed: its bone, its offset from the bone's rest joint, its turn and its shapes. */
+  interface ISided {
+    /** The bone. */ bone: string;
+    /** The neutral frame's offset from the bone's rest joint, metres. */ offset: IAutoMovieVector3;
+    /** The neutral frame's rotation. */ rotation: P.ITransform["rotation"];
+    /** The shapes in the neutral frame. */ shapes: P.IShape[];
+  }
+
+  /** Each body's segments as placed, a left one the mirror of its right twin, built once per body. */
+  const SIDED: WeakMap<IHumanBody, ISided[]> = new WeakMap();
+
+  /** The body's segments as placed (`placed`), in profile order. */
+  function sided(body: IHumanBody): ISided[] {
+    const known: ISided[] | undefined = SIDED.get(body);
+    if (known !== undefined) return known;
+    // The rest joints read by the segments' string names, as `placed` reads
+    // the posed bones.
+    const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
+    const own = (segment: P.ISegment): ISided | null => {
+      const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
+      return rest === undefined
+        ? null
+        : { bone: segment.bone, offset: Vector3.subtract(segment.neutral.position, rest), rotation: segment.neutral.rotation, shapes: segment.shapes };
+    };
+    const out: ISided[] = [];
+    for (const segment of body.profile.segments) {
+      const twin: P.ISegment | undefined = segment.bone.startsWith("left")
+        ? body.profile.segments.find((s: P.ISegment): boolean => s.bone === `right${segment.bone.slice(4)}`)
+        : undefined;
+      const read: ISided | null = own(twin ?? segment);
+      if (read === null) continue;
+      out.push(twin === undefined ? read : { ...mirrored(read), bone: segment.bone });
+    }
+    SIDED.set(body, out);
+    return out;
+  }
+
+  /** A segment's mirror image in the median plane: x negated in every point and offset, and every turn reflected. */
+  function mirrored(segment: ISided): ISided {
+    const point = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -p.x, y: p.y, z: p.z });
+    const turn = (q: P.ITransform["rotation"]): P.ITransform["rotation"] => ({ x: q.x, y: -q.y, z: -q.z, w: q.w });
+    return {
+      bone: segment.bone,
+      offset: point(segment.offset),
+      rotation: turn(segment.rotation),
+      shapes: segment.shapes.map(
+        (shape: P.IShape): P.IShape => {
+          const transform: P.ITransform = { position: point(shape.transform.position), rotation: turn(shape.transform.rotation) };
+          return shape.kind === "hull" ? { ...shape, transform, points: shape.points.map(point) } : { ...shape, transform };
+        },
+      ),
+    };
   }
 }
 

@@ -252,6 +252,15 @@ export function resolveAutoMovieHumanoidSurfaces(
       sockets[name] = resolveAutoMovieHumanoidSurfaces.mirrored(
         sockets[name.replace(/Left$/, "Right") as AutoMovieHumanoidSocket],
       );
+  // A median frame is its own mirror image, so its lateral components are
+  // nought to the bit: a left act mirrored to the right reads the very
+  // frame a right act does, whatever the rounding of the rays.
+  for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
+    if (resolveAutoMovieHumanoidSurfaces.median(name))
+      regions[name] = resolveAutoMovieHumanoidSurfaces.centred(regions[name]);
+  for (const name of Object.keys(sockets) as AutoMovieHumanoidSocket[])
+    if (!name.endsWith("Left") && !name.endsWith("Right"))
+      sockets[name] = resolveAutoMovieHumanoidSurfaces.centred(sockets[name]);
   return { regions, sockets };
 }
 
@@ -416,6 +425,35 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     return region.endsWith("Left")
       ? (region.replace(/Left$/, "Right") as AutoMovieHumanoidRegion)
       : undefined;
+  }
+
+  /**
+   * Whether a region lies on the median plane, its own mirror image: neither
+   * sided nor one of the liver and spleen pair.
+   *
+   * @param region The region.
+   * @returns Whether it is median.
+   */
+  export function median(region: AutoMovieHumanoidRegion): boolean {
+    return !region.endsWith("Left") && !region.endsWith("Right") && region !== "liver" && region !== "spleen";
+  }
+
+  /**
+   * A median frame on the median plane to the bit: its point's, normal's and
+   * forward's lateral components nought, the frame and its mirror image
+   * averaged.
+   *
+   * @param frame The frame.
+   * @returns The frame, its own mirror image.
+   */
+  export function centred(frame: IFrame): IFrame {
+    const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ x: 0, y: v.y, z: v.z });
+    return {
+      ...frame,
+      point: plane(frame.point),
+      normal: plane(frame.normal),
+      ...(frame.forward === undefined ? {} : { forward: plane(frame.forward) }),
+    };
   }
 
   /**
