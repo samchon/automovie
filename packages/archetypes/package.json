@@ -16,6 +16,7 @@
     "./weapons": "./src/weapons/index.ts",
     "./gym": "./src/gym/index.ts",
     "./sport": "./src/sport/index.ts",
+    "./music": "./src/music/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -80,6 +81,10 @@
       "./sport": {
         "types": "./lib/sport/index.d.ts",
         "default": "./lib/sport/index.js"
+      },
+      "./music": {
+        "types": "./lib/music/index.d.ts",
+        "default": "./lib/music/index.js"
       },
       "./package.json": "./package.json"
     }

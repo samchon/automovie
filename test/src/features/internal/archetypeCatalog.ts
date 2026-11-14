@@ -32,6 +32,7 @@ import {
   createHolster,
   createHorse,
   createHurdle,
+  createInstrument,
   createJavelin,
   createJumpRope,
   createKerb,
@@ -44,6 +45,7 @@ import {
   createLongGun,
   createLongTool,
   createMagazine,
+  createMicrophone,
   createMobilityAid,
   createMotorcycle,
   createObstacle,
@@ -503,6 +505,17 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "relayBaton",
     (seed?: number | string): Archetype => createRelayBaton({}, seed),
   );
+  // Music: the instruments and the microphones.
+  for (const kind of createInstrument.KINDS)
+    add(
+      `instrument-${kind}`,
+      (seed?: number | string): Archetype => createInstrument({ kind }, seed),
+    );
+  for (const kind of createMicrophone.KINDS)
+    add(
+      `microphone-${kind}`,
+      (seed?: number | string): Archetype => createMicrophone({ kind }, seed),
+    );
   return rows;
 }
 

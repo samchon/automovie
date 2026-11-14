@@ -23,6 +23,7 @@ import {
   createTable,
 } from "../furniture";
 import { createBoxingGlove, createHeavyBag } from "../gym";
+import { createInstrument, createMicrophone } from "../music";
 import {
   createBag,
   createBox,
@@ -442,6 +443,18 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       boxingGlove: createBoxingGlove(),
       heavyBag: createHeavyBag(),
+    }),
+    music: still({
+      ...kinds(
+        "instrument",
+        createInstrument.KINDS,
+        (kind: createInstrument.Kind): Archetype => createInstrument({ kind }),
+      ),
+      ...kinds(
+        "microphone",
+        createMicrophone.KINDS,
+        (kind: createMicrophone.Kind): Archetype => createMicrophone({ kind }),
+      ),
     }),
     "ride-car": moving("car", driveCar(car, COURSE)),
     "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),
