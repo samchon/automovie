@@ -280,46 +280,70 @@ export namespace FamilyConicFair {
   }
 
   /**
-   * The section's skin faired alone: the same periodic smoothing spline written out in the harmonics up to four cutoffs (past them the
-   * shrink is under 1/257), with the closures' samples unweighted, so with every sample weighted it is `curve`'s. It is the reference of the
-   * closure guard (`IConversion.closureGuardMm`), never a source of the conversion: across a wide closure it swings free.
+   * The section's skin faired alone, as an open curve: the radius of each skin arc between two closures (or round the whole section without
+   * one) by phase, a discrete smoothing spline with natural ends, its second-difference penalty `lambda` set so the harmonic whose
+   * wavelength is `fairMm` of arclength keeps half its amplitude, as the periodic spline of `curve` does (a response 1 / (1 + lambda
+   * (2 - 2 cos w)^2) at the frequency w per sample). The closure guard's reference (`IConversion.closureGuardMm`); never a source of the
+   * conversion. Read as the closed spline with the closure unweighted instead, the reference swung across the opening by itself.
    */
   export function skinAlone(points: readonly C.P[], closures: readonly (readonly [number, number])[], fairMm: number = FAIR_MM): (phi: number) => number {
-    const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
-    let girth: number = 0;
-    for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
-    const cut: number = girth / fairMm;
-    const N: number = Math.min(M / 2 - 1, Math.ceil(4 * cut));
-    const size: number = 2 * N + 1;
-    const basis = (j: number, phi: number): number => (j === 0 ? 1 : j % 2 === 1 ? Math.cos(((j + 1) / 2) * phi) : Math.sin((j / 2) * phi));
-    const normal: number[][] = Array.from({ length: size }, (): number[] => new Array<number>(size + 1).fill(0));
-    for (let k: number = 0; k < M; ++k) {
-      const phi: number = (2 * Math.PI * k) / M;
-      if (!Number.isFinite(radii[k]!) || closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a))) continue;
-      const row: number[] = Array.from({ length: size }, (_: unknown, j: number): number => basis(j, phi));
-      for (let i: number = 0; i < size; ++i) {
-        for (let j: number = i; j < size; ++j) normal[i]![j]! += row[i]! * row[j]!;
-        normal[i]![size]! += row[i]! * radii[k]!;
+    const phases: number[] = Array.from({ length: M }, (_: unknown, k: number): number => (2 * Math.PI * k) / M);
+    const skin: boolean[] = phases.map((phi: number): boolean => !closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a)));
+    const radii: number[] = phases.map((phi: number): number => radius(points, phi));
+    const faired: number[] = new Array<number>(M).fill(NaN);
+    // Each maximal run of skin samples, round the turn.
+    const start: number = skin.findIndex((x: boolean, k: number): boolean => x && !skin[(k - 1 + M) % M]);
+    const runs: number[][] = [];
+    if (start < 0) runs.push(phases.map((_: number, k: number): number => k));
+    else
+      for (let m: number = 0; m < M; ++m) {
+        const k: number = (start + m) % M;
+        if (!skin[k]) continue;
+        if (!skin[(k - 1 + M) % M] || runs.length === 0) runs.push([]);
+        runs[runs.length - 1]!.push(k);
       }
-    }
-    for (let i: number = 0; i < size; ++i) {
-      for (let j: number = 0; j < i; ++j) normal[i]![j] = normal[j]![i]!;
-      normal[i]![i]! += i === 0 ? 0 : (M / 2) * (Math.ceil(i / 2) / cut) ** 4;
-    }
-    for (let c: number = 0; c < size; ++c) {
-      let pivot: number = c;
-      for (let r: number = c + 1; r < size; ++r) if (Math.abs(normal[r]![c]!) > Math.abs(normal[pivot]![c]!)) pivot = r;
-      [normal[c], normal[pivot]] = [normal[pivot]!, normal[c]!];
-      for (let r: number = 0; r < size; ++r) {
-        if (r === c) continue;
-        const f: number = normal[r]![c]! / normal[c]![c]!;
-        if (f !== 0) for (let k: number = c; k <= size; ++k) normal[r]![k]! -= f * normal[c]![k]!;
+    for (const run of runs) {
+      const n: number = run.length;
+      if (n < 3) {
+        for (const k of run) faired[k] = radii[k]!;
+        continue;
       }
+      const y: number[] = run.map((k: number): number => radii[k]!);
+      // Arclength per sample at the run's mean radius, and the penalty that halves the cutoff's wavelength.
+      const step: number = ((2 * Math.PI) / M) * (y.reduce((s: number, r: number): number => s + r, 0) / n);
+      const w: number = (2 * Math.PI * step) / fairMm;
+      const lambda: number = 1 / (2 - 2 * Math.cos(w)) ** 2;
+      // (I + lambda D'D) f = y, D the second differences: a symmetric pentadiagonal system, solved densely in its band.
+      const band: number[][] = Array.from({ length: n }, (): number[] => [0, 0, 0, 0, 0]);
+      for (let i: number = 0; i < n; ++i) band[i]![2] = 1;
+      for (let r: number = 0; r + 2 < n; ++r) {
+        const c: number[] = [1, -2, 1];
+        for (let p: number = 0; p < 3; ++p) for (let q: number = 0; q < 3; ++q) band[r + p]![2 + q - p]! += lambda * c[p]! * c[q]!;
+      }
+      // Gaussian elimination on the band (no pivoting: the matrix is symmetric positive definite).
+      const rhs: number[] = [...y];
+      for (let i: number = 0; i < n; ++i)
+        for (let d: number = 1; d <= 2 && i + d < n; ++d) {
+          const f: number = band[i + d]![2 - d]! / band[i]![2]!;
+          for (let e: number = 0; e <= 2 && i + e < n; ++e) band[i + d]![2 - d + e]! -= f * band[i]![2 + e]!;
+          rhs[i + d]! -= f * rhs[i]!;
+        }
+      const x: number[] = new Array<number>(n).fill(0);
+      for (let i: number = n - 1; i >= 0; --i) {
+        let sum: number = rhs[i]!;
+        for (let e: number = 1; e <= 2 && i + e < n; ++e) sum -= band[i]![2 + e]! * x[i + e]!;
+        x[i] = sum / band[i]![2]!;
+      }
+      run.forEach((k: number, i: number): void => void (faired[k] = x[i]!));
     }
-    const x: number[] = normal.map((row: number[], i: number): number => row[size]! / row[i]!);
-    return (phi: number): number => x.reduce((sum: number, value: number, j: number): number => sum + value * basis(j, phi), 0);
+    // Read between samples linearly; a closure's own phases have no reading.
+    return (phi: number): number => {
+      const u: number = (wrap(phi) / (2 * Math.PI)) * M;
+      const k: number = Math.floor(u) % M, next: number = (k + 1) % M;
+      const a: number = faired[k]!, b: number = faired[next]!;
+      return Number.isNaN(a) ? b : Number.isNaN(b) ? a : a + (u - Math.floor(u)) * (b - a);
+    };
   }
-
   /** The closure guard of a faired section (`IConversion.closureGuardMm`). */
   function guard(points: readonly C.P[], options: IOptions, faired: (phi: number) => number): number {
     const closures: readonly (readonly [number, number])[] = options.closures ?? [];

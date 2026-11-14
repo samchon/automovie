@@ -633,6 +633,8 @@ export namespace FamilyConicConvert {
       else families.push({ from: i, to: i, key: keyAt(i) });
     });
     text.push(`families by present groove lines (one digit a line), over the longest star-shaped run ${range[0]!.s}-${range.at(-1)!.s}: ${families.map((f): string => `${f.key || "-"}:${range[f.from]!.s}-${range[f.to]!.s}(${f.to - f.from + 1})`).join("  ")}`);
+    const bridgeFile: string = await bridge(name, range, lineOf, spans, fairMm, out, course);
+    text.push(`bridge for the fit tool's featured family (one family over the domain): ${bridgeFile}`);
     if (course === undefined) return { families };
     // One family's steps 4 to 7: layout, read, smoothing, admission and the engine's loft.
     const build = async (tag: string, range: IStation[], lineOf: L.ILine[]): Promise<{ chain: AutoMovieViewLoft.IResult["chain"]; r0: number; r1: number; family: H.IFamily; summary: object }> => {
@@ -834,6 +836,90 @@ export namespace FamilyConicConvert {
     return { families: built.map((b) => b.summary), frames };
   }
   const span2 = (xs: readonly number[]): string => `${f2(Math.min(...xs))}..${f2(Math.max(...xs))}`;
+
+  /** The least share a feature keeps from its run's ends, and its window's margin: the fit tool's `LINE_EDGE`, the model's edge with a margin. */
+  const BRIDGE_EDGE: number = 0.05;
+
+  /** The bridge from a region's converted lines into the fit tool's featured family (`FamilyConicBody.ts --bridge=<file>`). */
+  export interface IBridge {
+    /** The fit tool's part the bridge is for. */
+    part: string;
+
+    /** The family's domain on the part's course, mm: its star-shaped run between the folds, split ends or openings that end it. */
+    domain: [number, number];
+
+    /** The region's fairing cutoff, mm: the fit tool's seeds convert each section at it (`FamilyConicSection.converted`). */
+    fairMm: number;
+
+    /** The knot spacing of the featured family, mm (`FamilyConicBody.ts --feature-knot`). */
+    knotMm: number;
+
+    /** `featured(limb(1), runs)`: one groove run (inflection, concave floor, inflection) per kept line, each anchor's window its measured share range. */
+    layout: S.ILayout;
+
+    /** Each kept line, in the layout's run order: the stations it is present over, and its three phases at each station of the domain (null where unseen). */
+    lines: { span: [number, number]; phases: ([number, number, number] | null)[] }[];
+
+    /** The command that fits the family from this bridge. */
+    command: string;
+  }
+
+  /**
+   * Write a region's bridge into the fit tool: its domain, its layout with one groove run per kept line after the measured extreme that
+   * precedes it, each feature anchor's window the range of its share of its run's arclength (from the extreme before to the extreme after,
+   * on each station's converted chain) over the stations where the line is present, widened by `BRIDGE_EDGE`, and the region's cutoff. The
+   * fit tool then fits one featured family over the domain, its lines appearing and fading along the part (`FamilyConicSection.seedAll`), so
+   * the region is split only where its topology is.
+   */
+  async function bridge(name: string, range: readonly IStation[], lineOf: readonly L.ILine[], spans: readonly [number, number][], fairMm: number, out: string, course: ICourse | undefined): Promise<string> {
+    const ends: [number, number, number, number][] = range.map((st: IStation): [number, number, number, number] => L.extremes(st.arcs));
+    const plan = L.layout(1, lineOf, ends);
+    // Arclength along a station's chain from phase a to phase b counter-clockwise.
+    const arclength = (chain: L.IChain, a: number, b: number): number => {
+      const span: number = wrap(b - a);
+      let sum: number = 0, last: C.P = L.on(chain, a).point;
+      for (let i: number = 1; i <= 96; ++i) {
+        const p: C.P = L.on(chain, a + (span * i) / 96).point;
+        sum += Math.hypot(p[0] - last[0], p[1] - last[1]);
+        last = p;
+      }
+      return sum;
+    };
+    let outside: number = 0;
+    const runs: S.IFeatureRun[] = plan.runs.map((run: S.IFeatureRun, r: number): S.IFeatureRun => {
+      const line: L.ILine = lineOf[plan.order[r]!]!;
+      const quarter: number = run.after / 2;
+      const shares: number[][] = [[], [], []];
+      line.phases.forEach((x, i: number): void => {
+        if (x === null) return;
+        const a: number = ends[i]![quarter]!, b: number = ends[i]![(quarter + 1) % 4]!;
+        // A station where the line stands outside its run's two extremes gives no share (`FamilyConicLayout.layout`'s `outside`): read
+        // round the turn from the extreme before, it measured nearly the whole girth.
+        if (!Number.isFinite(a) || !Number.isFinite(b) || !x.every((phi: number): boolean => wrap(phi - a) < wrap(b - a))) {
+          ++outside;
+          return;
+        }
+        const whole: number = arclength(range[i]!.arcs, a, b) || 1;
+        x.forEach((phi: number, j: number): void => void shares[j]!.push(arclength(range[i]!.arcs, a, phi) / whole));
+      });
+      if (shares[0]!.length === 0) for (let j: number = 0; j < 3; ++j) shares[j]!.push((j + 1) / 4);
+      const window = (j: number): [number, number] => [Math.max(BRIDGE_EDGE, Math.min(...shares[j]!) - BRIDGE_EDGE), Math.min(1 - BRIDGE_EDGE, Math.max(...shares[j]!) + BRIDGE_EDGE)];
+      return { after: run.after, anchors: [{ kind: "f", feature: "inflection", window: window(0) }, { kind: "f", feature: "concave", window: window(1) }, { kind: "f", feature: "inflection", window: window(2) }] };
+    });
+    const station = course?.station ?? ((s: number): number => s);
+    const file: string = path.join(out, name + ".bridge.json");
+    const record: IBridge = {
+      part: name,
+      domain: [station(range[0]!.s), station(range.at(-1)!.s)],
+      fairMm,
+      knotMm: KNOT_MM,
+      layout: S.featured(S.limb(1), runs),
+      lines: plan.order.map((l: number) => ({ span: [range[spans[l]![0]]!.s, range[spans[l]![1]]!.s] as [number, number], phases: lineOf[l]!.phases })),
+      command: `node <bundle>/FamilyConicBody.cjs ${name} --bridge=${file} --feature-knot=${KNOT_MM}`,
+    };
+    await fs.writeFile(file, JSON.stringify(record));
+    return outside === 0 ? file : `${file} (${outside} line station(s) outside their run's extremes left out of the windows)`;
+  }
 
   /** A point of an engine section at a phase from the course, by its ray (`AutoMovieViewChain.radius`'s reading through the chain's samples). */
   function ringPoint(section: ReturnType<typeof S.chain>, phi: number): C.P {

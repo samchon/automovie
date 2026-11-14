@@ -50,6 +50,8 @@ export namespace FamilyConicLayout {
 
   /** The chain's point on the ray at phase `phi` from the course, and its tangent: the arc spanning that phase, bisected on its parameter. */
   export function on(chain: IChain, phi: number): { point: P; tangent: P } {
+    // A section the converter refused has no chain, and no point on it.
+    if (chain.length === 0) return { point: [NaN, NaN], tangent: [NaN, NaN] };
     const target: number = wrap(phi);
     // The arc whose phase interval holds the phase; the closed chain's arcs cover the whole turn.
     const index: number = Math.max(0, chain.findIndex((a: F.IArc): boolean => wrap(target - a.domain[0]) <= wrap(a.domain[1] - a.domain[0]) + 1e-12));
@@ -113,6 +115,7 @@ export namespace FamilyConicLayout {
 
   /** The phases of a chain's four extremes in the limb layout's order: greatest `u`, greatest `v`, least `u`, least `v`. */
   export function extremes(chain: IChain): [number, number, number, number] {
+    if (chain.length === 0) return [NaN, NaN, NaN, NaN];
     return [extreme(chain, 0, 1).phi, extreme(chain, 1, 1).phi, extreme(chain, 0, -1).phi, extreme(chain, 1, -1).phi];
   }
 
@@ -128,7 +131,11 @@ export namespace FamilyConicLayout {
   export function layout(depth: number, lines: readonly ILine[], ends: readonly (readonly number[])[]): { layout: S.ILayout; runs: S.IFeatureRun[]; order: number[]; outside: string[] } {
     const base: S.ILayout = S.limb(depth);
     const K: number = base.anchors.length;
-    const circular = (xs: readonly number[]): number => wrap(Math.atan2(xs.reduce((s: number, x: number): number => s + Math.sin(x), 0), xs.reduce((s: number, x: number): number => s + Math.cos(x), 0)));
+    // Read over the stations a chain was converted at (a refused section has no extremes).
+    const circular = (xs: readonly number[]): number => {
+      const read: number[] = xs.filter((x: number): boolean => Number.isFinite(x));
+      return wrap(Math.atan2(read.reduce((s: number, x: number): number => s + Math.sin(x), 0), read.reduce((s: number, x: number): number => s + Math.cos(x), 0)));
+    };
     const means: number[] = lines.map((line: ILine): number => circular(line.phases.filter((x): x is [number, number, number] => x !== null).map((x): number => x[1])));
     const extremeMeans: number[] = [0, 1, 2, 3].map((q: number): number => circular(ends.map((e): number => e[q]!)));
     // The quarter a line stands in: the extreme last before it counter-clockwise.
