@@ -11,12 +11,12 @@ import {
 
 /** The Mary Rose bow X1-3 and its approximations, read in the bowyers' study. */
 const WARBOW: string =
-  "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: the bow 1710 mm long, 42.03 mm wide and 29.79 mm deep at its centre, about 167 cm nock to nock once horned; approximation MR X1-9/S3 66 in nock to nock; approximations S1, S2 and S3 905, 868 and 785 g, drawing 108, 101 and 141 lb at 30 in; Mary Rose arrow nocks a median 3 mm wide (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 4-5, 13, 25-26, 29, 32)";
+  "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: the bow 1710 mm long, 42.03 mm wide and 29.79 mm deep at its centre, about 167 cm nock to nock once horned; approximation MR X1-9/S3 66 in nock to nock; approximations of wych elm, S1, S2 and S3 905, 868 and 785 g, drawing 108, 101 and 141 lb at 30 in; Mary Rose arrow nocks a median 3 mm wide (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 4-5, 13, 21-22, 25-26, 29, 32)";
 
 /**
  * A bow an archer braces, draws and looses: a longbow.
  *
- * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. A recurve, a horse bow and a crossbow wait for the sizes their contacts need, listed in the sources record.
+ * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. Its limbs and grip are wood, the approximations' wych elm; its body keeps the 0.5 friction placeholder, as no source read measured wood on concrete. A recurve, a horse bow and a crossbow wait for the sizes their contacts need, listed in the sources record.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -68,9 +68,12 @@ export function createBow(
   const low: ReturnType<typeof v> = v(0, floor, string);
   const high: ReturnType<typeof v> = v(0, floor + length, string);
   const grip: ReturnType<typeof v> = v(0, centre, 0);
-  builder.rod("lowerLimb", r, low, grip, { color: "#a8743f" });
-  builder.rod("upperLimb", r, grip, high, { color: "#a8743f" });
-  builder.ball("grip", r, grip, { color: "#8a5a2b" });
+  builder.rod("lowerLimb", r, low, grip, { color: "#a8743f", surface: "wood" });
+  builder.rod("upperLimb", r, grip, high, {
+    color: "#a8743f",
+    surface: "wood",
+  });
+  builder.ball("grip", r, grip, { color: "#8a5a2b", surface: "wood" });
 
   // The string spans the two limb tips, so a pose that bends the limbs lays it again between them.
   builder.span(

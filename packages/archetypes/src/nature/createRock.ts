@@ -20,7 +20,7 @@ const GRANITE: string =
 /**
  * A loose stone: a cobble a hand picks up, or a boulder a person sits on, hides behind or climbs.
  *
- * It rests on the ground on its lowest point at the origin, a ball of the drawn diameter. Its mass is its volume at the drawn specific gravity, so a bigger stone is heavier by the cube of its size. A cobble's `grip` closes one hand round it from `-X`; a boulder's `top` is its highest point, facing up, where a person sits or stands, and its `side` its `+Z` face at mid-height, facing out, where one leans or crouches behind it.
+ * It rests on the ground on its lowest point at the origin, a ball of the drawn diameter. Its mass is its volume at the drawn specific gravity, so a bigger stone is heavier by the cube of its size. A cobble's `grip` closes one hand round it from `-X`; a boulder's `top` is its highest point, facing up, where a person sits or stands, and its `side` its `+Z` face at mid-height, facing out, where one leans or crouches behind it. Its surface is stone, granite's; its body keeps the 0.5 friction placeholder, as no source read measured stone on concrete.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -60,7 +60,7 @@ export function createRock(
     });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
-  builder.ball("stone", r, v(0, r, 0), { color: "#7d7a74" });
+  builder.ball("stone", r, v(0, r, 0), { color: "#7d7a74", surface: "stone" });
   if (kind === "cobble")
     builder.affordance({
       id: "grip",

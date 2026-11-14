@@ -15,15 +15,15 @@ const BALL: string =
 
 /** Two crossbow bolts, read in museum records. */
 const BOLT: string =
-  "Nationaal Militair Museum inv. 11461, bolt 360 mm, head 77 mm, shaft 13.6 mm across (https://collectie.nmm.nl/nl/collectie/detail/227252/); Metropolitan Museum 33754, bolt 43.7 cm, head 6.6 by 1.9 cm, 74 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/33754)";
+  "Nationaal Militair Museum inv. 11461, bolt 360 mm, head 77 mm, shaft 13.6 mm across (https://collectie.nmm.nl/nl/collectie/detail/227252/); Metropolitan Museum 33754, steel and wood (oak, ash), bolt 43.7 cm, head 6.6 by 1.9 cm, 74 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/33754)";
 
 /** War arrows, read in a bowyers' study that draws on the Mary Rose Trust's records, their shafts' thickness at its upper end seen only in search results. */
 const ARROW: string =
-  "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: Mary Rose arrows mostly 715 to 854 mm long; the Westminster Abbey arrow 11 mm across at the shoulder and 50 g, Mary Rose arrow AZ472/19 62.5 g (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 27-29); Mary Rose shafts 12 to 13 mm at their thickest, seen only in search results";
+  "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: Mary Rose arrows mostly 715 to 854 mm long, of aspen or poplar; the Westminster Abbey arrow 11 mm across at the shoulder and 50 g, Mary Rose arrow AZ472/19 62.5 g (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 27-29); Mary Rose shafts 12 to 13 mm at their thickest, seen only in search results";
 
 /** Field gun round shot, read in a period manual. */
 const SHOT_TABLE: string =
-  "Roberts, Hand-book of Artillery (1863), shot 3.58 in across and 6.1 lb for the 6-pdr. field gun, 4.52 in and 12.3 lb for the 12-pdr. (https://gutenberg.org/cache/epub/71575/pg71575.txt)";
+  'Roberts, Hand-book of Artillery (1863), solid shot "a solid sphere of cast-iron", 3.58 in across and 6.1 lb for the 6-pdr. field gun, 4.52 in and 12.3 lb for the 12-pdr. (https://gutenberg.org/cache/epub/71575/pg71575.txt)';
 
 /** The M67 grenade, read in its Army data sheet. */
 const M67: string =
@@ -41,7 +41,7 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
 /**
  * Something a weapon launches or a hand throws: a musket ball, an arrow, a crossbow bolt, a field gun's round shot or a hand grenade.
  *
- * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data (drag, restitution, embedding) is the model body's that #3479 adds. The cartridge of #3482 waits for the sizes its contacts need, listed in the sources record.
+ * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; a ball's lead has no measured pair, and every projectile's body keeps the 0.5 friction placeholder, as no source read measured wood or steel on concrete. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data (drag, restitution, embedding) is the model body's that #3479 adds. The cartridge of #3482 waits for the sizes its contacts need, listed in the sources record.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -91,6 +91,7 @@ export function createProjectile(
     const r: number = d.diameter! / 2;
     builder.rod("shaft", r, v(0, 0, 0), v(0, length - head, 0), {
       color: "#b98d5b",
+      surface: "wood",
     });
     if (kind === "bolt")
       builder.rod(
@@ -98,7 +99,7 @@ export function createProjectile(
         createProjectile.BOLT_HEAD_WIDTH / 2,
         v(0, length - head, 0),
         v(0, length, 0),
-        { color: "#55595f", density: 8 },
+        { color: "#55595f", density: 8, surface: "steel" },
       );
     builder.affordance({
       id: "shaft",
@@ -142,7 +143,10 @@ export function createProjectile(
     );
   }
   const r: number = d.diameter! / 2;
-  builder.ball(kind, r, v(0, r, 0), { color: "#6f6f72" });
+  builder.ball(kind, r, v(0, r, 0), {
+    color: "#6f6f72",
+    ...(kind === "ball" ? {} : { surface: "steel" as const }),
+  });
   builder.affordance({
     id: "body",
     kind: "handle",
