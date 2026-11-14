@@ -2,6 +2,7 @@ import type { AutoMovieViewChain as Q } from "@automovie/engine";
 import { AutoMovieHumanConicSection as S } from "@automovie/human";
 import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import { FamilyConicFair as F } from "./FamilyConicFair";
 
 /**
  * The offline side of `AutoMovieHumanConicSection`: reading a starting field
@@ -148,32 +149,8 @@ export namespace FamilyConicSection {
     return [...out, ...halves];
   }
 
-  /**
-   * Radius of a closed polygon along one ray from the chart origin.
-   *
-   * A star-shaped section meets every ray once. Where a faceted source meets
-   * it more than once the outermost hit is returned and `folds` counts the
-   * event, so the caller reports the non-star interval instead of losing it.
-   */
-  export function radius(points: readonly P[], phi: number, folds?: { count: number }): number {
-    const d: P = [Math.cos(phi), Math.sin(phi)];
-    let best: number = NaN;
-    let hits: number = 0;
-    for (let i: number = 0; i < points.length; ++i) {
-      const a: P = points[i]!;
-      const b: P = points[(i + 1) % points.length]!;
-      const sa: number = a[0] * d[1] - a[1] * d[0];
-      const sb: number = b[0] * d[1] - b[1] * d[0];
-      if ((sa > 0) === (sb > 0)) continue;
-      const t: number = sa / (sa - sb);
-      const r: number = (1 - t) * (a[0] * d[0] + a[1] * d[1]) + t * (b[0] * d[0] + b[1] * d[1]);
-      if (!(r > 0)) continue;
-      ++hits;
-      if (!(best >= r)) best = r;
-    }
-    if (hits > 1 && folds !== undefined) ++folds.count;
-    return best;
-  }
+  /** Radius of a closed polygon along one ray from the chart origin (`FamilyConicFair.radius`). */
+  export const radius: typeof F.radius = F.radius;
 
   /**
    * A closed polygon with its corner at point `index` drawn round by an arc of `radius` mm tangent to its two sides, the sides' directions read
@@ -250,16 +227,8 @@ export namespace FamilyConicSection {
     arc: { controls: readonly [readonly [number, number], readonly [number, number], readonly [number, number]]; weight: number } | null;
   }
 
-  /**
-   * Fairing cutoff of a section before its conversion, mm of girth: the wavelength the fairing halves. lofting.md: "fair each section to
-   * the scale of the form, which means removing the ripples smaller than the features the form keeps". f1's ripple is its facets': the
-   * sections' turning per unit arclength peaks at 9 to 14 mm of wavelength on the trunk (the median of each 100 mm stretch). The narrowest
-   * grooves the form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide. A cutoff at the grooves' upper width takes a
-   * 14 mm ripple to a fifth while the front median and back grooves keep their inflections on the chest (450 to 600 mm), and on the abdomen (300 to 400 mm) it leaves
-   * 2.4 inflections on a side's back quarter where the least-squares cubic B-spline with a control every 6 mm left 11.8: that ripple, cut
-   * by the converter into arcs at every inflection, spent its arc budget and the rest of the turn was dropped (a partial conversion).
-   */
-  export const FAIR_MM: number = 20;
+  /** Fairing cutoff of a section before its conversion, mm of girth (`FamilyConicFair.FAIR_MM`, with its basis). */
+  export const FAIR_MM: number = F.FAIR_MM;
 
 
   /**
@@ -279,88 +248,8 @@ export namespace FamilyConicSection {
    * arcs with their tangents.
    */
   export function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
-    const M: number = 720;
-    const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
-    let girth: number = 0;
-    for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
-    // The periodic smoothing spline that penalises the radius's second derivative is, in the trigonometric basis, each harmonic n of the
-    // data shrunk by 1 / (1 + lambda n^4) (Wahba, Spline Models for Observational Data, 1990, ch. 2, the periodic space W2), a roll-off that
-    // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (FAIR_MM / girth)^4. A least-squares spline on
-    // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
-    const H: number = M / 2;
-    const A: number[] = [], B: number[] = [], W: number[] = [];
-    const cut: number = girth / FAIR_MM;
-    for (let n: number = 0; n <= H; ++n) {
-      let a: number = 0, b: number = 0;
-      for (let k: number = 0; k < M; ++k) {
-        a += radii[k]! * Math.cos((2 * Math.PI * n * k) / M);
-        b += radii[k]! * Math.sin((2 * Math.PI * n * k) / M);
-      }
-      const half: boolean = n === 0 || n === H;
-      A.push(((half ? 1 : 2) * a) / M);
-      B.push(((half ? 1 : 2) * b) / M);
-      W.push(1 / (1 + (n / cut) ** 4));
-    }
-    // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
-    const rAt = (phi: number, order: number): number => {
-      const c1: number = Math.cos(phi), s1: number = Math.sin(phi);
-      let c: number = 1, s: number = 0, even: number = 0, odd: number = 0;
-      for (let n: number = 0; n <= H; ++n) {
-        const f: number = W[n]! * n ** order;
-        even += f * (A[n]! * c + B[n]! * s);
-        odd += f * (B[n]! * c - A[n]! * s);
-        [c, s] = [c * c1 - s * s1, s * c1 + c * s1];
-      }
-      return [even, odd, -even, -odd][order % 4]!;
-    };
-    // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
-    const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
-    const curve = {
-      // The closed curve's seam, where the converter starts and ends, at an eighth of a turn: started on the median line (phase 0), the
-      // converter cut dozens of short arcs there whose bends flipped sign, a concavity and inflections on the front median of a section with
-      // none (f1's made falling groove at 0 mm).
-      domain: [Math.PI / 4, Math.PI / 4 + 2 * Math.PI] as const,
-      breaks: [] as number[],
-      closed: true,
-      evaluate: (phi: number): readonly [number, number] => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
-      derivative: (phi: number, order: 1 | 2 | 3 | 4 | 5): readonly [number, number] => {
-        let x: number = 0, y: number = 0;
-        for (let j: number = 0; j <= order; ++j) {
-          const c: number = binomial(order, j) * rAt(phi, j);
-          const q: number = order - j;
-          x += c * Math.cos(phi + (q * Math.PI) / 2);
-          y += c * Math.sin(phi + (q * Math.PI) / 2);
-        }
-        return [x, y];
-      },
-    };
-    // The faired curve's inflections, the sign changes of cross(p', p''), are the converter's breaks: it never fits an interval whose
-    // curvature changes sign, so without them it bisects toward each inflection to its depth limit and a section of 28 spent its arc budget
-    // (f1's chest at a 20 mm fairing). Recovery's own cubic adapter hands it the same roots (`AutoMovieRecoveryConicApproximation`
-    // `.ICubicCriticalParameters`). The faired radius is a trigonometric polynomial of degree H, so the numerator is one of degree 2H, with
-    // at most 4H roots a turn; each is bracketed on 16H samples and bisected to the double's resolution. On a straight stretch the curvature
-    // is a residue of the harmonics past the cutoff, 1e-6 to 1e-5 a millimetre on f1's chest, whose sign flips every 0.3 to 0.7 degrees:
-    // bracketed on eight samples a cutoff wavelength those roots went unseen, the converter met them inside its intervals, refused and
-    // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
-    const numerator = (phi: number): number => {
-      const d1 = curve.derivative(phi, 1), d2 = curve.derivative(phi, 2);
-      return d1[0] * d2[1] - d1[1] * d2[0];
-    };
-    const steps: number = 16 * H;
-    for (let i: number = 0; i < steps; ++i) {
-      let lo: number = curve.domain[0] + (2 * Math.PI * i) / steps, hi: number = curve.domain[0] + (2 * Math.PI * (i + 1)) / steps;
-      let below: number = numerator(lo);
-      if (below === 0 || Math.sign(below) === Math.sign(numerator(hi))) continue;
-      for (let k: number = 0; k < 64; ++k) {
-        const mid: number = (lo + hi) / 2;
-        if (mid === lo || mid === hi) break;
-        const value: number = numerator(mid);
-        if (Math.sign(value) === Math.sign(below)) [lo, below] = [mid, value];
-        else hi = mid;
-      }
-      const root: number = (lo + hi) / 2;
-      if (root > curve.domain[0] && root < curve.domain[1]) curve.breaks.push(root);
-    }
+    // The faired section with its inflections as breaks (`FamilyConicFair.curve`, which states the fairing law, the seam and the breaks).
+    const curve = F.curve(points);
     const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort((p, q): number => p.domain[0] - q.domain[0]);
     // The converter fits no interval whose curvature changes sign, so it bisects toward each inflection to its depth limit and leaves the
