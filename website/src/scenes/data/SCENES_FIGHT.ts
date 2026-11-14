@@ -12,7 +12,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "longsword-duel",
       title: "Longsword duel",
       summary:
-        "Two fencers draw their longswords from the hip and fight in the German school: guards in ox, plough and from the roof, an advance and a lunge met by a parry at its instant, a bind and wind, a feint and a riposte.",
+        "Two fencers draw their longswords from the hip and fight in the German school: guards from the roof and in plough, an advance and a lunge met by a parry at its instant, a void step back, a feint and a riposte met in a bind and a wind, a retreat, and the guards in ox and the fool.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
@@ -24,32 +24,56 @@ export const SCENES_FIGHT: readonly IScene[] = [
     "duel",
     [
       person("red", "m1", 0, 0, 0, [
-        act("pickUp", { prop: "swordR", handle: "grip" }),
+        act("pickUp", {
+          prop: "swordR",
+          handle: "grip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("enGarde", { blade: "swordR" }),
         act("vomTag", { blade: "swordR" }),
         act("advance", { length: 0.39 }),
         act(
           "lunge",
-          { blade: "swordR", target: at("blu", "chestLeft") },
+          {
+            blade: "swordR",
+            target: at("blu", "chestLeft"),
+            outcome: "parried",
+          },
           { anchor: "lunge" },
         ),
-        act("bind", { blade: "swordR" }),
-        act("wind", { blade: "swordR" }),
+        act(
+          "bind",
+          { blade: "swordR", against: "riposte" },
+          { sync: { of: "riposte", align: "stroke" } },
+        ),
+        act("wind", { blade: "swordR", target: at("blu", "chestRight") }),
         act("retreat", { length: 0.39 }),
         act("ochs", { blade: "swordR", seconds: 1 }),
       ]),
       person("blu", "m2", 0, 1.25, 180, [
-        act("pickUp", { prop: "swordB", handle: "grip" }),
+        act("pickUp", {
+          prop: "swordB",
+          handle: "grip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("enGarde", { blade: "swordB" }),
         act("pflug", { blade: "swordB" }),
         act(
           "parry",
           { blade: "swordB", against: "lunge" },
-          { sync: { of: "lunge" } },
+          { sync: { of: "lunge", align: "stroke" } },
         ),
         act("voidStep", { length: 0.3 }),
         act("feint", { blade: "swordB", target: at("red", "shoulderLeft") }),
-        act("riposte", { blade: "swordB", target: at("red", "chestRight") }),
+        act(
+          "riposte",
+          {
+            blade: "swordB",
+            target: at("red", "chestRight"),
+            outcome: "parried",
+          },
+          { anchor: "riposte" },
+        ),
         act("alber", { blade: "swordB" }),
       ]),
     ],
@@ -63,7 +87,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "bar-fight",
       title: "Bar fight",
       summary:
-        "A stage fight in a bar: a grab and a headlock, a shove and the stumble back, a slap and the head turned by it, each reaction at the blow's stroke, a mimed bat swing ducked and dodged, and a bystander who startles and dives for cover.",
+        "A stage fight between two brawlers: a grab and a headlock, a shove and the stumble back, a slap and the head turned by it, each reaction at its blow's contact, a mimed bat swing ducked and dodged at its instant, and a bystander who startles and dives for cover.",
       setting: "combat",
       roles: { joe: "brawler", mac: "brawler", ned: "bystander" },
       needs: [],
@@ -75,32 +99,32 @@ export const SCENES_FIGHT: readonly IScene[] = [
         act("headlock", { partner: "mac" }),
         act("shove", { target: at("mac", "sternum") }, { anchor: "shove" }),
         act("slap", { target: at("mac", "jawLeft") }, { anchor: "slap" }),
-        act("clubSwing", { target: at("mac", "shoulderLeft") }),
+        act(
+          "clubSwing",
+          { target: at("mac", "shoulderLeft") },
+          { anchor: "swing" },
+        ),
       ]),
       person("mac", "m1", 0, 0.52, 180, [
         act(
           "grabbed",
           { from: at("joe", "palmRight") },
-          { sync: { of: "grab", event: "stroke" } },
+          { sync: { of: "grab" } },
         ),
         act(
           "shoved",
           { from: at("joe", "palmRight") },
-          { sync: { of: "shove", event: "stroke" } },
+          { sync: { of: "shove" } },
         ),
         act(
           "slapped",
           { from: at("joe", "palmRight") },
-          { sync: { of: "slap", event: "stroke" } },
+          { sync: { of: "slap" } },
         ),
-        act("duck"),
+        act("duck", {}, { sync: { of: "swing", offset: -0.2 } }),
         act("dodge", { length: 0.3 }),
       ]),
       person("ned", "f1", 2, 1, 270, [act("startle"), act("diveForCover")]),
-    ],
-    [
-      object("bar", "createTable", "counter", -1.5, 1.5, 90),
-      object("stool", "createSeat", "barStool", 1.2, 0.3),
     ],
   ),
   scene(
@@ -108,7 +132,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "standoff",
       title: "Standoff",
       summary:
-        "Two gunmen face each other: one takes a handgun off the bar, brings it to high ready, takes aim and fires one shot; the other holds at high ready and surrenders.",
+        "Two gunmen face each other across a saloon: one takes a handgun off the bar, brings it to high ready, takes aim and fires one shot; the other takes his own off the far bar, holds at high ready, lays it down and surrenders.",
       setting: "combat",
       roles: { gun: "gunman", ace: "gunman" },
       needs: [],
@@ -128,18 +152,35 @@ export const SCENES_FIGHT: readonly IScene[] = [
         act("recoil", { gun: "pistol" }),
       ]),
       person("ace", "m2", 0, 6, 180, [
-        act("highReady", { seconds: 1.5 }),
+        act("drawFirearm", { prop: "pistolB" }),
+        act("highReady", { gun: "pistolB", seconds: 1.5 }),
+        act("holsterFirearm", {
+          prop: "pistolB",
+          at: { x: 0.18, y: SceneBuild.COUNTER_TOP, z: 5.7 },
+        }),
         act("surrender"),
       ]),
     ],
-    counter("bar", "pistol", "createHandgun", "fullSize", 0, 0),
+    [
+      ...counter("bar", "pistol", "createHandgun", "fullSize", 0, 0),
+      object("farBar", "createTable", "counter", 0, 5.47),
+      object(
+        "pistolB",
+        "createHandgun",
+        "fullSize",
+        0.18,
+        5.7,
+        180,
+        SceneBuild.COUNTER_TOP,
+      ),
+    ],
   ),
   scene(
     {
       id: "firing-range",
       title: "Firing range",
       summary:
-        "Three shooters each take a handgun off their bench: low ready, an aim, a shot, a fresh magazine pressed home, and high ready.",
+        "Three shooters each take a handgun off their bench: low ready, an aim, a shot, the support palm pressed once to the magazine well, and high ready.",
       setting: "combat",
       roles: { f1: "shooter", f2: "shooter", f3: "shooter" },
       needs: [],
@@ -147,7 +188,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       refusedUntil: 3528,
     },
     "range",
-    [-1.6, 0, 1.6].map(
+    [-2.2, 0, 2.2].map(
       (x: number, i: number): SceneBuild.Performer =>
         person(`f${i + 1}`, ["m1", "f1", "m2"][i]!, x, 0, 0, [
           act("drawFirearm", { prop: `gun${i + 1}` }),
@@ -163,7 +204,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
           act("highReady", { gun: `gun${i + 1}`, seconds: 1 }),
         ]),
     ),
-    [-1.6, 0, 1.6].flatMap(
+    [-2.2, 0, 2.2].flatMap(
       (x: number, i: number): IPlaygroundComposition.IObject[] =>
         counter(
           `bench${i + 1}`,

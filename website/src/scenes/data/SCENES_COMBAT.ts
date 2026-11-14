@@ -109,7 +109,7 @@ const DOJO: IPlaygroundComposition = {
         { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
         { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
         { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
+        { name: "martialArt", params: { kind: "taiChiPush" } },
       ],
     },
     {
@@ -123,7 +123,7 @@ const DOJO: IPlaygroundComposition = {
         { name: "gesture", params: { kind: "bow" } },
         { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
         { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
+        { name: "martialArt", params: { kind: "taiChiPush" } },
       ],
     },
     {
@@ -137,7 +137,7 @@ const DOJO: IPlaygroundComposition = {
         { name: "gesture", params: { kind: "bow" } },
         { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
         { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
-        { name: "martialArt", params: { kind: "taiChiPush", count: 1 } },
+        { name: "martialArt", params: { kind: "taiChiPush" } },
       ],
     },
   ],
@@ -166,7 +166,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "dojo",
     title: "Dojo",
     summary:
-      "A teacher leads two students of different skill through a bow, a horse stance, straight punches and a push, each at their own skill.",
+      "A teacher and two students of different skill run a horse stance, straight punches and a tai chi push, each at their own skill: the students bow first, the teacher bows before the push.",
     setting: "combat",
     cast: [
       { subject: "sensei", role: "teacher" },

@@ -51,7 +51,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "chokehold",
       title: "Chokehold",
       summary:
-        "A staged strangle: both hands closed on the neck, and the victim's hands on the attacker's forearms.",
+        "A staged strangle: both hands closed on the neck, and the victim's hands coming up to the attacker's forearms as they arrive.",
       setting: "combat",
       roles: { xia: "attacker", yan: "victim" },
       needs: [],
@@ -61,16 +61,22 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
     "chokehold",
     [
       person("xia", "m2", 0, 0, 0, [
-        act("choke", {
-          target: at("yan", "neckLeft"),
-          other: at("yan", "neckRight"),
-        }),
+        act(
+          "choke",
+          { target: at("yan", "neckLeft"), other: at("yan", "neckRight") },
+          { anchor: "choke" },
+        ),
       ]),
       person("yan", "m1", 0, 0.5, 180, [
-        act("struggle", {
-          target: at("xia", "forearmLeft"),
-          other: at("xia", "forearmRight"),
-        }),
+        act("stand", { seconds: 3 }),
+        act(
+          "struggle",
+          {
+            target: at("xia", "forearmLeft"),
+            other: at("xia", "forearmRight"),
+          },
+          { sync: { of: "choke", event: "strokeStart" } },
+        ),
       ]),
     ],
   ),
@@ -96,7 +102,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
         act(
           "grabbed",
           { from: at("zak", "palmRight") },
-          { sync: { of: "pull", event: "stroke" } },
+          { sync: { of: "pull" } },
         ),
       ]),
     ],

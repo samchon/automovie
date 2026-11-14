@@ -18,7 +18,11 @@ export const SCENES_BLADES: readonly IScene[] = [
     "sword-drill",
     [
       person("ari", "m1", -0.8, 0, 0, [
-        act("pickUp", { prop: "swordA", handle: "grip" }),
+        act("pickUp", {
+          prop: "swordA",
+          handle: "grip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("draw", { blade: "swordA" }),
         act("cut", { blade: "swordA" }),
         act("slash", { blade: "swordA" }),
@@ -28,7 +32,11 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("traverse"),
       ]),
       person("ben", "f1", 0.8, 0, 0, [
-        act("pickUp", { prop: "swordB", handle: "grip" }),
+        act("pickUp", {
+          prop: "swordB",
+          handle: "grip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("swordGuard", { blade: "swordB" }),
         act("beat", { blade: "swordB" }),
         act("disengage", { blade: "swordB" }),
@@ -45,7 +53,7 @@ export const SCENES_BLADES: readonly IScene[] = [
   scene(
     {
       id: "knife-drill",
-      title: "Knife and club drill",
+      title: "Knife drill",
       summary:
         "Two trainees draw their blades from the hip: a knife slashed, slashed back and stabbed; a dagger taken point down for an overhand stab, then a club stroke with the free hand brought down from overhead, mimed.",
       setting: "combat",
@@ -55,13 +63,21 @@ export const SCENES_BLADES: readonly IScene[] = [
     "knife-drill",
     [
       person("cal", "m2", -0.8, 0, 0, [
-        act("pickUp", { prop: "knife", handle: "grip" }),
+        act("pickUp", {
+          prop: "knife",
+          handle: "grip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("knifeSlash", { blade: "knife" }),
         act("knifeBackslash", { blade: "knife" }),
         act("knifeStab", { blade: "knife" }),
       ]),
       person("dee", "f2", 0.8, 0, 0, [
-        act("pickUp", { prop: "dagger", handle: "reverseGrip" }),
+        act("pickUp", {
+          prop: "dagger",
+          handle: "reverseGrip",
+          use: SceneBuild.BLADE_USE,
+        }),
         act("stabOverhand", { blade: "dagger" }),
         act("clubStrike", { hand: "left" }),
       ]),
@@ -88,13 +104,21 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("stand", { seconds: 1 }),
         act("holsterFirearm", {
           prop: "gun",
-          at: { x: -0.18, y: 0.91, z: 0.42 },
+          at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
         }),
       ]),
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("gun", "createHandgun", "compact", -0.18, 0.42, 0, 0.91),
+      object(
+        "gun",
+        "createHandgun",
+        "compact",
+        -0.18,
+        0.42,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
     ],
   ),
   scene(
@@ -102,7 +126,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "reload-drill",
       title: "Reload drill",
       summary:
-        "A shooter takes a handgun from the range counter, presses a fresh magazine home with the other palm and lays the gun back down.",
+        "A shooter takes a handgun from the range counter, presses the support palm once to the magazine well and lays the gun back down.",
       setting: "combat",
       roles: { fil: "shooter" },
       needs: [],
@@ -117,13 +141,21 @@ export const SCENES_BLADES: readonly IScene[] = [
         }),
         act("holsterFirearm", {
           prop: "gun",
-          at: { x: -0.18, y: 0.91, z: 0.42 },
+          at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },
         }),
       ]),
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("gun", "createHandgun", "compact", -0.18, 0.42, 0, 0.91),
+      object(
+        "gun",
+        "createHandgun",
+        "compact",
+        -0.18,
+        0.42,
+        0,
+        SceneBuild.COUNTER_TOP,
+      ),
     ],
   ),
 ];
