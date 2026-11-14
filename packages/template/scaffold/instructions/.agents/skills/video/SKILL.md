@@ -11,9 +11,9 @@ A video model turns the motion hint into finished picture and, when it can, soun
 
 Its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
 
-1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md) with its default adherence.
+1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md).
 2. [Read its documentation](#read-the-model) for every value the plan depends on.
-3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes.
+3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes, recording the default adherence in project context.
 4. Prepare the canon references and any first frame or keyframe each request takes under [image](../image/SKILL.md).
 5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
 6. Submit, inspect and adopt takes under [generation](generation.md).

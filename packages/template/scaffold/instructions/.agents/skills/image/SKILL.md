@@ -29,13 +29,13 @@ Video models cap references per subject at about three or four images, and some 
 - a face close-up with a neutral expression;
 - three-quarter or profile views as the shots need, unless the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
 
-Where the chosen model's terms reject realistic faces, follow them for every view.
+Where the chosen model's terms reject references with real human faces, ask the user how to give it identity.
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with its record's wording, which the shared description in its [video prompts](../video/prompts.md) reuses, because the same words keep the same subject in both.
 
 ## Control images
 
-For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose, because pose and depth estimators fail on featureless polygon men, and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets.
+For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose, so such a subject's canon references wait for its entity, because pose and depth estimators fail on featureless polygon men, and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets.
 
 ## Shot frames
 
@@ -47,7 +47,7 @@ Render the hint's first frame at the video model's exact output size and aspect,
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, pose it as the [request](../3d-modeling/diffusion.md#request) of the chosen image-to-3D model asks, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with a loose control image, as [dense passes](../motion/control-channels.md#dense-passes) sets, and the canon references; then check that the views agree before use. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+When the hint already has the form, pose it as the image-to-3D [request](../3d-modeling/diffusion.md#request) sets for the chosen model, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with a loose control image, as [dense passes](../motion/control-channels.md#dense-passes) sets, and the canon references; then check that the views agree before use. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 

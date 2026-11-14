@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and recurring prop once, from the record that owns it, and the film's look once, from the settings' or the brief's `cinematography` record. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and recurring prop once, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
@@ -19,7 +19,7 @@ Write what happens in the request's interval from the [beat records](../story/la
 | From the beats | The paragraph says |
 | --- | --- |
 | Cast | Which polygon man becomes which person, by the reference token or element name when the model binds references, and by screen position |
-| Reaction | Each facial expression and reaction the hint cannot show, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
+| Reaction | Each facial expression the hint cannot show, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
 | Camera | The depth of field and focus the screenplay's camera entry or standing state decides; the hint carries framing, moves and lens |
 
 Leave out what the request keeps from the hint, such as positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some adapters trained on gray layouts do, write them from the same beat records and the hint, in words that match it. A model that takes only still frames needs them too, as [still frames only](#still-frames-only) sets.

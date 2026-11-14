@@ -72,7 +72,7 @@ What the modules can perform:
 
 7. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
 8. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, the reaction states each facial expression the representation cannot show, which the generation prompt carries.
+9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, a reaction may state a facial expression, which the generation prompt carries.
 
 Measurements:
 

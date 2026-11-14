@@ -8,11 +8,11 @@ Render only the channels the actual receiver needs, such as the hint video, pose
 
 Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one.
 
-Render from the scene the masks and handles a [request](../video/requests.md) asks for, such as the mask of the region and frames the request locks and the handle frames past each boundary, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
+Render from the scene the masks and handles a [request](../video/requests.md) asks for, such as a mask over a region and its frames and the handle frames past each boundary, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
 
 ## Dense passes
 
-A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video or depth, carries a form's shape as well as its place, so at full strength a control adapter reproduces the coarse form's boxes and the polygon man's smooth surface. Give it a pose pass for people and, for other forms, a depth pass weakened by reduced strength or blur, because these carry the place with less of the shape; where the model takes one pass, give it the one that carries what the request locks, and keep unweakened dense passes for what must keep its exact shape.
+A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video or depth, carries a form's shape as well as its place, so at full strength a control adapter reproduces the coarse form's boxes and the polygon man's smooth surface. Give it a pose pass for people and, for other forms, a depth pass weakened by reduced strength or blur, because these carry the place with less of the shape; where the model takes one pass, give it the one that carries what the request must keep, and keep unweakened dense passes for what must keep its exact shape.
 
 An adapter trained on gray layouts is the exception: it takes the whole hint video at full strength and replaces its forms, as its documentation states.
 

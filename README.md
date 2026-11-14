@@ -62,7 +62,7 @@ The agent studies every practice and style the film shows, a sport, a craft, a c
 
 ### A short: brief, then screenplay
 
-A short is a film of a few minutes whose events fit one screenplay. Its brief is a minimal canon: only the decisions about its people, places and recurring props that several scenes must keep true, and a generated film's look, one file per subject with an anchor per decision that the screenplay cites. Several shorts can share one brief and one world.
+A short is a film of a few minutes whose events fit one screenplay. Its brief is a minimal canon: only the decisions about its people, places and recurring props that several scenes must keep true, one file per subject with an anchor per decision that the screenplay cites. Several shorts can share one brief and one world.
 
 ### A series: settings, treatments, scripts, then screenplay
 

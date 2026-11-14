@@ -18,4 +18,4 @@ The models below are representative examples, not a complete or required list; a
 
 Proprietary hosted models take the hint as RGB video at most and derive any structure from it themselves; open models with control adapters, including their hosted endpoints, take depth, edge or pose videos directly. Choose an open model with control channels when exact positions, contacts and camera outweigh its setup cost; even it keeps each channel only at the strength the request sets.
 
-Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labeling duties for open weights, and price per second.
+Read each model's terms before adopting it: territory limits, rejected reference content such as real human faces, revenue thresholds and labeling duties for open weights, and price per second.

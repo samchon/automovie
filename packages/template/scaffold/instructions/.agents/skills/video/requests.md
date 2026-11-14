@@ -4,7 +4,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Boundaries
 
-End a request where the model's length limit, a screenplay cut or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
+End a request where the model's length limit or fixed lengths, a screenplay cut or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
 Begin each request where every key subject it shows is already in frame, because a subject the model first meets after the opening frame drifts from its references; when one must enter later, give it a [keyframe](../image/SKILL.md#shot-frames) where the model takes one; otherwise keep the shot whole and name the entering subject in the prompt.
 
@@ -29,11 +29,9 @@ At every level the prompt and the references give the faces and surfaces, becaus
 
 The scale is about motion; keep the hint's shapes only as closely as the forms are true, because a coarse form held to its shape returns as boxes. Where the model sets shape apart from motion, such as by a structure setting or a depth blur, set shape there.
 
-Start from the default adherence [project context](../production/project-context.md) records, and depart from it only where a beat needs another.
+Start from the default adherence [project context](../production/project-context.md) records, and give a request a stricter level only where it holds a contact, or a pose and screen direction the next shot continues, because some models keep overlapping and fast movement least well.
 
-Whatever the level, the request locks the frames and figures where its beats' outcomes land, contacts happen, and the pose and screen direction the next shot continues are held, and loosens only frames and regions that hold none of these, because some models keep overlapping and fast movement least well.
-
-A hosted model's settings apply to the whole request, which therefore takes the strictest level its frames need; an open model's control adapter may take a [mask](../motion/control-channels.md) over the locked region and frames, but read in its documentation whether the mask scales the control or keeps source pixels before rendering one.
+A hosted model's settings apply to the whole request. An open model's control adapter may vary its control over frames and regions through a [mask](../motion/control-channels.md) that scales it; a mask that keeps source pixels keeps the gray forms, so read which kind the adapter takes.
 
 Adherence reaches the model in the way it takes the hint, and [diffusion models](diffusion.md) gives each model's controls:
 
@@ -41,9 +39,9 @@ Adherence reaches the model in the way it takes the hint, and [diffusion models]
 | --- | --- |
 | Hosted, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
 | Hosted, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
-| Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, and wording that says what each form stands for |
+| Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, if any, and the wording its guide sets |
 | Hosted, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots with one moving figure, and a [shot frame](../image/SKILL.md#shot-frames) as its character image |
-| Hosted, takes still frames | Nothing: it keeps only those frames, so give it no beat whose outcome or contact falls between them |
+| Hosted, takes still frames | Nothing: it keeps only those frames, so a contact or outcome must land at a held pose on one of them |
 | Open weights with control adapters | Each adapter's strength and the steps where it acts, and a mask as its documentation defines one |
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames or a second figure, tell the user, who may choose another model, and follow their choice.
@@ -58,4 +56,4 @@ Give an adapter trained on gray layouts the hint video as its documentation sets
 
 ## Record
 
-Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence with what it locks, and each input with its role.
+Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence, and each input with its role.
