@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  clampPose,
-  fitChainToTarget,
-  resolvePose,
-} from "@automovie/engine";
+import { Quaternion, clampPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -17,12 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanArmClearance } from "./HumanArmClearance";
-import type { HumanColliders } from "./HumanColliders";
-import { HumanFoot } from "./HumanFoot";
+import { HumanLimbFit } from "./HumanLimbFit";
 import type { IHumanPosture } from "./IHumanPosture";
 import { hipJoints } from "./hipJoints";
-import { poseBones } from "./poseBones";
 
 /**
  * Resolve a posture into a canonical pose: the root from the posture's
@@ -49,8 +37,8 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one clamp, one fit per goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus up to four limb fits, each a bounded bend search.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the body's topology is shared.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A limb's fit is a pure function of the body, the pose before it, the limb and its goal, so it is remembered by those and read again by the displayed pose of the instant a plan already solved and by every instant of a held pose; the body's topology is shared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each body keeps its last 512 limb fits, least recently read dropped first, in a weak map that lets them go with the body.
  */
 export function resolveHumanPosture(
   body: IHumanBody,
@@ -94,11 +82,33 @@ export function resolveHumanPosture(
     },
     body.skeleton,
   );
-  const placed: ("left" | "right")[] = [];
+  // An arm with no goal hangs or rests where its joints put it, so its own
+  // colliders keep its room from the first fit on.
+  const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
+    (side: "left" | "right"): boolean =>
+      posture.limbs[`${side}Arm`] === undefined,
+  );
   for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
-    pose = fitLimb(body, pose, limb, goal, placed);
+    // The other arm's goal, while that arm is still to be fitted: where its
+    // wrist will be, for the room the clearance keeps it.
+    const other: IHumanPosture.Limb | undefined =
+      limb === "leftArm"
+        ? "rightArm"
+        : limb === "rightArm"
+          ? "leftArm"
+          : undefined;
+    const coming: IHumanPosture.IGoal | undefined =
+      other === undefined ||
+      placed.includes(other === "leftArm" ? "left" : "right")
+        ? undefined
+        : posture.limbs[other];
+    const rival: IAutoMovieVector3 | undefined =
+      coming === undefined || other === undefined
+        ? undefined
+        : resolveHumanPosture.world(body, pose, other, coming).point;
+    pose = HumanLimbFit.remembered(body, pose, limb, goal, placed, rival);
     if (limb === "leftArm") placed.push("left");
     if (limb === "rightArm") placed.push("right");
   }
@@ -112,6 +122,17 @@ export function resolveHumanPosture(
  * @evidence contracts/development/implementation.md#principled-implementation Heading is yaw about +Y, then pitch about the turned +X, then roll about the turned +Z, the intrinsic order of a body turning, then leaning.
  */
 export namespace resolveHumanPosture {
+  /**
+   * Turn the memory of limb fits off or on again. Off, every fit is solved
+   * afresh and nothing is kept, which is what a check of the memory against
+   * the solver compares with; it is on unless turned off.
+   *
+   * @param on Whether fits are remembered.
+   */
+  export function memory(on: boolean): void {
+    HumanLimbFit.memory(on);
+  }
+
   /**
    * A posture's root rotation: yaw about +Y, then pitch about the turned
    * left axis (+X, a forward tip), then roll about the turned forward axis
@@ -264,7 +285,7 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
   ): IAutoMoviePose {
-    return fitLimb(body, pose, limb, goal, ["left", "right"]);
+    return HumanLimbFit.fit(body, pose, limb, goal, ["left", "right"]);
   }
 
   /**
@@ -281,7 +302,7 @@ export namespace resolveHumanPosture {
     pose: IAutoMoviePose,
     limb: IHumanPosture.Limb,
   ): IHumanPosture.IReference {
-    const chain: IChain = chainOf(limb);
+    const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
     const read = (
       bone: AutoMovieHumanoidBone,
     ): readonly [number, number, number] => {
@@ -382,241 +403,6 @@ export namespace resolveHumanPosture {
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
   ): IHumanPosture.IGoal {
-    const on: AutoMovieHumanoidBone | undefined = goal.on;
-    if (on === undefined) return goal;
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-    const chain: readonly AutoMovieHumanoidBone[] = limb.endsWith("Arm")
-      ? [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]
-      : [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`];
-    if (chain.includes(on))
-      throw new Error(
-        `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
-      );
-    const frame: IAutoMovieResolvedBone | undefined = poseBones(body, pose).get(
-      on,
-    );
-    if (frame === undefined)
-      throw new Error(
-        `A ${limb} goal is attached to ${on}, which the rig lacks`,
-      );
-    const place = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(
-        frame.worldPosition,
-        Quaternion.rotateVector(frame.worldRotation, p),
-      );
-    const { on: _attached, ...rest } = goal;
-    return {
-      ...rest,
-      point: place(goal.point),
-      bend: place(goal.bend),
-      ...(goal.rotation === undefined
-        ? {}
-        : {
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(frame.worldRotation, goal.rotation),
-            ),
-          }),
-    };
+    return HumanLimbFit.world(body, pose, limb, goal);
   }
-}
-
-/** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
-const REAIM_TOLERANCE: number = 2e-5;
-
-/**
- * The most fits a limb with a contact takes (provisional). The mixed
- * iteration closes in three to five on a joint well past its limit. A foot
- * whose flat pose misses the ankle's range by under a degree has its only
- * solution far away, at a heel raised by centimetres, and the first passes
- * move away from the flat pose slowly: up to eleven fits measured on a
- * stagger's landed rear foot.
- */
-const REAIM_PASSES: number = 16;
-
-/** The three bones of a limb's chain. */
-interface IChain {
-  /** The bone at the shoulder or the hip. */
-  upper: AutoMovieHumanoidBone;
-
-  /** The bone at the elbow or the knee. */
-  lower: AutoMovieHumanoidBone;
-
-  /** The hand or the foot. */
-  effector: AutoMovieHumanoidBone;
-}
-
-/** The chain of a limb. */
-function chainOf(limb: IHumanPosture.Limb): IChain {
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-  return limb.endsWith("Arm")
-    ? {
-        upper: `${side}UpperArm`,
-        lower: `${side}LowerArm`,
-        effector: `${side}Hand`,
-      }
-    : {
-        upper: `${side}UpperLeg`,
-        lower: `${side}LowerLeg`,
-        effector: `${side}Foot`,
-      };
-}
-
-/**
- * The fit of one limb by the engine's two-bone solver; with a contact, the end
- * joint is re-aimed until the contact stays put, within `REAIM_TOLERANCE`,
- * under the rotation the limb actually reached (`HumanFoot.heelOff`), and a
- * foot's toes take back the pitch that fit lost. The re-aim is a fixed-point
- * iteration with Anderson's mixing of depth one (Anderson 1965, "Iterative
- * procedures for nonlinear integral equations", J. ACM 12; Walker and Ni
- * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
- * the world by that bone as the pose being fitted places it, so whatever
- * moved the bone before the fit (a trunk joint, a layer, a transition
- * offset) moves the goal with it. An arm fitted after the other arm keeps
- * clear of it too, so two hands sent across each other stack their forearms
- * instead of passing one through the other, and an arm keeps clear of the
- * other bodies its goal names (`IHumanPosture.IGoal.clear`).
- */
-function fitLimb(
-  body: IHumanBody,
-  pose: IAutoMoviePose,
-  limb: IHumanPosture.Limb,
-  attached: IHumanPosture.IGoal,
-  placed: readonly ("left" | "right")[],
-): IAutoMoviePose {
-  const goal: IHumanPosture.IGoal = resolveHumanPosture.world(
-    body,
-    pose,
-    limb,
-    attached,
-  );
-  // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
-  // before it as the pose being fitted places them (`HumanArmClearance`),
-  // whatever the hint or the hand's turn prefer.
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-  const trunk: HumanColliders.IPlaced[] | null = limb.endsWith("Arm")
-    ? HumanArmClearance.obstacles(
-        body,
-        poseBones(body, pose),
-        placed.filter((arm: "left" | "right"): boolean => arm !== side),
-      )
-    : null;
-  const clear: IObstruction | undefined =
-    trunk === null
-      ? undefined
-      : (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
-          HumanArmClearance.overshoot(
-            body,
-            trunk,
-            elbow,
-            wrist,
-            side,
-            attached.clear ?? [],
-          );
-  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal, clear);
-  if (goal.contact === undefined || goal.rotation === undefined) return fitted;
-  const leg: boolean = limb.endsWith("Leg");
-  const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
-  const anchor: IAutoMovieVector3 = Vector3.add(
-    goal.point,
-    Quaternion.rotateVector(goal.rotation, goal.contact),
-  );
-  // The end joint's point is the fixed point of `x -> anchor - R(x) contact`,
-  // `R(x)` being the rotation the limb reaches when fitted to `x`. Plain
-  // iteration closes slowly while a joint stands on its limit, so each pass
-  // after the first takes Anderson's one-step mixing of the last two.
-  let point: IAutoMovieVector3 = goal.point;
-  let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
-  let toes: number = 0;
-  for (let i: number = 0; i < REAIM_PASSES; i++) {
-    const reached: IAutoMovieQuaternion = resolvePose(
-      fitted,
-      body.skeleton,
-      HUMANOID_JOINT_AXES,
-      HUMANOID_REST_FRAME,
-    ).find(
-      (r: IAutoMovieResolvedBone): boolean => r.bone === effector,
-    )!.worldRotation;
-    const off = HumanFoot.heelOff(goal.rotation, reached, anchor, goal.contact);
-    // The toes belong to the fit they were read from, which is the one kept.
-    toes = off.toes;
-    const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
-    if (Vector3.length(miss) < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
-    let next: IAutoMovieVector3 = off.ankle;
-    if (last !== undefined) {
-      const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
-      const size: number = Vector3.dot(change, change);
-      if (size > 1e-18) {
-        const mixing: number = Math.max(
-          -20,
-          Math.min(20, Vector3.dot(change, miss) / size),
-        );
-        next = Vector3.subtract(
-          off.ankle,
-          Vector3.scale(Vector3.subtract(off.ankle, last.image), mixing),
-        );
-      }
-    }
-    last = { image: off.ankle, miss };
-    point = next;
-    fitted = fitOnce(body, pose, limb, { ...goal, point }, clear);
-  }
-  if (!leg || toes === 0) return fitted;
-  const bone: AutoMovieHumanoidBone = `${side}Toes`;
-  return {
-    ...fitted,
-    joints: fitted.joints.map(
-      (j: IAutoMovieJointPose): IAutoMovieJointPose =>
-        j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
-    ),
-  };
-}
-
-/** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
-type IObstruction = (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
-
-/** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given. */
-function fitOnce(
-  body: IHumanBody,
-  pose: IAutoMoviePose,
-  limb: IHumanPosture.Limb,
-  goal: IHumanPosture.IGoal,
-  obstruction?: IObstruction,
-): IAutoMoviePose {
-  const chain: IChain = chainOf(limb);
-  const angles = (
-    bone: AutoMovieHumanoidBone,
-    of: readonly [number, number, number],
-  ): IAutoMovieJointPose => ({
-    bone,
-    flexion: of[0],
-    abduction: of[1],
-    twist: of[2],
-  });
-  return fitChainToTarget({
-    skeleton: body.skeleton,
-    pose,
-    chain,
-    target: goal.point,
-    bend: goal.bend,
-    ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
-    ...(obstruction === undefined ? {} : { obstruction }),
-    // A reference of no weight decides nothing, so it is left out entirely.
-    ...(goal.reference === undefined || goal.reference.weight === 0
-      ? {}
-      : {
-          ...(goal.reference.weight === undefined
-            ? {}
-            : { referenceWeight: goal.reference.weight }),
-          referencePose: {
-            ...pose,
-            joints: [
-              angles(chain.upper, goal.reference.upper),
-              angles(chain.lower, goal.reference.lower),
-            ],
-          },
-        }),
-    topology: body.topology,
-    jointAxes: HUMANOID_JOINT_AXES,
-    restFrames: HUMANOID_REST_FRAME,
-  });
 }

@@ -15,16 +15,13 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanProp } from "../perform/IHumanProp";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanGraspReach } from "./HumanGraspReach";
 
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
@@ -263,8 +260,10 @@ export namespace HumanGrasp {
    * @param bend The elbow hint.
    * @param goal The wrist goal of a turn and a tilt, degrees.
    * @param tilts The tilts tried at each turn; only the authored one when absent.
-   * @param stroke The further key poses the same grip must reach, from its grasp goal; none when absent.
+   * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
@@ -274,125 +273,29 @@ export namespace HumanGrasp {
     bend: IAutoMovieVector3,
     goal: (turn: number, tilt: number) => HumanHand.IWrist,
     tilts: readonly number[] = [0],
-    stroke?: (wrist: HumanHand.IWrist) => readonly IKey[],
+    stroke?: (
+      wrist: HumanHand.IWrist,
+      shown: HumanHand.IWrist,
+    ) => readonly IKey[],
     turns: readonly number[] = TURNS,
+    required?: {
+      bound: number;
+      measure: (keys: readonly number[]) => number;
+    },
+    admits?: (wrist: HumanHand.IWrist) => boolean,
   ): IReach {
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    // One key pose fitted: the pose and the error the arm leaves there, the
-    // rotation in degrees plus the position in millimetres.
-    const fit = (
-      key: IKey,
-      reference: IHumanPosture.IReference | undefined,
-    ): {
-      pose: IAutoMoviePose;
-      shown: HumanHand.IWrist;
-      miss: number;
-      departure: number;
-    } => {
-      const pose: IAutoMoviePose = resolveHumanPosture(body, {
-        ...key.posture,
-        limbs: {
-          ...key.posture.limbs,
-          [limb]: {
-            point: key.wrist.point,
-            rotation: key.wrist.rotation,
-            bend: key.bend,
-            ...(reference === undefined ? {} : { reference }),
-          },
-        },
-      });
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, pose);
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      // How far the elbow sits from its hint about the shoulder-to-wrist
-      // line, the one freedom the wrist's place leaves it.
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const line: IAutoMovieVector3 = Vector3.subtract(
-        hand.worldPosition,
-        shoulder,
-      );
-      const span: number = Vector3.dot(line, line);
-      const radial = (point: IAutoMovieVector3): IAutoMovieVector3 => {
-        const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-        return span > 0
-          ? Vector3.subtract(
-              from,
-              Vector3.scale(line, Vector3.dot(from, line) / span),
-            )
-          : from;
-      };
-      const shownSide: IAutoMovieVector3 = radial(
-        bones.get(`${side}LowerArm`)!.worldPosition,
-      );
-      const hintSide: IAutoMovieVector3 = radial(key.bend);
-      const sides: number =
-        Vector3.length(shownSide) * Vector3.length(hintSide);
-      const departure: number =
-        sides > 1e-12
-          ? (Math.acos(
-              Math.max(
-                -1,
-                Math.min(1, Vector3.dot(shownSide, hintSide) / sides),
-              ),
-            ) *
-              180) /
-            Math.PI
-          : 0;
-      const dot: number = Math.min(
-        1,
-        Math.abs(
-          hand.worldRotation.x * key.wrist.rotation.x +
-            hand.worldRotation.y * key.wrist.rotation.y +
-            hand.worldRotation.z * key.wrist.rotation.z +
-            hand.worldRotation.w * key.wrist.rotation.w,
-        ),
-      );
-      return {
-        pose,
-        shown: { point: hand.worldPosition, rotation: hand.worldRotation },
-        miss:
-          (2 * Math.acos(dot) * 180) / Math.PI +
-          1000 *
-            Vector3.length(
-              Vector3.subtract(hand.worldPosition, key.wrist.point),
-            ),
-        departure,
-      };
-    };
-    let best: IReach | undefined;
-    let least: number = Infinity;
-    for (const turn of turns)
-      for (const tilt of tilts) {
-        const wrist: HumanHand.IWrist = goal(turn, tilt);
-        const grasp = fit({ posture, wrist, bend }, undefined);
-        const reference: IHumanPosture.IReference =
-          resolveHumanPosture.reference(grasp.pose, limb);
-        let miss: number = grasp.miss;
-        let departure: number = grasp.departure;
-        for (const key of stroke?.(wrist) ?? []) {
-          const held = fit(key, reference);
-          miss = Math.max(miss, held.miss);
-          departure = Math.max(departure, held.departure);
-        }
-        const cost: number =
-          miss + departure + 0.01 * (Math.abs(turn) + Math.abs(tilt));
-        if (best === undefined || cost < least) {
-          least = cost;
-          best = {
-            turn,
-            tilt,
-            wrist,
-            shown: grasp.shown,
-            reference,
-            miss,
-            departure,
-            pose: grasp.pose,
-          };
-        }
-      }
-    return best!;
+    return HumanGraspReach.reachable(
+      body,
+      posture,
+      side,
+      bend,
+      goal,
+      tilts,
+      stroke,
+      turns,
+      required,
+      admits,
+    );
   }
 
   /** The turns {@link reachable} tries by default, degrees: a quarter turn either way in steps of 15. */
@@ -436,6 +339,9 @@ export namespace HumanGrasp {
     /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
     departure: number;
 
+    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is: what a law reads to say which pose of a use the grasp cannot hold. */
+    keys: readonly number[];
+
     /** The posed body at the grasp. */
     pose: IAutoMoviePose;
   }
@@ -458,20 +364,7 @@ export namespace HumanGrasp {
       Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
     >,
   ): IHumanPosture {
-    const yaw: number = HumanFrame.heading(bones.get("hips")!.worldRotation);
-    const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
-    const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
-    const restL: IAutoMovieVector3 = body.rest.get("leftFoot")!;
-    const restR: IAutoMovieVector3 = body.rest.get("rightFoot")!;
-    const centre: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: (restL.x + restR.x) / 2, y: 0, z: (restL.z + restR.z) / 2 },
-    );
-    return stand.posture(
-      body,
-      { x: (l.x + r.x) / 2 - centre.x, y: 0, z: (l.z + r.z) / 2 - centre.z },
-      yaw,
-    );
+    return HumanGraspReach.standing(body, bones);
   }
 
   /**
@@ -483,13 +376,7 @@ export namespace HumanGrasp {
    * @returns The turned target.
    */
   export function around(target: ITarget, turn: number): ITarget {
-    return {
-      ...target,
-      approach: Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(target.axis, turn),
-        target.approach,
-      ),
-    };
+    return HumanGraspReach.around(target, turn);
   }
 
   /**

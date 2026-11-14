@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 
@@ -25,10 +26,15 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within 12 mm of the floor; its
- * heading and pitch turn between the two placements' on the minimum-jerk
- * profile, and the toes relax over the first half and take the landing's
- * flexion over the second.
+ * further wherever the toe or heel would come within 12 mm of the floor. The
+ * travel, the turn and the descent of the placements end early, at the share
+ * of the swing where the lift has fallen to the contact height of the floor
+ * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
+ * clearance): in terminal swing the foot comes to rest over its landing and
+ * only then sets down, the heel's horizontal velocity falling through
+ * terminal swing as it descends (Winter 1992), so no sole is on the floor
+ * while it still travels. The toes relax over the first half and take the
+ * landing's flexion over the second.
  */
 export namespace walkFoot {
   /** A foot's placement and toes at an instant. */
@@ -104,6 +110,7 @@ export namespace walkFoot {
    * @param toeOff The stance's toe-off, seconds; `Infinity` for the closing stance.
    * @param t The instant, seconds.
    * @param push The pitch at toe-off, degrees, negative.
+   * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 for a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the starting stance rises to it and the closing stance settles from it over `RISE` seconds.
    * @returns The planted foot.
    */
   export function stance(
@@ -115,9 +122,28 @@ export namespace walkFoot {
     toeOff: number,
     t: number,
     push: number,
+    raised: number = 0,
   ): IFoot {
     const length: number =
       Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
+    if (raised > 0) {
+      // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
+      const held: number =
+        raised *
+        (Number.isFinite(strike) ? 1 : minimumJerk(t / RISE).s) *
+        (Number.isFinite(toeOff) ? 1 : 1 - minimumJerk((t - strike) / RISE).s);
+      const rise: number = Number.isFinite(toeOff)
+        ? toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6)
+        : Infinity;
+      const degrees: number = Math.min(
+        -held,
+        t > rise ? push * minimumJerk((t - rise) / (toeOff - rise)).s : 0,
+      );
+      return {
+        placement: rocked(body, side, flat, heading, degrees, "mtp"),
+        toes: -degrees,
+      };
+    }
     if (Number.isFinite(strike) && t < strike + HEEL_SHARE * length) {
       const degrees: number =
         STRIKE * (1 - minimumJerk((t - strike) / (HEEL_SHARE * length)).s);
@@ -157,7 +183,10 @@ export namespace walkFoot {
    *   rates its pitch and its toes leave the first with (degrees per second,
    *   carried over the first half of the swing by the engine's `carriedRate`;
    *   none when absent), the share of the swing, its duration in seconds and
-   *   the mid-swing lift in hip heights.
+   *   the mid-swing lift in hip heights, whether the leg is kept
+   *   straight (`STIFF`, `LEVEL`), and whether the foot sets down at rest
+   *   over its landing in terminal swing (a walking foot; a running one
+   *   strikes moving), true when absent.
    * @returns The swinging foot.
    */
   export function swing(
@@ -171,29 +200,57 @@ export namespace walkFoot {
       u: number;
       seconds: number;
       lift: number;
+      stiff?: boolean;
+      settles?: boolean;
     },
   ): IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
-    const s: number = minimumJerk(u).s;
-    const carried: number = carriedRate(props.seconds, u * props.seconds);
+    const stiff: boolean = props.stiff === true;
+
+    // Terminal swing: the travel ends where the lift, `sin²(π u)` of its
+    // height, has fallen to the floor's contact height, and the foot then
+    // sets down at rest over its landing.
+    const height: number =
+      (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight;
+    const settle: number =
+      props.settles === false ||
+      height <= AutoMovieMotionHumanAuditContact.HEIGHT
+        ? 0
+        : Math.asin(
+            Math.sqrt(AutoMovieMotionHumanAuditContact.HEIGHT / height),
+          ) / Math.PI;
+    const travel: number = Math.min(1, u / (1 - settle));
+    const s: number = minimumJerk(travel).s;
+    const carried: number = carriedRate(
+      (1 - settle) * props.seconds,
+      travel * (1 - settle) * props.seconds,
+    );
     const bump: number = Math.sin(Math.PI * u) ** 2;
+
+    // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
+    const level: number = stiff ? minimumJerk(Math.min(1, u / LEVEL)).s : s;
+    const rising: number = stiff
+      ? carriedRate(LEVEL * props.seconds, u * props.seconds)
+      : carried;
     const a: IAutoMovieVector3 = props.from.ankle;
     const b: IAutoMovieVector3 = props.to.ankle;
     const ankle: IAutoMovieVector3 = {
       x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
       y:
         a.y +
-        (b.y - a.y) * s +
-        props.velocity.y * carried +
-        props.lift * body.measure.hipHeight * bump,
+        (b.y - a.y) * level +
+        props.velocity.y * rising +
+        (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
       z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
     };
     const leaving: number = HumanFoot.heading(props.from.rotation);
     const heading: number =
-      leaving +
-      wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
+      leaving + wrapDegrees(HumanFoot.heading(props.to.rotation) - leaving) * s;
     const left: number = HumanFoot.pitch(props.from.rotation);
-    const turning: number = carriedRate(props.seconds / 2, u * props.seconds);
+    const turning: number = carriedRate(
+      (stiff ? LEVEL : 0.5) * props.seconds,
+      u * props.seconds,
+    );
     const toes: number =
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
       props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
@@ -203,7 +260,7 @@ export namespace walkFoot {
       rotation: HumanFoot.rotation(
         heading,
         left +
-          (HumanFoot.pitch(props.to.rotation) - left) * s +
+          (HumanFoot.pitch(props.to.rotation) - left) * level +
           (props.rates?.pitch ?? 0) * turning,
       ),
     };
@@ -218,6 +275,18 @@ export namespace walkFoot {
 
   /** The pitch a foot strikes the floor with, degrees toes-up (provisional, inside Perry and Burnfield's heel rocker). */
   export const STRIKE: number = 15;
+
+  /** The share of a gait's swing lift a leg kept straight is given: with no knee to fold, its foot clears the floor by little (provisional; the hip hike and the outward arc that real stiff-knee walkers add are not modelled). */
+  export const STIFF: number = 0.3;
+
+  /** The share of its swing by which a straight leg's foot is down at its landing height and pitch (provisional): a knee that does not fold cannot hold the heel's rise of toe-off over the floor, so the ankle dorsiflexes and the foot passes low under the hip. */
+  export const LEVEL: number = 0.4;
+
+  /** The steepest toe-off pitch of a leg kept straight, degrees toes-down (provisional): the foot leaves nearly flat, where a folding knee lets it leave at about 55. */
+  export const STIFF_PUSH: number = 15;
+
+  /** Seconds a walk on the balls of the feet takes to raise the heels from a flat start and to set them down at a flat stop (provisional). */
+  export const RISE: number = 0.3;
 
   /** The rate the forefoot rocker ends with, in push pitches per rocker duration (provisional): the foot is still plantarflexing when the toes leave the floor (Perry and Burnfield), and at 2 the minimum-jerk rise with the engine's `carriedRate` term reversed is exactly `2u³ − u⁴`, monotonic and ending with no acceleration. */
   const LEAVE: number = 2;

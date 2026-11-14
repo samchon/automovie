@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { HumanHand } from "../posture/HumanHand";
 import type { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
 /**
@@ -30,15 +31,19 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the key of `FORMS`; a law names a kind and never a lift or a travel.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union, so `FORMS` is exhaustive and an unknown kind does not compile.
    */
-  export type Kind =
-    | "tap"
-    | "pat"
-    | "stroke"
-    | "rub"
-    | "press"
-    | "squeeze"
-    | "hold"
-    | "scratch";
+  export type Kind = (typeof KINDS)[number];
+
+  /** The touch kinds of {@link Kind}, as data. */
+  export const KINDS = [
+    "tap",
+    "pat",
+    "stroke",
+    "rub",
+    "press",
+    "squeeze",
+    "hold",
+    "scratch",
+  ] as const;
 
   /**
    * One kind's movement.
@@ -106,8 +111,37 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Two literals, read by the region's tangent.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A named direction on the surface, not a free vector a law could point off it.
    */
-  export type Tangent = "up" | "across";
+  export type Tangent = (typeof TANGENTS)[number];
 
+  /** The tangents of {@link Tangent}, as data. */
+  export const TANGENTS = ["up", "across"] as const;
+
+  /**
+   * An effector read in the hand as a kind displays it: its fingers curled
+   * by the kind's curl over its shape (`FORMS`), so a fingertip that a
+   * scratch curls is laid on its region where the curled finger puts it,
+   * not where the shape alone would. The effector itself when the kind
+   * curls nothing.
+   *
+   * @param effector The effector.
+   * @param kind The kind.
+   * @returns The effector with the kind's curl.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is added, why and the unchanged case.
+   * @evidence contracts/development/implementation.md#principled-implementation The curl the stroke displays (`AutoMovieMotionHumanHand.form`) is the curl its effector is read with.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one copy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The kind's own curl, never a row's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function curled<E extends { curl?: number }>(
+    effector: E,
+    kind: Kind,
+  ): E {
+    const curl: number = FORMS[kind].curl;
+    return curl === 0 ? effector : { ...effector, curl };
+  }
   /**
    * The seconds of one repetition of a kind on a body: the span's seconds,
    * or for a kind with a peak speed the period of a sine of the kind's
@@ -139,16 +173,19 @@ export namespace AutoMovieMotionHumanTouchForm {
 
   /**
    * The unit tangent of a region: its upward direction across the normal,
-   * or, for `across` or a region facing up or down, the performer's left or
-   * heading turned across it.
+   * or, for `across` or a region facing up or down, the direction from the
+   * acting hand's side toward the body's other side (the performer's left
+   * for the right hand, their right for the left hand) or the heading,
+   * turned across it. A left-hand stroke is so the right-hand one's mirror.
    *
    * @param normal The region's normal.
    * @param yaw The performer's heading, degrees.
    * @param tangent Which tangent.
+   * @param side The acting hand.
    * @returns The unit vector.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which direction is taken and the fallbacks.
-   * @evidence contracts/development/implementation.md#principled-implementation The first candidate whose part across the normal is long enough, normalised.
+   * @evidence contracts/development/common.md#meaningful-documentation States which direction is taken, for which hand, and the fallbacks.
+   * @evidence contracts/development/implementation.md#principled-implementation The first candidate whose part across the normal is long enough, normalised; `across` points toward the body's midline from the acting hand, so the body's mirror symmetry carries a stroke from one hand to the other.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two perpendicular candidates and one choice.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A candidate shorter than 0.3 across the normal is skipped so a near-parallel direction is never normalised.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame.point`.
@@ -159,6 +196,7 @@ export namespace AutoMovieMotionHumanTouchForm {
     normal: IAutoMovieVector3,
     yaw: number,
     tangent: Tangent,
+    side: HumanHand.Side,
   ): IAutoMovieVector3 {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -168,7 +206,11 @@ export namespace AutoMovieMotionHumanTouchForm {
       tangent === "up"
         ? [{ x: 0, y: 1, z: 0 }, HumanFrame.point(frame, { x: 0, y: 0, z: 1 })]
         : [
-            HumanFrame.point(frame, { x: 1, y: 0, z: 0 }),
+            HumanFrame.point(frame, {
+              x: side === "right" ? 1 : -1,
+              y: 0,
+              z: 0,
+            }),
             HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
           ];
     // The two candidates are perpendicular, so when the first lies within

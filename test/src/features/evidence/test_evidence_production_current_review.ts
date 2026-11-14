@@ -39,7 +39,7 @@ export async function test_evidence_production_current_review(): Promise<void> {
     );
     await ProductionWorkflowFixture.certify(root, props);
     const base: string = path.join(root, "docs/review/draft/screenplay");
-    const unit: string = "001-part/001-scene.md";
+    const unit: string = ProductionWorkflowFixture.scene("short");
     const verdict: string = "verdict/index.md";
     const inspect: () => Promise<IEvidenceCheckAnalysis> =
       async (): Promise<IEvidenceCheckAnalysis> =>
@@ -60,7 +60,7 @@ export async function test_evidence_production_current_review(): Promise<void> {
     });
     ProductionWorkflowFixture.write(
       root,
-      "docs/review/draft/screenplay/round-2/001-part/001-scene.md",
+      `docs/review/draft/screenplay/round-2/${unit}`,
       "# An incomplete older review\n",
     );
     assert.ok(

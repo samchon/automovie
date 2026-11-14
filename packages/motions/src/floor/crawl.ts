@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -16,6 +17,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -24,9 +26,10 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { crawlFrame } from "./crawlFrame";
+import { crawlInchworm } from "./crawlInchworm";
 
 /**
  * Crawling on hands and knees along the heading, from standing: the body
@@ -55,7 +58,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * `<limb>Touchdown<n>`, the limb one of `leftHand`, `rightHand`, `leftKnee`,
  * `rightKnee`.
  *
- * Not yet: hands-and-feet crawling (MacLellan et al. 2012), the belly crawl,
+ * The bear crawl is the same gait on the hands and the feet: the knees are
+ * held `HOVER` off the floor, so the hips ride that much higher, and each
+ * foot, on its ball behind its knee, is planted while its knee is. The
+ * inchworm is its own walk (`crawlInchworm`).
+ *
+ * Not yet: the bear crawl's own timing (MacLellan et al. 2012 measured
+ * hands-and-feet crawling; the knees' cycle is kept), the belly crawl,
  * turning, rising from the crawl, and knee contact windows (the contact
  * parts have no knee).
  *
@@ -75,17 +84,26 @@ export namespace crawl {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation A cycle count and a manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members read by `plan`.
+   * @evidence contracts/development/design.md#principled-representation A kind, a cycle count and a manner.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No distance is typed.
    */
   export interface IParams {
+    /** On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. */
+    kind?: Kind;
+
     /** How many crawl cycles; 3 when absent. */
-    cycles?: number;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
   }
+
+  /** On what the body crawls. */
+  export type Kind = (typeof KINDS)[number];
+
+  /** The kinds of {@link Kind}, as data. */
+  export const KINDS = ["knees", "bear", "inchworm"] as const;
 
   /** A limb of the crawl. */
   export type Limb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
@@ -113,8 +131,8 @@ export namespace crawl {
   /** A swinging knee's rise, metres (provisional): the pelvis hikes it, so it clears the floor by less than a hand. */
   export const KNEE_LIFT: number = 0.02;
 
-  /** The chest's share of the turn that levels the shoulders over a hiked pelvis; the lumbar spine takes the rest (as `AutoMovieMotionHumanTrunk.CHEST`). */
-  export const CHEST: number = 0.6;
+  /** A bear crawl's knees over the floor, metres (provisional): an inch or two, as the exercise is cued. */
+  export const HOVER: number = 0.05;
 
   /** The shoulder's height over the wrist as a share of the upper arm and the forearm: an elbow just short of straight (provisional). */
   export const ARM: number = 0.98;
@@ -132,6 +150,8 @@ export namespace crawl {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
+    if (context.params.kind === "inchworm") return crawlInchworm.plan(context);
+    const bear: boolean = context.params.kind === "bear";
     const body: IHumanBody = context.body;
     const m = body.measure;
     const cycles: number = context.params.cycles ?? 3;
@@ -151,65 +171,19 @@ export namespace crawl {
       { x: 0, y: 0, z: 1 },
     );
 
-    // Each wrist over its flat palm on the floor, floor frame from the palm.
+    // Each wrist over its flat palm on the floor, floor frame from the palm;
+    // the body tilted by a pitch, and the root under its hip joints.
     const sides = ["left", "right"] as const;
-    const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
-      HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw },
-        AutoMovieMotionHumanArm.goal(
-          body,
-          side,
-          AutoMovieMotionHumanTarget.hand(
-            body,
-            standing,
-            side,
-            { point: { x: 0, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
-            { surface: "palm", shape: "flat", forward },
-          ),
-        ).point,
-      );
-    const wrists = { left: wrist("left"), right: wrist("right") };
-
-    // The body tilted by a pitch at a share of the way down, and the root
-    // that puts its hip joints' middle at a place.
-    const posed = (
-      share: number,
-      degrees: number,
-      hike: number = 0,
-    ): IHumanPosture => ({
-      root: { x: 0, y: 0, z: 0 },
-      yaw,
-      pitch: degrees * share,
-      roll: 0,
-      joints: {
-        ...stand.RELAXED,
-        neck: [-40 * share, 0, 0],
-        hips: [0, 0, hike],
-        spine: [0, 0, -(1 - CHEST) * hike],
-        chest: [0, 0, -CHEST * hike],
-      },
-      limbs: {},
-    });
-    const rootFor = (
-      tilted: IHumanPosture,
-      hips: IAutoMovieVector3,
-    ): IAutoMovieVector3 => {
-      const joints = hipJoints(
-        body,
-        { x: 0, y: 0, z: 0 },
-        resolveHumanPosture.heading(tilted),
-        tilted.joints.hips,
-      );
-      return Vector3.subtract(
-        hips,
-        Vector3.lerp(joints.left, joints.right, 0.5),
-      );
-    };
+    const wrists = crawlFrame.wrists(body, standing, forward);
+    const posed = (share: number, degrees: number, hike: number = 0) =>
+      crawlFrame.posed(yaw, share, degrees, hike, -40);
+    const rootFor = (tilted: IHumanPosture, hips: IAutoMovieVector3) =>
+      crawlFrame.rootFor(body, tilted, hips);
 
     // The trunk's pitch: the one that puts the posed shoulders an arm at
     // `ARM` of its length over the wrists, the hip joints a thigh over the
-    // knees.
-    const knee: number = m.shankRadius;
+    // knees, which a bear crawl holds `HOVER` off the floor.
+    const knee: number = m.shankRadius + (bear ? HOVER : 0);
     const hipY: number = knee + m.thigh;
     const shoulderY: number =
       (wrists.left.y + wrists.right.y) / 2 + ARM * (m.upperArm + m.forearm);
@@ -470,14 +444,25 @@ export namespace crawl {
       },
     };
 
-    // The hands' plant windows.
+    // The plant windows of the hands, and of a bear crawl's feet, each
+    // planted while its knee is.
     const contacts: IHumanContactWindow[] = [];
-    for (const side of ["left", "right"] as const)
+    const bearing: (readonly [IHumanContactWindow["part"], Limb])[] = [
+      ["leftHand", "leftHand"],
+      ["rightHand", "rightHand"],
+      ...(bear
+        ? ([
+            ["leftFoot", "leftKnee"],
+            ["rightFoot", "rightKnee"],
+          ] as const)
+        : []),
+    ];
+    for (const [part, limb] of bearing)
       for (let k: number = 0; k <= cycles; k++) {
-        const from: number = k === 0 ? DOWN : lift(`${side}Hand`, k) + swing;
-        const to: number = k === cycles ? duration : lift(`${side}Hand`, k + 1);
+        const from: number = k === 0 ? DOWN : lift(limb, k) + swing;
+        const to: number = k === cycles ? duration : lift(limb, k + 1);
         contacts.push({
-          part: `${side}Hand`,
+          part,
           kind: "plant",
           from: from / duration,
           to: to / duration,

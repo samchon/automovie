@@ -31,12 +31,18 @@ import { motionAuditPoints } from "../internal/motionAuditPoints";
  *    foot is planted; at 5.5 s nothing is declared.
  * 6. A foot planted on a prop, or a foot in a pivot, does not count as
  *    standing on the ground.
+ * 7. Asked whether both feet stay planted to a later second (the hold a
+ *    standing balance needs): with the left foot planted from 0 to 2 s and
+ *    2 to 4 s by two actions and the right from 0 to 1 s and from 1.6 s, the
+ *    body stands from 0.5 to 0.8 s, does not from 0.8 to 1.1 s (the right
+ *    foot lifts at 1 s) though it does at 0.8 s alone, and stands from 1.9 to
+ *    2.2 s across the two actions' plants.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public window list and the standing predicate; an unclipped window, a kept empty window or a grip ignored by the predicate fails.
  * @evidence contracts/development/testing.md#independent-expectations Every second is `start + share * duration` clipped to the stated entry and end, by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases An unclipped window, a clipped one, a dropped one, a degenerate one, and the predicate's every branch.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit. It runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 6 scenarios with their seconds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the film and lists the 7 scenarios with their seconds.
  */
 export function test_motion_audit_windows(): void {
   const ground: IHumanContactWindow["support"] = { kind: "ground" };
@@ -138,5 +144,39 @@ export function test_motion_audit_windows(): void {
       2,
     ),
     false,
+  );
+
+  // 7. A step being taken: the left foot planted by two actions back to back,
+  // the right planted to 1 s and again from 1.6 s.
+  const gait: IAutoMovieMotionHumanAuditMotion.IWindow[] = film([
+    span("one", 0, 0, 2, 2, [
+      contact("leftFoot", "plant", 0, 1),
+      contact("rightFoot", "plant", 0, 0.5),
+      contact("rightFoot", "plant", 0.8, 1),
+    ]),
+    span("two", 2, 2, 4, 2, [
+      contact("leftFoot", "plant", 0, 1),
+      contact("rightFoot", "plant", 0, 1),
+    ]),
+  ]);
+  TestValidator.equals(
+    "both feet stay planted for the hold",
+    standing(gait, 0.5, 0.8),
+    true,
+  );
+  TestValidator.equals(
+    "a foot lifts within the hold",
+    standing(gait, 0.8, 1.1),
+    false,
+  );
+  TestValidator.equals(
+    "the same instant without a hold",
+    standing(gait, 0.8),
+    true,
+  );
+  TestValidator.equals(
+    "plants of two actions back to back are one plant",
+    standing(gait, 1.9, 2.2),
+    true,
   );
 }

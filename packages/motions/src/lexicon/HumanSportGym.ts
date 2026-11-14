@@ -1,0 +1,176 @@
+import { workout } from "../exercise/workout";
+import { crawl } from "../floor/crawl";
+import { HumanActionRow } from "../law/HumanActionRow";
+
+/**
+ * The gym's remaining movements under the names a programme uses, each a
+ * row of the workout law with its kind fixed (`WorkoutGym`,
+ * `WorkoutBodyweight`, `WorkoutEquipment`). A row leaves open the count
+ * (`reps`), a held pose's `hold`, whether the body stays on its support
+ * (`stay`), the support (`on`), the load (`load`), a bar's place and the
+ * manner. The bear crawl and the inchworm are rows of the crawl law, which
+ * leaves open the count of cycles.
+ *
+ * What a row shows and what its first pass leaves out is stated on its
+ * kind or its law: without `load` nothing is held, and without `on` no
+ * equipment bears.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
+ * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that plans and refuses.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One row per exercise a programme names; a production registers the ones it uses.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the kind is the only value fixed.
+ */
+export namespace HumanSportGym {
+  /** A bear crawl: on the hands and the feet, the knees held off the floor. */
+  export const bearCrawl = HumanActionRow.of("bearCrawl", crawl, {
+    kind: "bear",
+  });
+
+  /** Inchworms: folded, the hands walked out to a plank, the feet walked in to the hands, and up. */
+  export const inchworm = HumanActionRow.of("inchworm", crawl, {
+    kind: "inchworm",
+  });
+
+  /** Bent-over rows, without the bar. */
+  export const bentOverRow = HumanActionRow.of("bentOverRow", workout, {
+    kind: "bentOverRow",
+  });
+
+  /** Curls, without the weight. */
+  export const curl = HumanActionRow.of("curl", workout, {
+    kind: "curl",
+  });
+
+  /** Overhead triceps extensions, without the weight. */
+  export const tricepsExtension = HumanActionRow.of(
+    "tricepsExtension",
+    workout,
+    {
+      kind: "tricepsExtension",
+    },
+  );
+
+  /** Lateral raises, without the weights. */
+  export const lateralRaise = HumanActionRow.of("lateralRaise", workout, {
+    kind: "lateralRaise",
+  });
+
+  /** Front raises, without the weights. */
+  export const frontRaise = HumanActionRow.of("frontRaise", workout, {
+    kind: "frontRaise",
+  });
+
+  /** Shrugs, without the weights. */
+  export const shrug = HumanActionRow.of("shrug", workout, {
+    kind: "shrug",
+  });
+
+  /** Calf raises. */
+  export const calfRaise = HumanActionRow.of("calfRaise", workout, {
+    kind: "calfRaise",
+  });
+
+  /** Front squats, without the bar. */
+  export const frontSquat = HumanActionRow.of("frontSquat", workout, {
+    kind: "frontSquat",
+  });
+
+  /** Goblet squats, without the bell. */
+  export const gobletSquat = HumanActionRow.of("gobletSquat", workout, {
+    kind: "gobletSquat",
+  });
+
+  /** Split squats. */
+  export const splitSquat = HumanActionRow.of("splitSquat", workout, {
+    kind: "splitSquat",
+  });
+
+  /** A wall sit, the wall not shown. */
+  export const wallSit = HumanActionRow.of("wallSit", workout, {
+    kind: "wallSit",
+  });
+
+  /** Romanian deadlifts, without the bar. */
+  export const romanianDeadlift = HumanActionRow.of(
+    "romanianDeadlift",
+    workout,
+    {
+      kind: "romanianDeadlift",
+    },
+  );
+
+  /** Good mornings, without the bar. */
+  export const goodMorning = HumanActionRow.of("goodMorning", workout, {
+    kind: "goodMorning",
+  });
+
+  /** A power clean as its positions, without the bar. */
+  export const powerClean = HumanActionRow.of("powerClean", workout, {
+    kind: "powerClean",
+  });
+
+  /** A snatch as its positions, without the bar. */
+  export const snatch = HumanActionRow.of("snatch", workout, {
+    kind: "snatch",
+  });
+
+  /** Pike push-ups. */
+  export const pikePushUp = HumanActionRow.of("pikePushUp", workout, {
+    kind: "pikePushUp",
+  });
+
+  /** Supermans. */
+  export const superman = HumanActionRow.of("superman", workout, {
+    kind: "superman",
+  });
+
+  /** Bird dogs. */
+  export const birdDog = HumanActionRow.of("birdDog", workout, {
+    kind: "birdDog",
+  });
+
+  /** Lying leg raises. */
+  export const lyingLegRaise = HumanActionRow.of("lyingLegRaise", workout, {
+    kind: "lyingLegRaise",
+  });
+
+  /** Bicycle crunches. */
+  export const bicycleCrunch = HumanActionRow.of("bicycleCrunch", workout, {
+    kind: "bicycleCrunch",
+  });
+
+  /** Russian twists. */
+  export const russianTwist = HumanActionRow.of("russianTwist", workout, {
+    kind: "russianTwist",
+  });
+
+  /** Dead bugs. */
+  export const deadBug = HumanActionRow.of("deadBug", workout, {
+    kind: "deadBug",
+  });
+
+  /** Step-ups onto the box the composition names (`on`); an imagined one when none is named. */
+  export const stepUp = HumanActionRow.of("stepUp", workout, {
+    kind: "stepUp",
+  });
+
+  /** Hip thrusts, the upper back on the bench's edge the composition names (`on`), the performer standing with the back to it. */
+  export const hipThrust = HumanActionRow.of("hipThrust", workout, {
+    kind: "hipThrust",
+  });
+
+  /** Incline push-ups, the hands on the bench the composition names (`on`). */
+  export const inclinePushUp = HumanActionRow.of("inclinePushUp", workout, {
+    kind: "inclinePushUp",
+  });
+
+  /** Decline push-ups, the toes on the bench the composition names (`on`). */
+  export const declinePushUp = HumanActionRow.of("declinePushUp", workout, {
+    kind: "declinePushUp",
+  });
+
+  /** Dips, the bars not shown. */
+  export const dip = HumanActionRow.of("dip", workout, {
+    kind: "dip",
+  });
+}

@@ -14,20 +14,20 @@ Read each layer as its recipient:
 | Brief | Screenplay writer and designer |
 | Treatments | Script writer |
 | Scripts | Screenplay writer and performer |
-| Screenplay | Filmmaker and audience |
+| Screenplay | Audience, then filmmaker |
 
 A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream repair](../story/correction/repair.md#upstream-defects).
 
 ## Compare with parents and contracts
 
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions. Fiction's own derived quantities belong to research and code, so do not recompute them.
+Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions; matching quotations cannot replace this comparison. Fiction's own derived quantities belong to research and code, so do not recompute them.
 
-Lock the [independent classification](../story/correction/inspection.md) in an isolated worker before reading author defenses; matching quotations cannot replace this comparison.
+Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses.
 
 Apply the contract's decision rule to named failures and the [retention test](../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate) to other candidates. Intent or a function label cannot overturn the locked judgment.
 
 ## Expression
 
-For screenplay expression, judge the [audiovisual voice](../contracts/story/shared/naturalness/screenplay.md#audiovisual-voice) of the whole unit from its actual speech, performance, image, sound and timing. Scripts receive content and expression together.
+Scripts receive content and expression together under their expression questions. The screenplay's speech is judged under [speaker plausibility](../contracts/story/shared/principles/realized.md#speaker-plausibility), and its idiom and action lines under the language statements of [audiovisual realization](../contracts/story/shared/principles/screenplay.md#audiovisual-realization).
 
-Scene headings, useful parentheticals, first-entry appearance and the screenplay's breakdown and beat records are notation, not expression failures. Treatment prescriptions are judged under their [completion question](../contracts/story/shared/principles/treatments.md#decided-event).
+Scene headings, useful parentheticals, first-entry appearance and the screenplay's standing state and [beat records](../story/layers/notation.md#records) are notation, not expression failures. Treatment prescriptions are judged under their [completion question](../contracts/story/shared/principles/treatments.md#decided-event).

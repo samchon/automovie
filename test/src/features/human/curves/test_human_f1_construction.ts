@@ -89,7 +89,7 @@ export function test_human_f1_construction(): void {
       const attached: boolean = under.some((inner: AutoMovieConstructionNode): boolean => inner.type === "source" && inner.name === "trunk");
       if (node.name.startsWith("cut.concha")) {
         if (node.seed.hostFace !== "trunk" || !under.some((inner: AutoMovieConstructionNode): boolean => inner.name === "root.plate" + side)) failures.push(`${node.name} is not cut from the head after its own ear's plate is merged`);
-      } else if (node.name.startsWith("cut.axilla")) {
+      } else if (node.name.startsWith("cut.axilla") || node.name.startsWith("cut.vault")) {
         if (node.seed.hostFace !== "band.arm" + side || !under.some((inner: AutoMovieConstructionNode): boolean => inner.name === "armscye.arm" + side)) failures.push(`${node.name} is not cut from its own arm's band after that arm's port`);
       } else if (node.seed.hostFace !== "nose" || !attached) failures.push(`${node.name} is not cut from the head at the nose`);
     } else if (node.type === "join") {

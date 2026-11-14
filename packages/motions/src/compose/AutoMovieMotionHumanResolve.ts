@@ -9,6 +9,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
 /**
  * What an authoring spec is on a body: a place in shares and in metres, an
@@ -64,7 +65,7 @@ export namespace AutoMovieMotionHumanResolve {
     left: number;
 
     /** The same displacement as a nudge of the left hand, in arm lengths. */
-    nudge: Required<AutoMovieMotionHumanTarget.INudge>;
+    nudge: Required<AutoMovieMotionHumanTargetGrid.INudge>;
   }
 
   /**
@@ -122,24 +123,24 @@ export namespace AutoMovieMotionHumanResolve {
    * @param side The acting hand.
    * @param place The place, on any rung.
    * @returns Both readings.
-   * @throws {Error} When the place is refused by `AutoMovieMotionHumanTarget.place`.
+   * @throws {Error} When the place is refused by `AutoMovieMotionHumanTargetGrid.place`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal's owner.
    * @evidence contracts/development/implementation.md#principled-implementation The shares times the stature, the arm and the half shoulder width, the products `AutoMovieMotionHumanTarget.fallback` forms.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and three products.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rung is resolved here: the place owner resolves it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTarget.place`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTargetGrid.place`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
     body: Pick<IHumanBody, "measure">,
     side: HumanHand.Side,
-    place: AutoMovieMotionHumanTarget.Place,
+    place: AutoMovieMotionHumanTargetGrid.Place,
   ): IPlace {
     const m = body.measure;
     const shares: AutoMovieMotionHumanTarget.IDefault =
-      AutoMovieMotionHumanTarget.place(body, side, place);
+      AutoMovieMotionHumanTargetGrid.place(body, side, place);
     return {
       shares,
       metres: {
@@ -160,7 +161,7 @@ export namespace AutoMovieMotionHumanResolve {
    * @evidence contracts/development/common.md#meaningful-documentation States the input's frame and both forms of the result.
    * @evidence contracts/development/implementation.md#principled-implementation The inverse of `place`: each component over the measure its axis is read against, and all three over the arm for a nudge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Six quotients.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A displacement past a nudge's bound is still reported; `AutoMovieMotionHumanTarget.place` is what refuses it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A displacement past a nudge's bound is still reported; `AutoMovieMotionHumanTargetGrid.place` is what refuses it.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
@@ -294,30 +295,30 @@ export namespace AutoMovieMotionHumanResolve {
       row(`place ${name} (x,y,z m)`, (body): string =>
         point(place(body, "left", name).metres),
       );
-    for (const name of AutoMovieMotionHumanTarget.HEIGHTS)
+    for (const name of AutoMovieMotionHumanTargetGrid.HEIGHTS)
       row(`height ${name} (share / m)`, (body): string => {
-        const share: number = AutoMovieMotionHumanTarget.height(body, name);
+        const share: number = AutoMovieMotionHumanTargetGrid.height(body, name);
         return `${f(share)} / ${f(share * body.measure.stature)}`;
       });
     for (const name of Object.keys(
-      AutoMovieMotionHumanTarget.LATERALS,
-    ) as AutoMovieMotionHumanTarget.Lateral[])
+      AutoMovieMotionHumanTargetGrid.LATERALS,
+    ) as AutoMovieMotionHumanTargetGrid.Lateral[])
       row(
         `lateral ${name} (share / m)`,
         (body): string =>
-          `${f(AutoMovieMotionHumanTarget.LATERALS[name])} / ${f(
-            AutoMovieMotionHumanTarget.LATERALS[name] *
+          `${f(AutoMovieMotionHumanTargetGrid.LATERALS[name])} / ${f(
+            AutoMovieMotionHumanTargetGrid.LATERALS[name] *
               body.measure.shoulderHalfWidth,
           )}`,
       );
     for (const name of Object.keys(
-      AutoMovieMotionHumanTarget.DISTANCES,
-    ) as AutoMovieMotionHumanTarget.Distance[])
+      AutoMovieMotionHumanTargetGrid.DISTANCES,
+    ) as AutoMovieMotionHumanTargetGrid.Distance[])
       row(
         `distance ${name} (share / m)`,
         (body): string =>
-          `${f(AutoMovieMotionHumanTarget.DISTANCES[name])} / ${f(
-            AutoMovieMotionHumanTarget.DISTANCES[name] *
+          `${f(AutoMovieMotionHumanTargetGrid.DISTANCES[name])} / ${f(
+            AutoMovieMotionHumanTargetGrid.DISTANCES[name] *
               (body.measure.upperArm + body.measure.forearm),
           )}`,
       );
@@ -372,14 +373,17 @@ export namespace AutoMovieMotionHumanResolve {
   export function swivel(
     bodies: readonly { name: string; body: IHumanBody }[],
   ): string {
-    const places: [string, AutoMovieMotionHumanTarget.Place][] = [
+    const places: [string, AutoMovieMotionHumanTargetGrid.Place][] = [
       ...(
         Object.keys(
           AutoMovieMotionHumanTarget.DEFAULTS,
         ) as AutoMovieMotionHumanTarget.Name[]
-      ).map((name): [string, AutoMovieMotionHumanTarget.Place] => [name, name]),
+      ).map((name): [string, AutoMovieMotionHumanTargetGrid.Place] => [
+        name,
+        name,
+      ]),
       ...SWIVEL_GRIDS.map(
-        (grid): [string, AutoMovieMotionHumanTarget.Place] => [
+        (grid): [string, AutoMovieMotionHumanTargetGrid.Place] => [
           `${grid.height} ${grid.lateral} ${grid.distance}`,
           grid,
         ],
@@ -387,7 +391,7 @@ export namespace AutoMovieMotionHumanResolve {
     ];
     const cell = (
       body: IHumanBody,
-      place: AutoMovieMotionHumanTarget.Place,
+      place: AutoMovieMotionHumanTargetGrid.Place,
     ): string => {
       const posture = { root: { x: 0, y: 0, z: 0 }, yaw: 0 };
       const shoulder: IAutoMovieVector3 = body.rest.get("leftUpperArm")!;
@@ -398,7 +402,7 @@ export namespace AutoMovieMotionHumanResolve {
         point: AutoMovieMotionHumanTarget.fallback(
           body,
           posture,
-          AutoMovieMotionHumanTarget.place(body, "left", place),
+          AutoMovieMotionHumanTargetGrid.place(body, "left", place),
         ).point,
       };
       const preset: IAutoMovieVector3 = AutoMovieMotionHumanBend.arm(
@@ -451,7 +455,7 @@ export namespace AutoMovieMotionHumanResolve {
 }
 
 /** The grid places the swivel table lists beside the named ones: the places of `stopPalm`, `wave` and `raiseHand`, and a hand at the hip. */
-const SWIVEL_GRIDS: readonly AutoMovieMotionHumanTarget.IGrid[] = [
+const SWIVEL_GRIDS: readonly AutoMovieMotionHumanTargetGrid.IGrid[] = [
   { height: "shoulder", lateral: "inside", distance: "far" },
   { height: "eye", lateral: "outside", distance: "near" },
   { height: "overhead", lateral: "shoulder", distance: "close" },

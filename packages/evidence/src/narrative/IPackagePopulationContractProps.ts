@@ -1,5 +1,4 @@
 import type { AuthoredLayer } from "./AuthoredLayer";
-import type { AuthoredPass } from "./AuthoredPass";
 import type { NarrativeScope } from "./NarrativeScope";
 import type { ProductionStage } from "./ProductionStage";
 
@@ -9,7 +8,7 @@ import type { ProductionStage } from "./ProductionStage";
  * @evidence contracts/development/design.md#principled-representation The object represents one exact work obligation document and its owning populations, with pilot-only deferral separate from pass activation.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One duty document and layer-stage map express once-per-layer obligations separately from per-H2 checklists.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts createPackagePopulationContract enforces exact obligation paths and pilot-only deferral; the interface adds no bypass.
- * @evidence contracts/development/common.md#meaningful-documentation Members state tracked obligation addressing, complete-population ownership, final-pass working roots and pilot-only deferral.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state tracked obligation addressing, complete-population ownership and pilot-only deferral.
  */
 export interface IPackagePopulationContractProps {
   /** One tracked work-contract document containing population H2 duties. */
@@ -17,14 +16,6 @@ export interface IPackagePopulationContractProps {
 
   /** Layers whose complete populations answer the document. */
   layers: Partial<Record<AuthoredLayer, ProductionStage>>;
-
-  /**
-   * Selects which logical pass answers: `draft` for construction,
-   * `final` for naturalness. Construction selects body; naturalness selects the working text.
-   *
-   * @default "draft"
-   */
-  pass?: AuthoredPass;
 
   /**
    * Selects the exact narrative population whose documents answer the duty.

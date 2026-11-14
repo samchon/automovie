@@ -1,5 +1,4 @@
 import {
-  Quaternion,
   Vector3,
   bracketedRoot,
   minimumJerk,
@@ -18,6 +17,7 @@ import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
+import { walkReachStance } from "./walkReachStance";
 
 /**
  * Makes every foot goal of a stepping gait reachable on the actual pelvis,
@@ -38,14 +38,14 @@ import { walkLeg } from "./walkLeg";
  * its rate through every contact event and where a leg runs out of slack.
  * The stances are placed against the lowered hips, which changes what they
  * claim, so the lowering is the one whose stances claim exactly it, found
- * between none and the first claim by the engine's `bracketedRoot`. A
- * stance whose shank leans toward the ankle's dorsal limit raises its heel
- * about its ball (`walkLeg.heelRise`, from `walkLeg.ROCKER` of room on), or
- * lowers its toes about its heel in the heel rocker; one whose thigh would
- * trail more than `TRAIL` raises its heel further, by the same rounded rule
- * from `EASE` short of it on; and a foot pivots on its toe pad by the
- * pelvis's turn beyond `TWIST`, in proportion to its heel's rise up to
- * `HEEL_UP`, the pivot of a stepping turn. The hip joints are read from the
+ * between none and the first claim by the engine's `bracketedRoot`. Each
+ * stance is held by `walkReachStance`: a shank leaning toward the ankle's
+ * dorsal limit raises its heel about its ball (`walkLeg.heelRise`, from
+ * `walkLeg.ROCKER` of room on), or lowers its toes about its heel in the
+ * heel rocker; a thigh that would trail more than `walkReachStance.TRAIL`
+ * raises it further; and a foot pivots on its toe pad by the pelvis's turn
+ * beyond `TWIST`, in proportion to its heel's rise up to `HEEL_UP`, the
+ * pivot of a stepping turn. The hip joints are read from the
  * pelvis posed by the root, the heading and the pelvis joint, so its
  * rotation and list count.
  *
@@ -179,6 +179,10 @@ export namespace walkReach {
    * @param feet Each foot as scheduled.
    * @param claims The lowering a foot claims in place of its faded stance's,
    *   metres.
+   * @param rocker The room under which a stance's heel begins to rise,
+   *   degrees; `walkLeg.ROCKER` when absent. A gait gives less while it
+   *   starts and stops: a foot that is not stepping keeps its heel down until
+   *   its ankle can bend no further.
    * @returns The pelvis and each stance as reached.
    */
   export function ground(
@@ -188,14 +192,13 @@ export namespace walkReach {
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
+    rocker: number = walkLeg.ROCKER,
   ): IGround {
-    const { yaw, pivots, hips: joints }: IPelvis = pelvis(
-      body,
-      root,
-      planned,
-      hips,
-      feet,
-    );
+    const {
+      yaw,
+      pivots,
+      hips: joints,
+    }: IPelvis = pelvis(body, root, planned, hips, feet);
     const hip = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
@@ -204,14 +207,16 @@ export namespace walkReach {
     const contacts = {} as Record<"left" | "right", IAutoMovieVector3>;
     const place = (drop: number): void => {
       for (const side of SIDES) {
-        const out = stance(
-          body,
-          side,
-          feet[side],
-          hip(side, drop),
-          yaw,
-          pivots[side],
-        );
+        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
+          walkReachStance.of(
+            body,
+            side,
+            feet[side],
+            hip(side, drop),
+            yaw,
+            pivots[side],
+            rocker,
+          );
         placed[side] = out.end;
         contacts[side] = out.contact;
       }
@@ -278,7 +283,10 @@ export namespace walkReach {
   /**
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
-   * degrees back and the knee's bend carry it, the heading within `TWIST` of
+   * degrees back and the knee's bend carry it (an ankle past that keeps its
+   * place behind the hip and rises onto the shank's reach from the knee, the
+   * knee folding as a trailing heel lifts, or turns forward onto that line
+   * where the shank cannot reach so far back), the heading within `TWIST` of
    * the pelvis, the pitch inside the ankle's range, and neither toe nor heel
    * under the floor.
    *
@@ -313,18 +321,32 @@ export namespace walkReach {
     const extension: number =
       (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
     if (v.y < 0 && Math.atan2(-ahead, -v.y) > extension) {
-      const back: number = sagittal * Math.sin(extension);
-      v = {
-        x: v.x - ahead * forward.x - back * forward.x,
-        y: -sagittal * Math.cos(extension),
-        z: v.z - ahead * forward.z - back * forward.z,
-      };
+      // The thigh stops at its extension and the knee folds: the ankle keeps
+      // its place behind the hip, raised onto the shank's reach from the
+      // knee, as a trailing leg's heel rises after toe-off. Where the shank
+      // cannot reach that far back, the leg turns forward onto the line.
+      const thighAngle: number = (EXTENSION * Math.PI) / 180;
+      const kneeAhead: number = -m.thigh * Math.sin(thighAngle);
+      const kneeDown: number = m.thigh * Math.cos(thighAngle);
+      const along: number = ahead - kneeAhead;
+      if (Math.abs(along) <= m.shank)
+        v = {
+          x: v.x,
+          y: -kneeDown - Math.sqrt(m.shank * m.shank - along * along),
+          z: v.z,
+        };
+      else {
+        const back: number = sagittal * Math.sin(extension);
+        v = {
+          x: v.x - ahead * forward.x - back * forward.x,
+          y: -sagittal * Math.cos(extension),
+          z: v.z - ahead * forward.z - back * forward.z,
+        };
+      }
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
-    const off: number = wrapDegrees(
-      HumanFoot.heading(rotation) - settled.yaw,
-    );
+    const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
     if (Math.abs(off) > TWIST)
       rotation = HumanFoot.rotation(
         settled.yaw + Math.sign(off) * TWIST,
@@ -364,125 +386,6 @@ export namespace walkReach {
     return { ankle, rotation, toes: foot.toes };
   }
 
-  /**
-   * A stance as its leg can hold it under a hip: the heel raised about the
-   * ball, or the toes lowered about the heel, and the foot pivoted on its toe
-   * pad.
-   */
-  function stance(
-    body: IHumanBody,
-    side: "left" | "right",
-    foot: walkFoot.IFoot,
-    h: IAutoMovieVector3,
-    yaw: number,
-    pivoted: number,
-  ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } {
-    let placement: HumanFoot.IPlacement = foot.placement;
-    const heading: number = HumanFoot.heading(placement.rotation);
-    let pitch: number = HumanFoot.pitch(placement.rotation);
-    const about: "heel" | "mtp" = pitch > 1e-6 ? "heel" : "mtp";
-    const pivot: IAutoMovieVector3 = HumanFoot.point(
-      body,
-      side,
-      about,
-      placement,
-    );
-    const at = (degrees: number): HumanFoot.IPlacement =>
-      HumanFoot.pivot(body, side, about, pivot, heading, degrees);
-    // The heel rises about the ball once the shank leans past the ankle's
-    // dorsal limit: the forefoot rocker begins where the ankle can bend no
-    // further (Perry and Burnfield), so the ball never slides. A heel
-    // strike's toes come down about the heel the same way.
-    if (
-      HumanFoot.point(
-        body,
-        side,
-        about === "heel" ? "heel" : "toe",
-        placement,
-        foot.toes,
-      ).y < 0.01
-    )
-      if (about === "heel")
-        for (let k: number = 0; k < 4; k++) {
-          const top: number =
-            -walkLeg.lean(body, h, placement.ankle, heading) +
-            20 -
-            walkLeg.ANKLE;
-          if (pitch <= top + 1e-6) break;
-          pitch = Math.max(0, top);
-          placement = at(pitch);
-        }
-      else {
-        const risen: number = walkLeg.heelRise(
-          body,
-          side,
-          h,
-          pivot,
-          heading,
-          pitch,
-          walkLeg.ROCKER,
-        );
-        if (risen !== pitch) {
-          pitch = risen;
-          placement = at(pitch);
-        }
-      }
-    // The heel rises further about the ball while the thigh would trail more
-    // than TRAIL behind vertical and the ankle can still plantarflex: the
-    // knee then bends and the thigh comes forward, the trailing-limb posture
-    // of terminal stance and pre-swing (Perry and Burnfield). The room is the
-    // thigh's distance from the bound, and none is asked of a pitch at the
-    // ankle's plantar limit. Raising the heel only brings the thigh forward,
-    // so this room has no fold.
-    if (about === "mtp") {
-      const risen: number = walkLeg.rise(
-        (degrees: number): number => {
-          const ankle: IAutoMovieVector3 = at(degrees).ankle;
-          return degrees + walkLeg.lean(body, h, ankle, heading) + 50 >
-            walkLeg.ANKLE
-            ? TRAIL - walkLeg.trailing(body, h, ankle, yaw)
-            : Infinity;
-        },
-        pitch,
-        EASE,
-        false,
-      );
-      if (risen !== pitch) {
-        pitch = risen;
-        placement = at(pitch);
-      }
-    }
-    const toes: number = Math.max(foot.toes, -pitch);
-    // The pivot turn: the foot turns about its toe pad by its pivot.
-    if (about === "mtp" && Math.abs(pivoted) > 1e-9) {
-      const pad: IAutoMovieVector3 = HumanFoot.point(
-        body,
-        side,
-        "toe",
-        placement,
-        toes,
-      );
-      const turned: IAutoMovieQuaternion = HumanFoot.rotation(
-        heading + pivoted,
-        pitch,
-      );
-      placement = {
-        ankle: Vector3.subtract(
-          pad,
-          Quaternion.rotateVector(
-            turned,
-            HumanFoot.offset(body, side, "toe", toes),
-          ),
-        ),
-        rotation: turned,
-      };
-    }
-    return {
-      end: { ankle: placement.ankle, rotation: placement.rotation, toes },
-      contact: HumanFoot.offset(body, side, about),
-    };
-  }
-
   /** Both feet. */
   const SIDES: readonly ["left", "right"] = ["left", "right"];
 
@@ -494,12 +397,6 @@ export namespace walkReach {
 
   /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), the same bound a stance stands inside, so a swing joins its stances where they are. */
   const SIDE: number = 25;
-
-  /** The furthest a planted leg's thigh trails behind vertical, degrees: the 20° of terminal stance (Perry and Burnfield), inside the hip's 30° extension. */
-  const TRAIL: number = 20;
-
-  /** The trail short of `TRAIL`, degrees, from which a planted foot's heel begins to rise for it (provisional): a thigh extending at a walk's few hundred degrees per second is brought to rest over the rounding, twice this wide, with an acceleration of the square of that rate over four times the width. */
-  const EASE: number = 8;
 
   /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
   const KNEE: number = 10;

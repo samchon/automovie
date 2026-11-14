@@ -1,16 +1,25 @@
-import { minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  type IAutoMovieRandom,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanSkill } from "../skill/HumanSkill";
+import type { IWalkGait } from "./IWalkGait";
 import { WalkPace } from "./WalkPace";
 import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
+import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
+import { walkStepFoot } from "./walkStepFoot";
 
 /**
  * The footstep plan of a walk: footprints, their heel-strike and toe-off
@@ -47,9 +56,6 @@ import { walkReach } from "./walkReach";
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-  /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
-  const PUSH: number = 55;
-
   /** The furthest a planted leg's line leans to the side of its foot, degrees: 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), provisional room for the pelvis's drop and list. */
   const ROLL: number = 20;
 
@@ -82,8 +88,8 @@ export namespace walkSteps {
     /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
     swing?: number;
 
-    /** A run's vertical oscillation, hip heights: the mean drop and the amplitude, lowest at mid-stance; a walk's when absent. */
-    bob?: { mean: number; amplitude: number };
+    /** What the plan reads of the gait beyond its timing: its vertical oscillation in hip heights (the mean drop and the amplitude, lowest at mid-stance; a walk's when absent) and how far it holds the heels off the floor, degrees (flat when absent). */
+    gait?: Pick<IWalkGait, "bob" | "heels" | "stiff">;
   }
 
   /** The plan. */
@@ -113,15 +119,37 @@ export namespace walkSteps {
     foot(side: "left" | "right", seconds: number): walkFoot.IScheduled;
   }
 
-  /** One footfall. */
-  interface IStep {
-    side: "left" | "right";
-    heelStrike: number;
-    toeOff: number;
-    flat: HumanFoot.IPlacement;
-    heading: number;
-    /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
-    push: number;
+  /** One footfall (walkStepFoot.IStep). */
+  type IStep = walkStepFoot.IStep;
+
+  /**
+   * The stream a take's tempo is drawn from: one per performer and per
+   * occurrence of the action in their chain, keyed as a walk whatever the
+   * gait is called. A style is the walk with a manner, so a stroll, a sad or
+   * a proud walk and the neutral walk in the same place of the same chain
+   * under one seed draw the same tempo, and differ only by their style.
+   *
+   * @param context The action's skill, subject and occurrence.
+   * @returns The stream.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is drawn, what keys it and why a style shares the walk's draw.
+   * @evidence contracts/development/implementation.md#principled-implementation A draw keyed by stable identities (seed, performer, occurrence), so adding or renaming a style leaves every other take's tempo unchanged.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The occurrence is the action's own ordinal among its name's uses in the chain, so the first stroll pairs with the first walk of a chain written with a walk in its place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function tempo(
+    context: Pick<IHumanActionContext, "skill" | "subject" | "series">,
+  ): IAutoMovieRandom {
+    return HumanSkill.stream(
+      context.skill,
+      context.subject,
+      "walk",
+      context.series("period").index,
+      "period",
+    );
   }
 
   /**
@@ -157,12 +185,23 @@ export namespace walkSteps {
       ),
     );
     const D: number = path.length;
+    // A flight gait's contact rolls from the heel to the ball, or stays on
+    // the ball of a foot whose heel is held up; the middle of that way lies
+    // ahead of the ankle.
+    const raised: number = input.gait?.heels ?? 0;
+    const rolled: number =
+      raised > 0
+        ? HumanFoot.offset(body, "left", "mtp").z
+        : (HumanFoot.offset(body, "left", "heel").z +
+            HumanFoot.offset(body, "left", "mtp").z) /
+          2;
     const pace: WalkPace = WalkPace.fit(
       {
         distance: D,
         speed: input.speed,
         share: input.swing ?? 0.8,
         period: (seconds: number): number => input.period(seconds),
+        lead: rolled,
       },
       input.longest,
     );
@@ -197,6 +236,16 @@ export namespace walkSteps {
     const front: number = pace.front;
     const duration: number = last + 0.35;
     const progress = (t: number): number => pace.progress(t);
+    const flight: runStance.IStance | undefined =
+      swing > T
+        ? runStance.plan(body, {
+            stride: pace.stride,
+            share: swing / T,
+            front,
+            lead: rolled,
+            heels: raised,
+          })
+        : undefined;
 
     // A footprint lies where the pelvis is `front` periods after its heel
     // strike, one cruising step from the last in full stride and closer in
@@ -274,7 +323,7 @@ export namespace walkSteps {
         toeOff: heelStrike - swing,
         flat: { ankle: point, rotation: HumanFoot.rotation(footHeading, 0) },
         heading: footHeading,
-        push: -PUSH,
+        push: -walkStepFoot.PUSH,
       });
       knots.push({
         seconds: heelStrike,
@@ -340,6 +389,8 @@ export namespace walkSteps {
     // step pivots more and pushes less in the sagittal plane (Hase and Stein
     // 1999; Taylor et al. 2005); provisional, the pitch falls linearly to 15
     // degrees as the turn reaches TWIST.
+    // A flight gait's straight push is its stance's own (`runStance`).
+    const push: number = flight?.push ?? walkStepFoot.PUSH;
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFoot.heading(start[side].rotation);
       for (const step of steps.filter((x: IStep): boolean => x.side === side)) {
@@ -349,80 +400,54 @@ export namespace walkSteps {
               (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),
         );
         step.push =
-          -PUSH + (PUSH - 15) * Math.min(1, Math.abs(turned) / walkReach.TWIST);
+          -push +
+          (push - Math.min(push, 15)) *
+            Math.min(1, Math.abs(turned) / walkReach.TWIST);
+
+        // A leg kept straight leaves the floor nearly flat: a steep push-off needs the knee it does not bend.
+        if (input.gait?.stiff === side)
+          step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
         leaving = step.heading;
       }
     }
+    const gaitBob: { mean: number; amplitude: number } | undefined =
+      flight?.bob ?? input.gait?.bob;
     const own: Record<"left" | "right", IStep[]> = {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
     };
-    const foot = (side: "left" | "right", t: number): walkFoot.IScheduled => {
-      let flat: HumanFoot.IPlacement = start[side];
-      let facing: number = HumanFoot.heading(flat.rotation);
-      let strike: number = -Infinity;
-      for (const [i, step] of own[side].entries()) {
-        const leave = (at: number): walkFoot.IFoot =>
-          walkFoot.stance(
-            body,
-            side,
-            flat,
-            facing,
-            strike,
-            step.toeOff,
-            at,
-            step.push,
-          );
-        if (t < step.toeOff) return leave(t);
-        if (t < step.heelStrike) {
-          const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
-          const next: IStep | undefined = own[side][i + 1];
-          return {
-            ...(u < 0.5
-              ? leave(step.toeOff)
-              : walkFoot.stance(
-                  body,
-                  side,
-                  step.flat,
-                  step.heading,
-                  step.heelStrike,
-                  next?.toeOff ?? Infinity,
-                  step.heelStrike,
-                  next?.push ?? -PUSH,
-                )),
-            swing: { u, off: step.toeOff, on: step.heelStrike },
-          };
-        }
-        flat = step.flat;
-        facing = step.heading;
-        strike = step.heelStrike;
-      }
-      return walkFoot.stance(
+    const schedules: Record<
+      "left" | "right",
+      (t: number) => walkFoot.IScheduled
+    > = {
+      left: walkStepFoot.schedule(body, "left", start.left, own.left, raised),
+      right: walkStepFoot.schedule(
         body,
-        side,
-        flat,
-        facing,
-        strike,
-        Infinity,
-        t,
-        -PUSH,
-      );
+        "right",
+        start.right,
+        own.right,
+        raised,
+      ),
     };
+    const foot = (side: "left" | "right", t: number): walkFoot.IScheduled =>
+      schedules[side](t);
     const planned = (t: number): IAutoMovieVector3 => {
       const yaw: number = yawAt(t);
       const c: IAutoMovieVector3 = centre(yaw);
       const a: number = amount(t);
-      // The pelvis is over the left footprint `front` periods after its heel strike.
+      // The pelvis is over the left footprint `front` periods after its heel
+      // strike; a gait's own oscillation is lowest at mid-stance.
       const over: number = firstLeft + front * T;
+      const middle: number = firstLeft + (T - swing / 2);
       const sway: number =
         0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - over)) / (2 * T));
       const bob: number =
-        input.bob === undefined
+        gaitBob === undefined
           ? a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - over)) / T))
           : a *
             l *
-            (input.bob.mean -
-              input.bob.amplitude * Math.cos((2 * Math.PI * (t - over)) / T));
+            (gaitBob.mean -
+              gaitBob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
       const s: number = progress(t);
       const p: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(s), yaw: along$(s) },

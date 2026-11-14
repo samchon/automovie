@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanFrame } from "./HumanFrame";
-import { poseBones } from "./poseBones";
+import { HumanHandDirection } from "./HumanHandDirection";
+import { HumanHandShape } from "./HumanHandShape";
 
 /**
  * A hand brought to a target: which wrist point and hand rotation put a
@@ -69,12 +69,16 @@ import { poseBones } from "./poseBones";
  *   thumb's proximal 40 and distal 50 degrees across the curled fingers,
  *   inside the finger range of `DEFAULT_HUMANOID_ROM` (-20 to 100).
  *
- * The arm solver (`fitChainToTarget`) turns the hand by wrist flexion and
- * deviation only and leaves the forearm untwisted, so a rotation that needs
- * pronation or supination is clamped and its surface lands off the point by
- * the clamped share; {@link HumanHand.frame} reads where the surface really
- * is, so audits report that residual. The forearm-twist split is requested
- * from the engine.
+ * The arm solver (`fitChainToTarget`) gives the forearm the share of an
+ * asked hand rotation that turns about the forearm's length, within its
+ * range of pronation and supination, and the wrist the rest by flexion and
+ * deviation. A rotation beyond either range is clamped and its surface
+ * lands off the point by the clamped share; {@link HumanHand.frame} reads
+ * where the surface really is, so audits report that residual. Asked about
+ * 140 degrees or more of forearm turn away from the hand's own rotation at
+ * its place, the nearer limit changes sides and the hand with it, so a law
+ * keeps an asked rotation on one side of that across its instants
+ * (`test_human_motion_core_hand_rotation`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frames, each surface's forward, the rotation convention, each shape's angles and the forearm limitation.
  * @evidence contracts/development/design.md#principled-representation Surfaces are the body's own resolved frames; a rotation is a world quaternion from rest aligned from two directions.
@@ -88,20 +92,30 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo is a WeakMap on the body, at most eight entries a body, released with the body.
  */
 export namespace HumanHand {
-  /** A hand. */
-  export type Side = "left" | "right";
+  /** A hand, or the side of any paired part. */
+  export type Side = (typeof SIDES)[number];
+
+  /** The sides of {@link Side}, as data. */
+  export const SIDES = ["left", "right"] as const;
 
   /** A surface of the hand brought to a target. */
-  export type Surface =
-    | "palm"
-    | "grip"
-    | "fist"
-    | "handBack"
-    | "indexTip"
-    | "wrist";
+  export type Surface = (typeof SURFACES)[number];
+
+  /** The surfaces of {@link Surface}, as data. */
+  export const SURFACES = [
+    "palm",
+    "grip",
+    "fist",
+    "handBack",
+    "indexTip",
+    "wrist",
+  ] as const;
 
   /** A hand shape. */
-  export type Shape = "relaxed" | "flat" | "point" | "fist";
+  export type Shape = (typeof SHAPES)[number];
+
+  /** The hand shapes of {@link Shape}, as data. */
+  export const SHAPES = ["relaxed", "flat", "point", "fist"] as const;
 
   /** A frame: a point with an outward unit normal and a unit forward across it. */
   export interface IFrame {
@@ -144,32 +158,7 @@ export namespace HumanHand {
     side: Side,
     form: Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const out: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {};
-    const set = (bone: string, flexion: number): void => {
-      out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
-    };
-    for (const digit of ["Index", "Middle", "Ring", "Little"]) {
-      const curled: boolean =
-        form === "fist" || (form === "point" && digit !== "Index");
-      for (const segment of ["Proximal", "Intermediate", "Distal"]) {
-        if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
-        else if (form !== "relaxed") set(`${digit}${segment}`, 0);
-        // The position of rest on a finger whose zero is straight: the
-        // body's rest pose no longer carries a curl of its own.
-        else
-          set(
-            `${digit}${segment}`,
-            segment === "Proximal" ? 35 : segment === "Intermediate" ? 30 : 20,
-          );
-      }
-    }
-    const folded: boolean = form === "fist" || form === "point";
-    set("ThumbMetacarpal", 0);
-    set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
-    set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
-    return out;
+    return HumanHandShape.of(side, form);
   }
 
   /**
@@ -180,6 +169,7 @@ export namespace HumanHand {
    * @param side The hand.
    * @param surface The surface.
    * @param form The hand shape; it matters only for the index fingertip.
+   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind of touch curls them; it matters only for the index fingertip.
    * @returns The frame, its point measured from the wrist joint.
    */
   export function offset(
@@ -187,6 +177,7 @@ export namespace HumanHand {
     side: Side,
     surface: Surface,
     form: Shape = "relaxed",
+    curl: number = 0,
   ): IFrame {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
     const palm =
@@ -219,7 +210,7 @@ export namespace HumanHand {
         };
       }
       case "indexTip":
-        return fingertip(body, side, form);
+        return HumanHandShape.tip(body, side, form, curl);
     }
   }
 
@@ -287,7 +278,10 @@ export namespace HumanHand {
    * midline on the acting hand's side and `in` toward it, so one name serves
    * both hands.
    */
-  export type Axis = "out" | "in" | "up" | "down" | "forward" | "back";
+  export type Axis = (typeof AXES)[number];
+
+  /** The axes of {@link Axis}, as data. */
+  export const AXES = ["out", "in", "up", "down", "forward", "back"] as const;
 
   /**
    * A direction on one of three rungs: an axis, a share of the way between
@@ -335,51 +329,7 @@ export namespace HumanHand {
     yaw: number,
     direction: Direction,
   ): IAutoMovieVector3 {
-    const sign: number = side === "left" ? 1 : -1;
-    const axis = (name: Axis): IAutoMovieVector3 => {
-      switch (name) {
-        case "out":
-          return { x: sign, y: 0, z: 0 };
-        case "in":
-          return { x: -sign, y: 0, z: 0 };
-        case "up":
-          return { x: 0, y: 1, z: 0 };
-        case "down":
-          return { x: 0, y: -1, z: 0 };
-        case "forward":
-          return { x: 0, y: 0, z: 1 };
-        case "back":
-          return { x: 0, y: 0, z: -1 };
-      }
-    };
-    let local: IAutoMovieVector3;
-    if (typeof direction === "string") local = axis(direction);
-    else if ("between" in direction) {
-      if (!(direction.share >= 0 && direction.share <= 1))
-        throw new Error("A between share lies in [0, 1]");
-      const a: IAutoMovieVector3 = axis(direction.between[0]);
-      const b: IAutoMovieVector3 = axis(direction.between[1]);
-      if (Vector3.dot(a, b) < -0.5)
-        throw new Error("A direction between opposite axes is undefined");
-      local = Vector3.add(
-        Vector3.scale(a, 1 - direction.share),
-        Vector3.scale(b, direction.share),
-      );
-    } else {
-      if (direction.source.trim() === "")
-        throw new Error("An explicit direction states its source");
-      local = {
-        x: sign * direction.explicit.out,
-        y: direction.explicit.up,
-        z: direction.explicit.forward,
-      };
-      if (!(Vector3.length(local) > 1e-9))
-        throw new Error("An explicit direction has a length");
-    }
-    return HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      Vector3.normalize(local),
-    );
+    return HumanHandDirection.of(side, yaw, direction);
   }
 
   /**
@@ -501,55 +451,4 @@ export namespace HumanHand {
       forward: turn(local.forward),
     };
   }
-}
-
-/** Index fingertip frames by body, keyed by side and shape. */
-const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();
-
-/** The index fingertip's frame from the wrist under a hand shape, by forward kinematics of that hand alone. */
-function fingertip(
-  body: IHumanBody,
-  side: HumanHand.Side,
-  form: HumanHand.Shape,
-): HumanHand.IFrame {
-  const key: string = `${side}:${form}`;
-  let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
-  if (memo === undefined) {
-    memo = new Map();
-    TIPS.set(body, memo);
-  }
-  const known: HumanHand.IFrame | undefined = memo.get(key);
-  if (known !== undefined) return known;
-  const joints = Object.entries(HumanHand.shape(side, form)).map(
-    ([bone, a]) => ({
-      bone: bone as AutoMovieHumanoidBone,
-      flexion: a![0],
-      abduction: a![1],
-      twist: a![2],
-    }),
-  );
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-    body,
-    { skeleton: body.skeleton.id, root: null, joints },
-  );
-  const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-  const region =
-    body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
-  const tip = resolveAutoMovieHumanoidSurfaces.place(
-    region,
-    bones.get(region.bone)!,
-  );
-  const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
-  const out: HumanHand.IFrame = {
-    point: Quaternion.rotateVector(
-      inverse,
-      Vector3.subtract(tip.point, hand.worldPosition),
-    ),
-    normal: Quaternion.rotateVector(inverse, tip.normal),
-    forward:
-      body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
-  };
-  memo.set(key, out);
-  return out;
 }

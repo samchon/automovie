@@ -26,6 +26,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { ReactionSource } from "./ReactionSource";
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -72,6 +73,11 @@ export namespace stagger {
       guard: ["fromStroke", "smooth"],
       knockdown: ["anytime", "quick"],
     });
+
+  /** A reaction interrupts whatever the body was doing, at any instant, as a reflex. */
+  export const accepts: IHumanActionLaw["accepts"] = {
+    any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
+  };
 
   /**
    * Parameters.
@@ -203,7 +209,7 @@ export namespace stagger {
     const geometry = () => {
       if (built !== undefined) return built;
       const push: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
-        AutoMovieMotionHumanTarget.resolve(
+        ReactionSource.at(
           context,
           p.from,
           context.start - StrikingTarget.LOOK,

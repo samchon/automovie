@@ -4,6 +4,7 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanHead,
   AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanLegPhrase,
   AutoMovieMotionHumanRoot,
   AutoMovieMotionHumanTrunk,
   type HumanFoot,
@@ -278,7 +279,7 @@ export function test_motion_compose_phrase(): void {
     primitive: IAutoMovieMotionHumanPrimitive,
     s: number,
   ): IHumanPosture.IGoal => primitive.write(posture, s).limbs.leftLeg!;
-  const lift = AutoMovieMotionHumanLeg.lift({
+  const lift = AutoMovieMotionHumanLegPhrase.lift({
     ...leg,
     clock: free,
     raised: placed({ x: 0.1, y: 0.4, z: 0.1 }),
@@ -295,7 +296,7 @@ export function test_motion_compose_phrase(): void {
       foot(lift, 1.25).planted === true,
   );
   const tap = (solid: boolean): IAutoMovieMotionHumanPrimitive =>
-    AutoMovieMotionHumanLeg.tap({
+    AutoMovieMotionHumanLegPhrase.tap({
       ...leg,
       clock: free,
       target: placed({ x: 0.1, y: 0.08, z: 0.3 }),
@@ -327,7 +328,7 @@ export function test_motion_compose_phrase(): void {
       support: { kind: "ground" },
     },
   ]);
-  const kick = AutoMovieMotionHumanLeg.swing({
+  const kick = AutoMovieMotionHumanLegPhrase.swing({
     ...leg,
     clock: free,
     chamber: placed({ x: 0.1, y: 0.5, z: 0.1 }),
@@ -341,7 +342,7 @@ export function test_motion_compose_phrase(): void {
       foot(kick, 0.625).planted === undefined &&
       at(foot(kick, 1.25).point, 0.1, 0.08, 0),
   );
-  const pivot = AutoMovieMotionHumanLeg.pivot({
+  const pivot = AutoMovieMotionHumanLegPhrase.pivot({
     ...leg,
     clock: free,
     about: "ball",

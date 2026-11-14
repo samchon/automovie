@@ -130,9 +130,9 @@ export namespace defendGeometry {
     const now = attacker.bones(timing.read);
     const before = attacker.bones(timing.read - 1 / 24);
     const limbs: AutoMovieHumanoidBone[] =
-      timing.attack.name === "punch"
+      timing.attack.family === "punch"
         ? ["leftHand", "rightHand"]
-        : timing.attack.name === "kick"
+        : timing.attack.family === "kick"
           ? ["leftFoot", "rightFoot"]
           : ["leftLowerLeg", "rightLowerLeg"];
     let weapon: IAutoMovieVector3 = now.get(limbs[0]!)!.worldPosition;

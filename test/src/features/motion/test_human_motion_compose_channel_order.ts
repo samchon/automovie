@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the shipped order and the partition on the real skeleton; a hand written after its arm, an arm before the trunk or a finger in another channel fails.
  * @evidence contracts/development/testing.md#independent-expectations The order is the rule the document states with its reason; the partition is read bone by bone.
  * @evidence contracts/development/testing.md#distinguishing-cases All nine channels, every finger bone and both hand bones.
- * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; named `test_human_` with the other real-body composition tests, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; grouped with the other real-body composition tests; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its reason and the 4 scenarios.
  */
 export function test_human_motion_compose_channel_order(): void {

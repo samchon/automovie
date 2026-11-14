@@ -17,7 +17,7 @@ Commit images and generation requests. Never commit audio or video; they are too
 | Ignored `media/automovie/modules/` | Captures of unregistered rehearsal modules, which are scratch and accept nothing |
 | `media/manifest.json` | One record for every media file Git does not hold |
 
-## Records {#records}
+## Records
 
 A record lets the next person identify a file and restore it. Every record, in `media/manifest.json` or in the request that made the file, holds:
 

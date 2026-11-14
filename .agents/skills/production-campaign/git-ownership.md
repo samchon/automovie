@@ -13,7 +13,7 @@ mkdir "$lock" && echo "<role> <run marker>" > "$lock/owner"
 
 Wait while a lock is held. Only the observer removes another run's lock, after confirming that the run named in its owner file has no process.
 
-## Workers that cannot write to Git
+## Workers without Git
 
 Codex's `workspace-write` sandbox keeps `.git` and `.agents` read-only, so a Codex worker under it neither stages, takes the lock nor commits. It reports its paths, and the coordinator stages and commits them under the lock unless the user grants the worker broader access.
 

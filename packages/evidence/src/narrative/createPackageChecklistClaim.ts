@@ -5,8 +5,8 @@ import type {
 
 import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
 import type { IPackageChecklistClaimProps } from "./IPackageChecklistClaimProps";
+import { BODY_ROOT } from "./internal/utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
-import { passRoot } from "./internal/utilities/passRoot";
 
 /**
  * Creates one work-local contract claim.
@@ -81,14 +81,10 @@ export function createPackageChecklistClaim(
   return {
     name: props.name,
     type: "markdown",
-    root: passRoot(props.pass ?? "draft"),
+    root: BODY_ROOT,
     files: props.files,
     symbol: props.symbol,
-    ...(props.pass === "final"
-      ? {}
-      : {
-          evidenceFiles: createEvidenceFiles(symbols[0], props.files),
-        }),
+    evidenceFiles: createEvidenceFiles(symbols[0], props.files),
     disabled: props.stage === "disabled" || props.inapplicable === true,
     reference: canonicalDocuments.map(
       (
@@ -116,9 +112,8 @@ export function createPackageChecklistClaim(
  * Keeps the package API on the tracked work-owned contract subtree.
  *
  * `naturalness` is admitted for the same reason the shared and language trees
- * carry one: a work's own observable form is a question its finished text
- * answers. Screenplay selects `pass: "final"` and its naturalness stage; scripts
- * select `pass: "draft"` and scripts construction explicitly. The document
+ * carry one: a work's own expression questions, which scripts construction
+ * answers. The caller selects the hosts and their stage; the document
  * directory alone never chooses its host population.
  */
 function isWorkDocument(document: string): boolean {

@@ -56,7 +56,7 @@ export async function test_evidence_production_review_freshness(): Promise<void>
     ).find(
       (candidate: IEvidenceClaim): boolean =>
         candidate.name ===
-        "scripts construction review H2 units keep a current review of their draft H2",
+        "scripts construction review H2 units keep a current review of their body H2",
     );
     assert.ok(claim);
     const unreviewed: IEvidenceCheckAnalysis =

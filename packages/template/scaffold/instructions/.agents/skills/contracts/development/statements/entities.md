@@ -2,20 +2,20 @@
 
 Contract: [entities.md](../entities.md).
 
-## Settings realization {#settings-realization}
+## Settings realization
 
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
 2. Every cited fact is either shown by the entity's form or handed on with the consumer that carries it, such as a canon image, the generation prompt or a shot's sound description.
 3. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is handed on and not modeled. Exception: a commissioned detail option shows what it was commissioned to show.
-4. A person's body parameters derive from the cast record's body facts, and one prepared body serves both the polygon man and the motion planned for it.
+4. A person's body parameters derive from the cast record's body facts, or on a short from the standing state for a person only one scene shows, and one prepared body serves both the polygon man and the motion planned for it.
 5. Each parameter of a research law, an installed action or an installed archetype, such as stature, proficiency, style or a seat's height, derives from a cited fact and stays within the range its owner gives.
 6. Each measurement names its study and section. Exception: a measurement an installed package supplies with its own source.
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exception: when [no narrative pass runs](../../../story/workflow.md#who-writes-the-screenplay), such a decision is recorded in the screenplay, or for a fixed screenplay in the instructions.
+8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is [studied](../../../story/planning/research.md#when-to-study) first. Exceptions: on a short, a decision the [brief leaves to the screenplay](../../../story/layers/brief.md#what-it-holds) is cited from the screenplay; when [no narrative pass runs](../../../story/workflow/SKILL.md#who-writes-the-screenplay), such a decision is recorded in the screenplay, or for a fixed screenplay in the instructions.
 
-## Object shape {#object-shape}
+## Object shape
 
-1. The entity is a class with `readonly` fields, constructed only from its settings or brief facts and immutable configuration.
+1. The entity is a class with `readonly` fields, constructed only from its cited facts and immutable configuration.
 2. It is composed of small fragments rather than inherited.
 3. It imports no other entity.
 4. Each capability returns an immutable intent record and never a pose, coordinate, offset or time.
@@ -23,7 +23,7 @@ Contract: [entities.md](../entities.md).
 6. State such as wardrobe by story day, wounds, fatigue or a learned habit exists only as an explicit snapshot computed at schedule resolution.
 7. A habit is a trigger-to-response rule, with the trigger and response its fact describes and the timing its research supports.
 
-## Controls and source {#controls-and-source}
+## Controls and source
 
 1. The entity exposes the controls its scenes' behaviors and variation use.
 2. A deformation a scene needs is present. Rig complexity no scene uses is not required.

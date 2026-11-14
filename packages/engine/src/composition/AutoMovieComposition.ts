@@ -10,6 +10,11 @@ import type { IAutoMovieIntent } from "./IAutoMovieIntent";
  * - `at` starts its part at an earlier part's anchor (its contact instant
  *   when the timing declares one, else its start) plus an offset, so a
  *   reaction aligns to the action it answers without coordinates or ordinals.
+ *   It may name which instant of the anchor it means (`event`, with `index`
+ *   where the name repeats) and which instant of its own part falls there
+ *   (`align`), as BML's synchronisation constraints do; the anchor may then
+ *   also be a cue track the laws declare, such as a dialogue's accents or a
+ *   score's beats.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A time-scoped composition of intents: an immutable tree the schedule resolver places on the film clock) as stated in this comment.
  * @evidence contracts/development/design.md#principled-representation Represents A time-scoped composition of intents: an immutable tree the schedule resolver places on the film clock: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
@@ -75,19 +80,35 @@ export namespace AutoMovieComposition {
    * A part aligned to an earlier anchor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A part aligned to an earlier anchor.
-   * @evidence contracts/development/design.md#principled-representation Represents A part aligned to an earlier anchor: interface of 4 members (`kind`, `anchor`, `offset`, `part`); units and frames named in its text: seconds. It has no optional member, so no absent-value state combines with another.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAt` in packages/engine/src/composition/AutoMovieComposition.ts; its surface is the 4 members listed and the text shows 0 other files naming it, so no member is declared for a presumed future need.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   * @evidence contracts/development/design.md#principled-representation Represents A part aligned to an earlier anchor: interface of 7 members (`kind`, `anchor`, `offset`, `event`, `index`, `align`, `part`); the offset is in seconds on the film clock. `event`, `index` and `align` are optional and each states its absence (the anchor's contact or start, occurrence 0, the part's own start); an `index` without an `event` is the only meaningless combination and the resolver checks it at runtime.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAt` in packages/engine/src/composition/AutoMovieComposition.ts and read by `resolveAutoMovieSchedule`; `event`, `index` and `align` are the BML-style synchronisation the motions' performance composes with, so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the three optional members refine one placement and do not encode alternatives; it duplicates no type that another owner declares as far as a name search shows.
    */
   export interface IAt {
     /** Discriminator. */
     kind: "at";
 
-    /** The anchor id of an intent placed earlier in walk order. */
+    /** The anchor id of an intent placed earlier in walk order, or the name of a cue track. */
     anchor: string;
 
     /** Seconds after the anchor's instant; may be negative. */
     offset: number;
+
+    /**
+     * The anchor's named instant: one of its events, or `start` or `end`.
+     * Absent, an intent's contact instant when its timing declares one, else
+     * its start. Required when the anchor is a cue track.
+     */
+    event?: string;
+
+    /** Which occurrence of `event`, from 0, where the anchor has several of that name; 0 when absent. */
+    index?: number;
+
+    /**
+     * The instant of the part's own first intent that falls on the anchor's
+     * instant: one of its events. Absent, the part starts there.
+     */
+    align?: string;
 
     /** The aligned part. */
     part: AutoMovieComposition;
@@ -168,17 +189,23 @@ export namespace AutoMovieComposition {
    * @param anchor The anchor id.
    * @param part The part.
    * @param offset Seconds after the anchor's instant.
+   * @param instant Which instant of the anchor is meant and which of the part falls there; the anchor's contact or start and the part's start when absent.
    * @returns The aligned part.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A part aligned to an earlier anchor.
-   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (A part aligned to an earlier anchor) directly over its typed inputs (`anchor`, `part`, `offset`) as a fixed number of statements with no loop or recursion in the body, delegating to `of`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (A part aligned to an earlier anchor) directly over its typed inputs (`anchor`, `part`, `offset`, `instant`) as a fixed number of statements with no loop or recursion in the body, delegating to `of` and spreading the optional `instant` members onto the node; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 3 lines and 1 top-level statements that reuses `of` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
    * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `anchor`, `part`, `offset`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
    */
-  export function at(anchor: string, part: Part, offset: number = 0): IAt {
-    return { kind: "at", anchor, offset, part: of(part) };
+  export function at(
+    anchor: string,
+    part: Part,
+    offset: number = 0,
+    instant: Pick<IAt, "event" | "index" | "align"> = {},
+  ): IAt {
+    return { kind: "at", anchor, offset, part: of(part), ...instant };
   }
 }

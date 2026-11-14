@@ -2,7 +2,7 @@
 
 How a screenplay beat becomes each person's composition in the installed motion vocabulary: its actions, with their parameters, joined by its operators. The vocabulary's README and public types own every call and value this page names by role, so read them under [reading a package](../development/reuse.md#reading-a-package) before writing one.
 
-## Decide each action {#decide-each-action}
+## Decide each action
 
 For each thing a person does in the beat, settle these axes from the beat record and its [performance study](../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
@@ -23,7 +23,7 @@ Write those decisions as the composition and nothing else. A value the beat does
 
 A decision the beat left vague is made in the screenplay, under [concretization](../story/correction/repair.md#concretization).
 
-## Join the actions {#join-the-actions}
+## Join the actions
 
 The vocabulary joins actions with a few operators:
 
@@ -37,6 +37,8 @@ The vocabulary joins actions with a few operators:
 | Two or more people performing one action together, such as a handshake, a handover or a lift | A mutual join, which plans every role from one meeting |
 | An action on an object, such as sitting on it, gripping it, opening it or riding it | Attaching the action to the object's [affordance](../development/entities.md#objects) |
 | An action timed to another's instant, a partner, a line of dialogue or a beat | A sync between the named instants |
+
+An action that follows, chases, escorts or meets a moving person reads where that person goes, so compose the person pursued before the pursuer; the vocabulary refuses the read otherwise.
 
 ## Seed
 

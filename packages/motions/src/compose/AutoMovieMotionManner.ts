@@ -19,7 +19,7 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a manner is, which modifiers act through the clock and which through the phrases, and what a manner never changes.
  * @evidence contracts/development/design.md#principled-representation The manner of the Parameterized Action Representation (Badler et al. 2000) and the Effort of the EMOTE model (Chi et al. 2000): a record apart from the action's kind and participants, resolved once into factors, so a law states its natural timing and size and reads the factors where it differs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, the neutral value, two named constants, two resolvers and the clock's retiming. `flinch` and `stagger` read it; the other laws read it with #3286. The Effort record and its mapping stay `HumanEffort`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, a spans record, the neutral value, two named constants (`HOLD`, `BOUNDS`), two resolvers, the clock's retiming and the named preset table with its names (`PRESETS`, `Preset`, `PRESET_NAMES`). `flinch` and `stagger` read it; the other laws read it with #3286. The Effort record and its mapping stay `HumanEffort`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The modifiers are plain factors and shares with neutral values, not flags; a goal on a solid place is outside what a manner reaches, by the phrases' contact rule rather than by a switch here.
  */
 export namespace AutoMovieMotionManner {
@@ -248,4 +248,84 @@ export namespace AutoMovieMotionManner {
           : modifiers.tempo,
     );
   }
+
+  /**
+   * Named manners: the eight basic Effort actions of Laban, four moods and
+   * the two Shape qualities of the trunk and limbs, as manner records a
+   * composition names instead of spelling out factors.
+   *
+   * The Effort actions are `HumanEffort.ACTIONS`. A mood adds Flow, pace and
+   * intensity to an Effort: `weary` is slow, small and heavy, `brisk` quick
+   * and direct, `sad` slow, small and bound, `proud` large, free and
+   * unhurried. `enclosing` and `spreading` are Shape's two poles as far as a
+   * manner reaches them: bound Flow draws the elbows in and shortens the
+   * excursions, free Flow releases them outward.
+   *
+   * Each preset is a plain `IManner`, so a law that reads a manner reads a
+   * preset with no further case; the table has no resolver of its own, since
+   * `resolve` and `of` take its records. The moods' factors, paces and
+   * intensities and the two Shape poles' Flow are provisional: no measured
+   * population values were located (sad walks are slower with shorter strides
+   * and proud ones larger in direction, Montepare, Goldstein and Clausen 1987,
+   * J Nonverbal Behav 11:33; the magnitudes here are not from it).
+   */
+  export const PRESETS: Readonly<Record<Preset, IManner>> = {
+    punch: { effort: HumanEffort.ACTIONS.punch },
+    dab: { effort: HumanEffort.ACTIONS.dab },
+    press: { effort: HumanEffort.ACTIONS.press },
+    glide: { effort: HumanEffort.ACTIONS.glide },
+    slash: { effort: HumanEffort.ACTIONS.slash },
+    flick: { effort: HumanEffort.ACTIONS.flick },
+    wring: { effort: HumanEffort.ACTIONS.wring },
+    float: { effort: HumanEffort.ACTIONS.float },
+    weary: {
+      effort: { weight: 0.5, time: -0.7, flow: 0.3 },
+      pace: 0.8,
+      intensity: 0.7,
+    },
+    brisk: { effort: { time: 0.6, space: 0.6 }, pace: 1.2 },
+    sad: {
+      effort: { weight: -0.3, time: -0.6, flow: 0.7 },
+      pace: 0.85,
+      intensity: 0.7,
+    },
+    proud: { effort: { weight: 0.5, space: 0.5, flow: -0.6 }, pace: 0.95 },
+    enclosing: { effort: { flow: 1 }, intensity: 0.8 },
+    spreading: { effort: { flow: -1 } },
+  };
+
+  /**
+   * The names of {@link PRESETS}.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the names are the table's keys: the eight Effort actions of `HumanEffort.ACTIONS` and the four moods and two Shape poles the table adds.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the Effort actions' own names (Laban and Lawrence 1947, Effort) and six added names, so a name the table lacks fails the type check.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Fourteen names, each a key of `PRESETS`; `PRESET_NAMES` lists them as data and a test checks none is missing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The Effort names come from `keyof typeof HumanEffort.ACTIONS`, not a copy; the six added names are literals.
+   */
+  export type Preset =
+    | keyof typeof HumanEffort.ACTIONS
+    | "weary"
+    | "brisk"
+    | "sad"
+    | "proud"
+    | "enclosing"
+    | "spreading";
+
+  /** The names of {@link PRESETS}, as data; a name `Preset` lacks fails the type check, and a test checks none is missing. */
+  export const PRESET_NAMES = [
+    "punch",
+    "dab",
+    "press",
+    "glide",
+    "slash",
+    "flick",
+    "wring",
+    "float",
+    "weary",
+    "brisk",
+    "sad",
+    "proud",
+    "enclosing",
+    "spreading",
+  ] as const satisfies readonly Preset[];
 }

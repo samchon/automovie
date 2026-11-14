@@ -19,15 +19,16 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * interactions and consequences) also cite the research studies they follow,
  * and every study in `docs/research/` apart from its index must be cited, so a
  * behavior cannot be written without its study and no study goes unused.
- * Scenes cite the screenplay scenes and beats they realize, and every H2 scene
- * and H3 beat must be realized; films cite the screenplay file they deliver,
- * and every screenplay file must become a film. With `instructions`, the
- * composition and entities must also realize every instruction section, which
- * no narrative layer then cites, with no exclusion. Entities answer their
- * checklist alone, because their settings citations are judged by review
- * rather than required for every settings heading.
+ * Scenes cite the screenplay scene file, or the sections and beats of it they
+ * realize, and every H2 section and H3 beat must be realized; films cite each
+ * scene file they order, and every scene file must belong to a film. With
+ * `instructions`, the composition and entities must also realize every
+ * instruction section, which no narrative layer then cites, with no
+ * exclusion. Entities answer their checklist alone, because their settings
+ * citations are judged by review rather than required for every settings
+ * heading.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical; `instructions` adds the instruction-to-code relation with the same coverage, no checklist and no exclusion, because a user requirement cannot be waived by its realizer.
+ * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-section-and-beat-to-scene and scene-file-to-film relations mechanical; `instructions` adds the instruction-to-code relation with the same coverage, no checklist and no exclusion, because a user requirement cannot be waived by its realizer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each checklist population to its stage, folders, symbol kinds and cited population, and the one instruction relation, which has no checklist, follows it; disabled stages produce no claim, and the one props object carries the stages, the instruction switch and where the checklists are read.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents, the relation it enforces and which skills tree holds the checklists; the `skills` member states its form and default, and `instructions` when the code must realize every instruction section.

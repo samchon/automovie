@@ -47,7 +47,7 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ### Tracked code
 
-Write every helper script in TypeScript as a tracked file and run it with `ttsx`. Keep all program code, tests and tools in tracked paths and use gitignored paths for captured evidence and data, because an ignored file escapes review and cannot be recovered.
+Write every helper script in TypeScript as a tracked file and run it with `ttsx`. A build configuration that must start without compiling the project, such as the test package's esbuild configuration, is a tracked `.mts` file run by Node itself. Keep all program code, tests and tools in tracked paths and use gitignored paths for captured evidence and data, because an ignored file escapes review and cannot be recovered.
 
 Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check.
 

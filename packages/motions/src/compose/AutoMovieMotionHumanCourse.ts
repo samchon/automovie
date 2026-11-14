@@ -42,7 +42,7 @@ export namespace AutoMovieMotionHumanCourse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its unit.
    * @evidence contracts/development/design.md#principled-representation A posture builder, a target and a time span.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `solve`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `solve`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The target is a function of time, so no foot path is assumed.
    */
   export interface IProps {
@@ -52,10 +52,30 @@ export namespace AutoMovieMotionHumanCourse {
     /** The heading the course runs along, degrees about +Y. */
     yaw: number;
 
-    /** The posture at a second with the hips a distance along the heading, metres. */
+    /**
+     * The posture at a second with the hips a distance along the heading, metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the two arguments, a second and the hips' place in metres along the heading, and the posture returned.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per correction at each knot.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
+     */
     posture: (seconds: number, along: number) => IHumanPosture;
 
-    /** Where the extrapolated centre of mass is asked at a second, world metres along the heading. */
+    /**
+     * Where the extrapolated centre of mass is asked at a second, world metres along the heading.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument in seconds and the returned place in world metres along the heading.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per knot.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
+     */
     target: (seconds: number) => number;
 
     /** The span's first second. */
@@ -113,8 +133,7 @@ export namespace AutoMovieMotionHumanCourse {
       knots.push(along);
       c = next;
     }
-    const knot = (i: number): number =>
-      knots[Math.min(count, Math.max(0, i))]!;
+    const knot = (i: number): number => knots[Math.min(count, Math.max(0, i))]!;
     return (seconds: number): number => {
       const x: number = Math.min(
         count,

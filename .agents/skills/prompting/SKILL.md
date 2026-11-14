@@ -67,7 +67,7 @@ Each sibling file has:
 
 Put repeated deterministic operations in tested helpers, reusing existing tools before adding another. Link their task-specific invocation from the relevant guide, and take examples from working consumers rather than copying their implementation into the prompt.
 
-## Shared skills {#shared-skills}
+## Shared skills
 
 A skill shared with other projects, such as one a project template ships, holds only what is universal, orthodox and valid in every receiving project, because each of them follows it as written. It names tools, owners and records by their role, and leaves one project's paths, packages and decisions to that project's own skills.
 

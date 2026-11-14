@@ -26,7 +26,6 @@ import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
 import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
 import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
-
 /**
  * The f1 figure in its reference pose, generated from its authored conic
  * families alone: no reference mesh, recovered curve or observation file is
@@ -204,6 +203,18 @@ export namespace AutoMovieHumanF1 {
   ];
 
   /**
+   * Every stored cutter of the figure: the armpit's slit, each ear's bowl and each nostril are lofts cut out of the skin (`construction`),
+   * so `FAMILIES` does not hold them. Each is listed as stored, with `cut`, the family the figure lofts from it: the nostril is drawn in by
+   * its rim and spread past its mouth (`drawnIn`, `spreadOut`), the others are cut as stored. A reader that changes a cutter's stored
+   * fields reads through `cut` the wall the figure would cut with them.
+   */
+  export const CUTTERS: readonly { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean; cut: (family: AutoMovieHumanConicLoft.IFamily) => AutoMovieHumanConicLoft.IFamily }[] = [
+    { family: AutoMovieHumanF1Axilla, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => family },
+    { family: AutoMovieHumanF1Concha, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => family },
+    { family: AutoMovieHumanF1Nostril, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => spreadOut(drawnIn(family, NOSTRIL_RIM_MM), NOSTRIL_MOUTH_MM, NOSTRIL_SPREAD_MM) },
+  ];
+
+  /**
    * The crotch's seam: the curve both legs' bands start from, under the perineum from the front fork to the back one, in place of the
    * straight chord across the trunk's end. On the chord the two bands met at each fork in a corner, and their triangles folded through
    * each other there (178 degrees), a slit seen from the front.
@@ -258,7 +269,10 @@ export namespace AutoMovieHumanF1 {
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host, with the
    * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
    * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord, and again on the hand's own family
-   * (`AutoMovieHumanF1Hand`) for the ring and middle fingers' seams. The little finger's seam keeps the web read on the arm's end ring
+   * (`AutoMovieHumanF1Hand`) for the ring and middle fingers' seams. They were read once more after the hand's wall was laid again from
+   * its sound knots at the thumb's web (#3412: the shoulders after anchors 0 and 7 at 552 and 564 mm, and the fullness about anchor 1 at
+   * 552 mm), whose refitted palm net moves the end ring by 0.1 mm at most; the webs moved by 0.1 mm at eight knots. The little finger's
+   * seam keeps the web read on the arm's end ring
    * (3.0 mm deep): read on the hand's (2.2 mm, from 0.5 mm at 2 mm along) the ring finger's band folded by 175 degrees over 7 edges beside
    * its palm fork ([176, 919, 465], band station 6.5 mm), and with that one seam's old web alone the fold is gone (`limbview`). Each band
    * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
@@ -279,8 +293,8 @@ export namespace AutoMovieHumanF1 {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
         [[0.002, 0.0015], [0.004, 0.0029], [0.006, 0.003], [0.008, 0.0015]],
-        [[0.0011, 0.001], [0.002, 0.0028], [0.004, 0.0058], [0.006, 0.0081], [0.008, 0.0094], [0.01, 0.0097], [0.012, 0.0084], [0.014, 0.0059], [0.016, 0.0024]],
-        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0058], [0.006, 0.0069], [0.008, 0.0066], [0.01, 0.0055], [0.012, 0.0041], [0.014, 0.0025], [0.016, 0.0004]],
+        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0058], [0.006, 0.0081], [0.008, 0.0094], [0.01, 0.0097], [0.012, 0.0085], [0.014, 0.006], [0.016, 0.0025]],
+        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0057], [0.006, 0.0069], [0.008, 0.0066], [0.01, 0.0055], [0.012, 0.0042], [0.014, 0.0025], [0.016, 0.0005]],
       ],
       corner: 0.6,
       reach: 0.5,
@@ -369,6 +383,15 @@ export namespace AutoMovieHumanF1 {
    * was lost on the helix's.
    */
   const EAR_FAIR_MM: { helix: number; antihelix: number; root: number } = { helix: 1, antihelix: 1, root: 4 };
+
+  /**
+   * How many station lines round each part the seed searches of the ear's joins walk, phase first (`IAutoMovieConstructionSearchSeed.phases`):
+   * which line of a part meets its host is a property of both surfaces, not of the part, so a fixed phase holds for one person only. On f1's
+   * lens(1) plate the helix's phase-0 line stays outside the plate over its whole search (shares 0 to 0.5) and its first crossing line
+   * of eight is 45 degrees, at station 26.8; the antihelix's is phase 0, at 6.8 (`FamilyConicEarRound.ts --crossing`). Eight lines,
+   * 45 degrees apart, leave no side of a round tube more than 22.5 degrees from a walked line.
+   */
+  const EAR_SEED_LINES: number = 8;
 
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
@@ -514,6 +537,16 @@ export namespace AutoMovieHumanF1 {
   const CROWN_MM: number = 860;
 
   /**
+   * The trunk's mesh over the face, apart from its nets: from station 690 to 830 mm (the chin to the brow) layers at most 1 mm apart, and
+   * phases at most 0.016 rad apart round the whole trunk (`IFamily.phase`). The layers and phases had followed the face's finest nets (the
+   * chin's 0.95 mm rows, the eyes' 105 columns); with those nets coarsened for their own sake to 1.4 to 2 mm rows and 73 columns, the face's
+   * mesh read in level bands across the cheeks and the nose and in blocks over the lips and the chin, and the head's skin round the ear
+   * in steps.
+   */
+  const TRUNK_FACE_LAYERS: [number, number, number] = [690, 830, 1];
+  const TRUNK_PHASE: number = 0.016;
+
+  /**
    * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
    * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
    * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
@@ -629,6 +662,17 @@ export namespace AutoMovieHumanF1 {
    */
   const AXILLA_LAYER_MM: number = 1;
 
+  /**
+   * Where the slit's cut is seeded: at the middle of the longest branch of its cutter's measured crossing with the skin, on the +Z side;
+   * the twin's phase is mirrored, since a twin's `v` is negated. The cutter's surface, sampled every 0.5 mm at 720 phases from tip to tip
+   * and classed inside or outside the realized body by the nearest triangle's side (`isect`, a scratch probe), meets the band in one
+   * branch down each flank the whole length, on the band: the arm side's 75 mm, from 59 to 132 degrees, the trunk side's 70 mm, from 212
+   * to 328. The trunk side's middle is station 60.5, phase 4.6173, [-37.4, 1266.5, 149.4], on the band (the twin's 1.6659); the search
+   * spans 2 mm either side, shares 0.613 to 0.669 of the cutter's stations from its tip at 15 to its tip at 86: over 0.9 mm the twin's
+   * found no meeting. Seeded on the cutter's bottom, phase pi, from its front end, the cut on the corrected trunk was lost on the
+   * trunk's face at [-51.7, 1276.4, 147.2].
+   */
+  const AXILLA_SEED: { phase: number; from: number; to: number } = { phase: 4.6173, from: 0.613, to: 0.669 };
   /**
    * Where the breast's band fans against the trunk below the breast's side on the +Z side, mm, and the radius it is faired over: a dark
    * dash on `fold.left` (px 600..640 x 335..345), folds of 14 degrees in the band's own triangles at [98..101, 1243..1247, 109..111]
@@ -945,7 +989,7 @@ export namespace AutoMovieHumanF1 {
       const stations: number[] = even.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = even[i - 1]!;
-        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
+        const step: number = Math.min(pitch, before < fine ? close : pitch, ...(family.name === BODY.trunk.name && s > TRUNK_FACE_LAYERS[0] && before < TRUNK_FACE_LAYERS[1] ? [TRUNK_FACE_LAYERS[2]] : []), ...(family.reliefs ?? []).filter((relief): boolean => relief.stations[0] < s && relief.stations[1] > before).map((relief): number => (relief.stations[1] - relief.stations[0]) / (relief.rows - 3)));
         const cuts: number = Math.ceil((s - before) / step - 1e-9);
         return Array.from({ length: cuts }, (_: unknown, k: number): number => before + ((s - before) * (k + 1)) / cuts);
       });
@@ -1135,7 +1179,7 @@ export namespace AutoMovieHumanF1 {
     let root: AutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(BODY.trunk, -Infinity, WEB_LAYER_MM, layer, Infinity, CROWN_MM),
+      host: leaf({ ...BODY.trunk, phase: TRUNK_PHASE }, -Infinity, WEB_LAYER_MM, layer, Infinity, CROWN_MM),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
@@ -1158,8 +1202,7 @@ export namespace AutoMovieHumanF1 {
       // 0.5 mm the twin's cutter face did not triangulate ("subconstraints cross without a supplied shared vertex"), with 256 columns or
       // the search reversed as well.
       const axilla: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Axilla : twin(AutoMovieHumanF1Axilla);
-      root = { type: "join", kind: "diff", name: "cut." + axilla.name, host: root, part: leaf(axilla, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: axilla.name, hostFace: "band." + arm.face, phase: Math.PI, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
-      // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
+      root = { type: "join", kind: "diff", name: "cut." + axilla.name, host: root, part: leaf(axilla, Infinity, AXILLA_LAYER_MM), seed: { type: "search", partFace: axilla.name, hostFace: "band." + arm.face, phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase, from: AXILLA_SEED.from, to: AXILLA_SEED.to }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };      // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
       // lobule included; at mid heights it runs from the head out to the rim, so its front face is the concha's back wall. The helix and
       // the antihelix are round tubes along their crests, walked by their own length and seeded on their top lines, phase 0, which come up
       // out of the plate past their buried ends; the scapha and the fossa are the plate's floor between them. The plate is merged onto the
@@ -1174,11 +1217,11 @@ export namespace AutoMovieHumanF1 {
       const antihelix: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Antihelix : twin(AutoMovieHumanF1Antihelix);
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
       const plate: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
-      const ridge = (host: AutoMovieConstructionNode, part: AutoMovieHumanConicLoft.IFamily, fair: number): AutoMovieConstructionNode => ({ type: "join", kind: "merge", name: "ridge." + part.name, host, part: leaf(part, Infinity), seed: { type: "search", partFace: part.name, hostFace: plate.name, phase: 0, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: fair / 1000 });
-      root = { type: "join", kind: "merge", name: "root." + plate.name, host: root, part: leaf(plate, Infinity), seed: { type: "search", partFace: plate.name, hostFace: trunk, phase: Math.PI, from: 0, to: 1 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 256, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: EAR_FAIR_MM.root / 1000 };
+      const ridge = (host: AutoMovieConstructionNode, part: AutoMovieHumanConicLoft.IFamily, fair: number): AutoMovieConstructionNode => ({ type: "join", kind: "merge", name: "ridge." + part.name, host, part: leaf(part, Infinity), seed: { type: "search", partFace: part.name, hostFace: plate.name, phase: 0, phases: EAR_SEED_LINES, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: fair / 1000 });
+      root = { type: "join", kind: "merge", name: "root." + plate.name, host: root, part: leaf(plate, Infinity), seed: { type: "search", partFace: plate.name, hostFace: trunk, phase: Math.PI, phases: EAR_SEED_LINES, from: 0, to: 1 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 256, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: EAR_FAIR_MM.root / 1000 };
       root = ridge(root, helix, EAR_FAIR_MM.helix);
       root = ridge(root, antihelix, EAR_FAIR_MM.antihelix);
-      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: trunk, phase: Math.PI, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: trunk, phase: Math.PI, phases: EAR_SEED_LINES, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
 
       // The breast, which the trunk's sections leave out: its band spans the fold under it from the chest to the breast's own wall. Its
       // layers stand half a millimetre apart all along it (`BREAST_LAYER_MM`) and its phases 1.5 mm (`BREAST_PITCH_MM`).

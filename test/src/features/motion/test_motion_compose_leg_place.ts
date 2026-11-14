@@ -5,6 +5,7 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionHumanLeg,
+  AutoMovieMotionHumanLegPhrase,
   type HumanFoot,
   type IAutoMovieMotionHumanPrimitive,
   type IHumanBody,
@@ -232,12 +233,16 @@ export function test_motion_compose_leg_place(): void {
   // 6. The contact window.
   TestValidator.equals(
     "a foot in the air bears nothing",
-    AutoMovieMotionHumanLeg.bearing({ clock, side: "left" }, "stroke", "relax"),
+    AutoMovieMotionHumanLegPhrase.bearing(
+      { clock, side: "left" },
+      "stroke",
+      "relax",
+    ),
     [],
   );
   TestValidator.equals(
     "a foot on a solid place bears over the two instants' shares",
-    AutoMovieMotionHumanLeg.bearing(
+    AutoMovieMotionHumanLegPhrase.bearing(
       {
         clock,
         side: "right",
@@ -258,17 +263,17 @@ export function test_motion_compose_leg_place(): void {
   );
 
   // 7. Between two placements.
-  const mid: HumanFoot.IPlacement = AutoMovieMotionHumanLeg.between(
+  const mid: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     0.5,
   );
-  const past: HumanFoot.IPlacement = AutoMovieMotionHumanLeg.between(
+  const past: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     1.5,
   );
-  const back: HumanFoot.IPlacement = AutoMovieMotionHumanLeg.between(
+  const back: HumanFoot.IPlacement = AutoMovieMotionHumanLegPhrase.between(
     stance,
     ahead,
     -0.5,

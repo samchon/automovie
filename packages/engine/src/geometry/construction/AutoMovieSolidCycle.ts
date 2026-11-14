@@ -11,7 +11,8 @@
  * or below it. Membership is read in the chart: the crossing number of the
  * cycle's polygon for a hole (its phases moved by whole periods to the
  * cycle's own), and ray-crossing parity for a winding cycle even when that
- * cycle turns back in phase. The separate station reader returns only its
+ * cycle turns back in phase; a winding cycle sampled from an exact curve
+ * crosses each phase line on that curve between the vertices it samples. The separate station reader returns only its
  * first crossing and is not a general inverse of that predicate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four kinds and which side each keeps.
@@ -25,7 +26,7 @@ export namespace AutoMovieSolidCycle {
    * neighbour mapping per closing polygon segment.
    *
    * @evidence contracts/development/design.md#principled-representation Parallel vertex/chart/segment arrays represent a face's boundary and its shared neighbour correspondence without deriving geometry from a rendered mesh.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps; the optional fifth carries the exact curve a winding cycle samples, absent where its chords are its boundary.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not validate array lengths, winding, simplicity or inclusive boundary classification; prepared readers require unchanged kind/chart data during their lifetime.
    * @evidence contracts/development/common.md#meaningful-documentation States coindexing, closing-segment ownership, chart phase unwrapping and which face keeps each side.
    */
@@ -41,6 +42,21 @@ export namespace AutoMovieSolidCycle {
 
     /** Per segment `k` (vertex `k` to `k + 1`, the last closing the cycle): the neighbour face across it. */
     neighbours: INeighbour[];
+
+    /**
+     * For a winding cycle sampled from an exact curve `u = along(v)` of this chart: the curve's station at a phase. A segment whose two
+     * stored vertices both lie on it (`along(v) === u` at each, as the builder evaluated them) is read along the curve between them, not
+     * as the chord through them; a vertex inserted later off the curve leaves its segments read as chords. Absent, every segment is a chord.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States which chart the curve is in, which segments read it, and what an inserted off-curve vertex or an absent curve leaves as chords.
+     * @evidence contracts/development/implementation.md#principled-implementation The kept edge is the exact curve the neighbouring band ends on (a port's curved rail), so the two faces share one edge instead of a chord standing off it by its sagitta.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional reader on the cycle; kept tests read it only on segments whose both stored vertices lie on it, and every other reader keeps the chords.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance or widened boundary: a segment off the curve is read exactly as before.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One evaluation per kept test on a qualifying segment, in place of the chord's interpolation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The builder passes the same rail function that placed the cycle's vertices and the band's column ends.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
+     */
+    along?: (v: number) => number;
   }
 
   /**
@@ -95,14 +111,14 @@ export namespace AutoMovieSolidCycle {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same predicate as the prepared reader, without retained state.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; no curve or boundary is moved.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; a winding segment on its cycle's exact curve (`ICycle.along`) reads that curve's station instead of the chord's, and no other boundary is moved.
    * @evidence contracts/development/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after the call.
    */
   export function kept(
-    cycle: Pick<ICycle, "kind" | "chart">,
+    cycle: Pick<ICycle, "kind" | "chart" | "along">,
     u: number,
     v: number,
     period: number | undefined,
@@ -124,9 +140,10 @@ export namespace AutoMovieSolidCycle {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
    */
   export function prepare(
-    cycle: Pick<ICycle, "kind" | "chart">,
+    cycle: Pick<ICycle, "kind" | "chart" | "along">,
     period: number | undefined,
   ): (u: number, v: number) => boolean {
+    const curve: ((v: number) => number) | undefined = cycle.along;
     const prepared: IPrepared =
       cycle.kind === "hole" || cycle.kind === "island"
         ? { span: span(cycle) }
@@ -138,6 +155,13 @@ export namespace AutoMovieSolidCycle {
                 return windingEnd(a, raw, period ?? 2 * Math.PI);
               },
             ),
+            ...(curve === undefined
+              ? {}
+              : {
+                  on: cycle.chart.map((a: [number, number], k: number): boolean =>
+                    on(curve, a, cycle.chart[(k + 1) % cycle.chart.length]!),
+                  ),
+                }),
           };
     return (u: number, v: number): boolean =>
       read(cycle, u, v, period, prepared);
@@ -151,6 +175,16 @@ export namespace AutoMovieSolidCycle {
       number,
       number,
     ][];
+    /** Per winding segment, whether both its vertices lie on the cycle's exact curve (`ICycle.along`). */ on?: boolean[];
+  }
+
+  /** Whether a segment's two stored vertices lie on the exact curve, as its builder evaluated them. */
+  function on(
+    curve: (v: number) => number,
+    a: readonly [number, number],
+    b: readonly [number, number],
+  ): boolean {
+    return curve(a[1]) === a[0] && curve(b[1]) === b[0];
   }
 
   /** Preserve the original raw endpoint's x/y-before-start-phase access and exception order. */
@@ -205,7 +239,7 @@ export namespace AutoMovieSolidCycle {
 
   /** The original parity and tie arithmetic, with optional invariant values. */
   function read(
-    cycle: Pick<ICycle, "kind" | "chart">,
+    cycle: Pick<ICycle, "kind" | "chart" | "along">,
     u: number,
     v: number,
     period: number | undefined,
@@ -259,11 +293,17 @@ export namespace AutoMovieSolidCycle {
       const av: number = a[1] + translation;
       if (av > w === bv > w) continue;
 
-      // The source start coordinates keep the original reached getter sequence.
+      // The crossing's station: on the exact curve when the segment samples it, since a face beside this one may end on that curve
+      // itself (a port's band ends on the part's curved rail), and the chord between two vertices then stands off it by its sagitta,
+      // a strip that belonged to neither face (0.03 mm on f1's arm under its armpit band). Otherwise the chord, the source start
+      // coordinates keeping the original reached getter sequence.
+      const curve: ((v: number) => number) | undefined = cycle.along;
       const x: number =
-        a[0] +
-        ((w - (a[1] + translation)) * (b[0] - a[0])) /
-          (bv - (a[1] + translation));
+        curve !== undefined && (prepared?.on?.[k] ?? on(curve, a, raw))
+          ? curve(w - translation)
+          : a[0] +
+            ((w - (a[1] + translation)) * (b[0] - a[0])) /
+              (bv - (a[1] + translation));
       if (cycle.kind === "start" ? x <= u : x >= u) count++;
     }
     return count % 2 === 1;

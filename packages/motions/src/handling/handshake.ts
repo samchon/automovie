@@ -9,6 +9,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -16,6 +17,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -119,7 +121,7 @@ export namespace handshake {
     hand?: HumanHand.Side;
 
     /** Pump cycles; 2 when absent. */
-    pumps?: number;
+    pumps?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
   }
 
   /** Pump frequency, hertz (Tagne et al. 2016, greeting). */

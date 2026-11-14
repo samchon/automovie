@@ -74,10 +74,9 @@ export function test_evidence_shared_skills_root(): void {
     const own = (file: string): string =>
       path.join(location, "docs", "contracts", file);
     write(story(skills, "shared/principles/realized.md"));
-    write(story(skills, "shared/naturalness/common.md"));
     write(story(skills, "shared/obligations/screenplay.md"));
     write(story(skills, "language/principles/common.md"));
-    write(story(local, "shared/naturalness/screenplay.md"));
+    write(story(local, "shared/obligations/realized.md"));
     write(own("language/principles/screenplay.md"));
     write(own("language/discovery/questions.md"));
 
@@ -88,7 +87,6 @@ export function test_evidence_shared_skills_root(): void {
       narrative: {
         mode: "short",
         construction: { screenplay: "evidence" },
-        naturalness: { screenplay: "evidence" },
       },
     };
 
@@ -125,13 +123,12 @@ export function test_evidence_shared_skills_root(): void {
       "shared documents in the workspace tree are selected",
       [
         "shared/principles/realized.md",
-        "shared/naturalness/common.md",
         "shared/obligations/screenplay.md",
       ].every((file: string): boolean => selected.includes(file)),
     );
     TestValidator.predicate(
       "a shared document only in the production's skills tree is not selected",
-      !selected.includes("shared/naturalness/screenplay.md"),
+      !selected.includes("shared/obligations/realized.md"),
     );
     TestValidator.predicate(
       "language documents in the production's docs/contracts are selected",
@@ -169,7 +166,7 @@ export function test_evidence_shared_skills_root(): void {
     );
     TestValidator.predicate(
       "standalone selects the shared document of its own tree",
-      collectFiles(standalone).includes("shared/naturalness/screenplay.md"),
+      collectFiles(standalone).includes("shared/obligations/realized.md"),
     );
 
     // 4. A relative shared tree resolves against the production.
@@ -183,7 +180,6 @@ export function test_evidence_shared_skills_root(): void {
         scripts: "disabled",
         screenplay: "evidence",
       },
-      naturalness: { screenplay: "disabled" },
     };
     TestValidator.equals(
       "createEvidenceConfig resolves a relative skills against location",

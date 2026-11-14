@@ -2,7 +2,7 @@
 
 Contract: [naturalness/obligations/common.md](../../../naturalness/obligations/common.md).
 
-## Recurrent frames {#recurrent-frames}
+## Recurrent frames
 
 1. Sentence and direction patterns, closing formulas, gestures, reactions, block shapes and repeated modifiers are compared against the circumstances they serve.
 2. Different props or synonyms do not change a repeated operation.

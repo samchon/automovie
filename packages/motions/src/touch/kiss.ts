@@ -293,7 +293,11 @@ export namespace kiss {
       subject: p.partner,
       region: p.region,
     };
-    const turned: boolean = p.region === "mouth" || p.region.startsWith("jaw");
+    // A cheek, a jaw or the lips turn the head; the other regions do not.
+    const turned: boolean =
+      p.region === "mouth" ||
+      p.region.startsWith("cheek") ||
+      p.region.startsWith("jaw");
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
     const at: IAutoMovieVector3 = context.aim(target, context.start).point;
     const stance: AutoMovieMotionHumanRise.Stance = {
@@ -333,11 +337,7 @@ export namespace kiss {
     const head = AutoMovieMotionHumanHead.share(0, solved.flexion);
     const turn = AutoMovieMotionHumanHead.share(2, twist);
     return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [
         {

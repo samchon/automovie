@@ -3,3 +3,5 @@
 **/dist/**
 .wiki/**
 **/*.json
+# A TypeScript module the lexicon schema generator writes (pnpm --filter @automovie/motions schemas), one JSON literal.
+packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMA_DATA.ts

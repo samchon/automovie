@@ -13,10 +13,10 @@ import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
  * serves any film. Timing, outcomes and state come from the production's
  * pure functions handed to `resolveAutoMovieSchedule`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One subject's intended action: the smallest unit a production composes) and documents 5 documented members as stated in this comment.
- * @evidence contracts/development/design.md#principled-representation Represents One subject's intended action: the smallest unit a production composes: interface of 5 members (`subject`, `capability`, `goal`, `anchor`, `parameters`). Optional members `goal`, `anchor`, `parameters` express documented absence, and the ranges its member docs state are left to runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieIntent` in packages/engine/src/composition/IAutoMovieIntent.ts; its surface is the 5 members listed and the text shows 14 other files naming it, mostly movies (8), packages/engine (5), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; 3 optional members (`goal`, `anchor`, `parameters`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One subject's intended action: the smallest unit a production composes), that the engine never reads `capability`, and documents all 6 members, including the four forms of `until` with their units (a share in [0, 1], a metre distance) and what an unreached proximity does.
+ * @evidence contracts/development/design.md#principled-representation Represents One subject's intended action: interface of 6 members (`subject`, `capability`, `goal`, `anchor`, `parameters`, `until`). Optional members express documented absence (no relation, no anchor, no data, runs to its end); `until` is a union discriminated by its keys, `share`, `event`, `of` with `event`, or `proximity`, and the ranges its docs state are left to runtime validation by the resolver.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieIntent` in packages/engine/src/composition/IAutoMovieIntent.ts and read by `resolveAutoMovieSchedule` and the productions' composition builders; every member is read by one of them, so none is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The one widening is `parameters`, `Readonly<Record<string, unknown>>`: production data the engine copies untouched and only the production's own timing, outcome and state functions read, so the engine cannot give it a shape. There is no `any`, no cast and no index signature elsewhere; the five optional members are independent fields rather than alternatives, and `until`'s alternatives are a union, not optional fields.
  */
 export interface IAutoMovieIntent {
   /** Stable id of the acting subject. */
@@ -42,7 +42,8 @@ export interface IAutoMovieIntent {
    * - `{ event }`: at one of its own named events
    *   (`resolveAutoMovieSchedule.ITiming.events`);
    * - `{ of, event }`: when an event of the intent anchored `of`, usually
-   *   another subject's action, happens;
+   *   another subject's action, or of a cue track named `of`, happens;
+   *   `index` picks which occurrence where the name repeats;
    * - `{ proximity }`: when the subject's `effector` region first comes within
    *   `distance` metres of `target` (zero is contact), which the production's
    *   `until` law finds from its motion; a proximity the motion never
@@ -55,7 +56,7 @@ export interface IAutoMovieIntent {
   until?:
     | { share: number }
     | { event: string }
-    | { of: string; event: string }
+    | { of: string; event: string; index?: number }
     | {
         proximity: {
           /** The subject's own region that approaches. */

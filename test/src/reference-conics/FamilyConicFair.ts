@@ -1,0 +1,444 @@
+import { AutoMovieRecoveryConicApproximation as V, approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
+import type { FamilyConicSection as C } from "./FamilyConicSection";
+
+/**
+ * The fairing step before a section's conic conversion (#3401; lofting.md, Fitting and verification: "fair each section to the scale of
+ * the form, which means removing the ripples smaller than the features the form keeps ... The arcs that remain after fairing set the
+ * family's layout").
+ *
+ * The section is read as its radius about the course point by phase, and that radius is faired as the periodic smoothing spline of
+ * curvature penalty: harmonic n shrunk by 1 / (1 + (n / cut)^4), cut = girth / fairMm, so the harmonic whose wavelength is `fairMm` mm of
+ * girth keeps half its amplitude and a ripple of half that wavelength a seventeenth. The faired curve's inflections are the converter's
+ * breaks, and so are the two phases where an invented closure meets the skin. The conversion is Ahn's
+ * (`approximateAutoMovieRecoveryConicsAhn`), unchanged. `FamilyConicSection.converted` reads its sections through `curve` at `FAIR_MM`.
+ */
+export namespace FamilyConicFair {
+  /**
+   * Fairing cutoff of a trunk section before its conversion, mm of girth: the wavelength the fairing halves. lofting.md: "fair each section to
+   * the scale of the form, which means removing the ripples smaller than the features the form keeps". f1's ripple is its facets': the
+   * sections' turning per unit arclength peaks at 9 to 14 mm of wavelength on the trunk (the median of each 100 mm stretch). The narrowest
+   * grooves the form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide. A cutoff at the grooves' upper width takes a
+   * 14 mm ripple to a fifth while the front median and back grooves keep their inflections on the chest (450 to 600 mm), and on the abdomen (300 to 400 mm) it leaves
+   * 2.4 inflections on a side's back quarter where the least-squares cubic B-spline with a control every 6 mm left 11.8: that ripple, cut
+   * by the converter into arcs at every inflection, spent its arc budget and the rest of the turn was dropped (a partial conversion).
+   * Another region sets its own cutoff from its own narrowest kept feature (`FamilyConicConvert.cutoff`).
+   */
+  export const FAIR_MM: number = 20;
+
+  /**
+   * Radius of a closed polygon along one ray from the chart origin.
+   *
+   * A star-shaped section meets every ray once. Where a faceted source meets
+   * it more than once the outermost hit is returned and `folds` counts the
+   * event, so the caller reports the non-star interval instead of losing it.
+   */
+  export function radius(points: readonly C.P[], phi: number, folds?: { count: number }): number {
+    const d: C.P = [Math.cos(phi), Math.sin(phi)];
+    let best: number = NaN;
+    let hits: number = 0;
+    for (let i: number = 0; i < points.length; ++i) {
+      const a: C.P = points[i]!;
+      const b: C.P = points[(i + 1) % points.length]!;
+      const sa: number = a[0] * d[1] - a[1] * d[0];
+      const sb: number = b[0] * d[1] - b[1] * d[0];
+      if ((sa > 0) === (sb > 0)) continue;
+      const t: number = sa / (sa - sb);
+      const r: number = (1 - t) * (a[0] * d[0] + a[1] * d[1]) + t * (b[0] * d[0] + b[1] * d[1]);
+      if (!(r > 0)) continue;
+      ++hits;
+      if (!(best >= r)) best = r;
+    }
+    if (hits > 1 && folds !== undefined) ++folds.count;
+    return best;
+  }
+
+  /** One converted arc on the faired section. */
+  export interface IArc {
+    /** Its phase interval about the course point, radians, increasing. */
+    domain: readonly [number, number];
+
+    /** Its rational quadratic: endpoint, tangent intersection, endpoint, chart mm. */
+    controls: V.IArc["controls"];
+
+    /** Its middle weight; the shoulder `rho = w / (1 + w)`. */
+    weight: number;
+
+    /** +1 where it bends as the section does round its course (outward), -1 inward, 0 a line. */
+    bend: number;
+
+    /** Its turn, radians: the angle between its control legs. */
+    turn: number;
+
+    /** Whether it lies on an invented closure. */
+    closure: boolean;
+  }
+
+  /** One groove of the faired, converted section: a maximal run of inward arcs on skin. */
+  export interface IGroove {
+    /** Phase of its start inflection, radians. */
+    from: number;
+
+    /** Phase of its end inflection, radians. */
+    to: number;
+
+    /** Phase of its floor, the point farthest inside the chord of its inflections, radians. */
+    floor: number;
+
+    /** Its whole inward turn, radians. */
+    turn: number;
+
+    /** Its depth, mm: how far its floor lies inside the chord of its two inflections. */
+    depthMm: number;
+  }
+
+  /** A faired section's conversion. */
+  export interface IConversion {
+    /** The converter's status: complete, partial or refused. */
+    status: V.IResult["status"];
+
+    /** The converter's largest sampled error against the faired section, mm. */
+    errorMm: number;
+
+    /** The converted arcs in phase order. */
+    arcs: IArc[];
+
+    /** Its grooves, every maximal run of inward skin arcs, in phase order. */
+    grooves: IGroove[];
+
+    /** The faired radius's largest departure from the source's, mm, over 720 phases. */
+    fairMaxMm: number;
+
+    /** The faired radius's mean departure from the source's, mm, over 720 phases. */
+    fairMeanMm: number;
+
+    /** Rays from the course that meet the source more than once, of 720: zero for a star-shaped section. */
+    folds: number;
+
+    /** The source's girth, mm. */
+    girthMm: number;
+
+    /** The converter's diagnostics, deduplicated. */
+    diagnostics: string[];
+
+    /**
+     * The closure guard: the largest gap, mm, between the skin faired with its closures and the skin faired alone (`skinAlone`), within one
+     * cutoff of arclength on the skin's side of each closure's edges; zero without a closure. Over the layout tolerance, the closure pulls
+     * the skin beside it.
+     */
+    closureGuardMm: number;
+
+    /** The faired radius by phase, mm. */
+    faired: (phi: number) => number;
+  }
+
+  /** Options of a conversion. */
+  export interface IOptions {
+    /** The converter's sampled tolerance, mm; `FamilyConicSection`'s own conversion uses 0.25. */
+    toleranceMm: number;
+
+    /** The fairing cutoff wavelength, mm of girth; default `FAIR_MM`. */
+    fairMm?: number;
+
+    /**
+     * Each invented closure's phases, radians, where it leaves and rejoins the skin, running counter-clockwise from the first to the second:
+     * one for a part closed across its root, two for a trunk loop closed across both arm cuts.
+     */
+    closures?: readonly (readonly [number, number])[];
+
+    /** Whether to read the closure guard (`IConversion.closureGuardMm`); a measure of the source and its fairing, so read once, at one tolerance. */
+    guard?: boolean;
+  }
+
+  /** Sampled phases of the radius. */
+  const M: number = 720;
+
+  /** The converter's work limits, as `FamilyConicSection.converted` sets them. */
+  const LIMITS: { maximumArcs: number; maximumDepth: number } = { maximumArcs: 256, maximumDepth: 16 };
+
+  /**
+   * The closed curve's seam, where the converter starts and ends, at an eighth of a turn: started on the median line (phase 0), the
+   * converter cut dozens of short arcs there whose bends flipped sign, a concavity and inflections on the front median of a section with
+   * none (f1's made falling groove at 0 mm).
+   */
+  const SEAM: number = Math.PI / 4;
+
+  const wrap = (x: number): number => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+  /** The faired section as the converter's source: radius by phase about the origin, faired; breaks at its inflections and the closure's ends. */
+  export function curve(points: readonly C.P[], options: Pick<IOptions, "fairMm" | "closures"> = {}): V.ICurve & { radius: (phi: number) => number; girth: number } {
+    const fairMm: number = options.fairMm ?? FAIR_MM;
+    const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
+    let girth: number = 0;
+    for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
+    // The periodic smoothing spline that penalises the radius's second derivative is, in the trigonometric basis, each harmonic n of the
+    // data shrunk by 1 / (1 + lambda n^4) (Wahba, Spline Models for Observational Data, 1990, ch. 2, the periodic space W2), a roll-off that
+    // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (fairMm / girth)^4. A least-squares spline on
+    // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
+    const H: number = M / 2;
+    const A: number[] = new Array<number>(H + 1).fill(0), B: number[] = new Array<number>(H + 1).fill(0), W: number[] = [];
+    const cut: number = girth / fairMm;
+    for (let n: number = 0; n <= H; ++n) W.push(1 / (1 + (n / cut) ** 4));
+    const cosine: Float64Array = new Float64Array((H + 1) * M), sine: Float64Array = new Float64Array((H + 1) * M);
+    for (let n: number = 0; n <= H; ++n)
+      for (let k: number = 0; k < M; ++k) {
+        cosine[n * M + k] = Math.cos((2 * Math.PI * n * k) / M);
+        sine[n * M + k] = Math.sin((2 * Math.PI * n * k) / M);
+      }
+    // The spline of the samples `data`: each harmonic of the data shrunk by its weight, and its values back at the samples.
+    const fit = (data: readonly number[]): number[] => {
+      for (let n: number = 0; n <= H; ++n) {
+        let a: number = 0, b: number = 0;
+        for (let k: number = 0; k < M; ++k) {
+          a += data[k]! * cosine[n * M + k]!;
+          b += data[k]! * sine[n * M + k]!;
+        }
+        const half: boolean = n === 0 || n === H;
+        A[n] = ((half ? 1 : 2) * a) / M;
+        B[n] = ((half ? 1 : 2) * b) / M;
+      }
+      return Array.from({ length: M }, (_: unknown, k: number): number => {
+        let sum: number = 0;
+        for (let n: number = 0; n <= H; ++n) sum += W[n]! * (A[n]! * cosine[n * M + k]! + B[n]! * sine[n * M + k]!);
+        return sum;
+      });
+    };
+    // An invented closure is faired with the skin. It is never evidence of skin: no arc on it counts as a groove or in acceptance, and no
+    // skin is judged there (`IArc.closure`). Faired with the skin, it only regularises the spline across the opening. Weighted zero
+    // instead, as the fit tool treats it (`FamilyConicFit.IRow.free` and `side`), the nose's half-section closure left the spline's low
+    // harmonics nothing to hold, swung 18 to 31 mm into the parent, and the extremes the excursion stands on it were read there. The fit
+    // has the wall's other constraints to shape a closure; this fairing has none. The guard that the closure does not pull the skin is
+    // `IConversion.closureGuardMm`: on f1's nose it reads up to 1.5 mm (median 0.59 mm, 37 of 40 stations over the 0.25 mm tolerance)
+    // and on its trunk across both arm cuts at 560 to 627 mm up to 3.5 mm (median 1.07 mm, all 67 over) against the skin faired alone as an
+    // open curve, so the closure does pull the faired skin beside it. That reaches no module directly:
+    // the family is fitted by `FamilyConicBody`, where a closure is never data (`FamilyConicFit.IRow.free`, held on the parent's side by
+    // `side`). It reaches the module only through the lines detected and the anchor windows read near a closure's edges
+    // (`FamilyConicConvert.bridge`), which is where it is checked: a window that runs into a closure edge must not misplace its line.
+    fit(radii);
+    // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
+    const rAt = (phi: number, order: number): number => {
+      const c1: number = Math.cos(phi), s1: number = Math.sin(phi);
+      let c: number = 1, s: number = 0, even: number = 0, odd: number = 0;
+      for (let n: number = 0; n <= H; ++n) {
+        const f: number = W[n]! * n ** order;
+        even += f * (A[n]! * c + B[n]! * s);
+        odd += f * (B[n]! * c - A[n]! * s);
+        [c, s] = [c * c1 - s * s1, s * c1 + c * s1];
+      }
+      return [even, odd, -even, -odd][order % 4]!;
+    };
+    // The curve p(phi) = r(phi) e(phi), e = (cos, sin): its derivatives by Leibniz's rule, e's k-th derivative being e turned by k quarter turns.
+    const binomial = (n: number, k: number): number => (k === 0 || k === n ? 1 : binomial(n - 1, k - 1) + binomial(n - 1, k));
+    const domain: readonly [number, number] = [SEAM, SEAM + 2 * Math.PI];
+    const derivative = (phi: number, order: 1 | 2 | 3 | 4 | 5): V.Point => {
+      let x: number = 0, y: number = 0;
+      for (let j: number = 0; j <= order; ++j) {
+        const c: number = binomial(order, j) * rAt(phi, j);
+        const q: number = order - j;
+        x += c * Math.cos(phi + (q * Math.PI) / 2);
+        y += c * Math.sin(phi + (q * Math.PI) / 2);
+      }
+      return [x, y];
+    };
+    // The faired curve's inflections, the sign changes of cross(p', p''), are the converter's breaks: it never fits an interval whose
+    // curvature changes sign, so without them it bisects toward each inflection to its depth limit and a section of 28 spent its arc budget
+    // (f1's chest at a 20 mm fairing). Recovery's own cubic adapter hands it the same roots (`AutoMovieRecoveryConicApproximation`
+    // `.ICubicCriticalParameters`). The faired radius is a trigonometric polynomial of degree H, so the numerator is one of degree 2H, with
+    // at most 4H roots a turn; each is bracketed on 16H samples and bisected to the double's resolution. On a straight stretch the curvature
+    // is a residue of the harmonics past the cutoff, 1e-6 to 1e-5 a millimetre on f1's chest, whose sign flips every 0.3 to 0.7 degrees:
+    // bracketed on eight samples a cutoff wavelength those roots went unseen, the converter met them inside its intervals, refused and
+    // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
+    const breaks: number[] = [];
+    const numerator = (phi: number): number => {
+      const d1: V.Point = derivative(phi, 1), d2: V.Point = derivative(phi, 2);
+      return d1[0] * d2[1] - d1[1] * d2[0];
+    };
+    const steps: number = 16 * H;
+    for (let i: number = 0; i < steps; ++i) {
+      let lo: number = domain[0] + (2 * Math.PI * i) / steps, hi: number = domain[0] + (2 * Math.PI * (i + 1)) / steps;
+      let below: number = numerator(lo);
+      if (below === 0 || Math.sign(below) === Math.sign(numerator(hi))) continue;
+      for (let k: number = 0; k < 64; ++k) {
+        const mid: number = (lo + hi) / 2;
+        if (mid === lo || mid === hi) break;
+        const value: number = numerator(mid);
+        if (Math.sign(value) === Math.sign(below)) [lo, below] = [mid, value];
+        else hi = mid;
+      }
+      const root: number = (lo + hi) / 2;
+      if (root > domain[0] && root < domain[1]) breaks.push(root);
+    }
+    // The closure's two ends: an invented closure is no skin, so no arc spans its joint with the skin.
+    for (const end of (options.closures ?? []).flat()) {
+      const at: number = SEAM + wrap(end - SEAM);
+      if (at > domain[0] + 1e-9 && at < domain[1] - 1e-9 && !breaks.some((b: number): boolean => Math.abs(b - at) < 1e-6)) breaks.push(at);
+    }
+    breaks.sort((a: number, b: number): number => a - b);
+    return {
+      domain,
+      breaks,
+      closed: true,
+      evaluate: (phi: number): V.Point => [rAt(phi, 0) * Math.cos(phi), rAt(phi, 0) * Math.sin(phi)],
+      derivative,
+      radius: (phi: number): number => rAt(phi, 0),
+      girth,
+    };
+  }
+
+  /**
+   * The section's skin faired alone, as an open curve: the radius of each skin arc between two closures (or round the whole section without
+   * one) by phase, a discrete smoothing spline with natural ends, its second-difference penalty `lambda` set so the harmonic whose
+   * wavelength is `fairMm` of arclength keeps half its amplitude, as the periodic spline of `curve` does (a response 1 / (1 + lambda
+   * (2 - 2 cos w)^2) at the frequency w per sample). The closure guard's reference (`IConversion.closureGuardMm`); never a source of the
+   * conversion. Read as the closed spline with the closure unweighted instead, the reference swung across the opening by itself.
+   */
+  export function skinAlone(points: readonly C.P[], closures: readonly (readonly [number, number])[], fairMm: number = FAIR_MM): (phi: number) => number {
+    const phases: number[] = Array.from({ length: M }, (_: unknown, k: number): number => (2 * Math.PI * k) / M);
+    const skin: boolean[] = phases.map((phi: number): boolean => !closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a)));
+    const radii: number[] = phases.map((phi: number): number => radius(points, phi));
+    const faired: number[] = new Array<number>(M).fill(NaN);
+    // Each maximal run of skin samples, round the turn.
+    const start: number = skin.findIndex((x: boolean, k: number): boolean => x && !skin[(k - 1 + M) % M]);
+    const runs: number[][] = [];
+    if (start < 0) runs.push(phases.map((_: number, k: number): number => k));
+    else
+      for (let m: number = 0; m < M; ++m) {
+        const k: number = (start + m) % M;
+        if (!skin[k]) continue;
+        if (!skin[(k - 1 + M) % M] || runs.length === 0) runs.push([]);
+        runs[runs.length - 1]!.push(k);
+      }
+    for (const run of runs) {
+      const n: number = run.length;
+      if (n < 3) {
+        for (const k of run) faired[k] = radii[k]!;
+        continue;
+      }
+      const y: number[] = run.map((k: number): number => radii[k]!);
+      // Arclength per sample at the run's mean radius, and the penalty that halves the cutoff's wavelength.
+      const step: number = ((2 * Math.PI) / M) * (y.reduce((s: number, r: number): number => s + r, 0) / n);
+      const w: number = (2 * Math.PI * step) / fairMm;
+      const lambda: number = 1 / (2 - 2 * Math.cos(w)) ** 2;
+      // (I + lambda D'D) f = y, D the second differences: a symmetric pentadiagonal system, solved densely in its band.
+      const band: number[][] = Array.from({ length: n }, (): number[] => [0, 0, 0, 0, 0]);
+      for (let i: number = 0; i < n; ++i) band[i]![2] = 1;
+      for (let r: number = 0; r + 2 < n; ++r) {
+        const c: number[] = [1, -2, 1];
+        for (let p: number = 0; p < 3; ++p) for (let q: number = 0; q < 3; ++q) band[r + p]![2 + q - p]! += lambda * c[p]! * c[q]!;
+      }
+      // Gaussian elimination on the band (no pivoting: the matrix is symmetric positive definite).
+      const rhs: number[] = [...y];
+      for (let i: number = 0; i < n; ++i)
+        for (let d: number = 1; d <= 2 && i + d < n; ++d) {
+          const f: number = band[i + d]![2 - d]! / band[i]![2]!;
+          for (let e: number = 0; e <= 2 && i + e < n; ++e) band[i + d]![2 - d + e]! -= f * band[i]![2 + e]!;
+          rhs[i + d]! -= f * rhs[i]!;
+        }
+      const x: number[] = new Array<number>(n).fill(0);
+      for (let i: number = n - 1; i >= 0; --i) {
+        let sum: number = rhs[i]!;
+        for (let e: number = 1; e <= 2 && i + e < n; ++e) sum -= band[i]![2 + e]! * x[i + e]!;
+        x[i] = sum / band[i]![2]!;
+      }
+      run.forEach((k: number, i: number): void => void (faired[k] = x[i]!));
+    }
+    // Read between samples linearly; a closure's own phases have no reading.
+    return (phi: number): number => {
+      const u: number = (wrap(phi) / (2 * Math.PI)) * M;
+      const k: number = Math.floor(u) % M, next: number = (k + 1) % M;
+      const a: number = faired[k]!, b: number = faired[next]!;
+      return Number.isNaN(a) ? b : Number.isNaN(b) ? a : a + (u - Math.floor(u)) * (b - a);
+    };
+  }
+  /** The closure guard of a faired section (`IConversion.closureGuardMm`). */
+  function guard(points: readonly C.P[], options: IOptions, faired: (phi: number) => number): number {
+    const closures: readonly (readonly [number, number])[] = options.closures ?? [];
+    if (closures.length === 0) return 0;
+    const fairMm: number = options.fairMm ?? FAIR_MM;
+    const alone: (phi: number) => number = skinAlone(points, closures, fairMm);
+    let most: number = 0;
+    for (const [a, b] of closures)
+      for (const [edge, step] of [
+        [a, -1],
+        [b, 1],
+      ] as const) {
+        // One cutoff of arclength on the skin's side of the edge, as phase at the edge's radius.
+        const span: number = fairMm / Math.max(1e-6, radius(points, edge));
+        for (let i: number = 0; i <= 32; ++i) {
+          const phi: number = edge + (step * span * i) / 32;
+          most = Math.max(most, Math.abs(faired(phi) - alone(phi)));
+        }
+      }
+    return most;
+  }
+
+  /** Fair a section about its course point (the chart's origin), convert it, and read its arcs as grooves. */  export function convert(points: readonly C.P[], options: IOptions): IConversion {
+    const source = curve(points, options);
+    const folds: { count: number } = { count: 0 };
+    let fairMax: number = 0, fairSum: number = 0, fairCount: number = 0;
+    for (let k: number = 0; k < M; ++k) {
+      const phi: number = (2 * Math.PI * k) / M;
+      const raw: number = radius(points, phi, folds);
+      if (!Number.isFinite(raw)) continue;
+      const off: number = Math.abs(source.radius(phi) - raw);
+      fairMax = Math.max(fairMax, off);
+      fairSum += off;
+      ++fairCount;
+    }
+    const result: V.IResult = approximateAutoMovieRecoveryConicsAhn(source, { toleranceMm: options.toleranceMm, ...LIMITS });
+    const onClosure = (phi: number): boolean => (options.closures ?? []).some(([a, b]): boolean => wrap(phi - a) < wrap(b - a));
+    const arcs: IArc[] = [...result.arcs]
+      .sort((p: V.IArc, q: V.IArc): number => p.domain[0] - q.domain[0])
+      .map((arc: V.IArc): IArc => {
+        const [p0, p1, p2] = arc.controls;
+        const cross: number = (p1[0] - p0[0]) * (p2[1] - p1[1]) - (p1[1] - p0[1]) * (p2[0] - p1[0]);
+        const legs: number = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) * Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+        const d: number = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) - Math.atan2(p1[1] - p0[1], p1[0] - p0[0]);
+        return {
+          domain: arc.domain,
+          controls: arc.controls,
+          weight: arc.weight,
+          bend: legs > 0 && Math.abs(cross) > 1e-12 * legs ? Math.sign(cross) : 0,
+          turn: Math.abs(Math.atan2(Math.sin(d), Math.cos(d))),
+          closure: onClosure((arc.domain[0] + arc.domain[1]) / 2),
+        };
+      });
+    return { status: result.status, errorMm: result.maximumSampleErrorMm, arcs, grooves: grooves(arcs), fairMaxMm: fairMax, fairMeanMm: fairSum / Math.max(1, fairCount), folds: folds.count, girthMm: source.girth, diagnostics: [...new Set(result.diagnostics.map((d: string): string => d.replace(/-?\d[\d.]*(e-?\d+)?/g, "#")))], faired: source.radius, closureGuardMm: options.guard === false ? 0 : guard(points, options, source.radius) };
+  }
+
+  /** The maximal runs of inward skin arcs, round the closed chain (a line inside a run belongs to it). */
+  export function grooves(arcs: readonly IArc[]): IGroove[] {
+    const n: number = arcs.length;
+    if (n === 0) return [];
+    const inward = (k: number): boolean => {
+      const a: IArc = arcs[((k % n) + n) % n]!;
+      return !a.closure && a.bend < 0;
+    };
+    const start: number = Array.from({ length: n }, (_: unknown, k: number): number => k).find((k: number): boolean => !inward(k)) ?? -1;
+    if (start < 0) return [];
+    const out: IGroove[] = [];
+    for (let m: number = 1; m <= n; ++m) {
+      const k: number = start + m;
+      if (!inward(k) || inward(k - 1)) continue;
+      const run: IArc[] = [];
+      for (let j: number = k; inward(j) && run.length < n; ++j) run.push(arcs[((j % n) + n) % n]!);
+      const a: V.Point = run[0]!.controls[0], b: V.Point = run.at(-1)!.controls[2];
+      const chord: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      // The floor: the farthest of the run's arc ends and middles from the chord, on the course's side.
+      let depth: number = 0, floor: number = (run[0]!.domain[0] + run.at(-1)!.domain[1]) / 2;
+      for (const arc of run)
+        for (const p of [arc.controls[2], middle(arc)]) {
+          const d: number = ((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])) / chord;
+          if (d > depth) [depth, floor] = [d, Math.atan2(p[1], p[0])];
+        }
+      out.push({ from: wrap(run[0]!.domain[0]), to: wrap(run.at(-1)!.domain[1]), floor: wrap(floor), turn: run.reduce((s: number, x: IArc): number => s + x.turn, 0), depthMm: depth });
+    }
+    return out.sort((x: IGroove, y: IGroove): number => x.from - y.from);
+  }
+
+  /** The point at the middle of a rational quadratic. */
+  export function middle(arc: Pick<IArc, "controls" | "weight">): V.Point {
+    const [p0, p1, p2] = arc.controls;
+    const w: number = arc.weight;
+    return [(p0[0] + 2 * w * p1[0] + p2[0]) / (2 + 2 * w), (p0[1] + 2 * w * p1[1] + p2[1]) / (2 + 2 * w)];
+  }
+}

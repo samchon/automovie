@@ -7,11 +7,11 @@ description: Keeps what belongs to the production as a whole and to no single ta
 
 Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
 
-## Commissioned outputs {#commissioned-outputs}
+## Commissioned outputs
 
 | Output | Complete when |
 | --- | --- |
-| Screenplay | Its text passes the [writing workflow](../story/workflow.md#completion); no source or media is owed |
+| Screenplay | Its text passes the [writing workflow](../story/workflow/SKILL.md#completion); no source or media is owed |
 | Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery-review.md); no narrative is owed |
 | Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed, and stills or pilot clips do not complete it |
 | Direct 3D film | The programmed film is rendered at its commissioned detail; no diffusion is owed |
@@ -21,7 +21,7 @@ Carry the commission from its adopted scope to the handed-off output. Read the r
 
 ## Route the work
 
-Each task has one owner, in the [writing order](../story/workflow.md#route-and-parents):
+Each task has one owner, in the [writing order](../story/workflow/SKILL.md):
 
 | Work | Owner |
 | --- | --- |

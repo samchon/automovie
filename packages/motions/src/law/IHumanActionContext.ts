@@ -1,6 +1,7 @@
 import type {
   IAutoMovieRandom,
   IAutoMovieResolvedBone,
+  resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -8,10 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanActionName } from "../HumanActionName";
+import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanEntryState } from "./IHumanEntryState";
@@ -47,6 +50,15 @@ export interface IHumanActionContext<P = object> {
 
   /** Film second of the action's time zero. */
   start: number;
+
+  /**
+   * The action this one is performed over, when it is an overlay: a wave
+   * during a walk. The carrier keeps the root and the legs and whatever else
+   * it does not yield; this action writes only the channels it claims, on
+   * the carrier's posture of the same instant. Absent for an action that
+   * carries the body itself.
+   */
+  carrier?: IHumanActionContext.ICarrier;
 
   /**
    * A target's world point and outward unit normal at a film second.
@@ -95,23 +107,53 @@ export interface IHumanActionContext<P = object> {
   prop(subject: string): IHumanActionContext.IProp;
 
   /**
-   * The meeting of an action this performer does with another: the one
-   * record both roles read, computed from where both stand at this action's
-   * start by whichever role is planned first. With no partner it is this
-   * role's own meeting on its default places, which is not solid. It may be
-   * read at plan time, so the partner's earlier actions must be placed first.
+   * The meeting of an action this performer does with others: the one
+   * record every role reads, computed from where all stand at this action's
+   * start by whichever role is planned first, and the same whichever that
+   * is. With no partner it is this role's own meeting on its default
+   * places, which is not solid. It may be read at plan time, so the
+   * partners' earlier actions must be placed first, as `HumanChain.mutual`
+   * places them.
    *
    * @param kind The kind of mutual action.
    * @param role This performer's role in it.
-   * @param partner The other performer and their role; absent when alone.
+   * @param partner The other performer and their role, or every other one of a meeting of three or more; absent when alone.
+   * @param window The film seconds the meeting holds over, which every role states alike (`AutoMovieMotionMeeting.IWindow`); its natural instants when absent.
    * @returns The meeting.
    * @throws {Error} When no such performer exists, or the kind lacks a role.
+   * @throws {HumanRefusal} When the window closes before the contact can be made.
    */
   meeting(
     kind: AutoMovieMotionMeeting.IKind,
     role: string,
-    partner?: { role: string; subject: string },
+    partner?:
+      | IHumanActionContext.IPartner
+      | readonly IHumanActionContext.IPartner[],
+    window?: AutoMovieMotionMeeting.IWindow,
   ): AutoMovieMotionMeeting.IMeeting;
+
+  /**
+   * One of the film's cue tracks (`HumanPerformance.IInput.cues`): its named
+   * instants in film seconds, in the track's order, so a law can place its
+   * own beats on a score's or its stresses on a line's (a dance's steps on
+   * the beats, a nod on an accent). It may be read at plan time. A law that
+   * only needs to start at a cue is synced by its composition instead.
+   *
+   * @param track The track's name.
+   * @returns The track's instants, each with its event name and film second.
+   * @throws {HumanRefusal} A `participant` refusal when the performance has no such track.
+   */
+  cue(track: string): readonly resolveAutoMovieSchedule.ICue[];
+
+  /**
+   * What stands in the way in this performance
+   * (`HumanPerformance.IInput.obstacles`): the scene's solids with their
+   * openings, which a law that moves the body across the floor asks
+   * `HumanObstacle.blocking` about before it plans a stretch of its path.
+   *
+   * @returns The obstacles; none when the performance was given none.
+   */
+  obstacles(): readonly HumanObstacle.IObstacle[];
 
   /**
    * This instance's draw stream for one channel.
@@ -154,6 +196,62 @@ export namespace IHumanActionContext {
      * @returns Resolved bones by rig bone.
      */
     bones(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /**
+     * Where their placed actions put their root at a film second, readable
+     * while a law plans: a follower, an escort or an interception plans its
+     * own path from where the other will be, not from where they stood when
+     * it began.
+     *
+     * It is the root their active action writes (the point a law places a
+     * body by, as its own `entry.posture.root` is: carried within the
+     * pelvis, a few centimetres from the pelvis joint on the floor plan),
+     * before layers and before the decaying offset of a cut, so it costs
+     * one posture of theirs and reads no pose. Before their first action it is their starting place,
+     * and after their last it is where that action left them.
+     *
+     * The other's path is known only as far as the composition has placed
+     * it, in the order the composition is written (a sequence part by part,
+     * a parallel group part by part), so the person read is composed before
+     * the one who reads.
+     *
+     * @param seconds Film seconds.
+     * @returns Their root.
+     * @throws {HumanRefusal} A `participant` refusal when the second lies after their last placed action while later actions of theirs are still to be placed.
+     */
+    root(seconds: number): IRoot;
+  }
+
+  /** Another performer of a meeting and the role they take in it. */
+  export interface IPartner {
+    /** Their role's name within the kind. */
+    role: string;
+
+    /** Their subject id. */
+    subject: string;
+  }
+
+  /** A person's root on the floor plan: where it is and which way it faces. */
+  export interface IRoot {
+    /** The root, world metres. */
+    position: IAutoMovieVector3;
+
+    /** The heading, degrees about +Y with 0 facing +Z. */
+    yaw: number;
+  }
+
+  /** The action an overlay is performed over. */
+  export interface ICarrier {
+    /** Its name. */
+    name: HumanActionKey;
+
+    /**
+     * Its posture under the overlay.
+     *
+     * @param seconds Seconds of the overlay's own clock.
+     * @returns The carrier's posture at that instant; its last posture once it has ended.
+     */
+    posture(seconds: number): IHumanPosture;
   }
 
   /** A prop and its displayed frame. */
@@ -185,7 +283,10 @@ export namespace IHumanActionContext {
     subject: string;
 
     /** Its name. */
-    name: HumanActionName;
+    name: HumanActionKey;
+
+    /** The action it is a row of; its own name when it is none. */
+    family: HumanActionKey;
 
     /** Its parameters. */
     params: object;

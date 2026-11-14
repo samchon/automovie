@@ -31,7 +31,10 @@ export namespace AutoMovieMotionHumanGaze {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `look`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed literal union; the trunk is not a member because this primitive does not own it.
    */
-  export type Recruit = "eyes" | "head";
+  export type Recruit = (typeof RECRUITS)[number];
+
+  /** The recruitments of {@link Recruit}, as data. */
+  export const RECRUITS = ["eyes", "head"] as const;
 
   /**
    * What is looked at, as a frame of the action.

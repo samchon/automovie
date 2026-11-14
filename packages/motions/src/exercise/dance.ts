@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -11,6 +12,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -21,7 +23,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
- * side-to-side sway and the step-touch.
+ * side-to-side sway, the step-touch and the box step.
  *
  * The beat comes from the author's tempo, never from audio: beat `k` falls
  * at `k 60 / bpm` seconds, 120 bpm when absent (people resonate near 120
@@ -40,10 +42,17 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *   on even beats the other closes beside it; the direction turns every two
  *   beats. Each foot travels over the half beat before its footfall, so
  *   the footfall lands on the beat; the hips follow the feet's mean and
- *   sink until each bearing leg reaches its foot.
+ *   sink until each leg reaches its foot, the travelling one too.
  *
- * Not drafted: box step, turns and spins with spotting, and partner figures
- * (closed hold, lead and follow, the underarm turn).
+ * - Box step: six footfalls that trace a square and return, one a beat:
+ *   the first foot forward, the other to its own side level with it, the
+ *   first closed beside it; then the other foot back, the first to its own
+ *   side level with it, the other closed. The square's side is a shoulder
+ *   width (provisional); the feet and the hips move as in the step-touch.
+ *
+ * First pass: the box step has no rise and fall and no turn, and its three
+ * counts are even beats, not a waltz's bar. Not drafted here: turns with
+ * spotting; the partner figures are rows of other laws.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the beat rule and its sources, each step's geometry and provisional values, and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record whose steps are root and leg rows on a beat clock.
@@ -63,7 +72,16 @@ export namespace dance {
     });
 
   /** The steps. */
-  export type Kind = "bounce" | "sway" | "stepTouch";
+  export type Kind = "bounce" | "sway" | "stepTouch" | "boxStep";
+
+  /** A foot's offset from its stance over the floor, metres: `x` to the body's left, `z` forward. */
+  interface IOffset {
+    /** To the body's left. */
+    x: number;
+
+    /** Forward. */
+    z: number;
+  }
 
   /** The default tempo, beats per minute. */
   export const BPM: number = 120;
@@ -84,10 +102,10 @@ export namespace dance {
     kind: Kind;
 
     /** Beats per minute; `BPM` when absent. */
-    bpm?: number;
+    bpm?: number & tags.ExclusiveMinimum<0> & HumanUnit<"beats/min">;
 
     /** How many beats; 8 when absent. */
-    beats?: number;
+    beats?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** The foot that steps first; `right` when absent. */
     side?: "left" | "right";
@@ -136,6 +154,10 @@ export namespace dance {
     const leftward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 1, y: 0, z: 0 },
+    );
+    const forward: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+      { x: 0, y: 0, z: 1 },
     );
     const stance: Record<"left" | "right", HumanFoot.IPlacement> = {
       left: {
@@ -216,29 +238,48 @@ export namespace dance {
         );
         break;
       }
-      case "stepTouch": {
+      case "stepTouch":
+      case "boxStep": {
         const d: number = 2 * m.shoulderHalfWidth * modifiers.extent;
         const first: "left" | "right" = p.side ?? "right";
         const second: "left" | "right" = first === "right" ? "left" : "right";
-        // Each footfall: the foot, its beat and the lateral offset it lands at.
-        const falls: { foot: "left" | "right"; beat: number; at: number }[] =
+        // Each footfall: the foot, its beat and the offset from its stance
+        // it lands at, `x` to the body's left and `z` forward.
+        const falls: { foot: "left" | "right"; beat: number; at: IOffset }[] =
           [];
-        const offset: Record<"left" | "right", number> = { left: 0, right: 0 };
+        const offset: Record<"left" | "right", IOffset> = {
+          left: { x: 0, z: 0 },
+          right: { x: 0, z: 0 },
+        };
+        // The second foot's own side.
+        const out: number = first === "right" ? 1 : -1;
         for (let k: number = 1; k <= beats; k++) {
-          const group: number = Math.floor((k - 1) / 2);
-          const toward: number =
-            (group % 2 === 0 ? 1 : -1) * (first === "right" ? -1 : 1);
-          const leader: "left" | "right" = group % 2 === 0 ? first : second;
-          const foot: "left" | "right" =
-            k % 2 === 1 ? leader : leader === "left" ? "right" : "left";
-          offset[foot] += toward * d;
+          let foot: "left" | "right";
+          if (p.kind === "stepTouch") {
+            const group: number = Math.floor((k - 1) / 2);
+            const leader: "left" | "right" = group % 2 === 0 ? first : second;
+            foot = k % 2 === 1 ? leader : leader === "left" ? "right" : "left";
+            offset[foot] = {
+              x: offset[foot].x + (group % 2 === 0 ? -1 : 1) * out * d,
+              z: 0,
+            };
+          } else {
+            // The square's corners in the order the feet take them: forward,
+            // side, close, back, side, close.
+            const count: number = (k - 1) % 6;
+            foot = count % 2 === 0 ? first : second;
+            offset[foot] = {
+              x: count === 1 || count === 2 || count === 3 ? out * d : 0,
+              z: count < 3 ? d : 0,
+            };
+          }
           falls.push({ foot, beat: k * period, at: offset[foot] });
         }
         const lateral = (
           foot: "left" | "right",
           s: number,
-        ): { at: number; swing: number; from: number } => {
-          let at: number = 0;
+        ): { at: IOffset; swing: number; from: IOffset } => {
+          let at: IOffset = { x: 0, z: 0 };
           for (const f of falls)
             if (f.foot === foot) {
               const start: number = f.beat - period / 2;
@@ -257,8 +298,14 @@ export namespace dance {
           s: number,
         ): HumanFoot.IPlacement => {
           const l = lateral(foot, s);
-          const shift = (x: number): HumanFoot.IPlacement => ({
-            ankle: Vector3.add(stance[foot].ankle, Vector3.scale(leftward, x)),
+          const shift = (o: IOffset): HumanFoot.IPlacement => ({
+            ankle: Vector3.add(
+              stance[foot].ankle,
+              Vector3.add(
+                Vector3.scale(leftward, o.x),
+                Vector3.scale(forward, o.z),
+              ),
+            ),
             rotation: stance[foot].rotation,
           });
           return AutoMovieMotionHumanLeg.arc(
@@ -270,13 +317,18 @@ export namespace dance {
         };
         const planted = (foot: "left" | "right", s: number): boolean =>
           lateral(foot, s).swing >= 1;
-        const along = (foot: "left" | "right", s: number): number => {
+        const along = (foot: "left" | "right", s: number): IOffset => {
           const l = lateral(foot, s);
-          return l.from + (l.at - l.from) * l.swing;
+          return {
+            x: l.from.x + (l.at.x - l.from.x) * l.swing,
+            z: l.from.z + (l.at.z - l.from.z) * l.swing,
+          };
         };
-        // The hips follow the feet's mean and sink until each bearing leg
-        // reaches its foot: feet a shoulder width further apart lie beyond
-        // the legs' standing length.
+        // The hips follow the feet's mean and sink until each leg reaches
+        // its foot, the travelling one too: feet a shoulder width further
+        // apart lie beyond the legs' standing length, and hips that waited
+        // for the footfall to sink would drop at it and leave the arriving
+        // foot short of its place until then.
         primitives.push(
           AutoMovieMotionHumanLean.sway({
             body,
@@ -287,9 +339,9 @@ export namespace dance {
               roll: 0,
             }),
             shift: (s: number): IAutoMovieVector3 => ({
-              x: (along("left", s) + along("right", s)) / 2,
+              x: (along("left", s).x + along("right", s).x) / 2,
               y: 0,
-              z: 0,
+              z: (along("left", s).z + along("right", s).z) / 2,
             }),
             legs: (s: number) => ({
               leftLeg: AutoMovieMotionHumanLeg.goal(
@@ -297,14 +349,14 @@ export namespace dance {
                 entry,
                 "left",
                 placed("left", s),
-                planted("left", s),
+                true,
               ),
               rightLeg: AutoMovieMotionHumanLeg.goal(
                 body,
                 entry,
                 "right",
                 placed("right", s),
-                planted("right", s),
+                true,
               ),
             }),
           }),

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -9,11 +10,12 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -86,10 +88,10 @@ export namespace martialArt {
     kind: Kind;
 
     /** Punches of a choku-zuki series; 4 when absent. */
-    count?: number;
+    count?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** Seconds the stance is held; 1 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -279,7 +281,7 @@ export namespace martialArt {
                 {
                   x: 0,
                   y:
-                    AutoMovieMotionHumanTarget.height(body, "chest") *
+                    AutoMovieMotionHumanTargetGrid.height(body, "chest") *
                     m.stature,
                   z: m.upperArm + m.forearm,
                 },

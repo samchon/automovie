@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import type { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -21,7 +22,7 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * the goal's solution by a weight (`AutoMovieMotionHumanArm.carried`) and
  * the fingers shaped by the same weight. The exercise, stretching, dance and
  * sport laws place their arms this way, at named grid places of the body
- * (`AutoMovieMotionHumanTarget.place`) moved by their own curves.
+ * (`AutoMovieMotionHumanTargetGrid.place`) moved by their own curves.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is moved, by what and who uses it.
  * @evidence contracts/development/design.md#principled-representation A place function of the posture and the second, a weight and a hand surface: the least an arm laid at a place of the air needs.
@@ -177,7 +178,7 @@ export namespace AutoMovieMotionHumanPlaced {
    * @evidence contracts/development/implementation.md#principled-implementation A posture's root is the origin its pitch and roll turn about, so a law that pitches the trunk over its hips moves the root far behind the feet; the pelvis is where the body stands, so the frame's origin is the floor point under the displayed hips less the standing hips' offset, which is the root itself for an upright posture.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One anchor and two calls.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A nudge past the target's bound throws there; the heights do not follow a crouch, and a law that means a place on the displayed trunk reads `joint`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTarget.place` and `fallback`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTargetGrid.place` and `fallback`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -185,8 +186,8 @@ export namespace AutoMovieMotionHumanPlaced {
     body: IHumanBody,
     posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
     side: HumanHand.Side,
-    grid: AutoMovieMotionHumanTarget.IGrid,
-    nudge?: AutoMovieMotionHumanTarget.INudge,
+    grid: AutoMovieMotionHumanTargetGrid.IGrid,
+    nudge?: AutoMovieMotionHumanTargetGrid.INudge,
   ): IAutoMovieVector3 {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hips: IAutoMovieVector3 = Vector3.add(
@@ -200,7 +201,7 @@ export namespace AutoMovieMotionHumanPlaced {
     return AutoMovieMotionHumanTarget.fallback(
       body,
       { root: Vector3.subtract(hips, standing), yaw: posture.yaw },
-      AutoMovieMotionHumanTarget.place(
+      AutoMovieMotionHumanTargetGrid.place(
         body,
         side,
         nudge === undefined ? grid : { at: grid, nudge },

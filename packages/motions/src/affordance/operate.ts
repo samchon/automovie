@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
-import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -78,6 +78,9 @@ export namespace operate {
     ],
     walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
+
+  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  export const overlay: boolean = true;
 
   /**
    * An articulated part and how it moves.
@@ -303,10 +306,10 @@ export namespace operate {
       modifiers,
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    const base: IHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      duration,
+    );
     const surface: HumanHand.Surface =
       mechanism.kind === "button" ? "indexTip" : "grip";
     const shape: HumanHand.Shape =
@@ -393,6 +396,9 @@ export namespace operate {
             goal.shape,
           ).point;
         },
+        // The arm on the part at the stroke's start, as the stroke grips it.
+        arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
+          AutoMovieMotionHumanArm.goal(body, side, target(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the ${mechanism.kind} stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a part this far is walked up to first`,
       });

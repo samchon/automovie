@@ -9,6 +9,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { StrikingTwist } from "./StrikingTwist";
 import type { punch } from "./punch";
 import type { punchGeometry } from "./punchGeometry";
 
@@ -16,7 +17,11 @@ import type { punchGeometry } from "./punchGeometry";
  * A punch's root, heading and feet: the lead foot steps in by the advance
  * with a small lift, the rear foot drags after it from mid-delivery to
  * mid-return (the IBA stepping jab: the rear foot follows at once), and a
- * rear-hand punch pivots the rear foot on its ball.
+ * rear-hand punch pivots the rear foot on its ball. A negative advance, a
+ * target nearer than the arm's band, steps back the other way round: the
+ * rear foot leaves first, by the delivery, and the lead foot follows over
+ * the drag, so the foot that moves first is the one on the side it moves
+ * toward.
  *
  * The trunk's turn is shared by the pelvis (two fifths) and the lumbar and
  * thoracic spine (three tenths each), as the rotation of a punch runs up the
@@ -52,7 +57,7 @@ export namespace punchFootwork {
     /** The horizontal unit line to the target. */
     line: IAutoMovieVector3;
 
-    /** The lead foot's step along the line, metres. */
+    /** The step along the line, metres: positive steps in, the lead foot first and the rear foot dragging after it; negative steps back, the rear foot first and the lead foot after it. */
     advance: number;
 
     /** The trunk turn at contact, degrees. */
@@ -159,7 +164,11 @@ export namespace punchFootwork {
     const feet: Record<"left" | "right", HumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
-    const stepping: boolean = advance > 0.02;
+    // A step in or, before a target too close, a step back along the line,
+    // led by the foot on the side it moves toward.
+    const stepping: boolean = Math.abs(advance) > 0.02;
+    const backing: boolean = stepping && advance < 0;
+    const first: "left" | "right" = backing ? rear : lead;
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
       stepping
@@ -177,8 +186,11 @@ export namespace punchFootwork {
     // lead foot came to rest, so the stance keeps its length.
     let travel = (t: number): number => (stepping ? advance * out(t) : 0);
     let follow = (t: number): number => (stepping ? advance * dragged(t) : 0);
+    // Only a step in can be arrested by a body it meets; a step back moves
+    // away from it.
     if (
       stepping &&
+      !backing &&
       fixed !== undefined &&
       fixed !== null &&
       fixed - t0 < shown
@@ -211,17 +223,21 @@ export namespace punchFootwork {
       const turning: number = out(clock) - turnBack(clock);
       const moved: number = travel(t);
       const followed: number = follow(t);
+      const firstLift: number = stepping ? lift * 4 * out(t) * (1 - out(t)) : 0;
+      const nextLift: number = stepping
+        ? lift * 4 * dragged(t) * (1 - dragged(t))
+        : 0;
       const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(
         feet[lead],
         line,
-        moved,
-        stepping ? lift * 4 * out(t) * (1 - out(t)) : 0,
+        backing ? followed : moved,
+        backing ? nextLift : firstLift,
       );
       const slid: HumanFoot.IPlacement = StrikingTarget.slide(
         feet[rear],
         line,
-        followed,
-        stepping ? lift * 4 * dragged(t) * (1 - dragged(t)) : 0,
+        backing ? moved : followed,
+        backing ? firstLift : nextLift,
       );
       const rearFoot: HumanFoot.IPlacement =
         which === "rear"
@@ -237,8 +253,10 @@ export namespace punchFootwork {
         lead === "left"
           ? { left: leadFoot, right: rearFoot }
           : { left: rearFoot, right: leadFoot };
-      const leadDown: boolean = !stepping || t >= shown;
-      const rearDown: boolean = !stepping || t <= dragFrom || t >= dragTo;
+      const firstDown: boolean = !stepping || t >= shown;
+      const nextDown: boolean = !stepping || t <= dragFrom || t >= dragTo;
+      const leadDown: boolean = backing ? nextDown : firstDown;
+      const rearDown: boolean = backing ? firstDown : nextDown;
       return resolveHumanPosture.lower(
         body,
         {
@@ -253,8 +271,7 @@ export namespace punchFootwork {
             {
               ...entry.joints,
               ...StrikingStance.joints(),
-              spine: [0, 0, 0.3 * turn * turning],
-              chest: [0, 0, 0.3 * turn * turning],
+              ...StrikingTwist.trunk(entry.joints, 0.3 * turn * turning),
             },
             turn * turning,
           ),
@@ -288,11 +305,14 @@ export namespace punchFootwork {
         });
     };
     const rearKind: "plant" | "pivot" = which === "rear" ? "pivot" : "plant";
-    window(`${lead}Foot`, "plant", stepping ? shown : 0, duration);
+    const next: "left" | "right" = first === lead ? rear : lead;
+    const kind = (foot: "left" | "right"): "plant" | "pivot" =>
+      foot === rear ? rearKind : "plant";
+    window(`${first}Foot`, kind(first), stepping ? shown : 0, duration);
     if (stepping) {
-      window(`${rear}Foot`, rearKind, 0, dragFrom);
-      window(`${rear}Foot`, "plant", dragTo, duration);
-    } else window(`${rear}Foot`, rearKind, 0, duration);
+      window(`${next}Foot`, kind(next), 0, dragFrom);
+      window(`${next}Foot`, "plant", dragTo, duration);
+    } else window(`${next}Foot`, kind(next), 0, duration);
 
     return { base, contacts };
   }

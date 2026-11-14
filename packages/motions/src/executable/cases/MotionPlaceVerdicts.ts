@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../../body/IHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { HumanHand } from "../../posture/HumanHand";
 import type { IHumanPosture } from "../../posture/IHumanPosture";
@@ -47,9 +48,9 @@ export namespace MotionPlaceVerdicts {
     posture: Pick<IHumanPosture, "root" | "yaw">,
     side: HumanHand.Side,
     point: IAutoMovieVector3,
-    expected: AutoMovieMotionHumanTarget.IGrid,
+    expected: AutoMovieMotionHumanTargetGrid.IGrid,
   ): IMotionCaptureCase.IVerdict {
-    const found = AutoMovieMotionHumanTarget.nearest(
+    const found = AutoMovieMotionHumanTargetGrid.nearest(
       body,
       posture,
       side,
@@ -65,7 +66,7 @@ export namespace MotionPlaceVerdicts {
       AutoMovieMotionHumanTarget.fallback(
         body,
         posture,
-        AutoMovieMotionHumanTarget.place(body, side, expected),
+        AutoMovieMotionHumanTargetGrid.place(body, side, expected),
       ).point,
     );
     const arm: number = body.measure.upperArm + body.measure.forearm;

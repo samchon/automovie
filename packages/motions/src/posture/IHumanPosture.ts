@@ -55,7 +55,10 @@ export interface IHumanPosture {
  */
 export namespace IHumanPosture {
   /** A limb solved by inverse kinematics. */
-  export type Limb = "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+  export type Limb = (typeof LIMBS)[number];
+
+  /** The limbs of {@link Limb}, as data. */
+  export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const;
 
   /** One limb's goal. */
   export interface IGoal {
@@ -121,6 +124,15 @@ export namespace IHumanPosture {
      * Ignored on a leg.
      */
     clear?: readonly HumanColliders.IPlaced[];
+
+    /**
+     * Another body's colliders, placed in the world, the goal lays the hand
+     * on (the partner's segment a palm rests on): the forearm keeps clear of
+     * them as of `clear`, except that near the wrist it asks no more room
+     * than the goal gives, since the goal puts the hand on their surface
+     * (`HumanArmClearance`). Ignored on a leg.
+     */
+    rests?: readonly HumanColliders.IPlaced[];
   }
 
   /** A limb's reference solution: its upper and lower bones' clinical degrees. */

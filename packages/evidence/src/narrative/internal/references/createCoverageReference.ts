@@ -1,6 +1,5 @@
 import type { IEvidenceReference } from "@wrtnlabs/evidence";
 
-import type { AuthoredPass } from "../../AuthoredPass";
 import { referenceLocation } from "../utilities/referenceLocation";
 
 /**
@@ -32,11 +31,10 @@ import { referenceLocation } from "../utilities/referenceLocation";
 export function createCoverageReference(
   files: string[],
   symbol: "file" | "h2",
-  pass: AuthoredPass = "draft",
 ): IEvidenceReference {
   return {
     type: "markdown",
-    ...referenceLocation(files, pass, symbol),
+    ...referenceLocation(files, symbol),
     symbol,
     noEvidenceExclude: true,
   };

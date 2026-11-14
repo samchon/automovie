@@ -7,14 +7,14 @@ import { isCanonLayer } from "../isCanonLayer";
  *
  * Placement is decided by who can truthfully answer an item, so the axis is
  * the same wherever it appears: everyone, then the layers that inherit a unit,
- * then the layers holding literal text, then one layer. Both gates and both
- * scopes reuse it, because the question of who can answer does not change with
- * when the answer is owed.
+ * then the layers holding literal text, then one layer. The principles and
+ * expression families and both scopes reuse it, because the question of who
+ * can answer does not depend on which family asks it.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The fixed candidate order is common, optional inherited-narrative, optional literal-text and exact layer, matching the respondent populations declared by the four-layer pipeline.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared axis serves discovery/principle/obligation selection without duplicating layer eligibility decisions across gates or language scopes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared axis serves discovery/principle/obligation selection without duplicating layer eligibility decisions across families or language scopes.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canon layers omit inherited narrative duties and only REALIZED_LAYERS receives literal-text duties, both explicit semantic differences of the supported pipeline.
- * @evidence contracts/development/common.md#meaningful-documentation The prose explains narrowest-last order and why eligibility depends on the respondent rather than gate timing.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains narrowest-last order and why eligibility depends on the respondent rather than the asking family.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most four filenames and one constant-time Set membership check are produced, giving constant work and space independent of manuscript length.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work REALIZED_LAYERS is the shared eligibility set, while the returned array is fresh so filtering or mutation by one family cannot alter another family selection.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The at-most-four-element result is caller-owned and no cache or resource handle is retained.

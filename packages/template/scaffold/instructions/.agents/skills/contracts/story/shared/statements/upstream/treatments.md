@@ -2,7 +2,7 @@
 
 Contract: [upstream/treatments.md](../../upstream/treatments.md).
 
-## Settings repair {#settings-repair}
+## Settings repair
 
 1. The exact settings owner of each defect is identified.
 2. The owner's body was corrected locally before writing from the repair, and the answer names the owner, the defect and the corrected passage.

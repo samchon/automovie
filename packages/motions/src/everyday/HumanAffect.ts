@@ -1,7 +1,9 @@
 import { minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { tags } from "typia";
 
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
@@ -74,7 +76,7 @@ export namespace HumanAffect {
     at: number;
 
     /** How long, seconds; the display's own length when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
 
     /** Amplitude scale; 1 when absent. */
     intensity?: number;
@@ -215,6 +217,10 @@ export namespace HumanAffect {
   export function layer(displays: readonly IDisplay[]): IHumanLayer {
     return {
       name: "affect",
+
+      // The jaw and the head, and the spine, the chest and the shoulder
+      // girdles: every display's pulse is on those joints.
+      channels: ["head", "trunk"],
       apply: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const d of displays) {

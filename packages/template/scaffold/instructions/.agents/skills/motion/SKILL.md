@@ -7,7 +7,7 @@ description: Programs a scene's deterministic performance, staging, camera and t
 
 Realize the screenplay's performance through code. Read [project context](../production/project-context.md), the final screenplay and its [research](../story/planning/research.md) first. A single moving instance needs only its promised behavior; a whole-video commission needs its complete progression.
 
-## Compose first {#compose-first}
+## Compose first
 
 Whatever a person does is composed from the installed motion vocabulary, on the objects [entity work](../development/entities.md#objects) takes from the installed archetypes. The vocabulary fits each action to the performer's own body, refuses what that body cannot do and reports its own physical bounds, and motion code written for a person in the production has none of the three.
 

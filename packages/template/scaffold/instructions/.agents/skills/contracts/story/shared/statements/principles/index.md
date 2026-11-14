@@ -2,7 +2,7 @@
 
 Contract: [principles/index.md](../../principles/index.md).
 
-## Group purpose {#group-purpose}
+## Group purpose
 
 Purpose:
 

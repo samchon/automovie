@@ -48,7 +48,16 @@ export namespace AutoMovieMotionHumanRange {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Five names, each with a shipped law that uses its share.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No level is the whole range: a joint at its limit is an explicit decision on the explicit rung.
    */
-  export type Level = "slight" | "light" | "half" | "deep" | "full";
+  export type Level = (typeof LEVEL_NAMES)[number];
+
+  /** The levels of {@link Level}, as data. */
+  export const LEVEL_NAMES = [
+    "slight",
+    "light",
+    "half",
+    "deep",
+    "full",
+  ] as const;
 
   /**
    * The share of each level (provisional; checked by the fit of the gesture
@@ -71,13 +80,17 @@ export namespace AutoMovieMotionHumanRange {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Six names, the two ends of the three axes of `IAutoMovieJointConstraint`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union mapped exhaustively to a limit.
    */
-  export type Motion =
-    | "flexion"
-    | "extension"
-    | "abduction"
-    | "adduction"
-    | "external"
-    | "internal";
+  export type Motion = (typeof MOTIONS)[number];
+
+  /** The motions of {@link Motion}, as data. */
+  export const MOTIONS = [
+    "flexion",
+    "extension",
+    "abduction",
+    "adduction",
+    "external",
+    "internal",
+  ] as const;
 
   /**
    * A level with a scale.

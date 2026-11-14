@@ -2,7 +2,7 @@
 
 Look for a capability before writing it. This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance.
 
-## Installed packages {#installed-packages}
+## Installed packages
 
 Search the installed packages before writing a capability, and use what they provide. A capability written a second time in the production diverges from the package at its first repair.
 
@@ -24,11 +24,11 @@ The skills name installed packages by role. This table is the one place that say
 
 The first seven rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
 
-### Reading a package {#reading-a-package}
+### Reading a package
 
 A package's README, public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
-### A defect or a gap {#a-defect-or-a-gap}
+### A defect or a gap
 
 A production cannot repair an installed package. An edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production.
 
@@ -43,7 +43,7 @@ A workspace's own `packages/<name>` is the exception: the workspace owns that co
 
 A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
-## One module, many uses {#one-module}
+## One module
 
 Every object and motion is a module the films reuse. A different version of a subject, such as a taller fighter or a second referee, or a different performance of an action, such as a tired walk, is the same module with other parameters or another seed, never a copy with edited constants, because a repair reaches only one copy.
 

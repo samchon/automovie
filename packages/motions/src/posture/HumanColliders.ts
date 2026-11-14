@@ -60,12 +60,16 @@ export namespace HumanColliders {
   /**
    * The signed distance from a segment to a posed body: the least over the
    * segment's points of their signed distance to the body's colliders. A
-   * zero-length segment is a point.
+   * zero-length segment is a point. Given a taper, the segment is widened by
+   * a radius running linearly from its end at `a` to its end at `b` (a
+   * tapered capsule weapon), and the distance is less that radius at each
+   * point.
    *
    * @param body The body.
    * @param bones Its posed bones, world frame.
    * @param a One end, world metres.
    * @param b The other end, world metres.
+   * @param taper The radii at `a` and at `b`, metres; absent for the bare segment.
    * @returns The distance to the nearest collider and its bone.
    * @throws {Error} When the profile has no shape.
    */
@@ -74,12 +78,16 @@ export namespace HumanColliders {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
+    taper?: readonly [number, number],
   ): IDistance {
+    const widest: number =
+      taper === undefined ? 0 : Math.max(taper[0], taper[1]);
     let best: IDistance | undefined;
     for (const { bone, pose, shapes } of placed(body, bones))
       for (const shape of shapes) {
         // A shape lies inside its bounding sphere, so it is no nearer than
-        // the sphere: one that cannot beat the least found is skipped.
+        // the sphere (less the widest of a taper): one that cannot beat the
+        // least found is skipped.
         if (best !== undefined) {
           const ball: IBall = bound(shape);
           const centre: IAutoMovieVector3 = Vector3.add(
@@ -94,12 +102,19 @@ export namespace HumanColliders {
           );
           if (
             closestPointsBetweenSegments(a, b, centre, centre).distance -
-              ball.radius >=
+              ball.radius -
+              widest >=
             best.distance
           )
             continue;
         }
-        const d: number = physicalShapeSegmentDistance(pose, shape, a, b);
+        const d: number = physicalShapeSegmentDistance(
+          pose,
+          shape,
+          a,
+          b,
+          taper,
+        );
         if (best === undefined || d < best.distance)
           best = { distance: d, bone };
       }

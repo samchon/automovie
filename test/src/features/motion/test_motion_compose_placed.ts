@@ -8,6 +8,7 @@ import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanPlaced,
   AutoMovieMotionHumanTarget,
+  AutoMovieMotionHumanTargetGrid,
   HumanFoot,
   HumanHand,
   type IAutoMovieMotionHumanPrimitive,
@@ -63,7 +64,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is a displayed bone or a stated point, never the function's own arithmetic.
  * @evidence contracts/development/testing.md#distinguishing-cases Three turns of the root, five rises and two past the length, an upright and a pitched trunk, both hands, both ends of a carry's weight.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on one prepared body; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States how each place is checked and the 5 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States how each place is checked and the 6 scenarios with their bounds.
  */
 export function test_motion_compose_placed(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
@@ -201,7 +202,7 @@ export function test_motion_compose_placed(): void {
     pitch: 40,
     root: P.root({ yaw: 0, pitch: 40, roll: 0 }, restHips, shownHips),
   };
-  const grid: AutoMovieMotionHumanTarget.IGrid = {
+  const grid: AutoMovieMotionHumanTargetGrid.IGrid = {
     height: "chest",
     lateral: "centre",
     distance: "near",

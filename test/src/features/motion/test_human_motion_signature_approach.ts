@@ -40,7 +40,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real approach on real bodies and reads displayed bones of both people; a stop in the wrong zone, a body not facing the person, a trunk tipped back or a gait with flight fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The zones are Hall's; the facing is the law's stated goal; the gait bounds are cited.
  * @evidence contracts/development/testing.md#distinguishing-cases Three of Hall's zones, the default and the four sides, each row on one body and every body in some row (`motionHumanSignature.cells`).
- * @evidence contracts/development/testing.md#execution-ownership In memory; named `test_human_` because a film of fitted poses is costly, so the CI test job leaves it to local runs.
+ * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_approach(): void {

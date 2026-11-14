@@ -60,6 +60,13 @@ export namespace AutoMovieHumanConicLoft {
     pitch?: number;
 
     /**
+     * Largest step between neighbouring phases, radians, beside the finest relief net's columns: the mesh's density round the part held
+     * apart from its nets'. f1's trunk took its phases from its finest net, the eyes' at 105 columns (0.016 rad); with that net coarsened to
+     * 73 columns for its own sake the whole face's mesh went from about 400 phases round to 270 and read in level bands and blocks.
+     */
+    phase?: number;
+
+    /**
      * Largest turn of a ring's tangent between two neighbouring phases, radians; absent, the phases are uniform. With it the phases are
      * spaced by how fast the rings turn as well as by `pitch`: at every phase the density is the most any ring asks there, its length over
      * `pitch` or its turn over this, so a sharp edge that only some sections have (a sole's) takes its phases close together where it
@@ -367,7 +374,7 @@ export namespace AutoMovieHumanConicLoft {
     );
 
     // And no farther apart than the finest relief net's columns, as the layers are cut to its rows: a net shows only what the rings sample.
-    const finest: number = Math.min(Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
+    const finest: number = Math.min(family.phase ?? Infinity, ...(family.reliefs ?? []).map((relief: IAutoMovieLoftRelief): number => (relief.phases[1] - relief.phases[0]) / (relief.columns - 3)));
     const made: IAutoMovieViewPart = {
       name: family.name,
       axis: axis(family),
@@ -524,7 +531,13 @@ export namespace AutoMovieHumanConicLoft {
       up: flip(family.up),
       // The reflected chart's `v` is the reflection's negated, so a turn from `u` toward `v` is the reflected turn negated.
       ...(family.roll === undefined ? {} : { roll: { knots: [...family.roll.knots], values: family.roll.values.map((angle: number): number => -angle) } }),
-      layout: { mirror: false, anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => resolved(anchors[(K - j) % K]!, (K - j) % K)), ...(family.layout.least === undefined ? {} : { least: family.layout.least }) },
+      // The twin's anchor `j` is the original's `(K - j) % K`, so its arc `j`, from anchor `j` to `j + 1`, is the original's arc `K - 1 - j`
+      // run backwards, and a least per arc is read in that order.
+      layout: {
+        mirror: false,
+        anchors: anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): AutoMovieHumanConicSection.IAnchor => resolved(anchors[(K - j) % K]!, (K - j) % K)),
+        ...(family.layout.least === undefined ? {} : { least: typeof family.layout.least === "number" ? family.layout.least : anchors.map((_: AutoMovieHumanConicSection.IAnchor, j: number): number => AutoMovieHumanConicSection.leastOf(family.layout, K - 1 - j)!) }),
+      },
       knots: [...family.knots],
       values,
       // A cap's centre lies in the chart, whose `v` the twin negates.

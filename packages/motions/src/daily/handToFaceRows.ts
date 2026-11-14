@@ -61,6 +61,12 @@ export namespace handToFaceRows {
     /** `true` when the held tool stands on the world's up at the face, as a vessel does, instead of lying on the region. */
     upright?: boolean;
 
+    /** `true` when the region's normal is read level, so an effector laid along `up` stands on the world's up instead of on the region's slope: a forefinger held upright across the lips, whose surface faces down as well as forward. The region's own normal when absent. */
+    level?: boolean;
+
+    /** The point of a held prop that meets the region when the task is performed with one (`handToFace.IParams.prop`): a vessel's `lip`, a phone's `screen`; the parameters name it when absent. */
+    point?: string;
+
     /** The head's flexion at the face, degrees; negative extends it. */
     head: number;
 
@@ -84,6 +90,7 @@ export namespace handToFaceRows {
       hold: 1.2,
       tangent: "up",
       upright: true,
+      point: "lip",
       head: -10,
       at: "atMouth",
     },
@@ -101,6 +108,7 @@ export namespace handToFaceRows {
       hold: 0.5,
       tangent: "up",
       upright: true,
+      point: "lip",
       head: -5,
       at: "atMouth",
     },
@@ -149,6 +157,7 @@ export namespace handToFaceRows {
       count: 1,
       hold: 3,
       tangent: "up",
+      point: "screen",
       head: 0,
       at: "atEar",
     },
@@ -175,7 +184,9 @@ export namespace handToFaceRows {
         shape: "fist",
         tool: { thumb: 0.8 },
         facing: "thumb",
-        along: "-palm",
+        // The palm toward the face's midline: turned outward, the fist
+        // asked the elbow 20 cm above the shoulder.
+        along: "palm",
       },
       kind: "rub",
       count: 8,
@@ -201,8 +212,11 @@ export namespace handToFaceRows {
       at: "atHead",
     },
     washFace: {
-      region: "jawRight",
-      other: "jawLeft",
+      // The palms on the cheeks, the fingers up and the elbows low before
+      // the chest; laid on the jaw, whose surface faces down, the palms
+      // turned up under it and asked the wrists to their ends.
+      region: "cheekRight",
+      other: "cheekLeft",
       effector: { surface: "palm", shape: "flat" },
       kind: "rub",
       count: 3,
@@ -213,7 +227,7 @@ export namespace handToFaceRows {
     },
     wipeMouth: {
       region: "mouth",
-      effector: { surface: "palm", shape: "relaxed" },
+      effector: { surface: "palm", shape: "flat" },
       kind: "rub",
       count: 2,
       hold: 0.2,

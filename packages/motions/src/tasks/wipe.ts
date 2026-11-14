@@ -3,18 +3,21 @@ import type {
   AutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -66,6 +69,9 @@ export namespace wipe {
     ],
   };
 
+  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  export const overlay: boolean = true;
+
   /**
    * Parameters.
    *
@@ -82,7 +88,7 @@ export namespace wipe {
     hand?: HumanHand.Side;
 
     /** How many circles; 3 when absent. */
-    cycles?: number;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -180,6 +186,9 @@ export namespace wipe {
             goal.shape,
           ).point;
         },
+        // The arm on the circle's start, as the stroke lays the palm there.
+        arm: (posture: IHumanPosture): IHumanPosture.IGoal =>
+          AutoMovieMotionHumanArm.goal(body, side, palm(posture, 0)),
         refuse: (beyond: number, limit: number): string =>
           `${context.subject}: the patch's far side stays ${(1000 * beyond).toFixed(0)} mm beyond the ${side} arm at a lean of ${limit} degrees; a surface this far is walked up to first`,
       });
@@ -211,7 +220,7 @@ export namespace wipe {
       modifiers,
     );
     return composeAutoMovieMotionHumanAction({
-      base: stand.plan({ ...context, params: { seconds: clock.duration } }),
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       contact: "stroke",
       primitives: [

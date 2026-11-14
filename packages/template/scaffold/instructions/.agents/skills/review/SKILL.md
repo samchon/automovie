@@ -7,7 +7,7 @@ description: Reviews independently what an author made: narrative passes, source
 
 Review in a fresh context without the author's working memory, because an author reads their own work as intended. Identify the requested judgment, its exact scope, current inputs and recipient.
 
-A self-review is labeled as one and never stands for independent acceptance, and an unavailable context or output is an unperformed check. Repeat rounds until the current scope closes.
+A self-review is labeled as one and never stands for independent acceptance, and an unavailable context or output is an unperformed check. A narrative pass runs the rounds its [route](../story/workflow/SKILL.md) sets; other reviews repeat until their scope closes.
 
 | Task | Read |
 | --- | --- |

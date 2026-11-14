@@ -9,14 +9,18 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
-import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -64,8 +68,10 @@ import { restGoals } from "./restGoals";
  * - `elbowSupport`: the palm under the other arm's elbow while that hand is
  *   at `chinRest`, the thinking pose.
  *
- * Each hand travels from where the entry left it to its place on a
- * minimum-jerk path over the free-space time of its distance
+ * Each arm is carried in joint angles from where the entry left it to its
+ * place on a minimum-jerk course (`AutoMovieMotionHumanArm.carry`), the
+ * fingers taking the place's shape on the same course, over the free-space
+ * time of the hand's distance
  * (`AutoMovieMotionHumanTiming.transport`) and holds there; the place follows the body,
  * so breathing and sway carry the hands with it. A hand at `side` is not
  * moved.
@@ -74,10 +80,10 @@ import { restGoals } from "./restGoals";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#principled-implementation Each place is an effector goal on the body's own surface, solved once by the shared inverse kinematics; the arm is carried to that solution in joint angles on a minimum-jerk course (a free arm movement is smooth in joint space, Soechting and Lacquaniti 1981) and the fingers take the place's shape on the same course. The body under it is the stand law's, or the carrier's when the rest is an overlay.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the places and each arm's entry angles once; each posture is the base, the two arm goals and one carry per moving arm.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Per posture: one base posture, one fit per moving arm and its clearance in the carry; nothing grows with the duration.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
@@ -106,6 +112,9 @@ export namespace rest {
     rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
+  /** A rest may be performed over a carrier: it claims the arms it places, with their hands. */
+  export const overlay: boolean = true;
+
   /** Parameters. */
   export interface IParams {
     /** The left hand's place; `side` when absent. */
@@ -115,7 +124,7 @@ export namespace rest {
     right?: Place;
 
     /** How long, seconds; 2 when absent. */
-    seconds?: number;
+    seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
   /** Places that hold both hands together, so both hands must name them. */
@@ -164,10 +173,13 @@ export namespace rest {
         });
     const duration: number = context.params.seconds ?? 2;
     HumanBound.above("seconds", duration, 0, "s");
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+
+    // The body under the rest: the carrier's when the rest is an overlay,
+    // otherwise the stand law's.
+    const base: IHumanActionPlan =
+      context.carrier === undefined
+        ? stand.plan({ ...context, params: { seconds: duration } })
+        : AutoMovieMotionHumanBase.under(context, duration);
     const at0: IHumanPosture = base.posture(0);
     const frame0: HumanFrame.IFrame = { origin: at0.root, yaw: at0.yaw };
 
@@ -184,11 +196,7 @@ export namespace rest {
     const begin: Partial<
       Record<
         HumanHand.Side,
-        {
-          point: IAutoMovieVector3;
-          rotation: IAutoMovieQuaternion;
-          travel: number;
-        }
+        { angles: AutoMovieMotionHumanArm.IAngles; travel: number }
       >
     > = {};
     for (const side of ["left", "right"] as const) {
@@ -201,11 +209,7 @@ export namespace rest {
         goal.surface,
       ).point;
       begin[side] = {
-        point: HumanFrame.local(frame0, from),
-        rotation: Quaternion.multiply(
-          HumanFrame.turn(-frame0.yaw),
-          entry.get(`${side}Hand`)!.worldRotation,
-        ),
+        angles: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         travel: Math.min(
           duration,
           AutoMovieMotionHumanTiming.transport(
@@ -237,6 +241,20 @@ export namespace rest {
       duration,
       events: [{ name: "placed", share: arrive / duration }],
       contacts: base.contacts,
+
+      // Over a carrier the rest takes the arms it places, with their hands.
+      ...(context.carrier === undefined
+        ? {}
+        : {
+            channels: AutoMovieMotionHumanChannel.ORDER.filter(
+              (c: AutoMovieMotionHumanChannel): boolean =>
+                (["left", "right"] as const).some(
+                  (side: HumanHand.Side): boolean =>
+                    local[side] !== undefined &&
+                    (c === `${side}Arm` || c === `${side}Hand`),
+                ),
+            ),
+          }),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const posture: IHumanPosture = base.posture(t);
@@ -247,28 +265,55 @@ export namespace rest {
         const turn: IAutoMovieQuaternion = HumanFrame.turn(frame.yaw);
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         const requests: AutoMovieMotionHumanArm.ISided[] = [];
+        const shares: [HumanHand.Side, number][] = [];
         for (const side of ["left", "right"] as const) {
           const goal: IGoal | undefined = local[side];
           const from = begin[side];
           if (goal === undefined || from === undefined) continue;
           const s: number = minimumJerk(t / from.travel).s;
+          shares.push([side, s]);
           requests.push({
             side,
             surface: goal.surface,
             shape: goal.shape,
-            point: HumanFrame.point(
-              frame,
-              Vector3.lerp(from.point, goal.point, s),
-            ),
-            rotation: Quaternion.multiply(
-              turn,
-              Quaternion.slerp(from.rotation, goal.rotation, s),
-            ),
+            point: HumanFrame.point(frame, goal.point),
+            rotation: Quaternion.multiply(turn, goal.rotation),
             bend: HumanFrame.point(frame, goal.elbow),
           });
-          Object.assign(joints, HumanHand.shape(side, goal.shape));
+          // The fingers take the place's shape on the hand's own course, from
+          // what the body under the rest holds them in.
+          for (const [bone, angles] of Object.entries(
+            HumanHand.shape(side, goal.shape),
+          ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+            const was: readonly [number, number, number] = posture.joints[
+              bone
+            ] ?? [0, 0, 0];
+            joints[bone] = [
+              was[0] + (angles[0] - was[0]) * s,
+              was[1] + (angles[1] - was[1]) * s,
+              was[2] + (angles[2] - was[2]) * s,
+            ];
+          }
         }
-        return handGoals(body, { ...posture, joints }, requests);
+        // Each arm is solved on its place and carried there in joint angles
+        // from what the entry held (a free arm movement is smooth in joint
+        // space, Soechting and Lacquaniti 1981), so no instant asks the fit
+        // for a hand part way along a nearly straight arm, where the
+        // elbow's side is ill-conditioned.
+        let placed: IHumanPosture = handGoals(
+          body,
+          { ...posture, joints },
+          requests,
+        );
+        for (const [side, s] of shares)
+          if (begin[side] !== undefined)
+            placed = AutoMovieMotionHumanArm.carry(
+              body,
+              placed,
+              { [side]: begin[side].angles },
+              s,
+            );
+        return placed;
       },
     };
   }

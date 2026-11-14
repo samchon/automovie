@@ -53,6 +53,7 @@ export * from "./measureAutoMovieQuadraticState";
 export * from "./midpoint";
 export * from "./minimizeAutoMovieSimplexQuadratic";
 export * from "./mixSeed";
+export * from "./nearestAngleAlias";
 export * from "./nearestHullEdge";
 export * from "./orderAutoMovieQuadraticMatrix";
 export * from "./pointHullDistance";

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -7,12 +8,14 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
@@ -85,7 +88,7 @@ export namespace racket {
     side?: "left" | "right";
 
     /** Seconds held; 0.6 when absent. */
-    seconds?: number;
+    seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -203,7 +206,7 @@ export namespace racket {
             to: clock.duration,
             placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement => {
               const placed: HumanFoot.IPlacement =
-                AutoMovieMotionHumanLeg.between(
+                AutoMovieMotionHumanLegPhrase.between(
                   from,
                   out(half + wider * landed(s)),
                   into(s),

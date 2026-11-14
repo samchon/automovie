@@ -56,6 +56,15 @@ export namespace KickForm {
   /** The most the support foot steps up toward a target beyond reach, as a share of the stance length (provisional). */
   export const STEP_SHARE: number = 0.5;
 
+  /**
+   * The most the support foot steps back from a target too close, as a share
+   * of the stature: a step, so no longer than the longest single backward
+   * step measured, 75.4 % (SD 3.2) of height in younger women (Schulz,
+   * Ashton-Miller and Alexander 2007, Clin Biomech 22:689, "Back Only"
+   * maximum step length).
+   */
+  export const STEP_BACK_SHARE: number = 0.754;
+
   /** The least horizontal distance along the line the kicking hip keeps from the planned point when the support foot steps up, as a share of the thigh (provisional: within a thigh's length the knee passes the target and the thigh, not the shin or the foot, meets it). */
   export const STEP_ROOM_SHARE: number = 1;
 

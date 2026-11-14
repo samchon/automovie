@@ -4,13 +4,15 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import type { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import type { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
+import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
 
 /**
@@ -25,7 +27,7 @@ import { gestureTouch } from "./gestureTouch";
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
  * measure, or on a target or on the body's own face, so every gesture fits
  * any stature and proportion. A place of the air is written in the names of
- * {@link AutoMovieMotionHumanTarget.Place} (a height, a lateral and a
+ * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
  * distance, with a nudge in arm lengths where the stroke moves about it), a
  * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle
  * as a level of {@link AutoMovieMotionHumanRange}:
@@ -53,7 +55,15 @@ import { gestureTouch } from "./gestureTouch";
  *   the midpoint on each beat, three beats a second (provisional; free
  *   applause is faster than the near-2 Hz synchronised rhythm, Neda et al.
  *   2000, Nature 403:849).
+ * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
+ *   knuckles ahead and 45 degrees down, so a straight thumb, which leans
+ *   toward the knuckles, points down; the elbow is asked out at the
+ *   shoulder's height, which leaves the forearm a quarter turn instead of a
+ *   half (provisional place, tip and elbow).
  * - `rubHands`: the palms together, sliding opposite ways along the fingers.
+ * - `palmsTogether`: the palms pressed together ahead of the chest, the
+ *   fingers up and forward, held: the clap's hand pose without its parting
+ *   (a prayer, a wai or gassho greeting).
  * - `touchFace`: the index fingertip, hand flat, on a face region with the
  *   palm toward the face and the fingers up, held; `pushGlasses` slides it
  *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
@@ -77,7 +87,7 @@ export namespace gestureStroke {
    * the trunk's pitch, which the gesture law applies.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two families of gesture and where `bow` is handled; the namespace doc describes each gesture's goal.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the communicative gestures supported; `RHYTHM` and `HANDS` are total records over it, so every kind has a timing and a hand count by type.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the communicative gestures supported; `gestureStrokeTables.RHYTHM` and `gestureStrokeTables.HANDS` are total records over it, so every kind has a timing and a hand count by type.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and read by the gesture law's parameters, the capture cases, the gesture verdicts and the CI breath and gaze test that walks the tables.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as table rows keyed by the union and exhaustive switches, not as per-gesture members.
    */
@@ -91,6 +101,8 @@ export namespace gestureStroke {
     | "beckon"
     | "clap"
     | "rubHands"
+    | "palmsTogether"
+    | "thumbsDown"
     | "touchFace"
     | "pushGlasses"
     | "scratchHead"
@@ -189,66 +201,20 @@ export namespace gestureStroke {
     /** Extra outward elbow share. */
     out: number;
 
+    /** Where the elbow is asked to lie, as shares of the upper arm from the shoulder; where an unloaded arm hangs when absent. */
+    elbow?: AutoMovieMotionHumanBend.IShares;
+
     /** Extra finger flexion added to the shape, degrees (the beckon's curl). */
     curl?: number;
   }
 
-  /**
-   * A gesture's timing: cycles in the stroke and the time of one cycle, a
-   * named pause or a pause scaled (the seconds each resolves to are the ones
-   * the gestures shipped with; the clap's three beats a second is no scaled
-   * pause and stays explicit).
-   */
-  export const RHYTHM: Readonly<
-    Record<Kind, { cycles: number; period: AutoMovieMotionHumanTiming.Span }>
-  > = {
-    wave: { cycles: 3, period: "beat" },
-    raiseHand: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
-    cheer: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
-    stopPalm: { cycles: 1, period: { pause: "beat", scale: 0.875 } },
-    point: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
-    palmsUp: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
-    beckon: { cycles: 2, period: { pause: "beat", scale: 1.5 } },
-    clap: {
-      cycles: 4,
-      period: { seconds: 1 / 3, source: "provisional: everyday-gesture-clap" },
-    },
-    rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
-    touchFace: { cycles: 1, period: "long" },
-    pushGlasses: { cycles: 1, period: { pause: "beat", scale: 0.75 } },
-    scratchHead: { cycles: 4, period: { pause: "beat", scale: 0.625 } },
-    shrug: { cycles: 1, period: { pause: "long", scale: 0.875 } },
-    nod: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
-    shakeHead: { cycles: 3, period: { pause: "beat", scale: 1.125 } },
-    bow: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
-    chinLift: { cycles: 1, period: "long" },
-    squareShoulders: { cycles: 1, period: "long" },
-    slump: { cycles: 1, period: "long" },
-  };
+  /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
+  export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
+    gestureStrokeTables.RHYTHM;
 
-  /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
-  export const HANDS: Readonly<Record<Kind, "one" | "both" | "none">> = {
-    wave: "one",
-    raiseHand: "one",
-    cheer: "both",
-    stopPalm: "one",
-    point: "one",
-    palmsUp: "both",
-    beckon: "one",
-    clap: "both",
-    rubHands: "both",
-    touchFace: "one",
-    pushGlasses: "one",
-    scratchHead: "one",
-    shrug: "both",
-    nod: "none",
-    shakeHead: "none",
-    bow: "none",
-    chinLift: "none",
-    squareShoulders: "none",
-    slump: "none",
-  };
-
+  /** Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here with its kind. */
+  export const HANDS: typeof gestureStrokeTables.HANDS =
+    gestureStrokeTables.HANDS;
   /**
    * A hand's goal at a share of the stroke.
    *
@@ -297,16 +263,16 @@ export namespace gestureStroke {
     // given and the repeat varies, the named place's offset is added, so the
     // offset is one value through the stroke whatever the nudge does.
     const put = (
-      place: AutoMovieMotionHumanTarget.Place,
+      place: AutoMovieMotionHumanTargetGrid.Place,
       reach: number = 1,
-      named?: AutoMovieMotionHumanTarget.Place,
+      named?: AutoMovieMotionHumanTargetGrid.Place,
     ): IAutoMovieVector3 => {
       const shares: AutoMovieMotionHumanTarget.IDefault =
-        AutoMovieMotionHumanTarget.place(body, side, place);
+        AutoMovieMotionHumanTargetGrid.place(body, side, place);
       const base: AutoMovieMotionHumanTarget.IDefault | undefined =
         named === undefined || input.vary === undefined
           ? undefined
-          : AutoMovieMotionHumanTarget.place(body, side, named);
+          : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: AutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
       const offset = (key: "lateral" | "height" | "range"): number =>
@@ -381,6 +347,29 @@ export namespace gestureStroke {
           rotation: facing("up", "forward"),
           out: 0,
         };
+      case "thumbsDown":
+        // The fist ahead of the chest, the palm outward, so the thumb's side
+        // is down. Under a hanging elbow that is half a turn of the forearm;
+        // with the elbow out at the shoulder's height the arm itself gives a
+        // quarter of it and the forearm turns the other quarter. A straight
+        // thumb leans toward the knuckles (55 degrees from the thumb side's
+        // own direction on the polygon man), so the knuckles are tipped 45
+        // degrees down for the thumb to point down, the forearm sloping
+        // down from the raised elbow with them.
+        return {
+          surface: "fist",
+          shape: "fist",
+          point: put(
+            { height: "chest", lateral: "shoulder", distance: "mid" },
+            Math.min(1, e),
+          ),
+          rotation: HumanHand.rotation(side, {
+            fingers: dir(0, -Math.SQRT1_2, Math.SQRT1_2),
+            palm: dir(sign, 0, 0),
+          }),
+          out: 0,
+          elbow: { out: 0.9, up: 0, forward: 0.3 },
+        };
       case "point":
         return gestureTouch.point(input, side);
       case "palmsUp":
@@ -415,10 +404,11 @@ export namespace gestureStroke {
             (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
       case "clap":
-      case "rubHands": {
+      case "rubHands":
+      case "palmsTogether": {
         // The palms meet ahead of the chest, the fingers up and forward; a
-        // clap parts them and a rub slides them opposite ways along the
-        // fingers.
+        // clap parts them, a rub slides them opposite ways along the
+        // fingers, and palms together stay as they meet.
         const apart: number =
           kind === "clap"
             ? 0.09 * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))

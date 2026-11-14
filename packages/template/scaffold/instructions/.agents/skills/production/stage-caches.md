@@ -2,7 +2,7 @@
 
 An expensive stage saves its result and resumes from it: figure or scene preparation, schedule resolution, physics bakes, frame capture, encoding, decoding and audits. This is mandatory, because a rerun that repeats unchanged work spends the time that inspection and repair need.
 
-## Key each stage by its inputs
+## Stage keys
 
 Keep each stage's result as a content-addressed artifact in an ignored folder under `.cache/`, keyed by a digest of every input that affects its output:
 

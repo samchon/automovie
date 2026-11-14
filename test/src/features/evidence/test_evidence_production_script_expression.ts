@@ -1,4 +1,3 @@
-import { createEvidenceConfig } from "@automovie/evidence";
 import {
   type IProductionConfigProps,
   createPackageContract,
@@ -8,6 +7,7 @@ import {
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
+  IEvidenceReference,
 } from "@wrtnlabs/evidence";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -21,13 +21,14 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Scenarios:
  * 1. Missing unit expression answers block construction despite valid content.
  * 2. Restoring unit answers alone leaves missing population obligations blocking.
- * 3. Restoring both answers completes native coverage without a scripts revision.
- * 4. Unsupported script naturalness settings and source tuples are refused.
- * 5. Language and work expression duties stay on construction, not a retired final pass.
+ * 3. Restoring both answers completes native coverage.
+ * 4. Language and work expression duties stay on scripts construction.
+ * 5. Only scripts claims select the expression family; the screenplay selects none.
+ * 6. Legacy source tuples are refused as stages.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Evaluates real Markdown through native Evidence while removing and restoring unit and population expression answers; unsupported stage and source tuple options are checked at configuration construction.
- * @evidence contracts/development/testing.md#independent-expectations The lifecycle requires script unit expression and population duties during construction, independently of screenplay revision; a missing answer must block rather than be deferred to a frozen edition. Fixture certification supplies native fingerprints, not creative approval.
- * @evidence contracts/development/testing.md#distinguishing-cases Missing unit and population answers distinguish their independent native duties; restored answers establish complete coverage. Language and work duties exercise the same construction respondents. Unsupported script naturalness settings and both legacy source tuples fail configuration validation.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates real Markdown through native Evidence while removing and restoring unit and population expression answers, inspects which claims select the expression family, and checks unsupported stage tuples at configuration construction.
+ * @evidence contracts/development/testing.md#independent-expectations The route contract requires script unit expression and population duties during construction, and gives the screenplay no separate expression pass; a missing answer must block. Fixture certification supplies native fingerprints, not creative approval.
+ * @evidence contracts/development/testing.md#distinguishing-cases Missing unit and population answers distinguish their independent native duties; restored answers establish complete coverage. Language and work duties exercise the same construction respondents. Scripts claims with the expression family contrast with screenplay claims without it. Both legacy source tuples fail configuration validation.
  * @evidence contracts/development/testing.md#execution-ownership The exported asynchronous entry evaluates public APIs in process and owns its temporary files under finally, without an installed consumer, subprocess, browser, GPU or replacement of a foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -105,83 +106,75 @@ export async function test_evidence_production_script_expression(): Promise<void
     );
     assert.equal((await inspect()).report.success, true);
 
-    for (const pass of ["draft", "final"] as const) {
-      const unitClaim: () => IEvidenceClaim[] = (): IEvidenceClaim[] =>
-        createPackageContract({
-          document: "work/naturalness/scripts.md",
-          layers: { scripts: "evidence" },
-          pass,
-          narrativeScope: { mode: "complete-work" },
-          reason: "carry the adopted expression",
-          symbol: "h2",
-        });
-      const populationClaim: () => IEvidenceClaim[] = (): IEvidenceClaim[] =>
-        createPackagePopulationContract({
-          document: "work/obligations/expression-scripts.md",
-          layers: { scripts: "evidence" },
-          pass,
-          narrativeScope: { mode: "complete-work" },
-          reason: "compare the complete expression",
-        });
-      if (pass === "final") {
-        assert.throws(unitClaim, /only screenplay|scripts.*construction/i);
-        assert.throws(
-          populationClaim,
-          /only screenplay|scripts.*construction/i,
-        );
-      } else {
-        ProductionWorkflowFixture.write(
-          root,
-          "docs/contracts/work/naturalness/scripts.md",
-          "# Work\n\n## Expression {#expression}\n\nRealize the adopted expression.\n",
-        );
-        ProductionWorkflowFixture.write(
-          root,
-          "docs/contracts/work/obligations/expression-scripts.md",
-          "# Work population\n\n## Expression {#expression}\n\nCompare the adopted expression.\n",
-        );
-        const claims: IEvidenceClaim[] = [...unitClaim(), ...populationClaim()];
-        props.claims = claims;
-        assert.equal((await inspect()).report.success, false);
-        fs.appendFileSync(
-          unit,
-          "\n## @evidence work/naturalness/scripts.md#expression\n\nThe scene realizes its adopted expression.\n",
-        );
-        fs.appendFileSync(
-          population,
-          "\n## @evidence work/obligations/expression-scripts.md#expression\n\nCompared the complete expression.\n",
-        );
-        const adopted: IEvidenceCheckAnalysis = await inspect();
-        assert.equal(
-          adopted.report.success,
-          true,
-          JSON.stringify({
-            diagnostics: adopted.report.diagnostics,
-          }),
-        );
-      }
-    }
-
-    const legacy: IProductionConfigProps =
-      ProductionWorkflowFixture.props(root);
-    Object.assign(legacy.naturalness, { scripts: "disabled" });
-    assert.throws(
-      (): unknown => createProductionConfig(legacy),
-      /scripts.*construction|naturalness\.scripts/i,
+    ProductionWorkflowFixture.write(
+      root,
+      "docs/contracts/work/naturalness/scripts.md",
+      "# Work\n\n## Expression {#expression}\n\nRealize the adopted expression.\n",
     );
-    assert.throws(
-      (): unknown =>
-        createEvidenceConfig({
-          location: root,
-          narrative: {
-            mode: "long",
-            naturalness: Object.assign(
-              { screenplay: "disabled" as const },
-              { scripts: "disabled" },
-            ),
-          },
-        }),
-      /scripts.*construction|naturalness\.scripts/i,
+    ProductionWorkflowFixture.write(
+      root,
+      "docs/contracts/work/obligations/expression-scripts.md",
+      "# Work population\n\n## Expression {#expression}\n\nCompare the adopted expression.\n",
+    );
+    props.claims = [
+      ...createPackageContract({
+        document: "work/naturalness/scripts.md",
+        layers: { scripts: "evidence" },
+        narrativeScope: { mode: "complete-work" },
+        reason: "carry the adopted expression",
+        symbol: "h2",
+      }),
+      ...createPackagePopulationContract({
+        document: "work/obligations/expression-scripts.md",
+        layers: { scripts: "evidence" },
+        narrativeScope: { mode: "complete-work" },
+        reason: "compare the complete expression",
+      }),
+    ];
+    assert.equal((await inspect()).report.success, false);
+    fs.appendFileSync(
+      unit,
+      "\n## @evidence work/naturalness/scripts.md#expression\n\nThe scene realizes its adopted expression.\n",
+    );
+    fs.appendFileSync(
+      population,
+      "\n## @evidence work/obligations/expression-scripts.md#expression\n\nCompared the complete expression.\n",
+    );
+    const adopted: IEvidenceCheckAnalysis = await inspect();
+    assert.equal(
+      adopted.report.success,
+      true,
+      JSON.stringify({
+        diagnostics: adopted.report.diagnostics,
+      }),
+    );
+
+    // The screenplay settles its speech in construction and owes no expression
+    // family, while the installed expression contracts stay scripts-only. The
+    // work package claim added above is left out, so only the package's own
+    // selection can satisfy the scripts check.
+    const expression = (claim: IEvidenceClaim): boolean =>
+      (Array.isArray(claim.reference)
+        ? claim.reference
+        : [claim.reference]
+      ).some((reference: IEvidenceReference): boolean =>
+        JSON.stringify(reference).includes("naturalness/"),
+      );
+    const selected: IEvidenceClaim[] = createProductionConfig({
+      ...props,
+      claims: [],
+    }).claims;
+    assert.ok(
+      selected.some(
+        (claim: IEvidenceClaim): boolean =>
+          claim.name?.startsWith("scripts") === true && expression(claim),
+      ),
+    );
+    assert.ok(
+      !selected.some(
+        (claim: IEvidenceClaim): boolean =>
+          claim.name?.startsWith("screenplay") === true && expression(claim),
+      ),
     );
     for (const flag of [false, true]) {
       const tuple: IProductionConfigProps =

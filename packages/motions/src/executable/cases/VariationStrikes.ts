@@ -19,8 +19,8 @@ import { HumanSkill } from "../../skill/HumanSkill";
 import { StrikingBody } from "../../striking/StrikingBody";
 import { StrikingRecord } from "../../striking/StrikingRecord";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";
-import { StrikingVerdicts } from "./StrikingVerdicts";
 import { VariationSeries } from "./VariationSeries";
 import { strikingScenarios } from "./strikingScenarios";
 
@@ -352,7 +352,7 @@ function defended(
       passed: apart <= VariationStrikes.ON,
       detail: `${(1000 * apart).toFixed(3)} mm between the record's move and the varied point's move; bound ${1000 * VariationStrikes.ON} mm`,
     },
-    StrikingVerdicts.defence(
+    StrikingEventVerdicts.defence(
       "b",
       covered
         .segments("b")

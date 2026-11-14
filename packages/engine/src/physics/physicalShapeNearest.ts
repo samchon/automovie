@@ -32,19 +32,31 @@ import { physicalHullNearest } from "./physicalHullNearest";
  * direction is nearest; the normal is then the shape's local X axis, a
  * direction perpendicular to a capsule's axis.
  *
+ * A segment widened by a radius that runs linearly from one end to the other
+ * (a tapered capsule, the round cone of a limb that narrows toward its far
+ * joint) is read by the same search: its signed distance is the least over
+ * the segment's points of the point's signed distance less the radius
+ * there. The point's distance to a convex shape is convex along the segment
+ * (the distance to a convex set is a convex function and the segment's
+ * points are affine in the parameter), and the radius is affine in it, so
+ * the difference is convex and the golden-section search finds its minimum
+ * for every shape kind, a sphere and a capsule included.
+ *
  * @param pose The shape's parent pose, world metres.
  * @param shape The admitted shape.
  * @param a One end of the segment, world metres.
  * @param b The other end, world metres.
- * @returns The signed distance in metres, the surface point, the outward unit
- *   normal and the segment point, all in the world frame.
+ * @param taper The radii the segment is widened by at `a` and at `b`, metres, not negative; absent for the bare segment.
+ * @returns The signed distance in metres (less the widening, for a tapered
+ *   segment), the surface point, the outward unit normal and the segment
+ *   point, all in the world frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame composition, the sign, the point case, the method for each shape kind with its precision, and the convention where no nearest direction exists.
- * @evidence contracts/development/implementation.md#principled-implementation Spheres and capsules are segments widened by a radius, so their nearest points are the engine's exact closest-segment-points query moved out by the radius; the signed distance of a convex solid is a convex function, so golden-section search along the segment finds its minimum to 1e-9 of the parameter without missing an entry.
+ * @evidence contracts/development/implementation.md#principled-implementation Spheres and capsules are segments widened by a radius, so their nearest points are the engine's exact closest-segment-points query moved out by the radius; the signed distance of a convex solid is a convex function, so golden-section search along the segment finds its minimum to 1e-9 of the parameter without missing an entry; a tapered segment subtracts an affine radius from that convex distance, which keeps it convex, so the same search reads it for every kind.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of shape proximity: one frame composition and one branch per shape kind, each named, with an exhaustive check. Distance, contact point and contact normal are one reading, so no caller derives a normal from a distance gradient or a point from samples.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added to the distance; the 44 golden-section steps are the count that narrows a unit interval below 1e-9 (0.618^44 ≈ 6.4e-10), 1e-12 metres is the length below which an offset carries no direction in double arithmetic at body scale, and the shape's dimensions are taken as admitted by the profile.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one closest-segment query for a sphere or capsule, 47 local evaluations for a box or hull segment and one for a point.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its four arguments; callers that query many shapes hold their own placed frames, and a hull's faces are shared by `physicalHullFaces`.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one closest-segment query for a sphere or capsule, 47 local evaluations for a box or hull segment, or for any kind under a taper, and one for a point.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments; callers that query many shapes hold their own placed frames, and a hull's faces are shared by `physicalHullFaces`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
 export function physicalShapeNearest(
@@ -52,6 +64,7 @@ export function physicalShapeNearest(
   shape: P.IShape,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
+  taper?: readonly [number, number],
 ): physicalShapeNearest.IResult {
   const centre: IAutoMovieVector3 = Vector3.add(
     pose.position,
@@ -61,7 +74,10 @@ export function physicalShapeNearest(
     pose.rotation,
     shape.transform.rotation,
   );
-  if (shape.kind === "sphere" || shape.kind === "capsule") {
+  if (
+    taper === undefined &&
+    (shape.kind === "sphere" || shape.kind === "capsule")
+  ) {
     const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
       y: shape.kind === "capsule" ? shape.halfLength : 0,
@@ -99,9 +115,19 @@ export function physicalShapeNearest(
   );
   const local = (
     p: IAutoMovieVector3,
-  ): { distance: number; point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+  ): {
+    distance: number;
+    point: IAutoMovieVector3;
+    normal: IAutoMovieVector3;
+  } => {
     if (shape.kind === "hull") return physicalHullNearest(shape.points, p);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p);
+    if (shape.kind === "sphere" || shape.kind === "capsule")
+      return roundNearest(
+        shape.kind === "capsule" ? shape.halfLength : 0,
+        shape.radius,
+        p,
+      );
     shape satisfies never;
     throw new Error("Unknown physical shape kind");
   };
@@ -110,7 +136,9 @@ export function physicalShapeNearest(
     y: la.y + (lb.y - la.y) * t,
     z: la.z + (lb.z - la.z) * t,
   });
-  const gap = (t: number): number => local(along(t)).distance;
+  const widened = (t: number): number =>
+    taper === undefined ? 0 : taper[0] + (taper[1] - taper[0]) * t;
+  const gap = (t: number): number => local(along(t)).distance - widened(t);
   let parameter: number = 0;
   if (la.x !== lb.x || la.y !== lb.y || la.z !== lb.z) {
     const ratio: number = (Math.sqrt(5) - 1) / 2;
@@ -152,7 +180,7 @@ export function physicalShapeNearest(
     normal: IAutoMovieVector3;
   } = local(along(parameter));
   return {
-    distance: found.distance,
+    distance: found.distance - widened(parameter),
     point: Vector3.add(centre, Quaternion.rotateVector(rotation, found.point)),
     normal: Quaternion.rotateVector(rotation, found.normal),
     at: Vector3.add(a, Vector3.scale(Vector3.subtract(b, a), parameter)),
@@ -167,7 +195,11 @@ export function physicalShapeNearest(
 const boxNearest = (
   h: IAutoMovieVector3,
   p: IAutoMovieVector3,
-): { distance: number; point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+): {
+  distance: number;
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+} => {
   const q: IAutoMovieVector3 = {
     x: Math.abs(p.x) - h.x,
     y: Math.abs(p.y) - h.y,
@@ -196,6 +228,38 @@ const boxNearest = (
     distance: outside,
     point,
     normal: Vector3.scale(Vector3.subtract(p, point), 1 / outside),
+  };
+};
+
+/**
+ * The nearest surface point, outward normal and signed distance of an
+ * origin-centred Y capsule (a sphere when its half length is 0) to a point in
+ * its frame: the axis point nearest the point, moved out by the radius; the
+ * local X axis when the point is on the axis.
+ */
+const roundNearest = (
+  half: number,
+  radius: number,
+  p: IAutoMovieVector3,
+): {
+  distance: number;
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+} => {
+  const axis: IAutoMovieVector3 = {
+    x: 0,
+    y: Math.min(half, Math.max(-half, p.y)),
+    z: 0,
+  };
+  const away: number = Vector3.length(Vector3.subtract(p, axis));
+  const normal: IAutoMovieVector3 =
+    away > 1e-12
+      ? Vector3.scale(Vector3.subtract(p, axis), 1 / away)
+      : { x: 1, y: 0, z: 0 };
+  return {
+    distance: away - radius,
+    point: Vector3.add(axis, Vector3.scale(normal, radius)),
+    normal,
   };
 };
 

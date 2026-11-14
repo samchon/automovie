@@ -4,6 +4,6 @@ The discovery result covers the complete declared event population under the [co
 
 Statements: [statements/discovery/treatments.md](../statements/discovery/treatments.md).
 
-## Are this work's event and document rules discovered? {#treatment-requirements}
+## Treatment requirements
 
 Were the work's own rules for its events and for the treatment document found? A settings summary, a genre aspiration or an unowned label supplies neither.

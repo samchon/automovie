@@ -4,7 +4,6 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
 import { constructionStage } from "../constructionStage";
-import { hasNaturalness } from "../hasNaturalness";
 import { productionLayers } from "../productionLayers";
 
 /**
@@ -32,10 +31,7 @@ export function assertProductionEvidenceSources(
   const routed: readonly AuthoredLayer[] = productionLayers(props);
   for (const layer of AUTHORED_LAYERS) {
     if (routed.includes(layer)) continue;
-    if (
-      constructionStage(props, layer) !== "disabled" ||
-      (hasNaturalness(layer) && props.naturalness.screenplay !== "disabled")
-    )
+    if (constructionStage(props, layer) !== "disabled")
       throw new Error(
         "Layers outside the production route must stay disabled.",
       );
@@ -52,24 +48,9 @@ export function assertProductionEvidenceSources(
     props.construction.index !== "evidence"
   )
     throw new Error("Unknown outline stage.");
-  for (const layer of AUTHORED_LAYERS)
-    for (const pass of ["construction", "naturalness"] as const) {
-      if (pass === "naturalness" && !hasNaturalness(layer)) continue;
-      const stage: unknown =
-        pass === "construction"
-          ? constructionStage(props, layer)
-          : props.naturalness.screenplay;
-      if (stage !== "disabled" && stage !== "evidence")
-        throw new Error("Unknown stage: a layer is disabled or evidence.");
-    }
-  if ("scripts" in props.naturalness)
-    throw new Error(
-      "Scripts finish in construction; remove naturalness.scripts.",
-    );
-  if (
-    "settings" in props.naturalness ||
-    "brief" in props.naturalness ||
-    "treatments" in props.naturalness
-  )
-    throw new Error("Settings, brief and treatments finish in construction.");
+  for (const layer of AUTHORED_LAYERS) {
+    const stage: unknown = constructionStage(props, layer);
+    if (stage !== "disabled" && stage !== "evidence")
+      throw new Error("Unknown stage: a layer is disabled or evidence.");
+  }
 }

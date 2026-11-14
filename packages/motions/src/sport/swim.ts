@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -13,12 +14,14 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { SwimStroke } from "./SwimStroke";
 
 /**
  * Swimming on a declared water plane (#3254, M25): treading water and the
@@ -53,8 +56,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * Events: `entryRight{i}`, `entryLeft{i}` and `breath{i}` per cycle for the
  * crawl, `cycle{i}` for treading.
  *
- * Not drafted: breaststroke, backstroke, the eggbeater proper, floating,
- * entering and leaving the water.
+ * The breaststroke, the backstroke and floating are keyed strokes
+ * (`SwimStroke`), planned by their own table on the same plane.
+ *
+ * Not drafted: the eggbeater proper, entering and leaving the water.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the plane, each stroke's phases, shares, timing, sources and provisional values, the events and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of a floating root and joint-angle limb cycles over one clock.
@@ -72,7 +77,7 @@ export namespace swim {
     });
 
   /** The strokes. */
-  export type Kind = "treadWater" | "frontCrawl";
+  export type Kind = "treadWater" | "frontCrawl" | SwimStroke.Name;
 
   /** A crawl cycle's seconds (provisional). */
   export const CYCLE: number = 1.4;
@@ -105,7 +110,7 @@ export namespace swim {
     water?: number;
 
     /** Cycles; 3 when absent. */
-    cycles?: number;
+    cycles?: number & tags.Type<"uint32"> & tags.Minimum<1> & HumanUnit<"">;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -138,6 +143,17 @@ export namespace swim {
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IHumanPosture = context.entry.posture;
     const water: number = p.water ?? entry.root.y + m.chestHeight;
+
+    // The strokes written as keyed postures are planned by their own table.
+    if (p.kind !== "treadWater" && p.kind !== "frontCrawl")
+      return SwimStroke.plan({
+        body,
+        entry,
+        stroke: p.kind,
+        water,
+        cycles,
+        tempo: modifiers.tempo,
+      });
     const period: number =
       (p.kind === "frontCrawl" ? CYCLE : 1) * modifiers.tempo;
     const instants: AutoMovieMotionClock.IInstant[] = [];

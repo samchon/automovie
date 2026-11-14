@@ -4,6 +4,6 @@ Each settings H2 answers as one facet of its subject, owning the anchored H3 fac
 
 Statements: [statements/principles/settings.md](../statements/principles/settings.md).
 
-## Does the record settle a decision the planned scenes need? {#usable-facts}
+## Usable facts
 
 Does it name its subject and settle a value, scope and the conditions, limits, costs or exceptions that affect use, specifically enough that a later author or reviewer can hold the work to it? "A nervous partner" binds no scene; "hesitates before every jump, and the hesitation shows in his shoulders" does. A record filled with facets nothing uses buries its decisions in material nobody can be held to.

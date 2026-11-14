@@ -195,6 +195,9 @@ export namespace HumanBreath {
   export function layer(options: IOptions = {}): IHumanLayer {
     return {
       name: "breath",
+
+      // The spine, the chest and the shoulder girdles (`TIDAL`).
+      channels: ["trunk"],
       apply: (
         posture: IHumanPosture,
         seconds: number,

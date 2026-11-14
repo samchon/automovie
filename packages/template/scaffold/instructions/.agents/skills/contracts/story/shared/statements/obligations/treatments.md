@@ -2,7 +2,7 @@
 
 Contract: [obligations/treatments.md](../../obligations/treatments.md).
 
-## Whole event design {#whole-event-design}
+## Whole event design
 
 Information:
 
@@ -21,7 +21,7 @@ Entry, middle and ending:
 10. The ending follows established choices and costs, shows what closes and what remains open with its aftermath or changed state, and decides the actual last delivered event and stopping reason.
 11. Chance may begin a crisis, while outside resolution needs an owned work premise. Exception: an open ending needs grounds, not total explanation or a compulsory epilogue.
 
-## Material and handoff {#material-and-handoff}
+## Material and handoff
 
 1. A script author can understand the essential events, motives, choices, relationship turns, information releases, costs, results and inherited state.
 2. Necessary canonical facts are passed in usable context, and full dialogue, precise blocking and release partition are left to scripts.

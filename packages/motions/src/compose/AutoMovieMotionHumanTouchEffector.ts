@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -38,24 +39,45 @@ export namespace AutoMovieMotionHumanTouchEffector {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the anatomical directions, what the grasp axis is and that a leading minus is the opposite.
    * @evidence contracts/development/design.md#principled-representation The hand's three anatomical axes, the power grip's oblique axis and their negatives, the directions a held tool or a surface can point in the hand's rest frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, read by the effector's tool offset and its two laid axes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight literals, the entries of `AXES`, read by `axis` and, through `Direction`, by the effector's two laid directions; the tool offset weights the three anatomical axes directly.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Anatomical names, not bone-space x, y and z, so a left and a right hand state the same effector.
    */
-  export type Axis =
-    | "fingers"
-    | "palm"
-    | "thumb"
-    | "grasp"
-    | "-fingers"
-    | "-palm"
-    | "-thumb"
-    | "-grasp";
+  export type Axis = (typeof AXES)[number];
+
+  /** The axes of {@link Axis}, as data. */
+  export const AXES = [
+    "fingers",
+    "palm",
+    "thumb",
+    "grasp",
+    "-fingers",
+    "-palm",
+    "-thumb",
+    "-grasp",
+  ] as const;
+
+  /**
+   * A direction of the hand: one of its axes, or a blend of the three
+   * anatomical ones by weight, normalised, for a direction between them:
+   * fingertips brought to the lips point half toward the face and half up
+   * it (`{ fingers: 1, palm: 1 }` turned into the region), and a held prop's
+   * own axis lies wherever the grip put it. Weights name anatomical axes, so
+   * a left and a right hand state the same direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two forms, what a blend is for and why it is side-free.
+   * @evidence contracts/development/design.md#principled-representation Any direction in the hand's frame is a combination of its three orthogonal axes; the record states the combination and `direction` normalises it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by the effector's two laid directions.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw bone-space vector, which would mean opposite things on the two hands; all weights zero is refused by `direction`.
+   */
+  export type Direction =
+    | Axis
+    | Partial<Record<"fingers" | "palm" | "thumb", number>>;
 
   /**
    * An effector.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation A surface, a shape, an optional tool offset and the two axes laid against the region.
+   * @evidence contracts/development/design.md#principled-representation A surface, a shape, an optional tool offset and the two directions laid against the region.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `local`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Without the axes a surface uses its own normal and forward, so a bare skin row states nothing extra.
    */
@@ -69,11 +91,14 @@ export namespace AutoMovieMotionHumanTouchEffector {
     /** A held tool's tip from the surface, shares of the hand's length along each axis; none when absent. */
     tool?: Partial<Record<"fingers" | "palm" | "thumb", number>>;
 
-    /** The hand axis turned into the region; the surface's own normal when absent. */
-    facing?: Axis;
+    /** The direction of the hand turned into the region; the surface's own normal when absent. */
+    facing?: Direction;
 
-    /** The hand axis laid along the region's tangent; the surface's own forward when absent. */
-    along?: Axis;
+    /** The direction of the hand laid along the region's tangent; the surface's own forward when absent. */
+    along?: Direction;
+
+    /** Extra flexion of the fingers over the shape, degrees, as the touch's kind curls them (`AutoMovieMotionHumanTouchForm.curled`); none when absent. */
+    curl?: number;
   }
 
   /**
@@ -111,6 +136,49 @@ export namespace AutoMovieMotionHumanTouchEffector {
   }
 
   /**
+   * A direction of the hand in its rest frame.
+   *
+   * @param side The hand.
+   * @param direction An axis, or weights on the three anatomical axes.
+   * @returns The unit vector.
+   * @throws {HumanRefusal} A `parameter` refusal on `direction` that lists the hand's axes, when every weight is zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two inputs, the result and the failure.
+   * @evidence contracts/development/implementation.md#principled-implementation The weighted sum of the three orthonormal anatomical axes, normalised.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch on the form and one sum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A blend with no length is refused instead of returning an arbitrary axis.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `axis`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function direction(
+    side: HumanHand.Side,
+    direction: Direction,
+  ): IAutoMovieVector3 {
+    if (typeof direction === "string") return axis(side, direction);
+    let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    for (const name of ["fingers", "palm", "thumb"] as const)
+      sum = Vector3.add(
+        sum,
+        Vector3.scale(axis(side, name), direction[name] ?? 0),
+      );
+    if (!(Vector3.length(sum) > 1e-9))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "direction",
+        value: direction,
+        feasible: {
+          kind: "alternatives",
+          values: AXES,
+        },
+        reason:
+          "a direction of the hand weighs its three axes, and every weight given is 0, so it points nowhere",
+        fix: "name one of the hand's axes, or give at least one axis a weight that is not 0",
+      });
+    return Vector3.normalize(sum);
+  }
+
+  /**
    * The effector's point relative to the wrist joint and its facing and
    * along directions, all in the hand's rest frame.
    *
@@ -141,6 +209,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
       side,
       effector.surface,
       effector.shape,
+      effector.curl ?? 0,
     );
     const hand: number = body.measure.hand;
     let point: IAutoMovieVector3 = surface.point;
@@ -154,11 +223,11 @@ export namespace AutoMovieMotionHumanTouchEffector {
       normal:
         effector.facing === undefined
           ? surface.normal
-          : axis(side, effector.facing),
+          : direction(side, effector.facing),
       forward:
         effector.along === undefined
           ? surface.forward
-          : axis(side, effector.along),
+          : direction(side, effector.along),
     };
   }
 
@@ -207,6 +276,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @param side The hand.
    * @param effector The effector.
    * @returns Metres, not negative.
+   * @throws {HumanRefusal} When the effector's shape does not admit its contact (`admit`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is measured, the unit and the tool case.
    * @evidence contracts/development/implementation.md#principled-implementation The signed distance of the surface's point to the hand's (or the fingertip's) own colliders at rest, negated.
@@ -221,6 +291,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     side: HumanHand.Side,
     effector: IEffector,
   ): number {
+    admit(effector);
     if (effector.tool !== undefined) return 0;
     const bones = new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>();
     const own: AutoMovieHumanoidBone =
@@ -243,6 +314,57 @@ export namespace AutoMovieMotionHumanTouchEffector {
     }
   }
 
+  /**
+   * The hand shapes whose posed hand an effector's contact lies on, by hand
+   * surface: a palm contact is the palm laid flat, a fist's is the fist, the
+   * index fingertip's is the finger held out flat or pointing, and the
+   * back of the hand and the wrist are outermost in every shape. A grip
+   * without a tool is the fist round a handle, its contact the fist's own
+   * surface along its facing. A held tool's tip lies
+   * beyond the hand in any shape that holds it.
+   */
+  export const ADMITS: Readonly<
+    Record<HumanHand.Surface, readonly HumanHand.Shape[]>
+  > = {
+    palm: ["flat"],
+    grip: ["fist"],
+    fist: ["fist"],
+    indexTip: ["flat", "point"],
+    handBack: HumanHand.SHAPES,
+    wrist: HumanHand.SHAPES,
+  };
+
+  /**
+   * Refuse an effector whose hand shape does not admit its contact
+   * (`ADMITS`): a palm curled relaxed has its fingertips past the palm, so
+   * the palm cannot lie on the region: a relaxed palm wiping the mouth has
+   * its fingertips 52 mm past the palm along its facing. An effector with
+   * a tool is admitted in any shape.
+   *
+   * @param effector The effector.
+   * @throws {HumanRefusal} When the shape is not one its surface admits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the measured defect it prevents and the tool's case.
+   * @evidence contracts/development/implementation.md#principled-implementation A contact is a point of the posed hand's surface that faces the region; a shape that puts other parts of the hand past it has no such point there.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table lookup and one refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusal names the admitted shapes; nothing is changed silently.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function admit(effector: IEffector): void {
+    if (effector.tool !== undefined) return;
+    const admitted: readonly HumanHand.Shape[] = ADMITS[effector.surface];
+    if (admitted.includes(effector.shape)) return;
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "shape",
+      value: effector.shape,
+      feasible: { kind: "alternatives", values: admitted },
+      reason: `a ${effector.surface} contact lies on the hand only in the ${admitted.join(" or ")} shape; ${effector.shape} puts other parts of the hand past it`,
+      fix: `lay the ${effector.surface} with the hand ${admitted.join(" or ")}`,
+    });
+  }
   /**
    * The arm goal that lays an effector on a contact point against a normal,
    * its along axis on a tangent.
