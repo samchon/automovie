@@ -532,6 +532,32 @@ namespace FamilyConicLowerTrunk {
     return mirror === "self" ? rows * ((columns + 1) / 2) : rows * columns;
   }
 
+  /**
+   * What the stored trunk spends on the fitted stretch: its wall's numbers at the knots inside it (each knot one value per field), and
+   * its nets' free controls whose rows stand in it, a row at its Greville station (parameter `i - 1` of `[0, R - 3]`), counted as the
+   * module stores them (`AutoMovieHumanConicRelief.stored`: half the columns of a self-mirrored net, none for a twin). The fitted window's
+   * own count to set beside it: its knots inside the stretch times its fields, since the join keeps the held wall's values at both ends.
+   *
+   * @param at The fitted window's knots.
+   */
+  function storedSpend(at: readonly number[]): { wallKnotsInside: number; wallNumbers: number; netControls: number; byNet: Record<string, number>; windowInsideKnots: number } {
+    const wall: Family = stored();
+    const inside: number = wall.knots.filter((k: number): boolean => k > START + 1e-9 && k < TO - 1e-9).length;
+    const byNet: Record<string, number> = {};
+    for (const relief of wall.reliefs ?? []) {
+      const kept: number = AutoMovieHumanConicRelief.stored(relief);
+      if (kept === 0) continue;
+      const perRow: number = kept / relief.rows;
+      let count: number = 0;
+      for (let i: number = 3; i <= relief.rows - 4; ++i) {
+        const s: number = relief.stations[0] + ((i - 1) / (relief.rows - 3)) * (relief.stations[1] - relief.stations[0]);
+        if (s >= START && s < TO) count += perRow;
+      }
+      if (count > 0) byNet[relief.name] = count;
+    }
+    return { wallKnotsInside: inside, wallNumbers: inside * wall.values.length, netControls: Object.values(byNet).reduce((a: number, b: number): number => a + b, 0), byNet, windowInsideKnots: at.filter((k: number): boolean => k > START + 1e-9 && k < TO - 1e-9).length };
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------
   // Commands
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -605,6 +631,9 @@ namespace FamilyConicLowerTrunk {
     /** The fitted window's own knots; `knots` and `values` are the wall joined to the held wall (`splice`). */
     windowKnots?: number[];
     join?: { from: number; to: number; momentMiss: number; heldMm: number };
+    windowAdmission?: IAdmission;
+    spend?: ReturnType<typeof storedSpend>;
+    refusedAfterFit?: string;
     bands?: { from: number; to: number; heightMm: [number, number]; residual: ReturnType<typeof stats>; leftover: ReturnType<typeof stats>; controls: { stored: number; coarsest: number } }[];
     residualHeights: { atStoredGrids: number; atCoarsest: number };
     total: { atStoredGrids: number; atCoarsest: number };
@@ -659,11 +688,31 @@ namespace FamilyConicLowerTrunk {
       }
       return round3(worst);
     })();
-    log("admission", { ...resultAdmission, range, momentMiss: joined.momentMiss, heldMm, native: native.map((x: string): string => x.slice(0, 300)) });
+    // The window as the fit returned it, read under the same admission over its own stations, and what the join changed: each field's
+    // largest change at the window's inside knots, and its end values against the held wall's at the window's two end knots. A refusal
+    // after the fit is placed by these: the fit's admission read the window, the join then moved it.
+    const windowAdmission: IAdmission = admission(at, window.values, layout, margin, [START, TO]);
+    const units: S.Unit[] = S.units(layout);
+    const change: { field: number; unit: S.Unit; inside: number; ends: [number, number] }[] = START === FROM ? [] : window.values.map((field: number[], f: number) => {
+      const inside: number = Math.max(0, ...joined.knots.map((k: number, i: number): number => {
+        const m: number = at.findIndex((x: number): boolean => Math.abs(x - k) < 1e-9);
+        return m > 0 && m < at.length - 1 ? Math.abs(joined.values[f]![i]! - field[m]!) : 0;
+      }));
+      const end = (k: number): number => Math.abs(field[at.indexOf(k)]! - joined.values[f]![joined.knots.indexOf(k)]!);
+      return { field: f, unit: units[f]!, inside: round3(inside), ends: [round3(end(START)), round3(end(TO))] as [number, number] };
+    });
+    log("admission", { ...resultAdmission, range, momentMiss: joined.momentMiss, heldMm, window: windowAdmission, change: change.filter((c): boolean => c.inside > 0.01 || c.ends[0] > 0.01 || c.ends[1] > 0.01), native: native.map((x: string): string => x.slice(0, 300)) });
+    const spend: ReturnType<typeof storedSpend> = storedSpend(at);
 
     // Measured back: the stored wall's values lofted through the engine and read along every target point's ray.
     const loft: AutoMovieViewLoft.IResult = H.create(family, stations(GRID_MM));
-    if (loft.chain === null) throw new Error("the fitted wall did not loft: " + JSON.stringify(loft.diagnostics).slice(0, 400));
+    if (loft.chain === null) {
+      // Refused after the fit: the row records where and by which premise, and the measurements that place it, with no residual.
+      const refusal: string = loft.diagnostics.map((d): string => d.detail).find((d: string): boolean => d.length > 0) ?? "no chain";
+      await fs.writeFile(path.join(out, name + ".json"), JSON.stringify({ name, title: spec.title, layout, fields: units.length, knots: joined.knots, windowKnots: at, wallNumbers: units.length * at.length, values, margin, startAdmission, fit: { fault: fitted.fault, iterations: fitted.iterations, ms: Math.round(fitted.milliseconds), training: fitted.training, heldout: fitted.heldout }, windowValues: window.values, windowAdmission, resultAdmission, change, native, admitted: false, refusedAfterFit: refusal, diagnostics: loft.diagnostics.length, spend }, null, 2));
+      log("refused after fit", { refusal, diagnostics: loft.diagnostics.length });
+      return;
+    }
     const chain: Chain = loft.chain;
     const ringAt = (s: number): { ring: P2[]; read: (t: number) => P2 } => {
       const read: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, s);
@@ -808,6 +857,8 @@ namespace FamilyConicLowerTrunk {
       knots: joined.knots,
       windowKnots: at,
       join: { from: START, to: TO, momentMiss: joined.momentMiss, heldMm },
+      windowAdmission,
+      spend,
       bands: byBand,
       wallNumbers,
       values,
@@ -837,9 +888,21 @@ namespace FamilyConicLowerTrunk {
         lines.push(`| ${spec.name} | not run | | | | | | |`);
         continue;
       }
+      if (row.refusedAfterFit !== undefined) {
+        lines.push(`| ${row.name}: ${row.title} | ${row.wallNumbers} (${row.fields} x ${(row.windowKnots ?? row.knots).length}) | refused after fit | | | | no: window as fitted ${row.windowAdmission?.refused ?? "?"} of ${row.windowAdmission?.read ?? "?"} readings refused; joined ${row.resultAdmission.refused} refused, first ${row.resultAdmission.first ?? ""}; loft: ${row.refusedAfterFit.slice(0, 160)} | ${row.fit.iterations}, ${Math.round(row.fit.ms / 1000)} |`);
+        continue;
+      }
       const r = row.residual.all;
       const l = row.leftover.all;
       lines.push(`| ${row.name}: ${row.title} | ${row.wallNumbers} (${row.fields} x ${(row.windowKnots ?? row.knots).length}) | ${r.max} / ${r.p99} / ${r.rms} | ${row.residualHeights.atStoredGrids} / ${row.residualHeights.atCoarsest} | ${row.total.atStoredGrids} / ${row.total.atCoarsest} | ${l.max} / ${l.p99} / ${l.rms} | ${row.admitted ? "yes" : "no: " + (row.fit.fault ?? row.resultAdmission.first ?? row.native[0] ?? "").slice(0, 120)} | ${row.fit.iterations}, ${Math.round(row.fit.ms / 1000)} |`);
+    }
+    // What the stored trunk spends on the same stretch, from any row that recorded it.
+    for (const spec of SPECS) {
+      const text: string | null = await fs.readFile(path.join(out, spec.name + ".json"), "utf8").catch((): null => null);
+      const spend: IRow["spend"] = text === null ? undefined : (JSON.parse(text) as IRow).spend;
+      if (spend === undefined) continue;
+      lines.push("", `Stored trunk on stations ${START}-${TO}: wall ${spend.wallNumbers} numbers (${spend.wallKnotsInside} knots inside x 10 fields), nets ${spend.netControls} free controls (${Object.entries(spend.byNet).map(([n, c]): string => n + " " + c).join(", ")}), total ${spend.wallNumbers + spend.netControls}; a fitted window adds ${spend.windowInsideKnots} inside knots x its fields.`);
+      break;
     }
     // By band: residual RMS, leftover after the residual nets RMS, and the nets' free controls at the stored grids and the coarsest.
     const rows: IRow[] = [];
