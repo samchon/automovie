@@ -40,7 +40,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
         ...S.set(pick, "kind", "with"),
         ...(side === undefined ? {} : { side }),
       }),
-      S.chain("b").act("stand", { seconds: 8 }),
+      S.chain("b").act("stand", { seconds: 8, sway: 0 }),
     ]);
   },
   handToFace: (
@@ -65,7 +65,7 @@ export const MOTION_HUMAN_LAW_STAGES_TOUCH: Readonly<
         region: pick("region") ?? "cheekLeft",
         ...S.set(pick, "side"),
       }),
-      S.chain("b").act("stand", { seconds: 6 }),
+      S.chain("b").act("stand", { seconds: 6, sway: 0 }),
     ]),
   highFive: (
     pick: motionHumanLawSweep.Pick,

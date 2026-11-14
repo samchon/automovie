@@ -44,7 +44,10 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  */
 export namespace motionHumanMetamorphic {
   /**
-   * The mirror relation over one family of laws.
+   * The mirror relation over one family of laws: a sided law is
+   * mirror-equivariant for every seed. Its precondition is that sideless
+   * staging carries no lateral seeded variation in mirror stages
+   * (`MOTION_HUMAN_LAW_STAGES`).
    *
    * @param family The family of `MOTION_HUMAN_LAW_STAGES`.
    * @returns The findings.
