@@ -38,7 +38,7 @@ The parts' topology selects the operator:
 
 ## Repair
 
-Fix a defect where it is made, in this order. A fix at a later stage hides the earlier cause, and the next person shows it again.
+Fix a defect where it is made, in this order. A fix at a later stage hides the earlier cause, and the next person shows it again. A region's fix stays within the region, on the stored representation of every working part around it. Changing a working family's layout or representation is a planned item of its own, surveyed and scheduled with the whole issue.
 
 1. **Own it.** Name the face that owns the defect (owner-coloured frames), the fold or deviation it makes, and the stage that produced it. Change nothing before the owner and the measured cause are known.
 2. **The lines.** A connection defect is a 2D line defect until the overlaid lines at the joint agree. Correct the lines under [Connections](#connections).

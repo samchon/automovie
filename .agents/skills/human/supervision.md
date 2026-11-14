@@ -20,7 +20,7 @@ Resume a worker with a message; never replace it, including when it cites its co
 Run this cycle every ten minutes while any worker runs, and schedule the next one before the cycle ends.
 
 1. **State.** For each worker, read its last commits, its uncommitted files and its newest outputs. Confirm that the main checkout is clean, since a dirty one means a worker wrote a relative path.
-2. **Renders.** Open the newest frames yourself, beside the reference, on both sides, as [Verification](verification.md#seeing-before-believing) requires. With no new frame, open the latest one not yet read. Accept no shape from numbers alone.
+2. **Renders.** Open the newest frames yourself, beside the reference, on both sides, as [Verification](verification.md#seeing-before-believing) requires. With no new frame, open the latest one not yet read, or render the region yourself, and send what you opened to the owner. Accept no shape from numbers alone.
 3. **Claims.** Read every number in its output file. Check every cause against the code that produced the diagnostic: list that function's failure paths and confirm which one fired. A cause without its failing and passing measurements is not accepted.
 4. **Skills.** Check the worker's latest diff and actions against the skills. Stop each of these at once, naming it:
    - a fix on an inferred cause;
@@ -31,8 +31,10 @@ Run this cycle every ten minutes while any worker runs, and schedule the next on
    - a generated module re-emitted from an old state, two writers on one module, or a text merge of a generated module;
    - a new capability written into a shared tool instead of a new file;
    - a commit of an unverified or red state;
-   - an emit or round started before its pre-checks were read.
-5. **Research.** When a worker has failed one item three times, or spent two cycles without a measured cause, research it yourself before the next order. Reread the governing skill sections, read the engine and interface code at the operator (the capabilities it already has first), read the record, and check the literature. Then give the decision and its basis.
+   - an emit or round started before its pre-checks were read;
+   - a region's fix widened into rebuilding a working part, such as a family's layout, which is a planned item of its own;
+   - work in another clone or worktree.
+5. **Research.** When a worker has failed one item three times, or spent two cycles without a measured cause, research it yourself in that cycle. Reread the governing skill sections, read the engine and interface code at the operator (the capabilities it already has first), read the record, and search the practice: character modeling and topology, rigging and skinning, surface anatomy, and the method's literature. Then give the decision and its basis. A sequence of single-cause rulings on one item is the trial loop this step replaces.
 6. **Order.** Send one message per worker: what is accepted and that you saw it, what is rejected and why, the next steps, the checks before any round, and the report time. Reject a method only for a measured cause under [Repair](construction.md#repair), never for a failed run. Relay between workers yourself.
 7. **Checks.** Read the pull request's checks, and compare every failing job with the same job on the main branch before calling it the main branch's.
 8. **Report.** Tell the owner in a few lines what each worker did, what you saw, what you stopped, and what blocks the merge. Send the frames behind every claim.
