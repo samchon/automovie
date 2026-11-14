@@ -265,6 +265,15 @@ namespace FamilyConicBody {
   /** How far proximal of the shoulder joint the arm's ISB course starts, mm, on the humerus's axis: past the armscye loop's most proximal point, 44 mm. */
   const ISB_PROXIMAL_MM: number = 60;
 
+  /**
+   * The arm's first station on its ISB course, mm, 36 mm proximal of the shoulder joint: the first whose closed section (`IPart.around`)
+   * surrounds the course point by 10 mm or more (10.56 mm), read on the body's skin. At 20 mm and above it nothing lies on the arm's side.
+   */
+  const ARM_FIRST_MM: number = 24;
+
+  /** Longest gap a part closed round its course bridges in the body's cut, mm: the neck's open seam, 175 mm across where the arm's planes pass it. */
+  const NECK_BRIDGE_MM: number = 200;
+
   /** The least shoulder of a closure across an opening (`without`): the model's share bound (`AutoMovieHumanConicSection`'s `EDGE`). */
   const CLOSURE_LEAST: number = 0.03;
 
@@ -1148,7 +1157,7 @@ namespace FamilyConicBody {
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: isbHalves, up: isb.up, domain: [ISB_PROXIMAL_MM - 46, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.toward(J.middle1, [[J.index1, J.index2], [J.middle1, J.middle2], [J.ring1, J.ring2], [J.pinky1, J.pinky2]], " + KNUCKLE.reach + ")]", halves: isbHalves, up: isb.up, domain: [ARM_FIRST_MM, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
           // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
           // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
           // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
@@ -1608,7 +1617,10 @@ namespace FamilyConicBody {
         }
         if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
-          const whole: C.P[] | null = R.cut(skin, frame).loop;
+          // A part closed round its course (`IPart.around`) reads its skin across the body's open seam at the neck, where the head's mesh
+          // takes over: there the body's cut is one open chain whose ends stand 17 to 175 mm apart across the neck (f1's arm planes 16 to
+          // 46 mm above the shoulder joint), and that chord lies on the parent's side, which the clip drops.
+          const whole: C.P[] | null = R.cut(skin, frame, part.around === undefined ? 3 : NECK_BRIDGE_MM).loop;
           if (whole === null) missed.set(s, "no loop round the course");
           if (whole === null || part.clip === undefined) return whole;
           const clipped: C.P[] | null = without(whole, frame, part.clip, part.round, part.opening, (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }): void => void closures.push({ s, kind, ...(detail === undefined ? {} : { detail }), ...(span === undefined ? {} : { span }), ...(rho === undefined ? {} : { rho }) }), (side: number): number | undefined => closureCap?.(side, s), part.around);
