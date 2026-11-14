@@ -12,8 +12,8 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * gluteal fold's, the natal cleft's and the deltopectoral) hold as lines along the stations.
  *
  * A dumped loop carries the closures of the cuts the trunk leaves to its neighbours (the arms, the breasts, the nose): invented arcs, not
- * skin, which a conversion that reads them as skin counts as grooves. Each loop point farther than `INVENTED_MM` from the reference's own cut
- * at that station is invented. A loop with one invented run hands it to the tool as its closure (`FamilyConicConvert.ISection.closure`), so
+ * skin, which a conversion that reads them as skin counts as grooves. Each loop edge whose middle or start stands farther than `INVENTED_MM`
+ * from the reference's own cut at that station is invented. A loop with one invented run hands it to the tool as its closure (`FamilyConicConvert.ISection.closure`), so
  * the conversion breaks there and does not count it; a loop with several is left out and counted, since the tool takes one closure a
  * section.
  *
@@ -46,16 +46,23 @@ export namespace FamilyConicConvertTrunk {
     return best;
   }
 
-  /** Mark a counter-clockwise loop's invented runs against the reference's own cut. */
+  /**
+   * Mark a counter-clockwise loop's invented runs against the reference's own cut. An edge is invented when its middle stands off the cut:
+   * a closure is often one straight chord, whose two ends lie on the skin, so its vertices alone do not show it.
+   */
   export function mark(s: number, loop: C.P[], skin: readonly C.P[] | null): IMarked {
     if (skin === null) return { section: { s, points: loop }, runs: 0 };
-    const invented: boolean[] = loop.map((p: C.P): boolean => distance(p, skin) > INVENTED_MM);
-    const starts: number[] = invented.map((flag: boolean, k: number): number => (flag && !invented[(k - 1 + loop.length) % loop.length] ? k : -1)).filter((k: number): boolean => k >= 0);
-    if (starts.length !== 1) return { section: { s, points: loop }, runs: starts.length };
+    const n: number = loop.length;
+    const invented: boolean[] = loop.map((p: C.P, k: number): boolean => {
+      const q: C.P = loop[(k + 1) % n]!;
+      return distance([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], skin) > INVENTED_MM || distance(p, skin) > INVENTED_MM;
+    });
+    const starts: number[] = invented.map((flag: boolean, k: number): number => (flag && !invented[(k - 1 + n) % n] ? k : -1)).filter((k: number): boolean => k >= 0);
+    if (starts.length !== 1) return { section: { s, points: loop }, runs: invented.every((flag: boolean): boolean => flag) ? 1 : starts.length };
     let end: number = starts[0]!;
-    while (invented[(end + 1) % loop.length]) end = (end + 1) % loop.length;
+    while (invented[(end + 1) % n]) end = (end + 1) % n;
     const phase = (p: C.P): number => Math.atan2(p[1], p[0]);
-    return { section: { s, points: loop, closure: [phase(loop[starts[0]!]!), phase(loop[end]!)] }, runs: 1 };
+    return { section: { s, points: loop, closure: [phase(loop[starts[0]!]!), phase(loop[(end + 1) % n]!)] }, runs: 1 };
   }
 
   /** Convert the dumped sections over the station range given on the command line, closures marked, and write the tables. */
