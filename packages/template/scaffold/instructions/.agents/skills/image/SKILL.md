@@ -26,7 +26,7 @@ Generate each subject's canon references once, inspect them and freeze them. Gen
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view in a neutral pose;
-- a face close-up with a neutral expression;
+- a face close-up with a neutral expression, unless the chosen model's terms reject realistic faces;
 - three-quarter or profile views as the shots need, unless the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with its record's wording, which the shared description in its [video prompts](../video/prompts.md) reuses, because the same words keep the same subject in both.
