@@ -338,7 +338,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act(
           "approach",
           { target: at("fly", "calfRight"), at: 0.05 },
-          { sync: { of: "pnf", offset: 2 } },
+          // The helper comes once the leg is raised: the stretch's hold
+          // begins at its first reachEnd, the leg at the hip's 80 degrees.
+          { sync: { of: "pnf", event: "reachEnd1" } },
         ),
         act("touch", {
           target: at("fly", "calfRight"),
