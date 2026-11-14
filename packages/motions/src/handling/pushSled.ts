@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,6 +13,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import { walk } from "../actions/walk";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -22,13 +22,13 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { pushSledHandles } from "./pushSledHandles";
 import { pushSledStance } from "./pushSledStance";
 
 /**
@@ -73,7 +73,6 @@ export namespace pushSled {
   export const interrupts: IHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
-
 
   /** Seconds to lean in and take the handles (provisional). */
   export const SETTLE: number = 0.6;
@@ -120,8 +119,8 @@ export namespace pushSled {
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The handles, the lean, the chest-held places, the contacts, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds refuse; a missing handle refuses with the prop's handles.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per frame a trunk resolve for each hand's carry and elbow and one posture resolve; once per plan, per hand, the tried turns (eight round a round post, `TURN` apart) and at most `HumanFreedomChoice.FITS` refined grasps, each fitted at the grip and at the `SAMPLES` only until it cannot win.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk law, the trunk resolver, the shared grasp chooser (`HumanFreedomChoice`), the arm carry and the grip relation; one carry places the hands both in the chooser's judgement and in the posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per frame a trunk resolve for each hand's carry and the arm carry's posture solve; once per plan, per hand, the tried turns (eight round a round post, `TURN` apart) and at most `HumanFreedomChoice.FITS` refined grasps, each with one elbow solve, fitted at the grip and at the `SAMPLES` only until it cannot win.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk law, the trunk resolver, the shared grasp chooser (`HumanFreedomChoice`), the elbow's swivel solver (`AutoMovieMotionHumanBend.solve`), the arm carry and the grip relation; one carry places the hands and the elbows both in the chooser's judgement and in the posture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan and the held places.
    */
   export function plan(
@@ -132,57 +131,9 @@ export namespace pushSled {
     const lean: number = p.lean ?? 0;
     HumanBound.within("lean", lean, 0, pushSledStance.RANGE, "degrees");
 
-    const read: IHumanActionContext.IProp = context.prop(p.sled);
-    const frame: IHumanProp.IFrame = read.frame(context.start);
-    // A handle where it stands at the grip: its frame (the point, the palm's
-    // way in and the wrapped axis), how its grasp repeats about that axis
-    // and its grip band's length, none when it declares no band.
-    type Handle = {
-      frame: HumanHand.IFrame;
-      symmetry: IAutoMovieAffordance["symmetry"];
-      length: number;
-    };
-    const handle = (id: string): Handle => {
-      const found: IAutoMovieAffordance | undefined = (
-        read.prop.affordances ?? []
-      ).find((a: IAutoMovieAffordance): boolean => a.id === id);
-      if (found === undefined)
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "handle",
-          value: `${p.sled}.${id}`,
-          feasible: {
-            kind: "alternatives",
-            values: (read.prop.affordances ?? []).map(
-              (a: IAutoMovieAffordance): string => a.id,
-            ),
-          },
-          reason: `${p.sled} has no handle named ${id}`,
-          fix: "name the prop's handles as `left` and `right`",
-        });
-      // The hand arrives along the handle's -Y, the palm into the bar, and
-      // wraps its +X, the thumb's side toward it (`HumanGrasp`).
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(
-        frame.rotation,
-        found.frame.rotation,
-      );
-      return {
-        frame: {
-          point: Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(frame.rotation, found.frame.translation),
-          ),
-          normal: Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
-          forward: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
-        },
-        symmetry: found.symmetry,
-        length: found.length ?? 0,
-      };
-    };
-    const grips: Record<HumanHand.Side, Handle> = {
-      left: handle(p.left ?? "left"),
-      right: handle(p.right ?? "right"),
-    };
+    // The two handles, read where the sled stands (`pushSledHandles`).
+    const grips: Record<HumanHand.Side, pushSledHandles.IHandle> =
+      pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
     const sockets: Record<HumanHand.Side, IAutoMovieVector3> = {
       left: HumanHand.offset(body, "left", "grip", "fist").point,
       right: HumanHand.offset(body, "right", "grip", "fist").point,
@@ -217,20 +168,6 @@ export namespace pushSled {
       );
     const chest = (posture: IHumanPosture): IAutoMovieResolvedBone =>
       HumanTrunk.resolve(body, posture).get("chest")!;
-    const elbow = (
-      posture: IHumanPosture,
-      side: HumanHand.Side,
-    ): IAutoMovieVector3 => {
-      const c: IAutoMovieResolvedBone = chest(posture);
-      return Vector3.add(
-        c.worldPosition,
-        Quaternion.rotateVector(c.worldRotation, {
-          x: (side === "left" ? 1 : -1) * 0.35,
-          y: -0.3,
-          z: 0,
-        }),
-      );
-    };
 
     // A turn's heading about the vertical, degrees; the load turns with the
     // chest's from where the hands arrive (`carry`).
@@ -246,58 +183,63 @@ export namespace pushSled {
     const arrived: IAutoMovieResolvedBone = chest(taking);
     const facing: number = heading(arrived.worldRotation);
 
-    // A wrist taken at the grip, on a pushing posture: the load slides on
+    // A hand's hold: the wrist it takes and the place its elbow bends toward.
+    type Hold = { wrist: HumanHand.IWrist; bend: IAutoMovieVector3 };
+
+    // A hold taken at the grip, on a pushing posture: the load slides on
     // the floor as one rigid thing with the hands, carried along it with the
-    // chest's place at the wrist's own height, so the arms take the walk's
+    // chest's place at the hold's own height, so the arms take the walk's
     // rise and fall, and turned only with the chest's heading (`turn`, the
     // load's turn there), never tilted by its sway, so both fists keep their
-    // places on it.
+    // places on it and each elbow its side of the arm.
     const carry = (
       posture: IHumanPosture,
-      wrist: HumanHand.IWrist,
-    ): { wrist: HumanHand.IWrist; turn: IAutoMovieQuaternion } => {
+      hold: Hold,
+    ): { hold: Hold; turn: IAutoMovieQuaternion } => {
       const c: IAutoMovieResolvedBone = chest(posture);
       const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         heading(c.worldRotation) - facing,
       );
-      const carried: IAutoMovieVector3 = Vector3.add(
-        c.worldPosition,
-        Quaternion.rotateVector(
-          turn,
-          Vector3.subtract(wrist.point, arrived.worldPosition),
-        ),
-      );
-      return {
-        wrist: {
-          point: { x: carried.x, y: wrist.point.y, z: carried.z },
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(turn, wrist.rotation),
+      const moved = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+        const carried: IAutoMovieVector3 = Vector3.add(
+          c.worldPosition,
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(point, arrived.worldPosition),
           ),
+        );
+        return { x: carried.x, y: point.y, z: carried.z };
+      };
+      return {
+        hold: {
+          wrist: {
+            point: moved(hold.wrist.point),
+            rotation: Quaternion.normalize(
+              Quaternion.multiply(turn, hold.wrist.rotation),
+            ),
+          },
+          bend: moved(hold.bend),
         },
         turn,
       };
     };
 
-    // An arm's goal on a wrist: where the arm cannot meet its turn, the grip
+    // An arm's goal on a hold: where the arm cannot meet its turn, the grip
     // socket stays on the handle and the turn gives.
-    const goal = (
-      posture: IHumanPosture,
-      side: HumanHand.Side,
-      wrist: HumanHand.IWrist,
-    ): IHumanPosture.IGoal => ({
-      point: wrist.point,
-      rotation: wrist.rotation,
+    const goal = (side: HumanHand.Side, hold: Hold): IHumanPosture.IGoal => ({
+      point: hold.wrist.point,
+      rotation: hold.wrist.rotation,
       contact: sockets[side],
-      bend: elbow(posture, side),
+      bend: hold.bend,
     });
     const fit = (
       posture: IHumanPosture,
       side: HumanHand.Side,
-      wrist: HumanHand.IWrist,
+      hold: Hold,
     ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-      limbs[`${side}Arm`] = goal(posture, side, wrist);
+      limbs[`${side}Arm`] = goal(side, hold);
       return poseBones(body, resolveHumanPosture(body, { ...posture, limbs }));
     };
 
@@ -314,45 +256,51 @@ export namespace pushSled {
       (share: number): IHumanPosture =>
         leaned(base.posture(SETTLE + share * (duration - SETTLE)), 1),
     );
-    type Grasp = {
-      point: IAutoMovieVector3;
-      wrist: HumanHand.IWrist;
-      off: number;
-    };
-    type Held = { wrist: HumanHand.IWrist; off: number };
+    type Grasp = { point: IAutoMovieVector3; hold: Hold; off: number };
+    type Held = { hold: Hold; off: number };
     const take = (side: HumanHand.Side): Held => {
       const { frame: at, symmetry, length } = grips[side];
 
-      // A turn and a place on the handle: the point, the wrist the arm takes
-      // it with, and how far the fitted fist is off the point.
+      // A turn and a place on the handle: the point, the hold the arm takes
+      // it with, its elbow toward its place of least joint strain
+      // (`AutoMovieMotionHumanBend.solve`), and how far the fitted fist is
+      // off the point.
       const grasp = (values: readonly number[]): Grasp => {
         const point: IAutoMovieVector3 = Vector3.add(
           at.point,
           Vector3.scale(at.forward, values[1]!),
         );
-        const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          fit(
-            taking,
-            side,
-            HumanHand.reach(
-              body,
-              side,
-              "grip",
-              {
-                point,
-                normal: Quaternion.rotateVector(
-                  Quaternion.fromAxisAngle(at.forward, values[0]!),
-                  at.normal,
-                ),
-                forward: at.forward,
-              },
-              "fist",
+        const wrist: HumanHand.IWrist = HumanHand.reach(
+          body,
+          side,
+          "grip",
+          {
+            point,
+            normal: Quaternion.rotateVector(
+              Quaternion.fromAxisAngle(at.forward, values[0]!),
+              at.normal,
             ),
-          );
+            forward: at.forward,
+          },
+          "fist",
+        );
+        const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.solve({
+          body,
+          posture: taking,
+          side,
+          point: wrist.point,
+          rotation: wrist.rotation,
+          fallback: "hang",
+        });
+        const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          fit(taking, side, { wrist, bend });
         const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
         return {
           point,
-          wrist: { point: hand.worldPosition, rotation: hand.worldRotation },
+          hold: {
+            wrist: { point: hand.worldPosition, rotation: hand.worldRotation },
+            bend,
+          },
           off: Vector3.length(
             Vector3.subtract(
               HumanHand.frame(body, bones, side, "grip", "fist").point,
@@ -392,24 +340,24 @@ export namespace pushSled {
 
           // Through the push the hands and the load are carried as one.
           for (const posture of pushing) {
-            const carried: {
-              wrist: HumanHand.IWrist;
-              turn: IAutoMovieQuaternion;
-            } = carry(posture, taken.wrist);
+            const carried: { hold: Hold; turn: IAutoMovieQuaternion } = carry(
+              posture,
+              taken.hold,
+            );
             yield Vector3.length(
               Vector3.subtract(
                 HumanHand.frame(
                   body,
-                  fit(posture, side, carried.wrist),
+                  fit(posture, side, carried.hold),
                   side,
                   "grip",
                   "fist",
                 ).point,
                 Vector3.add(
-                  carried.wrist.point,
+                  carried.hold.wrist.point,
                   Quaternion.rotateVector(
                     carried.turn,
-                    Vector3.subtract(taken.point, taken.wrist.point),
+                    Vector3.subtract(taken.point, taken.hold.wrist.point),
                   ),
                 ),
               ),
@@ -417,7 +365,7 @@ export namespace pushSled {
           }
         },
       });
-      return { wrist: grasp(choice.values).wrist, off: choice.miss };
+      return { hold: grasp(choice.values).hold, off: choice.miss };
     };
     const taken: Record<HumanHand.Side, Held> = {
       left: take("left"),
@@ -441,17 +389,21 @@ export namespace pushSled {
         });
     }
 
-    // The hands reach for the wrists they keep, so the reach ends where the
+    // The hands reach for the holds they keep, so the reach ends where the
     // hold begins.
-    const kept: Record<HumanHand.Side, HumanHand.IWrist> = {
-      left: taken.left.wrist,
-      right: taken.right.wrist,
+    const kept: Record<HumanHand.Side, Hold> = {
+      left: taken.left.hold,
+      right: taken.right.hold,
     };
     const fist = {
       ...HumanHand.shape("left", "fist"),
       ...HumanHand.shape("right", "fist"),
     };
     const sides: HumanHand.Side[] = ["left", "right"];
+
+    // The arms carried on the leaning walk from the entry's arms to the
+    // handles by `SETTLE`, then held on them as the load is carried, the
+    // fists closed from the grip on.
     return {
       duration,
       events: [...base.events, { name: "gripped", share: SETTLE / duration }],
@@ -475,9 +427,8 @@ export namespace pushSled {
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         for (const side of sides)
           limbs[`${side}Arm`] = goal(
-            posture,
             side,
-            t < SETTLE ? kept[side] : carry(posture, kept[side]).wrist,
+            t < SETTLE ? kept[side] : carry(posture, kept[side]).hold,
           );
         const walked = resolveHumanPosture(body, posture);
         return AutoMovieMotionHumanArm.carry(
