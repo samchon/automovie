@@ -255,7 +255,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, its unit and the range of the weight.
    * @evidence contracts/development/design.md#principled-representation The span the arm is written over, the angles it holds at weight 0, the goal it solves to at weight 1 and the weight between them; with a span, the action's instants and what the planned trajectory needs of the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Thirteen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned.planned`: seven that every carry needs, five a planned arm reads (`span`, `together`, `on`, `disc`, `rests`) and the hand's `attitude`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Fifteen members, all read by `carried` or by `AutoMovieMotionHumanArmPlanned`: seven that every carry needs, seven a planned arm reads (`span`, `perceived`, `tracked`, `together`, `on`, `disc`, `rests`) and the hand's `attitude`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The goal is the posture's own goal type as a function of the posture so far, so any owner of arm goals fits.
    */
   export interface ICarry {
@@ -310,6 +310,28 @@ export namespace AutoMovieMotionHumanArmCarry {
     /** The action's instants when the arm's whole action is planned as one trajectory (`AutoMovieMotionHumanArmPlanned.planned`): the reach, the hold on the goal's site and the return; the weight's carry when absent. */
     span?: AutoMovieMotionHumanArmPlanned.ISpan;
 
+    /**
+     * The goal as a plan perceives it, for a goal on another person: the
+     * person read where the performer saw them when the plan starts, so no
+     * plan reads ahead of the second it is made at; `goal` when absent.
+     *
+     * @param posture The posture so far at the second.
+     * @param seconds Seconds since the action's start.
+     * @returns The goal.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what is perceived, when, why, and the default.
+     * @evidence contracts/development/implementation.md#principled-implementation A reach is planned from what is perceived when it is planned (a reaction time behind), never from a later instant.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read by `AutoMovieMotionHumanArmPlanned.planned` at plan time.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read only at plan time; the hold's tracking reads `goal`.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+     */
+    perceived?(posture: IHumanPosture, seconds: number): IHumanPosture.IGoal;
+
+    /** Whether the planned arm follows its goal on the hold, a person who moves: each second of the hold is corrected to `goal` read then (`AutoMovieMotionHumanArmPlanned.tracked`); the plan alone when absent. */
+    tracked?: boolean;
+
     /** The arms planned over the same span as one problem; this arm alone when absent. */
     together?: AutoMovieMotionHumanArmPlanned.ITogether;
 
@@ -359,7 +381,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    * action planned once as one trajectory with the other arms of its group
    * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
    * the composer gives; without, the joint-space carry between held angles
-   * and the goal's solution (`carry`), a reflex's or a transport's.
+   * and the goal's solution (`carry`), a reflex's or a transport's. A
+   * planned arm that follows a person (`ICarry.tracked`) is corrected on the
+   * hold to the goal read at each second.
    *
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
@@ -398,7 +422,14 @@ export namespace AutoMovieMotionHumanArmCarry {
         const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
         let out: IHumanPosture;
         if (span !== undefined && seconds > span.start && seconds < span.end) {
-          const arm: HumanArmClearance.IArm = planned(before ?? ((): IHumanPosture => posture))(seconds);
+          const plan: HumanArmClearance.IArm = planned(before ?? ((): IHumanPosture => posture))(seconds);
+
+          // On the hold an arm that follows a person is corrected to the
+          // goal read at this second.
+          const arm: HumanArmClearance.IArm =
+            props.tracked === true && seconds > span.ready && seconds < span.relax
+              ? AutoMovieMotionHumanArmPlanned.tracked(props.body, props, posture, seconds, plan)
+              : plan;
           const joints: IHumanPosture["joints"] = { ...posture.joints };
           const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
           joints[`${props.side}UpperArm`] = arm.upper;

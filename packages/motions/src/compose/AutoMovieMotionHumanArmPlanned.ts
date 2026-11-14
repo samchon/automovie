@@ -90,7 +90,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the carry's own by `Pick`, not restated.
    */
   export interface IPlanned
-    extends Pick<AutoMovieMotionHumanArmCarry.ICarry, "side" | "rest" | "goal" | "weight" | "rests" | "disc" | "on"> {
+    extends Pick<AutoMovieMotionHumanArmCarry.ICarry, "side" | "rest" | "goal" | "perceived" | "weight" | "rests" | "disc" | "on"> {
     /** The arm at the end of the span, where it returns to another arm than it left; `rest` when absent. */
     back?: AutoMovieMotionHumanArmAngles.IAngles;
   }
@@ -174,6 +174,10 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * them left out: a carry's, and a whole-body law's that writes its arms
    * itself (a gesture).
    *
+   * Every goal is read as the plan perceives it (`ICarry.perceived`), so a
+   * goal on another person reads them where the performer saw them when the
+   * plan starts, never at a later second.
+   *
    * The waypoints: the reach and the return spaced by the arc their blend
    * covers (`SPACING` of the farthest probe's travel, between a sixth and a
    * thirtieth of a second); the hold on the frame grid (`STEP`), the
@@ -212,7 +216,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       for (const c of carries) {
         const p: IHumanPosture = before(at);
         const fit: AutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArmAngles.angles(
-          resolveHumanPosture(body, { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: c.goal(p, at) } }),
+          resolveHumanPosture(body, { ...p, limbs: { ...p.limbs, [`${c.side}Arm`]: aim(c, p, at) } }),
           c.side,
         );
         longest = Math.max(longest, (reaching(body, p, c.side, sign === 1 ? c.rest : (c.back ?? c.rest), fit) * HumanArmTrajectoryModel.SPEED_LIMIT) / 1.875);
@@ -246,21 +250,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
         ...(c.rests === undefined ? {} : { rests: c.rests }),
         sites: times.map((t: number, k: number): HumanArmTrajectory.ISite | undefined => {
           if (!holding(t)) return undefined;
-          const world: IHumanPosture.IGoal = resolveHumanPosture.world(body, poses[k]!, limb, c.goal(postures[k]!, t));
-
-          // The goal puts its contact where its rotation carries it from
-          // the wrist's point.
-          const point: IAutoMovieVector3 =
-            world.contact === undefined
-              ? world.point
-              : Vector3.add(world.point, Quaternion.rotateVector(world.rotation ?? Quaternion.identity(), world.contact));
-          return {
-            ...(rider < 0 ? {} : { on: { ...riding(body, poses[k]!, carries[rider]!.side, c.on!, point, world.rotation), arm: rider } }),
-            point,
-            contact: world.contact ?? { x: 0, y: 0, z: 0 },
-            disc: c.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
-            ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
-          };
+          const own: HumanArmTrajectory.ISite = site(body, poses[k]!, c, aim(c, postures[k]!, t));
+          return rider < 0 ? own : { ...own, on: { ...riding(body, poses[k]!, carries[rider]!.side, c.on!, own.point, own.rotation), arm: rider } };
         }),
         ...(first < 0
           ? {}
@@ -268,7 +259,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
               guess: AutoMovieMotionHumanArmAngles.angles(
                 resolveHumanPosture(body, {
                   ...postures[first]!,
-                  limbs: { ...postures[first]!.limbs, [limb]: c.goal(postures[first]!, times[first]!) },
+                  limbs: { ...postures[first]!.limbs, [limb]: aim(c, postures[first]!, times[first]!) },
                 }),
                 c.side,
               ),
@@ -278,12 +269,84 @@ export namespace AutoMovieMotionHumanArmPlanned {
     const bases: HumanArmTrajectory.IProblem["bases"] = times.map((t: number, k: number): HumanArmTrajectory.IProblem["bases"][number] => ({
       pose: poses[k]!,
       others: carries.flatMap((c: IPlanned): HumanColliders.IPlaced[] => {
-        const goal: IHumanPosture.IGoal = c.goal(postures[k]!, t);
+        const goal: IHumanPosture.IGoal = aim(c, postures[k]!, t);
         return [...(goal.clear ?? []), ...(goal.rests ?? [])];
       }),
     }));
     const solved: HumanArmTrajectory.Trajectory[] = HumanArmTrajectory.solve({ body, times, bases, arms, share: carries[0]!.weight });
     return new Map(carries.map((c: IPlanned, a: number): [HumanHand.Side, HumanArmTrajectory.Trajectory] => [c.side, solved[a]!]));
+  }
+
+  /**
+   * A planned arm at one second of its hold, following its goal as it is
+   * read then: the feedback that keeps a hand on a person who moves, on the
+   * feed-forward plan. The planner's own still solve
+   * (`HumanArmTrajectory.held`), with the plan's constraints and clearance,
+   * from the planned arm at that second, so it is the plan wherever the
+   * site has not moved.
+   *
+   * @param body The body.
+   * @param carry The arm.
+   * @param posture The posture so far at the second.
+   * @param seconds The second, on the hold.
+   * @param plan The planned arm at the second.
+   * @returns The arm.
+   * @throws {HumanRefusal} When the hand cannot follow its site with the arm clear.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is followed, how, from what and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Closed-loop tracking of a moving target: a feedback correction on a feed-forward plan, solved in the plan's own model.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base, one site, one still solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the second as the hold reads it, a person one frame behind, so nothing reads ahead.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and one still solve of three waypoints per second written.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `site` and `HumanArmTrajectory.held`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function tracked(
+    body: IHumanBody,
+    carry: IPlanned,
+    posture: IHumanPosture,
+    seconds: number,
+    plan: HumanArmClearance.IArm,
+  ): HumanArmClearance.IArm {
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs[`${carry.side}Arm`];
+    const pose: IAutoMoviePose = resolveHumanPosture(body, { ...posture, limbs });
+    const goal: IHumanPosture.IGoal = carry.goal(posture, seconds);
+    const base: HumanArmTrajectory.IProblem["bases"][number] = { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] };
+    return HumanArmTrajectory.held({
+      body,
+      times: [seconds - STEP, seconds, seconds + STEP],
+      bases: [base, base, base],
+      arms: [
+        {
+          side: carry.side,
+          rest: carry.rest,
+          ...(carry.rests === undefined ? {} : { rests: carry.rests }),
+          sites: [undefined, site(body, pose, carry, goal), undefined],
+          guess: plan,
+        },
+      ],
+      share: (): number => 1,
+    })[0]!;
+  }
+
+  /** The goal as the plan perceives it. */
+  function aim(carry: IPlanned, posture: IHumanPosture, seconds: number): IHumanPosture.IGoal {
+    return (carry.perceived ?? carry.goal)(posture, seconds);
+  }
+
+  /** An arm's site from its goal on a pose: the goal's contact where its rotation carries it from the wrist's point. */
+  function site(body: IHumanBody, pose: IAutoMoviePose, carry: IPlanned, goal: IHumanPosture.IGoal): HumanArmTrajectory.ISite {
+    const world: IHumanPosture.IGoal = resolveHumanPosture.world(body, pose, `${carry.side}Arm`, goal);
+    return {
+      point:
+        world.contact === undefined
+          ? world.point
+          : Vector3.add(world.point, Quaternion.rotateVector(world.rotation ?? Quaternion.identity(), world.contact)),
+      contact: world.contact ?? { x: 0, y: 0, z: 0 },
+      disc: carry.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
+      ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
+    };
   }
 }
 

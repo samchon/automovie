@@ -46,7 +46,7 @@ import type { touchSite } from "./touchSite";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two readings, the window that separates them, why the hand rides the partner a frame behind and the measured fault.
  * @evidence contracts/development/design.md#principled-representation The hold is the open span between the arrival and the departure on the touch's own clock; inside it the partner is read as a held contact is, outside it as a tracked person.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The window, the context that reads a person as they are, the region reader and the colliders a touch keeps clear of.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The window, the context that reads a person as they are, the region reader, the colliders a touch keeps clear of and both as a plan perceives them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No person or action is named; the window is the touch's own clock.
  */
 export namespace touchHold {
@@ -192,6 +192,44 @@ export namespace touchHold {
           (segment: HumanColliders.IPlaced): boolean => segment.bone === bone,
         ),
       };
+    };
+  }
+
+  /**
+   * The region and the colliders of a touch of a person as its plan
+   * perceives them: where the performer saw the person when the touch
+   * starts, a reaction time behind its `start`, whatever second the plan
+   * reads them at, so no plan reads the person ahead of the second it is
+   * made at (`AutoMovieMotionHumanArm.ICarry.perceived`).
+   *
+   * @param context The action's context.
+   * @param target The person and the region the hand is laid on.
+   * @param clock The touch's clock.
+   * @param perceived The region as the touch reads it on the way.
+   * @returns The region and the colliders at the touch's start, at any posture and second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the instant read, why, and what is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation A reach is planned from what is perceived when it is planned; every read of the person is then in the past.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both readers called at one instant.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The second asked is ignored, so no later instant leaks in.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One read per call, as the readers it wraps.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the touch's own region reader and `others`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closes over the two readers.
+   */
+  export function perceived(
+    context: Pick<IHumanActionContext, "performer" | "start">,
+    target: { subject: string; region: AutoMovieHumanoidRegion },
+    clock: AutoMovieMotionClock.IClock,
+    perceived: (posture: IHumanPosture, seconds: number) => touchSite.IFrame,
+  ): {
+    region: (posture: IHumanPosture, seconds: number) => touchSite.IFrame;
+    others: (posture: IHumanPosture, seconds: number) => { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] };
+  } {
+    const at: number = clock.at("start");
+    const colliders: ReturnType<typeof others> = others(context, target, clock);
+    return {
+      region: (posture: IHumanPosture): touchSite.IFrame => perceived(posture, at),
+      others: (posture: IHumanPosture): { clear: HumanColliders.IPlaced[]; rests: HumanColliders.IPlaced[] } => colliders(posture, at),
     };
   }
 

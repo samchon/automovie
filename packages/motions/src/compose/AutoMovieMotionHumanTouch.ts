@@ -161,6 +161,9 @@ export namespace AutoMovieMotionHumanTouch {
     /** The radius about its site the hand may land within on the region, metres: the site's own, or the region's extent; the audit's contact skin when absent. */
     disc?: number;
 
+    /** The region and the colliders as a plan perceives them, for a touch of another person (`AutoMovieMotionHumanArm.ICarry.perceived`); the hand then follows the person on the hold. */
+    perceived?: Pick<ITouch, "region" | "others">;
+
     /** The performer's own bone the region rides, for a region of the performer, so a region on the other arm of the touch rides that arm as it is planned. */
     on?: AutoMovieHumanoidBone;
 
@@ -269,6 +272,8 @@ export namespace AutoMovieMotionHumanTouch {
         rest: props.rest,
         weight: (seconds: number): number => share(clock, seconds),
         goal: goal(props),
+        // A person read as perceived when the plan starts, then followed on the hold.
+        ...(props.perceived === undefined ? {} : { perceived: goal({ ...props, ...props.perceived }), tracked: true }),
         // The whole touch planned as one trajectory: the reach from `start`,
         // the hold from `ready` to `relax` and the return by `end`.
         span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
@@ -443,34 +448,18 @@ export namespace AutoMovieMotionHumanTouch {
       );
 
       // A held rotation turns with the heading and leans with the vessel.
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw - props.entry.yaw);
       const rotation: IAutoMovieQuaternion | undefined =
         props.held === undefined
           ? undefined
-          : Quaternion.normalize(
-              Quaternion.multiply(
-                AutoMovieMotionHumanTouchUpright.tip(normal, lean),
-                Quaternion.multiply(
-                  Quaternion.fromAxisAngle(
-                    { x: 0, y: 1, z: 0 },
-                    posture.yaw - props.entry.yaw,
-                  ),
-                  props.held,
-                ),
-              ),
-            );
+          : Quaternion.normalize(Quaternion.multiply(AutoMovieMotionHumanTouchUpright.tip(normal, lean), Quaternion.multiply(turn, props.held)));
       return {
         ...laid,
         ...(rotation === undefined
           ? {}
           : {
               rotation,
-              point: Vector3.subtract(
-                at,
-                Quaternion.rotateVector(
-                  rotation,
-                  laid.contact ?? { x: 0, y: 0, z: 0 },
-                ),
-              ),
+              point: Vector3.subtract(at, Quaternion.rotateVector(rotation, laid.contact ?? { x: 0, y: 0, z: 0 })),
             }),
         ...(props.reference === undefined
           ? {}
