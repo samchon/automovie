@@ -166,7 +166,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "dojo",
     title: "Dojo",
     summary:
-      "A teacher and two students of different skill bow, hold a horse stance, punch and push in the same order.",
+      "A teacher leads two students of different skill through a bow, a horse stance, straight punches and a push, each at their own skill.",
     setting: "combat",
     cast: [
       { subject: "sensei", role: "teacher" },

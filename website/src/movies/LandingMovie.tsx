@@ -151,7 +151,9 @@ export default function LandingMovie(props: {
                 <button type="button" onClick={(): void => stage.toggle()}>
                   Play or pause
                 </button>
-                <Link href={`/scenes/${scene.id}/`}>How is this made?</Link>
+                <Link href={`/scenes/${scene.id}/#made`}>
+                  How is this made?
+                </Link>
               </span>
             </figcaption>
           </figure>
@@ -174,6 +176,7 @@ export default function LandingMovie(props: {
                     scene={featured[0]!}
                     take={i}
                     clock={takes}
+                    label={take.label}
                     onLoad={(player: IScenePlayer): void => {
                       takes.duration = Math.max(
                         takes.duration,

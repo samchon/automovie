@@ -7,8 +7,9 @@ import * as THREE from "three";
  * on Android) and drops the oldest beyond that, so a page of cards cannot
  * give each card its own. Here one renderer draws each view in turn into
  * the corner of its own canvas and copies that corner into the view's 2D
- * canvas. Views out of the window are skipped, and a view draws only when it
- * says it changed, so a page of still cards costs nothing.
+ * canvas. Views out of the window are neither posed nor drawn, a view draws
+ * only when it says it changed, and `near` lets a view wait to load until it
+ * comes near the window, so a page of cards costs what it shows.
  */
 export namespace SharedStage {
   /** One registered view. */
@@ -77,6 +78,31 @@ export namespace SharedStage {
     };
   }
 
+  /**
+   * Call once when an element first comes within a screen of the window.
+   *
+   * @param element The element, such as a view's canvas.
+   * @param callback Called once, when it comes near.
+   * @returns What stops waiting.
+   */
+  export function near(element: Element, callback: () => void): () => void {
+    const watcher: IntersectionObserver = new IntersectionObserver(
+      (records: IntersectionObserverEntry[]): void => {
+        if (
+          !records.some(
+            (r: IntersectionObserverEntry): boolean => r.isIntersecting,
+          )
+        )
+          return;
+        watcher.disconnect();
+        callback();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    watcher.observe(element);
+    return (): void => watcher.disconnect();
+  }
+
   /** The observer that marks which views are in the window. */
   function watch(): IntersectionObserver {
     if (observer !== null) return observer;
@@ -114,8 +140,11 @@ export namespace SharedStage {
     const step: (now: number) => void = (now: number): void => {
       frame = requestAnimationFrame(step);
       for (const entry of entries.values()) {
+        // A view out of the window is neither posed nor drawn; its clock is
+        // read again when it comes back.
+        if (!entry.visible) continue;
         const changed: boolean = entry.view.tick(now);
-        if (!entry.visible || !(changed || entry.dirty)) continue;
+        if (!(changed || entry.dirty)) continue;
         draw(entry.view);
         entry.dirty = false;
       }

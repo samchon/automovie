@@ -495,13 +495,6 @@
   all: revert;
 }
 
-/* The inspector lays its picture beside a 320px panel and does not wrap, so
-   on a narrow screen it keeps a readable width and scrolls sideways inside
-   its box instead of squeezing the picture to nothing. */
-.am-instrument > * {
-  min-width: 42rem;
-}
-
 .am-instrument {
   max-height: 44rem;
   overflow: auto;

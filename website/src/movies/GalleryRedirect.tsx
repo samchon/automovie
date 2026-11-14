@@ -20,12 +20,12 @@ export default function GalleryRedirect(): ReactElement {
     window.location.replace(target);
   }, []);
   return (
-    <div className="am-app">
+    <main className="am-app">
       <p className="am-status" role="status">
         The gallery moved: the objects are on{" "}
         <a href="/automovie/objects/">Objects</a> and the polygon man on{" "}
         <a href="/automovie/human/">Human</a>.
       </p>
-    </div>
+    </main>
   );
 }

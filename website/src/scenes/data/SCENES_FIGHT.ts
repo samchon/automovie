@@ -16,7 +16,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       needs: [3392],
       view: "side",
       skill: "novice",
-      featured: 2,
+      featured: 7,
     },
     "duel",
     [

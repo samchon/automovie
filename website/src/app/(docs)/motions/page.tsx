@@ -25,7 +25,7 @@ export default function MotionsPage(): ReactElement {
     0,
   );
   return (
-    <div className="am-app" data-pagefind-body>
+    <main className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>Motions</h1>
         <p className="am-lede">
@@ -112,6 +112,6 @@ export default function MotionsPage(): ReactElement {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

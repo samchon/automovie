@@ -60,7 +60,7 @@ pnpm --filter @automovie/website run shots name=url ... # screenshots into the i
 | Path | Holds |
 | --- | --- |
 | `src/content/` | The MDX pages and `_meta.ts`, which lists the navigation bar. Add a documentation page under `docs/`. |
-| `src/app/` | The Next routes, the root layout, `tokens.css`, `global.css` and `scenes.css`. |
+| `src/app/` | The Next routes, the root layout, `tokens.css`, `global.css`, `scenes.css` (the scene pages and the player) and `pages.css` (the motion reference, the objects and the landing page). |
 | `src/movies/` | One component per page. |
 | `src/components/` | The pages' parts. They import no `@automovie/*` package. |
 | `src/scenes/` | The scene records, their status, the baked format and its player. |

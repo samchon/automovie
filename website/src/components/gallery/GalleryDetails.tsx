@@ -45,7 +45,7 @@ export function GalleryDetails(props: {
   return (
     <aside className="am-gallery-facts" aria-label="Details">
       <section className="am-panel am-stack">
-        <h2>{view?.name ?? subject.label}</h2>
+        <h2>{view?.name ?? "Details"}</h2>
         {subject.variants.length === 0 ? null : (
           <label className="am-field">
             <span className="am-label">

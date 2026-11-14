@@ -1,6 +1,6 @@
 # Design
 
-How the site's pages are laid out and styled, and why. Campaign [#3507](https://github.com/samchon/automovie/issues/3507) fixes what the site shows and holds the research behind it; [#3381](https://github.com/samchon/automovie/issues/3381) fixes the playground's behaviour and [#3397](https://github.com/samchon/automovie/issues/3397) the archetypes'. This note fixes how the pages look and are arranged. The tokens are in `src/app/tokens.css`, the layout in `src/app/global.css` and `src/app/scenes.css`.
+How the site's pages are laid out and styled, and why. Campaign [#3507](https://github.com/samchon/automovie/issues/3507) fixes what the site shows and holds the research behind it; [#3381](https://github.com/samchon/automovie/issues/3381) fixes the playground's behaviour and [#3397](https://github.com/samchon/automovie/issues/3397) the archetypes'. This note fixes how the pages look and are arranged. The tokens are in `src/app/tokens.css`, the layout in `src/app/global.css`, `src/app/scenes.css` and `src/app/pages.css`.
 
 Two readers come. A visitor comes to see what composing the packages makes, so every page that is not a reference opens on something playing, and parameters wait behind Customise. A developer or a coding agent comes to read what the vocabulary takes, so the reference pages and the playground are dense, plain and exact: numbers, ids and messages in monospace.
 

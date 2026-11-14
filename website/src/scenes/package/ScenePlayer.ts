@@ -35,6 +35,7 @@ export namespace ScenePlayer {
 
   let manifest: Promise<ISceneManifest> | null = null;
   const bodies: Map<string, Promise<AutoMovieHumanPolygon.IBone[]>> = new Map();
+  const tracks: Map<string, Promise<Int16Array>> = new Map();
 
   /**
    * The bake's manifest, fetched once; a failed fetch is forgotten, so a
@@ -82,13 +83,7 @@ export namespace ScenePlayer {
 
     const [values, rests]: [Int16Array, AutoMovieHumanPolygon.IBone[][]] =
       await Promise.all([
-        fetch(`${BAKED}/${baked.file}`).then(
-          async (response: Response): Promise<Int16Array> => {
-            if (!response.ok)
-              throw new Error(`The take did not load (${response.status})`);
-            return new Int16Array(await response.arrayBuffer());
-          },
-        ),
+        samples(baked.file),
         Promise.all(
           baked.figures.map(
             (
@@ -111,6 +106,25 @@ export namespace ScenePlayer {
       values,
     };
     return build(scene, baked, track, rests, read.reflection);
+  }
+
+  /** A take's track, fetched once for every view that shows it; a failed fetch is forgotten. */
+  function samples(file: string): Promise<Int16Array> {
+    let known: Promise<Int16Array> | undefined = tracks.get(file);
+    if (known === undefined) {
+      known = fetch(`${BAKED}/${file}`).then(
+        async (response: Response): Promise<Int16Array> => {
+          if (!response.ok)
+            throw new Error(`The take did not load (${response.status})`);
+          return new Int16Array(await response.arrayBuffer());
+        },
+      );
+      known.catch((): void => {
+        tracks.delete(file);
+      });
+      tracks.set(file, known);
+    }
+    return known;
   }
 
   /** A body's rest bones, fetched once; a failed fetch is forgotten. */

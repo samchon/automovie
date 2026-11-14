@@ -69,24 +69,43 @@ export default function GalleryMovie(): ReactElement {
     );
   }, [request]);
 
+  // The tab's title names the archetype shown.
+  useEffect((): void => {
+    if (loaded.kind !== "ready" || request === null) return;
+    const shown: IGalleryCatalogue.ISubject | undefined =
+      loaded.adapter.catalogue.groups
+        .flatMap(
+          (group: IGalleryCatalogue.IGroup): IGalleryCatalogue.ISubject[] =>
+            group.subjects,
+        )
+        .find(
+          (s: IGalleryCatalogue.ISubject): boolean => s.id === request.subject,
+        );
+    if (shown !== undefined) document.title = `${shown.label} | AutoMovie`;
+  }, [loaded, request]);
+
   const onView = useCallback(
     (next: IGalleryView | null): void => setView(next),
     [],
   );
 
-  const head: ReactElement = (
+  // The page is named after the archetype it shows, in its heading and its
+  // title, with the way back to every object above it.
+  const head: (title: string) => ReactElement = (
+    title: string,
+  ): ReactElement => (
     <header className="am-app-head">
-      <h1>Objects</h1>
-      <p className="am-lede">
+      <nav aria-label="Breadcrumb" className="am-lede">
         <a href="/automovie/objects/">All objects</a>
-      </p>
+      </nav>
+      <h1>{title}</h1>
     </header>
   );
 
   if (loaded.kind !== "ready" || request === null)
     return (
-      <div className="am-app">
-        {head}
+      <main className="am-app">
+        {head("Objects")}
         {loaded.kind === "failed" ? (
           <div className="am-alert" role="alert">
             <h2>The packages did not load</h2>
@@ -97,7 +116,7 @@ export default function GalleryMovie(): ReactElement {
             Loading the packages.
           </p>
         )}
-      </div>
+      </main>
     );
 
   const catalogue: IGalleryCatalogue = loaded.adapter.catalogue;
@@ -118,8 +137,8 @@ export default function GalleryMovie(): ReactElement {
   );
 
   return (
-    <div className="am-app">
-      {head}
+    <main className="am-app">
+      {head(subject?.label ?? "Objects")}
       <div className="am-gallery am-gallery-detail">
         <GalleryViewport
           adapter={loaded.adapter}
@@ -151,6 +170,6 @@ export default function GalleryMovie(): ReactElement {
           </ul>
         )}
       </section>
-    </div>
+    </main>
   );
 }

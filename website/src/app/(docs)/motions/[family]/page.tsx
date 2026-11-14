@@ -72,7 +72,7 @@ export default async function MotionFamilyPage(
         )!.rows;
 
   return (
-    <div className="am-app" data-pagefind-body>
+    <main className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>{family === ACTIONS ? "Actions" : family}</h1>
         <p className="am-lede">
@@ -108,6 +108,7 @@ export default async function MotionFamilyPage(
           </nav>
           {rows.map((row: IMotionReference.IRow): ReactElement => {
             const use: MotionUsage.IUse = MotionUsage.of(row.name);
+            const trial: MotionUsage.ITrial = MotionUsage.trial(row.name);
             return (
               <section
                 key={row.name}
@@ -168,9 +169,9 @@ export default async function MotionFamilyPage(
                     </>
                   )}{" "}
                   <Link
-                    href={`/playground/${PlaygroundAddress.encode(MotionUsage.trial(row.name))}`}
+                    href={`/playground/${PlaygroundAddress.encode(trial.composition)}`}
                   >
-                    Try it alone
+                    {trial.label}
                   </Link>
                 </p>
               </section>
@@ -178,6 +179,6 @@ export default async function MotionFamilyPage(
           })}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

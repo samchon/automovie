@@ -1,3 +1,4 @@
+import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import { SCENES } from "../scenes/SCENES";
 import type { IScene } from "../scenes/structures/IScene";
@@ -57,32 +58,94 @@ export namespace MotionUsage {
     return { scenes, params: params ?? {} };
   }
 
+  /** What a "Try it" link opens, and what it says. */
+  export interface ITrial {
+    /** The link's text. */
+    label: string;
+
+    /** The playground composition it opens. */
+    composition: IPlaygroundComposition;
+  }
+
   /**
-   * The playground composition a "Try it" link opens: one person performing
-   * the name with the parameters of its first use.
+   * What a "Try it" link opens. A first use that names no one and nothing
+   * else is tried alone: one person performing the name with its parameters.
+   * A first use that names another person, an object or an anchor needs them,
+   * so its whole scene is opened instead, where those exist.
    *
    * @param name The action's or row's name.
-   * @returns The composition.
+   * @returns The link's text and composition.
    */
-  export function trial(name: string): IPlaygroundComposition {
-    return {
-      version: 1,
-      seed: "try",
-      performers: [
-        {
-          subject: "a",
-          body: "m1",
-          x: 0,
-          z: 0,
-          yaw: 0,
-          proficiency: "trained",
-          actions: [
-            { name: "stand", params: { seconds: 0.5 } },
-            { name, params: of(name).params },
-          ],
+  export function trial(name: string): ITrial {
+    const use: IUse = of(name);
+    const scene: IScene | undefined = SCENES.find(
+      (s: IScene): boolean => s.id === use.scenes[0]?.id,
+    );
+    if (
+      scene !== undefined &&
+      scene.composition !== null &&
+      names(scene.composition, use.params)
+    )
+      return {
+        label: `Try it in ${scene.title}`,
+        composition: {
+          ...scene.composition,
+          version: PlaygroundAddress.VERSION,
         },
-      ],
-      mutuals: [],
+      };
+    return {
+      label: "Try it alone",
+      composition: {
+        version: 1,
+        seed: "try",
+        performers: [
+          {
+            subject: "a",
+            body: "m1",
+            x: 0,
+            z: 0,
+            yaw: 0,
+            proficiency: "trained",
+            actions: [
+              { name: "stand", params: { seconds: 0.5 } },
+              { name, params: use.params },
+            ],
+          },
+        ],
+        mutuals: [],
+      },
     };
+  }
+
+  /** Whether parameters name a person, an object or an anchor of a composition, or a seat. */
+  function names(
+    composition: IPlaygroundComposition,
+    params: Record<string, unknown>,
+  ): boolean {
+    const known: Set<string> = new Set<string>([
+      ...composition.performers.map(
+        (p: IPlaygroundComposition.IPerformer): string => p.subject,
+      ),
+      ...(composition.objects ?? []).map(
+        (o: IPlaygroundComposition.IObject): string => o.subject,
+      ),
+    ]);
+    const anchor: (action: IPlaygroundComposition.IAction) => void = (
+      action: IPlaygroundComposition.IAction,
+    ): void => {
+      if (action.anchor !== undefined) known.add(action.anchor);
+      action.over?.forEach(anchor);
+    };
+    for (const performer of composition.performers)
+      performer.actions.forEach(anchor);
+    const visit: (value: unknown) => boolean = (value: unknown): boolean =>
+      typeof value === "string"
+        ? known.has(value)
+        : Array.isArray(value)
+          ? value.some(visit)
+          : typeof value === "object" && value !== null
+            ? "$seat" in value || Object.values(value).some(visit)
+            : false;
+    return visit(params);
   }
 }

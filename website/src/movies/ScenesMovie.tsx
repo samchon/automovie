@@ -78,7 +78,7 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
   );
 
   return (
-    <div className="am-app" data-pagefind-body>
+    <main className="am-app" data-pagefind-body>
       <header className="am-app-head">
         <h1>Scenes</h1>
         <p className="am-lede">
@@ -185,6 +185,6 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
           )}
         </ul>
       </section>
-    </div>
+    </main>
   );
 }

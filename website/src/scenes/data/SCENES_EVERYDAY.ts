@@ -153,7 +153,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "meeting",
     title: "Meeting in a square",
     summary:
-      "Two people walk up to each other, shake hands and talk with their hands while a third passes and waves.",
+      "One person walks up to another; they shake hands, high-five and talk with their hands while a third passes and waves.",
     setting: "everyday",
     cast: [
       { subject: "ana", role: "friend" },

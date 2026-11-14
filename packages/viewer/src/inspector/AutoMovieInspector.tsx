@@ -201,6 +201,7 @@ export function AutoMovieInspector(
           <canvas
             ref={canvas}
             tabIndex={0}
+            role="application"
             aria-label="The inspected picture; Space plays or pauses, comma and full stop step a frame"
             style={{
               display: "block",

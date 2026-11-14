@@ -15,7 +15,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "partner",
       roles: { lea: "lead", fol: "follower" },
       needs: [3392, 3437],
-      featured: 4,
+      featured: 9,
     },
     "dance",
     [

@@ -163,7 +163,7 @@ export default function PlaygroundMovie(): ReactElement {
 
   if (loaded.kind !== "ready")
     return (
-      <div className="am-app">
+      <main className="am-app">
         {head}
         {loaded.kind === "loading" ? (
           <p className="am-status" role="status">
@@ -175,7 +175,7 @@ export default function PlaygroundMovie(): ReactElement {
             <pre className="am-message">{loaded.message}</pre>
           </div>
         )}
-      </div>
+      </main>
     );
   const { adapter, vocabulary } = loaded;
 
@@ -241,7 +241,7 @@ export default function PlaygroundMovie(): ReactElement {
   }
 
   return (
-    <div className="am-app">
+    <main className="am-app">
       {head}
       <div className="am-tabs" role="tablist" aria-label="Pane">
         <button
@@ -355,6 +355,6 @@ export default function PlaygroundMovie(): ReactElement {
           )}
         </section>
       </div>
-    </div>
+    </main>
   );
 }

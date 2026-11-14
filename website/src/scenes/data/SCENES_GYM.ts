@@ -22,7 +22,7 @@ export const SCENES_GYM: readonly IScene[] = [
       },
       needs: [3392],
       skill: "elite",
-      featured: 3,
+      featured: 8,
     },
     "gym",
     [

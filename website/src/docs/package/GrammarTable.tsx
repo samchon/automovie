@@ -31,9 +31,11 @@ export function GrammarTable(): ReactElement {
     return (
       <p>
         The installed release composes a sequence of actions per person, people
-        in parallel, and a cut with <code>until</code>. Overlays, timing to
-        another instant, the named rows of the lexicon and actions done together
-        by several people arrive with the composition campaign.
+        in parallel, a cut with <code>until</code>, actions two people do
+        together with <code>HumanChain.pair</code>, and anchors other actions
+        name. Overlays (<code>over</code>), timing to another instant (
+        <code>sync</code>) and the named rows of the lexicon arrive with the
+        composition campaign.
       </p>
     );
   const { axes, operators }: { axes: IEntry[]; operators: IEntry[] } =

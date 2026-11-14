@@ -63,6 +63,11 @@ export default function SceneMovie(props: {
     Dispatch<SetStateAction<string | null>>,
   ] = useState<string | null>(null);
 
+  // An address ending in #made opens on how the scene is made.
+  useEffect((): void => {
+    if (window.location.hash === "#made") setPanel("made");
+  }, []);
+
   // The clock runs as long as the longest take.
   useEffect((): void => {
     if (baked === null) return;
@@ -84,7 +89,7 @@ export default function SceneMovie(props: {
 
   if (baked === null || scene.composition === null)
     return (
-      <div className="am-app" data-pagefind-body>
+      <main className="am-app" data-pagefind-body>
         {head}
         <section className="am-panel am-stack" aria-label="Status">
           <p>
@@ -133,7 +138,7 @@ export default function SceneMovie(props: {
             <Link href="/scenes/">Back to the scenes</Link>
           </p>
         </section>
-      </div>
+      </main>
     );
 
   const composition: IPlaygroundComposition = scene.composition;
@@ -150,7 +155,7 @@ export default function SceneMovie(props: {
   };
 
   return (
-    <div className="am-app" data-pagefind-body>
+    <main className="am-app" data-pagefind-body>
       {head}
       <div className="am-scene-layout">
         <TransportKeys clock={clock} label="Scene player">
@@ -280,7 +285,12 @@ export default function SceneMovie(props: {
             {baked.takes.map(
               (take: ISceneManifest.ITake, index: number): ReactElement => (
                 <li key={index} className="am-take">
-                  <SceneView scene={scene} take={index} clock={clock} />
+                  <SceneView
+                    scene={scene}
+                    take={index}
+                    clock={clock}
+                    label={take.label}
+                  />
                   <span className="am-take-label">{take.label}</span>
                 </li>
               ),
@@ -303,6 +313,6 @@ export default function SceneMovie(props: {
           <SceneTimeline take={baked.takes[0]!} roles={roles} />
         </section>
       )}
-    </div>
+    </main>
   );
 }

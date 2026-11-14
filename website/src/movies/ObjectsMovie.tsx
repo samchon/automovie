@@ -100,7 +100,7 @@ export default function ObjectsMovie(): ReactElement {
   };
 
   return (
-    <div className="am-app">
+    <main className="am-app">
       <ObjectsHead />
       {mode.kind === "loading" ? (
         <p className="am-status" role="status">
@@ -177,6 +177,6 @@ export default function ObjectsMovie(): ReactElement {
             })}
         </>
       )}
-    </div>
+    </main>
   );
 }

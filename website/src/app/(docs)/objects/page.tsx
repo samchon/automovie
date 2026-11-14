@@ -21,12 +21,12 @@ export default function ObjectsPage(): ReactElement {
   return (
     <Suspense
       fallback={
-        <div className="am-app">
+        <main className="am-app">
           <ObjectsHead />
           <p className="am-status" role="status">
             Loading the archetypes.
           </p>
-        </div>
+        </main>
       }
     >
       <ObjectsMovie />

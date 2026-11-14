@@ -19,7 +19,8 @@ import { SharedStage } from "../../stage/SharedStage";
 
 /**
  * One baked take drawn in a canvas through the page's shared renderer and
- * posed by a clock. With `orbit`, a drag turns the camera about the action,
+ * posed by a clock, fetched when the view first comes near the window. With
+ * `orbit`, a drag turns the camera about the action,
  * the wheel zooms while the view has focus, and a double-click frames it
  * again.
  *
@@ -31,6 +32,8 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   const [state, setState]: [string, Dispatch<SetStateAction<string>>] =
     useState<string>("loading");
   const { scene, take, clock, orbit }: SceneView.IProps = props;
+  const name: string =
+    props.label === undefined ? scene.title : `${scene.title}, ${props.label}`;
 
   // The latest callback is called, so a new function each render does not
   // load the take again.
@@ -42,7 +45,15 @@ export function SceneView(props: SceneView.IProps): ReactElement {
     let player: IScenePlayer | null = null;
     let registration: SharedStage.IRegistration | null = null;
     let detach: (() => void) | null = null;
-    loadScenePlayer(scene, take)
+    // The take is fetched only when its view comes near the window, so a
+    // page of cards loads the cards it shows.
+    let cancel: () => void = (): void => undefined;
+    const near: Promise<void> = new Promise((resolve: () => void): void => {
+      if (canvas.current === null) return resolve();
+      cancel = SharedStage.near(canvas.current, resolve);
+    });
+    near
+      .then((): Promise<IScenePlayer> => loadScenePlayer(scene, take))
       .then((loaded: IScenePlayer): void => {
         if (!alive || canvas.current === null) {
           loaded.dispose();
@@ -75,6 +86,7 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       });
     return (): void => {
       alive = false;
+      cancel();
       detach?.();
       registration?.release();
       player?.dispose();
@@ -86,10 +98,11 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       <canvas
         ref={canvas}
         tabIndex={orbit === true ? 0 : -1}
+        role={orbit === true ? "application" : "img"}
         aria-label={
           orbit === true
-            ? `${scene.title}: drag to turn, double-click to frame again`
-            : scene.title
+            ? `${name}: drag to turn, double-click to frame again`
+            : name
         }
       />
       {state === "loading" ? (
@@ -118,6 +131,9 @@ export namespace SceneView {
 
     /** Whether a drag turns the camera. */
     orbit?: boolean;
+
+    /** The take's label, named with the scene's title; the title alone when absent. */
+    label?: string;
 
     /** Called with the loaded take, for a toolbar that moves its camera. */
     onLoad?: (player: IScenePlayer) => void;
