@@ -12,7 +12,8 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
 /**
  * The reading of a crouch's signature over some of its rows, which the
  * crouch signature specs share: the held knee flexion, the heels, the
- * centre of mass's margin inside the feet and the trunk's inclination, each
+ * centre of mass's margin inside the feet while held and on the way down
+ * and up, flat heels down all the way, and the trunk's inclination, each
  * checked against its bound, and the quiet-stance calibration of every body
  * the rows stand on, since the trunk's reading stands on it. The bounds and
  * their sources are stated on the specs.
@@ -26,10 +27,10 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @param rows The crouch rows to read, a subset of `motionCrouchSignature.ROWS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, on which bodies and where the bounds and their sources are stated.
- * @evidence contracts/development/implementation.md#principled-implementation Each row is staged through the shared signature harness and read off the displayed joints, soles and centre of mass over the held span from the law's `lowest` to its `ascend`, every bound checked into the gatherer.
+ * @evidence contracts/development/implementation.md#principled-implementation Each row is staged through the shared signature harness and read off the displayed joints, soles and centre of mass over the held span from the law's `lowest` to its `ascend`, and the balance and flat heels over the whole film, every bound checked into the gatherer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the cells, one block per bound in the order the specs state them, then the calibration.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bounds are the spec's own, unchanged by the split; the cells are the covering of all rows, filtered, never a covering of the subset.
- * @evidence contracts/development/implementation.md#efficient-algorithms One staged film per cell, read at the signature harness's held rate.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One staged film per cell, read at the signature harness's held rate over the held span and over the whole film.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the crouch signature specs, so the reading is written once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; each film is dropped after its cell.
  */
@@ -91,6 +92,38 @@ export function motionCrouchSignature(
       `${cell}: the centre of mass's margin inside the feet is ${(margin * 1000).toFixed(0)} mm while held, not negative expected (static equilibrium)`,
       margin >= 0,
     );
+    // On the way down and up: the same balance at every instant of the film,
+    // and flat heels down all the way.
+    let moving: { margin: number; at: number; heel: number } = {
+      margin: Infinity,
+      at: 0,
+      heel: -Infinity,
+    };
+    for (const t of M.times(0, s.film.duration, M.HELD)) {
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = M.bones(
+        s,
+        t,
+      );
+      const m: number = resolveAutoMovieCenterOfMass.margin(
+        resolveAutoMovieCenterOfMass.place(model, bones),
+        HumanFoot.base(s.body, bones),
+      );
+      if (m < moving.margin) moving = { ...moving, margin: m, at: t };
+      for (const side of ["left", "right"] as const)
+        moving.heel = Math.max(
+          moving.heel,
+          HumanFoot.sockets(s.body, bones, side)[0]!.point.y,
+        );
+    }
+    complaints.check(
+      `${cell}: the centre of mass's margin inside the feet is ${(moving.margin * 1000).toFixed(0)} mm at ${moving.at.toFixed(2)} s on the way down or up, not negative expected (static equilibrium)`,
+      moving.margin >= 0,
+    );
+    if (!raised)
+      complaints.check(
+        `${cell}: the flat heels stand up to ${(moving.heel * 1000).toFixed(0)} mm off the floor on the way down or up, within ${(M.CONTACT * 1000).toFixed(0)} expected (provisional)`,
+        moving.heel <= M.CONTACT,
+      );
     // Relative to the body's own quiet stance, the reading the trunk's
     // landmarks give a standing body.
     const lean: number =
