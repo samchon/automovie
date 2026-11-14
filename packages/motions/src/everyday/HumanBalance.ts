@@ -59,14 +59,15 @@ export namespace HumanBalance {
    * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
    * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * A centre ahead of the target is brought back to it, on whichever base
-   * the hips reach it over. One behind it is left where it is while it lies
-   * inside the base. One behind and outside stands on a forefoot whose heel
-   * an ankle at its range lifted: the feet stand flat where they can, the
-   * larger base, so the hips move back to bring the heel down with the
-   * centre inside; where no shift within the range does, the hips and trunk
-   * carry the centre forward over the middle of the forefoot, as a deep
-   * squat with its heels up does. The shifts from
+   * The feet stand flat where they can, the larger base: a heel the planted
+   * leg lifted with its ankle at its range is brought down by moving the
+   * hips back, and on flat feet a centre ahead of the target is brought back
+   * to it while one behind it is left where it is inside the base. Where no
+   * shift within the range stands the body on flat feet with its centre
+   * inside, it stands on the forefoot, and the hips and trunk bring the
+   * centre over the middle of the forefoot, back when it is ahead and
+   * forward when it is outside behind, as a deep squat with its heels up
+   * does. The shifts from
    * 0 to `range` hip heights the needed way are scanned on a grid, of the
    * same step whatever the range, for the first one at which the centre reaches the target, or
    * the base, and the crossing is refined by bisection to 0.5 mm. The scan
@@ -82,7 +83,7 @@ export namespace HumanBalance {
    * @param target How far ahead of the base's middle the centre is put, metres; 0, the middle itself, when absent.
    * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the three cases and the flat feet sought before the forefoot, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
+   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the flat feet sought before the forefoot, the cases on each, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
    * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), one scan-and-bisection over a sign; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
@@ -135,12 +136,9 @@ export namespace HumanBalance {
       return { found: false, back: best.back };
     };
     const ahead = (r: IReading): number => r.offset - target;
-    // A centre ahead is brought back to the target, on the base it reaches.
-    if (ahead(start) > 0) return first(0, 1, ahead).back;
-    if (start.margin > 0) return 0;
-    // Behind and outside, on a lifted heel: flat feet first, the heel
-    // brought down by moving the hips back, the centre inside and not ahead
-    // of the middle.
+    // Flat feet first: a heel the planted leg lifted is brought down by
+    // moving the hips back; on flat feet a centre ahead of the target is
+    // brought back to it, and one behind it is left while it lies inside.
     const down: { found: boolean; back: number } = first(
       0,
       1,
@@ -151,7 +149,10 @@ export namespace HumanBalance {
       if (ahead(landed) > 0) return first(down.back, 1, ahead).back;
       if (landed.margin > 0) return down.back;
     }
-    // Otherwise the forefoot: the centre carried forward over its middle.
+    // Otherwise the forefoot: the centre brought over its middle, back when
+    // ahead of it, forward when outside behind it.
+    if (ahead(start) > 0) return first(0, 1, ahead).back;
+    if (start.margin > 0) return 0;
     return first(0, -1, (r: IReading): number => -ahead(r)).back;
   }
   /**

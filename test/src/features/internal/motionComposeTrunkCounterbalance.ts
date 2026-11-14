@@ -47,8 +47,14 @@ export namespace motionComposeTrunkCounterbalance {
    * floor, so a pitch of 30 degrees stands the hips about half a hip height
    * ahead of the planted feet: a body that falls forward as it is, and that
    * a person holds as a bow with the hips behind the feet. The balance is
-   * `HumanBalance.offset`, the centre of mass ahead of the middle of the
-   * feet where they bear, within 2 mm of it after the shift.
+   * the centre of mass against the feet where they bear, flat feet first:
+   * after the shift it is not ahead of their middle by more than 2 mm
+   * (`HumanBalance.offset`) and lies inside the base of support
+   * (`HumanBalance.margin` positive). A balanced body keeps its centre
+   * inside its base, not at the base's midpoint: a heel the pitched pose
+   * lifted comes down as the hips go back, and the flat foot then holds the
+   * centre behind its middle, so the bound is the balance itself and not
+   * the old law's construction of a shift to the middle.
    *
    * Whether a pose can be balanced at all is decided here, not by the
    * phrase: the hips are moved back along the heading in 5 mm steps for as
@@ -61,10 +67,11 @@ export namespace motionComposeTrunkCounterbalance {
    * degrees (scenarios 1 to 5) and of 60 degrees at a heading of 0
    * (scenario 6):
    * 1. The phrase claims the root.
-   * 2. At the middle of its hold the centre of mass is over the feet's
-   *    middle and the hips have moved back; a pose whose centre is not ahead
-   *    of that middle and lies inside the base is not moved, and one behind
-   *    the base is moved forward over the middle.
+   * 2. At the middle of its hold a pose whose centre was ahead of the feet's
+   *    middle has its hips moved back and its centre balanced (not ahead of
+   *    the middle by more than 2 mm, inside the base); a pose whose centre
+   *    is not ahead of that middle and lies inside the base is not moved;
+   *    one outside the base is moved and balanced the same way.
    * 3. The root moves straight back along the heading: not sideways, not
    *    up, and the heading is kept.
    * 4. The phrase is gone at both ends.
@@ -157,13 +164,15 @@ export namespace motionComposeTrunkCounterbalance {
             : extended.root.x - full.root.x;
         all.equals(`${cell} claims the root`, phrase.channels, ["root"]);
         const inside: boolean = HumanBalance.margin(body, extended) > 0;
+        const held: number = HumanBalance.margin(body, full);
+        const balanced: boolean = after <= 0.002 && held > 0;
         all.check(
-          `${cell} puts the centre over the feet's middle, ${mm(after)} mm ahead from ${mm(before)} mm, the hips ${mm(back)} mm back`,
+          `${cell} balances the centre over the feet, ${mm(after)} mm ahead of their middle from ${mm(before)} mm with a margin of ${mm(held)} mm, the hips ${mm(back)} mm back`,
           before > 0
-            ? Math.abs(after) <= 0.002 && back > 0
+            ? balanced && back > 0
             : inside
               ? Math.abs(back) <= 1e-9
-              : Math.abs(after) <= 0.002 && back < 0,
+              : balanced && Math.abs(back) > 0,
         );
         all.check(
           `${cell} moves the root straight back along the heading`,
