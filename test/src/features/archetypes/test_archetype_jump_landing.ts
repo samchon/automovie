@@ -8,6 +8,7 @@ import {
   HumanPerformance,
   type HumanSegment,
   HumanSignature,
+  HumanVerdicts,
   type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -17,17 +18,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * The high jump and its landing mat serve the Fosbury flop: the flop peaks at the crossbar the apparatus declares and lies down on the mat's `surface`.
  *
- * The bar is set at 1.4 m; the flop's peak is the crossbar's axis, read from the apparatus's `bar`, and it comes down on the high jump mat placed beyond.
+ * The bar is set at 1.4 m; the flop reads the crossbar's axis from the apparatus's `bar` (the high jump is the flop's `bar` prop), and it comes down on the high jump mat placed beyond.
  *
  * Scenarios, on the average man and the small woman:
  * 1. The flop over the bar onto the mat plans, and its centre of mass peaks within 50 mm of the bar's axis or above it (provisional: the law peaks the centre at the height it is given).
  * 2. At the flop's `settled` the hips lie on the mat: between its top and a fifth of the stature above it.
+ * 3. From the take-off to `settled`, read at 24 frames a second, the verdict report's frame bounds hold: no joint centre jumps, reverses or moves past its speed, and no bone turns past 5 turns a second. The flop turns through its flight, never in a frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the flop through the public chain with the real apparatus and reads the displayed joints and the centre of mass; a flop that misses the bar or lands off the mat fails with the measure.
  * @evidence contracts/development/testing.md#independent-expectations The bar's height and the mat's top are the archetypes' own affordances; the bounds are stated provisional; nothing is read from the law but its events.
  * @evidence contracts/development/testing.md#distinguishing-cases One jump on two bodies of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and two films; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 2 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
  */
 export function test_archetype_jump_landing(): void {
   const high: ReturnType<typeof createHighJump> = createHighJump({
@@ -78,7 +80,7 @@ export function test_archetype_jump_landing(): void {
           .registered("fosburyFlop", {
             to: { x: 0, y: top, z: 2.5 },
             on: "mat",
-            bar,
+            bar: "bar",
           }).node,
       });
       const reader: HumanSignature.IReader = HumanSignature.of(
@@ -94,6 +96,18 @@ export function test_archetype_jump_landing(): void {
       if (!(peak >= bar - 0.05))
         complaints.push(
           `${name} flop: the centre peaks at ${peak.toFixed(3)} m, the bar's axis at ${bar.toFixed(3)} m within 50 mm or above expected`,
+        );
+
+      // 3. No frame jumps through the flight and the landing.
+      const smooth: HumanVerdicts.IFinding[] = HumanVerdicts.of(film, 24, {
+        from: at("takeoff"),
+        to: at("settled"),
+      }).findings.filter((f: HumanVerdicts.IFinding): boolean =>
+        ["jump", "reversal", "speed", "turn"].includes(f.check),
+      );
+      for (const f of smooth)
+        complaints.push(
+          `${name} flop: ${f.check} at ${f.seconds.toFixed(3)} s on ${f.where}: ${f.value.toFixed(3)} past ${f.limit.toFixed(3)} (take-off at ${at("takeoff").toFixed(4)} s; across it the hips step ${(1000 * Vector3.length(Vector3.subtract(HumanSignature.joint(reader, at("takeoff") + 1e-4, "hips"), HumanSignature.joint(reader, at("takeoff") - 1e-4, "hips")))).toFixed(1)} mm and the left hand ${(1000 * Vector3.length(Vector3.subtract(HumanSignature.joint(reader, at("takeoff") + 1e-4, "leftHand"), HumanSignature.joint(reader, at("takeoff") - 1e-4, "leftHand")))).toFixed(1)} mm)`,
         );
 
       // 2. Lying on the mat.

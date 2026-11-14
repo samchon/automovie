@@ -14737,8 +14737,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "The prop landed on, its subject id; the floor when absent."
           },
           "bar": {
-            "type": "number",
-            "description": "The bar's height, metres: the height the centre of mass peaks at."
+            "type": "string",
+            "description": "The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at."
           }
         },
         "required": [
