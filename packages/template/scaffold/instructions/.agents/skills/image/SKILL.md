@@ -43,7 +43,7 @@ Make a last frame or a keyframe the same way, from the hint's frame there, where
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, pose it as the model's image-to-3D [request](../3d-modeling/diffusion/SKILL.md#request) sets, render its turnaround from fixed cameras at one framing and light, and restyle each view as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+When the hint already has the form, pose it as the model's image-to-3D [request](../3d-modeling/diffusion/request.md) sets, render its turnaround from fixed cameras at one framing and light, and restyle each view as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 

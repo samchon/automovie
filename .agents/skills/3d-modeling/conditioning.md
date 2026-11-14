@@ -39,8 +39,8 @@ Remove a defect at the first of these places that can remove it, listed from lea
 
 | Place | Removes | Examples |
 | --- | --- | --- |
-| The request, generated again | What [Diffusion](diffusion/SKILL.md#request) says to ask for | |
-| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion/SKILL.md#models) that remesh, convert or segment |
+| The request, generated again | What [Diffusion](diffusion/request.md) says to ask for | |
+| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion/models.md) that remesh, convert or segment |
 | A script over a mesh library in the project's own language | Duplicate vertices, pieces too small to see, excess triangles and unused data | [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer) |
 | A mesh repair tool, or a digital content creation tool run from the command line | Holes, inner surfaces and irregular triangles | [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab), [Blender](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html) |
 
