@@ -1,32 +1,33 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createHash } from "node:crypto";
-import { AutoMovieLoftChain, type AutoMovieMeshExtract as M, type AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, type AutoMovieViewLoft } from "@automovie/engine";
 import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
+import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /**
- * The armscye's loop by a rule from the skeleton (issue #3151, R1 as the owner set it): the trunk's skin cut by one surface fixed in the
- * humerus's frame at the shoulder joint centre GH, so the loop follows the arm's pose and the person's size by construction. The landmarks
- * read before (the acromion and both axillary fold points, `FamilyConicArmscyeLoop`) are checks of the rule, not its targets. It measures
- * only; nothing is stored.
+ * The armscye's loop by a rule from the skeleton (issue #3151, R1). The armscye is the trunk's opening bounded by the clavicle and the
+ * acromion above, the pectoralis major's fold in front and the latissimus's and teres major's fold behind, all of which run from the
+ * shoulder girdle to the arm, so its loop is fixed in the thorax's frame, and the arm's pose is taken by the port's band between that loop
+ * and the arm's own ring (the supervisor's ruling, after the humerus-fixed planes and cones of the first run cut the torso across).
  *
- * Candidates:
- * - a plane square to the humerus's long axis at a distance `d` from GH toward the trunk, `d = k r`, with `r` the arm's own radius, its
- *   relaxed mid upper arm girth (ISO 8559-1, read on f1's wall by `FamilyConicLimbLaw`: 266.4 mm) over 2 pi, and `k` 0, 0.5 and 1;
- * - a cone about the same axis with its apex at GH and half-angle `a` from the distal axis, 105, 120 and 135 degrees, opening toward the
- *   trunk: a cone with its apex at a joint centre scales with the person by construction, so its law is the angle alone.
- * The values bracket the joint; none is fitted to f1.
+ * Each candidate is a plane fixed in the thorax's frame: its normal the thorax's lateral axis turned forward about the thorax's vertical by
+ * `beta`, placed `m = k r` medial of the shoulder joint centre GH along that normal, `r` the arm's own radius (the relaxed mid upper arm
+ * girth, ISO 8559-1, 266.4 mm on f1's wall, over 2 pi). `beta` 0 is the record's own armscye plane, the sagittal plane at the armpit's side
+ * distance (`AutoMovieHumanF1` `armscye`); 15 and 30 degrees turn it toward the scapular plane, which stands about 30 degrees forward of the
+ * frontal plane in the anatomy texts, and 41.1 degrees is the scapula's internal rotation on the thorax at rest measured with bone pins
+ * (Ludewig et al. 2009, Table I; `packages/human/docs/sources/ludewig-2009-shoulder-complex.md`).
  *
- * Each is cut on f1's trunk wall as stored (wall and nets, lofted) and on the reference skin, at the reference pose, at the neutral pose
- * (every articulated rotation the identity) and at the arm's population ends (the upper arm's depth ±20 %, which moves `r`; the segment
- * lengths do not move GH). Checks: the distance from the loop to the acromion and the two fold points; whether the loop winds once round
- * the humerus's axis with its angle advancing (the port's correspondence); whether it is a simple loop star-shaped about its centre in the
- * trunk's chart (the port's ellipse-and-share form, `AutoMovieHumanF1` `around`); its reach past the trunk's clip at |v| = 151 mm; its
- * distance from the breast's port loop.
+ * The ring is read near-side: on each of 720 rays in the plane from the plane's point under GH (GH projected onto it), the first skin
+ * crossing only, so it stays round the arm's root. Checks: rays that meet no skin; jumps between neighbouring rays (an occlusion, where the
+ * section is not star-shaped from that point); straight distances to the accepted acromion and fold points (a lower bound along the skin);
+ * the ring's reach past the trunk's clip at |v| = 151 mm; its clearance from the breast's port; and, at the reference and the neutral pose,
+ * the arm's own ring against it: the distance between their centres and the angle between the plane's normal and the arm's course there,
+ * which is how far the port's band must turn. The ring does not move with the arm's pose or its depth: it is fixed in the thorax, the
+ * limb law holds the shoulder, and the segment lengths do not move GH.
  *
  * Usage, from `test/`: `pnpm conic:build`, then `node .shots/esbuild/FamilyConicArmscyeRule.cjs`. It writes `rule.txt` and the frames under
  * `test/.shots/family-conic-armscye-rule/<time>/`.
@@ -43,6 +44,7 @@ namespace FamilyConicArmscyeRule {
   const unit = (a: V): V => scale(a, 1 / norm(a));
   const perpendicular = (a: V, n: V): V => unit(sub(a, scale(n, dot(a, n))));
   const fixed = (p: readonly number[], digits: number = 1): string => "[" + p.map((x: number): string => x.toFixed(digits)).join(", ") + "]";
+  const degrees = (rad: number): number => (rad * 180) / Math.PI;
 
   /** f1's relaxed mid upper arm girth, mm: ISO 8559-1, read on the stored wall by `FamilyConicLimbLaw` (run 2026-11-14T17-26-42). */
   const UPPER_ARM_GIRTH_MM: number = 266.374;
@@ -57,96 +59,27 @@ namespace FamilyConicArmscyeRule {
   /** The trunk's clip: its sections are cut at the armscye's sagittal plane, |v| <= 151 mm (`FamilyConicBody`, `ARMPIT_MM`). */
   const CLIP_MM: number = 151;
 
-  /** How far the loop must stay from the breast's port loop, mm: the arm's band's rail, 10 mm (`AutoMovieHumanF1.RAIL_MM.arm`). */
+  /** How far the ring must stay from the breast's port loop, mm: the arm's band's rail, 10 mm (`AutoMovieHumanF1.RAIL_MM.arm`). */
   const CLEAR_MM: number = 10;
 
-  /** One candidate surface: its name, its law and its signed field at a point in the humerus's frame (zero on the surface). */
-  interface ICandidate {
-    name: string;
-    law: string;
-    field: (gh: V, distal: V, r: number) => (p: V) => number;
-  }
+  /** Rays a ring is read along: half a degree apart, a sample every 0.6 mm on a ring of 70 mm radius. */
+  const RAYS: number = 720;
 
-  const CANDIDATES: ICandidate[] = [
-    ...[0, 0.5, 1].map((k: number): ICandidate => ({ name: `plane k ${k}`, law: `square to the humerus at d = ${k} r toward the trunk (r = upper arm girth / 2 pi)`, field: (gh: V, distal: V, r: number) => (p: V): number => dot(sub(p, gh), distal) + k * r })),
-    ...[105, 120, 135].map((deg: number): ICandidate => ({ name: `cone ${deg} deg`, law: `apex at GH, half-angle ${deg} degrees from the distal axis`, field: (gh: V, distal: V) => (p: V): number => {
-      const q: V = sub(p, gh);
-      return Math.acos(Math.max(-1, Math.min(1, dot(q, distal) / (norm(q) || 1)))) - (deg * Math.PI) / 180;
-    } })),
+  /** A jump between neighbouring rays' radii that marks an occlusion, mm: ten times the ray spacing at that radius. */
+  const JUMP_MM: number = 6;
+
+  /** The arm's ring the band lands on, mm past the arm's first knot: the arm's rail (`AutoMovieHumanF1.RAIL_MM.arm`). */
+  const ARM_RAIL_MM: number = 10;
+
+  const BETAS: { beta: number; basis: string }[] = [
+    { beta: 0, basis: "the record's own armscye plane (sagittal)" },
+    { beta: 15, basis: "between" },
+    { beta: 30, basis: "the scapular plane of the anatomy texts" },
+    { beta: 41.1, basis: "scapulothoracic internal rotation at rest, Ludewig 2009 Table I" },
   ];
+  const KS: number[] = [0, 0.5, 1];
 
-  /** The closed curves where a field over a mesh's vertices is zero: each triangle's crossing segment, chained by the edges it crosses. */
-  function contour(mesh: M.IMesh, field: (p: V) => number): V[][] {
-    const n: number = mesh.positions.length / 3;
-    const at = (i: number): V => [mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!];
-    const f: number[] = Array.from({ length: n }, (_: unknown, i: number): number => {
-      const x: number = field(at(i));
-      return x === 0 ? 1e-12 : x;
-    });
-    const key = (a: number, b: number): string => (a < b ? a + "," + b : b + "," + a);
-    const point = (a: number, b: number): V => add(at(a), scale(sub(at(b), at(a)), f[a]! / (f[a]! - f[b]!)));
-    const next: Map<string, string[]> = new Map();
-    const where: Map<string, V> = new Map();
-    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
-      const tri: number[] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
-      const edges: string[] = [];
-      for (let e: number = 0; e < 3; ++e) {
-        const [a, b]: number[] = [tri[e]!, tri[(e + 1) % 3]!];
-        if (f[a!]! * f[b!]! < 0) {
-          const k: string = key(a!, b!);
-          edges.push(k);
-          if (!where.has(k)) where.set(k, point(a!, b!));
-        }
-      }
-      if (edges.length !== 2) continue;
-      next.set(edges[0]!, [...(next.get(edges[0]!) ?? []), edges[1]!]);
-      next.set(edges[1]!, [...(next.get(edges[1]!) ?? []), edges[0]!]);
-    }
-    const seen: Set<string> = new Set();
-    const loops: V[][] = [];
-    for (const start of next.keys()) {
-      if (seen.has(start)) continue;
-      const loop: V[] = [];
-      let [previous, current]: (string | null)[] = [null, start];
-      while (current !== null && !seen.has(current)) {
-        seen.add(current);
-        loop.push(where.get(current)!);
-        const options: string[] = (next.get(current) ?? []).filter((k: string): boolean => k !== previous);
-        [previous, current] = [current, options.find((k: string): boolean => !seen.has(k)) ?? null];
-      }
-      if (loop.length > 8) loops.push(loop);
-    }
-    return loops;
-  }
-
-  /** How many turns a loop makes round an axis through a point, read in the plane square to it. */
-  function turns(loop: readonly V[], origin: V, axis: V): number {
-    const e1: V = perpendicular(Math.abs(axis[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0], axis);
-    const e2: V = cross(axis, e1);
-    let total: number = 0;
-    for (let i: number = 0; i < loop.length; ++i) {
-      const [a, b]: V[] = [sub(loop[i]!, origin), sub(loop[(i + 1) % loop.length]!, origin)];
-      const d: number = Math.atan2(dot(b!, e2), dot(b!, e1)) - Math.atan2(dot(a!, e2), dot(a!, e1));
-      total += Math.atan2(Math.sin(d), Math.cos(d));
-    }
-    return total / (2 * Math.PI);
-  }
-
-  /** Whether a loop's angle about the axis advances at every step (the port's monotone correspondence), and its worst back-step, radians. */
-  function monotone(loop: readonly V[], origin: V, axis: V): { advancing: boolean; worst: number } {
-    const e1: V = perpendicular(Math.abs(axis[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0], axis);
-    const e2: V = cross(axis, e1);
-    const steps: number[] = loop.map((p: V, i: number): number => {
-      const [a, b]: V[] = [sub(p, origin), sub(loop[(i + 1) % loop.length]!, origin)];
-      const d: number = Math.atan2(dot(b!, e2), dot(b!, e1)) - Math.atan2(dot(a!, e2), dot(a!, e1));
-      return Math.atan2(Math.sin(d), Math.cos(d));
-    });
-    const sense: number = Math.sign(steps.reduce((s: number, x: number): number => s + x, 0)) || 1;
-    const worst: number = Math.min(...steps.map((x: number): number => sense * x));
-    return { advancing: worst > 0, worst };
-  }
-
-  /** The trunk's chart at the reference pose: station along its straight course and `(u, v)` across it (`AutoMovieHumanF1` `trunkChart`). */
+  /** The trunk's chart at the reference pose (`AutoMovieHumanF1` `trunkChart`): `v` across the course toward the stored side. */
   function trunkChart(): (p: V) => { station: number; u: number; v: number } {
     const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
     const pelvis: SF.IFrame = P.frame("pelvis");
@@ -160,30 +93,11 @@ namespace FamilyConicArmscyeRule {
     };
   }
 
-  /** Whether a loop is a simple curve star-shaped about its centroid in the trunk's chart, station against phase as millimetres at 151 mm. */
-  function starInChart(loop: readonly V[]): { star: boolean; folds: number } {
-    const chart = trunkChart();
-    const q: [number, number][] = loop.map((p: V): [number, number] => {
-      const c = chart(p);
-      return [c.station, CLIP_MM * Math.atan2(c.v, c.u)];
-    });
-    const centre: [number, number] = [q.reduce((s, x): number => s + x[0], 0) / q.length, q.reduce((s, x): number => s + x[1], 0) / q.length];
-    let folds: number = 0;
-    let sense: number = 0;
-    for (let i: number = 0; i < q.length; ++i) {
-      const [a, b] = [q[i]!, q[(i + 1) % q.length]!];
-      const c: number = (a[0] - centre[0]) * (b[1] - centre[1]) - (a[1] - centre[1]) * (b[0] - centre[0]);
-      if (sense === 0) sense = Math.sign(c);
-      else if (Math.sign(c) !== sense && Math.abs(c) > 1e-9) ++folds;
-    }
-    return { star: folds === 0, folds };
-  }
-
-  /** The skin of the stored trunk round the shoulder as a mesh, mm: its loft with its nets, a ring every millimetre at 720 phases. */
+  /** The stored trunk round the shoulder as a mesh, mm: its loft with its nets, a ring every millimetre at 720 phases. */
   function trunkMesh(): M.IMesh {
     const trunk: H.IFamily = AutoMovieHumanF1.BODY.trunk;
     const stations: number[] = [];
-    for (let s: number = 430; s <= 760; s += 1) stations.push(s);
+    for (let s: number = 380; s <= 760; s += 1) stations.push(s);
     const loft: AutoMovieViewLoft.IResult = H.create(trunk, stations);
     if (loft.chain === null) throw new Error("the trunk does not loft round the shoulder");
     const chain = loft.chain;
@@ -202,10 +116,9 @@ namespace FamilyConicArmscyeRule {
     return { positions, indices };
   }
 
-  /** The breast's port loop in the world, read on the trunk's skin as `armscye`'s is (`AutoMovieHumanF1.mammary`). */
+  /** The breast's port loop in the world, read on the trunk's skin (`AutoMovieHumanF1.mammary`). */
   function breastPort(trunk: M.IMesh): V[] {
-    const placed: AutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const loop = AutoMovieHumanF1.mammary(1, placed);
+    const loop = AutoMovieHumanF1.mammary(1, AutoMovieHumanF1.assemble());
     const chart = trunkChart();
     const shape: number[] = loop.shape === undefined ? Array.from({ length: 64 }, (): number => 1) : [...loop.shape];
     const targets: { station: number; phase: number }[] = shape.map((share: number, k: number) => ({ station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense }));
@@ -218,6 +131,58 @@ namespace FamilyConicArmscyeRule {
     return targets.map((t) => points.reduce((a, b) => (Math.hypot(b.station - t.station, CLIP_MM * (b.phase - t.phase)) < Math.hypot(a.station - t.station, CLIP_MM * (a.phase - t.phase)) ? b : a)).p);
   }
 
+  /** A plane fixed in the thorax: its point under GH and its chart. */
+  function plane(beta: number, k: number): { centre: V; frame: AutoMovieLoftFrame.IFrame; normal: V } {
+    const thorax: SF.IFrame = P.frame("thorax");
+    const [x, y, z]: V[] = [thorax.axes[0] as V, thorax.axes[1] as V, thorax.axes[2] as V];
+    const b: number = (beta * Math.PI) / 180;
+    const normal: V = unit(add(scale(z!, Math.cos(b)), scale(x!, Math.sin(b))));
+    const gh: V = P.frame("humerus").origin as V;
+    const centre: V = sub(gh, scale(normal, (k * UPPER_ARM_GIRTH_MM) / (2 * Math.PI)));
+    const u: V = perpendicular(y!, normal);
+    return { centre, frame: { origin: centre, u, v: cross(normal, u) }, normal };
+  }
+
+  /**
+   * The near-side ring: on each ray in the plane from its centre, the first skin crossing; null where a ray meets no skin. Every piece of
+   * the plane's cut counts, open or closed: the trunk wall is a tube whose ends the plane can cross, and the reference's skins meet at
+   * seams, so a cut through either is in open pieces, which a closed-loop reading (`FamilyConicSource.loops`) drops and the first run
+   * read as rays meeting no skin.
+   */
+  function ring(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): (V | null)[] {
+    const n: V = cross(frame.v as V, frame.u as V);
+    const section: M.ISection = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
+    const pieces: { points: C.P[]; closed: boolean }[] = section.loops.map((loop: M.ILoop) => ({ points: [...loop.points], closed: loop.closed }));
+    return Array.from({ length: RAYS }, (_: unknown, j: number): V | null => {
+      const d: C.P = [Math.cos((2 * Math.PI * j) / RAYS), Math.sin((2 * Math.PI * j) / RAYS)];
+      let best: number = Infinity;
+      for (const { points: loop, closed } of pieces)
+        for (let i: number = 0; i < (closed ? loop.length : loop.length - 1); ++i) {
+          const a: C.P = loop[i]!;
+          const e: C.P = [loop[(i + 1) % loop.length]![0] - a[0], loop[(i + 1) % loop.length]![1] - a[1]];
+          const den: number = d[0] * e[1] - d[1] * e[0];
+          if (den === 0) continue;
+          const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+          const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+          if (w >= 0 && w < 1 && t > 0 && t < best) best = t;
+        }
+      return Number.isFinite(best) ? add(frame.origin as V, add(scale(frame.u as V, best * d[0]), scale(frame.v as V, best * d[1]))) : null;
+    });
+  }
+
+  /** The arm's own ring at its rail at a pose, as world points, with its centre and the arm's course direction there. */
+  function armRing(frames: P.IFrames): { centre: V; along: V; points: V[] } {
+    const arm: H.IFamily = AutoMovieHumanF1.assemble(frames === P.frames() ? undefined : P.NEUTRAL).body.arm;
+    const s0: number = arm.knots[0]!;
+    const loft: AutoMovieViewLoft.IResult = H.create({ ...arm, tips: undefined, reliefs: undefined }, [s0, s0 + ARM_RAIL_MM, s0 + 2 * ARM_RAIL_MM]);
+    if (loft.chain === null) throw new Error("the arm's first stations do not loft");
+    const read = AutoMovieLoftChain.sampler(loft.chain, s0 + ARM_RAIL_MM);
+    const points: V[] = Array.from({ length: 128 }, (_: unknown, j: number): V => read((2 * Math.PI * j) / 128) as V);
+    const axis = H.axis(arm);
+    const [a, b] = [axis.at(s0 + ARM_RAIL_MM - 1).origin as V, axis.at(s0 + ARM_RAIL_MM + 1).origin as V];
+    return { centre: scale(points.reduce((s: V, p: V): V => add(s, p), [0, 0, 0]), 1 / points.length), along: unit(sub(b, a)), points };
+  }
+
   const distanceTo = (p: V, loop: readonly V[]): number => Math.min(...loop.map((q: V): number => norm(sub(p, q))));
 
   export async function main(): Promise<void> {
@@ -225,45 +190,41 @@ namespace FamilyConicArmscyeRule {
     const source: R.ISource = await R.load(root);
     const trunk: M.IMesh = trunkMesh();
     const breast: V[] = breastPort(trunk);
-    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
-    const poses: { name: string; frames: P.IFrames; r: number }[] = [
-      { name: "reference", frames: P.frames(), r },
-      { name: "neutral", frames: P.frames(P.NEUTRAL), r },
-      { name: "upper arm depth -20%", frames: P.frames(), r: 0.8 * r },
-      { name: "upper arm depth +20%", frames: P.frames(), r: 1.2 * r },
+    const chart = trunkChart();
+    const arms: { pose: string; ring: ReturnType<typeof armRing> }[] = [
+      { pose: "reference", ring: armRing(P.frames()) },
+      { pose: "neutral", ring: armRing(P.frames(P.NEUTRAL)) },
     ];
-    const lines: string[] = [`f1 armscye loop by rule; r = upper arm girth ${UPPER_ARM_GIRTH_MM} / 2 pi = ${r.toFixed(2)} mm`, ""];
-    const drawn: { name: string; loop: V[]; colour: string }[] = [];
-    const palette: string[] = ["1f9d3a", "2f6fd0", "d08a1f", "9a3fb5", "c0392b", "16a085"];
-    CANDIDATES.forEach((candidate: ICandidate, index: number): void => {
-      lines.push(`${candidate.name}: ${candidate.law}`);
-      for (const pose of poses) {
-        const humerus: SF.IFrame = pose.frames.get("humerus")!;
-        const gh: V = humerus.origin as V;
-        const elbow: V = (pose.frames.get("forearm")!.origin as V);
-        const distal: V = unit(sub(elbow, gh));
-        const field = candidate.field(gh, distal, pose.r);
-        for (const [skin, mesh] of [["trunk wall", trunk], ...(pose.name === "reference" ? [["reference", source.all]] : [])] as [string, M.IMesh][]) {
-          const loops: V[][] = contour(mesh, field).filter((loop: V[]): boolean => Math.abs(turns(loop, gh, distal)) > 0.5);
-          if (loops.length === 0) {
-            lines.push(`  ${pose.name}, ${skin}: NO LOOP round the humerus's axis`);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const lines: string[] = [`f1 armscye ring by a thorax-fixed plane; r = upper arm girth ${UPPER_ARM_GIRTH_MM} / 2 pi = ${r.toFixed(2)} mm; GH ${fixed(P.frame("humerus").origin)}`, "the ring is fixed in the thorax: it does not move with the arm's pose, the arm's depth (the limb law holds the shoulder) or its segment lengths (GH stays)", ""];
+    lines.push("| beta (basis) | k (m mm) | skin | rays without skin | occlusion jumps over " + JUMP_MM + " mm (largest) | acromion / front fold / back fold, straight mm | past the clip, mm | breast port, mm | arm ring at reference: distance, turn | arm ring at neutral: distance, turn |", "| --- | --- | --- | ---: | --- | --- | ---: | ---: | --- | --- |");
+    const drawn: { k: number; beta: number; points: V[] }[] = [];
+    for (const { beta, basis } of BETAS)
+      for (const k of KS) {
+        const p = plane(beta, k);
+        for (const [skin, mesh] of [["reference", source.all], ["trunk wall", trunk]] as [string, M.IMesh][]) {
+          const hits: (V | null)[] = ring(mesh, p.frame);
+          const points: V[] = hits.filter((h: V | null): h is V => h !== null);
+          const radii: number[] = hits.map((h: V | null): number => (h === null ? NaN : norm(sub(h, p.centre))));
+          const jumps: number[] = radii.map((x: number, j: number): number => Math.abs(x - radii[(j + 1) % RAYS]!)).filter((x: number): boolean => Number.isFinite(x));
+          const big: number[] = jumps.filter((x: number): boolean => x > JUMP_MM);
+          if (points.length === 0) {
+            lines.push(`| ${beta} (${basis}) | ${k} (${(k * r).toFixed(1)}) | ${skin} | ${RAYS} | - | - | - | - | - | - |`);
             continue;
           }
-          const loop: V[] = loops.reduce((a: V[], b: V[]): V[] => (b.length > a.length ? b : a));
-          const chart = trunkChart();
-          const v: number[] = loop.map((p: V): number => Math.abs(chart(p).v));
-          const stations: number[] = loop.map((p: V): number => chart(p).station);
-          const mono = monotone(loop, gh, distal);
-          const star = starInChart(loop);
-          const landmarks: string = pose.name === "reference" ? Object.entries(LANDMARKS).map(([name, p]): string => `${name} ${distanceTo(p, loop).toFixed(1)}`).join(", ") : "-";
-          lines.push(`  ${pose.name}, ${skin}: ${loops.length} loop(s) round the axis; ${loop.length} points; trunk stations ${Math.min(...stations).toFixed(0)}..${Math.max(...stations).toFixed(0)}; |v| up to ${Math.max(...v).toFixed(1)} (${v.filter((x: number): boolean => x > CLIP_MM).length} points past the clip); angle round the axis ${mono.advancing ? "advancing" : "NOT ADVANCING (worst " + mono.worst.toFixed(3) + " rad)"}; in the trunk's chart ${star.star ? "star-shaped" : "NOT STAR-SHAPED (" + star.folds + " folds)"}; breast port ${Math.min(...loop.map((p: V): number => distanceTo(p, breast))).toFixed(1)} mm${Math.min(...loop.map((p: V): number => distanceTo(p, breast))) < CLEAR_MM ? " TOO NEAR" : ""}; distances to the landmarks (straight, a lower bound along the skin) ${landmarks}`);
-          if (pose.name === "reference" && skin === "reference") drawn.push({ name: candidate.name, loop, colour: palette[index % palette.length]! });
+          const past: number = Math.max(0, ...points.map((q: V): number => Math.abs(chart(q).v) - CLIP_MM));
+          const clear: number = Math.min(...points.map((q: V): number => distanceTo(q, breast)));
+          const centre: V = scale(points.reduce((s: V, q: V): V => add(s, q), [0, 0, 0]), 1 / points.length);
+          const turn = (arm: ReturnType<typeof armRing>): string => `${norm(sub(arm.centre, centre)).toFixed(1)} mm, ${degrees(Math.acos(Math.min(1, Math.abs(dot(arm.along, p.normal))))).toFixed(1)} deg`;
+          lines.push(`| ${beta} (${basis}) | ${k} (${(k * r).toFixed(1)}) | ${skin} | ${RAYS - points.length} | ${big.length} (${Math.max(0, ...jumps).toFixed(1)}) | ${Object.values(LANDMARKS).map((q: V): string => distanceTo(q, points).toFixed(1)).join(" / ")} | ${past.toFixed(1)} | ${clear.toFixed(1)}${clear < CLEAR_MM ? " TOO NEAR" : ""} | ${turn(arms[0]!.ring)} | ${turn(arms[1]!.ring)} |`);
+          // A ray that met no skin is drawn at the next ray's hit, so the drawn ring stays closed.
+          const first: V = points[0]!;
+          if (skin === "reference") drawn.push({ k, beta, points: hits.map((h: V | null, j: number): V => h ?? hits.find((x: V | null, i: number): boolean => x !== null && i > j) ?? first) });
         }
       }
-      lines.push("");
-    });
+    lines.push("", "turn: the angle between the plane's normal and the arm's course at its ring 10 mm in; distance: between the ring's and the arm ring's centres");
 
-    // Frames: every candidate's loop on the reference, the landmarks, over the reference and the generated figure.
+    // Frames: per k, the four betas' reference rings, the arm's ring and the landmarks, over the reference and the generated figure.
     const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
     NodeCanvasRaster.initialize();
@@ -291,35 +252,35 @@ namespace FamilyConicArmscyeRule {
     const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
     const generatedIndices: number[] = [];
     let offset: number = 0;
-    for (const p of pieces) {
-      for (const i of p.indices) generatedIndices.push(i + offset);
-      offset += p.positions.length / 3;
+    for (const piece of pieces) {
+      for (const i of piece.indices) generatedIndices.push(i + offset);
+      offset += piece.positions.length / 3;
     }
-    const generated: M.IMesh = { positions: pieces.flatMap((p: AutoMovieHumanF1.IPiece): number[] => p.positions), indices: generatedIndices };
-    const marks: N.Curve[] = Object.values(LANDMARKS).flatMap((p: V): N.Curve[] => [0, 1, 2].map((c: number): N.Curve => {
-      const a: V = [...p];
-      const b: V = [...p];
+    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions), indices: generatedIndices };
+    const marks: N.Curve[] = Object.values(LANDMARKS).flatMap((q: V): N.Curve[] => [0, 1, 2].map((c: number): N.Curve => {
+      const a: V = [...q];
+      const b: V = [...q];
       a[c] -= 8;
       b[c] += 8;
       return { id: "mark" + c, points: [a, b], closed: false, xray: true, colour: "e0201c" };
     }));
-    const curves: N.Curve[] = [...drawn.map((d): N.Curve => ({ id: d.name, points: d.loop, closed: true, xray: true, colour: d.colour })), ...marks];
-    lines.push("Colours: " + drawn.map((d): string => `${d.name} #${d.colour}`).join(", ") + "; red crosses: acromion and the two fold points");
-    const frames: { file: string; sha256: string }[] = [];
-    for (const [stage, m] of [["reference", crop(source.all, 230, 1)], ["generated", crop(generated, 230, 1000)]] as [string, N.Mesh][]) {
-      const bounds: N.Point[] = [];
-      for (let i: number = 0; i < m.positions.length; i += 3) bounds.push([m.positions[i]!, m.positions[i + 1]!, m.positions[i + 2]!]);
-      for (const view of ["front", "back", "left", "high-oblique", "low-oblique"]) {
-        const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 900);
-        const file: string = `rule.${view}.${stage}.png`;
-        const png: Buffer = NodeCanvasRaster.render(camera, [m], curves, "depth", `f1 armscye by rule | ${stage} | ${view}`).png;
-        await fs.writeFile(path.join(out, file), png);
-        frames.push({ file, sha256: createHash("sha256").update(png).digest("hex") });
+    const colours: Record<number, string> = { 0: "1f9d3a", 15: "2f6fd0", 30: "d08a1f", 41.1: "9a3fb5" };
+    lines.push("Colours: beta 0 #1f9d3a, 15 #2f6fd0, 30 #d08a1f, 41.1 #9a3fb5; black: the arm's ring at the reference pose; red: acromion and fold points");
+    const meshes: [string, N.Mesh][] = [["reference", crop(source.all, 230, 1)], ["generated", crop(generated, 230, 1000)]];
+    for (const k of KS)
+      for (const [stage, m] of meshes) {
+        const bounds: N.Point[] = [];
+        for (let i: number = 0; i < m.positions.length; i += 3) bounds.push([m.positions[i]!, m.positions[i + 1]!, m.positions[i + 2]!]);
+        const curves: N.Curve[] = [...drawn.filter((d): boolean => d.k === k).map((d): N.Curve => ({ id: "beta" + d.beta, points: d.points, closed: true, xray: true, colour: colours[d.beta]! })), { id: "arm-ring", points: arms[0]!.ring.points, closed: true, xray: true, colour: "202020" }, ...marks];
+        for (const view of ["front", "back", "left", "high-oblique", "low-oblique"]) {
+          const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 900);
+          const file: string = `ring.k${k}.${view}.${stage}.png`;
+          const png: Buffer = NodeCanvasRaster.render(camera, [m], curves, "depth", `f1 armscye ring, thorax plane, k ${k} | ${stage} | ${view}`).png;
+          await fs.writeFile(path.join(out, file), png);
+        }
       }
-    }
-    lines.push("GH " + fixed(gh, 2));
     await fs.writeFile(path.join(out, "rule.txt"), lines.join("\n") + "\n");
-    await fs.writeFile(path.join(out, "rule.json"), JSON.stringify({ r, drawn, frames }, null, 2));
+    await fs.writeFile(path.join(out, "rule.json"), JSON.stringify({ r, drawn }, null, 2));
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 }
