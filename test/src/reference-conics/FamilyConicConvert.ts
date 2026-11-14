@@ -41,6 +41,9 @@ export namespace FamilyConicConvert {
 
     /** Where an invented closure leaves and rejoins the skin, phases about the course, radians, counter-clockwise from the first. */
     closure?: [number, number];
+
+    /** Several invented closures, each as `closure`: a trunk loop closed across both arm cuts. */
+    closures?: [number, number][];
   }
 
   /** One station converted at one tolerance. */
@@ -81,6 +84,9 @@ export namespace FamilyConicConvert {
     /** Rays from the course, of 720, that meet the source more than once: zero for a star-shaped section. */
     folds: number;
 
+    /** The source's girth, mm. */
+    girthMm: number;
+
     /** The converter's distinct diagnostics, numbers written as `#`. */
     diagnostics: string[];
 
@@ -89,6 +95,9 @@ export namespace FamilyConicConvert {
 
     /** The source's own hollows under its convex hull deeper than the tolerance, measured before fairing (`hollows`). */
     hollows: IHollow[];
+
+    /** Crest candidates: where the faired section stands outside the section faired at twice the cutoff, deeper than the tolerance (umps). */
+    bumps: IHollow[];
   }
 
   /** A hollow of the source section under its convex hull (the tape), read along the rays from the course. */
@@ -223,6 +232,37 @@ export namespace FamilyConicConvert {
   }
 
   /**
+   * The faired section's crests at the form's scale: each run of phases where it stands outside the same section faired at twice the cutoff
+   * (one octave coarser) by more than `least`, the convex counterpart of a hollow under the hull. Its middle is its highest phase, its depth
+   * its height there, its widths along the coarse section, and `fairedMm` the same height.
+   */
+  export function bumps(fine: (phi: number) => number, coarse: (phi: number) => number, least: number): IHollow[] {
+    const M: number = 720;
+    const rows = Array.from({ length: M }, (_: unknown, k: number) => {
+      const phi: number = (2 * Math.PI * k) / M;
+      return { phi, top: coarse(phi), depth: fine(phi) - coarse(phi) };
+    });
+    const start: number = rows.findIndex((r): boolean => !(r.depth > least));
+    if (start < 0) return [];
+    const out: IHollow[] = [];
+    for (let m: number = 1; m <= M; ++m) {
+      const k: number = (start + m) % M;
+      if (!(rows[k]!.depth > least) || rows[(k - 1 + M) % M]!.depth > least) continue;
+      let deepest: number = k, width: number = 0;
+      for (let j: number = k; rows[j % M]!.depth > least && width < 1e6; ++j) {
+        width += (rows[j % M]!.top * 2 * Math.PI) / M;
+        if (rows[j % M]!.depth > rows[deepest]!.depth) deepest = j % M;
+      }
+      const best = rows[deepest]!;
+      let half: number = (best.top * 2 * Math.PI) / M;
+      for (const step of [1, -1])
+        for (let j: number = deepest + step, n: number = 0; n < M && rows[((j % M) + M) % M]!.depth > best.depth / 2; j += step, ++n) half += (rows[((j % M) + M) % M]!.top * 2 * Math.PI) / M;
+      out.push({ middle: best.phi, depthMm: best.depth, widthMm: width, halfMm: half, fairedMm: best.depth });
+    }
+    return out.sort((a: IHollow, b: IHollow): number => a.middle - b.middle);
+  }
+
+  /**
    * The region's fairing cutoff, mm of girth, from its narrowest kept feature (lofting.md: "fair each section to the scale of the form, which
    * means removing the ripples smaller than the features the form keeps"). A kept feature is a source hollow deeper than the tolerance that
    * holds as a line over at least `RUN` neighbouring star-shaped stations (a hollow on one cut alone, or on a section the rays fold over, is
@@ -242,9 +282,14 @@ export namespace FamilyConicConvert {
     return { fairMm, basis: `twice the half-depth width of the narrowest kept hollow, line ${narrowest.id} at ${degrees(median(narrowest.phases)).toFixed(0)} deg over ${narrowest.stations[0]}-${narrowest.stations.at(-1)} (${narrowest.stations.length} stations), median half-depth width ${f2(median(narrowest.turns))} mm, median depth ${f2(median(narrowest.depths))} mm; kept lines (${kept.length} of ${found.length}): ${listed}`, kept };
   }
 
+  /** A section's invented closures: its list, or its one closure, or none. */
+  export function closuresOf(section: ISection): [number, number][] {
+    return section.closures ?? (section.closure === undefined ? [] : [section.closure]);
+  }
+
   /** Convert one section at one tolerance and cutoff. */
-  export function convert(section: ISection, toleranceMm: number, fairMm: number): IStation {
-    const got: F.IConversion = F.convert(section.points, { toleranceMm, fairMm, ...(section.closure === undefined ? {} : { closure: section.closure }) });
+  export function convert(section: ISection, toleranceMm: number, fairMm: number, measure: boolean = true): IStation {
+    const got: F.IConversion = F.convert(section.points, { toleranceMm, fairMm, closures: closuresOf(section) });
     const skin: F.IArc[] = got.arcs.filter((a: F.IArc): boolean => !a.closure);
     return {
       s: section.s,
@@ -259,9 +304,12 @@ export namespace FamilyConicConvert {
       fairMaxMm: got.fairMaxMm,
       fairMeanMm: got.fairMeanMm,
       folds: got.folds,
+      girthMm: got.girthMm,
       diagnostics: got.diagnostics,
       arcs: got.arcs,
-      hollows: hollows(section.points, LAYOUT_TOLERANCE_MM, got.faired),
+      // The source's own measures, which no tolerance changes: read once, at the layout's.
+      hollows: measure ? hollows(section.points, LAYOUT_TOLERANCE_MM, got.faired) : [],
+      bumps: measure ? bumps(got.faired, F.curve(section.points, { fairMm: 2 * fairMm }).radius, LAYOUT_TOLERANCE_MM) : [],
     };
   }
 
@@ -397,11 +445,11 @@ export namespace FamilyConicConvert {
     const scale = options.fairMm === undefined ? cutoff(sections, LAYOUT_TOLERANCE_MM) : { fairMm: options.fairMm, basis: "given by the region", kept: [] as ILine[] };
     const fairMm: number = scale.fairMm;
     const tolerances: number[] = [LAYOUT_TOLERANCE_MM, ...(options.ladder ?? [])];
-    const table: Map<number, IStation[]> = new Map(tolerances.map((t: number): [number, IStation[]] => [t, sections.map((s: ISection): IStation => convert(s, t, fairMm))]));
+    const table: Map<number, IStation[]> = new Map(tolerances.map((t: number): [number, IStation[]] => [t, sections.map((s: ISection): IStation => convert(s, t, fairMm, t === LAYOUT_TOLERANCE_MM))]));
     // `FamilyConicSection.converted` at its own cutoff and tolerance, on a section with no closure: the same fairing and converter, so at
     // that cutoff its arc count must equal this file's at the layout tolerance.
     const check: string[] = sections.map((section: ISection, k: number): string => {
-      if (section.closure !== undefined || fairMm !== F.FAIR_MM) return "-";
+      if (closuresOf(section).length > 0 || fairMm !== F.FAIR_MM) return "-";
       try {
         const ends: number = C.converted(section.points).ends.length;
         return ends === table.get(LAYOUT_TOLERANCE_MM)![k]!.arcs.length ? "same" : "differs:" + ends;
@@ -441,6 +489,9 @@ export namespace FamilyConicConvert {
     lineTable(`## Groove lines at ${LAYOUT_TOLERANCE_MM} mm, tracked within ${degrees(TRACK).toFixed(0)} deg between neighbouring stations`, "line  from     to       stations  middle-deg(min..max)  turn-deg(min..max)  depth-mm(min..max)", tracked, degrees, 1);
     text.push("", `## Source hollows under the convex hull, deeper than ${LAYOUT_TOLERANCE_MM} mm, per station (deepest-phase-deg/depth-mm/width-mm/half-depth-width-mm/faired-depth-mm)`);
     for (const st of layoutStations) text.push(st.s.toFixed(1).padStart(7) + "  " + st.hollows.map((h: IHollow): string => `${degrees(h.middle).toFixed(0)}/${f2(h.depthMm)}/${h.widthMm.toFixed(1)}/${h.halfMm.toFixed(1)}/${f2(h.fairedMm)}`).join("  "));
+    text.push("", `## Crest candidates: the faired section above the section faired at ${2 * fairMm} mm by more than ${LAYOUT_TOLERANCE_MM} mm, per station (highest-phase-deg/height-mm/width-mm/half-height-width-mm)`);
+    for (const st of layoutStations) if (st.bumps.length > 0) text.push(st.s.toFixed(1).padStart(7) + "  " + st.bumps.map((h: IHollow): string => `${degrees(h.middle).toFixed(0)}/${f2(h.depthMm)}/${h.widthMm.toFixed(1)}/${h.halfMm.toFixed(1)}`).join("  "));
+    lineTable(`## Crest candidate lines, tracked within ${degrees(TRACK).toFixed(0)} deg`, "line  from     to       stations  middle-deg(min..max)  half-width-mm(min..max)  height-mm(min..max)", lines(layoutStations.map((st: IStation) => ({ s: st.s, items: st.bumps.map((h: IHollow) => ({ phase: h.middle, turn: h.halfMm, depth: h.depthMm })) }))), (x) => x, 1);
     const hollowLines: ILine[] = lines(layoutStations.map((st: IStation) => ({ s: st.s, items: st.hollows.map((h: IHollow) => ({ phase: h.middle, turn: h.widthMm, depth: h.depthMm })) })));
     lineTable(`## Source hollow lines, tracked within ${degrees(TRACK).toFixed(0)} deg`, "line  from     to       stations  middle-deg(min..max)  width-mm(min..max)  depth-mm(min..max)", hollowLines, (x) => x, 1);
     const ledger = account(layoutStations);
@@ -461,19 +512,28 @@ export namespace FamilyConicConvert {
    * sections measured against the source, rendered in clay beside the reference in four views, and admitted every `ADMIT_STEP_MM`.
    */
   async function loft(name: string, sections: readonly ISection[], stations: readonly IStation[], course: ICourse | undefined, out: string, text: string[], fairMm: number): Promise<object> {
-    // The longest run of neighbouring star-shaped stations: a section the rays fold over is not a wall's (lofting.md, the method's limit).
+    // The longest run of neighbouring star-shaped stations: a section the rays fold over is not a wall's (lofting.md, the method's limit). A
+    // fold counts where its folded rays span at least a quarter of the narrowest kept wavelength round the section (lofting.md: a form is
+    // resolved by samplings at most a quarter of its roll): a single grazing ray on f1's hand at 560 and 562 mm, 0.3 mm of its 200 mm
+    // girth, ended its domain 16 mm before its fingers part. Counted along the course instead, the nose's wing, folded over 4 mm of
+    // stations, would have passed under its 10.5 mm cutoff.
+    const folded = (st: IStation): boolean => (st.folds / 720) * st.girthMm >= fairMm / 4;
     let best: [number, number] = [0, -1];
     for (let i: number = 0; i < stations.length; ) {
-      if (stations[i]!.folds !== 0) {
+      if (folded(stations[i]!)) {
         ++i;
         continue;
       }
       let j: number = i;
-      while (j + 1 < stations.length && stations[j + 1]!.folds === 0) ++j;
+      while (j + 1 < stations.length && !folded(stations[j + 1]!)) ++j;
       if (j - i > best[1] - best[0]) best = [i, j];
       i = j + 1;
     }
     const range: IStation[] = stations.slice(best[0], best[1] + 1);
+    if (range.length === 0) {
+      text.push("", `## Families: no star-shaped station among ${stations.length}; nothing to lay out`);
+      return { families: [] };
+    }
     text.push("", `## Families: stations ${range[0]!.s}-${range.at(-1)!.s} (${range.length}), the longest run of star-shaped stations; the family's domain ends at its last star-shaped station`);
     // The layout's lines are the source's own hollow lines over the range (deeper than the tolerance), not the faired grooves tracked
     // alone: a faired groove that doubles for a few stations split one source groove into two overlapping lines, and their runs' features
@@ -490,7 +550,14 @@ export namespace FamilyConicConvert {
     const claimed: Set<string> = new Set();
     for (const line of [...joined].sort((a: ILine, b: ILine): number => b.stations.length - a.stations.length)) {
       const wavelength: number = 2 * median(line.turns);
-      const extent: number = Math.abs((course?.station ?? ((s: number): number => s))(line.stations.at(-1)!) - (course?.station ?? ((s: number): number => s))(line.stations[0]!));
+      // Where the fairing keeps it: a hollow narrower than the cutoff is what the fairing removes by its own law (`cutoff`), so the line is
+      // present only between its first and last stations whose wavelength reaches the cutoff. Below 1,559.5 mm f1's nose's side hollows are 5
+      // to 9 mm across, the fairing left them 0.02 to 0.07 mm deep, and carried at that depth the engine refused their parallel tangents.
+      // Carried over its whole source extent with its groove's floor held 0.25 mm deep instead, 11 of the nose's 31 reads were refused
+      // (the arc from its first inflection to the held floor met behind its end): the groove cannot be deeper than the fairing drew it.
+      const kept: number[] = line.stations.filter((_: number, k: number): boolean => 2 * line.turns[k]! >= fairMm);
+      const first: number = kept.length > 0 ? kept[0]! : line.stations[0]!, last: number = kept.length > 0 ? kept[kept.length - 1]! : line.stations[0]!;
+      const extent: number = kept.length === 0 ? 0 : Math.abs((course?.station ?? ((s: number): number => s))(last) - (course?.station ?? ((s: number): number => s))(first));
       // At each station, the groove that holds the line's hollow (its inflections round the hollow's phase, else its middle within TRACK),
       // each groove to one line, the longest lines first.
       const phases: ([number, number, number] | null)[] = range.map((st: IStation, i: number): [number, number, number] | null => {
@@ -506,9 +573,16 @@ export namespace FamilyConicConvert {
       });
       const seen: number = phases.filter((x): boolean => x !== null).length;
       if (extent >= wavelength && seen >= 2) {
-        lineOf.push({ phases });
-        spans.push([range.findIndex((st: IStation): boolean => Math.abs(st.s - line.stations[0]!) < 1e-9), range.findIndex((st: IStation): boolean => Math.abs(st.s - line.stations.at(-1)!) < 1e-9)]);
-      } else named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)}: runs ${f2(extent)} mm along the course against its wavelength ${f2(wavelength)} mm, a groove at ${seen} station(s), depth ${span2(line.depths)} mm`);
+        lineOf.push({ phases: phases.map((x, i: number): [number, number, number] | null => (range[i]!.s >= first - 1e-9 && range[i]!.s <= last + 1e-9 ? x : null)) });
+        spans.push([range.findIndex((st: IStation): boolean => Math.abs(st.s - first) < 1e-9), range.findIndex((st: IStation): boolean => Math.abs(st.s - last) < 1e-9)]);
+      } else {
+        // A short line at the domain's end, next to the sections that fold, is the neighbouring family's (on f1's nose, the wing's).
+        const atEnd: string =
+          line.stations[0]! <= range[0]!.s + wavelength && best[0] > 0 ? "; at the domain's start, next to the folded sections below: the neighbouring family's"
+          : line.stations.at(-1)! >= range.at(-1)!.s - wavelength && best[1] < stations.length - 1 ? "; at the domain's end, next to the folded sections above: the neighbouring family's"
+          : "";
+        named.push(`dropped hollow line at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)}: runs ${f2(extent)} mm along the course against its wavelength ${f2(wavelength)} mm, a groove at ${seen} station(s), depth ${span2(line.depths)} mm${atEnd}`);
+      }
     }
     text.push(`groove lines from the source's hollow lines: ${lineOf.length} kept of ${joined.length} (${pieces.length} pieces)`, ...named);
     // Families: runs of stations with one set of present lines (#3401: "runs of equal count are families; a change of count is where a family
@@ -602,6 +676,28 @@ export namespace FamilyConicConvert {
         const moved: string = rows[i]!.map((y: number, f: number): [number, number] => [f, Math.abs(smoothed[f]! - y)]).sort((x, y): number => y[1] - x[1]).slice(0, 3).map(([f]): string => `${fieldName(f)} ${rows[i]![f]!.toFixed(3)}->${smoothed[f]!.toFixed(3)}`).join(", ");
         text.push(`${st.s.toFixed(1).padStart(7)}  ${f2(a.least)} (${a.arc}) / ${f2(b.least)} (${b.arc});  ${moved}`);
       });
+      // Each feature's tangent against the source's own at its point (the source's direction over 1 mm either side of its nearest
+      // vertex), read and smoothed, degrees; and which extremes stand on the invented closure.
+      const source = (s: number): ISection => sections.find((x: ISection): boolean => Math.abs(x.s - s) < 1e-9)!;
+      text.push("feature tangents against the source, deg (anchor: read/smoothed); extremes on the closure");
+      range.forEach((st: IStation, i: number): void => {
+        const own: ISection = source(st.s);
+        const smoothed: number[] = L.stored(reader(course.station(st.s)), plan.layout);
+        const readChain = S.resolve(rows[i]!, plan.layout).input, smoothChain = S.resolve(smoothed, plan.layout).input;
+        const cells: string[] = [];
+        plan.layout.anchors.forEach((anchor: S.IAnchor, k: number): void => {
+          if (anchor.kind !== "f") return;
+          const off = (chain: typeof readChain): number => {
+            const p = chain.points[k]!, t = chain.tangents[k]!;
+            const d: C.P = sourceTangent(own.points, [p[0]!, p[1]!]);
+            const angle: number = Math.atan2(t[1]!, t[0]!) - Math.atan2(d[1], d[0]);
+            return Math.abs(degrees(Math.atan2(Math.sin(angle), Math.cos(angle))));
+          };
+          cells.push(`f${k}: ${off(readChain).toFixed(1)}/${off(smoothChain).toFixed(1)}`);
+        });
+        const onClosure: string[] = (["u+", "v+", "u-", "v-"] as const).filter((_, q: number): boolean => closuresOf(own).some(([a, b]): boolean => wrap(ends[i]![q]! - a) < wrap(b - a)));
+        text.push(`${st.s.toFixed(1).padStart(7)}  ${cells.join("  ") || "-"};  on closure: ${onClosure.join(",") || "none"}`);
+      });
       const sourceError: { s: number; max: number; mean: number }[] = range.map((st: IStation): { s: number; max: number; mean: number } => {
         const section = S.chain(reader(course.station(st.s)), plan.layout);
         const ring: C.P[] = section.fault !== null ? [] : Array.from({ length: 720 }, (_: unknown, k: number): C.P => ringPoint(section, (2 * Math.PI * k) / 720));
@@ -649,7 +745,7 @@ export namespace FamilyConicConvert {
       built.push(await build(name + "." + k, range.slice(fam.from, fam.to + 1), lines));
     }
     // The closure's phases at a course station: the nearest source section's.
-    const closureAt = (s: number): readonly [number, number] | undefined => sections.reduce((a: ISection, b: ISection): ISection => (Math.abs(course.station(b.s) - s) < Math.abs(course.station(a.s) - s) ? b : a)).closure;
+    const closureAt = (s: number): [number, number][] => closuresOf(sections.reduce((a: ISection, b: ISection): ISection => (Math.abs(course.station(b.s) - s) < Math.abs(course.station(a.s) - s) ? b : a)));
     const shown = built.filter((b): boolean => b.chain !== null).map((b) => ({ chain: b.chain!, s0: b.r0, s1: b.r1, family: b.family }));
     // The families joined in station order (construction.md, Connections: "Two compatible open ends continue each other": a continuation).
     // Neighbouring families' sections carry other layouts, so each is continued across a band (`IAutoMovieConstructionContinuation.band`),
@@ -706,6 +802,25 @@ export namespace FamilyConicConvert {
   function ringPoint(section: ReturnType<typeof S.chain>, phi: number): C.P {
     const r: number = Q.radius(section, phi);
     return [r * Math.cos(phi), r * Math.sin(phi)];
+  }
+
+  /** A closed polygon's unit direction at its vertex nearest `p`: the chord from 1 mm of arclength behind it to 1 mm ahead. */
+  function sourceTangent(points: readonly C.P[], p: C.P): C.P {
+    const n: number = points.length;
+    let j: number = 0;
+    for (let k: number = 1; k < n; ++k) if (Math.hypot(points[k]![0] - p[0], points[k]![1] - p[1]) < Math.hypot(points[j]![0] - p[0], points[j]![1] - p[1])) j = k;
+    const walk = (step: 1 | -1): C.P => {
+      let length: number = 0, k: number = j;
+      for (let m: number = 0; m < n && length < 1; ++m) {
+        const next: number = (((k + step) % n) + n) % n;
+        length += Math.hypot(points[next]![0] - points[k]![0], points[next]![1] - points[k]![1]);
+        k = next;
+      }
+      return points[k]!;
+    };
+    const a: C.P = walk(-1), b: C.P = walk(1);
+    const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
   }
 
   /** Distance from a point to a closed polyline. */
@@ -782,11 +897,11 @@ export namespace FamilyConicConvert {
    * closure's phases at their station in the course's chart, in `CLOSURE_COLOUR`), and the reference with every family's section ring every
    * 2 mm and at its ends drawn over it, so the clay is compared place for place.
    *
-   * @param closureAt The closure's phases at a course station, or undefined where the section has none.
+   * @param closureAt The closures' phases at a course station, none where the section has none.
    * @param joined The families realized joined by their continuations, metres: drawn as the clay in place of the separate families, its
    *   closure told apart by each vertex's station on the straight course and its phase in that station's chart.
    */
-  async function render(name: string, lofted: readonly { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: H.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly [number, number] | undefined, joined?: { positions: readonly number[]; indices: readonly number[] }, owners: readonly IOwner[] = []): Promise<string[]> {
+  async function render(name: string, lofted: readonly { chain: NonNullable<AutoMovieViewLoft.IResult["chain"]>; s0: number; s1: number; family: H.IFamily }[], course: ICourse, out: string, closureAt: (s: number) => readonly (readonly [number, number])[], joined?: { positions: readonly number[]; indices: readonly number[] }, owners: readonly IOwner[] = []): Promise<string[]> {
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const reference: N.Mesh[] = [source.body, source.head].map((mesh, i: number): N.Mesh => ({ id: "reference." + i, positions: Array.from(mesh.positions, (x: number): number => x / 1000), indices: Array.from(mesh.indices), colour: [0.64, 0.65, 0.67] }));
     const near: N.Point[] = [];
@@ -807,7 +922,7 @@ export namespace FamilyConicConvert {
       for (let i: number = 0; i < along; ++i) {
         const s: number = s0 + ((s1 - s0) * i) / (along - 1);
         const frame = axis.at(s);
-        const closure: readonly [number, number] | undefined = closureAt(s);
+        const closures: readonly (readonly [number, number])[] = closureAt(s);
         const ring: N.Point[] = [];
         for (let j: number = 0; j < about; ++j) {
           const p = AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / about);
@@ -815,7 +930,7 @@ export namespace FamilyConicConvert {
           ring.push([p[0]! / 1000, p[1]! / 1000, p[2]! / 1000]);
           const d: number[] = [0, 1, 2].map((c: number): number => p[c]! - frame.origin[c]!);
           const phi: number = Math.atan2(d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2], d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2]);
-          invented.push(closure !== undefined && wrap(phi - closure[0]) < wrap(closure[1] - closure[0]));
+          invented.push(closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a)));
         }
         if (i === 0 || i === along - 1 || i % 4 === 0) rings.push({ id: `${family.name}.ring.${s.toFixed(1)}`, points: ring, closed: true, colour: k % 2 === 0 ? "b84b29" : "2950b8" });
       }
@@ -845,8 +960,8 @@ export namespace FamilyConicConvert {
         const frame = axis.at(s);
         const d: number[] = [0, 1, 2].map((k: number): number => p[k]! - frame.origin[k]!);
         const phi: number = Math.atan2(d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2], d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2]);
-        const closure: readonly [number, number] | undefined = closureAt(s);
-        invented.push(closure !== undefined && wrap(phi - closure[0]) < wrap(closure[1] - closure[0]));
+        const closures: readonly (readonly [number, number])[] = closureAt(s);
+        invented.push(closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a)));
       }
       const skin: number[] = [], closed: number[] = [];
       for (let t: number = 0; t + 2 < joined.indices.length; t += 3) {

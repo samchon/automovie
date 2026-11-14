@@ -132,8 +132,11 @@ export namespace FamilyConicFair {
     /** The fairing cutoff wavelength, mm of girth; default `FAIR_MM`. */
     fairMm?: number;
 
-    /** The phases, radians, where an invented closure leaves and rejoins the skin; the closure runs counter-clockwise from the first to the second. */
-    closure?: readonly [number, number];
+    /**
+     * Each invented closure's phases, radians, where it leaves and rejoins the skin, running counter-clockwise from the first to the second:
+     * one for a part closed across its root, two for a trunk loop closed across both arm cuts.
+     */
+    closures?: readonly (readonly [number, number])[];
   }
 
   /** Sampled phases of the radius. */
@@ -152,7 +155,7 @@ export namespace FamilyConicFair {
   const wrap = (x: number): number => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 
   /** The faired section as the converter's source: radius by phase about the origin, faired; breaks at its inflections and the closure's ends. */
-  export function curve(points: readonly C.P[], options: Pick<IOptions, "fairMm" | "closure"> = {}): V.ICurve & { radius: (phi: number) => number; girth: number } {
+  export function curve(points: readonly C.P[], options: Pick<IOptions, "fairMm" | "closures"> = {}): V.ICurve & { radius: (phi: number) => number; girth: number } {
     const fairMm: number = options.fairMm ?? FAIR_MM;
     const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
     let girth: number = 0;
@@ -229,7 +232,7 @@ export namespace FamilyConicFair {
       if (root > domain[0] && root < domain[1]) breaks.push(root);
     }
     // The closure's two ends: an invented closure is no skin, so no arc spans its joint with the skin.
-    for (const end of options.closure ?? []) {
+    for (const end of (options.closures ?? []).flat()) {
       const at: number = SEAM + wrap(end - SEAM);
       if (at > domain[0] + 1e-9 && at < domain[1] - 1e-9 && !breaks.some((b: number): boolean => Math.abs(b - at) < 1e-6)) breaks.push(at);
     }
@@ -260,11 +263,7 @@ export namespace FamilyConicFair {
       ++fairCount;
     }
     const result: V.IResult = approximateAutoMovieRecoveryConicsAhn(source, { toleranceMm: options.toleranceMm, ...LIMITS });
-    const onClosure = (phi: number): boolean => {
-      if (options.closure === undefined) return false;
-      const [a, b] = options.closure;
-      return wrap(phi - a) < wrap(b - a);
-    };
+    const onClosure = (phi: number): boolean => (options.closures ?? []).some(([a, b]): boolean => wrap(phi - a) < wrap(b - a));
     const arcs: IArc[] = [...result.arcs]
       .sort((p: V.IArc, q: V.IArc): number => p.domain[0] - q.domain[0])
       .map((arc: V.IArc): IArc => {
