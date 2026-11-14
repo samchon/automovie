@@ -170,6 +170,16 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
     a: IHumanBody,
   ): motionHumanLawSweep.IScene =>
     S.solo(a, S.chain().act("lieDown", S.set(pick, "position"))),
+  getUp: (
+    pick: motionHumanLawSweep.Pick,
+    a: IHumanBody,
+  ): motionHumanLawSweep.IScene =>
+    S.solo(
+      a,
+      S.chain()
+        .act("lieDown", { position: "supine", hold: 0.3 })
+        .act("getUp", S.set(pick, "pattern")),
+    ),
   sit: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,

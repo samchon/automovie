@@ -85,6 +85,7 @@ export * from "./throwing/throwObject";
 export * from "./affordance/operate";
 export * from "./floor/crawl";
 export * from "./floor/lieDown";
+export * from "./floor/getUp";
 export * from "./floor/dive";
 export * from "./floor/roll";
 export * from "./climbing/climbLadder";

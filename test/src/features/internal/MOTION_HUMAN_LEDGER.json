@@ -5882,6 +5882,59 @@
       ]
     },
     {
+      "law": "getUp",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=symmetric",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=rotation",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
       "law": "crawl",
       "checks": [
         "tangle",
