@@ -63,6 +63,15 @@ export namespace CarBody {
     /** The driver's seating reference point. */
     reference: IAutoMovieVector3;
 
+    /** The driver's accelerator heel point, on the floor below the ball of foot's pedal plane. */
+    heel: IAutoMovieVector3;
+
+    /** The driver's ball of foot, `createCar.BALL` up the pedal plane from the heel point. */
+    ball: IAutoMovieVector3;
+
+    /** The pedal plane's angle from the floor, degrees (`createCar.pedalPlane`). */
+    pedal: number;
+
     /** The seat cushion's top under the reference point. */
     surface: number;
   }
@@ -76,7 +85,7 @@ export namespace CarBody {
    * @returns The layout.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The front overhang takes 45 % of the length beyond the wheelbase; the seating reference point lies `REFERENCE` behind the front axle and `seatHeight` above the floor (SAE J1100's H30), the bulkhead `HEEL` and `FOOTWELL` ahead of it, the belt `BELT` above the floor, or a pickup's at its bed's rail; a van's floor is its side step and its cabin runs to its rear doors, a pickup's cab ends where its bed begins.
+   * @evidence contracts/development/implementation.md#principled-implementation The front overhang takes 45 % of the length beyond the wheelbase; the seating reference point lies `REFERENCE` behind the front axle and `seatHeight` above the floor (SAE J1100's H30); the ball of foot lies SAE J1516's tool reference distance ahead of it (`seatAft`) on the pedal plane at J1516's angle (`pedalPlane`), the heel point `BALL` back down that plane on the floor, and the bulkhead `FOOTWELL` ahead of the heel point; the belt `BELT` above the floor, or a pickup's at its bed's rail; a van's floor is its side step and its cabin runs to its rear doors, a pickup's cab ends where its bed begins.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of derived planes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced offsets are `createCar`'s marked constants.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -94,6 +103,13 @@ export namespace CarBody {
     const floor: number = kind === "van" ? d.sideStep! : createCar.FLOOR;
     const sz: number = wheelbase / 2 - createCar.REFERENCE;
     const sy: number = floor + d.seatHeight!;
+    const sx: number = side * (d.width! / 4);
+
+    // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
+    const pedal: number = createCar.pedalPlane(d.seatHeight!);
+    const slope: number = (pedal * Math.PI) / 180;
+    const ball: IAutoMovieVector3 = Vector3.create(sx, floor + createCar.BALL * Math.sin(slope), sz + createCar.seatAft(d.seatHeight!));
+    const heel: IAutoMovieVector3 = Vector3.create(sx, floor, ball.z - createCar.BALL * Math.cos(slope));
     return {
       kind,
       side,
@@ -107,11 +123,7 @@ export namespace CarBody {
           ? d.bedFloor! + d.bedDepth!
           : floor + createCar.BELT,
       top: d.height!,
-      firewall:
-        wheelbase / 2 -
-        createCar.REFERENCE +
-        createCar.HEEL +
-        createCar.FOOTWELL,
+      firewall: heel.z + createCar.FOOTWELL,
       pillar: sz - 0.25,
       back:
         kind === "van"
@@ -119,7 +131,10 @@ export namespace CarBody {
           : kind === "pickup"
             ? rear + d.bedLength!
             : -wheelbase / 2 + 0.1,
-      reference: Vector3.create(side * (d.width! / 4), sy, sz),
+      reference: Vector3.create(sx, sy, sz),
+      heel,
+      ball,
+      pedal,
       surface: sy - createCar.HIP,
     };
   }

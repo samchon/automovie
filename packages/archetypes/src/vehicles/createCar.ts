@@ -22,7 +22,7 @@ import { CarRear } from "./CarRear";
  * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
  * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the rear and the cabin are their own modules, each building from the one layout.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets of the controls from the seating reference point and the belt line are named constants marked as unsourced; bands read at search results only are marked provisional.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pedals and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17; the seating reference point's station behind the front axle (`REFERENCE`), the cabin floor (`FLOOR`), the belt line (`BELT`), the footwell (`FOOTWELL`), the H-point's height over the cushion (`HIP`), the pedals' sideways offsets and the gear lever, belt, mirror and handles' places remain named estimates not read at a source; bands read at search results only are marked provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms About sixty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -96,18 +96,55 @@ export namespace createCar {
   /** The seating reference point above the cushion's surface, metres: the 97.5 mm of the SAE J826 H-point machine, recalled and not read at a source. */
   export const HIP: number = 0.0975;
 
-  /** The heel point ahead of the seating reference point, metres: SAE J1100's L53, which the standard defines without a value; a typical sedan's, not read at a source. */
-  export const HEEL: number = 0.85;
-
-  /** The bulkhead ahead of the heel point, metres: the pedal pads stand 0.1 m ahead of the heel and travel on from there; an estimate, not read at a source. */
+  /** The bulkhead ahead of the accelerator heel point, metres: the pedal pads stand on the pedal plane ahead of the heel and travel on from there; an estimate, not read at a source. */
   export const FOOTWELL: number = 0.16;
 
-  /** The steering wheel's centre from the seating reference point, metres ahead and up: SAE J1100's L11 and H17 are measured from the heel point and given no value; a typical package, not read at a source. */
-  export const WHEEL: Readonly<{ ahead: number; up: number }> = {
-    ahead: 0.42,
-    up: 0.33,
-  };
+  /** The ball of foot's distance from the accelerator heel point along the pedal plane, metres: 203 mm (SAE J1516, reaffirmed 1990, 3.3.4; ISO 20176:2020 p. vii, consistent with ISO 6549 and SAE J1100, where it replaced an earlier 200 mm). */
+  export const BALL: number = 0.203;
 
+  /** The steering wheel's centre aft of the ball of foot, metres: SAE J1100's L6 of a typical mid-size sedan, 550 mm (Park, Jones, Ebert, Reed and Hallman 2018, Traffic Injury Prevention 19:825, p. 827). */
+  export const WHEEL_AFT: number = 0.55;
+
+  /** The steering wheel's centre above the accelerator heel point, metres: SAE J1100's H17 of the same sedan, 646 mm (Park et al. 2018, p. 827). */
+  export const WHEEL_HEIGHT: number = 0.646;
+
+  /**
+   * The pedal plane's angle from the floor at a seat height: SAE J1516's equation 2.
+   *
+   * @param seatHeight The seating reference point above the accelerator heel point, SAE J1100's H30, metres.
+   * @returns The angle, degrees, rising forward from the heel.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input's unit and the result's sense.
+   * @evidence contracts/development/implementation.md#principled-implementation SAE J1516 (reaffirmed 1990), 3.3.3, equation 2: 78.96 - 0.15 z - 0.0173 z squared degrees with z the H-point height above the heel point in centimetres, derived with the 95th-percentile leg links and an 87-degree foot angle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pedalPlane(seatHeight: number): number {
+    const z: number = seatHeight * 100;
+    return 78.96 - 0.15 * z - 0.0173 * z * z;
+  }
+
+  /**
+   * How far the seating reference point lies aft of the ball of foot at a seat height: SAE J1516's class A tool reference line.
+   *
+   * @param seatHeight SAE J1100's H30, metres.
+   * @returns The distance aft, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input's and the result's units.
+   * @evidence contracts/development/implementation.md#principled-implementation SAE J1516 (reaffirmed 1990), 3.3.1, equation 1: x = 793.7 + 0.903387 z - 0.00225518 z squared, millimetres aft of the ball of foot with z = H30 in millimetres.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seatAft(seatHeight: number): number {
+    const z: number = seatHeight * 1000;
+    return (793.7 + 0.903387 * z - 0.00225518 * z * z) / 1000;
+  }
   /** A pickup's tailgate opening, degrees: it drops to level, held by its stays, a quarter turn from shut by the geometry of a gate hinged at its foot. */
   export const TAILGATE: number = 90;
 

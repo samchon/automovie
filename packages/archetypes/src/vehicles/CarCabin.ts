@@ -102,7 +102,7 @@ export namespace CarCabin {
    * @param l The layout.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation The steering wheel's rim on its column's axis tilted back by `steeringAngle` at `WHEEL` from the seating reference point, turning half the lock-to-lock turn each way with one spoke across it so a turn shows; the pedals' plates face the sole in the footwell `HEEL` ahead of the reference point; the gear lever slides fore and aft between the seats.
+   * @evidence contracts/development/implementation.md#principled-implementation The steering wheel's rim on its column's axis tilted back by `steeringAngle`, its centre `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel point (SAE J1100's L6 and H17 of a mid-size sedan), turning half the lock-to-lock turn each way with one spoke across it so a turn shows; the pedals' plates lie on SAE J1516's pedal plane at the ball of foot, facing the sole, their sideways offsets from the driver's centre line estimates not read at a source; the gear lever slides fore and aft between the seats.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Wheel, pedals, lever, belt, mirror.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are `createCar`'s marked constants.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of parts.
@@ -119,7 +119,7 @@ export namespace CarCabin {
     const sz: number = l.reference.z;
     const tilt: number = (d.steeringAngle! * Math.PI) / 180;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
-    const hub: IAutoMovieVector3 = v(sx, l.reference.y + createCar.WHEEL.up, sz + createCar.WHEEL.ahead);
+    const hub: IAutoMovieVector3 = v(sx, l.heel.y + createCar.WHEEL_HEIGHT, l.ball.z - createCar.WHEEL_AFT);
     builder.rod("steering-rim", d.steeringDiameter! / 2, Vector3.subtract(hub, Vector3.scale(axis, 0.015)), Vector3.add(hub, Vector3.scale(axis, 0.015)), { color: DARK });
     builder.rod("steering-column", 0.02, Vector3.subtract(hub, Vector3.scale(axis, 0.3)), hub, { color: GREY });
     builder.rod(
@@ -141,14 +141,14 @@ export namespace CarCabin {
       parts: ["steering-rim", "steering-spoke"],
     });
 
-    // The pedals in the footwell behind the bulkhead, the accelerator under the right foot and the brake beside it.
-    const heel: number = sz + createCar.HEEL;
-    const sole: IAutoMovieVector3 = v(0, 0.5, -0.866);
+    // The pedals on the pedal plane at the ball of foot, the accelerator under the right foot and the brake beside it; each plate faces the sole, out of the plane toward the seat.
+    const slope: number = (l.pedal * Math.PI) / 180;
+    const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
     for (const [id, offset, width] of [
       ["accelerator", -0.1, 0.05],
       ["brake", 0.02, 0.1],
     ] as const) {
-      const at: IAutoMovieVector3 = v(sx + offset, l.floor + 0.15, heel + 0.1);
+      const at: IAutoMovieVector3 = v(sx + offset, l.ball.y, l.ball.z);
       builder.box(`pedal-${id}`, v(width, 0.01, 0.08), at, {
         color: DARK,
         rotation: ArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
