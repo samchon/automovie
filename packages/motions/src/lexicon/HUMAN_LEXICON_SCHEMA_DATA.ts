@@ -20745,7 +20745,22 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "properties": {
           "item": {
             "$ref": "#/components/schemas/dress.Item",
-            "description": "The item."
+            "description": "The item: where it is worn and how the free hand steadies it."
+          },
+          "prop": {
+            "type": "string",
+            "description": "The wearable's prop subject, held since a pick-up: its `wear` socket is put on the head (`createWearable`'s contacts)."
+          },
+          "hand": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The hand that holds it; the one the entry holds it in when absent, `right` if neither."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -20753,7 +20768,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
-          "item"
+          "item",
+          "prop"
         ],
         "additionalProperties": false,
         "description": "Parameters."

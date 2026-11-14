@@ -27,7 +27,7 @@ const UNREAD: string = "the makers' pages read do not give it";
 /**
  * A small thing worn on the body and put on or taken off by hand: a wristwatch, a hat or a pair of spectacles.
  *
- * Each rests at the origin as it would lie on a table, its front toward `+Z`. A watch lies dial up with its strap straight along `Z`; a hat sits on its brim, crown up; spectacles stand open on the lenses' bottom edge with the temples back along `-Z`. `hold` is where the fingers take it: the watch's case, the hat's brim at its front, the spectacles' bridge. `wear` is the socket the body part goes into or onto, `+Y` out toward it: the strap's inside under the case for the wrist, the crown's inside for the head, the bridge's back for the nose. `face` is a watch's dial, facing up, read by a glance.
+ * Each rests at the origin as it would lie on a table, its front toward `+Z`. A watch lies dial up with its strap straight along `Z`; a hat sits on its brim, crown up; spectacles stand open on the lenses' bottom edge with the temples back along `-Z`. `hold` is where the fingers take it: the watch's case, the hat's brim at its right side (`-X`), pinched from above with the thumb toward the front, where a right hand puts it on by the side of the head, the spectacles' bridge. `wear` is the socket the body part goes into or onto, `+Y` out toward it: the strap's inside under the case for the wrist, the crown's inside top for the head, which rests on the head's crown, the bridge's back for the nose. `face` is a watch's dial, facing up, read by a glance.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -124,18 +124,24 @@ export function createWearable(
       kind: "handle",
       symmetry: "none",
       frame: ArchetypeFrame.facing(
-        v(0, thin / 2, d.width / 2 - 0.02),
+        v(-(d.width / 2 - 0.02), thin / 2, 0),
         v(0, 1, 0),
-        v(1, 0, 0),
+        v(0, 0, 1),
       ),
       extent: null,
       grip: "precision",
       aperture: thin,
     });
+    // The head goes in from the brim's opening as far as the crown's
+    // inside top, which rests on the head's crown.
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, d.height - thin, 0),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
   } else {

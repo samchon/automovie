@@ -1,4 +1,9 @@
-import { createBall, createTool, createVessel } from "@automovie/archetypes";
+import {
+  createBall,
+  createTool,
+  createVessel,
+  createWearable,
+} from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -192,7 +197,8 @@ const wall = (
  * the toes; each tool taken up from a bench 0.15 m below the elbow and
  * worked on its work point, a stir in a saucepan on the bench before the
  * body; and a table top 0.225 m below the
- * elbow wiped three times.
+ * elbow wiped three times; a hat or spectacles (`createWearable`) taken up
+ * from hip height before the right hand and put on.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the family and each staging with its numbers.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
@@ -393,6 +399,24 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
   dress: (
     pick: motionHumanLawSweep.Pick,
     a: IHumanBody,
-  ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("dress", { item: pick("item") ?? "hat" })),
+  ): motionHumanLawSweep.IScene => {
+    const item: string = pick("item") ?? "hat";
+    return S.solo(
+      a,
+      S.chain()
+        .act("stand", { seconds: 0.3 })
+        .act("pickUp", { prop: "item", handle: "hold", hand: "right" })
+        .act("dress", { item, prop: "item", hand: "right" }),
+      [
+        HumanObject.prop(
+          "item",
+          createWearable({ kind: item === "hat" ? "hat" : "spectacles" }),
+          {
+            at: { x: -0.2, y: a.measure.hipHeight, z: 0.35 },
+            yaw: item === "hat" ? 0 : 180,
+          },
+        ),
+      ],
+    );
+  },
 };
