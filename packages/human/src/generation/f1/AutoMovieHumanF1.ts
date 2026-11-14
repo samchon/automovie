@@ -372,6 +372,15 @@ export namespace AutoMovieHumanF1 {
    */
   const EAR_FAIR_MM: { helix: number; antihelix: number; root: number } = { helix: 1, antihelix: 1, root: 4 };
 
+  /**
+   * How many station lines round each part the seed searches of the ear's joins walk, phase first (`IAutoMovieConstructionSearchSeed.phases`):
+   * which line of a part meets its host is a property of both surfaces, not of the part, so a fixed phase holds for one person only. On f1's
+   * lens(1) plate the helix's phase-0 line stays outside the plate over its whole search (shares 0 to 0.5) and its first crossing line
+   * of eight is 45 degrees, at station 26.8; the antihelix's is phase 0, at 6.8 (`FamilyConicEarRound.ts --crossing`). Eight lines,
+   * 45 degrees apart, leave no side of a round tube more than 22.5 degrees from a walked line.
+   */
+  const EAR_SEED_LINES: number = 8;
+
   /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
   const ROOT_MM: number = 10;
 
@@ -1196,11 +1205,11 @@ export namespace AutoMovieHumanF1 {
       const antihelix: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Antihelix : twin(AutoMovieHumanF1Antihelix);
       const concha: AutoMovieHumanConicLoft.IFamily = side > 0 ? AutoMovieHumanF1Concha : twin(AutoMovieHumanF1Concha);
       const plate: AutoMovieHumanConicLoft.IFamily = side > 0 ? BODY.ear : twin(BODY.ear);
-      const ridge = (host: AutoMovieConstructionNode, part: AutoMovieHumanConicLoft.IFamily, fair: number): AutoMovieConstructionNode => ({ type: "join", kind: "merge", name: "ridge." + part.name, host, part: leaf(part, Infinity), seed: { type: "search", partFace: part.name, hostFace: plate.name, phase: 0, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: fair / 1000 });
-      root = { type: "join", kind: "merge", name: "root." + plate.name, host: root, part: leaf(plate, Infinity), seed: { type: "search", partFace: plate.name, hostFace: trunk, phase: Math.PI, from: 0, to: 1 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 256, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: EAR_FAIR_MM.root / 1000 };
+      const ridge = (host: AutoMovieConstructionNode, part: AutoMovieHumanConicLoft.IFamily, fair: number): AutoMovieConstructionNode => ({ type: "join", kind: "merge", name: "ridge." + part.name, host, part: leaf(part, Infinity), seed: { type: "search", partFace: part.name, hostFace: plate.name, phase: 0, phases: EAR_SEED_LINES, from: 0, to: 0.5 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: fair / 1000 });
+      root = { type: "join", kind: "merge", name: "root." + plate.name, host: root, part: leaf(plate, Infinity), seed: { type: "search", partFace: plate.name, hostFace: trunk, phase: Math.PI, phases: EAR_SEED_LINES, from: 0, to: 1 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.0005 }, hostWidth: { type: "chord", value: 0.0005 }, continuity: "G2", count: 256, rows: 4, tolerance: 1e-12, grazing: 0.04, fair: EAR_FAIR_MM.root / 1000 };
       root = ridge(root, helix, EAR_FAIR_MM.helix);
       root = ridge(root, antihelix, EAR_FAIR_MM.antihelix);
-      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: trunk, phase: Math.PI, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
+      root = { type: "join", kind: "diff", name: "cut." + concha.name, host: root, part: leaf(concha), seed: { type: "search", partFace: concha.name, hostFace: trunk, phase: Math.PI, phases: EAR_SEED_LINES, from: 0, to: 0.9 }, parameter: { type: "arc" }, partWidth: { type: "chord", value: 0.00025 }, hostWidth: { type: "chord", value: 0.00025 }, continuity: "G2", count: 192, rows: 4, tolerance: 1e-12, grazing: 0.04 };
 
       // The breast, which the trunk's sections leave out: its band spans the fold under it from the chest to the breast's own wall. Its
       // layers stand half a millimetre apart all along it (`BREAST_LAYER_MM`) and its phases 1.5 mm (`BREAST_PITCH_MM`).
