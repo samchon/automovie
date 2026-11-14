@@ -88,6 +88,7 @@ import {
   createWeaponLoop,
   createWeaponRack,
   createWearable,
+  createWheelchair,
   createWindow,
 } from "@automovie/archetypes";
 
@@ -250,6 +251,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "bicycle",
     (seed?: number | string): Archetype => createBicycle({}, seed),
   );
+  for (const kind of createWheelchair.KINDS)
+    add(
+      `wheelchair-${kind}`,
+      (seed?: number | string): Archetype => createWheelchair({ kind }, seed),
+    );
   for (const kind of createMotorcycle.KINDS)
     add(
       `motorcycle-${kind}`,

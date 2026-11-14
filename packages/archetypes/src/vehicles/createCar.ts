@@ -7,6 +7,7 @@ import {
 import { CAR_BANDS } from "./CAR_BANDS";
 import { CarBody } from "./CarBody";
 import { CarCabin } from "./CarCabin";
+import { CarRear } from "./CarRear";
 
 /**
  * A car: a sedan, a hatchback, a panel van or a crew-cab pickup, with doors, windows, a bonnet and a boot, tailgate or sliding door that open, reclining seats, the driver's controls, and road wheels that steer and spin.
@@ -19,8 +20,8 @@ import { CarCabin } from "./CarCabin";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the class lacks.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell and the class's rear, the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The body and the cabin are their own modules, each building from the one layout.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the rear and the cabin are their own modules, each building from the one layout.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets of the controls from the seating reference point and the belt line are named constants marked as unsourced; bands read at search results only are marked provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms About sixty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -60,6 +61,7 @@ export function createCar(
     });
   const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
   CarBody.shell(builder, layout);
+  CarRear.build(builder, layout);
   CarBody.wheels(builder, layout);
   CarCabin.doors(builder, layout);
   CarCabin.seats(builder, layout);

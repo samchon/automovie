@@ -3,6 +3,8 @@ export * from "./createCar";
 export * from "./createCart";
 export * from "./createMotorcycle";
 export * from "./createPram";
+export * from "./createWheelchair";
 export * from "./driveCar";
 export * from "./rideBicycle";
 export * from "./rideMotorcycle";
+export * from "./rideWheelchair";

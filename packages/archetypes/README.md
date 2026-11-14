@@ -42,7 +42,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch`, `createTableware`, `createFood`, `createLight`, `createUmbrella`, `createMobilityAid` |
 | `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad` |
 | `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle` |
-| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle` |
+| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair` |
 | `/animals` | `createHorse`, the ride `rideHorse`, and the gait timing `HorseGait` |
 | `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
