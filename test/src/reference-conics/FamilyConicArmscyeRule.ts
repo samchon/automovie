@@ -185,7 +185,259 @@ namespace FamilyConicArmscyeRule {
 
   const distanceTo = (p: V, loop: readonly V[]): number => Math.min(...loop.map((q: V): number => norm(sub(p, q))));
 
+  /** Spacing of the cap's sections along the course from GH, mm (the supervisor's brief for R2). */
+  const CAP_STEP_MM: number = 2;
+
+  /** How near today's arm course must come to the GH course for the two to agree, mm (the supervisor's brief for R2). */
+  const AGREE_MM: number = 2;
+
+  /**
+   * One cap section: the skin's section square to the GH course at a station, kept on the arm's side of the girdle's plane (lateral of
+   * it), closed along the plane's line where it crosses; and whether it is star-shaped about the course point.
+   */
+  function capSection(mesh: M.IMesh, gh: V, distal: V, girdle: V, s: number): { loop: V[]; inside: boolean; folds: number; deepest: number; phases: [number, number] | null } | null {
+    const origin: V = add(gh, scale(distal, s));
+    const fore: V = perpendicular([1, 0, 0], distal);
+    const frame: AutoMovieLoftFrame.IFrame = { origin, u: fore, v: cross(distal, fore) };
+    const cut: C.P[] | null = R.cut(mesh, frame).loop;
+    if (cut === null) return null;
+    const world = (p: C.P): V => add(origin, add(scale(fore, p[0]), scale(frame.v as V, p[1])));
+    // Lateral of the girdle's plane: the plane through GH with the thorax's lateral axis as its normal.
+    const side = (p: C.P): number => dot(sub(world(p), gh), girdle);
+    const kept: C.P[] = [];
+    for (let i: number = 0; i < cut.length; ++i) {
+      const [a, b]: C.P[] = [cut[i]!, cut[(i + 1) % cut.length]!];
+      if (side(a!) >= 0) kept.push(a!);
+      if (side(a!) * side(b!) < 0) {
+        const t: number = side(a!) / (side(a!) - side(b!));
+        kept.push([a![0] + t * (b![0] - a![0]), a![1] + t * (b![1] - a![1])]);
+      }
+    }
+    if (kept.length < 3) return null;
+    const crossings = (d: C.P): number[] => {
+      const out: number[] = [];
+      for (let i: number = 0; i < kept.length; ++i) {
+        const a: C.P = kept[i]!;
+        const e: C.P = [kept[(i + 1) % kept.length]![0] - a[0], kept[(i + 1) % kept.length]![1] - a[1]];
+        const den: number = d[0] * e[1] - d[1] * e[0];
+        if (den === 0) continue;
+        const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+        const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0) out.push(t);
+      }
+      return out.sort((x: number, y: number): number => x - y);
+    };
+    let folds: number = 0;
+    let deepest: number = 0;
+    let range: [number, number] | null = null;
+    for (let j: number = 0; j < RAYS; ++j) {
+      const phi: number = (2 * Math.PI * j) / RAYS;
+      const ts: number[] = crossings([Math.cos(phi), Math.sin(phi)]);
+      if (ts.length > 1) {
+        ++folds;
+        deepest = Math.max(deepest, ts.at(-1)! - ts[0]!);
+        const d: number = Math.round(degrees(phi));
+        range = range === null ? [d, d] : [Math.min(range[0], d), Math.max(range[1], d)];
+      }
+    }
+    return { loop: kept.map(world), inside: crossings([1, 0]).length % 2 === 1, folds, deepest, phases: range };
+  }
+
+  /**
+   * R2: the cap lateral of the girdle's ring, sectioned about the GH course (GH along the humerus's long axis to the elbow centre) every
+   * `CAP_STEP_MM`, on the reference and on f1 as generated; today's arm course against the GH course; the gap and turn a band spans from
+   * the ring to the arm's ring on the GH course at the reference, the neutral pose and the upper arm's depth ends; the ring's and the cap's
+   * distance from the breast's port and the chest fold's window.
+   */
+  async function cap(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const generatedIndices: number[] = [];
+    let offset: number = 0;
+    for (const piece of pieces) {
+      for (const i of piece.indices) generatedIndices.push(i + offset);
+      offset += piece.positions.length / 3;
+    }
+    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices: generatedIndices };
+    const trunk: M.IMesh = trunkMesh();
+    const breast: V[] = breastPort(trunk);
+    const gh: V = P.frame("humerus").origin as V;
+    const elbow: V = P.frame("forearm").origin as V;
+    const distal: V = unit(sub(elbow, gh));
+    const length: number = norm(sub(elbow, gh));
+    const girdle = plane(0, 0);
+    const lines: string[] = [`R2: the arm's cap against the girdle's ring (the plane through GH ${fixed(gh)} with the thorax's lateral axis ${fixed(girdle.normal, 3)} as its normal); the GH course runs ${length.toFixed(1)} mm to the elbow centre`, ""];
+
+    // 1. The ring on both skins, and its stations on the GH course.
+    const rings: Record<string, V[]> = {};
+    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, M.IMesh][]) {
+      rings[skin] = ring(mesh, girdle.frame).filter((h: V | null): h is V => h !== null);
+      const stations: number[] = rings[skin]!.map((p: V): number => dot(sub(p, gh), distal));
+      lines.push(`ring on the ${skin}: ${rings[skin]!.length} points, GH-course stations ${Math.min(...stations).toFixed(1)} .. ${Math.max(...stations).toFixed(1)} mm`);
+    }
+    const ringEnd: number = Math.max(...rings["reference"]!.map((p: V): number => dot(sub(p, gh), distal)));
+    lines.push("");
+
+    // The cap's sections.
+    const drawn: N.Curve[] = [];
+    for (const [skin, mesh] of [["reference", source.all], ["generated", generated]] as [string, M.IMesh][]) {
+      lines.push(`CAP SECTIONS on the ${skin}, square to the GH course every ${CAP_STEP_MM} mm, lateral of the girdle's plane:`);
+      let firstStar: number | null = null;
+      const bad: string[] = [];
+      // Every fifth section, 10 mm apart, is drawn; the stations start where the ring does, so they are counted, not read off the station.
+      let index: number = -1;
+      for (let s: number = Math.floor(Math.min(...rings[skin]!.map((p: V): number => dot(sub(p, gh), distal)))); s <= length; s += CAP_STEP_MM) {
+        ++index;
+        const section = capSection(mesh, gh, distal, girdle.normal, s);
+        if (section === null) {
+          bad.push(`${s}: no section`);
+          continue;
+        }
+        if (section.folds === 0 && section.inside) firstStar ??= s;
+        if (section.folds > 0 || !section.inside) bad.push(`${s}: ${section.inside ? "" : "course point OUTSIDE; "}${section.folds} of ${RAYS} rays cross more than once, ${section.deepest.toFixed(1)} mm apart${section.phases === null ? "" : `, at ${section.phases[0]} to ${section.phases[1]} deg (0 forward, 90 toward humerus x forward)`}`);
+        if (skin === "reference" && index % 5 === 0) drawn.push({ id: "cap." + s, points: section.loop, closed: true, xray: true, colour: section.folds > 0 || !section.inside ? "c0392b" : "1f9d3a" });
+      }
+      lines.push(`  first star-shaped section about the course at ${firstStar ?? "none"} mm; not star-shaped or off the course at ${bad.length} stations:`, ...bad.slice(0, 40).map((x: string): string => "    " + x), ...(bad.length > 40 ? [`    ... ${bad.length - 40} more`] : []));
+    }
+    lines.push("");
+
+    // 2. Today's arm course against the GH course.
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const armAxis = H.axis(arm);
+    const lineDistance = (p: V): number => norm(sub(sub(p, gh), scale(distal, dot(sub(p, gh), distal))));
+    let agree: number | null = null;
+    const rows: string[] = [];
+    for (let s: number = 0; s <= arm.knots[arm.knots.length - 1]!; s += 5) {
+      const o: V = armAxis.at(s).origin as V;
+      const tangent: V = unit(sub(armAxis.at(s + 0.5).origin as V, armAxis.at(Math.max(0, s - 0.5)).origin as V));
+      const off: number = lineDistance(o);
+      const station: number = dot(sub(o, gh), distal);
+      if (agree === null && off < AGREE_MM && station > 0) agree = station;
+      if (station > length + 5) break;
+      if (s % 20 === 0) rows.push(`  arm station ${s}: GH-course station ${station.toFixed(1)}, ${off.toFixed(1)} mm off the GH course, sections ${degrees(Math.acos(Math.min(1, Math.abs(dot(tangent, distal))))).toFixed(1)} deg from square to it`);
+    }
+    const armRoot: number = dot(sub(armAxis.at(arm.knots[0]!).origin as V, gh), distal);
+    lines.push(`TODAY'S ARM: course armRoot -> armTurn -> elbow; its first knot (${arm.knots[0]}) at GH-course station ${armRoot.toFixed(1)}; GH ${lineDistance(armAxis.at(0).origin as V).toFixed(1)} mm from its start; it agrees with the GH course within ${AGREE_MM} mm from GH-course station ${agree === null ? "nowhere" : agree.toFixed(1)}; the girdle's ring reaches ${ringEnd.toFixed(1)}, so the cap from the ring to that agreement is ${agree === null ? "-" : (agree - ringEnd).toFixed(1)} mm long`, ...rows, "");
+
+    // 3. Bands: the gap and the turn from the ring to the arm's ring on the GH course at the ring's end plus the arm's rail.
+    const capRing = (s: number): V[] => capSection(source.all, gh, distal, girdle.normal, s)?.loop ?? [];
+    const armAt: number = ringEnd + ARM_RAIL_MM;
+    const target: V[] = capRing(armAt);
+    const clocks = (loop: V[], centre: V, axis: V, k: number): V | null => {
+      const e1: V = perpendicular([0, 1, 0], axis);
+      const e2: V = cross(axis, e1);
+      const want: number = (2 * Math.PI * k) / 24;
+      let best: V | null = null;
+      let gap: number = Infinity;
+      for (const p of loop) {
+        const q: V = sub(p, centre);
+        const a: number = Math.atan2(dot(q, e2), dot(q, e1));
+        const d: number = Math.abs(Math.atan2(Math.sin(a - want), Math.cos(a - want)));
+        if (d < gap) [gap, best] = [d, p];
+      }
+      return best;
+    };
+    const ringCentre: V = scale(rings["reference"]!.reduce((s: V, p: V): V => add(s, p), [0, 0, 0]), 1 / rings["reference"]!.length);
+    const band = (label: string, armLoop: V[], axis: V): string => {
+      if (armLoop.length === 0) return `  ${label}: no arm ring`;
+      const centre: V = scale(armLoop.reduce((s: V, p: V): V => add(s, p), [0, 0, 0]), 1 / armLoop.length);
+      const gaps: number[] = Array.from({ length: 24 }, (_: unknown, k: number): number => {
+        const [a, b] = [clocks(rings["reference"]!, ringCentre, girdle.normal, k), clocks(armLoop, centre, axis, k)];
+        return a === null || b === null ? NaN : norm(sub(a, b));
+      });
+      return `  ${label}: gap ${Math.min(...gaps).toFixed(1)} .. ${Math.max(...gaps).toFixed(1)} mm round 24 clocks; turn ${degrees(Math.acos(Math.min(1, Math.abs(dot(axis, girdle.normal))))).toFixed(1)} deg between the ring's plane and the arm's ring`;
+    };
+    // The neutral pose turns the humerus about GH: the reference arm ring carried rigidly by that rotation.
+    const neutral: SF.IFrame = P.frames(P.NEUTRAL).get("humerus")!;
+    const reference: SF.IFrame = P.frame("humerus");
+    const carry = (p: V): V => SF.toWorld(neutral, SF.toLocal(reference, p)) as V;
+    const scaled = (loop: V[], k: number): V[] => {
+      const centre: V = add(gh, scale(distal, armAt));
+      return loop.map((p: V): V => {
+        const q: V = sub(p, centre);
+        const along: number = dot(q, distal);
+        return add(centre, add(scale(distal, along), scale(sub(q, scale(distal, along)), k)));
+      });
+    };
+    lines.push(`BANDS from the girdle's ring to the arm's ring on the GH course ${armAt.toFixed(1)} mm from GH (the ring's far end plus the arm's rail, ${ARM_RAIL_MM} mm):`);
+    lines.push(band("reference", target, distal));
+    lines.push(band("neutral (the humerus turned to the identity, the arm ring carried with it)", target.map(carry), unit(sub(carry(add(gh, distal)), gh))));
+    lines.push(band("upper arm depth -20 % (the arm ring scaled about its course by 0.8)", scaled(target, 0.8), distal));
+    lines.push(band("upper arm depth +20 %", scaled(target, 1.2), distal));
+    const todayArm = armRing(P.frames());
+    const todayPort: V[] = [];
+    {
+      const loop = AutoMovieHumanF1.armscye(1, AutoMovieHumanF1.assemble());
+      const chart = trunkChart();
+      const shape: number[] = loop.shape === undefined ? [] : [...loop.shape];
+      const pts: { p: V; station: number; phase: number }[] = [];
+      for (let i: number = 0; i < trunk.positions.length; i += 3 * 5) {
+        const p: V = [trunk.positions[i]!, trunk.positions[i + 1]!, trunk.positions[i + 2]!];
+        const c = chart(p);
+        pts.push({ p, station: c.station, phase: Math.atan2(c.v, c.u) });
+      }
+      shape.forEach((share: number, k: number): void => {
+        const t = { station: 1000 * (loop.centre[0] + share * loop.semi[0] * Math.cos((2 * Math.PI * k) / shape.length)), phase: loop.centre[1] + (share * loop.semi[1] * Math.sin((2 * Math.PI * k) / shape.length)) / loop.sense };
+        todayPort.push(pts.reduce((a, b) => (Math.hypot(b.station - t.station, CLIP_MM * (b.phase - t.phase)) < Math.hypot(a.station - t.station, CLIP_MM * (a.phase - t.phase)) ? b : a)).p);
+      });
+    }
+    const todayGaps: number[] = todayPort.map((p: V): number => distanceTo(p, todayArm.points));
+    lines.push(`  today's band (port loop to the arm's ring at its rail, rails ${ARM_RAIL_MM} mm with the ARM_RAILS_MM profile): nearest-point gap ${Math.min(...todayGaps).toFixed(1)} .. ${Math.max(...todayGaps).toFixed(1)} mm; turn ${degrees(Math.acos(Math.min(1, Math.abs(dot(todayArm.along, [0, 0, 1]))))).toFixed(1)} deg between its sagittal plane and the arm's course`, "");
+
+    // 4. The breast's port and the chest fold's window against the ring and the cap.
+    const fold = AutoMovieHumanF1.BODY.trunk.reliefs?.find((r): boolean => r.name === "trunk.fold");
+    const foldEdge: V[] = [];
+    if (fold !== undefined) {
+      const loft: AutoMovieViewLoft.IResult = H.create(AutoMovieHumanF1.BODY.trunk, [fold.stations[0], (fold.stations[0] + fold.stations[1]) / 2, fold.stations[1]]);
+      if (loft.chain !== null)
+        for (let s: number = fold.stations[0]; s <= fold.stations[1]; s += 2) {
+          const read = AutoMovieLoftChain.sampler(loft.chain, s);
+          for (let t: number = fold.phases[0]; t <= fold.phases[1]; t += 0.05) foldEdge.push(read(t) as V);
+        }
+    }
+    const capPoints: V[] = drawn.flatMap((c: N.Curve): V[] => c.points.map((p: N.Point): V => [p[0], p[1], p[2]]));
+    lines.push(`BREAST AND FOLD: the ring stands ${Math.min(...rings["reference"]!.map((p: V): number => distanceTo(p, breast))).toFixed(1)} mm from the breast's port and ${foldEdge.length === 0 ? "-" : Math.min(...rings["reference"]!.map((p: V): number => distanceTo(p, foldEdge))).toFixed(1)} mm from the chest fold's window (trunk.fold); the cap's sections (every 10 mm) ${Math.min(...capPoints.map((p: V): number => distanceTo(p, breast))).toFixed(1)} mm and ${foldEdge.length === 0 ? "-" : Math.min(...capPoints.map((p: V): number => distanceTo(p, foldEdge))).toFixed(1)} mm; the fold's window reaches ${foldEdge.length === 0 ? "-" : Math.max(...foldEdge.map((p: V): number => dot(sub(p, gh), girdle.normal))).toFixed(1)} mm past the girdle's plane (positive: on the arm's side)`);
+
+    // Frames.
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "cap-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const remap: Map<number, number> = new Map();
+    const near = (i: number): boolean => norm(sub([source.all.positions[3 * i]!, source.all.positions[3 * i + 1]!, source.all.positions[3 * i + 2]!], add(gh, scale(distal, 120)))) <= 230;
+    for (let t: number = 0; t + 2 < source.all.indices.length; t += 3) {
+      const tri: number[] = [source.all.indices[t]!, source.all.indices[t + 1]!, source.all.indices[t + 2]!];
+      if (!tri.every(near)) continue;
+      for (const i of tri) {
+        let j: number | undefined = remap.get(i);
+        if (j === undefined) {
+          j = positions.length / 3;
+          remap.set(i, j);
+          positions.push(source.all.positions[3 * i]!, source.all.positions[3 * i + 1]!, source.all.positions[3 * i + 2]!);
+        }
+        indices.push(j);
+      }
+    }
+    const mesh: N.Mesh = { id: "reference", positions, indices, colour: [0.64, 0.65, 0.67] };
+    const bounds: N.Point[] = [];
+    for (let i: number = 0; i < positions.length; i += 3) bounds.push([positions[i]!, positions[i + 1]!, positions[i + 2]!]);
+    const courses: N.Curve[] = [
+      { id: "gh-course", points: [gh, elbow], closed: false, xray: true, colour: "202020" },
+      { id: "arm-course", points: Array.from({ length: 60 }, (_: unknown, k: number): V => armAxis.at((k * arm.knots[arm.knots.length - 1]!) / 59).origin as V).filter((p: V): boolean => dot(sub(p, gh), distal) <= length + 10), closed: false, xray: true, colour: "2f6fd0" },
+      { id: "ring", points: rings["reference"]!, closed: true, xray: true, colour: "9a3fb5" },
+    ];
+    for (const view of ["front", "back", "left", "low-oblique"]) {
+      const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 900);
+      await fs.writeFile(path.join(out, `cap.${view}.reference.png`), NodeCanvasRaster.render(camera, [mesh], [...drawn, ...courses], "depth", `f1 armscye cap | sections every 10 mm on the GH course: green star-shaped, red not; purple: girdle ring; black: GH course; blue: today's arm course | ${view}`).png);
+    }
+    await fs.writeFile(path.join(out, "cap.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
   export async function main(): Promise<void> {
+    if (process.argv[2] === "cap") return cap();
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
     const trunk: M.IMesh = trunkMesh();
