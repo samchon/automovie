@@ -68,6 +68,7 @@ import {
   rideMotorcycle,
 } from "../vehicles";
 import {
+  createBow,
   createClub,
   createHandgun,
   createHolster,
@@ -429,6 +430,11 @@ export function archetypeCaptureCatalog(): Readonly<
         "projectile",
         createProjectile.KINDS,
         (kind: createProjectile.Kind): Archetype => createProjectile({ kind }),
+      ),
+      ...kinds(
+        "bow",
+        createBow.KINDS,
+        (kind: createBow.Kind): Archetype => createBow({ kind }),
       ),
       ...kinds(
         "longGun",

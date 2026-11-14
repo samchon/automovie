@@ -1,3 +1,4 @@
+export * from "./createBow";
 export * from "./createClub";
 export * from "./createHandgun";
 export * from "./createHolster";
