@@ -72,6 +72,7 @@ export function test_archetype_contract_direction(): void {
     "projectile-arrow": { tip: along },
     "projectile-bolt": { tip: along },
     "tool-ladle": { face: normal },
+    "tool-knife": { face: normal },
     "food-bread": { bite: along },
     "food-apple": { bite: normal },
   };

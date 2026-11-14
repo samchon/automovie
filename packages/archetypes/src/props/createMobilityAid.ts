@@ -21,19 +21,31 @@ const CANE_MASS: string =
 const WALKER: string =
   "Drive Medical deluxe two-button folding walker 10210-1: handle height 32 to 39 in, overall width 24 in, 7 to 7.5 lb (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf); its 18 in base depth seen only in search results";
 
+/** Provita's Premium Care infusion stand, read in the maker's catalogue. */
+const PROVITA: string =
+  "Provita Infusion stands catalogue, Premium Care I-PRE003 / I-PRE013 (p. 16): regulating range 1,430 to 2,260 mm, tube diameter 33.7 / 25 mm, outer tube 1,200 mm, base diameter 630 mm, base leg profile 33.7 mm, castors 75 mm, four hooks, base weight 8.9 kg, total weight 12 kg (https://medtehural.ru/images/madcat2_24/provita_Infusion%20Stands.pdf); the same tubes, range and hooks on Provita's I-PRE013 listing (https://www.medicalexpo.com/prod/provita-medical/product-69770-2808357.html)";
+
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a walker's frame, whose tube no maker read sizes";
 
+/** The readable name of each kind. */
+const NAMES: Readonly<Record<createMobilityAid.Kind, string>> = {
+  cane: "walking cane",
+  walker: "walking frame",
+  infusionStand: "infusion stand",
+};
+
 /**
- * An aid a person walks with: a cane or a walking frame (a walker).
+ * An aid a person walks with: a cane, a walking frame (a walker) or an infusion stand wheeled alongside.
  *
  * Each stands on the floor at the origin, the user behind it facing `+Z`:
  *
  * - a cane is a shaft up `+Y` to its handle height, its offset handle running forward along `+Z` from the shaft's top. `grip` is the handle, taken from above; `tip` is the rubber foot, facing down onto the floor.
  * - a walker is four legs at its corners, `width` across `X` and `depth` along `Z`, joined by a rail along each side and a bar across the front at the handle height; the user stands in its open back. `leftGrip` and `rightGrip` are the side rails at `+X` and `-X`, taken from above; `tip` is the floor under its middle, facing down.
+ * - an infusion stand is five legs out from its hub to its base diameter, each on a castor, an outer tube up from the hub and an inner tube on to the drawn height, where its `hook` holds the bags. `grip` is the outer tube, taken from the side anywhere along it; `tip` is the floor under its hub. Its weighted base carries the read base weight and its tubes the rest. Its height, base diameter, tube diameters and lengths and masses are the Provita sheet's; each castor drawn as a ball of the read castor diameter, and the legs laid on the castors' tops, are construction details no act reads.
  *
- * A gait that walks with an aid has no motion law yet; the aid is built for holding, standing and carrying. A crutch waits for a source of its hand grip's height, and an infusion stand for its pole's diameter.
+ * A gait that walks with an aid has no motion law yet; the aid is built for holding, standing and carrying. A crutch waits for a source of its hand grip's height.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -41,10 +53,10 @@ const POWER: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each aid stands, where it is held, what is missing for a gait, and which kinds wait for a source.
- * @evidence contracts/development/implementation.md#principled-implementation Rods from the published heights, widths and diameters; each grip's frame lies at the centre of the rod it closes on, with that rod's diameter as its aperture.
+ * @evidence contracts/development/implementation.md#principled-implementation Rods from the published heights, widths and diameters, an infusion stand's castors as balls of their read diameter under its legs, and its read base weight shared over its legs and castors by volume, the rest over its tubes; each grip's frame lies at the centre of the rod it closes on, with that rod's diameter as its aperture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind: its rods, its grips and its foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No wheels, glides, folding joints or rubber tip are drawn; the cane's offset handle is CCOHS's recommended handle length, as no maker read gives its own.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No walker's wheels or glides, folding joints, rubber tip or castor housings are drawn; the cane's offset handle is CCOHS's recommended handle length, as no maker read gives its own.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most twelve parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -72,7 +84,7 @@ export function createMobilityAid(
   > = new ArchetypeBuilder({
     archetype: "mobilityAid",
     id: params.id,
-    name: kind === "cane" ? "walking cane" : "walking frame",
+    name: NAMES[kind],
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -80,16 +92,72 @@ export function createMobilityAid(
   const r: number = d.diameter! / 2;
   const metal: string = "#9aa1a6";
 
-  if (kind === "cane") {
+  if (kind === "infusionStand") {
+    // Five legs on castors, the outer tube up from the hub, the inner tube on to the height.
+    const stand: typeof createMobilityAid.STAND = createMobilityAid.STAND;
+    const reach: number = d.width! / 2 - stand.castor / 2;
+    const leg: number = stand.leg / 2;
+    const hub: number = stand.castor + leg;
+    const outer: number = hub + stand.outer;
+    const legVolume: number = Math.PI * leg ** 2 * reach;
+    const castorVolume: number = (4 / 3) * Math.PI * (stand.castor / 2) ** 3;
+    const outerVolume: number = Math.PI * r ** 2 * stand.outer;
+    const innerVolume: number =
+      Math.PI * (stand.inner / 2) ** 2 * (height - outer);
+    const base: number = stand.base / d.mass!;
+    const perBase: number = base / (5 * (legVolume + castorVolume));
+    const perTube: number = (1 - base) / (outerVolume + innerVolume);
+    for (let k: number = 0; k < 5; ++k) {
+      const angle: number = (2 * Math.PI * k) / 5;
+      const out: ReturnType<typeof v> = v(Math.sin(angle), 0, Math.cos(angle));
+      builder.rod(
+        `leg${k}`,
+        leg,
+        v(0, hub, 0),
+        v(out.x * reach, hub, out.z * reach),
+        { color: metal, share: perBase * legVolume },
+      );
+      builder.ball(
+        `castor${k}`,
+        stand.castor / 2,
+        v(out.x * reach, stand.castor / 2, out.z * reach),
+        { color: "#2c2f33", share: perBase * castorVolume },
+      );
+    }
+    builder.rod("outerTube", r, v(0, hub, 0), v(0, outer, 0), {
+      color: metal,
+      share: perTube * outerVolume,
+    });
+    builder.rod("innerTube", stand.inner / 2, v(0, outer, 0), v(0, height, 0), {
+      color: metal,
+      share: perTube * innerVolume,
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(0, (hub + outer) / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: 2 * r,
+      length: stand.outer,
+    });
+    builder.affordance({
+      id: "hook",
+      kind: "hook",
+      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      extent: null,
+    });
+  } else if (kind === "cane") {
     const handle: number = createMobilityAid.HANDLE;
     builder.rod("shaft", r, v(0, 0, 0), v(0, height - r, 0), { color: metal });
-    builder.rod(
-      "handle",
-      r,
-      v(0, height - r, -r),
-      v(0, height - r, handle),
-      { color: "#2c2f33" },
-    );
+    builder.rod("handle", r, v(0, height - r, -r), v(0, height - r, handle), {
+      color: "#2c2f33",
+    });
     builder.affordance({
       id: "grip",
       kind: "handle",
@@ -151,16 +219,25 @@ export function createMobilityAid(
  * Companion types, constants and bands of {@link createMobilityAid}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the two aids with sourced bands, one band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grips a hand takes and the foot on the floor (#3468's N5).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is CCOHS's recommended handle length.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the three aids with sourced bands, one band per dimension per kind.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grips a hand takes, the foot on the floor and an infusion stand's hook (#3468's N5).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the infusion stand's are its maker's catalogue's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is CCOHS's recommended handle length.
  */
 export namespace createMobilityAid {
-  /** The kinds: an offset cane and a walking frame. */
-  export type Kind = "cane" | "walker";
+  /** The kinds: an offset cane, a walking frame and an infusion stand. */
+  export type Kind = "cane" | "walker" | "infusionStand";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["cane", "walker"];
+  export const KINDS: readonly Kind[] = ["cane", "walker", "infusionStand"];
+
+  /** The infusion stand's read construction, metres and kilograms: its castors' and base legs' diameters, its outer tube's length, its inner tube's diameter and its weighted base's mass, Provita's I-PRE003 / I-PRE013. */
+  export const STAND: Readonly<{
+    castor: number;
+    leg: number;
+    outer: number;
+    inner: number;
+    base: number;
+  }> = { castor: 0.075, leg: 0.0337, outer: 1.2, inner: 0.025, base: 8.9 };
 
   /** The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the length a hand closes round. */
   export const HANDLE: number = 0.12;
@@ -171,15 +248,16 @@ export namespace createMobilityAid {
    * - `grip`: a cane's handle, taken from above.
    * - `leftGrip`, `rightGrip`: a walker's side rails at `+X` and `-X`, taken from above.
    * - `tip`: the foot on the floor, facing down.
+   * - `hook`: an infusion stand's hooks at its top, where the bags hang.
    */
-  export type Affordance = "grip" | "leftGrip" | "rightGrip" | "tip";
+  export type Affordance = "grip" | "leftGrip" | "rightGrip" | "tip" | "hook";
 
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `height`: the handle's top above the floor.
-   * - `diameter`: a cane's shaft, a walker's tube.
-   * - `width`, `depth`: a walker's across `X` and along `Z`.
+   * - `height`: the handle's top above the floor; an infusion stand's top, where its hooks are.
+   * - `diameter`: a cane's shaft, a walker's tube, an infusion stand's outer tube.
+   * - `width`, `depth`: a walker's across `X` and along `Z`; `width` an infusion stand's base diameter.
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
@@ -200,7 +278,13 @@ export namespace createMobilityAid {
     cane: {
       height: ArchetypeBand.metres(30 * 0.0254, 39 * 0.0254, CANE),
       diameter: ArchetypeBand.metres(0.75 * 0.0254, 0.75 * 0.0254, CANE),
-      mass: ArchetypeBand.of("kg", 0.85 * 0.4536, 0.85 * 0.4536, CANE_MASS, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.85 * 0.4536,
+        0.85 * 0.4536,
+        CANE_MASS,
+        true,
+      ),
     },
     walker: {
       height: ArchetypeBand.metres(32 * 0.0254, 39 * 0.0254, WALKER),
@@ -208,6 +292,12 @@ export namespace createMobilityAid {
       depth: ArchetypeBand.metres(18 * 0.0254, 18 * 0.0254, WALKER, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       mass: ArchetypeBand.of("kg", 7 * 0.4536, 7.5 * 0.4536, WALKER),
+    },
+    infusionStand: {
+      height: ArchetypeBand.metres(1.43, 2.26, PROVITA),
+      diameter: ArchetypeBand.metres(0.0337, 0.0337, PROVITA),
+      width: ArchetypeBand.metres(0.63, 0.63, PROVITA),
+      mass: ArchetypeBand.of("kg", 12, 12, PROVITA),
     },
   };
 }

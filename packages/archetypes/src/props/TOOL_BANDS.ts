@@ -29,6 +29,10 @@ const FORK: string =
 const LADLE: string =
   "Rösle hook ladle, 320 mm, bowl 9 cm, 0.218 kg (https://www.roesle.com/en/hook-ladle-with-pouring-rim-oe-9-cm-35-in); IKEA FINMAT ladle, 31 cm (https://www.ikea.com/gb/en/p/finmat-soup-ladle-stainless-steel-50555196)";
 
+/** Two table knives, read at a maker's and a retailer's pages. */
+const KNIFE: string =
+  "Eichenlaub Altdeutsch table knife: overall 22.5 cm, blade 12.5 cm, blade width 1.7 cm, 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood); Robert Welch Malvern table knife: H246 x W21 x D9 mm, blade 12 cm, 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599), its 21 mm width the blade's, the knife's widest part";
+
 /** The precision handle band applied to a handle no maker sizes. */
 const PRECISION: string =
   "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a handle no maker read sizes";
@@ -106,5 +110,12 @@ export const TOOL_BANDS: Readonly<
       bowl: ArchetypeBand.metres(0.09, 0.09, LADLE),
       gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
       mass: ArchetypeBand.of("kg", 0.218, 0.218, LADLE),
+    },
+    knife: {
+      length: ArchetypeBand.metres(0.225, 0.246, KNIFE),
+      blade: ArchetypeBand.metres(0.12, 0.125, KNIFE),
+      bladeWidth: ArchetypeBand.metres(0.017, 0.021, KNIFE),
+      gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
+      mass: ArchetypeBand.of("kg", 0.06, 0.13, KNIFE),
     },
 };
