@@ -290,9 +290,12 @@ namespace FamilyConicScan {
           // within 2 mm of the fork, which is where the line turns across.
           // The same at the second fork, read back along the chord. Each run stops 0.5 mm short of the first or last web knot so no two
           // knots coincide.
+          // Read out to 32 mm: a split's parent ends at its last star-shaped section (construction.md, Splits), up to 28 mm before the
+          // saddles where its digits part (the hand ends at 576 mm with its middle and ring fingers parting at 604; the foot at 965 with
+          // its middle and index toes parting at 993), so a seam runs out that far along the host before it turns across.
           const runOut = (from: R.V, sign: 1 | -1): [number, number][] => {
             const run: [number, number][] = [];
-            for (let out: number = 1; out < 20; out += 1) {
+            for (let out: number = 1; out < 32; out += 1) {
               const back: R.V = [from[0] + out * e2[0] - sign * 4 * e1[0], from[1] + out * e2[1] - sign * 4 * e1[1], from[2] + out * e2[2] - sign * 4 * e1[2]];
               const hits: number[] = cast(back, [sign * e1[0], sign * e1[1], sign * e1[2]]);
               const along: number = hits.length > 0 && hits[0]! < 0 ? -hits[0]! - 4 : Infinity;
