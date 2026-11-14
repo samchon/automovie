@@ -4,6 +4,21 @@ import { SceneBuild } from "./SceneBuild";
 const { act, at, object, person, scene, seat, to }: typeof SceneBuild =
   SceneBuild;
 
+/**
+ * The kerb stepped over on the stairs-and-ladder scene: a Euro crate lying
+ * across the walker's way, its length along `+X` and its footprint centred
+ * on (`x`, `z`). The crate is placed with these dimensions and the step over
+ * is given its near side, height and depth from the same numbers, so the law
+ * crosses exactly the solid the visitor sees.
+ */
+const KERB: {
+  x: number;
+  z: number;
+  length: number;
+  depth: number;
+  height: number;
+} = { x: 2, z: 0.38, length: 0.6, depth: 0.4, height: 0.2 };
+
 /** The everyday scenes composed from the lexicon and placed objects of #3392. */
 export const SCENES_DAILY: readonly IScene[] = [
   scene(
@@ -11,17 +26,19 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "cafe",
       title: "Café",
       summary:
-        "Two friends sit at a table: one lifts a mug and sets it down and whispers, the other checks a phone; a third arrives, stands by the table and waves them over.",
+        "Two friends sit at a table, sip and whisper; a third arrives, stands by the table and waves them over.",
       setting: "everyday",
       roles: { ana: "friend", ben: "friend", cal: "latecomer" },
       needs: [],
+      refusedUntil: 3528,
       featured: 5,
     },
     "cafe",
     [
       person("ana", "f1", -1.2, 1.5, 90, [
         act("sit", { seat: seat("chairA"), seconds: 1 }),
-        act("pickUp", { prop: "mug", handle: "body" }),
+        act("pickUp", { prop: "mug", handle: "handle" }),
+        act("toastSip", { prop: "mug" }),
         act("putDown", { prop: "mug", at: { x: -0.5, y: 0.75, z: 1.5 } }),
         act("whisper", { partner: "ben" }),
         act("handOnHeart"),
@@ -29,6 +46,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("ben", "m1", 1.2, 1.5, 270, [
         act("sit", { seat: seat("chairB"), seconds: 1 }),
         act("checkPhone", { seconds: 2 }),
+        act("toastSip"),
         act("handOnHeart"),
       ]),
       person("cal", "m2", 3, -1, 0, [
@@ -52,13 +70,13 @@ export const SCENES_DAILY: readonly IScene[] = [
         "Two people at work: one types standing at a counter, rubs their eyes and thinks; the other checks a watch at a desk, shifts, takes a call, gets up and switches the light.",
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
-      needs: [3446],
+      needs: [],
     },
     "office",
     [
       person("dee", "f2", -1, 0, 0, [
         act("typeText", {
-          keyboard: { at: { x: -1, y: 1.0, z: 0.4 }, yaw: 0 },
+          keyboard: { at: { x: -1, y: 1.05, z: 0.4 }, yaw: 0 },
           text: "the scene opens",
         }),
         act("rubEyes"),
@@ -144,6 +162,7 @@ export const SCENES_DAILY: readonly IScene[] = [
             frame: "world",
           },
         }),
+        act("scratchNape", { side: "left" }),
       ]),
       person("hal", "m1", 1.1, 0.6, 270, [
         act("lightCigarette"),
@@ -192,18 +211,16 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "picnic",
       title: "Picnic",
       summary:
-        "Four friends on the grass: one sits cross-legged and flashes a victory sign, one sits on the floor with a thumbs up, one kneels, sits back and sniffs the air, one lies still.",
+        "Four friends on the grass: one sits cross-legged, one on the floor, one kneels and sits back, one lies still; a toast goes round.",
       setting: "everyday",
       roles: { lea: "friend", max: "friend", nia: "friend", oto: "friend" },
       needs: [],
+      refusedUntil: 3528,
     },
     "picnic",
     [
-      person("lea", "f1", -1, 0, 45, [
-        act("sitCrossLegged"),
-        act("victorySign"),
-      ]),
-      person("max", "m1", 1, 0, 315, [act("sitOnFloor"), act("thumbsUp")]),
+      person("lea", "f1", -1, 0, 45, [act("sitCrossLegged"), act("toastSip")]),
+      person("max", "m1", 1, 0, 315, [act("sitOnFloor"), act("toastSip")]),
       person("nia", "f2", 0, 1.4, 180, [act("kneelSit"), act("sniff")]),
       person("oto", "m2", 0, -1.2, 0, [act("lieStill")]),
     ],
@@ -221,7 +238,7 @@ export const SCENES_DAILY: readonly IScene[] = [
         ray: "passer-by",
         sue: "passer-by",
       },
-      needs: [3430],
+      needs: [],
     },
     "fright",
     [
@@ -334,7 +351,7 @@ export const SCENES_DAILY: readonly IScene[] = [
         "One person pushes a hinged door open by its handle and waves a friend over; walking through the opening waits until a placed door can be read as an obstacle, and a pulled door's whole swing waits on #3520.",
       setting: "everyday",
       roles: { ada: "host", bea: "friend" },
-      needs: [3520],
+      needs: [],
     },
     "doorway",
     [
@@ -375,10 +392,10 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "stairs-and-ladder",
       title: "Stairs and ladder",
       summary:
-        "One person climbs a flight of stairs; another climbs a leaning ladder; a third steps over a low kerb, stated by its size, and braces.",
+        "One person climbs a flight of stairs; another climbs a leaning ladder; a third steps over a crate lying in the way and braces.",
       setting: "everyday",
       roles: { dot: "climber", eve: "climber", fin: "walker" },
-      needs: [3436],
+      needs: [],
     },
     "climb",
     [
@@ -389,11 +406,22 @@ export const SCENES_DAILY: readonly IScene[] = [
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),
         act("stepOver", {
-          obstacle: { at: { x: 2, y: 0, z: 0.35 }, height: 0.25, depth: 0.2 },
+          obstacle: {
+            at: { x: KERB.x, y: 0, z: KERB.z - KERB.depth / 2 },
+            height: KERB.height,
+            depth: KERB.depth,
+          },
         }),
         act("brace", { kind: "push", seconds: 1 }),
       ]),
     ],
-    [object("ladder", "createLadder", "leaning", 0.5, 0.5)],
+    [
+      object("ladder", "createLadder", "leaning", 0.5, 0.5),
+      object("kerb", "createLoad", "crate", KERB.x, KERB.z, 0, 0, {
+        length: KERB.length,
+        depth: KERB.depth,
+        height: KERB.height,
+      }),
+    ],
   ),
 ];
