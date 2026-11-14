@@ -28,10 +28,10 @@ The parts' topology selects the operator:
 - The child's view curves start from those values in its own frame, chained from the parent's. The two sides' lines are checked overlaid at the joint before either side is lofted.
 - The child owns the mass between its joint and the port and extends its field past its root rail, so the band blends two real fields. The engine's strip takes each side's own 2-jet across its rail and spans them with the quintic Hermite blend, G2 to both sides.
 - A band that must span a radial gap or turn through a steep angle shows that the 2D lines were not shared. Correct the lines. A band's margins, rails, ribbons, profiles and ring placement follow from the shared lines, because a band tuned to hide a gap carries the gap into every person.
-- Size the port so its loops cannot cross each other or the parent's section family. Read the port's margin from the landmark loop along the skin, because a margin carried along the parent's chart lands far from the loop wherever the chart runs level with the skin, as over the shoulder's top.
-- Where the landmark loop runs along a crest, as the armscye does along the axilla's vault, the skin falls away on both sides of it. A margin toward the parent there lands the port on the far slope and puts the recess inside the band, so the port keeps to the landmark loop over the crest.
+- Size the port so its loops cannot cross each other or the parent's section family. Read the port's margin from the landmark loop along the skin.
+- Over a crest of the landmark loop, such as the axilla's vault, place the port on the landmark loop.
 
-**Splits.** The parent ends open at its last section that is single-loop and star-shaped about its course, and each child starts at its saddle. Between them the children's bands carry the valleys: each seam follows the web from its fork on the parent's end out to the saddle and across, read from the reference. A parent run on past its last star-shaped section bridges those valleys with its hull ring.
+**Splits.** The parent ends open at its last section that is single-loop and star-shaped about its course, and each child starts at its saddle. Between them the children's bands carry the valleys: each seam follows the web from its fork on the parent's end out to the saddle and across, read from the reference.
 
 **Recesses.** Preserve real recesses and openings, such as the slit under the arm or the gap between the lips. A tape hull bridges them, and a common outward envelope cannot replace them.
 
