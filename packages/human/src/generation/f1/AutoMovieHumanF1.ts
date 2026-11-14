@@ -257,7 +257,10 @@ export namespace AutoMovieHumanF1 {
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host, with the
    * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
    * the skin, where every web now starts at its palm fork instead of 6 to 10 mm along the chord, and again on the hand's own family
-   * (`AutoMovieHumanF1Hand`) for the ring and middle fingers' seams. The little finger's seam keeps the web read on the arm's end ring
+   * (`AutoMovieHumanF1Hand`) for the ring and middle fingers' seams. They were read once more after the hand's wall was laid again from
+   * its sound knots at the thumb's web (#3412: the shoulders after anchors 0 and 7 at 552 and 564 mm, and the fullness about anchor 1 at
+   * 552 mm), whose refitted palm net moves the end ring by 0.1 mm at most; the webs moved by 0.1 mm at eight knots. The little finger's
+   * seam keeps the web read on the arm's end ring
    * (3.0 mm deep): read on the hand's (2.2 mm, from 0.5 mm at 2 mm along) the ring finger's band folded by 175 degrees over 7 edges beside
    * its palm fork ([176, 919, 465], band station 6.5 mm), and with that one seam's old web alone the fold is gone (`limbview`). Each band
    * takes 192 columns: on 96, 0.5 to 1 mm apart along a seam, its quads stood as a comb of steps along every seam. The hand's ribbons keep
@@ -278,8 +281,8 @@ export namespace AutoMovieHumanF1 {
       digits: ["finger.pinky", "finger.ring", "finger.middle", "finger.index"],
       webs: [
         [[0.002, 0.0015], [0.004, 0.0029], [0.006, 0.003], [0.008, 0.0015]],
-        [[0.0011, 0.001], [0.002, 0.0028], [0.004, 0.0058], [0.006, 0.0081], [0.008, 0.0094], [0.01, 0.0097], [0.012, 0.0084], [0.014, 0.0059], [0.016, 0.0024]],
-        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0058], [0.006, 0.0069], [0.008, 0.0066], [0.01, 0.0055], [0.012, 0.0041], [0.014, 0.0025], [0.016, 0.0004]],
+        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0058], [0.006, 0.0081], [0.008, 0.0094], [0.01, 0.0097], [0.012, 0.0085], [0.014, 0.006], [0.016, 0.0025]],
+        [[0.0012, 0.001], [0.002, 0.0027], [0.004, 0.0057], [0.006, 0.0069], [0.008, 0.0066], [0.01, 0.0055], [0.012, 0.0042], [0.014, 0.0025], [0.016, 0.0005]],
       ],
       corner: 0.6,
       reach: 0.5,
