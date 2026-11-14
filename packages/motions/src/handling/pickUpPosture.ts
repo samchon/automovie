@@ -55,6 +55,9 @@ export namespace pickUpPosture {
 
     /** Any posture of the same base lowered or leaned the same way, a share of it: the lowering carried onto a body that walks. */
     lower: (posture: IHumanPosture, share: number) => IHumanPosture;
+
+    /** The adjustment step the stance takes, if any: the stepping foot and the shares of the way down at which it leaves the floor and lands. */
+    step?: { side: "left" | "right"; off: number; on: number };
   }
 
   /**

@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,7 +20,9 @@ import { pickUpPosture } from "./pickUpPosture";
 /**
  * The grasp a pick up chooses from a stance (`pickUp`): the grip's turn and
  * tilt the arm reaches best, judged by the fit over the grasp, the lifted
- * pose and any use's pose.
+ * pose and any use's pose. Without a use, the grip is taken as the
+ * archetype declares it: untilted, and turned only within its declared
+ * symmetry (`TURNS`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is chosen and by what.
  * @evidence contracts/development/design.md#principled-representation The search result as one record of the chosen grasp, the elbow hint and the stance.
@@ -27,6 +30,18 @@ import { pickUpPosture } from "./pickUpPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop is named: the grip is the prop's declared affordance.
  */
 export namespace pickUpSearch {
+  /** The turns about the wrapped axis a grip is taken at without a use, degrees, by its declared symmetry: any side of a round grip, in steps of 15, the two sides of a half-symmetric one, and only the declared side of the rest. */
+  export const TURNS: Readonly<
+    Record<NonNullable<IAutoMovieAffordance["symmetry"]>, readonly number[]>
+  > = {
+    round: Array.from(
+      { length: 24 },
+      (_: unknown, i: number): number => -180 + 15 * i,
+    ),
+    half: [0, 180],
+    none: [0],
+  };
+
   /** A grasp chosen from a stance, the elbow hint its arm hangs by, and the stance. */
   export interface ISearched {
     /** The grasp the arm reaches best. */
@@ -96,13 +111,21 @@ export namespace pickUpSearch {
     };
     const goal = (turn: number, tilt: number): HumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
+    // Without a use, the hand takes the grip as the archetype declares it:
+    // never tilted, and turned about the wrapped axis only as far as the
+    // grip is the same turned (`IAutoMovieAffordance.symmetry`).
     const tilts: readonly number[] =
-      context.params.use === undefined
-        ? [-45, -30, -15, 0, 15, 30, 45]
-        : HumanGraspUse.OBLIQUE;
+      context.params.use === undefined ? [0] : HumanGraspUse.OBLIQUE;
     const turnsAsked: readonly number[] =
       context.params.use === undefined
-        ? HumanGrasp.TURNS
+        ? TURNS[
+            context
+              .prop(context.params.prop)
+              .prop.affordances?.find(
+                (a: IAutoMovieAffordance): boolean =>
+                  a.id === context.params.handle,
+              )?.symmetry ?? "none"
+          ]
         : HumanGraspUse.AROUND;
     // A grasp whose wrist lies beyond the straight arm is tried only when
     // every one does: the choice and the refusal below read the same reach,

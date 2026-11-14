@@ -24,6 +24,7 @@ import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
+import { pickUpAdjust } from "./pickUpAdjust";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpSearch } from "./pickUpSearch";
 
@@ -32,9 +33,11 @@ import { pickUpSearch } from "./pickUpSearch";
  *
  * The goal is the grip, not the arm: the hand's grip socket is brought onto
  * the prop's grip affordance along its approach axis (`HumanGrasp`), taken
- * from the azimuth about the grip's axis (within 90 degrees of the authored
- * approach), tilted up to 45 degrees into an oblique grip, that the arm can
- * reach with the least wrist error, the
+ * as the archetype declares it: untilted, and from the side about the
+ * grip's axis the arm reaches with the least wrist error among the sides
+ * its declared symmetry allows (any side of a round grip, either of a
+ * half-symmetric one, the declared one otherwise; `pickUpSearch.TURNS`);
+ * a use's grasp is searched over its own turns and tilts. Then the
  * fingers open to the peak aperture on the way and close on the prop's
  * colliders until contact (`HumanGrip`), and inverse kinematics solves the
  * arm. Where the arm reaches the grip from the posture the action is
@@ -43,7 +46,10 @@ import { pickUpSearch } from "./pickUpSearch";
  * and only the reaching arm and its fingers move. Where it does not, a
  * standing body is lowered toward the grip over the reach, as the bend law
  * lowers it (`pickUpPosture`): a slight lean at a counter, a stoop or a
- * squat for a low one, the feet planted; it holds there through the load
+ * squat for a low one, the feet planted; a seated one leans from its seat;
+ * and where the arm still misses, the trunk turns toward the grip first
+ * (`pickUpAdjust.turned`);
+ * it holds there through the load
  * and the lift and straightens over as long again, the hand riding with the
  * shoulder, and the event `upright` closes the action.
  *
@@ -173,14 +179,55 @@ export namespace pickUp {
         lower: (posture: IHumanPosture): IHumanPosture => posture,
       },
     );
-    const lowered: pickUpPosture.IStance | null = pickUpPosture.reaches(
-      context,
-      side,
-    )(found.chosen.wrist)
-      ? null
-      : pickUpPosture.lowered(context, side, authored.point);
+    // A standing body no stoop or squat brings to the grip may still turn
+    // or step toward it, below; anything else the lowering refuses stands.
+    const standing: boolean = context.entry.base.kind === "standing";
+    let lowered: pickUpPosture.IStance | null = null;
+    if (!pickUpPosture.reaches(context, side)(found.chosen.wrist))
+      try {
+        lowered = pickUpPosture.lowered(context, side, authored.point);
+      } catch (error) {
+        if (!(standing && error instanceof HumanRefusal)) throw error;
+      }
     if (lowered !== null)
       found = pickUpSearch.of(context, side, lift, authored, lowered);
+
+    // Still out of reach, the trunk turns toward the grip first.
+    if (
+      !pickUpPosture.reaches(
+        context,
+        side,
+        found.stance.posture,
+      )(found.chosen.wrist)
+    ) {
+      lowered = pickUpAdjust.turned(
+        context,
+        side,
+        found.chosen.wrist.point,
+        found.stance,
+      );
+      found = pickUpSearch.of(context, side, lift, authored, lowered);
+    }
+    // Still out of reach, one foot takes one adjustment step toward it.
+    if (
+      standing &&
+      !pickUpPosture.reaches(
+        context,
+        side,
+        found.stance.posture,
+      )(found.chosen.wrist)
+    ) {
+      const stepped: pickUpPosture.IStance | null = pickUpAdjust.stepped(
+        context,
+        side,
+        found.chosen.wrist.point,
+        found.stance,
+      );
+      if (stepped !== null) {
+        lowered = stepped;
+        found = pickUpSearch.of(context, side, lift, authored, stepped);
+      }
+    }
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IHumanPosture = stance.posture;
     const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
@@ -270,20 +317,7 @@ export namespace pickUp {
         ...(lowered === null ? [] : [{ name: "upright", share: 1 }]),
       ],
       contacts: [
-        {
-          part: "leftFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
-        {
-          part: "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
+        ...pickUpAdjust.plants(lowered, reach, end, up),
         // What else the body rests on at the entry, a seat or a back, it
         // keeps throughout.
         ...context.entry.supports
