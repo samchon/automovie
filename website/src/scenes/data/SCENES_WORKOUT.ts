@@ -212,6 +212,39 @@ export const SCENES_WORKOUT: readonly IScene[] = [
   ),
   scene(
     {
+      id: "farmers-carry",
+      title: "Farmer's carry",
+      summary:
+        "An athlete takes a kettlebell off the floor in each hand and carries them down the lane, the arms hanging still.",
+      setting: "gym",
+      roles: { ari: "athlete" },
+      needs: [],
+      refusedUntil: 3528,
+      view: "side",
+    },
+    "farmers-carry",
+    [
+      person("ari", "f1", 0, -2, 0, [
+        act("pickUp", { prop: "bellL", handle: "grip", hand: "left" }),
+        act("pickUp", { prop: "bellR", handle: "grip", hand: "right" }),
+        act(
+          "farmersWalk",
+          { to: to(0, 2) },
+          {
+            over: [
+              act("farmersHold", { left: "bellL", right: "bellR", seconds: 3 }),
+            ],
+          },
+        ),
+      ]),
+    ],
+    [
+      object("bellL", "createKettlebell", "competition", 0.25, -1.7),
+      object("bellR", "createKettlebell", "competition", -0.25, -1.7),
+    ],
+  ),
+  scene(
+    {
       id: "cool-down",
       title: "Cool-down",
       summary:
