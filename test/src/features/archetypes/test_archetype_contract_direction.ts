@@ -53,6 +53,8 @@ export function test_archetype_contract_direction(): void {
     "stationery-book": { face: normal },
     "stationery-paper": { face: normal },
     "stationery-pen": { face: along },
+    "stationery-clipboard": { face: normal },
+    "stationery-map": { face: normal },
     "careItem-tissue": { face: normal },
     "careItem-comb": { face: normal },
     "careItem-toothbrush": { face: normal },

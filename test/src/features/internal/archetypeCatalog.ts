@@ -145,6 +145,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `stationery-${kind}`,
       (seed?: number | string): Archetype => createStationery({ kind }, seed),
+      Object.values(createStationery.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const kind of createCareItem.KINDS)
     add(

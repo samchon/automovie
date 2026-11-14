@@ -25,17 +25,27 @@ const PAPER: string =
 const PEN: string =
   "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
 
+/** Esselte's A4 clipboards, read in the maker's data sheets. */
+const CLIPBOARD: string =
+  "Esselte clipboards 56055 and 604037 (A4): 232 x 3 x 349 mm (W x H x D), 168 g and 190 g (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf)";
+
+/** Michelin's folded road map: its folded size read at the maker, its thickness and mass seen only in listings. */
+const MAP: string =
+  "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createStationery.Kind, string>> = {
   book: "book",
   paper: "sheet of paper",
   pen: "pen",
+  clipboard: "clipboard",
+  map: "folded map",
 };
 
 /**
- * A book, a sheet of paper or a pen.
+ * A book, a sheet of paper, a pen, a clipboard or a folded road map.
  *
- * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet lies flat at the origin, its long side along `+Z`. A pen lies along `+Z` from its end at the origin to its tip.
+ * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet, a clipboard and a folded map lie flat at the origin, their long side along `+Z`; a clipboard's and a map's `grip` is their whole `+Z` edge, pinched across their thickness, and their `face` their upper side. A clipboard's clip waits for a source of its size, and a map does not unfold.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -115,19 +125,23 @@ export function createStationery(
     return builder.build(d.mass!);
   }
 
-  if (kind === "paper") {
+  if (kind === "paper" || kind === "clipboard" || kind === "map") {
     builder.box(
-      "sheet",
+      kind === "paper" ? "sheet" : kind === "clipboard" ? "board" : "map",
       Vector3.create(width, thick, length),
       Vector3.create(0, thick / 2, 0),
-      { color: "#f4f2ec" },
+      { color: kind === "clipboard" ? "#8a6a4a" : "#f4f2ec" },
     );
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "none",
       frame: ArchetypeFrame.facing(
-        Vector3.create(0, thick / 2, length / 2 - 0.02),
+        Vector3.create(
+          0,
+          thick / 2,
+          length / 2 - (kind === "paper" ? 0.02 : 0),
+        ),
         Vector3.create(0, 1, 0),
         Vector3.create(1, 0, 0),
       ),
@@ -226,16 +240,22 @@ export function createStationery(
  */
 export namespace createStationery {
   /** The kinds. */
-  export type Kind = "book" | "paper" | "pen";
+  export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["book", "paper", "pen"];
+  export const KINDS: readonly Kind[] = [
+    "book",
+    "paper",
+    "pen",
+    "clipboard",
+    "map",
+  ];
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a pen pinched 30 mm from its tip (an estimate).
-   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's upper side; a pen's tip, facing along the pen.
+   * - `grip`: the hold: a book by the middle of its spine, the hand closing across its thickness (the frame's `+Y` is up, out of the cover) along the spine's length; a sheet pinched from above at its near edge, a clipboard or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an estimate).
+   * - `face`: the working face: a book's front cover, which rides the hinge; a sheet's, a clipboard's or a map's upper side; a pen's tip, facing along the pen.
    * - `hinge`: a book's spine, turning the front half up to 180 degrees.
    * - `edge`: the fore-edge of a book's front half, pinched to open it; it rides the hinge.
    */
@@ -303,6 +323,18 @@ export namespace createStationery {
         ArchetypeBand.TYPICAL_MASS,
         true,
       ),
+    },
+    clipboard: {
+      width: ArchetypeBand.metres(0.232, 0.232, CLIPBOARD),
+      length: ArchetypeBand.metres(0.349, 0.349, CLIPBOARD),
+      thickness: ArchetypeBand.metres(0.003, 0.003, CLIPBOARD),
+      mass: ArchetypeBand.of("kg", 0.168, 0.19, CLIPBOARD),
+    },
+    map: {
+      width: ArchetypeBand.metres(0.11, 0.11, MAP),
+      length: ArchetypeBand.metres(0.25, 0.25, MAP),
+      thickness: ArchetypeBand.metres(0.007, 0.007, MAP, true),
+      mass: ArchetypeBand.of("kg", 0.089, 0.09, MAP, true),
     },
   };
 }
