@@ -48,13 +48,22 @@ export namespace CarCabin {
     const start: number = CarBody.bulkhead(l);
     const middle: number = start - width / 2;
     const x: number = kerb * l.half;
-    builder.box("door-sliding", v(0.04, height, width), v(x, l.floor + height / 2, middle), {
-      color: DOOR,
-    });
+    builder.box(
+      "door-sliding",
+      v(0.04, height, width),
+      v(x, l.floor + height / 2, middle),
+      {
+        color: DOOR,
+      },
+    );
     builder.affordance({
       id: "slidingDoor",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(x, l.floor + height / 2, middle), v(kerb, 0, 0), v(0, 0, -1)),
+      frame: ArchetypeFrame.facing(
+        v(x, l.floor + height / 2, middle),
+        v(kerb, 0, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       grip: "hook",
       travel: width,
@@ -63,7 +72,11 @@ export namespace CarCabin {
     builder.affordance({
       id: "slidingAperture",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(v(x, l.floor, middle), v(0, 1, 0), v(0, 0, -kerb)),
+      frame: ArchetypeFrame.facing(
+        v(x, l.floor, middle),
+        v(0, 1, 0),
+        v(0, 0, -kerb),
+      ),
       extent: null,
       width,
       height,
@@ -77,7 +90,7 @@ export namespace CarCabin {
    * @param l The layout.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which seats each class has.
-   * @evidence contracts/development/implementation.md#principled-implementation Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from the seating reference point; its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`.
+   * @evidence contracts/development/implementation.md#principled-implementation Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper per seat.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None beyond the layout's marked constants.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A few parts per seat.
@@ -89,22 +102,47 @@ export namespace CarCabin {
     l: CarBody.ILayout,
   ): void {
     const reference: IAutoMovieVector3 = l.reference;
-    seat(builder, l, "driverSeat", "driver", Vector3.create(reference.x, l.surface, reference.z), 0.5);
-    seat(builder, l, "passengerSeat", "passenger", Vector3.create(-reference.x, l.surface, reference.z), 0.5);
+    seat(
+      builder,
+      l,
+      "driverSeat",
+      "driver",
+      Vector3.create(reference.x, l.surface, reference.z),
+      0.5,
+    );
+    seat(
+      builder,
+      l,
+      "passengerSeat",
+      "passenger",
+      Vector3.create(-reference.x, l.surface, reference.z),
+      0.5,
+    );
     if (l.kind !== "van")
-      seat(builder, l, "rearSeat", "rear", Vector3.create(0, l.surface, reference.z - 0.8), l.d.width! - 0.3);
+      seat(
+        builder,
+        l,
+        "rearSeat",
+        "rear",
+        Vector3.create(
+          0,
+          l.surface,
+          l.door - createCar.REAR_DOOR + createCar.REAR_SGRP,
+        ),
+        l.d.width! - 0.3,
+      );
   }
 
   /**
-   * The driver's controls: the steering wheel, the pedals, the gear lever, the belt and the mirror.
+   * The driver's controls: the steering wheel and the accelerator. The brake, the gear lever, the mirror and the belt grip are not built until a source places them.
    *
    * @param builder The car under construction.
    * @param l The layout.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation The steering wheel's rim on its column's axis tilted back by `steeringAngle`, its centre `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel point (SAE J1100's L6 and H17 of a mid-size sedan), turning half the lock-to-lock turn each way with one spoke across it so a turn shows; the pedals' plates lie on SAE J1516's pedal plane at the ball of foot, facing the sole, their sideways offsets from the driver's centre line estimates not read at a source; the gear lever slides fore and aft between the seats.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Wheel, pedals, lever, belt, mirror.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are `createCar`'s marked constants.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built and what is not.
+   * @evidence contracts/development/implementation.md#principled-implementation The steering wheel's rim on its column's axis tilted back by `steeringAngle`, its centre `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel point (SAE J1100's L6 and H17 of a mid-size sedan), turning half the lock-to-lock turn each way with one spoke across it so a turn shows; the accelerator's plate lies on SAE J1516's pedal plane at the ball of foot, facing the sole, `FOOT` to the right of the driver's centre line (ISO 6549).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Wheel, then accelerator.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every offset is a sourced `createCar` constant.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -116,17 +154,40 @@ export namespace CarCabin {
     const v: typeof Vector3.create = Vector3.create;
     const d: Readonly<Partial<Record<createCar.Dimension, number>>> = l.d;
     const sx: number = l.reference.x;
-    const sz: number = l.reference.z;
     const tilt: number = (d.steeringAngle! * Math.PI) / 180;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
     const hub: IAutoMovieVector3 = l.wheel;
-    builder.rod("steering-rim", d.steeringDiameter! / 2, Vector3.subtract(hub, Vector3.scale(axis, 0.015)), Vector3.add(hub, Vector3.scale(axis, 0.015)), { color: DARK });
-    builder.rod("steering-column", 0.02, Vector3.subtract(hub, Vector3.scale(axis, 0.3)), hub, { color: GREY });
+    builder.rod(
+      "steering-rim",
+      d.steeringDiameter! / 2,
+      Vector3.subtract(hub, Vector3.scale(axis, 0.015)),
+      Vector3.add(hub, Vector3.scale(axis, 0.015)),
+      { color: DARK },
+    );
+    builder.rod(
+      "steering-column",
+      0.02,
+      Vector3.subtract(hub, Vector3.scale(axis, 0.3)),
+      hub,
+      { color: GREY },
+    );
     builder.rod(
       "steering-spoke",
       0.008,
-      Vector3.add(hub, Vector3.add(Vector3.scale(axis, 0.02), v(-d.steeringDiameter! / 2, 0, 0))),
-      Vector3.add(hub, Vector3.add(Vector3.scale(axis, 0.02), v(d.steeringDiameter! / 2, 0, 0))),
+      Vector3.add(
+        hub,
+        Vector3.add(
+          Vector3.scale(axis, 0.02),
+          v(-d.steeringDiameter! / 2, 0, 0),
+        ),
+      ),
+      Vector3.add(
+        hub,
+        Vector3.add(
+          Vector3.scale(axis, 0.02),
+          v(d.steeringDiameter! / 2, 0, 0),
+        ),
+      ),
       { color: METAL },
     );
     builder.affordance({
@@ -141,65 +202,27 @@ export namespace CarCabin {
       parts: ["steering-rim", "steering-spoke"],
     });
 
-    // The pedals on the pedal plane at the ball of foot, the accelerator under the right foot and the brake beside it; each plate faces the sole, out of the plane toward the seat.
+    // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
     const slope: number = (l.pedal * Math.PI) / 180;
     const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
-    for (const [id, offset, width] of [
-      ["accelerator", -createCar.FOOT, 0.05],
-      ["brake", 0.02, 0.1],
-    ] as const) {
-      const at: IAutoMovieVector3 = v(sx + offset, l.ball.y, l.ball.z);
-      builder.box(`pedal-${id}`, v(width, 0.01, 0.08), at, {
-        color: DARK,
-        rotation: ArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
-      });
-      builder.affordance({
-        id,
-        kind: "pedal",
-        frame: ArchetypeFrame.facing(Vector3.add(at, Vector3.scale(sole, 0.005)), sole, v(1, 0, 0)),
-        extent: null,
-        width,
-        depth: 0.08,
-        travel: d.pedalTravel!,
-        parts: [`pedal-${id}`],
-      });
-    }
-
-    // The gear lever between the seats, its knob slid fore and aft.
-    const knob: IAutoMovieVector3 = v(0, l.surface + 0.15, sz + 0.25);
-    builder.rod("gear-lever", 0.012, v(0, l.floor, sz + 0.25), knob, { color: GREY });
-    builder.ball("gear-knob", 0.025, knob, { color: DARK });
-    builder.affordance({
-      id: "gear",
-      kind: "slider",
-      frame: ArchetypeFrame.facing(knob, v(0, 1, 0), v(0, 0, -1)),
-      extent: null,
-      travel: 0.08,
-      parts: ["gear-lever", "gear-knob"],
+    const at: IAutoMovieVector3 = v(sx - createCar.FOOT, l.ball.y, l.ball.z);
+    builder.box("pedal-accelerator", v(0.05, 0.01, 0.08), at, {
+      color: DARK,
+      rotation: ArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
     });
     builder.affordance({
-      id: "gearKnob",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(knob, v(0, 1, 0), v(0, 0, 1)),
+      id: "accelerator",
+      kind: "pedal",
+      frame: ArchetypeFrame.facing(
+        Vector3.add(at, Vector3.scale(sole, 0.005)),
+        sole,
+        v(1, 0, 0),
+      ),
       extent: null,
-      grip: "power",
-      aperture: 0.05,
-      rides: "gear",
-    });
-    builder.affordance({
-      id: "driverBelt",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(v(l.side * (l.half - 0.05), l.reference.y + 0.5, l.pillar), v(-l.side, 0, 0), v(0, 1, 0)),
-      extent: null,
-      grip: "precision",
-    });
-    builder.affordance({
-      id: "mirror",
-      kind: "surface",
-      frame: ArchetypeFrame.facing(v(0, l.top - 0.12, l.firewall - 0.4), v(0, 0, -1), v(1, 0, 0)),
-      extent: null,
+      width: 0.05,
+      depth: 0.08,
+      travel: d.pedalTravel!,
+      parts: ["pedal-accelerator"],
     });
   }
 }
@@ -248,14 +271,40 @@ function door(
   const v: typeof Vector3.create = Vector3.create;
   const x: number = sign * l.half;
   const part: string = `door-${PART[role]}`;
-  builder.box(part, v(0.04, l.belt - l.floor, hinge - end), v(x, (l.belt + l.floor) / 2, (hinge + end) / 2), { color: DOOR });
-  builder.rod(`door-handle-${PART[role]}`, 0.01, v(x + sign * 0.03, l.belt - 0.08, end + 0.18), v(x + sign * 0.03, l.belt - 0.08, end + 0.06), { color: METAL });
+  builder.box(
+    part,
+    v(0.04, l.belt - l.floor, hinge - end),
+    v(x, (l.belt + l.floor) / 2, (hinge + end) / 2),
+    { color: DOOR },
+  );
+  const handle: IAutoMovieVector3 = v(
+    x + sign * 0.03,
+    l.belt - createCar.HANDLE.drop,
+    end + createCar.HANDLE.aft,
+  );
+  builder.rod(
+    `door-handle-${PART[role]}`,
+    0.01,
+    v(handle.x, handle.y, handle.z + createCar.HANDLE.length / 2),
+    v(handle.x, handle.y, handle.z - createCar.HANDLE.length / 2),
+    { color: METAL },
+  );
   if (pillar)
-    builder.rod(`pillar-mid-${PART[role]}`, 0.03, v(sign * (l.half - 0.03), l.belt, end), v(sign * (l.half - 0.03), l.top - 0.04, end), { color: BODY });
+    builder.rod(
+      `pillar-mid-${PART[role]}`,
+      0.03,
+      v(sign * (l.half - 0.03), l.belt, end),
+      v(sign * (l.half - 0.03), l.top - 0.04, end),
+      { color: BODY },
+    );
   builder.affordance({
     id: `${role}Door`,
     kind: "hinge",
-    frame: ArchetypeFrame.facing(v(x, (l.belt + l.floor) / 2, hinge), v(0, -sign, 0), v(0, 0, -1)),
+    frame: ArchetypeFrame.facing(
+      v(x, (l.belt + l.floor) / 2, hinge),
+      v(0, -sign, 0),
+      v(0, 0, -1),
+    ),
     extent: null,
     travel: l.d.doorSwing!,
     parts: [part, `door-handle-${PART[role]}`],
@@ -264,33 +313,46 @@ function door(
     id: `${role}DoorHandle`,
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(v(x + sign * 0.03, l.belt - 0.08, end + 0.12), v(sign, 0, 0), v(0, 0, 1)),
+    frame: ArchetypeFrame.facing(handle, v(sign, 0, 0), v(0, 0, 1)),
     extent: null,
     grip: "hook",
     aperture: 0.02,
-    length: 0.12,
+    length: createCar.HANDLE.length,
     rides: `${role}Door`,
   });
   builder.affordance({
     id: `${role}Aperture`,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(v(x, l.floor, (hinge + end) / 2), v(0, 1, 0), v(0, 0, sign)),
+    frame: ArchetypeFrame.facing(
+      v(x, l.floor, (hinge + end) / 2),
+      v(0, 1, 0),
+      v(0, 0, sign),
+    ),
     extent: null,
     width: hinge - end,
-    height: l.top - 0.04 - l.floor,
+    height: l.window - l.floor,
   });
 
   // The window between the door's edges, sliding down into the door.
   const forward: number = hinge - 0.03;
   const length: number = forward - (end + 0.03);
-  const height: number = l.top - 0.04 - l.belt;
+  const height: number = l.window - l.belt;
   const middle: number = (forward + end + 0.03) / 2;
   const glass: string = `window-${PART[role]}`;
-  builder.box(glass, v(0.01, height, length), v(x, l.belt + height / 2, middle), { color: GLASS, density: 0.5 });
+  builder.box(
+    glass,
+    v(0.01, height, length),
+    v(x, l.belt + height / 2, middle),
+    { color: GLASS, density: 0.5 },
+  );
   builder.affordance({
     id: `${role}Window`,
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(x, l.top - 0.04, middle), v(sign, 0, 0), v(0, -1, 0)),
+    frame: ArchetypeFrame.facing(
+      v(x, l.window, middle),
+      v(sign, 0, 0),
+      v(0, -1, 0),
+    ),
     extent: null,
     travel: height,
     parts: [glass],
@@ -299,7 +361,11 @@ function door(
   builder.affordance({
     id: `${role}WindowOpening`,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(v(x, l.top - 0.04, middle), v(0, 1, 0), v(0, 0, sign)),
+    frame: ArchetypeFrame.facing(
+      v(x, l.window, middle),
+      v(0, 1, 0),
+      v(0, 0, sign),
+    ),
     extent: null,
     width: length,
     height,
@@ -327,12 +393,24 @@ function seat(
 ): void {
   const depth: number = 0.48;
   const rear: number = reference.z - 0.1;
-  builder.box(`cushion-${name}`, Vector3.create(width, 0.12, depth), Vector3.create(reference.x, reference.y - 0.06, rear + depth / 2), { color: CLOTH, density: 0.2 });
-  builder.box(`backrest-${name}`, Vector3.create(width, 0.6, 0.1), Vector3.create(reference.x, reference.y + 0.3, rear - 0.05), { color: CLOTH, density: 0.2 });
+  builder.box(
+    `cushion-${name}`,
+    Vector3.create(width, 0.12, depth),
+    Vector3.create(reference.x, reference.y - 0.06, rear + depth / 2),
+    { color: CLOTH, density: 0.2 },
+  );
+  builder.box(
+    `backrest-${name}`,
+    Vector3.create(width, 0.6, 0.1),
+    Vector3.create(reference.x, reference.y + 0.3, rear - 0.05),
+    { color: CLOTH, density: 0.2 },
+  );
   builder.affordance({
     id,
     kind: "seat",
-    frame: ArchetypeFrame.upright(Vector3.create(reference.x, reference.y, rear + depth)),
+    frame: ArchetypeFrame.upright(
+      Vector3.create(reference.x, reference.y, rear + depth),
+    ),
     extent: null,
     depth,
     width,
@@ -341,7 +419,11 @@ function seat(
   builder.affordance({
     id: `${id}Back`,
     kind: "hinge",
-    frame: ArchetypeFrame.facing(Vector3.create(reference.x, reference.y, rear), Vector3.create(-1, 0, 0), Vector3.create(0, 1, 0)),
+    frame: ArchetypeFrame.facing(
+      Vector3.create(reference.x, reference.y, rear),
+      Vector3.create(-1, 0, 0),
+      Vector3.create(0, 1, 0),
+    ),
     extent: null,
     travel: l.d.recline!,
     parts: [`backrest-${name}`],
@@ -349,7 +431,9 @@ function seat(
 }
 
 /** Each door's name in part ids, as the front doors' were before the rear doors came. */
-const PART: Readonly<Record<"driver" | "passenger" | "rearLeft" | "rearRight", string>> = {
+const PART: Readonly<
+  Record<"driver" | "passenger" | "rearLeft" | "rearRight", string>
+> = {
   driver: "driver",
   passenger: "passenger",
   rearLeft: "rear-left",

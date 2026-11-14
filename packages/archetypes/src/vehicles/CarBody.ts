@@ -45,19 +45,22 @@ export namespace CarBody {
     /** The cabin floor's height, the heel's rest. */
     floor: number;
 
-    /** The belt line's height, the doors' top edge. */
+    /** The belt line's height, the doors' top edge and the windows' bottom. */
     belt: number;
+
+    /** The side windows' top edge. */
+    window: number;
 
     /** The roof's height. */
     top: number;
 
-    /** The bulkhead's station, `FIREWALL` ahead of the steering wheel. */
+    /** The bulkhead's station, `DOOR_LEAD` ahead of the front doors. */
     firewall: number;
 
     /** The middle pillar's station, the front doors' rear edge, `DOOR_SPAN` behind their front edge. */
     pillar: number;
 
-    /** The rear of the passenger cabin: the rear pillar, a pickup's cab back, a van's rear doors' inner face. */
+    /** The rear of the passenger cabin: the rear pillar at the rear doors' trailing edge, a pickup's cab back, a van's rear doors' inner face. */
     back: number;
 
     /** The driver's seating reference point. */
@@ -91,7 +94,7 @@ export namespace CarBody {
    * @returns The layout.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The front overhang takes 45 % of the length beyond the wheelbase; the seating reference point lies `REFERENCE` behind the front axle and `seatHeight` above the floor (SAE J1100's H30); the ball of foot lies SAE J1516's tool reference distance ahead of it (`seatAft`) on the pedal plane at J1516's angle (`pedalPlane`), the heel point `BALL` back down that plane on the floor; the steering wheel `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel; the firewall `FIREWALL` ahead of the steering wheel and the front doors `DOOR_LEAD` behind the firewall and `DOOR_SPAN` long, a 2023 Accord's NCAP measurements; the belt `BELT` above the floor, or a pickup's at its bed's rail; a van's floor is its side step and its cabin runs to its rear doors, a pickup's cab ends where its bed begins.
+   * @evidence contracts/development/implementation.md#principled-implementation The front overhang takes `OVERHANG` of the length beyond the wheelbase; the front doors stand `DOOR_AXLE` behind the front axle and `DOOR_SPAN` long, and the seating reference point `PILLAR_SGRP` ahead of the middle pillar and `seatHeight` above the floor (SAE J1100's H30), the measured sedans' values; the ball of foot lies SAE J1516's tool reference distance ahead of it (`seatAft`) on the pedal plane at J1516's angle (`pedalPlane`), the heel point `BALL` back down that plane on the floor; the steering wheel `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel; the firewall `DOOR_LEAD` ahead of the front doors; the belt (`BELT` above the rocker's lower edge, `ROCKER`) and the windows' top (`WINDOW` above the belt) at the measured heights; the doors' openings start at the floor; a pickup's belt at its bed's rail; a sedan's and a hatchback's cabin ends at the rear doors' trailing edge, `REAR_DOOR` behind the front doors; a van's floor is its side step and its cabin runs to its rear doors, a pickup's cab ends where its bed begins.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record of derived planes.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unsourced offsets are `createCar`'s marked constants.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -104,23 +107,45 @@ export namespace CarBody {
     d: Readonly<Partial<Record<createCar.Dimension, number>>>,
   ): ILayout {
     const wheelbase: number = d.wheelbase!;
-    const front: number = wheelbase / 2 + (d.length! - wheelbase) * 0.45;
+    const front: number =
+      wheelbase / 2 + (d.length! - wheelbase) * createCar.OVERHANG;
     const rear: number = front - d.length!;
     const floor: number = kind === "van" ? d.sideStep! : createCar.FLOOR;
-    const sz: number = wheelbase / 2 - createCar.REFERENCE;
+
+    // The front doors from the front axle, the middle pillar their span behind, and the seating reference point just ahead of the pillar, as the measured sedans have them; a van and a pickup take the same cabin.
+    const door: number = wheelbase / 2 - createCar.DOOR_AXLE;
+    const pillar: number = door - createCar.DOOR_SPAN;
+    const sz: number = pillar + createCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
     const sx: number = side * createCar.OCCUPANT;
 
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
     const pedal: number = createCar.pedalPlane(d.seatHeight!);
     const slope: number = (pedal * Math.PI) / 180;
-    const ball: IAutoMovieVector3 = Vector3.create(sx, floor + createCar.BALL * Math.sin(slope), sz + createCar.seatAft(d.seatHeight!));
-    const heel: IAutoMovieVector3 = Vector3.create(sx, floor, ball.z - createCar.BALL * Math.cos(slope));
+    const ball: IAutoMovieVector3 = Vector3.create(
+      sx,
+      floor + createCar.BALL * Math.sin(slope),
+      sz + createCar.seatAft(d.seatHeight!),
+    );
+    const heel: IAutoMovieVector3 = Vector3.create(
+      sx,
+      floor,
+      ball.z - createCar.BALL * Math.cos(slope),
+    );
 
-    // The steering wheel from the ball of foot and the heel point; the firewall and the front doors from the steering wheel.
-    const wheel: IAutoMovieVector3 = Vector3.create(sx, heel.y + createCar.WHEEL_HEIGHT, ball.z - createCar.WHEEL_AFT);
-    const firewall: number = wheel.z + createCar.FIREWALL;
-    const door: number = firewall - createCar.DOOR_LEAD;
+    // The steering wheel from the ball of foot and the heel point; the firewall ahead of the front doors.
+    const wheel: IAutoMovieVector3 = Vector3.create(
+      sx,
+      heel.y + createCar.WHEEL_HEIGHT,
+      ball.z - createCar.WHEEL_AFT,
+    );
+    const firewall: number = door + createCar.DOOR_LEAD;
+
+    // The belt line from the rocker's lower edge and the windows' top above it, as the measured sedan has them; a pickup's belt is its bed's rail.
+    const belt: number =
+      kind === "pickup"
+        ? d.bedFloor! + d.bedDepth!
+        : createCar.ROCKER + createCar.BELT;
     return {
       kind,
       side,
@@ -129,19 +154,17 @@ export namespace CarBody {
       front,
       rear,
       floor,
-      belt:
-        kind === "pickup"
-          ? d.bedFloor! + d.bedDepth!
-          : floor + createCar.BELT,
+      belt,
+      window: belt + createCar.WINDOW,
       top: d.height!,
       firewall,
-      pillar: door - createCar.DOOR_SPAN,
+      pillar,
       back:
         kind === "van"
           ? rear + 0.04
           : kind === "pickup"
             ? rear + d.bedLength!
-            : -wheelbase / 2 + 0.1,
+            : door - createCar.REAR_DOOR,
       reference: Vector3.create(sx, sy, sz),
       heel,
       ball,
@@ -327,7 +350,6 @@ export namespace CarBody {
   export function bulkhead(l: ILayout): number {
     return l.rear + 0.04 + l.d.loadLength!;
   }
-
 }
 
 /** The body's colour. */
