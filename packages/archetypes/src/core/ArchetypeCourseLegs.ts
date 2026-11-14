@@ -72,6 +72,7 @@ export namespace ArchetypeCourseLegs {
     let z: number = course.start.z;
     let heading: number = course.start.heading;
     let length: number = 0;
+    let progress: number = 0;
     course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
       const size: number = leg.kind === "straight" ? leg.length : leg.radius;
       if (!(Number.isFinite(size) && size > 0))
@@ -105,6 +106,7 @@ export namespace ArchetypeCourseLegs {
         run,
         rise,
         reverse: leg.reverse === true,
+        progress,
         x,
         y,
         z,
@@ -117,6 +119,7 @@ export namespace ArchetypeCourseLegs {
       z = end.z;
       heading = end.heading;
       length += span;
+      progress += leg.reverse === true ? -span : span;
     });
 
     // The speed marks, each reachable from the one before it.
@@ -340,6 +343,9 @@ export namespace ArchetypeCourseLegs {
         return {
           distance,
           speed,
+          progress:
+            row.progress +
+            (row.reverse ? -1 : 1) * Math.min(row.span, distance - row.from),
           curvature:
             row.leg.kind === "turn"
               ? Math.sign(row.leg.angle) / row.leg.radius
@@ -383,6 +389,9 @@ interface IRow {
 
   /** Whether the support goes backward along it. */
   reverse: boolean;
+
+  /** The signed distance rolled where the leg starts, metres: forward legs add their span, reversed legs take it away. */
+  progress: number;
 
   /** The root's X where the leg starts, metres. */
   x: number;

@@ -159,7 +159,7 @@ export namespace ArchetypeCourse {
    * The state of a support on its course at a second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation Where a support is at one second: distance in metres along the path, speed in metres per second never negative, signed curvature of the path seen from above per metre (positive where the path bends to the left of the way the support travels), whether it travels backward, and the root's placement in the world with unit scale.
+   * @evidence contracts/development/design.md#principled-representation Where a support is at one second: distance in metres along the path, speed in metres per second never negative, the signed distance a wheel rolls, signed curvature of the path seen from above per metre (positive where the path bends to the left of the way the support travels), whether it travels backward, and the root's placement in the world with unit scale.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; produced by a plan's `at` and read by each ride's pose function, `lean` and `banked`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the placement is the interface package's transform.
    */
@@ -169,6 +169,9 @@ export namespace ArchetypeCourse {
 
     /** Speed along the path, metres per second. */
     speed: number;
+
+    /** Distance travelled forward less distance travelled in reverse, metres: what a road wheel rolls, as `distance` is what the path covers. */
+    progress: number;
 
     /** The path's signed curvature seen from above, one over metres: positive where it bends to the left of the way the support travels, zero on a straight leg. */
     curvature: number;

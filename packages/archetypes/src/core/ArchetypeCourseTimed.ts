@@ -234,9 +234,11 @@ export namespace ArchetypeCourseTimed {
       const climb: number = moving
         ? (Math.atan2(v.y, ground) * 180) / Math.PI
         : 0;
+      const distance: number = distanceAt(seconds);
       return {
-        distance: distanceAt(seconds),
+        distance,
         speed: Vector3.length(v),
+        progress: distance,
         curvature: moving
           ? (a.x * v.z - a.z * v.x) / (ground * ground * ground)
           : 0,

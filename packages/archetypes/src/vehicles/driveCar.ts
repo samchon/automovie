@@ -2,9 +2,9 @@ import { type Archetype, ArchetypeCourse, ArchetypeRide } from "../core";
 import type { createCar } from "./createCar";
 
 /**
- * A car driven along a course: its root on the path, and its steering wheel turned as the path's curvature asks, its front road wheels steering with it.
+ * A car driven along a course: its root on the path, its steering wheel turned as the path's curvature asks with its front road wheels steering with it, and its road wheels rolling with the distance.
  *
- * The steering wheel's angle is the road wheels' angle times the car's steering ratio, and the road wheels' angle is the one that turns the car on the path's radius: the angle whose tangent is the wheelbase over the radius of the rear axle's path (the Ackermann relation of a car's low-speed turn). The car's root is the middle of its wheelbase, so the rear axle's radius is the root's shortened by half a wheelbase. A left turn turns the wheel to the left, a positive travel; reversing, the same bend of the path needs the wheel turned the other way, because the car then turns about its rear axle backward. The front road wheels follow the steering wheel (`createCar.ackermann`). The wheel is at its angle for the whole of a turn and straight between turns.
+ * The steering wheel's angle is the road wheels' angle times the car's steering ratio, and the road wheels' angle is the one that turns the car on the path's radius: the angle whose tangent is the wheelbase over the radius of the rear axle's path (the Ackermann relation of a car's low-speed turn). The car's root is the middle of its wheelbase, so the rear axle's radius is the root's shortened by half a wheelbase. A left turn turns the wheel to the left, a positive travel; reversing, the same bend of the path needs the wheel turned the other way, because the car then turns about its rear axle backward. The front road wheels follow the steering wheel (`createCar.ackermann`). Every road wheel rolls without slipping: its spin is 360 degrees per wheel circumference of the signed distance, forward less reversed, taken modulo a turn. The wheel is at its angle for the whole of a turn and straight between turns.
  *
  * @param car The car.
  * @param course The course its root follows, or its plan, such as a timed course's.
@@ -26,6 +26,7 @@ export function driveCar(
   const wheelbase: number = car.dimensions.wheelbase!;
   const ratio: number = car.dimensions.steeringRatio!;
   const lock: number = car.dimensions.lockTurns! * 180;
+  const diameter: number = car.dimensions.wheelDiameter!;
 
   /** The steering wheel's angle on a path of a signed curvature, degrees, going forward. */
   const steer = (curvature: number): number => {
@@ -57,11 +58,22 @@ export function driveCar(
     plan,
     (
       state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<createCar.Affordance, createCar.Dimension> => ({
-      archetype: car.articulate({
-        wheel: state.reverse ? -steer(state.curvature) : steer(state.curvature),
-      }),
-      placement: state.placement,
-    }),
+    ): ArchetypeRide.IPose<createCar.Affordance, createCar.Dimension> => {
+      // Each road wheel rolls its circumference per turn, forward or back with the signed distance.
+      const turns: number = state.progress / (Math.PI * diameter);
+      const spin: number = (((turns * 360) % 360) + 360) % 360;
+      return {
+        archetype: car.articulate({
+          wheel: state.reverse
+            ? -steer(state.curvature)
+            : steer(state.curvature),
+          frontLeftSpin: spin,
+          frontRightSpin: spin,
+          rearLeftSpin: spin,
+          rearRightSpin: spin,
+        }),
+        placement: state.placement,
+      };
+    },
   );
 }
