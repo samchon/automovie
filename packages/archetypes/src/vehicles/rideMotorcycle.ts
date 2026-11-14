@@ -25,7 +25,7 @@ export function rideMotorcycle(
   createMotorcycle.Dimension
 > {
   const plan: ArchetypeCourse.IPlan =
-    "legs" in course ? ArchetypeCourse.plan("motorcycle", course) : course;
+    course.kind === "plan" ? course : ArchetypeCourse.plan("motorcycle", course);
   ArchetypeCourse.admitLean("motorcycle", plan, rideMotorcycle.LEAN);
   return ArchetypeRide.along(
     machine,

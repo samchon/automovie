@@ -25,8 +25,8 @@ export namespace ArchetypeCourseLegs {
    * @throws {ArchetypeRefusal} As `ArchetypeCourse.plan` states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the documented caller, which states the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Each leg's run on the ground is its length or its radius times its angle, and its length along the path that run times the square root of one plus the grade squared, the hypotenuse of a constant grade. The speed is the engine's `speedProfile` over one distance stretch per leg with marks (topped at the faster of the leg's two marks, or at the cruising speed between two stops) or one stretch over the whole path without (topped at the cruising speed), each pause a seconds stretch at rest. A turn's position is the arc about its centre; a reversed leg advances along the facing's opposite with the facing kept, and the root pitches nose up by the arctangent of the grade in the direction it travels. A course using none of the optional members goes through the same operations in the same order as before they existed: the profile's single stretch from rest to rest reproduces the trapezoid's arithmetic, a level leg skips the grade's scaling and pitch, and a forward leg the reversal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the course, measure the legs, lay the profile, name the instants and the bends, then the two samplers over those tables.
+   * @evidence contracts/development/implementation.md#principled-implementation Each leg's run on the ground is its length or its radius times its angle, and its length along the path that run times the square root of one plus the grade squared, the hypotenuse of a constant grade. The speed is the engine's `speedProfile` over one distance stretch per leg with marks (topped at the faster of the leg's two marks, or at the cruising speed between two stops) or one stretch over the whole path without (topped at the cruising speed), each pause a seconds stretch at rest. A leg's fastest speed is exact: within each of the profile's phases the acceleration is constant, so speed is monotone there, and its greatest on the leg is at one of the leg's ends or at a phase's start inside it. A turn's position is the arc about its centre; a reversed leg advances along the facing's opposite with the facing kept, and the root pitches nose up by the arctangent of the grade in the direction it travels. A course using none of the optional members goes through the same operations in the same order as before they existed: the profile's single stretch from rest to rest reproduces the trapezoid's arithmetic, a level leg skips the grade's scaling and pitch, and a forward leg the reversal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the course, measure the legs, lay the profile, name the instants and the bends, find each leg's fastest speed, then the two samplers over those tables.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable mark is refused with its reachable range, never clamped; a second outside the course holds the nearest end state.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning is linear in the legs; a sample scans the legs and the profile's phases once, a handful for any real course.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One plan serves every sample of a ride.
@@ -307,18 +307,34 @@ export namespace ArchetypeCourseLegs {
       }
     });
     instants.push({ seconds: profile.end, label: "stop" });
+
+    // Each leg's fastest speed: the profile's phases each hold one acceleration, so speed is monotone within a phase and its greatest on a leg is at the leg's ends or at a phase's start inside it.
+    const speedAt = (distance: number): number =>
+      profile.at(profile.when(distance)).speed;
+    const legSpans: ArchetypeCourse.ILegSpan[] = rows.map(
+      (row: IRow): ArchetypeCourse.ILegSpan => {
+        const end: number = row.from + row.span;
+        let fastest: number = Math.max(speedAt(row.from), speedAt(end));
+        for (const phase of profile.phases)
+          if (phase.from > row.from && phase.from < end)
+            fastest = Math.max(fastest, profile.at(phase.start).speed);
+        return { from: row.from, span: row.span, fastest };
+      },
+    );
     instants.sort(
       (p: { seconds: number }, q: { seconds: number }): number =>
         p.seconds - q.seconds,
     );
 
     return {
+      kind: "plan",
       course,
       length,
       duration: profile.end,
       peak: profile.peak,
       instants,
       bends,
+      legSpans,
       when: profile.when,
       at: (seconds: number): ArchetypeCourse.IState => {
         const { distance, speed }: speedProfile.IState = profile.at(seconds);

@@ -328,7 +328,8 @@ export namespace ArchetypeCourseTimed {
     };
 
     return {
-      course: { samples },
+      kind: "plan",
+      course: { kind: "timed", samples },
       length: total,
       duration: times[n - 1]!,
       peak,
@@ -337,6 +338,9 @@ export namespace ArchetypeCourseTimed {
         { seconds: times[n - 1]!, label: "stop" },
       ],
       bends,
+
+      // A timed course is samples, not legs.
+      legSpans: [],
       when,
       at: state,
     };

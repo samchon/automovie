@@ -92,6 +92,9 @@ export namespace ArchetypeCourse {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts `endSpeed` and `speeds` both name the speed at the course's end, so `plan` refuses the two together rather than choosing one.
    */
   export interface ICourse {
+    /** The discriminator, which an author may leave out: a course of legs, told from a plan (`IPlan.kind`) by it. */
+    kind?: "course";
+
     /** Where the support's root starts, metres on the floor, and its heading, degrees. */
     start: { x: number; z: number; heading: number };
 
@@ -151,6 +154,9 @@ export namespace ArchetypeCourse {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITimed {
+    /** The discriminator: a timed course, told from a course of legs by it. */
+    kind: "timed";
+
     /** The samples, at least two, their seconds strictly increasing. */
     samples: readonly ISample[];
   }
@@ -209,14 +215,36 @@ export namespace ArchetypeCourse {
   }
 
   /**
+   * One leg of a planned course: where it lies along the path and the fastest it is taken.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
+   * @evidence contracts/development/design.md#principled-representation A distance interval in metres along the path and a speed in metres per second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; listed by a plan of legs and read by a ride that acts by leg, such as a horse's gait named per leg.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The planner measures it once; no ride measures a leg again.
+   */
+  export interface ILegSpan {
+    /** The distance along the path where the leg begins, metres. */
+    from: number;
+
+    /** The leg's length along the path, its grade included, metres. */
+    span: number;
+
+    /** The greatest speed reached on the leg, metres per second. */
+    fastest: number;
+  }
+
+  /**
    * A course made ready to sample.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A course with its timing: length in metres, the second it ends, peak speed, labelled instants in time order, its bends, and two samplers that are pure functions of distance and of seconds.
+   * @evidence contracts/development/design.md#principled-representation A course with its timing: length in metres, the second it ends, peak speed, labelled instants in time order, its bends, its legs' stretches with their fastest speeds, and two samplers that are pure functions of distance and of seconds.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `plan` and `timed` and read by every ride and by `ArchetypeRide`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: plain data and two functions.
    */
   export interface IPlan {
+    /** The discriminator: a planned course, told from an unplanned one (`ICourse.kind`) by it, so a ride taking either narrows by type, not by which members it happens to have. */
+    kind: "plan";
+
     /** The course, of legs or timed. */
     course: ICourse | ITimed;
 
@@ -236,6 +264,9 @@ export namespace ArchetypeCourse {
 
     /** Where the path bends, for the rides' limits. */
     bends: readonly IBend[];
+
+    /** Each leg's stretch of the path and the fastest it is taken, in the legs' order; none for a timed course. */
+    legSpans: readonly ILegSpan[];
 
     /**
      * The film second at which a distance along the path is first reached; a distance before the start gives the start and one past the end the end.
@@ -338,7 +369,8 @@ export namespace ArchetypeCourse {
     course: ICourse | IPlan,
     limit: number,
   ): void {
-    const planned: IPlan = "legs" in course ? plan(archetype, course) : course;
+    const planned: IPlan =
+      course.kind === "plan" ? course : plan(archetype, course);
     const tangent: number = Math.tan((limit * Math.PI) / 180);
     for (const bend of planned.bends) {
       const least: number = (bend.speed * bend.speed) / (GRAVITY * tangent);

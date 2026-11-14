@@ -53,8 +53,8 @@ export function rideBicycle(
 
   // The crank turns with the distance, which runs one way only.
   const plan: ArchetypeCourse.IPlan =
-    "legs" in course ? ArchetypeCourse.plan("bicycle", course) : course;
-  if ("legs" in plan.course)
+    course.kind === "plan" ? course : ArchetypeCourse.plan("bicycle", course);
+  if (plan.course.kind !== "timed")
     plan.course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
       if (leg.reverse === true)
         throw new ArchetypeRefusal({

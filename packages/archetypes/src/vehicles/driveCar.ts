@@ -44,7 +44,7 @@ export function driveCar(
 
   // The tightest turn the lock allows: the road wheels at lock over ratio.
   const plan: ArchetypeCourse.IPlan =
-    "legs" in course ? ArchetypeCourse.plan("car", course) : course;
+    course.kind === "plan" ? course : ArchetypeCourse.plan("car", course);
   const most: number = (lock / ratio) * (Math.PI / 180);
   const least: number = Math.hypot(wheelbase / Math.tan(most), wheelbase / 2);
   ArchetypeCourse.admitRadius(

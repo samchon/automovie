@@ -50,7 +50,9 @@ export function rowBoat(
       fix: "row a rowboat",
     });
   const plan: ArchetypeCourse.IPlan =
-    "legs" in course ? ArchetypeCourse.plan(boat.archetype, course) : course;
+    course.kind === "plan"
+      ? course
+      : ArchetypeCourse.plan(boat.archetype, course);
   const g: BoatOars.IGeometry = BoatOars.geometry(boat.dimensions);
 
   // The catches: where the distance covered reaches each whole stroke.

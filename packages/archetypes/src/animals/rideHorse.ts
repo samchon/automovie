@@ -64,34 +64,19 @@ export function rideHorse(
   };
   const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("horse", course);
 
-  // The leg holding each distance, and the gait and lead it names.
-  const ends: number[] = [];
-  let reach: number = 0;
-  for (const leg of course.legs) {
-    const run: number =
-      leg.kind === "straight"
-        ? leg.length
-        : (leg.radius * Math.abs(leg.angle) * Math.PI) / 180;
-    const rise: number = leg.rise ?? 0;
-    reach += rise === 0 ? run : Math.hypot(run, rise);
-    ends.push(reach);
-  }
+  // The leg holding each distance, and the gait and lead it names, by the legs the plan measured.
   const legAt = (distance: number): rideHorse.ILeg => {
     let k: number = 0;
-    while (k < ends.length - 1 && distance >= ends[k]!) k++;
+    while (
+      k < plan.legSpans.length - 1 &&
+      distance >= plan.legSpans[k]!.from + plan.legSpans[k]!.span
+    )
+      k++;
     return course.legs[k]!;
   };
   course.legs.forEach((leg: rideHorse.ILeg, k: number): void => {
     if (leg.gait === undefined) return;
-    const from: number = plan.when(k === 0 ? 0 : ends[k - 1]!);
-    const to: number = plan.when(ends[k]!);
-    const fastest: number = Math.max(
-      ...Array.from(
-        { length: 65 },
-        (_: unknown, n: number): number =>
-          plan.at(from + ((to - from) * n) / 64).speed,
-      ),
-    );
+    const fastest: number = plan.legSpans[k]!.fastest;
     const limits: { minimum: number; maximum: number } = HorseGait.range(
       leg.gait,
       withers,

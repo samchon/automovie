@@ -126,9 +126,9 @@ export namespace ArchetypeRide {
     instants: readonly { seconds: number; label: string }[] = [],
   ): IRide<Id, Dimension> {
     const plan: ArchetypeCourse.IPlan =
-      "legs" in course
-        ? ArchetypeCourse.plan(archetype.archetype, course)
-        : course;
+      course.kind === "plan"
+        ? course
+        : ArchetypeCourse.plan(archetype.archetype, course);
     const at = (seconds: number): ISample<Id, Dimension> => {
       const state: ArchetypeCourse.IState = plan.at(seconds);
       return {
