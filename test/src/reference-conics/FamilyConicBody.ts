@@ -821,6 +821,13 @@ namespace FamilyConicBody {
      * the thumb, which the thumb crosses squarely.
      */
     hold?: (p: R.V) => number;
+
+    /**
+     * How far inside the held region the hold becomes whole, mm; absent, the hold is whole right up to its edge. Held at zero inside and
+     * asked for the whole depth just outside, the net turned within one row along the edge: `trunk.head` drew creases of 41 to 44 deg/mm
+     * round the ear's bowl. The width is at least the net's row pitch, so the edge spans a row (lofting.md: targets from C2 functions).
+     */
+    holdWidth?: number;
   }
 
   /** One part to fit. */
@@ -1301,7 +1308,11 @@ namespace FamilyConicBody {
           // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
           // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
           // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
-          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, twin: true, uncut: true, reach: 25, fade: [30, 90] },
+          // Over the shoulder's up-facing slope the window's casts, square to the side in the section planes, met the skin 4 to 13 degrees
+          // from its plane, nearly along it, with heights of 8 to 23 mm, and drew the notch over each collar bone ([30, 1388, +-103], 14.1
+          // deg/mm against 1.6) and the crumple on the shoulder's top toward the neck ([2, 1411, +-97], 2.8 against 0.5). Casts within 20
+          // degrees of the skin's plane, judged on its 3D normal, are left to the shoulder's casts straight down (`graze`, lofting.md).
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, twin: true, uncut: true, reach: 25, fade: [30, 90], graze: 20 },
           // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
           // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
           // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
@@ -1332,7 +1343,10 @@ namespace FamilyConicBody {
           // x -34 (the hull wall on convex skin), from which the cap rose 1.4 mm proud by x -24, a corner at the crown's back. Its rows are
           // 1 mm apart, the cap's own ring spacing near its base, and it vanishes with zero slope over the cap's last third (`fade`), where a
           // height that varied with the phase would draw rings round the pole.
-          { name: "trunk.crown", stations: [886, 918.88], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 36, columns: 83, mirror: false, periodic: true, reach: 10, fade: [12, 4.3] },
+          // At 36 rows, 1 mm apart, every other row lay between the fitting sections, 2 mm apart, and was seen by none: the net zigzagged
+          // row to row and drew rings round the crown on its row knots (887.0, 896.0, 898.0, 899.95, 902.0, 903.9, 905.9 mm; 4.4 to 5.3
+          // deg/mm against 0.65 to 1.2). At 12 rows, about 3 mm apart, each row is seen by two sections, as the fold's net is.
+          { name: "trunk.crown", stations: [886, 918.88], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 12, columns: 83, mirror: false, periodic: true, reach: 10, fade: [12, 4.3] },
           // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
           // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
           // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
@@ -2014,6 +2028,8 @@ namespace FamilyConicBody {
 
       // The other wall of a splice and its station, kept so its reliefs past that station come with its knots.
       let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[]; window?: [number, number]; tips?: K.IStored["tips"] } | null = null;
+      // The stored wall's own reliefs and ends as read (`--wall`), for `--refit-reliefs`.
+      let carried: { reliefs: IAutoMovieLoftRelief[]; tips: K.IStored["tips"] } | null = null;
       const trail: unknown[] = [];
       const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
         const fitted: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
@@ -2031,6 +2047,7 @@ namespace FamilyConicBody {
       const reuse: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice(7);
       if (reuse !== undefined) {
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(reuse, part.name + ".family.json"), "utf8")) as K.IStored;
+        carried = { reliefs: [...(wall.reliefs ?? [])], tips: wall.tips };
 
         // `--splice=<directory>@<station>`: from that station on, the knots and values of another stored wall of the same part, course and
         // layout replace this one's. A limb refitted for one end keeps the other end of the fit its neighbours were sewn on.
@@ -2464,6 +2481,7 @@ namespace FamilyConicBody {
         // A window splice carries every stored relief in its stored order and fits again only those wholly inside its window: a relief that
         // straddles the window's edge, fitted again from scratch, moved the trunk's head and breasts up to 13 mm away from the window.
         const touching = (stations: readonly [number, number] | readonly number[]): boolean => spliced?.window === undefined || (stations[0]! >= spliced.window[0] && stations[1]! <= spliced.window[1]);
+        const refitted: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
         definition.reliefs = spliced?.window === undefined ? [] : spliced.head.filter((relief: IAutoMovieLoftRelief): boolean => !touching(relief.stations));
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
          for (const window of list) {
@@ -2476,11 +2494,29 @@ namespace FamilyConicBody {
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
             const left: ((p: R.V) => number) | undefined = window.uncut === true ? part.kept : window.chord === true ? undefined : part.clip;
             const open = left === undefined ? undefined : (p: C.P): boolean => left([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
-            const hold = window.hold === undefined ? undefined : (p: C.P): boolean => window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0;
+            // With `holdWidth` the hold is a share that rises from none at the held region's edge to all of it that far inside, by the quintic
+            // smooth step, so the target is C2 across the edge (`H.IRow.hold`).
+            const hold = window.hold === undefined ? undefined : (p: C.P): boolean | number => {
+              const inside: number = window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]);
+              if (window.holdWidth === undefined) return inside > 0;
+              const x: number = Math.min(1, Math.max(0, inside / window.holdWidth));
+              return x * x * x * (10 - 15 * x + 6 * x * x);
+            };
+            // A window that leaves grazing casts unobserved (`graze`) reads the skin's rise along the station from the uncut reference sections
+            // 1 mm either side, along the in-plane normal where the cast lands.
+            const slope = window.graze === undefined ? undefined : ((): ((p: C.P, normal: C.P) => number | null) => {
+              const below: C.P[] | null = R.cut(skin, course.at(row.s - 1)).loop;
+              const above: C.P[] | null = R.cut(skin, course.at(row.s + 1)).loop;
+              return (p: C.P, normal: C.P): number | null => {
+                const a: number | null = below === null ? null : H.cast(below, p, normal);
+                const b: number | null = above === null ? null : H.cast(above, p, normal);
+                return a === null || b === null ? null : (b - a) / 2;
+              };
+            })();
             const own: C.P[] = window.chord === true ? loops[i]! : skins[i]!;
             const uncut: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
             const whole: C.P[] | null = uncut === null || part.kept === undefined ? uncut : without(uncut, frame, part.kept);
-            return { s: row.s, ...(hold === undefined ? {} : { hold }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
+            return { s: row.s, ...(hold === undefined ? {} : { hold }), ...(slope === undefined ? {} : { slope }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
               const r: number = Q.radius(section, phi);
               const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
               for (const relief of earlier) {
@@ -2509,8 +2545,23 @@ namespace FamilyConicBody {
           log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
          }
         };
+        // `--refit-reliefs=<name>,...` with `--wall`: the stored wall and every stored relief and cast are carried in their stored order, and
+        // only the named ones are fitted again, each over the carried reliefs stored before it, with its twin written by reflection. A region's
+        // fix stays within the region on the stored representation around it (construction.md, Repair); a relief that is not named is never
+        // fitted again, whatever it straddles.
+        if (refitted !== null && carried !== null) {
+          definition.reliefs = [];
+          for (const relief of carried.reliefs) {
+            if (!refitted.includes(relief.name)) {
+              if (!refitted.some((name: string): boolean => relief.name === name + ".twin")) definition.reliefs.push(relief);
+              continue;
+            }
+            const window: IWindow | undefined = windows.find((candidate: IWindow): boolean => candidate.name === relief.name);
+            if (window !== undefined) fitAll([window], false);
+          }
+        }
         // `--keep-windows`: every window the hollow search places is kept whatever the keep rule says, to read what it does.
-        fitAll(windows.filter((window: IWindow): boolean => touching(window.stations)), part.reliefs === "auto" && !process.argv.includes("--keep-windows"));
+        else fitAll(windows.filter((window: IWindow): boolean => touching(window.stations)), part.reliefs === "auto" && !process.argv.includes("--keep-windows"));
 
         // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
         // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
@@ -2525,7 +2576,7 @@ namespace FamilyConicBody {
         }
 
         // The nets round the part come last, over whichever reliefs the wall has kept.
-        fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations)), false);
+        fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations) && (refitted === null || refitted.includes(window.name))), false);
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
@@ -2598,7 +2649,10 @@ namespace FamilyConicBody {
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
       // lies under its closed end and is cast back along the course on one net that closes on itself round the tip.
       // A window splice (`--splice=<directory>@<from>..<to>`) carries the stored casts whose stations miss the window, as its other reliefs.
-      for (const face of tip === null || BARE ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])))) {
+      // `--refit-reliefs`: only the named casts are fitted again; the others are carried as stored.
+      const recast: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
+      if (recast !== null && carried !== null) definition.tips = carried.tips;
+      for (const face of tip === null || BARE ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (recast === null || recast.includes(part.name + "." + cast.name)) && (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])))) {
         const capped: L.IResult = K.create(definition, stations);
         if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
         const first: R.V = part.centres[0]!;
@@ -2696,6 +2750,12 @@ namespace FamilyConicBody {
           definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
         }
         log("family-body-face", { part: part.name, relief: window.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
+      }
+      // `--refit-reliefs`: the reliefs and casts in their stored order, so a refitted cast stands where it stood.
+      if (recast !== null && carried !== null) {
+        const order: Map<string, number> = new Map(carried.reliefs.map((relief: IAutoMovieLoftRelief, i: number): [string, number] => [relief.name, i]));
+        definition.reliefs = [...(definition.reliefs ?? [])].sort((a: IAutoMovieLoftRelief, b: IAutoMovieLoftRelief): number => (order.get(a.name) ?? Infinity) - (order.get(b.name) ?? Infinity));
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       // A limb layout has 4 times 2^depth anchors round the section, a bilateral one 2 times 2^depth arcs over its half.
