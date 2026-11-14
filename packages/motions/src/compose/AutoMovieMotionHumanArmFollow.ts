@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmDifferential } from "../posture/HumanArmDifferential";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
@@ -28,7 +29,7 @@ export namespace AutoMovieMotionHumanArmFollow {
    * The arm of a planned carry that follows its goal.
    *
    * The correction is zero up to `ready`. On the frame grid from there, each
-   * frame takes one damped least-squares step (Wampler 1986) on the contact's
+   * frame takes one damped least-squares step (`HumanArmDifferential.step`) on the contact's
    * Jacobian at the corrected arm, toward the goal's motion since the plan
    * (`moved`) less the contact's motion the correction has already made, so
    * a goal that has not moved leaves the correction exactly zero and the arm
@@ -53,7 +54,7 @@ export namespace AutoMovieMotionHumanArmFollow {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One grid filled in order; per frame one error, one Jacobian, one step, its two bounds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero error gives a zero step, not a small one; the correction is never moved faster than the bound to catch up, and starts and ends at zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per grid frame of the hold: two goal reads, one frame, the Jacobian's forward placements (two per free coordinate) and a three-by-three solve, none when the goal has not moved.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanArmPlanned.moved`, `HumanArmGeometry`, `HumanArmTrajectoryContext` and `HumanArmTrajectoryModel.invalid`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanArmPlanned.moved`, `HumanArmDifferential.step`, `HumanArmGeometry`, `HumanArmTrajectoryContext` and `HumanArmTrajectoryModel.invalid`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function keeps the grid's corrections, one per frame of the hold and its release.
    */
   export function follower(
@@ -110,7 +111,7 @@ export namespace AutoMovieMotionHumanArmFollow {
       if (read === undefined) step = previous.map((v: number): number => -v);
       else {
         const made: IAutoMovieVector3 = Vector3.subtract(contact(placed(current), read.contact), contact(placed(here), read.contact));
-        step = damped(setup, current, (q: readonly number[]): IAutoMovieVector3 => contact(placed(q), read.contact), Vector3.subtract(read.error, made));
+        step = HumanArmDifferential.step(setup, frame, current, read.contact, Vector3.subtract(read.error, made));
       }
       const room: number = Math.max(0, HumanArmTrajectoryModel.SPEED_LIMIT * STEP - travel(add(there, previous), current));
       const extra: number = travel(current, add(current, step));
@@ -144,61 +145,9 @@ export namespace AutoMovieMotionHumanArmFollow {
   }
 }
 
-/**
- * One damped least-squares step of the arm's free coordinates toward a
- * displacement of a point it carries: `Jᵀ(JJᵀ + λ²I)⁻¹ r`, the Jacobian by
- * central differences, `λ²` a millionth of the Jacobian's own scale so a
- * singular arm takes a bounded step.
- */
-function damped(
-  setup: HumanArmGeometry.ISetup,
-  q: readonly number[],
-  point: (q: readonly number[]) => IAutoMovieVector3,
-  r: IAutoMovieVector3,
-): number[] {
-  const out: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
-  if (Vector3.length(r) === 0) return out;
-  const free: number[] = [];
-  const columns: IAutoMovieVector3[] = [];
-  for (let d: number = 0; d < HumanArmGeometry.DIMENSIONS; ++d) {
-    if (!setup.free[d]!) continue;
-    const up: number[] = [...q];
-    const down: number[] = [...q];
-    up[d] = up[d]! + H;
-    down[d] = down[d]! - H;
-    free.push(d);
-    columns.push(Vector3.scale(Vector3.subtract(point(up), point(down)), 1 / (2 * H)));
-  }
-  // JJᵀ, three by three, damped.
-  const axis = (v: IAutoMovieVector3, i: number): number => (i === 0 ? v.x : i === 1 ? v.y : v.z);
-  const m: number[][] = [0, 1, 2].map((i: number): number[] =>
-    [0, 1, 2].map((k: number): number => columns.reduce((s: number, c: IAutoMovieVector3): number => s + axis(c, i) * axis(c, k), 0)),
-  );
-  const damping: number = (1e-6 * (m[0]![0]! + m[1]![1]! + m[2]![2]!)) / 3;
-  for (let i: number = 0; i < 3; ++i) m[i]![i]! += damping;
-  const y: number[] = solve3(m, [r.x, r.y, r.z]);
-  free.forEach((d: number, f: number): void => {
-    const c: IAutoMovieVector3 = columns[f]!;
-    out[d] = c.x * y[0]! + c.y * y[1]! + c.z * y[2]!;
-  });
-  return out;
-}
-
-/** A three-by-three symmetric definite system solved by Cramer's rule. */
-function solve3(m: readonly (readonly number[])[], b: readonly number[]): number[] {
-  const det = (a: readonly (readonly number[])[]): number =>
-    a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
-    a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
-    a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!);
-  const whole: number = det(m);
-  return [0, 1, 2].map((k: number): number => det(m.map((row: readonly number[], i: number): number[] => row.map((v: number, c: number): number => (c === k ? b[i]! : v)))) / whole);
-}
-
 /** The correction's grid, seconds: the frame grid the planner's hold is sampled on. */
 const STEP: number = 1 / 30;
 
 /** Halvings of a step that would take the arm deeper past the skin, before it is not taken. */
 const HALVINGS: number = 4;
 
-/** The coordinate step of the Jacobian's central differences, coordinate units. */
-const H: number = 0.05;

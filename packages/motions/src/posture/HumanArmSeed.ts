@@ -1,6 +1,10 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmConnect } from "./HumanArmConnect";
+import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
@@ -13,12 +17,15 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * IJRR 33:1251, which starts from a collision-free path where a straight line
  * fails).
  *
- * The goal is the hold: the arms' configuration with every hand on its site
- * and every arm clear, solved as a still problem (`HumanArmTrajectoryModel`,
- * its ends left out) from starts in a fixed order, the goal's own arm, the
- * rest arm, then configurations drawn from a seeded generator within the
- * ranges, the first feasible kept (random restarts, Beeson and Ames 2015,
- * "TRAC-IK", Humanoids). The reach is RRT-Connect's path in the arms' joint
+ * The goal is the hold's first waypoint: the arms' configuration with every
+ * hand on its site and every arm clear, solved as a still problem of that
+ * one instant (`HumanArmTrajectoryModel`, its ends left out) from starts in
+ * a fixed order, the goal's own arm, the rest arm, then configurations drawn
+ * from a seeded generator within the ranges, the first feasible kept (random
+ * restarts, Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later
+ * waypoints carry it by the sites' motion (differential inverse kinematics,
+ * the map the follower uses), and the trajectory's optimiser solves them.
+ * The reach is RRT-Connect's path in the arms' joint
  * space from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each valid by the one reading the trajectory refuses by
@@ -86,27 +93,46 @@ export namespace HumanArmSeed {
     );
   }
 
-  /** The hold's configurations, each a list of the arms' coordinates: the first feasible from the starts in order. */
+  /**
+   * The hold's configurations, each a list of the arms' coordinates: the
+   * inverse kinematics of the hold's first waypoint, carried across the hold
+   * by the sites' motion. The return's path and the optimiser need a valid
+   * end, so a carried last configuration that is not clear is projected onto
+   * the feasible set by the last waypoint's own inverse kinematics, started
+   * from the carried configuration (the endpoint repair of a sampling
+   * planner's goal).
+   */
   function goal(problem: IProblem, context: M.IContext, first: number, last: number): number[][][] {
-    const span = (from: number, to: number): M.IContext =>
-      HumanArmTrajectoryContext.of({
-        body: problem.body,
-        times: problem.times.slice(from - 1, to + 2),
-        bases: problem.bases.slice(from - 1, to + 2),
-        arms: problem.arms.map((arm: IProblem["arms"][number]): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
-          side: arm.side,
-          rest: arm.rest,
-          ...(arm.back === undefined ? {} : { back: arm.back }),
-          ...(arm.rests === undefined ? {} : { rests: arm.rests }),
-          sites: arm.sites.slice(from - 1, to + 2),
-        })),
-        still: true,
-      });
-    const point: M.IContext = span(first, first);
-    const whole: M.IContext = span(first, last);
+    const hold: number[][][] = carried(context, instant(problem, context, first), first, last);
+    if (M.invalid(context, last, hold[hold.length - 1]!).value > M.TOLERANCE)
+      hold[hold.length - 1] = instant(problem, context, last, hold[hold.length - 1]!);
+    return hold;
+  }
+
+  /**
+   * The arms' configuration at one waypoint of the hold with every hand on
+   * its site and every arm clear: the first feasible from the starts in
+   * order, a given one, the goal's own arm, the rest arm, then the seeded
+   * draws.
+   */
+  function instant(problem: IProblem, context: M.IContext, k: number, given?: number[][]): number[][] {
+    const point: M.IContext = HumanArmTrajectoryContext.of({
+      body: problem.body,
+      times: problem.times.slice(k - 1, k + 2),
+      bases: problem.bases.slice(k - 1, k + 2),
+      arms: problem.arms.map((arm: IProblem["arms"][number]): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
+        side: arm.side,
+        rest: arm.rest,
+        ...(arm.back === undefined ? {} : { back: arm.back }),
+        ...(arm.rests === undefined ? {} : { rests: arm.rests }),
+        sites: arm.sites.slice(k - 1, k + 2),
+      })),
+      still: true,
+    });
     const random: () => number = HumanArmConnect.generator(SEED);
     const space: ISpace = sampler(context);
     function* starts(): Generator<number[][]> {
+      if (given !== undefined) yield given.map((v: number[]): number[] => [...v]);
       if (problem.arms.every((arm: IProblem["arms"][number]): boolean => arm.guess !== undefined))
         yield problem.arms.map((arm: IProblem["arms"][number], a: number): number[] => G.encode(context.setups[a]!, arm.guess!));
       yield context.rest.map((v: number[]): number[] => [...v]);
@@ -119,23 +145,59 @@ export namespace HumanArmSeed {
         ),
       );
     let closest: M.IEvaluation | undefined;
+    let tried: number = 0;
     for (const q of starts()) {
+      ++tried;
       const at: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(point, frame(point, q));
-      if (at.evaluation.worst.value <= M.TOLERANCE) {
-        const held: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(whole, frame(whole, at.x.map((arm: number[][]): number[] => arm[1]!)));
-        if (held.evaluation.worst.value <= M.TOLERANCE)
-          return Array.from({ length: last - first + 1 }, (_: unknown, i: number): number[][] => held.x.map((arm: number[][]): number[] => arm[i + 1]!));
-        if (closest === undefined || held.evaluation.worst.value < closest.worst.value) closest = held.evaluation;
-      } else if (closest === undefined || at.evaluation.worst.value < closest.worst.value) closest = at.evaluation;
+      if (at.evaluation.worst.value <= M.TOLERANCE) return at.x.map((arm: number[][]): number[] => arm[1]!);
+      if (closest === undefined || at.evaluation.worst.value < closest.worst.value) closest = at.evaluation;
     }
     throw new HumanRefusal({
       kind: "reach",
       axis: closest!.worst.axis,
       value: closest!.worst.value,
       feasible: null,
-      reason: `no hold of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear, from any of ${RESTARTS + 2} starts; the closest: ${closest!.worst.what}`,
+      reason: `no configuration of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from any of ${tried} starts; the closest: ${closest!.worst.what}`,
       fix: "put the hand on a site its arm reaches with the body clear",
     });
+  }
+
+  /**
+   * The hold's first configuration carried to its last waypoint: at each
+   * waypoint one damped least-squares step of every arm
+   * (`HumanArmDifferential.step`, the follower's map) toward its site,
+   * driven by the error at that waypoint, the site less the contact where
+   * the arm before puts it there, less the offset the inverse kinematics left
+   * at the first (closed-loop inverse kinematics, Sciavicco and Siciliano
+   * 1988, IEEE J Robot Autom 4:403), so a still site keeps the configuration,
+   * a moving one is followed and no step's linearisation accumulates. Nothing
+   * is solved here; the trajectory's optimiser keeps the hand on its site
+   * and the arm clear.
+   */
+  function carried(context: M.IContext, start: number[][], first: number, last: number): number[][][] {
+    const contact = (a: number, k: number, q: readonly number[], site: M.ISite): IAutoMovieVector3 => {
+      const p: G.IPlaced = G.placed(context.setups[a]!, context.frames[a]![k]!, q, false);
+      return Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, site.contact));
+    };
+    const offsets: (IAutoMovieVector3 | undefined)[] = start.map((q: number[], a: number): IAutoMovieVector3 | undefined => {
+      const site: M.ISite | undefined = context.sites[a]![first];
+      return site === undefined ? undefined : Vector3.subtract(site.point, contact(a, first, q, site));
+    });
+    const out: number[][][] = [start];
+    for (let k: number = first + 1; k <= last; ++k) {
+      const previous: number[][] = out[out.length - 1]!;
+      out.push(
+        previous.map((q: number[], a: number): number[] => {
+          const site: M.ISite | undefined = context.sites[a]![k];
+          const offset: IAutoMovieVector3 | undefined = offsets[a];
+          if (site === undefined || offset === undefined) return [...q];
+          const error: IAutoMovieVector3 = Vector3.subtract(Vector3.subtract(site.point, contact(a, k, q, site)), offset);
+          const step: number[] = HumanArmDifferential.step(context.setups[a]!, context.frames[a]![k]!, q, site.contact, error);
+          return q.map((v: number, d: number): number => v + step[d]!);
+        }),
+      );
+    }
+    return out;
   }
 
   /** A uniform draw of the arms' coordinates within their ranges, and the space's largest extent. */
