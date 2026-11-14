@@ -209,8 +209,21 @@ export namespace HumanArmTrajectoryPairs {
     const owners: ("upper" | "lower" | "hand")[] = frame.colliders.flatMap((col: G.IFrame["colliders"][number]) =>
       col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
     );
+    // Each segment's sphere screens the corners before its shapes.
+    const centres: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+      upper: Vector3.add(placed.shoulder, Quaternion.rotateVector(placed.upper, frame.bounds.upper.centre)),
+      lower: Vector3.add(placed.elbow, Quaternion.rotateVector(placed.lower, frame.bounds.lower.centre)),
+      hand: Vector3.add(placed.wrist, Quaternion.rotateVector(placed.hand, frame.bounds.hand.centre)),
+    };
     frame.body.forEach((corner: G.IFrame["body"][number], i: number): void => {
+      const close: Record<"upper" | "lower" | "hand", boolean> = {
+        upper: Vector3.length(Vector3.subtract(corner.point, centres.upper)) - frame.bounds.upper.radius < T.REACH,
+        lower: Vector3.length(Vector3.subtract(corner.point, centres.lower)) - frame.bounds.lower.radius < T.REACH,
+        hand: Vector3.length(Vector3.subtract(corner.point, centres.hand)) - frame.bounds.hand.radius < T.REACH,
+      };
+      if (!close.upper && !close.lower && !close.hand) return;
       mine.forEach((shape: G.IShape, j: number): void => {
+        if (!close[owners[j]!]) return;
         if (Vector3.length(Vector3.subtract(corner.point, shape.centre)) - shape.radius >= T.REACH) return;
         if (frame.related[corner.part]![shape.part]!) return;
         const short: number = 1000 * (c.inside(a, k, i, j) - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));

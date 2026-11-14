@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHu
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
@@ -129,6 +130,17 @@ export namespace HumanArmFrame {
     });
     const of = (owner: "upper" | "lower" | "hand"): { centre: IAutoMovieVector3; radius: number } =>
       sphere(surface.filter((_: IAutoMovieVector3, i: number): boolean => owners[i] === owner));
+    const bounds: G.IFrame["bounds"] = { upper: of("upper"), lower: of("lower"), hand: of("hand") };
+
+    // The body's corners the arm can come near at all: within its own
+    // length, its widest segment and the pairs' reach of the shoulder.
+    const shoulder: IAutoMovieVector3 = frames.upper.worldPosition;
+    const length: number =
+      Vector3.length(Vector3.subtract(frames.lower.worldPosition, shoulder)) +
+      Vector3.length(Vector3.subtract(hand.worldPosition, frames.lower.worldPosition)) +
+      Vector3.length(Vector3.subtract(distal.worldPosition, hand.worldPosition));
+    const around: number = length + Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) + NEAR;
+    const near: G.IFrame["body"] = corners.filter((c: G.IFrame["body"][number]): boolean => Vector3.length(Vector3.subtract(c.point, shoulder)) < around);
     return {
       parent: { rotation: parent.worldRotation, position: parent.worldPosition },
       tip,
@@ -137,13 +149,16 @@ export namespace HumanArmFrame {
       segments,
       corners: indices,
       related: model.related,
-      bounds: { upper: of("upper"), lower: of("lower"), hand: of("hand") },
+      bounds,
       colliders,
       shapes,
-      body: corners,
+      body: near,
     };
   }
 }
+
+/** How near a body's corner must come to a segment of the arm to be read against it, metres: the pairs' reach (`HumanArmTrajectoryTerms.REACH`). */
+const NEAR: number = HumanArmTrajectoryTerms.REACH;
 
 /** A sphere about points: their mean and the farthest one's distance. */
 function sphere(points: readonly IAutoMovieVector3[]): { centre: IAutoMovieVector3; radius: number } {
