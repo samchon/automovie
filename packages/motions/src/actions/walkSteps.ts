@@ -17,6 +17,7 @@ import { WalkPath } from "./WalkPath";
 import { WalkTurn } from "./WalkTurn";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
+import type { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 import { walkStepFoot } from "./walkStepFoot";
@@ -52,6 +53,10 @@ import { walkStepFoot } from "./walkStepFoot";
  * initiation. `walkFoot` owns the rockers of each stance, toes-down by up to
  * 55° at toe-off.
  *
+ * With `facing` (`walkFacing.IFacing`), the footprints and the pelvis face it
+ * while the footprints still lie along the path: a walk backward, aside or
+ * round a target, the side offset taken across the facing.
+ *
  * The plan's root is the unconstrained pelvis path; `walkReach` then makes
  * every foot goal reachable on the actual pelvis.
  */
@@ -75,6 +80,9 @@ export namespace walkSteps {
 
     /** The heading at arrival, degrees; the last leg's direction when absent. */
     face?: number;
+
+    /** Which way the body faces while it walks; along the path when absent. */
+    facing?: walkFacing.IFacing;
 
     /** Walking speed, m/s. */
     speed: number;
@@ -215,10 +223,27 @@ export namespace walkSteps {
       D < 1e-6 ? yaw0 : unwrap(path.heading(0, delta / 2), yaw0);
     const along$ = (s: number): number =>
       D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading);
-    const ending: number = unwrap(
-      input.face ?? (D < 1e-6 ? heading : path.heading(D, delta / 2)),
-      along$(D),
-    );
+    // The heading faced at a floor point, nearest the starting heading.
+    const facing: walkFacing.IFacing | undefined = input.facing;
+    const faced$ = (at: IAutoMovieVector3): number =>
+      facing === undefined
+        ? NaN
+        : unwrap(
+            "yaw" in facing
+              ? facing.yaw
+              : (Math.atan2(facing.toward.x - at.x, facing.toward.z - at.z) *
+                  180) /
+                  Math.PI +
+                  (facing.turn ?? 0),
+            yaw0,
+          );
+    const ending: number =
+      facing === undefined
+        ? unwrap(
+            input.face ?? (D < 1e-6 ? heading : path.heading(D, delta / 2)),
+            along$(D),
+          )
+        : unwrap(input.face ?? faced$(path.at(D)), yaw0);
     const frame: HumanFrame.IFrame = { origin: S, yaw: heading };
     const along = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
@@ -259,6 +284,7 @@ export namespace walkSteps {
     // The footfalls before the closing pair turn a third and two thirds; the pair faces the arrival.
     const towardAt = (j: number): number => {
       const d: number = place(j);
+      if (facing !== undefined) return j >= n ? ending : faced$(path.at(d));
       return j >= n
         ? ending
         : j >= n - 2
@@ -279,8 +305,14 @@ export namespace walkSteps {
       const side: "left" | "right" = j % 2 === 1 ? lead : other(lead);
       const heelStrike: number = first + swing + (j - 1) * T;
       const toeOut: number = side === "left" ? stand.TOE_OUT : -stand.TOE_OUT;
+      // Going aside, the feet keep their rest separation and never cross.
+      const aside: number =
+        facing === undefined
+          ? 0
+          : Math.sin(((along$(place(j)) - towardAt(j)) * Math.PI) / 180) ** 2;
       const lateral: number =
-        (side === "left" ? 1 : -1) * (j >= n ? rest(side) : half);
+        (side === "left" ? 1 : -1) *
+        (j >= n ? rest(side) : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
       const point: IAutoMovieVector3 = HumanFrame.point(
         { origin: path.at(place(j)), yaw: toward },
@@ -310,10 +342,15 @@ export namespace walkSteps {
         const reach: number = Math.hypot(hip.x - point.x, hip.z - point.z);
         if (reach > leeway) {
           const band: number = (Math.asin(leeway / reach) * 180) / Math.PI;
-          const off: number = wrapDegrees(
+          const line: number = wrapDegrees(
             footHeading -
               (Math.atan2(hip.x - point.x, hip.z - point.z) * 180) / Math.PI,
           );
+          // A hip behind its foot (a backward step) leans the leg the other way.
+          const off: number =
+            facing !== undefined && Math.abs(line) > 90
+              ? wrapDegrees(line - 180)
+              : line;
           footHeading += Math.max(-band, Math.min(band, off)) - off;
         }
       }
@@ -324,6 +361,11 @@ export namespace walkSteps {
         flat: { ankle: point, rotation: HumanFoot.rotation(footHeading, 0) },
         heading: footHeading,
         push: -walkStepFoot.PUSH,
+        // Going more than 120 degrees from its facing, a foot steps backward.
+        ...(facing !== undefined &&
+        Math.cos(((along$(place(j)) - toward) * Math.PI) / 180) < -0.5
+          ? { backward: true }
+          : {}),
       });
       knots.push({
         seconds: heelStrike,
@@ -450,7 +492,10 @@ export namespace walkSteps {
               gaitBob.amplitude * Math.cos((2 * Math.PI * (t - middle)) / T));
       const s: number = progress(t);
       const p: IAutoMovieVector3 = HumanFrame.point(
-        { origin: path.at(s), yaw: along$(s) },
+        {
+          origin: path.at(s),
+          yaw: facing === undefined ? along$(s) : faced$(path.at(s)),
+        },
         { x: sway, y: 0, z: 0 },
       );
       return { x: p.x - c.x, y: -0.005 + bob, z: p.z - c.z };

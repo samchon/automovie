@@ -43,6 +43,9 @@ export namespace walkStepFoot {
 
     /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
     push: number;
+
+    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.stance`). False when absent. */
+    backward?: boolean;
   }
 
   /**
@@ -74,7 +77,12 @@ export namespace walkStepFoot {
       let flat: HumanFoot.IPlacement = start;
       let facing: number = HumanFoot.heading(flat.rotation);
       let strike: number = -Infinity;
+      let back: boolean = false;
       for (const [i, step] of own.entries()) {
+        // A starting stance leaves the way its first step goes.
+        const backward: boolean = Number.isFinite(strike)
+          ? back
+          : step.backward === true;
         const leave = (at: number): walkFoot.IFoot =>
           walkFoot.stance(
             body,
@@ -86,6 +94,7 @@ export namespace walkStepFoot {
             at,
             step.push,
             raised,
+            backward,
           );
         if (t < step.toeOff) return leave(t);
         if (t < step.heelStrike) {
@@ -104,6 +113,7 @@ export namespace walkStepFoot {
                   step.heelStrike,
                   next?.push ?? -PUSH,
                   raised,
+                  step.backward === true,
                 )),
             swing: { u, off: step.toeOff, on: step.heelStrike },
           };
@@ -111,6 +121,7 @@ export namespace walkStepFoot {
         flat = step.flat;
         facing = step.heading;
         strike = step.heelStrike;
+        back = step.backward === true;
       }
       return walkFoot.stance(
         body,
@@ -122,6 +133,7 @@ export namespace walkStepFoot {
         t,
         -PUSH,
         raised,
+        back,
       );
     };
   }

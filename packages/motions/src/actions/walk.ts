@@ -27,6 +27,7 @@ import { standUpright } from "./standUpright";
 import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
+import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
@@ -138,6 +139,9 @@ export namespace walk {
     /** The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent. */
     face?: number;
 
+    /** Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent. */
+    facing?: walkFacing.IFacing;
+
     /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
     stride?: import("../law/HumanUnit").HumanUnit.Bounded<0.6, 1.3, 1, "">;
 
@@ -211,14 +215,22 @@ export namespace walk {
     HumanBound.within("armSwing", arms, 0, 2);
     HumanBound.within("elbows", elbows, 0, 30, "degrees");
     walkClear(context);
-    const longest: number = stride * l * gait.step(froude);
+    const forward: number = stride * l * gait.step(froude);
+    // A walk that does not face its way keeps the share of its speed and
+    // step its direction allows, at the same cadence.
+    const share: number =
+      p.facing === undefined
+        ? 1
+        : walkFacing.share(body, context.entry, p, p.facing, forward);
+    const longest: number = forward * share;
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
       to: p.to,
       ...(p.via === undefined ? {} : { via: p.via }),
       ...(p.face === undefined ? {} : { face: p.face }),
-      speed,
+      ...(p.facing === undefined ? {} : { facing: p.facing }),
+      speed: speed * share,
       longest,
       period: (seconds: number): number =>
         gait.called === true
