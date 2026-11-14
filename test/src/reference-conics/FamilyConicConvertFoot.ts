@@ -20,6 +20,7 @@ export namespace FamilyConicConvertFoot {
   /** Samples per cubic span. */
   const PER_SPAN: number = 24;
 
+  /** Convert the eight loops at the layout tolerance and the ladder, at the foot's own fairing cutoff, and write the tables. */
   export async function main(): Promise<void> {
     const packet: I.Packet = await I.load(path.resolve(process.cwd(), ".."));
     const sections: T.ISection[] = SECTIONS.map((index: number): T.ISection => {

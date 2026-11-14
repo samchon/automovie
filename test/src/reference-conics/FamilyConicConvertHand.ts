@@ -10,6 +10,7 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
  * Run from `test` after bundling: `node <bundle>/FamilyConicConvertHand.cjs <sections.json> [from] [to]`.
  */
 export namespace FamilyConicConvertHand {
+  /** Convert the dumped cuts over the station range given on the command line, at the hand's own fairing cutoff, and write the tables. */
   export async function main(): Promise<void> {
     const file: string | undefined = process.argv[2];
     if (file === undefined) throw new Error("usage: FamilyConicConvertHand <sections.json> [from] [to]");
