@@ -1264,7 +1264,9 @@ namespace FamilyConicBody {
           { name: "floor", stations: [8.5, 25], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], skin: (p: R.V): number => Math.max(-nose(p), nostrilPit(p), p[1] < 1542.5 ? 10 : -10), rows: FLOOR_NET[0], columns: FLOOR_NET[1], reach: 3, facing: 0.3, mirror: true, fade: [1.5, 2], fadePhase: [0.35, 0.35] },
           // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
           // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
-          { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 31, columns: 39, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+          // 16 by 21: the survey of issue #3197 (stage B2) projected the stored 31 by 39 net onto this grid within 0.027 mm of its own
+          // surface, under the 0.1 mm bound of a net that carries the nose (`FamilyConicCoarse.ts --plan`).
+          { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 16, columns: 21, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
           ...[{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }],
         ] },
         // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
@@ -3463,9 +3465,32 @@ namespace FamilyConicBody {
     if (part.pitch !== undefined) lines.push("", "  // Phases round the part stand at most this far apart, mm (`AutoMovieHumanConicLoft.IFamily.pitch`).", "  pitch: " + part.pitch + ",");
     if (family.tips !== undefined) lines.push("", "  // The part closes in a point at `tip`, " + (typeof part.tip === "number" ? "a station placed by anatomy" : "the station where the reference's own loop vanishes") + "; its cap starts at `from`.", "  tips: " + JSON.stringify(family.tips).replaceAll("\"", "").replaceAll(",", ", ").replaceAll(":", ": ") + ",");
     if (family.reliefs !== undefined && family.reliefs.length > 0) {
-      lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
-      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9 ? relief.phases : relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ").replace(/"axis":\[[^\]]*\]/, "\"axis\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".axis") + ")").replace(/"turn":\[[^\]]*\]/, "\"turn\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".turn") + ")") + ",");
-      lines.push("  ],");
+      // Each independent height is written once (`AutoMovieHumanConicRelief`): a net its part declares mirrored (`mirror: true`) that
+      // equals its own column reversal is written as its half, and a declared twin (`<name>.twin`) that is its original with the columns
+      // reversed as that original's name, with its own window and directions. A net that fails its check is written whole.
+      const declared: Set<string> = new Set([...(part.reliefs === "auto" ? [] : part.reliefs), ...(part.casts ?? [])].filter((window: { mirror?: boolean }): boolean => window.mirror === true).flatMap((window: { name: string }): string[] => [window.name, part.name + "." + window.name]));
+      const reversed = (one: IAutoMovieLoftRelief, other: IAutoMovieLoftRelief): boolean => one.rows === other.rows && one.columns === other.columns && one.heights.every((h: number, i: number): boolean => h === other.heights[i - (i % one.columns) + (one.columns - 1 - (i % one.columns))]);
+      const placed = (relief: IAutoMovieLoftRelief, text: string): string => text.replaceAll(",", ", ").replace(/"axis":\[[^\]]*\]/, "\"axis\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".axis") + ")").replace(/"turn":\[[^\]]*\]/, "\"turn\":AutoMovieHumanF1Placement.direction(" + JSON.stringify(relief.name + ".turn") + ")");
+      let twins: number = 0;
+      let halves: number = 0;
+      const entries: string[] = family.reliefs.map((relief: IAutoMovieLoftRelief, index: number): string => {
+        const phases: number[] = Math.abs(relief.phases[1] - relief.phases[0] - 2 * Math.PI) < 1e-9 ? relief.phases : relief.phases.map(round4);
+        const axis: number[] = relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5);
+        const original: IAutoMovieLoftRelief | undefined = relief.name.endsWith(".twin") ? family.reliefs!.slice(0, index).find((other: IAutoMovieLoftRelief): boolean => other.name === relief.name.slice(0, -5)) : undefined;
+        if (original !== undefined && reversed(relief, original) && relief.stations[0] === original.stations[0] && relief.stations[1] === original.stations[1] && (relief.turn === undefined) === (original.turn === undefined)) {
+          ++twins;
+          return placed(relief, JSON.stringify({ name: relief.name, twin: original.name, phases, axis, ...(relief.turn === undefined ? {} : { turn: relief.turn }) }));
+        }
+        const whole: string = placed(relief, JSON.stringify({ ...relief, phases, axis }));
+        if (!declared.has(relief.name) || relief.columns % 2 !== 1 || !reversed(relief, relief)) return whole;
+        ++halves;
+        const kept: number = (relief.columns + 1) / 2;
+        return whole.replace(/"heights":\[[^\]]*\]/, "\"heights\":AutoMovieHumanConicRelief.mirrored(" + relief.rows + ", " + relief.columns + ", " + JSON.stringify(relief.heights.filter((_: number, i: number): boolean => i % relief.columns < kept)).replaceAll(",", ", ") + ")");
+      });
+      if (twins + halves > 0) lines.splice(1, 0, "import { AutoMovieHumanConicRelief } from \"../conic/AutoMovieHumanConicRelief\";");
+      lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", twins > 0 ? "  reliefs: AutoMovieHumanConicRelief.list([" : "  reliefs: [");
+      for (const entry of entries) lines.push("    " + entry + ",");
+      lines.push(twins > 0 ? "  ])," : "  ],");
     }
     lines.push("};", "");
     return lines.join("\n");
