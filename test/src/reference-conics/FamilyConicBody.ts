@@ -1905,11 +1905,13 @@ namespace FamilyConicBody {
             return [r * Math.cos(phi), r * Math.sin(phi)];
           });
           // A part closed round its course (`IPart.around`): its closure is invented, not skin, so its points are no observations; the wall
-          // across them is held only to stay on the parent's side of the opening (`F.IRow.side`), and no extreme is read there. Fitted as
+          // across them is held only to stay on the parent's side of the opening (`F.IRow.side`). Its extremes may still be read on the
+          // closure for the start: with none read there (`F.IRow.opening`), the closure's 274 to 303 degrees left the first sections' seeds
+          // with phases that did not advance round the turn, refused at every station from 24 to 103 mm. Fitted as
           // data, the closure filled 274 to 303 degrees of the arm's first sections, and the joint fit pinned a shoulder at the first
           // station to 5e-5 to follow it, every step that would move it refused (18 mm at 11 knots, against 6.2 mm on skin alone).
           const closing = (p: C.P): boolean => within(Math.atan2(p[1], p[0]));
-          rows.push({ s, points: fitted, heldout: i % 2 === 1, ...(part.around === undefined || spans.length === 0 ? {} : { free: closing, side: (p: C.P): number => part.opening!(chartToWorld(frame, p)), opening: spans }) });
+          rows.push({ s, points: fitted, heldout: i % 2 === 1, ...(part.around === undefined || spans.length === 0 ? {} : { free: closing, side: (p: C.P): number => part.opening!(chartToWorld(frame, p)) }) });
           invented.push(null);
           // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
           // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
@@ -1962,6 +1964,25 @@ namespace FamilyConicBody {
       // (the tape wall reads radii round it), how many of its points step back in polar angle about it, and whether its own seed is a conic
       // chain the fit admits.
       if (part.around !== undefined) {
+        // The seeds are read as the fit reads them (`F.ownSeeds`, on these very rows with their openings, at every layout the part is
+        // fitted with) and judged as the fit judges a start: a conic chain whose tangents meet at the fit's margin or more. Read alone and
+        // without the rows' openings, they were reported admitted while the run's start was refused at every station from 24 to 103 mm.
+        const fitting: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+        const judged: Map<number, string> = new Map(fitting.map((row: F.IRow): [number, string] => [row.s, "yes"]));
+        for (const { layout } of part.layouts) {
+          let own: number[][];
+          try {
+            own = F.ownSeeds(fitting, layout, part.margin ?? F.ADMISSIBLE_MARGIN);
+          } catch (error: unknown) {
+            for (const row of fitting) if (judged.get(row.s) === "yes") judged.set(row.s, `${C.units(layout).length} fields: ${error instanceof Error ? error.message : String(error)}`.slice(0, 100));
+            continue;
+          }
+          fitting.forEach((row: F.IRow, i: number): void => {
+            const fault: string | null = C.chain(own[i]!, layout).fault;
+            const least: number = fault === null ? Math.min(...F.leastMeetings(own[i]!, layout)) : -Infinity;
+            if (judged.get(row.s) === "yes" && (fault !== null || !(least >= (part.margin ?? F.ADMISSIBLE_MARGIN)))) judged.set(row.s, `${C.units(layout).length} fields: ${fault ?? "least meeting " + least.toFixed(4)}`.slice(0, 100));
+          });
+        }
         for (const row of rows) {
           if (row.heldout) continue;
           const hull: C.P[] = R.hull(row.points);
@@ -1976,12 +1997,7 @@ namespace FamilyConicBody {
             const q: C.P = loop[(k + 1) % loop.length]!;
             if (p[0] * q[1] - p[1] * q[0] <= 0) ++against;
           });
-          let admitted: string = "yes";
-          try {
-            C.seed(row.points, part.layouts[0]!.layout);
-          } catch (error: unknown) {
-            admitted = (error instanceof Error ? error.message : String(error)).slice(0, 80);
-          }
+          const admitted: string = judged.get(row.s) ?? "yes";
           const closure = closures.find((c): boolean => c.s === row.s && c.kind !== "short");
           // The closure's span in the chart, from the skin's exit to its entry, degrees counter-clockwise from +u.
           const spanDeg: number[] | null = closure?.span === undefined ? null : closure.span.map((a: number): number => Math.round((((a * 180) / Math.PI) % 360 + 360) % 360));
@@ -2299,7 +2315,32 @@ namespace FamilyConicBody {
       // its values resampled there, and grows and prunes as usual. Started from three knots, the trunk's head refitted alone (`--from=600`)
       // stayed at 58 mm with every growth round refused; a wall refitted over changed sections starts near the wall it replaces.
       const seed: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed="))?.slice(7);
+      // `--seed-tail=<directory>@<at>+<shift>`: the start is another stored wall from `at` on, its stations this one's less the shift (the
+      // course past `at` is that wall's course moved along by the shift), and before `at` each fitting section's own seed at knots every
+      // `GAP_MM` on the same layout, so the fit starts at that wall's layout. The arm on its ISB course is the stored arm's from the elbow
+      // turn's end on: fitted from three knots, its window's free far end ran a shoulder to 5e-5 and every step that would move it was
+      // refused (11.8 mm at 11 knots), where the stored wall is real, admitted field.
+      const seedTail: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed-tail="))?.slice("--seed-tail=".length);
       const seeded: { knots: number[]; values: number[][] } | null = await (async (): Promise<{ knots: number[]; values: number[][] } | null> => {
+        if (seedTail !== undefined) {
+          const [other, where]: string[] = seedTail.split("@");
+          const [at, moved]: number[] = where!.split("+").map(Number) as [number, number];
+          const tail: K.IStored = await storedWall(other!, part.name);
+          const shift: number = moved ?? 0;
+          const layout: C.ILayout | undefined = part.layouts.find((entry: { layout: C.ILayout }): boolean => C.units(entry.layout).length === tail.values.length)?.layout;
+          if (layout === undefined) throw new Error("--seed-tail: no layout of " + part.name + " has the stored wall's fields");
+          const fitting: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout && row.s < at!);
+          const head: number[] = [];
+          for (let s: number = domain[0]; s < at! - GAP_MM / 2; s += GAP_MM) head.push(s);
+          const near = (s: number): F.IRow => fitting.reduce((b: F.IRow, row: F.IRow): F.IRow => (Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b));
+          const own: number[][] = head.map((s: number): number[] => C.seed(near(s).points, layout));
+          const tailKnots: number[] = tail.knots.map((k: number): number => k + shift).filter((k: number): boolean => k >= at! && k <= domain[1]);
+          const knots: number[] = [...head.map((s: number): number => near(s).s), ...tailKnots, ...(tailKnots.at(-1)! < domain[1] - 1e-9 ? [domain[1]] : [])];
+          const tailAt = (s: number): number[] => K.reader(tail)(s - shift);
+          const values: number[][] = tail.values.map((_: number[], f: number): number[] => [...own.map((t: number[]): number => t[f]!), ...knots.slice(head.length).map((s: number): number => tailAt(s)[f]!)]);
+          log("family-body-seed-tail", { part: part.name, at, shift, headKnots: head.length, tailKnots: knots.length - head.length });
+          return { knots, values };
+        }
         if (seed === undefined) return null;
         const wall: K.IStored = JSON.parse(await fs.readFile(path.join(seed, part.name + ".family.json"), "utf8")) as K.IStored;
         const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
