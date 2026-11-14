@@ -40,6 +40,12 @@ export namespace FamilyConicFit {
 
     /** Whether an observed point is invented and not skin (a guided excursion's closure, `FamilyConicExcursion.IPart.guided`). */
     free?: (p: C.P) => boolean;
+
+    /**
+     * With `free`, how far a chart point stands on the parent's side of the part's opening, mm (`FamilyConicBody`, `IPart.opening`): the
+     * wall at each invented point's phase is held at -0.5 mm or more there by a one-sided barrier, and the point is no observation.
+     */
+    side?: (p: C.P) => number;
   }
 
   /** The fitted family and its sampled errors. */
@@ -154,6 +160,9 @@ export namespace FamilyConicFit {
 
     /** Per vertex, the factor that turns a radial miss into the miss square to the wall (`IRow.normal`); 1 when the row reads radially. */
     across: number[];
+
+    /** The phases of the invented points held on the parent's side (`IRow.side`), radians, and that side's measure. */
+    held: { phases: number[]; side: ((p: C.P) => number) | null };
   }
 
   /**
@@ -168,14 +177,16 @@ export namespace FamilyConicFit {
    */
   function vertices(row: IRow): ISample {
     const n: number = row.points.length;
-    const sample: ISample = { phases: [], radii: [], weights: [], across: [] };
+    const sample: ISample = { phases: [], radii: [], weights: [], across: [], held: { phases: [], side: row.side ?? null } };
     let total: number = 0;
     for (let k: number = 0; k < n; ++k) {
       const p: C.P = row.points[k]!;
       const a: C.P = row.points[(k + n - 1) % n]!;
       const b: C.P = row.points[(k + 1) % n]!;
       const weight: number = (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
-      // An invented point (`IRow.free`, a guided excursion's closure) is no observation: it carried 57 % of the nose's summed misfit.
+      // An invented point (`IRow.free`, a guided excursion's closure) is no observation: it carried 57 % of the nose's summed misfit. With
+      // `IRow.side` its phase is kept, where the wall is held on the parent's side instead.
+      if (row.free?.(p) === true && row.side !== undefined) sample.held.phases.push(Math.atan2(p[1], p[0]));
       if (!(weight > 0) || row.free?.(p) === true) continue;
       const radius: number = Math.hypot(p[0], p[1]);
       // The wall's tangent at the vertex is the chord of its two neighbours; the cosine between the ray and the wall's normal is the sine
@@ -189,7 +200,7 @@ export namespace FamilyConicFit {
       total += weight;
     }
     const mean: number = total / sample.weights.length;
-    sample.weights = sample.weights.map((w: number): number => w / mean);
+    sample.weights = [...sample.weights.map((w: number): number => w / mean), ...sample.held.phases.map((): number => 1)];
     return sample;
   }
 
@@ -389,6 +400,14 @@ export namespace FamilyConicFit {
         const value: number = (Q.radius(section, sample.phases[k]!) - sample.radii[k]!) * sample.across[k]!;
         if (!Number.isFinite(value)) return null;
         r[k] = value;
+      }
+      // The wall at each held invented point's phase stays on the parent's side of the opening (`IRow.side` at least -0.5 mm), a one-sided
+      // barrier as the shares' below: the closure is an inequality, not an observation.
+      const side: ((p: C.P) => number) | null = sample.held.side;
+      for (const phi of sample.held.phases) {
+        const radius: number = Q.radius(section, phi);
+        if (!Number.isFinite(radius)) return null;
+        r.push(side === null ? 0 : BARRIER_MM * Math.max(0, -0.5 - side([radius * Math.cos(phi), radius * Math.sin(phi)])));
       }
       for (const f of free) r.push(units[f] === "share" ? BARRIER_MM * (Math.max(0, EDGE - t[f]!) + Math.max(0, t[f]! - (1 - EDGE))) : 0);
       return r;

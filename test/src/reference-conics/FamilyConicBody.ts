@@ -1905,7 +1905,12 @@ namespace FamilyConicBody {
             const r: number = within(phi) ? C.radius(wall, phi) : Q.radius(targetSection, phi);
             return [r * Math.cos(phi), r * Math.sin(phi)];
           });
-          rows.push({ s, points: fitted, heldout: i % 2 === 1 });
+          // A part closed round its course (`IPart.around`): its closure is invented, not skin, so its points are no observations; the wall
+          // across them is held only to stay on the parent's side of the opening (`F.IRow.side`), and no extreme is read there. Fitted as
+          // data, the closure filled 274 to 303 degrees of the arm's first sections, and the joint fit pinned a shoulder at the first
+          // station to 5e-5 to follow it, every step that would move it refused (18 mm at 11 knots, against 6.2 mm on skin alone).
+          const closing = (p: C.P): boolean => within(Math.atan2(p[1], p[0]));
+          rows.push({ s, points: fitted, heldout: i % 2 === 1, ...(part.around === undefined || spans.length === 0 ? {} : { free: closing, side: (p: C.P): number => part.opening!(chartToWorld(frame, p)), opening: spans }) });
           invented.push(null);
           // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
           // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
@@ -3263,6 +3268,11 @@ namespace FamilyConicBody {
     const family: K.IStored | undefined = Object.values(AutoMovieHumanF1.BODY).find((candidate: K.IStored): boolean => candidate.name === name);
     if (family === undefined) throw new Error("no stored family " + name);
     return JSON.parse(JSON.stringify(family)) as K.IStored;
+  }
+
+  /** A section chart's point in the world, mm. */
+  function chartToWorld(frame: AutoMovieLoftFrame.IFrame, p: C.P): R.V {
+    return [0, 1, 2].map((k: number): number => frame.origin[k]! + p[0] * frame.u[k]! + p[1] * frame.v[k]!) as R.V;
   }
 
   /** How a section closed across its part's opening (`without`), or why it did not. */
