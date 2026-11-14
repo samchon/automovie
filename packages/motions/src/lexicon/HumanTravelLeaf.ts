@@ -8,6 +8,7 @@ import type { tags } from "typia";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -224,13 +225,13 @@ export namespace HumanTravelLeaf {
         REACH * arm
           ? null
           : // Lowered until the wrist the hold asks is within the bend's near
-            // full extension of the arm, 0.92 of it, the reach the bend
-            // lowers a palm to.
+            // full extension of the arm (`bendLower.REACH`), the reach the
+            // bend lowers a palm to.
             pickUpPosture.lowered(
               context,
               side,
               wristAt(TAKE, start),
-              0.92 * arm,
+              bendLower.REACH * arm,
             );
       const base = (t: number): IHumanPosture =>
         lowered === null

@@ -143,10 +143,13 @@ export namespace pickUpAdjust {
    * half, the pelvis riding midway between the feet, brings the shoulder
    * within the arm, up to `STEP`. The foot leaves and lands at `STEPPING`
    * of the reach's time on a minimum-jerk path lifted by the walk's
-   * mid-swing clearance; the other foot stays planted. The foot on the
-   * target's side steps; straight ahead, within `AHEAD` of the facing, the
-   * reaching side's. A grip one step does not bring within reach is none of
-   * a reach's: the person steps closer first.
+   * mid-swing clearance; the other foot stays planted. A target `LATERAL`
+   * or more from the facing is stepped toward with the foot on its side;
+   * nearer the midline, where people choose either foot, with the foot
+   * whose step reaches shorter, the one that leaves the most of `STEP`
+   * unused, and the reaching side's where both reach alike. A grip one step
+   * does not bring within reach is none of a reach's: the person steps
+   * closer first.
    *
    * @param context The action's context.
    * @param side The reaching arm.
@@ -156,10 +159,10 @@ export namespace pickUpAdjust {
    * @returns The stepped stance, or null when one step does not reach or the stance places no foot.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which foot steps, where, how far, when and the limit.
-   * @evidence contracts/development/implementation.md#principled-implementation One foot's planted goal moved along the floor toward the wrist, the root half as far, the shoulder read on the moved body; the step is solved for the least length that reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The direction, the foot, one solve, one closure.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step beyond `STEP` is never taken; the caller refuses instead.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of the step's length, once per plan.
+   * @evidence contracts/development/implementation.md#principled-implementation One foot's planted goal moved along the floor toward the wrist, the root half as far, the shoulder read on the moved body; the step is solved for the least length that reaches, and the foot chosen from the target's side where the data settle it and from the shorter step where they do not.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The direction, the feet to try, one solve per foot, one closure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step beyond `STEP` is never taken; the caller refuses instead. No angle decides a midline target's foot.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of the step's length per foot tried, two at most, once per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the stance and the step.
    */
@@ -184,24 +187,18 @@ export namespace pickUpAdjust {
     const clearance: number =
       walk.walking(walk.FROUDE.normal).lift * context.body.measure.hipHeight;
 
-    // The foot on the target's side steps, people choosing the limb on the
-    // side of a target to the side (Charalambous et al. 2024, bioRxiv
-    // 10.1101/2024.04.10.588947); straight ahead, within `AHEAD` of the
-    // facing, the reaching side's (provisional: no reach study ties the
-    // foot to the reaching arm).
+    // A target to the side is stepped toward with the foot on its side;
+    // nearer the midline either foot is tried, the reaching side's first.
     const yaw: number = (stance.posture.yaw * Math.PI) / 180;
     const across: number = Vector3.dot(toward, {
       x: Math.cos(yaw),
       y: 0,
       z: -Math.sin(yaw),
     });
-    const feet: readonly ("left" | "right")[] = [
-      Math.abs(across) <= Math.sin((AHEAD * Math.PI) / 180)
-        ? side
-        : across > 0
-          ? "left"
-          : "right",
-    ];
+    const feet: readonly ("left" | "right")[] =
+      Math.abs(across) >= Math.sin((LATERAL * Math.PI) / 180)
+        ? [across > 0 ? "left" : "right"]
+        : [side, side === "left" ? "right" : "left"];
 
     // The places the step must bring within reach, each with its reach:
     // the grip within the arm, and the lifted place near full extension or
@@ -422,8 +419,8 @@ export namespace pickUpAdjust {
     );
   }
 
-  /** How far from the facing, degrees, a target still lies straight ahead for the choice of the stepping foot (provisional). */
-  export const AHEAD: number = 15;
+  /** The least angle from the facing at which a target is stepped toward with the foot on its side, degrees: every free step to the first lateral direction of a center-out array, 30 degrees off straight ahead, was taken with the ipsilateral leg, while steps straight ahead were taken with either (Charalambous et al. 2024, bioRxiv 10.1101/2024.04.10.588947, Experiment 1, 12 adults: Fig. 1a, regions CA at 12 and RA at 1 and 2 o'clock; Fig. 2a). Nearer the midline no measured band decides, so the foot is chosen by the step itself (`stepped`). */
+  export const LATERAL: number = 30;
 
   /** The time share at which a minimum-jerk progress has gone a share of its way, by bisection. */
   const timed = (share: number): number => {

@@ -157,14 +157,14 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param lean The balance shift per unit sine of the inclination, metres.
-   * @param reach How near the shoulder must come to the target, metres; 0.92 of the arm plus the palm's offset when absent, a palm laid on the target.
+   * @param reach How near the shoulder must come to the target, metres; `REACH` of the arm plus the palm's offset when absent, a palm laid on the target.
    * @returns Degrees.
    * @throws {HumanRefusal} When even 150 degrees leaves the target out of reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the quantity solved, the search range, the reach model and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The gap between the shoulder-to-target distance and the arm's reach (0.92 of upper arm plus forearm, near full extension, plus the palm offset), the shoulder read from the lowered trunk's forward kinematics, is scanned every `SCAN` degrees for the first inclination that closes it, then bisected between that one and the one before. The gap does not fall all the way: the shoulder swings down past a target at counter height, so the gap at 150 degrees opens again, and a bisection over the whole range refused a counter a slight lean reaches.
+   * @evidence contracts/development/implementation.md#principled-implementation The gap between the shoulder-to-target distance and the arm's reach (`REACH` of upper arm plus forearm, near full extension, plus the palm offset), the shoulder read from the lowered trunk's forward kinematics, is scanned every `SCAN` degrees for the first inclination that closes it, then bisected between that one and the one before. The gap does not fall all the way: the shoulder swings down past a target at counter height, so the gap at 150 degrees opens again, and a bisection over the whole range refused a counter a slight lean reaches.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve that reuses `lower` for the body and HumanTrunk for the shoulder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.92 reach share (provisional) and the 150 degree bound are named in the doc; an unreachable target is refused, not clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach share is the measured `REACH` and the 150 degree bound is named in the doc; an unreachable target is refused, not clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 31 scanned and 30 bisected gap evaluations, each one lowered posture and one trunk forward-kinematics pass; the 30 steps bound the error below 5e-9 degrees.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each evaluation depends on its own inclination, so nothing repeats within a call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -213,8 +213,8 @@ export namespace bendLower {
     return hi;
   }
 
-  /** The share of the arm (upper arm and forearm) a lowered or leaned body brings the shoulder within of its target, so the arm reaches near, not at, full extension (provisional: 0.92); `pitch` reads it, and a pick up's lift closes on it too. */
-  export const REACH: number = 0.92;
+  /** The share of the arm (upper arm and forearm) a lowered or leaned body brings the shoulder within of its target, so the arm reaches near, not at, full extension: where people reaching as they like stop reaching with the arm alone and lean the trunk in, the preferred critical boundary, 0.89 of full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012, Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07; Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no standing measure was found. `pitch` reads it, and a pick up's lift closes on it too. */
+  export const REACH: number = 0.89;
 
   /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
   export const SCAN: number = 5;
