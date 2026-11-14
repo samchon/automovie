@@ -24,7 +24,7 @@ When scene composition or a generation prompt must make a decision the screenpla
 
 A closed screenplay stays closed: the edited beat keeps its answers and reviews under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh.
 
-An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
+An exchange, an outcome or a reaction, including a facial expression a generated film's reaction needs, is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
 
 A user's [fixed screenplay](../workflow/SKILL.md#who-writes-the-screenplay) is never edited: its concretizations go to the instructions.
 

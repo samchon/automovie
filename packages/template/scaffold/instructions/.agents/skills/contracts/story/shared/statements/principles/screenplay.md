@@ -13,7 +13,7 @@ Realization:
 
 Performance:
 
-5. Every required observable movement, interaction, reaction, expression the adopted representation can show or, for a commissioned generated film, the generation prompt carries, and sound is decided through its preparation, development and resulting state.
+5. Every required observable movement, interaction, reaction, expression the adopted representation can show, and sound is decided through its preparation, development and resulting state.
 6. Where physical action matters, support, weight transfer, contact or separation, recovery and connecting movement are executable.
 7. No named technique, isolated key pose or emotional label stands in for that executable action.
 8. A specialist performance meets its study's density and distribution targets for the depicted level, with chained sequences, tempo changes and spatial strategy drawn from its research.
@@ -72,7 +72,7 @@ What the modules can perform:
 
 7. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
 8. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, a reaction the representation cannot show, such as a facial expression, which the generation prompt carries.
+9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, a beat states a reaction the representation cannot show, such as a facial expression, for the generation prompt to carry.
 
 Measurements:
 

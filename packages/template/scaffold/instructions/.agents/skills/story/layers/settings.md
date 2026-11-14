@@ -26,7 +26,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 
 User-fixed interpretations are canon. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
 
-For a commissioned generated film or detail option, embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
+For a commissioned generated film or a detail option a diffusion model generates, embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
 ## Outline and changes
 

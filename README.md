@@ -28,7 +28,7 @@ The cast, sets, performance, staging and camera are TypeScript the agent writes 
 
 ### The motion hint
 
-The hint reaches a video model as a hint video and the control channels that model takes, such as pose, depth, normal, outline or a semantic mask, rendered from the same performance and aligned frame for frame. Some models restyle the hint video, some read it as a reference for motion and camera, and open models take either the hint video whole, through an adapter trained on gray layouts, or pose, depth or edge passes at a strength each request sets. An accurate hint does not decide what the model makes of it, so generated takes are inspected against the hint at matched frames, and the agent's report says what it verified and what only you watched.
+The hint reaches a video model as a hint video and the control channels that model takes, such as pose, depth, normal, outline or a semantic mask, rendered from the same performance and aligned frame for frame. Some models restyle the hint video, some read it as a reference for motion and camera, and open models take either the hint video whole, through an adapter trained on gray layouts, or pose, depth or outline passes at a strength each request sets. An accurate hint does not decide what the model makes of it, so generated takes are inspected against the hint at matched frames, and the agent's report says what it verified and what only you watched.
 
 ### Inspect and correct
 

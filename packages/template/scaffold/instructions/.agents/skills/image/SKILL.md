@@ -31,7 +31,7 @@ Video models cap references per subject at about three or four images, and some 
 
 Where the chosen model's terms reject references with real human faces, ask the user how to give it identity.
 
-A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with its record's wording, which the shared description in its [video prompts](../video/prompts.md) reuses, because the same words keep the same subject in both.
+A wardrobe, makeup or wound state of a story day is its own reference set. Give each place a plate without people in the shot's light, and each prop a plain-background view, out of any hand. Prompt each subject's images with its record's wording and the film's medium or rendering style from its [project context](../production/project-context.md) entry, which the shared description in its [video prompts](../video/prompts.md) reuses, because the same words keep the same subject in both.
 
 ## Control images
 

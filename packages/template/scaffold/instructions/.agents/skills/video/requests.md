@@ -4,7 +4,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Boundaries
 
-End a request where the model's length limit or fixed lengths, a screenplay cut, the end of each beat for a model that takes only still frames, or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
+End a request where the model's length limit or fixed lengths, a screenplay cut, the end of each beat for a model that takes only still frames, unless its timestamp or multi-shot syntax carries several, or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
 Begin each request where every key subject it shows is already in frame, because a subject the model first meets after the opening frame drifts from its references; when one must enter later, give it a [keyframe](../image/SKILL.md#shot-frames) where the model takes one; otherwise name the entering subject in the prompt.
 
@@ -50,7 +50,7 @@ Keeping positions and contacts copies the hint's timing, stiffness included. Rep
 
 ## Inputs
 
-Give each input one role: the hint video or its channels for motion and camera, the canon references for identity and appearance, and, where consecutive requests continue one motion, the accepted previous take's frames at the shared boundary, not its handles, for motion across it. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every such request the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
+Give each input one role: the hint video or its channels for motion and camera, the canon references for identity and appearance, a [shot frame](../image/SKILL.md#shot-frames) for appearance at the hint's pose, and, where consecutive requests continue one motion, the accepted previous take's frames at the shared boundary, not its handles, for motion across it. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every such request the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
 
 Give an adapter trained on gray layouts the hint video as its documentation sets, and an open model's control adapters the passes [dense passes](../motion/control-channels.md#dense-passes) sets for each form.
 
