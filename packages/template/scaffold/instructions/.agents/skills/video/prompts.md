@@ -6,7 +6,7 @@ Follow the selected model's own prompting guide, linked in [diffusion models](di
 
 ## Sources
 
-A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made at its owner under [repair](../story/correction/repair.md), never in the prompt: a missing reaction returns the screenplay to its author, and a missing detail of a subject's appearance or of the film's look is added to the record that owns it: its settings or brief record, or the scene file's standing state for a subject only that scene shows.
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt. A missing reaction returns the screenplay to its author, and any other missing detail is a [concretization](../story/correction/repair.md#concretization).
 
 ### Shared description
 

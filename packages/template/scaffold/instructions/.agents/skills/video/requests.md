@@ -27,13 +27,13 @@ Adherence is how much of the hint a request keeps. Describe each request by what
 
 At every level the prompt and the references give the faces and surfaces, because the hint carries neither, so release any setting that holds the hint's faces.
 
-The scale is about motion; keep the hint's shapes only as closely as the forms are true, because a coarse form held to its shape returns as boxes. A model that sets shape apart from motion, such as by a structure setting or a depth blur, sets shape through that setting.
+The scale is about motion; keep the hint's shapes only as closely as the forms are true, because a coarse form held to its shape returns as boxes. Where the model sets shape apart from motion, such as by a structure setting or a depth blur, set shape there.
 
 Start from the default adherence [project context](../production/project-context.md) records, and depart from it only where a beat needs another.
 
 Whatever the level, the request locks the frames and figures where its beats' outcomes land, contacts happen, and the pose and screen direction the next shot continues are held, and loosens only frames and regions that hold none of these, because some models keep overlapping and fast movement least well.
 
-A hosted model's settings apply to the whole request, which therefore takes the strictest level its frames need; an open model's control adapters take a [mask](../motion/control-channels.md) that holds the locked region and frames and loosens the rest.
+A hosted model's settings apply to the whole request, which therefore takes the strictest level its frames need; an open model's control adapter takes a [mask](../motion/control-channels.md) as its documentation defines one: a mask that scales the control, such as LTX IC-LoRA's, holds the locked region and frames and loosens the rest, while one that marks what is generated and what is kept, such as VACE's, does not loosen.
 
 Adherence reaches the model in the way it takes the hint, and [diffusion models](diffusion.md) gives each model's controls:
 
@@ -41,10 +41,10 @@ Adherence reaches the model in the way it takes the hint, and [diffusion models]
 | --- | --- |
 | Hosted, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
 | Hosted, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
-| Turns a gray render into the shot, hosted or through an open adapter | Its documented strength, and wording that says what each form stands for |
-| Hosted, moves one figure onto a character | Nothing documented; carry one figure per request |
+| Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, and wording that says what each form stands for |
+| Hosted, moves one figure onto a character | Nothing documented; it moves only the largest figure, so give it only shots with one moving figure |
 | Hosted, takes still frames | Nothing: it keeps only those frames, so give it no beat whose outcome or contact falls between them |
-| Open weights with control adapters | Each adapter's strength and the steps where it acts, per region and frame through masks |
+| Open weights with control adapters | Each adapter's strength and the steps where it acts, and a mask as its documentation defines one |
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames or a second figure, tell the user, who may choose another model, and follow their choice.
 
