@@ -19,6 +19,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
@@ -191,11 +192,14 @@ export namespace pickUp {
     const grasp: HumanHand.IWrist = chosen.wrist;
     pickUpPosture.reachable(context, side, grasp.point, held);
 
-    // The use is judged at its own pose. What the grasp pose leaves unmet of
-    // an asked tilt is no failure of the use: the fingers close where the
-    // arm shows the hand, and the use's pose is built from that hand.
-    const unmet: number = chosen.keys[chosen.keys.length - 1] ?? chosen.miss;
-    if (context.params.use !== undefined && unmet > HumanGraspUse.UNMET)
+    // The use is judged at its own pose, by its own measure: how far the
+    // arm, fitted there within its ranges, leaves the working point off
+    // where the use asks it (`HumanGrasp.IKey.judge`), within the held-tool
+    // bound (`StrikingRoll.MISS`). What the grasp pose leaves unmet of an
+    // asked tilt is no failure of the use: the fingers close where the arm
+    // shows the hand, and the use's pose is built from that hand.
+    const unmet: number = chosen.judged[chosen.judged.length - 1] ?? Number.NaN;
+    if (context.params.use !== undefined && !(unmet <= StrikingRoll.MISS))
       throw new HumanRefusal({
         kind: "reach",
         axis: "use",
@@ -203,10 +207,10 @@ export namespace pickUp {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: HumanGraspUse.UNMET,
-          unit: "",
+          maximum: StrikingRoll.MISS,
+          unit: "m",
         },
-        reason: `no grasp of ${context.params.prop} by ${context.params.handle} lets the ${side} hand present its ${context.params.use.tip} on the ${context.params.use.line} line: the best (turned ${chosen.turn}, tilted ${chosen.tilt} degrees, the elbow ${chosen.departure.toFixed(0)} degrees off its hint) leaves ${unmet.toFixed(1)} degrees and millimetres unmet at the use's pose (by pose in the order grasp, lift, use: ${chosen.keys.map((miss: number): string => miss.toFixed(1)).join(", ")})`,
+        reason: `no grasp of ${context.params.prop} by ${context.params.handle} lets the ${side} hand present its ${context.params.use.tip} on the ${context.params.use.line} line: the best (turned ${chosen.turn}, tilted ${chosen.tilt} degrees, the elbow ${chosen.departure.toFixed(0)} degrees off its hint) leaves the ${context.params.use.tip} ${(unmet * 1000).toFixed(1)} mm off its place at the use's pose`,
         fix: "turn the prop where it lies so the handle can be taken from the side its use needs, take it with the other hand, or name another line for the use",
       });
 

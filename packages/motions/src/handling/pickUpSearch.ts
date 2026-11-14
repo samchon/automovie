@@ -12,6 +12,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
 import type { pickUp } from "./pickUp";
@@ -184,9 +185,11 @@ export namespace pickUpSearch {
       context.params.use === undefined
         ? undefined
         : {
-            bound: HumanGraspUse.UNMET,
-            measure: (keys: readonly number[]): number =>
-              keys[keys.length - 1] ?? 0,
+            bound: StrikingRoll.MISS,
+            measure: (
+              _keys: readonly number[],
+              judged: readonly number[],
+            ): number => judged[judged.length - 1] ?? Number.NaN,
           },
       pickUpPosture.reaches(context, side, held),
     );

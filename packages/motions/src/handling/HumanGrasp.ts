@@ -262,7 +262,7 @@ export namespace HumanGrasp {
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors and judgements (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all: a candidate it refuses is tried only when it refuses every one. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
@@ -280,7 +280,7 @@ export namespace HumanGrasp {
     turns: readonly number[] = TURNS,
     required?: {
       bound: number;
-      measure: (keys: readonly number[]) => number;
+      measure: (keys: readonly number[], judged: readonly number[]) => number;
     },
     admits?: (wrist: HumanHand.IWrist) => boolean,
   ): IReach {
@@ -314,6 +314,27 @@ export namespace HumanGrasp {
 
     /** The elbow hint at the key, world metres. */
     bend: IAutoMovieVector3;
+
+    /**
+     * How far what the key places strays from its place once the arm is
+     * fitted to the key within its ranges, metres: a held tool's working
+     * point off where its use asks it, a worn thing's socket off its region.
+     * Absent, the key places nothing but the hand.
+     *
+     * @param bones The fitted body's bones.
+     * @returns Metres, not negative.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which unit and when it is absent.
+     * @evidence contracts/development/implementation.md#principled-implementation The placed thing is read off the fitted hand, so the arm's ranges count, as `StrikingRoll.miss` reads a held tool.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `HumanGraspReach.reachable` for each fitted key.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller judges the key in the unit of what it places, never in a mix of degrees and millimetres.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+     */
+    judge?(
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): number;
   }
 
   /** The reachable grip {@link reachable} chose. */
@@ -339,8 +360,11 @@ export namespace HumanGrasp {
     /** How far the fitted elbow turns from its hint about the shoulder-to-wrist line, worst over the grasp and its stroke, degrees. */
     departure: number;
 
-    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is: what a law reads to say which pose of a use the grasp cannot hold. */
+    /** The error the arm leaves at the grasp and then at each key of its stroke, in the stroke's order, counted as `miss` is. */
     keys: readonly number[];
+
+    /** Each of those keys' own judgement (`IKey.judge`), metres, in the same order; `NaN` for a key that has none, the grasp's always: what a law reads to say which pose of a use the grasp cannot hold. */
+    judged: readonly number[];
 
     /** The posed body at the grasp. */
     pose: IAutoMoviePose;
