@@ -1,7 +1,7 @@
 import {
   type Archetype,
   createClub,
-  createScabbard,
+  createHolster,
   createSword,
   createWeaponLoop,
 } from "@automovie/archetypes";
@@ -51,8 +51,8 @@ export function test_archetype_weapons_draw(): void {
     const body: IHumanBody = motionHumanBody(name);
     const out: number = 0.9 * body.measure.shoulderHalfWidth;
     const knife: Archetype = createSword({ kind: "knife" });
-    const sheath: ReturnType<typeof createScabbard> = createScabbard({
-      kind: "knife",
+    const sheath: ReturnType<typeof createHolster> = createHolster({
+      kind: "sheath",
       length: 0.2,
     });
     const baton: Archetype = createClub({ kind: "baton" });

@@ -40,6 +40,7 @@ import {
   createLoad,
   createLongGun,
   createLongTool,
+  createMagazine,
   createMotorcycle,
   createParallelBars,
   createPell,
@@ -53,7 +54,6 @@ import {
   createRelayBaton,
   createRing,
   createRowingMachine,
-  createScabbard,
   createSeat,
   createShield,
   createShot,
@@ -241,10 +241,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `handgun-${frame}`,
       (seed?: number | string): Archetype => createHandgun({ frame }, seed),
     );
-  add(
-    "holster",
-    (seed?: number | string): Archetype => createHolster({}, seed),
-  );
+  for (const kind of createHolster.KINDS)
+    add(
+      `holster-${kind}`,
+      (seed?: number | string): Archetype => createHolster({ kind }, seed),
+    );
+  for (const kind of createMagazine.KINDS)
+    add(
+      `magazine-${kind}`,
+      (seed?: number | string): Archetype => createMagazine({ kind }, seed),
+    );
   for (const kind of createLongGun.KINDS)
     add(
       `longGun-${kind}`,
@@ -319,11 +325,6 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createPolearm({ kind }, seed),
     );
   add("pell", (seed?: number | string): Archetype => createPell({}, seed));
-  for (const kind of createScabbard.KINDS)
-    add(
-      `scabbard-${kind}`,
-      (seed?: number | string): Archetype => createScabbard({ kind }, seed),
-    );
   for (const kind of createWeaponLoop.KINDS)
     add(
       `weaponLoop-${kind}`,

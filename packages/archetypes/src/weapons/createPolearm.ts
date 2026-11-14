@@ -17,10 +17,18 @@ const STAFF: string =
 const SPEAR: string =
   "Viking Age spears, heads of 20 to 60 cm on shafts of 2 to 3 m (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
 
+/** The cavalry lance, read at the Royal Armouries, and its other patterns' records seen only in search results. */
+const LANCE: string =
+  "Royal Armouries, Pattern 1894 Lance: 2.76 m overall, 2.19 kg, a hide sling round the shaft's midpoint giving the hand its grip (https://royalarmouries.org/collection/first-world-war/type/rac-narrative-82.html); its records VII.2860 (2328 mm, 1.672 kg, a 207 to 214 mm head), VII.1433 (2625 mm, a 277 mm head) and India Pattern 1868 (2840 mm, 2.1 kg), seen only in search results";
+
+/** The handle diameters hands rated most comfortable in a power grip. */
+const POWER: string =
+  "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a lance's shaft at its grip, whose own diameter no record read gives";
+
 /**
- * A weapon on a long shaft held in two hands: a staff or a spear.
+ * A weapon on a long shaft: a staff or a spear held in two hands, or a cavalry lance couched in one.
  *
- * It stands along `+Y` from its butt at the origin. The `shaft` is one bar the two hands share, so the hands' spacing and their sliding along it are the wielding act's choice of sites. A spear carries a flat head above the shaft, its edges toward `+Z` and `-Z`; `length` is the shaft alone and `headLength` the head above it. `tip` is the upper end, the way a thrust goes, and `butt` the lower.
+ * It stands along `+Y` from its butt at the origin. The `shaft` is one bar the two hands share, so the hands' spacing and their sliding along it are the wielding act's choice of sites. A spear and a lance carry a flat head above the shaft, its edges toward `+Z` and `-Z`; `length` is the shaft alone and `headLength` the head above it. `tip` is the upper end, the way a thrust goes, and `butt` the lower. A lance also declares `grip`, the sling at the shaft's midpoint where the one hand holds it; the steel head puts the balance ahead of it, so a couched lance's point is carried forward of the hand. A thrown spear is `createJavelin`'s.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -29,9 +37,9 @@ const SPEAR: string =
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, how the hands share the shaft, what the lengths measure and the two ends.
  * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear, a head box `STEEL` times as dense as the wood, so the balance point moves toward the head as a steel head's does; mass properties follow from the parts under the drawn mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft and its bar, the head, the two ends.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft and its bar, a lance's grip, the head, the two ends.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No socket, lugs or butt cap; the head's width and thickness are estimates named on a constant.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part for a staff, two for a spear.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One part for a staff, two for a spear or a lance.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -78,7 +86,21 @@ export function createPolearm(
     aperture: d.diameter!,
     length,
   });
-  if (kind === "spear")
+  if (kind === "lance")
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(0, length / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: d.diameter!,
+    });
+  if (kind !== "staff")
     builder.box(
       "head",
       v(createPolearm.HEAD.thickness, head, createPolearm.HEAD.width),
@@ -107,15 +129,15 @@ export function createPolearm(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shaft with sites along it, the two ends, the lengths and the mass a two-handed strike or thrust reads (#3202's spear and staff).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The shaft with sites along it, the two ends, the lengths and the mass a two-handed strike or thrust reads (#3202's spear and staff), and the lance's grip a couched charge reads (#3466, #3482).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A staff has no head length band, so fixing one on a staff is refused.
  */
 export namespace createPolearm {
   /** The kinds of polearm. */
-  export type Kind = "staff" | "spear";
+  export type Kind = "staff" | "spear" | "lance";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["staff", "spear"];
+  export const KINDS: readonly Kind[] = ["staff", "spear", "lance"];
 
   /** A spear head's width and thickness, metres. Estimates, not read at a source. */
   export const HEAD: Readonly<{ width: number; thickness: number }> = {
@@ -132,8 +154,9 @@ export namespace createPolearm {
    * - `shaft`: the shaft as one bar for both hands, taken from the `-Z` side, its length along `+Y`.
    * - `tip`: the upper end, a spear's point, facing up along the weapon.
    * - `butt`: the lower end, facing down.
+   * - `grip`: a lance's sling at the shaft's midpoint, taken from the `-Z` side.
    */
-  export type Affordance = "shaft" | "tip" | "butt";
+  export type Affordance = "shaft" | "tip" | "butt" | "grip";
 
   /**
    * The free dimensions, metres unless stated:
@@ -190,6 +213,17 @@ export namespace createPolearm {
         "an ash shaft with a steel head, not read at a source",
         true,
       ),
+    },
+    lance: {
+      length: ArchetypeBand.metres(
+        2.625 - 0.277,
+        2.84 - 0.207,
+        `${LANCE}: the shaft is the 2.625 to 2.84 m overall less the 207 to 277 mm heads`,
+        true,
+      ),
+      headLength: ArchetypeBand.metres(0.207, 0.277, LANCE, true),
+      diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
+      mass: ArchetypeBand.of("kg", 1.672, 2.19, LANCE, true),
     },
   };
 }

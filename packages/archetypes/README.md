@@ -44,7 +44,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap` |
 | `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle` |
 | `/animals` | `createHorse`, the ride `rideHorse`, and the gait timing `HorseGait` |
-| `/weapons` | `createHandgun`, `createHolster`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell`, `createScabbard`, `createWeaponLoop`, `createWeaponRack` |
+| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing` |
 | `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton` |
 

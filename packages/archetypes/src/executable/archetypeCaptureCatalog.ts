@@ -48,6 +48,7 @@ import {
   createHandgun,
   createHolster,
   createLongGun,
+  createMagazine,
   createPell,
   createPolearm,
   createShield,
@@ -320,7 +321,16 @@ export function archetypeCaptureCatalog(): Readonly<
         createHandgun.FRAMES,
         (frame: createHandgun.Frame): Archetype => createHandgun({ frame }),
       ),
-      holster: createHolster(),
+      ...kinds(
+        "holster",
+        createHolster.KINDS,
+        (kind: createHolster.Kind): Archetype => createHolster({ kind }),
+      ),
+      ...kinds(
+        "magazine",
+        createMagazine.KINDS,
+        (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
+      ),
       ...kinds(
         "longGun",
         createLongGun.KINDS,
@@ -369,6 +379,7 @@ export function archetypeCaptureCatalog(): Readonly<
       "bread-torn": createFood({ kind: "bread" }).articulate({
         tear: createFood.TEAR,
       }),
+      "pouch-open": createHolster({ kind: "pouch" }).articulate({ lid: 120 }),
       "car-doors-open": car.articulate({
         driverDoor: 65,
         passengerDoor: 30,
