@@ -207,6 +207,7 @@ export * from "./posture/blendHumanJoint";
 export * from "./posture/hipJoints";
 export * from "./posture/humanRig";
 export * from "./daily/handToFace";
+export * from "./daily/handToFaceArm";
 export * from "./daily/handToFaceSheet";
 export * from "./handling/HumanHeld";
 export * from "./handling/HumanHeldUse";

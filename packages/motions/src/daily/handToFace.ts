@@ -10,18 +10,14 @@ import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
-import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import type { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 import { AutoMovieMotionHumanVariationDraw } from "../compose/AutoMovieMotionHumanVariationDraw";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -37,6 +33,7 @@ import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
 
@@ -370,66 +367,19 @@ export namespace handToFace {
     );
     for (const [side, name] of hands) {
       const own: HumanGrasp.IKey | null = side === first ? kept : null;
-      const lay: AutoMovieMotionHumanTouch.ITouch["lay"] =
-        row.upright === true ? "upright" : "tangent";
-      // A held vessel is carried upright and brought to the face as a
-      // drinker holds it: leaned toward the lips as little as lets the arm
-      // stay low, and turned the way its arm then meets it best. Its elbow
-      // is hinted where the arm hangs, the hint its drinking arm was found
-      // with, so the arm shown is the one admitted. A vessel held as the
-      // grasp it was taken up by presents it (`own`) has its turn in the
-      // hand fixed, so only its lean toward the lips is sought, with the
-      // grasp's elbow hint: the same drink takes the same arm however the
-      // vessel came to the hand.
-      const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      // How the hand lies at the face, its elbow's hint and its reference.
+      const arm: handToFaceArm.IArm = handToFaceArm.of({
         body,
         atFace,
+        turned,
         side,
-      );
-      const vessel: AutoMovieMotionHumanTouchUpright.IFacing | undefined =
-        row.upright === true && own === null
-          ? AutoMovieMotionHumanTouchDrink.drinking(
-              body,
-              atFace,
-              side,
-              effector(side),
-              region(side, name)(atFace, 0),
-              hang,
-              { posture: turned, place: region(side, name)(turned, 0) },
-            )
-          : undefined;
-      const tipped: AutoMovieMotionHumanTouchDrink.IHeld | undefined =
-        own === null
-          ? undefined
-          : row.upright === true
-            ? AutoMovieMotionHumanTouchDrink.held(
-                body,
-                atFace,
-                side,
-                effector(side),
-                region(side, name)(atFace, 0),
-                own.bend,
-                own.wrist.rotation,
-                { posture: turned, place: region(side, name)(turned, 0) },
-              )
-            : { lean: 0, goal: { ...own.wrist, bend: own.bend } };
-      const lean: number | undefined = vessel?.lean ?? tipped?.lean;
-      const facing: IAutoMovieVector3 | undefined = vessel?.facing;
-      const bend: IAutoMovieVector3 =
-        own?.bend ??
-        (vessel !== undefined ? hang : undefined) ??
-        AutoMovieMotionHumanTouchLaid.bend(
-          body,
-          atFace,
-          side,
-          effector(side),
-          region(side, name)(atFace, 0),
-          row.tangent,
-          lay,
-          facing,
-          "natural",
-          vessel?.lean,
-        );
+        effector: effector(side),
+        place: region(side, name),
+        tangent: row.tangent,
+        upright: row.upright === true,
+        own,
+      });
+      const { lay, bend, lean, facing } = arm;
       const stroke: AutoMovieMotionHumanTouch.ITouch = {
         body,
         clock,
@@ -442,28 +392,7 @@ export namespace handToFace {
         tangent: row.tangent,
         extent: modifiers.extent,
         bend,
-        reference:
-          tipped === undefined
-            ? AutoMovieMotionHumanTouchLaid.laid(
-                body,
-                atFace,
-                side,
-                effector(side),
-                region(side, name)(atFace, 0),
-                row.tangent,
-                bend,
-                lay,
-                facing,
-                undefined,
-                undefined,
-                vessel?.lean,
-              )
-            : AutoMovieMotionHumanTouchLaid.reference(
-                body,
-                atFace,
-                side,
-                tipped.goal,
-              ),
+        reference: arm.reference,
         lay,
         ...(facing === undefined ? {} : { facing }),
         ...(lean === undefined ? {} : { lean }),
