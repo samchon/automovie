@@ -431,6 +431,9 @@ export namespace FamilyConicConvert {
     /** The chart's first axis at the first segment (`AutoMovieViewAxis.jointed`). */
     up: H.V3;
 
+    /** The fit tool's flags that select this course for the part (`FamilyConicBody.ts`), appended to the bridge's command. */
+    fit?: string;
+
     /** A section's station on this course, from its own `s`. */
     station: (s: number) => number;
 
@@ -579,6 +582,14 @@ export namespace FamilyConicConvert {
     const claimed: Set<string> = new Set();
     for (const line of [...joined].sort((a: ILine, b: ILine): number => b.stations.length - a.stations.length)) {
       const wavelength: number = 2 * median(line.turns);
+      // A groove line's run stands between two neighbouring extremes, a quarter of its section; a hollow wider than a quarter of the girth
+      // spans an extreme and is a concavity of the section's form, which the wall and its net carry, not a line (f1's palm hollow at 103
+      // degrees on the hand, 72 mm wavelength on a 200 mm girth). Read before any groove is claimed for it.
+      const girth: number = median(line.stations.map((s: number): number => range.find((st: IStation): boolean => Math.abs(st.s - s) < 1e-9)?.girthMm ?? Infinity));
+      if (wavelength > girth / 4) {
+        named.push(`dropped hollow at ${degrees(median(line.phases)).toFixed(0)} deg over ${line.stations[0]}-${line.stations.at(-1)}: its wavelength ${f2(wavelength)} mm is wider than a quarter of its girth (${f2(girth / 4)} mm), a concavity of the form, not a line`);
+        continue;
+      }
       // Where the fairing keeps it: a hollow narrower than the cutoff is what the fairing removes by its own law (`cutoff`), so the line is
       // present only between its first and last stations whose wavelength reaches the cutoff. Below 1,559.5 mm f1's nose's side hollows are 5
       // to 9 mm across, the fairing left them 0.02 to 0.07 mm deep, and carried at that depth the engine refused their parallel tangents.
@@ -633,7 +644,7 @@ export namespace FamilyConicConvert {
       else families.push({ from: i, to: i, key: keyAt(i) });
     });
     text.push(`families by present groove lines (one digit a line), over the longest star-shaped run ${range[0]!.s}-${range.at(-1)!.s}: ${families.map((f): string => `${f.key || "-"}:${range[f.from]!.s}-${range[f.to]!.s}(${f.to - f.from + 1})`).join("  ")}`);
-    const bridgeFile: string = await bridge(name, range, lineOf, spans, fairMm, out, course);
+    const bridgeFile: string = await bridge(name, range, sections, lineOf, spans, fairMm, out, course);
     text.push(`bridge for the fit tool's featured family (one family over the domain): ${bridgeFile}`);
     if (course === undefined) return { families };
     // One family's steps 4 to 7: layout, read, smoothing, admission and the engine's loft.
@@ -837,6 +848,9 @@ export namespace FamilyConicConvert {
   }
   const span2 = (xs: readonly number[]): string => `${f2(Math.min(...xs))}..${f2(Math.max(...xs))}`;
 
+  /** The fit tool's least distance between two station knots, mm (`FamilyConicBody.ts` `GAP_MM`): a bridge's start keeps its knots that far apart. */
+  const FIT_GAP_MM: number = 12;
+
   /** The least share a feature keeps from its run's ends, and its window's margin: the fit tool's `LINE_EDGE`, the model's edge with a margin. */
   const BRIDGE_EDGE: number = 0.05;
 
@@ -871,7 +885,7 @@ export namespace FamilyConicConvert {
    * fit tool then fits one featured family over the domain, its lines appearing and fading along the part (`FamilyConicSection.seedAll`), so
    * the region is split only where its topology is.
    */
-  async function bridge(name: string, range: readonly IStation[], lineOf: readonly L.ILine[], spans: readonly [number, number][], fairMm: number, out: string, course: ICourse | undefined): Promise<string> {
+  async function bridge(name: string, range: readonly IStation[], sources: readonly ISection[], lineOf: readonly L.ILine[], spans: readonly [number, number][], fairMm: number, out: string, course: ICourse | undefined): Promise<string> {
     const ends: [number, number, number, number][] = range.map((st: IStation): [number, number, number, number] => L.extremes(st.arcs));
     const plan = L.layout(1, lineOf, ends);
     // Arclength along a station's chain from phase a to phase b counter-clockwise.
@@ -907,18 +921,44 @@ export namespace FamilyConicConvert {
       return { after: run.after, anchors: [{ kind: "f", feature: "inflection", window: window(0) }, { kind: "f", feature: "concave", window: window(1) }, { kind: "f", feature: "inflection", window: window(2) }] };
     });
     const station = course?.station ?? ((s: number): number => s);
+    const layout: S.ILayout = S.featured(S.limb(1), runs);
+    // The fit's start, from every station of the region rather than one section's seed held at every knot: started that way, the fit never
+    // left it (f1's hand: 46 of 80 fields equal at every knot, 26.8 mm missed from 9 knots to 2).
+    // Each station's field vector is the fit's own seed of it (`FamilyConicSection.seedAll` at the region's cutoff, the layout's windows
+    // guiding its lines), the start the fit itself admits per section: a faded feature stands where the chain still turns, never collinear
+    // on a straight stretch. Read with each unseen line carried at its neighbours' phases instead (`FamilyConicLayout.read`), the hand's
+    // start was refused at all 121 quarter-millimetre stations and the nose's at 63.
+    const own: number[][] = C.seedAll(range.map((st: IStation): C.P[] => sources.find((x: ISection): boolean => Math.abs(x.s - st.s) < 1e-9)!.points), layout, { margin: MARGIN.fitted, fairMm });
+    const read: { s: number; values: number[] }[] = range.map((st: IStation, i: number) => ({ s: station(st.s), values: own[i]! })).filter((r): boolean => r.values.every((v: number): boolean => Number.isFinite(v)));
+    // The start's knots where the layout needs them: the domain's ends, then each station where a line appears or fades that stands at least
+    // the fit tool's least knot distance from every knot kept (`FamilyConicBody.ts` `GAP_MM`, 12 mm; it drops a closer seed knot and projects
+    // the seed onto the rest, and f1's hand's start, cut to its domain's two ends that way, was no admissible chain); the fit then prunes them.
+    const ends2: number[] = [station(range[0]!.s), station(range.at(-1)!.s)].sort((a: number, b: number): number => a - b);
+    const events: number[] = spans.flatMap(([a, b]): number[] => [station(range[a]!.s), station(range[b]!.s)]).sort((a: number, b: number): number => a - b);
+    const knots: number[] = [...ends2];
+    // Farther than the gap (the fit's test is strict: a knot exactly 12 mm from the domain's end was dropped).
+    for (const s of events) if (knots.every((k: number): boolean => Math.abs(k - s) > FIT_GAP_MM)) knots.push(s);
+    knots.sort((a: number, b: number): number => a - b);
+    // An interval longer than twice the gap takes its middle, so a domain with no line event far enough from its ends still starts with
+    // the knots the fit could keep.
+    for (let i: number = 0; i + 1 < knots.length; ++i)
+      if (knots[i + 1]! - knots[i]! > 2 * FIT_GAP_MM) knots.splice(i + 1, 0, Math.round(((knots[i]! + knots[i + 1]!) / 2) * 100) / 100);
+    const values: number[][] = L.smooth(read.map((r): number => r.s), read.map((r): number[] => r.values), knots).map((field: number[], f: number): number[] => field.map((y: number): number => (S.units(layout)[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4)));
+    await fs.writeFile(path.join(out, name + ".family.json"), JSON.stringify({ name, layout, knots, values }));
+    // The start's own admission as the engine reads it, every 0.25 mm on its rounded values: a start the fit cannot take is named here.
+    const startAdmission = L.admit(H.reader({ knots, values }), layout, knots[0]!, knots.at(-1)!, ADMIT_STEP_MM, MARGIN.constructed);
     const file: string = path.join(out, name + ".bridge.json");
     const record: IBridge = {
       part: name,
-      domain: [station(range[0]!.s), station(range.at(-1)!.s)],
+      domain: [Math.min(station(range[0]!.s), station(range.at(-1)!.s)), Math.max(station(range[0]!.s), station(range.at(-1)!.s))],
       fairMm,
       knotMm: KNOT_MM,
-      layout: S.featured(S.limb(1), runs),
+      layout,
       lines: plan.order.map((l: number) => ({ span: [range[spans[l]![0]]!.s, range[spans[l]![1]]!.s] as [number, number], phases: lineOf[l]!.phases })),
-      command: `node <bundle>/FamilyConicBody.cjs ${name} --bridge=${file} --feature-knot=${KNOT_MM}`,
+      command: `node <bundle>/FamilyConicBody.cjs ${name} --bridge=${file} --seed=${out}${course?.fit === undefined ? "" : " " + course.fit}`,
     };
     await fs.writeFile(file, JSON.stringify(record));
-    return outside === 0 ? file : `${file} (${outside} line station(s) outside their run's extremes left out of the windows)`;
+    return `${file}; start ${name}.family.json, ${read.length} stations read, knots ${knots.join(", ")}, ${knots.length * values.length} stored numbers; start admitted at ${startAdmission.checked - startAdmission.refused.length} of ${startAdmission.checked} stations (least meeting ${f2(startAdmission.least)})${startAdmission.refused.length > 0 ? ", first refused " + startAdmission.refused[0] : ""}` + (outside === 0 ? "" : ` (${outside} line station(s) outside their run's extremes left out of the windows)`);
   }
 
   /** A point of an engine section at a phase from the course, by its ray (`AutoMovieViewChain.radius`'s reading through the chain's samples). */

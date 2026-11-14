@@ -43,6 +43,12 @@ export namespace FamilyConicStar {
      */
     inner?: boolean;
 
+    /**
+     * With it, only skin this predicate keeps is the region's as well, its point in the reference frame, mm: a region another part's own
+     * cut defines, as the trunk's chin cone leaves out the chin's skin, is that cut's set, which no box or radius follows.
+     */
+    region?: (w: readonly number[]) => boolean;
+
     /** Station step along the course, mm. */
     step: number;
   }
@@ -91,6 +97,9 @@ export namespace FamilyConicStar {
 
     /** The course's bend radius at the station, mm; infinite on a straight stretch. */
     bend: number;
+
+    /** The unit chart direction toward the bend's centre; zero on a straight stretch. */
+    toward: C.P;
   }
 
   /**
@@ -113,6 +122,7 @@ export namespace FamilyConicStar {
         return limited && facing > 1e-9 ? Math.min(radius, bend / facing) : radius;
       },
       bend,
+      toward,
     };
   }
 
@@ -141,7 +151,7 @@ export namespace FamilyConicStar {
       const region: IReach = reach(trial, axis, s);
       const inside = (p: C.P): boolean => {
         const w: number[] = [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
-        return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && region.inside(p);
+        return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && region.inside(p) && (trial.region === undefined || trial.region(w));
       };
       const phase = (p: C.P): number => Math.atan2(p[1], p[0]);
       const closed = (piece: C.P[]): C.P[] => {
@@ -258,7 +268,7 @@ export namespace FamilyConicStar {
         const world = (p: C.P): number[] => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
         const inside = (p: C.P): boolean => {
           const w: number[] = world(p);
-          return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && (trial.radius === undefined || Math.hypot(p[0], p[1]) <= trial.radius);
+          return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1 && (trial.radius === undefined || Math.hypot(p[0], p[1]) <= trial.radius) && (trial.region === undefined || trial.region(w));
         };
         const found: C.P[][] = loop === null ? [] : pieces(loop, inside);
         if (found.length === 0) {

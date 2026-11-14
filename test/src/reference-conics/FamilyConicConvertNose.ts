@@ -21,33 +21,39 @@ export namespace FamilyConicConvertNose {
     const part: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === "nose");
     if (part === undefined) throw new Error("No nose excursion");
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
+    // Each at its station on the course, 1,590 mm less its height, in station order: from the top down.
     return X.sections(source, part)
       .filter((row): boolean => row.section !== null)
+      .reverse()
       .map((row): T.ISection => {
         const section: X.ISection = row.section!;
-        const points: C.P[] = section.points.map((p: C.P): C.P => [p[0] - POINT[0], p[1] - POINT[1]]);
-        if (section.ends === undefined) return { s: row.y, points };
+        // Into the course's chart (`COURSE`): its `v` is the excursion's mirrored, so the points are reflected and their order reversed to stay
+        // counter-clockwise.
+        const points: C.P[] = section.points.map((p: C.P): C.P => [p[0] - POINT[0], -(p[1] - POINT[1])]).reverse();
+        if (section.ends === undefined) return { s: 1590 - row.y, points };
         // The closure runs round the back (phase pi) from one skin end to the other, counter-clockwise.
-        const [a, b] = section.ends.map((p: C.P): number => Math.atan2(p[1] - POINT[1], p[0] - POINT[0]));
+        const [a, b] = section.ends.map((p: C.P): number => Math.atan2(-(p[1] - POINT[1]), p[0] - POINT[0]));
         const wrap = (x: number): number => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const closure: [number, number] = wrap(Math.PI - a!) < wrap(b! - a!) ? [a!, b!] : [b!, a!];
-        return { s: row.y, points, closure };
+        return { s: 1590 - row.y, points, closure };
       });
   }
 
   /**
-   * The nose's course for the loft: up the median plane through the course point, x 111 mm, from 1,536 to 1,590 mm high, its chart's `u`
-   * forward (+x), so `v = u x t` is +z as in the excursion's chart and a section's station is its height less 1,536 mm. The frames are framed
-   * on the reference's skin in front of the face (x past 95 mm) within 30 mm of the median plane over the loft's heights.
+   * The nose's course, the fit tool's own (`FamilyConicBody.ts nose --nose-vertical`), so its bridge is read there: down the median plane
+   * through the course point, x 111 mm, from 1,590 to 1,536 mm high, its chart's `u` forward (+x) and `v = u x t` toward -z; a section's
+   * `s` is already its station there, 1,590 mm less its height (`sections`). The frames are framed on the reference's skin in front of the face (x past 95 mm) within 30 mm of the
+   * median plane over the loft's heights.
    */
   export const COURSE: T.ICourse = {
     centres: [
-      [111, 1536, 0],
       [111, 1590, 0],
+      [111, 1536, 0],
     ],
     halves: [],
     up: [1, 0, 0],
-    station: (y: number): number => y - 1536,
+    fit: "--nose-vertical",
+    station: (s: number): number => s,
     depth: 1,
     zone: (p): boolean => p[0] > 0.095 && p[1] > 1.5505 && p[1] < 1.5825 && Math.abs(p[2]) < 0.03,
   };
