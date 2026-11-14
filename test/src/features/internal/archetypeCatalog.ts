@@ -1,6 +1,5 @@
 import {
   type Archetype,
-  type IArchetypeBand,
   createAppliance,
   createBag,
   createBall,
@@ -10,6 +9,7 @@ import {
   createBed,
   createBench,
   createBicycle,
+  createBin,
   createBox,
   createBoxingGlove,
   createCar,
@@ -22,9 +22,11 @@ import {
   createDoor,
   createDrinkware,
   createDumbbell,
+  createElevator,
   createExerciseBike,
   createExerciseMat,
   createFood,
+  createGate,
   createGlove,
   createGolfClub,
   createHammerThrow,
@@ -46,6 +48,7 @@ import {
   createLoad,
   createLongGun,
   createLongTool,
+  createMachine,
   createMagazine,
   createMicrophone,
   createMobilityAid,
@@ -76,6 +79,7 @@ import {
   createStartingBlock,
   createStationery,
   createStorage,
+  createStreetFixture,
   createSwitch,
   createSword,
   createTable,
@@ -85,6 +89,7 @@ import {
   createTorch,
   createTray,
   createUmbrella,
+  createValve,
   createVaultingPole,
   createVaultingTable,
   createVessel,
@@ -108,9 +113,8 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   const add = (
     name: string,
     create: (seed?: number | string) => Archetype,
-    fixed?: boolean,
   ): void => {
-    rows.push({ name, create, ...(fixed === true ? { fixed } : {}) });
+    rows.push({ name, create });
   };
   for (const kind of createDrinkware.KINDS)
     add(
@@ -237,6 +241,35 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `obstacle-${kind}`,
       (seed?: number | string): Archetype => createObstacle({ kind }, seed),
     );
+  for (const kind of createStreetFixture.KINDS)
+    add(
+      `streetFixture-${kind}`,
+      (seed?: number | string): Archetype =>
+        createStreetFixture({ kind }, seed),
+    );
+  for (const kind of createBin.KINDS)
+    add(
+      `bin-${kind}`,
+      (seed?: number | string): Archetype => createBin({ kind }, seed),
+    );
+  for (const kind of createGate.KINDS)
+    add(
+      `gate-${kind}`,
+      (seed?: number | string): Archetype => createGate({ kind }, seed),
+    );
+  for (const kind of createMachine.KINDS)
+    add(
+      `machine-${kind}`,
+      (seed?: number | string): Archetype => createMachine({ kind }, seed),
+    );
+  add(
+    "valve",
+    (seed?: number | string): Archetype => createValve({}, seed),
+  );
+  add(
+    "elevator",
+    (seed?: number | string): Archetype => createElevator({}, seed),
+  );
   for (const kind of createWall.KINDS)
     add(
       `wall-${kind}`,
@@ -296,10 +329,6 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `projectile-${kind}`,
       (seed?: number | string): Archetype => createProjectile({ kind }, seed),
-      Object.values(createProjectile.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
     );
   for (const kind of createLongGun.KINDS)
     add(
@@ -425,10 +454,6 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tableware-${kind}`,
       (seed?: number | string): Archetype => createTableware({ kind }, seed),
-      Object.values(createTableware.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
     );
   for (const kind of createFood.KINDS)
     add(
@@ -562,8 +587,5 @@ export namespace archetypeCatalog {
 
     /** The archetype for a seed; the middle of every band when the seed is absent. */
     create(seed?: number | string): Archetype;
-
-    /** True when every band of the row's variant has zero width, as a standardised munition's read single figures do, so no seed varies it. */
-    fixed?: boolean;
   }
 }

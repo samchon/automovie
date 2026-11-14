@@ -4,13 +4,19 @@ import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
   createAppliance,
   createBar,
+  createBin,
   createDoor,
+  createElevator,
+  createGate,
   createLadder,
+  createMachine,
   createObstacle,
   createRamp,
   createSanitary,
   createStairs,
+  createStreetFixture,
   createSwitch,
+  createValve,
   createWall,
   createWindow,
 } from "../architecture";
@@ -340,6 +346,31 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createObstacle.Kind): Archetype => createObstacle({ kind }),
       ),
     ),
+    street: still({
+      ...kinds(
+        "streetFixture",
+        createStreetFixture.KINDS,
+        (kind: createStreetFixture.Kind): Archetype =>
+          createStreetFixture({ kind }),
+      ),
+      ...kinds(
+        "bin",
+        createBin.KINDS,
+        (kind: createBin.Kind): Archetype => createBin({ kind }),
+      ),
+      ...kinds(
+        "gate",
+        createGate.KINDS,
+        (kind: createGate.Kind): Archetype => createGate({ kind }),
+      ),
+      ...kinds(
+        "machine",
+        createMachine.KINDS,
+        (kind: createMachine.Kind): Archetype => createMachine({ kind }),
+      ),
+      valve: createValve(),
+      elevator: createElevator(),
+    }),
     vehicles: still({
       ...kinds(
         "car",

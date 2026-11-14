@@ -1,0 +1,126 @@
+import { createElevator } from "@automovie/archetypes";
+import type { IAutoMovieAffordance } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { archetypeBandSweep } from "../internal/archetypeBandSweep";
+import { archetypeExtent } from "../internal/archetypeExtent";
+
+/** A millimetre, the tolerance of #3368 for a placed contact. */
+const MM: number = 1e-3;
+
+/** ADA Table 407.4.1, centred door: 42 in door less its 5/8 in tolerance, 80 in wide, 51 in to the front return, 54 in to the door. */
+const ADA: Readonly<{
+  door: readonly [number, number];
+  width: number;
+  returns: number;
+  depth: number;
+}> = { door: [1.049, 1.065], width: 2.03, returns: 1.295, depth: 1.37 };
+
+/** KONE MonoSpace: car 2 100 to 2 400 mm high, door 2 000 mm high at the least. */
+const KONE: Readonly<{ car: readonly [number, number]; door: number }> = {
+  car: [2.1, 2.4],
+  door: 2.0,
+};
+
+/**
+ * A lift car is the ADA's accessible centred-door car at the KONE guide's heights, and its two leaves clear the entrance by sliding apart.
+ *
+ * Scenarios:
+ * 1. The inside is 80 in wide and 54 in from the back wall to the door, the front returns 51 in from it, the clear width inside the regulation's tolerance and the inside height inside KONE's range.
+ * 2. The entrance's width and height are the clear opening, its height at least KONE's least door height and below the roof.
+ * 3. At rest the leaves fill the opening, meeting at the middle; at full travel each has slid out by half the clear width, leaving the opening free.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the leaves; a car of the wrong size, an entrance off its opening or a leaf that slides into the opening is caught with the numbers.
+ * @evidence contracts/development/testing.md#independent-expectations The sizes are ADA Table 407.4.1's and KONE's figures restated here; the open leaves' places follow from half the clear width.
+ * @evidence contracts/development/testing.md#distinguishing-cases Closed and open leaves on both sides, a fixed and a ranging size.
+ * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ */
+export function test_archetype_elevator(): void {
+  const findings: string[] = [];
+  const near = (what: string, got: number, wanted: number): void => {
+    if (!(Math.abs(got - wanted) <= MM))
+      findings.push(`${what}: ${got}, ${wanted} expected`);
+  };
+
+  // 1. The car's inside.
+  findings.push(
+    ...archetypeBandSweep([
+      {
+        name: "lift car door clear width",
+        measure: (seed: number): number =>
+          createElevator({}, seed).affordance("entrance").width!,
+        minimum: ADA.door[0],
+        maximum: ADA.door[1],
+        source: "ADA Table 407.4.1",
+      },
+      {
+        name: "lift car inside height",
+        measure: (seed: number): number =>
+          archetypeExtent(createElevator({}, seed), "y", ["roof"]).low,
+        minimum: KONE.car[0],
+        maximum: KONE.car[1],
+        source: "KONE MonoSpace planning guide",
+      },
+    ]),
+  );
+  for (const seed of [0, 8, 21]) {
+    const car: ReturnType<typeof createElevator> = createElevator({}, seed);
+    const inside: number =
+      archetypeExtent(car, "x", ["side-left"]).low -
+      archetypeExtent(car, "x", ["side-right"]).high;
+    near(`car ${seed}: the inside width`, inside, ADA.width);
+    const back: number = archetypeExtent(car, "z", ["back"]).high;
+    near(
+      `car ${seed}: back wall to the door`,
+      archetypeExtent(car, "z", ["leftDoor-leaf"]).low - back,
+      ADA.depth,
+    );
+    near(
+      `car ${seed}: back wall to the front return`,
+      archetypeExtent(car, "z", ["return-left"]).low - back,
+      ADA.returns,
+    );
+
+    // 2. The entrance.
+    const entrance: IAutoMovieAffordance = car.affordance("entrance");
+    const roof: number = archetypeExtent(car, "y", ["roof"]).low;
+    if (!(entrance.height! >= KONE.door - 1e-9 && entrance.height! <= roof))
+      findings.push(
+        `car ${seed}: the entrance is ${entrance.height} high under a ${roof} roof`,
+      );
+    near(
+      `car ${seed}: the opening between the returns`,
+      archetypeExtent(car, "x", ["return-left"]).low -
+        archetypeExtent(car, "x", ["return-right"]).high,
+      entrance.width!,
+    );
+
+    // 3. The leaves.
+    const half: number = entrance.width! / 2;
+    near(
+      `car ${seed}: the closed leaves meet`,
+      archetypeExtent(car, "x", ["leftDoor-leaf"]).low,
+      archetypeExtent(car, "x", ["rightDoor-leaf"]).high,
+    );
+    const open: ReturnType<typeof createElevator> = car.articulate({
+      leftDoor: car.affordance("leftDoor").travel!,
+      rightDoor: car.affordance("rightDoor").travel!,
+    });
+    near(
+      `car ${seed}: the open left leaf's edge`,
+      archetypeExtent(open, "x", ["leftDoor-leaf"]).low,
+      half,
+    );
+    near(
+      `car ${seed}: the open right leaf's edge`,
+      archetypeExtent(open, "x", ["rightDoor-leaf"]).high,
+      -half,
+    );
+  }
+  TestValidator.equals(
+    "a lift car is the accessible car and its leaves clear the entrance",
+    findings,
+    [],
+  );
+}
