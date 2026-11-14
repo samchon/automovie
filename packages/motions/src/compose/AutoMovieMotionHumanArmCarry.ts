@@ -16,6 +16,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
@@ -329,7 +330,7 @@ export namespace AutoMovieMotionHumanArmCarry {
      */
     perceived?(posture: IHumanPosture, seconds: number): IHumanPosture.IGoal;
 
-    /** Whether the planned arm follows its goal on the hold, a person who moves: each second of the hold is corrected to `goal` read then (`AutoMovieMotionHumanArmPlanned.tracked`); the plan alone when absent. */
+    /** Whether the planned arm follows its goal on the hold, a person who moves: the plan with a correction toward `goal` read at each second, moved within the audit's travel bound (`AutoMovieMotionHumanArmFollow.follower`); the plan alone when absent. */
     tracked?: boolean;
 
     /** The arms planned over the same span as one problem; this arm alone when absent. */
@@ -382,8 +383,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
    * the composer gives; without, the joint-space carry between held angles
    * and the goal's solution (`carry`), a reflex's or a transport's. A
-   * planned arm that follows a person (`ICarry.tracked`) is corrected on the
-   * hold to the goal read at each second.
+   * planned arm that follows a person (`ICarry.tracked`) is the plan with a
+   * bounded correction toward the goal read at each second of the hold
+   * (`AutoMovieMotionHumanArmFollow.follower`).
    *
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
@@ -413,6 +415,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       }
       return group.solved.get(props.side)!;
     };
+    let follow: ((seconds: number) => HumanArmClearance.IArm) | undefined;
     return {
       channels: [limb],
       from: props.from,
@@ -422,14 +425,14 @@ export namespace AutoMovieMotionHumanArmCarry {
         const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
         let out: IHumanPosture;
         if (span !== undefined && seconds > span.start && seconds < span.end) {
-          const plan: HumanArmClearance.IArm = planned(before ?? ((): IHumanPosture => posture))(seconds);
+          const so: (seconds: number) => IHumanPosture = before ?? ((): IHumanPosture => posture);
 
-          // On the hold an arm that follows a person is corrected to the
-          // goal read at this second.
+          // An arm that follows a person is the plan with a bounded
+          // correction toward the goal read at each second of the hold.
           const arm: HumanArmClearance.IArm =
-            props.tracked === true && seconds > span.ready && seconds < span.relax
-              ? AutoMovieMotionHumanArmPlanned.tracked(props.body, props, posture, seconds, plan)
-              : plan;
+            props.tracked === true
+              ? (follow ??= AutoMovieMotionHumanArmFollow.follower(props.body, props, span, planned(so), so))(seconds)
+              : planned(so)(seconds);
           const joints: IHumanPosture["joints"] = { ...posture.joints };
           const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
           joints[`${props.side}UpperArm`] = arm.upper;

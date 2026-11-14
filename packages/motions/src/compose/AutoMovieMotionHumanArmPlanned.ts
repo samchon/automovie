@@ -278,58 +278,43 @@ export namespace AutoMovieMotionHumanArmPlanned {
   }
 
   /**
-   * A planned arm at one second of its hold, following its goal as it is
-   * read then: the feedback that keeps a hand on a person who moves, on the
-   * feed-forward plan. The planner's own still solve
-   * (`HumanArmTrajectory.held`), with the plan's constraints and clearance,
-   * from the planned arm at that second, so it is the plan wherever the
-   * site has not moved.
+   * How far a planned arm's goal has moved at a second of its hold since the
+   * plan perceived it: the site the goal puts the hand on now (a person one
+   * frame behind), less the site the plan used for that second, both on the
+   * pose at the second. Zero wherever the goal has not moved since the plan.
    *
    * @param body The body.
    * @param carry The arm.
    * @param posture The posture so far at the second.
    * @param seconds The second, on the hold.
-   * @param plan The planned arm at the second.
-   * @returns The arm.
-   * @throws {HumanRefusal} When the hand cannot follow its site with the arm clear.
+   * @returns The sites' difference, metres, the contact in the hand's frame, and the base the arm is read against.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is followed, how, from what and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Closed-loop tracking of a moving target: a feedback correction on a feed-forward plan, solved in the plan's own model.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base, one site, one still solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is read at the second as the hold reads it, a person one frame behind, so nothing reads ahead.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and one still solve of three waypoints per second written.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `site` and `HumanArmTrajectory.held`.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two sites, the pose they are read on and when the result is zero.
+   * @evidence contracts/development/implementation.md#principled-implementation A feedback term is driven by error: the target's motion since the feed-forward plan perceived it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base pose, two goal reads, one difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both sites are read on the same pose, so the posture so far cancels and only the target's motion is left.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve and two goal reads per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `site`, the planner's own reading of a goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function tracked(
+  export function moved(
     body: IHumanBody,
     carry: IPlanned,
     posture: IHumanPosture,
     seconds: number,
-    plan: HumanArmClearance.IArm,
-  ): HumanArmClearance.IArm {
+  ): { error: IAutoMovieVector3; contact: IAutoMovieVector3; base: HumanArmTrajectory.IProblem["bases"][number] } {
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${carry.side}Arm`];
     const pose: IAutoMoviePose = resolveHumanPosture(body, { ...posture, limbs });
     const goal: IHumanPosture.IGoal = carry.goal(posture, seconds);
-    const base: HumanArmTrajectory.IProblem["bases"][number] = { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] };
-    return HumanArmTrajectory.held({
-      body,
-      times: [seconds - STEP, seconds, seconds + STEP],
-      bases: [base, base, base],
-      arms: [
-        {
-          side: carry.side,
-          rest: carry.rest,
-          ...(carry.rests === undefined ? {} : { rests: carry.rests }),
-          sites: [undefined, site(body, pose, carry, goal), undefined],
-          guess: plan,
-        },
-      ],
-      share: (): number => 1,
-    })[0]!;
+    const now: HumanArmTrajectory.ISite = site(body, pose, carry, goal);
+    const then: HumanArmTrajectory.ISite = site(body, pose, carry, aim(carry, posture, seconds));
+    return {
+      error: Vector3.subtract(now.point, then.point),
+      contact: now.contact,
+      base: { pose, others: [...(goal.clear ?? []), ...(goal.rests ?? [])] },
+    };
   }
-
   /** The goal as the plan perceives it. */
   function aim(carry: IPlanned, posture: IHumanPosture, seconds: number): IHumanPosture.IGoal {
     return (carry.perceived ?? carry.goal)(posture, seconds);

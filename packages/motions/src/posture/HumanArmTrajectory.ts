@@ -94,39 +94,6 @@ export namespace HumanArmTrajectory {
     );
   }
 
-  /**
-   * The arms at one second of a hold that follows a moving goal: the
-   * problem's own still configuration at its middle waypoint, with the same
-   * constraints and clearance as the trajectory, solved from each arm's
-   * `guess` (the planned arm at that second), so the arm stays where the plan
-   * puts it as long as the site does and moves with the site when it moves.
-   * One arm alone is solved as the right arm in the mirror, as `solve` does.
-   *
-   * @param problem Three waypoints, the site on the middle one; each arm's `guess` is its planned arm there.
-   * @returns Each arm at the middle waypoint, in the problem's order.
-   * @throws {HumanRefusal} When the arms cannot keep the hand on its site and the arm clear there.
-   */
-  export function held(problem: IProblem): HumanArmClearance.IArm[] {
-    if (alone(problem)) return held(mirrored(problem));
-    const context: M.IContext = HumanArmTrajectoryContext.of({ ...problem, still: true });
-    const start: number[][][] = problem.arms.map((arm: IArm, a: number): number[][] => [
-      [...context.rest[a]!],
-      G.encode(context.setups[a]!, arm.guess!),
-      [...context.back[a]!],
-    ]);
-    const { x, evaluation }: { x: number[][][]; evaluation: M.IEvaluation } = HumanArmOptimiser.optimise(context, start);
-    if (evaluation.worst.value > M.TOLERANCE)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: evaluation.worst.axis,
-        value: evaluation.worst.value,
-        feasible: null,
-        reason: `the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} hand cannot follow its site at ${context.times[1]!.toFixed(3)} s with the arm clear: ${evaluation.worst.what}`,
-        fix: "put the hand on a site its arm reaches with the body clear",
-      });
-    return problem.arms.map((_: IArm, a: number): HumanArmClearance.IArm => G.arm(context.setups[a]!, x[a]![1]!));
-  }
-
   /** Whether the problem is one left arm, which is solved as the right arm in the mirror. */
   function alone(problem: IProblem): boolean {
     return problem.arms.length === 1 && problem.arms[0]!.side === "left";
