@@ -97,7 +97,7 @@ export namespace AutoMovieMotionHumanTouchStance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds and its unit.
    * @evidence contracts/development/design.md#principled-representation The girdle and heel angles, whether the trunk leans, the posture at the full rise and the primitives that perform them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members; the touch law reads the lean, the risen posture and the primitives, and its tests the two angles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members; the touch law reads the lean, the risen and the reached postures and the primitives, and its tests the two angles.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The primitives are built on the caller's clock, so the body moves on the hand's envelope.
    */
   export interface IStance {
@@ -110,8 +110,11 @@ export namespace AutoMovieMotionHumanTouchStance {
     /** Whether the trunk leans from the hips at some progress of the stroke. */
     leaning: boolean;
 
-    /** The standing posture with the girdle lifted by `girdle` and risen by `raise`, before any lean: the posture the arm's hint and reference are solved on. */
+    /** The standing posture with the girdle lifted by `girdle` and risen by `raise`, before any lean: the posture the stroke is entered from. */
     risen: IHumanPosture;
+
+    /** The risen posture leaned as far as the stroke's start asks: the posture the arm reaches its region from, which the arm's hint and reference are solved on. Solved on `risen` alone, a region only the lean brings within reach straightened the elbow, where the split of the arm's twist between the upper arm and the forearm is left undetermined. */
+    reached: IHumanPosture;
 
     /**
      * The primitives that rise and lean by `ready`, follow the stroke and come back from `relax`: none when the arm reaches as it stands.
@@ -223,11 +226,16 @@ export namespace AutoMovieMotionHumanTouchStance {
     const leaning: boolean = [0, 0.5, 1].some(
       (progress: number): boolean => lean.pitch(risen, progress) > 0,
     );
+    const tipped: IHumanPosture = lean.tip(risen, lean.pitch(risen, 0));
+    const reached: IHumanPosture = leaning
+      ? { ...tipped, root: resolveHumanPosture.lower(body, tipped).root }
+      : risen;
     return {
       girdle,
       raise,
       leaning,
       risen,
+      reached,
       primitives: (
         clock: AutoMovieMotionClock.IClock,
       ): IAutoMovieMotionHumanPrimitive[] => {

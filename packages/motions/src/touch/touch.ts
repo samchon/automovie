@@ -334,8 +334,11 @@ export namespace touch {
       p.site,
     );
 
-    // The posture the arms are solved on at plan time: the entry, risen.
+    // The posture the stroke is entered from (the entry, risen), and the one
+    // the arms are solved on at plan time: risen and leaned as the stroke's
+    // start asks, where the arm reaches its region.
     const risen: IHumanPosture = stance.risen;
+    const reached: IHumanPosture = stance.reached;
 
     // The reach's length: the farther hand's distance to its region at the entry.
     let far: number = 0;
@@ -404,10 +407,10 @@ export namespace touch {
         lay === "reach"
           ? AutoMovieMotionHumanTouchLaid.settled(
               body,
-              risen,
+              reached,
               side,
               effector,
-              region(target)(risen, 0),
+              region(target)(reached, 0),
               tangent,
               p.elbow,
             )
@@ -418,10 +421,10 @@ export namespace touch {
         own?.bend ??
         AutoMovieMotionHumanTouchLaid.bend(
           body,
-          risen,
+          reached,
           side,
           effector,
-          region(target)(risen, 0),
+          region(target)(reached, 0),
           tangent,
           lay,
           undefined,
@@ -448,10 +451,10 @@ export namespace touch {
             own === null
               ? AutoMovieMotionHumanTouchLaid.laid(
                   body,
-                  risen,
+                  reached,
                   side,
                   effector,
-                  region(target)(risen, 0),
+                  region(target)(reached, 0),
                   tangent,
                   bend,
                   lay,
@@ -459,7 +462,7 @@ export namespace touch {
                   p.elbow,
                   from,
                 )
-              : AutoMovieMotionHumanTouchLaid.reference(body, risen, side, {
+              : AutoMovieMotionHumanTouchLaid.reference(body, reached, side, {
                   point: own.wrist.point,
                   rotation: own.wrist.rotation,
                   bend,
