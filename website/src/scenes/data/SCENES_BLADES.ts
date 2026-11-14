@@ -82,4 +82,33 @@ export const SCENES_BLADES: readonly IScene[] = [
       object("gun", "createHandgun", "compact", -0.18, 0.42, 0, 0.91),
     ],
   ),
+  scene(
+    {
+      id: "reload-drill",
+      title: "Reload drill",
+      summary:
+        "A shooter takes a handgun from the range counter, presses a fresh magazine home with the other palm and lays the gun back down.",
+      setting: "combat",
+      roles: { fil: "shooter" },
+      needs: [],
+      refusedUntil: 3528,
+    },
+    "reload-drill",
+    [
+      person("fil", "m2", 0, 0.12, 0, [
+        act("drawFirearm", { prop: "gun" }),
+        act("reloadFirearm", {
+          target: { kind: "prop", subject: "gun", point: "magazine" },
+        }),
+        act("holsterFirearm", {
+          prop: "gun",
+          at: { x: -0.18, y: 0.91, z: 0.42 },
+        }),
+      ]),
+    ],
+    [
+      object("counter", "createTable", "counter", 0, 0.65, 180),
+      object("gun", "createHandgun", "compact", -0.18, 0.42, 0, 0.91),
+    ],
+  ),
 ];
