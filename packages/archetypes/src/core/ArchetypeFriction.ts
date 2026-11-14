@@ -153,6 +153,24 @@ export namespace ArchetypeFriction {
       kinetic: null,
       source: `${ELERT}: leather on metals, after the Handbook of Chemistry and Physics, 8th edition (1920)`,
     },
+    "concrete/wood": {
+      static: [0.61, 0.88],
+      kinetic: null,
+      source:
+        "Araki, Lee, Endo, Yoshida and Uetani 2009, AIJ Journal of Technology and Design 15(30):405-409, case D, eq. (4): hinoki on an untreated concrete block, 0.88 at the first loading and 0.61 at the second (https://www.jstage.jst.go.jp/article/aijt/15/30/15_30_405/_pdf/-char/ja)",
+    },
+    "concrete/steel": {
+      static: 0.52,
+      kinetic: 0.46,
+      source:
+        "static: Ikenaga et al. 2008, Proceedings of the 14th World Conference on Earthquake Engineering, section 2.2, mill-scale steel on non-shrink mortar, with Rabbat and Russell 1985 (ASCE Journal of Structural Engineering 111(3):505, read at its abstract only, 0.57 to 0.70) as corroboration; kinetic: Gomez, Kanvinde and Deierlein 2011, AISC Engineering Journal Q4, Table 1, sliding after the bond breaks (https://ej.aisc.org/index.php/engj/article/download/1021/1020). Both primaries measure steel on grout or mortar, not on bare concrete",
+    },
+    "concrete/stone": {
+      static: 0.57,
+      kinetic: 0.53,
+      source:
+        "Badika et al. 2022, Applied Sciences 12:5643 (https://doi.org/10.3390/app12115643), p. 6: a smooth saw-cut granite-concrete interface, peak friction angle 29.7 degrees and residual 27.9 degrees, their tangents, bonding negligible per the authors. It is a cast interface tested in direct shear at 0.5 to 1.5 MPa normal stress, not a loose stone on a slab; a stone resting under its own weight sees far lower stress, so the row is the best measured analogue, not an exact match",
+    },
     "leather/wood": {
       static: [0.27, 0.38],
       kinetic: null,
