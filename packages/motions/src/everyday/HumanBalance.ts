@@ -4,7 +4,6 @@ import {
   convexHull2D,
   pointInHull,
   resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -23,9 +22,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * the shift at which the engine's whole-body centre of mass
  * (`resolveAutoMovieCenterOfMass.place`, the segmental method of Winter,
  * Biomechanics and Motor Control of Human Movement, ch. 4) lies over the
- * middle of the feet's soles along the heading, the static balance
- * condition. The posture is solved (legs on their planted goals, arms on
- * theirs) and the centre placed from the solved bones at each trial of a
+ * middle of the base of support along the heading, the feet where they bear
+ * (`HumanFoot.base`), the static balance condition. The posture is solved
+ * (legs on their planted goals, arms on theirs) and the centre placed from the solved bones at each trial of a
  * scan and bisection over the shift. A bow solves it once per plan at its
  * deepest pitch and scales the shift with the sine of the pitch in between,
  * which is exact for a rigid upper body and leaves only the legs'
@@ -56,31 +55,39 @@ export namespace HumanBalance {
 
   /**
    * The hips' backward shift that puts the whole-body centre of mass over
-   * the middle of the feet's soles along the heading, or a stated distance
+   * the base of support along the heading, the feet where they bear
+   * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
    * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * The shifts from 0 to `range` hip heights are scanned on a grid, of the
-   * same step whatever the range, for the first one at which the centre of
-   * mass no longer lies ahead of the soles, and
-   * the crossing is refined by bisection to 0.5 mm. The scan is needed
-   * because the centre stops following the hips once the planted legs reach
-   * the limit of their range (in a deep squat the ankles cannot dorsiflex
-   * further), where an iteration on the slope diverges. When no shift in the
-   * range balances the body, the one that comes nearest is returned, and the
-   * law's margin-of-stability verdict reports the remaining imbalance.
+   * A centre ahead of the target is brought back to it, on whichever base
+   * the hips reach it over. One behind it is left where it is while it lies
+   * inside the base. One behind and outside stands on a forefoot whose heel
+   * an ankle at its range lifted: the feet stand flat where they can, the
+   * larger base, so the hips move back to bring the heel down with the
+   * centre inside; where no shift within the range does, the hips and trunk
+   * carry the centre forward over the middle of the forefoot, as a deep
+   * squat with its heels up does. The shifts from
+   * 0 to `range` hip heights the needed way are scanned on a grid, of the
+   * same step whatever the range, for the first one at which the centre reaches the target, or
+   * the base, and the crossing is refined by bisection to 0.5 mm. The scan
+   * is needed because the centre stops following the hips once the planted
+   * legs reach the limit of their range, where an iteration on the slope
+   * diverges, and because the base changes as a heel lifts. When no shift in
+   * the range balances the body, the one that comes nearest is returned,
+   * and the law's margin-of-stability verdict reports the remainder.
    *
    * @param body The body.
-   * @param build The posture for a backward shift of the hips, metres.
-   * @param range How far back the search looks, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @param target How far ahead of the soles' middle the centre is put, metres; 0, the middle itself, when absent.
-   * @returns The shift, metres; 0 when the centre lies no farther ahead than the target without one.
+   * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
+   * @param range How far the search looks either way, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
+   * @param target How far ahead of the base's middle the centre is put, metres; 0, the middle itself, when absent.
+   * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass over the middle of the soles along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and the error stops responding to the shift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One root find over the caller's posture builder; the error is `offset`, so the balance measure lives in one place.
+   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the three cases and the flat feet sought before the forefoot, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
+   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), one scan-and-bisection over a sign; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most `STEPS` + 1 posture solves for the scan over `RANGE` (in proportion more over a wider range) plus about log2(range / 0.5 mm), near 10, for the bisection, each a forward-kinematics pass with limb fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: callers solve once per plan at the deepest pitch and scale the result, so no two calls share a posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most three scans of `STEPS` + 1 posture solves over `RANGE` (in proportion more over a wider range) plus about log2(range / 0.5 mm), near 10, for the bisection, each a forward-kinematics pass with limb fits read once for both measures.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call balances its own builder.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function shift(
@@ -89,34 +96,64 @@ export namespace HumanBalance {
     range: number = RANGE,
     target: number = 0,
   ): number {
-    const error = (back: number): number => offset(body, build(back)) - target;
+    const at = (back: number): IReading => read(body, build(back));
+    const start: IReading = at(0);
     // One grid step is `RANGE / STEPS` hip heights whatever the range, so a
     // wider search finds the same first crossing a narrower one does.
     const step: number = (RANGE * body.measure.hipHeight) / STEPS;
     const steps: number = Math.ceil((STEPS * range) / RANGE - 1e-9);
-    let previous: number = 0;
-    const before: number = error(0);
-    if (before <= 0) return 0;
-    let best: { back: number; error: number } = { back: 0, error: before };
-    for (let k: number = 1; k <= steps; k++) {
-      const back: number = step * k;
-      const e: number = error(back);
-      if (e <= 0) {
-        let lo: number = previous;
-        let hi: number = back;
-        while (hi - lo > 5e-4) {
-          const mid: number = (lo + hi) / 2;
-          if (error(mid) > 0) lo = mid;
-          else hi = mid;
+    // The first shift from `from` the given way at which `error` is no
+    // longer positive, refined by bisection, or the one that came nearest
+    // when none is within the range.
+    const first = (
+      from: number,
+      sign: number,
+      error: (r: IReading) => number,
+    ): { found: boolean; back: number } => {
+      let previous: number = from;
+      let best: { back: number; error: number } = {
+        back: from,
+        error: error(at(from)),
+      };
+      if (best.error <= 0) return { found: true, back: from };
+      for (let k: number = 1; k <= steps; k++) {
+        const back: number = from + sign * step * k;
+        const e: number = error(at(back));
+        if (e <= 0) {
+          let lo: number = previous;
+          let hi: number = back;
+          while (Math.abs(hi - lo) > 5e-4) {
+            const mid: number = (lo + hi) / 2;
+            if (error(at(mid)) > 0) lo = mid;
+            else hi = mid;
+          }
+          return { found: true, back: hi };
         }
-        return (lo + hi) / 2;
+        if (e < best.error) best = { back, error: e };
+        previous = back;
       }
-      if (e < best.error) best = { back, error: e };
-      previous = back;
+      return { found: false, back: best.back };
+    };
+    const ahead = (r: IReading): number => r.offset - target;
+    // A centre ahead is brought back to the target, on the base it reaches.
+    if (ahead(start) > 0) return first(0, 1, ahead).back;
+    if (start.margin > 0) return 0;
+    // Behind and outside, on a lifted heel: flat feet first, the heel
+    // brought down by moving the hips back, the centre inside and not ahead
+    // of the middle.
+    const down: { found: boolean; back: number } = first(
+      0,
+      1,
+      (r: IReading): number => (r.flat ? 0 : 1),
+    );
+    if (down.found) {
+      const landed: IReading = at(down.back);
+      if (ahead(landed) > 0) return first(down.back, 1, ahead).back;
+      if (landed.margin > 0) return down.back;
     }
-    return best.back;
+    // Otherwise the forefoot: the centre carried forward over its middle.
+    return first(0, -1, (r: IReading): number => -ahead(r)).back;
   }
-
   /**
    * The static margin of stability of a posture: the horizontal distance
    * from the engine's whole-body centre of mass to the edge of the hull of
@@ -129,18 +166,14 @@ export namespace HumanBalance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measured quantity, its sign, the support points used and the static (zero-velocity) form of Hof's margin.
    * @evidence contracts/development/implementation.md#principled-implementation Hof et al. 2005 margin with zero velocity: the engine's segmental centre of mass to the convex hull of the feet's bearing outlines (`HumanFoot.base`), from the solved posture's bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves the posture, gathers the feet's bearing outline points and delegates the hull distance to the engine's `resolveAutoMovieCenterOfMass.margin`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves the posture once for both balance measures (`read`), gathers the feet's bearing outline points and delegates the hull distance to the engine's `resolveAutoMovieCenterOfMass.margin`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every posture uses the same bearing outlines and the engine's model.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve plus the hull of the two outlines' points.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function margin(body: IHumanBody, posture: IHumanPosture): number {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
-    return resolveAutoMovieCenterOfMass.margin(
-      resolveAutoMovieCenterOfMass.place(model(body), bones),
-      HumanFoot.base(body, bones),
-    );
+    return read(body, posture).margin;
   }
 
   /**
@@ -269,43 +302,77 @@ export namespace HumanBalance {
 
   /**
    * How far the whole-body centre of mass lies ahead of the middle of the
-   * feet's soles along a posture's heading, metres.
+   * base of support along a posture's heading, metres: the middle between
+   * the rearmost and the foremost point of the feet where they bear
+   * (`HumanFoot.base`), so a heel lifted off the floor moves the middle
+   * forward over the forefoot the body then stands on.
    *
    * @param body The body.
    * @param posture The posture.
    * @returns Metres; positive ahead.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the quantity, the reference (the soles' middle), the axis (the posture's heading) and the sign.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's centre of mass minus the middle of the two sole sockets, projected on the heading from the posture's yaw: the static balance error `shift` drives to zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve and one projection; `shift` uses it as its error.
+   * @evidence contracts/development/common.md#meaningful-documentation States the quantity, the reference (the bearing base's middle along the heading), the axis (the posture's heading) and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's centre of mass minus the middle of the base that bears after the leg fit, both projected on the heading from the posture's yaw: the static balance error `shift` drives to zero, which a heel-off moves with the base.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve read for both balance measures (`read`) and one projection; `shift` uses it as its error.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
   export function offset(body: IHumanBody, posture: IHumanPosture): number {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model(body),
-      bones,
-    );
-    const soles: IAutoMovieVector3[] = (["soleLeft", "soleRight"] as const).map(
-      (name) =>
-        resolveAutoMovieHumanoidSurfaces.place(
-          body.surfaces.sockets[name],
-          bones.get(body.surfaces.sockets[name].bone)!,
-        ).point,
-    );
-    const middle: IAutoMovieVector3 = Vector3.scale(
-      Vector3.add(soles[0]!, soles[1]!),
-      0.5,
-    );
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
-      { x: 0, y: 0, z: 1 },
-    );
-    return Vector3.dot(Vector3.subtract(com, middle), forward);
+    return read(body, posture).offset;
   }
+}
+
+/** A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres, and whether both heels bear. */
+interface IReading {
+  offset: number;
+  margin: number;
+  flat: boolean;
+}
+
+/** A posture's balance, read on one solve of it. */
+function read(body: IHumanBody, posture: IHumanPosture): IReading {
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, posture),
+  );
+  const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    model(body),
+    bones,
+  );
+  const base: IAutoMovieVector3[] = HumanFoot.base(body, bones);
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
+    { x: 0, y: 0, z: 1 },
+  );
+  let rear: number = Infinity;
+  let front: number = -Infinity;
+  for (const p of base) {
+    const along: number = Vector3.dot(p, forward);
+    rear = Math.min(rear, along);
+    front = Math.max(front, along);
+  }
+  return {
+    offset: Vector3.dot(com, forward) - (rear + front) / 2,
+    margin: resolveAutoMovieCenterOfMass.margin(com, base),
+    // A heel bears within the bearing height of the foot's lowest sole
+    // socket, the ball or the toe a foot stands on either way.
+    flat: (["left", "right"] as const).every(
+      (side: "left" | "right"): boolean => {
+        const sockets: HumanFoot.ISocket[] = HumanFoot.sockets(
+          body,
+          bones,
+          side,
+        );
+        return (
+          sockets[0]!.point.y <=
+          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) +
+            HumanFoot.BEARING
+        );
+      },
+    ),
+  };
 }
 
 /** Mass models by body. */

@@ -169,9 +169,10 @@ export namespace motionComposeTrunk {
   /**
    * The trunk's crouch on one body: the hips sink and the trunk inclines
    * over them, the body stands again, and the feet and the balance hold all
-   * the way. The balance is the centre of mass against the soles: not ahead
-   * of their middle (`HumanBalance.offset`, within 2 mm) and inside the base
-   * of support (`HumanBalance.margin` positive).
+   * the way. The balance is the centre of mass against the feet where they
+   * bear, the forefoot alone once the ankle's range lifts the heel: not
+   * ahead of their middle (`HumanBalance.offset`, within 2 mm) and inside
+   * the base of support (`HumanBalance.margin` positive).
    *
    * Scenarios:
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.

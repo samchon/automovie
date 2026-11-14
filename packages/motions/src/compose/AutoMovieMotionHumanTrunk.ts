@@ -235,10 +235,11 @@ export namespace AutoMovieMotionHumanTrunk {
 
   /**
    * A crouch: the hips sink and the trunk inclines forward over them
-   * (`sunk`), the hips moved back so the centre of mass stays over the feet,
-   * and the body stands again (a duck, the dip before a jump, a load taken
-   * into the legs). The crouch plants its legs itself on the feet the
-   * standing posture shows (`footing`, `planted`), so the knees bend under
+   * (`sunk`), the hips moved so the centre of mass stays over the feet where
+   * they bear, back over flat feet and forward over a forefoot whose heel the
+   * ankle's range lifts, and the body stands again (a duck, the dip before
+   * a jump, a load taken into the legs). The crouch plants its legs itself
+   * on the feet the standing posture shows (`footing`, `planted`), so the knees bend under
    * the sinking hips whatever the action before it left: a stance with leg
    * goals, or an exercise whose legs are joint angles alone, under which a
    * root lowered without goals would carry straight legs through the floor.
@@ -248,7 +249,7 @@ export namespace AutoMovieMotionHumanTrunk {
    * @throws {Error} When the depth or the pitch is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the movement, why the knees bend whatever the entry, the channels and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Standing balance keeps the centre of mass over the base of support, so the hip shift is solved by `HumanBalance.shift` on the lowest pose and scaled with the depth and the pitch by the clock's envelope. The shift is solved once on the standing posture with its legs planted, so between the ends the balance is the linear share of the solved one, not solved again. The feet are read once off the resolved standing posture, the place the body is displayed standing on.
+   * @evidence contracts/development/implementation.md#principled-implementation Standing balance keeps the centre of mass over the base of support, so the hip shift is solved by `HumanBalance.shift` on the lowest pose, over the feet where they bear, and scaled with the depth and the pitch by the clock's envelope. The shift is solved once on the standing posture with its legs planted, so between the ends the balance is the linear share of the solved one, not solved again. The feet are read once off the resolved standing posture, the place the body is displayed standing on.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds the lowered and planted pose for a share; it serves both the solve and the write.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative or non-numeric depth or pitch throws; no shift is stated; the feet are the posture's own, never a stance rebuilt from a width.
    * @evidence contracts/development/implementation.md#efficient-algorithms The balance and the feet are solved once when the phrase is built, not per evaluated second.
@@ -356,14 +357,14 @@ export namespace AutoMovieMotionHumanTrunk {
     // No place of the hips holds the pose when the nearest one still leaves
     // the centre of mass outside the feet.
     const margin: number = HumanBalance.margin(body, shifted(back));
-    if (back > 0 && !(margin > 0)) {
+    if (back !== 0 && !(margin > 0)) {
       const ahead: number = HumanBalance.offset(body, shifted(back));
       throw new HumanRefusal({
         kind: "base",
         axis: "balance",
         value: Number(ahead.toFixed(4)),
         feasible: { kind: "range", minimum: null, maximum: 0, unit: "m" },
-        reason: `the extended pose cannot be balanced over the feet: with the hips ${(back * 1000).toFixed(0)} mm back, the nearest place the search reaches, the centre of mass still stands ${(ahead * 1000).toFixed(0)} mm ahead of the soles' middle and ${(-margin * 1000).toFixed(0)} mm outside the feet`,
+        reason: `the extended pose cannot be balanced over the feet: with the hips ${(back * 1000).toFixed(0)} mm back, the nearest place the search reaches, the centre of mass still stands ${(ahead * 1000).toFixed(0)} mm ahead of the middle of the feet where they bear and ${(-margin * 1000).toFixed(0)} mm outside the feet`,
         fix: "pitch the trunk less, hold the limbs nearer, or give the body a support or a step",
       });
     }
