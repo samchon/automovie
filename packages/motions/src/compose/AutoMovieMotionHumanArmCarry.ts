@@ -33,6 +33,11 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  */
 export namespace AutoMovieMotionHumanArmCarry {
   /**
+   * Deprecated: a carry's path is the planner's, so a law moves its arm with
+   * `carried` over its clock's span (`ICarry.span`), its goal's point and
+   * contact the site, and this share-only carry and its clearing course
+   * (`HumanArmClearing.course`) are retired once the last law has moved.
+   *
    * A posture whose arms are carried in joint space between held angles and
    * their goals' solution: at share 0 each named arm holds the given angles,
    * at 1 the posture is returned as it is, and between them each joint is the
@@ -308,7 +313,7 @@ export namespace AutoMovieMotionHumanArmCarry {
      */
     weight(seconds: number): number;
 
-    /** The action's instants when the arm's whole action is planned as one trajectory (`AutoMovieMotionHumanArmPlanned.planned`): the reach, the hold on the goal's site and the return; the weight's carry when absent. */
+    /** The action's instants the arm's whole action is planned over as one trajectory (`AutoMovieMotionHumanArmPlanned.planned`): the reach, the hold on the goal's site and the return, in the clock's instants or as the weight states them (`AutoMovieMotionHumanArmPlanned.stated`); when absent, the deprecated joint-space carry (`carry`), kept until every law states its span. */
     span?: AutoMovieMotionHumanArmPlanned.ISpan;
 
     /**
@@ -378,11 +383,14 @@ export namespace AutoMovieMotionHumanArmCarry {
   }
 
   /**
-   * An arm carried toward a goal by a weight: with a span, the arm's whole
-   * action planned once as one trajectory with the other arms of its group
+   * An arm carried toward a goal by a weight: the arm's whole action planned
+   * once as one trajectory with the other arms of its group
    * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
-   * the composer gives; without, the joint-space carry between held angles
-   * and the goal's solution (`carry`), a reflex's or a transport's. A
+   * the composer gives, over the span the caller states in its clock's
+   * instants, or the span its weight states
+   * (`AutoMovieMotionHumanArmPlanned.stated`). Without a span the arm keeps
+   * the deprecated joint-space carry (`carry`), each law's until it states
+   * its span. A
    * planned arm that follows a person (`ICarry.tracked`) is the plan with a
    * bounded correction toward the goal read at each second of the hold
    * (`AutoMovieMotionHumanArmFollow.follower`).
@@ -401,6 +409,7 @@ export namespace AutoMovieMotionHumanArmCarry {
    */
   export function carried(props: ICarry): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
 
     // The arm's whole action, solved once over its span, with the other
     // arms of its group.
@@ -410,7 +419,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       if (group.solved === undefined) {
         if (group.solving === true) throw new Error("Two arms moved together are solved from the first of them");
         group.solving = true;
-        group.solved = AutoMovieMotionHumanArmPlanned.planned(props.body, props.span!, group.carries, before);
+        group.solved = AutoMovieMotionHumanArmPlanned.planned(props.body, span!, group.carries, before);
         group.solving = false;
       }
       return group.solved.get(props.side)!;
@@ -422,7 +431,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       to: props.to,
       // The group is planned when the action is, on the posture so far
       // before its first member, which leaves every member's arm out.
-      ...(props.span === undefined
+      ...(span === undefined
         ? {}
         : {
             prepare: (before: (seconds: number) => IHumanPosture): void => {
@@ -431,7 +440,6 @@ export namespace AutoMovieMotionHumanArmCarry {
           }),
       write: (posture: IHumanPosture, seconds: number, before?: (seconds: number) => IHumanPosture): IHumanPosture => {
         const weight: number = props.weight(seconds);
-        const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
         let out: IHumanPosture;
         // The plan holds over its span, and on past its end where the hand
         // stays on its site to the end (`ISpan.relax` at `end`), as nothing

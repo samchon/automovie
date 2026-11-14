@@ -2,6 +2,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmPhrase } from "./AutoMovieMotionHumanArmPhrase";
+import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
 /**
@@ -124,6 +125,20 @@ export namespace AutoMovieMotionHumanArm {
   /** {@link AutoMovieMotionHumanArmCarry.carried}. */
   export const carried: typeof AutoMovieMotionHumanArmCarry.carried =
     AutoMovieMotionHumanArmCarry.carried;
+
+  /**
+   * {@link AutoMovieMotionHumanArmPlanned.ISpan}, re-exported so a caller of the arm facade imports one namespace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmPlanned`; the members are documented there.
+   * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmPlanned` owns `ISpan`; this alias lets a law name the span it states on `carried` without a second import.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
+   */
+  export type ISpan = AutoMovieMotionHumanArmPlanned.ISpan;
+
+  /** {@link AutoMovieMotionHumanArmPlanned.stated}. */
+  export const stated: typeof AutoMovieMotionHumanArmPlanned.stated =
+    AutoMovieMotionHumanArmPlanned.stated;
 
   /** {@link AutoMovieMotionHumanArmMove.move}. */
   export const move: typeof AutoMovieMotionHumanArmMove.move =

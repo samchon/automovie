@@ -160,6 +160,11 @@ export namespace HumanArmClearing {
   ];
 
   /**
+   * Deprecated with `AutoMovieMotionHumanArmCarry.carry`, its only reader: a
+   * carry's clearance belongs to its planned trajectory
+   * (`AutoMovieMotionHumanArmCarry.carried` over a span), and this course is
+   * retired once the last share-only carry has moved.
+   *
    * An arm on its way between two poses, kept clear along the way by one
    * course: the clearing turn is solved at the fixed shares of the way
    * (`SHARES`) and carried between two neighbouring ones in proportion, and
