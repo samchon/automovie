@@ -9,7 +9,6 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -22,6 +21,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { exerciseLunge } from "./exerciseLunge";
 
 /**
  * A standing bodyweight exercise counted in repetitions (#3245, M24): the
@@ -286,94 +286,20 @@ export namespace exercise {
         break;
       }
       case "lunge": {
-        // The bottom: the lead thigh level over an upright shank, the trailing thigh hanging under its hip, its shank level behind on a foot stood on its toes with the ankle at its dorsiflexion range.
-        const hip: IAutoMovieVector3 = HumanFrame.point(
-          { origin: entry.root, yaw: entry.yaw },
-          body.rest.get(`${lead}UpperLeg`)!,
-        );
-        const low: number = stance[lead].ankle.y + m.shank;
-        const sink: number = Math.max(0, hip.y - low) * modifiers.extent;
-        const heel: number =
-          90 -
-          (AutoMovieMotionHumanRange.limit(`${trail}Foot`, "flexion") ?? 0);
-        const tiptoe = (share: number): HumanFoot.IPlacement =>
-          HumanFoot.pivot(
-            body,
-            trail,
-            "mtp",
-            HumanFoot.point(body, trail, "mtp", stance[trail]),
-            HumanFoot.heading(stance[trail].rotation),
-            -heel * share,
-          );
-        const toes: IAutoMovieVector3 = tiptoe(1).ankle;
-        const travel: number =
-          (Vector3.dot(Vector3.subtract(toes, hip), forward) +
-            Math.sqrt(
-              Math.max(0, m.shank ** 2 - (toes.y - (low - m.thigh)) ** 2),
-            )) *
-          modifiers.extent;
-        const stride: number =
-          travel +
-          m.thigh -
-          Vector3.dot(Vector3.subtract(stance[lead].ankle, hip), forward);
-        // The step out over the first half of the lowering, back over the second half of the rise.
-        primitives.push(
-          root(
-            (s: number): IAutoMovieVector3 =>
-              Vector3.add(Vector3.scale(forward, travel * any(s)), {
-                x: 0,
-                y: -sink * any(s) ** 2,
-                z: 0,
-              }),
-          ),
-          AutoMovieMotionHumanLeg.place({
-            body,
-            side: lead,
-            from: 0,
-            to: clock.duration,
-            placement: (_: IHumanPosture, s: number): HumanFoot.IPlacement =>
-              AutoMovieMotionHumanLeg.arc(
-                stance[lead],
-                shifted(stance[lead], Vector3.scale(forward, stride)),
-                0.05 * m.stature,
-                Math.min(1, 2 * any(s)),
-              ),
-            planted: (s: number): boolean => any(s) <= 0 || any(s) >= 0.5,
-          }),
-          // The trailing foot turns about its toes' joint, the toes flat.
+        const lunge: ReturnType<typeof exerciseLunge.plan> = exerciseLunge.plan(
           {
-            channels: [`${trail}Leg`],
-            from: 0,
-            to: clock.duration,
-            write: (posture: IHumanPosture, s: number): IHumanPosture => {
-              const share: number = any(s) * modifiers.extent;
-              return {
-                ...posture,
-                joints: {
-                  ...posture.joints,
-                  [`${trail}Toes`]: [heel * share, 0, 0],
-                },
-                limbs: {
-                  ...posture.limbs,
-                  [`${trail}Leg`]: AutoMovieMotionHumanLeg.goal(
-                    body,
-                    posture,
-                    trail,
-                    tiptoe(share),
-                    true,
-                  ),
-                },
-              };
-            },
+            body,
+            entry,
+            stance,
+            forward,
+            lead,
+            any,
+            extent: modifiers.extent,
+            duration: clock.duration,
           },
         );
-        contacts.push({
-          part: `${trail}Foot`,
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        });
+        primitives.push(...lunge.primitives);
+        contacts.push(...lunge.contacts);
         break;
       }
       case "highKnees": {
