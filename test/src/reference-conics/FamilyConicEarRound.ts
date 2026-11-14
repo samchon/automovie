@@ -122,13 +122,59 @@ namespace FamilyConicEarRound {
         points.push(p);
         normals.push(n.map((x: number): number => (out < 0 ? -x : x) / length));
       }
+    // `--host-dump=<round>`: the trunk of a realized round joins the host, each of its triangles a point (its centroid) with its outward
+    // normal, so a merge's curve that runs on from the plate onto the head (the helix's front limb is buried in the head) is read whole.
+    const hostDump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--host-dump="))?.slice("--host-dump=".length);
+    if (hostDump !== undefined) {
+      const pb: Buffer = await fs.readFile(path.join(hostDump, "mesh.positions.f64"));
+      const ib: Buffer = await fs.readFile(path.join(hostDump, "mesh.indices.u32"));
+      const ob: { names: string[]; triangle: number[] } = JSON.parse(await fs.readFile(path.join(hostDump, "mesh.owners.json"), "utf8"));
+      const positions: Float64Array = new Float64Array(pb.buffer, pb.byteOffset, pb.length / 8);
+      const indices: Uint32Array = new Uint32Array(ib.buffer, ib.byteOffset, ib.length / 4);
+      const trunk: number = ob.names.indexOf("trunk");
+      ob.triangle.forEach((owner: number, t: number): void => {
+        if (owner !== trunk) return;
+        const c: number[][] = [0, 1, 2].map((k: number): number[] => [positions[3 * indices[3 * t + k]!]!, positions[3 * indices[3 * t + k]! + 1]!, positions[3 * indices[3 * t + k]! + 2]!]);
+        const centre: number[] = [0, 1, 2].map((a: number): number => (c[0]![a]! + c[1]![a]! + c[2]![a]!) / 3);
+        if (centre[2]! < 55 || centre[0]! < -25 || centre[0]! > 45 || centre[1]! < 1525 || centre[1]! > 1615) return;
+        const e: number[] = [0, 1, 2].map((a: number): number => c[1]![a]! - c[0]![a]!);
+        const f: number[] = [0, 1, 2].map((a: number): number => c[2]![a]! - c[0]![a]!);
+        const n: number[] = [e[1]! * f[2]! - e[2]! * f[1]!, e[2]! * f[0]! - e[0]! * f[2]!, e[0]! * f[1]! - e[1]! * f[0]!];
+        const length: number = Math.hypot(n[0]!, n[1]!, n[2]!);
+        if (!(length > 0)) return;
+        points.push(centre);
+        normals.push(n.map((x: number): number => x / length));
+      });
+    }
+    // Nearest host point by a 1 mm grid, widened ring by ring until the nearest found is closer than the ring's reach.
+    const cells: Map<string, number[]> = new Map();
+    const key = (x: number, y: number, z: number): string => x + "," + y + "," + z;
+    points.forEach((p: number[], i: number): void => {
+      const k: string = key(Math.floor(p[0]!), Math.floor(p[1]!), Math.floor(p[2]!));
+      const list: number[] = cells.get(k) ?? [];
+      list.push(i);
+      cells.set(k, list);
+    });
     const signed = (q: readonly number[]): number => {
       let best: number = Infinity;
       let k: number = -1;
-      points.forEach((p: number[], i: number): void => {
-        const d: number = (p[0]! - q[0]!) ** 2 + (p[1]! - q[1]!) ** 2 + (p[2]! - q[2]!) ** 2;
-        if (d < best) [best, k] = [d, i];
-      });
+      const [x, y, z]: number[] = [Math.floor(q[0]!), Math.floor(q[1]!), Math.floor(q[2]!)];
+      for (let r: number = 0; r <= 40 && !(Math.sqrt(best) <= r - 1); ++r)
+        for (let i: number = -r; i <= r; ++i)
+          for (let j: number = -r; j <= r; ++j)
+            for (let l: number = -r; l <= r; ++l) {
+              if (Math.max(Math.abs(i), Math.abs(j), Math.abs(l)) !== r) continue;
+              for (const m of cells.get(key(x! + i, y! + j, z! + l)) ?? []) {
+                const p: number[] = points[m]!;
+                const d: number = (p[0]! - q[0]!) ** 2 + (p[1]! - q[1]!) ** 2 + (p[2]! - q[2]!) ** 2;
+                if (d < best) [best, k] = [d, m];
+              }
+            }
+      if (k < 0)
+        points.forEach((p: number[], i: number): void => {
+          const d: number = (p[0]! - q[0]!) ** 2 + (p[1]! - q[1]!) ** 2 + (p[2]! - q[2]!) ** 2;
+          if (d < best) [best, k] = [d, i];
+        });
       const p: number[] = points[k]!;
       const n: number[] = normals[k]!;
       return (q[0]! - p[0]!) * n[0]! + (q[1]! - p[1]!) * n[1]! + (q[2]! - p[2]!) * n[2]!;
@@ -159,6 +205,54 @@ namespace FamilyConicEarRound {
         if (chosen === "none" && changes.length > 0) chosen = `${((phase * 180) / Math.PI).toFixed(0)} deg at station ${changes[0]!.toFixed(1)}`;
       }
       lines.push(`# ${tube.name} seed lines (${seedLines}, stations ${half[0]}..${half.at(-1)}): first with a crossing ${chosen}; ${verdicts.join("; ")}`);
+
+      // The curve where the tube meets the host, in the tube's own chart: the cells of a grid (every half millimetre of station, every 5
+      // degrees of phase, periodic) whose four corners do not share a sign, joined across shared edges into connected pieces. Every seed
+      // line's crossing is placed in its piece: a seed on any of them traces the same curve exactly when they share one piece.
+      const P: number = 72;
+      const grid: number[][] = own.stations.map((s: number): number[] => Array.from({ length: P }, (_: unknown, j: number): number => signed(AutoMovieLoftChain.point(own.chain, s, (2 * Math.PI * j) / P))));
+      const I: number = own.stations.length;
+      const parent: number[] = Array.from({ length: I * P }, (_: unknown, n: number): number => n);
+      const findRoot = (n: number): number => {
+        let m: number = n;
+        while (parent[m] !== m) {
+          parent[m] = parent[parent[m]!]!;
+          m = parent[m]!;
+        }
+        return m;
+      };
+      const crossed = (i: number, j: number): boolean => {
+        const corners: number[] = [grid[i]![j]!, grid[i]![(j + 1) % P]!, grid[i + 1]![j]!, grid[i + 1]![(j + 1) % P]!];
+        return corners.some((v: number): boolean => v > 0) && corners.some((v: number): boolean => v <= 0);
+      };
+      const isCell: boolean[] = Array.from({ length: I * P }, (_: unknown, n: number): boolean => Math.floor(n / P) < I - 1 && crossed(Math.floor(n / P), n % P));
+      for (let i: number = 0; i + 1 < I; ++i)
+        for (let j: number = 0; j < P; ++j) {
+          if (!isCell[i * P + j]) continue;
+          for (const [a, b] of [[i, (j + 1) % P], [i + 1, j]] as [number, number][])
+            if (a + 1 < I && isCell[a * P + b]) parent[findRoot(i * P + j)] = findRoot(a * P + b);
+        }
+      const pieces: Map<number, { cells: number; from: number; to: number }> = new Map();
+      isCell.forEach((cell: boolean, n: number): void => {
+        if (!cell) return;
+        const r: number = findRoot(n);
+        const s: number = own.stations[Math.floor(n / P)]!;
+        const piece = pieces.get(r) ?? { cells: 0, from: s, to: s };
+        pieces.set(r, { cells: piece.cells + 1, from: Math.min(piece.from, s), to: Math.max(piece.to, s) });
+      });
+      const ids: number[] = [...pieces.keys()];
+      const seeds: string[] = [];
+      for (let k: number = 0; k < seedLines; ++k) {
+        const j: number = Math.round((k * P) / seedLines) % P;
+        for (let i: number = 0; i + 1 < I && own.stations[i + 1]! <= half.at(-1)!; ++i)
+          if (Math.sign(grid[i]![j]!) !== Math.sign(grid[i + 1]![j]!)) {
+            const piece: number = isCell[i * P + j] ? findRoot(i * P + j) : findRoot(i * P + ((j + P - 1) % P));
+            seeds.push(`${((360 * k) / seedLines).toFixed(0)} deg at ${own.stations[i]!.toFixed(1)} -> piece ${ids.indexOf(piece)}`);
+          }
+      }
+      lines.push(
+        `# ${tube.name} meeting curve: ${pieces.size} piece(s) [${ids.map((r: number, n: number): string => `${n}: ${pieces.get(r)!.cells} cells, stations ${pieces.get(r)!.from.toFixed(1)}..${pieces.get(r)!.to.toFixed(1)}`).join("; ")}]; seed crossings ${seeds.join(", ") || "none"}`,
+      );
     }
     for (const tube of tubes) {
       const own = sample(tube, 0.5);
