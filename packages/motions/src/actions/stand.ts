@@ -37,8 +37,9 @@ import { standUpright } from "./standUpright";
  * seeded smooth signals below 1 Hz with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
  * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
- * al. 2002, provisional factor 1.6). The window of the noise keeps the start
- * and the end of the stand exact.
+ * al. 2002, provisional factor 1.6); a given `sway` replaces that RMS, and 0
+ * stands still. The window of the noise keeps the start and the end of the
+ * stand exact.
  */
 export namespace stand {
   /** The action's name. */
@@ -80,7 +81,9 @@ export namespace stand {
     const joints = { ...RELAXED, ...upright.joints };
     const settle: number = Math.min(0.5, duration);
     const from: IAutoMovieVector3 = context.entry.posture.root;
-    const sway: number = 0.003 * HumanSkill.sway(context.skill);
+    const sway: number =
+      context.params.sway ?? 0.003 * HumanSkill.sway(context.skill);
+    HumanBound.least("sway", sway, 0, "m");
     const sx = context.random("swayX");
     const sz = context.random("swayZ");
     return {
@@ -124,6 +127,14 @@ export namespace stand {
   export interface IParams {
     /** How long to stand, seconds; 1.5 when absent. */
     seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
+
+    /**
+     * The postural sway's RMS on each floor axis, metres; the performer's own
+     * when absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for
+     * a stance that keeps exactly still, such as a reference scene a mirror
+     * or a difference is read against.
+     */
+    sway?: number & tags.Minimum<0> & HumanUnit<"m">;
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
