@@ -19,7 +19,7 @@ Write what happens in the request's interval from the [beat records](../story/la
 | From the beats | The paragraph says |
 | --- | --- |
 | Cast | Which polygon man becomes which person, by the reference token or element name when the model binds references, and by screen position |
-| Reaction | Each facial expression the hint cannot show, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
+| Reaction | Each reaction the hint cannot show, such as a facial expression or a torn sleeve, in the order the hint performs the beats, with the model's timestamp syntax where it has one |
 | Camera | The depth of field and focus the screenplay's camera entry or standing state decides; the hint carries framing, moves and lens |
 
 Leave out what the request keeps from the hint, such as positions, actions, contacts, timing, framing and camera moves. When the selected guide asks for each shot's action and camera, as some adapters trained on gray layouts do, write them from the same beat records and the hint, in words that match it. A model that takes only still frames needs them too, as [still frames only](#still-frames-only) sets.
@@ -52,7 +52,7 @@ When the model accepts one, give appearance there: an image made from the hint's
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because a chain of several in one request is followed less reliably; split the request instead, or use the model's own timestamp or multi-shot syntax when it has one.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because a chain of several in one request is followed less reliably; use the model's own timestamp or multi-shot syntax when it has one, and otherwise [boundaries](requests.md#boundaries) end the request after each action.
 
 ## Sound
 

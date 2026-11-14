@@ -1,13 +1,13 @@
 ---
 name: image
-description: Generates the still images that carry the appearance of a production's people, places and props, which its polygon men and coarse forms cannot show, namely canon reference images, a shot's first frame, last frame or keyframes and turnaround views for modeling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
+description: Generates the still images that carry the appearance of a production's people, places and props, which its polygon men and coarse forms cannot show, namely canon references, a shot's first frame, last frame or keyframes and turnaround views for modeling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
 ---
 
 # Image
 
 A generated image carries what polygon men and coarse forms cannot: the appearance of a person, place or object. A video request takes it for identity and appearance, and, for a requested detail option, an image-to-3D model generates a form from it, while every shot's pose and camera come from the motion hint. One accepted image then travels through settings or brief records, video references and shot frames.
 
-Many hosted image models expose no seed, and a seed does not guarantee the same image where one exists, so a prompt cannot reproduce an image: keep each accepted file and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
+Many hosted image models expose no seed or do not honor one exactly, so a prompt cannot reproduce an image: keep each accepted file and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
 
 ## Choose a generator
 
@@ -35,7 +35,7 @@ A wardrobe, makeup or wound state of a story day is its own reference set. Give 
 
 ## Control images
 
-For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose, so such a subject's canon references wait for its entity, because pose and depth estimators fail on featureless polygon men, and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets.
+For a canon reference, a plate or any other image without the hint's structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, as [dense passes](../motion/control-channels.md#dense-passes) sets. Such a subject's canon references therefore wait for its entity.
 
 ## Shot frames
 
