@@ -1,17 +1,8 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const {
-  act,
-  at,
-  mutual,
-  object,
-  person,
-  planned,
-  scene,
-  seat,
-  to,
-}: typeof SceneBuild = SceneBuild;
+const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
+  SceneBuild;
 
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
@@ -23,7 +14,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "A pair in closed hold, an underarm turn and a spin, then a walking promenade: he leads, she follows at his right and lays her hand on his shoulder; a hold kept while walking arrives with the two-body campaign.",
       setting: "partner",
       roles: { lea: "lead", fol: "follower" },
-      needs: [3437],
+      needs: [],
       featured: 9,
     },
     "dance",
@@ -79,7 +70,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "A firefighter carries a fainted guest out over the shoulder, the guest's body going with the carrier's chest.",
       setting: "partner",
       roles: { fir: "firefighter", gst: "guest" },
-      needs: [3437, 3440],
+      needs: [],
     },
     "carried-off",
     [
@@ -99,7 +90,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "The first half of a judo throw: tori takes the collar-and-sleeve grip as uke is drawn off balance forward; the turn in, the lift over the hip and the fall wait on force exchange.",
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
-      needs: [3439],
+      needs: [],
     },
     "judo",
     [
@@ -117,7 +108,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "One person kneels by another, carries them over the shoulder and walks off; the carried body rides rigidly until two-body contact lands.",
       setting: "partner",
       roles: { res: "rescuer", hur: "the hurt" },
-      needs: [3437, 3440],
+      needs: [],
     },
     "rescue",
     [
@@ -139,7 +130,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "A rider mounts a horse, rides at the walk and rises to the trot, then dismounts.",
       setting: "ride",
       roles: { rid: "rider" },
-      needs: [3494],
+      needs: [],
       view: "side",
     },
     "ride",
@@ -151,20 +142,43 @@ export const SCENES_PARTNER: readonly IScene[] = [
     ],
     [object("horse", "createHorse", undefined, 0, 0, 90)],
   ),
-  planned(
+  scene(
     {
       id: "into-a-car",
       title: "Into a car",
       summary:
         "Two people open the car's front doors and get in, ducking under the frame.",
       setting: "ride",
-      needs: [3498, 3520],
+      roles: { drv: "driver", pas: "passenger" },
+      needs: [],
+      refusedUntil: 3520,
     },
-    {
-      cast: "a driver and a passenger; a sedan",
-      pieces:
-        "openDoor and getIn of the gait family through the car's door handles, openings and seats; a car door pulled through its swing carries the handle beyond the arm (1.37 of its length at the nearest stand), so each must step with it (#3520)",
-    },
+    "into-a-car",
+    [
+      person("drv", "m1", 1.15, -0.2, 270, [
+        act("openDoor", {
+          door: "car",
+          handle: "driverDoorHandle",
+          seconds: 0.9,
+        }),
+        act("getIn", {
+          seat: seat("car", "driverSeat"),
+          through: { $aperture: "car", id: "driverAperture" },
+        }),
+      ]),
+      person("pas", "f1", -1.15, -0.2, 90, [
+        act("openDoor", {
+          door: "car",
+          handle: "passengerDoorHandle",
+          seconds: 0.9,
+        }),
+        act("getIn", {
+          seat: seat("car", "passengerSeat"),
+          through: { $aperture: "car", id: "passengerAperture" },
+        }),
+      ]),
+    ],
+    [object("car", "createCar", "sedan", 0, 0)],
   ),
   scene(
     {
@@ -174,7 +188,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         "Four workers: a hammer, a saw and a screwdriver, a box carried across, a cart pushed, a load carried on the hip and tossed over.",
       setting: "work",
       roles: { w1: "carpenter", w2: "carpenter", w3: "carrier", w4: "cleaner" },
-      needs: [3433],
+      needs: [],
     },
     "workshop",
     [
