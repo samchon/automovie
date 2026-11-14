@@ -20,8 +20,9 @@ import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints as J,
  * 5. `assemble` at the reference pose returns every family as its stored module: each centre, `up` and relief direction number for
  *    number, and the section table by identity (the same `knots`, `values` and relief `heights` arrays), so it was not copied or changed.
  * 6. `assemble` at the pose of scenario 4: the index finger's course is the reference course turned about the elbow, its `up` and the
- *    forearm relief's `axis` are the reference directions turned by `Q`, the trunk's course and the leg-free families are unmoved, and a
- *    family with another count of centres than its course is refused.
+ *    forearm relief's `axis` are the reference directions turned by `Q`, the trunk's course and the leg-free families are unmoved, the
+ *    posed arm's section values and layout are the module's own arrays (its stations are carried by the pose law, which
+ *    `test_human_conic_pose` holds), and a family with another count of centres than its course is refused.
  * 7. The twin: reflecting every posed frame (`AutoMovieHumanSegmentFrame.mirror`) and negating a stored point's local z gives the
  *    reflection of the posed point in z = 0, so a twin placed through mirrored frames is the reflection `AutoMovieHumanConicLoft.mirror`
  *    takes of the placed family, whose centres and `up` are checked against that reflection.
@@ -143,7 +144,7 @@ export function test_human_f1_placement(): void {
   near("unmoved trunk course", assembled.body.trunk.centres.flat(), reference.body.trunk.centres.flat(), 0);
   near("unmoved breast course", assembled.body.breast.centres.flat(), reference.body.breast.centres.flat(), 0);
   near("unmoved shoulder course", assembled.body.arm.centres.slice(0, 2).flat(), reference.body.arm.centres.slice(0, 2).flat(), 0);
-  if (assembled.body.arm.knots !== reference.body.arm.knots) failures.push("the posed arm's section table is not the module's own");
+  if (assembled.body.arm.values !== reference.body.arm.values || assembled.body.arm.layout !== reference.body.arm.layout) failures.push("the posed arm's section values are not the module's own");
   let refused: boolean = false;
   try {
     P.place({ ...reference.body.arm, centres: reference.body.arm.centres.slice(1) });
