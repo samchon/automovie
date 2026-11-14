@@ -89,7 +89,9 @@ namespace FamilyConicEarRound {
    * Along each tube's top line (phase 0, the line its merge's seed is sought on) and its course, every half millimetre of station, the
    * signed distance to the plate (the stored module, or the family a fit wrote as `<part>.family.json`): to the nearest of the plate's
    * points sampled every quarter millimetre of station and every half degree of phase, positive outside along the plate's normal there.
-   * A merge's seed needs the top line to leave the plate (negative to positive) within the seed's station range.
+   * A merge's seed needs the top line to leave the plate (negative to positive) within the seed's station range, and a ridge merged along
+   * the plate meets it in one loop only where its top line stands outside and its bottom line (phase pi) inside. `--tube=<family json>`
+   * checks a candidate family in place of the stored one of its name.
    */
   const crossing = async (file: string | undefined): Promise<string[]> => {
     const plate: AutoMovieHumanConicLoft.IFamily = file === undefined ? AutoMovieHumanF1.BODY.ear : JSON.parse(await fs.readFile(file, "utf8"));
@@ -131,13 +133,21 @@ namespace FamilyConicEarRound {
       const n: number[] = normals[k]!;
       return (q[0]! - p[0]!) * n[0]! + (q[1]! - p[1]!) * n[1]! + (q[2]! - p[2]!) * n[2]!;
     };
-    const lines: string[] = ["plate: " + (file ?? "the stored module"), "tube | station | top line point (phase 0), mm | signed distance of the top line to the plate | of the course"];
-    for (const tube of ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family)) {
+    // `--tube=<family json>` (repeatable) stands in for the stored family of the same name, so a candidate is checked before it is written.
+    const candidates: AutoMovieHumanConicLoft.IFamily[] = await Promise.all(
+      process.argv.filter((a: string): boolean => a.startsWith("--tube=")).map(async (a: string): Promise<AutoMovieHumanConicLoft.IFamily> => JSON.parse(await fs.readFile(a.slice("--tube=".length), "utf8"))),
+    );
+    const lines: string[] = [
+      "plate: " + (file ?? "the stored module") + "; tubes: " + (candidates.length === 0 ? "stored" : candidates.map((c) => c.name + " (candidate)").join(", ")),
+      "tube | station | top line point (phase 0), mm | signed distance of the top line (phase 0) to the plate | of the course | of the bottom line (phase pi)",
+    ];
+    for (const tube of ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family)) {
       const own = sample(tube, 0.5);
       const axis = AutoMovieHumanConicLoft.axis(tube);
       for (const s of own.stations) {
         const top: number[] = AutoMovieLoftChain.point(own.chain, s, 0);
-        lines.push(`${tube.name} | ${s.toFixed(2)} | [${top.map((x: number): string => x.toFixed(2)).join(", ")}] | ${signed(top).toFixed(2)} | ${signed(axis.at(s).origin).toFixed(2)}`);
+        const bottom: number[] = AutoMovieLoftChain.point(own.chain, s, Math.PI);
+        lines.push(`${tube.name} | ${s.toFixed(2)} | [${top.map((x: number): string => x.toFixed(2)).join(", ")}] | ${signed(top).toFixed(2)} | ${signed(axis.at(s).origin).toFixed(2)} | ${signed(bottom).toFixed(2)}`);
       }
     }
     return lines;
