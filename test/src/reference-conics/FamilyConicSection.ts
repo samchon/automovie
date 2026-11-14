@@ -968,6 +968,56 @@ export namespace FamilyConicSection {
   }
 
   /**
+   * A field vector derived from its anchors' physical places (lofting.md, Defining a family: a family is defined by a few longitudinal
+   * curves, and a groove is one more of them, drawn like the outlines): each extreme's point, each feature's point and unit tangent read
+   * into the model's numbers on its frame (`AutoMovieHumanConicSection.unplace`) and set where the model then puts it, each median's share
+   * from the middle of its neighbours' chord toward their tangents' corner by the projection of its point, and every arc's shoulder as
+   * given. A layout with inflection anchors (`i`) is refused: their numbers come from the skin, not from a place.
+   *
+   * @param found Each anchor's point, in layout order (a mirrored layout's first half).
+   * @param heading Each anchor's unit tangent, in the same order.
+   * @param shoulders Every arc's shoulder, in chain order.
+   * @param layout The layout.
+   */
+  export function fields(found: readonly P[], heading: readonly P[], shoulders: readonly number[], layout: ILayout): number[] {
+    const K: number = layout.anchors.length;
+    const points: P[] = found.map((p: P): P => [p[0], p[1]]);
+    const tangent: P[] = heading.map((t: P): P => [t[0], t[1]]);
+    const values: number[] = [];
+    const at: number[] = [];
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      at.push(values.length);
+      if (anchor.kind === "i") throw new Error("fields: a layout with inflection anchors reads them off the skin");
+      if (anchor.kind === "m") values.push(0.5);
+      else if (anchor.kind === "f") values.push(0, 0, Math.atan2(tangent[k]![1], tangent[k]![0]));
+      else if (anchor.mid === true) values.push(points[k]![0]);
+      else values.push(points[k]![0], points[k]![1]);
+    });
+    let previous: number = 0;
+    layout.anchors.forEach((anchor: IAnchor, k: number): void => {
+      if (anchor.kind !== "f") return;
+      if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
+      const [before, after]: [number, number] = S.frame(k, layout);
+      const read: { values: [number, number, number]; t: number } = S.unplace(points[before]!, points[after]!, points[k]!, values[at[k]! + 2]!, previous);
+      [values[at[k]!], values[at[k]! + 1], values[at[k]! + 2]] = read.values;
+      previous = S.along(previous, read.values[0]);
+      const placed: { point: P; tangent: P } = S.place(points[before]!, points[after]!, previous, read.values[1], read.values[2]);
+      points[k] = placed.point;
+      tangent[k] = placed.tangent;
+    });
+    for (const k of dependents(layout)) {
+      const [before, after]: [number, number] = neighbours(k, points);
+      const p0: P = points[before]!, p2: P = points[after]!;
+      const corner: P = meet(p0, tangent[before]!, p2, tangent[after]!);
+      const middle: P = [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2];
+      const d: P = [corner[0] - middle[0], corner[1] - middle[1]];
+      values[at[k]!] = ((found[k]![0] - middle[0]) * d[0] + (found[k]![1] - middle[1]) * d[1]) / (d[0] * d[0] + d[1] * d[1] || 1);
+    }
+    values.push(...shoulders.slice(0, layout.mirror ? K - 1 : K));
+    return values;
+  }
+
+  /**
    * The skin's inflection between two anchors as an `i` anchor's share and turn: of the points where the polygon's turning changes sign
    * (`FamilyConicExcursion.inflections`) that project onto the chord from `p0` to `p2` strictly inside it, the one nearest the share `near`;
    * its turn is its tangent's angle to the chord, read over its neighbours. Null when no sign change projects inside the chord.

@@ -105,6 +105,9 @@ export namespace FamilyConicFit {
   /** `--adaptive-knots`: the start's knots placed from the data (`adaptiveKnots`), and refused own seeds left out of the projection. */
   const ADAPTIVE: boolean = process.argv.includes("--adaptive-knots");
 
+  /** `--lines-start`: the start derived from the anchors' lines in physical coordinates (`linesStart`). */
+  const LINES_START: boolean = process.argv.includes("--lines-start");
+
   /**
    * How near a section's own admitted seed the start must stand, mm, read as the largest radial difference between the two chains along
    * 72 rays: twice the 0.5 mm the trunk's stored wall reached (`FamilyConicBody`), so the start stands near its data but need not fit it.
@@ -353,6 +356,27 @@ export namespace FamilyConicFit {
       Y.push(solved);
     }
     if (initial !== undefined) Y = initial.map((field: readonly number[]): number[] => [...field]);
+    // `--lines-start`: the start is the projection of the field vectors derived from the anchors' lines (`linesStart`), refused when any
+    // dense station's derived vector is.
+    if (LINES_START && initial === undefined) {
+      const lined: { at: (s: number) => number[]; refused: number } = linesStart(train, seeds, layout, margin, knots[0]!, knots[M - 1]!);
+      // `--lines-dump=<file>`: the derived field vectors at the `--seed-stations` stations, with the layout, as JSON, to draw.
+      const linesDump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--lines-dump="))?.slice("--lines-dump=".length);
+      const listedStations: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+      if (linesDump !== undefined) writeFileSync(linesDump, JSON.stringify({ layout, stations: listedStations.map((s: number): { s: number; values: number[] } => ({ s, values: lined.at(s) })) }));
+      if (lined.refused > 0) return failed(`the lines' start is refused at ${lined.refused} dense stations`);
+      const derived: number[][] = train.map((row: IRow): number[] => lined.at(row.s));
+      const lineGram: number[][] = zeros(M, M);
+      for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) lineGram[m]![n]! += b[m]! * b[n]!;
+      Y = [];
+      for (let f: number = 0; f < F; ++f) {
+        const right: number[] = new Array<number>(M).fill(0);
+        for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * derived[i]![f]!;
+        const solved: number[] | null = solve(lineGram.map((r: number[]): number[] => [...r]), right);
+        if (solved === null) return failed("the knot vector is not supported by the observed stations");
+        Y.push(solved);
+      }
+    }
 
     // Residuals of one section: radial misses at its vertices, then one barrier entry per share; null when its chain is inadmissible.
     const theta = (values: number[][], b: number[]): number[] => values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
@@ -957,6 +981,95 @@ export namespace FamilyConicFit {
       knots = [...knots, ...added].sort((a: number, b: number): number => a - b);
     }
     return knots;
+  }
+  /**
+   * The start derived from lines (lofting.md, Defining a family: "A family can be defined by a few view curves", and a groove is "one more
+   * longitudinal control curve, an inflection line drawn like the outlines"): each anchor of every section whose own seed the fit admits
+   * is read in physical coordinates, its phase about the course, its radius and its tangent's heading from the radial direction, and each
+   * arc's shoulder as it stands; each of those numbers is smoothed along the stations as a line by Whittaker's smoother (Eilers, A perfect
+   * smoother, Analytical Chemistry 75, 2003), second differences penalised with the weight that halves a wavelength of `FAIR_MM` (the
+   * sections' own form scale, along the course too), a refused seed weighing nothing; at any station the field vector is derived from the
+   * lines (`FamilyConicSection.fields`). Reports the round trip (each admitted seed derived back from its own anchors) and the derived
+   * vector's refusals at every `DENSE_MM` station by stretch.
+   */
+  export function linesStart(train: readonly IRow[], seeds: readonly (readonly number[])[], layout: C.ILayout, margin: number, from: number, to: number): { at: (s: number) => number[]; refused: number } {
+    const K: number = layout.anchors.length;
+    const units: C.Unit[] = C.units(layout);
+    const shares: number[] = units.map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const anchorFields: number = units.length - (layout.mirror ? K - 1 : K);
+    const rounded = (t: number[]): number[] => t.map((y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4));
+    const admitted = (t: number[]): boolean => {
+      const r: number[] = rounded(t);
+      if (C.chain(t, layout).fault !== null || C.chain(r, layout).fault !== null) return false;
+      if (!shares.every((f: number): boolean => t[f]! > 0 && t[f]! < 1 && r[f]! > 0 && r[f]! < 1)) return false;
+      return Math.min(...leastMeetings(t, layout), ...leastMeetings(r, layout)) >= margin;
+    };
+    const weights: number[] = seeds.map((t: readonly number[]): number => (admitted([...t]) ? 1 : 0));
+    // Each line's samples: per anchor its phase, radius and heading from the radial direction, then every arc's shoulder.
+    const samples: number[][] = seeds.map((t: readonly number[]): number[] => {
+      const input = C.resolve([...t], layout).input;
+      const points: number[][] = input.points as number[][], tangents: number[][] = input.tangents as number[][];
+      const out: number[] = [];
+      for (let k: number = 0; k < K; ++k) {
+        const phi: number = Math.atan2(points[k]![1]!, points[k]![0]!);
+        const heading: number = Math.atan2(tangents[k]![1]!, tangents[k]![0]!);
+        out.push(phi, Math.hypot(points[k]![0]!, points[k]![1]!), Math.atan2(Math.sin(heading - phi), Math.cos(heading - phi)));
+      }
+      return [...out, ...t.slice(anchorFields)];
+    });
+    const L: number = samples[0]!.length;
+    // Angles unwrapped along the stations, so a line is smoothed on one branch.
+    for (let j: number = 0; j < 3 * K; ++j) {
+      if (j % 3 === 1) continue;
+      for (let i: number = 1; i < samples.length; ++i) {
+        while (samples[i]![j]! - samples[i - 1]![j]! > Math.PI) samples[i]![j]! -= 2 * Math.PI;
+        while (samples[i]![j]! - samples[i - 1]![j]! < -Math.PI) samples[i]![j]! += 2 * Math.PI;
+      }
+    }
+    const derive = (line: readonly number[]): number[] => {
+      const found: C.P[] = [], heading: C.P[] = [];
+      for (let k: number = 0; k < K; ++k) {
+        const [phi, r, psi] = [line[3 * k]!, line[3 * k + 1]!, line[3 * k + 2]!];
+        found.push([r * Math.cos(phi), r * Math.sin(phi)]);
+        heading.push([Math.cos(phi + psi), Math.sin(phi + psi)]);
+      }
+      return C.fields(found, heading, line.slice(3 * K), layout);
+    };
+    // The round trip: an admitted seed derived back from its own anchors.
+    let trip: number = 0;
+    seeds.forEach((t: readonly number[], i: number): void => {
+      if (weights[i] === 0) return;
+      const back: number[] = derive(samples[i]!);
+      back.forEach((v: number, f: number): void => {
+        const d: number = units[f] === "angle" ? Math.abs(Math.atan2(Math.sin(v - t[f]!), Math.cos(v - t[f]!))) : Math.abs(v - t[f]!);
+        trip = Math.max(trip, d);
+      });
+    });
+    // Whittaker's smoother over the fitting stations (2 mm apart): lambda = 1 / (2 sin(pi h / FAIR))^4 halves the wavelength FAIR.
+    const n: number = train.length;
+    const spacing: number = (train[n - 1]!.s - train[0]!.s) / (n - 1);
+    const lambda: number = 1 / (2 * Math.sin((Math.PI * spacing) / C.FAIR_MM)) ** 4;
+    const system: number[][] = Array.from({ length: n }, (_: unknown, i: number): number[] => {
+      const row: number[] = new Array<number>(n).fill(0);
+      row[i] = weights[i]!;
+      return row;
+    });
+    for (let i: number = 1; i + 1 < n; ++i) {
+      const d: [number, number, number] = [1, -2, 1];
+      for (let a: number = 0; a < 3; ++a) for (let b: number = 0; b < 3; ++b) system[i - 1 + a]![i - 1 + b]! += lambda * d[a]! * d[b]!;
+    }
+    const smoothed: number[][] = Array.from({ length: L }, (_: unknown, j: number): number[] => solve(system.map((r: number[]): number[] => [...r]), samples.map((x: number[], i: number): number => weights[i]! * x[j]!)) ?? samples.map((x: number[]): number => x[j]!));
+    const splines = smoothed.map((z: number[]) => S.create(train.map((row: IRow): number => row.s), z));
+    const at = (s: number): number[] => derive(splines.map((spline): number => S.evaluate(spline, s)));
+    const refusals: Map<number, number> = new Map();
+    let refused: number = 0;
+    for (let s: number = from; s <= to + 1e-9; s += DENSE_MM) {
+      if (admitted(at(Math.min(s, to)))) continue;
+      ++refused;
+      refusals.set(Math.floor(s / 100) * 100, (refusals.get(Math.floor(s / 100) * 100) ?? 0) + 1);
+    }
+    process.stderr.write(`lines start: ${weights.filter((w: number): boolean => w > 0).length} of ${n} own seeds admitted and fitted; round trip within ${trip.toExponential(2)}; smoothing lambda ${lambda.toFixed(2)} at ${spacing.toFixed(2)} mm; refused dense stations ${refused} (${[...refusals.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}-${k + 100}: ${c}`).join(", ")})\n`);
+    return { at, refused };
   }
   /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */
   export function leastMeetings(t: readonly number[], layout: C.ILayout): number[] {
