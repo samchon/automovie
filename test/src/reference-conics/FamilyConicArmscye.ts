@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, AutoMovieMeshExtract, AutoMovieNaturalSpline, realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1, AutoMovieHumanF1Joints } from "@automovie/human";
@@ -118,11 +119,13 @@ namespace FamilyConicArmscye {
    * caps) crosses onto the arm's side of the loop for good (it stays there over the next 20 mm), and that station plus `into` mm, less
    * the arm's first station, for `ARM_RAILS_MM`.
    *
-   * Usage: `FamilyConicArmscye.ts port [intoMm] [count]`, 10 mm and 48 by default.
+   * Usage: `FamilyConicArmscye.ts port [intoMm] [count] [--wall=<directory>]`, 10 mm and 48 by default, the emitted arm unless a run's
+   * directory is given.
    */
   export async function port(): Promise<void> {
-    const into: number = Number(process.argv[3] ?? 10);
-    const count: number = Number(process.argv[4] ?? 48);
+    const plain: string[] = process.argv.slice(3).filter((argument: string): boolean => !argument.startsWith("--"));
+    const into: number = Number(plain[0] ?? 10);
+    const count: number = Number(plain[1] ?? 48);
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const loop: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
     const foot: number = AutoMovieHumanF1Joints.axisFloor[1];
@@ -131,7 +134,10 @@ namespace FamilyConicArmscye {
       return [Math.round((p[1] - foot) * 10) / 10, Math.round(Math.atan2(p[2], p[0]) * 1e4) / 1e4];
     });
     process.stdout.write("loop " + JSON.stringify(outline) + "\n");
-    const family: AutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1.BODY.arm;
+    // `--wall=<directory>`: the arm of a run not yet emitted (`<directory>/arm.family.json`), so the rails are read before the emit that
+    // must land together with them.
+    const wall: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice("--wall=".length);
+    const family: AutoMovieHumanConicLoft.IFamily = wall === undefined ? AutoMovieHumanF1.BODY.arm : (JSON.parse(await fs.readFile(path.join(wall, "arm.family.json"), "utf8")) as AutoMovieHumanConicLoft.IFamily);
     const first: number = family.knots[0]!;
     const loft = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, Array.from({ length: 61 }, (_: unknown, i: number): number => first + 4 * i));
     if (loft.chain === null) throw new Error("the arm's first stations do not loft");
