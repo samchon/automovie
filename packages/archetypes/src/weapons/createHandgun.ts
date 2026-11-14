@@ -165,6 +165,7 @@ export function createHandgun(
   builder.affordance({
     id: "muzzle",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       v(0, top - slide / 2, muzzle),
       v(0, 0, 1),

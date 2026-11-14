@@ -77,6 +77,7 @@ export function createCleaning(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),

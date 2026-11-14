@@ -121,6 +121,7 @@ export function createClub(
   builder.affordance({
     id: "strike",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, length - createClub.SWEET, thick),
       Vector3.create(0, 0, 1),

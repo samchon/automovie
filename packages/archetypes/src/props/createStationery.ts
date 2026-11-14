@@ -104,6 +104,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length),
         Vector3.create(0, 0, 1),
@@ -136,6 +137,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
       extent: null,
       width,
@@ -187,6 +189,7 @@ export function createStationery(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width,

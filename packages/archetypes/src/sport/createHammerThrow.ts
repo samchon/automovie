@@ -88,6 +88,7 @@ export function createHammerThrow(
   builder.affordance({
     id: "head",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });

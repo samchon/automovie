@@ -88,6 +88,7 @@ export function createJavelin(
   builder.affordance({
     id: "point",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),

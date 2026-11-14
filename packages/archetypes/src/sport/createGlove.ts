@@ -75,6 +75,7 @@ export function createGlove(
   builder.affordance({
     id: "pocket",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width: d.width / 2,

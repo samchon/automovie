@@ -90,6 +90,7 @@ export function createRacket(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       v(0, base + d.headLength / 2, thick / 2),
       v(0, 0, 1),
@@ -102,6 +103,7 @@ export function createRacket(
   builder.affordance({
     id: "sweetSpot",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       v(0, base + d.headLength / 2, 0),
       v(0, 1, 0),

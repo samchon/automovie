@@ -70,6 +70,7 @@ export function createTorch(
   builder.affordance({
     id: "lens",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(v(0, d.length, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
   });

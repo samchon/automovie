@@ -96,6 +96,7 @@ export function createSmoking(
     builder.affordance({
       id: "mouth",
       kind: "socket",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, radius, 0),
         Vector3.create(0, 0, -1),
@@ -105,6 +106,7 @@ export function createSmoking(
     builder.affordance({
       id: "flame",
       kind: "socket",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, radius, length),
         Vector3.create(0, 0, 1),
@@ -168,6 +170,7 @@ export function createSmoking(
   builder.affordance({
     id: "flame",
     kind: "socket",
+    direction: "along",
     frame: ArchetypeFrame.upright(
       Vector3.create(0, height + 0.015, depth * 0.3),
     ),

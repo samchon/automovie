@@ -153,6 +153,7 @@ export function createDevice(
     builder.affordance({
       id: "lens",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(grip, height / 2, depth / 2 + 0.02),
         Vector3.create(0, 0, 1),
@@ -163,6 +164,7 @@ export function createDevice(
     builder.affordance({
       id: "screen",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(grip, height / 2, -depth / 2),
         Vector3.create(0, 0, -1),
@@ -222,6 +224,7 @@ export function createDevice(
     builder.affordance({
       id: "screen",
       kind: "surface",
+      direction: "normal",
       frame: front(height / 2),
       extent: null,
       width: width * 0.94,
@@ -230,6 +233,7 @@ export function createDevice(
     builder.affordance({
       id: "lens",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, height * 0.9, -depth / 2),
         Vector3.create(0, 0, -1),

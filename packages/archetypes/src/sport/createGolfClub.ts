@@ -94,6 +94,7 @@ export function createGolfClub(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       v(d.headWidth / 2, high / 2, d.headDepth / 2),
       v(0, 0, 1),
@@ -105,6 +106,7 @@ export function createGolfClub(
   builder.affordance({
     id: "head",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       v(d.headWidth / 2, high / 2, 0),
       v(0, -1, 0),

@@ -87,12 +87,14 @@ export function createPolearm(
   builder.affordance({
     id: "tip",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.upright(v(0, length + head, 0)),
     extent: null,
   });
   builder.affordance({
     id: "butt",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });

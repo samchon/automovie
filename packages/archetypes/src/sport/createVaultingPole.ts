@@ -68,6 +68,7 @@ export function createVaultingPole(
   builder.affordance({
     id: "tip",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });

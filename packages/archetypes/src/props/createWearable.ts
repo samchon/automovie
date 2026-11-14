@@ -98,6 +98,7 @@ export function createWearable(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(v(0, thin + d.height, 0)),
       extent: null,
       width: d.width,

@@ -74,6 +74,7 @@ export function createRelayBaton(
   builder.affordance({
     id: "front",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, d.length, 0),
       Vector3.create(0, 1, 0),
@@ -84,6 +85,7 @@ export function createRelayBaton(
   builder.affordance({
     id: "back",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),

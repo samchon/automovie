@@ -157,6 +157,7 @@ export function createTool(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, length - 0.015, 0.055),
         Vector3.create(0, 0, 1),
@@ -174,6 +175,7 @@ export function createTool(
     builder.affordance({
       id: "face",
       kind: "ledge",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, handle + d.blade! / 2, createTool.BLADE_DEPTH / 2),
         Vector3.create(0, 0, 1),
@@ -193,6 +195,7 @@ export function createTool(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
       extent: null,
     });
@@ -208,6 +211,7 @@ export function createTool(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, length, 0),
         Vector3.create(0, 1, 0),
@@ -228,6 +232,7 @@ export function createTool(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, centre, 0.001),
         Vector3.create(0, 0, 1),

@@ -155,6 +155,7 @@ export function createLongGun(
   builder.affordance({
     id: "muzzle",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(v(0, 0, d.length), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });

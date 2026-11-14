@@ -261,6 +261,7 @@ export function createDrinkware(
     builder.affordance({
       id: "mouth",
       kind: "socket",
+      direction: "along",
       frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
       extent: null,
     });
@@ -268,6 +269,7 @@ export function createDrinkware(
   builder.affordance({
     id: "lip",
     kind: "ledge",
+    direction: "along",
     frame: ArchetypeFrame.upright(Vector3.create(0, height, rim)),
     extent: null,
   });

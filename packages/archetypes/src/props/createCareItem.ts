@@ -114,6 +114,7 @@ export function createCareItem(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
       extent: null,
       width,
@@ -152,6 +153,7 @@ export function createCareItem(
     builder.affordance({
       id: "face",
       kind: "ledge",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, 0, length / 2),
         Vector3.create(0, -1, 0),
@@ -198,6 +200,7 @@ export function createCareItem(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(
         Vector3.create(0, width * 1.6, length - head / 2),
       ),
@@ -240,6 +243,7 @@ export function createCareItem(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, width / 2, length),
         Vector3.create(0, 0, 1),
@@ -295,6 +299,7 @@ export function createCareItem(
   builder.affordance({
     id: "face",
     kind: "socket",
+    direction: "along",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, width / 2, length),
       Vector3.create(0, 0, 1),
