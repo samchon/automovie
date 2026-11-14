@@ -48,7 +48,7 @@ export interface IAutoMovieJointConstraint {
   /**
    * Present for a ball joint gated by swing and twist instead of by its three clinical angles one by one: a shoulder, a hip. The limb's long axis must point in a direction the `flexion` and `abduction` intervals (and `swingDeg`) reach, whatever the twist, and the limb's turn about that axis must lie in this `twist` interval, measured by the swing-twist decomposition from the rig's rest pose: the turn left once the shortest swing from the rest direction to the limb's direction is taken off. The clinical `twist` interval is then a reading of the pose, not a limit.
    *
-   * Three clinical angles name one rotation twice (two readings), and at the swing where two of them turn about one axis (an arm pointing straight ahead) a box of them is not a continuous set of rotations: two rotations a fraction of a degree apart can lie one inside and one far outside it. The swing-twist decomposition from the rest pose is singular only at the rest direction's antipode, which lies outside a shoulder's or a hip's reach, so a limit on it holds continuously wherever the limb can be. Null or omission keeps the three-angle gate.
+   * Three clinical angles name one rotation twice (two readings), and at the swing where two of them turn about one axis (an arm pointing straight ahead) a box of them is not a continuous set of rotations: two rotations a fraction of a degree apart can lie one inside and one far outside it. The swing-twist decomposition from the rest pose is singular only at the rest direction's antipode, which the record's `reach` keeps outside the range, so a limit on it holds continuously wherever the limb can be. Null or omission keeps the three-angle gate.
    */
   swingTwist?: IAutoMovieJointConstraint.ISwingTwist | null;
 }
@@ -59,12 +59,15 @@ export namespace IAutoMovieJointConstraint {
    * The swing-and-twist limit of a ball joint.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measure, its origin, its unit and its sign.
-   * @evidence contracts/development/design.md#principled-representation An interval of the twist about the limb's own axis left after the shortest swing from rest, by the swing-twist decomposition whose only singularity lies at the rest direction's antipode, outside a shoulder's or a hip's reach.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One member; the swing is read from the constraint's own flexion and abduction intervals, not restated, and the record is additive and optional on the constraint.
+   * @evidence contracts/development/design.md#principled-representation An interval of the twist about the limb's own axis left after the shortest swing from rest, by the swing-twist decomposition whose only singularity lies at the rest direction's antipode, which the farthest reach keeps outside.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members: the twist interval and the farthest reach; the swing's region is read from the constraint's own flexion and abduction intervals, not restated, and the record is additive and optional on the constraint.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a constraint without it keeps the three-angle gate unchanged.
    */
   export interface ISwingTwist {
     /** The limb's turn about its own long axis measured from the rig's rest pose by the swing-twist decomposition, degrees; positive external, negative internal. */
     twist: IAutoMovieAngleRange;
+
+    /** The farthest the limb's long axis may point from its rest direction, degrees, below 180, so the rest direction's antipode, where the twist has no value, lies outside the range; the reach the flexion and abduction intervals give when absent. */
+    reach?: number;
   }
 }

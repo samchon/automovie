@@ -21,12 +21,15 @@ const ballConstraint = (
   twist: IAutoMovieAngleRange | null,
   swingDeg: number,
   turn?: IAutoMovieAngleRange,
+  reach?: number,
 ): IAutoMovieJointConstraint => ({
   flexion,
   abduction,
   twist,
   swingDeg,
-  ...(turn === undefined ? {} : { swingTwist: { twist: turn } }),
+  ...(turn === undefined
+    ? {}
+    : { swingTwist: { twist: turn, ...(reach === undefined ? {} : { reach }) } }),
 });
 
 /**
@@ -34,6 +37,20 @@ const ballConstraint = (
  * abduction/twist.
  */
 const FINGER = constraint(range(-20, 100), null, null);
+
+/**
+ * The farthest a shoulder's arm points from the T-pose, degrees, which keeps
+ * the rest direction's antipode (the arm pointing through the chest, where
+ * the twist has no value) outside the range. Provisional, with a known
+ * defect: one radius on every great circle is a generalisation the anatomy
+ * does not have. The shoulder's directional limit is a measured cone that
+ * varies with the plane of elevation (Engin and Chen 1986, J Biomech Eng
+ * 108:215), not reached; the figure is horizontal adduction from 90 degrees
+ * of abduction, 130 in Physiotutors' active range of motion norms (IDEA
+ * gives 140; Norkin and White tabulate none), and applied elsewhere it
+ * clamps a hand wiping the mouth, which reaches 131.
+ */
+const REACH: number = 130;
 
 /**
  * Default anatomical range-of-motion table for the normalized humanoid, keyed
@@ -85,7 +102,12 @@ const FINGER = constraint(range(-20, 100), null, null);
  * a hand clasped behind the back -104 (the reaches of
  * `test_motion_fit_chain_reach`, which the three-angle box admitted). So the
  * interval is [-110, 135], provisional: one interval for every swing, where
- * the anatomical limit depends on the swing. The hips keep the three-angle
+ * the anatomical limit depends on the swing (Codman's paradox: the turn a
+ * swing adds makes one interval of clinical rotation, internal 70 and external
+ * 90 at 90 degrees of abduction, refuse a hand behind the head by 38 degrees
+ * and one behind the back by 34). Their swing is capped at `REACH` from the
+ * T-pose, so the rest direction's antipode, the arm pointing through the
+ * chest, where the twist has no value, lies 50 degrees outside the range. The hips keep the three-angle
  * gate: their twist is proximal, about the rest axis, and measured from rest
  * by swing and twist the turns their box admits run from -106 to 91 degrees
  * (deep flexion with abduction), which no one interval of the clinical 45
@@ -117,6 +139,7 @@ export const DEFAULT_HUMANOID_ROM: Partial<
     range(-90, 90),
     180,
     range(-110, 135),
+    REACH,
   ),
   rightUpperArm: ballConstraint(
     range(-60, 180),
@@ -124,6 +147,7 @@ export const DEFAULT_HUMANOID_ROM: Partial<
     range(-90, 90),
     180,
     range(-110, 135),
+    REACH,
   ),
   leftLowerArm: constraint(range(0, 150), null, range(-90, 90)),
   rightLowerArm: constraint(range(0, 150), null, range(-90, 90)),
