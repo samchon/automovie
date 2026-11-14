@@ -77,6 +77,20 @@ export namespace AutoMovieSolidJoin {
     rail(t: number): AutoMovieSolidRail.IRail | null;
 
     /**
+     * Solve the rails at radian parameter t again, reporting the quantities read and the failed premise (`AutoMovieSolidRail.explain`);
+     * null when the curve has no point at t.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation The same curve point, widths and mode as `rail`, through the same solve.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure A diagnostic reader beside `rail`; it caches nothing.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It changes no rail: `rail` and the join's checks read their own cache.
+     * @evidence contracts/development/common.md#meaningful-documentation States the parameter's units and the null case.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One curve correction and one rail solve per call.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the join's curve and width laws.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
+     */
+    explain(t: number): AutoMovieSolidRail.IExplanation | null;
+
+    /**
      * Read host-first and part-last boundary ribbons at radian parameter t; null means no rail.
      *
      * @evidence contracts/development/implementation.md#principled-implementation Uses the original cached rail and source 2-jets, scaling cross derivatives by rail chord over source cross-speed.
@@ -285,6 +299,38 @@ export namespace AutoMovieSolidJoin {
       return solved;
     };
 
+    /** The same solve as `rail`, explained. */
+    const explain: IJoin["explain"] = (
+      t: number,
+    ): AutoMovieSolidRail.IExplanation | null => {
+      const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
+      return p === null
+        ? null
+        : AutoMovieSolidRail.explain(
+            input.part,
+            host,
+            p,
+            keep,
+            typeof input.width.part === "function"
+              ? input.width.part(t)
+              : input.width.part,
+            input.width.host(t),
+            mode,
+          );
+    };
+
+    /** Why the column at t is missing: the rail's failed premise and its quantities, or the ribbons when the rail solved. */
+    const missing = (t: number): string => {
+      const read: AutoMovieSolidRail.IExplanation | null = explain(t);
+      if (read === null) return "the curve has no point there";
+      const numbers: string = Object.entries(read.quantities)
+        .map(([key, value]: [string, number]): string => `${key} ${Number(value.toPrecision(6))}`)
+        .join(", ");
+      return read.refusal === null
+        ? `the rails solved but their ribbons did not (${numbers})`
+        : `${read.refusal} (${numbers})`;
+    };
+
     /** Rebuild both surface ribbons at the cached rail; columns themselves are not cached. */
     const column: IJoin["column"] = (t: number): IColumn | null => {
       const r: AutoMovieSolidRail.IRail | null = rail(t);
@@ -313,7 +359,7 @@ export namespace AutoMovieSolidJoin {
       if (c === null)
         return fail(
           "rails",
-          `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm)`,
+          `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm): ${missing(p.t)}`,
         );
       const outside: string | null =
         AutoMovieSolidIntersection.beyond(input.part, c.rail.s) ??
@@ -378,7 +424,7 @@ export namespace AutoMovieSolidJoin {
       part: typeof input.width.part === "function" ? input.width.part(t) : null,
     });
     return {
-      join: { curve, keep, continuity: "G2", rail, column, loop, widths },
+      join: { curve, keep, continuity: "G2", rail, explain, column, loop, widths },
       diagnostics,
     };
   }

@@ -9,6 +9,12 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * station's count of loops round the axis, the loop's area and its vertex
  * count, so each part's single-loop domain is read from the data before any
  * family is fitted.
+ *
+ * Its modes (the first argument) read one place each. Among them, `saddles`
+ * reads the hand's dorsal hollows and the stations where its digits part,
+ * along the hand family's own course, with the wall's standoff. `thumbweb`
+ * reads where the thumb's skin ends toward the web, against the hand nets'
+ * hold round the thumb.
  */
 namespace FamilyConicScan {
   /** Mean of a loop's vertices in its chart, mm. */
@@ -284,9 +290,12 @@ namespace FamilyConicScan {
           // within 2 mm of the fork, which is where the line turns across.
           // The same at the second fork, read back along the chord. Each run stops 0.5 mm short of the first or last web knot so no two
           // knots coincide.
+          // Read out to 32 mm: a split's parent ends at its last star-shaped section (construction.md, Splits), up to 28 mm before the
+          // saddles where its digits part (the hand ends at 576 mm with its middle and ring fingers parting at 604; the foot at 965 with
+          // its middle and index toes parting at 993), so a seam runs out that far along the host before it turns across.
           const runOut = (from: R.V, sign: 1 | -1): [number, number][] => {
             const run: [number, number][] = [];
-            for (let out: number = 1; out < 20; out += 1) {
+            for (let out: number = 1; out < 32; out += 1) {
               const back: R.V = [from[0] + out * e2[0] - sign * 4 * e1[0], from[1] + out * e2[1] - sign * 4 * e1[1], from[2] + out * e2[2] - sign * 4 * e1[2]];
               const hits: number[] = cast(back, [sign * e1[0], sign * e1[1], sign * e1[2]]);
               const along: number = hits.length > 0 && hits[0]! < 0 ? -hits[0]! - 4 : Infinity;
@@ -354,12 +363,17 @@ namespace FamilyConicScan {
       const face = { surface: real.surfaces.find((s: { name: string }): boolean => s.name === name)! };
       const L: number | undefined = real.chains.find((c: { name: string }): boolean => c.name === name)?.layers.at(-1)?.y;
       if (face.surface === undefined || L === undefined) throw new Error("no band " + name);
-      const head: R.ISource["head"] = source.head;
+      // The reference's triangles within 10 mm of the band's box, read on the band at 64 clocks and five shares, on the body and the head.
+      const reach: number[][] = [];
+      for (let k: number = 0; k < 64; ++k) for (const t of [0, 0.25, 0.5, 0.75, 1]) reach.push([...face.surface.jet(t * L, (2 * Math.PI * k) / 64).p]);
+      const low: number[] = [0, 1, 2].map((c: number): number => Math.min(...reach.map((p: number[]): number => p[c]!)) - 10);
+      const high: number[] = [0, 1, 2].map((c: number): number => Math.max(...reach.map((p: number[]): number => p[c]!)) + 10);
       const triangles: R.V[][] = [];
-      for (let t: number = 0; t + 2 < head.indices.length; t += 3) {
-        const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [head.positions[head.indices[t + k]! * 3]!, head.positions[head.indices[t + k]! * 3 + 1]!, head.positions[head.indices[t + k]! * 3 + 2]!]);
-        if (corners.some((p: R.V): boolean => p[0] > 95 && p[1] > 1525 && p[1] < 1600 && Math.abs(p[2]) < 35)) triangles.push(corners);
-      }
+      for (const mesh of [source.body, source.head])
+        for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+          const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [mesh.positions[mesh.indices[t + k]! * 3]!, mesh.positions[mesh.indices[t + k]! * 3 + 1]!, mesh.positions[mesh.indices[t + k]! * 3 + 2]!]);
+          if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= low[c]! && x <= high[c]!))) triangles.push(corners);
+        }
       const sub = (a: readonly number[], b: readonly number[]): R.V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
       const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
       const cross = (a: readonly number[], b: readonly number[]): R.V => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
@@ -535,6 +549,117 @@ namespace FamilyConicScan {
         for (let r: number = crest; r > Math.max(0, crest - band); r -= h) if (skin(r) < skin(low)) low = r;
         const f = (r: number): string => ("(" + (cx + r * dx!).toFixed(1) + "," + (cy + r * dy!).toFixed(1) + "," + skin(r).toFixed(1) + ")").padEnd(22);
         process.stdout.write(String(deg).padStart(4) + " " + f(edge) + f(crest) + (edge - crest).toFixed(1).padStart(4) + "  " + f(low) + (skin(crest) - skin(low)).toFixed(1) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "saddles") {
+      // `saddles [from] [to] [family]`: along the family's own course (`hand`, the default, `AutoMovieHumanF1Hand`; or `leg`,
+      // `AutoMovieHumanF1Leg`, whose end the toes split), open at its last knot as the construction lofts
+      // it), every millimetre: the reference's loops in the plane (count, chart centre, area), and on the loop nearest the course every
+      // hollow under its hull deeper than 0.3 mm (polar phase range and deepest point, rad and mm), with the family wall's standoff from the
+      // skin at that deepest phase where the family reaches the station. A saddle is where a hollow's floor opens into a second loop: the
+      // station at which the plane first cuts two digits apart along that phase.
+      // The foot's dorsal forks stand where the leg's end ring meets the toes' bands, so the same reading on the leg's course places each
+      // dorsal saddle against that ring (975 mm) and its seam.
+      const which: string = process.argv[5] ?? "hand";
+      if (which !== "hand" && which !== "leg") throw new Error("saddles: family " + which + " is neither hand nor leg");
+      const family: AutoMovieHumanConicLoft.IFamily = { ...(which === "leg" ? AutoMovieHumanF1.BODY.leg : AutoMovieHumanF1.BODY.hand), tips: [null, null] };
+      const course: AutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
+      const last: number = family.knots.at(-1)!;
+      const chain = AutoMovieHumanConicLoft.create(family, family.knots).chain;
+      const polar = (p: C.P): number => ((Math.atan2(p[1], p[0]) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const from: number = Number(process.argv[3] ?? (which === "leg" ? 940 : 556));
+      const to: number = Number(process.argv[4] ?? (which === "leg" ? 995 : 610));
+      for (let s: number = from; s <= to; s += 1) {
+        const frame = course.at(s);
+        const loops: C.P[][] = R.loops(source.body, frame).filter((loop: C.P[]): boolean => Math.hypot(...centre(loop)) < 90);
+        const main: C.P[] | undefined = loops.reduce((best: C.P[] | undefined, loop: C.P[]): C.P[] => (best === undefined || Math.hypot(...centre(loop)) < Math.hypot(...centre(best)) ? loop : best), undefined);
+        const cells: string[] = loops.map((loop: C.P[]): string => "(" + centre(loop).map((x: number): string => x.toFixed(0)).join(",") + " a" + (R.area(loop) / 100).toFixed(1) + ")");
+        const hollows: string[] = [];
+        if (main !== undefined) {
+          const hull: C.P[] = R.hull(main);
+          // Depth of a point under the hull: its least distance to the hull's edges, the point lying inside the hull.
+          const depth = (p: C.P): number =>
+            Math.min(
+              ...hull.map((a: C.P, k: number): number => {
+                const b: C.P = hull[(k + 1) % hull.length]!;
+                const e: C.P = [b[0] - a[0], b[1] - a[1]];
+                const t: number = Math.max(0, Math.min(1, ((p[0] - a[0]) * e[0] + (p[1] - a[1]) * e[1]) / (e[0] * e[0] + e[1] * e[1] || 1)));
+                return Math.hypot(p[0] - a[0] - t * e[0], p[1] - a[1] - t * e[1]);
+              }),
+            );
+          const depths: number[] = main.map(depth);
+          // Runs of consecutive vertices deeper than 0.3 mm, round the closed loop from a vertex that is not.
+          const start: number = Math.max(0, depths.findIndex((d: number): boolean => d <= 0.3));
+          let run: number[] = [];
+          const flush = (): void => {
+            if (run.length === 0) return;
+            const deepest: number = run.reduce((b: number, k: number): number => (depths[k]! > depths[b]! ? k : b), run[0]!);
+            const t: number = polar(main[deepest]!);
+            let standoff: string = "";
+            if (chain !== null && s <= last) {
+              // The wall's point at the chain sample whose polar angle is nearest the hollow's deepest phase.
+              const gap = (x: C.P): number => Math.abs(Math.atan2(Math.sin(polar(x) - t), Math.cos(polar(x) - t)));
+              let best: C.P | null = null;
+              for (let j: number = 0; j < 720; ++j) {
+                const q: number[] = AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 720);
+                const d: number[] = [q[0]! - frame.origin[0], q[1]! - frame.origin[1], q[2]! - frame.origin[2]];
+                const c: C.P = [d[0]! * frame.u[0] + d[1]! * frame.u[1] + d[2]! * frame.u[2], d[0]! * frame.v[0] + d[1]! * frame.v[1] + d[2]! * frame.v[2]];
+                if (best === null || gap(c) < gap(best)) best = c;
+              }
+              standoff = " wall " + (Math.hypot(...best!) - Math.hypot(...main[deepest]!)).toFixed(2) + "mm";
+            }
+            hollows.push("[" + polar(main[run[0]!]!).toFixed(2) + ".." + polar(main[run.at(-1)!]!).toFixed(2) + " deepest " + depths[deepest]!.toFixed(2) + "mm@" + t.toFixed(2) + standoff + "]");
+            run = [];
+          };
+          for (let i: number = 0; i < main.length; ++i) {
+            const k: number = (start + i) % main.length;
+            if (depths[k]! > 0.3) run.push(k);
+            else flush();
+          }
+          flush();
+        }
+        process.stdout.write(s + ": loops " + loops.length + " " + cells.join(" ") + (hollows.length === 0 ? "" : "\n    hollows " + hollows.join(" ")) + "\n");
+      }
+      return;
+    }
+    if (process.argv[2] === "thumbweb") {
+      // `thumbweb`: where the thumb's skin ends toward the web. In planes square to the line from the thumb's first joint to its third, every
+      // 2 mm from 24 to 56 mm along it (`FamilyConicBody.ts` `thumbHold` holds the hand's nets inside 15 mm of that line from 30 mm on),
+      // the crossings of the reference skin, mm from the line, along the ray toward the index finger's first joint (`web`) and along the
+      // rays 45 and 90 degrees either side of it: the first is the thumb's skin on that side, and a gap before the next is the web's air.
+      const a: R.V = joint("thumb_01_r");
+      const b: R.V = joint("thumb_03_r");
+      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      const k: R.V = [(b[0] - a[0]) / length, (b[1] - a[1]) / length, (b[2] - a[2]) / length];
+      const index: R.V = joint("index_01_r");
+      for (let along: number = 24; along <= 56; along += 2) {
+        const o: R.V = [a[0] + along * k[0], a[1] + along * k[1], a[2] + along * k[2]];
+        const w: R.V = [index[0] - o[0], index[1] - o[1], index[2] - o[2]];
+        const dot: number = w[0] * k[0] + w[1] * k[1] + w[2] * k[2];
+        const square: R.V = [w[0] - dot * k[0], w[1] - dot * k[1], w[2] - dot * k[2]];
+        const l: number = Math.hypot(...square);
+        const u: R.V = [square[0] / l, square[1] / l, square[2] / l];
+        const v: R.V = [k[1] * u[2] - k[2] * u[1], k[2] * u[0] - k[0] * u[2], k[0] * u[1] - k[1] * u[0]];
+        const loops: C.P[][] = R.loops(source.body, { origin: o, u, v });
+        const cells: string[] = [-90, -45, 0, 45, 90].map((deg: number): string => {
+          const r: C.P = [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
+          const hits: number[] = loops
+            .flatMap((loop: C.P[]): number[] =>
+              loop.flatMap((p: C.P, i: number): number[] => {
+                const q: C.P = loop[(i + 1) % loop.length]!;
+                const e: C.P = [q[0] - p[0], q[1] - p[1]];
+                const den: number = r[0] * e[1] - r[1] * e[0];
+                if (Math.abs(den) < 1e-12) return [];
+                const t: number = (p[0] * e[1] - p[1] * e[0]) / den;
+                const m: number = (p[0] * r[1] - p[1] * r[0]) / den;
+                return t > 0 && m >= 0 && m <= 1 ? [t] : [];
+              }),
+            )
+            .sort((x: number, y: number): number => x - y);
+          return (deg === 0 ? "web" : deg + "deg") + " " + hits.slice(0, 4).map((t: number): string => t.toFixed(1)).join("/");
+        });
+        process.stdout.write("along " + along + ": " + cells.join("  ") + "\n");
       }
       return;
     }

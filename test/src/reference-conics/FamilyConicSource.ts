@@ -76,8 +76,12 @@ export namespace FamilyConicSource {
     return { body: mesh(["body"]), head: mesh(["head"]), all: mesh(["body", "head"]), joints };
   }
 
-  /** Cut a mesh by a frame's plane and read the loop round its origin in the frame's chart. */
-  export function cut(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame): ICut {
+  /**
+   * Cut a mesh by a frame's plane and read the loop round its origin in the frame's chart.
+   *
+   * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
+   */
+  export function cut(mesh: M.IMesh, frame: AutoMovieLoftFrame.IFrame, bridge: number = 3): ICut {
     const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
     const place: M.IFrame = { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] };
     const section: M.ISection = M.outline(mesh, place, [0], 0, 0.5, 0)[0]!;
@@ -85,7 +89,7 @@ export namespace FamilyConicSource {
     let round: C.P[][] = closed(section.loops);
 
     // Where the body and head skins meet their rims do not share vertices, so a cut through the seam chains into open pieces; the extractor's own bridging joins ends up to 3 mm apart into the outer boundary.
-    if (round.length === 0) round = closed(M.outline(mesh, place, [0], 0, 0.5, 3)[0]!.outer);
+    if (round.length === 0) round = closed(M.outline(mesh, place, [0], 0, 0.5, bridge)[0]!.outer);
     // Several loops round the origin are nested shells (the head mesh carries its mouth and throat lining): the skin is the outermost, the one of largest area.
     const outer: C.P[] | null = round.length === 0 ? null : round.reduce((a: C.P[], b: C.P[]): C.P[] => (area(b) > area(a) ? b : a));
     return { loop: outer, around: round.length, pieces: section.loops.length };

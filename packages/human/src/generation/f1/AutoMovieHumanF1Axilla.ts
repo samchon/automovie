@@ -15,74 +15,74 @@ import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection"
  * Source: the f1 reference body cut by this course's own planes over stations 25 to 78 mm, 107 sections 0.5 mm apart, every
  * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
  * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.34 mm from it on average and at most 2 mm. 87 independent numbers.
+ * 0.5 mm from it on average and at most 2.21 mm. 87 independent numbers.
  */
 export const AutoMovieHumanF1Axilla: AutoMovieHumanConicLoft.IFamily = {
   name: "axilla",
   centres: [[16, 1287, 147.5], [-25, 1262, 150.5], [-45, 1269.5, 151], [-56, 1283, 151.5]],
-  halves: [8,5],
+  halves: [8, 5],
   up: [0, 1, 0],
   layout: AutoMovieHumanConicSection.inflected(1, [0]),
   knots: [25, 51.5, 78],
   values: [
     // front (+u) extreme: u, mm
-    [8.54, 6.18, 6.02],
+    [7.6, 6.29, 6.06],
     // front (+u) extreme: v, mm
-    [-2.33, -1.05, -0.14],
+    [-2.4, -1.15, 0.06],
     // inflection place t on its chord, share
-    [0.2179, 0.267, 0.1234],
+    [0.187, 0.3228, 0.1651],
     // inflection tangent turn from the chord, rad
-    [0.2173, 0.2711, 0.5301],
+    [0.4613, 0.4218, 0.8869],
     // median fullness f of the arc pair around anchor 2, share
-    [0.4221, 0.5448, 0.0209],
+    [0.837, 0.9642, 0.6836],
     // inflection place t on its chord, share
-    [0.9434, 0.951, 0.9417],
+    [0.8677, 0.9703, 0.8007],
     // inflection tangent turn from the chord, rad
-    [-0.7322, -0.8311, -0.0227],
+    [-0.8792, -1.2842, -0.6853],
     // median fullness f of the arc pair around anchor 4, share
-    [-0.0271, 0.1088, 0.0184],
+    [0.2602, 0.2904, 0.2459],
     // side (+v) extreme: u, mm
-    [-7.7, -7.17, -3.88],
+    [-9.42, -17.07, -3.99],
     // side (+v) extreme: v, mm
-    [8.35, 2.15, 8.41],
+    [8.22, 2.04, 8.49],
     // median fullness f of the arc pair around anchor 6, share
-    [0.0386, 0.9289, 0.6027],
+    [0.0275, 0.6825, 0.7268],
     // back (-u) extreme: u, mm
-    [-11.02, -3.96, -4.89],
+    [-10.93, -4.27, -5.07],
     // back (-u) extreme: v, mm
-    [-2.44, 2.53, -81.27],
+    [2.04, 0.99, -29.15],
     // median fullness f of the arc pair around anchor 8, share
-    [0.2687, 0.934, 0.3317],
+    [0.3959, 0.6698, 0.0432],
     // side (-v) extreme: u, mm
-    [-7.37, -15.24, -2.5],
+    [-11.38, -3.54, -6.96],
     // side (-v) extreme: v, mm
-    [-5.17, -1.13, -4.96],
+    [-5.33, -1.18, -5.05],
     // median fullness f of the arc pair around anchor 10, share
-    [0.1629, 0.0566, 0.0422],
+    [0.2074, 0.041, 0.0767],
     // shoulder rho of the arc after anchor 0, share
-    [0.9839, 0.2298, -1.3443],
+    [0.0554, 0.0619, 0.0412],
     // shoulder rho of the arc after anchor 1, share
-    [0.6147, 0.7913, 0.6377],
+    [0.85, 0.648, 0.4847],
     // shoulder rho of the arc after anchor 2, share
-    [0.7405, 0.7634, 0.7463],
+    [0.85, 0.85, 0.85],
     // shoulder rho of the arc after anchor 3, share
-    [0.3421, 0.241, 0.3538],
+    [0.1755, 0.0467, 0.1651],
     // shoulder rho of the arc after anchor 4, share
-    [0.0313, 0.0367, 0.327],
+    [0.03, 0.0362, 0.0383],
     // shoulder rho of the arc after anchor 5, share
-    [0.5486, 0.7867, 0.8487],
+    [0.0592, 0.85, 0.8231],
     // shoulder rho of the arc after anchor 6, share
-    [0.0647, 0.0511, 0.0725],
+    [0.186, 0.85, 0.8023],
     // shoulder rho of the arc after anchor 7, share
-    [0.045, 0.8709, 0.1653],
+    [0.053, 0.85, 0.0343],
     // shoulder rho of the arc after anchor 8, share
-    [0.6139, 0.9253, 0.0389],
+    [0.3737, 0.4551, 0.2111],
     // shoulder rho of the arc after anchor 9, share
-    [0.6269, 0.1855, 0.3669],
+    [0.3027, 0.0658, 0.0765],
     // shoulder rho of the arc after anchor 10, share
-    [0.143, 0.0412, 0.3689],
+    [0.3058, 0.071, 0.0618],
   ],
 
   // The part closes in a point at `tip`, a station placed by anatomy; its cap starts at `from`.
-  tips: [{from: 25, tip: 21}, {from: 78, tip: 81}],
+  tips: [{from: 25, tip: 15}, {from: 78, tip: 86}],
 };

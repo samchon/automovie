@@ -44,7 +44,7 @@ Read the skill whose trigger applies.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, materials, or lighting.
 - [visual-debugging](.agents/skills/visual-debugging/SKILL.md): judging a form, a motion, a guide pass, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior.
 - [motion](.agents/skills/motion/SKILL.md): authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
-- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer.
+- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
 - [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
 - [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained authoring campaigns with writers and reviewers launched as CLI processes, observation of a single production's runs, and production comparisons.
