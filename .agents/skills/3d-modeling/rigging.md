@@ -40,7 +40,7 @@ Take the weights from the first of these the asset allows, listed from least wor
 
 | Source of weights | Fits when | Watch for |
 | --- | --- | --- |
-| The rig the source carries, from a generation service or the asset's author | Its joints map onto the target joint set | Its own joint names, rest pose and extra joints |
+| The rig the source carries, from a generation service or the asset's author | Its joints map onto the target joint set; request the service's standard skeleton nearest that set | Its own joint names, rest pose, extra joints and unit |
 | Transfer from an already rigged body of the same kind and pose | Such a body exists, such as the project's own figure | Copy only where the nearest surface matches in position and normal, and fill the rest by smoothing from those vertices |
 | Automatic weights computed from the skeleton and the surface | The surface is one closed piece | Weights crossing between touching surfaces, and failure on open or disconnected geometry |
 | A learned rigging model that predicts skeleton and weights | No existing skeleton fits, such as an unusual creature | Its skeleton is its own, so it needs a joint mapping and its motion needs retargeting |
