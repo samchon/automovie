@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
+import { AutoMovieHumanBendArc, AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
@@ -515,14 +515,7 @@ namespace FamilyConicArmscyeRule {
     const lines: string[] = [`R3a: the arm's course by rule; the girdle's ring centre ${fixed(centre)}, its normal ${fixed(n, 3)}; r = ${r.toFixed(2)} mm`, ""];
 
     // The axilla's slit: its cutter's skin, lofted, against the girdle's plane.
-    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
-    const cutterLoft = H.create({ ...cutter, tips: undefined, reliefs: undefined }, cutter.knots.length >= 2 ? Array.from({ length: 21 }, (_: unknown, i: number): number => cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20) : cutter.knots);
-    const slit: V[] = [];
-    if (cutterLoft.chain !== null)
-      for (let i: number = 0; i <= 20; ++i) {
-        const read = AutoMovieLoftChain.sampler(cutterLoft.chain, cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20);
-        for (let j: number = 0; j < 36; ++j) slit.push(read((2 * Math.PI * j) / 36) as V);
-      }
+    const slit: V[] = slitSkin();
     const gh0: V = P.frame("humerus").origin as V;
     const sides: number[] = slit.map((p: V): number => dot(sub(p, gh0), n));
     lines.push(`THE AXILLA'S SLIT (its cutter's skin, ${slit.length} points): ${Math.min(...sides).toFixed(1)} .. ${Math.max(...sides).toFixed(1)} mm from the girdle's plane (negative: the trunk's side, medial); ${sides.filter((x: number): boolean => x > 0).length} points on the arm's side`, "");
@@ -783,77 +776,171 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
+  /** A course's axis: its frame at each station. */
+  type IAxis = ReturnType<typeof H.axis>;
+
+  /** A cut piece in a station's chart, mm about the course point; a closed piece's last point joins its first. */
+  interface IPiece {
+    points: C.P[];
+    closed: boolean;
+  }
+
+  /** A closed loop's winding number about its chart's origin. */
+  function winding(points: readonly C.P[]): number {
+    let total: number = 0;
+    for (let i: number = 0; i < points.length; ++i) {
+      const [a, b]: C.P[] = [points[i]!, points[(i + 1) % points.length]!];
+      const turn: number = Math.atan2(b![1], b![0]) - Math.atan2(a![1], a![0]);
+      total += Math.atan2(Math.sin(turn), Math.cos(turn));
+    }
+    return total / (2 * Math.PI);
+  }
+
+  /** A closed loop's enclosed area, square mm. */
+  function area(points: readonly C.P[]): number {
+    return Math.abs(points.reduce((t: number, a: C.P, i: number): number => t + a[0] * points[(i + 1) % points.length]![1] - points[(i + 1) % points.length]![0] * a[1], 0)) / 2;
+  }
+
   /**
-   * The pre-check's measured cause (the supervisor's four items on #3151, R3b): for every skin step that goes back over the k = 1.5 turn,
-   * its distance from the course against the course's local radius there; the surface it lies on (the generated figure's owning face, the
-   * reference's side of the axillary slit); the same check with the section kept to the arm's own skin; and the girdle ring's reversal
-   * against the slit.
+   * Each ray's outermost kept crossing of the pieces from the chart's origin, all `RAYS` rays at once, with the index of the segment it lies
+   * on (the pieces' segments in order): each segment is binned under the rays its angular span covers, a ray's step of margin either side
+   * (a segment through the origin under every ray), so a ray tests only the segments it can meet.
    */
-  async function cause(): Promise<void> {
-    const started: number = Date.now();
-    const progress = (what: string): boolean => process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
-    const root: string = path.resolve(process.cwd(), "..");
-    const source: R.ISource = await R.load(root);
-    // The realized skin in millimetres, whole: a ray's outermost crossing may lie anywhere on its section, and a crop of 260 mm about GH cut
-    // the reference's sections (they reached 270 mm), so nothing is cropped. Each triangle's owner is two of its corners' agreeing (else the
-    // middle one's), as `FamilyConicFigure --owners` reads it. Realizing the whole figure at a chord of 1 mm takes six minutes, so the mesh is
-    // kept in `test/.shots/family-conic-armscye-rule/realized-whole-<hash>.bin`, the hash over the human and engine packages' sources, and
-    // read back while those stay unchanged; positions are kept in single precision (under 0.0002 mm at 2 m) on both paths, so a fresh and a
-    // read-back run cut the same skin. Vertices stay shared, so a section's crossings chain into loops (a mesh of unshared corners cut into
-    // thousands of two-point pieces and took minutes a section).
-    const realized: { positions: number[]; indices: number[]; owners: string[] } = await (async (): Promise<{ positions: number[]; indices: number[]; owners: string[] }> => {
-      const { createHash } = await import("node:crypto");
-      const hash = createHash("sha1");
-      hash.update("whole; chord 0.001");
-      for (const directory of ["packages/human/src", "packages/engine/src"]) {
-        const names: string[] = (await fs.readdir(path.join(root, directory), { recursive: true })).sort((a: string, b: string): number => a.localeCompare(b));
-        for (const name of names) {
-          const file: string = path.join(root, directory, name);
-          if (!(await fs.stat(file)).isFile()) continue;
-          hash.update(name);
-          hash.update(await fs.readFile(file));
+  function cast(pieces: readonly IPiece[], keep: (p: C.P) => boolean): { t: number; segment: number }[] {
+    const step: number = (2 * Math.PI) / RAYS;
+    const bins: number[][] = Array.from({ length: RAYS }, (): number[] => []);
+    const segments: number[] = [];
+    for (const { points, closed } of pieces)
+      for (let i: number = 0; i < (closed ? points.length : points.length - 1); ++i) {
+        const a: C.P = points[i]!;
+        const b: C.P = points[(i + 1) % points.length]!;
+        const index: number = segments.length / 4;
+        segments.push(a[0], a[1], b[0] - a[0], b[1] - a[1]);
+        const from: number = Math.atan2(a[1], a[0]);
+        const turn: number = Math.atan2(b[1], b[0]) - from;
+        const sweep: number = Math.atan2(Math.sin(turn), Math.cos(turn));
+        if (Math.hypot(a[0], a[1]) < 1e-9 || Math.hypot(b[0], b[1]) < 1e-9 || Math.abs(sweep) > Math.PI - 1e-6) {
+          for (const bin of bins) bin.push(index);
+          continue;
         }
+        for (let j: number = Math.floor(Math.min(from, from + sweep) / step) - 1; j <= Math.ceil(Math.max(from, from + sweep) / step) + 1; ++j) bins[((j % RAYS) + RAYS) % RAYS]!.push(index);
       }
-      const cache: string = path.join(root, "test/.shots/family-conic-armscye-rule", `realized-whole-${hash.digest("hex").slice(0, 16)}.bin`);
-      const cached: Buffer | null = await fs.readFile(cache).catch((): null => null);
-      if (cached !== null) {
-        // Layout: the header's length (uint32), the header (JSON, padded to 4 bytes), positions (float32), indices (uint32), owners (uint8).
-        const length: number = cached.readUInt32LE(0);
-        const header: { owners: string[]; vertices: number; triangles: number } = JSON.parse(cached.subarray(4, 4 + length).toString("utf8")) as { owners: string[]; vertices: number; triangles: number };
-        const at: number = cached.byteOffset + 4 + length + ((4 - (length % 4)) % 4);
-        const positions: Float32Array = new Float32Array(cached.buffer.slice(at, at + header.vertices * 12));
-        const indices: Uint32Array = new Uint32Array(cached.buffer.slice(at + header.vertices * 12, at + header.vertices * 12 + header.triangles * 12));
-        const owners: Uint8Array = new Uint8Array(cached.buffer.slice(at + header.vertices * 12 + header.triangles * 12, at + header.vertices * 12 + header.triangles * 13));
-        progress(`read the realized skin from ${cache}`);
-        return { positions: Array.from(positions), indices: Array.from(indices), owners: Array.from(owners, (o: number): string => header.owners[o]!) };
+    return bins.map((bin: number[], j: number): { t: number; segment: number } => {
+      const phi: number = (2 * Math.PI * j) / RAYS;
+      const d: C.P = [Math.cos(phi), Math.sin(phi)];
+      let best: { t: number; segment: number } = { t: NaN, segment: -1 };
+      for (const index of bin) {
+        const [ax, ay, ex, ey]: number[] = [segments[4 * index]!, segments[4 * index + 1]!, segments[4 * index + 2]!, segments[4 * index + 3]!];
+        const den: number = d[0] * ey! - d[1] * ex!;
+        if (den === 0) continue;
+        const t: number = (ax! * ey! - ay! * ex!) / den;
+        const w: number = (ax! * d[1] - ay! * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0 && !(t <= best.t) && keep([t * d[0], t * d[1]])) best = { t, segment: index };
       }
-      const declared = AutoMovieHumanF1.construction();
-      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
-      const mesh = real.mesh;
-      progress("realized the figure");
-      const vertexOwner = (v: number): string => mesh.owners[mesh.coordinates[v * 3]!]!;
-      const positions: number[] = Array.from(mesh.positions, (x: number): number => Math.fround(1000 * x));
-      const indices: number[] = Array.from(mesh.indices);
-      const owners: string[] = Array.from({ length: indices.length / 3 }, (_: unknown, t: number): string => {
-        const names: string[] = [indices[3 * t]!, indices[3 * t + 1]!, indices[3 * t + 2]!].map(vertexOwner);
-        return names[0] === names[1] || names[0] === names[2] ? names[0]! : names[1]!;
-      });
-      const names: string[] = [...new Set(owners)];
-      const index: Map<string, number> = new Map(names.map((owner: string, i: number): [string, number] => [owner, i]));
-      const header: Buffer = Buffer.from(JSON.stringify({ owners: names, vertices: positions.length / 3, triangles: indices.length / 3 }), "utf8");
-      const size: Buffer = Buffer.alloc(4);
-      size.writeUInt32LE(header.length);
-      await fs.mkdir(path.dirname(cache), { recursive: true });
-      await fs.writeFile(cache, Buffer.concat([size, header, Buffer.alloc((4 - (header.length % 4)) % 4), Buffer.from(Float32Array.from(positions).buffer), Buffer.from(Uint32Array.from(indices).buffer), Buffer.from(Uint8Array.from(owners, (o: string): number => index.get(o)!))]));
-      progress(`kept the realized skin in ${cache}`);
-      return { positions, indices, owners };
-    })();
-    progress(`${realized.indices.length / 3} realized triangles over ${realized.positions.length / 3} vertices`);
-    const reference: M.IMesh = source.all;
-    const asMesh = (keep: (owner: string) => boolean): M.IMesh => ({ positions: realized.positions, indices: realized.indices.filter((_: number, i: number): boolean => keep(realized.owners[Math.floor(i / 3)]!)) });
-    const generated: M.IMesh = { positions: realized.positions, indices: realized.indices };
-    const owners: string[] = [...new Set(realized.owners)].sort((a: string, b: string): number => a.localeCompare(b));
-    // A point's owner: the triangle whose centroid lies nearest, found through a grid of 10 mm cells.
+      return best;
+    });
+  }
+
+  /** A realized figure in millimetres: shared vertices, and each triangle's owning face. */
+  interface IRealized {
+    positions: number[];
+    indices: number[];
+    owners: string[];
+  }
+
+  /**
+   * The realized skin at a pose in millimetres, whole: a ray's outermost crossing may lie anywhere on its section, and a crop of 260 mm
+   * about GH cut the reference's sections (they reached 270 mm), so nothing is cropped. Each triangle's owner is two of its corners'
+   * agreeing (else the middle one's), as `FamilyConicFigure --owners` reads it. Realizing the whole figure at a chord of 1 mm takes six
+   * minutes, so the mesh is kept in `test/.shots/family-conic-armscye-rule/realized-whole-<hash>.bin`, the hash over the human and engine
+   * packages' sources and the pose, and read back while those stay unchanged; positions are kept in single precision (under 0.0002 mm at
+   * 2 m) on both paths, so a fresh and a read-back run cut the same skin. Vertices stay shared, so a section's crossings chain into loops (a
+   * mesh of unshared corners cut into thousands of two-point pieces and took minutes a section).
+   */
+  async function realizedSkin(root: string, pose: "reference" | "neutral", progress: (what: string) => void): Promise<IRealized> {
+    const { createHash } = await import("node:crypto");
+    const hash = createHash("sha1");
+    hash.update(pose === "reference" ? "whole; chord 0.001" : "whole; chord 0.001; neutral");
+    for (const directory of ["packages/human/src", "packages/engine/src"]) {
+      const names: string[] = (await fs.readdir(path.join(root, directory), { recursive: true })).sort((a: string, b: string): number => a.localeCompare(b));
+      for (const name of names) {
+        const file: string = path.join(root, directory, name);
+        if (!(await fs.stat(file)).isFile()) continue;
+        hash.update(name);
+        hash.update(await fs.readFile(file));
+      }
+    }
+    const cache: string = path.join(root, "test/.shots/family-conic-armscye-rule", `realized-whole-${hash.digest("hex").slice(0, 16)}.bin`);
+    const cached: Buffer | null = await fs.readFile(cache).catch((): null => null);
+    if (cached !== null) {
+      // Layout: the header's length (uint32), the header (JSON, padded to 4 bytes), positions (float32), indices (uint32), owners (uint8).
+      const length: number = cached.readUInt32LE(0);
+      const header: { owners: string[]; vertices: number; triangles: number } = JSON.parse(cached.subarray(4, 4 + length).toString("utf8")) as { owners: string[]; vertices: number; triangles: number };
+      const at: number = cached.byteOffset + 4 + length + ((4 - (length % 4)) % 4);
+      const positions: Float32Array = new Float32Array(cached.buffer.slice(at, at + header.vertices * 12));
+      const indices: Uint32Array = new Uint32Array(cached.buffer.slice(at + header.vertices * 12, at + header.vertices * 12 + header.triangles * 12));
+      const owners: Uint8Array = new Uint8Array(cached.buffer.slice(at + header.vertices * 12 + header.triangles * 12, at + header.vertices * 12 + header.triangles * 13));
+      progress(`read the realized ${pose} skin from ${cache}`);
+      return { positions: Array.from(positions), indices: Array.from(indices), owners: Array.from(owners, (o: number): string => header.owners[o]!) };
+    }
+    const declared = AutoMovieHumanF1.construction(undefined, pose === "reference" ? undefined : P.NEUTRAL);
+    const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    const mesh = real.mesh;
+    progress(`realized the ${pose} figure`);
+    const vertexOwner = (v: number): string => mesh.owners[mesh.coordinates[v * 3]!]!;
+    const positions: number[] = Array.from(mesh.positions, (x: number): number => Math.fround(1000 * x));
+    const indices: number[] = Array.from(mesh.indices);
+    const owners: string[] = Array.from({ length: indices.length / 3 }, (_: unknown, t: number): string => {
+      const names: string[] = [indices[3 * t]!, indices[3 * t + 1]!, indices[3 * t + 2]!].map(vertexOwner);
+      return names[0] === names[1] || names[0] === names[2] ? names[0]! : names[1]!;
+    });
+    const names: string[] = [...new Set(owners)];
+    const index: Map<string, number> = new Map(names.map((owner: string, i: number): [string, number] => [owner, i]));
+    const header: Buffer = Buffer.from(JSON.stringify({ owners: names, vertices: positions.length / 3, triangles: indices.length / 3 }), "utf8");
+    const size: Buffer = Buffer.alloc(4);
+    size.writeUInt32LE(header.length);
+    await fs.mkdir(path.dirname(cache), { recursive: true });
+    await fs.writeFile(cache, Buffer.concat([size, header, Buffer.alloc((4 - (header.length % 4)) % 4), Buffer.from(Float32Array.from(positions).buffer), Buffer.from(Uint32Array.from(indices).buffer), Buffer.from(Uint8Array.from(owners, (o: string): number => index.get(o)!))]));
+    progress(`kept the realized ${pose} skin in ${cache}`);
+    return { positions, indices, owners };
+  }
+
+  /** The skins a course is read on at one pose, with what the readings need. */
+  interface ISkins {
+    /** The pose. */
+    pose: "reference" | "neutral";
+
+    /** The reference's stored skin; null at a pose it was not recorded in. */
+    reference: M.IMesh | null;
+
+    /** The generated figure, realized whole. */
+    generated: M.IMesh;
+
+    /** The generated triangles the arm owns. */
+    armFace: M.IMesh;
+
+    /** The generated figure's owning faces, sorted. */
+    owners: string[];
+
+    /** A point's owning face: the triangle whose centroid lies nearest, found through a grid of 10 mm cells. */
+    ownerOf: (p: V) => string;
+
+    /** The axillary fold as a line: the slit cutter's course centres at the pose. */
+    fold: V[];
+
+    /** A point's nearest place on the fold: its z there and its distance from it. */
+    foldAt: (p: V) => { z: number; distance: number };
+
+    /** The girdle's plane, fixed in the thorax: a point on it (GH at the reference pose) and its lateral normal. */
+    girdle: { point: V; normal: V };
+
+    /** GH at the pose. */
+    gh: V;
+  }
+
+  /** The skins at a pose from its realized figure and, at the reference pose, the reference's stored skin. */
+  function skinsOf(realized: IRealized, reference: M.IMesh | null, pose: "reference" | "neutral"): ISkins {
+    const armName: string = AutoMovieHumanF1.BODY.arm.name;
     const centroid = (t: number): V => {
       const [i, j, k]: number[] = [realized.indices[3 * t]!, realized.indices[3 * t + 1]!, realized.indices[3 * t + 2]!];
       return [0, 1, 2].map((c: number): number => (realized.positions[3 * i! + c]! + realized.positions[3 * j! + c]! + realized.positions[3 * k! + c]!) / 3) as V;
@@ -878,12 +965,11 @@ namespace FamilyConicArmscyeRule {
             }
       return best.owner;
     };
-    // The axillary slit as a line: the slit cutter's course centres; a point is lateral of it where it stands farther out in z than the line.
-    const slit: V[] = AutoMovieHumanF1.CUTTERS[0]!.family.centres.map((c): V => [c[0], c[1], c[2]]);
-    const slitAt = (p: V): { z: number; distance: number } => {
+    const fold: V[] = (pose === "reference" ? AutoMovieHumanF1.CUTTERS[0]!.family : AutoMovieHumanF1.assemble(P.NEUTRAL).axilla).centres.map((c): V => [c[0], c[1], c[2]]);
+    const foldAt = (p: V): { z: number; distance: number } => {
       let best: { z: number; distance: number } = { z: NaN, distance: Infinity };
-      for (let i: number = 0; i + 1 < slit.length; ++i) {
-        const [a, b]: V[] = [slit[i]!, slit[i + 1]!];
+      for (let i: number = 0; i + 1 < fold.length; ++i) {
+        const [a, b]: V[] = [fold[i]!, fold[i + 1]!];
         const e: V = sub(b!, a!);
         const t: number = Math.max(0, Math.min(1, dot(sub(p, a!), e) / dot(e, e)));
         const q: V = add(a!, scale(e, t));
@@ -892,13 +978,222 @@ namespace FamilyConicArmscyeRule {
       }
       return best;
     };
-    const lateral = (p: V): boolean => p[2] > slitAt(p).z;
+    return {
+      pose,
+      reference,
+      generated: { positions: realized.positions, indices: realized.indices },
+      armFace: { positions: realized.positions, indices: realized.indices.filter((_: number, i: number): boolean => realized.owners[Math.floor(i / 3)] === armName) },
+      owners: [...new Set(realized.owners)].sort((a: string, b: string): number => a.localeCompare(b)),
+      ownerOf,
+      fold,
+      foldAt,
+      girdle: { point: P.frame("humerus").origin as V, normal: plane(0, 0).normal },
+      gh: (pose === "reference" ? P.frames() : P.frames(P.NEUTRAL)).get("humerus")!.origin as V,
+    };
+  }
+
+  /**
+   * One station read on one skin: each ray's kept point (null where none), whether it lies on the arm's own skin, the read loop's largest
+   * extent from the course point and from GH, and a note where the station has no such loop.
+   */
+  interface IRead {
+    rays: (V | null)[];
+    arm: boolean[];
+    course: number;
+    shoulder: number;
+    note: string | null;
+  }
+
+  /** A station not read, with why. */
+  function unread(note: string): IRead {
+    return { rays: Array.from({ length: RAYS }, (): null => null), arm: Array.from({ length: RAYS }, (): boolean => false), course: 0, shoulder: 0, note };
+  }
+
+  /**
+   * A station of a course read four ways: the reference's and the generated skin's family section, the one closed loop of the cut that
+   * encloses the course point (the loft's premise is a section star-shaped about its course; the smallest by area where several enclose
+   * it); the reference's arm arc, that loop cut where the axillary fold (the slit cutter's course) crosses the station's plane, at the loop's
+   * points nearest the two crossings, and the arc on the course point's side of the chord between them kept (taken whole where the plane
+   * meets the fold nowhere, unread where it meets it other than twice); and the generated arm's face alone, the triangles the arm owns,
+   * which the slit bounds, read on every piece. The girdle plane's clip applies to every ray. With `all` false the generated skin's loop is
+   * not read (the turn's radius needs only the arm's own skin).
+   */
+  function readStation(axis: IAxis, station: number, skins: ISkins, all: boolean): IRead[] {
+    const armName: string = AutoMovieHumanF1.BODY.arm.name;
+    const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
+    const normal: V = cross(frame.v as V, frame.u as V);
+    const origin: V = [...frame.origin] as V;
+    const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+    const chartOf = (p: V): C.P => [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
+    const keep = (p: C.P): boolean => dot(sub(world(p), skins.girdle.point), skins.girdle.normal) > 0.5;
+    const cut = (surface: M.IMesh): IPiece[] => M.outline(surface, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const extents = (pieces: readonly IPiece[]): { course: number; shoulder: number } => ({
+      course: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => Math.hypot(p[0], p[1])))),
+      shoulder: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => norm(sub(world(p), skins.gh))))),
+    });
+    const rays = (hits: { t: number; segment: number }[]): (V | null)[] => hits.map((h, j: number): V | null => (Number.isFinite(h.t) ? world([h.t * Math.cos((2 * Math.PI * j) / RAYS), h.t * Math.sin((2 * Math.PI * j) / RAYS)]) : null));
+    const enclosing = (pieces: readonly IPiece[]): IPiece | null => pieces.filter((piece: IPiece): boolean => piece.closed && Math.abs(winding(piece.points)) >= 0.5).sort((a: IPiece, b: IPiece): number => area(a.points) - area(b.points))[0] ?? null;
+    // Where the loop opened: the open pieces' ends, the one nearest the fold, by its distance from the fold, from the girdle plane and from GH.
+    const opened = (pieces: readonly IPiece[]): string => {
+      const ends: V[] = pieces.filter((piece: IPiece): boolean => !piece.closed).flatMap((piece: IPiece): V[] => [world(piece.points[0]!), world(piece.points.at(-1)!)]);
+      if (ends.length === 0) return `open: no closed loop round the course point and no open piece (${pieces.length} closed loops elsewhere)`;
+      const nearest: V = ends.reduce((a: V, b: V): V => (skins.foldAt(b).distance < skins.foldAt(a).distance ? b : a));
+      return `open: ${ends.length / 2} open pieces; the end nearest the fold ${skins.foldAt(nearest).distance.toFixed(1)} mm from it, ${dot(sub(nearest, skins.girdle.point), skins.girdle.normal).toFixed(1)} mm lateral of the girdle plane, ${norm(sub(nearest, skins.gh)).toFixed(1)} mm from GH`;
+    };
+    // The fold's crossings of the station's plane.
+    const crossings: V[] = [];
+    for (let i: number = 0; i + 1 < skins.fold.length; ++i) {
+      const [ha, hb]: number[] = [dot(sub(skins.fold[i]!, origin), normal), dot(sub(skins.fold[i + 1]!, origin), normal)];
+      if ((ha! < 0) !== (hb! < 0)) crossings.push(add(skins.fold[i]!, scale(sub(skins.fold[i + 1]!, skins.fold[i]!), ha! / (ha! - hb!))));
+    }
+
+    const out: IRead[] = [];
+    const stored: IPiece[] = skins.reference === null ? [] : cut(skins.reference);
+    const loop: IPiece | null = enclosing(stored);
+    if (skins.reference === null) out.push(unread(`no reference skin at the ${skins.pose} pose`), unread(`no reference skin at the ${skins.pose} pose`));
+    else if (loop === null) out.push(unread(opened(stored)), unread(opened(stored)));
+    else {
+      const length: number = loop.points.length;
+      const span = (from: number, to: number): number => (((to - from) % length) + length) % length;
+      const arc = ((): { from: number; count: number; gap: number } | null => {
+        if (crossings.length === 0) return { from: 0, count: length, gap: 0 };
+        if (crossings.length !== 2) return null;
+        const nearest = (x: C.P): { i: number; d: number } => loop.points.reduce((best: { i: number; d: number }, p: C.P, i: number): { i: number; d: number } => (Math.hypot(p[0] - x[0], p[1] - x[1]) < best.d ? { i, d: Math.hypot(p[0] - x[0], p[1] - x[1]) } : best), { i: -1, d: Infinity });
+        const [c1, c2] = crossings.map((x: V): { i: number; d: number } => nearest(chartOf(x)));
+        if (c1!.i === c2!.i) return null;
+        const [p1, p2]: C.P[] = [loop.points[c1!.i]!, loop.points[c2!.i]!];
+        const side = (p: C.P): number => Math.sign((p2![0] - p1![0]) * (p[1] - p1![1]) - (p2![1] - p1![1]) * (p[0] - p1![0]));
+        const middle: C.P = loop.points[(c1!.i + Math.floor(span(c1!.i, c2!.i) / 2)) % length]!;
+        const [from, to]: number[] = side(middle) === side([0, 0]) ? [c1!.i, c2!.i] : [c2!.i, c1!.i];
+        return { from: from!, count: span(from!, to!), gap: Math.max(c1!.d, c2!.d) };
+      })();
+      const hits = cast([loop], keep);
+      out.push({ rays: rays(hits), arm: hits.map((h): boolean => arc !== null && h.segment >= 0 && span(arc.from, h.segment) < arc.count), ...extents([loop]), note: null });
+      if (arc === null) out.push(unread(`unread: the plane meets the fold ${crossings.length} times`));
+      else {
+        const piece: IPiece = { points: Array.from({ length: arc.count + 1 }, (_: unknown, k: number): C.P => loop.points[(arc.from + k) % length]!), closed: arc.count === length };
+        const note: string | null = crossings.length === 0 ? "the plane meets the fold nowhere: the loop taken whole" : `cut at the fold, the loop's points ${arc.gap.toFixed(1)} mm from its crossings at most; the arc ${arc.count} of ${length} points`;
+        out.push({ rays: rays(cast([piece], keep)), arm: Array.from({ length: RAYS }, (): boolean => true), ...extents([piece]), note });
+      }
+    }
+
+    if (!all) out.push(unread("not read"));
+    else {
+      const whole: IPiece[] = cut(skins.generated);
+      const round: IPiece | null = enclosing(whole);
+      if (round === null) out.push(unread(opened(whole)));
+      else {
+        const points: (V | null)[] = rays(cast([round], keep));
+        out.push({ rays: points, arm: points.map((p: V | null): boolean => p !== null && skins.ownerOf(p) === armName), ...extents([round]), note: null });
+      }
+    }
+    const face: IPiece[] = cut(skins.armFace);
+    out.push({ rays: rays(cast(face, keep)), arm: Array.from({ length: RAYS }, (): boolean => true), ...extents(face), note: face.length === 0 ? "no arm skin in the plane" : null });
+    return out;
+  }
+
+  /** The course's local radius of curvature at a station: the circle through its points 1 mm either side. */
+  function courseRadius(axis: IAxis, station: number): number {
+    const [a, b, c]: V[] = [axis.at(station - 1).origin as V, axis.at(station).origin as V, axis.at(station + 1).origin as V];
+    const twice: number = norm(cross(sub(b!, a!), sub(c!, a!)));
+    return twice < 2e-12 ? Infinity : (norm(sub(b!, a!)) * norm(sub(c!, b!)) * norm(sub(c!, a!))) / (2 * twice);
+  }
+
+  /** A ray step that goes back: its station, phase, point and distance from the course, the course's radius there, and where it lies. */
+  interface IStep {
+    s: number;
+    phase: number;
+    p: V;
+    d: number;
+    R: number;
+    owner: string;
+    side: string;
+    arm: boolean;
+  }
+
+  /**
+   * The crossing check over a course's turn: at each station `ADVANCE_STEP_MM` apart from 0 to `turnEnd`, the four readings of
+   * `readStation`; each ray's point must move forward along the course's tangent from one station to the next. Reported per reading: the
+   * read loop's extent, the least advance and its place, the steps that go back with their distance from the course against the course's
+   * radius, their owner (generated) or side of the slit (reference), and whether they lie on the arm's own skin.
+   */
+  function crossingCheck(axis: IAxis, turnEnd: number, skins: ISkins, progress: (what: string) => void): { lines: string[]; failing: IStep[][] } {
+    const labels: string[] = ["reference, the loop round the course point", "reference, the arm's arc cut at the fold", "generated, the loop round the course point", "generated, the arm's face alone"].map((label: string): string => `${label} (${skins.pose} pose)`);
+    const failing: IStep[][] = labels.map((): IStep[] => []);
+    const notes: { s: number; note: string }[][] = labels.map((): { s: number; note: string }[] => []);
+    const reach: { course: number; shoulder: number }[] = labels.map((): { course: number; shoulder: number } => ({ course: 0, shoulder: 0 }));
+    const least: { value: number; at: string }[] = labels.map((): { value: number; at: string } => ({ value: Infinity, at: "-" }));
+    const lateral = (p: V): boolean => p[2] > skins.foldAt(p).z;
+    let previous: IRead[] = readStation(axis, 0, skins, true);
+    for (let station: number = ADVANCE_STEP_MM; station <= turnEnd; station += ADVANCE_STEP_MM) {
+      const current: IRead[] = readStation(axis, station, skins, true);
+      const tangent: V = unit(sub(axis.at(station - 0.25).origin as V, axis.at(station - 0.75).origin as V));
+      const R: number = courseRadius(axis, station - ADVANCE_STEP_MM / 2);
+      current.forEach((read: IRead, k: number): void => {
+        reach[k]!.course = Math.max(reach[k]!.course, read.course);
+        reach[k]!.shoulder = Math.max(reach[k]!.shoulder, read.shoulder);
+        if (read.note !== null) notes[k]!.push({ s: station, note: read.note });
+        read.rays.forEach((p: V | null, j: number): void => {
+          const before: V | null = previous[k]!.rays[j]!;
+          if (p === null || before === null) return;
+          const advance: number = dot(sub(p, before), tangent) / ADVANCE_STEP_MM;
+          if (advance < least[k]!.value) least[k] = { value: advance, at: `${(station - ADVANCE_STEP_MM).toFixed(0)}..${station.toFixed(0)} mm at ${((360 * j) / RAYS).toFixed(1)} deg` };
+          if (advance > 0) return;
+          const d: number = norm(sub(p, axis.at(station).origin as V));
+          failing[k]!.push({ s: station, phase: (360 * j) / RAYS, p, d, R, owner: k >= 2 ? skins.ownerOf(p) : "-", side: k < 2 ? (lateral(p) ? "lateral of the slit" : "medial of the slit") : "-", arm: read.arm[j]! });
+        });
+      });
+      previous = current;
+      if (station % 20 === 0) progress(`${skins.pose}: station ${station} of ${turnEnd.toFixed(0)} mm: ${failing.map((f: IStep[]): number => f.length).join(" / ")} ray steps go back`);
+    }
+    const lines: string[] = [];
+    labels.forEach((label: string, k: number): void => {
+      const list: IStep[] = failing[k]!;
+      const tally = (key: (f: IStep) => string): string => {
+        const counts: Map<string, number> = new Map();
+        for (const f of list) counts.set(key(f), (counts.get(key(f)) ?? 0) + 1);
+        return [...counts.entries()].map(([name, c]): string => `${name} ${c}`).join(", ");
+      };
+      progress(`${label}: ${list.length} ray steps go back`);
+      lines.push(`${label}: uncropped (the whole figure cut), so no section can touch a crop; the read loop reaches ${reach[k]!.course.toFixed(1)} mm from the course point and ${reach[k]!.shoulder.toFixed(1)} mm from GH`);
+      lines.push(`${label}: least advance ${least[k]!.value.toFixed(3)} mm per mm at ${least[k]!.at}`);
+      lines.push(`${label}: ${list.length} ray steps go back${list.length === 0 ? "" : `; on the arm's own skin ${list.filter((f: IStep): boolean => f.arm).length}; by ${k >= 2 ? `owner: ${tally((f: IStep): string => f.owner)}` : `side of the slit by z: ${tally((f: IStep): string => f.side)}`}`}`);
+      const general = (note: string): string => note.replace(/[\d.]+ mm/g, "# mm").replace(/\d+ of \d+/g, "# of #");
+      const byNote: Map<string, number[]> = new Map();
+      for (const { s: at, note } of notes[k]!) byNote.set(general(note), [...(byNote.get(general(note)) ?? []), at]);
+      for (const [note, at] of byNote) lines.push(`  ${at.length} stations (${Math.min(...at)}..${Math.max(...at)} mm): ${note}`);
+      for (const { s: at, note } of notes[k]!.filter((x): boolean => x.note.startsWith("open") || x.note.startsWith("cut"))) lines.push(`    ${at} mm: ${note}`);
+      const byStation: Map<number, IStep[]> = new Map();
+      for (const f of list) byStation.set(f.s, [...(byStation.get(f.s) ?? []), f]);
+      for (const [station, steps] of [...byStation.entries()].sort((a, b): number => a[0] - b[0])) {
+        const worst: IStep = steps.reduce((a: IStep, b: IStep): IStep => (b.d / b.R > a.d / a.R ? b : a));
+        lines.push(`  ${(station - ADVANCE_STEP_MM).toFixed(0)}..${station.toFixed(0)} mm: ${steps.length} rays at ${Math.min(...steps.map((f: IStep): number => f.phase)).toFixed(1)}..${Math.max(...steps.map((f: IStep): number => f.phase)).toFixed(1)} deg, ${steps.filter((f: IStep): boolean => f.arm).length} on the arm's own skin; d ${Math.min(...steps.map((f: IStep): number => f.d)).toFixed(1)}..${Math.max(...steps.map((f: IStep): number => f.d)).toFixed(1)} mm against the course's radius ${worst.R.toFixed(1)} mm (d / R up to ${(worst.d / worst.R).toFixed(2)})${k >= 2 ? `; owners ${[...new Set(steps.map((f: IStep): string => f.owner))].join(", ")}` : ""}`);
+      }
+      lines.push("");
+    });
+    return { lines, failing };
+  }
+
+  /**
+   * The pre-check's measured cause (the supervisor's four items on #3151, R3b): for every skin step that goes back over the k = 1.5 turn,
+   * its distance from the course against the course's local radius there; the surface it lies on (the generated figure's owning face, the
+   * reference's side of the axillary slit); the same check with the section kept to the arm's own skin; and the girdle ring's reversal
+   * against the slit.
+   */
+  async function cause(): Promise<void> {
+    const started: number = Date.now();
+    const progress = (what: string): void => {
+      process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
+    };
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const skins: ISkins = skinsOf(await realizedSkin(root, "reference", progress), source.all, "reference");
+    progress(`${skins.generated.indices.length / 3} realized triangles over ${skins.generated.positions.length / 3} vertices`);
 
     // The k = 1.5 course, as in the pre-check.
     const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
     const girdle = plane(0, 0);
     const n: V = girdle.normal;
-    const gh: V = P.frame("humerus").origin as V;
     const elbow: V = P.frame("forearm").origin as V;
     const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
     const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
@@ -910,201 +1205,10 @@ namespace FamilyConicArmscyeRule {
     }
     const frames: P.IFrames = P.frames();
     const centres: V[] = [centre, add(centre, scale(n, s + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
-    const axis = H.axis({ centres, halves: [TURN_K * r, ...AutoMovieHumanF1.BODY.arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
+    const axis: IAxis = H.axis({ centres, halves: [TURN_K * r, ...AutoMovieHumanF1.BODY.arm.halves.slice(1)], up: P.direction("arm.up", frames) as V });
     const turnEnd: number = 2 * TURN_K * r + 20;
-    // The course's local radius of curvature at a station: the circle through its points 1 mm either side.
-    const radius = (station: number): number => {
-      const [a, b, c]: V[] = [axis.at(station - 1).origin as V, axis.at(station).origin as V, axis.at(station + 1).origin as V];
-      const area: number = norm(cross(sub(b!, a!), sub(c!, a!))) / 2;
-      return area < 1e-12 ? Infinity : (norm(sub(b!, a!)) * norm(sub(c!, b!)) * norm(sub(c!, a!))) / (4 * area);
-    };
-    const lines: string[] = [`R3b pre-check, the measured cause; the k ${TURN_K} course (s ${s.toFixed(2)} mm, half ${(TURN_K * r).toFixed(1)} mm); the generated figure's owners: ${owners.join(", ")}`, ""];
-
-    // A cut piece in a station's chart, mm about the course point; a closed piece's last point joins its first.
-    interface IPiece {
-      points: C.P[];
-      closed: boolean;
-    }
-    const winding = (points: readonly C.P[]): number => {
-      let total: number = 0;
-      for (let i: number = 0; i < points.length; ++i) {
-        const [a, b]: C.P[] = [points[i]!, points[(i + 1) % points.length]!];
-        const turn: number = Math.atan2(b![1], b![0]) - Math.atan2(a![1], a![0]);
-        total += Math.atan2(Math.sin(turn), Math.cos(turn));
-      }
-      return total / (2 * Math.PI);
-    };
-    const area = (points: readonly C.P[]): number => Math.abs(points.reduce((t: number, a: C.P, i: number): number => t + a[0] * points[(i + 1) % points.length]![1] - points[(i + 1) % points.length]![0] * a[1], 0)) / 2;
-    // Each ray's outermost kept crossing of the pieces from the course point, all rays at once, with the index of the segment it lies on
-    // (the pieces' segments in order): each segment is binned under the rays its angular span covers, a ray's step of margin either side
-    // (a segment through the origin under every ray), so a ray tests only the segments it can meet.
-    const cast = (pieces: readonly IPiece[], keep: (p: C.P) => boolean): { t: number; segment: number }[] => {
-      const step: number = (2 * Math.PI) / RAYS;
-      const bins: number[][] = Array.from({ length: RAYS }, (): number[] => []);
-      const segments: number[] = [];
-      for (const { points, closed } of pieces)
-        for (let i: number = 0; i < (closed ? points.length : points.length - 1); ++i) {
-          const a: C.P = points[i]!;
-          const b: C.P = points[(i + 1) % points.length]!;
-          const index: number = segments.length / 4;
-          segments.push(a[0], a[1], b[0] - a[0], b[1] - a[1]);
-          const from: number = Math.atan2(a[1], a[0]);
-          const turn: number = Math.atan2(b[1], b[0]) - from;
-          const sweep: number = Math.atan2(Math.sin(turn), Math.cos(turn));
-          if (Math.hypot(a[0], a[1]) < 1e-9 || Math.hypot(b[0], b[1]) < 1e-9 || Math.abs(sweep) > Math.PI - 1e-6) {
-            for (const bin of bins) bin.push(index);
-            continue;
-          }
-          for (let j: number = Math.floor(Math.min(from, from + sweep) / step) - 1; j <= Math.ceil(Math.max(from, from + sweep) / step) + 1; ++j) bins[((j % RAYS) + RAYS) % RAYS]!.push(index);
-        }
-      return bins.map((bin: number[], j: number): { t: number; segment: number } => {
-        const phi: number = (2 * Math.PI * j) / RAYS;
-        const d: C.P = [Math.cos(phi), Math.sin(phi)];
-        let best: { t: number; segment: number } = { t: NaN, segment: -1 };
-        for (const index of bin) {
-          const [ax, ay, ex, ey]: number[] = [segments[4 * index]!, segments[4 * index + 1]!, segments[4 * index + 2]!, segments[4 * index + 3]!];
-          const den: number = d[0] * ey! - d[1] * ex!;
-          if (den === 0) continue;
-          const t: number = (ax! * ey! - ay! * ex!) / den;
-          const w: number = (ax! * d[1] - ay! * d[0]) / den;
-          if (w >= 0 && w < 1 && t > 0 && !(t <= best.t) && keep([t * d[0], t * d[1]])) best = { t, segment: index };
-        }
-        return best;
-      });
-    };
-
-    // One station read on one skin: each ray's kept point (null where none), whether it lies on the arm's own skin, the read loop's
-    // largest extent from the course point and from GH, and a note where the station has no such loop.
-    interface IRead {
-      rays: (V | null)[];
-      arm: boolean[];
-      course: number;
-      shoulder: number;
-      note: string | null;
-    }
-    const armName: string = AutoMovieHumanF1.BODY.arm.name;
-    const armFace: M.IMesh = asMesh((owner: string): boolean => owner === armName);
-    const none = (note: string): IRead => ({ rays: Array.from({ length: RAYS }, (): null => null), arm: Array.from({ length: RAYS }, (): boolean => false), course: 0, shoulder: 0, note });
-    // Each station is read four ways: the reference's and the generated skin's family section, the one closed loop of the cut that encloses
-    // the course point (the loft's premise is a section star-shaped about its course; the smallest by area where several enclose it); the
-    // reference's arm arc, that loop cut where the axillary fold (the slit cutter's course) crosses the station's plane, at the loop's
-    // points nearest the two crossings, and the arc on the course point's side of the chord between them kept (taken whole where the plane
-    // meets the fold nowhere, unread where it meets it other than twice); and the generated arm's face alone, the triangles the arm owns,
-    // which the slit bounds, read on every piece. The girdle plane's clip applies to every ray.
-    const readAll = (station: number): IRead[] => {
-      const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
-      const normal: V = cross(frame.v as V, frame.u as V);
-      const origin: V = [...frame.origin] as V;
-      const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
-      const chartOf = (p: V): C.P => [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
-      const keep = (p: C.P): boolean => dot(sub(world(p), gh), n) > 0.5;
-      const cut = (surface: M.IMesh): IPiece[] => M.outline(surface, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
-      const extents = (pieces: readonly IPiece[]): { course: number; shoulder: number } => ({
-        course: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => Math.hypot(p[0], p[1])))),
-        shoulder: Math.max(0, ...pieces.flatMap((piece: IPiece): number[] => piece.points.map((p: C.P): number => norm(sub(world(p), gh))))),
-      });
-      const rays = (hits: { t: number; segment: number }[]): (V | null)[] => hits.map((h, j: number): V | null => (Number.isFinite(h.t) ? world([h.t * Math.cos((2 * Math.PI * j) / RAYS), h.t * Math.sin((2 * Math.PI * j) / RAYS)]) : null));
-      const enclosing = (pieces: readonly IPiece[]): IPiece | null => pieces.filter((piece: IPiece): boolean => piece.closed && Math.abs(winding(piece.points)) >= 0.5).sort((a: IPiece, b: IPiece): number => area(a.points) - area(b.points))[0] ?? null;
-      // Where the loop opened: the open pieces' ends, the one nearest the fold, by its distance from the fold, from the girdle plane and from GH.
-      const opened = (pieces: readonly IPiece[]): string => {
-        const ends: V[] = pieces.filter((piece: IPiece): boolean => !piece.closed).flatMap((piece: IPiece): V[] => [world(piece.points[0]!), world(piece.points.at(-1)!)]);
-        if (ends.length === 0) return `open: no closed loop round the course point and no open piece (${pieces.length} closed loops elsewhere)`;
-        const nearest: V = ends.reduce((a: V, b: V): V => (slitAt(b).distance < slitAt(a).distance ? b : a));
-        return `open: ${ends.length / 2} open pieces; the end nearest the fold ${slitAt(nearest).distance.toFixed(1)} mm from it, ${dot(sub(nearest, gh), n).toFixed(1)} mm lateral of the girdle plane, ${norm(sub(nearest, gh)).toFixed(1)} mm from GH`;
-      };
-      // The fold's crossings of the station's plane.
-      const crossings: V[] = [];
-      for (let i: number = 0; i + 1 < slit.length; ++i) {
-        const [ha, hb]: number[] = [dot(sub(slit[i]!, origin), normal), dot(sub(slit[i + 1]!, origin), normal)];
-        if ((ha! < 0) !== (hb! < 0)) crossings.push(add(slit[i]!, scale(sub(slit[i + 1]!, slit[i]!), ha! / (ha! - hb!))));
-      }
-
-      const stored: IPiece[] = cut(reference);
-      const loop: IPiece | null = enclosing(stored);
-      const out: IRead[] = [];
-      if (loop === null) out.push(none(opened(stored)), none(opened(stored)));
-      else {
-        const length: number = loop.points.length;
-        const span = (from: number, to: number): number => (((to - from) % length) + length) % length;
-        const arc = ((): { from: number; count: number; gap: number } | null => {
-          if (crossings.length === 0) return { from: 0, count: length, gap: 0 };
-          if (crossings.length !== 2) return null;
-          const nearest = (x: C.P): { i: number; d: number } => loop.points.reduce((best: { i: number; d: number }, p: C.P, i: number): { i: number; d: number } => (Math.hypot(p[0] - x[0], p[1] - x[1]) < best.d ? { i, d: Math.hypot(p[0] - x[0], p[1] - x[1]) } : best), { i: -1, d: Infinity });
-          const [c1, c2] = crossings.map((x: V): { i: number; d: number } => nearest(chartOf(x)));
-          if (c1!.i === c2!.i) return null;
-          const [p1, p2]: C.P[] = [loop.points[c1!.i]!, loop.points[c2!.i]!];
-          const side = (p: C.P): number => Math.sign((p2![0] - p1![0]) * (p[1] - p1![1]) - (p2![1] - p1![1]) * (p[0] - p1![0]));
-          const middle: C.P = loop.points[(c1!.i + Math.floor(span(c1!.i, c2!.i) / 2)) % length]!;
-          const [from, to]: number[] = side(middle) === side([0, 0]) ? [c1!.i, c2!.i] : [c2!.i, c1!.i];
-          return { from: from!, count: span(from!, to!), gap: Math.max(c1!.d, c2!.d) };
-        })();
-        const hits = cast([loop], keep);
-        out.push({ rays: rays(hits), arm: hits.map((h): boolean => arc !== null && h.segment >= 0 && span(arc.from, h.segment) < arc.count), ...extents([loop]), note: null });
-        if (arc === null) out.push(none(`unread: the plane meets the fold ${crossings.length} times`));
-        else {
-          const piece: IPiece = { points: Array.from({ length: arc.count + 1 }, (_: unknown, k: number): C.P => loop.points[(arc.from + k) % length]!), closed: arc.count === length };
-          const note: string | null = crossings.length === 0 ? "the plane meets the fold nowhere: the loop taken whole" : `cut at the fold, the loop's points ${arc.gap.toFixed(1)} mm from its crossings at most; the arc ${arc.count} of ${length} points`;
-          out.push({ rays: rays(cast([piece], keep)), arm: Array.from({ length: RAYS }, (): boolean => true), ...extents([piece]), note });
-        }
-      }
-
-      const whole: IPiece[] = cut(generated);
-      const round: IPiece | null = enclosing(whole);
-      if (round === null) out.push(none(opened(whole)));
-      else {
-        const points: (V | null)[] = rays(cast([round], keep));
-        out.push({ rays: points, arm: points.map((p: V | null): boolean => p !== null && ownerOf(p) === armName), ...extents([round]), note: null });
-      }
-      const face: IPiece[] = cut(armFace);
-      out.push({ rays: rays(cast(face, keep)), arm: Array.from({ length: RAYS }, (): boolean => true), ...extents(face), note: face.length === 0 ? "no arm skin in the plane" : null });
-      return out;
-    };
-
-    const labels: string[] = ["reference, the loop round the course point", "reference, the arm's arc cut at the fold", "generated, the loop round the course point", "generated, the arm's face alone"];
-    const failing: { s: number; phase: number; d: number; R: number; owner: string; side: string; arm: boolean }[][] = labels.map(() => []);
-    const notes: { s: number; note: string }[][] = labels.map(() => []);
-    const reach: { course: number; shoulder: number }[] = labels.map(() => ({ course: 0, shoulder: 0 }));
-    let previous: IRead[] = readAll(0);
-    for (let station: number = ADVANCE_STEP_MM; station <= turnEnd; station += ADVANCE_STEP_MM) {
-      const current: IRead[] = readAll(station);
-      const tangent: V = unit(sub(axis.at(station - 0.25).origin as V, axis.at(station - 0.75).origin as V));
-      const R: number = radius(station - ADVANCE_STEP_MM / 2);
-      current.forEach((read: IRead, k: number): void => {
-        reach[k]!.course = Math.max(reach[k]!.course, read.course);
-        reach[k]!.shoulder = Math.max(reach[k]!.shoulder, read.shoulder);
-        if (read.note !== null) notes[k]!.push({ s: station, note: read.note });
-        read.rays.forEach((p: V | null, j: number): void => {
-          const before: V | null = previous[k]!.rays[j]!;
-          if (p === null || before === null || dot(sub(p, before), tangent) > 0) return;
-          const d: number = norm(sub(p, axis.at(station).origin as V));
-          failing[k]!.push({ s: station, phase: (360 * j) / RAYS, d, R, owner: k >= 2 ? ownerOf(p) : "-", side: k < 2 ? (lateral(p) ? "lateral of the slit" : "medial of the slit") : "-", arm: read.arm[j]! });
-        });
-      });
-      previous = current;
-      if (station % 20 === 0) progress(`station ${station} of ${turnEnd.toFixed(0)} mm: ${failing.map((f): number => f.length).join(" / ")} ray steps go back`);
-    }
-    labels.forEach((label: string, k: number): void => {
-      const list = failing[k]!;
-      const tally = (key: (f: (typeof list)[number]) => string): string => {
-        const counts: Map<string, number> = new Map();
-        for (const f of list) counts.set(key(f), (counts.get(key(f)) ?? 0) + 1);
-        return [...counts.entries()].map(([name, c]): string => `${name} ${c}`).join(", ");
-      };
-      progress(`${label}: ${list.length} ray steps go back`);
-      lines.push(`${label}: uncropped (the whole figure cut), so no section can touch a crop; the read loop reaches ${reach[k]!.course.toFixed(1)} mm from the course point and ${reach[k]!.shoulder.toFixed(1)} mm from GH`);
-      lines.push(`${label}: ${list.length} ray steps go back${list.length === 0 ? "" : `; on the arm's own skin ${list.filter((f): boolean => f.arm).length}; by ${k >= 2 ? `owner: ${tally((f): string => f.owner)}` : `side of the slit by z: ${tally((f): string => f.side)}`}`}`);
-      const byNote: Map<string, number[]> = new Map();
-      for (const { s: at, note } of notes[k]!) byNote.set(note.replace(/[\d.]+ mm/g, "# mm").replace(/\d+ of \d+/g, "# of #"), [...(byNote.get(note.replace(/[\d.]+ mm/g, "# mm").replace(/\d+ of \d+/g, "# of #")) ?? []), at]);
-      for (const [note, at] of byNote) lines.push(`  ${at.length} stations (${Math.min(...at)}..${Math.max(...at)} mm): ${note}`);
-      for (const { s: at, note } of notes[k]!.filter((x): boolean => x.note.startsWith("open") || x.note.startsWith("cut"))) lines.push(`    ${at} mm: ${note}`);
-      const byStation: Map<number, (typeof list)[number][]> = new Map();
-      for (const f of list) byStation.set(f.s, [...(byStation.get(f.s) ?? []), f]);
-      for (const [station, steps] of [...byStation.entries()].sort((a, b): number => a[0] - b[0])) {
-        const worst = steps.reduce((a, b) => (b.d / b.R > a.d / a.R ? b : a));
-        lines.push(`  ${(station - ADVANCE_STEP_MM).toFixed(0)}..${station.toFixed(0)} mm: ${steps.length} rays at ${Math.min(...steps.map((f): number => f.phase)).toFixed(1)}..${Math.max(...steps.map((f): number => f.phase)).toFixed(1)} deg, ${steps.filter((f): boolean => f.arm).length} on the arm's own skin; d ${Math.min(...steps.map((f): number => f.d)).toFixed(1)}..${Math.max(...steps.map((f): number => f.d)).toFixed(1)} mm against the course's radius ${worst.R.toFixed(1)} mm (d / R up to ${(worst.d / worst.R).toFixed(2)})${k >= 2 ? `; owners ${[...new Set(steps.map((f): string => f.owner))].join(", ")}` : ""}`);
-      }
-      lines.push("");
-    });
+    const lines: string[] = [`R3b pre-check, the measured cause; the k ${TURN_K} course (s ${s.toFixed(2)} mm, half ${(TURN_K * r).toFixed(1)} mm); the generated figure's owners: ${skins.owners.join(", ")}`, ""];
+    lines.push(...crossingCheck(axis, turnEnd, skins, progress).lines);
 
     // (c) The ring's reversal against the slit.
     const trunk: M.IMesh = trunkMesh();
@@ -1127,7 +1231,7 @@ namespace FamilyConicArmscyeRule {
       const [a, b] = [q[i]!, q[(i + 1) % q.length]!];
       const p: V = onTrunk[i]!;
       const c = chart(p);
-      lines.push(`(c) reversal at ring step ${i}: ${degrees(-loopSense * x).toFixed(3)} deg about the ring's centre in the chart, ${Math.hypot(b[0] - a[0], b[1] - a[1]).toFixed(2)} mm between the two points; trunk station ${c.station.toFixed(1)}, phase ${degrees(Math.atan2(c.v, c.u)).toFixed(1)} deg; ${slitAt(p).distance.toFixed(1)} mm from the slit's line`);
+      lines.push(`(c) reversal at ring step ${i}: ${degrees(-loopSense * x).toFixed(3)} deg about the ring's centre in the chart, ${Math.hypot(b[0] - a[0], b[1] - a[1]).toFixed(2)} mm between the two points; trunk station ${c.station.toFixed(1)}, phase ${degrees(Math.atan2(c.v, c.u)).toFixed(1)} deg; ${skins.foldAt(p).distance.toFixed(1)} mm from the slit's line`);
     });
     const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "cause-" + new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
@@ -1135,8 +1239,408 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
   }
 
+  /** The axilla's slit as its cutter's skin at the reference pose: the cutter lofted at 21 stations, 36 phases each. */
+  function slitSkin(): V[] {
+    const cutter: H.IFamily = AutoMovieHumanF1.CUTTERS[0]!.family;
+    const at = (i: number): number => cutter.knots[0]! + ((cutter.knots[cutter.knots.length - 1]! - cutter.knots[0]!) * i) / 20;
+    const cutterLoft = H.create({ ...cutter, tips: undefined, reliefs: undefined }, cutter.knots.length >= 2 ? Array.from({ length: 21 }, (_: unknown, i: number): number => at(i)) : cutter.knots);
+    const slit: V[] = [];
+    if (cutterLoft.chain !== null)
+      for (let i: number = 0; i <= 20; ++i) {
+        const read = AutoMovieLoftChain.sampler(cutterLoft.chain, at(i));
+        for (let j: number = 0; j < 36; ++j) slit.push(read((2 * Math.PI * j) / 36) as V);
+      }
+    return slit;
+  }
+
+  /**
+   * R3a's measurements on a course at a pose: its sections from the ring to the elbow `CAP_STEP_MM` apart, star-shaped about the course
+   * point or not, on each skin given; the band's turn at the ring and its gap on the first skin; the slit's skin against the first sections;
+   * how the second run and the course pass GH; and each segment's length against the set-backs of the turns at its ends.
+   */
+  function courseFacts(axis: IAxis, centres: V[], halves: number[], frames: P.IFrames, meshes: [string, M.IMesh][], ringPoints: V[], slit: V[], n: V): { lines: string[]; sections: N.Curve[]; elbowStation: number } {
+    const onPlane: V = P.frame("humerus").origin as V;
+    const gh: V = frames.get("humerus")!.origin as V;
+    const elbow: V = frames.get("forearm")!.origin as V;
+    const lines: string[] = [];
+    let elbowStation: number = 0;
+    for (let s: number = 0; s < 800; s += 0.5) if (norm(sub(axis.at(s).origin as V, elbow)) < norm(sub(axis.at(elbowStation).origin as V, elbow))) elbowStation = s;
+    const sections: N.Curve[] = [];
+    meshes.forEach(([skin, mesh]: [string, M.IMesh], m: number): void => {
+      const bad: string[] = [];
+      let index: number = -1;
+      for (let s: number = 0; s <= elbowStation; s += CAP_STEP_MM) {
+        ++index;
+        const section = clippedSection(mesh, axis.at(s), onPlane, n);
+        if (section === null) {
+          bad.push(`${s}: no section`);
+          continue;
+        }
+        if (section.folds > 0 || !section.inside) bad.push(`${s}: ${section.inside ? "" : "course point OUTSIDE; "}${section.folds} rays, ${section.deepest.toFixed(1)} mm${section.phases === null ? "" : ` at ${section.phases[0]}..${section.phases[1]} deg`}`);
+        if (m === 0 && index % 5 === 0) sections.push({ id: "s" + s, points: section.loop, closed: true, xray: true, colour: section.folds > 0 || !section.inside ? "c0392b" : "1f9d3a" });
+      }
+      lines.push(`  ${skin}: elbow at station ${elbowStation.toFixed(1)}; ${bad.length} of ${index + 1} sections not star-shaped about the course or off it${bad.length === 0 ? "" : ": " + bad.slice(0, 16).join("; ") + (bad.length > 16 ? `; ... ${bad.length - 16} more` : "")}`);
+    });
+    const first = clippedSection(meshes[0]![1], axis.at(ARM_RAIL_MM), onPlane, n);
+    const tangent: V = unit(sub(axis.at(ARM_RAIL_MM + 0.5).origin as V, axis.at(ARM_RAIL_MM - 0.5).origin as V));
+    const gaps: number[] = first === null ? [] : first.loop.map((p: V): number => distanceTo(p, ringPoints));
+    lines.push(`  the band from the girdle's ring to the arm's ring ${ARM_RAIL_MM} mm in: turn ${degrees(Math.acos(Math.min(1, Math.abs(dot(tangent, n))))).toFixed(1)} deg; ${first === null ? "no first section" : `nearest-point gap ${Math.min(...gaps).toFixed(1)} .. ${Math.max(...gaps).toFixed(1)} mm on the ${meshes[0]![0]} skin`}`);
+    const stations: number[] = slit.map((p: V): number => {
+      let best: number = 0;
+      for (let s: number = 0; s <= 120; s += 1) if (norm(sub(axis.at(s).origin as V, p)) < norm(sub(axis.at(best).origin as V, p))) best = s;
+      return best;
+    });
+    lines.push(`  the slit's skin points stand nearest to course stations ${Math.min(...stations)} .. ${Math.max(...stations)} mm`);
+    const run: V = unit(sub(elbow, centres[1]!));
+    const along: number = dot(sub(gh, centres[1]!), run);
+    const miss: number = norm(sub(sub(gh, centres[1]!), scale(run, along)));
+    let closest: { d: number; s: number } = { d: Infinity, s: 0 };
+    for (let s: number = 0; s <= elbowStation; s += 0.5) if (norm(sub(axis.at(s).origin as V, gh)) < closest.d) closest = { d: norm(sub(axis.at(s).origin as V, gh)), s };
+    lines.push(`  GH: the second run (the corner to the elbow) misses it by ${miss.toFixed(1)} mm, GH ${along.toFixed(1)} mm along it from the corner; the course passes ${closest.d.toFixed(1)} mm from GH at station ${closest.s.toFixed(1)}`);
+    const angles: number[] = AutoMovieHumanConicPose.angles(centres);
+    const backs: number[] = halves.map((h: number, k: number): number => h * AutoMovieHumanConicPose.share(angles[k]!));
+    const names: string[] = ["the ring's centre", "the corner", "the elbow", "the wrist", "the middle finger's first joint", "the hand's end"];
+    lines.push(`  turns: ${halves.map((h: number, k: number): string => `${names[k + 1]} ${degrees(angles[k]!).toFixed(1)} deg, half ${h.toFixed(2)} mm, set-back ${backs[k]!.toFixed(2)} mm`).join("; ")}`);
+    for (let i: number = 0; i + 1 < centres.length; ++i) {
+      const length: number = norm(sub(centres[i + 1]!, centres[i]!));
+      const start: number = i >= 1 ? backs[i - 1]! : 0;
+      const end: number = i < backs.length ? backs[i]! : 0;
+      lines.push(`  segment ${names[i]} to ${names[i + 1]}: ${length.toFixed(2)} mm against set-backs ${start.toFixed(2)} + ${end.toFixed(2)} = ${(start + end).toFixed(2)} mm (spare ${(length - start - end).toFixed(2)} mm)`);
+    }
+    return { lines, sections, elbowStation };
+  }
+
+  /**
+   * The girdle's ring as the plane's real cut of the trunk wall: the intersection loops traced by `M.outline`, against the near-side ray
+   * ring read from the plane's centre (`ring`). Reported: how many pieces the cut has and whether they close; how far each piece leaves the
+   * ray ring (where the ray ring bridges a hollow) and where; the ray ring's widest step between neighbouring rays against the real cut's
+   * length between its ends; and each closed piece's star-shape in the trunk's chart (phase read as millimetres at the armpit's side
+   * distance), as the port's loop is read.
+   */
+  function realCut(girdle: { frame: AutoMovieLoftFrame.IFrame; normal: V }, foldAt: (p: V) => { z: number; distance: number }): { lines: string[]; rayRing: V[]; pieces: { points: V[]; closed: boolean }[]; trunk: M.IMesh } {
+    const trunk: M.IMesh = trunkMesh();
+    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+    const origin: V = [...frame.origin] as V;
+    const normal: V = cross(frame.v as V, frame.u as V);
+    const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+    const chartOf = (p: V): C.P => [dot(sub(p, origin), frame.u as V), dot(sub(p, origin), frame.v as V)];
+    const pieces: IPiece[] = M.outline(trunk, { origin, axes: [normal, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const rays: (V | null)[] = ring(trunk, frame);
+    const rayRing: V[] = rays.filter((h: V | null): h is V => h !== null);
+    const flat: C.P[] = rayRing.map(chartOf);
+    const toRing = (p: C.P): number => {
+      let best: number = Infinity;
+      for (let i: number = 0; i < flat.length; ++i) {
+        const [a, b]: C.P[] = [flat[i]!, flat[(i + 1) % flat.length]!];
+        const e: C.P = [b![0] - a![0], b![1] - a![1]];
+        const t: number = Math.max(0, Math.min(1, ((p[0] - a![0]) * e[0] + (p[1] - a![1]) * e[1]) / Math.max(1e-12, e[0] * e[0] + e[1] * e[1])));
+        best = Math.min(best, Math.hypot(p[0] - a![0] - t * e[0], p[1] - a![1] - t * e[1]));
+      }
+      return best;
+    };
+    const chart = trunkChart();
+    const armpit = chart(P.point("armpit") as V);
+    const where = (p: V): string => {
+      const c = chart(p);
+      return `trunk station ${c.station.toFixed(1)}, phase ${degrees(Math.atan2(c.v, c.u)).toFixed(1)} deg, ${foldAt(p).distance.toFixed(1)} mm from the fold's line`;
+    };
+    const lines: string[] = [`  the real cut: ${pieces.length} pieces, ${pieces.filter((p: IPiece): boolean => p.closed).length} closed and ${pieces.filter((p: IPiece): boolean => !p.closed).length} open (${pieces.map((p: IPiece): number => p.points.length).join(", ")} points); the ray ring: ${rayRing.length} of ${RAYS} rays meet the wall`];
+    pieces.forEach((piece: IPiece, i: number): void => {
+      const off: number[] = piece.points.map(toRing);
+      const worst: number = off.reduce((best: number, d: number, k: number): number => (d > off[best]! ? k : best), 0);
+      const length: number = piece.points.reduce((t: number, p: C.P, k: number): number => (k + 1 < piece.points.length || piece.closed ? t + Math.hypot(piece.points[(k + 1) % piece.points.length]![0] - p[0], piece.points[(k + 1) % piece.points.length]![1] - p[1]) : t), 0);
+      lines.push(`  piece ${i} (${piece.closed ? "closed" : "open"}, ${piece.points.length} points, ${length.toFixed(1)} mm long): ${off.filter((d: number): boolean => d > 1).length} points more than 1 mm off the ray ring; the farthest ${off[worst]!.toFixed(1)} mm off at ${where(world(piece.points[worst]!))}`);
+      if (!piece.closed) return;
+      const q: [number, number][] = piece.points.map((p: C.P): [number, number] => {
+        const c = chart(world(p));
+        return [c.station, armpit.v * Math.atan2(c.v, c.u)];
+      });
+      const middle: [number, number] = [q.reduce((t, x): number => t + x[0], 0) / q.length, q.reduce((t, x): number => t + x[1], 0) / q.length];
+      const steps: number[] = q.map((a, k): number => {
+        const b = q[(k + 1) % q.length]!;
+        const d: number = Math.atan2(b[1] - middle[1], b[0] - middle[0]) - Math.atan2(a[1] - middle[1], a[0] - middle[0]);
+        return Math.atan2(Math.sin(d), Math.cos(d));
+      });
+      const sense: number = Math.sign(steps.reduce((t: number, x: number): number => t + x, 0)) || 1;
+      const against: number[] = steps.map((x: number, k: number): number => (sense * x < 0 ? k : -1)).filter((k: number): boolean => k >= 0);
+      lines.push(`  piece ${i} in the trunk's chart (phase as mm at the armpit's side distance ${armpit.v.toFixed(1)}): ${against.length === 0 ? "star-shaped about its centre" : `NOT STAR-SHAPED: ${against.length} steps turn back about its centre, ${degrees(against.reduce((t: number, k: number): number => t - sense * steps[k]!, 0)).toFixed(2)} deg in all`}`);
+      for (const k of against.slice(0, 12)) lines.push(`    step ${k}: ${degrees(-sense * steps[k]!).toFixed(3)} deg back at ${where(world(piece.points[k]!))}`);
+    });
+    let widest: number = 0;
+    for (let i: number = 1; i < flat.length; ++i) if (Math.hypot(flat[i]![0] - flat[i - 1]![0], flat[i]![1] - flat[i - 1]![1]) > Math.hypot(flat[widest]![0] - flat[(widest + flat.length - 1) % flat.length]![0], flat[widest]![1] - flat[(widest + flat.length - 1) % flat.length]![1])) widest = i;
+    const [a, b]: C.P[] = [flat[(widest + flat.length - 1) % flat.length]!, flat[widest]!];
+    const chord: number = Math.hypot(b![0] - a![0], b![1] - a![1]);
+    // The real cut between the chord's two ends: each end's piece and point (the cut's nearest vertex), and, where both lie on one piece,
+    // the shorter way along it between them.
+    const onCut = (x: C.P): { piece: number; i: number; d: number } => {
+      let best: { piece: number; i: number; d: number } = { piece: -1, i: -1, d: Infinity };
+      pieces.forEach((piece: IPiece, k: number): void => piece.points.forEach((p: C.P, i: number): void => {
+        if (Math.hypot(p[0] - x[0], p[1] - x[1]) < best.d) best = { piece: k, i, d: Math.hypot(p[0] - x[0], p[1] - x[1]) };
+      }));
+      return best;
+    };
+    const [ea, eb] = [onCut(a!), onCut(b!)];
+    const between = ((): string => {
+      if (ea.piece !== eb.piece) return `its two ends lie on different pieces of the real cut (piece ${ea.piece}, ${ea.d.toFixed(2)} mm from its nearest vertex, and piece ${eb.piece}, ${eb.d.toFixed(2)} mm), so the ray ring jumps from one loop of the cut to the other there`;
+      const piece: IPiece = pieces[ea.piece]!;
+      const run = (from: number, to: number): number => {
+        let total: number = 0;
+        for (let k: number = from; k !== to; k = (k + 1) % piece.points.length) total += Math.hypot(piece.points[(k + 1) % piece.points.length]![0] - piece.points[k]![0], piece.points[(k + 1) % piece.points.length]![1] - piece.points[k]![1]);
+        return total;
+      };
+      const forward: number = run(Math.min(ea.i, eb.i), Math.max(ea.i, eb.i));
+      return `both ends lie on piece ${ea.piece} (${Math.max(ea.d, eb.d).toFixed(2)} mm from its vertices at most), which runs ${(piece.closed ? Math.min(forward, run(Math.max(ea.i, eb.i), Math.min(ea.i, eb.i))) : forward).toFixed(1)} mm between them`;
+    })();
+    lines.push(`  the ray ring's widest step between neighbouring rays: ${chord.toFixed(2)} mm, from ${where(world(a!))} to ${where(world(b!))}; ${between}`);
+    return { lines, rayRing, pieces: pieces.map((piece: IPiece): { points: V[]; closed: boolean } => ({ points: piece.points.map(world), closed: piece.closed })), trunk };
+  }
+
+  /** A mesh kept to the triangles whose corners all lie within `radius` of `focus`, for a frame. */
+  function cropMesh(id: string, mesh: M.IMesh, focus: V, radius: number): N.Mesh {
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const remap: Map<number, number> = new Map();
+    const near = (i: number): boolean => norm(sub([mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!], focus)) <= radius;
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+      const tri: number[] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
+      if (!tri.every(near)) continue;
+      for (const i of tri) {
+        let j: number | undefined = remap.get(i);
+        if (j === undefined) {
+          j = positions.length / 3;
+          remap.set(i, j);
+          positions.push(mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!);
+        }
+        indices.push(j);
+      }
+    }
+    return { id, positions, indices, colour: [0.64, 0.65, 0.67] };
+  }
+
+  /** An orthographic camera looking along `-back`, screen-up nearest `upHint`, fitted to the points as `NodeCanvasCamera.fit` fits. */
+  function facing(name: string, back: V, upHint: V, points: readonly V[], width: number, height: number): N.Camera {
+    const b: V = unit(back);
+    const right: V = unit(cross(upHint, b));
+    const up: V = cross(b, right);
+    const low: V = [Infinity, Infinity, Infinity];
+    const high: V = [-Infinity, -Infinity, -Infinity];
+    for (const p of points)
+      for (let c: number = 0; c < 3; ++c) {
+        low[c] = Math.min(low[c]!, p[c]!);
+        high[c] = Math.max(high[c]!, p[c]!);
+      }
+    const target: V = scale(add(low, high), 0.5);
+    const extentX: number = Math.max(...points.map((p: V): number => Math.abs(dot(sub(p, target), right))));
+    const extentY: number = Math.max(...points.map((p: V): number => Math.abs(dot(sub(p, target), up))));
+    return { name, target, back: b, right, up, scale: 0.88 * Math.min((width - 40) / Math.max(2 * extentX, 0.001), (height - 110) / Math.max(2 * extentY, 0.001)), width, height };
+  }
+
+  /** How far the shoulder turn's least bend radius may move between two iterates and count as converged, mm (the supervisor's ruling on #3151, R3b). */
+  const CONVERGED_MM: number = 0.5;
+
+  /** The iterates the radius may take before it is reported as not converging: a bound for the report, far past what a settling iteration needs. */
+  const ITERATES: number = 20;
+
+  /**
+   * R3b, the shoulder turn by the digits' rule (the supervisor's ruling on #3151, after k = 1.5 was rejected). `AutoMovieHumanDigitWalk`
+   * sets each joint's least bend radius to its section box's farthest corner, the farthest any section point stands from the course, and
+   * converts it to the turn's half by `AutoMovieHumanBendArc.half` (h = 15 R theta / 16, the quintic angle law's peak curvature 1 / R). The
+   * shoulder takes the same rule: R is the farthest read point of the arm's own skin (the generated arm's face) from its course point over
+   * the turn, stations 0 to 2h; the reference's arm arc is read beside it as the check. The cause run measured why: every step that went
+   * back on the arm's own skin stood farther from the course than the course's radius there (d / R 1.01 to 1.53, d up to 99.2 mm against a
+   * least radius of 59.6 mm), the sweep's own fold where a section reaches past its course's centre of curvature; a multiple of the arm's
+   * radius is no measure of that reach. The loops depend on the course, so R is a fixed point (R, the course, the loops, R), seeded at the
+   * arm's own radius, the least a section's farthest point can be; the corner stands at the set-back fixed point of its turn as before.
+   * Then, on the converged course at the reference pose and at neutral (the set-backs kept, `AutoMovieHumanConicPose.halves`): the
+   * crossing check of `crossingCheck`, R3a's course measurements, the girdle ring as the plane's real cut of the trunk wall, and frames.
+   */
+  async function bend(): Promise<void> {
+    const started: number = Date.now();
+    const progress = (what: string): void => {
+      process.stdout.write(`${((Date.now() - started) / 1000).toFixed(0)} s: ${what}\n`);
+    };
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
+    const centre: V = scale(ringPoints.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / ringPoints.length);
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const reference: ISkins = skinsOf(await realizedSkin(root, "reference", progress), source.all, "reference");
+    const frames: P.IFrames = P.frames();
+    const elbow: V = frames.get("forearm")!.origin as V;
+    const later: V[] = T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V);
+    const lines: string[] = [`R3b, the shoulder turn by the digits' rule; the girdle's ring centre ${fixed(centre)}, its normal ${fixed(n, 3)}; the arm's radius r ${r.toFixed(2)} mm seeds R`, ""];
+
+    // The course at the reference pose for a least bend radius R: the corner on the ring's normal at the set-back of its own turn, the
+    // fixed point of s = h share(angle(s)) with h = AutoMovieHumanBendArc.half(the ring's centre, the corner, the elbow, R); today's halves
+    // after it. The engine refuses a set-back that reaches its segment's end exactly, so the corner stands 1e-6 mm past it.
+    interface ICourse {
+      R: number;
+      s: number;
+      h: number;
+      angle: number;
+      centres: V[];
+      halves: number[];
+      axis: IAxis | null;
+      refusal: string;
+    }
+    const courseFor = (radius: number): ICourse => {
+      let s: number = radius;
+      const trace: string[] = [];
+      for (let i: number = 0; i < 200; ++i) {
+        const corner: V = add(centre, scale(n, s));
+        const angle: number = AutoMovieHumanConicPose.angles([centre, corner, elbow])[0]!;
+        trace.push(`s ${s.toFixed(2)} mm at ${degrees(angle).toFixed(2)} deg`);
+        let next: number;
+        try {
+          next = AutoMovieHumanBendArc.half(centre, corner, elbow, radius) * AutoMovieHumanConicPose.share(angle);
+        } catch (error: unknown) {
+          return { R: radius, s, h: NaN, angle: degrees(angle), centres: [], halves: [], axis: null, refusal: `the set-back's fixed point has no course: ${(error as Error).message.slice(0, 200)}; its iterates ${trace.slice(-8).join(", ")}` };
+        }
+        const settled: boolean = Math.abs(next - s) < 1e-9;
+        s = next;
+        if (settled) break;
+      }
+      const h: number = AutoMovieHumanBendArc.half(centre, add(centre, scale(n, s)), elbow, radius);
+      const centres: V[] = [centre, add(centre, scale(n, s + 1e-6)), ...later];
+      const halves: number[] = [h, ...arm.halves.slice(1)];
+      const angle: number = degrees(AutoMovieHumanConicPose.angles(centres)[0]!);
+      try {
+        return { R: radius, s, h, angle, centres, halves, axis: H.axis({ centres, halves, up: P.direction("arm.up", frames) as V }), refusal: "" };
+      } catch (error: unknown) {
+        return { R: radius, s, h, angle, centres, halves, axis: null, refusal: (error as Error).message.slice(0, 300) };
+      }
+    };
+    // The farthest read point of the arm's own skin from the course point over the turn, stations 0 to 2h `ADVANCE_STEP_MM` apart: on the
+    // generated arm's face (the rule's R) and on the reference's arm arc (the check).
+    const farthest = (axis: IAxis, h: number): { face: number; faceAt: string; arc: number; arcAt: string } => {
+      const most = { face: 0, faceAt: "-", arc: 0, arcAt: "-" };
+      for (let station: number = 0; station <= 2 * h; station += ADVANCE_STEP_MM) {
+        const reads: IRead[] = readStation(axis, station, reference, false);
+        const origin: V = axis.at(station).origin as V;
+        reads[3]!.rays.forEach((p: V | null, j: number): void => {
+          if (p !== null && norm(sub(p, origin)) > most.face) Object.assign(most, { face: norm(sub(p, origin)), faceAt: `station ${station} mm, ${((360 * j) / RAYS).toFixed(1)} deg` });
+        });
+        reads[1]!.rays.forEach((p: V | null, j: number): void => {
+          if (p !== null && norm(sub(p, origin)) > most.arc) Object.assign(most, { arc: norm(sub(p, origin)), arcAt: `station ${station} mm, ${((360 * j) / RAYS).toFixed(1)} deg` });
+        });
+      }
+      return most;
+    };
+
+    lines.push("THE FIXED POINT of R, the farthest read point of the arm's own skin from its course point over the turn:");
+    let bendRadius: number = r;
+    let converged: ICourse | null = null;
+    for (let i: number = 1; i <= ITERATES; ++i) {
+      const course: ICourse = courseFor(bendRadius);
+      if (course.axis === null) {
+        lines.push(`  iterate ${i}: R ${bendRadius.toFixed(2)} mm: NO COURSE (the engine refuses it): ${course.refusal}`);
+        progress(`iterate ${i}: R ${bendRadius.toFixed(2)} mm: no course: ${course.refusal}`);
+        break;
+      }
+      const far = farthest(course.axis, course.h);
+      const line: string = `  iterate ${i}: R ${bendRadius.toFixed(2)} mm -> turn ${course.angle.toFixed(2)} deg, half h ${course.h.toFixed(2)} mm, set-back s ${course.s.toFixed(2)} mm; over the turn (0..${(2 * course.h).toFixed(0)} mm) the arm face's farthest read point ${far.face.toFixed(2)} mm (${far.faceAt}), the reference arm arc's ${far.arc.toFixed(2)} mm (${far.arcAt})`;
+      lines.push(line);
+      progress(line);
+      if (Math.abs(far.face - bendRadius) < CONVERGED_MM) {
+        converged = courseFor(far.face);
+        break;
+      }
+      bendRadius = far.face;
+    }
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "bend-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    const slit: V[] = slitSkin();
+    const files: string[] = [];
+
+    // 3. The girdle ring as the plane's real cut of the trunk wall, and its frame: neither depends on the course.
+    const real = realCut(girdle, reference.foldAt);
+    NodeCanvasRaster.initialize();
+    const wall: N.Mesh = cropMesh("trunk", real.trunk, scale(real.rayRing.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / real.rayRing.length), 160);
+    const ringFile: string = path.join(out, "bend.ring.armpit.png");
+    await fs.writeFile(
+      ringFile,
+      NodeCanvasRaster.render(
+        facing("armpit", n, [0, 1, 0], [...real.rayRing, ...real.pieces.flatMap((piece): V[] => piece.points)], 900, 900),
+        [wall],
+        [{ id: "ray-ring", points: real.rayRing, closed: true, xray: true, colour: "9a3fb5" }, ...real.pieces.map((piece, i: number): N.Curve => ({ id: "cut" + i, points: piece.points, closed: piece.closed, xray: true, colour: "1f9d3a" })), { id: "slit", points: slit, closed: false, xray: true, colour: "d08a1f" }],
+        "depth",
+        "f1 girdle ring on the trunk wall, seen from the armpit along the plane's normal | purple: the ray ring from the plane's centre; green: the plane's real cut; orange: the slit",
+      ).png,
+    );
+    files.push(ringFile);
+    const ringLines: string[] = ["3. THE GIRDLE RING AS THE PLANE'S REAL CUT OF THE TRUNK WALL:", ...real.lines, ""];
+    if (converged === null || converged.axis === null) {
+      lines.push(converged === null ? `NOT CONVERGED: the fixed point ended without R settling within ${CONVERGED_MM} mm (see the iterates above); 1, 2 and the course's frames are not measured` : `THE CONVERGED R ${converged.R.toFixed(2)} mm HAS NO COURSE: ${converged.refusal}`, "");
+      lines.push(...ringLines, "4. FRAMES:", ...files.map((file: string): string => `  ${file}`));
+      await fs.writeFile(path.join(out, "bend.txt"), lines.join("\n") + "\n");
+      process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+      return;
+    }
+    const axis: IAxis = converged.axis;
+    lines.push(`THE CONVERGED COURSE: R ${converged.R.toFixed(2)} mm; the turn ${converged.angle.toFixed(2)} deg, its half ${converged.h.toFixed(2)} mm, the set-back ${converged.s.toFixed(2)} mm; the corner ${fixed(converged.centres[1]!)}; R against the girdle ring's depth: the ring spans ${(Math.max(...ringPoints.map((p: V): number => p[2])) - Math.min(...ringPoints.map((p: V): number => p[2]))).toFixed(1)} mm in z and ${(Math.max(...ringPoints.map((p: V): number => p[1])) - Math.min(...ringPoints.map((p: V): number => p[1]))).toFixed(1)} mm in y`, "");
+
+    // 1 and 2 at the reference pose.
+    const checkReference = crossingCheck(axis, 2 * converged.h + 20, reference, progress);
+    lines.push("1. THE CROSSING CHECK AT THE REFERENCE POSE, stations 0 to 2h + 20 mm:", ...checkReference.lines);
+    const factsReference = courseFacts(axis, converged.centres, converged.halves, frames, [["reference", source.all], ["generated", reference.generated]], ringPoints, slit, n);
+    lines.push("2. THE COURSE AT THE REFERENCE POSE:", ...factsReference.lines, "");
+
+    // 1 and 2 at neutral: the corner stays (fixed in the thorax), the turns keep their set-backs.
+    const neutralFrames: P.IFrames = P.frames(P.NEUTRAL);
+    const neutralCentres: V[] = [centre, converged.centres[1]!, ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(neutralFrames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
+    const neutralHalves: number[] = AutoMovieHumanConicPose.halves(converged.centres, converged.halves, neutralCentres);
+    let neutralAxis: IAxis | null = null;
+    try {
+      neutralAxis = H.axis({ centres: neutralCentres, halves: neutralHalves, up: P.direction("arm.up", neutralFrames) as V });
+    } catch (error: unknown) {
+      lines.push(`1-2 AT NEUTRAL: THE ENGINE REFUSES THE COURSE: ${(error as Error).message.slice(0, 300)}`, "");
+    }
+    if (neutralAxis !== null) {
+      const neutral: ISkins = skinsOf(await realizedSkin(root, "neutral", progress), null, "neutral");
+      lines.push(`1. THE CROSSING CHECK AT NEUTRAL (the turn's half ${neutralHalves[0]!.toFixed(2)} mm by the set-back law), stations 0 to 2h + 20 mm, on the generated figure at neutral:`, ...crossingCheck(neutralAxis, 2 * neutralHalves[0]! + 20, neutral, progress).lines);
+      lines.push("2. THE COURSE AT NEUTRAL:", ...courseFacts(neutralAxis, neutralCentres, neutralHalves, neutralFrames, [["generated", neutral.generated]], ringPoints, slit, n).lines, "");
+    }
+
+    lines.push(...ringLines);
+
+    // 4. Frames.
+    const gh: V = P.frame("humerus").origin as V;
+    const shoulder: N.Mesh = cropMesh("reference", source.all, add(gh, scale(unit(sub(elbow, gh)), 120)), 230);
+    const points = (mesh: N.Mesh): V[] => Array.from({ length: mesh.positions.length / 3 }, (_: unknown, i: number): V => [mesh.positions[3 * i]!, mesh.positions[3 * i + 1]!, mesh.positions[3 * i + 2]!]);
+    const marks = (at: V[], colour: string, id: string): N.Curve[] =>
+      at.flatMap((p: V, i: number): N.Curve[] =>
+        [0, 1, 2].map((c: number): N.Curve => {
+          const a: V = [...p];
+          const b: V = [...p];
+          a[c] -= 1.5;
+          b[c] += 1.5;
+          return { id: `${id}${i}.${c}`, points: [a, b], closed: false, xray: true, colour };
+        }),
+      );
+    const failingPoints: V[] = [...checkReference.failing[0]!, ...checkReference.failing[1]!].map((f: IStep): V => f.p);
+    const curves: N.Curve[] = [
+      ...factsReference.sections,
+      { id: "course", points: Array.from({ length: 80 }, (_: unknown, i: number): V => axis.at((factsReference.elbowStation * i) / 79).origin as V), closed: false, xray: true, colour: "202020" },
+      { id: "ring", points: ringPoints, closed: true, xray: true, colour: "9a3fb5" },
+      { id: "slit", points: slit, closed: false, xray: true, colour: "d08a1f" },
+      ...marks(failingPoints, "e01b1b", "back"),
+    ];
+    for (const view of ["front", "back", "left", "low-oblique"]) {
+      const file: string = path.join(out, `bend.course.${view}.reference.png`);
+      await fs.writeFile(file, NodeCanvasRaster.render(NodeCanvasCamera.fit(view, points(shoulder), 900, 900), [shoulder], curves, "depth", `f1 arm course, the shoulder turn by the digits' rule: R ${converged.R.toFixed(1)} mm, half ${converged.h.toFixed(1)} mm | sections every 10 mm: green star-shaped, red not; black course; purple ring; orange slit; red marks: steps back on the reference (${failingPoints.length}) | ${view}`).png);
+      files.push(file);
+    }
+    lines.push("4. FRAMES:", ...files.map((file: string): string => `  ${file}`));
+    await fs.writeFile(path.join(out, "bend.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
   export async function main(): Promise<void> {
     if (process.argv[2] === "cause") return cause();
+    if (process.argv[2] === "bend") return bend();
     if (process.argv[2] === "precheck") return precheck();
     if (process.argv[2] === "cap") return cap();
     if (process.argv[2] === "course") return armCourse();
