@@ -77,7 +77,7 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form Euler extraction reads each angle's sine and projected cosine through atan2; a projected cosine within the square root of the binary64 unit roundoff, where a rounding error and the pin's truncation error meet, takes the undetermined-angle convention. Among the principal chart, the alternate chart and each angle's full-turn alias nearest its range, the least ROM overshoot wins, and every candidate is the same rotation. A constraint's `swingTwist` is set aside while the readings are ranked, since both readings of one rotation lie equally inside such a gate; the three-angle box ranks them, so the reading a pose reports stays the one it always was.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The extraction, the handedness correction, the clinical lift and the chart choice sit in one inverse because each depends on the others' convention; ROM scoring is delegated to `jointRomOvershoot`, the alias to `nearestAngleAlias` and frame arithmetic to `toClinicalAngle`, and `decomposeJointRotation` is this function behind one normalization.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Selection compares the caller's unchanged constraint and never clamps an angle into range; the gimbal pin is the standard convention for an undetermined pair, and no bone is special-cased.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, a few dot products and at most three overshoot scores in constant time; taking the basis already normalized removes one validation and normalization from each of the hundreds of candidates a limb fit decomposes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three vector rotations, a few dot products and at most three overshoot scores in constant time, an alias that leaves the selected reading unchanged not scored again; taking the basis already normalized removes one validation and normalization from each of the hundreds of candidates a limb fit decomposes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller normalizes a joint's basis once per solve and passes it to every call, which is the reason this entry exists beside `decomposeJointRotation`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the angles are a new record.
  */
@@ -140,6 +140,14 @@ export const decomposeJointRotationOnBasis: (
       constraint,
     );
     for (const candidate of [align(principal), align(alternate)]) {
+      // A reading the alias leaves as the one selected scores the same, so
+      // it cannot be strictly better and is not scored again.
+      if (
+        Object.is(candidate.flexion, selected.flexion) &&
+        Object.is(candidate.abduction, selected.abduction) &&
+        Object.is(candidate.twist, selected.twist)
+      )
+        continue;
       const next: number = jointRomOvershoot(
         { bone: domain.bone, ...candidate },
         constraint,

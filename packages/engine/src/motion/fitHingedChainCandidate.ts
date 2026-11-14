@@ -53,7 +53,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each two decompositions, an overshoot and, with a rotation, the error's two decompositions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input, called once per fit.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -101,15 +101,7 @@ export function fitHingedChainCandidate(
         prepared.upperDomain,
       ),
     },
-    {
-      bone: props.chain.lower,
-      ...decomposeJointRotationOnBasis(
-        lower,
-        lowerBasis,
-        props.restFrames?.[props.chain.lower],
-        prepared.lowerDomain,
-      ),
-    },
+    midOf(lower).joint,
   ];
   const previous = (bone: string): IAutoMovieQuaternion | null => {
     const joint: IAutoMovieJointPose | undefined =
@@ -141,6 +133,35 @@ export function fitHingedChainCandidate(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
   ): number => (b === null ? 0 : (Quaternion.angle(a, b) * 180) / Math.PI);
+  // A sweep's candidates on one bend branch share one mid rotation, the
+  // same record, and differ only in the swivel of the root. What depends on
+  // the mid rotation alone is read once per record: the same values, read
+  // once instead of per candidate.
+  let mid: IMid | undefined;
+  const midOf = (lower: IAutoMovieQuaternion): IMid => {
+    if (mid !== undefined && mid.rotation === lower) return mid;
+    const joint: IAutoMovieJointPose = {
+      bone: props.chain.lower,
+      ...decomposeJointRotationOnBasis(
+        lower,
+        lowerBasis,
+        props.restFrames?.[props.chain.lower],
+        prepared.lowerDomain,
+      ),
+    };
+    mid = {
+      rotation: lower,
+      joint,
+      overshoot: jointRomOvershoot(joint, prepared.lowerDomain.constraint),
+      effort: clinicalDeviation({
+        flexion: joint.flexion ?? 0,
+        abduction: joint.abduction ?? 0,
+        twist: joint.twist ?? 0,
+      }),
+      turned: apart(Quaternion.normalize(lower), before[1]),
+    };
+    return mid;
+  };
   const range: { min: number; max: number } | null = hingeRange(
     props,
     prepared,
@@ -160,7 +181,7 @@ export function fitHingedChainCandidate(
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
       ): { overshoot: number; deviation: number; exact?: () => number } => {
-        const [u, l] = joints(upper, lower);
+        const [u] = joints(upper, lower);
         const mid: IAutoMovieVector3 = Vector3.add(
           root,
           Quaternion.rotateVector(
@@ -200,25 +221,20 @@ export function fitHingedChainCandidate(
             ? 0
             : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
               Math.min(1, off / SIDED);
+        const known: IMid = midOf(lower);
         const effort: number =
           clinicalDeviation({
             flexion: u.flexion ?? 0,
             abduction: u.abduction ?? 0,
             twist: u.twist ?? 0,
-          }) +
-          clinicalDeviation({
-            flexion: l.flexion ?? 0,
-            abduction: l.abduction ?? 0,
-            twist: l.twist ?? 0,
-          });
+          }) + known.effort;
         const overshoot: number =
           jointRomOvershoot(u, prepared.upperDomain.constraint) +
-          jointRomOvershoot(l, prepared.lowerDomain.constraint) +
+          known.overshoot +
           blocked;
         const turned: number =
           anchor *
-          (apart(Quaternion.normalize(upper), before[0]) +
-            apart(Quaternion.normalize(lower), before[1]));
+          (apart(Quaternion.normalize(upper), before[0]) + known.turned);
         // The effector's error is the costly term and is never negative, so
         // the sum without it, added in the same order, is a lower bound of
         // the tie-break (rounding is monotone), and the error is computed
@@ -366,3 +382,21 @@ function posedSwing(
 
 /** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
 const SIDED: number = 1e-3;
+
+/** What a candidate reads of its mid rotation alone, read once per rotation record. */
+interface IMid {
+  /** The mid rotation the values were read from. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Its clinical angles. */
+  joint: IAutoMovieJointPose;
+
+  /** Their ROM overshoot, degrees. */
+  overshoot: number;
+
+  /** Their clinical effort. */
+  effort: number;
+
+  /** Degrees the mid joint turns from the reference pose's; 0 without one. */
+  turned: number;
+}
