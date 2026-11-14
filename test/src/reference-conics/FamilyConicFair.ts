@@ -207,7 +207,12 @@ export namespace FamilyConicFair {
     // instead, as the fit tool treats it (`FamilyConicFit.IRow.free` and `side`), the nose's half-section closure left the spline's low
     // harmonics nothing to hold, swung 18 to 31 mm into the parent, and the extremes the excursion stands on it were read there. The fit
     // has the wall's other constraints to shape a closure; this fairing has none. The guard that the closure does not pull the skin is
-    // `IConversion.closureGuardMm`.
+    // `IConversion.closureGuardMm`: on f1's nose it reads up to 1.5 mm (median 0.59 mm, 37 of 40 stations over the 0.25 mm tolerance)
+    // and on its trunk across both arm cuts at 560 to 627 mm up to 3.5 mm (median 1.07 mm, all 67 over) against the skin faired alone as an
+    // open curve, so the closure does pull the faired skin beside it. That reaches no module directly:
+    // the family is fitted by `FamilyConicBody`, where a closure is never data (`FamilyConicFit.IRow.free`, held on the parent's side by
+    // `side`). It reaches the module only through the lines detected and the anchor windows read near a closure's edges
+    // (`FamilyConicConvert.bridge`), which is where it is checked: a window that runs into a closure edge must not misplace its line.
     fit(radii);
     // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
     const rAt = (phi: number, order: number): number => {
