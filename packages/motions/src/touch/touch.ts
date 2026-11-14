@@ -198,7 +198,7 @@ export namespace touch {
     /** Seconds the hand stays after the repetitions; 0.4, or 1.2 for a press, a squeeze or a hold, when absent. */
     hold?: number;
 
-    /** The travel's direction on the region; `up` when absent. */
+    /** The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`). */
     tangent?: AutoMovieMotionHumanTouchForm.Tangent;
 
     /** How it is performed. */
@@ -251,7 +251,6 @@ export namespace touch {
             p.prop,
             p.point,
           );
-    const tangent: AutoMovieMotionHumanTouchForm.Tangent = p.tangent ?? "up";
     const entry: IHumanPosture = context.entry.posture;
 
     // A tool held for its use keeps the rotation its grasp presents it in at
@@ -292,6 +291,9 @@ export namespace touch {
       p.site,
     );
 
+    const laid: touchHold.Lay = touchHold.lay(context, bones, effector, placed);
+    const leading: touchHold.ILaid = laid(first, p.target);
+
     // The rise and the lean for a region beyond the standing arm, measured to
     // the first hand's wrist. Only a body on its own two feet rises.
     const grounded: boolean =
@@ -315,7 +317,7 @@ export namespace touch {
             first,
             effector,
             placed(p.target, true)(posture, 0),
-            tangent,
+            leading.tangent,
             AutoMovieMotionHumanBend.hang(body, posture, first),
             "arm",
           ).point,
@@ -399,7 +401,7 @@ export namespace touch {
                 region: target.region,
               }
             : undefined;
-      const lay: "arm" | "reach" = p.with === "forefinger" ? "reach" : "arm";
+      const { lay, tangent } = laid(side, target);
 
       // A hand that meets its place end on runs from its elbow, so the
       // elbow's place is settled with the hand and serves as the hint too.

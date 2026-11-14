@@ -2471,7 +2471,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -2871,7 +2871,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -3126,7 +3126,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -3370,7 +3370,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -4223,7 +4223,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -5065,7 +5065,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -7167,7 +7167,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -7448,7 +7448,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -7720,7 +7720,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           }
         },
         "required": [
@@ -8120,7 +8120,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -8754,7 +8754,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -9245,7 +9245,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -11843,7 +11843,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -16089,7 +16089,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -18961,7 +18961,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
                 "const": "up"
               }
             ],
-            "description": "The travel's direction on the region; `up` when absent."
+            "description": "The travel's direction on the region; when absent, `up`, or `across` for a hand on the performer's own region whose travel up and down would sink it into another part of the body (`touchHold.lay`)."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
