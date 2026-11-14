@@ -52,7 +52,7 @@ namespace FamilyConicFigure {
             group.indices.push(n - 3, n - 2, n - 1);
             groups.set(name, group);
           }
-          const names: string[] = [...groups.keys()].sort();
+          const names: string[] = [...groups.keys()].sort((a: string, b: string): number => a.localeCompare(b));
           const colour = (name: string): [number, number, number] => (name === "trunk" ? [0.64, 0.65, 0.67] : palette[names.filter((n: string): boolean => n !== "trunk").indexOf(name) % palette.length]!);
           return { meshes: names.map((name: string): N.Mesh => ({ id: name, ...groups.get(name)!, colour: colour(name) })), legend: names.map((name: string) => ({ name, rgb: colour(name).map((x: number): number => Math.round(x * 255)) })) };
         })();
