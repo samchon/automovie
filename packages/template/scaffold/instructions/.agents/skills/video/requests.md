@@ -23,7 +23,7 @@ Adherence is how much of the hint a request keeps. This scale is a starting poin
 | Blocking, rhythm and camera | Crowds, background action and establishing shots |
 | The camera and the coarse plan | A shot whose action the prompt carries |
 
-At every level the prompt and the references give the faces and surfaces, and the hint's coarse shapes are not held, as [dense passes](../motion/control-channels.md#dense-passes) explains. So release a setting that holds the hint's faces, and keep a setting for shape loose.
+At every level the prompt and the references give the faces and surfaces, so release a setting that holds the hint's faces. [Dense passes](../motion/control-channels.md#dense-passes) sets how closely a shape is held.
 
 Where the model sets adherence, record a default level for the film in [project context](../production/project-context.md) and give a request another level where the scale suits it better. [Diffusion models](diffusion.md) shows how each model sets it: by its settings, by wording that says what the input supplies, or by each control adapter's strength and mask.
 
