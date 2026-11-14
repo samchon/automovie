@@ -30,7 +30,7 @@ The parts' topology selects the operator:
 - A band that must span a radial gap or turn through a steep angle shows that the 2D lines were not shared. Correct the lines. A band's margins, rails, ribbons, profiles and ring placement follow from the shared lines, because a band tuned to hide a gap carries the gap into every person.
 - Size the port so its loops cannot cross each other or the parent's section family.
 
-**Splits.** The parent ends open at its last single-loop section, and each child starts at the saddle. The seam follows the web between the children, read from the reference.
+**Splits.** The parent ends open at its last section that is single-loop and star-shaped about its course, and each child starts at its saddle. Between them the children's bands carry the valleys: each seam follows the web from its fork on the parent's end out to the saddle and across, read from the reference. A parent run on past its last star-shaped section bridges those valleys with its hull ring.
 
 **Recesses.** Preserve real recesses and openings, such as the slit under the arm or the gap between the lips. A tape hull bridges them, and a common outward envelope cannot replace them.
 
