@@ -6,7 +6,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 End a request at a screenplay cut, and inside a continuous shot only where the model's length, or a beat its takes cannot hold, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
-On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take under [place takes in time](generation.md#place-takes-in-time), retiming only a take without generated speech. Never trim a take conditioned on a last frame, because a trim removes it; retime it if it has no generated speech, and otherwise tell the user, as [adherence](#adherence) sets.
+On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim the end of a take conditioned on a last frame, because a trim removes it; retime it if it has no generated speech, and otherwise tell the user, as [adherence](#adherence) sets.
 
 A request spans a cut only when the model takes several shots in one request.
 
