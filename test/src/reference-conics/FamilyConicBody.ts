@@ -2200,6 +2200,47 @@ namespace FamilyConicBody {
           const rest: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! >= Number(at));
           wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
           wall.knots = [...head.map((k: number): number => wall.knots[k]!), ...rest.map((k: number): number => tail.knots[k]!)];
+          // Held at the splice: with the other wall's values at and past `at` kept and its second derivative (moment) set at `at`, the natural
+          // cubic past `at` is the other wall's exactly, since its moments there are fixed by the values and that one moment. The last head
+          // knots before `at` take the least change that sets it. Spliced on values alone, the arm's skin past the splice moved up to
+          // 0.13 mm (and the nets refitted over it, 2.4 mm at the hand).
+          const join: number = wall.knots.findIndex((k: number): boolean => Math.abs(k - Number(at)) < 1e-9);
+          const tailJoin: number = tail.knots.findIndex((k: number): boolean => Math.abs(k - Number(at)) < 1e-9);
+          if (join > 0 && tailJoin >= 0) {
+            const free: number[] = [join - 3, join - 2, join - 1].filter((k: number): boolean => k > 0);
+            let worst: number = 0;
+            wall.values = wall.values.map((field: number[], f: number): number[] => {
+              const want: number = naturalMoments(tail.knots, tail.values[f]!)[tailJoin]!;
+              const base: number = naturalMoments(wall.knots, field)[join]!;
+              const gradient: number[] = free.map((k: number): number => {
+                const y: number[] = [...field];
+                y[k]! += 1;
+                return naturalMoments(wall.knots, y)[join]! - base;
+              });
+              const norm: number = gradient.reduce((sum: number, g: number): number => sum + g * g, 0);
+              const out: number[] = [...field];
+              if (norm > 0) free.forEach((k: number, j: number): void => void (out[k]! += (gradient[j]! * (want - base)) / norm));
+              // The wall is stored rounded (mm to 0.01, shares and angles to 1e-4), and rounded alone the three values left a moment of up
+              // to 2.5e-4 at the splice, which the 111 mm interval past it (the arm's 376.55 to 488) carried as 0.2 mm of skin. Of the
+              // stored values within five steps of each, the three whose moment comes nearest the other wall's are kept.
+              const unit: number = C.units(wall.layout)[f] === "mm" ? 0.01 : 1e-4;
+              const lattice: number[] = free.map((k: number): number => Math.round(out[k]! / unit));
+              let best: { miss: number; values: number[] } = { miss: Infinity, values: free.map((k: number): number => out[k]!) };
+              for (let a: number = -5; a <= 5; ++a)
+                for (let b: number = -5; b <= 5; ++b)
+                  for (let c: number = -5; c <= 5; ++c) {
+                    const values: number[] = [a, b, c].slice(0, free.length).map((d: number, j: number): number => Math.round((lattice[j]! + d) * unit * 1e6) / 1e6);
+                    const y: number[] = [...out];
+                    free.forEach((k: number, j: number): void => void (y[k] = values[j]!));
+                    const miss: number = Math.abs(naturalMoments(wall.knots, y)[join]! - want);
+                    if (miss < best.miss) best = { miss, values };
+                  }
+              free.forEach((k: number, j: number): void => void (out[k] = best.values[j]!));
+              worst = Math.max(worst, best.miss);
+              return out;
+            });
+            log("family-body-splice-held", { part: part.name, at: Number(at), momentMiss: worst });
+          }
           }
         }
 
@@ -2681,12 +2722,18 @@ namespace FamilyConicBody {
           // A net round the part's runs (`IPart.rounds`) is fitted again below even where it spans less than a turn (the palm's), so a stored
           // one is not carried as a hollow as well.
           const round = (relief: IAutoMovieLoftRelief): boolean => rounds.some((window: IWindow): boolean => window.name === relief.name);
-          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[1] <= at), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[0] >= at)].map((relief: IAutoMovieLoftRelief, i: number): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + i }));
+          // The other wall's nets round the part wholly past `at` (the arm's forearm, hand and palm nets) are carried as stored, on the very
+          // wall the held splice keeps there: fitted again over it, the hand's net moved the skin up to 2.4 mm at 600 to 640 mm.
+          let hollow: number = 0;
+          const hollowName = (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + hollow++ });
+          // A wall's hollow goes with the wall it starts on: the arm's elbow hollow, fitted on the head, runs 10 mm past the splice into the
+          // forearm net's first stations, as the stored arm's own elbow hollow did.
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[0] < at).map(hollowName), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at && (round(relief) || window(relief))).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => (round(relief) ? relief : hollowName(relief)))];
           log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
 
         // The nets round the part come last, over whichever reliefs the wall has kept.
-        fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations) && (refitted === null || refitted.includes(window.name))), false);
+        fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations) && (refitted === null || refitted.includes(window.name)) && !(spliced !== null && spliced.window === undefined && !process.argv.includes("--refit") && (definition.reliefs ?? []).some((relief: IAutoMovieLoftRelief): boolean => relief.name === window.name))), false);
         await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       // `--against=<directory>[+<shift>]`: how far the part's skin, reliefs on and caps off, moved from another stored wall's (`stored` for
@@ -2694,27 +2741,50 @@ namespace FamilyConicBody {
       // shift; the largest move over every 20 mm stretch. A splice or a window refit shows here whether the skin outside it stayed put.
       const against: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--against="))?.slice("--against=".length);
       if (against !== undefined) {
-        const [otherDir, shiftText]: string[] = against.split("+");
+        // `@<from>`: both lofted from that station on only, so a move that the engine carries along its stations from a change before it is
+        // told from a change of the walls themselves.
+        const [otherDir, shiftText]: string[] = against.split("@")[0]!.split("+");
+        const lofted: number = Number(against.split("@")[1] ?? -Infinity);
         const other: K.IStored = await storedWall(otherDir!, part.name);
         const shift: number = Number(shiftText ?? 0);
-        const low: number = Math.max(definition.knots[0]!, other.knots[0]! + shift);
+        const low: number = Math.max(definition.knots[0]!, other.knots[0]! + shift, lofted);
         const high: number = Math.min(definition.knots.at(-1)!, other.knots.at(-1)! + shift);
         const at: number[] = Array.from({ length: Math.floor((high - low) / 2) + 1 }, (_: unknown, i: number): number => low + 2 * i);
-        const mine = K.create({ ...definition, tips: undefined }, at).chain;
-        const theirs = K.create({ ...other, tips: undefined }, at.map((s: number): number => s - shift)).chain;
-        if (mine === null || theirs === null) throw new Error("--against: a wall does not loft");
-        const stretches: Map<number, number> = new Map();
-        for (const s of at) {
-          let most: number = 0;
-          for (let j: number = 0; j < 128; ++j) {
-            const p: number[] = AutoMovieLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
-            const q: number[] = AutoMovieLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 128);
-            most = Math.max(most, Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!));
+        // Both lofted on 1,024 phases (`IFamily.phase`): each part's own count follows its girth and its finest net, and the arm spliced
+        // onto a new head took another count than the stored arm, which alone read as 0.05 to 0.2 mm of skin moved past the splice.
+        const fine: number = (2 * Math.PI) / 1024;
+        // The skin with its reliefs, and the wall alone (no reliefs), so a move is placed on the wall or on a net.
+        const moved = (bare: boolean): string[] => {
+          const strip = (family: K.IStored): K.IStored => ({ ...family, tips: undefined, phase: fine, ...(bare ? { reliefs: undefined } : {}) });
+          const mine = K.create(strip(definition), at).chain;
+          const theirs = K.create(strip(other), at.map((s: number): number => s - shift)).chain;
+          if (mine === null || theirs === null) throw new Error("--against: a wall does not loft");
+          const stretches: Map<number, number> = new Map();
+          // Each of 128 points of this ring to the nearest of 2,048 points of the other's: the two walls' phases are spaced by each part's own
+          // girth (`AutoMovieHumanConicLoft.part`), so a point at the same phase on each is not the same point of the skin.
+          for (const s of at) {
+            let most: number = 0;
+            const ring: number[][] = Array.from({ length: 2048 }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 2048));
+            for (let j: number = 0; j < 128; ++j) {
+              const p: number[] = AutoMovieLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
+              most = Math.max(most, Math.min(...ring.map((q: number[]): number => Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!))));
+            }
+            const key: number = Math.floor(s / 20) * 20;
+            stretches.set(key, Math.max(stretches.get(key) ?? 0, most));
           }
-          const key: number = Math.floor(s / 20) * 20;
-          stretches.set(key, Math.max(stretches.get(key) ?? 0, most));
-        }
-        log("family-body-against", { part: part.name, against, shift, movedMmByStretch: [...stretches.entries()].map(([from, most]: [number, number]): string => `${from}..${from + 20}: ${most.toFixed(3)}`) });
+          return [...stretches.entries()].map(([from, most]: [number, number]): string => `${from}..${from + 20}: ${most.toFixed(3)}`);
+        };
+        // How far the two courses' points and charts stand apart at the shared stations: a shift that is not the courses' own leaves a
+        // whole ring moved along the course, which reads above as skin moved wherever the part tapers.
+        const courses = at.filter((_: number, i: number): boolean => i % 20 === 0).map((s: number): string => {
+          const [a, b] = [K.axis(definition).at(s), K.axis(other).at(s - shift)];
+          const gap: number = Math.hypot(a.origin[0]! - b.origin[0]!, a.origin[1]! - b.origin[1]!, a.origin[2]! - b.origin[2]!);
+          const angle = (p: readonly number[], q: readonly number[]): number => (Math.acos(Math.max(-1, Math.min(1, (p[0]! * q[0]! + p[1]! * q[1]! + p[2]! * q[2]!) / (Math.hypot(p[0]!, p[1]!, p[2]!) * Math.hypot(q[0]!, q[1]!, q[2]!))))) * 180) / Math.PI;
+          // The plane's normal, the course's tangent: u x v.
+          const normal = (f: AutoMovieLoftFrame.IFrame): number[] => [f.u[1]! * f.v[2]! - f.u[2]! * f.v[1]!, f.u[2]! * f.v[0]! - f.u[0]! * f.v[2]!, f.u[0]! * f.v[1]! - f.u[1]! * f.v[0]!];
+          return `${s}: ${gap.toFixed(3)} mm, u ${angle(a.u, b.u).toFixed(3)} v ${angle(a.v, b.v).toFixed(3)} tangent ${angle(normal(a), normal(b)).toFixed(3)} deg`;
+        });
+        log("family-body-against", { part: part.name, against, shift, movedMmByStretch: moved(false), wallMovedMmByStretch: moved(true), courses });
       }
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
       const lofted: number = performance.now();
@@ -2744,6 +2814,8 @@ namespace FamilyConicBody {
         let rowPhase: number = 0;
         let rowVertex: C.P = [0, 0];
         for (const vertex of skins[i]!) {
+          // An invented point (`F.IRow.free`, a closure) is no skin, and no misfit is read there.
+          if (row.free?.(vertex) === true) continue;
           const e: number = distance(vertex, ring);
           if (e > rowMaximum) {
             rowMaximum = e;
@@ -3313,6 +3385,28 @@ namespace FamilyConicBody {
     const family: K.IStored | undefined = Object.values(AutoMovieHumanF1.BODY).find((candidate: K.IStored): boolean => candidate.name === name);
     if (family === undefined) throw new Error("no stored family " + name);
     return JSON.parse(JSON.stringify(family)) as K.IStored;
+  }
+
+  /** The second derivatives (moments) of the natural cubic spline through `y` at the knots `x`, by the tridiagonal system (Thomas). */
+  function naturalMoments(x: readonly number[], y: readonly number[]): number[] {
+    const n: number = x.length;
+    const a: number[] = new Array<number>(n).fill(0), b: number[] = new Array<number>(n).fill(1), c: number[] = new Array<number>(n).fill(0), r: number[] = new Array<number>(n).fill(0);
+    for (let i: number = 1; i + 1 < n; ++i) {
+      const h0: number = x[i]! - x[i - 1]!, h1: number = x[i + 1]! - x[i]!;
+      a[i] = h0;
+      b[i] = 2 * (h0 + h1);
+      c[i] = h1;
+      r[i] = 6 * ((y[i + 1]! - y[i]!) / h1 - (y[i]! - y[i - 1]!) / h0);
+    }
+    for (let i: number = 1; i < n; ++i) {
+      const w: number = a[i]! / b[i - 1]!;
+      b[i]! -= w * c[i - 1]!;
+      r[i]! -= w * r[i - 1]!;
+    }
+    const m: number[] = new Array<number>(n).fill(0);
+    m[n - 1] = r[n - 1]! / b[n - 1]!;
+    for (let i: number = n - 2; i >= 0; --i) m[i] = (r[i]! - c[i]! * m[i + 1]!) / b[i]!;
+    return m;
   }
 
   /** A section chart's point in the world, mm. */
