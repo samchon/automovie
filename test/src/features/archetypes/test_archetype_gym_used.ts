@@ -23,6 +23,7 @@ import {
   HumanSportWorkout,
   type IHumanBody,
   type IHumanProp,
+  StrikingRoll,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. Rowing `on` the machine's `seat`: at `catch1` the hip joints are 0 to a fifth of the stature above the seat and within 0.3 m of it on the floor plan.
  * 2. Cycling `on` the bike's `saddle`: the same at `leftBottom1`.
  * 3. A sit-up `on` the mat's `surface`: the same at `down1`.
- * 4. The sled push plans; from its `gripped` instant to its end, read every quarter of a second, the sled is held in both fists by its own handles: each hand's grip socket lies within 15 mm (the campaign's contact bound) of its handle's grip band, the handle's declared `length` along its wrapped axis (`+X`), where a round post may be taken at any height, and the sled moves at least 2 m along the push.
+ * 4. The sled push plans; from its `gripped` instant to its end, read every quarter of a second, the sled is held in both fists by its own handles: each hand's grip socket lies within the held-tool verdict's bound (`StrikingRoll.MISS`, 10 mm: how far a fitted hand may leave a held tool's point of its pose before the pose is refused) of its handle's grip band, the handle's declared `length` along its wrapped axis (`+X`), where a round post may be taken at any height, and the sled moves at least 2 m along the push.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the workouts and the push through the public chain with the real machines and reads displayed joints and prop frames against the machines' own affordances; a body that sits or lies where its own measure would put it, or a push that leaves the handles or the sled behind, fails with the distance.
  * @evidence contracts/development/testing.md#independent-expectations The places are the archetypes' affordances carried by the props' placements; the bounds are one stated estimate and one provisional bound; nothing is read from the laws but their events.
@@ -218,9 +219,9 @@ export function test_archetype_gym_used(): void {
         off = Math.max(off, worst);
         offs.push(`${side} ${(worst * 1000).toFixed(1)} mm`);
       }
-      if (!(off <= 0.015))
+      if (!(off <= StrikingRoll.MISS))
         complaints.push(
-          `${name} sled: after the grip the handles lie off their fists by ${offs.join(", ")}, within 15 mm expected`,
+          `${name} sled: after the grip the handles lie off their fists by ${offs.join(", ")}, within ${(StrikingRoll.MISS * 1000).toFixed(0)} mm expected`,
         );
       const moved: number = frame.position.z - start.z;
       if (!(moved >= 2))

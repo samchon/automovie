@@ -28,6 +28,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingRoll } from "../striking/StrikingRoll";
 import { pushSledStance } from "./pushSledStance";
 
 /**
@@ -42,20 +43,18 @@ import { pushSledStance } from "./pushSledStance";
  * The lean is the trunk's incline from the vertical, a hinge at the hips
  * shared by the pelvis and the spine (`lean` degrees at least), coming in
  * over `SETTLE` seconds with the arms; lower handles are pushed with the
- * trunk nearer the horizontal, up to `pushSledStance.RANGE`, and from bent
- * knees, the body sinking as far as keeps each wrist within
- * `pushSledStance.SHORT` of the arm's full reach;
+ * trunk nearer the horizontal, as far as measured pushers incline at the
+ * handles' height (`pushSledStance`), and from bent knees, the body sinking
+ * as far as keeps each wrist within the arm's reach as the walk rises;
  * the hands reach the handles in that time and grip them from its end, each
  * fist's grip socket on its handle as a grasp lays it (`HumanHand.reach`:
  * the palm into the bar along the handle's `-Y`, the thumb's side along its
  * `+X`), turned about the handle as far as its symmetry makes the same grasp
  * and slid along its grip band to whichever grasp the arm, its wrist within
  * range, keeps nearest the handle through the push (the shared chooser,
- * `HumanFreedomChoice`), so the handle is in the fist and the wrist a hand's
- * half length off it. Each
- * hand's place is then kept in the chest's frame for the rest of the push,
- * its turn kept with it, and a turn the arm cannot meet gives way about the
- * grip socket, which stays on the handle.
+ * `HumanFreedomChoice`), so the handle is in the fist. Each hand's place is
+ * then kept in the chest's frame for the rest of the push, its turn kept
+ * with it; a turn the arm cannot meet gives way about the grip socket.
  *
  * First pass: the load slides with the grip and is not dragged by a
  * friction; the push's force and the slowing it brings to the walk are not
@@ -63,7 +62,7 @@ import { pushSledStance } from "./pushSledStance";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the lean, how the hands come to the handles and stay, how the load moves and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A walk with both arms and a trunk lean written over it, the load moved by the grip relation every held prop has; not an overlay, since a walk does not yield its trunk.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the lean's, the reach's and the grasp search's constants, the parameters and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the settle's and the grasp search's constants, the parameters and the plan; the bound a fist may stray off its handle is the held-tool verdict's (`StrikingRoll.MISS`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The handles are the prop's own affordances, read where the prop stands.
  */
 export namespace pushSled {
@@ -75,8 +74,6 @@ export namespace pushSled {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** How far a fist may stop short of its handle as the grip closes, metres: the campaign's 15 mm contact bound. */
-  export const REACH: number = 0.015;
 
   /** Seconds to lean in and take the handles (provisional). */
   export const SETTLE: number = 0.6;
@@ -108,7 +105,7 @@ export namespace pushSled {
     /** The handle the right hand takes, an affordance id; `right` when absent. */
     right?: string;
 
-    /** How far the trunk leans into the load at least, degrees from the vertical in [0, 60]; 30 when absent (provisional). Lower handles lean it further (`RANGE`). */
+    /** How far the trunk leans into the load at least, degrees from the vertical in [0, 60]; 30 when absent (provisional). Lower handles lean it further (`pushSledStance`). */
     lean?: number;
   }
 
@@ -204,7 +201,9 @@ export namespace pushSled {
     // read from the handles (`pushSledStance`), a share of the way in.
     const stance: pushSledStance.IStance = pushSledStance.solved(
       body,
-      base.posture(SETTLE),
+      base,
+      SETTLE,
+      context.entry.feet,
       { left: grips.left.frame, right: grips.right.frame },
       lean,
     );
@@ -428,14 +427,15 @@ export namespace pushSled {
     // A handle the fist does not keep, as the grip closes or through the
     // push, would be held in the air: the push is refused, the body to stand
     // nearer.
+    const most: number = StrikingRoll.MISS;
     for (const side of ["left", "right"] as const) {
       const off: number = taken[side].off;
-      if (!(off <= REACH))
+      if (!(off <= most))
         throw new HumanRefusal({
           kind: "reach",
           axis: "sled",
           value: off,
-          feasible: { kind: "range", minimum: 0, maximum: REACH, unit: "m" },
+          feasible: { kind: "range", minimum: 0, maximum: most, unit: "m" },
           reason: `the ${side} fist stays ${(off * 1000).toFixed(0)} mm off its handle at worst as the grip closes or through the push, the arms leaning in at full reach`,
           fix: "stand nearer the sled before pushing it, or push one whose handles are within the arms' reach",
         });
