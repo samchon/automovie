@@ -70,8 +70,15 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     b: IHumanBody,
   ): motionHumanLawSweep.IScene => {
     const feint: string | undefined = pick("feint");
+    // The partner's guard settles by 0.6 s, and a puncher reads it a
+    // reaction time before the launch (`HumanPerception.REACTION`): launched
+    // at 0.8 s, a jab perceived the guard still settling and planned on a
+    // face extrapolated 10 cm farther than it came to rest. Launched at 1 s,
+    // it perceives the partner at rest, the target a straight punch's
+    // signature describes; the guard settling during the perception is
+    // `test_human_motion_strike_punch_settling_guard`'s.
     return S.duo(a, b, punching(a), [
-      guard("a", 0.8).act("punch", {
+      guard("a", 1).act("punch", {
         technique: pick("technique") ?? "straight",
         at: S.person("b", "face"),
         ...S.set(pick, "hand", "accuracy"),
