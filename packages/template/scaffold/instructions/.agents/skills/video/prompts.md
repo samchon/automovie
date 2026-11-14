@@ -6,7 +6,7 @@ Follow the selected model's own prompting guide, linked in [diffusion models](di
 
 ## Sources
 
-A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt. A missing reaction returns the screenplay to its author, and any other missing detail is a [concretization](../story/correction/repair.md#concretization).
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt.
 
 ### Shared description
 
@@ -52,11 +52,11 @@ When the model accepts one, give appearance there: an image made from the hint's
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Write one camera move per request and each beat's actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably, with the model's timestamp syntax where a request holds several beats, as [boundaries](requests.md#boundaries) sets.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Write one camera move per request and the beat's actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
 
 ## Sound
 
-Write the shot's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: each line after a named speaker whose name matches the visual description, marked by quotes, a colon or a dialogue block as the guide sets, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: each line after a named speaker whose name matches the visual description, marked by quotes, a colon or a dialogue block as the guide sets, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 

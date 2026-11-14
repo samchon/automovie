@@ -14,7 +14,7 @@ Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md
 
 Keep measurements out, under the [settings rule](settings.md#records). User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 
-For a commissioned generated film or a detail option a diffusion model generates, embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, as [settings](settings.md#records) records do.
+For a commissioned generated film or a detail option a diffusion model generates, embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, as [settings](settings.md#records) records do, in its record, which for a subject only one scene shows is that scene file's standing state.
 
 ## Growth
 

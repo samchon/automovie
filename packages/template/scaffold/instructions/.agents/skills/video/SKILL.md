@@ -7,7 +7,7 @@ description: Chooses the video generation model for a production, plans each sce
 
 Video is generated only when the commission calls for it; a motion hint or a direct 3D film never silently requires a generator.
 
-A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, open models take either the hint video whole, through an adapter trained on gray layouts, or pose, depth or edge passes at a strength the request sets, and others accept only still frames.
+A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, some turn a gray layout into the shot, open models take pose, depth or edge passes at a strength the request sets, and others accept only still frames.
 
 Its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
 
