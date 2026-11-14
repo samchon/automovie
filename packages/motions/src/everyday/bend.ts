@@ -152,10 +152,10 @@ export namespace bend {
       context.start,
     ).point;
     const requested: Strategy = context.params.strategy ?? "auto";
-    const probe: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: 1 },
-    });
+    const probe: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: 1 } },
+      side,
+    );
     const upright: IHumanPosture = probe.posture(0);
     const { strategy, lean, pitch }: bendLower.ISolved = bend.lowering(
       body,
@@ -178,10 +178,12 @@ export namespace bend {
       speed *
       (FITTS.a + FITTS.b * Math.log2(Math.max(1, (2 * D) / FITTS.width)));
     const duration: number = 2 * down + hold;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the bend, its sway signed in the bending side's
+    // frame, so a left bend mirrors a right one (`stand.plan`).
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      side,
+    );
 
     return {
       duration,

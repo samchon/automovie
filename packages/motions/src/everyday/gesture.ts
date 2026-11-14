@@ -252,9 +252,14 @@ export namespace gesture {
     // The body under the gesture: the carrier's when the gesture is an
     // overlay, otherwise the stand law's. Each hand starts where the entry
     // left it and rests where that body's arm hangs.
+    // A one-handed gesture's stand sways in that hand's frame, so a left
+    // gesture mirrors a right one (`stand.plan`).
     const under = (seconds: number): IHumanActionPlan =>
       context.carrier === undefined
-        ? stand.plan({ ...context, params: { seconds } })
+        ? stand.plan(
+            { ...context, params: { seconds } },
+            sides.length === 1 ? sides[0]! : "right",
+          )
         : AutoMovieMotionHumanBase.under(context, seconds);
     const probe: IHumanActionPlan = under(1);
     const at0: IHumanPosture = probe.posture(0);

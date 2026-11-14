@@ -40,7 +40,10 @@ import { standUpright } from "./standUpright";
  * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
  * al. 2002, provisional factor 1.6); a given `sway` replaces that RMS, and 0
  * stands still. The window of the noise keeps the start and the end of the
- * stand exact.
+ * stand exact. A law acting with one side that stands on this law's body
+ * passes that side (`plan`'s `side`): the side-to-side draw is signed in
+ * that side's frame, so a left action's sway is the mirror of a right one's
+ * for every seed, its statistics unchanged.
  */
 export namespace stand {
   /** The action's name. */
@@ -64,10 +67,12 @@ export namespace stand {
    * Plan a stand.
    *
    * @param context The action's context.
+   * @param side The side of the law that stands on this body, whose frame the side-to-side sway is signed in: a left side's sway mirrors a right side's. The right when absent, as for a stand acting with no side.
    * @returns The plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
+    side: HumanHand.Side = "right",
   ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     HumanBound.above("seconds", duration, 0, "s");
@@ -101,11 +106,16 @@ export namespace stand {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
-        // The sway runs side to side and front to back in the body's frame.
+        // The sway runs side to side and front to back in the body's frame,
+        // the side to side signed in the acting side's frame.
         const swayed: IAutoMovieVector3 = HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           {
-            x: sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
+            x:
+              (side === "left" ? -1 : 1) *
+              sway *
+              Math.SQRT2 *
+              seededSmoothNoise(sx, u, duration, 0.8),
             y: 0,
             z: sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
           },

@@ -157,10 +157,12 @@ export namespace HumanTravelLeaf {
             : { radius: affordance.aperture / 2 }),
         };
       };
-      const standing: IHumanActionPlan = stand.plan({
-        ...context,
-        params: { seconds },
-      });
+      // The body stands while it opens, its sway signed in the opening
+      // hand's frame, so a left-handed opening mirrors a right one.
+      const standing: IHumanActionPlan = stand.plan(
+        { ...context, params: { seconds } },
+        side,
+      );
 
       // The hand keeps the side of the handle's axis it took it from, the
       // side the body faced as the hand arrived, however the body turns with

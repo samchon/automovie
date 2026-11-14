@@ -144,10 +144,10 @@ export namespace kneel {
     HumanBound.least("hold", hold, 0, "s");
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const probe: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: 1 },
-    });
+    const probe: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: 1 } },
+      k,
+    );
     const standing: IHumanPosture = probe.posture(0);
     const yaw: number = standing.yaw;
     const solved: kneelKeys.IKeys = kneelKeys.solve(body, standing, kind, k);
@@ -465,10 +465,10 @@ export namespace kneel {
       if (open !== undefined) contacts.push(plant(side, open, 1));
     }
 
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      k,
+    );
     return composeAutoMovieMotionHumanAction({
       base: { ...base, contacts },
       clock,
