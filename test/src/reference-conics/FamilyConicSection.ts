@@ -480,7 +480,15 @@ export namespace FamilyConicSection {
    */
   export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, options: { margin?: number; openings?: readonly (readonly [number, number][])[]; changes?: number[] } = {}): number[][] {
     const K: number = layout.anchors.length;
-    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[], idx: number): number[] => seed(points, layout, undefined, options.margin, options.openings?.[idx]));
+    // A section that cannot be seeded is named by its index among `sections`, so its station can be read off the caller's rows.
+    const named = (idx: number, make: () => number[]): number[] => {
+      try {
+        return make();
+      } catch (error: unknown) {
+        throw new Error(`section ${idx} of ${sections.length}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
+    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[], idx: number): number[] => named(idx, (): number[] => seed(points, layout, undefined, options.margin, options.openings?.[idx])));
     const lines: Map<number, number[]> = new Map();
     // Whether a line has ever had its inflection: a line that never had one rests at its share of the run's frame.
     const lived: Map<number, boolean[]> = new Map();
