@@ -22,7 +22,8 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  * vessel tilts. Each candidate turns the region's level normal by a multiple
  * of `STEP` degrees within `SPAN` either way (`facings`); each is solved on
  * the posture, and the facing whose reached hand keeps the vessel's axis
- * nearest the asked one is taken, the nearest to head on on a tie. The turn
+ * nearest the asked one is taken, the nearest to head on on a tie, so the
+ * first that keeps it exactly ends the search. The turn
  * about that axis is not counted, since it is free. A lean toward the face
  * is a turn of the axis about the level line across the region (`tip`);
  * the least lean that lets the arm drink is `AutoMovieMotionHumanTouchDrink`'s.
@@ -75,8 +76,8 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the choice and the tie; the namespace states the candidates.
    * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and the reached hand's tilt decides.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of goal, solve and compare.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate is solved; head on is tried first, so a tie keeps it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, thirteen per call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate that could still win is solved; head on is tried first, so a tie keeps it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, at most thirteen per call: a tilt is never below 0, so the search stops at the first facing that holds the vessel exactly upright, a bound that returns what the whole search would.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `tilt`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -106,6 +107,9 @@ export namespace AutoMovieMotionHumanTouchUpright {
         least = error;
         best = facing;
       }
+      // A tilt is an angle, never below 0, so once the best is within the
+      // margin of 0 no later facing can replace it.
+      if (least <= 1e-9) break;
     }
     return { facing: best, lean: 0, tilt: least };
   }

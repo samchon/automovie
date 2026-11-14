@@ -245,7 +245,7 @@ export namespace HumanHeld {
    * @evidence contracts/development/implementation.md#principled-implementation A pick-up takes the grip its reach allows, so which side of the rim then faces a region is not the act's to assume; each side is solved by the upright search and its reached tilt compared.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of effector, search and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted, unless the act leans it, whose own search then admits the lean or refuses it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight sides of thirteen arm solves each, once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most eight sides of at most thirteen arm solves each, once per plan: a tilt is never below 0, so the search stops at the first side that holds the vessel exactly upright, a bound that returns what the whole search would.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `effector` and `AutoMovieMotionHumanTouchUpright.solve`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -310,6 +310,9 @@ export namespace HumanHeld {
         least = tilt;
         best = candidate;
       }
+      // A tilt is an angle, never below 0, so once the best is within the
+      // margin of 0 no later side can replace it.
+      if (least <= 1e-6) break;
     }
 
     // A vessel the arm cannot hold level there is not brought tilted, unless
