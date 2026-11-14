@@ -25,8 +25,10 @@ import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { pickUpAdjust } from "./pickUpAdjust";
+import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";
-import { pickUpSearch } from "./pickUpSearch";
+import type { pickUpSearch } from "./pickUpSearch";
+import { pickUpStance } from "./pickUpStance";
 
 /**
  * Reaching for a prop's grip, grasping it and lifting it clear.
@@ -48,10 +50,13 @@ import { pickUpSearch } from "./pickUpSearch";
  * lowers it (`pickUpPosture`): a slight lean at a counter, a stoop or a
  * squat for a low one, the feet planted; a seated one leans from its seat;
  * and where the arm still misses, the trunk turns toward the grip first
- * (`pickUpAdjust.turned`);
- * it holds there through the load
- * and the lift and straightens over as long again, the hand riding with the
- * shoulder, and the event `upright` closes the action.
+ * and a standing body then takes one adjustment step (`pickUpAdjust`).
+ * The lift is the whole body's: the trunk or the stance carries what the
+ * arm cannot, and where neither does, the step is taken for the grip and
+ * the lifted place together (`pickUpStance`). A body that moved for the
+ * grip or the lift straightens after it over as long as the reach, the
+ * hand riding with the shoulder, and the event `upright` closes the
+ * action.
  *
  * Phases:
  *
@@ -67,7 +72,12 @@ import { pickUpSearch } from "./pickUpSearch";
  *    provisional, as the phase durations themselves were not reached.
  * 3. Lift: the wrist rises `lift` metres (0.1 m when absent, provisional:
  *    about a hand's breadth clear of the support) on a minimum-jerk profile
- *    timed by the same movement-time law.
+ *    timed by the same movement-time law. Where the arm alone cannot bring
+ *    the wrist to its lifted place, the trunk inclines toward it, or a
+ *    lowered body straightens part of the way, over the lift
+ *    (`pickUpLift.raise`); a lift the planned hand still falls short of by
+ *    more than the arm solver's place tolerance is refused on `lift`
+ *    (`pickUpLift.judged`).
  *
  * The hand grips the prop from `gripClosed` to the end, which attaches the
  * prop to the hand (`HumanPerformance.prop`), so the prop rides the lift, and
@@ -75,9 +85,9 @@ import { pickUpSearch } from "./pickUpSearch";
  * its closed fingers through later actions (carried with the trunk while a
  * walk or a turn drives the body) until a put down or a hand over takes it.
  *
- * Events: `gripClosed`, `liftOff`, `lifted`, and `upright` after a lowered
- * body straightens. A pick up cut into a stand before `gripClosed` abandons
- * the reach; after `lifted` it continues into a stand, a walk, a put down or
+ * Events: `gripClosed`, `liftOff`, `lifted`, and `upright` after a body
+ * lowered for the grip or inclined for the lift straightens. A pick up cut
+ * into a stand before `gripClosed` abandons the reach; after `lifted` it continues into a stand, a walk, a put down or
  * a hand over. A grip no lowering brings within the arm, or one beyond the
  * arm of a body that is not standing, is refused with the step named.
  */
@@ -145,7 +155,7 @@ export namespace pickUp {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When no lowering brings the grip within the arm's reach (step closer first), or no grasp serves the use.
+   * @throws {HumanRefusal} When no lowering brings the grip within the arm's reach (step closer first), no grasp serves the use, or the hand cannot rise as far as the lift asks.
    * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
    */
   export function plan(
@@ -166,68 +176,15 @@ export namespace pickUp {
       context.start,
     );
 
-    // The grasp chosen from the entry's body; where its arm does not reach,
-    // from the body lowered toward the grip (`pickUpPosture`).
-    let found: pickUpSearch.ISearched = pickUpSearch.of(
+    // The body the grip is taken and the lift made from: the entry's, or the
+    // entry lowered, turned or stepped, and how it carries the lift
+    // (`pickUpStance`).
+    const { found, lowered, raise }: pickUpStance.IChosen = pickUpStance.of(
       context,
       side,
       lift,
       authored,
-      {
-        posture: context.entry.posture,
-        at: (): IHumanPosture => context.entry.posture,
-        lower: (posture: IHumanPosture): IHumanPosture => posture,
-      },
     );
-    // A standing body no stoop or squat brings to the grip may still turn
-    // or step toward it, below; anything else the lowering refuses stands.
-    const standing: boolean = context.entry.base.kind === "standing";
-    let lowered: pickUpPosture.IStance | null = null;
-    if (!pickUpPosture.reaches(context, side)(found.chosen.wrist))
-      try {
-        lowered = pickUpPosture.lowered(context, side, authored.point);
-      } catch (error) {
-        if (!(standing && error instanceof HumanRefusal)) throw error;
-      }
-    if (lowered !== null)
-      found = pickUpSearch.of(context, side, lift, authored, lowered);
-
-    // Still out of reach, the trunk turns toward the grip first.
-    if (
-      !pickUpPosture.reaches(
-        context,
-        side,
-        found.stance.posture,
-      )(found.chosen.wrist)
-    ) {
-      lowered = pickUpAdjust.turned(
-        context,
-        side,
-        found.chosen.wrist.point,
-        found.stance,
-      );
-      found = pickUpSearch.of(context, side, lift, authored, lowered);
-    }
-    // Still out of reach, one foot takes one adjustment step toward it.
-    if (
-      standing &&
-      !pickUpPosture.reaches(
-        context,
-        side,
-        found.stance.posture,
-      )(found.chosen.wrist)
-    ) {
-      const stepped: pickUpPosture.IStance | null = pickUpAdjust.stepped(
-        context,
-        side,
-        found.chosen.wrist.point,
-        found.stance,
-      );
-      if (stepped !== null) {
-        lowered = stepped;
-        found = pickUpSearch.of(context, side, lift, authored, stepped);
-      }
-    }
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IHumanPosture = stance.posture;
     const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
@@ -252,6 +209,14 @@ export namespace pickUp {
         reason: `no grasp of ${context.params.prop} by ${context.params.handle} lets the ${side} hand present its ${context.params.use.tip} on the ${context.params.use.line} line: the best (turned ${chosen.turn}, tilted ${chosen.tilt} degrees, the elbow ${chosen.departure.toFixed(0)} degrees off its hint) leaves ${unmet.toFixed(1)} degrees and millimetres unmet at the use's pose (by pose in the order grasp, lift, use: ${chosen.keys.map((miss: number): string => miss.toFixed(1)).join(", ")})`,
         fix: "turn the prop where it lies so the handle can be taken from the side its use needs, take it with the other hand, or name another line for the use",
       });
+
+    // Where the arm alone cannot bring the wrist to its lifted place, the
+    // trunk inclines or the stance straightens over the lift (`pickUpLift`).
+    const rising: boolean = raise.trunk !== null || raise.share < 1;
+    // The stance's body a share of the way down; the entry's when it was
+    // not lowered.
+    const way = (share: number): IHumanPosture =>
+      lowered === null ? held : lowered.at(share);
 
     // The digits close on the prop where the arm actually puts the hand.
     const closed: IHumanPosture["joints"] = HumanGrip.close(
@@ -280,10 +245,11 @@ export namespace pickUp {
       target.width,
     );
     const rise: number = lift > 0 ? HumanPrehension.nominal(lift, 0) : 0;
-    // A lowered body comes down over the reach and straightens over as long
-    // after the lift, as a bend descends and rises in one time.
+    // A body lowered for the grip, or inclined for the lift, straightens
+    // over as long as the reach after the lift, as a bend descends and
+    // rises in one time.
     const end: number = reach + LOAD + rise;
-    const up: number = lowered === null ? 0 : reach;
+    const up: number = lowered === null && !rising ? 0 : reach;
     const duration: number = end + up;
     const transport: HumanPrehension.ITransport = HumanPrehension.transport(
       entry.worldPosition,
@@ -306,18 +272,23 @@ export namespace pickUp {
       side === "left" ? "leftHand" : "rightHand";
     const shoulder = (posture: IHumanPosture): IAutoMovieVector3 =>
       HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
+    // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
-      lowered === null ? null : shoulder(held);
-    return {
+      up === 0
+        ? null
+        : shoulder(
+            rising ? pickUpLift.posed(body, raise, way, raise.share, 1) : held,
+          );
+    const plan: IHumanActionPlan = {
       duration,
       events: [
         { name: "gripClosed", share: reach / duration },
         { name: "liftOff", share: (reach + LOAD) / duration },
         { name: "lifted", share: end / duration },
-        ...(lowered === null ? [] : [{ name: "upright", share: 1 }]),
+        ...(up === 0 ? [] : [{ name: "upright", share: 1 }]),
       ],
       contacts: [
-        ...pickUpAdjust.plants(lowered, reach, end, up),
+        ...pickUpAdjust.plants(lowered, reach, end, up, raise.share),
         // What else the body rests on at the entry, a seat or a back, it
         // keeps throughout.
         ...context.entry.supports
@@ -352,16 +323,32 @@ export namespace pickUp {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
 
-        // The body at the second: the entry, lowered over the reach and
-        // straightened after the lift when the arm reaches only lowered.
-        const base: IHumanPosture =
-          lowered === null || (t >= reach && t <= end)
-            ? held
-            : lowered.at(
-                t < reach
-                  ? minimumJerk(t / reach).s
-                  : 1 - minimumJerk((t - end) / up).s,
-              );
+        // The body at the second: the entry, lowered over the reach; over the
+        // lift, inclined or straightened as far as the lift needs; and
+        // straightened after it, back to the entry.
+        let base: IHumanPosture = held;
+        if (t < reach) {
+          if (lowered !== null) base = lowered.at(minimumJerk(t / reach).s);
+        } else if (t <= end) {
+          const k: number =
+            rising && rise > 0
+              ? minimumJerk(Math.min(1, Math.max(0, (t - reach - LOAD) / rise)))
+                  .s
+              : 0;
+          if (k > 0)
+            base = pickUpLift.posed(
+              body,
+              raise,
+              way,
+              1 - (1 - raise.share) * k,
+              k,
+            );
+        } else {
+          const m: number = 1 - minimumJerk((t - end) / up).s;
+          base = rising
+            ? pickUpLift.posed(body, raise, way, raise.share * m, m)
+            : lowered!.at(m);
+        }
         // As the body straightens the hand rides with the shoulder.
         const raised: IAutoMovieVector3 =
           t > end
@@ -433,6 +420,11 @@ export namespace pickUp {
             );
       },
     };
+
+    // The lift is judged on the plan's own hand: what the body cannot raise
+    // as far as asked is refused, never lifted less in silence.
+    pickUpLift.judged(context, side, lift, plan, reach, end);
+    return plan;
   }
 
   /** Whether a wrist goal lies within the straight arm's reach from its shoulder (`pickUpPosture.reaches`), which the put down reads too. */

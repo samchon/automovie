@@ -176,7 +176,7 @@ export namespace bendLower {
     side: HumanHand.Side,
     strategy: Exclude<bend.Strategy, "auto">,
     lean: number,
-    reach: number = 0.92 * (body.measure.upperArm + body.measure.forearm) +
+    reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
       Vector3.length(HumanHand.offset(body, side, "palm").point),
   ): number {
     const gap = (deg: number): number => {
@@ -212,6 +212,9 @@ export namespace bendLower {
     }
     return hi;
   }
+
+  /** The share of the arm (upper arm and forearm) a lowered or leaned body brings the shoulder within of its target, so the arm reaches near, not at, full extension (provisional: 0.92); `pitch` reads it, and a pick up's lift closes on it too. */
+  export const REACH: number = 0.92;
 
   /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
   export const SCAN: number = 5;
