@@ -74,6 +74,15 @@ export namespace FamilyConicRelief {
      * the notch over each collar bone; its sound neighbours stood 36 to 43 degrees off.
      */
     graze?: number;
+
+    /**
+     * Least angle between the section plane and the skin where a cast lands, degrees, for the cast to be observed; absent, any. It is read
+     * from the skin's rise along the station (`IRow.slope`): the angle is that between the skin's 3D normal and the course. Where the skin
+     * faces along the course the plane cuts it at a shallow angle, the cut moves far within a millimetre of station, and the section's loop
+     * there is not a sampling of the skin a cast in it can see (lofting.md, Composition before lofting: "A relief's cast must see the skin it
+     * carries"). Such skin is a cast's along the course, such as the shoulder's straight down.
+     */
+    plane?: number;
   }
 
   /** One observed section with the wall beneath it. */
@@ -96,8 +105,14 @@ export namespace FamilyConicRelief {
     /** Withheld from the fit. */
     heldout: boolean;
 
-    /** Whether a chart point of the skin polygon is not skin: a point of the chord that closes the cut a neighbouring part leaves. A cast that lands there is not observed. */
-    open?: (p: C.P) => boolean;
+    /**
+     * Whether, or how much, a chart point of the skin polygon is not this part's skin: a point of the chord that closes the cut a
+     * neighbouring part leaves, or skin a neighbour owns. `true` or 1 leaves a cast that lands there unobserved; a share between weighs its
+     * observation down by that much, so a neighbour's footprint can be left out over a smooth edge. An observed region that ends in a hard
+     * edge is a step in what the net is asked for, and the net draws it (lofting.md, Composition before lofting: targets from C2 functions):
+     * the face's nets, observing below the nose box's floor and not above, turned the upper lip by 6 degrees in one level line.
+     */
+    open?: (p: C.P) => boolean | number;
 
     /**
      * Whether, or how much, the net is held where a cast lands: the share of the observed height taken away, 1 or `true` for all of it (the
@@ -183,7 +198,7 @@ export namespace FamilyConicRelief {
         }
 
     // Observations: for each section inside the window, the along-axis height at phases across the window.
-    const samples: { weights: [number, number][]; target: number; heldout: boolean }[] = [];
+    const samples: { weights: [number, number][]; target: number; heldout: boolean; weight: number }[] = [];
     let deepest: number = 0;
     const phases: number = (Cn - 3) * PER_SPAN;
 
@@ -194,12 +209,13 @@ export namespace FamilyConicRelief {
       const [first, last]: [number, number] = window.fadePhase ?? [0, 0];
       return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
     };
-    // `--relief-dump=<directory>` with `--relief-dump-names=<name>,...`: every cast of the named windows written as `<name>.samples.json`
-    // (station, phase, the height asked for, the share, the hold, the height fitted, and why a cast was left unobserved), to read a net's
+    // `--relief-dump=<directory>` with `--relief-dump-names=<name>,...`: every cast of the named windows written as `<name>.samples.tsv`
+    // (station, phase, the height asked for, the share, the hold, the height fitted, the angle the section plane meets the skin at where the
+    // window reads the skin's rise, and why a cast was left unobserved), to read a net's
     // misfit sample by sample on the failing place and its neighbours.
     const dumpDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump="))?.slice("--relief-dump=".length);
     const dumped: boolean = dumpDir !== undefined && (process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump-names="))?.slice("--relief-dump-names=".length).split(",") ?? []).includes(window.name);
-    const records: { s: number; phi: number; heldout: boolean; why?: string; along?: number; share?: number; held?: number; target?: number; sample?: number }[] = [];
+    const records: { s: number; phi: number; heldout: boolean; why?: string; along?: number; landing?: C.P; meets?: number | null; share?: number; held?: number; target?: number; sample?: number }[] = [];
     const sine: number = window.graze === undefined ? 0 : Math.sin((window.graze * Math.PI) / 180);
     for (const row of rows) {
       if (row.s <= window.stations[0] || row.s >= window.stations[1]) continue;
@@ -229,14 +245,18 @@ export namespace FamilyConicRelief {
         const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
         const portion = (value: boolean | number | undefined): number => (value === true ? 1 : typeof value === "number" ? Math.min(1, Math.max(0, value)) : 0);
         const held: number = Math.max(portion(row.hold?.(landing)), portion(row.hold?.(from)));
+        // The skin's rise along the station where the cast lands, and the angle at which the section plane meets the skin there, degrees.
+        const rise: number | null = row.slope === undefined ? null : row.slope(landing, hit.normal);
+        const meets: number | null = rise === null ? null : (Math.atan2(1, Math.abs(rise)) * 180) / Math.PI;
         const why: string | undefined =
           held >= 1 ? undefined
           : window.reach !== undefined && Math.abs(along) / inPlane > window.reach ? "reach"
-          : row.open?.(landing) === true ? "open"
-          : window.graze !== undefined && row.slope !== undefined && ((rise: number | null): boolean => rise !== null && Math.abs(direction[0] * hit.normal[0] + direction[1] * hit.normal[1]) / Math.hypot(1, rise) < sine)(row.slope(landing, hit.normal)) ? "graze"
+          : row.open?.(landing) === true || row.open?.(landing) === 1 ? "open"
+          : window.graze !== undefined && rise !== null && Math.abs(direction[0] * hit.normal[0] + direction[1] * hit.normal[1]) / Math.hypot(1, rise) < sine ? "graze"
+          : window.plane !== undefined && meets !== null && meets < window.plane ? "plane"
           : undefined;
         if (why !== undefined) {
-          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why, along: along / inPlane });
+          if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, why, along: along / inPlane, landing, meets });
           continue;
         }
         const taken: number = share(row.s, phi);
@@ -249,8 +269,10 @@ export namespace FamilyConicRelief {
             if (at >= 0) weights.push([at, wu[a]! * wv[b]!]);
           }
         deepest = Math.max(deepest, Math.abs(target));
-        if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, along: along / inPlane, share: taken, held, target, sample: samples.length });
-        samples.push({ weights, target, heldout: row.heldout });
+        if (dumped) records.push({ s: row.s, phi, heldout: row.heldout, along: along / inPlane, landing, meets, share: taken, held, target, sample: samples.length });
+        // A landing partly on a neighbour's footprint weighs less (`IRow.open`).
+        const unseen: boolean | number | undefined = held >= 1 ? undefined : row.open?.(landing);
+        samples.push({ weights, target, heldout: row.heldout, weight: typeof unseen === "number" ? 1 - Math.min(1, Math.max(0, unseen)) : 1 });
       }
     }
     for (const seen of observed) {
@@ -268,7 +290,7 @@ export namespace FamilyConicRelief {
       // A height cast in space fades over the window's edges as a section's does, at its phase within the window.
       const target: number = share(seen.s, window.phases[0] + offset) * seen.target;
       deepest = Math.max(deepest, Math.abs(target));
-      samples.push({ weights, target, heldout: seen.heldout });
+      samples.push({ weights, target, heldout: seen.heldout, weight: 1 });
     }
 
     // Normal equations with the fairness penalty on second differences along both directions.
@@ -277,8 +299,8 @@ export namespace FamilyConicRelief {
     for (const sample of samples) {
       if (sample.heldout) continue;
       for (const [i, wi] of sample.weights) {
-        b[i]! += wi * sample.target;
-        for (const [j, wj] of sample.weights) A[i]![j]! += wi * wj;
+        b[i]! += sample.weight * wi * sample.target;
+        for (const [j, wj] of sample.weights) A[i]![j]! += sample.weight * wi * wj;
       }
     }
     const fair: number = FAIR * Math.max(1, samples.length / Math.max(1, unknowns));
@@ -308,7 +330,12 @@ export namespace FamilyConicRelief {
     if (dumped) {
       const fitted = (i: number): number => samples[i]!.weights.reduce((sum: number, [j, w]: [number, number]): number => sum + w * Math.round(solved[j]! * 100) / 100, 0);
       fs.mkdirSync(dumpDir!, { recursive: true });
-      fs.writeFileSync(path.join(dumpDir!, window.name + ".samples.json"), JSON.stringify({ window: { ...window }, records: records.map((record) => (record.sample === undefined ? record : { ...record, fitted: fitted(record.sample) })) }));
+      // One tab-separated line a cast, so a table reader streams it.
+      const cell = (x: number | null | undefined, digits: number): string => (x === undefined || x === null ? "" : x.toFixed(digits));
+      const lines: string[] = ["s\tphi\theldout\twhy\talong\tu\tv\tmeets\tshare\theld\ttarget\tfitted"];
+      for (const record of records)
+        lines.push([cell(record.s, 2), cell(record.phi, 4), record.heldout ? "1" : "0", record.why ?? "", cell(record.along, 3), cell(record.landing?.[0], 2), cell(record.landing?.[1], 2), cell(record.meets, 1), cell(record.share, 3), cell(record.held, 3), cell(record.target, 3), record.sample === undefined ? "" : cell(fitted(record.sample), 3)].join("\t"));
+      fs.writeFileSync(path.join(dumpDir!, window.name + ".samples.tsv"), lines.join("\n") + "\n");
     }
     return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
   }
