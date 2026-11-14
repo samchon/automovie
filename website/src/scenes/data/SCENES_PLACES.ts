@@ -19,7 +19,7 @@ const KERB: {
 } = { x: 2, z: 0.38, length: 0.6, depth: 0.4, height: 0.2 };
 
 /** How far a standing person's toes lie ahead of their floor point, metres (an estimate across the site's bodies), from which a climb measures where its stairs or ladder begin. */
-const TOE: number = 0.14;
+const TOE: number = 0.2;
 
 /**
  * The flight climbed on the stairs-and-ladder scene: the stairs are placed
@@ -129,7 +129,7 @@ export const SCENES_PLACES: readonly IScene[] = [
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
     ],
-    [object("bag", "createBag", "tote", -0.15, 0.35)],
+    [object("bag", "createBag", "tote", -0.3, 0.55)],
   ),
   scene(
     {

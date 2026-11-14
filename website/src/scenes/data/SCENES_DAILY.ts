@@ -285,7 +285,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     },
     "farewell",
     [
-      person("tia", "f1", 0.3, 0.15, 0, [
+      person("tia", "f1", 0, 0, 0, [
         act("cheekKiss", { partner: "uli" }),
         act("fistBump", { partner: "val" }),
         act("pinkyPromise", { partner: "val" }),
@@ -293,7 +293,7 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("blownKissSend"),
         act("trudge", { to: to(0, -3) }),
       ]),
-      person("uli", "m1", 0, 0.55, 180, [
+      person("uli", "m1", -0.1, 0.75, 180, [
         act("cheekKiss", { partner: "tia" }),
         act("kiss", { partner: "tia", region: "forehead" }),
         act("shoulderPat", { target: at("val", "shoulderLeft") }),

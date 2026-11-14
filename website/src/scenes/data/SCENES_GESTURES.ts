@@ -96,7 +96,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
     [
       person("hal", "m1", -1.2, 0, 20, [act("takeAKnee")]),
       person("ida", "f1", 0, 0.6, 180, [act("sitSideways")]),
-      person("jon", "m2", 1.2, 0, 330, [act("squatSit")]),
+      person("jon", "m2", 1.8, 0, 330, [act("squatSit")]),
     ],
   ),
   scene(
@@ -210,10 +210,10 @@ export const SCENES_GESTURES: readonly IScene[] = [
     },
     "arm-wrestle",
     [
-      person("tad", "m1", 0, -0.6, 0, [
+      person("tad", "m1", 0, -0.45, 0, [
         act("sit", { seat: seat("chairT"), seconds: 1 }),
       ]),
-      person("uri", "m2", 0, 0.6, 180, [
+      person("uri", "m2", 0, 0.45, 180, [
         act("sit", { seat: seat("chairU"), seconds: 1 }),
       ]),
     ],
