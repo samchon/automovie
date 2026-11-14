@@ -8,7 +8,7 @@ Read the nearest action's parameters and the [operators](compose.md#join-the-act
 
 ## Register a row
 
-A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, such as a salute among its gestures, register the row with the vocabulary as its README shows. The action that owns the table then performs the row, with every axis and operator open to it.
+A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, register the vocabulary's own lexicon row where it ships one, and otherwise a row of your own, as its README shows. The action that owns the table then performs the row, with every axis the row leaves open and every operator.
 
 ## Register a law
 

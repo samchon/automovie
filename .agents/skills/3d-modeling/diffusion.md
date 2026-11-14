@@ -15,7 +15,7 @@ Generating again with a better request costs less than repairing a mesh, so ask 
 | Part-aware generation or segmentation, or each part generated alone, for parts that move | Moving parts fused into one surface |
 | The triangle count [Conditioning](conditioning.md#reduce) would reduce to | Far more triangles than any view needs |
 | Separate material channels | Light and shadow baked into the texture |
-| Several views of the subject | Invented hidden sides |
+| Several views of the subject, in the views and order the model names, front first | Invented hidden sides |
 
 No request removes the rest: an arbitrary scale, facing and origin, melted thin parts, loose pieces, holes, inner surfaces, and a rig that is a first guess on the model's own skeleton.
 
@@ -25,7 +25,7 @@ Use the model or service the user chooses, local or hosted. The entries below ar
 
 | Model | Runs as | Input | Beyond the mesh | Documentation |
 | --- | --- | --- | --- | --- |
-| Meshy | Hosted API | Text, one image or several | Rest pose, triangle count and quad or triangle topology at generation; remeshing of an uploaded mesh; rigging of a textured biped humanoid, with walk and run clips | [Image to 3D](https://docs.meshy.ai/api/image-to-3d), [remesh](https://docs.meshy.ai/api/remesh), [rigging](https://docs.meshy.ai/api/rigging) |
+| Meshy | Hosted API | Text, one image or several | Rest pose; remeshing to a face count and quad or triangle topology, at generation when enabled or of an uploaded mesh; rigging of a textured biped humanoid, with walk and run clips | [Image to 3D](https://docs.meshy.ai/api/image-to-3d), [remesh](https://docs.meshy.ai/api/remesh), [rigging](https://docs.meshy.ai/api/rigging) |
 | Tripo | Hosted API | Text, one image or several views | Segmentation into parts, retopology, texture coordinates, format conversion, a rig check with automatic rigging, animation retargeting | [Quick start](https://developers.tripo3d.com/en/docs/quick-start) |
 | Rodin | Hosted API | Text, or one to five images | Quality tiers and texture resolution | [API](https://docs.hyper3d.ai/en/api-specification/rodin-gen2-5) |
 | Hunyuan3D-2.1 | Open weights, about 10 GB of GPU memory for shape and 21 GB for texture | One image | Material channels | [Repository](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1), [license](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/main/LICENSE) |

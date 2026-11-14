@@ -14,6 +14,8 @@ The kind follows what changes. A change to a different action [inertializes](#ch
 
 A cut also names what it carries unchanged: the stance foot's plant, a guard, a grip. The action cut into plans from that state as its entry.
 
+A law registered with an installed motion vocabulary only declares its cuts, because the vocabulary runs the transitions below; blending again inside the law applies the offset twice.
+
 ## Changing action
 
 At a cut into a different action, inertialize (Bollo 2018, "Inertialization: High-Performance Animation Transitions in Gears of War"). Each channel's offset x0 and velocity v0 are taken from both sides at the same instant and decayed together on Bollo's quintic polynomial. Where x0 and v0 have opposite signs, the decay time t1 is limited to t1 ≤ −5·x0/v0. Leaving out v0 keeps the pose continuous but breaks its velocity, which reads as a jerk at the cut.

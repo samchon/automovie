@@ -6,7 +6,7 @@ A capture is the stills, contact sheets and record that one plan produces. This 
 
 The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
 
-Repair a missing capability at the owner of that capability, then reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
+Repair a missing capability at the owner of that capability, or report it to an owner the project cannot change, and after its repair reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
 
 ## Plan
 
@@ -51,7 +51,7 @@ A reviewer who sees a moving picture only as stills says so, and claims nothing 
 
 ## Stills and sheets
 
-Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. Lay sheets out for their reader: a vision model downsizes an image whose longest edge exceeds a limit and reads detail unreliably below a smallest edge, which the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision) states as 1568 px (2576 px on newer models) and 200 px. Keep every sheet within the longest edge and every cell at least the smallest, and spread the cells over more sheets rather than shrink them. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
+Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. Lay sheets out for their reader: a vision model downsizes an image whose longest edge or token count exceeds a limit and reads detail unreliably below a smallest edge, which the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision) states as 1568 px and 1,568 tokens (2576 px and 4,784 tokens from Claude 4.7) and 200 px. Keep every sheet within both limits and every cell at least the smallest, and spread the cells over more sheets rather than shrink them. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
 
 A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence.
 

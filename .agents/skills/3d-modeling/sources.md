@@ -18,7 +18,7 @@ The channels below are examples, not a complete list; search further for the sub
 
 ## codepawl GLB repacks
 
-The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hugging Face repack Amazon Berkeley Objects (`abo-glb`), Google Scanned Objects (`scanned-objects-glb`) and NVIDIA SimReady (`simready-glb`) as GLB under CC BY 4.0, so each use needs its credit. These are real household and product objects at real-world scale, downloadable in bulk.
+The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hugging Face repack Amazon Berkeley Objects (`abo-glb`), Google Scanned Objects (`scanned-objects-glb`) and NVIDIA SimReady (`simready-glb`) as GLB under the originals' CC BY 4.0, so each use credits the original creator, not the repacker. These are real household and product objects at real-world scale, downloadable in bulk.
 
 ## Quixel Megascans
 

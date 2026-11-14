@@ -21,17 +21,15 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Canon references
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them, have the user accept them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
 
-Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
+Give each subject the number and form of references the video model's guide sets, within its size and aspect limits. Many models cap images per request rather than per subject, so make only the views the shots' subjects need. Where the guide sets none, give each character separate images, one person in each, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view in a neutral pose;
 - a face close-up with a neutral expression;
 - three-quarter or profile views as the shots need.
 
-Give fewer views where the model's guide asks for fewer, as one that wants only a headshot and a full-body image does.
-
-Where the chosen model's terms reject references with real human faces, ask the user how to give it identity.
+Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity.
 
 A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place a plate without people in the shot's light, and each prop a plain-background view.
 
@@ -63,6 +61,6 @@ Judge each image under [visual debugging](../visual-debugging/SKILL.md), against
 
 Follow the selected model's prompting guide, such as [OpenAI's](https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide). Describe scene, subject, key details and constraints in that order and state the image's use.
 
-Label each input image by index and role, such as "Image 1: identity of Mara; Image 2: the kitchen plate". For an edit, state what changes and repeat what stays the same.
+Label each input image by index and role in the prompt, never as text in the image, such as "Image 1: identity of Mara; Image 2: the kitchen plate". For an edit, state what changes and repeat what stays the same.
 
 Camera and lens words steer the image only loosely, so an exact camera comes from a reference or a control image.

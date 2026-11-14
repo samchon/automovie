@@ -8,11 +8,11 @@ Read [project context](../production/project-context.md) first. Before building 
 
 ## Coarse first
 
-A motion hint guides video-to-video diffusion, which supplies the appearance. So models stay coarse, and the accuracy goes to motion, staging, timing, range and camera readability.
+A motion hint guides video diffusion, which supplies the appearance. So models stay coarse, and the accuracy goes to motion, staging, timing, range and camera readability.
 
 ### People
 
-A person is the polygon man. The installed viewer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
+A person is the polygon man. The installed renderer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
 
 The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names these packages, and their READMEs give the calls.
 
