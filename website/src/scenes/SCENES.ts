@@ -1,4 +1,5 @@
 import { SCENES_COMBAT } from "./data/SCENES_COMBAT";
+import { SCENES_COMPOSITION } from "./data/SCENES_COMPOSITION";
 import { SCENES_DAILY } from "./data/SCENES_DAILY";
 import { SCENES_EVERYDAY } from "./data/SCENES_EVERYDAY";
 import { SCENES_FIGHT } from "./data/SCENES_FIGHT";
@@ -24,6 +25,7 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_DAILY,
   ...SCENES_GESTURES,
   ...SCENES_STREET,
+  ...SCENES_COMPOSITION,
   ...SCENES_GYM,
   ...SCENES_GAMES,
   ...SCENES_FIGHT,
