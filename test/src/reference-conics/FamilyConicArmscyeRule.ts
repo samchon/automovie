@@ -528,30 +528,39 @@ namespace FamilyConicArmscyeRule {
     lines.push(`THE AXILLA'S SLIT (its cutter's skin, ${slit.length} points): ${Math.min(...sides).toFixed(1)} .. ${Math.max(...sides).toFixed(1)} mm from the girdle's plane (negative: the trunk's side, medial); ${sides.filter((x: number): boolean => x > 0).length} points on the arm's side`, "");
 
     const drawn: { k: number; curves: N.Curve[] }[] = [];
-    const stored: Map<number, V[]> = new Map();
+    const stored: Map<number, { s: number; centres: V[] }> = new Map();
     for (const pose of ["reference", "neutral"] as const) {
       const frames: P.IFrames = pose === "reference" ? P.frames() : P.frames(P.NEUTRAL);
       const gh: V = frames.get("humerus")!.origin as V;
       const elbow: V = frames.get("forearm")!.origin as V;
-      const d: V = unit(sub(elbow, gh));
-      // The common perpendicular of the ring's normal line (centre + a n) and the humerus line (gh + b d).
-      const w0: V = sub(centre, gh);
-      const [aa, bb, cc, dd, ee]: number[] = [dot(n, n), dot(n, d), dot(d, d), dot(n, w0), dot(d, w0)];
-      const den: number = aa! * cc! - bb! * bb!;
-      const a: number = (bb! * ee! - cc! * dd!) / den;
-      const b: number = (aa! * ee! - bb! * dd!) / den;
-      const [p1, p2]: V[] = [add(centre, scale(n, a)), add(gh, scale(d, b))];
-      const corner: V = scale(add(p1!, p2!), 0.5);
-      const turnAngle: number = degrees(Math.acos(Math.max(-1, Math.min(1, dot(n, d)))));
-      lines.push(`${pose.toUpperCase()}: corner ${fixed(corner)}, ${a.toFixed(1)} mm along the ring's normal from its centre and ${b.toFixed(1)} mm along the humerus from GH; the two lines miss by ${norm(sub(p1!, p2!)).toFixed(1)} mm; the turn at the corner ${turnAngle.toFixed(1)} deg`);
+      lines.push(`${pose.toUpperCase()}:`);
       const later: V[] = (T_COURSE_AFTER as readonly string[]).map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V);
       for (const k of TURN_KS) {
-        const referenceCentres: V[] = [centre, corner, ...later];
+        // The corner stands on the ring's normal at the set-back of its own turn (the supervisor's ruling): at the reference pose `s` is
+        // the fixed point of `s = h share(angle(s))`, the angle the engine's between the normal and the line from the corner to the elbow
+        // centre (`AutoMovieHumanConicPose.angles`, `share`); at another pose the set-back is kept (`AutoMovieHumanConicPose.halves`), so
+        // `s` stays and the turn's angle and half take the pose. The engine refuses a set-back that reaches its segment's end exactly, so
+        // the corner stands 1e-6 mm past it.
         const given: number[] = [k * r, ...arm.halves.slice(1)];
-        // At the neutral pose the halves keep their set-backs at the reference pose (`AutoMovieHumanConicPose.halves`).
-        const atReference: V[] | undefined = stored.get(k);
-        if (pose === "reference") stored.set(k, referenceCentres);
-        const halves: number[] = atReference === undefined ? given : AutoMovieHumanConicPose.halves(atReference, given, referenceCentres);
+        const atReference: { s: number; centres: V[] } | undefined = stored.get(k);
+        let s: number = atReference?.s ?? k * r;
+        if (atReference === undefined)
+          for (let i: number = 0; i < 100; ++i) {
+            const angle: number = AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s)), elbow])[0]!;
+            const next: number = k * r * AutoMovieHumanConicPose.share(angle);
+            if (Math.abs(next - s) < 1e-9) break;
+            s = next;
+          }
+        const corner: V = add(centre, scale(n, s + 1e-6));
+        const referenceCentres: V[] = [centre, corner, ...later];
+        if (atReference === undefined) stored.set(k, { s, centres: referenceCentres });
+        const halves: number[] = atReference === undefined ? given : AutoMovieHumanConicPose.halves(atReference.centres, given, referenceCentres);
+        // How far the second run, from the corner to the elbow centre, misses GH: the course placement `c` of the field model.
+        const run: V = unit(sub(elbow, corner));
+        const along: number = dot(sub(gh, corner), run);
+        const miss: number = norm(sub(sub(gh, corner), scale(run, along)));
+        const angleAt: number = degrees(AutoMovieHumanConicPose.angles(referenceCentres)[0]!);
+        lines.push(`  k ${k} (half ${(k * r).toFixed(1)} mm${atReference === undefined ? "" : `, ${halves[0]!.toFixed(1)} mm here by the set-back law`}): s = ${s.toFixed(2)} mm along the ring's normal, corner ${fixed(corner)}; turn ${angleAt.toFixed(1)} deg; the second run misses GH by ${miss.toFixed(1)} mm, GH ${along.toFixed(1)} mm along it from the corner`);
         const family = { centres: referenceCentres, halves, up: P.direction("arm.up", frames) as V };
         let axis: ReturnType<typeof H.axis>;
         try {
