@@ -35,7 +35,9 @@ Give fewer views where the model's guide asks for fewer, as one that wants only 
 
 Where the chosen model's terms reject references with real human faces, ask the user how to give it identity.
 
-A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place a plate without people in the shot's light, and each prop a plain-background view. Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style from its [project context](../production/project-context.md) entry, the words the [shared description](../video/prompts.md#shared-description) also uses, because the same words keep the same subject in both.
+A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place a plate without people in the shot's light, and each prop a plain-background view.
+
+Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style from its [project context](../production/project-context.md) entry, the words the [shared description](../video/prompts.md#shared-description) also uses, because the same words keep the same subject in both.
 
 ## Control images
 
@@ -45,11 +47,11 @@ For a canon reference, a plate or any other image without the hint's structure, 
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect. Prompt the image with the [shared description](../video/prompts.md#shared-description), the film's look included, for a generated film, and give the hint's frame with the canon references to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
+Render the first frame of the request's rendered hint, handles included, at the video model's exact output size and aspect. Prompt the image with the [shared description](../video/prompts.md#shared-description), for a generated film the film's look included, and give the hint's frame with the canon references to a proprietary model as an input labeled "pose and camera reference only" and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move.
 
 When the image model's sizes differ from the video model's, render the hint's frame at a size the image model takes, with the video frame inside it, and crop the result to the video frame.
 
-Make a last frame, or a keyframe at another frame the model takes, the same way from the hint's frame there, where the shot must keep a pose: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
+Make a last frame, or a keyframe at another frame the model takes, the same way from the hint's frame there, where the shot must keep a pose: a matched cut, an outcome a still-frame model must keep, or the identity of a subject that enters after the first frame.
 
 ## Turnaround views for modeling
 

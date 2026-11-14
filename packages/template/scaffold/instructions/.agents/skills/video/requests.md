@@ -4,17 +4,17 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Intervals
 
-End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat the model cannot carry inside one request, such as a contact a still-frame model must hold on a frame, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary inside a continuous shot at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
+End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat the model cannot carry inside one request, such as a contact a still-frame model must hold on a frame or a second camera move, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary inside a continuous shot at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
 On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim past a take's conditioned last frame or its generated speech; when the excess cannot be trimmed without cutting past either, retime the take if it has no generated sound, and otherwise tell the user.
 
 Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
-A subject the model first meets after a request's opening frame drifts from its references; where the model takes no [keyframe](../image/SKILL.md#shot-frames) for it, name it in the prompt.
+A subject the model first meets after a request's opening frame drifts from its references; where the model takes no [keyframe](../image/SKILL.md#shot-frames) for it, describe it in the prompt with its shared-description words.
 
 Time each beat in the request's interval and prompt by the frames where the rendered hint performs it, because a beat record's start is provisional and the code replaces it with timing from its laws.
 
-Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames. Where the model generates from the hint video or its channels, add a few handle frames past each boundary, rendered through the request's own camera and counted within the model's length and grid, so takes can be trimmed and joined. With handles, condition the boundary's keyframe, not the handle's end.
+Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames. Where the model generates from the hint video or its channels, add a few handle frames past each boundary, rendered through the request's own camera and counted within the model's length and grid, so takes can be trimmed and joined. With handles, condition the closing boundary's frame, not the trailing handle's end.
 
 ## Adherence
 
@@ -58,9 +58,9 @@ Give each input one role:
 - the canon references, for identity and appearance;
 - a first frame made under [shot frames](../image/SKILL.md#shot-frames), where no previous take continues into the request;
 - any last frame or keyframe that shot frames calls for, to keep the hint's pose there;
-- where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, which lie inside that take rather than in its trailing handle, for motion across the boundary.
+- where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, for motion across the boundary.
 
-State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every request that continues a previous take the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
+Those frames lie inside the previous take, not in its trailing handle. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every request that continues a previous take the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
 
 Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
 
