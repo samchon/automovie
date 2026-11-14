@@ -5,6 +5,7 @@ import {
   createBall,
   createBar,
   createBarbell,
+  createBarrel,
   createBed,
   createBench,
   createBicycle,
@@ -173,6 +174,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `load-${kind}`,
       (seed?: number | string): Archetype => createLoad({ kind }, seed),
+    );
+  for (const kind of createBarrel.KINDS)
+    add(
+      `barrel-${kind}`,
+      (seed?: number | string): Archetype => createBarrel({ kind }, seed),
     );
 
   // Door: every pair of (hinge side, hardware) values, and the sliding kind on both sides.

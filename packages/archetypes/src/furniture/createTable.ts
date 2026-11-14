@@ -17,6 +17,10 @@ const ADM: string =
 const NKBA: string =
   "NKBA Kitchen Planning Guidelines with Access Standards (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)";
 
+/** The kitchen guideline read for a raised counter's seating. */
+const SEATING: string =
+  "NKBA Kitchen Planning Guidelines with Access Standards, Guideline 9 Seating Clearance: 42 in (1067 mm) high counters with a 24 in wide by 12 in (305 mm) deep knee space for each seated diner (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf)";
+
 /** The office desk standard. */
 const EN527: string =
   "EN 527-1:2011 Table 1 (https://cdn.standards.iteh.ai/samples/26022/6cc3729a004c4ce9a231c68a38e8620c/SIST-EN-527-1-2012.pdf)";
@@ -27,12 +31,16 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   desk: "desk",
   counter: "counter",
   coffee: "coffee table",
+  bar: "bar counter",
 };
 
+/** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
+const KNEE: number = 0.305;
+
 /**
- * A table: a dining table, a desk, a counter or a coffee table.
+ * A table: a dining table, a desk, a counter, a coffee table or a raised bar counter.
  *
- * The model is a top on four legs, or on a solid base for a counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
+ * The model is a top on four legs, or on a solid base for a counter and a bar counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -42,7 +50,7 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's top overhangs its base by 50 mm at the front, the base flush with the top at the back and at both ends.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -81,14 +89,15 @@ export function createTable(
     Vector3.create(0, height - slab / 2, 0),
     { color: "#a9825a" },
   );
-  if (kind === "counter")
+  if (kind === "counter" || kind === "bar") {
+    const overhang: number = kind === "bar" ? KNEE : 0.05;
     builder.box(
       "base",
-      Vector3.create(length, height - slab, depth - 0.05),
-      Vector3.create(0, (height - slab) / 2, -0.025),
+      Vector3.create(length, height - slab, depth - overhang),
+      Vector3.create(0, (height - slab) / 2, -overhang / 2),
       { color: "#d9d5cc", density: 0.3 },
     );
-  else
+  } else
     for (const [name, sx, sz] of [
       ["leg-front-left", 1, 1],
       ["leg-front-right", -1, 1],
@@ -153,15 +162,21 @@ export function createTable(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N16).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, so the bands are total records.
  */
 export namespace createTable {
   /** The kinds of table. */
-  export type Kind = "dining" | "desk" | "counter" | "coffee";
+  export type Kind = "dining" | "desk" | "counter" | "coffee" | "bar";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["dining", "desk", "counter", "coffee"];
+  export const KINDS: readonly Kind[] = [
+    "dining",
+    "desk",
+    "counter",
+    "coffee",
+    "bar",
+  ];
 
   /**
    * The affordance ids:
@@ -271,6 +286,21 @@ export namespace createTable {
         `${ADM}: coffee table 500 x 1050 mm`,
       ),
       mass: ArchetypeBand.of("kg", 8, 20, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    bar: {
+      height: ArchetypeBand.metres(1.067, 1.067, SEATING),
+      length: ArchetypeBand.metres(
+        1.2,
+        2.4,
+        "counter run length, not read at a source",
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        0.813,
+        0.94,
+        `${NKBA}: a 508 to 635 mm deep counter under the top, the top reaching the 305 mm knee space further over it; ${SEATING}`,
+      ),
+      mass: ArchetypeBand.of("kg", 50, 110, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }

@@ -22,7 +22,7 @@ const AURAY: string =
  *
  * A handheld microphone lies along `+X`, its tail at the origin and its grille's tip toward `+X`: `grip` is its handle, held round, and `head` the grille's tip, the working point whose `+Y` runs along the microphone toward the mouth it is sung into.
  *
- * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's top, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; `shaft` the lower tube at half the stand's lowest height, a bar gripped to carry or steady the stand; `clip` the socket at the boom's tip where a microphone's adapter seats, riding `height`.
+ * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's top, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; no source read says where the stand is gripped, so it declares no grip; `clip` the socket at the boom's tip where a microphone's adapter seats, riding `height`.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -82,7 +82,11 @@ export function createMicrophone(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(neck / 2, axis, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(neck / 2, axis, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: tail,
@@ -107,7 +111,11 @@ export function createMicrophone(
       `leg-${k + 1}`,
       legR,
       v(0, E.hub, 0),
-      v((Math.cos(angle) * d.spread!) / 2, legR, (-Math.sin(angle) * d.spread!) / 2),
+      v(
+        (Math.cos(angle) * d.spread!) / 2,
+        legR,
+        (-Math.sin(angle) * d.spread!) / 2,
+      ),
       { color: "#2b2b2e", round: true },
     );
   }
@@ -115,9 +123,15 @@ export function createMicrophone(
   builder.rod("lower-tube", E.lower / 2, v(0, E.hub, 0), v(0, sleeve, 0), {
     color: "#2b2b2e",
   });
-  builder.rod("upper-tube", E.upper / 2, v(0, sleeve - E.overlap, 0), v(0, low, 0), {
-    color: "#55595f",
-  });
+  builder.rod(
+    "upper-tube",
+    E.upper / 2,
+    v(0, sleeve - E.overlap, 0),
+    v(0, low, 0),
+    {
+      color: "#55595f",
+    },
+  );
   builder.rod("boom", E.upper / 2, v(0, low, 0), v(0, low, d.boom!), {
     color: "#55595f",
   });
@@ -131,18 +145,6 @@ export function createMicrophone(
     extent: null,
     travel: d.maxHeight! - low,
     parts: ["upper-tube", "boom", "clip"],
-  });
-  builder.affordance({
-    id: "shaft",
-    kind: "bar",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      v(0, low / 2, 0),
-      v(0, 0, 1),
-      v(0, 1, 0),
-    ),
-    extent: null,
-    grip: "power",
   });
   builder.affordance({
     id: "clip",
@@ -159,7 +161,7 @@ export function createMicrophone(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; the stand's height range is an articulation's travel, not a dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the head a singer's hand and mouth meet, and the shaft, clip and height a stand is carried, loaded and set by (#3468 F8).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the head a singer's hand and mouth meet, and the clip and height a stand is loaded and set by (#3468 F8).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand's tube sizes, hub and clip are named estimates; the boom does not tilt.
  */
 export namespace createMicrophone {
@@ -192,9 +194,9 @@ export namespace createMicrophone {
    * The affordance ids:
    *
    * - handheld: `grip` (handle), `head` (socket, the working point along the microphone);
-   * - boomStand: `height` (slider), `shaft` (bar), `clip` (socket riding `height`).
+   * - boomStand: `height` (slider), `clip` (socket riding `height`).
    */
-  export type Affordance = "grip" | "head" | "height" | "shaft" | "clip";
+  export type Affordance = "grip" | "head" | "height" | "clip";
 
   /**
    * The free dimensions, metres unless stated:

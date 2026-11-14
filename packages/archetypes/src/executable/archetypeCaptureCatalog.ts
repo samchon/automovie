@@ -16,6 +16,7 @@ import {
 } from "../architecture";
 import { type Archetype, type ArchetypeCourse, ArchetypeRide } from "../core";
 import {
+  createBarrel,
   createBed,
   createLoad,
   createSeat,
@@ -276,6 +277,11 @@ export function archetypeCaptureCatalog(): Readonly<
         "load",
         createLoad.KINDS,
         (kind: createLoad.Kind): Archetype => createLoad({ kind }),
+      ),
+      ...kinds(
+        "barrel",
+        createBarrel.KINDS,
+        (kind: createBarrel.Kind): Archetype => createBarrel({ kind }),
       ),
     }),
     doors: still({
