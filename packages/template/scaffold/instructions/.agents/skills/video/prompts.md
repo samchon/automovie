@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and prop the requests show once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry, asked as [asking the user](../story/planning/requirements.md#asking-the-user) sets when absent. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and prop the requests show once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry (asked under [asking the user](../story/planning/requirements.md#asking-the-user) when absent). Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words wherever a request describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
@@ -50,7 +50,7 @@ Name the gray forms only as what each one becomes, never as their appearance, su
 
 ### First frame or keyframe
 
-When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera. Describe the same appearance in the prompt as the frame shows, because a prompt that disagrees with the frame pulls the shot away from it.
+When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera.
 
 ### Still frames only
 

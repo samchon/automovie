@@ -23,7 +23,7 @@ These are representative examples, not a complete or required list; read the cho
 
 For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
 
-On a short, a subject only one scene shows has its canon references embedded in that scene file's standing state; a user's fixed screenplay is never edited, so its one-scene canon references go with the instructions.
+A subject with no settings or brief record has its canon references embedded where its appearance is decided: in the scene file's standing state on a short, or with the instructions when the screenplay is the user's fixed one or no narrative pass runs.
 
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe, and fewer views where the model's guide asks for fewer, as one that wants only a headshot and a full-body image does:
 

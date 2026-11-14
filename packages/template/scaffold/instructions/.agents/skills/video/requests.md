@@ -4,9 +4,9 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Intervals
 
-End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat the model cannot carry inside one request, such as a contact a still-frame model must land on a frame, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
+End a request at a screenplay cut unless the model takes several shots in one request, and inside a continuous shot only where the model's length, or a beat the model cannot carry inside one request, such as a contact a still-frame model must land on a frame, forces it, because every boundary there joins two generations, where identity and light can jump. Place each boundary inside a continuous shot at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action.
 
-On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim past a take's conditioned last frame or its generated speech; when the excess cannot be trimmed without cutting past either, retime the take if it has no generated sound, and otherwise tell the user. With handles, condition the last frame at the boundary, not at the handle's end.
+On a model with fixed lengths, place boundaries so each interval matches a fixed length where the beats allow; otherwise generate at the next longer length and trim the take's end under [place takes in time](generation.md#place-takes-in-time). Never trim past a take's conditioned last frame or its generated speech; when the excess cannot be trimmed without cutting past either, retime the take if it has no generated sound, and otherwise tell the user. With handles, condition the boundary's keyframe, not the handle's end.
 
 Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
@@ -31,7 +31,7 @@ At every level the prompt and the references give the faces and surfaces, becaus
 
 The scale is about motion; keep the hint's shapes only as closely as the forms are true, as [dense passes](../motion/control-channels.md#dense-passes) explains. Where the model sets shape apart from motion, such as by a structure setting or a depth blur, set shape there.
 
-Choose a default level for the film from the scale and record it in [project context](../production/project-context.md), then give a request another level where the scale suits its content better.
+Where the model sets adherence, choose a default level for the film from the scale and record it in [project context](../production/project-context.md), then give a request another level where the scale suits its content better.
 
 A proprietary model's settings apply to the whole request. An open model's control adapter may vary its control over frames and regions through a [control mask](../motion/control-channels.md) that scales it; a mask that keeps source pixels keeps the gray forms, so read which kind the adapter takes.
 
@@ -40,7 +40,7 @@ Adherence reaches the model in the way it takes the hint, and [diffusion models]
 | Model kind | Sets adherence through |
 | --- | --- |
 | Proprietary, edits or restyles a video | Its adherence settings, keyframes at chosen frames, or edit wording that names what changes and keeps the rest |
-| Proprietary, reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
+| Reads a reference video | Wording that says what the reference supplies, such as only its timing and camera |
 | Turns a gray layout into the shot, hosted or through an open adapter | Its documented strength, if any, and the wording its guide sets |
 | Proprietary, moves one figure onto a character | Nothing documented |
 | Proprietary, takes still frames | Nothing: it keeps only those frames, so a contact or outcome must land at a held pose on one of them |
@@ -52,10 +52,18 @@ Keeping positions and contacts copies the hint's timing, stiffness included. Rep
 
 ## Inputs
 
-Give each input one role: the hint video or its channels for motion and camera, the canon references for identity and appearance, a first frame made under [shot frames](../image/SKILL.md#shot-frames) where no previous take continues into the request, any last frame or keyframe that shot frames calls for, to keep the hint's pose there, and, where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, which lie inside that take rather than in its trailing handle, for motion across the boundary. State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every such request the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
+Give each input one role:
+
+- the hint video or its channels, for motion and camera;
+- the canon references, for identity and appearance;
+- a first frame made under [shot frames](../image/SKILL.md#shot-frames), where no previous take continues into the request;
+- any last frame or keyframe that shot frames calls for, to keep the hint's pose there;
+- where consecutive requests continue one motion, the accepted previous take's frames where the request's hint begins, which lie inside that take rather than in its trailing handle, for motion across the boundary.
+
+State each role in the prompt as [input roles](prompts.md#input-roles) sets. Give every request that continues a previous take the canon references too, within the inputs the model combines, because identity and color drift with every request chained from generated frames.
 
 Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
 
 ## Record
 
-Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence, and each input with its role.
+Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence where the model sets one, and each input with its role.
