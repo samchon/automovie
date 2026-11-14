@@ -1,16 +1,16 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, object, person, scene }: typeof SceneBuild = SceneBuild;
+const { act, object, person, scene, sheathed }: typeof SceneBuild = SceneBuild;
 
 /** The combat scenes of the lexicon's blade, sword, melee and firearm-handling rows: two drills and a handgun drawn, reloaded and put back. */
 export const SCENES_BLADES: readonly IScene[] = [
   scene(
     {
       id: "sword-drill",
-      title: "Shadow sword drill",
+      title: "Sword drill",
       summary:
-        "Two fencers shadow-drill side by side, blades mimed: a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse; a guard, a beat and a disengage, a cut, a parry and a thrust.",
+        "Two fencers take their swords from the hip and drill side by side: a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse; a guard, a beat and a disengage, a cut, a parry and a thrust.",
       setting: "combat",
       roles: { ari: "fencer", ben: "fencer" },
       needs: [],
@@ -18,30 +18,36 @@ export const SCENES_BLADES: readonly IScene[] = [
     "sword-drill",
     [
       person("ari", "m1", -0.8, 0, 0, [
-        act("draw"),
-        act("cut"),
-        act("slash"),
-        act("thrust"),
-        act("stab"),
-        act("backslash"),
+        act("pickUp", { prop: "swordA", handle: "grip" }),
+        act("draw", { blade: "swordA" }),
+        act("cut", { blade: "swordA" }),
+        act("slash", { blade: "swordA" }),
+        act("thrust", { blade: "swordA" }),
+        act("stab", { blade: "swordA" }),
+        act("backslash", { blade: "swordA" }),
         act("traverse"),
       ]),
       person("ben", "f1", 0.8, 0, 0, [
-        act("swordGuard"),
-        act("beat"),
-        act("disengage"),
-        act("swordCut"),
-        act("swordParry"),
-        act("swordThrust"),
+        act("pickUp", { prop: "swordB", handle: "grip" }),
+        act("swordGuard", { blade: "swordB" }),
+        act("beat", { blade: "swordB" }),
+        act("disengage", { blade: "swordB" }),
+        act("swordCut", { blade: "swordB" }),
+        act("swordParry", { blade: "swordB" }),
+        act("swordThrust", { blade: "swordB" }),
       ]),
+    ],
+    [
+      sheathed("swordA", "armingSword", "ari", "left"),
+      sheathed("swordB", "longsword", "ben", "left"),
     ],
   ),
   scene(
     {
       id: "knife-drill",
-      title: "Shadow knife and club drill",
+      title: "Knife and club drill",
       summary:
-        "Two trainees shadow knife and club strokes, mimed: a slash and a backslash and a stab, an overhand stab and a club brought down from overhead.",
+        "Two trainees draw their blades from the hip: a knife slashed, slashed back and stabbed; a dagger taken point down for an overhand stab, then a club stroke with the free hand brought down from overhead, mimed.",
       setting: "combat",
       roles: { cal: "trainee", dee: "trainee" },
       needs: [],
@@ -49,11 +55,20 @@ export const SCENES_BLADES: readonly IScene[] = [
     "knife-drill",
     [
       person("cal", "m2", -0.8, 0, 0, [
-        act("knifeSlash"),
-        act("knifeBackslash"),
-        act("knifeStab"),
+        act("pickUp", { prop: "knife", handle: "grip" }),
+        act("knifeSlash", { blade: "knife" }),
+        act("knifeBackslash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
       ]),
-      person("dee", "f2", 0.8, 0, 0, [act("stabOverhand"), act("clubStrike")]),
+      person("dee", "f2", 0.8, 0, 0, [
+        act("pickUp", { prop: "dagger", handle: "reverseGrip" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+      ]),
+    ],
+    [
+      sheathed("knife", "knife", "cal", "right"),
+      sheathed("dagger", "dagger", "dee", "right"),
     ],
   ),
   scene(

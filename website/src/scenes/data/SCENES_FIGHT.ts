@@ -2,7 +2,7 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, counter, object, person, scene }: typeof SceneBuild =
+const { act, at, counter, object, person, scene, sheathed }: typeof SceneBuild =
   SceneBuild;
 
 /** The combat scenes of the lexicon's blade, stage-fight and firearm families. */
@@ -10,37 +10,52 @@ export const SCENES_FIGHT: readonly IScene[] = [
   scene(
     {
       id: "longsword-duel",
-      title: "Shadow longsword bout",
+      title: "Longsword duel",
       summary:
-        "Two fencers shadow a bout of the German school, blades mimed: guards in ox, plough and from the roof, an advance and a lunge, a parry drilled to its line, a bind and wind, a feint and a riposte.",
+        "Two fencers draw their longswords from the hip and fight in the German school: guards in ox, plough and from the roof, an advance and a lunge met by a parry at its instant, a bind and wind, a feint and a riposte.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
       view: "side",
       skill: "novice",
       featured: 7,
+      refusedUntil: 3528,
     },
     "duel",
     [
       person("red", "m1", 0, 0, 0, [
-        act("enGarde"),
-        act("vomTag"),
+        act("pickUp", { prop: "swordR", handle: "grip" }),
+        act("enGarde", { blade: "swordR" }),
+        act("vomTag", { blade: "swordR" }),
         act("advance", { length: 0.39 }),
-        act("lunge", { target: at("blu", "chestLeft") }, { anchor: "lunge" }),
-        act("bind"),
-        act("wind"),
+        act(
+          "lunge",
+          { blade: "swordR", target: at("blu", "chestLeft") },
+          { anchor: "lunge" },
+        ),
+        act("bind", { blade: "swordR" }),
+        act("wind", { blade: "swordR" }),
         act("retreat", { length: 0.39 }),
-        act("ochs", { seconds: 1 }),
+        act("ochs", { blade: "swordR", seconds: 1 }),
       ]),
       person("blu", "m2", 0, 1.25, 180, [
-        act("enGarde"),
-        act("pflug"),
-        act("parry"),
+        act("pickUp", { prop: "swordB", handle: "grip" }),
+        act("enGarde", { blade: "swordB" }),
+        act("pflug", { blade: "swordB" }),
+        act(
+          "parry",
+          { blade: "swordB", against: "lunge" },
+          { sync: { of: "lunge" } },
+        ),
         act("voidStep", { length: 0.3 }),
-        act("feint", { target: at("red", "shoulderLeft") }),
-        act("riposte", { target: at("red", "chestRight") }),
-        act("alber"),
+        act("feint", { blade: "swordB", target: at("red", "shoulderLeft") }),
+        act("riposte", { blade: "swordB", target: at("red", "chestRight") }),
+        act("alber", { blade: "swordB" }),
       ]),
+    ],
+    [
+      sheathed("swordR", "longsword", "red", "left"),
+      sheathed("swordB", "longsword", "blu", "left"),
     ],
   ),
   scene(

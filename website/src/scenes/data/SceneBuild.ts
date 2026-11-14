@@ -143,6 +143,42 @@ export namespace SceneBuild {
   }
 
   /**
+   * A blade worn sheathed at a hip from the start, until a hand takes it up
+   * by its grip: a sword or a knife is modelled standing along +Y from its
+   * guard, so it is turned half about +X to hang point down, the hilt up at
+   * the side of the hips (`left` for a cross draw by the right hand).
+   *
+   * @param blade The blade's id.
+   * @param kind The blade's kind (`createSword`).
+   * @param wearer The person who wears it.
+   * @param side The hip it hangs at.
+   * @returns The blade.
+   */
+  export function sheathed(
+    blade: string,
+    kind: string,
+    wearer: string,
+    side: "left" | "right",
+  ): IPlaygroundComposition.IObject {
+    return {
+      subject: blade,
+      producer: "createSword",
+      kind,
+      x: 0,
+      z: 0,
+      yaw: 0,
+      worn: {
+        subject: wearer,
+        bone: "hips",
+        offset: {
+          position: { x: side === "left" ? 0.17 : -0.17, y: 0.05, z: 0.08 },
+          rotation: { x: 1, y: 0, z: 0, w: 0 },
+        },
+      },
+    };
+  }
+
+  /**
    * A seat, named by the object that carries it, which the adapter resolves.
    *
    * @param subject The object's id.
