@@ -1,6 +1,8 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,7 +28,7 @@ import type { IHumanProp } from "./IHumanProp";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what an obstacle and an aperture are, what `blocking` answers with its three reasons, and what is out of scope.
  * @evidence contracts/development/design.md#principled-representation A solid is a convex prism on the floor plan and an opening a segment of it with its clear width and height, the two measures a body's passage is decided by.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, a wall and an object as obstacles, and one query; `HumanPerformance.IInput.obstacles` gives them and `IHumanActionContext.obstacles` reads them.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two records, a wall and an object as obstacles (`wall`, `object`), an object's openings, and one query; `HumanPerformance.IInput.obstacles` gives them and `IHumanActionContext.obstacles` reads them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is named: a door's opening is its `aperture` affordance, read like any object's.
  */
 export namespace HumanObstacle {
@@ -204,6 +206,151 @@ export namespace HumanObstacle {
     }
     return out;
   }
+
+  /** How far the polygon that stands for a round collider's outline on the floor may lie outside it, metres (provisional: a millimetre, under any clearance a passage is judged by). */
+  export const ROUND: number = 0.001;
+
+  /**
+   * A placed object as an obstacle, from its own colliders and openings.
+   *
+   * The footprint is the convex hull, on the floor plan, of the object's
+   * colliders where the placement puts them: a box's corners and a hull's
+   * vertices exactly, and a sphere's or a capsule's round outline (a capsule
+   * projects to the hull of its two end spheres' discs) as the regular
+   * polygon whose edges touch the disc, with enough sides that its corners
+   * stand within `ROUND` of it, so the footprint never leaves out any of the
+   * solid. The bottom and the top are the colliders' least and greatest
+   * heights, and the openings are the object's `aperture` affordances
+   * (`apertures`).
+   *
+   * @param subject Its subject id.
+   * @param model The object, whose colliders (`shapes`) say where its solid stands.
+   * @param placement Where the scene puts it.
+   * @returns The obstacle.
+   * @throws {Error} When the object has no colliders, or its colliders cover no area of the floor plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each part of the obstacle is read from, how a round collider is outlined and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The floor-plan shadow of a convex solid is the convex hull of its vertices' shadows, and a ball's is a disc; the hull of the corners is Andrew's monotone chain (Andrew 1979, Inf Process Lett 9:216), and a disc's circumscribed regular polygon of n sides stands at most r(sec(pi/n) - 1) outside it. The heights are the engine's exact bounds of each placed collider.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the colliders for their corners and heights, one hull, the openings reused.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No box is assumed round an object: the solid is its own colliders', and an object without them, or whose colliders stand on no area, is refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the colliders' corners and the hull n log n in them, once per obstacle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Places the object with `HumanObject.frame` and reads its openings with `apertures` and its heights with `physicalShapeBounds`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function object(
+    subject: string,
+    model: HumanObject.IModel,
+    placement: HumanObject.Placement,
+  ): IObstacle {
+    const shapes: IAutoMoviePhysicalProfile.IShape[] = model.shapes?.() ?? [];
+    if (shapes.length === 0)
+      throw new Error(
+        `The object ${subject} has no colliders, so nothing says where its solid stands: give it shapes, or state it as a wall`,
+      );
+    const placed: IHumanProp.IFrame = HumanObject.frame(placement);
+    const corners: IAutoMovieVector3[] = [];
+    let bottom: number = Infinity;
+    let top: number = -Infinity;
+    for (const shape of shapes) {
+      const bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+        physicalShapeBounds(placed, shape);
+      bottom = Math.min(bottom, bounds.min.y);
+      top = Math.max(top, bounds.max.y);
+      const centre: IAutoMovieVector3 = Vector3.add(
+        placed.position,
+        Quaternion.rotateVector(placed.rotation, shape.transform.position),
+      );
+      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        placed.rotation,
+        shape.transform.rotation,
+      );
+      const at = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+      if (shape.kind === "box") {
+        const h: IAutoMovieVector3 = shape.halfExtents;
+        for (const x of [-1, 1])
+          for (const y of [-1, 1])
+            for (const z of [-1, 1])
+              corners.push(at({ x: x * h.x, y: y * h.y, z: z * h.z }));
+      } else if (shape.kind === "hull")
+        for (const point of shape.points) corners.push(at(point));
+      else if (shape.kind === "sphere") disc(corners, centre, shape.radius);
+      else {
+        for (const end of [-1, 1])
+          disc(
+            corners,
+            at({ x: 0, y: end * shape.halfLength, z: 0 }),
+            shape.radius,
+          );
+      }
+    }
+    const footprint: IAutoMovieVector3[] = hull(corners);
+    if (footprint.length < 3)
+      throw new Error(
+        `The object ${subject}'s colliders cover no area of the floor plan, so they stand in no path's way`,
+      );
+    const openings: IAperture[] = apertures(model, placement);
+    return {
+      subject,
+      footprint,
+      bottom,
+      top,
+      ...(openings.length === 0 ? {} : { apertures: openings }),
+    };
+  }
+
+  /** Adds the corners of the regular polygon whose edges touch a ball's disc on the floor plan, with enough sides that they stand within `ROUND` of it. */
+  const disc = (
+    out: IAutoMovieVector3[],
+    centre: IAutoMovieVector3,
+    radius: number,
+  ): void => {
+    const sides: number = Math.max(
+      3,
+      Math.ceil(Math.PI / Math.acos(radius / (radius + ROUND))),
+    );
+    const reach: number = radius / Math.cos(Math.PI / sides);
+    for (let k: number = 0; k < sides; k++) {
+      const angle: number = (2 * Math.PI * k) / sides;
+      out.push({
+        x: centre.x + reach * Math.cos(angle),
+        y: 0,
+        z: centre.z + reach * Math.sin(angle),
+      });
+    }
+  };
+
+  /** The convex hull of points on the floor plan, its corners in order with none on a straight run (Andrew's monotone chain); `y` is 0. */
+  const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
+    const sorted: IAutoMovieVector3[] = [...points].sort(
+      (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+        a.x - b.x || a.z - b.z,
+    );
+    const turn = (
+      o: IAutoMovieVector3,
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+    ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
+    const chain = (
+      order: readonly IAutoMovieVector3[],
+    ): IAutoMovieVector3[] => {
+      const out: IAutoMovieVector3[] = [];
+      for (const p of order) {
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
+          out.pop();
+        out.push(p);
+      }
+      out.pop();
+      return out;
+    };
+    if (sorted.length < 3) return [];
+    return [...chain(sorted), ...chain([...sorted].reverse())].map(
+      (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x, y: 0, z: p.z }),
+    );
+  };
 
   /**
    * The first obstacle a straight stretch of a path cannot pass, if any.
