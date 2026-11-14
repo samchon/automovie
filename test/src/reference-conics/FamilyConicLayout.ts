@@ -199,7 +199,7 @@ export namespace FamilyConicLayout {
       const placed: { point: P; tangent: P } = S.place(points[before]!, points[after]!, previous, read.values[1], read.values[2]);
       points[k] = placed.point;
       tangents[k] = placed.tangent;
-      phase[k] = wrap(phi);
+      phase[k] = wrap(Math.atan2(placed.point[1], placed.point[0]));
       out[at[k]!] = read.values[0];
       out[at[k]! + 1] = read.values[1];
       out[at[k]! + 2] = read.values[2];
@@ -282,6 +282,29 @@ export namespace FamilyConicLayout {
   }
 
   /**
+   * A field vector's least tangent meeting over its arcs, as a share of the arc's chord, and the arc it falls on: each arc's tangent lines
+   * meet ahead of its start and behind its end at these shares; an arc whose tangents do not stand on opposite sides of its chord meets nowhere
+   * (`-Infinity`), and the engine refuses it.
+   */
+  export function meeting(values: readonly number[], target: S.ILayout): { least: number; arc: number } {
+    const input = S.resolve(values, target).input;
+    const n: number = input.points.length;
+    let least: number = Infinity, arc: number = -1;
+    for (let k: number = 0; k < n; ++k) {
+      const p0 = input.points[k]!, p1 = input.points[(k + 1) % n]!, t0 = input.tangents[k]!, t1 = input.tangents[(k + 1) % n]!;
+      const l0: number = Math.hypot(t0[0], t0[1]) || 1, l1: number = Math.hypot(t1[0], t1[1]) || 1;
+      const u0: P = [t0[0] / l0, t0[1] / l0], u1: P = [t1[0] / l1, t1[1] / l1];
+      const c: P = [p1[0] - p0[0], p1[1] - p0[1]];
+      const det: number = u0[0] * u1[1] - u0[1] * u1[0];
+      const chord: number = Math.hypot(c[0], c[1]) || 1;
+      const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
+      const share: number = det === 0 || side(u0) * side(u1) >= 0 ? -Infinity : Math.min((c[0] * u1[1] - c[1] * u1[0]) / det, (u0[0] * c[1] - u0[1] * c[0]) / det) / chord;
+      if (share < least) [least, arc] = [share, k];
+    }
+    return { least, arc };
+  }
+
+  /**
    * Admission as the engine reads a family: every `step` mm between its first and last knot, the field vector read from the stored knots and
    * rounded as stored, resolved, and every arc's tangent lines meeting at least `margin` of its chord ahead and behind.
    *
@@ -294,21 +317,7 @@ export namespace FamilyConicLayout {
     for (let s: number = from; s <= to + 1e-9; s += step) {
       ++checked;
       const values: number[] = stored(read(s), target);
-      const input = S.resolve(values, target).input;
-      const n: number = input.points.length;
-      let worst: number = Infinity, where: number = -1;
-      for (let k: number = 0; k < n; ++k) {
-        const p0 = input.points[k]!, p1 = input.points[(k + 1) % n]!, t0 = input.tangents[k]!, t1 = input.tangents[(k + 1) % n]!;
-        const l0: number = Math.hypot(t0[0], t0[1]) || 1, l1: number = Math.hypot(t1[0], t1[1]) || 1;
-        const u0: P = [t0[0] / l0, t0[1] / l0], u1: P = [t1[0] / l1, t1[1] / l1];
-        const c: P = [p1[0] - p0[0], p1[1] - p0[1]];
-        const det: number = u0[0] * u1[1] - u0[1] * u1[0];
-        const chord: number = Math.hypot(c[0], c[1]) || 1;
-        const side = (d: P): number => c[0] * d[1] - c[1] * d[0];
-        // The meeting distances along each tangent, as shares of the chord; an arc whose tangents do not stand on opposite sides of the chord meets nowhere.
-        const meeting: number = det === 0 || side(u0) * side(u1) >= 0 ? -Infinity : Math.min((c[0] * u1[1] - c[1] * u1[0]) / det, (u0[0] * c[1] - u0[1] * c[0]) / det) / chord;
-        if (meeting < worst) [worst, where] = [meeting, k];
-      }
+      const { least: worst, arc: where } = meeting(values, target);
       const fault: string | null = S.chain(values, target).fault;
       least = Math.min(least, worst);
       if (fault !== null || worst < margin) atStations.push(s);
