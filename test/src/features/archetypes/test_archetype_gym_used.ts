@@ -28,7 +28,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * The gym machines serve the workouts that bear on them: a rowing workout sits on the rowing machine's `seat`, a cycling workout on the exercise bike's `saddle`, a sit-up lies on the exercise mat's `surface`, and a sled push takes the sled's `left` and `right` handles and moves it.
  *
- * A body sitting or lying is read by its hip joints: above the support's place, within a fifth of the stature of it (a seated or lying pelvis's own depth with room, an estimate), and within 0.3 m of it on the floor plan. The sled stands 0.35 m ahead of the pusher, its handles within the arms' reach (a sled 0.6 m ahead is refused, the fists short of its handles) and is pushed 4 m.
+ * A body sitting or lying is read by its hip joints: above the support's place, within a fifth of the stature of it (a seated or lying pelvis's own depth with room, an estimate), and within 0.3 m of it on the floor plan. The sled stands 0.6 m ahead of the pusher and is pushed 4 m.
  *
  * Scenarios, on the average man and the small woman, the rowing machine 1.5 m to the left, the bike 1.5 m to the right and the mat 1.5 m behind:
  * 1. Rowing `on` the machine's `seat`: at `catch1` the hip joints are 0 to a fifth of the stature above the seat and within 0.3 m of it on the floor plan.
@@ -164,7 +164,7 @@ export function test_archetype_gym_used(): void {
 
     // 4. The sled push.
     try {
-      const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.35 };
+      const start: IAutoMovieVector3 = { x: 0, y: 0, z: 0.6 };
       const film: HumanPerformance = new HumanPerformance({
         seed: "sled",
         laws: [HumanSportCarry.sledPush],

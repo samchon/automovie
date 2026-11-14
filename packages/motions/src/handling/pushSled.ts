@@ -14,6 +14,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import { walk } from "../actions/walk";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -36,10 +37,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * gripped, goes where the hands go, as a held prop does, and stays on the
  * floor while the arms take the walk's rise and fall.
  *
- * The lean is a flexion of the spine and the chest by `lean` degrees (half
- * each), coming in over `SETTLE` seconds with the arms, and handles too low
- * for it are pushed from bent knees, the body sinking as far as keeps each
- * wrist within `SHORT` of the arm's full reach; the hands reach the
+ * The lean is the trunk's incline from the vertical, a hinge at the hips
+ * shared by the pelvis and the spine (`lean` degrees at least), coming in
+ * over `SETTLE` seconds with the arms; lower handles are pushed with the
+ * trunk nearer the horizontal, up to `RANGE`, and from bent knees, the body
+ * sinking as far as keeps each wrist within `SHORT` of the arm's full reach; the hands reach the
  * handles in that time and grip them from its end, each fist's grip socket
  * on its handle as a grasp lays it (`HumanHand.reach`: the palm into the
  * bar along the handle's `-Y`, the thumb's side along its `+X`, turned about
@@ -67,6 +69,12 @@ export namespace pushSled {
   export const interrupts: IHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
+
+  /** The steepest the trunk inclines into a push, degrees from the vertical: the coaching guides' 90-degree hip bend (provisional). */
+  export const RANGE: number = 90;
+
+  /** The step the trunk's incline is tried in, degrees. */
+  export const STEP: number = 5;
 
   /** The share of the arm's full reach a pushing wrist is kept within, from its shoulder (provisional: the elbows a little bent, room for the gait's rise and fall). */
   export const SHORT: number = 0.9;
@@ -103,7 +111,7 @@ export namespace pushSled {
     /** The handle the right hand takes, an affordance id; `right` when absent. */
     right?: string;
 
-    /** How far the trunk leans into the load, degrees in [0, 60]; 30 when absent (provisional). */
+    /** How far the trunk leans into the load at least, degrees from the vertical in [0, 60]; 30 when absent (provisional). Lower handles lean it further (`RANGE`). */
     lean?: number;
   }
 
@@ -190,22 +198,20 @@ export namespace pushSled {
     HumanBound.above("walk", duration, SETTLE, "s");
 
     // The lean, a share of the way in.
-    // The lean, and the sink onto bent knees, a share of the way in.
+    // The trunk inclined into the push by a hinge at the hips, the pelvis
+    // and the spine sharing it by the lumbopelvic rhythm
+    // (`AutoMovieMotionHumanTrunk.sunk`), and the sink onto bent knees, a
+    // share of the way in.
+    let incline: number = lean;
     let sink: number = 0;
-    const leaned = (posture: IHumanPosture, share: number): IHumanPosture => {
-      const joints: IHumanPosture["joints"] = { ...posture.joints };
-      for (const bone of ["spine", "chest"] as const) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [was[0] + (lean / 2) * share, was[1], was[2]];
-      }
-      return {
-        ...posture,
-        joints,
-        root: { ...posture.root, y: posture.root.y - sink * share },
-      };
-    };
+    const leaned = (posture: IHumanPosture, share: number): IHumanPosture =>
+      AutoMovieMotionHumanTrunk.sunk(
+        body,
+        posture,
+        sink * share,
+        incline * share,
+        0,
+      );
     const chest = (posture: IHumanPosture) =>
       HumanTrunk.resolve(body, posture).get("chest")!;
     const elbow = (
@@ -235,37 +241,57 @@ export namespace pushSled {
       });
       return (Math.atan2(f.x, f.z) * 180) / Math.PI;
     };
-    // Handles below the reach of a leaning body are pushed from bent knees:
-    // the body sinks as far as keeps each wrist `SHORT` of the arm's full
-    // reach from its shoulder, room for the gait's rise and fall.
-    {
-      const standing: ReadonlyMap<
-        AutoMovieHumanoidBone,
-        IAutoMovieResolvedBone
-      > = poseBones(
-        body,
-        resolveHumanPosture(body, leaned(base.posture(SETTLE), 1)),
+    // Lower handles are pushed with the trunk nearer the horizontal (coaching
+    // descriptions give a hip bend of about 45 to 90 degrees, lower hands
+    // more horizontal: Inspire USA Foundation and Rep Fitness's sled push
+    // guides, provisional until a measured study is found): the trunk hinges
+    // from `lean`, in `STEP`s up to `RANGE`, until each wrist's reach across
+    // the floor lies within `SHORT` of the arm's full reach from its
+    // shoulder; the body then sinks onto bent knees as far as keeps it so,
+    // room for the gait's rise and fall.
+    const short: number =
+      SHORT * (body.measure.upperArm + body.measure.forearm);
+    const asked: Record<HumanHand.Side, IAutoMovieVector3> = {
+      left: HumanHand.reach(body, "left", "grip", grips.left.frame, "fist")
+        .point,
+      right: HumanHand.reach(body, "right", "grip", grips.right.frame, "fist")
+        .point,
+    };
+    const shoulders = (): ReadonlyMap<
+      AutoMovieHumanoidBone,
+      IAutoMovieResolvedBone
+    > =>
+      poseBones(body, resolveHumanPosture(body, leaned(base.posture(SETTLE), 1)));
+    const across = (
+      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      side: HumanHand.Side,
+    ): number => {
+      const shoulder: IAutoMovieVector3 = bones.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
+      return Math.hypot(
+        asked[side].x - shoulder.x,
+        asked[side].z - shoulder.z,
       );
-      const short: number = SHORT * (body.measure.upperArm + body.measure.forearm);
+    };
+    for (; incline < RANGE; incline = Math.min(RANGE, incline + STEP)) {
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        shoulders();
+      if (across(bones, "left") < short && across(bones, "right") < short)
+        break;
+    }
+    {
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        shoulders();
       for (const side of ["left", "right"] as const) {
-        const shoulder: IAutoMovieVector3 = standing.get(
+        const shoulder: IAutoMovieVector3 = bones.get(
           `${side}UpperArm`,
         )!.worldPosition;
-        const wrist: IAutoMovieVector3 = HumanHand.reach(
-          body,
-          side,
-          "grip",
-          grips[side].frame,
-          "fist",
-        ).point;
-        const across: number = Math.hypot(
-          wrist.x - shoulder.x,
-          wrist.z - shoulder.z,
-        );
-        if (across < short)
+        const flat: number = across(bones, side);
+        if (flat < short)
           sink = Math.max(
             sink,
-            shoulder.y - wrist.y - Math.sqrt(short * short - across * across),
+            shoulder.y - asked[side].y - Math.sqrt(short * short - flat * flat),
           );
       }
     }
