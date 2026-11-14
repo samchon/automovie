@@ -11,6 +11,10 @@ A shape claim is accepted only from renders opened by the person making the clai
 
 The [shared instrument](screenshot.md) finds defects and accepts a candidate; the [tests](testing.md) confirm it.
 
+## Form Before Deviation
+
+A figure may stand away from its reference; it may not lose its form. An error may change how much and how far, never what is there: every region keeps whether it is convex or concave, every named feature (a navel, a cleft, a notch, the lids, the lips, the nostrils, the ear's folds, the knuckles, the malleoli) stays present with its sign, at least half its depth and at its landmark, every silhouette keeps its run of convex and concave stretches, and every muscle belly keeps its one maximum. A lump, a level band, a step, a crease or a dent the reference lacks fails the figure whatever its deviation, because a law learnt from it reproduces the break in every person. Deviation is reported with every round as a pointer to where to look.
+
 ## Curves Against The Reference
 
 A surface is only as right as its original 2D definitions, so inspect them before correcting a shape. A comparison the instrument cannot draw yet, because the reference is not handed to it, is [unavailable evidence](screenshot.md#reference-comparison), recorded as such and never passed.
