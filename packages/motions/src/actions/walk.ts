@@ -16,7 +16,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -25,6 +25,7 @@ import type { IWalkGait } from "./IWalkGait";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
+import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
@@ -284,6 +285,8 @@ export namespace walk {
         seconds: swing.on - swing.off,
         lift: gait.lift,
         stiff: gait.stiff === side,
+        // A running foot strikes moving; a walking one sets down at rest.
+        settles: gait.swing <= 1,
       });
     };
     // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
@@ -396,87 +399,85 @@ export namespace walk {
       }
       return { feet, hips: pelvis(t), settled, reached };
     };
+    // The take's posture before its arms are carried.
+    const unswung = (seconds: number): IHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const phase: number = steps.phase(t);
+      const amount: number = steps.amount(t);
+      const swing: number = Math.sin(2 * Math.PI * phase) * amount;
+      const { feet, hips, settled, reached } = solve(t);
+      const root: IAutoMovieVector3 = settled.root;
+      const yaw: number = settled.yaw;
+      // The trunk inclines by the gait's lean, the pelvis and the spine
+      // sharing it, from the upright alignment. The lean grows and fades
+      // with the gait itself, as the pelvis' sway and the arms' swing do,
+      // so a walk leaves a standstill upright and comes to one upright.
+      const inclined = HumanTrunk.incline(
+        standUpright.of(body).joints,
+        gait.lean * amount,
+      );
+      const joints: Partial<
+        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+      > = {
+        ...stand.RELAXED,
+        ...inclined.joints,
+        hips,
+        leftToes: [reached.left.toes, 0, 0],
+        rightToes: [reached.right.toes, 0, 0],
+        chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
+        leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+        rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+        leftLowerArm: [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0],
+        rightLowerArm: [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0],
+      };
+      const limbs: IHumanPosture["limbs"] = {};
+      for (const side of ["left", "right"] as const) {
+        const planted: boolean = feet[side].swing === undefined;
+        // The knee points over the foot's own heading: the foot has no axial
+        // joint, so its toe-out comes from the hip's twist this hint sets.
+        // The heading is read off the lateral axis, because a folded shank
+        // pitches a swinging foot past vertical.
+        const knee: IAutoMovieVector3 = HumanFrame.point(
+          {
+            origin: HumanFrame.point(
+              { origin: root, yaw },
+              body.rest.get(`${side}LowerLeg`)!,
+            ),
+            yaw: HumanFoot.heading(reached[side].rotation),
+          },
+          { x: 0, y: 0, z: 1 },
+        );
+        limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
+          point: reached[side].ankle,
+          bend: knee,
+          rotation: reached[side].rotation,
+          ...(planted
+            ? { planted: true, contact: settled.contacts[side] }
+            : {}),
+        };
+      }
+      // The pelvis's share tips the body about the hips, so the legs stay
+      // on their footprints.
+      return AutoMovieMotionHumanLean.pivot(
+        body,
+        { root, yaw, pitch: 0, roll: 0, joints, limbs },
+        { pitch: inclined.pitch, roll: 0 },
+      );
+    };
+
+    // The swinging arms are carried clear of the body, the hands passing the
+    // thighs no nearer than they hang beside them, by one abduction read
+    // over one of its strides (`walkCarriage`).
+    let carried: Record<"left" | "right", number> | undefined;
     const planned: IHumanActionPlan = {
       duration,
       events,
       contacts,
-      posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const phase: number = steps.phase(t);
-        const amount: number = steps.amount(t);
-        const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-        const { feet, hips, settled, reached } = solve(t);
-        const root: IAutoMovieVector3 = settled.root;
-        const yaw: number = settled.yaw;
-        // The trunk inclines by the gait's lean, the pelvis and the spine
-        // sharing it, from the upright alignment. The lean grows and fades
-        // with the gait itself, as the pelvis' sway and the arms' swing do,
-        // so a walk leaves a standstill upright and comes to one upright.
-        const inclined = HumanTrunk.incline(
-          standUpright.of(body).joints,
-          gait.lean * amount,
-        );
-        const joints: Partial<
-          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-        > = {
-          ...stand.RELAXED,
-          ...inclined.joints,
-          hips,
-          leftToes: [reached.left.toes, 0, 0],
-          rightToes: [reached.right.toes, 0, 0],
-          chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
-          leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
-          rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
-          leftLowerArm: [
-            gait.arms.elbow - gait.arms.swing * arms * swing,
-            0,
-            0,
-          ],
-          rightLowerArm: [
-            gait.arms.elbow + gait.arms.swing * arms * swing,
-            0,
-            0,
-          ],
-        };
-        const limbs: IHumanPosture["limbs"] = {};
-        for (const side of ["left", "right"] as const) {
-          const planted: boolean = feet[side].swing === undefined;
-          // The knee points over the foot's own heading: the foot has no axial
-          // joint, so its toe-out comes from the hip's twist this hint sets.
-          // The heading is read off the lateral axis, because a folded shank
-          // pitches a swinging foot past vertical.
-          const knee: IAutoMovieVector3 = HumanFrame.point(
-            {
-              origin: HumanFrame.point(
-                { origin: root, yaw },
-                body.rest.get(`${side}LowerLeg`)!,
-              ),
-              yaw: HumanFoot.heading(reached[side].rotation),
-            },
-            { x: 0, y: 0, z: 1 },
-          );
-          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: reached[side].ankle,
-            bend: knee,
-            rotation: reached[side].rotation,
-            ...(planted
-              ? { planted: true, contact: settled.contacts[side] }
-              : {}),
-          };
-        }
-        // The pelvis's share tips the body about the hips, so the legs stay
-        // on their footprints; the swinging arms then keep clear of the body,
-        // the hands passing the thighs no nearer than they hang beside them.
-        return HumanArmClearance.swung(
-          body,
-          AutoMovieMotionHumanLean.pivot(
-            body,
-            { root, yaw, pitch: 0, roll: 0, joints, limbs },
-            { pitch: inclined.pitch, roll: 0 },
-          ),
-          ["left", "right"],
-        );
-      },
+      posture: (seconds: number): IHumanPosture =>
+        HumanArmSwing.carry(
+          unswung(seconds),
+          (carried ??= walkCarriage.of(body, steps.events, duration, unswung)),
+        ),
     };
 
     // The steps are taken a little unevenly in time: a stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3 % of healthy adults, Hausdorff; the mapping onto skill is provisional), which each step's own draw carries as the square root of two times that, two independent steps making a stride.

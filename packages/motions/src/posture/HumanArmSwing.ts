@@ -34,6 +34,9 @@ export namespace HumanArmSwing {
   /** The room over its baseline a clearing leaves, degrees (provisional: a twentieth of a degree, a quarter of a millimetre at the elbow). */
   export const TOLERANCE: number = 0.05;
 
+  /** The phases of a stride at which a take's carriage is read, a stride being periodic in them (provisional: a twelfth of a stride, a few hundredths of a second). */
+  export const PHASES: number = 12;
+
   /** The precision of a swing's added abduction, degrees: below the continuity audits' half degree, so frames cannot differ by it. */
   export const PRECISION: number = 0.01;
 
@@ -107,6 +110,90 @@ export namespace HumanArmSwing {
       const clear: HumanArmClearance.IArm = out(added);
       joints[`${side}UpperArm`] = clear.upper;
       pose = HumanArmClearance.posed(pose, side, clear);
+    }
+    return { ...posture, joints };
+  }
+
+  /**
+   * The carriage of a gait's swinging arms: for each named arm, the one
+   * abduction a take adds to what the gait writes, the least that keeps the
+   * arm clear (as `of` clears one posture) in every posture of the take,
+   * read once at `PHASES` phases of one full stride and held through it. People
+   * walk with the arms carried a little out from the body, the hands
+   * passing the thighs (the shoulder ranges about 20 degrees in abduction
+   * and adduction over a stride, Kang et al. 2023, Clinical Shoulder and
+   * Elbow; a carriage of a few degrees over a gait's written abduction
+   * stays inside it; provisional), and the
+   * carriage of one take does not change from
+   * step to step; a clearance searched afresh in every frame would follow
+   * every hundredth of a degree of a fingertip grazing a thigh along the
+   * swing, where abduction barely moves it off.
+   *
+   * @param body The body.
+   * @param times The instants read: the phases of one of the take's full strides.
+   * @param posture The take's posture before the carriage.
+   * @param sides The arms carried.
+   * @returns Degrees of abduction per arm.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, over what, why it is held, and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Each sample's least clearing abduction is `of`'s own; the carriage is the greatest of them, so every sample is clear by the same measure and the take's arms move only as the gait writes them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection per sample and arm that is not already clear, one maximum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal in a sample is the fit's and adds nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture, one resolve and one room reading per phase and arm, and about twelve more where an arm is not clear; once per take.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s bisection and the stance rooms.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
+   */
+  export function carriage(
+    body: IHumanBody,
+    times: readonly number[],
+    posture: (seconds: number) => IHumanPosture,
+    sides: readonly ("left" | "right")[],
+  ): Record<"left" | "right", number> {
+    const out: Record<"left" | "right", number> = { left: 0, right: 0 };
+    for (const seconds of times) {
+      const at: IHumanPosture = posture(seconds);
+      const cleared: IHumanPosture = of(body, at, sides);
+      for (const side of sides)
+        out[side] = Math.max(
+          out[side],
+          (cleared.joints[`${side}UpperArm`]?.[1] ?? 0) -
+            (at.joints[`${side}UpperArm`]?.[1] ?? 0),
+        );
+    }
+    return out;
+  }
+
+  /**
+   * A posture with its arms carried: each named arm without a hand goal has
+   * its upper arm's abduction raised by its carriage.
+   *
+   * @param posture The posture.
+   * @param carried Degrees of abduction per arm (`carriage`).
+   * @returns The posture with the arms carried.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is raised and which arms are left.
+   * @evidence contracts/development/implementation.md#principled-implementation The carriage is an abduction added to the gait's own angles, so the swing it rides is unchanged.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One map over two arms.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is left alone.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function carry(
+    posture: IHumanPosture,
+    carried: Readonly<Record<"left" | "right", number>>,
+  ): IHumanPosture {
+    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    for (const side of ["left", "right"] as const) {
+      const upper: readonly [number, number, number] | undefined =
+        joints[`${side}UpperArm`];
+      if (posture.limbs[`${side}Arm`] !== undefined || upper === undefined)
+        continue;
+      joints[`${side}UpperArm`] = [
+        upper[0],
+        upper[1] + carried[side],
+        upper[2],
+      ];
     }
     return { ...posture, joints };
   }
