@@ -120,6 +120,13 @@ export namespace FamilyConicFair {
     /** The converter's diagnostics, deduplicated. */
     diagnostics: string[];
 
+    /**
+     * The closure guard: the largest gap, mm, between the skin faired with its closures and the skin faired alone (`skinAlone`), within one
+     * cutoff of arclength on the skin's side of each closure's edges; zero without a closure. Over the layout tolerance, the closure pulls
+     * the skin beside it.
+     */
+    closureGuardMm: number;
+
     /** The faired radius by phase, mm. */
     faired: (phi: number) => number;
   }
@@ -192,6 +199,12 @@ export namespace FamilyConicFair {
         return sum;
       });
     };
+    // An invented closure is faired with the skin. It is never evidence of skin: no arc on it counts as a groove or in acceptance, and no
+    // skin is judged there (`IArc.closure`). Faired with the skin, it only regularises the spline across the opening. Weighted zero
+    // instead, as the fit tool treats it (`FamilyConicFit.IRow.free` and `side`), the nose's half-section closure left the spline's low
+    // harmonics nothing to hold, swung 18 to 31 mm into the parent, and the extremes the excursion stands on it were read there. The fit
+    // has the wall's other constraints to shape a closure; this fairing has none. The guard that the closure does not pull the skin is
+    // `IConversion.closureGuardMm`.
     fit(radii);
     // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
     const rAt = (phi: number, order: number): number => {
@@ -263,8 +276,70 @@ export namespace FamilyConicFair {
     };
   }
 
-  /** Fair a section about its course point (the chart's origin), convert it, and read its arcs as grooves. */
-  export function convert(points: readonly C.P[], options: IOptions): IConversion {
+  /**
+   * The section's skin faired alone: the same periodic smoothing spline written out in the harmonics up to four cutoffs (past them the
+   * shrink is under 1/257), with the closures' samples unweighted, so with every sample weighted it is `curve`'s. It is the reference of the
+   * closure guard (`IConversion.closureGuardMm`), never a source of the conversion: across a wide closure it swings free.
+   */
+  export function skinAlone(points: readonly C.P[], closures: readonly (readonly [number, number])[], fairMm: number = FAIR_MM): (phi: number) => number {
+    const radii: number[] = Array.from({ length: M }, (_: unknown, k: number): number => radius(points, (2 * Math.PI * k) / M));
+    let girth: number = 0;
+    for (let i: number = 0; i < points.length; ++i) girth += Math.hypot(points[(i + 1) % points.length]![0] - points[i]![0], points[(i + 1) % points.length]![1] - points[i]![1]);
+    const cut: number = girth / fairMm;
+    const N: number = Math.min(M / 2 - 1, Math.ceil(4 * cut));
+    const size: number = 2 * N + 1;
+    const basis = (j: number, phi: number): number => (j === 0 ? 1 : j % 2 === 1 ? Math.cos(((j + 1) / 2) * phi) : Math.sin((j / 2) * phi));
+    const normal: number[][] = Array.from({ length: size }, (): number[] => new Array<number>(size + 1).fill(0));
+    for (let k: number = 0; k < M; ++k) {
+      const phi: number = (2 * Math.PI * k) / M;
+      if (!Number.isFinite(radii[k]!) || closures.some(([a, b]): boolean => wrap(phi - a) < wrap(b - a))) continue;
+      const row: number[] = Array.from({ length: size }, (_: unknown, j: number): number => basis(j, phi));
+      for (let i: number = 0; i < size; ++i) {
+        for (let j: number = i; j < size; ++j) normal[i]![j]! += row[i]! * row[j]!;
+        normal[i]![size]! += row[i]! * radii[k]!;
+      }
+    }
+    for (let i: number = 0; i < size; ++i) {
+      for (let j: number = 0; j < i; ++j) normal[i]![j] = normal[j]![i]!;
+      normal[i]![i]! += i === 0 ? 0 : (M / 2) * (Math.ceil(i / 2) / cut) ** 4;
+    }
+    for (let c: number = 0; c < size; ++c) {
+      let pivot: number = c;
+      for (let r: number = c + 1; r < size; ++r) if (Math.abs(normal[r]![c]!) > Math.abs(normal[pivot]![c]!)) pivot = r;
+      [normal[c], normal[pivot]] = [normal[pivot]!, normal[c]!];
+      for (let r: number = 0; r < size; ++r) {
+        if (r === c) continue;
+        const f: number = normal[r]![c]! / normal[c]![c]!;
+        if (f !== 0) for (let k: number = c; k <= size; ++k) normal[r]![k]! -= f * normal[c]![k]!;
+      }
+    }
+    const x: number[] = normal.map((row: number[], i: number): number => row[size]! / row[i]!);
+    return (phi: number): number => x.reduce((sum: number, value: number, j: number): number => sum + value * basis(j, phi), 0);
+  }
+
+  /** The closure guard of a faired section (`IConversion.closureGuardMm`). */
+  function guard(points: readonly C.P[], options: IOptions, faired: (phi: number) => number): number {
+    const closures: readonly (readonly [number, number])[] = options.closures ?? [];
+    if (closures.length === 0) return 0;
+    const fairMm: number = options.fairMm ?? FAIR_MM;
+    const alone: (phi: number) => number = skinAlone(points, closures, fairMm);
+    let most: number = 0;
+    for (const [a, b] of closures)
+      for (const [edge, step] of [
+        [a, -1],
+        [b, 1],
+      ] as const) {
+        // One cutoff of arclength on the skin's side of the edge, as phase at the edge's radius.
+        const span: number = fairMm / Math.max(1e-6, radius(points, edge));
+        for (let i: number = 0; i <= 32; ++i) {
+          const phi: number = edge + (step * span * i) / 32;
+          most = Math.max(most, Math.abs(faired(phi) - alone(phi)));
+        }
+      }
+    return most;
+  }
+
+  /** Fair a section about its course point (the chart's origin), convert it, and read its arcs as grooves. */  export function convert(points: readonly C.P[], options: IOptions): IConversion {
     const source = curve(points, options);
     const folds: { count: number } = { count: 0 };
     let fairMax: number = 0, fairSum: number = 0, fairCount: number = 0;
@@ -295,7 +370,7 @@ export namespace FamilyConicFair {
           closure: onClosure((arc.domain[0] + arc.domain[1]) / 2),
         };
       });
-    return { status: result.status, errorMm: result.maximumSampleErrorMm, arcs, grooves: grooves(arcs), fairMaxMm: fairMax, fairMeanMm: fairSum / Math.max(1, fairCount), folds: folds.count, girthMm: source.girth, diagnostics: [...new Set(result.diagnostics.map((d: string): string => d.replace(/-?\d[\d.]*(e-?\d+)?/g, "#")))], faired: source.radius };
+    return { status: result.status, errorMm: result.maximumSampleErrorMm, arcs, grooves: grooves(arcs), fairMaxMm: fairMax, fairMeanMm: fairSum / Math.max(1, fairCount), folds: folds.count, girthMm: source.girth, diagnostics: [...new Set(result.diagnostics.map((d: string): string => d.replace(/-?\d[\d.]*(e-?\d+)?/g, "#")))], faired: source.radius, closureGuardMm: guard(points, options, source.radius) };
   }
 
   /** The maximal runs of inward skin arcs, round the closed chain (a line inside a run belongs to it). */

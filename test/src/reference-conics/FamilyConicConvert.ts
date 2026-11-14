@@ -87,6 +87,9 @@ export namespace FamilyConicConvert {
     /** The source's girth, mm. */
     girthMm: number;
 
+    /** The closure guard (`FamilyConicFair.IConversion.closureGuardMm`), mm: how far the closure pulls the skin beside it. */
+    closureGuardMm: number;
+
     /** The converter's distinct diagnostics, numbers written as `#`. */
     diagnostics: string[];
 
@@ -305,6 +308,7 @@ export namespace FamilyConicConvert {
       fairMeanMm: got.fairMeanMm,
       folds: got.folds,
       girthMm: got.girthMm,
+      closureGuardMm: got.closureGuardMm,
       diagnostics: got.diagnostics,
       arcs: got.arcs,
       // The source's own measures, which no tolerance changes: read once, at the layout's.
@@ -465,6 +469,13 @@ export namespace FamilyConicConvert {
     layoutStations.forEach((st: IStation, k: number): void => {
       text.push([st.s.toFixed(1).padStart(7), st.status.padStart(9), String(st.skin).padStart(5), String(st.closure).padStart(7), String(st.inward).padStart(6), String(st.grooves.length).padStart(7), String(st.faint.length).padStart(5), st.errorMm.toFixed(3).padStart(7), f2(st.fairMaxMm).padStart(9), f2(st.fairMeanMm).padStart(9), String(st.folds).padStart(5), check[k]!.padStart(10), " " + groovesOf(st)].join(" "));
     });
+    // The closure guard at the layout tolerance: the skin faired with its closures against the skin faired alone, within one cutoff of each
+    // closure's edges on the skin's side.
+    const guarded: IStation[] = layoutStations.filter((st: IStation): boolean => st.closureGuardMm > 0);
+    if (guarded.length > 0) {
+      const worst: IStation = guarded.reduce((x: IStation, y: IStation): IStation => (y.closureGuardMm > x.closureGuardMm ? y : x));
+      text.push("", `## Closure guard: skin faired with its closures against the skin faired alone, within ${fairMm} mm of each closure edge: max ${worst.closureGuardMm.toFixed(3)} mm at ${worst.s}, median ${median(guarded.map((st: IStation): number => st.closureGuardMm)).toFixed(3)} mm over ${guarded.length} station(s); ${guarded.filter((st: IStation): boolean => st.closureGuardMm > LAYOUT_TOLERANCE_MM).length} over the layout tolerance ${LAYOUT_TOLERANCE_MM} mm`, guarded.map((st: IStation): string => `  ${st.s}:${st.closureGuardMm.toFixed(3)}`).join(""));
+    }
     if ((options.ladder ?? []).length > 0) {
       text.push("", "## Tolerance ladder: skin arcs / inward arcs / grooves per station", "station  " + tolerances.map((t: number): string => (t + " mm").padStart(14)).join(""));
       sections.forEach((section: ISection, k: number): void => {
