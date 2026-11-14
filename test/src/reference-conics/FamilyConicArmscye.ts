@@ -84,15 +84,30 @@ namespace FamilyConicArmscye {
           for (let k: number = 0; k < n; ++k) if (Math.sign(wrap(loopAngles[(k + 1) % n]! - loopAngles[k]!)) !== Math.sign(total)) ++reversals;
 
           const rows: string[] = [];
+          const backAt: number[] = [];
           let hostBack: number = 0;
           let partBack: number = 0;
           let worstHost: number = 1;
           let worstPart: number = 1;
           let longest: number = 0;
           let shortest: number = Infinity;
+          // `--length`: each column paired by its share of the two curves' lengths, both from the pair the angle gives the first column, in
+          // the loop's sense of turning (the port's `correspondence: "length"`); otherwise by angle about the rail's centroid.
+          const byLength: boolean = process.argv.includes("--length");
+          const lengths = (points: readonly V3[]): number[] => points.reduce((acc: number[], p: V3, i: number): number[] => [...acc, i === 0 ? 0 : acc[i - 1]! + norm(sub(p, points[i - 1]!))], []);
+          const nearestAngle = (target: number): number => ringAngles.reduce((b: number, a: number, j: number): number => (Math.abs(wrap(a - target)) < Math.abs(wrap(ringAngles[b]! - target)) ? j : b), 0);
+          const ringStart: number = nearestAngle(loopAngles[0]!);
+          const ringSense: number = Math.sign(wrap(ringAngles[(ringStart + 1) % samples]! - ringAngles[ringStart]!)) === Math.sign(total) ? 1 : -1;
+          const ringOrdered: V3[] = Array.from({ length: samples + 1 }, (_: unknown, j: number): V3 => ring[(((ringStart + ringSense * j) % samples) + samples) % samples]!);
+          const ringLengths: number[] = lengths(ringOrdered);
+          const loopLengths: number[] = lengths([...loop, loop[0]!]);
           for (let k: number = 0; k < n; ++k) {
             let best: number = 0;
-            for (let j: number = 1; j < samples; ++j) if (Math.abs(wrap(ringAngles[j]! - loopAngles[k]!)) < Math.abs(wrap(ringAngles[best]! - loopAngles[k]!))) best = j;
+            if (byLength) {
+              const share: number = loopLengths[k]! / loopLengths[n]!;
+              const j: number = ringLengths.findIndex((l: number): boolean => l >= share * ringLengths[samples]!);
+              best = (((ringStart + ringSense * Math.max(0, j)) % samples) + samples) % samples;
+            } else for (let j: number = 1; j < samples; ++j) if (Math.abs(wrap(ringAngles[j]! - loopAngles[k]!)) < Math.abs(wrap(ringAngles[best]! - loopAngles[k]!))) best = j;
             const psi: number = (turn * best) / samples;
             const q: V3 = ring[best]!;
             const chord: V3 = sub(q, loop[k]!);
@@ -100,6 +115,7 @@ namespace FamilyConicArmscye {
             const h: number = cosine(inward[k]!, chord);
             const p: number = cosine(into, chord);
             if (!(h > 0)) ++hostBack;
+            if (!(h > 0)) backAt.push(k);
             if (!(p > 0)) ++partBack;
             worstHost = Math.min(worstHost, h);
             worstPart = Math.min(worstPart, p);
@@ -107,7 +123,21 @@ namespace FamilyConicArmscye {
             shortest = Math.min(shortest, norm(chord));
             if (table && k % 4 === 0) rows.push("  k " + String(k).padStart(2) + " loop " + loop[k]!.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " rail " + q.map((x: number): string => x.toFixed(0).padStart(5)).join("") + " at " + ((psi * 180) / Math.PI).toFixed(0).padStart(4) + " deg chord " + norm(chord).toFixed(1).padStart(5) + " host " + h.toFixed(2).padStart(5) + " part " + p.toFixed(2).padStart(5));
           }
-          process.stdout.write(JSON.stringify({ side, rail, reversals, hostBack, partBack, worstHost: Number(worstHost.toFixed(2)), worstPart: Number(worstPart.toFixed(2)), chord: [Number(shortest.toFixed(1)), Number(longest.toFixed(1))], ringNormal: normal.map((x: number): number => Number(x.toFixed(2))), ringCentre: c.map(Math.round) }) + "\n");
+          // Whether the port's loop crosses another port's on the trunk's chart (the breast's), as two polygons in station and phase.
+          const polygon = (l: { centre: [number, number]; semi: [number, number]; sense: 1 | -1; shape?: number[] }): [number, number][] =>
+            (l.shape ?? new Array<number>(96).fill(1)).map((share: number, k: number, all: number[]): [number, number] => [l.centre[0] + share * l.semi[0] * Math.cos((turn * k) / all.length), l.centre[1] + share * l.sense * l.semi[1] * Math.sin((turn * k) / all.length)]);
+          const crosses = (a: [number, number][], b: [number, number][]): number => {
+            let count: number = 0;
+            const turnOf = (p: [number, number], q: [number, number], r: [number, number]): number => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
+            for (let i: number = 0; i < a.length; ++i)
+              for (let j: number = 0; j < b.length; ++j) {
+                const [p, q, r, s] = [a[i]!, a[(i + 1) % a.length]!, b[j]!, b[(j + 1) % b.length]!];
+                if (turnOf(p, q, r) !== turnOf(p, q, s) && turnOf(r, s, p) !== turnOf(r, s, q)) ++count;
+              }
+            return count;
+          };
+          const breastCrossings: number = crosses(polygon(declared as never), polygon(AutoMovieHumanF1.mammary(side) as never));
+          process.stdout.write(JSON.stringify({ side, rail, correspondence: byLength ? "length" : "angle", reversals, hostBack, backAt, breastCrossings, partBack, worstHost: Number(worstHost.toFixed(2)), worstPart: Number(worstPart.toFixed(2)), chord: [Number(shortest.toFixed(1)), Number(longest.toFixed(1))], ringNormal: normal.map((x: number): number => Number(x.toFixed(2))), ringCentre: c.map(Math.round) }) + "\n");
           for (const row of rows) process.stdout.write(row + "\n");
         }
     }
