@@ -17,8 +17,16 @@ export namespace FamilyConicPlateSkin {
 
   /** One window of the chord's share where the lateral face follows the skin; `weight` scales it, for a fade along the stations. */
   export interface IWindow {
+    /** The window's first share of the chord from the root (0) to the outermost point (1), unitless; its weight rises over `RAMP` from here. */
     from: number;
+
+    /** The window's last share of the same chord, unitless, above `from`; its weight falls over `RAMP` to here. */
     to: number;
+
+    /**
+     * How far the face is laid onto the floor inside the window, in `[0, 1]`: 0 leaves the hull, 1 lays it on the faired floor. The caller
+     * fades it along the stations, so the plate's sections change smoothly where a hollow begins.
+     */
     weight: number;
   }
 
