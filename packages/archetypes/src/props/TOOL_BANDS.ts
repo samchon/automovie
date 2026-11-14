@@ -29,18 +29,6 @@ const FORK: string =
 const KNIFE: string =
   "IKEA DRAGON knife, stainless steel, 21 cm, sold in fours at 0.32 kg the pack (https://www.ikea.com/gb/en/p/dragon-knife-stainless-steel-40515530/)";
 
-/** A combination wrench read at a distributor, and a second seen only in search results. */
-const WRENCH: string =
-  "Gedore 1B 13 mm combination spanner, 185 mm, 85 g, at Fabory (https://www.fabory.com/en-BE/p/G2100130001); Bahco 111M-13, 169 mm, seen only in search results";
-
-/** Two drill drivers, read at their makers. */
-const DRILL: string =
-  "Makita DF333D, 179 x 66 x 212 mm, 1.1 kg (https://makita.co.nz/products/model/DF333D); DeWalt DCD794, head 5.88 in long, 7.97 in high, 2.42 lb tool only (https://images.salsify.com/image/upload/s--XREfScSb--/fezthlwnhrccyecofsug.pdf)";
-
-/** Hand trowels, one read and one seen only in search results. */
-const TROWEL: string =
-  "Spear & Jackson traditional stainless trowel, 318 mm overall, head 150 mm (https://www.spear-and-jackson.com/products/garden-tools/traditional-stainless/garden-hand-tools/traditional-stainless-multi-purpose); Radius ergonomic trowel, 11.5 in, blade 6 by 3 in, 9 oz, seen only in search results";
-
 /** Two ladles, read. */
 const LADLE: string =
   "Rösle hook ladle, 320 mm, bowl 9 cm, 0.218 kg (https://www.roesle.com/en/hook-ladle-with-pouring-rim-oe-9-cm-35-in); IKEA FINMAT ladle, 31 cm (https://www.ikea.com/gb/en/p/finmat-soup-ladle-stainless-steel-50555196)";
@@ -131,25 +119,6 @@ export const TOOL_BANDS: Readonly<
         0.08,
         `${KNIFE}: a quarter of the pack`,
       ),
-    },
-    wrench: {
-      length: ArchetypeBand.metres(0.169, 0.185, WRENCH, true),
-      gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
-      mass: ArchetypeBand.of("kg", 0.085, 0.085, WRENCH),
-    },
-    powerDrill: {
-      length: ArchetypeBand.metres(5.88 * 0.0254, 0.179, DRILL),
-      height: ArchetypeBand.metres(7.97 * 0.0254, 0.212, DRILL),
-      width: ArchetypeBand.metres(0.066, 0.066, DRILL),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 2.42 * 0.4536, 1.1, DRILL),
-    },
-    trowel: {
-      length: ArchetypeBand.metres(11.5 * 0.0254, 0.318, TROWEL, true),
-      blade: ArchetypeBand.metres(0.15, 6 * 0.0254, TROWEL, true),
-      width: ArchetypeBand.metres(3 * 0.0254, 3 * 0.0254, TROWEL, true),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 9 * 0.02835, 9 * 0.02835, TROWEL, true),
     },
     ladle: {
       length: ArchetypeBand.metres(0.31, 0.32, LADLE),

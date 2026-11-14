@@ -11,9 +11,9 @@ import {
 import { TOOL_BANDS } from "./TOOL_BANDS";
 
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a table knife, a combination wrench, a drill driver, a garden trowel or a ladle.
+ * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a table knife or a ladle.
  *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines a table knife's edge toward `+Z`, under the index finger that lies along the spine, a wrench's jaw at its tip, and a trowel's scoop and a ladle's bowl toward `+Z`. A drill driver instead stands on the base of its upright grip at the origin, its head across the grip's top running forward along `+Z` to the chuck, its `face`, with its `trigger` under the head at the grip's front. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
+ * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines a table knife's edge toward `+Z`, under the index finger that lies along the spine, and a ladle's bowl toward `+Z`. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -57,70 +57,20 @@ export function createTool(
     });
 
   const v: typeof Vector3.create = Vector3.create;
-  if (kind === "powerDrill") {
-    // A drill driver: the grip upright from its base at the origin, the head across its top running forward along +Z to the chuck.
-    const head: number = createTool.DRILL.head;
-    const rear: number = createTool.DRILL.rear;
-    const grip: number = d.height! - head;
-    builder.rod("handle", radius, v(0, 0, 0), v(0, grip, 0), {
-      color: "#2c2f33",
-    });
-    builder.box(
-      "head",
-      v(d.width!, head, length),
-      v(0, grip + head / 2, length / 2 - rear),
-      { color: "#c9a227", density: 2 },
-    );
-    builder.affordance({
-      id: "grip",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, grip / 2, 0), v(0, 0, -1), v(0, 1, 0)),
-      extent: null,
-      grip: "power",
-      aperture: 2 * radius,
-      length: grip,
-    });
-    builder.affordance({
-      id: "trigger",
-      kind: "trigger",
-      frame: ArchetypeFrame.facing(
-        v(0, grip - createTool.DRILL.trigger, radius),
-        v(0, 0, 1),
-        v(1, 0, 0),
-      ),
-      extent: null,
-      travel: createTool.DRILL.travel,
-    });
-    builder.affordance({
-      id: "face",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(
-        v(0, grip + head / 2, length - rear),
-        v(0, 0, 1),
-        v(1, 0, 0),
-      ),
-      extent: null,
-    });
-    return builder.build(d.mass!);
-  }
 
   // The handle and its grip: how much of the length is handle depends on the tool.
   const handle: number =
     kind === "hammer"
       ? length - 0.03
-      : kind === "saw" || kind === "screwdriver" || kind === "trowel"
+      : kind === "saw" || kind === "screwdriver"
         ? length - d.blade!
         : kind === "spoon"
           ? length - 2 * createTool.BOWL
           : kind === "tableKnife"
             ? length - createTool.KNIFE_BLADE.length
-            : kind === "wrench"
-              ? length - createTool.WRENCH_HEAD.length
-              : kind === "ladle"
-                ? length - d.bowl!
-                : length - createTool.TINES.length;
+            : kind === "ladle"
+              ? length - d.bowl!
+              : length - createTool.TINES.length;
   const cutlery: boolean =
     kind === "spoon" ||
     kind === "fork" ||
@@ -174,7 +124,7 @@ export function createTool(
       id: "grip",
       kind: "handle",
       symmetry:
-        kind === "screwdriver" || kind === "trowel"
+        kind === "screwdriver"
           ? "round"
           : kind === "tableKnife"
             ? "none"
@@ -191,47 +141,20 @@ export function createTool(
     });
   }
 
-  if (kind === "wrench" || kind === "trowel" || kind === "ladle") {
-    // The working end beyond the handle: a wrench's flat head and its jaw at the tip, a trowel's blade with its scoop toward +Z, a ladle's bowl opening toward +Z.
-    const steel: string = "#b9bcc0";
-    if (kind === "wrench") {
-      const head: Readonly<{ width: number; length: number }> =
-        createTool.WRENCH_HEAD;
-      builder.box(
-        "head",
-        v(createTool.FLAT, head.length, head.width),
-        v(0, handle + head.length / 2, 0),
-        { color: steel, density: 1.5 },
-      );
-    } else if (kind === "trowel")
-      builder.box(
-        "blade",
-        v(d.width!, d.blade!, createTool.FLAT),
-        v(0, handle + d.blade! / 2, 0),
-        { color: steel, density: 1.5 },
-      );
-    else
-      builder.ball("bowl", d.bowl! / 2, v(0, length - d.bowl! / 2, 0), {
-        color: steel,
-      });
+  if (kind === "ladle") {
+    // A ladle's bowl beyond its handle, its opening toward +Z.
+    builder.ball("bowl", d.bowl! / 2, v(0, length - d.bowl! / 2, 0), {
+      color: "#b9bcc0",
+    });
     builder.affordance({
       id: "face",
       kind: "surface",
-      direction: kind === "wrench" ? "along" : "normal",
-      frame:
-        kind === "wrench"
-          ? ArchetypeFrame.facing(v(0, length, 0), v(0, 1, 0), v(1, 0, 0))
-          : ArchetypeFrame.facing(
-              v(
-                0,
-                kind === "trowel"
-                  ? handle + d.blade! / 2
-                  : length - d.bowl! / 2,
-                kind === "trowel" ? createTool.FLAT / 2 : d.bowl! / 2,
-              ),
-              v(0, 0, 1),
-              v(1, 0, 0),
-            ),
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        v(0, length - d.bowl! / 2, d.bowl! / 2),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }
@@ -372,9 +295,6 @@ export namespace createTool {
     | "spoon"
     | "fork"
     | "tableKnife"
-    | "wrench"
-    | "powerDrill"
-    | "trowel"
     | "ladle";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -385,28 +305,8 @@ export namespace createTool {
     "spoon",
     "fork",
     "tableKnife",
-    "wrench",
-    "powerDrill",
-    "trowel",
     "ladle",
   ];
-
-  /** A wrench's head beyond its handle, across and along, metres: an estimate, not read at a source. */
-  export const WRENCH_HEAD: Readonly<{ width: number; length: number }> = {
-    width: 0.035,
-    length: 0.03,
-  };
-
-  /** A wrench head's and a trowel blade's thickness, metres: an estimate. */
-  export const FLAT: number = 0.004;
-
-  /** A drill driver's head height, its overhang behind the grip, the trigger's place below the head and its pull, metres: estimates; the makers give the overall length and height only. */
-  export const DRILL: Readonly<{
-    head: number;
-    rear: number;
-    trigger: number;
-    travel: number;
-  }> = { head: 0.07, rear: 0.03, trigger: 0.02, travel: 0.008 };
 
   /** A table knife's blade as one plate, from its spine to its edge and along, metres: an estimate, not read at a source; the maker's page gives the knife's whole length only. */
   export const KNIFE_BLADE: Readonly<{ width: number; length: number }> = {
@@ -433,19 +333,16 @@ export namespace createTool {
    * The affordance ids:
    *
    * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a table knife's edge, a wrench's jaw, a drill's chuck, a trowel's scoop, a ladle's bowl.
-   * - `trigger`: a drill driver's trigger, pulled by the index finger of the hand on its grip.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a table knife's edge, a ladle's bowl.
    */
-  export type Affordance = "grip" | "face" | "trigger";
+  export type Affordance = "grip" | "face";
 
   /**
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
    * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's width.
-   * - `blade`: the length of a saw's blade, a screwdriver's shank or a trowel's blade.
-   * - `height`: a drill driver's, base to head top.
-   * - `width`: a drill driver's head or a trowel's blade, across.
+   * - `blade`: the length of a saw's blade, a screwdriver's shank.
    * - `bowl`: a ladle's bowl, across.
    * - `mass`: kilograms.
    */
@@ -453,8 +350,6 @@ export namespace createTool {
     | "length"
     | "gripDiameter"
     | "blade"
-    | "height"
-    | "width"
     | "bowl"
     | "mass";
 
