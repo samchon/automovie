@@ -141,7 +141,26 @@ namespace FamilyConicEarRound {
       "plate: " + (file ?? "the stored module") + "; tubes: " + (candidates.length === 0 ? "stored" : candidates.map((c) => c.name + " (candidate)").join(", ")),
       "tube | station | top line point (phase 0), mm | signed distance of the top line (phase 0) to the plate | of the course | of the bottom line (phase pi) | least over the section's ring (every 10 degrees) @ its phase in degrees | greatest @ phase",
     ];
-    for (const tube of ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family)) {
+    // `--seed-lines=<n>` (default 8): the merge's seed search walks n station lines round each tube, phase 0 first (the interface's
+    // `phases`), between shares 0 and 0.5 of its stations, as the ear's merges declare it. For each line, the stations where its signed
+    // distance to the plate changes sign: the first line with one is the line the search can seed on.
+    const seedLines: number = Number(process.argv.find((a: string): boolean => a.startsWith("--seed-lines="))?.slice("--seed-lines=".length) ?? 8);
+    const tubes: AutoMovieHumanConicLoft.IFamily[] = ["helix", "antihelix"].map((name: string): AutoMovieHumanConicLoft.IFamily => candidates.find((c) => c.name === name) ?? AutoMovieHumanF1.FAMILIES.find((member): boolean => member.family.name === name)!.family);
+    for (const tube of tubes) {
+      const own = sample(tube, 0.5);
+      const half: number[] = own.stations.filter((s: number): boolean => s <= own.stations[0]! + (own.stations.at(-1)! - own.stations[0]!) / 2);
+      const verdicts: string[] = [];
+      let chosen: string = "none";
+      for (let k: number = 0; k < seedLines; ++k) {
+        const phase: number = (2 * Math.PI * k) / seedLines;
+        const values: number[] = half.map((s: number): number => signed(AutoMovieLoftChain.point(own.chain, s, phase)));
+        const changes: number[] = half.filter((_: number, i: number): boolean => i > 0 && Math.sign(values[i]!) !== Math.sign(values[i - 1]!));
+        verdicts.push(`${((phase * 180) / Math.PI).toFixed(0)} deg: ${changes.length === 0 ? "no change" : changes.map((s: number): string => s.toFixed(1)).join(", ")}`);
+        if (chosen === "none" && changes.length > 0) chosen = `${((phase * 180) / Math.PI).toFixed(0)} deg at station ${changes[0]!.toFixed(1)}`;
+      }
+      lines.push(`# ${tube.name} seed lines (${seedLines}, stations ${half[0]}..${half.at(-1)}): first with a crossing ${chosen}; ${verdicts.join("; ")}`);
+    }
+    for (const tube of tubes) {
       const own = sample(tube, 0.5);
       const axis = AutoMovieHumanConicLoft.axis(tube);
       for (const s of own.stations) {
