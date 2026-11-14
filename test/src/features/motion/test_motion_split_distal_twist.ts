@@ -41,6 +41,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    (#3521 measured a 14 degree request taking it from -29 to its +90 end).
  * 3. Every request inside the wrist's and the forearm's ranges is shown
  *    within 1e-3 degree of the asked hand rotation.
+ * 4. Mirror: the left arm's fit of the request mirrored in the median plane,
+ *    from the mirrored pose, gives the right arm's clinical angles on the
+ *    shoulder, the elbow and the wrist within 1e-5 degree (the rig's
+ *    sagittal symmetry; the bound is rounding through the fit).
  *
  * A turn across the forearm still moves it a little, the twist the wrist's
  * flexion-then-deviation convention leaves when it swings about a tilted
@@ -48,12 +52,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public limb fit on real bodies and reads the fitted joints and the displayed hand by forward kinematics; a whole-twist split, a forearm flipped across its range or a hand left off a reachable rotation fails.
  * @evidence contracts/development/testing.md#independent-expectations The request's own twist is read by the engine's swing-twist decomposition about the forearm's world axis; a rotation of an angle changes no twist by more than that angle; reach is the geodesic angle.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, four axes, both signs: a pure twist, two swings and a mixed turn.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, four axes, both signs: a pure twist, two swings and a mixed turn, each on both arms.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and fits in memory, under a minute alone; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the setup, the 3 scenarios, what each pins and why a swing still moves the forearm.
+ * @evidence contracts/development/common.md#meaningful-documentation States the setup, the 4 scenarios, what each pins and why a swing still moves the forearm.
  */
 export function test_motion_split_distal_twist(): void {
   const complaints: string[] = [];
+  const left = (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone =>
+    bone.replace(/^right/, "left") as AutoMovieHumanoidBone;
   for (const name of ["m-average", "f-small"] as const) {
     const body = motionHumanBody(name);
     const chain = {
@@ -163,6 +169,53 @@ export function test_motion_split_distal_twist(): void {
           complaints.push(
             `${cell}: the hand is shown ${missed.toFixed(4)} degrees off a rotation the forearm and the wrist reach together`,
           );
+
+        // The left arm's fit of the mirrored request, from the mirrored pose.
+        const mirrored: IAutoMoviePose = fitChainToTarget({
+          skeleton: body.skeleton,
+          pose: {
+            ...before,
+            joints: before.joints.map(
+              (j: IAutoMovieJointPose): IAutoMovieJointPose => ({
+                ...j,
+                bone: left(j.bone),
+              }),
+            ),
+          },
+          chain: {
+            upper: "leftUpperArm",
+            lower: "leftLowerArm",
+            effector: "leftHand",
+          },
+          target: { x: -target.x, y: target.y, z: target.z },
+          effectorRotation: {
+            x: asked.x,
+            y: -asked.y,
+            z: -asked.z,
+            w: asked.w,
+          },
+          topology: body.topology,
+          jointAxes: HUMANOID_JOINT_AXES,
+          restFrames: HUMANOID_REST_FRAME,
+        });
+        for (const bone of [chain.upper, chain.lower, chain.effector]) {
+          const r: IAutoMovieJointPose | undefined = after.joints.find(
+            (j: IAutoMovieJointPose): boolean => j.bone === bone,
+          );
+          const l: IAutoMovieJointPose | undefined = mirrored.joints.find(
+            (j: IAutoMovieJointPose): boolean => j.bone === left(bone),
+          );
+          const apart: number = Math.max(
+            ...(["flexion", "abduction", "twist"] as const).map(
+              (k: "flexion" | "abduction" | "twist"): number =>
+                Math.abs((r?.[k] ?? 0) - (l?.[k] ?? 0)),
+            ),
+          );
+          if (apart > 1e-5)
+            complaints.push(
+              `${cell}: the left arm's ${left(bone)} stands ${apart.toFixed(6)} degrees off the right's ${bone} for the mirrored request`,
+            );
+        }
       }
   }
   TestValidator.equals(
