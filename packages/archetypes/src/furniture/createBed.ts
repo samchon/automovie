@@ -11,9 +11,9 @@ import { BED_BANDS } from "./BED_BANDS";
 import { CareBedConstruction } from "./CareBedConstruction";
 
 /**
- * A bed: a single or a double bed, a mattress on the floor, a hospital bed, a crib or a bunk bed.
+ * A bed: a single or a double bed, a mattress on the floor, a hospital bed, a hospital stretcher, a crib or a bunk bed.
  *
- * The lying surface is centred over the origin, the head toward `-Z`. A single or a double bed is a mattress on a base with a headboard, a mattress on the floor the mattress alone; each long side is also a seat, facing out, for sitting on the edge and rising from the bed. A hospital bed, a crib and a bunk bed are built by `CareBedConstruction`, whose functions say what each adds: a hospital bed's siderails, a crib's top rails, a bunk's upper bed and guardrail.
+ * The lying surface is centred over the origin, the head toward `-Z`. A single or a double bed is a mattress on a base with a headboard, a mattress on the floor the mattress alone; each long side is also a seat, facing out, for sitting on the edge and rising from the bed. A hospital bed, a stretcher, a crib and a bunk bed are built by `CareBedConstruction`, whose functions say what each adds: a hospital bed's siderails, a crib's top rails, a bunk's upper bed and guardrail.
  *
  * A bunk bed rests on its pine posts: wood on concrete (`ArchetypeFriction`).
  *
@@ -52,10 +52,20 @@ export function createBed(
     new ArchetypeBuilder({
       archetype: "bed",
       id: params.id,
-      name: kind === "mattress" ? "mattress" : `${kind} bed`,
+      name:
+        kind === "mattress"
+          ? "mattress"
+          : kind === "gurney"
+            ? "stretcher"
+            : `${kind} bed`,
       dimensions: d,
     });
-  if (kind === "hospital" || kind === "crib" || kind === "bunk") {
+  if (
+    kind === "hospital" ||
+    kind === "gurney" ||
+    kind === "crib" ||
+    kind === "bunk"
+  ) {
     CareBedConstruction[kind](builder, d);
     return builder.build(d.mass!, kind === "bunk" ? { rests: "wood" } : {});
   }
@@ -125,6 +135,7 @@ export namespace createBed {
     | "double"
     | "mattress"
     | "hospital"
+    | "gurney"
     | "crib"
     | "bunk";
 
@@ -134,6 +145,7 @@ export namespace createBed {
     "double",
     "mattress",
     "hospital",
+    "gurney",
     "crib",
     "bunk",
   ];
@@ -162,8 +174,8 @@ export namespace createBed {
    * - `length`: the lying surface from head to foot.
    * - `height`: the lying surface above the floor; a crib's rail tops; a bunk's overall height; a mattress on the floor has none.
    * - `thickness`: the mattress.
-   * - `overallLength`, `overallWidth`: a hospital bed's or a bunk's frame.
-   * - `litter`: a hospital bed's litter top above the floor.
+   * - `overallLength`, `overallWidth`: a hospital bed's, a stretcher's or a bunk's frame.
+   * - `litter`: a hospital bed's or a stretcher's litter top above the floor.
    * - `rail`: a hospital bed's siderail top above its mattress; a crib's rail top above its mattress support at its lowest.
    * - `gap`, `clearance`: a bunk's distance between its two beds and the free height under its lower one, where each mattress rests.
    * - `mass`: kilograms.

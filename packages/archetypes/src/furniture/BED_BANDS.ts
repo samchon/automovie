@@ -32,6 +32,10 @@ const SIDERAIL: string =
 const CRIB_TOP: string =
   "full-size cribs 33.5 in (Graco Teddi) to 36.25 in (DaVinci Ryder, front rail to floor) high, as search results give the makers' listings; not read";
 
+/** The stretcher read. */
+const PRIME: string =
+  "Stryker Prime Series stretcher spec sheet (M0000015589 REV AA): height range 20.75 to 34 in (52.7 to 86.4 cm) on the 1105 and 1115, patient surface 26 x 75.25 in, 85 in long (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf); its ComfortGel SE mattress 5.5 in (14 cm) thick (https://stryker.com/content/dam/stryker/acute-care/products/comfortgelse/resources/ComfortGel%20SE%20Spec%20Sheet.pdf)";
+
 /** The bunk bed read. */
 const MYDAL: string =
   "IKEA MYDAL bunk bed frame, 90 x 200 cm: 206 cm long, 97 cm wide, 157 cm high, mattress at most 19 cm thick, 91 cm between the beds, 20 cm free under it (https://www.ikea.com/se/en/p/mydal-bunk-bed-frame-pine-00102452)";
@@ -83,6 +87,14 @@ export const BED_BANDS: Readonly<
     thickness: ArchetypeBand.metres(0.152, 0.152, ISOFLEX, true),
     rail: ArchetypeBand.metres(0.22, 0.22, SIDERAIL),
     mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
+  },
+  gurney: {
+    width: ArchetypeBand.metres(0.6604, 0.6604, `${PRIME}: the patient surface`),
+    length: ArchetypeBand.metres(1.9114, 1.9114, `${PRIME}: the patient surface`),
+    overallLength: ArchetypeBand.metres(2.159, 2.159, PRIME),
+    litter: ArchetypeBand.metres(0.527, 0.864, `${PRIME}: the height range`),
+    thickness: ArchetypeBand.metres(0.1397, 0.1397, PRIME),
+    mass: ArchetypeBand.of("kg", 80, 120, ArchetypeBand.TYPICAL_MASS, true),
   },
   crib: {
     width: ArchetypeBand.metres(

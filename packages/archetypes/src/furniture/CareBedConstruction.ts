@@ -173,6 +173,60 @@ export namespace CareBedConstruction {
   }
 
   /**
+   * A hospital stretcher: a base on four casters under the litter and the mattress on it, its siderails not built since no source read gives their height.
+   *
+   * `surface` and the side seats are the plain bed's.
+   *
+   * @param builder The builder to fill.
+   * @param d The drawn dimensions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, what is left out and its contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation The Prime's height range, patient surface and length, its ComfortGel mattress on the litter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Casters, base, mattress, then the contacts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No siderails, push handles or fifth wheel; the casters' size is the hospital bed's, a construction stand-in.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one stretcher.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function gurney(builder: Builder, d: Drawn): void {
+    const width: number = d.width!;
+    const length: number = d.length!;
+    const litter: number = d.litter!;
+    const top: number = litter + d.thickness!;
+    const long: number = d.overallLength!;
+    for (const [id, sx, sz] of [
+      ["caster-1", 1, 1],
+      ["caster-2", -1, 1],
+      ["caster-3", 1, -1],
+      ["caster-4", -1, -1],
+    ] as const)
+      builder.ball(id, CASTER, v((sx * width) / 3, CASTER, (sz * long) / 3), {
+        color: "#3a3d42",
+      });
+    builder.box(
+      "base",
+      v(width, litter - 2 * CASTER, long),
+      v(0, (litter + 2 * CASTER) / 2, 0),
+      { color: FRAME },
+    );
+    builder.box(
+      "mattress",
+      v(width, d.thickness!, length),
+      v(0, (litter + top) / 2, 0),
+      { color: LINEN, density: 0.3 },
+    );
+    builder.affordance({
+      id: "surface",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, top, 0)),
+      extent: null,
+      width,
+      depth: length,
+    });
+    sides(builder, width, length, top);
+  }
+
+  /**
    * A full-size crib: its mattress on a support panel, four corner posts, a top rail along each long side at the drawn height, and slats under each rail and across each end no further apart than the regulation allows.
    *
    * The support lies the regulation's rail height below the rails' tops, at its lowest setting. `leftRail` and `rightRail` are the long sides' top rails, round bars a hand lifts a child over; `surface` is the mattress's top.

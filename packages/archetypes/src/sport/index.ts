@@ -14,6 +14,7 @@ export * from "./createPoolEdge";
 export * from "./createRacket";
 export * from "./createRelayBaton";
 export * from "./createShot";
+export * from "./createSki";
 export * from "./createStartingBlock";
 export * from "./createStick";
 export * from "./createSurfboard";

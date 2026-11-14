@@ -81,6 +81,7 @@ import {
   createSeat,
   createShield,
   createShot,
+  createSki,
   createSled,
   createSmoking,
   createStairs,
@@ -563,6 +564,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   add(
     "cueTable",
     (seed?: number | string): Archetype => createCueTable({}, seed),
+  );
+  add(
+    "ski",
+    (seed?: number | string): Archetype => createSki({}, seed),
   );
   add(
     "surfboard",

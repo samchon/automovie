@@ -57,6 +57,7 @@ import {
   createGoal,
   createHighJump,
   createPoolEdge,
+  createSki,
   createStick,
   createSurfboard,
 } from "../sport";
@@ -532,6 +533,7 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       cue: createCue(),
       cueTable: createCueTable(),
+      ski: createSki(),
       surfboard: createSurfboard(),
     }),
     music: still({
