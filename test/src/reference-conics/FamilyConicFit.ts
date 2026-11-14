@@ -622,6 +622,9 @@ export namespace FamilyConicFit {
           const rounded: number[][] = stored(values);
           const failing: string[] = [];
           let least: { value: number; at: string } = { value: Infinity, at: "" };
+          // The refused readings over every 20 mm of course: how many, and the least meeting among them with its arc and side, so a
+          // refusal is placed along the whole part and not only at its first 24 readings.
+          const stretches: Map<number, { count: number; value: number; at: string }> = new Map();
           dense.forEach((b: number[], d: number): void => {
             const s: number = knots[0]! + d * DENSE_MM;
             for (const [form, t] of [["raw", theta(values, b)], ["stored", theta(rounded, b)]] as const) {
@@ -632,11 +635,18 @@ export namespace FamilyConicFit {
               const side: string = worst.a <= worst.b ? "a" : "b";
               if (value < least.value) least = { value, at: `${s.toFixed(2)} ${form} arc ${worst.arc} ${side}` };
               const outside: number[] = shares.filter((f: number): boolean => !(t[f]! > 0 && t[f]! < 1));
+              if (fault !== null || !(value >= margin) || outside.length > 0) {
+                const key: number = Math.floor(s / 20) * 20;
+                const stretch = stretches.get(key) ?? { count: 0, value: Infinity, at: "" };
+                stretch.count += 1;
+                if (value < stretch.value) [stretch.value, stretch.at] = [value, `${s.toFixed(2)} ${form} arc ${worst.arc} ${side}`];
+                stretches.set(key, stretch);
+              }
               if (fault !== null || !(value >= margin) || outside.length > 0)
                 failing.push(`${s.toFixed(2)} ${form}: ${fault === null ? "" : "chain refused (" + fault.slice(0, 80) + "); "}least meeting ${value.toFixed(4)} at arc ${worst.arc} ${side}${outside.length === 0 ? "" : "; shares outside (0, 1): fields " + outside.join(",")}`);
             }
           });
-          return `${label} start${tried ? "" : " (not tried: a start was given)"}: ${failing.length} of ${2 * dense.length} station readings refused under margin ${margin}; least meeting ${least.value.toFixed(4)} at ${least.at}` + (failing.length === 0 ? "" : "\n  " + failing.slice(0, 24).join("\n  ") + (failing.length > 24 ? `\n  ... ${failing.length - 24} more` : ""));
+          return `${label} start${tried ? "" : " (not tried: a start was given)"}: ${failing.length} of ${2 * dense.length} station readings refused under margin ${margin}; least meeting ${least.value.toFixed(4)} at ${least.at}` + (stretches.size === 0 ? "" : "\n  refused by 20 mm stretch: " + [...stretches.entries()].sort((x, y): number => x[0] - y[0]).map(([key, stretch]): string => `${key}-${key + 20}: ${stretch.count}, least ${stretch.value.toFixed(4)} at ${stretch.at}`).join(" | ")) + (failing.length === 0 ? "" : "\n  " + failing.slice(0, 24).join("\n  ") + (failing.length > 24 ? `\n  ... ${failing.length - 24} more` : ""));
         };
         const middle: number = train.map((_: IRow, i: number): number => i).sort((a: number, b: number): number => Math.abs(a - train.length / 2) - Math.abs(b - train.length / 2))[0]!;
         process.stderr.write(start("projected", Y, true) + "\n" + start("flat (section " + train[middle]!.s.toFixed(1) + ")", seeds[middle]!.map((value: number): number[] => new Array<number>(M).fill(value)), initial === undefined) + "\n");
