@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
-import type { HumanHand } from "../posture/HumanHand";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -109,8 +109,52 @@ export namespace HumanGraspUse {
   export const ROLL: number = 45;
 
   /**
+   * Where a tool's grip is presented for a use ahead of the body: ahead of
+   * the shoulder by six tenths of the arm and a tenth below it, where a tool
+   * is held to be aimed (provisional shares). The grasp chosen for a use is
+   * judged with the grip there (`presented`), and a law that presents the
+   * tool puts it there (`StrikingRoll.hand`), so the pose a grasp is judged
+   * at is the pose a law presents.
+   *
+   * @param bones The body's bones where it presents the tool.
+   * @param side The hand.
+   * @param yaw The body's heading, degrees.
+   * @returns The grip socket's place, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place, its shares, who reads it and why once.
+   * @evidence contracts/development/implementation.md#principled-implementation The arm's length read off the bones, shoulder to elbow and elbow to wrist, and the place laid ahead along the heading.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three joints, one length, one point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shares are provisional and named here, the one place both readers take.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function place(
+    bones: ReadonlyMap<
+      AutoMovieHumanoidBone,
+      Pick<IAutoMovieResolvedBone, "worldPosition">
+    >,
+    side: HumanHand.Side,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+      bones.get(bone)?.worldPosition ?? { x: 0, y: 0, z: 0 };
+    const shoulder: IAutoMovieVector3 = joint(`${side}UpperArm`);
+    const elbow: IAutoMovieVector3 = joint(`${side}LowerArm`);
+    const arm: number =
+      Vector3.length(Vector3.subtract(elbow, shoulder)) +
+      Vector3.length(Vector3.subtract(joint(`${side}Hand`), elbow));
+    const heading: number = (yaw * Math.PI) / 180;
+    return {
+      x: shoulder.x + 0.6 * arm * Math.sin(heading),
+      y: shoulder.y - 0.1 * arm,
+      z: shoulder.z + 0.6 * arm * Math.cos(heading),
+    };
+  }
+
+  /**
    * The pose a tool is presented in for its use, as a key the grasp must
-   * also hold: the wrist ahead of the shoulder, a little below it, and the
+   * also hold: the grip at the place a law presents it (`place`), and the
    * hand turned so that the tool's line lies on the line the use names, in
    * the plane the body faces.
    *
@@ -264,26 +308,18 @@ export namespace HumanGraspUse {
       ),
       props.wrist.rotation,
     );
-    // Ahead of the shoulder by six tenths of the arm and a tenth below it,
-    // where a tool is held to be aimed (provisional shares).
-    const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      bones.get(bone)?.worldPosition ?? { x: 0, y: 0, z: 0 };
-    const shoulder: IAutoMovieVector3 = joint(`${props.side}UpperArm`);
-    const arm: number =
-      Vector3.length(
-        Vector3.subtract(joint(`${props.side}LowerArm`), shoulder),
-      ) +
-      Vector3.length(
-        Vector3.subtract(
-          joint(`${props.side}Hand`),
-          joint(`${props.side}LowerArm`),
-        ),
-      );
-    const ahead: IAutoMovieVector3 = {
-      x: shoulder.x + 0.6 * arm * forward.x,
-      y: shoulder.y - 0.1 * arm,
-      z: shoulder.z + 0.6 * arm * forward.z,
-    };
+    // Ahead of the body the tool's grip goes to the place a law presents it
+    // at (`place`), the grip socket there and the wrist following.
+    const ahead: IAutoMovieVector3 = place(
+      bones,
+      props.side,
+      context.entry.posture.yaw,
+    );
+    const socket: IAutoMovieVector3 = HumanHand.offset(
+      context.body,
+      props.side,
+      "grip",
+    ).point;
 
     // Worn: the key is the thing on the place it is worn (`HumanGraspWorn`).
     if (props.use.line === "worn")
@@ -324,10 +360,10 @@ export namespace HumanGraspUse {
         Quaternion.multiply(Quaternion.fromAxisAngle(asked, roll), laid),
       );
       return {
-        point:
-          site === undefined
-            ? ahead
-            : Vector3.subtract(site, Quaternion.rotateVector(rolled, inHand)),
+        point: Vector3.subtract(
+          site ?? ahead,
+          Quaternion.rotateVector(rolled, site === undefined ? socket : inHand),
+        ),
         rotation: rolled,
       };
     };
