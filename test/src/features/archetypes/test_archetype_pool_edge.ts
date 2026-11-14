@@ -15,14 +15,14 @@ const FR: string = "FINA Facilities Rules 2017-2021";
  * A pool's end wall and its starting platform stand where the facilities rules put them, every height measured from the water's surface the archetype declares.
  *
  * Scenarios:
- * 1. Over 200 seeds: the deck 0.3 m above the water (FR 2.4.3); the rest ledge's top 1.2 m below the water (FR 2.4.2) and 0.1 to 0.15 m wide; the platform's top at its middle 0.5 to 0.75 m above the water (FR 2.7), sloping 0 to 10 degrees (FR 2.7), at least 0.5 m square; the backstroke grip 0.3 m or more above the water and under the platform's top (FR 2.7).
- * 2. No part of the platform or its grip passes the wall's face: every collider of either lies at `Z` 0 or behind, as FR 2.7 asks of the grips.
+ * 1. Over 200 seeds: the deck 0.3 m above the water (FR 2.4.3); the rest ledge's top 1.2 m below the water (FR 2.4.2) and 0.1 to 0.15 m wide; the platform's top at its middle 0.5 to 0.75 m above the water (FR 2.7), sloping 0 to 10 degrees (FR 2.7), at least 0.5 m square.
+ * 2. No part of the platform passes the wall's face: every collider of it lies at `Z` 0 or behind.
  * 3. The platform's top slopes down toward the water: its normal leans to `+Z`; and its `front` edge is the top's lowest edge, on the wall's line.
- * 4. Each kind declares exactly its contacts: `deck`, `edge`, `water` and `restLedge`, and on the platform kind also `platform`, `front` and `backstrokeGrip`.
+ * 4. Each kind declares exactly its contacts: `deck`, `edge`, `water` and `restLedge`, and on the platform kind also `platform` and `front`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces both kinds and measures contacts and colliders against the declared water; a platform off its height or slope, a ledge too shallow, a grip that pokes out past the wall or stands in the platform, or a missing contact fails with the numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces both kinds and measures contacts and colliders against the declared water; a platform off its height or slope, a ledge too shallow, a platform that pokes out past the wall, or a missing contact fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every band is the rules' number, measured from the water contact the archetype declares; the wall's face is the `Z` the edge lies on.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds; the slope's sense and the front edge's place; the grip's band is checked as a limit under the platform's top rather than over the rules' full 0.3 to 0.6 m, since the model keeps it under the top.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both kinds; the slope's sense and the front edge's place.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
@@ -86,31 +86,14 @@ export function test_archetype_pool_edge(): void {
       (s: number): number => block(s).affordance("platform").width!,
       true,
     ),
-    row(
-      "backstroke grip above the water",
-      0.3,
-      0.6,
-      `${FR} 2.7`,
-      (s: number): number => above(block(s), "backstrokeGrip"),
-      true,
-    ),
   ]);
 
-  // 1, 2 and 3. Seed by seed: the grip under the top, nothing past the wall, the slope's sense and the front edge.
+  // 2 and 3. Seed by seed: nothing past the wall, the slope's sense and the front edge.
   for (let seed: number = 0; seed < 50; seed++) {
     const edge: ReturnType<typeof createPoolEdge> = block(seed);
-    const grip: { low: number; high: number } = archetypeExtent(edge, "y", [
-      "backstroke-grip",
-    ]);
-    const top: { low: number; high: number } = archetypeExtent(edge, "y", [
-      "top",
-    ]);
-    if (!(grip.high <= top.low + 1e-9))
-      findings.push(`seed ${seed}: the grip reaches ${grip.high} m, into the top from ${top.low} m`);
     const forward: number = archetypeExtent(edge, "z", [
       "pedestal",
       "top",
-      "backstroke-grip",
     ]).high;
     if (forward > 1e-9)
       findings.push(`seed ${seed}: the platform reaches ${forward} m past the wall`);
@@ -134,7 +117,7 @@ export function test_archetype_pool_edge(): void {
   if (ids(createPoolEdge({ kind: "deckEdge" })) !== deck)
     findings.push(`the deck edge declares ${ids(createPoolEdge({ kind: "deckEdge" }))}`);
   const platform: string =
-    "backstrokeGrip:bar,deck:surface,edge:ledge,front:ledge,platform:surface,restLedge:ledge,water:surface";
+    "deck:surface,edge:ledge,front:ledge,platform:surface,restLedge:ledge,water:surface";
   if (ids(block(1)) !== platform)
     findings.push(`the starting platform declares ${ids(block(1))}`);
   TestValidator.equals(

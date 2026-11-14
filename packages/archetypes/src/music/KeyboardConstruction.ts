@@ -33,27 +33,24 @@ export namespace KeyboardConstruction {
   export const BLACK: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 
   /**
-   * The sizes no source read gives, metres or degrees, each an estimate: `dip`, a key's travel; `white`, a white key's thickness; `black`, a black key's height above the white keys' tops and `blackWidth` its width; `gap`, the gap between neighbouring white keys; `cheek`, a side arm's width; `fallboard`, the fallboard's thickness and `fall`, its travel from standing open to lying over the keys.
+   * The construction sizes, metres, which place no contact: `white`, a white key's thickness under its cited top; `blackWidth`, a black key's width, the 13.7 mm the search for the keyboard's sizes gave; `gap`, the gap between neighbouring white keys; `cheek`, a side arm's width; `fallboard`, the fallboard's thickness; each but `blackWidth` an estimate.
    */
   export const ESTIMATES: Readonly<{
-    dip: number;
     white: number;
-    black: number;
     blackWidth: number;
     gap: number;
     cheek: number;
     fallboard: number;
-    fall: number;
   }> = {
-    dip: 0.01,
     white: 0.02,
-    black: 0.012,
     blackWidth: 0.0137,
     gap: 0.001,
     cheek: 0.06,
     fallboard: 0.015,
-    fall: 90,
   };
+
+  /** The fallboard's travel, degrees: the quarter turn about its level hinge that lays it, upright at rest, flat over the keys. */
+  export const FALL: number = 90;
 
   /**
    * Whether a key of the 88, numbered from 1 at the bottom A, is black.
@@ -76,7 +73,7 @@ export namespace KeyboardConstruction {
   /**
    * An upright piano: the case behind the keys from the floor to its height, two cheeks either side of the keyboard carrying the key bed, the 88 keys on it, each a part on its own `key<n>` button, and the fallboard standing open behind the keys on its `lid` hinge.
    *
-   * White keys are laid side by side at a seventh of the drawn octave each; a black key sits on the line between its two white neighbours, raised above them and shorter. A white key's site is two thirds of the way out along it, a black key's at its middle, where a finger presses each.
+   * White keys are laid side by side at a seventh of the drawn octave each; a black key sits on the line between its two white neighbours, raised the drawn rise above them and shorter. Each key's site is its middle, and each presses down by the drawn dip.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
@@ -84,7 +81,7 @@ export namespace KeyboardConstruction {
    * @evidence contracts/development/common.md#meaningful-documentation States how the keys are laid and where each is pressed.
    * @evidence contracts/development/implementation.md#principled-implementation Every key's place follows from its number: the count of white keys below it sets its `X`, and its colour sets its length and height; the keyboard is the drawn octave times the 52 white keys over seven, centred on the case.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The case and cheeks, the key bed, the keys in one pass, the fallboard, then the keybed contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pedals, music desk or action; the key dip, the keys' thickness, the cheeks' width and the fallboard's travel are this namespace's estimates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pedals, music desk or action; the keys' thickness and the cheeks' and the fallboard's sizes are construction estimates, none placing a contact.
    * @evidence contracts/development/implementation.md#efficient-algorithms One part and one contact per key, ninety-odd parts, in one pass over the keys.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one instrument.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -101,6 +98,7 @@ export namespace KeyboardConstruction {
     const whites: number = 52;
     const left: number = (-whites * white) / 2;
     const bed: number = top - E.white;
+    const rise: number = d.blackRise!;
     builder.box("case", v(width, height, back), v(0, height / 2, back / 2), {
       color: "#1d1b1a",
     });
@@ -110,8 +108,8 @@ export namespace KeyboardConstruction {
     ] as const)
       builder.box(
         id,
-        v(E.cheek, top + E.black, length),
-        v((sign * (width - E.cheek)) / 2, (top + E.black) / 2, back + length / 2),
+        v(E.cheek, top + rise, length),
+        v((sign * (width - E.cheek)) / 2, (top + rise) / 2, back + length / 2),
         { color: "#1d1b1a" },
       );
     builder.box(
@@ -130,16 +128,16 @@ export namespace KeyboardConstruction {
         const run: number = d.blackLength!;
         builder.box(
           `${id}-part`,
-          v(E.blackWidth, E.white + E.black, run),
-          v(x, bed + (E.white + E.black) / 2, back + run / 2),
+          v(E.blackWidth, E.white + rise, run),
+          v(x, bed + (E.white + rise) / 2, back + run / 2),
           { color: "#121212" },
         );
         builder.affordance({
           id,
           kind: "button",
-          frame: ArchetypeFrame.upright(v(x, top + E.black, back + run / 2)),
+          frame: ArchetypeFrame.upright(v(x, top + rise, back + run / 2)),
           extent: null,
-          travel: E.dip,
+          travel: d.dip!,
           parts: [`${id}-part`],
         });
         continue;
@@ -155,9 +153,9 @@ export namespace KeyboardConstruction {
       builder.affordance({
         id,
         kind: "button",
-        frame: ArchetypeFrame.upright(v(x, top, back + (2 * length) / 3)),
+        frame: ArchetypeFrame.upright(v(x, top, back + length / 2)),
         extent: null,
-        travel: E.dip,
+        travel: d.dip!,
         parts: [`${id}-part`],
       });
     }
@@ -166,19 +164,19 @@ export namespace KeyboardConstruction {
     builder.box(
       "fallboard",
       v(whites * white, length, E.fallboard),
-      v(0, top + E.black + E.fallboard + length / 2, back + E.fallboard / 2),
+      v(0, top + rise + E.fallboard + length / 2, back + E.fallboard / 2),
       { color: "#1d1b1a" },
     );
     builder.affordance({
       id: "lid",
       kind: "hinge",
       frame: ArchetypeFrame.facing(
-        v(0, top + E.black + E.fallboard, back),
+        v(0, top + rise + E.fallboard, back),
         v(1, 0, 0),
         v(0, 1, 0),
       ),
       extent: null,
-      travel: E.fall,
+      travel: FALL,
       parts: ["fallboard"],
     });
     builder.affordance({

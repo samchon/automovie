@@ -23,80 +23,73 @@ const CHROME: string = "#c9ccd1";
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * How {@link createSanitary} builds each kind of fixture from its drawn dimensions: the parts and the contacts, one function per kind, and the sizes no source gives.
+ * How {@link createSanitary} builds each kind of fixture from its drawn dimensions: the parts and the contacts, one function per kind, and the construction sizes no source gives.
  *
- * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor.
+ * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds and the frame every construction shares.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the frame every construction shares and what the estimates may size.
  * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The producer's four constructions and the estimates they read; kept apart from the producer so each file stays one readable responsibility, and read only by `createSanitary`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic, and none places a contact.
  */
 export namespace SanitaryConstruction {
   /**
-   * The sizes no source read gives, metres or degrees, each an estimate:
-   *
-   * - `basin`: a basin block's height below its rim; `pedestal`: the pedestal's radius.
-   * - `ring`, `lid`: a toilet seat ring's and lid's thickness; `lift`: the lid's travel from standing open to lying on the ring, degrees, a quarter turn; `press`: the trip lever's travel.
-   * - `wall`: a shower stall's wall thickness; `seatThickness`: its folding seat's.
+   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `ring` and `lid`, a toilet seat ring's and lid's thickness under and over the seat's cited height; `wall`, a shower stall's wall thickness outside its cited inside; `seatThickness`, its folding seat's under the seat's cited height.
    */
   export const ESTIMATES: Readonly<{
-    basin: number;
-    pedestal: number;
     ring: number;
     lid: number;
-    lift: number;
-    press: number;
     wall: number;
     seatThickness: number;
   }> = {
-    basin: 0.16,
-    pedestal: 0.09,
     ring: 0.025,
     lid: 0.02,
-    lift: 90,
-    press: 0.02,
     wall: 0.05,
     seatThickness: 0.03,
   };
 
+  /** A toilet lid's travel, degrees: the quarter turn about its level hinge that lays the lid, upright at rest, flat on the level ring. */
+  export const LIFT: number = 90;
+
   /**
    * A pedestal washbasin: the basin block at its rim height, a pedestal under its middle, and a single-lever mixer on the deck behind the opening, built as `createTap` builds one.
+   *
+   * The mixer's lever is a place to touch, a `knob` without travel, because no source read gives its turn.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where the mixer stands.
-   * @evidence contracts/development/implementation.md#principled-implementation A block and a rod from the rim height and the maker's plan size; the mixer from `createTap`'s constants and the basin mixer's drawn bands, on the deck a quarter of the way from the wall to the opening's back edge, so its spout of the maker's reach ends over the opening.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the mixer stands and why its lever does not turn.
+   * @evidence contracts/development/implementation.md#principled-implementation A block of the maker's plan size and basin depth under the rim, on a pedestal a sixth of the basin's width in radius, a construction proportion; the mixer from the basin mixer's drawn bands in the middle of the deck strip between the wall and the opening's back edge, so its spout of the maker's reach ends over the opening, and the `spout` socket at the maker's outlet height and reach.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Basin, pedestal, mixer, then the four contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The basin is not hollowed; its block height and pedestal radius are this namespace's estimates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The basin is not hollowed.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `createTap`'s spout and turn constants and its bands, so a basin's mixer is the tap's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `createTap`'s bands, so a basin's mixer is the tap's.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function washbasin(builder: Builder, d: Drawn): void {
-    const E: typeof ESTIMATES = ESTIMATES;
     const rim: number = d.rim!;
     const width: number = d.width!;
     const depth: number = d.depth!;
+    const basin: number = d.basinDepth!;
     builder.box(
       "basin",
-      v(width, E.basin, depth),
-      v(0, rim - E.basin / 2, depth / 2),
+      v(width, basin, depth),
+      v(0, rim - basin / 2, depth / 2),
       { color: CHINA },
     );
     builder.rod(
       "pedestal",
-      E.pedestal,
+      width / 6,
       v(0, 0, depth / 2),
-      v(0, rim - E.basin, depth / 2),
+      v(0, rim - basin, depth / 2),
       { color: CHINA },
     );
 
-    // The mixer stands on the deck between the wall and the opening's back edge, its spout reaching out over the opening.
+    // The mixer stands in the middle of the deck strip between the wall and the opening's back edge, its spout reaching out over the opening.
     const deck: number = (depth - d.bowlDepth!) / 4;
     const spout: number = createTap.SPOUT;
-    const mouth: number = rim + d.tapOutlet! + spout / 2;
+    const outlet: number = rim + d.tapOutlet!;
     const top: number = rim + d.tapHeight!;
     builder.rod("tap-body", 0.02, v(0, rim, deck), v(0, top, deck), {
       color: CHROME,
@@ -104,8 +97,8 @@ export namespace SanitaryConstruction {
     builder.rod(
       "tap-spout",
       spout / 2,
-      v(0, mouth, deck),
-      v(0, mouth, deck + d.tapReach!),
+      v(0, outlet + spout / 2, deck),
+      v(0, outlet + spout / 2, deck + d.tapReach!),
       { color: CHROME },
     );
     builder.box("tap-lever", v(0.015, 0.012, 0.09), v(0, top + 0.006, deck), {
@@ -129,22 +122,15 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "tap",
       kind: "knob",
-      frame: ArchetypeFrame.facing(
-        v(0, top + 0.012, deck),
-        v(0, 1, 0),
-        v(1, 0, 0),
-      ),
+      frame: ArchetypeFrame.facing(v(0, top, deck), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
       grip: "precision",
-      aperture: 0.015,
-      travel: createTap.TURN,
-      parts: ["tap-lever"],
     });
     builder.affordance({
       id: "spout",
       kind: "socket",
       frame: ArchetypeFrame.facing(
-        v(0, mouth - spout / 2, deck + d.tapReach! - spout / 2),
+        v(0, outlet, deck + d.tapReach!),
         v(0, -1, 0),
         v(1, 0, 0),
       ),
@@ -153,18 +139,18 @@ export namespace SanitaryConstruction {
   }
 
   /**
-   * A close-coupled toilet: the bowl as one block up to the seat ring, the ring, the lid standing open on its hinge at the seat holes, the tank 19 mm off the wall as the maker's sheet sets it, and the trip lever on the tank's front.
+   * A close-coupled toilet: the bowl as one block up to the seat ring, the ring, the lid standing open on its hinge at the seat holes, and the tank 19 mm off the wall as the maker's sheet sets it.
    *
-   * The trip lever is on the tank's left as one faces the toilet, its `-X`, as the Kohler sheet's left-hand lever is. The lid's hinge turns about `+X`, so its travel lays the standing lid forward onto the ring.
+   * The lid's hinge turns about `+X`, so its quarter-turn travel lays the standing lid forward onto the ring. The trip lever is not drawn: the sheet does not place it.
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the lever is and which way the lid moves.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, which way the lid moves and why there is no lever.
    * @evidence contracts/development/implementation.md#principled-implementation Blocks from the seat height and the maker's plan: the ring's top at the drawn seat height, the hinge line the seat's depth behind the bowl's front, the tank between its sheet's offset and depth up to its top.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bowl, ring, lid, tank, lever, then the three contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bowl is a block, not a rim; the ring's and lid's thickness, the lid's travel and the lever's press are this namespace's estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bowl, ring, lid, tank, then the two contacts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bowl is a block, not a rim; the ring's and lid's thickness are this namespace's construction estimates.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -203,14 +189,6 @@ export namespace SanitaryConstruction {
       v(0, (d.tankTop! + bowlTop) / 2, (tankBack + tankFront) / 2),
       { color: CHINA },
     );
-    const lever: number = -d.tankWidth! / 2 + 0.05;
-    const leverTop: number = d.tankTop! - 0.05;
-    builder.box(
-      "lever",
-      v(0.06, 0.012, 0.02),
-      v(lever, leverTop - 0.006, tankFront + 0.01),
-      { color: CHROME },
-    );
     builder.affordance({
       id: "seat",
       kind: "seat",
@@ -224,20 +202,8 @@ export namespace SanitaryConstruction {
       kind: "hinge",
       frame: ArchetypeFrame.facing(v(0, seat, hinge), v(1, 0, 0), v(0, 1, 0)),
       extent: null,
-      travel: E.lift,
+      travel: LIFT,
       parts: ["lid"],
-    });
-    builder.affordance({
-      id: "flush",
-      kind: "button",
-      frame: ArchetypeFrame.facing(
-        v(lever, leverTop, tankFront + 0.01),
-        v(0, 1, 0),
-        v(1, 0, 0),
-      ),
-      extent: null,
-      travel: E.press,
-      parts: ["lever"],
     });
   }
 
@@ -309,13 +275,15 @@ export namespace SanitaryConstruction {
   /**
    * A one-piece transfer shower: a tray the threshold's height under the inside and the walls, a back wall and two side walls, the folding seat on the `+X` wall from the back wall to the 75 mm (3 in) short of the entry ADA 610.3 allows, and the valve on the `-X` wall across from the seat's middle.
    *
+   * The valve is a place to touch, a `knob` without travel, because no source read gives its turn.
+   *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where the seat and the valve stand.
-   * @evidence contracts/development/implementation.md#principled-implementation Boxes whose inner faces bound the clause's inside square; the seat's front edge its drawn depth from its wall, its run from the back wall to the clause's 3 in from the entry; the valve at its drawn height opposite the seat's middle, as ADA 608.5.1 places it within 15 in of the seat's centreline.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the seat and the valve stand and why the valve does not turn.
+   * @evidence contracts/development/implementation.md#principled-implementation Boxes whose inner faces bound the clause's inside square; the seat's front edge its drawn depth from its wall, its run from the back wall to the clause's 3 in from the entry; the valve on the `-X` wall's inner face at its drawn height opposite the seat's middle, as ADA 608.5.1 places it within 15 in of the seat's centreline.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Tray, walls, seat, valve, then the five contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shower head or hose: their heights are not given by a source read; the wall and seat thickness are this namespace's estimates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shower head or hose: their heights are not given by a source read; the wall and seat thickness are this namespace's construction estimates.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -405,15 +373,12 @@ export namespace SanitaryConstruction {
       id: "control",
       kind: "knob",
       frame: ArchetypeFrame.facing(
-        v(-half + 0.03, d.control!, wall + run / 2),
+        v(-half, d.control!, wall + run / 2),
         v(1, 0, 0),
         v(0, 0, 1),
       ),
       extent: null,
       grip: "power",
-      aperture: 0.06,
-      travel: createTap.TURN,
-      parts: ["valve"],
     });
   }
 }

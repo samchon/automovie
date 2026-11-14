@@ -12,7 +12,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  * Scenarios:
  * 1. Every instrument and both microphones placed on a line through the public chain rest on the floor within a millimetre, their contacts named points of the props.
  * 2. A piano declares `key1` to `key88`, 52 white and 36 black, `key1` the bottom A white and `key2` black; keys an octave apart (`key4` and `key16`, both C) stand the drawn octave apart along `X`, the bass at `-X`; pressing `key40` (middle C) its full travel lowers its own key by the travel and leaves `key41` where it was.
- * 3. A guitar's `string1` to `string6` run the 25.4 in scale (Martin D-28) from the nut to the saddle and a violin's four strings its 327 mm, within 0.3 mm, the outer strings' spread toward the saddle; the guitar's frets follow equal temperament: half the scale, where the twelfth fret stands, lies between the twelfth and the thirteenth fret's sites, and successive sites' spacings shrink by the twelfth root of two within a millionth.
+ * 3. A guitar's `string1` to `string6` run the 25.4 in scale (Martin D-28) from the nut to the saddle within 0.3 mm, the outer strings' spread toward the saddle, and a violin's four strings its 327 mm within a millimetre, the strings also rising from the nut to the bridge's height; the guitar's frets follow equal temperament: half the scale, where the twelfth fret stands, lies between the twelfth and the thirteenth fret's sites, and successive sites' spacings shrink by the twelfth root of two within a millionth.
  * 4. A piano's fallboard, standing open, lies over the keys at its full travel without passing below the black keys' tops.
  * 5. Over 200 seeds: the drum 14 in across and 12 in deep (Sonor MP 1412 X); a handheld microphone 162 to 180.5 mm long (Shure SM58, Sennheiser e 835); a boom stand's clip, raised the full travel of `height`, at its highest, 1.60 m (Auray MS-5230F) plus the clip.
  *
@@ -98,7 +98,7 @@ export function test_archetype_music_instruments(): void {
     5,
   );
   for (let k: number = 1; k <= 4; k++)
-    if (Math.abs(violin.affordance(`string${k}`).length! - 0.327) > 3e-4)
+    if (Math.abs(violin.affordance(`string${k}`).length! - 0.327) > 1e-3)
       findings.push(`violin string${k} runs ${violin.affordance(`string${k}`).length} m`);
 
   // 4. The fallboard over the keys.

@@ -22,7 +22,7 @@ const AURAY: string =
  *
  * A handheld microphone lies along `+X`, its tail at the origin and its grille's tip toward `+X`: `grip` is its handle, held round, and `head` the grille's tip, the working point whose `+Y` runs along the microphone toward the mouth it is sung into.
  *
- * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's telescoping tube, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; `shaft` the lower tube, a bar gripped to carry or steady the stand; `clip` the socket at the boom's end where a microphone's adapter seats, riding `height`.
+ * A boom stand stands on its tripod at the origin, its boom reaching out along `+Z` toward whoever sings at it: `height` is the upright's top, a slider whose travel raises the upper tube, the boom and the clip from the stand's lowest height to its highest; `shaft` the lower tube at half the stand's lowest height, a bar gripped to carry or steady the stand; `clip` the socket at the boom's tip where a microphone's adapter seats, riding `height`.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -32,7 +32,7 @@ const AURAY: string =
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands and every contact, with the slider's direction.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the drawn length; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind with its parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A handle's taper and a boom's tilt are not drawn; the tubes' diameters, the legs' hub height and the clip's size are named estimates (`createMicrophone.ESTIMATES`).
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A handle's taper and a boom's tilt are not drawn; the tubes' diameters, the legs' hub height, the tubes' overlap and the clip's size are named construction estimates (`createMicrophone.ESTIMATES`), none placing a contact.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most eight parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -127,7 +127,7 @@ export function createMicrophone(
   builder.affordance({
     id: "height",
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, sleeve, 0), v(0, 0, 1), v(0, 1, 0)),
+    frame: ArchetypeFrame.facing(v(0, low, 0), v(0, 0, 1), v(0, 1, 0)),
     extent: null,
     travel: d.maxHeight! - low,
     parts: ["upper-tube", "boom", "clip"],
@@ -137,19 +137,17 @@ export function createMicrophone(
     kind: "bar",
     symmetry: "round",
     frame: ArchetypeFrame.facing(
-      v(0, (E.hub + sleeve) / 2, 0),
+      v(0, low / 2, 0),
       v(0, 0, 1),
       v(0, 1, 0),
     ),
     extent: null,
     grip: "power",
-    aperture: E.lower,
-    length: sleeve - E.hub,
   });
   builder.affordance({
     id: "clip",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, low + E.clip, d.boom!)),
+    frame: ArchetypeFrame.upright(v(0, low, d.boom!)),
     extent: null,
     rides: "height",
   });

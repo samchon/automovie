@@ -424,7 +424,7 @@ export function archetypeCaptureCatalog(): Readonly<
       }),
       "bicycle-quarter": bicycle.articulate({ crank: 90 }),
       "toilet-lid-down": createSanitary({ kind: "toilet" }).articulate({
-        lid: createSanitary.ESTIMATES.lift,
+        lid: createSanitary.LIFT,
       }),
       "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
         fridgeDoor: 90,

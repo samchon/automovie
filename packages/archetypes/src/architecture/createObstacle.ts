@@ -22,7 +22,7 @@ import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, which side is approached, its contacts and which ones a stepping act crosses or refuses.
  * @evidence contracts/development/implementation.md#principled-implementation A crosstie and a sandbag are one box each at their cited section; the concrete barrier is its FHWA profile in three stacked boxes, the lower band as wide as the profile at its mid-height and the upper as wide as the top, the faces' runs worked from their cited angles; the crowd barrier is its end posts, rails, pickets at the cited spacing and two feet; the stanchions are two posts on round bases with a straight rope between their tops.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one builder function per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The barrier's sloped faces are stepped, a sandbag is square, a rope does not sag; the crowd barrier's feet and bottom rail and a stanchion's base thickness and hook drop are named estimates (`createObstacle.ESTIMATES`).
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The barrier's sloped faces are stepped, a sandbag is square, a rope does not sag; the crowd barrier's feet and bottom rail and a stanchion's base thickness are named construction estimates (`createObstacle.ESTIMATES`), none placing a contact.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part per piece; a crowd barrier's pickets are its length over their spacing, about twenty.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -147,23 +147,21 @@ export namespace createObstacle {
   export const LOWER_FACE: number = 55;
 
   /**
-   * The sizes no source read gives, metres, each an estimate:
+   * The construction sizes no source read gives, metres, each an estimate no act reads and no band declares:
    *
    * - `foot`: a crowd barrier's foot, front to back; `bottomRail`: its bottom rail's height; `picket`: a picket's diameter.
-   * - `plate`: a stanchion base's thickness; `hook`: how far below a post's top the rope hangs.
+   * - `plate`: a stanchion base's thickness.
    */
   export const ESTIMATES: Readonly<{
     foot: number;
     bottomRail: number;
     picket: number;
     plate: number;
-    hook: number;
   }> = {
     foot: 0.6,
     bottomRail: 0.15,
     picket: 0.016,
     plate: 0.03,
-    hook: 0.05,
   };
 
   /** The band of each free dimension, by kind. */
@@ -246,7 +244,7 @@ function block(builder: Builder, d: Drawn, kind: "crosstie" | "sandbag"): void {
   crossing(builder, height, length, width, width / 2);
   if (kind === "crosstie") return;
 
-  // A bag is lifted by its two ends, a hand over each end's top; the grasp reads the bag's own collider for the width.
+  // A bag is lifted by its two ends, a hand on each end's top edge; the grasp reads the bag's own collider for the width.
   for (const [id, sign] of [
     ["leftEnd", 1],
     ["rightEnd", -1],
@@ -256,7 +254,7 @@ function block(builder: Builder, d: Drawn, kind: "crosstie" | "sandbag"): void {
       kind: "handle",
       symmetry: "none",
       frame: ArchetypeFrame.facing(
-        v((sign * length) / 2 - sign * 0.04, height, width / 2),
+        v((sign * length) / 2, height, width / 2),
         v(0, 1, 0),
         v(0, 0, 1),
       ),
@@ -347,7 +345,7 @@ function crowd(builder: Builder, d: Drawn): void {
 }
 
 /**
- * Two stanchions a rope's length apart, each a post on a round base, and the rope straight between them a little below their tops.
+ * Two stanchions a rope's length apart, each a post on a round base, and the rope straight between them at their tops, where its hooks hang.
  *
  * @param builder The builder.
  * @param d The drawn dimensions.
@@ -357,7 +355,7 @@ function stanchions(builder: Builder, d: Drawn): void {
   const height: number = d.height!;
   const r: number = d.post! / 2;
   const z: number = d.base! / 2;
-  const hang: number = height - E.hook;
+  const hang: number = height - d.ropeDiameter! / 2;
   for (const [id, sign] of [
     ["leftPost", 1],
     ["rightPost", -1],
@@ -373,11 +371,11 @@ function stanchions(builder: Builder, d: Drawn): void {
       id,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, (E.plate + height) / 2, z), v(0, 0, 1), v(0, 1, 0)),
+      frame: ArchetypeFrame.facing(v(x, height / 2, z), v(0, 0, 1), v(0, 1, 0)),
       extent: null,
       grip: "power",
       aperture: d.post!,
-      length: height - E.plate,
+      length: height,
     });
   }
   builder.rod("rope", d.ropeDiameter! / 2, v(-length / 2 + r, hang, z), v(length / 2 - r, hang, z), {

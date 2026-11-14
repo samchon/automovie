@@ -39,6 +39,11 @@ export const APPLIANCE_BANDS: Readonly<
     height: ArchetypeBand.metres(1.86, 2.03, `${FRIDGE}; ${TALL}`, true),
     width: ArchetypeBand.metres(0.6, 0.6, FRIDGE),
     depth: ArchetypeBand.metres(0.66, 0.66, FRIDGE),
+    pullHeight: ArchetypeBand.metres(
+      0.865,
+      1.22,
+      "2010 ADA Standards 308.2.1 and 309.3, operable parts at most 48 in above the floor, from the 34 in a wardrobe's pulls share with door hardware (404.2.7) (https://www.access-board.gov/ada/)",
+    ),
     mass: ArchetypeBand.of("kg", 62, 82, `${FRIDGE}; ${TALL}`, true),
   },
   cooker: {

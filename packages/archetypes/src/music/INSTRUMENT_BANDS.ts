@@ -25,9 +25,13 @@ const D28_BODY: string =
 const VIOLIN: string =
   "GEWA L'Apprenti VL2 4/4 violin: back 355 mm, string length 327 mm, bouts 168, 116 and 206 mm, neck 138 mm (https://paytonviolins.com/shop/vn4061-gewa-violin-l-apprenti-vl2-4-4-11490)";
 
-/** The bow, from a search only. */
-const BOW: string =
-  "4/4 violin bows of about 74 to 75 cm and 58 to 65 g, as search results give Soundhouse's guide and makers' listings; not read";
+/** The luthier's table read. */
+const LUTHIER: string =
+  "Hans Johannsson, violin measurements, the 4/4 column: rib height 30 mm, neck thickness 19.5 mm at the body, fingerboard 24.5 mm wide at the nut, string spacing 16.5 mm at the nut and 34 mm at the bridge, bridge about 33 mm high (https://hansjohannsson.com/resources/mesvioli.html)";
+
+/** The keys' travel and the sharps' rise, from a search only. */
+const ACTION: string =
+  "a key's dip of 3/8 to 1/2 in (Steve's Piano Service) or 10 mm (a technician's forum post), and sharps rising about 1/2 in above the naturals, as search results give them; not read";
 
 /** The drum read. */
 const SONOR: string =
@@ -59,6 +63,8 @@ export const INSTRUMENT_BANDS: Readonly<
     octave: ArchetypeBand.metres(0.164, 0.165, KEYS, true),
     keyLength: ArchetypeBand.metres(0.15, 0.15, KEYS, true),
     blackLength: ArchetypeBand.metres(0.095, 0.095, KEYS, true),
+    dip: ArchetypeBand.metres(0.0095, 0.0127, ACTION, true),
+    blackRise: ArchetypeBand.metres(0.0127, 0.0127, ACTION, true),
     mass: ArchetypeBand.of("kg", 228, 228, U1, true),
   },
   guitar: {
@@ -77,6 +83,12 @@ export const INSTRUMENT_BANDS: Readonly<
     upperBout: ArchetypeBand.metres(0.168, 0.168, VIOLIN),
     waist: ArchetypeBand.metres(0.116, 0.116, VIOLIN),
     lowerBout: ArchetypeBand.metres(0.206, 0.206, VIOLIN),
+    rib: ArchetypeBand.metres(0.03, 0.03, LUTHIER),
+    neckThickness: ArchetypeBand.metres(0.0195, 0.0195, LUTHIER),
+    fingerboard: ArchetypeBand.metres(0.0245, 0.0245, LUTHIER),
+    nutSpacing: ArchetypeBand.metres(0.0165, 0.0165, LUTHIER),
+    bridgeSpacing: ArchetypeBand.metres(0.034, 0.034, LUTHIER),
+    bridgeHeight: ArchetypeBand.metres(0.033, 0.033, LUTHIER),
     mass: ArchetypeBand.of(
       "kg",
       0.4,
@@ -84,10 +96,6 @@ export const INSTRUMENT_BANDS: Readonly<
       ArchetypeBand.TYPICAL_MASS,
       true,
     ),
-  },
-  violinBow: {
-    length: ArchetypeBand.metres(0.74, 0.75, BOW, true),
-    mass: ArchetypeBand.of("kg", 0.058, 0.065, BOW, true),
   },
   sideDrum: {
     diameter: ArchetypeBand.metres(0.3556, 0.3556, SONOR),

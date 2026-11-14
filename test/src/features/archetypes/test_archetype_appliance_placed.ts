@@ -11,7 +11,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. A fridge-freezer, a cooker and a washing machine on the floor and a microwave on a 0.9 m counter's height, placed on a line through the public chain, each turned a different way: each rests at its placement on its support within a millimetre, and every contact is a named point of the prop.
- * 2. Each kind declares exactly its contacts with their kinds: a fridge's two hinges, the two handles riding them and four shelf stack-tops; a cooker's top and four zone stack-tops, its oven door's hinge with the handle riding it and four knobs; a microwave's door hinge, its `open` button and its floor and top stack-tops; a washer's door hinge with the handle riding it, its dial knob and its top.
+ * 2. Each kind declares exactly its contacts with their kinds: a fridge's two hinges, the two handles riding them and four shelf stack-tops; a cooker's top and four zone stack-tops, its door, handle and knobs drawn but not contacts; a microwave's door hinge and its floor and top stack-tops; a washer's door hinge and its top.
  * 3. Over 200 seeds: the fridge 1.86 to 2.03 m high and 0.66 m deep with its handles (Bosch KGN36, KGN39), every freezer part below 1.37 m (ADA 804.6.6 asks half the freezer below 54 in); the cooker's top 0.85 to 0.92 m (Bosch's cookers); the microwave's outside 442 x 260 x 345 mm and its cavity 280 mm wide between the side wall and the panel (Bosch FFL020MS2B); the washer 845 to 848 mm high and 598 mm wide.
  * 4. The washer with its door opened square is 1049 mm deep, the maker's depth with the door open at 90 degrees, within a millimetre.
  *
@@ -54,23 +54,14 @@ export function test_archetype_appliance_placed(): void {
       zone2: "stack-top",
       zone3: "stack-top",
       zone4: "stack-top",
-      ovenDoor: "hinge",
-      ovenHandle: "handle>ovenDoor",
-      knob1: "knob",
-      knob2: "knob",
-      knob3: "knob",
-      knob4: "knob",
     },
     microwave: {
       door: "hinge",
-      open: "button",
       floor: "stack-top",
       top: "stack-top",
     },
     washingMachine: {
       door: "hinge",
-      doorHandle: "handle>door",
-      dial: "knob",
       top: "stack-top",
     },
   };

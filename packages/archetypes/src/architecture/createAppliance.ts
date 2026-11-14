@@ -12,10 +12,10 @@ import { ApplianceConstruction } from "./ApplianceConstruction";
  *
  * Each stands with its back at the origin's `Z`, centred on `X`, its front toward `+Z`; the microwave stands on whatever counter it is set on. Every door is a part on its hinge, so an open door is a moved part:
  *
- * - A fridge-freezer's `fridgeDoor` and `freezerDoor` hinge on its `+X` edge (the right as one faces it) and swing out, each carrying its handle (`fridgeHandle`, `freezerHandle`) near the free edge. The fridge is hollow, with its four glass shelves `shelf1` to `shelf4` from the bottom up, each a `stack-top`; the freezer below is one block.
- * - A cooker's `top` is the hob, a `stack-top`, with its four zones `zone1` to `zone4`, each a `stack-top` a pan is set on, front left, front right, back left and back right as one faces it; `ovenDoor` hinges along its bottom edge and drops forward to level, carrying `ovenHandle`; `knob1` to `knob4` are the zones' knobs on the fascia, left to right as one faces it.
- * - A microwave's `door` hinges on its `-X` edge and swings out; `open` is the door-release button on the control panel; `floor` the cavity's floor and `top` its top, each a `stack-top`.
- * - A washing machine's `door` is the round door hinged on its `-X` edge, carrying `doorHandle`; `dial` is the programme knob; `top` the worktop, a `stack-top`.
+ * - A fridge-freezer's `fridgeDoor` and `freezerDoor` hinge on its `+X` edge (the right as one faces it) and swing out 90 degrees, each carrying its handle (`fridgeHandle`, `freezerHandle`) at the free edge. The fridge is hollow, with its four glass shelves `shelf1` to `shelf4` from the bottom up, each a `stack-top`; the freezer below is one block.
+ * - A cooker's `top` is the hob, a `stack-top`, with its four zones `zone1` to `zone4`, each a `stack-top` a pan is set on, front left, front right, back left and back right as one faces it; its oven door, handle and knobs are drawn but are not contacts, since no source read places them.
+ * - A microwave's `door` hinges on its `-X` edge, stating no travel since the maker gives no opening angle; `floor` is the cavity's floor and `top` its top, each a `stack-top`.
+ * - A washing machine's `door` is the round door hinged on its `-X` edge, opening 90 degrees; `top` is the worktop, a `stack-top`.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -66,7 +66,7 @@ export function createAppliance(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is.
  * @evidence contracts/development/design.md#principled-representation Closed unions; template ids close the numbered shelves, zones and knobs over any count; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The doors an `operate` opens, the handles and knobs a hand meets and the faces a hand sets a thing on (#3468 F2).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The doors an `operate` opens, the handles a hand meets and the faces a hand sets a thing on (#3468 F2); a part no source places is drawn but is not a contact.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A door and the handle it carries are two affordances, the handle riding the hinge, as a wardrobe's are.
  */
 export namespace createAppliance {
@@ -85,9 +85,9 @@ export namespace createAppliance {
    * The affordance ids, by kind:
    *
    * - refrigerator: `fridgeDoor`, `freezerDoor` (hinges), `fridgeHandle`, `freezerHandle` (handles riding them), `shelf1` to `shelf4` (stack-tops);
-   * - cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops), `ovenDoor` (hinge), `ovenHandle` (handle riding it), `knob1` to `knob4` (knobs);
-   * - microwave: `door` (hinge), `open` (button), `floor`, `top` (stack-tops);
-   * - washingMachine: `door` (hinge), `doorHandle` (handle riding it), `dial` (knob), `top` (stack-top).
+   * - cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops);
+   * - microwave: `door` (hinge without travel), `floor`, `top` (stack-tops);
+   * - washingMachine: `door` (hinge), `top` (stack-top).
    */
   export type Affordance =
     | "fridgeDoor"
@@ -97,19 +97,14 @@ export namespace createAppliance {
     | `shelf${number}`
     | "top"
     | `zone${number}`
-    | "ovenDoor"
-    | "ovenHandle"
-    | `knob${number}`
     | "door"
-    | "doorHandle"
-    | "open"
-    | "floor"
-    | "dial";
+    | "floor";
 
   /**
    * The free dimensions, metres unless stated:
    *
    * - `height`, `width`, `depth`: the appliance along `+Y`, `+X` and `+Z`, a fridge's depth with its handles.
+   * - `pullHeight`: a fridge door's handle above the floor.
    * - `cavityHeight`, `cavityWidth`, `cavityDepth`: a microwave's cavity.
    * - `door`: a washing machine's door diameter.
    * - `mass`: kilograms.
@@ -118,6 +113,7 @@ export namespace createAppliance {
     | "height"
     | "width"
     | "depth"
+    | "pullHeight"
     | "cavityHeight"
     | "cavityWidth"
     | "cavityDepth"

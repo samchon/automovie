@@ -7,7 +7,7 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
 
 /** The basin read. */
 const KINGSTON: string =
-  "Kohler Kingston K-2005 wall-mount basin specification sheet: 21-1/4 x 18-1/8 in (540 x 460 mm), basin 16 x 10 in (406 x 254 mm) (https://techcomm.kohler.com/techcomm/pdf/K-2005_spec_US-CA_Kohler_en.pdf)";
+  "Kohler Kingston K-2005 wall-mount basin specification sheet: 21-1/4 x 18-1/8 in (540 x 460 mm), basin 16 x 10 in (406 x 254 mm), basin depth 10-1/8 in (257 mm) (https://techcomm.kohler.com/techcomm/pdf/K-2005_spec_US-CA_Kohler_en.pdf)";
 
 /** The toilet read. */
 const HIGHLINE: string =
@@ -53,6 +53,7 @@ export const SANITARY_BANDS: Readonly<
     depth: ArchetypeBand.metres(0.46, 0.46, KINGSTON),
     bowlWidth: ArchetypeBand.metres(0.406, 0.406, KINGSTON),
     bowlDepth: ArchetypeBand.metres(0.254, 0.254, KINGSTON),
+    basinDepth: ArchetypeBand.metres(0.257, 0.257, KINGSTON),
     ...TAP,
     mass: ArchetypeBand.of("kg", 12, 20, ArchetypeBand.TYPICAL_MASS, true),
   },

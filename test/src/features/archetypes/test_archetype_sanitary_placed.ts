@@ -17,7 +17,7 @@ const ADA: string = "2010 ADA Standards";
  *
  * Scenarios:
  * 1. A washbasin, a toilet, a bath and a transfer shower placed on a line through the public chain, each turned a different way: each rests at its placement on the floor within a millimetre, and every contact is a named point of the prop.
- * 2. Each kind declares exactly its contacts with their kinds: a basin's `rim` ledge, `bowl` surface, `tap` knob and `spout` socket; a toilet's `seat`, `lid` hinge and `flush` button; a bath's `rim` ledge and `bottom` surface; a shower's `tray` surface, `threshold` ledge, `entry` aperture, `seat` and `control` knob.
+ * 2. Each kind declares exactly its contacts with their kinds: a basin's `rim` ledge, `bowl` surface, `tap` knob and `spout` socket; a toilet's `seat` and `lid` hinge; a bath's `rim` ledge and `bottom` surface; a shower's `tray` surface, `threshold` ledge, `entry` aperture, `seat` and `control` knob.
  * 3. Over 200 seeds: the toilet's seat top 430 to 485 mm (ADA 604.4), as its contact and as its ring's collider; the basin's rim at most 865 mm (ADA 606.3) as its contact and its block's top; the shower seat 430 to 485 mm (ADA 610.3), its front edge 380 to 405 mm from the seat wall (ADA 610.3.1), the valve 965 to 1220 mm (ADA 608.5.1), the inside 915 mm between the side walls (ADA 608.2.1) and the threshold at most 13 mm (ADA 608.7); the bath 1524 mm long, its apron 356 mm high and its width 762 to 768 mm (Kohler K-837, American Standard Princeton); the toilet's bowl front 756 mm from the wall and its tank top 794 mm (Kohler K-3999).
  * 4. A toilet seat faces away from the wall and a shower seat faces away from its seat wall, toward the valve: their frames' `+Z` point along `+Z` and `-X`.
  *
@@ -44,7 +44,7 @@ export function test_archetype_sanitary_placed(): void {
     Record<createSanitary.Kind, Readonly<Record<string, string>>>
   > = {
     washbasin: { rim: "ledge", bowl: "surface", tap: "knob", spout: "socket" },
-    toilet: { seat: "seat", lid: "hinge", flush: "button" },
+    toilet: { seat: "seat", lid: "hinge" },
     bathtub: { rim: "ledge", bottom: "surface" },
     shower: {
       tray: "surface",

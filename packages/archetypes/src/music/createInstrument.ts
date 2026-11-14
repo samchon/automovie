@@ -10,11 +10,10 @@ import { MarchingConstruction } from "./MarchingConstruction";
 import { StringedConstruction } from "./StringedConstruction";
 
 /**
- * A musical instrument: an upright piano, a steel-string guitar, a violin, a violin bow, a side drum or a bugle, with the keys, frets and strings a hand plays numbered as contacts.
+ * A musical instrument: an upright piano, a steel-string guitar, a violin, a side drum or a bugle, with the keys, frets and strings a hand plays numbered as contacts.
  *
  * - An upright piano stands with its back at the origin's `Z` and its keyboard toward `+Z`, the bass at `-X`. `key1` to `key88` are its keys from the bottom A, each a `button` pressed down by its dip and moving its own key; `keybed` the keyboard's top, a surface; `lid` the fallboard's hinge, the fallboard standing open at rest and laid over the keys by its travel. A production seats a player on a `createSeat` bench.
- * - A guitar and a violin lie on their backs with the neck toward `+X`, the body's neck end at the origin's `X`. `string1` to `string6` (four on a violin) run from the nut to the saddle or bridge, `string1` the highest on the `-Z` edge; a guitar's `fret1` to `fret20` are the places a fingertip stops the strings behind each fret, each a bar across the fingerboard whose sites run across the strings; `neck` is the neck the fretting hand grips; a guitar's `body` is where the strumming hand meets the strings, a violin's `chinrest` where the jaw rests.
- * - A violin bow lies with its frog at the origin and its tip toward `+X`: `frog` the hold and `hair` the face drawn across a string.
+ * - A guitar and a violin lie on their backs with the neck toward `+X`, the body's neck end at the origin's `X`. `string1` to `string6` (four on a violin) run from the nut to the saddle or bridge, `string1` the highest on the `-Z` edge; a guitar's `fret1` to `fret20` are the places a fingertip stops the strings behind each fret, each a bar across the fingerboard whose sites run across the strings; `neck` is the neck the fretting hand grips; a guitar's `body` is where the strumming hand meets the strings. A violin's chinrest and its bow are not built: no source read places the one or sizes the other's hold.
  * - A side drum stands on its bottom head: `head` the batter head the sticks strike, `sling` the hook a sling or a carrier holds it by.
  * - A bugle lies on its side, its bell toward `+X`: `grip` where a hand holds it, `mouthpiece` the socket the lips meet.
  *
@@ -81,7 +80,6 @@ export namespace createInstrument {
     | "uprightPiano"
     | "guitar"
     | "violin"
-    | "violinBow"
     | "sideDrum"
     | "bugle";
 
@@ -90,7 +88,6 @@ export namespace createInstrument {
     "uprightPiano",
     "guitar",
     "violin",
-    "violinBow",
     "sideDrum",
     "bugle",
   ];
@@ -100,8 +97,7 @@ export namespace createInstrument {
    *
    * - uprightPiano: `key1` to `key88` (buttons), `keybed` (surface), `lid` (hinge);
    * - guitar: `fret1` to `fret20` and `string1` to `string6` (bars), `neck` (bar), `body` (surface);
-   * - violin: `string1` to `string4` (bars), `neck` (bar), `chinrest` (surface);
-   * - violinBow: `frog` (handle), `hair` (bar);
+   * - violin: `string1` to `string4` (bars), `neck` (bar);
    * - sideDrum: `head` (surface), `sling` (hook);
    * - bugle: `grip` (handle), `mouthpiece` (socket).
    */
@@ -113,9 +109,6 @@ export namespace createInstrument {
     | `string${number}`
     | "neck"
     | "body"
-    | "chinrest"
-    | "frog"
-    | "hair"
     | "head"
     | "sling"
     | "grip"
@@ -125,11 +118,11 @@ export namespace createInstrument {
    * The free dimensions, metres unless stated:
    *
    * - `height`, `width`, `depth`: a piano's case; a drum's shell `depth`.
-   * - `keyHeight`, `octave`, `keyLength`, `blackLength`: a piano's key tops above the floor, one octave's span, a white and a black key's length.
+   * - `keyHeight`, `octave`, `keyLength`, `blackLength`: a piano's key tops above the floor, one octave's span, a white and a black key's length; `dip`: a key's travel; `blackRise`: a black key's top above the white keys'.
    * - `scale`: the strings' sounding length from the nut; `nut`: a guitar's nut width; `saddle`: its outer strings' span at the saddle.
    * - `bodyLength`, `bodyWidth`, `bodyDepth`: a guitar's body; a violin's back length.
-   * - `neck`: a violin's neck from the body to the nut; `upperBout`, `waist`, `lowerBout`: its widths.
-   * - `length`: a bow's or a bugle's; `diameter`: a drum's; `bell`: a bugle's bell.
+   * - `neck`: a violin's neck from the body to the nut; `upperBout`, `waist`, `lowerBout`: its widths; `rib`: its rib height; `neckThickness`, `fingerboard`: its neck's thickness and its fingerboard's width; `nutSpacing`, `bridgeSpacing`, `bridgeHeight`: its outer strings' span at the nut and the bridge and the bridge's height.
+   * - `length`: a bugle's; `diameter`: a drum's; `bell`: a bugle's bell.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -140,6 +133,8 @@ export namespace createInstrument {
     | "octave"
     | "keyLength"
     | "blackLength"
+    | "dip"
+    | "blackRise"
     | "scale"
     | "nut"
     | "saddle"
@@ -150,6 +145,12 @@ export namespace createInstrument {
     | "upperBout"
     | "waist"
     | "lowerBout"
+    | "rib"
+    | "neckThickness"
+    | "fingerboard"
+    | "nutSpacing"
+    | "bridgeSpacing"
+    | "bridgeHeight"
     | "length"
     | "diameter"
     | "bell"
@@ -175,7 +176,6 @@ const NAMES: Readonly<Record<createInstrument.Kind, string>> = {
   uprightPiano: "upright piano",
   guitar: "guitar",
   violin: "violin",
-  violinBow: "violin bow",
   sideDrum: "side drum",
   bugle: "bugle",
 };

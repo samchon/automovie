@@ -63,7 +63,6 @@ export function test_archetype_contract_direction(): void {
     "tool-spoon": { face: normal },
     "tool-screwdriver": { face: along },
     "tool-fork": { face: along },
-    "instrument-violinBow": { hair: normal },
     "microphone-handheld": { head: along },
     "longTool-fishingRod": { tip: along },
     "tool-ladle": { face: normal },
