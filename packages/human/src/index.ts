@@ -8,3 +8,5 @@ export * from "./generation/conic/AutoMovieHumanConicSection";
 export * from "./generation/f1/AutoMovieHumanF1";
 export * from "./generation/f1/AutoMovieHumanF1Joints";
 export * from "./generation/f1/AutoMovieHumanF1Landmarks";
+export * from "./generation/f1/AutoMovieHumanF1Frames";
+export * from "./generation/frame/AutoMovieHumanSegmentFrame";

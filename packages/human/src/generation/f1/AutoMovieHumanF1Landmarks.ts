@@ -82,6 +82,13 @@ export namespace AutoMovieHumanF1Landmarks {
   export const subnasale: V3 = [120.58, 1538, 0];
 
   /**
+   * The base of the third metacarpal, Wu et al. 2005 4.3.4's proximal landmark of the hand's frame: the reference rig's bind joint
+   * `middle_metacarpal_r`, read like the joint table (`FamilyConicSource.load`, native centimetres to the figure's frame), rounded to
+   * 0.01 mm. The metacarpal's head is the joint table's `middle1`.
+   */
+  export const metacarpalBase: V3 = [161.12, 976.78, 438.87];
+
+  /**
    * Tragion, read at the tragus's crest: on the head's level section through the concha's deepest point (1,563 mm,
    * `AutoMovieHumanF1Joints.conchaRoot`), the outline point farthest out (+Z) from 0 to 20 mm in front of that point. Farkas's tragion is
    * the notch at the tragus's upper margin, a few millimetres above this crest; the head frame reads it only for its origin, the
