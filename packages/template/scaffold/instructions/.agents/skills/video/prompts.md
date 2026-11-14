@@ -6,11 +6,11 @@ Follow the selected model's own prompting guide, linked in [diffusion models](di
 
 ## Sources
 
-A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt. A missing reaction returns the screenplay to its author, and any other missing detail is a [concretization](../story/correction/repair.md#concretization).
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt. A missing reaction, or a facial expression a reaction needs, returns the screenplay to its author, and any other missing detail is a [concretization](../story/correction/repair.md#concretization).
 
 ### Shared description
 
-Write each person, place and recurring prop once, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and recurring prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from its [project context](../production/project-context.md) entry. Keep them in one file under `docs/prompts/`, laid out by [media records](../production/media-records.md#files), that every request cites, and reuse the identical words in every request that shows them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
 
 ### Request paragraph
 
@@ -52,7 +52,7 @@ When the model accepts one, give appearance there: an image made from the hint's
 
 ### Still frames only
 
-A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"), because a chain of several in one request is followed less reliably; use the model's own timestamp or multi-shot syntax when it has one, and otherwise [boundaries](requests.md#boundaries) end the request after each action.
+A model that takes only still frames receives no motion from the hint, so the prose also carries the framing and the action. Give each request one camera move and one beat, its actions written as countable steps ("takes three steps and stops at the rail"), because a chain of several in one request is followed less reliably; use the model's own timestamp or multi-shot syntax when it has one, and otherwise [boundaries](requests.md#boundaries) end the request after each beat.
 
 ## Sound
 

@@ -28,7 +28,7 @@ Staging:
     - weather;
     - mood through visible and audible conditions.
 14. At each block, participants and movement are located, and the view has its subject, scale, angle, movement and point of focus. Exception: a declared fixed view supplies that rule once.
-15. These are decided where they carry the action, identity, reaction or meaning, within what the adopted representation can show and, for a commissioned generated film, the facial expressions the generation prompt carries:
+15. These are decided where they carry the action, identity, reaction or meaning, within what the adopted representation can show and, for a commissioned generated film, what the generation prompt carries:
     - performance, expression and gaze;
     - appearance, clothing and possessions;
     - nonverbal sound.

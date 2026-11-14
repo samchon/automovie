@@ -4,9 +4,9 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Boundaries
 
-End a request where the model's length limit or fixed lengths, a screenplay cut, the end of each subject action for a model that takes only still frames, or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
+End a request where the model's length limit or fixed lengths, a screenplay cut, the end of each beat for a model that takes only still frames, or a rule below requires it, and place the boundary at a beat boundary or a held pose, because a boundary inside a contact, a combination or a spoken line shows the seam in the action. A request spans a cut only when the model takes several shots in one request. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
-Begin each request where every key subject it shows is already in frame, because a subject the model first meets after the opening frame drifts from its references; when one must enter later, give it a [keyframe](../image/SKILL.md#shot-frames) where the model takes one; otherwise keep the shot whole and name the entering subject in the prompt.
+Begin each request where every key subject it shows is already in frame, because a subject the model first meets after the opening frame drifts from its references; when one must enter later, give it a [keyframe](../image/SKILL.md#shot-frames) where the model takes one; otherwise name the entering subject in the prompt.
 
 Every boundary inside one continuous shot is a join of two generations, where identity and light can jump, so keep a continuous shot in one request unless its length or the model forces a boundary.
 
