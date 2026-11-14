@@ -10,7 +10,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "gym-floor",
       title: "Gym floor",
       summary:
-        "Six people train side by side: a back squat in the rack, a deadlift, a kettlebell swing, pull-ups, dips and a farmer's walk.",
+        "Six people train side by side: a back squat, a deadlift and a kettlebell swing with the weights mimed, pull-ups on the bar, dips on the parallel bars, and a farmer's walk with the arms hanging still.",
       setting: "gym",
       roles: {
         ada: "squat",
@@ -29,16 +29,23 @@ export const SCENES_GYM: readonly IScene[] = [
       person("ada", "m2", -3, 0, 0, [act("backSquat", { reps: 3 })]),
       person("bo", "f1", -1.8, 0, 0, [act("deadlift", { reps: 3 })]),
       person("cy", "m1", -0.6, 0, 0, [act("kettlebellSwing", { reps: 5 })]),
-      person("di", "f2", 0.6, 0, 0, [act("pullUp", { reps: 3 })]),
-      person("ed", "m1", 1.8, 0, 0, [act("dip", { reps: 4 })]),
+      person("di", "f2", 0.6, 0, 0, [
+        act("pullUp", {
+          reps: 3,
+          on: { prop: "pullBar", affordance: "bar" },
+        }),
+      ]),
+      person("ed", "m1", 1.8, 0, 0, [
+        act("dip", {
+          reps: 4,
+          on: { prop: "dips", affordance: "barLeft", other: "barRight" },
+        }),
+      ]),
       person("fe", "m2", 3, -1, 0, [
         act("farmersWalk", { to: SceneBuild.to(3, 2) }),
       ]),
     ],
     [
-      object("rack", "createRack", "squat", -3, 0.2),
-      object("bar", "createBarbell", "mens", -1.8, 0.35),
-      object("bell", "createKettlebell", "competition", -0.6, 0.4),
       object("pullBar", "createPullUpBar", "gym", 0.6, 0),
       object("dips", "createParallelBars", "dipStation", 1.8, 0),
     ],
@@ -93,7 +100,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "core-class",
       title: "Core class",
       summary:
-        "Four people on the mat: crunches, a dead bug, a bird dog, Russian twists, a side plank and a glute bridge.",
+        "Four people on the mat: crunches and a dead bug, a bird dog and a superman, Russian twists and a side plank, a glute bridge and mountain climbers.",
       setting: "gym",
       roles: { gi: "member", ha: "member", io: "member", ju: "member" },
       needs: [],
@@ -149,7 +156,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "boxing-class",
       title: "Boxing class",
       summary:
-        "A coach and three members drill jabs, crosses, hooks, uppercuts and kicks, sway and finish with jumping jacks.",
+        "A coach and three members drill against each other: the coach throws a jab and a cross, comes back to guard and front-kicks; the members throw a jab, a cross, a lead hook, an uppercut and a round kick, and finish with jumping jacks.",
       setting: "gym",
       roles: { coa: "coach", m1: "member", m2: "member", m3: "member" },
       needs: [],
@@ -161,7 +168,7 @@ export const SCENES_GYM: readonly IScene[] = [
       person("coa", "m2", 0, 2.4, 180, [
         act("jab", { at: at("m2", "face") }),
         act("cross", { at: at("m2", "face") }),
-        act("sway"),
+        act("guard"),
         act("frontKick", { at: at("m2", "abdomen") }),
       ]),
       ...[-1.2, 0, 1.2].map(
@@ -169,7 +176,7 @@ export const SCENES_GYM: readonly IScene[] = [
           person(`m${i + 1}`, ["f1", "m1", "f2"][i]!, x, 0, 0, [
             act("jab", { at: at("coa", "face") }),
             act("cross", { at: at("coa", "face") }),
-            act("hook", { at: at("coa", "jawLeft") }),
+            act("hook", { at: at("coa", "jawRight") }),
             act("uppercut", { at: at("coa", "chin") }),
             act("roundKick", { at: at("coa", "ribsLeft") }),
             act("jumpingJacks", { reps: 3 }),
