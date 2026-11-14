@@ -223,6 +223,12 @@ export namespace LexiconRowNet {
     // `test_archetype_sport_strike` stage.
     "kickRight",
     "kickLeft",
+    // A hanging exercise needs its bar, which `test_archetype_pull_up_bar_hang` stages.
+    "deadHang",
+    "pullUp",
+    "chinUp",
+    "kneeRaise",
+    "barSwing",
   ];
 
   /** The two builds, each performing with the other as its partner. */

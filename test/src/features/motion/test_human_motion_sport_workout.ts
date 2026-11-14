@@ -1,4 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { createPullUpBar } from "@automovie/archetypes";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -6,6 +11,7 @@ import type {
 import {
   HUMAN_LEXICON,
   HumanChain,
+  HumanObject,
   HumanPerformance,
   HumanRefusal,
   type HumanSegment,
@@ -51,7 +57,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    side of the hips.
  * 5. Deadlift: at `bottom1` the ankles are within 5 mm of where they stood
  *    and the wrists are below the knees.
- * 6. Pull-up: between `hang1` and `top1` the wrists' middle stays within
+ * 6. Pull-up, on a pull-up bar (`createPullUpBar`) 0.3 m ahead: between
+ *    `hang1` and `top1` the fists' middle (the grip sockets) stays within
  *    5 mm, the feet are off the floor at `hang1`, and at `top1` the head's
  *    joint is no lower than 2 % of the stature under the wrists.
  * 7. Turn: at `half1` the hips face the way opposite to the entry's, and
@@ -67,7 +74,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public input on real bodies and reads displayed bones at named events; each failure names the row, the body and the measured millimetres.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the cited descriptions and the campaign's bounds; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases One row per support family (hands and toes, back and feet, side, straddle, flat feet under a hinge, a bar, a pivot) and the salto, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one film each, without props; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and one film each, a gym's pull-up bar its only prop; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the sources, why two bodies and single repetitions suffice, and the 9 scenarios.
  */
 export function test_human_motion_sport_workout(): void {
@@ -77,7 +84,7 @@ export function test_human_motion_sport_workout(): void {
     ["sidePlank", { hold: 1 }],
     ["triangle", { hold: 1 }],
     ["deadlift", { reps: 1 }],
-    ["pullUp", { reps: 1 }],
+    ["pullUp", { reps: 1, on: { prop: "bar", affordance: "bar" } }],
     ["spin", {}],
     ["frontSalto", { to: { x: 0, y: 0, z: 0.8 } }],
   ];
@@ -93,6 +100,12 @@ export function test_human_motion_sport_workout(): void {
       film = new HumanPerformance({
         seed: "workout",
         laws: Object.values(HUMAN_LEXICON).flat(),
+        props: [
+          HumanObject.prop("bar", createPullUpBar({ kind: "gym" }), {
+            at: { x: 0, y: 0, z: 0.3 },
+            yaw: 0,
+          }),
+        ],
         performers: [
           {
             subject: "a",
@@ -273,10 +286,33 @@ export function test_human_motion_sport_workout(): void {
     // 6. Pull-up.
     const hang: number = when("pullUp", "hang1");
     const chin: number = when("pullUp", "top1");
+    // The fists' middle: the hands' grip sockets, closed on the bar.
+    const fists = (seconds: number): IAutoMovieVector3 => {
+      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+        "a",
+        seconds,
+      );
+      return Vector3.scale(
+        [body.surfaces.sockets.gripLeft, body.surfaces.sockets.gripRight]
+          .map(
+            (
+              socket: IHumanBody["surfaces"]["sockets"]["gripLeft"],
+            ): IAutoMovieVector3 =>
+              resolveAutoMovieHumanoidSurfaces.place(
+                socket,
+                bones.get(socket.bone)!,
+              ).point,
+          )
+          .reduce(Vector3.add),
+        0.5,
+      );
+    };
+    const held: number =
+      1000 * Vector3.length(Vector3.subtract(fists(chin), fists(hang)));
     expect(
-      "the pull-up keeps the hands' middle within 5 mm",
-      moved(hang, chin, "leftHand", "rightHand") <= 5,
-      mm(moved(hang, chin, "leftHand", "rightHand")),
+      "the pull-up keeps the fists' middle within 5 mm",
+      held <= 5,
+      mm(held),
     );
     const clear: number =
       joint(hang, "leftFoot", "rightFoot").y -

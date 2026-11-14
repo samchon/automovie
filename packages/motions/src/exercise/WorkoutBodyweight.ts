@@ -260,7 +260,7 @@ export namespace WorkoutBodyweight {
     dip: {
       base: "hanging",
       anchor: "bar",
-      pin: ["leftHand", "rightHand"],
+      pin: ["gripLeft", "gripRight"],
       supports: [
         { part: "leftHand", kind: "grip" },
         { part: "rightHand", kind: "grip" },

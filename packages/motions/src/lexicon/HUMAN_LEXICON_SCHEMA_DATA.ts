@@ -13455,10 +13455,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "Seconds a held pose is stayed in; the kind's own when absent.",
             "x-unit": "s"
           },
-          "bar": {
-            "$ref": "#/components/schemas/IAutoMovieVector3",
-            "description": "The middle of the bar between the hands, world metres, for a hanging kind; `WorkoutPlace.BAR` above the standing reach when absent."
-          },
           "on": {
             "type": "object",
             "properties": {
@@ -13477,7 +13473,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               "affordance"
             ],
             "additionalProperties": false,
-            "description": "The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent."
+            "description": "The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent."
           },
           "stay": {
             "type": "boolean",
