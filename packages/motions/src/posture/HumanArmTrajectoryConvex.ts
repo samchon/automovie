@@ -253,7 +253,7 @@ export namespace HumanArmTrajectoryConvex {
         }
         // One row per segment and shape, its deepest probe's (TrajOpt's
         // per-link pair, its distance at the closest points).
-        for (const pair of P.deepest(c, a, k, placedK).values()) {
+        for (const pair of (at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK)).values()) {
           if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
           const g: IAutoMovieVector3 = G.normal(c.frames[a]![k]!, pair.shape, placedK.probes[pair.probe]![0]);
           const v: ILinear = along(a, k, jac[a]![k]!.probes[pair.probe]!, g);
@@ -263,7 +263,7 @@ export namespace HumanArmTrajectoryConvex {
         // The body's corners in the arm's own colliders: only the arm moves,
         // so the corner's distance falls by the shape's motion along its
         // outward normal there.
-        for (const pair of P.embedded(c, a, k, placedK).values()) {
+        for (const pair of (at.pairs[a]?.[k]?.embedded ?? P.embedded(c, a, k, placedK)).values()) {
           if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
           const p: IAutoMovieVector3 = c.frames[a]![k]!.body[pair.corner]!.point;
           const g: IAutoMovieVector3 = physicalShapeNormal(pair.shape.pose, pair.shape.shape, p, Vector3.normalize(Vector3.subtract(p, pair.shape.centre)));

@@ -31,9 +31,19 @@ export namespace HumanArmFrame {
    * @param setup The arm.
    * @param base The pose and another body's colliders, the arms of the problem left out of what they hold.
    * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
-   * @returns The frame.
+   * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
    */
   export function of(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
+    let kept: Map<string, G.IFrame> | undefined = FRAMES.get(base);
+    if (kept === undefined) FRAMES.set(base, (kept = new Map()));
+    const key: string = `${setup.bones.upper}|${alone}`;
+    let frame: G.IFrame | undefined = kept.get(key);
+    if (frame === undefined) kept.set(key, (frame = built(setup, base, alone)));
+    return frame;
+  }
+
+  /** The frame of a base, built. */
+  function built(setup: G.ISetup, base: G.IBase, alone: boolean): G.IFrame {
     const body: IHumanBody = setup.body;
     const bones: G.ISetup["bones"] = setup.bones;
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, base.pose);
@@ -168,3 +178,6 @@ function sphere(points: readonly IAutoMovieVector3[]): { centre: IAutoMovieVecto
   for (const p of points) radius = Math.max(radius, Vector3.length(Vector3.subtract(p, centre)));
   return { centre, radius };
 }
+
+/** The frames built, by base and then by arm and solve, kept while the base is held. */
+const FRAMES: WeakMap<G.IBase, Map<string, G.IFrame>> = new WeakMap();

@@ -133,6 +133,8 @@ export namespace HumanArmTrajectoryModel {
     violation: number;
     /** The worst violation past its slack, what it is, the refusal's axis and the waypoint it is read at (an interval's first, for a step or a sweep). */
     worst: { value: number; what: string; axis: string; at: number };
+    /** Each arm's deepest probe pairs (`HumanArmTrajectoryPairs.deepest`) and the body's corners in it (`embedded`) at each inner waypoint, as the reading found them, which the convex model reads again at the same iterate. */
+    pairs: { deepest: Map<string, P.IPair>; embedded: Map<string, P.IEmbedded> }[][];
   }
 
   /**
@@ -222,6 +224,7 @@ export namespace HumanArmTrajectoryModel {
     // the allowance keeps below it aside (`HumanArmTrajectoryTerms.SKIN`).
     // The waypoint the loop below reads, where a violation noted is placed.
     let here: number = 0;
+    const pairs: IEvaluation["pairs"] = x.map((): IEvaluation["pairs"][number] => []);
     const note = (v: number, axis: string, what: () => string, slack: number = 0): void => {
       if (v <= 0) return;
       violation += v;
@@ -290,12 +293,15 @@ export namespace HumanArmTrajectoryModel {
             objective += T.ROTATION * turned * turned;
           }
         }
-        for (const pair of P.deepest(c, a, k, placed[a]![k]!).values()) {
+        const deepest: Map<string, P.IPair> = P.deepest(c, a, k, placed[a]![k]!);
+        const embedded: Map<string, P.IEmbedded> = P.embedded(c, a, k, placed[a]![k]!);
+        pairs[a]![k] = { deepest, embedded };
+        for (const pair of deepest.values()) {
           note(pair.short, "region", () => `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           // A declared rest is drawn to where its segments meet.
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }
-        for (const pair of P.embedded(c, a, k, placed[a]![k]!).values()) {
+        for (const pair of embedded.values()) {
           note(pair.short, "region", () => `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }
@@ -308,7 +314,7 @@ export namespace HumanArmTrajectoryModel {
           note(pair.short, "region", () => `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }
-    return { placed, objective, violation, worst };
+    return { placed, objective, violation, worst, pairs };
   }
 
   /**

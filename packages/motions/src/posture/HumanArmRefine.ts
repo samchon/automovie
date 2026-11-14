@@ -154,13 +154,14 @@ function certified(c: M.IContext, fine: M.IContext, x: readonly (readonly (reado
   const setup: G.ISetup = c.setups[a]!;
   const inside: G.IPlaced[] = inner.map((g: number): G.IPlaced => G.placed(setup, fine.frames[a]![g]!, HumanArmRefine.hermite(c.times, x[a]!, fine.times[g]!)));
   const ends: G.IPlaced[] = [k, k + 1].map((j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!));
+  const screens: G.IScreen[] = [k, k + 1].map((j: number, e: number): G.IScreen => G.screen(c.frames[a]![j]!, ends[e]!, T.REACH));
   const clear = (end: 0 | 1, probe: number): boolean => {
     const j: number = k + end;
     const frame: G.IFrame = c.frames[a]![j]!;
     const placed: G.IPlaced = ends[end]!;
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     const part: number = frame.segments[probe - G.SURFACE]!;
-    const near: number[] = G.nearby(frame, placed, probe, T.REACH).filter((shape: number): boolean => {
+    const near: number[] = G.nearby(frame, placed, probe, T.REACH, screens[end]).filter((shape: number): boolean => {
       const other: number = frame.shapes[shape]!.part;
       return !(part >= 0 && other >= 0 && frame.related[part]![other]!);
     });

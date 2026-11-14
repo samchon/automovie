@@ -152,7 +152,7 @@ export namespace HumanArmTrajectory {
   function mirrored(problem: IProblem): IProblem {
     return {
       ...problem,
-      bases: problem.bases.map(HumanArmMirror.mirrored),
+      bases: problem.bases.map(mirroredBase),
       arms: problem.arms.map(
         (arm: IArm): IArm => ({
           ...arm,
@@ -165,6 +165,13 @@ export namespace HumanArmTrajectory {
       ),
     };
   }
+  /** A base's mirror image (`HumanArmMirror.mirrored`), one record per base, so the frames built on it are built once. */
+  function mirroredBase(base: G.IBase): G.IBase {
+    let found: G.IBase | undefined = MIRRORED.get(base);
+    if (found === undefined) MIRRORED.set(base, (found = HumanArmMirror.mirrored(base)));
+    return found;
+  }
+
   /** A site's mirror image across the world's x = 0 plane. */
   function mirroredSite(site: ISite): ISite {
     return {
@@ -191,3 +198,6 @@ export namespace HumanArmTrajectory {
 
 /** The frame grid, seconds: the instants between waypoints are read at. */
 const STEP: number = 1 / 30;
+
+/** Each base's mirror image, kept while the base is held. */
+const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();

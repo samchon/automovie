@@ -123,10 +123,11 @@ export namespace HumanArmTrajectoryPairs {
   export function deepest(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<string, IPair> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<string, IPair> = new Map();
+    const screened: G.IScreen = G.screen(frame, placed, T.REACH);
     placed.probes.forEach(([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
       if (probe < G.SURFACE) return;
       const part: number = frame.segments[probe - G.SURFACE]!;
-      for (const shape of G.nearby(frame, placed, probe, T.REACH)) {
+      for (const shape of G.nearby(frame, placed, probe, T.REACH, screened)) {
         const other: number = frame.shapes[shape]!.part;
         if (part >= 0 && other >= 0 && frame.related[part]![other]!) continue;
         const short: number = 1000 * (c.allowed(a, k, probe, shape) - (G.gap(frame, shape, p, p) - r));

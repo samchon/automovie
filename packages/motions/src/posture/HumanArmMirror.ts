@@ -70,9 +70,23 @@ export namespace HumanArmMirror {
           position: flip(shape.transform.position),
           rotation: turn(shape.transform.rotation),
         },
-        ...(shape.kind === "hull" ? { points: shape.points.map(flip) } : {}),
+        ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
       })) as HumanColliders.IPlaced["shapes"],
     };
+  }
+
+  /**
+   * A hull's points mirrored, one array per source array, so the hull's faces,
+   * which are remembered per array (`physicalHullFaces`), are found once
+   * for its mirror image too.
+   *
+   * @param points The points.
+   * @returns Their mirror images.
+   */
+  export function flipped(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+    let found: IAutoMovieVector3[] | undefined = FLIPPED.get(points);
+    if (found === undefined) FLIPPED.set(points, (found = points.map(flip)));
+    return found;
   }
 
   /**
@@ -109,3 +123,6 @@ export namespace HumanArmMirror {
         : bone;
   }
 }
+
+/** Each hull's mirrored points, kept while the source array is held. */
+const FLIPPED: WeakMap<readonly IAutoMovieVector3[], IAutoMovieVector3[]> = new WeakMap();

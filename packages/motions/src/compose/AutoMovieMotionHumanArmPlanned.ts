@@ -250,7 +250,24 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const holding = (t: number): boolean => t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
+    // Each instant's base, one record however often the refinement reads it,
+    // so the frames built on it are built once (`HumanArmFrame.of`).
+    const bases: Map<number, HumanArmTrajectory.IProblem["bases"][number]> = new Map();
+    const base = (t: number): HumanArmTrajectory.IProblem["bases"][number] => {
+      let found: HumanArmTrajectory.IProblem["bases"][number] | undefined = bases.get(t);
+      if (found === undefined) {
+        const { posture, pose } = at(t);
+        found = {
+          pose,
+          others: carries.flatMap((c: IPlanned): HumanColliders.IPlaced[] => {
+            const goal: IHumanPosture.IGoal = aim(c, posture, t);
+            return [...(goal.clear ?? []), ...(goal.rests ?? [])];
+          }),
+        };
+        bases.set(t, found);
+      }
+      return found;
+    };    const holding = (t: number): boolean => t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
     const ready: IHumanPosture = at(span.ready).posture;
     const guesses: AutoMovieMotionHumanArmAngles.IAngles[] = carries.map(
       (c: IPlanned): AutoMovieMotionHumanArmAngles.IAngles =>
@@ -279,16 +296,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
           guess: guesses[a]!,
         };
       }),
-      bases: waypoints.map((t: number): HumanArmTrajectory.IProblem["bases"][number] => {
-        const { posture, pose } = at(t);
-        return {
-          pose,
-          others: carries.flatMap((c: IPlanned): HumanColliders.IPlaced[] => {
-            const goal: IHumanPosture.IGoal = aim(c, posture, t);
-            return [...(goal.clear ?? []), ...(goal.rests ?? [])];
-          }),
-        };
-      }),
+      bases: waypoints.map((t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t)),
     });
     const solved: HumanArmTrajectory.Trajectory[] = HumanArmTrajectory.solve(problem, times);
     return new Map(carries.map((c: IPlanned, a: number): [HumanHand.Side, HumanArmTrajectory.Trajectory] => [c.side, solved[a]!]));

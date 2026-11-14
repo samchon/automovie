@@ -373,18 +373,39 @@ export namespace HumanArmGeometry {
    * @param placed The arm placed.
    * @param probe The probe.
    * @param reach The reach, metres.
+   * @param screened The placement's screen (`screen`), when it is read for many probes; taken here when absent.
    * @returns The shapes' indices.
    */
-  export function nearby(at: IFrame, placed: IPlaced, probe: number, reach: number): number[] {
+  export function nearby(at: IFrame, placed: IPlaced, probe: number, reach: number, screened?: IScreen): number[] {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     if (probe < SURFACE) return near(at, p, r + reach);
     const owner: "upper" | "lower" | "hand" = at.owners[probe - SURFACE]!;
-    const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
-      owner === "upper" ? [placed.shoulder, placed.upper] : owner === "lower" ? [placed.elbow, placed.lower] : [placed.wrist, placed.hand];
-    const centre: IAutoMovieVector3 = Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre));
-    return near(at, centre, at.bounds[owner].radius + reach).filter(
+    return (screened ?? screen(at, placed, reach))[owner].filter(
       (i: number): boolean => Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) - at.shapes[i]!.radius < r + reach,
     );
+  }
+
+  /** The shapes each of a placed arm's segments may come within a reach of, by their bounding spheres. */
+  export type IScreen = Record<"upper" | "lower" | "hand", number[]>;
+
+  /**
+   * The shapes each of a placed arm's segments may come within a reach of:
+   * the screen `nearby` reads a surface probe's shapes from, taken once for
+   * every probe of the same placement.
+   *
+   * @param at The frame.
+   * @param placed The arm placed.
+   * @param reach The reach, metres.
+   * @returns The shapes' indices by segment.
+   */
+  export function screen(at: IFrame, placed: IPlaced, reach: number): IScreen {
+    const of = (owner: "upper" | "lower" | "hand", o: IAutoMovieVector3, w: IAutoMovieQuaternion): number[] =>
+      near(at, Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)), at.bounds[owner].radius + reach);
+    return {
+      upper: of("upper", placed.shoulder, placed.upper),
+      lower: of("lower", placed.elbow, placed.lower),
+      hand: of("hand", placed.wrist, placed.hand),
+    };
   }
 
   /**
