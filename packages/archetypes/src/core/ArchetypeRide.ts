@@ -1,8 +1,17 @@
-import type { IAutoMovieTransform } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  integrateMotionTrajectory,
+} from "@automovie/engine";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
 /**
  * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
@@ -134,6 +143,108 @@ export namespace ArchetypeRide {
         (p: { seconds: number }, q: { seconds: number }): number =>
           p.seconds - q.seconds,
       ),
+      at,
+      frame: (id: Id, seconds: number): IAutoMovieTransform => {
+        const sample: ISample<Id, Dimension> = at(seconds);
+        return ArchetypeFrame.compose(
+          sample.placement,
+          sample.archetype.affordance(id).frame,
+        );
+      },
+    };
+  }
+
+  /**
+   * A trailer towed by a leader: the trailer's coupling held on the leader's hitch at every second, and its axle following as a single-axle trailer does, its heading lagging into the turns.
+   *
+   * The trailer is drawn by any ride, a car's, a horse's or a cart's along a course. Its axle line, the trailer's own `X` axis through `axle`, never slides sideways, so its heading turns toward the hitch at the hitch's sideways speed over the coupling's distance ahead of the axle; the heading is integrated from the leader's start, the trailer then aligned behind the hitch, by the engine's integrator (`integrateMotionTrajectory`), so the trailer's path depends only on the leader's and its own start. A four-wheeled wagon's front axle turning on its pole is the same model with the pole's pivot as the axle. The ride publishes the leader's plan and instants, and at each second the leader's course state with the trailer's placement.
+   *
+   * @param leader The leader's ride.
+   * @param hitch The leader's contact the trailer is hitched to.
+   * @param trailer The trailer at rest.
+   * @param coupling The trailer's contact that is held on the hitch, ahead of its axle along `+Z`.
+   * @param options `axle`, the point of the trailer's axle line under its root, `+Z` forward, metres, the origin when absent; `pose`, what moves on the trailer at a course state, such as its wheels' spin, the trailer as given when absent.
+   * @returns The trailer's ride.
+   * @throws {ArchetypeRefusal} When the coupling does not lie ahead of the axle, or either id is no contact of its archetype.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is held, the trailer model, the integration, determinism and what is published.
+   * @evidence contracts/development/implementation.md#principled-implementation The kinematic single-axle trailer: with the coupling a distance L ahead of the axle and the axle's velocity along the trailer's heading, the heading's rate is the hitch velocity's component along the trailer's left over L. The hitch's velocity is the central difference of the leader's hitch frame over a millisecond, the leader's state being closed form; the heading is integrated by RK4 at the integrator's default step and read by Hermite interpolation, so playback and seeking read one motion.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the coupling, integrate the heading over the leader's running time, then one sampler placing the axle behind the hitch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trailer stands at the hitch's height less the coupling's, so a grade is followed only through the hitch; a tyre's sideways slip is left out, which holds at the walking-to-trotting speeds of drawn vehicles.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per sixtieth of a second, each two reads of the leader, once per ride; a sample is one Hermite read and one leader read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated heading serves every sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the leader, the trailer and the heading's knots for as long as its caller keeps it.
+   */
+  export function towed<
+    LeaderId extends string,
+    LeaderDimension extends string,
+    Id extends string,
+    Dimension extends string,
+  >(
+    leader: IRide<LeaderId, LeaderDimension>,
+    hitch: LeaderId,
+    trailer: Archetype<Id, Dimension>,
+    coupling: Id,
+    options: {
+      axle?: IAutoMovieVector3;
+      pose?: (state: ArchetypeCourse.IState) => Archetype<Id, Dimension>;
+    } = {},
+  ): IRide<Id, Dimension> {
+    const axle: IAutoMovieVector3 = options.axle ?? { x: 0, y: 0, z: 0 };
+    const local: IAutoMovieVector3 = trailer.affordance(coupling).frame.translation;
+    const reach: number = local.z - axle.z;
+    if (!(reach > 0))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: trailer.archetype,
+        axis: "coupling",
+        value: reach,
+        feasible: { kind: "range", minimum: 0, maximum: null, unit: "m" },
+        reason: `the coupling lies ${-reach} m behind the axle, so the trailer would push rather than trail`,
+        fix: "hitch the trailer by a contact ahead of its axle",
+      });
+    const hitchAt = (seconds: number): IAutoMovieVector3 =>
+      leader.frame(hitch, seconds).translation;
+    const end: number = Math.max(leader.duration, 1e-3);
+    const start: IAutoMovieVector3 = ArchetypeFrame.axis(leader.at(0).placement, "z");
+
+    // The heading, radians about +Y, turning toward the hitch at its sideways speed over the coupling's reach.
+    const heading: integrateMotionTrajectory.ITrajectory = integrateMotionTrajectory({
+      f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => {
+        const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
+        const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
+        const vx: number = (ahead.x - behind.x) / 1e-3;
+        const vz: number = (ahead.z - behind.z) / 1e-3;
+        const theta: number = x[0]!;
+        return { dx: [(vx * Math.cos(theta) - vz * Math.sin(theta)) / reach] };
+      },
+      x0: [Math.atan2(start.x, start.z)],
+      t0: 0,
+      t1: end,
+    });
+    const at = (seconds: number): ISample<Id, Dimension> => {
+      const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
+      const theta: number = heading.at(seconds).x[0]!;
+      const rotation: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
+        { x: 0, y: 1, z: 0 },
+        (theta * 180) / Math.PI,
+      );
+      const point: IAutoMovieVector3 = hitchAt(seconds);
+      const placement: IAutoMovieTransform = {
+        translation: Vector3.subtract(point, Quaternion.rotateVector(rotation, local)),
+        rotation,
+        scale: { ...ArchetypeFrame.UNIT },
+      };
+      return {
+        archetype: options.pose?.(sample.course) ?? trailer,
+        placement,
+        course: { ...sample.course, placement },
+      };
+    };
+    return {
+      plan: leader.plan,
+      duration: leader.duration,
+      instants: leader.instants,
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
         const sample: ISample<Id, Dimension> = at(seconds);
