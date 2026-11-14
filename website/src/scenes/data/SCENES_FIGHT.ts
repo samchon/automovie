@@ -5,6 +5,9 @@ import { SceneBuild } from "./SceneBuild";
 const { act, at, counter, object, person, scene, sheathed }: typeof SceneBuild =
   SceneBuild;
 
+/** A fencing step's length, metres: within what an advance and a retreat accept for every site body (the smallest takes up to 0.366). */
+const STEP: number = 0.35;
+
 /** The combat scenes of the lexicon's blade, stage-fight and firearm families. */
 export const SCENES_FIGHT: readonly IScene[] = [
   scene(
@@ -12,7 +15,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "longsword-duel",
       title: "Longsword duel",
       summary:
-        "Two fencers draw their longswords from the hip and fight in the German school: guards from the roof and in plough, an advance and a lunge met by a parry at its instant, a void step back, a feint and a riposte met in a bind and a wind, a retreat, and the guards in ox and the fool.",
+        "Two fencers draw their longswords from the hip and fight in the German school: guards from the roof and in plough, an advance and a lunge met by a parry at its instant, a wind met in a bind, a feint and a riposte, the guard in ox and a retreat, a void step back and the fool.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
@@ -31,7 +34,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
         }),
         act("enGarde", { blade: "swordR" }),
         act("vomTag", { blade: "swordR" }),
-        act("advance", { length: 0.39 }),
+        act("advance", { length: STEP }),
         act(
           "lunge",
           {
@@ -42,15 +45,18 @@ export const SCENES_FIGHT: readonly IScene[] = [
           { anchor: "lunge" },
         ),
         act(
-          "bind",
-          { blade: "swordR", against: "riposte" },
-          { sync: { of: "riposte", align: "stroke" } },
+          "wind",
+          {
+            blade: "swordR",
+            target: at("blu", "chestRight"),
+            outcome: "parried",
+          },
+          { anchor: "wind" },
         ),
-        act("wind", { blade: "swordR", target: at("blu", "chestRight") }),
-        act("retreat", { length: 0.39 }),
         act("ochs", { blade: "swordR", seconds: 1 }),
+        act("retreat", { length: STEP }),
       ]),
-      person("blu", "m2", 0, 1.25, 180, [
+      person("blu", "m2", 0, 2.2, 180, [
         act("pickUp", {
           prop: "swordB",
           handle: "grip",
@@ -63,17 +69,22 @@ export const SCENES_FIGHT: readonly IScene[] = [
           { blade: "swordB", against: "lunge" },
           { sync: { of: "lunge", align: "stroke" } },
         ),
-        act("voidStep", { length: 0.3 }),
-        act("feint", { blade: "swordB", target: at("red", "shoulderLeft") }),
         act(
-          "riposte",
-          {
-            blade: "swordB",
-            target: at("red", "chestRight"),
-            outcome: "parried",
-          },
-          { anchor: "riposte" },
+          "bind",
+          { blade: "swordB", against: "wind" },
+          { sync: { of: "wind", align: "stroke" } },
         ),
+        act("feint", {
+          blade: "swordB",
+          target: at("red", "shoulderLeft"),
+          advance: "lunge",
+        }),
+        act("riposte", {
+          blade: "swordB",
+          target: at("red", "chestRight"),
+          advance: "lunge",
+        }),
+        act("voidStep", { length: 0.3 }),
         act("alber", { blade: "swordB" }),
       ]),
     ],
