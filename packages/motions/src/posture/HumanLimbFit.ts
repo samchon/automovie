@@ -403,13 +403,18 @@ export namespace HumanLimbFit {
   const REMEMBERING: { on: boolean } = { on: true };
 
   /**
-   * How many limb fits a body keeps: about 8 s of four limbs at the 120 Hz
-   * of the contact scan (`HumanPerformanceContacts`). The scan reads every
-   * body at each step of every strike's window, and reads them again after
-   * each stop it commits, and a display reads them once more. The boxing
-   * class (four performers over 13.4 s) asks under 2,048 distinct fits of a
-   * body. At 512 it solved 7,258 of its 17,214 fits again after dropping
-   * them, and at 4,096 none.
+   * How many limb fits a body keeps: the least power of two at which the
+   * worst scene measured solves no fit twice.
+   *
+   * The contact scan (`HumanPerformanceContacts`) reads every body at each
+   * 120 Hz step of every strike's window, again after each stop it commits,
+   * and a display reads them once more. So a body's working set is the fits
+   * of every strike window it is read in. The worst scene measured is the
+   * website's boxing class: four performers over 13.4 s, 9,956 distinct
+   * fits across the four bodies. Fits it solved again after dropping them:
+   * - 512: 7,258 of 17,214;
+   * - 2,048: 4;
+   * - 4,096: none.
    */
   const FIT_MEMORY: number = 4096;
 
