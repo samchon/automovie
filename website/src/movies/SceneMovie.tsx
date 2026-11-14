@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { SITE_BASE } from "../SITE_BASE";
 import { SceneTimeline } from "../components/scenes/SceneTimeline";
 import { SceneView } from "../components/scenes/SceneView";
 import { useSceneClock } from "../components/scenes/useSceneClock";
@@ -28,6 +29,15 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 /** The panels under the player. */
 type Panel = "variations" | "made";
 
+/** The player's loaded take, and what redraws its view after the toolbar moves the camera. */
+interface ILoaded {
+  /** The take. */
+  take: IScenePlayer;
+
+  /** Draw the view again, as a paused clock does not. */
+  redraw: () => void;
+}
+
 /** The named views the toolbar offers, in its order. */
 const VIEWS: readonly IScene.ICamera["view"][] = [
   "three-quarter",
@@ -42,7 +52,9 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
  * the scene's composition in the playground, with every parameter.
  *
  * A scene the build did not bake, because it waits on a release or is
- * planned, shows what it will compose and the issues it waits on.
+ * planned, shows what it will compose and the issues it waits on. A scene
+ * whose every take the packages refuse shows each refusal in place of its
+ * take, with no transport and no timeline, since nothing plays.
  *
  * @param props The scene's record, its baked takes if any, the reference page of each action by name, and the exported names its code refers to.
  * @returns The page.
@@ -58,9 +70,9 @@ export default function SceneMovie(props: {
   const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] =
     useState<Panel>("variations");
   const [player, setPlayer]: [
-    IScenePlayer | null,
-    Dispatch<SetStateAction<IScenePlayer | null>>,
-  ] = useState<IScenePlayer | null>(null);
+    ILoaded | null,
+    Dispatch<SetStateAction<ILoaded | null>>,
+  ] = useState<ILoaded | null>(null);
   const [notice, setNotice]: [
     string | null,
     Dispatch<SetStateAction<string | null>>,
@@ -116,22 +128,28 @@ export default function SceneMovie(props: {
             {scene.composition === null
               ? "The packages cannot compose this scene yet."
               : "This scene is written, but the installed packages lack a piece it composes."}{" "}
-            It plays here on the release that closes{" "}
-            {scene.needs.map(
-              (issue: number, i: number): ReactElement => (
-                <span key={issue}>
-                  {i === 0 ? "" : ", "}
-                  <a
-                    href={`https://github.com/samchon/automovie/issues/${issue}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    #{issue}
-                  </a>
-                </span>
-              ),
+            {scene.needs.length === 0 ? (
+              "It plays here on the release that brings those pieces."
+            ) : (
+              <>
+                It plays here on the release that closes{" "}
+                {scene.needs.map(
+                  (issue: number, i: number): ReactElement => (
+                    <span key={issue}>
+                      {i === 0 ? "" : ", "}
+                      <a
+                        href={`https://github.com/samchon/automovie/issues/${issue}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        #{issue}
+                      </a>
+                    </span>
+                  ),
+                )}
+                .
+              </>
             )}
-            .
           </p>
           {scene.planned === undefined ? null : (
             <dl className="am-facts">
@@ -157,6 +175,12 @@ export default function SceneMovie(props: {
     );
 
   const composition: IPlaygroundComposition = scene.composition;
+
+  // The first take that plays gives the timeline; none plays when the
+  // packages refuse every take.
+  const timed: ISceneManifest.ITake | undefined = baked.takes.find(
+    (t: ISceneManifest.ITake): boolean => t.refusal === undefined,
+  );
   const roles: Record<string, string> = Object.fromEntries(
     scene.cast.map((c: IScene.ICast): [string, string] => [c.subject, c.role]),
   );
@@ -174,14 +198,18 @@ export default function SceneMovie(props: {
       {head}
       <div className="am-scene-layout">
         <TransportKeys clock={clock} label="Scene player">
-          <div className="am-toolbar" role="toolbar" aria-label="View">
+          <div className="am-toolbar" role="group" aria-label="View">
             {VIEWS.map(
               (view: IScene.ICamera["view"]): ReactElement => (
                 <button
                   key={view}
                   type="button"
                   disabled={player === null}
-                  onClick={(): void => player?.frame(view)}
+                  onClick={(): void => {
+                    if (player === null) return;
+                    player.take.frame(view);
+                    player.redraw();
+                  }}
                 >
                   {view === "three-quarter"
                     ? "Three-quarter"
@@ -195,9 +223,11 @@ export default function SceneMovie(props: {
             take={0}
             clock={clock}
             orbit
-            onLoad={setPlayer}
+            onLoad={(take: IScenePlayer, redraw: () => void): void =>
+              setPlayer({ take, redraw })
+            }
           />
-          <Transport clock={clock} />
+          {timed === undefined ? null : <Transport clock={clock} />}
         </TransportKeys>
 
         <aside className="am-scene-aside" aria-label="About the scene">
@@ -224,8 +254,10 @@ export default function SceneMovie(props: {
                   (o: IPlaygroundComposition.IObject): ReactElement => (
                     <li key={o.subject}>
                       <span className="am-mono">{o.subject}</span>,{" "}
+                      {/* A full navigation: an archetype's page reads its
+                          request from the address once, when it mounts. */}
                       <a
-                        href={`/automovie/objects/?subject=${o.producer}${o.kind === undefined ? "" : `&variant=${o.kind}`}`}
+                        href={`${SITE_BASE}/objects/?subject=${o.producer}${o.kind === undefined ? "" : `&variant=${o.kind}`}`}
                       >
                         {formatArchetypeLabel(o.producer)}
                       </a>
@@ -297,11 +329,11 @@ export default function SceneMovie(props: {
         <button type="button" onClick={(): void => void copy()}>
           Copy link
         </button>
-        {notice === null ? null : (
-          <span className="am-muted" role="status">
-            {notice}
-          </span>
-        )}
+        {/* The live region stays mounted and only its text changes, so the
+            copy is announced. */}
+        <span className="am-muted" role="status">
+          {notice ?? ""}
+        </span>
       </div>
 
       {panel === "variations" ? (
@@ -338,8 +370,12 @@ export default function SceneMovie(props: {
           <pre className="am-code">
             <code>{formatSceneChain(composition, props.names!)}</code>
           </pre>
-          <h2>Timeline</h2>
-          <SceneTimeline take={baked.takes[0]!} roles={roles} />
+          {timed === undefined ? null : (
+            <>
+              <h2>Timeline</h2>
+              <SceneTimeline take={timed} roles={roles} />
+            </>
+          )}
         </section>
       )}
     </main>

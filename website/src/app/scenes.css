@@ -137,7 +137,9 @@
   max-width: 22rem;
 }
 
-.am-app section + section {
+/* The groups of a catalogue page (the scenes, the objects) stand apart;
+   other pages space their sections themselves. */
+.am-catalogue > :is(section, .am-status) + section {
   margin-top: var(--am-space-6);
 }
 
@@ -345,7 +347,10 @@
   white-space: nowrap;
 }
 
+/* An overlay takes the lower half of the lane, so its label's line is half
+   the lane's height and is not clipped. */
 .am-scene-timeline-span[data-overlay="true"] {
   top: 50%;
+  line-height: 0.75rem;
   opacity: 0.75;
 }

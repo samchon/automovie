@@ -13,23 +13,20 @@ import {
 
 import { SceneView } from "../components/scenes/SceneView";
 import type { IHumanEntry } from "../human/structures/IHumanEntry";
-import { SCENES } from "../scenes/SCENES";
 import { SceneClock } from "../scenes/SceneClock";
 import type { IScene } from "../scenes/structures/IScene";
-
-/** The hidden scene that stands every body side by side. */
-const LINEUP: IScene = SCENES.find((s: IScene): boolean => s.id === "lineup")!;
 
 /**
  * The polygon man: every body the site performs with, standing side by side,
  * the measures of the chosen one, and the inspector a production uses to look
  * at a figure, opened on request because it prepares the body in the page.
  *
- * @param props The bodies with their measures, as the bake recorded them.
+ * @param props The bodies with their measures, as the bake recorded them, and the hidden scene that stands them side by side, handed over alone so the page carries no other scene record.
  * @returns The page.
  */
 export default function HumanMovie(props: {
   bodies: IHumanEntry[];
+  lineup: IScene;
 }): ReactElement {
   const [clock]: [SceneClock, Dispatch<SetStateAction<SceneClock>>] =
     useState<SceneClock>((): SceneClock => new SceneClock(false));
@@ -56,11 +53,12 @@ export default function HumanMovie(props: {
 
       <div className="am-scene-layout">
         <section aria-label="The bodies" className="am-player">
-          <SceneView scene={LINEUP} take={0} clock={clock} orbit />
+          <SceneView scene={props.lineup} take={0} clock={clock} orbit />
           <p className="am-muted am-small">
             Left to right:{" "}
             {props.bodies.map((b: IHumanEntry): string => b.label).join("; ")}.
-            Drag to turn, double-click to frame again.
+            Drag or use the arrow keys to turn, and double-click or press 0 to
+            frame again.
           </p>
         </section>
 
@@ -155,11 +153,11 @@ function Inspector(props: { body: string }): ReactElement {
   return (
     <section aria-label="Inspector" className="am-inspector-region">
       <h2>Inspector</h2>
-      {state === "" ? null : (
-        <p className="am-status" role="status">
-          {state}
-        </p>
-      )}
+      {/* The live region stays mounted and only its text changes, so each
+          change is announced. */}
+      <div role="status">
+        {state === "" ? null : <p className="am-status">{state}</p>}
+      </div>
       <div ref={root} className="am-instrument" />
     </section>
   );

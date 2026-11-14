@@ -3,11 +3,13 @@ import "nextra-theme-docs/style.css";
 import { getPageMap } from "nextra/page-map";
 import type { ReactElement, ReactNode } from "react";
 
+import { SITE_BASE } from "../../SITE_BASE";
+
 const footer: ReactElement = (
   <Footer>
     <div className="automovie-site-footer">
       <nav aria-label="Footer" className="automovie-site-footer-links">
-        <a href="/automovie/docs/">Docs</a>
+        <a href={`${SITE_BASE}/docs/`}>Docs</a>
         <a
           href="https://github.com/samchon/automovie"
           target="_blank"
@@ -57,7 +59,7 @@ export default async function DocsLayout(props: {
           logo={
             <span className="automovie-site-logo">
               <img
-                src="/automovie/favicon.svg"
+                src={`${SITE_BASE}/favicon.svg`}
                 width={28}
                 height={28}
                 alt=""

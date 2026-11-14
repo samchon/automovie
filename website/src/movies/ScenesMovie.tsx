@@ -78,7 +78,7 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
   );
 
   return (
-    <main className="am-app" data-pagefind-body>
+    <main className="am-app am-catalogue" data-pagefind-body>
       <header className="am-app-head">
         <h1>Scenes</h1>
         <p className="am-lede">
@@ -163,23 +163,25 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
                   {scene.planned?.pieces ??
                     SceneFacts.actions(scene).join(", ")}
                 </p>
-                <p className="am-issues">
-                  Waits on{" "}
-                  {scene.needs.map(
-                    (issue: number, i: number): ReactElement => (
-                      <span key={issue}>
-                        {i === 0 ? "" : ", "}
-                        <a
-                          href={`https://github.com/samchon/automovie/issues/${issue}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          #{issue}
-                        </a>
-                      </span>
-                    ),
-                  )}
-                </p>
+                {scene.needs.length === 0 ? null : (
+                  <p className="am-issues">
+                    Waits on{" "}
+                    {scene.needs.map(
+                      (issue: number, i: number): ReactElement => (
+                        <span key={issue}>
+                          {i === 0 ? "" : ", "}
+                          <a
+                            href={`https://github.com/samchon/automovie/issues/${issue}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            #{issue}
+                          </a>
+                        </span>
+                      ),
+                    )}
+                  </p>
+                )}
               </li>
             ),
           )}

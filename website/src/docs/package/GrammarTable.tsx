@@ -34,8 +34,8 @@ export function GrammarTable(): ReactElement {
         in parallel, a cut with <code>until</code>, actions two people do
         together with <code>HumanChain.pair</code>, and anchors that another
         person's action answers. Overlays (<code>over</code>), timing to another
-        instant (<code>sync</code>) and the named rows of the lexicon arrive
-        with the composition campaign.
+        instant (<code>sync</code>) and the named rows of the lexicon come in a
+        later release.
       </p>
     );
   const { axes, operators }: { axes: IEntry[]; operators: IEntry[] } =

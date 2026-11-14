@@ -110,6 +110,11 @@
   margin-top: var(--am-space-3);
 }
 
+/* A live region stays mounted while it has nothing to say, taking no room. */
+.am-stack > [role="status"]:empty {
+  margin-top: 0;
+}
+
 /* Panels */
 .am-panel {
   border: 1px solid var(--am-border);

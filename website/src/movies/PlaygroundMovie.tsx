@@ -317,11 +317,11 @@ export default function PlaygroundMovie(): ReactElement {
                 Report
               </button>
             </div>
-            {notice === null ? null : (
-              <p className="am-muted" role="status">
-                {notice}
-              </p>
-            )}
+            {/* The live region stays mounted and only its text changes, so
+                the copy is announced. */}
+            <p className="am-muted" role="status">
+              {notice ?? ""}
+            </p>
           </div>
         </section>
 

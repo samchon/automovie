@@ -9,10 +9,9 @@ import {
   useState,
 } from "react";
 
-import { SceneCard } from "../components/scenes/SceneCard";
 import { SceneView } from "../components/scenes/SceneView";
+import { prefersReducedMotion } from "../components/scenes/prefersReducedMotion";
 import { useSceneClock } from "../components/scenes/useSceneClock";
-import { SCENES } from "../scenes/SCENES";
 import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
 import type { IScene } from "../scenes/structures/IScene";
@@ -32,27 +31,51 @@ const START: readonly string[] = [
  * composed from, how a film is made, how to start, and the scenes coming
  * next.
  *
- * @param props The scenes the build baked, and the motion package's counts.
+ * Each turn of the stage mounts its view afresh, so a scene's length is read
+ * again even when one featured scene follows itself. Moving to another
+ * scene, by the stage or the arrows, plays it unless the visitor asked for
+ * reduced motion.
+ *
+ * @param props The featured scenes the packages play in every take, in their order; the titles of the listed scenes the build did not bake, which wait on a release or are planned; and the motion package's counts. The records are read while the site is exported, so the page carries only these.
  * @returns The page.
  */
 export default function LandingMovie(props: {
-  baked: string[];
+  featured: IScene[];
+  coming: string[];
   counts: { actions: number; families: number; rows: number };
 }): ReactElement {
-  const baked: Set<string> = new Set(props.baked);
-  const featured: IScene[] = SCENES.filter(
-    (s: IScene): boolean => s.featured !== undefined && baked.has(s.id),
-  ).sort((a: IScene, b: IScene): number => a.featured! - b.featured!);
-  const coming: IScene[] = SCENES.filter(
-    (s: IScene): boolean => s.hidden !== true && !baked.has(s.id),
-  );
+  const { featured, coming }: typeof props = props;
   const [index, setIndex]: [number, Dispatch<SetStateAction<number>>] =
     useState<number>(0);
+
+  // Each turn of the stage, so the view is mounted again for it.
+  const [turn, setTurn]: [number, Dispatch<SetStateAction<number>>] =
+    useState<number>(0);
   const [held, setHeld]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
+  const [playing, setPlaying]: [boolean, Dispatch<SetStateAction<boolean>>] =
     useState<boolean>(false);
   const stage: SceneClock = useSceneClock();
   const takes: SceneClock = useSceneClock();
   const scene: IScene | undefined = featured[index];
+
+  // The hero's button says whether the stage plays.
+  useEffect((): (() => void) => {
+    setPlaying(stage.playing);
+    return stage.subscribe((): void => setPlaying(stage.playing));
+  }, [stage]);
+
+  // Go to another scene: its view loads afresh and sets the length, and it
+  // plays from its start unless the visitor asked for reduced motion.
+  const go: (to: (i: number) => number) => void = (
+    to: (i: number) => number,
+  ): void => {
+    stage.duration = 0;
+    stage.seek(0);
+    if (!stage.playing && !prefersReducedMotion()) stage.toggle();
+    setIndex(to);
+    setTurn((t: number): number => t + 1);
+  };
 
   // The stage moves to the next scene after it has played once, unless the
   // visitor holds it by hovering or focusing it.
@@ -61,24 +84,13 @@ export default function LandingMovie(props: {
     const timer: number = window.setInterval((): void => {
       if (held || stage.duration === 0 || stage.time < stage.duration - 1e-3)
         return;
-
-      // The scene ended: the next one starts from its beginning, playing
-      // unless the visitor asked for reduced motion.
-      stage.duration = 0;
-      stage.seek(0);
-      if (!stage.playing && !SceneCard.reduced()) stage.toggle();
-      setIndex((i: number): number => (i + 1) % Math.max(1, featured.length));
+      go((i: number): number => (i + 1) % Math.max(1, featured.length));
     }, 120);
     return (): void => window.clearInterval(timer);
   }, [held, stage, featured.length]);
 
-  const step: (by: number) => void = (by: number): void => {
-    stage.duration = 0;
-    stage.seek(0);
-    setIndex(
-      (i: number): number => (i + by + featured.length) % featured.length,
-    );
-  };
+  const step: (by: number) => void = (by: number): void =>
+    go((i: number): number => (i + by + featured.length) % featured.length);
 
   return (
     <div className="am-app am-landing-page">
@@ -116,7 +128,7 @@ export default function LandingMovie(props: {
             onBlur={(): void => setHeld(false)}
           >
             <SceneView
-              key={scene.id}
+              key={`${scene.id}:${turn}`}
               scene={scene}
               take={0}
               clock={stage}
@@ -148,8 +160,12 @@ export default function LandingMovie(props: {
                 >
                   ›
                 </button>
-                <button type="button" onClick={(): void => stage.toggle()}>
-                  Play or pause
+                <button
+                  type="button"
+                  aria-label={playing ? "Pause the scene" : "Play the scene"}
+                  onClick={(): void => stage.toggle()}
+                >
+                  {playing ? "Pause" : "Play"}
                 </button>
                 <Link href={`/scenes/${scene.id}/#made`}>
                   How is this made?
@@ -164,9 +180,9 @@ export default function LandingMovie(props: {
         <section aria-labelledby="am-takes" className="am-stack">
           <h2 id="am-takes">One composition, many takes</h2>
           <p className="am-muted">
-            {featured[0].title}, four times: the same composition under another
-            seed, other bodies and other skill. A seed changes how and when,
-            never what is done.
+            {featured[0].title} in {featured[0].takes.length} takes: the same
+            composition under another seed, other bodies and other skill. A seed
+            changes how and when, never what is done.
           </p>
           <ul className="am-take-grid">
             {featured[0].takes.map(
@@ -263,11 +279,11 @@ export default function LandingMovie(props: {
         <section aria-labelledby="am-next" className="am-stack">
           <h2 id="am-next">Coming next</h2>
           <p className="am-muted">
-            {coming.length} scenes are written for pieces the campaigns are
-            building, among them{" "}
+            {coming.length} scenes are written for pieces the packages do not
+            have yet, among them{" "}
             {coming
               .slice(0, 5)
-              .map((s: IScene): string => s.title.toLowerCase())
+              .map((title: string): string => title.toLowerCase())
               .join(", ")}
             .
           </p>

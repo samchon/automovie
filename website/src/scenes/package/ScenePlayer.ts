@@ -6,6 +6,7 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
+import { SITE_BASE } from "../../SITE_BASE";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import { SCENE_REFUSAL } from "../SCENE_REFUSAL";
 import { SceneTrack } from "../SceneTrack";
@@ -21,7 +22,7 @@ import { SceneArchetype } from "./SceneArchetype";
  */
 export namespace ScenePlayer {
   /** Where the bake's files are served from, under the site's base path. */
-  const BAKED: string = "/automovie/baked";
+  const BAKED: string = `${SITE_BASE}/baked`;
 
   /** Metres between the floor grid's lines. */
   const CELL: number = 0.5;

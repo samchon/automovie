@@ -13,9 +13,9 @@ import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddre
 import { formatAutoMovieInspectorCommand } from "./formatAutoMovieInspectorCommand.js";
 
 /**
- * The request as text: the address query, editable, and the `automovie capture` command that repeats the picture, each with a button that copies it.
+ * The request as text: the address query, editable, and the `automovie capture` command that repeats the picture, each with a button named for what it copies.
  *
- * The query field shows the request's address text; an edit is dispatched as a `text` action when the field is left or Enter is pressed, and a text the grammar refuses keeps the previous request with the refusal shown above. The command is read-only, quoted for a POSIX shell. Copying writes the field's text to the clipboard where the page may, and says so under the fields; where the page has no clipboard, as outside a secure context, or is refused it, the note says to select the text and copy it instead.
+ * The query field shows the request's address text; an edit is dispatched as a `text` action when the field is left or Enter is pressed, and a text the grammar refuses keeps the previous request with the refusal shown above. The command is read-only, quoted for a POSIX shell. Copying writes the field's text to the clipboard where the page may, and says so under the fields, in a status region that stays mounted so each note is announced; where the page has no clipboard, as outside a secure context, or is refused it, the note says to select the text and copy it instead.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each field shows, when an edit is dispatched, the refusal, the command's quoting, what copying does and what it says when the clipboard is missing or refused.
  * @evidence contracts/development/implementation.md#principled-implementation Both texts are written from the request by the grammar's writers, so the address, the command and the picture name one request; copying goes through the platform's clipboard.
@@ -92,7 +92,7 @@ export function AutoMovieInspectorRequestPanel(props: {
             type="button"
             onClick={(): void => void copy("address", address)}
           >
-            Copy
+            Copy address
           </button>
         </span>
       </label>
@@ -109,15 +109,15 @@ export function AutoMovieInspectorRequestPanel(props: {
             type="button"
             onClick={(): void => void copy("command", command)}
           >
-            Copy
+            Copy command
           </button>
         </span>
       </label>
-      {copied === null ? null : (
-        <p role="status" style={{ margin: "4px 0 0", fontSize: 12 }}>
-          {copied}
-        </p>
-      )}
+      {/* The live region stays mounted and only its text changes, so each
+          copy's note is announced. */}
+      <p role="status" style={{ margin: "4px 0 0", fontSize: 12 }}>
+        {copied ?? ""}
+      </p>
     </div>
   );
 }

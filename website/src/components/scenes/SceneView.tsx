@@ -21,9 +21,15 @@ import { SharedStage } from "../../stage/SharedStage";
 /**
  * One baked take drawn in a canvas through the page's shared renderer and
  * posed by a clock, fetched when the view first comes near the window. With
- * `orbit`, a drag turns the camera about the action,
- * the wheel zooms while the view has focus, and a double-click frames it
- * again.
+ * `orbit`, a drag or the arrow keys turn the camera about the action, the
+ * wheel while the view has focus or plus and minus zoom, and a double-click
+ * or the 0 key frames it again.
+ *
+ * While a take loads, the view says so; a take the packages refuse shows
+ * their refusal, and one that fails to load its error. Each note is cleared
+ * when the scene or the take changes. A decorative view, as in a card's
+ * link, keeps its notes out of assistive technology, so they do not become
+ * the link's name and a grid of cards raises no alert per card.
  *
  * @param props The scene, the take, the clock and whether the view orbits.
  * @returns The view.
@@ -46,6 +52,10 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   callback.current = props.onLoad;
 
   useEffect((): (() => void) => {
+    // A new take starts from loading, with no note of the one before.
+    setState("loading");
+    setRefusal(null);
+
     let alive: boolean = true;
     let player: IScenePlayer | null = null;
     let registration: SharedStage.IRegistration | null = null;
@@ -65,9 +75,8 @@ export function SceneView(props: SceneView.IProps): ReactElement {
           return;
         }
         player = loaded;
-        callback.current?.(loaded);
         let shown: number = -1;
-        registration = SharedStage.register({
+        const registered: SharedStage.IRegistration = SharedStage.register({
           canvas: canvas.current,
           scene: loaded.scene,
           camera: loaded.camera,
@@ -79,10 +88,14 @@ export function SceneView(props: SceneView.IProps): ReactElement {
             return true;
           },
         });
+        registration = registered;
+        const redraw: () => void = (): void => registered.invalidate();
         if (orbit === true)
-          detach = attachOrbit(canvas.current, loaded, (): void =>
-            registration?.invalidate(),
-          );
+          detach = attachOrbit(canvas.current, loaded, redraw);
+
+        // A toolbar that moves the camera redraws through the registration,
+        // since a paused clock draws nothing by itself.
+        callback.current?.(loaded, redraw);
         setState("ready");
       })
       .catch((error: unknown): void => {
@@ -100,33 +113,37 @@ export function SceneView(props: SceneView.IProps): ReactElement {
     };
   }, [scene, take, clock, orbit]);
 
+  // A decorative view's notes are shown but not announced.
+  const quiet: boolean = props.decorative === true;
   return (
     <div className="am-scene-view" aria-busy={state === "loading"}>
       <canvas
         ref={canvas}
         tabIndex={orbit === true ? 0 : -1}
-        role={
-          props.decorative === true
-            ? undefined
-            : orbit === true
-              ? "application"
-              : "img"
-        }
-        aria-hidden={props.decorative === true ? true : undefined}
+        role={quiet ? undefined : orbit === true ? "application" : "img"}
+        aria-hidden={quiet ? true : undefined}
         aria-label={
-          props.decorative === true
+          quiet
             ? undefined
             : orbit === true
-              ? `${name}: drag to turn, double-click to frame again`
+              ? `${name}: drag or the arrow keys turn it, the wheel or plus and minus zoom, 0 or a double-click frames it again`
               : name
         }
       />
       {state === "loading" ? (
-        <p className="am-scene-view-note" role="status">
+        <p
+          className="am-scene-view-note"
+          role={quiet ? undefined : "status"}
+          aria-hidden={quiet ? true : undefined}
+        >
           Loading the take.
         </p>
       ) : state === "ready" ? null : refusal !== null ? (
-        <p className="am-scene-view-note am-scene-view-refusal" role="note">
+        <p
+          className="am-scene-view-note am-scene-view-refusal"
+          role={quiet ? undefined : "note"}
+          aria-hidden={quiet ? true : undefined}
+        >
           Refused today
           {scene.refusedUntil === undefined
             ? ""
@@ -134,7 +151,11 @@ export function SceneView(props: SceneView.IProps): ReactElement {
           : {refusal}
         </p>
       ) : (
-        <p className="am-scene-view-note am-danger-text" role="alert">
+        <p
+          className="am-scene-view-note am-danger-text"
+          role={quiet ? undefined : "alert"}
+          aria-hidden={quiet ? true : undefined}
+        >
           {state}
         </p>
       )}
@@ -159,11 +180,14 @@ export namespace SceneView {
     /** The take's label, named with the scene's title; the title alone when absent. */
     label?: string;
 
-    /** Whether the picture is decoration beside its own visible name, as in a card's link, and so hidden from assistive technology. */
+    /** Whether the picture is decoration beside its own visible name, as in a card's link, and so hidden from assistive technology with its notes. */
     decorative?: boolean;
 
-    /** Called with the loaded take, for a toolbar that moves its camera. */
-    onLoad?: (player: IScenePlayer) => void;
+    /**
+     * Called with the loaded take, for a toolbar that moves its camera, and
+     * with what redraws the view after such a move.
+     */
+    onLoad?: (player: IScenePlayer, redraw: () => void) => void;
   }
 }
 
@@ -223,6 +247,12 @@ function attachOrbit(
     changed();
   };
   const key: (event: KeyboardEvent) => void = (event: KeyboardEvent): void => {
+    // 0 frames the view again, as a double-click does.
+    if (event.key === "0") {
+      event.preventDefault();
+      double();
+      return;
+    }
     const turns: Record<string, [number, number, number]> = {
       ArrowLeft: [-0.1, 0, 1],
       ArrowRight: [0.1, 0, 1],

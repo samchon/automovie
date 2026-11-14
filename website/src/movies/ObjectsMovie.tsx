@@ -28,10 +28,14 @@ type Mode =
  * grouped by family, with family chips and a filter kept in the address.
  * An address naming a subject opens that archetype's page instead; the
  * address is read on every navigation, so a link back to the grid shows it.
+ * A search that keeps no object says so.
  *
+ * @param props The listed scenes that place each producer, by producer's export name, which an archetype's page lists.
  * @returns The page.
  */
-export default function ObjectsMovie(): ReactElement {
+export default function ObjectsMovie(props: {
+  uses: Record<string, { id: string; title: string }[]>;
+}): ReactElement {
   const [mode, setMode]: [Mode, Dispatch<SetStateAction<Mode>>] =
     useState<Mode>({ kind: "loading" });
   const [family, setFamily]: [
@@ -64,7 +68,7 @@ export default function ObjectsMovie(): ReactElement {
     };
   }, [opened]);
 
-  if (opened) return <GalleryMovie />;
+  if (opened) return <GalleryMovie uses={props.uses} />;
 
   const change: (nextFamily: string | null, nextQuery: string) => void = (
     nextFamily: string | null,
@@ -99,8 +103,29 @@ export default function ObjectsMovie(): ReactElement {
     return words.every((w: string): boolean => text.includes(w));
   };
 
+  // The groups the chips select, each with the subjects the search keeps.
+  const groups: {
+    group: IGalleryCatalogue.IGroup;
+    shown: IGalleryCatalogue.ISubject[];
+  }[] =
+    mode.kind === "grid"
+      ? mode.catalogue.groups
+          .filter(
+            (g: IGalleryCatalogue.IGroup): boolean =>
+              family === null || g.name === family,
+          )
+          .map(
+            (
+              group: IGalleryCatalogue.IGroup,
+            ): {
+              group: IGalleryCatalogue.IGroup;
+              shown: IGalleryCatalogue.ISubject[];
+            } => ({ group, shown: group.subjects.filter(matches) }),
+          )
+      : [];
+
   return (
-    <main className="am-app">
+    <main className="am-app am-catalogue">
       <ObjectsHead />
       {mode.kind === "loading" ? (
         <p className="am-status" role="status">
@@ -148,14 +173,14 @@ export default function ObjectsMovie(): ReactElement {
               />
             </label>
           </div>
-          {mode.catalogue.groups
-            .filter(
-              (g: IGalleryCatalogue.IGroup): boolean =>
-                family === null || g.name === family,
-            )
-            .map((group: IGalleryCatalogue.IGroup): ReactElement | null => {
-              const shown: IGalleryCatalogue.ISubject[] =
-                group.subjects.filter(matches);
+          {groups.map(
+            ({
+              group,
+              shown,
+            }: {
+              group: IGalleryCatalogue.IGroup;
+              shown: IGalleryCatalogue.ISubject[];
+            }): ReactElement | null => {
               if (shown.length === 0) return null;
               return (
                 <section
@@ -174,7 +199,14 @@ export default function ObjectsMovie(): ReactElement {
                   </ul>
                 </section>
               );
-            })}
+            },
+          )}
+          {groups.every(
+            (g: { shown: IGalleryCatalogue.ISubject[] }): boolean =>
+              g.shown.length === 0,
+          ) ? (
+            <p className="am-status">No object matches this selection.</p>
+          ) : null}
         </>
       )}
     </main>

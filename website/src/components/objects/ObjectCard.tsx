@@ -1,7 +1,16 @@
 "use client";
 
-import { type ReactElement, type RefObject, useEffect, useRef } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
+import { SITE_BASE } from "../../SITE_BASE";
 import { loadGalleryCard } from "../../gallery/loadGalleryCard";
 import type { IGalleryCard } from "../../gallery/structures/IGalleryCard";
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
@@ -12,6 +21,10 @@ import { SharedStage } from "../../stage/SharedStage";
  * renderer, turning while the card is hovered or focused, with its name and
  * the number of its kinds, linking to its page.
  *
+ * The model is built only when the card first comes near the window, so a
+ * page of cards builds the cards it shows. A model that fails to build
+ * leaves a short note in the view, kept out of the link's name.
+ *
  * @param props The subject.
  * @returns The card.
  */
@@ -21,11 +34,25 @@ export function ObjectCard(props: {
   const { subject }: typeof props = props;
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
   const hovered: RefObject<boolean> = useRef(false);
+  const [failed, setFailed]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
 
   useEffect((): (() => void) => {
     let alive: boolean = true;
     let release: (() => void) | null = null;
-    loadGalleryCard(subject.id, subject.variants[0]?.id ?? "")
+    setFailed(false);
+
+    // The model waits until the card comes near the window.
+    let cancel: () => void = (): void => undefined;
+    const near: Promise<void> = new Promise((resolve: () => void): void => {
+      if (canvas.current === null) return resolve();
+      cancel = SharedStage.near(canvas.current, resolve);
+    });
+    near
+      .then(
+        (): Promise<IGalleryCard> =>
+          loadGalleryCard(subject.id, subject.variants[0]?.id ?? ""),
+      )
       .then((card: IGalleryCard): void => {
         if (!alive || canvas.current === null) {
           card.dispose();
@@ -52,9 +79,12 @@ export function ObjectCard(props: {
           card.dispose();
         };
       })
-      .catch((): void => undefined);
+      .catch((): void => {
+        if (alive) setFailed(true);
+      });
     return (): void => {
       alive = false;
+      cancel();
       release?.();
     };
   }, [subject]);
@@ -78,11 +108,16 @@ export function ObjectCard(props: {
       {/* A full navigation: an archetype's page reads its request from the
           address once, when it mounts. */}
       <a
-        href={`/automovie/objects/?subject=${subject.id}${subject.variants[0] === undefined ? "" : `&variant=${subject.variants[0].id}`}`}
+        href={`${SITE_BASE}/objects/?subject=${subject.id}${subject.variants[0] === undefined ? "" : `&variant=${subject.variants[0].id}`}`}
         className="am-scene-card-link"
       >
         <span className="am-object-view">
           <canvas ref={canvas} aria-hidden="true" />
+          {failed ? (
+            <span className="am-scene-view-note" aria-hidden="true">
+              The model did not build.
+            </span>
+          ) : null}
         </span>
         <span className="am-scene-card-title">{subject.label}</span>
       </a>

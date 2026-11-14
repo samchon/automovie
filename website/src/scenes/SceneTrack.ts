@@ -4,7 +4,7 @@
  *
  * Each value is a signed 16-bit integer: a position in millimetres, which
  * covers ±32.7 m from the origin, and a quaternion component times 32767.
- * That quarters a take against 32-bit floats, at an error of half a
+ * That halves a take against 32-bit floats, at an error of half a
  * millimetre and a few thousandths of a degree, which no drawing shows.
  *
  * Reading between two frames interpolates each position linearly and each

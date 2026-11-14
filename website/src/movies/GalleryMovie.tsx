@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
+import { SITE_BASE } from "../SITE_BASE";
 import { GalleryDetails } from "../components/gallery/GalleryDetails";
 import { GalleryViewport } from "../components/gallery/GalleryViewport";
 import { GalleryAddress } from "../gallery/GalleryAddress";
@@ -11,9 +12,6 @@ import { loadGalleryAdapter } from "../gallery/loadGalleryAdapter";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
 import type { IGalleryRequest } from "../gallery/structures/IGalleryRequest";
 import type { IGalleryView } from "../gallery/structures/IGalleryView";
-import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
-import { SCENES } from "../scenes/SCENES";
-import type { IScene } from "../scenes/structures/IScene";
 
 /** What the page has of the adapter. */
 type Loaded =
@@ -30,9 +28,12 @@ type Loaded =
  * What is shown is kept in the address's query, so a link shows the same
  * subject in the same state.
  *
+ * @param props The listed scenes that place each producer, by producer's export name, read while the site is exported so the page carries no scene records.
  * @returns The page.
  */
-export default function GalleryMovie(): ReactElement {
+export default function GalleryMovie(props: {
+  uses: Record<string, { id: string; title: string }[]>;
+}): ReactElement {
   const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
   const [request, setRequest] = useState<IGalleryRequest | null>(null);
   const [view, setView] = useState<IGalleryView | null>(null);
@@ -96,7 +97,9 @@ export default function GalleryMovie(): ReactElement {
   ): ReactElement => (
     <header className="am-app-head">
       <nav aria-label="Breadcrumb" className="am-lede">
-        <a href="/automovie/objects/">All objects</a>
+        {/* A full navigation, as a card's link takes: each object page
+            reads its address when it mounts. */}
+        <a href={`${SITE_BASE}/objects/`}>All objects</a>
       </nav>
       <h1>{title}</h1>
     </header>
@@ -127,14 +130,10 @@ export default function GalleryMovie(): ReactElement {
   const subject: IGalleryCatalogue.ISubject | undefined = subjects.find(
     (s: IGalleryCatalogue.ISubject): boolean => s.id === request.subject,
   );
-  const used: IScene[] = SCENES.filter(
-    (scene: IScene): boolean =>
-      scene.hidden !== true &&
-      (scene.composition?.objects ?? []).some(
-        (o: IPlaygroundComposition.IObject): boolean =>
-          o.producer === request.subject,
-      ),
-  );
+  const used: { id: string; title: string }[] =
+    (Object.hasOwn(props.uses, request.subject)
+      ? props.uses[request.subject]
+      : undefined) ?? [];
 
   return (
     <main className="am-app">
@@ -161,7 +160,7 @@ export default function GalleryMovie(): ReactElement {
         ) : (
           <ul className="am-plain">
             {used.map(
-              (scene: IScene): ReactElement => (
+              (scene: { id: string; title: string }): ReactElement => (
                 <li key={scene.id}>
                   <Link href={`/scenes/${scene.id}/`}>{scene.title}</Link>
                 </li>

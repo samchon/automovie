@@ -3,7 +3,7 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import { SceneClock } from "../../scenes/SceneClock";
-import { SceneCard } from "./SceneCard";
+import { prefersReducedMotion } from "./prefersReducedMotion";
 
 /**
  * A film clock that starts playing once the page is in the browser, unless
@@ -18,7 +18,7 @@ export function useSceneClock(): SceneClock {
   const [clock]: [SceneClock, Dispatch<SetStateAction<SceneClock>>] =
     useState<SceneClock>((): SceneClock => new SceneClock(false));
   useEffect((): void => {
-    if (!clock.playing && !SceneCard.reduced()) clock.toggle();
+    if (!clock.playing && !prefersReducedMotion()) clock.toggle();
   }, [clock]);
   return clock;
 }

@@ -8,12 +8,17 @@ import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SceneView } from "./SceneView";
+import { prefersReducedMotion } from "./prefersReducedMotion";
 import { useSceneClock } from "./useSceneClock";
 
 /**
  * One scene in the gallery: its first take playing, its title, who and what
  * is in it, and a link to its page. A visitor who asked for reduced motion
  * sees a held frame that plays only while the card is hovered or focused.
+ *
+ * The link is named by the title alone: the view and its notes are
+ * decoration inside it. A scene its record marks refused says so under the
+ * link, from the record, so the card tells it without the view.
  *
  * @param props The scene.
  * @returns The card.
@@ -22,7 +27,7 @@ export function SceneCard(props: { scene: IScene }): ReactElement {
   const { scene }: typeof props = props;
   const clock: SceneClock = useSceneClock();
   const hold: (playing: boolean) => void = (playing: boolean): void => {
-    if (!SceneCard.reduced() || clock.playing === playing) return;
+    if (!prefersReducedMotion() || clock.playing === playing) return;
     clock.toggle();
   };
   return (
@@ -49,19 +54,11 @@ export function SceneCard(props: { scene: IScene }): ReactElement {
       <span className="am-scene-card-facts am-muted">
         {SceneFacts.counts(scene)}
       </span>
+      {scene.refusedUntil === undefined ? null : (
+        <span className="am-scene-card-facts am-muted">
+          The packages refuse it until #{scene.refusedUntil} lands.
+        </span>
+      )}
     </li>
   );
-}
-export namespace SceneCard {
-  /**
-   * Whether the visitor asked for reduced motion.
-   *
-   * @returns Whether animation waits for a request.
-   */
-  export function reduced(): boolean {
-    return (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    );
-  }
 }

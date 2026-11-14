@@ -56,17 +56,26 @@ Each page starts with a heading row: its name and one sentence saying what it sh
 
 ## Landing
 
-The first screen is two columns: on the left the headline, one sentence and three links (Browse scenes, Get started, GitHub); on the right a stage playing the featured scenes one after another, captioned "Now playing n / N" with the scene's title and counts, arrows to step and a link to the scene's page. The stage moves on when a scene has played once, unless the pointer or focus is on it. Below 1024 px the stage goes under the text. Further down: one scene in its four takes, the counts of the pieces, how a film is made in four steps, the commands to start, and the scenes coming next.
+The first screen is two columns: on the left the headline, one sentence and three links (Browse scenes, Get started, GitHub); on the right a stage playing the featured scenes one after another, captioned "Now playing n / N" with the scene's title and counts, arrows to step, a Play or Pause button that names what it will do, and a link to the scene's page. Only a featured scene the packages play in every take is on the stage. The stage moves on when a scene has played once, unless the pointer or focus is on it, and a scene the stage or the arrows move to plays from its start unless the visitor asked for reduced motion. Below 1024 px the stage goes under the text and its controls wrap. Further down: one scene in its takes, the counts of the pieces, how a film is made in four steps, the commands to start, and the scenes coming next.
 
 ## Scenes
 
 The gallery groups the scenes that play by setting, a grid of cards whose first take plays on the shared renderer; chips filter by setting and a field searches titles, roles and actions, both kept in the query. Under the cards, Coming next lists the scenes that wait on a release or are planned, with the issues they wait on.
 
-A scene's page puts the player (named views over the canvas, the canvas, the transport) beside a column of the cast, the objects and the actions, each action linking to its reference. Under them, Variations plays every take on the player's clock, and How is this made? shows the chain an agent writes and each person's timeline. Customise opens the composition in the playground. A scene that does not play shows its status, its pieces and its issues instead.
+A scene's page puts the player (named views over the canvas, the canvas, the transport) beside a column of the cast, the objects and the actions, each action linking to its reference. Under them, Variations plays every take on the player's clock, and How is this made? shows the code an agent writes, from the placed archetypes and each person's chain to the props and the input the performance is built from, and each person's timeline. Customise opens the composition in the playground. A scene that does not play shows its status, its pieces and its issues instead.
+
+States of a scene:
+
+| State | Shown |
+| --- | --- |
+| Plays | The player, the takes and the timeline. |
+| Refused | The packages have every piece, but the record marks the issue whose fix lets them perform it. The page says so under its heading with a link to that issue; each refused take shows the packages' refusal in its words in place of its picture, and a take that plays still plays. When every take is refused there is no transport and no timeline. The gallery lists it with a line saying it is refused; the landing stage, the playground's scene list and a motion's trial leave it out. |
+| Waits on a release | A badge, the issues it waits on and the code it composes. |
+| Planned | A badge, its cast and objects in words, and the issues it waits on. |
 
 ## The player
 
-Every view draws on one WebGL renderer per page (`src/stage/SharedStage.ts`), which draws each view in the window into the corner of its canvas and copies it into the view's own 2D canvas, because a browser keeps only a few contexts at once. The transport is one Play/Pause button, the scrubber, the time, the speed and Loop; while the player has focus, Space and K play or pause, J and L seek a second, comma and full stop step a frame, Home and End go to the ends. A drag turns the camera, the wheel zooms only while the view has focus or a modifier key is held, and a double-click frames it again. Under `prefers-reduced-motion` nothing plays until asked.
+Every view draws on one WebGL renderer per page (`src/stage/SharedStage.ts`), which draws each view in the window into the corner of its canvas and copies it into the view's own 2D canvas, because a browser keeps only a few contexts at once. The transport is one Play/Pause button, the scrubber, the time, the speed and Loop; while the player has focus, Space and K play or pause, J and L seek a second, comma and full stop step a frame, Home and End go to the ends. A drag or the arrow keys turn the camera, the wheel zooms only while the view has focus or a modifier key is held, plus and minus zoom, and a double-click or the 0 key frames it again. The named views are a group of buttons, each reached with Tab. Under `prefers-reduced-motion` nothing plays until asked.
 
 ## Playground
 
@@ -77,7 +86,7 @@ Regions on a screen 1280 px wide or wider:
 
 Below 1280 px the two regions become two tabs, Composition and Result. Perform switches to Result. The inspector moves its panels under its transport when it is narrower than 900 px, so it never scrolls sideways. The Result tab says "refused" when the composition was refused, so the outcome is known before switching.
 
-A lexicon row's parameters are fields generated from its schema: a select for a closed set, a number within its bounds, a text, a switch; members no field takes stay in one JSON field. An action without a schema is edited as JSON.
+An action's or a lexicon row's parameters are fields generated from its schema: a select for a closed set, a number within its bounds, a text, a switch, each described to assistive technology by its meaning; members no field takes stay in one JSON field. A name without a schema is edited as JSON. The scene picker lists the scenes that play, never a refused one.
 
 States of the result region:
 
@@ -95,7 +104,7 @@ Verdicts are read on request, because reading them samples the whole film. Their
 
 ## Objects
 
-The gallery is a grid of cards grouped by family, one per producer, each drawing its first kind at the middle of every band and turning while hovered or focused. Chips filter by family and a field searches names and kinds.
+The gallery is a grid of cards grouped by family, one per producer, each drawing its first kind at the middle of every band and turning while hovered or focused. A card builds its model when it first comes near the window, and says so in its view when the model does not build. Chips filter by family and a field searches names and kinds; a selection that keeps no object says so.
 
 An archetype's page has the view on the left, at 4:3, with a row of buttons under it for six named views and zoom; the camera stands 2.2 diagonals of the subject away. On the right, 22 rem wide: the name and the kind, then two toggle buttons, Specs and Customise. Specs lists the dimensions the seed drew, each with a mark on its band, and the affordances by id and kind with the colour of their mark. Customise holds the seed with New seed, the switch for the affordance marks, and one slider per articulation over its travel. Under both, the scenes that place the archetype. Below 1024 px the panel goes under the view.
 
@@ -107,7 +116,7 @@ The site's bodies stand side by side on one floor, from the bake, with the chose
 
 ## Motions
 
-A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page has one panel per row: its parameters from its schema with their types and meanings, the scenes that use it, and a link that tries it: alone, or in the first scene that plays when its first use names someone or something, and none when no such scene plays. Below 768 px the column goes above the content.
+A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page, and the actions' page, has one panel per name: its parameters from its schema with their types and meanings, the scenes that use it, and a link that tries it. It is tried alone, with the parameters of its first use, only when that use is one person's action holding every required parameter and naming no one and nothing else; otherwise in the first scene that plays, since a mutual action needs its partners; and there is no link when no such scene plays. Below 768 px the column goes above the content, and a table wider than the screen scrolls inside its own box.
 
 ## Visual system
 
@@ -146,6 +155,7 @@ The accent is the amber of the favicon, darkened on a light ground and lightened
 - Focus is a 2 px ring in `--am-focus` on every control and on the canvas.
 - The gallery's canvas is focusable and described. The arrow keys turn it, plus and minus zoom, and the same moves are buttons. A vertical swipe scrolls the page and a horizontal one turns the model. The wheel zooms only while the canvas has focus or a modifier key is held, so scrolling past it is not caught.
 - What a canvas shows is also text: the timeline has a table, and the gallery lists dimensions and affordances.
-- A refusal and a load failure use `role="alert"`; progress uses `role="status"` and `aria-busy`.
+- A refusal and a load failure use `role="alert"`; progress uses `role="status"` and `aria-busy`. A status region stays mounted and only its text changes, so each change is announced. A card's view is decoration inside its link: its notes are not announced, so the link is named by its title alone and a grid raises no alert per card.
+- A canvas that takes keys says them in its label.
 - `pnpm check` computes the contrast of 26 token pairs in both themes and stops the build when one is below its bound.
 - Animation is limited to the canvas loop; `prefers-reduced-motion` switches off transitions.

@@ -52,7 +52,7 @@ export default function MotionsPage(): ReactElement {
             </Link>{" "}
             make up the vocabulary
             {reference.families.length === 0
-              ? ". The lexicon of named rows arrives with the composition campaign (#3392)."
+              ? ". The installed release has no lexicon of named rows yet."
               : `, and the lexicon names ${rows} rows in ${reference.families.length} families that compose them.`}
           </p>
           {reference.families.length === 0 ? null : (
@@ -81,31 +81,33 @@ export default function MotionsPage(): ReactElement {
               <h2>The grammar</h2>
               {(["axes", "operators"] as const).map(
                 (part: "axes" | "operators"): ReactElement => (
-                  <table key={part} className="am-table">
-                    <caption>
-                      {part === "axes"
-                        ? "The axes an action is decided on"
-                        : "The operators that join actions"}
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Decides</th>
-                        <th scope="col">Carried by</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reference.grammar![part].map(
-                        (entry: IMotionReference.IEntry): ReactElement => (
-                          <tr key={entry.name}>
-                            <td className="am-mono">{entry.name}</td>
-                            <td>{entry.says}</td>
-                            <td className="am-mono">{entry.carriedBy}</td>
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
+                  <div key={part} className="am-table-wrap">
+                    <table className="am-table">
+                      <caption>
+                        {part === "axes"
+                          ? "The axes an action is decided on"
+                          : "The operators that join actions"}
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Name</th>
+                          <th scope="col">Decides</th>
+                          <th scope="col">Carried by</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reference.grammar![part].map(
+                          (entry: IMotionReference.IEntry): ReactElement => (
+                            <tr key={entry.name}>
+                              <td className="am-mono">{entry.name}</td>
+                              <td>{entry.says}</td>
+                              <td className="am-mono">{entry.carriedBy}</td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 ),
               )}
             </>

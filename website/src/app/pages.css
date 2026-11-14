@@ -55,6 +55,7 @@
 
 /* The object gallery */
 .am-object-view {
+  position: relative;
   display: block;
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -149,8 +150,11 @@
   margin-top: var(--am-space-2);
 }
 
+/* The controls wrap under one another on a phone rather than run past the
+   stage. */
 .am-hero-controls {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--am-space-2);
   margin-left: auto;
