@@ -65,6 +65,7 @@ export function test_archetype_contract_direction(): void {
     "tool-fork": { face: along },
     "microphone-handheld": { head: along },
     "longTool-fishingRod": { tip: along },
+    "projectile-bolt": { tip: along },
     "tool-ladle": { face: normal },
     "food-bread": { bite: along },
     "food-apple": { bite: normal },

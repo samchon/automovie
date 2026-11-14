@@ -54,6 +54,7 @@ import {
   createPell,
   createPlyoBox,
   createPolearm,
+  createProjectile,
   createPoolEdge,
   createPram,
   createPullUpBar,
@@ -288,6 +289,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `magazine-${kind}`,
       (seed?: number | string): Archetype => createMagazine({ kind }, seed),
+    );
+  for (const kind of createProjectile.KINDS)
+    add(
+      `projectile-${kind}`,
+      (seed?: number | string): Archetype => createProjectile({ kind }, seed),
     );
   for (const kind of createLongGun.KINDS)
     add(

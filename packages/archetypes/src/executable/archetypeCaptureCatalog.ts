@@ -62,6 +62,7 @@ import {
   createMagazine,
   createPell,
   createPolearm,
+  createProjectile,
   createShield,
   createSword,
 } from "../weapons";
@@ -385,6 +386,11 @@ export function archetypeCaptureCatalog(): Readonly<
         "magazine",
         createMagazine.KINDS,
         (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
+      ),
+      ...kinds(
+        "projectile",
+        createProjectile.KINDS,
+        (kind: createProjectile.Kind): Archetype => createProjectile({ kind }),
       ),
       ...kinds(
         "longGun",

@@ -5,6 +5,7 @@ export * from "./createLongGun";
 export * from "./createMagazine";
 export * from "./createPell";
 export * from "./createPolearm";
+export * from "./createProjectile";
 export * from "./createShield";
 export * from "./createSword";
 export * from "./createWeaponLoop";
