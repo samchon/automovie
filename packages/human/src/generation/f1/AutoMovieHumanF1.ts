@@ -203,6 +203,18 @@ export namespace AutoMovieHumanF1 {
   ];
 
   /**
+   * Every stored cutter of the figure: the armpit's slit, each ear's bowl and each nostril are lofts cut out of the skin (`construction`),
+   * so `FAMILIES` does not hold them. Each is listed as stored, with `cut`, the family the figure lofts from it: the nostril is drawn in by
+   * its rim and spread past its mouth (`drawnIn`, `spreadOut`), the others are cut as stored. A reader that changes a cutter's stored
+   * fields reads through `cut` the wall the figure would cut with them.
+   */
+  export const CUTTERS: readonly { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean; cut: (family: AutoMovieHumanConicLoft.IFamily) => AutoMovieHumanConicLoft.IFamily }[] = [
+    { family: AutoMovieHumanF1Axilla, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => family },
+    { family: AutoMovieHumanF1Concha, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => family },
+    { family: AutoMovieHumanF1Nostril, mirrored: true, cut: (family: AutoMovieHumanConicLoft.IFamily): AutoMovieHumanConicLoft.IFamily => spreadOut(drawnIn(family, NOSTRIL_RIM_MM), NOSTRIL_MOUTH_MM, NOSTRIL_SPREAD_MM) },
+  ];
+
+  /**
    * The crotch's seam: the curve both legs' bands start from, under the perineum from the front fork to the back one, in place of the
    * straight chord across the trunk's end. On the chord the two bands met at each fork in a corner, and their triangles folded through
    * each other there (178 degrees), a slit seen from the front.
