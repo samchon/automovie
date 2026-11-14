@@ -142,6 +142,7 @@ export function createWindow(
   builder.affordance({
     id: "handle",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       grasp,
       Vector3.create(0, 0, 1),

@@ -9,6 +9,7 @@ import type { tags } from "typia";
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -366,6 +367,9 @@ export namespace handToFace {
       },
       row.region === null ? null : mirrored(row.region, first),
     );
+    // Two hands are planned as one trajectory.
+    const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
+      hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     for (const [side, name] of hands) {
       const own: HumanGrasp.IKey | null = side === first ? kept : null;
       // How the hand lies at the face, its elbow's hint and its reference.
@@ -399,6 +403,7 @@ export namespace handToFace {
         ...(lean === undefined ? {} : { lean }),
         ...(own === null ? {} : { held: own.wrist.rotation }),
         entry,
+        ...(together === undefined ? {} : { together }),
         ...(p.prop !== undefined && side === first
           ? { fingers: "keep" as const }
           : {}),

@@ -108,6 +108,7 @@ export function createClub(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, middle, 0),
       Vector3.create(0, 0, -1),
@@ -121,6 +122,7 @@ export function createClub(
   builder.affordance({
     id: "strike",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, length - createClub.SWEET, thick),
       Vector3.create(0, 0, 1),

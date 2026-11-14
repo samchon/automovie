@@ -13,11 +13,13 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import type { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspWorn } from "./HumanGraspWorn";
 
 /**
  * A grasp chosen for what the tool is taken up for, and not only for the
@@ -31,7 +33,7 @@ import type { HumanGrasp } from "./HumanGrasp";
  * shoulder on the line of its use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a use names, why the reach alone is not enough and how the use enters the grasp's choice.
- * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of five lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), one across the body, the long axis of a thing held in both hands, and one along a surface of the body, the working face laid on it; the search ranges are data beside it.
+ * @evidence contracts/development/design.md#principled-representation A use is the tool's working point by its affordance id and one of six lines: three to the forearm, the hammer, oblique and in-line grips of the grasp taxonomies (Feix et al. 2016), one across the body, the long axis of a thing held in both hands, one along a surface of the body, the working face laid on it, and one worn there, the worn frame whole with its turn free for a round thing; the search ranges are data beside it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The use, its five lines, the bounds of the search and the presented key; read by `pickUp`, `touch` and `handToFace`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named: a sword and a pistol differ only in the id of their working point and the line asked.
  */
@@ -50,9 +52,15 @@ export namespace HumanGraspUse {
      * lies, whatever the place; `along` lays the tool along the surface of
      * its place with the working point's own face on it, as a razor lies on
      * the jaw or a comb on the scalp, its way along the surface the hand's
-     * own (a place on the body only).
+     * own (a place on the body only); `worn` puts the thing on that place
+     * as it is worn (`HumanWorn.frame`), the whole frame of its `wear`
+     * socket on the region, as a hat goes on the crown or spectacles on the
+     * nose (a region only).
      */
-    line: "forearm" | "oblique" | "square" | "across" | "along";
+    line: "forearm" | "oblique" | "square" | "across" | "along" | "worn";
+
+    /** For a thing `worn` round about the region's normal, as a hat about the crown, that its turn about it is free: the grasp holds at whichever turn suits it; spectacles are not, and stay facing the body's way. False when absent. */
+    round?: boolean;
 
     /**
      * Where the tool is used, which is where the grasp must also hold:
@@ -75,10 +83,8 @@ export namespace HumanGraspUse {
     square: 90,
     across: 0,
     along: 0,
+    worn: 0,
   };
-
-  /** The most a grasp chosen for a use may leave unmet at its presented pose, as `HumanGrasp.IReach.miss` counts it (degrees of hand rotation plus millimetres of wrist place; provisional: 15, about what a wrist takes up unseen). */
-  export const UNMET: number = 15;
 
   /**
    * The turns about a handle's axis tried for a grasp chosen for a use,
@@ -113,7 +119,7 @@ export namespace HumanGraspUse {
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the pose, each input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much, so of the rolls tried the hand takes the one nearest its own rotation at that place.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places: a tool's working point off where the key asks it, metres, read off the fitted hand (`HumanGrasp.IKey.judge`). The roll about that line, or the turn about the surface's normal, is free in a use that names only that much, so of the rolls tried the hand takes the one nearest its own rotation at that place.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, no roll is taken that puts the hand inside the body while one keeps it out. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-four quaternion products and, with a clearance, twenty-four of its readings; the caller keeps the hand's own rotation per place.
@@ -199,7 +205,10 @@ export namespace HumanGraspUse {
         ? resolveAutoMovieHumanoidSurfaces.place(region, bearer)
         : undefined;
     const site: IAutoMovieVector3 | undefined = placed?.point;
-    if (props.use.line === "along" && placed === undefined)
+    if (
+      (props.use.line === "along" || props.use.line === "worn") &&
+      placed === undefined
+    )
       throw new HumanRefusal({
         kind: "parameter",
         axis: "use",
@@ -277,6 +286,19 @@ export namespace HumanGraspUse {
       z: shoulder.z + 0.6 * arm * forward.z,
     };
 
+    // Worn: the key is the thing on the place it is worn (`HumanGraspWorn`).
+    if (props.use.line === "worn")
+      return HumanGraspWorn.key({
+        context,
+        held,
+        tip,
+        at: at!,
+        site: site!,
+        side: props.side,
+        wrist: props.wrist,
+        ...(props.use.round === undefined ? {} : { round: props.use.round }),
+        ...(props.clear === undefined ? {} : { clear: props.clear }),
+      });
     const inHand: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(props.wrist.rotation),
       Vector3.subtract(
@@ -343,16 +365,39 @@ export namespace HumanGraspUse {
         ? ahead
         : Vector3.subtract(site, Quaternion.rotateVector(rotation, inHand));
 
-    // The elbow's hint of this pose, not the reach's: below the middle of
-    // the line from the shoulder to the wrist, by half the arm, where an
-    // elbow hangs under a hand held up before the body (provisional share).
+    // The use is judged by where the working point is once the arm is fitted
+    // to the key: rigid in the hand, its stray from where the key asks it is
+    // the hand's place and turn read in the tool's own metres.
+    const working: IAutoMovieVector3 = Vector3.add(
+      point,
+      Quaternion.rotateVector(rotation, inHand),
+    );
     return {
       posture: context.entry.posture,
       wrist: { point, rotation },
-      bend: {
-        x: (shoulder.x + point.x) / 2,
-        y: (shoulder.y + point.y) / 2 - 0.5 * arm,
-        z: (shoulder.z + point.z) / 2,
+      // The elbow's hint of this pose: its place of least joint strain for
+      // the presented wrist (`AutoMovieMotionHumanBend.solve`).
+      bend: AutoMovieMotionHumanBend.solve({
+        body: context.body,
+        posture: context.entry.posture,
+        side: props.side,
+        point,
+        rotation,
+        fallback: "hang",
+      }),
+      judge: (
+        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      ): number => {
+        const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
+        return Vector3.length(
+          Vector3.subtract(
+            Vector3.add(
+              hand.worldPosition,
+              Quaternion.rotateVector(hand.worldRotation, inHand),
+            ),
+            working,
+          ),
+        );
       },
     };
   }

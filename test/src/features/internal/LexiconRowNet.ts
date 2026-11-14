@@ -18,7 +18,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * body and the refusal's message.
  *
  * The tables say what a row leaves open: what a row done alone needs (a
- * place to go, a bench, a ball), the partner's distance and the target a
+ * place to go, a bench), the partner's distance and the target a
  * row done on a partner needs, which rows are costly strikes planned by one
  * of the two performers only, which follow a partner's placed path, and
  * which need a prop or a thrower their own tests stage.
@@ -52,11 +52,6 @@ export namespace LexiconRowNet {
     },
   };
 
-  /** A ball on the floor ahead and where it is kicked. */
-  const ball: object = {
-    ball: { kind: "point", at: { x: 0, y: 0.11, z: 0.45 }, frame: "world" },
-    toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
-  };
 
   /** What a row done alone leaves open. */
   const ALONE: Readonly<Record<string, object>> = {
@@ -87,16 +82,11 @@ export namespace LexiconRowNet {
     carryOnHip: ahead,
     pushCart: ahead,
     haul: ahead,
-    hammer: bench,
-    saw: bench,
-    stir: bench,
-    screw: bench,
     scrub: bench,
     // The reload's palm goes to the performer's own abdomen, standing in
-    // for a magazine well; a kick has its ball on the floor ahead.
+    // for a magazine well.
     reloadFirearm: { target: { kind: "self", region: "abdomen" } },
-    kickRight: ball,
-    kickLeft: ball,
+
     leap: { to: { x: 0, y: 0, z: 0.6 } },
     // Onto an imagined box 0.4 m high, with an apex above the climb.
     boxJump: { to: { x: 0, y: 0.4, z: 0.6 }, apex: 0.55 },
@@ -104,9 +94,6 @@ export namespace LexiconRowNet {
     strides: ahead,
     frontSalto: { to: { x: 0, y: 0, z: 0.8 } },
     backSalto: { to: { x: 0, y: 0, z: 0.2 } },
-    // A flop over a 1.4 m bar onto the floor 2.5 m ahead: a bar above
-    // either build's take-off centre of mass.
-    fosburyFlop: { to: { x: 0, y: 0, z: 2.5 }, bar: 1.4 },
   };
 
   /** The partner's distance and what a row done on a partner leaves open. */
@@ -220,11 +207,28 @@ export namespace LexiconRowNet {
     "holsterFirearm",
     "gloveCatch",
     "twoHandCatch",
-    // A vault needs its prop and a pole vault a held pole and a run-up,
-    // which `test_human_motion_gymnastics_airborne` and
+    // A vault needs its prop, a pole vault a held pole and a run-up, and a
+    // flop its high jump, which `test_human_motion_gymnastics_airborne` and
     // `test_human_motion_gymnastics_jumps` stage.
     "handspringVault",
     "vaultOnPole",
+    "fosburyFlop",
+    // A tool row works with the tool in hand, and a stir in its vessel,
+    // which `test_archetype_tool_use_m_average` and its twin stage.
+    "hammer",
+    "saw",
+    "stir",
+    "screw",
+    // A kick needs its ball, which `test_human_motion_sport_swings` and
+    // `test_archetype_sport_strike` stage.
+    "kickRight",
+    "kickLeft",
+    // A hanging exercise needs its bar, which `test_archetype_pull_up_bar_hang` stages.
+    "deadHang",
+    "pullUp",
+    "chinUp",
+    "kneeRaise",
+    "barSwing",
   ];
 
   /** The two builds, each performing with the other as its partner. */

@@ -155,7 +155,11 @@ export namespace motionHumanLawCovering {
    * sets the performer's own side to `left` (`motionHumanLawSweep.MIRRORED`)
    * is performed and compared with the mirror image of its `right` row
    * (`mirror`), on one body and one seed, since the relation holds whatever
-   * the body.
+   * the body. A sided law draws its seeded lateral variation in its acting
+   * side's frame, so the relation holds for every seed. Its precondition is
+   * that sideless staging carries no lateral seeded variation in mirror
+   * stages (`MOTION_HUMAN_LAW_STAGES`), since a sideless stand's
+   * side-to-side draw cannot know the coming side.
    *
    * @param table Each law's stage.
    * @param body The body of `a`; the partner is the small woman.

@@ -81,6 +81,7 @@ export function createPullUpBar(
   builder.affordance({
     id: "bar",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     length: d.length!,

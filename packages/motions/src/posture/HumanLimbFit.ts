@@ -17,6 +17,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
+import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
@@ -179,10 +180,17 @@ export namespace HumanLimbFit {
    * 2011, SIAM J. Numer. Anal. 49), at most `REAIM_PASSES` fits. A goal attached to a bone (`on`) is first carried into
    * the world by that bone as the pose being fitted places it, so whatever
    * moved the bone before the fit (a trunk joint, a layer, a transition
-   * offset) moves the goal with it. An arm fitted after the other arm keeps
-   * clear of it too, so two hands sent across each other stack their forearms
-   * instead of passing one through the other, and an arm keeps clear of the
+   * offset) moves the goal with it. An arm fitted after the other arm (one
+   * whose goal rides the other, `resolveHumanPosture.order`) keeps clear of
+   * it too; two arms with goals that ride neither are fitted as one coupled
+   * problem (`HumanLimbPair`), each first on its own with the other only a
+   * coming wrist (`rival`). An arm keeps clear of the
    * other bodies its goal names (`IHumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
+   * A left limb is fitted as the right limb in the mirror image of its world
+   * (the pose, the goal, the colliders it keeps clear of and the other arm)
+   * and mirrored back, so a mirrored posture's fit is the mirror of the
+   * original's to the bit: the solver's rounding is not sign-symmetric, and
+   * each side solved on its own parted them by up to 6.4e-14 degrees.
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -208,6 +216,10 @@ export namespace HumanLimbFit {
     placed: readonly ("left" | "right")[],
     rival?: IAutoMovieVector3,
   ): IAutoMoviePose {
+    // A left limb is fitted as the right limb in the mirror image of its
+    // world, so the two sides are mirror images to the bit.
+    if (limb.startsWith("left"))
+      return mirrored(fit(body, mirrored(pose), opposite(limb), reflected(attached), placed.map(other), rival === undefined ? undefined : HumanArmMirror.flip(rival)));
     const goal: IHumanPosture.IGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
@@ -335,7 +347,9 @@ export namespace HumanLimbFit {
    * Nothing else is read: the solver draws nothing and keeps no state.
    *
    * Each body keeps its last `FIT_MEMORY` fits, the least recently read
-   * dropped first, and a body no longer held drops them all.
+   * dropped first, and a body no longer held drops them all. A left limb's
+   * fit is kept under its mirror's key, the right limb's (`fit`), so a fit
+   * and its mirror image are one entry.
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -362,6 +376,10 @@ export namespace HumanLimbFit {
     rival?: IAutoMovieVector3,
   ): IAutoMoviePose {
     if (!REMEMBERING.on) return fit(body, pose, limb, goal, placed, rival);
+    // A left limb's fit is its mirror's, remembered under the right limb's
+    // key, so a fit and its mirror image share one entry.
+    if (limb.startsWith("left"))
+      return mirrored(remembered(body, mirrored(pose), opposite(limb), reflected(goal), placed.map(other), rival === undefined ? undefined : HumanArmMirror.flip(rival)));
     const key: string = JSON.stringify([
       limb,
       placed,
@@ -402,14 +420,84 @@ export namespace HumanLimbFit {
   /** Whether limb fits are remembered (`memory`). */
   const REMEMBERING: { on: boolean } = { on: true };
 
-  /** How many limb fits a body keeps (a few seconds of four limbs at a film's rate). */
-  const FIT_MEMORY: number = 512;
+  /**
+   * How many limb fits a body keeps: the least power of two at which the
+   * worst scene measured solves no fit twice.
+   *
+   * The contact scan (`HumanPerformanceContacts`) reads every body at each
+   * 120 Hz step of every strike's window, again after each stop it commits,
+   * and a display reads them once more. So a body's working set is the fits
+   * of every strike window it is read in. The worst scene measured is the
+   * website's boxing class: four performers over 13.4 s, 9,956 distinct
+   * fits across the four bodies. Fits it solved again after dropping them:
+   * - 512: 7,258 of 17,214;
+   * - 2,048: 4;
+   * - 4,096: none.
+   *
+   * Measured again once a left fit became its mirror's, read under the
+   * right limb's key, on the same composition with the test fixture's
+   * bodies (the coach m-large, the members f-small, m-average and
+   * f-average), planned and then read at 24 Hz: 32,633 fit reads, 17,366
+   * distinct fits, and solved again after dropping them 7,567 at 512, 5,009
+   * at 1,024, 127 at 2,048 and none at 4,096, as before the change (17,365
+   * distinct). A scene's left and right fits are rarely each other's exact
+   * mirror, so the shared key changes the working set by one fit here, and
+   * 4,096 stays the least power of two that solves none twice.
+   */
+  const FIT_MEMORY: number = 4096;
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */
   type IObstruction = (
     mid: IAutoMovieVector3,
     end: IAutoMovieVector3,
   ) => number;
+
+  /** A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its own inverse. */
+  function mirrored(pose: IAutoMoviePose): IAutoMoviePose {
+    return HumanArmMirror.mirrored({ pose, others: [] }).pose;
+  }
+
+  /**
+   * A limb goal's mirror image: its points and its contact with their
+   * lateral component negated (world, or local to the bone it is attached
+   * to, which a median-plane mirror maps alike), its rotation mirrored, the
+   * bone it rides and the colliders it keeps clear of or lies on taken to
+   * the other side. A reference's clinical angles are a side's own, so the
+   * mirrored limb reads them as they are.
+   *
+   * @param goal The goal.
+   * @returns Its mirror image.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and why the reference is not.
+   * @evidence contracts/development/implementation.md#principled-implementation The median-plane reflection of each of the goal's parts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record, one line per part.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every part a fit reads is mirrored.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per part.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmMirror`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function reflected(goal: IHumanPosture.IGoal): IHumanPosture.IGoal {
+    return {
+      ...goal,
+      point: HumanArmMirror.flip(goal.point),
+      bend: HumanArmMirror.flip(goal.bend),
+      ...(goal.rotation === undefined ? {} : { rotation: HumanArmMirror.turn(goal.rotation) }),
+      ...(goal.contact === undefined ? {} : { contact: HumanArmMirror.flip(goal.contact) }),
+      ...(goal.on === undefined ? {} : { on: HumanArmMirror.opposite(goal.on) }),
+      ...(goal.clear === undefined ? {} : { clear: goal.clear.map(HumanArmMirror.reflected) }),
+      ...(goal.rests === undefined ? {} : { rests: goal.rests.map(HumanArmMirror.reflected) }),
+    };
+  }
+
+  /** The same limb on the other side. */
+  function opposite(limb: IHumanPosture.Limb): IHumanPosture.Limb {
+    return (limb.startsWith("left") ? `right${limb.slice(4)}` : `left${limb.slice(5)}`) as IHumanPosture.Limb;
+  }
+
+  /** The other side. */
+  function other(side: "left" | "right"): "left" | "right" {
+    return side === "left" ? "right" : "left";
+  }
 
   /** One fit of a limb by the engine's two-bone solver, clear of an obstruction when one is given. */
   function once(

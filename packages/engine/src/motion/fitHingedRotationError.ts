@@ -39,7 +39,7 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation The candidate's twist is the one the fit will give (`solveDistalTwist`), so the ranking sees the shown hand.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One decomposition, one solve and one clamp per candidate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only an effector its clamp leaves alone counts as reached.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per candidate; read only for a comparison the ranking's bound cannot decide.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per candidate, the mid joint's angles read once per mid rotation; read only for a comparison the ranking's bound cannot decide.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Bases are admitted once per fit by the caller.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -68,18 +68,26 @@ export function fitHingedRotationError(
   const held: IAutoMovieJointPose = props.pose.joints.find(
     (j: IAutoMovieJointPose): boolean => j.bone === effector,
   ) ?? { bone: effector, flexion: null, abduction: null, twist: null };
+  // A sweep's candidates on one bend branch share one mid rotation record,
+  // so its angles are read once per record.
+  let seen: IAutoMovieQuaternion | undefined;
+  let angles: IAutoMovieResolvedJointAngles | undefined;
   return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
     const above: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(prepared.upper.worldRotation, upper),
       prepared.lowerRotation,
     );
     // The mid bone's angles, its twist solved as splitDistalTwist solves it.
-    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-      lower,
-      lowerBasis,
-      lowerFrame,
-      prepared.lowerDomain,
-    );
+    if (seen !== lower || angles === undefined) {
+      seen = lower;
+      angles = decomposeJointRotationOnBasis(
+        lower,
+        lowerBasis,
+        lowerFrame,
+        prepared.lowerDomain,
+      );
+    }
+    const read: IAutoMovieResolvedJointAngles = angles;
     const joint: IAutoMovieJointPose = { bone: props.chain.lower, ...read };
     const mid: IAutoMovieQuaternion = Quaternion.multiply(
       above,

@@ -111,6 +111,7 @@ export namespace walkFoot {
    * @param t The instant, seconds.
    * @param push The pitch at toe-off, degrees, negative.
    * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 for a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the starting stance rises to it and the closing stance settles from it over `RISE` seconds.
+   * @param backward Whether the stance is a backward step's: the forward stance played backward, the foot landing on its ball pitched toes-down and settling flat over the forefoot rocker's share, and leaving rolled toes-up about its heel over the heel rocker's share (provisional: the time reversal backward walking is described as, not read from a measurement of its rockers). False when absent.
    * @returns The planted foot.
    */
   export function stance(
@@ -123,9 +124,41 @@ export namespace walkFoot {
     t: number,
     push: number,
     raised: number = 0,
+    backward: boolean = false,
   ): IFoot {
     const length: number =
       Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
+    if (backward && !(raised > 0)) {
+      // The forward rockers in reverse: down from the ball after the strike,
+      // up about the heel before the toe-off.
+      const settle: number = 0.4 * (Number.isFinite(toeOff) ? length : 0.6);
+      if (Number.isFinite(strike) && t < strike + settle) {
+        const degrees: number =
+          push * (1 - minimumJerk((t - strike) / settle).s);
+        return {
+          placement: rocked(body, side, flat, heading, degrees, "mtp"),
+          toes: -degrees,
+        };
+      }
+      if (Number.isFinite(toeOff) && t > toeOff - HEEL_SHARE * length) {
+        const degrees: number =
+          STRIKE *
+          minimumJerk(
+            (t - (toeOff - HEEL_SHARE * length)) / (HEEL_SHARE * length),
+          ).s;
+        return {
+          placement: rocked(body, side, flat, heading, degrees, "heel"),
+          toes: 0,
+        };
+      }
+      return {
+        placement: {
+          ankle: flat.ankle,
+          rotation: HumanFoot.rotation(heading, 0),
+        },
+        toes: 0,
+      };
+    }
     if (raised > 0) {
       // On the ball throughout: the heel's height, eased up from a flat start and down to a flat stop, and the forefoot rocker's pitch where it is steeper.
       const held: number =

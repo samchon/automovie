@@ -39,18 +39,19 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditContact {
   /**
-   * The height under which a sole socket is on the floor, metres: under half
-   * the 12.9 mm mean minimum toe clearance of the swinging foot in normal
-   * walking (Winter 1992, Foot trajectory in human gait, Physical Therapy
+   * The height under which a sole socket is on the floor, metres: the
+   * foot's own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm
+   * mean minimum toe clearance of the swinging foot in normal walking
+   * (Winter 1992, Foot trajectory in human gait, Physical Therapy
    * 72(1):45-53), so a foot at the lowest point of a normal swing is not
    * read as on the floor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and why the bound sits where it does.
    * @evidence contracts/development/design.md#principled-representation One length compared with a socket's height.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides; the base of support reads the same height from its owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion, and held once by the foot.
    */
-  export const HEIGHT: number = 0.006;
+  export const HEIGHT: number = HumanFoot.BEARING;
 
   /**
    * The horizontal speed under which a socket on the floor is at rest,

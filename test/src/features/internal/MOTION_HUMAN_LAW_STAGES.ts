@@ -11,6 +11,13 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
  * completeness can be read in one place: a law of the registry belongs to
  * exactly one family here.
  *
+ * The stages also stage the mirror relation, a sided law asked for the left
+ * against the mirror of it asked for the right. Sideless staging carries no
+ * lateral seeded variation in mirror stages: a stand that enters a sided
+ * law, or a partner's stand, is staged with `sway: 0`. Its side-to-side draw
+ * cannot know the coming side, so it could only break the relation it
+ * stages. The stand's own sway is covered by its own specs.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table is for and its one invariant.
  * @evidence contracts/development/design.md#principled-representation Families keyed by name, each the table its own sweep test runs.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Six families, one per sweep test.

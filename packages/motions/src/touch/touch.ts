@@ -6,6 +6,7 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -34,6 +35,7 @@ import { poseBones } from "../posture/poseBones";
 import { touchEffectors } from "./touchEffectors";
 import { touchHold } from "./touchHold";
 import { touchPresented } from "./touchPresented";
+import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
 import type { touchSite } from "./touchSite";
 
@@ -337,7 +339,11 @@ export namespace touch {
         Math.hypot(at.x - from.x, at.y - from.y, at.z - from.z),
       );
     }
-    const reach: number = AutoMovieMotionHumanTiming.transport(far);
+    // At least as long as the arms need to keep within the audit's travel bound.
+    const reach: number = Math.max(
+      AutoMovieMotionHumanTiming.transport(far),
+      touchReach.duration(body, context.entry.pose, reached, hands, effector, region, laid),
+    );
     const repetition: number = AutoMovieMotionHumanTouchForm.period(
       body,
       kind,
@@ -368,9 +374,21 @@ export namespace touch {
           goal: (): IHumanPosture.IGoal => shown.goal,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          // The shown hand's reach, hold and return, planned over the
+          // clock's instants.
+          span: {
+            start: clock.at("start"),
+            ready: clock.at("ready"),
+            relax: clock.at("relax"),
+            end: clock.at("end"),
+          },
         }),
       );
+    // Two hands are planned as one trajectory.
+    const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
+      hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     for (const [side, target] of hands) {
+      const disc: number | undefined = touchRegion.disc(context, target, side === first ? p.site : undefined);
       const support: IHumanContactWindow.Support | undefined =
         target.kind === "person"
           ? { kind: "person", subject: target.subject, region: target.region }
@@ -454,6 +472,9 @@ export namespace touch {
           ...(from === undefined ? {} : { from }),
           ...(p.elbow === undefined ? {} : { elbow: p.elbow }),
           entry: risen,
+          ...(together === undefined ? {} : { together }),
+          ...(disc === undefined ? {} : { disc }),
+          ...(target.kind === "self" ? { on: body.surfaces.regions[target.region].bone } : {}),
           ...(resting(side).length === 0 ? {} : { rests: resting(side) }),
           ...(p.prop !== undefined && side === first
             ? { fingers: "keep" as const }
@@ -463,7 +484,7 @@ export namespace touch {
             ? {}
             : { contact: support }),
           ...(target.kind === "person"
-            ? { others: touchHold.others(context, target, clock) }
+            ? { others: touchHold.others(context, target, clock), perceived: touchHold.perceived(context, target, clock, region(target)) }
             : {}),
         }),
       );

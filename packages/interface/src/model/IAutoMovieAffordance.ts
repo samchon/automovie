@@ -8,7 +8,7 @@ import { AutoMovieGripKind } from "./AutoMovieGripKind";
  *
  * Bone attachments couple to a posed skeleton; an affordance instead marks a model-local contact used by prop anchoring and support consumers. propSupportFace transforms a stack-top footprint through the full affordance and staged matrices for placement support. The separate rigid-only affordanceSupportContacts helper currently has no product caller and does not establish a wired toppling pipeline.
  *
- * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius` and `travel` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
+ * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius` and `travel` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
  *
  * @evidence contracts/development/design.md#principled-representation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
@@ -79,6 +79,16 @@ export interface IAutoMovieAffordance {
    * Ids of the model's parts that move rigidly with this articulation's travel, for the `hinge`, `slider`, `knob`, `button`, `trigger`, `crank`, `wheel` and `pedal` kinds: a door's leaf on its hinge, a drawer's box on its slider. Each id names a part of the owning model and belongs to at most one affordance. Absent or empty, the articulation moves no geometry. Other kinds bind no part: absent or empty.
    */
   parts?: string[];
+
+  /**
+   * What the frame's `+Y` is on a working affordance, the place a held object does its work with: `along` is the direction the object runs toward this point, out of its end (a muzzle's bore, a blade's or a spear's point, a pole's tip, a torch's beam, a racket's sweet spot along the racket toward its head's top); `normal` is the outward normal of a working face (a bat's strike, a club's or a racket's face, a hammer's face, a blade's edge, a shield's face, a cloth's underside). A grasp that presents the object for its use reads it to know whether the object's line runs to this point along `+Y` or across it. Every working affordance declares it; any other contact leaves it absent.
+   */
+  direction?: "along" | "normal";
+
+  /**
+   * How a `handle`'s, a `bar`'s or a `rein`'s grip repeats as the hand turns about the axis it wraps (`+X`): `round` when the same grasp exists at any turn, the hand meeting the same part whichever way round it closes (a bottle's body, a bat's handle, a rung, a bar, a rope); `half` when it repeats only after half a turn, two equal faces either side of the axis (a flat handle); `none` when it exists at one turn only (a pistol's grip, a knife's handle, a mug's handle, a racket's flats). A grasp chooser reads it to know which turns about the handle are the same grasp. Every `handle`, `bar` and `rein` declares it; other kinds leave it absent.
+   */
+  symmetry?: "round" | "half" | "none";
 
   /**
    * Id of the articulation affordance of the same model that carries this affordance: its frame moves rigidly with that articulation's travel, as a door's handle rides the door's hinge and a pedal its crank, and when this affordance is itself an articulation its `parts` move with both. The chain of `rides` ends without returning to itself. Absent, the affordance is fixed in the model.

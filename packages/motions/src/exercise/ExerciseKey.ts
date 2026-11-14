@@ -1,4 +1,8 @@
-import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -252,12 +256,15 @@ export namespace ExerciseKey {
     return { ...key, roll: -key.roll, yaw: -key.yaw, joints };
   }
 
+  /** What bears a key: a bone's origin, or a hand's grip socket, the centre of a fist closed on a bar. */
+  export type Pin = AutoMovieHumanoidBone | "gripLeft" | "gripRight";
+
   /**
-   * The mean place of bones' origins on a posture.
+   * The mean place of bones' origins, or of grip sockets, on a posture.
    *
    * @param body The body.
    * @param posture The posture.
-   * @param bones The bones.
+   * @param bones The bones or grip sockets.
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
@@ -271,18 +278,51 @@ export namespace ExerciseKey {
   export function mean(
     body: IHumanBody,
     posture: IHumanPosture,
-    bones: readonly AutoMovieHumanoidBone[],
+    bones: readonly Pin[],
   ): IAutoMovieVector3 {
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       StrikingBody.trunk(body, posture);
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (const bone of bones) {
-      const at: IAutoMovieVector3 | undefined =
-        resolved.get(bone)?.worldPosition;
-      if (at === undefined) throw new Error(`The rig has no bone ${bone}`);
-      sum = Vector3.add(sum, at);
-    }
+    for (const bone of bones) sum = Vector3.add(sum, at(body, resolved, bone));
     return Vector3.scale(sum, 1 / bones.length);
+  }
+
+  /**
+   * A pin's place on resolved bones: a bone's origin, or a grip socket's
+   * point on its hand.
+   *
+   * @param body The body.
+   * @param resolved The resolved bones.
+   * @param pin The bone or grip socket.
+   * @returns World metres.
+   * @throws {Error} When the rig has no such bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds of pin and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A socket is placed on its bone by the body's own surfaces, as a held prop's grip is.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone the rig lacks throws with its name.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function at(
+    body: IHumanBody,
+    resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    pin: Pin,
+  ): IAutoMovieVector3 {
+    if (pin === "gripLeft" || pin === "gripRight") {
+      const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+        body.surfaces.sockets[pin];
+      const bone: IAutoMovieResolvedBone | undefined = resolved.get(
+        socket.bone,
+      );
+      if (bone === undefined)
+        throw new Error(`The rig has no bone ${socket.bone}`);
+      return resolveAutoMovieHumanoidSurfaces.place(socket, bone).point;
+    }
+    const found: IAutoMovieVector3 | undefined = resolved.get(pin)?.worldPosition;
+    if (found === undefined) throw new Error(`The rig has no bone ${pin}`);
+    return found;
   }
 
   /**
@@ -318,8 +358,8 @@ export namespace ExerciseKey {
    * @param body The body.
    * @param key The key.
    * @param yaw The heading the exercise is entered on, degrees.
-   * @param pin The bones that bear.
-   * @param at Where their mean stays, world metres.
+   * @param pin The bones, or the grip sockets, that bear.
+   * @param place Where their mean stays, world metres.
    * @returns The posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the result keeps.
@@ -334,17 +374,17 @@ export namespace ExerciseKey {
     body: IHumanBody,
     key: IKey,
     yaw: number,
-    pin: readonly AutoMovieHumanoidBone[],
-    at: IAutoMovieVector3,
+    pin: readonly Pin[],
+    place: IAutoMovieVector3,
   ): IHumanPosture {
     const free: IHumanPosture = posed(key, yaw);
     const offset: IAutoMovieVector3 = mean(body, free, pin);
     return {
       ...free,
       root: {
-        x: at.x - offset.x,
-        y: at.y - offset.y + key.lift * body.measure.stature,
-        z: at.z - offset.z,
+        x: place.x - offset.x,
+        y: place.y - offset.y + key.lift * body.measure.stature,
+        z: place.z - offset.z,
       },
     };
   }

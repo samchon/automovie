@@ -5,11 +5,14 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
@@ -65,8 +68,8 @@ export namespace AutoMovieMotionHumanTrunk {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, unit and range.
    * @evidence contracts/development/design.md#principled-representation A crouch is how far the hips sink and how far the trunk pitches, between a sinking and a rising window; the knees are not stated because the planted feet decide them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven required members, read only by `crouch`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member and no hip shift: the shift is solved, so a caller cannot state one that unbalances the body.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven required members and the legs the crouch plants, read only by `crouch`; the legs exist because one caller (the batting stance) steps one foot out itself while the body sinks.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hip shift: the shift is solved, so a caller cannot state one that unbalances the body; the feet are read off the standing posture, so a caller cannot plant them somewhere the body does not stand.
    */
   export interface ICrouch {
     /** The body. */
@@ -89,6 +92,78 @@ export namespace AutoMovieMotionHumanTrunk {
 
     /** The trunk's forward inclination at the lowest, degrees, shared between the pelvis and the spine by `sunk`; not negative. */
     pitch: number;
+
+    /** The legs the crouch plants where `standing` puts their feet; both when absent. A leg left out is the caller's to place. */
+    legs?: readonly AutoMovieMotionHumanLeg.Side[];
+  }
+
+  /**
+   * Where a posture puts each foot: its ankle and its rotation as the
+   * posture resolves, whether its legs are goals or joint angles alone.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @returns Each foot's placement, world frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the frame and that either kind of leg is read.
+   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the resolved posture reads the foot bones' world frames, so a leg written as goals reads where its solve put it and a leg written as angles where its angles put it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and two lookups.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the feet are read, never rebuilt from a stance width.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution, linear in bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; `crouch` calls it once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function footing(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> {
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    );
+    const at = (side: AutoMovieMotionHumanLeg.Side): HumanFoot.IPlacement => ({
+      ankle: bones.get(`${side}Foot`)!.worldPosition,
+      rotation: bones.get(`${side}Foot`)!.worldRotation,
+    });
+    return { left: at("left"), right: at("right") };
+  }
+
+  /**
+   * A posture with legs planted on given feet: each named leg a planted goal
+   * on its foot's placement, its knee hinted over the foot from the
+   * posture's root, so lowering the root bends the knee instead of carrying
+   * the foot down with it.
+   *
+   * @param body The body.
+   * @param posture The posture whose root carries the knees' rest places.
+   * @param feet Each foot's placement, world frame.
+   * @param legs The legs planted.
+   * @returns The posture with those legs' goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is written, why the knee bends and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation A foot that bears stays on the floor and the leg is solved onto it by inverse kinematics (the effector goals of the motion skill), through the one goal builder `AutoMovieMotionHumanLeg.goal`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal per named leg.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per leg.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function planted(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    feet: Readonly<Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement>>,
+    legs: readonly AutoMovieMotionHumanLeg.Side[],
+  ): IHumanPosture {
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    for (const side of legs)
+      limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+        body,
+        posture,
+        side,
+        feet[side],
+        true,
+      );
+    return { ...posture, limbs };
   }
 
   /**
@@ -162,35 +237,67 @@ export namespace AutoMovieMotionHumanTrunk {
    * A crouch: the hips sink and the trunk inclines forward over them
    * (`sunk`), the hips moved back so the centre of mass stays over the feet,
    * and the body stands again (a duck, the dip before a jump, a load taken
-   * into the legs). The planted legs keep their goals, so the knees bend.
+   * into the legs). The crouch plants its legs itself on the feet the
+   * standing posture shows (`footing`, `planted`), so the knees bend under
+   * the sinking hips whatever the action before it left: a stance with leg
+   * goals, or an exercise whose legs are joint angles alone, under which a
+   * root lowered without goals would carry straight legs through the floor.
    *
-   * @param props The body, the standing posture, the windows, the depth and the pitch.
-   * @returns The primitive, on the root and the trunk.
+   * @param props The body, the standing posture, the windows, the depth, the pitch and the legs planted.
+   * @returns The primitive, on the root, the trunk and the planted legs.
    * @throws {Error} When the depth or the pitch is negative.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the movement, why the knees bend, the channels and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Standing balance keeps the centre of mass over the base of support, so the hip shift is solved by `HumanBalance.shift` on the lowest pose and scaled with the depth and the pitch by the clock's envelope. The shift is solved once on the standing posture, so between the ends the balance is the linear share of the solved one, not solved again.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds the lowered pose for a share; it serves both the solve and the write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative or non-numeric depth or pitch throws; no shift is stated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The balance is solved once when the phrase is built, not per evaluated second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk` and the solve to `HumanBalance.shift`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments and one solved number.
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, why the knees bend whatever the entry, the channels and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Standing balance keeps the centre of mass over the base of support, so the hip shift is solved by `HumanBalance.shift` on the lowest pose and scaled with the depth and the pitch by the clock's envelope. The shift is solved once on the standing posture with its legs planted, so between the ends the balance is the linear share of the solved one, not solved again. The feet are read once off the resolved standing posture, the place the body is displayed standing on.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper builds the lowered and planted pose for a share; it serves both the solve and the write.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative or non-numeric depth or pitch throws; no shift is stated; the feet are the posture's own, never a stance rebuilt from a width.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The balance and the feet are solved once when the phrase is built, not per evaluated second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the lowered pose to `sunk`, the solve to `HumanBalance.shift` and the leg goals to `AutoMovieMotionHumanLeg.goal`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive keeps its arguments, the two feet and one solved number.
    */
   export function crouch(props: ICrouch): IAutoMovieMotionHumanPrimitive {
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
+    const legs: readonly AutoMovieMotionHumanLeg.Side[] = props.legs ?? [
+      "left",
+      "right",
+    ];
+    const feet: Record<AutoMovieMotionHumanLeg.Side, HumanFoot.IPlacement> =
+      footing(props.body, props.standing);
+
+    // The legs are planted before the hips sink, so `sunk` reads the thighs
+    // the pelvis's share is limited by, and the knees bend as the root goes
+    // down.
     const low = (
       posture: IHumanPosture,
       share: number,
       back: number,
     ): IHumanPosture =>
-      sunk(props.body, posture, props.depth * share, props.pitch * share, back);
+      planted(
+        props.body,
+        sunk(
+          props.body,
+          planted(props.body, posture, feet, legs),
+          props.depth * share,
+          props.pitch * share,
+          back,
+        ),
+        feet,
+        legs,
+      );
     const back: number = HumanBalance.shift(
       props.body,
       (b: number): IHumanPosture => low(props.standing, 1, b),
     );
     return {
-      channels: ["root", "trunk"],
+      channels: [
+        "root",
+        "trunk",
+        ...legs.map(
+          (side: AutoMovieMotionHumanLeg.Side): "leftLeg" | "rightLeg" =>
+            `${side}Leg`,
+        ),
+      ],
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {

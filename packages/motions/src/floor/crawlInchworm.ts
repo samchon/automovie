@@ -21,6 +21,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { crawl } from "./crawl";
 import { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
+import { floorEntry } from "./floorEntry";
 
 /**
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds
@@ -35,9 +36,11 @@ import { crawlFrame } from "./crawlFrame";
  * reach to the plank's and the feet after them by the same length, a
  * hand's step at most `HAND` of the arm's length and a foot's `FOOT` of the
  * leg's, each limb lifted `LIFT` on an arc while the other three bear.
- * Getting down blends from standing to the fold over `DOWN` seconds and
- * rising back over `RISE`. The steps and the timing are provisional,
- * scaled by the square root of the hip height and the manner's tempo.
+ * Getting down blends from standing to the fold over `DOWN` seconds, or
+ * from the displayed entry when it is entered crouched or on the knees
+ * (`floorEntry`), and rising back to standing over `RISE`. The steps and
+ * the timing are provisional, scaled by the square root of the hip height
+ * and the manner's tempo.
  * Events: `down`, per cycle `plank<n>` and `folded<n>`, `rising`, and per
  * limb and step `<limb>Liftoff<n>` and `<limb>Touchdown<n>`, the limb one of
  * `leftHand`, `rightHand`, `leftFoot`, `rightFoot`.
@@ -108,9 +111,17 @@ export namespace crawlInchworm {
     HumanBound.whole("cycles", cycles);
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const standing: IHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
+
+    // Entered crouched over the hands (where a bear crawl ends) or on the
+    // knees, the inchworm measures from a stance over the entry's feet and
+    // gets down from the entry.
+    const { standing, entered }: floorEntry.IStart = floorEntry.start(
+      context,
+      "inchworm",
+      "feet",
+      (): IHumanPosture =>
+        stand.plan({ ...context, params: { seconds: 1 } }).posture(0),
+    );
     const yaw: number = standing.yaw;
     const frame: HumanFrame.IFrame = {
       origin: { ...standing.root, y: 0 },
@@ -236,121 +247,128 @@ export namespace crawlInchworm {
       ],
       from: 0,
       to: duration,
-      write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
-        const w: number =
-          seconds < rising
-            ? clock.progress("start", "down", seconds)
-            : 1 - clock.progress("rising", "end", seconds);
-        const rest: IHumanPosture = seconds < rising ? standing : ended;
-        const feetAt: Record<"left" | "right", crawlChain.IPlanar> = {
-          left: place("leftFoot", seconds),
-          right: place("rightFoot", seconds),
-        };
-        const palmsAt: Record<"left" | "right", crawlChain.IPlanar> = {
-          left: place("leftHand", seconds),
-          right: place("rightHand", seconds),
-        };
-        const pose: crawlChain.IShape = chain.shape(
-          (feetAt.left.u + feetAt.right.u) / 2,
-          (palmsAt.left.u + palmsAt.right.u) / 2 + wu,
-        );
-        const pitch: number =
-          Math.atan2(
-            pose.shoulders.u - pose.hips.u,
-            pose.shoulders.v - pose.hips.v,
-          ) *
-            DEG -
-          chain.lean;
-        const target: IHumanPosture = crawlFrame.posed(yaw, w, pitch, 0, 0);
-        const hips: IAutoMovieVector3 = HumanFrame.point(frame, {
-          x: 0,
-          y: pose.hips.v,
-          z: pose.hips.u,
-        });
-        const out: IHumanPosture = {
-          ...target,
-          root: Vector3.lerp(
-            rest.root,
-            crawlFrame.rootFor(body, target, hips),
-            w,
-          ),
-          limbs: {},
-          joints: { ...posture.joints, ...target.joints },
-        };
-        // Each foot pivoted on its ball, the ball kept on its place when the
-        // ankle's range will not meet the foot's turn; the knee bent toward
-        // the front of the leg.
-        const knee: number = KNEE * m.shank;
-        for (const side of sides) {
-          const placement: HumanFoot.IPlacement = HumanFoot.pivot(
-            body,
-            side,
-            "mtp",
-            HumanFrame.point(frame, {
-              x: chain.balls[side].x,
-              y: chain.balls[side].y + feetAt[side].v,
-              z: feetAt[side].u,
-            }),
-            yaw,
-            -pose.heel,
+      write: floorEntry.down(
+        body,
+        entered,
+        DOWN,
+        (seconds: number): number =>
+          seconds < rising ? clock.progress("start", "down", seconds) : 1,
+        (posture: IHumanPosture, seconds: number): IHumanPosture => {
+          const w: number =
+            seconds < rising
+              ? clock.progress("start", "down", seconds)
+              : 1 - clock.progress("rising", "end", seconds);
+          const rest: IHumanPosture = seconds < rising ? standing : ended;
+          const feetAt: Record<"left" | "right", crawlChain.IPlanar> = {
+            left: place("leftFoot", seconds),
+            right: place("rightFoot", seconds),
+          };
+          const palmsAt: Record<"left" | "right", crawlChain.IPlanar> = {
+            left: place("leftHand", seconds),
+            right: place("rightHand", seconds),
+          };
+          const pose: crawlChain.IShape = chain.shape(
+            (feetAt.left.u + feetAt.right.u) / 2,
+            (palmsAt.left.u + palmsAt.right.u) / 2 + wu,
           );
-          const bend: IAutoMovieVector3 = HumanFrame.point(frame, {
-            x: chain.balls[side].x,
-            y:
-              (pose.hips.v + pose.ankle.v) / 2 -
-              knee * Math.cos(pose.lam / DEG),
-            z:
-              (pose.hips.u + pose.ankle.u) / 2 +
-              knee * Math.sin(pose.lam / DEG),
+          const pitch: number =
+            Math.atan2(
+              pose.shoulders.u - pose.hips.u,
+              pose.shoulders.v - pose.hips.v,
+            ) *
+              DEG -
+            chain.lean;
+          const target: IHumanPosture = crawlFrame.posed(yaw, w, pitch, 0, 0);
+          const hips: IAutoMovieVector3 = HumanFrame.point(frame, {
+            x: 0,
+            y: pose.hips.v,
+            z: pose.hips.u,
           });
-          const from: IHumanPosture.IGoal = rest.limbs[`${side}Leg`]!;
-          out.limbs[`${side}Leg`] = {
-            point: Vector3.lerp(from.point, placement.ankle, w),
-            rotation: Quaternion.slerp(
-              from.rotation ?? HumanFrame.turn(yaw),
-              placement.rotation,
+          const out: IHumanPosture = {
+            ...target,
+            root: Vector3.lerp(
+              rest.root,
+              crawlFrame.rootFor(body, target, hips),
               w,
             ),
-            bend: Vector3.lerp(from.bend, bend, w),
-            contact: HumanFoot.offset(body, side, "mtp"),
+            limbs: {},
+            joints: { ...posture.joints, ...target.joints },
           };
-          out.joints[`${side}Toes`] = [pose.heel * w, 0, 0];
-        }
-        // Each palm flat on the floor under its shoulder's lateral place.
-        for (const side of sides) {
-          const hand: AutoMovieMotionHumanArm.ITarget =
-            AutoMovieMotionHumanTarget.hand(
+          // Each foot pivoted on its ball, the ball kept on its place when the
+          // ankle's range will not meet the foot's turn; the knee bent toward
+          // the front of the leg.
+          const knee: number = KNEE * m.shank;
+          for (const side of sides) {
+            const placement: HumanFoot.IPlacement = HumanFoot.pivot(
               body,
-              out,
               side,
-              {
-                point: HumanFrame.point(frame, {
-                  x: chain.palms[side],
-                  y: palmsAt[side].v,
-                  z: palmsAt[side].u,
-                }),
-                normal: { x: 0, y: 1, z: 0 },
-              },
-              { surface: "palm", shape: "flat", forward },
+              "mtp",
+              HumanFrame.point(frame, {
+                x: chain.balls[side].x,
+                y: chain.balls[side].y + feetAt[side].v,
+                z: feetAt[side].u,
+              }),
+              yaw,
+              -pose.heel,
             );
-          out.joints = { ...out.joints, ...HumanHand.shape(side, "flat") };
-          out.limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
+            const bend: IAutoMovieVector3 = HumanFrame.point(frame, {
+              x: chain.balls[side].x,
+              y:
+                (pose.hips.v + pose.ankle.v) / 2 -
+                knee * Math.cos(pose.lam / DEG),
+              z:
+                (pose.hips.u + pose.ankle.u) / 2 +
+                knee * Math.sin(pose.lam / DEG),
+            });
+            const from: IHumanPosture.IGoal = rest.limbs[`${side}Leg`]!;
+            out.limbs[`${side}Leg`] = {
+              point: Vector3.lerp(from.point, placement.ankle, w),
+              rotation: Quaternion.slerp(
+                from.rotation ?? HumanFrame.turn(yaw),
+                placement.rotation,
+                w,
+              ),
+              bend: Vector3.lerp(from.bend, bend, w),
+              contact: HumanFoot.offset(body, side, "mtp"),
+            };
+            out.joints[`${side}Toes`] = [pose.heel * w, 0, 0];
+          }
+          // Each palm flat on the floor under its shoulder's lateral place.
+          for (const side of sides) {
+            const hand: AutoMovieMotionHumanArm.ITarget =
+              AutoMovieMotionHumanTarget.hand(
+                body,
+                out,
+                side,
+                {
+                  point: HumanFrame.point(frame, {
+                    x: chain.palms[side],
+                    y: palmsAt[side].v,
+                    z: palmsAt[side].u,
+                  }),
+                  normal: { x: 0, y: 1, z: 0 },
+                },
+                { surface: "palm", shape: "flat", forward },
+              );
+            out.joints = { ...out.joints, ...HumanHand.shape(side, "flat") };
+            out.limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(
+              body,
+              side,
+              hand,
+            );
+          }
+          if (w >= 1) return out;
+          return AutoMovieMotionHumanArm.carry(
             body,
-            side,
-            hand,
+            out,
+            {
+              left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+              right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+            },
+            w,
           );
-        }
-        if (w >= 1) return out;
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          out,
-          {
-            left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-            right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-          },
-          w,
-        );
-      },
+        },
+      ),
     };
 
     // Each hand planted from the fold to the rise between its steps, each
@@ -375,12 +393,16 @@ export namespace crawlInchworm {
       close(hand ? rising : duration);
     }
 
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
-      clock,
-      contact: "down",
-      primitives: [whole],
-    });
+    // The inchworm rises to standing, whatever base it was entered on.
+    return {
+      ...composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
+        clock,
+        contact: "down",
+        primitives: [whole],
+      }),
+      base: { kind: "standing" },
+    };
   }
 
   /**

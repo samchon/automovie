@@ -4,5 +4,8 @@ export * from "./createHolster";
 export * from "./createLongGun";
 export * from "./createPell";
 export * from "./createPolearm";
+export * from "./createScabbard";
 export * from "./createShield";
 export * from "./createSword";
+export * from "./createWeaponLoop";
+export * from "./createWeaponRack";

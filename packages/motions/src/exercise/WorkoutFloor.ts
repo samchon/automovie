@@ -1,5 +1,10 @@
+import { physicalShapeBounds } from "@automovie/engine";
+
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
@@ -85,6 +90,56 @@ export namespace WorkoutFloor {
       else level = middle;
     }
     return key((steep + level) / 2);
+  }
+
+  /**
+   * The key of a family of keys by roll that rests on its side on two
+   * supports at once: the roll at which the lowest point of the `on`
+   * colliders lies level with the lowest point of the `with` colliders, as
+   * a side plank lies on its forearm and its feet.
+   *
+   * @param body The body.
+   * @param on The bones that bear besides the feet, such as a forearm and its hand.
+   * @param key The key at a roll, degrees; negative tips the body to its left.
+   * @returns The key at that roll.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is solved, the inputs, the sign and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rolled(
+    body: IHumanBody,
+    on: RegExp,
+    key: (roll: number) => ExerciseKey.IKey,
+  ): ExerciseKey.IKey {
+    // How far the bearing bones' lowest point lies above the feet's.
+    const above = (roll: number): number => {
+      const posed: IHumanPosture = ExerciseKey.posed(key(roll), 0);
+      let bearing: number = Infinity;
+      let feet: number = Infinity;
+      for (const segment of HumanColliders.placed(
+        body,
+        poseBones(body, resolveHumanPosture(body, posed)),
+      ))
+        for (const shape of segment.shapes) {
+          const low: number = physicalShapeBounds(segment.pose, shape).min.y;
+          if (on.test(segment.bone)) bearing = Math.min(bearing, low);
+          if (/(Foot|Toes)$/.test(segment.bone)) feet = Math.min(feet, low);
+        }
+      return bearing - feet;
+    };
+    let upright: number = 0;
+    let side: number = -90;
+    for (let i: number = 0; i < 20; i++) {
+      const middle: number = (upright + side) / 2;
+      if (above(middle) > 0) upright = middle;
+      else side = middle;
+    }
+    return key((upright + side) / 2);
   }
 
   /** The top of a push-up: a straight body on the toes and the straight arms; the hands `raise` degrees out. */

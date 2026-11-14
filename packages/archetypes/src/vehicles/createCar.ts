@@ -167,6 +167,7 @@ export function createCar(
     builder.affordance({
       id: `${role}DoorHandle`,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         v(x + sign * 0.03, belt - 0.08, pillar + 0.12),
         v(sign, 0, 0),
@@ -290,6 +291,7 @@ export function createCar(
   builder.affordance({
     id: "gearKnob",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(knob, v(0, 1, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
@@ -299,6 +301,7 @@ export function createCar(
   builder.affordance({
     id: "driverBelt",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       v(side * (half - 0.05), sy + 0.5, pillar),
       v(-side, 0, 0),

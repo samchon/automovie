@@ -54,6 +54,11 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * frame under any pose is the bone's world position plus its world rotation
  * applied to them.
  *
+ * The left side is the mirror of the right: a left region or socket (and the
+ * spleen, the liver's twin) is its right twin's frame mirrored in the median
+ * plane (`mirrored`), on the opposite bone, so a left act reads a frame that
+ * is the mirror of the right one to the bit, as the rig's own rest is.
+ *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile, segments keyed by rig bones.
  * @returns Every region and socket.
@@ -233,6 +238,20 @@ export function resolveAutoMovieHumanoidSurfaces(
     AutoMovieHumanoidSurfaceExtents(regions, at, bounds);
   for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
     regions[name] = { ...regions[name], radius: radii[name] };
+  // The body's left is the mirror of its right: each left region and socket
+  // is its right twin's frame mirrored, so the two sides are mirror images
+  // to the bit, whatever the rounding of the rays that placed the right.
+  for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[]) {
+    const right: AutoMovieHumanoidRegion | undefined =
+      resolveAutoMovieHumanoidSurfaces.twin(name);
+    if (right !== undefined)
+      regions[name] = resolveAutoMovieHumanoidSurfaces.mirrored(regions[right]);
+  }
+  for (const name of Object.keys(sockets) as AutoMovieHumanoidSocket[])
+    if (name.endsWith("Left"))
+      sockets[name] = resolveAutoMovieHumanoidSurfaces.mirrored(
+        sockets[name.replace(/Left$/, "Right") as AutoMovieHumanoidSocket],
+      );
   return { regions, sockets };
 }
 
@@ -347,6 +366,13 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       AutoMovieHumanoidSurfaceRegions.TABLE[region];
     if (def === undefined)
       throw new Error(`The region ${region} is not placed by a ray`);
+    // A left region's surface point is its right twin's mirrored, the twin's
+    // `out` the mirror of this one's, so the two sides stay mirror images.
+    const right: AutoMovieHumanoidRegion | undefined = twin(region);
+    if (right !== undefined)
+      return mirrored(
+        offset(skeleton, profile, right, { up: tangent.up, out: -tangent.out }),
+      );
     const { local, station, exit, surface } =
       AutoMovieHumanoidSurfaceRays.tools(skeleton, profile);
     const origin: IAutoMovieVector3 = station(def.station);
@@ -374,6 +400,51 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       toward,
     );
     return local(def.station.bone, hit.point, hit.normal);
+  }
+
+  /**
+   * The right twin a left region is the mirror of: the same name on the
+   * right, and the liver for the spleen; none for a right or median region.
+   *
+   * @param region The region.
+   * @returns Its right twin, when it is a left region.
+   */
+  export function twin(
+    region: AutoMovieHumanoidRegion,
+  ): AutoMovieHumanoidRegion | undefined {
+    if (region === "spleen") return "liver";
+    return region.endsWith("Left")
+      ? (region.replace(/Left$/, "Right") as AutoMovieHumanoidRegion)
+      : undefined;
+  }
+
+  /**
+   * A frame's mirror image in the median plane: on the other side's bone,
+   * its point, normal and forward with their lateral component negated. A
+   * rest frame mirrored across the median plane (`M R M`) maps a bone-local
+   * vector to the same vector with its lateral component negated, so the
+   * mirror is exact.
+   *
+   * @param frame The frame.
+   * @returns Its mirror image.
+   */
+  export function mirrored(frame: IFrame): IFrame {
+    const flip = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: -v.x,
+      y: v.y,
+      z: v.z,
+    });
+    return {
+      ...frame,
+      bone: (frame.bone.startsWith("left")
+        ? `right${frame.bone.slice(4)}`
+        : frame.bone.startsWith("right")
+          ? `left${frame.bone.slice(5)}`
+          : frame.bone) as AutoMovieHumanoidBone,
+      point: flip(frame.point),
+      normal: flip(frame.normal),
+      ...(frame.forward === undefined ? {} : { forward: flip(frame.forward) }),
+    };
   }
 }
 

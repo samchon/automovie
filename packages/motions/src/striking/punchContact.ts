@@ -5,6 +5,7 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
   resolvePose,
+  type superposeMinimumJerk,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -27,6 +28,7 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { punch } from "./punch";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";
+import { punchReach } from "./punchReach";
 
 /**
  * A punch at its contact: the line to the target, the trunk's turn, the
@@ -113,9 +115,6 @@ export namespace punchContact {
     /** The online tracker of the target. */
     tracker: StrikingAim.ITracker;
 
-    /** How far the tracker's goal at the contact lies from its launch plan, world metres: what its corrections add over the delivery. */
-    drift: IAutoMovieVector3;
-
     /** The bones of the displayed entry pose. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
@@ -128,8 +127,28 @@ export namespace punchContact {
     /** The direction the elbow bends toward. */
     bend: IAutoMovieVector3;
 
-    /** The arm's solution at contact. */
+    /** The arm's solution at contact, on the launch plan. */
     solved: StrikingReach.ISolution;
+
+    /** The elbow's hint point at contact, on the launch plan. */
+    hint: IAutoMovieVector3;
+
+    /** The reach on the launch plan, whose step, shoulder, arm and hint the members above repeat. */
+    launched: punchReach.IReach;
+
+    /**
+     * The tracker's corrections arrived by a film second, each carried into
+     * the step, the wrist at contact and the elbow's hint.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument and what each returned correction carries.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     */
+    corrected(seconds: number): readonly punchReach.ICorrection[];
   }
 
   /**
@@ -266,27 +285,21 @@ export namespace punchContact {
 
     // Reach: the step along the line that brings the wrist the fist needs
     // within the arm's comfortable reach, then the arm's goals at contact.
-    // Both are planned against where the fist lands, the tracker's goal at
-    // the contact, not its launch plan: the launch extrapolates the target's
-    // motion over the whole delivery, and the corrections land the fist on
-    // the target itself. Planned against the launch, a jab from a guard
-    // facing a settling guard planned 15 degrees at the elbow and landed
-    // with 37 to 55, the face 5 to 6 cm nearer than planned.
+    // Both are planned on what the puncher sees at the launch, the tracker's
+    // launch plan, and carried by each correction as it arrives
+    // (`corrected`), so a punch reads its target only at or before the
+    // second it is shown at. Planned at once against the tracker's goal at
+    // the contact, the punch read the target at the corrections still to
+    // come: two people punching each other at once each planned on the
+    // other's punch still being planned. Carried by the corrections, the arm
+    // still lands within its band: planned on the launch plan alone, a jab
+    // from a guard facing a settling guard planned 15 degrees at the elbow
+    // and landed with 37 to 55, the face 5 to 6 cm nearer than planned.
     const band: readonly [number, number] = FLEXION[p.technique];
-    const landing: IAutoMovieVector3 = tracker.goal(t0 + delivery);
-    const wristAt: IAutoMovieVector3 = Vector3.subtract(landing, socket);
     const comfortable: number = StrikingReach.reach(
       m.upperArm,
       m.forearm,
       (band[0] + band[1]) / 2,
-    );
-    const relative: IAutoMovieVector3 = Vector3.subtract(wristAt, lowered);
-    const along: number = Vector3.dot(relative, line);
-    const across: number = Math.sqrt(
-      Math.max(0, Vector3.dot(relative, relative) - along * along),
-    );
-    const needed: number = Math.sqrt(
-      Math.max(0, comfortable * comfortable - across * across),
     );
 
     // By the contact the root has carried the shoulder only a share of the
@@ -316,42 +329,107 @@ export namespace punchContact {
     // arm) is out of reach from every place on the line, so it is not
     // stepped toward: the nearest place is under it, the other's own.
     const longest: number = StrikingReach.reach(m.upperArm, m.forearm, band[0]);
-    const advance: number =
-      p.feint === undefined && across <= longest
-        ? Math.max(
-            -StrikingRoom.behind(
-              context,
-              StrikingTarget.feet(context.entry),
-              line,
-            ),
-            Math.min(
-              StrikingReach.advance(
-                along,
-                needed,
-                carried * StrikingStance.length(body),
-              ) / carried,
-              StrikingRoom.ahead(context, at, bones, line, t0),
-            ),
-          )
-        : 0;
-    const shoulder: IAutoMovieVector3 = Vector3.add(
-      lowered,
-      Vector3.scale(line, carried * advance),
-    );
     const bend: IAutoMovieVector3 =
       p.technique === "hook"
         ? Vector3.add(outward, Vector3.scale(up, 0.1))
         : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
-    const solved: StrikingReach.ISolution = StrikingReach.chain({
-      root: shoulder,
-      point: wristAt,
-      upper: m.upperArm,
-      along: m.forearm,
-      lower: m.forearm,
-      bend,
-      flexion: band,
-      slide: false,
-    });
+    let room: readonly [number, number] | undefined;
+    // A correction keeps the launch's decision to step and its direction
+    // (`punchFootwork`): it changes how far the foot goes, never whether or
+    // which way, so its arm is solved on the shoulder the body carries.
+    const reach = (
+      goal: IAutoMovieVector3,
+      decided?: number,
+    ): punchReach.IReach => {
+      const wristAt: IAutoMovieVector3 = Vector3.subtract(goal, socket);
+      const relative: IAutoMovieVector3 = Vector3.subtract(wristAt, lowered);
+      const along: number = Vector3.dot(relative, line);
+      const across: number = Math.sqrt(
+        Math.max(0, Vector3.dot(relative, relative) - along * along),
+      );
+      const needed: number = Math.sqrt(
+        Math.max(0, comfortable * comfortable - across * across),
+      );
+      let advance: number = 0;
+      if (p.feint === undefined && across <= longest) {
+        room ??= [
+          -StrikingRoom.behind(
+            context,
+            StrikingTarget.feet(context.entry),
+            line,
+          ),
+          StrikingRoom.ahead(context, at, bones, line, t0),
+        ];
+        advance = Math.max(
+          room[0],
+          Math.min(
+            StrikingReach.advance(
+              along,
+              needed,
+              carried * StrikingStance.length(body),
+            ) / carried,
+            room[1],
+          ),
+        );
+      }
+      if (decided !== undefined)
+        advance =
+          Math.abs(decided) <= punchFootwork.STEP
+            ? decided
+            : decided > 0
+              ? Math.max(0, advance)
+              : Math.min(0, advance);
+      const shoulder: IAutoMovieVector3 = Vector3.add(
+        lowered,
+        Vector3.scale(line, carried * advance),
+      );
+      const solved: StrikingReach.ISolution = StrikingReach.chain({
+        root: shoulder,
+        point: wristAt,
+        upper: m.upperArm,
+        along: m.forearm,
+        lower: m.forearm,
+        bend,
+        flexion: band,
+        slide: false,
+      });
+      return {
+        advance,
+        shoulder,
+        solved,
+        hint: StrikingReach.hint(shoulder, solved, bend, 0.25 * m.upperArm),
+      };
+    };
+    const launched: punchReach.IReach = reach(tracker.planned);
+
+    // Each correction's reach, solved on the tracker's goal once that
+    // correction has arrived and kept: the i-th after the launch plan.
+    const reaches: punchReach.IReach[] = [launched];
+    const corrected = (seconds: number): punchReach.ICorrection[] => {
+      const out: punchReach.ICorrection[] = [];
+      let goal: IAutoMovieVector3 = tracker.planned;
+      tracker
+        .units(seconds)
+        .forEach((unit: superposeMinimumJerk.IUnit, index: number): void => {
+          goal = Vector3.add(goal, unit.displacement);
+          let now: punchReach.IReach | undefined = reaches[index + 1];
+          if (now === undefined) {
+            now = reach(goal, launched.advance);
+            reaches[index + 1] = now;
+          }
+          const before: punchReach.IReach = reaches[index]!;
+          out.push({
+            start: unit.start,
+            duration: unit.duration,
+            advance: now.advance - before.advance,
+            end: Vector3.subtract(now.solved.end, before.solved.end),
+            hint: Vector3.subtract(now.hint, before.hint),
+            reach: now,
+            moved: !punchReach.same(now, before),
+          });
+        });
+      return out;
+    };
 
     return {
       first,
@@ -363,12 +441,14 @@ export namespace punchContact {
       socket,
       offset,
       tracker,
-      drift: Vector3.subtract(landing, tracker.planned),
       bones,
-      advance,
-      shoulder,
+      advance: launched.advance,
+      shoulder: launched.shoulder,
       bend,
-      solved,
+      solved: launched.solved,
+      hint: launched.hint,
+      launched,
+      corrected,
     };
   }
 }

@@ -80,6 +80,7 @@ export function createShield(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(v(0, 0, -half - bar), v(0, 0, -1), v(1, 0, 0)),
     extent: null,
     grip: "power",
@@ -89,6 +90,7 @@ export function createShield(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(v(0, 0, half), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
     width: d.diameter,
@@ -97,6 +99,7 @@ export function createShield(
   builder.affordance({
     id: "boss",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       v(0, 0, half + createShield.BOSS),
       v(0, 0, 1),
@@ -107,6 +110,7 @@ export function createShield(
   builder.affordance({
     id: "rim",
     kind: "ledge",
+    direction: "normal",
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
   });

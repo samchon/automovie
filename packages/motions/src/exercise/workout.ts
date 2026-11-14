@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
@@ -20,9 +20,11 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { knockdown } from "../reaction/knockdown";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutBodyweight } from "./WorkoutBodyweight";
 import { WorkoutEquipment } from "./WorkoutEquipment";
@@ -109,7 +111,7 @@ export namespace workout {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The exercise, the count, the hold, the bar's place and whether the body stays down.
+   * @evidence contracts/development/design.md#principled-representation The exercise, the count, the hold, the prop borne and whether the body stays down.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The kind is a closed union; no angle is typed by the author.
    */
@@ -123,10 +125,8 @@ export namespace workout {
     /** Seconds a held pose is stayed in; the kind's own when absent. */
     hold?: number & tags.Minimum<0> & HumanUnit<"s">;
 
-    /** The middle of the bar between the hands, world metres, for a hanging kind; `WorkoutPlace.BAR` above the standing reach when absent. */
-    bar?: IAutoMovieVector3;
 
-    /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
+    /** The prop the body bears on, by one of its affordances: a bench's `surface` under a kind that lies or sits raised, a bar's `bar` between the hands of a hanging kind, which hangs from nothing else. Its place when the action starts replaces the height the kind computes from the body, and the body goes to it. None when absent. */
     on?: { prop: string; affordance: string; other?: string };
 
     /** Whether the body stays on its support at the end instead of standing up; `false` when absent. */
@@ -156,14 +156,14 @@ export namespace workout {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or the hold is negative.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the hold is negative, or a hanging kind names no bar.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one and kept above the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation One clock of spans, each between two keys; the posture at a second is the two keys' blend placed by the kind's pin, and on the way from and to standing the root is carried between the standing root and the pinned one; on the way off a bar the body is raised by whatever its colliders would sink beyond the share of the supported posture's own sink the way has reached, the reading the floor audit makes, so the floor is a constraint and the way meets the supported posture continuously.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock and spans, the pin's place, the posture function, the laid hands, the supports.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths follow from the body; the floor rule reads the body's own shapes; the first pass limits are stated on the namespace.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward kinematics per evaluated second on the way down and up, one while working, plus one arm solve per laid hand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the keyed pin, the floor rest of the knockdown, the placed arm and the standing plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three forward kinematics per evaluated second on the way down and up (the pin and the two floor readings), one while working, plus one arm solve per laid hand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the keyed pin, the colliders' placement the floor audit reads, the placed arm and the standing plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock, the spans and the pin's place.
    */
   export function plan(
@@ -241,9 +241,11 @@ export namespace workout {
       standing,
       first: first.key,
       borne,
-      bar: p.bar,
     });
 
+    // How far the supported posture at the far end of each way down or up
+    // sinks itself, by span, read once.
+    const far: Map<number, number> = new Map();
     const posture = (seconds: number): IHumanPosture => {
       let index: number = 0;
       for (let i: number = 0; i < spans.length; i++)
@@ -278,23 +280,53 @@ export namespace workout {
             ? 1 - u
             : 1;
       if (down >= 1) return placed;
-      const root: IAutoMovieVector3 = Vector3.lerp(
-        standing.root,
-        placed.root,
-        down,
-      );
-      return {
+      const carried: IHumanPosture = {
         ...placed,
-        root: {
-          x: root.x,
-          y:
-            kind.base === "hanging"
-              ? root.y
-              : root.y +
-                (1 - down) * Math.max(0, knockdown.rest(body, placed) - root.y),
-          z: root.z,
-        },
+        root: Vector3.lerp(standing.root, placed.root, down),
       };
+      if (kind.base === "hanging") return carried;
+
+      // The floor is a constraint on the way down and up, read on the body's
+      // colliders as the floor audit reads them: the carried root is raised
+      // by whatever the body would sink under the floor beyond the share the
+      // way has reached of what the supported posture at the way's far end
+      // sinks itself, so the way meets that posture continuously. Hands laid
+      // on the floor are placed by the arm's solve after this, so a kind
+      // that lays them is read without its keyed arms.
+      const sunk = (posture: IHumanPosture): number => {
+        let lowest: number = 0;
+        for (const segment of HumanColliders.placed(
+          body,
+          poseBones(body, resolveHumanPosture(body, posture)),
+        )) {
+          if (kind.hands === true && ARM.test(segment.bone)) continue;
+          for (const shape of segment.shapes)
+            lowest = Math.min(
+              lowest,
+              physicalShapeBounds(segment.pose, shape).min.y,
+            );
+        }
+        return -lowest;
+      };
+      const supported: number =
+        far.get(index) ??
+        sunk(
+          ExerciseKey.pinned(
+            body,
+            s.a === ExerciseKey.STOOD ? s.b : s.a,
+            yaw,
+            kind.pin,
+            at,
+          ),
+        );
+      far.set(index, supported);
+      const rise: number = Math.max(0, sunk(carried) - down * supported);
+      return rise === 0
+        ? carried
+        : {
+            ...carried,
+            root: { ...carried.root, y: carried.root.y + rise },
+          };
     };
 
     const work: string = spans[1]!.from;
@@ -407,4 +439,7 @@ export namespace workout {
         }
       : composed;
   }
+
+  /** The colliders of an arm, from the shoulder out. */
+  const ARM: RegExp = /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
 }

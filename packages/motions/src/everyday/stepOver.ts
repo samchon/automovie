@@ -19,9 +19,11 @@ import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { HumanObstacle } from "./HumanObstacle";
 
 /**
- * Stepping over a low obstacle from standing in front of it: the lead foot
+ * Stepping over a low obstacle placed in the scene, a kerb or a hurdle
+ * (`HumanObstacle`), from standing in front of it: the lead foot
  * lifts over it and lands beyond, then the trail foot follows and lands
  * beside it, both feet clearing the obstacle's top.
  *
@@ -101,8 +103,8 @@ export namespace stepOver {
 
   /** Parameters. */
   export interface IParams {
-    /** The obstacle: the middle of its near side on the floor, its height and its depth along the heading, metres. */
-    obstacle: { at: IAutoMovieVector3; height: number; depth: number };
+    /** The obstacle's prop subject: a kerb or a hurdle, whose near edge, height and depth its contacts declare (`HumanObstacle`). */
+    obstacle: string;
 
     /** The leading foot; `right` when absent. */
     lead?: "left" | "right";
@@ -122,14 +124,17 @@ export namespace stepOver {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the obstacle is too far, behind, too high or too deep to cross in one step.
+   * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
-    const { obstacle } = context.params;
+    const obstacle: HumanObstacle.IObstacle = HumanObstacle.of(
+      context,
+      context.params.obstacle,
+    );
     const lead: "left" | "right" = context.params.lead ?? "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
     const yaw: number = context.entry.posture.yaw;
@@ -146,14 +151,7 @@ export namespace stepOver {
     const frame: HumanFrame.IFrame = { origin, yaw };
     const near: number = HumanFrame.local(frame, obstacle.at).z;
     const leg: number = m.thigh + m.shank;
-    if (!(obstacle.height > 0 && obstacle.depth > 0))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "obstacle",
-        value: obstacle,
-        reason: "An obstacle has a positive height and depth",
-        fix: "give the obstacle a positive height and depth",
-      });
+
     if (near < 0.5 * m.footLength || near > leg)
       throw new HumanRefusal({
         kind: "reach",

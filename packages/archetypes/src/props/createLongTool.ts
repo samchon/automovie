@@ -84,6 +84,7 @@ export function createLongTool(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, -1, 0),
@@ -104,6 +105,7 @@ export function createLongTool(
   builder.affordance({
     id: "shaft",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, (head + top) / 2, 0),
       Vector3.create(0, 0, -1),
@@ -133,6 +135,7 @@ export function createLongTool(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(Vector3.create(0, length - radius, 0)),
       extent: null,
       grip: "power",

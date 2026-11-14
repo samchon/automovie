@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -14,6 +15,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
  * A fall onto the floor on purpose from a stance: a goalkeeper's dive to
@@ -24,11 +26,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * own (the dive about its forward axis, so it lands on its side; the slide
  * about its lateral axis, leaning back), and placed with its root on a path:
  *
- * - `dive`: a crouch with the feet planted, then a flight whose hips move
- *   `REACH` statures to the side on a parabola `APEX` statures above the
- *   line from take-off to landing, the body turning a quarter about its
- *   forward axis on the way, then lying on its side where it landed. The
- *   flight is the one airborne part, on that one axis.
+ * - `dive`: a crouch with the feet planted and the knees bending under the
+ *   lowered root (`AutoMovieMotionHumanTrunk.planted`), then a flight whose
+ *   hips move `REACH` statures to the side on a parabola `APEX` statures
+ *   above the line from take-off to landing, the body turning a quarter
+ *   about its forward axis on the way while its joints extend from the
+ *   crouch's solved angles into the shape, then lying on its side where it
+ *   landed. The flight is the one airborne part, on that one axis.
  * - `slide`: the body leans back and sinks onto its hip while its hips
  *   slide `REACH` statures forward and slowing to rest, the lead leg reaching
  *   ahead and the trailing one bent under, never off the floor.
@@ -131,7 +135,7 @@ export namespace dive {
    * @throws {HumanRefusal} When the entry is not on both feet.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood; the flight's root is a parabola over the chord from take-off to the landed root, which is read off the landed body's lowest joint; the turn is about the one axis the kind names.
+   * @evidence contracts/development/implementation.md#principled-implementation The crouch keeps the ankles where they stood by planted leg goals, so the lowered root bends the knees; the flight starts from the crouch's solved joints (`GymnasticsFlight.frozen`), so the pose is continuous at take-off; the flight's root is a parabola over the chord from take-off to the landed root, which is read off the landed body's lowest joint; the turn is about the one axis the kind names.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape, the landed root, the three phases, the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body not on both feet is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two posture resolves at plan time and up to two per frame.
@@ -171,10 +175,14 @@ export namespace dive {
       kind === "dive" ? { x: toLeft, y: 0, z: 0 } : { x: 0, y: 0, z: 1 },
     );
 
-    // The joints a share of the way to the kind's shape, mirrored for a
-    // dive to the right, turned about the kind's axis.
-    const shape = (share: number, turn: number): IHumanPosture => {
-      const joints: IHumanPosture["joints"] = { ...entry.joints };
+    // The joints a share of the way from `from` to the kind's shape,
+    // mirrored for a dive to the right, turned about the kind's axis.
+    const shape = (
+      share: number,
+      turn: number,
+      from: IHumanPosture["joints"] = entry.joints,
+    ): IHumanPosture => {
+      const joints: IHumanPosture["joints"] = { ...from };
       for (const [bone, angles] of Object.entries(SHAPES[kind]) as [
         AutoMovieHumanoidBone,
         readonly [number, number, number],
@@ -185,9 +193,9 @@ export namespace dive {
                 ? bone.replace(/^left/, "right")
                 : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone)
             : bone;
-        const was: readonly [number, number, number] = entry.joints[
-          mirrored
-        ] ?? [0, 0, 0];
+        const was: readonly [number, number, number] = from[mirrored] ?? [
+          0, 0, 0,
+        ];
         joints[mirrored] = [
           was[0] + (angles[0] - was[0]) * share,
           was[1] + (angles[1] - was[1]) * share,
@@ -215,25 +223,43 @@ export namespace dive {
       return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
     };
 
-    // Take-off: crouched on the feet, a third of the way into the shape.
+    // Take-off: crouched on the feet, a third of the way into the shape. The
+    // root goes down with the legs planted on the entry's feet, so the knees
+    // bend under it instead of the straight legs sinking into the floor.
     const crouched = (share: number): IHumanPosture => {
       const posture: IHumanPosture = shape(share / 3, 0);
       const local: IAutoMovieVector3 = ankleMid(posture);
-      return {
-        ...posture,
-        root: {
-          x: ankles.x - local.x,
-          y: ankles.y - local.y - 0.05 * stature * share,
-          z: ankles.z - local.z,
+      return AutoMovieMotionHumanTrunk.planted(
+        body,
+        {
+          ...posture,
+          root: {
+            x: ankles.x - local.x,
+            y: ankles.y - local.y - 0.05 * stature * share,
+            z: ankles.z - local.z,
+          },
         },
-      };
+        {
+          left: { ankle: feet.left.ankle, rotation: feet.left.rotation },
+          right: { ankle: feet.right.ankle, rotation: feet.right.rotation },
+        },
+        ["left", "right"],
+      );
     };
     const off: IAutoMovieVector3 = crouched(1).root;
+
+    // The flight leaves from the take-off's solved joints, its bent knees
+    // included, and extends them into the kind's shape, so the legs push out
+    // of the crouch rather than snapping straight as the feet leave.
+    const launch: IHumanPosture["joints"] = GymnasticsFlight.frozen(
+      body,
+      crouched(1),
+    ).joints;
 
     // Landed: the full shape, its lowest joint at the ankles' height, the
     // hips joint `REACH` statures from where it took off (the turn moves the
     // hips about the root, so the root is placed for the hips).
-    const landedShape: IHumanPosture = shape(1, TURN[kind]);
+    const landedShape: IHumanPosture = shape(1, TURN[kind], launch);
     const lowest: number = Math.min(
       ...centres(landedShape).map((p: IAutoMovieVector3): number => p.y),
     );
@@ -292,10 +318,7 @@ export namespace dive {
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
         const s: number = kind === "dive" ? u : minimumJerk(u).s;
-        const posture: IHumanPosture = shape(
-          1 / 3 + (2 / 3) * s,
-          TURN[kind] * s,
-        );
+        const posture: IHumanPosture = shape(s, TURN[kind] * s, launch);
         const rise: number =
           kind === "dive" ? 4 * APEX * stature * u * (1 - u) : 0;
         return {

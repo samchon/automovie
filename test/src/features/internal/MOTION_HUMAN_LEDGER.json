@@ -276,7 +276,14 @@
       "symbol": "AutoMovieMotionHumanArm.carried",
       "tests": [
         "test_motion_compose_placed",
-        "test_human_motion_compose_arm_carry_keyed"
+        "test_human_motion_touch_partner_reach"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArmFollow.follower",
+      "tests": [
+        "test_human_motion_compose_arm_follow"
       ]
     },
     {
@@ -1408,8 +1415,6 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.KEYS", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.at", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
@@ -1447,6 +1452,22 @@
       "symbol": "AutoMovieMotionHumanTrunk.sunk",
       "tests": [
         "test_human_motion_compose_trunk_turn_m_average"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.footing",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.planted",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
       ]
     },
     {
@@ -1858,6 +1879,20 @@
     {
       "layer": "posture",
       "symbol": "HumanFoot.base",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.BEARING",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.outline",
       "tests": [
         "test_human_motion_audit_balance"
       ]
@@ -5855,6 +5890,59 @@
         {
           "row": "position=lateralRight",
           "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "getUp",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=symmetric",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=rotation",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
           "audit": [],
           "sweep": "reduced"
         }

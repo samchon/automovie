@@ -34,11 +34,16 @@ import { standUpright } from "./standUpright";
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
  * with 5° of shoulder abduction, 12° of elbow flexion and the hand in its
  * position of rest (`HumanHand.shape`, relaxed). Postural sway moves the root on two
- * seeded smooth signals below 1 Hz with an RMS of 3 mm for an elite and 4.8
+ * seeded smooth signals below 1 Hz, side to side and front to back in the
+ * body's frame, with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
  * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
- * al. 2002, provisional factor 1.6). The window of the noise keeps the start
- * and the end of the stand exact.
+ * al. 2002, provisional factor 1.6); a given `sway` replaces that RMS, and 0
+ * stands still. The window of the noise keeps the start and the end of the
+ * stand exact. A law acting with one side that stands on this law's body
+ * passes that side (`plan`'s `side`): the side-to-side draw is signed in
+ * that side's frame, so a left action's sway is the mirror of a right one's
+ * for every seed, its statistics unchanged.
  */
 export namespace stand {
   /** The action's name. */
@@ -62,10 +67,12 @@ export namespace stand {
    * Plan a stand.
    *
    * @param context The action's context.
+   * @param side The side of the law that stands on this body, whose frame the side-to-side sway is signed in: a left side's sway mirrors a right side's. The right when absent, as for a stand acting with no side.
    * @returns The plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
+    side: HumanHand.Side = "right",
   ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     HumanBound.above("seconds", duration, 0, "s");
@@ -80,7 +87,9 @@ export namespace stand {
     const joints = { ...RELAXED, ...upright.joints };
     const settle: number = Math.min(0.5, duration);
     const from: IAutoMovieVector3 = context.entry.posture.root;
-    const sway: number = 0.003 * HumanSkill.sway(context.skill);
+    const sway: number =
+      context.params.sway ?? 0.003 * HumanSkill.sway(context.skill);
+    HumanBound.least("sway", sway, 0, "m");
     const sx = context.random("swayX");
     const sz = context.random("swayZ");
     return {
@@ -97,16 +106,24 @@ export namespace stand {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
+        // The sway runs side to side and front to back in the body's frame,
+        // the side to side signed in the acting side's frame.
+        const swayed: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          {
+            x:
+              (side === "left" ? -1 : 1) *
+              sway *
+              Math.SQRT2 *
+              seededSmoothNoise(sx, u, duration, 0.8),
+            y: 0,
+            z: sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+          },
+        );
         const root: IAutoMovieVector3 = {
-          x:
-            from.x +
-            (middle.x - from.x) * s +
-            sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
+          x: from.x + (middle.x - from.x) * s + swayed.x,
           y: from.y + (middle.y - from.y) * s,
-          z:
-            from.z +
-            (middle.z - from.z) * s +
-            sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+          z: from.z + (middle.z - from.z) * s + swayed.z,
         };
         return {
           root,
@@ -124,6 +141,14 @@ export namespace stand {
   export interface IParams {
     /** How long to stand, seconds; 1.5 when absent. */
     seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
+
+    /**
+     * The postural sway's RMS on each floor axis, metres; the performer's own
+     * when absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for
+     * a stance that keeps exactly still, such as a reference scene a mirror
+     * or a difference is read against.
+     */
+    sway?: number & tags.Minimum<0> & HumanUnit<"m">;
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */

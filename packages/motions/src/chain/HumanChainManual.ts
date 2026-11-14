@@ -143,7 +143,7 @@ export class HumanChainManual extends HumanChainPosture {
    * Type a text on a keyboard with the index fingertips, holding the current
    * posture.
    *
-   * @param params The keyboard and the text.
+   * @param params The keyboard's prop subject and the text.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

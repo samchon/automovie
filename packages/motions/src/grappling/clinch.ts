@@ -200,10 +200,12 @@ export namespace clinch {
       { holds: ["strokeEnd"] },
     );
     const duration: number = clock.duration;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the clinch, its sway signed in the gripping
+    // hand's frame, so a left clinch mirrors a right one (`stand.plan`).
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      context.params.hand ?? "right",
+    );
     const bones = poseBones(body, context.entry.pose);
     const arm = (side: HumanHand.Side) =>
       AutoMovieMotionHumanArm.visit({

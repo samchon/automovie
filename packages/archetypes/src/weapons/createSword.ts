@@ -159,6 +159,7 @@ export function createSword(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(hilt[1]!, v(0, 0, -1), v(0, sign, 0)),
       extent: null,
       grip: shape.hands === 2 ? "two-hand" : "power",
@@ -179,6 +180,7 @@ export function createSword(
     builder.affordance({
       id,
       kind: "ledge",
+      direction: "normal",
       frame: ArchetypeFrame.facing(
         v(0, middle.y, middle.z + sign * half),
         v(0, 0, sign),
@@ -191,6 +193,7 @@ export function createSword(
   builder.affordance({
     id: "flat",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.facing(
       v((createSword.THICKNESS * taper(0.5)) / 2, middle.y, middle.z),
       v(1, 0, 0),
@@ -203,6 +206,7 @@ export function createSword(
   builder.affordance({
     id: "point",
     kind: "surface",
+    direction: "along",
     frame: ArchetypeFrame.facing(along(1), chord, v(1, 0, 0)),
     extent: null,
   });

@@ -155,6 +155,7 @@ export function createStairs(
     builder.affordance({
       id: `${side}Rail`,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.scale(Vector3.add(low, high), 0.5),
         Vector3.create(0, tread, -riser),

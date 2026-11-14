@@ -88,6 +88,7 @@ export * from "./physicalHullErode";
 export * from "./physicalHullFaces";
 export * from "./physicalHullMass";
 export * from "./physicalHullNearest";
+export * from "./physicalHullSegment";
 export * from "./physicalInputDigest";
 export * from "./physicalJointChain";
 export * from "./physicalJointEffort";
