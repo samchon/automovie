@@ -99,7 +99,11 @@ export function createProjectile(
         createProjectile.BOLT_HEAD_WIDTH / 2,
         v(0, length - head, 0),
         v(0, length, 0),
-        { color: "#55595f", density: 8, surface: "steel" },
+        {
+          color: "#55595f",
+          density: createProjectile.STEEL_OVER_ASH,
+          surface: "steel",
+        },
       );
     builder.affordance({
       id: "shaft",
@@ -173,7 +177,7 @@ export function createProjectile(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of projectiles, named for what they are, never for a period or a film; calibre is a dimension, and a shot's mass follows its calibre.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The body or shaft a hand takes, an arrow's and a bolt's nock and point (#3482); flight data belongs to the model body (#3479).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; the head's steel density factor only places the balance, as `createPolearm`'s does.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; a bolt head's density over its shaft's is the ratio of read steel and ash densities, which places its balance.
  */
 export namespace createProjectile {
   /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot and a hand grenade. */
@@ -190,6 +194,11 @@ export namespace createProjectile {
 
   /** A grenade fuze's radius as a share of the body's diameter: a construction estimate that no act reads and no band declares; the fuze's height is the data sheet's length less the body. */
   export const FUZE: number = 0.25;
+
+  /**
+   * A bolt's steel head's density over its ash shaft's, which places the bolt's balance toward its head: steel's 7850 kg per cubic metre, the 78.5 kN per cubic metre top of EN 1991-1-1:2002 Table A.4's 77.0 to 78.5 that structural practice adopts (https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.1.2002.pdf, p. 35; https://cdn.eurocodeapplied.com/design/en1993/steel-design-properties), over European ash's 680 kg per cubic metre at 12 % moisture (The Wood Database, https://www.wood-database.com/european-ash/), the Met's bolts being steel on oak and ash.
+   */
+  export const STEEL_OVER_ASH: number = 7850 / 680;
 
   /** A bolt head's width, metres: the Met bolt's 1.9 cm, its head drawn round at that width. */
   export const BOLT_HEAD_WIDTH: number = 0.019;
