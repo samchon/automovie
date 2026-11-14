@@ -71,16 +71,19 @@ interface ICase {
  *    the listed partner plans.
  * 8. Sitting on a seat the performer faces: a `base` refusal on `seat`;
  *    the seat turned to face the performer's way plans.
- * 9. Every refusal names performer `a`, its action, occurrence 1, a
- *    non-empty reason and fix, and its message states all of them.
- * 10. Each refused composition is refused with the identical message under
+ * 9. A palm laid on the mouth with the fingers curled (`relaxed`): a
+ *    `parameter` refusal on `shape`, the shapes a palm's contact lies on
+ *    (`flat`); the palm laid flat plans.
+ * 10. Every refusal names performer `a`, its action, occurrence 1, a
+ *     non-empty reason and fix, and its message states all of them.
+ * 11. Each refused composition is refused with the identical message under
  *     three seeds: a refusal never depends on the seed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real performances through the public constructor on real bodies and reads the thrown error; a bare `Error`, a missing field, a wrong axis or a fix that does not plan fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected class and axis come from what the author did wrong in each scene, not from the message; the repair is built from the refusal's own feasible set, so a feasible set that does not plan fails.
- * @evidence contracts/development/testing.md#distinguishing-cases One scene per class of refusal an author meets today, two for a parameter (a duration and a count) and two for an affordance (a missing grip and a held hand); the channel clash arrives with parallel acts.
+ * @evidence contracts/development/testing.md#distinguishing-cases One scene per class of refusal an author meets today, three for a parameter (a duration, a count and a hand shape) and two for an affordance (a missing grip and a held hand); the channel clash arrives with parallel acts.
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men, so it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 scenarios and why a refusal is a contract for its reader.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 scenarios and why a refusal is a contract for its reader.
  */
 export function test_human_motion_refusal_contract(): void {
   const a: IHumanBody = motionHumanBody("m-average");
@@ -155,6 +158,18 @@ export function test_human_motion_refusal_contract(): void {
     refusal.feasible?.kind === "alternatives" ? refusal.feasible.values : [];
   const near: number = 0.8 * (a.measure.upperArm + a.measure.forearm);
   const start = (): HumanChain => HumanChain.subject("a");
+  // The mouth wiped with the palm, in a hand shape the palm's contact may or
+  // may not lie on.
+  const wipe = (shape: "relaxed" | "flat") => ({
+    region: "mouth" as const,
+    effector: { surface: "palm" as const, shape },
+    kind: "rub" as const,
+    count: 2,
+    hold: 0.2,
+    tangent: "across" as const,
+    head: 0,
+    at: "atMouth",
+  });
 
   const cases: ICase[] = [
     {
@@ -188,6 +203,22 @@ export function test_human_motion_refusal_contract(): void {
         r.feasible?.kind === "range" &&
         r.feasible.minimum === 1 &&
         r.feasible.whole === true,
+    },
+    {
+      title: "a palm laid with the fingers curled",
+      kind: "parameter",
+      act: "handToFace",
+      axis: "shape",
+      gap: 3,
+      refused: start().act("handToFace", { task: wipe("relaxed") }),
+      repaired: (r) =>
+        start().act("handToFace", {
+          task: wipe((alternatives(r)[0] ?? "relaxed") as "relaxed" | "flat"),
+        }),
+      holds: (r) =>
+        r.value === "relaxed" &&
+        r.feasible?.kind === "alternatives" &&
+        r.feasible.values.join() === "flat",
     },
     {
       title: "a partner out of reach",
