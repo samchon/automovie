@@ -141,6 +141,35 @@ export namespace HumanArmTrajectoryContext {
       return v;
     };
 
+    // A body corner inside one of the arm's own colliders: the audit reads
+    // every pair both ways, so the body's corners keep their reference
+    // depth in the arm's segments as the arm's keep theirs in the body.
+    const lying = (a: number, k: number, own: "upperArm" | "lowerArm" | "hand", bone: string): boolean =>
+      sites[a]![k] !== undefined && (problem.arms[a]!.rests ?? []).some((r: M.IRest): boolean => r.part === own && r.on === bone);
+    const flat: Map<string, G.IFrame["colliders"]> = new Map();
+    const collider = (a: number, k: number, shape: number): G.IFrame["colliders"][number] => {
+      const key: string = `${a}|${k}`;
+      let list: G.IFrame["colliders"] | undefined = flat.get(key);
+      if (list === undefined) {
+        list = frames[a]![k]!.colliders.flatMap((col: G.IFrame["colliders"][number]): G.IFrame["colliders"] => col.shapes.map((): G.IFrame["colliders"][number] => col));
+        flat.set(key, list);
+      }
+      return list[shape]!;
+    };
+    const memoInside: Map<string, number> = new Map();
+    const inside = (a: number, k: number, corner: number, shape: number): number => {
+      const key: string = `${a}|${k}|${corner}|${shape}`;
+      let v: number | undefined = memoInside.get(key);
+      if (v === undefined) {
+        const body: G.IFrame["body"][number] = frames[a]![k]!.body[corner]!;
+        const col: G.IFrame["colliders"][number] = collider(a, k, shape);
+        const own: "upperArm" | "lowerArm" | "hand" = col.owner === "upper" ? "upperArm" : col.owner === "lower" ? "lowerArm" : "hand";
+        v = -AutoMovieMotionHumanAuditTangleModel.reference(model, body.part, col.part)[body.corner]! - give(lying(a, k, own, body.bone));
+        memoInside.set(key, v);
+      }
+      return v;
+    };
+
     // Each site's touched collider and outward normal: the collider nearest
     // the site's point, among the riding arm's own segment's for a site that
     // rides an arm.
@@ -187,6 +216,8 @@ export namespace HumanArmTrajectoryContext {
       bounds: setups.map((setup: G.ISetup, a: number): ([number, number] | null)[] => boxes(setup, rest[a]!, back[a]!)),
       allowed,
       between,
+      inside,
+      lying,
       normals,
       touched,
       rested: declared,

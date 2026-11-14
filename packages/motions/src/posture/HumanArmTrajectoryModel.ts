@@ -109,6 +109,10 @@ export namespace HumanArmTrajectoryModel {
     allowed: (a: number, k: number, probe: number, shape: number) => number;
     /** The same between a probe of one arm and a collider of the other (`G.colliders`), the collider's bone for a declared rest. */
     between: (a: number, k: number, probe: number, shape: number, bone: string) => number;
+    /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`G.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
+    inside: (a: number, k: number, corner: number, shape: number) => number;
+    /** Whether an arm's segment lies on a bone at a waypoint, a declared rest (`IRest`). */
+    lying: (a: number, k: number, segment: "upperArm" | "lowerArm" | "hand", bone: string) => boolean;
     /** Each site's outward normal, the touched collider's at the site's point. */
     normals: (IAutoMovieVector3 | undefined)[][];
     /** Whether a probe's pair with a bone is a declared rest at a waypoint (`IRest`), read both ways. */
@@ -234,6 +238,10 @@ export namespace HumanArmTrajectoryModel {
           // A declared rest is drawn to where its segments meet.
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;
         }
+        for (const pair of P.embedded(c, a, k, placed[a]![k]!).values()) {
+          note(pair.short, "region", () => `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
+          if (pair.rested) objective += T.LIFT * pair.short * pair.short;
+        }
       }
     });
     if (x.length === 2)
@@ -265,6 +273,8 @@ export namespace HumanArmTrajectoryModel {
     q.forEach((v: readonly number[], a: number): void => {
       for (const pair of P.deepest(c, a, k, placed[a]!).values())
         note(pair.short - T.SKIN, () => `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape}`);
+      for (const pair of P.embedded(c, a, k, placed[a]!).values())
+        note(pair.short - T.SKIN, () => `the body's ${pair.bone} ${pair.short.toFixed(1)} mm inside the arm's ${pair.shape.bone}`);
       c.free[a]!.forEach((d: number): void => {
         const b: [number, number] | null | undefined = c.bounds[a]![d];
         if (b !== null && b !== undefined) note(Math.max(b[0] - v[d]!, v[d]! - b[1]), () => `coordinate ${d} out of its range`);

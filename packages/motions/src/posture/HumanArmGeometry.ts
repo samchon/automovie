@@ -146,6 +146,8 @@ export namespace HumanArmGeometry {
     }[];
     /** The shapes in the arm's way. */
     shapes: IShape[];
+    /** The collider probes of the body in the arm's way (the tangle audit's corners), in the world, the arms of the problem left out: each one's point, audit part, index among that part's probes, and bone. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
+    body: { point: IAutoMovieVector3; part: number; corner: number; bone: AutoMovieHumanoidBone }[];
   }
 
   /** The arm placed: its probes and its segments' world frames. */

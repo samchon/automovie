@@ -255,6 +255,17 @@ export namespace HumanArmTrajectoryConvex {
           rows.push({ key: `c|${a}|${k}|${pair.probe}|${pair.shape}`, index: v.idx, coef: v.coef, l: pair.short, u: Infinity, weight: mu });
           if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
         }
+        // The body's corners in the arm's own colliders: only the arm moves,
+        // so the corner's distance falls by the shape's motion along its
+        // outward normal there.
+        for (const pair of P.embedded(c, a, k, placedK).values()) {
+          if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
+          const p: IAutoMovieVector3 = c.frames[a]![k]!.body[pair.corner]!.point;
+          const g: IAutoMovieVector3 = physicalShapeNormal(pair.shape.pose, pair.shape.shape, p, Vector3.normalize(Vector3.subtract(p, pair.shape.centre)));
+          const v: ILinear = along(a, k, carried(a, k, pair.owner, p), g, -1);
+          rows.push({ key: `i|${a}|${k}|${pair.corner}|${pair.index}`, index: v.idx, coef: v.coef, l: pair.short, u: Infinity, weight: mu });
+          if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
+        }
         // Ranges, hard: the chart's disc linearised, and the boxes.
         const v: readonly number[] = arm[k]!;
         const xy: number = Math.hypot(v[0]!, v[1]!);

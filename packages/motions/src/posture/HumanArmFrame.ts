@@ -71,6 +71,8 @@ export namespace HumanArmFrame {
     const segments: number[] = [];
     const indices: number[] = [];
     const colliders: G.IFrame["colliders"] = [];
+    const corners: G.IFrame["body"] = [];
+    const other: "left" | "right" = side === "left" ? "right" : "left";
     const frames: Record<"upper" | "lower" | "hand", IAutoMovieResolvedBone> = {
       upper: resolved.get(bones.upper)!,
       lower: resolved.get(bones.lower)!,
@@ -85,7 +87,21 @@ export namespace HumanArmFrame {
             : AutoMovieMotionHumanAuditTangleModel.group(segment.bone) === bones.hand
               ? "hand"
               : null;
-      if (owner === null) return;
+      if (owner === null) {
+        // The body's corners, the other arm's left out where it is solved too.
+        const arm: boolean =
+          segment.bone === `${other}UpperArm` || segment.bone === `${other}LowerArm` || AutoMovieMotionHumanAuditTangleModel.group(segment.bone) === `${other}Hand`;
+        if (!alone && arm) return;
+        model.parts[i]!.probes.slice(0, model.parts[i]!.surface).forEach((probe: IAutoMovieVector3, corner: number): void => {
+          corners.push({
+            point: Vector3.add(segment.pose.position, Quaternion.rotateVector(segment.pose.rotation, probe)),
+            part: i,
+            corner,
+            bone: segment.bone,
+          });
+        });
+        return;
+      }
       const by: IAutoMovieResolvedBone = frames[owner];
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
       colliders.push({
@@ -124,6 +140,7 @@ export namespace HumanArmFrame {
       bounds: { upper: of("upper"), lower: of("lower"), hand: of("hand") },
       colliders,
       shapes,
+      body: corners,
     };
   }
 }

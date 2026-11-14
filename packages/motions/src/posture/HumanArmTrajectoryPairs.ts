@@ -16,7 +16,9 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 /**
  * What an arms' trajectory reads at one waypoint
  * (`HumanArmTrajectoryModel`): each segment's deepest collider probe against
- * the body and another body, each arm's against the other arm, where a site
+ * the body and another body, the body's corners against the arm's own
+ * colliders (the audit reads every pair both ways), each arm's against the
+ * other arm, where a site
  * lies as the iterate carries it, and the small rotation readings the
  * objective and its model share.
  */
@@ -46,6 +48,24 @@ export namespace HumanArmTrajectoryPairs {
     /** The shape's bone. */
     bone: string;
     /** How far the probe lies below what it may, millimetres. */
+    short: number;
+    /** Whether the pair is a declared rest. */
+    rested: boolean;
+  }
+
+  /** A corner of the body (`HumanArmGeometry.IFrame.body`) inside a collider shape of the arm, read the same way. */
+  export interface IEmbedded {
+    /** The corner's index in the frame's body corners. */
+    corner: number;
+    /** The arm's shape, placed. */
+    shape: G.IShape;
+    /** The shape's index among the arm's colliders (`HumanArmGeometry.colliders`). */
+    index: number;
+    /** The arm's segment the shape rides on. */
+    owner: "upper" | "lower" | "hand";
+    /** The corner's bone. */
+    bone: string;
+    /** How far the corner lies below what it may, millimetres. */
     short: number;
     /** Whether the pair is a declared rest. */
     rested: boolean;
@@ -167,6 +187,41 @@ export namespace HumanArmTrajectoryPairs {
         });
       });
     }
+    return out;
+  }
+
+  /**
+   * Each of the body's parts' deepest corner inside each of the arm's own
+   * collider shapes at a waypoint: the reverse of `deepest`, as the tangle
+   * audit reads every pair both ways and takes the deeper; a pair the audit
+   * does not read (two parts that share a joint) left out.
+   *
+   * @param c The context.
+   * @param a The arm.
+   * @param k The waypoint.
+   * @param placed The arm placed there.
+   * @returns The pairs by body part and arm shape.
+   */
+  export function embedded(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<string, IEmbedded> {
+    const frame: G.IFrame = c.frames[a]![k]!;
+    const out: Map<string, IEmbedded> = new Map();
+    const mine: G.IShape[] = G.colliders(frame, placed);
+    const owners: ("upper" | "lower" | "hand")[] = frame.colliders.flatMap((col: G.IFrame["colliders"][number]) =>
+      col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
+    );
+    frame.body.forEach((corner: G.IFrame["body"][number], i: number): void => {
+      mine.forEach((shape: G.IShape, j: number): void => {
+        if (Vector3.length(Vector3.subtract(corner.point, shape.centre)) - shape.radius >= T.REACH) return;
+        if (frame.related[corner.part]![shape.part]!) return;
+        const short: number = 1000 * (c.inside(a, k, i, j) - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));
+        const key: string = `${corner.part}|${j}`;
+        const known: IEmbedded | undefined = out.get(key);
+        if (known === undefined || short > known.short) {
+          const own: "upperArm" | "lowerArm" | "hand" = owners[j] === "upper" ? "upperArm" : owners[j] === "lower" ? "lowerArm" : "hand";
+          out.set(key, { corner: i, shape, index: j, owner: owners[j]!, bone: corner.bone, short, rested: c.lying(a, k, own, corner.bone) });
+        }
+      });
+    });
     return out;
   }
 
