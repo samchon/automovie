@@ -1,4 +1,5 @@
 export * from "./createBicycle";
+export * from "./createBoat";
 export * from "./createCar";
 export * from "./createCart";
 export * from "./createMotorcycle";
@@ -8,3 +9,4 @@ export * from "./driveCar";
 export * from "./rideBicycle";
 export * from "./rideMotorcycle";
 export * from "./rideWheelchair";
+export * from "./rowBoat";

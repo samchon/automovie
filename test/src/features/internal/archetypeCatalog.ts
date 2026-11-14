@@ -11,6 +11,7 @@ import {
   createBench,
   createBicycle,
   createBin,
+  createBoat,
   createBow,
   createBox,
   createBoxingGlove,
@@ -316,6 +317,12 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `cart-${kind}`,
       (seed?: number | string): Archetype => createCart({ kind }, seed),
       kind === "limber" || kind === "wagon",
+    );
+  for (const kind of createBoat.KINDS)
+    add(
+      `boat-${kind}`,
+      (seed?: number | string): Archetype => createBoat({ kind }, seed),
+      kind === "launch",
     );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
   for (const frame of createHandgun.FRAMES)

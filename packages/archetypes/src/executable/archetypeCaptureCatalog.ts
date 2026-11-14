@@ -59,6 +59,7 @@ import {
 } from "../sport";
 import {
   createBicycle,
+  createBoat,
   createCar,
   createCart,
   createMotorcycle,
@@ -400,6 +401,11 @@ export function archetypeCaptureCatalog(): Readonly<
         "wheelchair",
         createWheelchair.KINDS,
         (kind: createWheelchair.Kind): Archetype => createWheelchair({ kind }),
+      ),
+      ...kinds(
+        "boat",
+        createBoat.KINDS,
+        (kind: createBoat.Kind): Archetype => createBoat({ kind }),
       ),
     }),
     horse: still({ horse }),

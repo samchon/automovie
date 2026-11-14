@@ -11,6 +11,7 @@ export * from "./ArchetypeMarks";
 export * from "./ArchetypeMass";
 export * from "./ArchetypeRefusal";
 export * from "./ArchetypeRide";
+export * from "./ArchetypeSea";
 export * from "./ArchetypeShapes";
 export * from "./ArchetypeSite";
 export * from "./ArchetypeSpan";
