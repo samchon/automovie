@@ -24,6 +24,9 @@ export namespace FamilyConicFit {
     /** Observed polygon in the section chart, mm. */
     points: C.P[];
 
+    /** The fairing cutoff its section is converted at to seed the fit, mm (`FamilyConicSection.converted`); absent, the trunk's `FAIR_MM`. */
+    fairMm?: number;
+
     /** Phase spans, counterclockwise from-to, where the section closes across its part's opening rather than following skin; no extreme anchor is read there. */
     opening?: [number, number][];
 
@@ -1138,7 +1141,7 @@ export namespace FamilyConicFit {
    * @param margin The least tangent meeting the seeds are read to.
    */
   export function ownSeeds(train: readonly IRow[], layout: C.ILayout, margin: number = ADMISSIBLE_MARGIN): number[][] {
-    return C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []) });
+    return C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []), ...(train[0]?.fairMm === undefined ? {} : { fairMm: train[0].fairMm }) });
   }
 
   /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */

@@ -246,10 +246,12 @@ export namespace FamilyConicSection {
    * A section's conic conversion: its radius faired as the periodic smoothing spline of curvature penalty in phase, its half-power
    * wavelength `FAIR_MM` of girth, converted by Ahn's conic approximation (`approximateAutoMovieRecoveryConicsAhn`), and the ends of its
    * arcs with their tangents.
+   *
+   * @param fairMm The fairing cutoff, mm: `FAIR_MM`, the trunk's, unless a region gives its own (`FamilyConicConvert.cutoff`).
    */
-  export function converted(points: readonly P[]): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
+  export function converted(points: readonly P[], fairMm: number = FAIR_MM): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     // The faired section with its inflections as breaks (`FamilyConicFair.curve`, which states the fairing law, the seam and the breaks).
-    const curve = F.curve(points);
+    const curve = F.curve(points, { fairMm });
     const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort((p, q): number => p.domain[0] - q.domain[0]);
     // The converter fits no interval whose curvature changes sign, so it bisects toward each inflection to its depth limit and leaves the
@@ -369,8 +371,9 @@ export namespace FamilyConicSection {
    * @param layout The family's layout.
    * @param options `margin`: the fit's meeting margin, which every seeded arc keeps (`seed`); `openings`: each section's phase spans that
    *   close across its part's opening, where no extreme is read; `changes`: filled with each section's largest change by `bridged`, mm.
+   *   `fairMm`: the fairing cutoff each section is converted at (`converted`), mm.
    */
-  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, options: { margin?: number; openings?: readonly (readonly [number, number][])[]; changes?: number[] } = {}): number[][] {
+  export function seedAll(sections: readonly (readonly P[])[], layout: ILayout, options: { margin?: number; openings?: readonly (readonly [number, number][])[]; changes?: number[]; fairMm?: number } = {}): number[][] {
     const K: number = layout.anchors.length;
     // A section that cannot be seeded is named by its index among `sections`, so its station can be read off the caller's rows.
     const named = (idx: number, make: () => number[]): number[] => {
@@ -380,7 +383,7 @@ export namespace FamilyConicSection {
         throw new Error(`section ${idx} of ${sections.length}: ${error instanceof Error ? error.message : String(error)}`);
       }
     };
-    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[], idx: number): number[] => named(idx, (): number[] => seed(points, layout, undefined, options.margin, options.openings?.[idx])));
+    if (!layout.anchors.some((a: IAnchor): boolean => a.kind === "f")) return sections.map((points: readonly P[], idx: number): number[] => named(idx, (): number[] => seed(points, layout, undefined, options.margin, options.openings?.[idx], options.fairMm)));
     const lines: Map<number, number[]> = new Map();
     // Whether a line has ever had its inflection: a line that never had one rests at its share of the run's frame.
     const lived: Map<number, boolean[]> = new Map();
@@ -392,7 +395,7 @@ export namespace FamilyConicSection {
       // The section is read faired throughout, its extremes and medians too, so the anchors and the features stand on one curve: read off
       // the raw section, a median on a 1.7 mm groove's floor stood inside the faired curve its features stand on, and the arc between them
       // needed an S.
-      const conversion = bridged(converted(points), options.changes);
+      const conversion = bridged(converted(points, options.fairMm), options.changes);
       const faired: P[] = Array.from({ length: 1440 }, (_: unknown, i: number): P => conversion.at((2 * Math.PI * i) / 1440).point);
       return seed(faired, layout, (found: readonly (P | null)[]): Map<number, { point: P; tangent: P }> => {
         const out: Map<number, { point: P; tangent: P }> = new Map();
@@ -710,7 +713,7 @@ export namespace FamilyConicSection {
    * segment, and each shoulder where the polygon crosses its arc's median.
    * The joint fit owns the final values; this only has to be admissible.
    */
-  export function seed(points: readonly P[], layout: ILayout, place?: Placement, margin: number = 0.1, openings: readonly [number, number][] = []): number[] {
+  export function seed(points: readonly P[], layout: ILayout, place?: Placement, margin: number = 0.1, openings: readonly [number, number][] = [], fairMm: number = FAIR_MM): number[] {
     const K: number = layout.anchors.length;
     const values: number[] = [];
     const found: (P | null)[] = new Array<P | null>(K).fill(null);
@@ -739,7 +742,7 @@ export namespace FamilyConicSection {
     // Read this way a feature moves with the section's own arcs, so a groove that fades moves its features continuously: read by a window
     // and the largest turn in it, a feature jumped up to 39.5 mm between sections 2 mm apart where a groove faded (`groove-check`).
     const placed: Map<number, { point: P; tangent: P }> | null = place === undefined ? null : place(found, tangent);
-    const ends: IEnd[] = placed !== null ? [] : converted(points).ends;
+    const ends: IEnd[] = placed !== null ? [] : converted(points, fairMm).ends;
     const phaseOf = (q: P): number => Math.atan2(q[1], q[0]);
     const within = (phi: number, a: number, b: number): boolean => {
       const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);

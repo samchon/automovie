@@ -1008,6 +1008,9 @@ namespace FamilyConicBody {
     /** The least share of its chord at which every arc's tangent lines must meet in the fit (`FamilyConicFit.ADMISSIBLE_MARGIN`); absent, that default. A tight groove may need less. */
     margin?: number;
 
+    /** The fairing cutoff its sections are converted at to seed the fit, mm (`FamilyConicFit.IRow.fairMm`); set by `--bridge`. */
+    fairMm?: number;
+
     /**
      * For a cutter of a slit between two parts: each section is the air round the course point, read along rays to the nearest crossing of
      * the plane's skin, capped below by a floor `floor` mm under a band of the figure (both `[x, value]` in planes x = const, joined
@@ -1436,6 +1439,21 @@ namespace FamilyConicBody {
           part.domain = [40, 1100];
           part.clip = undefined;
         }
+    // `--bridge=<file>`: a region's bridge from the convert tool (`FamilyConicConvert.IBridge`): the named part is fitted as one featured
+    // family over the bridge's domain, its sections read on the skin and seeded at the region's own fairing cutoff, its layout one groove
+    // run per converted line with each feature's window measured, so its lines appear and fade along the part (`FamilyConicSection.seedAll`)
+    // and the region is split only where its topology is.
+    const bridgeFile: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--bridge="))?.slice("--bridge=".length);
+    if (bridgeFile !== undefined) {
+      const bridged: { part: string; domain: [number, number]; fairMm: number; layout: C.ILayout } = JSON.parse(await fs.readFile(bridgeFile, "utf8"));
+      for (const part of parts)
+        if (part.name === bridged.part) {
+          part.layouts = [{ layout: bridged.layout, depth: 1 }];
+          part.domain = bridged.domain;
+          part.skin = part.skin ?? "outer";
+          part.fairMm = bridged.fairMm;
+        }
+    }
     const meshes: N.Mesh[] = [];
     const curves: N.Curve[] = [];
     const receipt: unknown[] = [];
@@ -1874,7 +1892,7 @@ namespace FamilyConicBody {
           // A plate is a long thin lens, read square to its wall (`FamilyConicFit.IRow.normal`).
           // The phases a closure across the part's opening spans at this station (`without`): not skin, so no extreme is read there.
           const opening: [number, number][] = closures.filter((c): boolean => c.s === s && c.span !== undefined).map((c): [number, number] => c.span!);
-          rows.push({ s, points: loop, heldout: i % 2 === 1, ...(behind === null ? {} : { free: (p: C.P): boolean => p[0] < behind - 0.01 }), ...(part.plate === undefined ? {} : { normal: true }), ...(opening.length === 0 ? {} : { opening }) });
+          rows.push({ s, points: loop, heldout: i % 2 === 1, ...(behind === null ? {} : { free: (p: C.P): boolean => p[0] < behind - 0.01 }), ...(part.plate === undefined ? {} : { normal: true }), ...(opening.length === 0 ? {} : { opening }), ...(part.fairMm === undefined ? {} : { fairMm: part.fairMm }) });
           invented.push(part.air === undefined ? null : inventedOf(loop));
           skins.push(loop);
           loops.push(loop);
