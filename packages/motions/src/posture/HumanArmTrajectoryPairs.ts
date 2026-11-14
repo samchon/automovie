@@ -120,9 +120,9 @@ export namespace HumanArmTrajectoryPairs {
    * @param placed The arm placed there.
    * @returns The pairs by part and shape.
    */
-  export function deepest(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<string, IPair> {
+  export function deepest(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<number, IPair> {
     const frame: G.IFrame = c.frames[a]![k]!;
-    const out: Map<string, IPair> = new Map();
+    const out: Map<number, IPair> = new Map();
     const screened: G.IScreen = G.screen(frame, placed, T.REACH);
     placed.probes.forEach(([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
       if (probe < G.SURFACE) return;
@@ -131,7 +131,8 @@ export namespace HumanArmTrajectoryPairs {
         const other: number = frame.shapes[shape]!.part;
         if (part >= 0 && other >= 0 && frame.related[part]![other]!) continue;
         const short: number = 1000 * (c.allowed(a, k, probe, shape) - (G.gap(frame, shape, p, p) - r));
-        const key: string = `${part}|${shape}`;
+        // A part of -1 is the arm's own segment's; one number keys the pair.
+        const key: number = (part + 1) * frame.shapes.length + shape;
         const known: IPair | undefined = out.get(key);
         if (known === undefined || short > known.short)
           out.set(key, { probe, shape, short, rested: c.rested(a, k, probe, frame.shapes[shape]!.bone) });
@@ -203,9 +204,9 @@ export namespace HumanArmTrajectoryPairs {
    * @param placed The arm placed there.
    * @returns The pairs by body part and arm shape.
    */
-  export function embedded(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<string, IEmbedded> {
+  export function embedded(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<number, IEmbedded> {
     const frame: G.IFrame = c.frames[a]![k]!;
-    const out: Map<string, IEmbedded> = new Map();
+    const out: Map<number, IEmbedded> = new Map();
     const mine: G.IShape[] = G.colliders(frame, placed);
     const owners: ("upper" | "lower" | "hand")[] = frame.colliders.flatMap((col: G.IFrame["colliders"][number]) =>
       col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
@@ -228,7 +229,7 @@ export namespace HumanArmTrajectoryPairs {
         if (Vector3.length(Vector3.subtract(corner.point, shape.centre)) - shape.radius >= T.REACH) return;
         if (frame.related[corner.part]![shape.part]!) return;
         const short: number = 1000 * (c.inside(a, k, i, j) - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));
-        const key: string = `${corner.part}|${j}`;
+        const key: number = corner.part * mine.length + j;
         const known: IEmbedded | undefined = out.get(key);
         if (known === undefined || short > known.short) {
           const own: "upperArm" | "lowerArm" | "hand" = owners[j] === "upper" ? "upperArm" : owners[j] === "lower" ? "lowerArm" : "hand";

@@ -134,7 +134,7 @@ export namespace HumanArmTrajectoryModel {
     /** The worst violation past its slack, what it is, the refusal's axis and the waypoint it is read at (an interval's first, for a step or a sweep). */
     worst: { value: number; what: string; axis: string; at: number };
     /** Each arm's deepest probe pairs (`HumanArmTrajectoryPairs.deepest`) and the body's corners in it (`embedded`) at each inner waypoint, as the reading found them, which the convex model reads again at the same iterate. */
-    pairs: { deepest: Map<string, P.IPair>; embedded: Map<string, P.IEmbedded> }[][];
+    pairs: { deepest: Map<number, P.IPair>; embedded: Map<number, P.IEmbedded> }[][];
   }
 
   /**
@@ -293,8 +293,8 @@ export namespace HumanArmTrajectoryModel {
             objective += T.ROTATION * turned * turned;
           }
         }
-        const deepest: Map<string, P.IPair> = P.deepest(c, a, k, placed[a]![k]!);
-        const embedded: Map<string, P.IEmbedded> = P.embedded(c, a, k, placed[a]![k]!);
+        const deepest: Map<number, P.IPair> = P.deepest(c, a, k, placed[a]![k]!);
+        const embedded: Map<number, P.IEmbedded> = P.embedded(c, a, k, placed[a]![k]!);
         pairs[a]![k] = { deepest, embedded };
         for (const pair of deepest.values()) {
           note(pair.short, "region", () => `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`, T.SKIN);

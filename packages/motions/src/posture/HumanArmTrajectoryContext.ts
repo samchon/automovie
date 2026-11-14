@@ -104,10 +104,14 @@ export namespace HumanArmTrajectoryContext {
       AutoMovieMotionHumanAuditTangleModel.reference(model, frames[a]![k]!.segments[probe - G.SURFACE]!, part)[
         frames[a]![k]!.corners[probe - G.SURFACE]!
       ]!;
-    const memo: Map<string, number> = new Map();
+    // Each memo is one map per arm and waypoint, keyed by the pair's two
+    // indices as one number, since the pair readings ask it for every probe
+    // and shape at every iterate.
+    const maps = (): Map<number, number>[][] => frames.map((arm: G.IFrame[]): Map<number, number>[] => arm.map((): Map<number, number> => new Map()));
+    const memo: Map<number, number>[][] = maps();
     const allowed = (a: number, k: number, probe: number, shape: number): number => {
-      const key: string = `${a}|${k}|${probe}|${shape}`;
-      let v: number | undefined = memo.get(key);
+      const key: number = probe * frames[a]![k]!.shapes.length + shape;
+      let v: number | undefined = memo[a]![k]!.get(key);
       if (v === undefined) {
         const frame: G.IFrame = frames[a]![k]!;
         const s: G.IShape = frame.shapes[shape]!;
@@ -117,7 +121,7 @@ export namespace HumanArmTrajectoryContext {
           const [p, r]: readonly [IAutoMovieVector3, number] = restPlaced[a]![k]!.probes[probe]!;
           v = Math.min(0, G.gap(frame, shape, p, p) - r) - rested;
         }
-        memo.set(key, v);
+        memo[a]![k]!.set(key, v);
       }
       return v;
     };
@@ -126,10 +130,10 @@ export namespace HumanArmTrajectoryContext {
     const restColliders: G.IShape[][][] = setups.map((_: G.ISetup, a: number): G.IShape[][] =>
       frames[a]!.map((frame: G.IFrame, k: number): G.IShape[] => G.colliders(frame, restPlaced[a]![k]!)),
     );
-    const memoBetween: Map<string, number> = new Map();
+    const memoBetween: Map<number, number>[][] = maps();
     const between = (a: number, k: number, probe: number, shape: number, bone: string): number => {
-      const key: string = `${a}|${k}|${probe}|${shape}`;
-      let v: number | undefined = memoBetween.get(key);
+      const key: number = probe * restColliders[1 - a]![k]!.length + shape;
+      let v: number | undefined = memoBetween[a]![k]!.get(key);
       if (v === undefined) {
         const s: G.IShape = restColliders[1 - a]![k]![shape]!;
         const rested: number = give(declared(a, k, probe, bone));
@@ -138,7 +142,7 @@ export namespace HumanArmTrajectoryContext {
           const [p, r]: readonly [IAutoMovieVector3, number] = restPlaced[a]![k]!.probes[probe]!;
           v = Math.min(0, physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r) - rested;
         }
-        memoBetween.set(key, v);
+        memoBetween[a]![k]!.set(key, v);
       }
       return v;
     };
@@ -158,16 +162,16 @@ export namespace HumanArmTrajectoryContext {
       }
       return list[shape]!;
     };
-    const memoInside: Map<string, number> = new Map();
+    const memoInside: Map<number, number>[][] = maps();
     const inside = (a: number, k: number, corner: number, shape: number): number => {
-      const key: string = `${a}|${k}|${corner}|${shape}`;
-      let v: number | undefined = memoInside.get(key);
+      const key: number = shape * frames[a]![k]!.body.length + corner;
+      let v: number | undefined = memoInside[a]![k]!.get(key);
       if (v === undefined) {
         const body: G.IFrame["body"][number] = frames[a]![k]!.body[corner]!;
         const col: G.IFrame["colliders"][number] = collider(a, k, shape);
         const own: "upperArm" | "lowerArm" | "hand" = col.owner === "upper" ? "upperArm" : col.owner === "lower" ? "lowerArm" : "hand";
         v = -AutoMovieMotionHumanAuditTangleModel.reference(model, body.part, col.part)[body.corner]! - give(lying(a, k, own, body.bone));
-        memoInside.set(key, v);
+        memoInside[a]![k]!.set(key, v);
       }
       return v;
     };

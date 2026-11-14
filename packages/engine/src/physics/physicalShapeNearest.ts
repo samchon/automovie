@@ -8,6 +8,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { physicalHullNearest } from "./physicalHullNearest";
+import { physicalHullSegment } from "./physicalHullSegment";
 
 /**
  * Where a world segment comes nearest an admitted sphere, Y capsule,
@@ -22,11 +23,12 @@ import { physicalHullNearest } from "./physicalHullNearest";
  * capsule its axis segment, each widened by the radius, so both reduce to
  * the closest points between two segments (`closestPointsBetweenSegments`,
  * Eberly 2023); the normal runs from the axis point to the segment point. A
- * box and a hull are convex, so their signed distance is convex along the
- * segment, and 44 golden-section steps narrow the segment's unit parameter
- * below 1e-9 before the least of both ends and the two final probes is
- * taken; the point and the normal are read at that parameter from the box's
- * exact signed distance or from `physicalHullNearest`.
+ * hull's nearest or deepest segment parameter is exact from
+ * `physicalHullSegment`. A box is convex, so its signed distance is convex
+ * along the segment, and 44 golden-section steps narrow the segment's unit
+ * parameter below 1e-9 before the least of both ends and the two final
+ * probes is taken. The point and the normal are read at that parameter from
+ * the box's exact signed distance or from `physicalHullNearest`.
  *
  * When the segment passes through a sphere's centre or a capsule's axis, no
  * direction is nearest; the normal is then the shape's local X axis, a
@@ -52,10 +54,10 @@ import { physicalHullNearest } from "./physicalHullNearest";
  *   point, all in the world frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame composition, the sign, the point case, the method for each shape kind with its precision, and the convention where no nearest direction exists.
- * @evidence contracts/development/implementation.md#principled-implementation Spheres and capsules are segments widened by a radius, so their nearest points are the engine's exact closest-segment-points query moved out by the radius; the signed distance of a convex solid is a convex function, so golden-section search along the segment finds its minimum to 1e-9 of the parameter without missing an entry; a tapered segment subtracts an affine radius from that convex distance, which keeps it convex, so the same search reads it for every kind.
+ * @evidence contracts/development/implementation.md#principled-implementation Spheres and capsules are segments widened by a radius, so their nearest points are the engine's exact closest-segment-points query moved out by the radius; a hull segment's parameter is the exact polytope query of `physicalHullSegment`; the signed distance of a convex solid is a convex function, so golden-section search along the segment finds its minimum to 1e-9 of the parameter without missing an entry; a tapered segment subtracts an affine radius from that convex distance, which keeps it convex, so the same search reads it for every kind.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of shape proximity: one frame composition and one branch per shape kind, each named, with an exhaustive check. Distance, contact point and contact normal are one reading, so no caller derives a normal from a distance gradient or a point from samples.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added to the distance; the 44 golden-section steps are the count that narrows a unit interval below 1e-9 (0.618^44 ≈ 6.4e-10), 1e-12 metres is the length below which an offset carries no direction in double arithmetic at body scale, and the shape's dimensions are taken as admitted by the profile.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one closest-segment query for a sphere or capsule, 47 local evaluations for a box or hull segment, or for any kind under a taper, and one for a point.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: one closest-segment query for a sphere or capsule, one exact segment query and one local evaluation for a hull segment, 47 local evaluations for a box segment, or for any kind under a taper, and one for a point.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its arguments; callers that query many shapes hold their own placed frames, and a hull's faces are shared by `physicalHullFaces`.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing between calls; its temporaries die with the call.
  */
@@ -140,7 +142,10 @@ export function physicalShapeNearest(
     taper === undefined ? 0 : taper[0] + (taper[1] - taper[0]) * t;
   const gap = (t: number): number => local(along(t)).distance - widened(t);
   let parameter: number = 0;
-  if (la.x !== lb.x || la.y !== lb.y || la.z !== lb.z) {
+  const point: boolean = la.x === lb.x && la.y === lb.y && la.z === lb.z;
+  if (!point && shape.kind === "hull" && taper === undefined)
+    parameter = physicalHullSegment(shape.points, la, lb);
+  else if (!point) {
     const ratio: number = (Math.sqrt(5) - 1) / 2;
     let lo: number = 0;
     let hi: number = 1;
