@@ -11,9 +11,9 @@ Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure 
 
 A generated film's voices, effects and ambience come from the video model, which generates them in sync with the picture. The production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into each request's prompt in the selected model's syntax under [video](../video/SKILL.md).
 
-The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, about one or two short exchanges per four seconds.
+The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length.
 
-When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, and follow their choice.
+When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, which adds effects and ambience but no speech, and follow their choice.
 
 ## Voice preview
 

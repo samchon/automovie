@@ -20,7 +20,7 @@ The skills name installed packages by role. This table is the one place that say
 | Ingest package | `@automovie/ingest` | Decode external models, motion, audio and images |
 | Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh so parameters can drive it |
 | Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |
-| Command-line tool | `automovie` | Create and add productions |
+| Command-line tool | `automovie` | Create and add productions, and run the capture, render and review commands |
 
 The first seven rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
 

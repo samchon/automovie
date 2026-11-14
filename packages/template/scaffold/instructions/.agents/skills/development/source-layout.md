@@ -50,7 +50,7 @@ A subject never imports another subject and a scene never imports another scene:
 
 What serves every production belongs to the installed packages and never grows as a production folder; a missing capability follows [installed packages](reuse.md#installed-packages).
 
-Node-only tooling (processes, files, browser launch, FFmpeg) is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
+Node-only tooling the installed command-line tool does not run, such as the physics and recovery commands, is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 

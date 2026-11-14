@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them. Leave out the description of what a first frame already shows where the model's guide asks it, as image-to-video guides often do.
 
 ### Request paragraph
 
@@ -50,7 +50,7 @@ Name the gray forms as what each one becomes, never as their appearance, such as
 
 ## Sound
 
-Write the request's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: each line after a named speaker whose name matches the visual description, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../audio/SKILL.md), in the syntax of the model's guide, which differs between models: attribute each line to its speaker as the visual description names them, and keep effects and ambience apart from speech. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 

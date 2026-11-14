@@ -38,7 +38,9 @@ Give each input one role, and state it in the prompt as [input roles](prompts.md
 - the hint video or its channels, for motion and camera;
 - the canon references, for identity and appearance;
 - a [shot frame](../image/SKILL.md#shot-frames), for appearance at the hint's pose;
-- the accepted previous take's last frames in place of a first frame, where a request continues that take's motion.
+- the accepted previous take, where a request continues its motion: its ending as a second video where the model takes several videos with separate roles, and otherwise its last frame as the first frame.
+
+A model's extend mode often takes no hint video, and some models take frames or reference videos but not both. Where the model cannot take the continuation beside the hint, end the request at a cut.
 
 Give a continuing request the canon references too, because identity and color drift across chained requests. Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
 
