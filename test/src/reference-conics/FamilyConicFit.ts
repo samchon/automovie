@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { AutoMovieNaturalSpline as S, AutoMovieViewChain as Q } from "@automovie/engine";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 
@@ -21,6 +22,9 @@ export namespace FamilyConicFit {
     s: number;
 
     /** Observed polygon in the section chart, mm. */
+    /** Phase spans, counterclockwise from-to, where the section closes across its part's opening rather than following skin; no extreme anchor is read there. */
+    opening?: [number, number][];
+
     points: C.P[];
 
     /** Withheld from the fit and read only as validation. */
@@ -98,6 +102,20 @@ export namespace FamilyConicFit {
   /** Spacing of the stations at which every candidate must be an admissible chain, mm (`fit`). */
   const DENSE_MM: number = 0.25;
 
+  /** `--adaptive-knots`: the start's knots placed from the data (`adaptiveKnots`), and refused own seeds left out of the projection. */
+  const ADAPTIVE: boolean = process.argv.includes("--adaptive-knots");
+
+  /** `--lines-start`: the start derived from the anchors' lines in physical coordinates (`linesStart`). */
+  const LINES_START: boolean = process.argv.includes("--lines-start");
+
+  /**
+   * How near a section's own admitted seed the start must stand, mm, read as the largest radial difference between the two chains along
+   * 72 rays: twice the 0.5 mm the trunk's stored wall reached (`FamilyConicBody`), so the start stands near its data but need not fit it.
+   */
+  const SEED_NEAR_MM: number = 1;
+
+  /** The least spacing of the start's knots, mm: the fitting sections' own (2 mm), below which a knot has no section of its own. */
+  const KNOT_LEAST_MM: number = 2;
   /** Rounds of fitting the feature lines' headings before the sections (`fit`), and the step their headings are searched in, radians. */
   const LINE_ROUNDS: number = 48;
 
@@ -260,24 +278,17 @@ export namespace FamilyConicFit {
    * @param margin The least share of its chord at which every arc's tangent lines must meet (`ADMISSIBLE_MARGIN`).
    * @param polish Whether to minimise at all; false only reports `initial` as it stands (`construct`).
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN, polish: boolean = true): IResult {
+  export function fit(rows: readonly IRow[], given: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[], margin: number = ADMISSIBLE_MARGIN, polish: boolean = true): IResult {
     const started: number = performance.now();
     const units: C.Unit[] = C.units(layout);
     const F: number = units.length;
     const free: number[] = units.map((_: C.Unit, f: number): number => f).filter((f: number): boolean => units[f] !== "mm");
-    const M: number = knots.length;
     const folds: { count: number } = { count: 0 };
     const train: IRow[] = rows.filter((row: IRow): boolean => !row.heldout);
-    const samples: ISample[] = train.map(vertices);
-    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
-    const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
-    const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
-    const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
-
-    // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
-    const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
-    // A feature's heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the
-    // projection onto the knots does not average two readings a turn apart.
+    // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`). A feature's
+    // heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the projection onto
+    // the knots does not average two readings a turn apart.
+    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []) });
     for (let f: number = 0; f < F; ++f) {
       if (units[f] !== "angle") continue;
       for (let i: number = 1; i < seeds.length; ++i) {
@@ -286,17 +297,86 @@ export namespace FamilyConicFit {
         while (seeds[i]![f]! - previous < -Math.PI) seeds[i]![f]! += 2 * Math.PI;
       }
     }
+    // `--adaptive-knots`: the start's knots placed from the data (`adaptiveKnots`), and a section whose own seed is refused left out of the
+    // projection as an outlier.
+    const seedWeights: number[] = seeds.map((t: number[]): number => (!ADAPTIVE || C.chain(t, layout).fault === null ? 1 : 0));
+    const knots: number[] = ADAPTIVE && initial === undefined ? adaptiveKnots(train, seeds, seedWeights, [given[0]!, given[given.length - 1]!], layout, margin) : [...given];
+    const M: number = knots.length;    const samples: ISample[] = train.map(vertices);
+    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+    const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
+    const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
+
+    // `--seeds`: each fitting section's conic conversion (`FamilyConicSection.converted`) over each 100 mm of course: how many ran out of
+    // arcs, and the inflections on the +Z side's front quarter (phase 0 to 90 degrees) and back quarter (90 to 180), mean and most, with
+    // how many of them turn less than the line ramp's floor (half `FEATURE_LEAST` on either side) and so seed no line.
+    // `--sections=<file>`: the fitting sections' stations and polygons, written as JSON, so a section the conversion refuses can be studied
+    // apart from the tool. They are the reference's: the file stays in a private scratch folder and is deleted once read.
+    const sectionsFile: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--sections="))?.slice("--sections=".length);
+    if (sectionsFile !== undefined) writeFileSync(sectionsFile, JSON.stringify({ layout, rows: train.map((row: IRow): { s: number; points: C.P[]; opening?: [number, number][] } => ({ s: row.s, points: row.points, ...(row.opening === undefined ? {} : { opening: row.opening }) })) }));
+    if (process.argv.includes("--seeds")) {
+      const stretches: Map<number, { n: number; out: string[]; front: number[]; back: number[]; faint: number }> = new Map();
+      for (const row of train) {
+        const key: number = Math.floor(row.s / 100) * 100;
+        const cell = stretches.get(key) ?? { n: 0, out: [], front: [], back: [], faint: 0 };
+        ++cell.n;
+        try {
+          const ends: C.IEnd[] = C.converted(row.points).ends.filter((end: C.IEnd): boolean => end.inflection);
+          const phase = (end: C.IEnd): number => Math.atan2(end.point[1], end.point[0]);
+          cell.front.push(ends.filter((end: C.IEnd): boolean => phase(end) >= 0 && phase(end) < Math.PI / 2).length);
+          cell.back.push(ends.filter((end: C.IEnd): boolean => phase(end) >= Math.PI / 2).length);
+          cell.faint += ends.filter((end: C.IEnd): boolean => phase(end) >= 0 && (end.strength ?? 0) < C.FEATURE_LEAST / 2).length;
+        } catch (error) {
+          cell.out.push(`${row.s.toFixed(1)}: ${(error as Error).message.replace(/\): Numerical adaptation.*$/, ")")}`);
+        }
+        stretches.set(key, cell);
+      }
+      const stat = (x: number[]): string => (x.length === 0 ? "-" : `${(x.reduce((s: number, v: number): number => s + v, 0) / x.length).toFixed(1)}/${Math.max(...x)}`);
+      process.stderr.write(
+        "conversions by stretch: " +
+          [...stretches.entries()]
+            .sort((a, b): number => a[0] - b[0])
+            .map(([key, cell]): string => `${key}-${key + 100}: ${cell.n} sections, ${cell.out.length} out of arcs${cell.out.length ? ` (first ${cell.out[0]})` : ""}; inflections front ${stat(cell.front)}, back ${stat(cell.back)}, under the ramp's floor ${cell.faint}`)
+            .join(" | ") +
+          "\n",
+      );
+    }
+
+    // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
     const gram: number[][] = zeros(M, M);
-    for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+    B.forEach((b: number[], i: number): void => {
+      for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += seedWeights[i]! * b[m]! * b[n]!;
+    });
     let Y: number[][] = [];
     for (let f: number = 0; f < F; ++f) {
       const right: number[] = new Array<number>(M).fill(0);
-      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * seeds[i]![f]!;
+      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += seedWeights[i]! * B[i]![m]! * seeds[i]![f]!;
       const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
       if (solved === null) return failed("the knot vector is not supported by the observed stations");
       Y.push(solved);
     }
     if (initial !== undefined) Y = initial.map((field: readonly number[]): number[] => [...field]);
+    // `--lines-start`: the start is the projection of the field vectors derived from the anchors' lines (`linesStart`), refused when any
+    // dense station's derived vector is.
+    if (LINES_START && initial === undefined) {
+      const lined: { at: (s: number) => number[]; refused: number } = linesStart(train, seeds, layout, margin, knots[0]!, knots[M - 1]!);
+      // `--lines-dump=<file>`: the derived field vectors at the `--seed-stations` stations, with the layout, as JSON, to draw.
+      const linesDump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--lines-dump="))?.slice("--lines-dump=".length);
+      const listedStations: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+      if (linesDump !== undefined) writeFileSync(linesDump, JSON.stringify({ layout, stations: listedStations.map((s: number): { s: number; values: number[] } => ({ s, values: lined.at(s) })) }));
+      if (lined.refused > 0) return failed(`the lines' start is refused at ${lined.refused} dense stations`);
+      const derived: number[][] = train.map((row: IRow): number[] => lined.at(row.s));
+      const lineGram: number[][] = zeros(M, M);
+      for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) lineGram[m]![n]! += b[m]! * b[n]!;
+      Y = [];
+      for (let f: number = 0; f < F; ++f) {
+        const right: number[] = new Array<number>(M).fill(0);
+        for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * derived[i]![f]!;
+        const solved: number[] | null = solve(lineGram.map((r: number[]): number[] => [...r]), right);
+        if (solved === null) return failed("the knot vector is not supported by the observed stations");
+        Y.push(solved);
+      }
+    }
 
     // Residuals of one section: radial misses at its vertices, then one barrier entry per share; null when its chain is inadmissible.
     const theta = (values: number[][], b: number[]): number[] => values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
@@ -337,14 +417,18 @@ export namespace FamilyConicFit {
       const rounded: number[][] = stored(values);
       return dense.every((b: number[]): boolean => C.chain(theta(values, b), layout).fault === null && C.chain(theta(rounded, b), layout).fault === null && meeting(theta(values, b)) >= margin && meeting(theta(rounded, b)) >= margin && inside(theta(values, b)) && inside(theta(rounded, b)));
     };
-    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). The margins of a chain are what its
-    // admissibility asks to be positive: every arc's two tangent-meeting distances (`AutoMovieViewChain`'s `a` and `b`, mm) and every
-    // step of its points' phase round the course, radians, with the turn's remainder. `-mu sum log(margin)` is added at every station, so
-    // a candidate moves freely inside the admissible region and never crosses its wall; `mu` falls over rounds toward the plain fit.
+    // `--barrier`: an interior-point term over the same stations (Nocedal and Wright, ch. 19). A barrier must guard the very region the
+    // acceptance test defines, so a chain's margins are exactly what `admissible` asks to be positive: every step of its points' phase
+    // round the course, radians, with the turn's remainder; every least tangent meeting of its arcs less the fit's `margin` (the quantity
+    // `leastMeetings` measures, so the barrier and the check read one definition); and every share and one less every share.
+    // `-mu sum log(margin)` is added at every station, so a candidate moves freely inside the admissible region and never crosses its wall;
+    // `mu` falls over rounds toward the plain fit. The stored rounding stays the acceptance test alone: a barrier cannot be smooth across a
+    // rounding, and a step that keeps every margin positive with the barrier's slack passes it in practice. Guarding the raw meeting
+    // distances instead, the barrier held the lined trunk off a wall that never refused it while every step crossed the meeting share of
+    // 0.1 at its crotch end (0.115 at the start) and was refused there.
     const margins = (t: number[]): number[] | null => {
       const input = C.resolve(t, layout).input;
       const points: number[][] = input.points as number[][];
-      const tangents: number[][] = input.tangents as number[][];
       const K: number = points.length;
       const out: number[] = [];
       const phases: number[] = [];
@@ -355,12 +439,8 @@ export namespace FamilyConicFit {
         if (j > 0) out.push(phi - phases[j - 1]!);
       }
       out.push(phases[0]! + 2 * Math.PI - phases[K - 1]!);
-      for (let j: number = 0; j < K; ++j) {
-        const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % K]!, tangents[j]!, tangents[(j + 1) % K]!];
-        const den: number = t0[0]! * t2[1]! - t0[1]! * t2[0]!;
-        const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
-        out.push((d[0]! * t2[1]! - d[1]! * t2[0]!) / den, (t0[0]! * d[1]! - t0[1]! * d[0]!) / den);
-      }
+      for (const least of leastMeetings(t, layout)) out.push(least - margin);
+      for (const f of shares) out.push(t[f]!, 1 - t[f]!);
       return out.every(Number.isFinite) ? out : null;
     };
     let mu: number = 0;
@@ -428,7 +508,9 @@ export namespace FamilyConicFit {
             const chord: number = Math.atan2(points[to]![1]! - points[from]![1]!, points[to]![0]! - points[from]![0]!);
             const reading: number = chord + values[at[k]! + 2]!;
             let chosen: number | null = null;
-            for (let step: number = 0; step <= Math.PI / HEADING_STEP; ++step) {
+            // Only headings within a quarter turn of the reading, as the seed's search (`FamilyConicSection.seed`): past that the tangent runs
+            // against the chain's direction of travel.
+            for (let step: number = 0; step * HEADING_STEP < Math.PI / 2; ++step) {
               const tried: number[] = step === 0 ? [reading] : [reading + step * HEADING_STEP, reading - step * HEADING_STEP];
               const found: number | undefined = tried.find((h: number): boolean => {
                 const d: number[] = [Math.cos(h), Math.sin(h)];
@@ -470,9 +552,46 @@ export namespace FamilyConicFit {
         });
       }
     }
+    // `--seeds` with `--seed-stations=<s>,...`: at each listed station, the held lines' chain and the nearest fitting section's own seed,
+    // each anchor by its chain index, layout anchor and kind at its chart point, and the chain's refusal (`AutoMovieViewChain.of`).
+    const listed: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+    if (process.argv.includes("--seeds") && listed.length > 0) {
+      const K: number = layout.anchors.length;
+      const describe = (t: number[]): string => {
+        const points = C.resolve(t, layout).input.points;
+        return points.map((p, j: number): string => {
+          const k: number = j < K ? j : K - 2 - (j - K);
+          const anchor = layout.anchors[k]!;
+          return `${j}=a${k}${anchor.kind}${anchor.kind === "f" ? ":" + (anchor.feature ?? "") : anchor.mid === true ? ":mid" : ""}(${p[0]!.toFixed(1)},${p[1]!.toFixed(1)})`;
+        }).join(" ");
+      };
+      for (const s of listed) {
+        const d: number = Math.max(0, Math.min(dense.length - 1, Math.round((s - knots[0]!) / DENSE_MM)));
+        const t: number[] = theta(Y, dense[d]!);
+        process.stderr.write(`held lines at ${s}: ${C.chain(t, layout).fault ?? "admitted"}\n  ${describe(t)}\n`);
+        const i: number = train.reduce((b: number, row: IRow, j: number): number => (Math.abs(row.s - s) < Math.abs(train[b]!.s - s) ? j : b), 0);
+        const own: number[] = seeds[i]!;
+        process.stderr.write(`own seed at ${train[i]!.s}: ${C.chain(own, layout).fault ?? "admitted"}\n  ${describe(own)}\n`);
+      }
+    }
     if (process.argv.includes("--seeds")) {
       const refused: string[] = dense.map((b: number[], d: number): string => { const fault: string | null = C.chain(theta(Y, b), layout).fault; return fault === null ? "" : (knots[0]! + d * DENSE_MM).toFixed(2) + ": " + fault.slice(0, 120); }).filter((x: string): boolean => x.length > 0);
       process.stderr.write("lines held: " + refused.length + " of " + dense.length + " stations refused" + (refused.length === 0 ? "" : "; first " + refused[0] + "; last " + refused.at(-1)) + "\n");
+      // And by stretch of the course, 100 mm at a time, with each stretch's first fault, so a refusal is placed by region.
+      const stretches: Map<number, { count: number; total: number; first: string }> = new Map();
+      dense.forEach((b: number[], d: number): void => {
+        const s: number = knots[0]! + d * DENSE_MM;
+        const key: number = Math.floor(s / 100) * 100;
+        const entry = stretches.get(key) ?? { count: 0, total: 0, first: "" };
+        entry.total++;
+        const fault: string | null = C.chain(theta(Y, b), layout).fault;
+        if (fault !== null) {
+          entry.count++;
+          if (entry.first === "") entry.first = s.toFixed(1) + ": " + fault.slice(0, 90);
+        }
+        stretches.set(key, entry);
+      });
+      process.stderr.write("lines held by stretch: " + [...stretches.entries()].map(([key, e]): string => `${key}-${key + 100}: ${e.count}/${e.total}${e.first === "" ? "" : " (" + e.first + ")"}`).join(" | ") + "\n");
     }
     let current: { total: number; residuals: number[][] } | null = cost(Y);
     // A projection of sections' own seeds onto few knots can leave stations whose chain is no conic chain, where features appear and
@@ -497,10 +616,36 @@ export namespace FamilyConicFit {
       return failed("the projected seed is not an admissible conic chain on every fitting section");
     }
 
+    // `--seeds`: the start's smallest admissibility margins over each 100 mm of course, named by the margin and arc they belong to.
+    if (process.argv.includes("--seeds")) {
+      const named: Map<number, { value: number; what: string }> = new Map();
+      dense.forEach((b: number[], d: number): void => {
+        const s: number = knots[0]! + d * DENSE_MM;
+        const t: number[] = theta(Y, b);
+        const m: number[] | null = margins(t);
+        const K: number = C.resolve(t, layout).input.points.length;
+        const key: number = Math.floor(s / 100) * 100;
+        const entry = named.get(key) ?? { value: Infinity, what: "" };
+        if (m === null) {
+          entry.value = -Infinity;
+          entry.what = `${s.toFixed(1)}: margins not finite`;
+        } else
+          m.forEach((v: number, j: number): void => {
+            if (v >= entry.value) return;
+            entry.value = v;
+            const L: number = leastMeetings(t, layout).length;
+            const name: string = j < K ? `phase step after point ${j} (rad)` : j < K + L ? `least meeting ${j - K} less the margin` : `share field ${shares[Math.floor((j - K - L) / 2)]} ${(j - K - L) % 2 === 0 ? "above 0" : "below 1"}`;
+            entry.what = `${s.toFixed(1)}: ${name} = ${v.toExponential(3)}; meeting ${meeting(t).toFixed(3)} against the margin ${margin}`;
+          });
+        named.set(key, entry);
+      });
+      process.stderr.write("start's smallest margins by stretch: " + [...named.entries()].map(([k, e]): string => `${k}-${k + 100}: ${e.what}`).join(" | ") + "\n");
+    }
     // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
     const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
+    const refusedSteps: { inadmissible: number; rounding: number; barrier: number; residual: number; worse: number; singular: number; where: Map<number, number> } = { inadmissible: 0, rounding: 0, barrier: 0, residual: 0, worse: 0, singular: 0, where: new Map() };
     // `--homotopy`: the fit travels from the shape it starts from to the skin along a path of targets (Allgower and Georg), each section's
     // radii blended from the start's own (t = 0) to the observed ones (t = 1) in `HOMOTOPY_STEPS` steps, each step starting from the last
     // solution, so a start the admissible region holds far from the skin is carried to it without a jump across the region's wall.
@@ -537,7 +682,8 @@ export namespace FamilyConicFit {
       barrierLevels.splice(0, 1, ...Array.from({ length: BARRIER_LEVELS }, (_: unknown, k: number): number => start / 10 ** k), 0);
     }
     const passes: number = power > 2 ? 3 : 1;
-    for (const level of barrierLevels)
+    for (const level of barrierLevels) {
+    const before: number = iterations;
     for (let pass: number = 0; pass < passes; ++pass) {
       if (mu !== level) {
         mu = level;
@@ -626,9 +772,22 @@ export namespace FamilyConicFit {
             return copy;
           });
           const delta: number[] | null = solve(A, JTr.map((v: number): number => -v));
+          if (delta === null) ++refusedSteps.singular;
           if (delta !== null) {
             const next: number[][] = Y.map((field: number[], f: number): number[] => field.map((y: number, m: number): number => y + delta[f * M + m]!));
             const trial: { total: number; residuals: number[][] } | null = cost(next);
+            // `--seeds`: why each trial step is refused, counted by the code path that refuses it (`admissible` at the dense stations, the
+            // barrier, a fitting section's residual) or because it does not lower the cost.
+            if (trial === null) {
+              if (!admissible(next)) {
+                ++refusedSteps.inadmissible;
+                // Refused only as stored: every raw station admissible, a rounded one not.
+                if (dense.every((b: number[]): boolean => C.chain(theta(next, b), layout).fault === null && meeting(theta(next, b)) >= margin && inside(theta(next, b)))) ++refusedSteps.rounding;
+                const at: number = dense.findIndex((b: number[]): boolean => C.chain(theta(next, b), layout).fault !== null);
+                if (at >= 0) refusedSteps.where.set(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100, (refusedSteps.where.get(Math.floor((knots[0]! + at * DENSE_MM) / 100) * 100) ?? 0) + 1);
+              } else if (mu > 0 && barrier(next) === null) ++refusedSteps.barrier;
+              else ++refusedSteps.residual;
+            } else if (!(trial.total < current.total)) ++refusedSteps.worse;
             if (trial !== null && trial.total < current.total) {
               converged = (current.total - trial.total) / current.total < 1e-6;
               Y = next;
@@ -644,9 +803,13 @@ export namespace FamilyConicFit {
         if (!accepted || converged) break;
       }
     }
+    if (process.argv.includes("--seeds")) process.stderr.write(`barrier level ${level.toExponential(3)}: ${iterations - before} steps accepted, cost ${current.total.toExponential(4)}\n`);
+    }
 
     }
 
+    if (process.argv.includes("--seeds"))
+      process.stderr.write(`steps refused: ${refusedSteps.inadmissible} inadmissible at a dense station (${refusedSteps.rounding} of them only as stored; first faulty station by stretch: ${[...refusedSteps.where.entries()].map(([s, c]): string => s + ":" + c).join(" ")}), ${refusedSteps.barrier} by the barrier, ${refusedSteps.residual} by a fitting section's residual, ${refusedSteps.worse} not lowering the cost, ${refusedSteps.singular} singular; ${iterations} accepted; ${held.size} of ${F} fields held\n`);
     // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
     const report: number[] = Array.from({ length: REPORT }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.5)) / REPORT);
     const evidence: IResult["rows"] = [];
@@ -691,6 +854,223 @@ export namespace FamilyConicFit {
     return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
   }
 
+  /**
+   * The start's knots placed from the data (Piegl and Tiller, The NURBS Book, 1997, section 9.4.1, approximation to within a specified
+   * accuracy: knots are inserted where the curve leaves its data until every point holds). From the domain's two ends, each round projects
+   * every field onto the knots by weighted linear least squares (a refused own seed weighs nothing), and checks every `DENSE_MM` station
+   * for an admissible chain, raw and as stored, and every admitted own seed for a projection within `SEED_NEAR_MM` of it. In each knot
+   * interval that fails, a knot goes in at its worst station: the refused station farthest from the interval's knots first, else the seed
+   * farthest from its projection.
+   * An interval whose worst station stands within `KNOT_LEAST_MM` of a knot is reported and left, since the seeds there disagree.
+   *
+   * @param train The fitting sections.
+   * @param seeds Their own seeds, headings unwrapped.
+   * @param weights Each seed's weight in the projection.
+   * @param ends The domain's first and last station.
+   * @param layout The layout.
+   * @param margin The fit's meeting margin.
+   */
+  export function adaptiveKnots(train: readonly IRow[], seeds: readonly (readonly number[])[], weights: readonly number[], ends: [number, number], layout: C.ILayout, margin: number): number[] {
+    const units: C.Unit[] = C.units(layout);
+    const F: number = units.length;
+    const shares: number[] = units.map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const rounded = (t: number[]): number[] => t.map((y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4));
+    const least = (t: number[]): number => {
+      const m: number = Math.min(...leastMeetings(t, layout));
+      return Number.isFinite(m) ? m : -Infinity;
+    };
+    // A station's admission and its least meeting less the margin (negative when refused), raw and as stored.
+    const score = (t: number[]): number => {
+      const r: number[] = rounded(t);
+      if (C.chain(t, layout).fault !== null || C.chain(r, layout).fault !== null) return -Infinity;
+      if (!shares.every((f: number): boolean => t[f]! > 0 && t[f]! < 1 && r[f]! > 0 && r[f]! < 1)) return -Infinity;
+      return Math.min(least(t), least(r)) - margin;
+    };
+    const rays: number[] = Array.from({ length: 72 }, (_: unknown, k: number): number => (2 * Math.PI * k) / 72);
+    const apart = (a: number[], b: number[]): number => {
+      const [x, y] = [C.chain(a, layout), C.chain(b, layout)];
+      if (x.fault !== null || y.fault !== null) return Infinity;
+      return Math.max(...rays.map((phi: number): number => Math.abs(Q.radius(x, phi) - Q.radius(y, phi))));
+    };
+    // The own seeds against the same test: how many the fit itself would admit, and their least tangent meetings by stretch.
+    {
+      const stretches: Map<number, { n: number; pass: number; chained: number; least: number[] }> = new Map();
+      train.forEach((row: IRow, i: number): void => {
+        const key: number = Math.floor(row.s / 100) * 100;
+        const cell = stretches.get(key) ?? { n: 0, pass: 0, chained: 0, least: [] };
+        ++cell.n;
+        if (C.chain([...seeds[i]!], layout).fault === null) ++cell.chained;
+        const v: number = score([...seeds[i]!]);
+        if (v >= 0) ++cell.pass;
+        if (Number.isFinite(v)) cell.least.push(v + margin);
+        stretches.set(key, cell);
+      });
+      const median = (x: number[]): string => (x.length === 0 ? "-" : [...x].sort((a, b) => a - b)[Math.floor(x.length / 2)]!.toFixed(3));
+      process.stderr.write(`own seeds against the fit's test (chain admitted / meeting margin and stored rounding passed / of; least meeting min and median): ${[...stretches.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}-${k + 100}: ${c.chained}/${c.pass}/${c.n}, ${c.least.length ? Math.min(...c.least).toFixed(3) : "-"} ${median(c.least)}`).join(" | ")}\n`);
+    }    let knots: number[] = [...ends];
+    const blocked: Set<number> = new Set();
+    for (let round: number = 0; round < 200; ++round) {
+      const M: number = knots.length;
+      const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+      const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+      const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
+      const gram: number[][] = zeros(M, M);
+      B.forEach((b: number[], i: number): void => {
+        for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += weights[i]! * b[m]! * b[n]!;
+      });
+      const Y: number[][] = [];
+      for (let f: number = 0; f < F; ++f) {
+        const right: number[] = new Array<number>(M).fill(0);
+        for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += weights[i]! * B[i]![m]! * seeds[i]![f]!;
+        const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
+        if (solved === null) {
+          process.stderr.write(`adaptive knots: the projection is singular at ${M} knots; kept the last that solved\n`);
+          return knots.slice(0, -1);
+        }
+        Y.push(solved);
+      }
+      const theta = (b: number[]): number[] => Y.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+      // The worst station of each knot interval: refused first, by its least meeting; else the farthest admitted seed past `SEED_NEAR_MM`.
+      const worst: Map<number, { s: number; refused: boolean; value: number }> = new Map();
+      const interval = (s: number): number => {
+        let m: number = 0;
+        while (m + 1 < M - 1 && knots[m + 1]! <= s) ++m;
+        return m;
+      };
+      const offer = (s: number, refused: boolean, value: number): void => {
+        const m: number = interval(s);
+        const held = worst.get(m);
+        if (held === undefined || (refused && !held.refused) || (refused === held.refused && value > held.value)) worst.set(m, { s, refused, value });
+      };
+      const refusals: Map<number, number> = new Map();
+      for (let s: number = ends[0]; s <= ends[1] + 1e-9; s += DENSE_MM) {
+        const v: number = score(theta(basis(Math.min(s, ends[1]))));
+        if (v < 0) {
+          // A refused station's rank is its distance from the nearest knot: a fault has no degree, and inserting at the refused station
+          // farthest from the interval's knots divides the refused stretch as bisection would.
+          offer(s, true, Math.min(...knots.map((k: number): number => Math.abs(k - s))));
+          const key: number = Math.floor(s / 100) * 100;
+          refusals.set(key, (refusals.get(key) ?? 0) + 1);
+        }
+      }
+      let farthest: number = 0;
+      train.forEach((row: IRow, i: number): void => {
+        if (weights[i] === 0) return;
+        const d: number = apart(theta(B[i]!), [...seeds[i]!]);
+        farthest = Math.max(farthest, Number.isFinite(d) ? d : 0);
+        if (d > SEED_NEAR_MM) offer(row.s, false, d);
+      });
+      // Each interval's worst station, moved onto the nearest fitting section; a knot within `KNOT_LEAST_MM` of another is not inserted.
+      const added: number[] = [];
+      for (const { s } of worst.values()) {
+        const at: number = train.reduce((b: IRow, row: IRow): IRow => (Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b)).s;
+        if ([...knots, ...added].some((k: number): boolean => Math.abs(k - at) < KNOT_LEAST_MM)) blocked.add(Math.round(s * 4) / 4);
+        else added.push(at);
+      }
+      const byStretch = (values: number[]): string => {
+        const counts: Map<number, number> = new Map();
+        for (const v of values) counts.set(Math.floor(v / 100) * 100, (counts.get(Math.floor(v / 100) * 100) ?? 0) + 1);
+        return [...counts.entries()].sort((a, b): number => a[0] - b[0]).map(([k, n]): string => `${k}-${k + 100}: ${n}`).join(", ");
+      };
+      process.stderr.write(`adaptive knots round ${round}: ${M} knots (${byStretch(knots)}); refused dense stations ${[...refusals.values()].reduce((a, b) => a + b, 0)} (${[...refusals.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => `${k}-${k + 100}: ${n}`).join(", ")}); farthest admitted seed ${farthest.toFixed(2)} mm; inserting ${added.length}; blocked ${blocked.size}${blocked.size ? ` (${[...blocked].sort((a, b) => a - b).slice(0, 30).join(", ")})` : ""}\n`);
+      if (added.length === 0) {
+        process.stderr.write(`adaptive knots: ${knots.join(", ")}\n`);
+        process.stderr.write(`adaptive knots, refused own seeds: ${train.map((row: IRow, i: number): string => (weights[i] === 0 ? `${row.s} projected ${score(theta(B[i]!)) >= 0 ? "admitted" : "refused"}` : "")).filter((x: string): boolean => x.length > 0).join(", ")}\n`);
+        return knots;
+      }
+      knots = [...knots, ...added].sort((a: number, b: number): number => a - b);
+    }
+    return knots;
+  }
+  /**
+   * The start derived from lines (lofting.md, Defining a family: "A family can be defined by a few view curves", and a groove is "one more
+   * longitudinal control curve, an inflection line drawn like the outlines"): each anchor of every section whose own seed the fit admits
+   * is read in physical coordinates, its phase about the course, its radius and its tangent's heading from the radial direction, and each
+   * arc's shoulder as it stands; each of those numbers is smoothed along the stations as a line by Whittaker's smoother (Eilers, A perfect
+   * smoother, Analytical Chemistry 75, 2003), second differences penalised with the weight that halves a wavelength of `FAIR_MM` (the
+   * sections' own form scale, along the course too), a refused seed weighing nothing; at any station the field vector is derived from the
+   * lines (`FamilyConicSection.fields`). Reports the round trip (each admitted seed derived back from its own anchors) and the derived
+   * vector's refusals at every `DENSE_MM` station by stretch.
+   */
+  export function linesStart(train: readonly IRow[], seeds: readonly (readonly number[])[], layout: C.ILayout, margin: number, from: number, to: number): { at: (s: number) => number[]; refused: number } {
+    const K: number = layout.anchors.length;
+    const units: C.Unit[] = C.units(layout);
+    const shares: number[] = units.map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1)).filter((f: number): boolean => f >= 0);
+    const anchorFields: number = units.length - (layout.mirror ? K - 1 : K);
+    const rounded = (t: number[]): number[] => t.map((y: number, f: number): number => (units[f] === "mm" ? Math.round(y * 100) / 100 : Math.round(y * 1e4) / 1e4));
+    const admitted = (t: number[]): boolean => {
+      const r: number[] = rounded(t);
+      if (C.chain(t, layout).fault !== null || C.chain(r, layout).fault !== null) return false;
+      if (!shares.every((f: number): boolean => t[f]! > 0 && t[f]! < 1 && r[f]! > 0 && r[f]! < 1)) return false;
+      return Math.min(...leastMeetings(t, layout), ...leastMeetings(r, layout)) >= margin;
+    };
+    const weights: number[] = seeds.map((t: readonly number[]): number => (admitted([...t]) ? 1 : 0));
+    // Each line's samples: per anchor its phase, radius and heading from the radial direction, then every arc's shoulder.
+    const samples: number[][] = seeds.map((t: readonly number[]): number[] => {
+      const input = C.resolve([...t], layout).input;
+      const points: number[][] = input.points as number[][], tangents: number[][] = input.tangents as number[][];
+      const out: number[] = [];
+      for (let k: number = 0; k < K; ++k) {
+        const phi: number = Math.atan2(points[k]![1]!, points[k]![0]!);
+        const heading: number = Math.atan2(tangents[k]![1]!, tangents[k]![0]!);
+        out.push(phi, Math.hypot(points[k]![0]!, points[k]![1]!), Math.atan2(Math.sin(heading - phi), Math.cos(heading - phi)));
+      }
+      return [...out, ...t.slice(anchorFields)];
+    });
+    const L: number = samples[0]!.length;
+    // Angles unwrapped along the stations, so a line is smoothed on one branch.
+    for (let j: number = 0; j < 3 * K; ++j) {
+      if (j % 3 === 1) continue;
+      for (let i: number = 1; i < samples.length; ++i) {
+        while (samples[i]![j]! - samples[i - 1]![j]! > Math.PI) samples[i]![j]! -= 2 * Math.PI;
+        while (samples[i]![j]! - samples[i - 1]![j]! < -Math.PI) samples[i]![j]! += 2 * Math.PI;
+      }
+    }
+    const derive = (line: readonly number[]): number[] => {
+      const found: C.P[] = [], heading: C.P[] = [];
+      for (let k: number = 0; k < K; ++k) {
+        const [phi, r, psi] = [line[3 * k]!, line[3 * k + 1]!, line[3 * k + 2]!];
+        found.push([r * Math.cos(phi), r * Math.sin(phi)]);
+        heading.push([Math.cos(phi + psi), Math.sin(phi + psi)]);
+      }
+      return C.fields(found, heading, line.slice(3 * K), layout);
+    };
+    // The round trip: an admitted seed derived back from its own anchors.
+    let trip: number = 0;
+    seeds.forEach((t: readonly number[], i: number): void => {
+      if (weights[i] === 0) return;
+      const back: number[] = derive(samples[i]!);
+      back.forEach((v: number, f: number): void => {
+        const d: number = units[f] === "angle" ? Math.abs(Math.atan2(Math.sin(v - t[f]!), Math.cos(v - t[f]!))) : Math.abs(v - t[f]!);
+        trip = Math.max(trip, d);
+      });
+    });
+    // Whittaker's smoother over the fitting stations (2 mm apart): lambda = 1 / (2 sin(pi h / FAIR))^4 halves the wavelength FAIR.
+    const n: number = train.length;
+    const spacing: number = (train[n - 1]!.s - train[0]!.s) / (n - 1);
+    const lambda: number = 1 / (2 * Math.sin((Math.PI * spacing) / C.FAIR_MM)) ** 4;
+    const system: number[][] = Array.from({ length: n }, (_: unknown, i: number): number[] => {
+      const row: number[] = new Array<number>(n).fill(0);
+      row[i] = weights[i]!;
+      return row;
+    });
+    for (let i: number = 1; i + 1 < n; ++i) {
+      const d: [number, number, number] = [1, -2, 1];
+      for (let a: number = 0; a < 3; ++a) for (let b: number = 0; b < 3; ++b) system[i - 1 + a]![i - 1 + b]! += lambda * d[a]! * d[b]!;
+    }
+    const smoothed: number[][] = Array.from({ length: L }, (_: unknown, j: number): number[] => solve(system.map((r: number[]): number[] => [...r]), samples.map((x: number[], i: number): number => weights[i]! * x[j]!)) ?? samples.map((x: number[]): number => x[j]!));
+    const splines = smoothed.map((z: number[]) => S.create(train.map((row: IRow): number => row.s), z));
+    const at = (s: number): number[] => derive(splines.map((spline): number => S.evaluate(spline, s)));
+    const refusals: Map<number, number> = new Map();
+    let refused: number = 0;
+    for (let s: number = from; s <= to + 1e-9; s += DENSE_MM) {
+      if (admitted(at(Math.min(s, to)))) continue;
+      ++refused;
+      refusals.set(Math.floor(s / 100) * 100, (refusals.get(Math.floor(s / 100) * 100) ?? 0) + 1);
+    }
+    process.stderr.write(`lines start: ${weights.filter((w: number): boolean => w > 0).length} of ${n} own seeds admitted and fitted; round trip within ${trip.toExponential(2)}; smoothing lambda ${lambda.toFixed(2)} at ${spacing.toFixed(2)} mm; refused dense stations ${refused} (${[...refusals.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}-${k + 100}: ${c}`).join(", ")})\n`);
+    return { at, refused };
+  }
   /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */
   export function leastMeetings(t: readonly number[], layout: C.ILayout): number[] {
     const input = C.resolve([...t], layout).input;
