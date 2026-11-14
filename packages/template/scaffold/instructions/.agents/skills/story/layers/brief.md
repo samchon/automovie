@@ -14,7 +14,7 @@ Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md
 
 Keep measurements out, under the [settings rule](settings.md#records). User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 
-Where [settings](settings.md#records) would embed canon references, embed them the same way.
+Embed a subject's canon references as [settings](settings.md#records) records do.
 
 ## Growth
 

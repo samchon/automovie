@@ -5,8 +5,8 @@ Contract: [entities.md](../entities.md).
 ## Settings realization
 
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
-2. Every cited fact is either shown by the entity's form or, where a commissioned consumer carries it, handed on with that consumer, such as a canon reference, the generation prompt or a shot's sound description.
-3. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is not modeled, and is handed on where a commissioned consumer carries it. Exception: a commissioned detail option shows what it was commissioned to show.
+2. Every cited fact is either shown by the entity's form or handed on with the consumer that carries it, such as a canon reference, the generation prompt or a shot's sound description.
+3. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is handed on and not modeled. Exception: a commissioned detail option shows what it was commissioned to show.
 4. A person's body parameters derive from the cast record's body facts, or on a short from the standing state for a person only one scene shows, and one prepared body serves both the polygon man and the motion planned for it.
 5. Each parameter of a research law, an installed action or an installed archetype, such as stature, proficiency, style or a seat's height, derives from a cited fact and stays within the range its owner gives.
 6. Each measurement names its study and section. Exception: a measurement an installed package supplies with its own source.

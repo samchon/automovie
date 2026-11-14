@@ -58,7 +58,7 @@ Language:
 
 The scene file:
 
-1. The scene file's first section opens with the standing state, stated once: the place, the cast present, any person, place or object only this scene shows, with its appearance on a short for a commissioned generated film, the camera default and the sound bed.
+1. The scene file's first section opens with the standing state, stated once: the place, the cast present, any person or object only this scene shows, the camera default and the sound bed.
 
 What each beat decides:
 
@@ -72,7 +72,7 @@ What the modules can perform:
 
 7. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
 8. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: for a commissioned generated film, the beat states each reaction it needs that the representation cannot show, such as a facial expression, for the generation prompt to carry.
+9. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: a commissioned generated film's beat states the reactions it needs, such as a facial expression, and the generation prompt carries them.
 
 Measurements:
 
