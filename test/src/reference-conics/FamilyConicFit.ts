@@ -608,11 +608,39 @@ export namespace FamilyConicFit {
       }
     if (current === null) {
       // `--seeds`: which sections' own seeds and projected seeds are admissible chains, by station, so a refused seed is placed.
-      if (process.argv.includes("--seeds"))
+      if (process.argv.includes("--seeds")) {
         process.stderr.write(
           "first refused seed: " + (train.map((row: IRow, i: number): string => (C.chain(seeds[i]!, layout).fault === null ? "" : row.s.toFixed(1) + " " + C.chain(seeds[i]!, layout).fault + " values " + seeds[i]!.map((x: number): string => x.toFixed(2)).join(","))).find((x: string): boolean => x.length > 0) ?? "none") + "\n" +
           "seeds: " + train.map((row: IRow, i: number): string => row.s.toFixed(1) + (C.chain(seeds[i]!, layout).fault === null ? "+" : "-") + (C.chain(theta(Y, B[i]!), layout).fault === null ? "+" : "-")).join(" ") + "\n",
         );
+        // The list above reads only whether each chain is a conic chain, but `cost` refuses a start on every test of `admissible`: a chain at
+        // every dense station, its least tangent meeting at or above the margin, and every share inside (0, 1), each raw and as stored. f1's
+        // foot end seeded from its stored wall was refused with every chain admitted, so each test is printed for the start that was refused
+        // (`projected`, the given start or the projection of the sections' own seeds) and for the flat start the fit falls back on when none
+        // is given (one section's seed held at every knot, the middle section's, the first the fallback tries).
+        const start = (label: string, values: number[][], tried: boolean): string => {
+          const rounded: number[][] = stored(values);
+          const failing: string[] = [];
+          let least: { value: number; at: string } = { value: Infinity, at: "" };
+          dense.forEach((b: number[], d: number): void => {
+            const s: number = knots[0]! + d * DENSE_MM;
+            for (const [form, t] of [["raw", theta(values, b)], ["stored", theta(rounded, b)]] as const) {
+              const fault: string | null = C.chain(t, layout).fault;
+              const sides: { arc: number; a: number; b: number }[] = meetingSides(t, layout);
+              const worst = sides.reduce((x, y) => (Math.min(y.a, y.b) < Math.min(x.a, x.b) ? y : x));
+              const value: number = Math.min(worst.a, worst.b);
+              const side: string = worst.a <= worst.b ? "a" : "b";
+              if (value < least.value) least = { value, at: `${s.toFixed(2)} ${form} arc ${worst.arc} ${side}` };
+              const outside: number[] = shares.filter((f: number): boolean => !(t[f]! > 0 && t[f]! < 1));
+              if (fault !== null || !(value >= margin) || outside.length > 0)
+                failing.push(`${s.toFixed(2)} ${form}: ${fault === null ? "" : "chain refused (" + fault.slice(0, 80) + "); "}least meeting ${value.toFixed(4)} at arc ${worst.arc} ${side}${outside.length === 0 ? "" : "; shares outside (0, 1): fields " + outside.join(",")}`);
+            }
+          });
+          return `${label} start${tried ? "" : " (not tried: a start was given)"}: ${failing.length} of ${2 * dense.length} station readings refused under margin ${margin}; least meeting ${least.value.toFixed(4)} at ${least.at}` + (failing.length === 0 ? "" : "\n  " + failing.slice(0, 24).join("\n  ") + (failing.length > 24 ? `\n  ... ${failing.length - 24} more` : ""));
+        };
+        const middle: number = train.map((_: IRow, i: number): number => i).sort((a: number, b: number): number => Math.abs(a - train.length / 2) - Math.abs(b - train.length / 2))[0]!;
+        process.stderr.write(start("projected", Y, true) + "\n" + start("flat (section " + train[middle]!.s.toFixed(1) + ")", seeds[middle]!.map((value: number): number[] => new Array<number>(M).fill(value)), initial === undefined) + "\n");
+      }
       return failed("the projected seed is not an admissible conic chain on every fitting section");
     }
 
@@ -1085,6 +1113,31 @@ export namespace FamilyConicFit {
       const chord: number = Math.hypot(d[0]!, d[1]!);
       const least: number = Math.min((d[0]! * w[1]! - d[1]! * w[0]!) / den / chord, (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord);
       return Number.isFinite(least) ? least : -Infinity;
+    });
+  }
+
+  /**
+   * Both tangent meetings of every arc of a field vector as shares of its chord, the two quantities `leastMeetings` takes the smaller of:
+   * `a`, how far ahead of the arc's start its tangent lines meet, and `b`, how far behind its end. For a diagnostic that names which side
+   * of which arc holds a start off the margin.
+   *
+   * @param t A section's field vector.
+   * @param layout Its layout.
+   */
+  export function meetingSides(t: readonly number[], layout: C.ILayout): { arc: number; a: number; b: number }[] {
+    const input = C.resolve([...t], layout).input;
+    const points: number[][] = input.points as number[][];
+    const tangents: number[][] = input.tangents as number[][];
+    return points.map((_: number[], j: number): { arc: number; a: number; b: number } => {
+      const [p0, p2, t0, t2] = [points[j]!, points[(j + 1) % points.length]!, tangents[j]!, tangents[(j + 1) % points.length]!];
+      const [n0, n2]: number[] = [Math.hypot(t0[0]!, t0[1]!), Math.hypot(t2[0]!, t2[1]!)];
+      const [u, w]: number[][] = [[t0[0]! / n0, t0[1]! / n0], [t2[0]! / n2, t2[1]! / n2]];
+      const den: number = u[0]! * w[1]! - u[1]! * w[0]!;
+      const d: number[] = [p2[0]! - p0[0]!, p2[1]! - p0[1]!];
+      const chord: number = Math.hypot(d[0]!, d[1]!);
+      const a: number = (d[0]! * w[1]! - d[1]! * w[0]!) / den / chord;
+      const b: number = (u[0]! * d[1]! - u[1]! * d[0]!) / den / chord;
+      return { arc: j, a: Number.isFinite(a) ? a : -Infinity, b: Number.isFinite(b) ? b : -Infinity };
     });
   }
 
