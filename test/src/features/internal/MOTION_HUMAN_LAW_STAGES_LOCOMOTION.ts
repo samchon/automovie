@@ -1,9 +1,46 @@
 import { createLadder } from "@automovie/archetypes";
-import { HumanObject, type IHumanBody } from "@automovie/motions";
+import {
+  HumanObject,
+  type IHumanBody,
+  type IHumanProp,
+} from "@automovie/motions";
 
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 const S: typeof motionHumanLawSweep = motionHumanLawSweep;
+
+/** The everyday captures' box to step over: 0.3 m high and 0.25 m deep, its near side 0.35 m ahead and facing the performer, with a kerb's `edge` and `top` (`createKerb`'s contacts, at a height no kerb's band reaches). */
+const box: IHumanProp = {
+  subject: "box",
+  frame: {
+    position: { x: 0, y: 0, z: 0.6 },
+    rotation: { x: 0, y: 1, z: 0, w: 0 },
+  },
+  points: {},
+  affordances: [
+    {
+      id: "edge",
+      kind: "ledge",
+      frame: {
+        translation: { x: 0, y: 0.3, z: 0.25 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      extent: null,
+    },
+    {
+      id: "top",
+      kind: "surface",
+      frame: {
+        translation: { x: 0, y: 0.3, z: 0.125 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      extent: null,
+      depth: 0.25,
+    },
+  ],
+};
 
 /**
  * The stages of the laws that carry the body over the ground: standing,
@@ -80,9 +117,10 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     S.solo(
       a,
       S.chain().act("stepOver", {
-        obstacle: { at: { x: 0, y: 0, z: 0.35 }, height: 0.3, depth: 0.25 },
+        obstacle: "box",
         ...S.set(pick, "lead"),
       }),
+      [box],
     ),
   climbStairs: (
     pick: motionHumanLawSweep.Pick,

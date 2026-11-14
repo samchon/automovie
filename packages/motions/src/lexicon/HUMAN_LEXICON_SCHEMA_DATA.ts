@@ -18641,25 +18641,8 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "obstacle": {
-            "type": "object",
-            "properties": {
-              "at": {
-                "$ref": "#/components/schemas/IAutoMovieVector3"
-              },
-              "height": {
-                "type": "number"
-              },
-              "depth": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "at",
-              "height",
-              "depth"
-            ],
-            "additionalProperties": false,
-            "description": "The obstacle: the middle of its near side on the floor, its height and its depth along the heading, metres."
+            "type": "string",
+            "description": "The obstacle's prop subject: a kerb or a hurdle, whose near edge, height and depth its contacts declare (`HumanObstacle`)."
           },
           "lead": {
             "oneOf": [
