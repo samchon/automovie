@@ -305,10 +305,19 @@ export namespace poleVault {
         HumanHand.frame(body, bones, side, "grip").point,
         Quaternion.rotateVector(bones.get(`${side}Hand`)!.worldRotation, end),
       );
+    // The end's height is a root in the wrist goal's height, found by the
+    // secant method from a first step of the miss itself: the solved hand's
+    // turn follows the goal, so the end need not move with it one for one.
+    let last: { y: number; miss: number } | undefined;
     for (let pass: number = 0; pass < PLANT; pass++) {
       const miss: number = endOf(shown).y;
       if (Math.abs(miss) <= 1e-3) break;
-      wrist = { ...wrist, y: wrist.y - miss };
+      const slope: number =
+        last === undefined || Math.abs(miss - last.miss) < 1e-9
+          ? 1
+          : (miss - last.miss) / (wrist.y - last.y);
+      last = { y: wrist.y, miss };
+      wrist = { ...wrist, y: wrist.y - miss / slope };
       from = GymnasticsFlight.frozen(body, pushing(off));
       shown = poseBones(body, resolveHumanPosture(body, from));
     }

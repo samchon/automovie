@@ -1,28 +1,22 @@
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import { basisOf } from "./basisOf";
+import { fitHingedRotationError } from "./fitHingedRotationError";
 import type { prepareChainPlant } from "./prepareChainPlant";
-import { solveDistalTwist } from "./solveDistalTwist";
 
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
@@ -74,7 +68,7 @@ export function fitHingedChainCandidate(
     | null =
     rotation === undefined
       ? null
-      : rotationError(props, prepared, axes, rotation);
+      : fitHingedRotationError(props, prepared, axes, rotation);
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
   const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
   if (Vector3.length(reach) < 1e-9) return null;
@@ -196,11 +190,16 @@ export function fitHingedChainCandidate(
                   ),
                 ),
               );
+        // The hint's side weighs as the mid joint leaves the line to the
+        // target: a straight limb has no side, and a rounding-sized offset's
+        // direction must not rank swivels.
         const offset: IAutoMovieVector3 = across(mid);
+        const off: number = Vector3.length(offset);
         const away: number =
-          side === null || Vector3.length(offset) < 1e-9
+          side === null || off < 1e-12
             ? 0
-            : 1 - Vector3.dot(Vector3.normalize(offset), side);
+            : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
+              Math.min(1, off / SIDED);
         const effort: number =
           clinicalDeviation({
             flexion: u.flexion ?? 0,
@@ -293,135 +292,6 @@ function hingeRange(
 }
 
 /**
- * A joint's clinical basis as `decomposeJointRotationOnBasis` reads it: the
- * given axes, or the default ones, admitted and normalized exactly as
- * `decomposeJointRotation` would for each call, done here once per fit.
- *
- * @param axes The bone's clinical axes; omitted, the default basis.
- * @returns The orthonormal basis.
- */
-function basisOf(axes: IAutoMovieJointAxes | undefined): IAutoMovieJointAxes {
-  return normalizeJointAxes(
-    axes ?? DEFAULT_JOINT_AXES,
-    "decomposeJointRotation axes",
-  );
-}
-
-/**
- * How far, in degrees, the effector misses a requested rotation once a
- * hinged candidate's mid bone has taken its distal twist share and the
- * effector its swing, each clamped to the rig's range: the split that
- * `splitDistalTwist` and `orientChainEffector` later apply to the chosen
- * candidate, evaluated here for every candidate so the ranking sees the hand
- * the fit will actually show. A distally twisting mid bone's twist is the one
- * `solveDistalTwist` gives from the candidate's own and the effector the
- * pose holds; each joint is clamped through its clinical domain as the fit
- * clamps it. An effector its clamp leaves alone shows the request exactly, so
- * its error is zero, not rounding that would rank swivels and break the
- * mirror; any other error is the geodesic angle from `Quaternion.angle`.
- *
- * @param props The fit request.
- * @param prepared The chain's preparation.
- * @param axes The mid bone's axes.
- * @param rotation The requested effector rotation.
- * @returns The error of a candidate's bone-local root and mid rotations.
- */
-function rotationError(
-  props: IFitChainToTargetProps,
-  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
-  axes: IAutoMovieJointAxes,
-  rotation: IAutoMovieQuaternion,
-): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {
-  const effector: AutoMovieHumanoidBone = props.chain.effector;
-  const rest: IAutoMovieQuaternion =
-    props.skeleton.bones.find((b): boolean => b.bone === effector)?.rest
-      .rotation ?? Quaternion.identity();
-  const effectorAxes: IAutoMovieJointAxes | undefined =
-    props.jointAxes?.[effector];
-  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
-  const effectorBasis: IAutoMovieJointAxes = basisOf(effectorAxes);
-  // Each joint's basis was admitted and normalized above, once for the whole
-  // sweep, so the clamped angles are composed on it directly.
-  const wanted: IAutoMovieQuaternion = Quaternion.normalize(rotation);
-  const lowerFrame: IAutoMovieRestFrame | undefined =
-    props.restFrames?.[props.chain.lower];
-  const effectorFrame: IAutoMovieRestFrame | undefined =
-    props.restFrames?.[effector];
-  // The effector as the pose holds it, from which the mid twist is solved.
-  const held: IAutoMovieJointPose = props.pose.joints.find(
-    (j: IAutoMovieJointPose): boolean => j.bone === effector,
-  ) ?? { bone: effector, flexion: null, abduction: null, twist: null };
-  return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
-    const above: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(prepared.upper.worldRotation, upper),
-      prepared.lowerRotation,
-    );
-    // The mid bone's angles, its twist solved as splitDistalTwist solves it.
-    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-      lower,
-      lowerBasis,
-      lowerFrame,
-      prepared.lowerDomain,
-    );
-    const joint: IAutoMovieJointPose = { bone: props.chain.lower, ...read };
-    const mid: IAutoMovieQuaternion = Quaternion.multiply(
-      above,
-      jointToQuaternionOnBasis(
-        axes.twistPlacement === "distal"
-          ? solveDistalTwist({
-              joint,
-              effector: held,
-              above,
-              lowerBasis,
-              lowerFrame,
-              effectorRest: rest,
-              effectorBasis,
-              effectorFrame,
-              rotation,
-              skeleton: props.skeleton,
-            })
-          : clampJointToSkeleton(joint, props.skeleton),
-        lowerBasis,
-        lowerFrame,
-      ),
-    );
-    const local: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.inverse(rest),
-        Quaternion.multiply(Quaternion.inverse(mid), rotation),
-      ),
-    );
-    const a: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
-      local,
-      effectorBasis,
-      effectorFrame,
-    );
-    const kept: IAutoMovieJointPose = clampJointToSkeleton(
-      {
-        bone: effector,
-        flexion: a.flexion,
-        abduction: a.abduction,
-        twist: a.twist,
-      },
-      props.skeleton,
-    );
-    if (
-      kept.flexion === a.flexion &&
-      kept.abduction === a.abduction &&
-      Math.abs((a.twist ?? 0) - (kept.twist ?? 0)) <= REACHED
-    )
-      return 0;
-    const shown: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(mid, rest),
-      jointToQuaternionOnBasis(kept, effectorBasis, effectorFrame),
-    );
-    return (
-      (Quaternion.angle(Quaternion.normalize(shown), wanted) * 180) / Math.PI
-    );
-  };
-}
-
-/**
  * Which way the end of the chain swings when its posed hinge flexes one more
  * degree, as a world vector: the side a hinged chain keeps when the request
  * names no bend hint. The mid joint lies opposite the swing across the
@@ -494,5 +364,5 @@ function posedSwing(
   return Vector3.subtract(end(flexion + 1), end(flexion));
 }
 
-/** The effector twist, degrees, a clamp may take off an effector still counted as reached: the rounding the closed-form twist solve leaves. */
-const REACHED: number = 1e-9;
+/** The mid joint's distance from the line to the target, metres, from which the bend hint's side weighs in full (provisional: a millimetre, past any rounding of a limb's joints and short of any bend one sees). */
+const SIDED: number = 1e-3;

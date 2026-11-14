@@ -44,7 +44,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. Mirror: the left arm's fit of the request mirrored in the median plane,
  *    from the mirrored pose, gives the right arm's clinical angles on the
  *    shoulder, the elbow and the wrist within 1e-5 degree (the rig's
- *    sagittal symmetry; the bound is rounding through the fit).
+ *    sagittal symmetry; the bound is rounding through the fit); and so for a
+ *    straight arm at full reach with an obstruction reading the same for
+ *    every swivel, where the upper arm's and the forearm's twists cannot be
+ *    told apart by the arm's place, within 0.01 degree (the ranking is flat
+ *    along that family to its rounding).
  *
  * A turn across the forearm still moves it a little, the twist the wrist's
  * flexion-then-deviation convention leaves when it swings about a tilted
@@ -217,6 +221,77 @@ export function test_motion_split_distal_twist(): void {
             );
         }
       }
+  }
+  // 4, the straight arm: at full reach the swivel cannot tell the upper arm's
+  // twist from the forearm's, and an obstruction that reads the same for
+  // every swivel leaves the choice to the rest of the ranking.
+  for (const name of ["m-average", "f-small"] as const) {
+    const body = motionHumanBody(name);
+    const rest: IAutoMovieResolvedBone[] = resolvePose(
+      { skeleton: body.skeleton.id, root: null, joints: [] },
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    );
+    const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+      rest.find((r: IAutoMovieResolvedBone): boolean => r.bone === bone)!
+        .worldPosition;
+    const shoulder: IAutoMovieVector3 = at("rightUpperArm");
+    const reach: number =
+      Vector3.length(Vector3.subtract(at("rightLowerArm"), shoulder)) +
+      Vector3.length(Vector3.subtract(at("rightHand"), at("rightLowerArm")));
+    const target: IAutoMovieVector3 = Vector3.add(
+      shoulder,
+      Vector3.scale(Vector3.normalize({ x: -0.2, y: -0.6, z: 0.5 }), reach),
+    );
+    const asked: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.fromAxisAngle({ x: 0.3, y: 0.2, z: 0.9 }, 40),
+    );
+    const straight = (side: "left" | "right"): IAutoMoviePose => {
+      const sign: number = side === "left" ? -1 : 1;
+      return fitChainToTarget({
+        skeleton: body.skeleton,
+        pose: { skeleton: body.skeleton.id, root: null, joints: [] },
+        chain: {
+          upper: `${side}UpperArm`,
+          lower: `${side}LowerArm`,
+          effector: `${side}Hand`,
+        },
+        target: { x: sign * target.x, y: target.y, z: target.z },
+        effectorRotation:
+          side === "left"
+            ? { x: asked.x, y: -asked.y, z: -asked.z, w: asked.w }
+            : asked,
+        obstruction: (): number => 7.7,
+        topology: body.topology,
+        jointAxes: HUMANOID_JOINT_AXES,
+        restFrames: HUMANOID_REST_FRAME,
+      });
+    };
+    const right: IAutoMoviePose = straight("right");
+    const mirrored: IAutoMoviePose = straight("left");
+    for (const bone of [
+      "rightUpperArm",
+      "rightLowerArm",
+      "rightHand",
+    ] as const) {
+      const r: IAutoMovieJointPose | undefined = right.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      );
+      const l: IAutoMovieJointPose | undefined = mirrored.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === left(bone),
+      );
+      const apart: number = Math.max(
+        ...(["flexion", "abduction", "twist"] as const).map(
+          (k: "flexion" | "abduction" | "twist"): number =>
+            Math.abs((r?.[k] ?? 0) - (l?.[k] ?? 0)),
+        ),
+      );
+      if (apart > 1e-2)
+        complaints.push(
+          `${name} straight arm: the left arm's ${left(bone)} stands ${apart.toFixed(6)} degrees off the right's ${bone} for the mirrored request`,
+        );
+    }
   }
   TestValidator.equals(
     "a small turn of the hand moves only the forearm's residual twist",
