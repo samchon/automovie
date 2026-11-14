@@ -76,7 +76,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         }),
       ]),
     ],
-    [object("bench", "createBench", "flat", 2.4, 0.9, 90)],
+    [object("bench", "createBench", "flat", 2.4, 0.9, 0)],
   ),
   scene(
     {
@@ -123,7 +123,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         width: BOX.side,
         depth: BOX.side,
       }),
-      object("bench", "createBench", "flat", 2.4, -0.6, 90),
+      object("bench", "createBench", "flat", 2.4, -0.6, 270),
     ],
   ),
   scene(
@@ -142,7 +142,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("pushUp", { reps: 2 }),
         act("widePushUp", { reps: 2 }),
       ]),
-      person("mo", "m1", -0.8, 0, 90, [
+      person("mo", "m1", -0.8, 0, 0, [
         act("inclinePushUp", {
           reps: 2,
           on: { prop: "bench", affordance: "surface" },
@@ -172,11 +172,11 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     },
     "mat-work",
     [
-      person("pam", "f1", -1.5, 0, 90, [
+      person("pam", "f1", -1.5, 0, 0, [
         act("sitUp", { reps: 2 }),
         act("lyingLegRaise", { reps: 2 }),
       ]),
-      person("quin", "m1", 0, 0, 90, [act("bicycleCrunch", { reps: 3 })]),
+      person("quin", "m1", 0, 0, 0, [act("bicycleCrunch", { reps: 3 })]),
       person("rio", "m2", 1.5, -1, 0, [act("bearCrawl"), act("inchworm")]),
     ],
   ),
