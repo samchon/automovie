@@ -12,7 +12,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * point lies outside of misses some rays. A family can carry a region only on a course under which every section is star-shaped (lofting.md,
  * One section family: "The method's limit is that each section is star-shaped about the family's course").
  *
- * Usage, from `test`: `node <bundle> <trials.json>`, a list of `{ label, centres: [[x, y, z], ...], up: [x, y, z], box: [x0, x1, y0, y1,
+ * Usage, from `test`: `node <bundle> <trials.json> [--least=<triangles>] [--detail]`, a list of `{ label, centres: [[x, y, z], ...], up: [x, y, z], box: [x0, x1, y0, y1,
  * z0, z1], step }`, mm; it writes `star.txt` under `test/.shots/family-conic-star/<stamp>/`.
  */
 export namespace FamilyConicStar {
@@ -73,13 +73,13 @@ export namespace FamilyConicStar {
    * star-shaped about the course point, closed by its chord across the box (an invented closure, so the conversion breaks there and does not
    * read it as skin). A station with no such piece is left out.
    */
-  export function regionSections(source: R.ISource, trial: ITrial, from: number, to: number): IRegionSection[] {
+  export function regionSections(source: R.ISource, trial: ITrial, from: number, to: number, mesh: R.ISource["all"] = source.all): IRegionSection[] {
     const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
     const [x0, x1, y0, y1, z0, z1] = trial.box;
     const out: IRegionSection[] = [];
     for (let s: number = from; s <= to + 1e-9; s += trial.step) {
       const frame = axis.at(s);
-      const loop: C.P[] | null = R.cut(source.all, frame).loop;
+      const loop: C.P[] | null = R.cut(mesh, frame).loop;
       if (loop === null) continue;
       const inside = (p: C.P): boolean => {
         const w: number[] = [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
@@ -93,6 +93,71 @@ export namespace FamilyConicStar {
     return out;
   }
 
+  /** A mesh's triangles grouped by the vertices they share: each component's triangle count, largest first. */
+  export interface IComponents {
+    /** The mesh with only the components kept. */
+    mesh: R.ISource["all"];
+
+    /** Every component's triangle count, largest first. */
+    sizes: number[];
+  }
+
+  /**
+   * The mesh without its small detached pieces: the components (triangles joined through shared vertices) with fewer than `least`
+   * triangles are dropped. The reference's head mesh carries its eyelashes as thin detached shards; cut by a plane they chain into the
+   * skin's loop when the cut bridges a gap, and a section read off them is not skin.
+   */
+  export function components(mesh: R.ISource["all"], least: number): IComponents {
+    const count: number = mesh.positions.length / 3;
+    const parent: number[] = Array.from({ length: count }, (_: unknown, i: number): number => i);
+    const find = (i: number): number => {
+      while (parent[i] !== i) {
+        parent[i] = parent[parent[i]!]!;
+        i = parent[i]!;
+      }
+      return i;
+    };
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+      const a: number = find(mesh.indices[t]!);
+      for (const k of [1, 2]) {
+        const b: number = find(mesh.indices[t + k]!);
+        if (a !== b) parent[b] = a;
+      }
+    }
+    const triangles: Map<number, number> = new Map();
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) {
+      const root: number = find(mesh.indices[t]!);
+      triangles.set(root, (triangles.get(root) ?? 0) + 1);
+    }
+    const indices: number[] = [];
+    for (let t: number = 0; t + 2 < mesh.indices.length; t += 3) if ((triangles.get(find(mesh.indices[t]!)) ?? 0) >= least) indices.push(mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!);
+    return { mesh: { positions: mesh.positions, indices }, sizes: [...triangles.values()].sort((a: number, b: number): number => b - a) };
+  }
+
+  /**
+   * One region section's numbers for the report: its closure's share of the turn about the course point and of the section's length, and
+   * the longest step between neighbouring skin points with its two ends in the reference frame (a bridged opening, such as the fissure
+   * between the lids, shows as one long step).
+   */
+  export function measure(section: IRegionSection, frame: { origin: readonly number[]; u: readonly number[]; v: readonly number[] }): string {
+    const points: C.P[] = section.points;
+    const world = (p: C.P): string => "[" + [0, 1, 2].map((c: number): string => (frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!).toFixed(1)).join(", ") + "]";
+    let skin: number = 0;
+    let longest: number = 0;
+    let at: number = 0;
+    for (let k: number = 0; k + 1 < points.length; ++k) {
+      const step: number = Math.hypot(points[k + 1]![0] - points[k]![0], points[k + 1]![1] - points[k]![1]);
+      skin += step;
+      if (step > longest) {
+        longest = step;
+        at = k;
+      }
+    }
+    const chord: number = Math.hypot(points[0]![0] - points.at(-1)![0], points[0]![1] - points.at(-1)![1]);
+    const turn: number = (((section.closure[1] - section.closure[0]) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    return `closure ${((100 * turn) / (2 * Math.PI)).toFixed(0)}% of the turn, ${((100 * chord) / (chord + skin)).toFixed(0)}% of the length (${chord.toFixed(1)} of ${(chord + skin).toFixed(1)} mm); longest skin step ${longest.toFixed(2)} mm from ${world(points[at]!)} to ${world(points[at + 1]!)}`;
+  }
+
   /** Read every trial and write the report. */
   export async function main(): Promise<void> {
     const file: string | undefined = process.argv[2];
@@ -101,6 +166,11 @@ export namespace FamilyConicStar {
     const root: string = path.resolve(process.cwd(), "..");
     const source: R.ISource = await R.load(root);
     const lines: string[] = [];
+    // `--least=<triangles>`: the reference's detached pieces smaller than that are dropped first (`components`).
+    const least: number = Number(process.argv.find((a: string): boolean => a.startsWith("--least="))?.slice("--least=".length) ?? 0);
+    const kept: IComponents | null = least > 0 ? components(source.all, least) : null;
+    const mesh: R.ISource["all"] = kept?.mesh ?? source.all;
+    if (kept !== null) lines.push(`components of the reference (triangles, largest first): ${kept.sizes.slice(0, 16).join(", ")}${kept.sizes.length > 16 ? ` and ${kept.sizes.length - 16} more` : ""}; kept those of ${least} or more`, "");
     for (const trial of trials) {
       const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
       const length: number = trial.centres.slice(1).reduce((sum: number, c, k: number): number => sum + Math.hypot(c[0] - trial.centres[k]![0], c[1] - trial.centres[k]![1], c[2] - trial.centres[k]![2]), 0);
@@ -109,7 +179,7 @@ export namespace FamilyConicStar {
       let star: number = 0, folded: number = 0, missed: number = 0, empty: number = 0;
       for (let s: number = 0; s <= length + 1e-9; s += trial.step) {
         const frame = axis.at(s);
-        const loop: C.P[] | null = R.cut(source.all, frame).loop;
+        const loop: C.P[] | null = R.cut(mesh, frame).loop;
         const world = (p: C.P): number[] => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
         const inside = (p: C.P): boolean => {
           const w: number[] = world(p);
@@ -134,6 +204,9 @@ export namespace FamilyConicStar {
         rows.push(`  ${s.toFixed(1).padStart(6)}  ${found.length} piece(s): ${reads.join("; ")}`);
       }
       lines.push(`## ${trial.label}: course ${JSON.stringify(trial.centres)}, up ${JSON.stringify(trial.up)}, box ${JSON.stringify(trial.box)}, ${length.toFixed(1)} mm`, `pieces star-shaped ${star}, folded ${folded}, course point outside ${missed}; stations with no skin in the box ${empty}`, ...rows, "");
+      // `--detail`: every star-shaped section's closure share and longest skin step (`measure`).
+      if (process.argv.includes("--detail")) for (const section of regionSections(source, trial, 0, length, mesh)) lines.push(`  ${section.s.toFixed(1).padStart(6)}  ${measure(section, axis.at(section.s))}`);
+      if (process.argv.includes("--detail")) lines.push("");
     }
     const out: string = path.join(root, "test/.shots/family-conic-star", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
