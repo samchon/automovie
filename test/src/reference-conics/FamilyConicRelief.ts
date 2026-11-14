@@ -83,6 +83,14 @@ export namespace FamilyConicRelief {
      * carries"). Such skin is a cast's along the course, such as the shoulder's straight down.
      */
     plane?: number;
+
+    /**
+     * The hold is judged where a cast lands only, not also where it starts on the wall. A wall that stands out over a neighbour's box says
+     * nothing about the skin under it: the trunk's head stood 4 to 7 mm proud of the skin round the ear's bowl (s 796, x 4 to 24), its
+     * casts landed on head skin 72.5 to 75.5 mm out, outside the ear's box (past 77 mm), and were held because their wall points stood in
+     * it, which left the shelf on the tape wall at 77 to 80 mm.
+     */
+    holdLanding?: boolean;
   }
 
   /** One observed section with the wall beneath it. */
@@ -244,7 +252,7 @@ export namespace FamilyConicRelief {
         const along: number = hit.along;
         const landing: C.P = [from[0] + (along * axis[0]) / inPlane, from[1] + (along * axis[1]) / inPlane];
         const portion = (value: boolean | number | undefined): number => (value === true ? 1 : typeof value === "number" ? Math.min(1, Math.max(0, value)) : 0);
-        const held: number = Math.max(portion(row.hold?.(landing)), portion(row.hold?.(from)));
+        const held: number = Math.max(portion(row.hold?.(landing)), window.holdLanding === true ? 0 : portion(row.hold?.(from)));
         // The skin's rise along the station where the cast lands, and the angle at which the section plane meets the skin there, degrees.
         const rise: number | null = row.slope === undefined ? null : row.slope(landing, hit.normal);
         const meets: number | null = rise === null ? null : (Math.atan2(1, Math.abs(rise)) * 180) / Math.PI;
