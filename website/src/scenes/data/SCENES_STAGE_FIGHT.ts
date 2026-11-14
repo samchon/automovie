@@ -47,10 +47,11 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "chokehold",
       title: "Chokehold",
       summary:
-        "A staged strangle: both hands closed on the neck of a victim who stands frozen.",
+        "A staged strangle: both hands closed on the neck, and the victim's hands on the attacker's forearms.",
       setting: "combat",
       roles: { xia: "attacker", yan: "victim" },
       needs: [],
+      refusedUntil: 3528,
       view: "side",
     },
     "chokehold",
@@ -61,7 +62,12 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
           other: at("yan", "neckRight"),
         }),
       ]),
-      person("yan", "m1", 0, 0.5, 180, [act("stand", { seconds: 3 })]),
+      person("yan", "m1", 0, 0.5, 180, [
+        act("struggle", {
+          target: at("xia", "forearmLeft"),
+          other: at("xia", "forearmRight"),
+        }),
+      ]),
     ],
   ),
   scene(
