@@ -41,7 +41,7 @@ import { pushSledStance } from "./pushSledStance";
  * floor while the arms take the walk's rise and fall.
  *
  * The lean is the trunk's incline from the vertical, a hinge at the hips
- * shared by the pelvis and the spine (`lean` degrees at least), coming in
+ * shared by the pelvis and the spine (at least `lean`, if asked), coming in
  * over `SETTLE` seconds with the arms; lower handles are pushed with the
  * trunk nearer the horizontal, as far as measured pushers incline at the
  * handles' height (`pushSledStance`), and from bent knees, the body sinking
@@ -105,7 +105,7 @@ export namespace pushSled {
     /** The handle the right hand takes, an affordance id; `right` when absent. */
     right?: string;
 
-    /** How far the trunk leans into the load at least, degrees from the vertical in [0, 60]; 30 when absent (provisional). Lower handles lean it further (`pushSledStance`). */
+    /** How far the trunk leans into the load at least, degrees from the vertical in [0, `pushSledStance.RANGE`]; absent, the trunk leans as measured pushers do at the handles' height (`pushSledStance.INCLINES`), which a lean beyond it overrides. */
     lean?: number;
   }
 
@@ -129,8 +129,8 @@ export namespace pushSled {
   ): IHumanActionPlan {
     const p: IParams = context.params;
     const body = context.body;
-    const lean: number = p.lean ?? 30;
-    HumanBound.within("lean", lean, 0, 60, "degrees");
+    const lean: number = p.lean ?? 0;
+    HumanBound.within("lean", lean, 0, pushSledStance.RANGE, "degrees");
 
     const read: IHumanActionContext.IProp = context.prop(p.sled);
     const frame: IHumanProp.IFrame = read.frame(context.start);
