@@ -299,7 +299,7 @@ export namespace FamilyConicFit {
     // The sections' own seeds, in station order, their feature lines tracked along the stations (`FamilyConicSection.seedAll`). A feature's
     // heading is an angle read on each section alone; carried along the stations it is unwrapped onto one branch, so the projection onto
     // the knots does not average two readings a turn apart.
-    const seeds: number[][] = C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []) });
+    const seeds: number[][] = ownSeeds(train, layout, margin);
     for (let f: number = 0; f < F; ++f) {
       if (units[f] !== "angle") continue;
       for (let i: number = 1; i < seeds.length; ++i) {
@@ -1128,6 +1128,19 @@ export namespace FamilyConicFit {
     process.stderr.write(`lines start: ${weights.filter((w: number): boolean => w > 0).length} of ${n} own seeds admitted and fitted; round trip within ${trip.toExponential(2)}; smoothing lambda ${lambda.toFixed(2)} at ${spacing.toFixed(2)} mm; refused dense stations ${refused} (${[...refusals.entries()].sort((a, b) => a[0] - b[0]).map(([k, c]) => `${k}-${k + 100}: ${c}`).join(", ")})\n`);
     return { at, refused };
   }
+
+  /**
+   * The fitting rows' own seeds, as `fit` reads them (`FamilyConicSection.seedAll` with each row's openings), so a check before a run reads
+   * the very starts the run will.
+   *
+   * @param train The fitting rows, in station order.
+   * @param layout The layout.
+   * @param margin The least tangent meeting the seeds are read to.
+   */
+  export function ownSeeds(train: readonly IRow[], layout: C.ILayout, margin: number = ADMISSIBLE_MARGIN): number[][] {
+    return C.seedAll(train.map((row: IRow): readonly C.P[] => row.points), layout, { margin, openings: train.map((row: IRow): [number, number][] => row.opening ?? []) });
+  }
+
   /** Each arc's lesser tangent-meeting distance over unit tangents, as a share of its chord, by arc: what `ADMISSIBLE_MARGIN` holds. */
   export function leastMeetings(t: readonly number[], layout: C.ILayout): number[] {
     const input = C.resolve([...t], layout).input;
