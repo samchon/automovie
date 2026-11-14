@@ -16,10 +16,12 @@ import {
   createDrinkware,
   createDumbbell,
   createHandgun,
+  createHighJump,
   createHolster,
   createHorse,
   createKettlebell,
   createLadder,
+  createLandingMat,
   createLoad,
   createLongGun,
   createLongTool,
@@ -41,6 +43,8 @@ import {
   createSword,
   createTable,
   createTool,
+  createVaultingPole,
+  createVaultingTable,
   createWall,
   createWindow,
 } from "@automovie/archetypes";
@@ -258,6 +262,27 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createPolearm({ kind }, seed),
     );
   add("pell", (seed?: number | string): Archetype => createPell({}, seed));
+
+  // Sport: the jump apparatus.
+  add(
+    "vaultingPole",
+    (seed?: number | string): Archetype => createVaultingPole({}, seed),
+  );
+  add(
+    "highJump",
+    (seed?: number | string): Archetype => createHighJump({}, seed),
+  );
+  for (const kind of createLandingMat.KINDS)
+    add(
+      `landingMat-${kind}`,
+      (seed?: number | string): Archetype => createLandingMat({ kind }, seed),
+    );
+  for (const kind of createVaultingTable.KINDS)
+    add(
+      `vaultingTable-${kind}`,
+      (seed?: number | string): Archetype =>
+        createVaultingTable({ kind }, seed),
+    );
   return rows;
 }
 
