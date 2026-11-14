@@ -21,8 +21,9 @@ import { FamilyConicStar as S } from "./FamilyConicStar";
  *   turns most sharply outward between the chin's front and the neck.
  * - Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle.
  * - The course: a smooth curve (centripetal Catmull-Rom) through the border set `INSET_MM` inside the edge toward the jaw's interior, from
- *   gonion to menton and out to the other gonion, smoothed with fewer control points until its least bend radius is no tighter than the
- *   sections' half-width (`RADIUS_MM`): a jointed course turned sharply at menton, and its sections there crossed each other.
+ *   gonion to menton and out to the other gonion; a jointed course turned sharply at menton, and its sections there crossed each other. Its
+ *   sections reach `RADIUS_MM`, and on a turn's inner side no farther than the local bend radius; every skin point within `COVER_MM` of
+ *   the face-to-neck line must lie in an admitted section.
  *
  * Usage, from `test`: `node <bundle>`; it writes `jaw.txt` under `test/.shots/family-conic-jaw/<stamp>/`.
  */
@@ -38,10 +39,8 @@ namespace FamilyConicJaw {
   /** How near `DOWN_DEG` a point's normal must stand to lie on the line, degrees: the outline's points are about 1 to 3 mm apart. */
   export const DOWN_BAND_DEG: number = 8;
 
-  /** How far apart the course's control points stand at first, mm, and by how much and up to where the spacing grows to smooth it. */
+  /** How far apart the course's control points stand, mm. */
   export const CONTROL_MM: number = 10;
-  export const CONTROL_STEP_MM: number = 5;
-  export const CONTROL_MOST_MM: number = 60;
 
   /** How far a border point may stand from the last one in the next plane, mm, two planes being 2 mm apart. */
   export const STEP_MM: number = 6;
@@ -60,6 +59,9 @@ namespace FamilyConicJaw {
 
   /** Each sampled joint's half turn arclength, mm, under half the sample spacing so the turns do not overlap. */
   export const JOINT_HALF_MM: number = 0.2;
+
+  /** How far either side of the face-to-neck line the coverage proof reads the skin, mm: the sections' reach. */
+  export const COVER_MM: number = 25;
 
   /** How far from the course point a section's skin is the region's, mm. */
   export const RADIUS_MM: number = 25;
@@ -144,7 +146,8 @@ namespace FamilyConicJaw {
       misses = 0;
       const best = border.length === 0 ? near.reduce((a, b) => (Math.hypot(b.world[1] - last[1], b.world[2] - last[2]) < Math.hypot(a.world[1] - last[1], a.world[2] - last[2]) ? b : a)) : near.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
       border.push({ world: best.world, down: best.down });
-    }    lines.push(`border, +z side, frontal planes (point, normal's angle below the horizontal, deg), at ${DOWN_DEG} +- ${DOWN_BAND_DEG} deg:`, ...border.map((q) => `  ${f(q.world)} ${q.down.toFixed(1)}`));
+    }
+    lines.push(`border, +z side, frontal planes (point, normal's angle below the horizontal, deg), at ${DOWN_DEG} +- ${DOWN_BAND_DEG} deg:`, ...border.map((q) => `  ${f(q.world)} ${q.down.toFixed(1)}`));
 
     // Gonion (soft tissue, Farkas "go"): the border's most lateral point near the jaw's angle, behind x 50.
     const gonion = border.filter((q) => q.world[0] < 50).reduce((a, b) => (b.world[2] > a.world[2] ? b : a), border.at(-1)!);
@@ -195,18 +198,15 @@ namespace FamilyConicJaw {
       }
       return { dense, bend, bendAt, controls: controls.length, ring: ring.length };
     };
-    // The bend radius may be no tighter than the sections' half-width, or neighbouring sections cross within it: the course is smoothed with
-    // fewer control points until it holds, and the sections are never cut shorter.
-    let spacing: number = CONTROL_MM;
-    let laid = course(spacing);
-    while (laid.bend < RADIUS_MM && spacing < CONTROL_MOST_MM) {
-      spacing += CONTROL_STEP_MM;
-      laid = course(spacing);
-    }
+    // The jaw's U at menton is real anatomy: smoothed down to three control points it still bent at 9.4 mm against the 25 mm reach. So the
+    // course keeps the border's control points, and the sections' reach on each turn's inner side is the local bend radius (`inner`), where
+    // neighbouring sections meet; the outer side keeps the whole reach, and the coverage below shows no skin is left unread.
+    const spacing: number = CONTROL_MM;
+    const laid = course(spacing);
     const { dense, bend, bendAt } = laid;
     const centres: V3[] = dense;
-    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => JOINT_HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: RADIUS_MM, step: 1 };
-    lines.push(`course: control points ${spacing} mm apart, ${laid.controls} a side (${laid.ring} in all), ${dense.length} samples ${SAMPLE_MM} mm apart; least bend radius ${bend.toFixed(1)} mm at ${f(bendAt)} against the sections' half-width ${RADIUS_MM} mm${bend < RADIUS_MM ? " (STILL TIGHTER)" : ""}`);
+    const trial: S.ITrial = { label: "jaw", centres, halves: centres.slice(2).map((): number => JOINT_HALF_MM), up: [0, 1, 0], box: [-1e9, 1e9, -1e9, 1e9, -1e9, 1e9], radius: RADIUS_MM, inner: true, step: 1 };
+    lines.push(`course: control points ${spacing} mm apart, ${laid.controls} a side (${laid.ring} in all), ${dense.length} samples ${SAMPLE_MM} mm apart; least bend radius ${bend.toFixed(1)} mm at ${f(bendAt)}; reach ${RADIUS_MM} mm, on a turn's inner side the local bend radius`);
     // Star share and closure share per station.
     const length: number = centres.slice(1).reduce((sum: number, c: V3, k: number): number => sum + Math.hypot(c[0] - centres[k]![0], c[1] - centres[k]![1], c[2] - centres[k]![2]), 0);
     const sections = S.regionSections(source, trial, 0, length, mesh);
@@ -217,6 +217,58 @@ namespace FamilyConicJaw {
     const missing: number[] = [];
     for (let s: number = 0; s <= length + 1e-9; s += 1) if (!covered.includes(s)) missing.push(s);
     lines.push(`stations with no star-shaped piece: ${missing.length === 0 ? "none" : missing.join(", ")}`);
+
+    // Coverage: every skin point of the jaw region, within `COVER_MM` of the face-to-neck line on either side, lies in at least one admitted
+    // section: within half a station of its plane and inside its reach.
+    const line: V3[] = [...border.map((q) => [q.world[0], q.world[1], -q.world[2]] as V3).reverse(), menton.world, ...border.map((q) => q.world)];
+    const toLine = (v: V3): number => {
+      let best: number = Infinity;
+      for (let k: number = 0; k + 1 < line.length; ++k) {
+        const a: V3 = line[k]!, b: V3 = line[k + 1]!;
+        const e: V3 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+        const l2: number = e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+        const u: number = l2 === 0 ? 0 : Math.max(0, Math.min(1, ((v[0] - a[0]) * e[0] + (v[1] - a[1]) * e[1] + (v[2] - a[2]) * e[2]) / l2));
+        best = Math.min(best, Math.hypot(v[0] - a[0] - u * e[0], v[1] - a[1] - u * e[1], v[2] - a[2] - u * e[2]));
+      }
+      return best;
+    };
+    const admitted = sections.map((section) => ({ s: section.s, frame: axis.at(section.s), reach: S.reach(trial, axis, section.s) }));
+    const used: Set<number> = new Set(Array.from(mesh.indices));
+    let region: number = 0, read: number = 0;
+    const unread: Map<string, number> = new Map();
+    for (const i of used) {
+      const v: V3 = [mesh.positions[i * 3]!, mesh.positions[i * 3 + 1]!, mesh.positions[i * 3 + 2]!];
+      if (v[0] < -20 || v[0] > 130 || v[1] < 1420 || v[1] > 1560 || Math.abs(v[2]) > 100 || toLine(v) > COVER_MM) continue;
+      ++region;
+      const hit: boolean = admitted.some(({ frame, reach }) => {
+        const q: V3 = [v[0] - frame.origin[0]!, v[1] - frame.origin[1]!, v[2] - frame.origin[2]!];
+        const n: V3 = [frame.u[1]! * frame.v[2]! - frame.u[2]! * frame.v[1]!, frame.u[2]! * frame.v[0]! - frame.u[0]! * frame.v[2]!, frame.u[0]! * frame.v[1]! - frame.u[1]! * frame.v[0]!];
+        if (Math.abs(q[0] * n[0] + q[1] * n[1] + q[2] * n[2]) > trial.step / 2) return false;
+        return reach.inside([q[0] * frame.u[0]! + q[1] * frame.u[1]! + q[2] * frame.u[2]!, q[0] * frame.v[0]! + q[1] * frame.v[1]! + q[2] * frame.v[2]!]);
+      });
+      if (hit) ++read;
+      else {
+        const key: string = `x ${Math.round(v[0] / 10) * 10}, ${v[2] >= 0 ? "+z" : "-z"}`;
+        unread.set(key, (unread.get(key) ?? 0) + 1);
+      }
+    }
+    lines.push(`coverage: ${read} of ${region} skin points within ${COVER_MM} mm of the face-to-neck line lie in an admitted section (${((100 * read) / Math.max(1, region)).toFixed(1)}%)`);
+    if (unread.size > 0) lines.push(`  unread by place: ${[...unread.entries()].sort((a, b) => b[1] - a[1]).map(([key, count]) => `${key}: ${count}`).join("; ")}`);
+
+    // The jaw's angle, x 20 to 40: the reference's own normal on the +z side, the lateral-most point within the band round 45 degrees and
+    // the lateral-most point of all, to show whether the line runs on past the trace's end.
+    lines.push("the angle, x 20 to 40, +z side (z 35 to 80, y 1,480 to 1,550): lateral-most point near 45 deg (its down angle), lateral-most of all (its down angle)");
+    for (let x: number = 40; x >= 20; x -= 2) {
+      const side = cut(mesh, [[x + 1, 1500, 0], [x - 1, 1500, 0]], [0, 1, 0], [x, 1530, 0]).filter((q) => q.world[2] > 35 && q.world[2] < 80 && q.world[1] > 1480 && q.world[1] < 1550);
+      if (side.length === 0) {
+        lines.push(`  x ${x}: no skin`);
+        continue;
+      }
+      const band = side.filter((q) => Math.abs(q.down - DOWN_DEG) <= DOWN_BAND_DEG);
+      const near = band.length === 0 ? null : band.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
+      const most = side.reduce((a, b) => (b.world[2] > a.world[2] ? b : a));
+      lines.push(`  x ${x}: ${near === null ? "none near 45 deg" : `${f(near.world)} ${near.down.toFixed(1)}`}; lateral-most ${f(most.world)} ${most.down.toFixed(1)}`);
+    }
 
     const out: string = path.join(root, "test/.shots/family-conic-jaw", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
