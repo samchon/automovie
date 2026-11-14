@@ -58,7 +58,15 @@ import { motionHumanLaw } from "./motionHumanLaw";
  *    carries it too, as it carries the shoulder it hangs from.
  * 8. A one-hand row performed by the left hand on the mirrored region is
  *    the mirror image of the right hand's film within 5 mm, read 4 times a
- *    second.
+ *    second. On a partner the claim is about the performer's act, not the
+ *    scene: the partner's seeded postural sway is the same in both films, so
+ *    it is never mirrored, and a hand that rides its region follows it. So
+ *    on a partner row, while the hand lies on the region (from `ready` to
+ *    `relax`), the acting hand and its digits are read from the touched
+ *    region's point in each film (the partner's region the hand touches
+ *    there); outside that span, and for every other bone of `a`, in the
+ *    world as before. This corrects the comparison's frame; the bound is the
+ *    same 5 mm.
  *
  * The counts default as the law documents: 3 for a tap, a pat, a rub or a
  * scratch and 1 otherwise. The lift and the travel are the kind's shares of
@@ -209,9 +217,60 @@ export function motionHumanLawTouch(
       target: flip(params.target),
       side: "left",
     });
+
+    // On a partner, the acting hand read from the region it touches in its
+    // own film, so the partner's unmirrored sway is not counted as the act's.
+    const acted = (
+      shown: motionHumanLaw.IFilm,
+      side: "left" | "right",
+      target: AutoMovieMotionTarget,
+    ): IAutoMovieMotionHumanAuditMotion => {
+      if (target.kind !== "person") return shown;
+      const frame = body.surfaces.regions[target.region];
+      const shownReady: number = motionHumanLaw.event(shown, "ready");
+      const shownRelax: number = motionHumanLaw.event(shown, "relax");
+      const hand: RegExp = new RegExp(
+        `^${side}(Hand|Thumb|Index|Middle|Ring|Little)`,
+      );
+      return {
+        duration: shown.duration,
+        segments: (
+          subject: string,
+        ): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+          shown.segments(subject),
+        bones: (
+          subject: string,
+          t: number,
+        ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+          const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            shown.bones(subject, t);
+          if (subject !== "a" || t < shownReady || t > shownRelax) return bones;
+          const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            shown.bones(target.subject, t).get(frame.bone)!,
+          ).point;
+          return new Map(
+            [...bones].map(
+              ([bone, resolved]: [
+                AutoMovieHumanoidBone,
+                IAutoMovieResolvedBone,
+              ]): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
+                bone,
+                hand.test(bone)
+                  ? {
+                      ...resolved,
+                      worldPosition: minus(resolved.worldPosition, at),
+                    }
+                  : resolved,
+              ],
+            ),
+          );
+        },
+      };
+    };
     const mirrored = AutoMovieMotionHumanAuditDifference.measure(
-      film,
-      left,
+      acted(film, params.side ?? "right", params.target),
+      acted(left, "left", flip(params.target)),
       "a",
       { mirror: 0, rate: 4 },
     );
