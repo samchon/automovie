@@ -34,7 +34,8 @@ import { standUpright } from "./standUpright";
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
  * with 5° of shoulder abduction, 12° of elbow flexion and the hand in its
  * position of rest (`HumanHand.shape`, relaxed). Postural sway moves the root on two
- * seeded smooth signals below 1 Hz with an RMS of 3 mm for an elite and 4.8
+ * seeded smooth signals below 1 Hz, side to side and front to back in the
+ * body's frame, with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
  * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
  * al. 2002, provisional factor 1.6); a given `sway` replaces that RMS, and 0
@@ -100,16 +101,19 @@ export namespace stand {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
+        // The sway runs side to side and front to back in the body's frame.
+        const swayed: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw },
+          {
+            x: sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
+            y: 0,
+            z: sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+          },
+        );
         const root: IAutoMovieVector3 = {
-          x:
-            from.x +
-            (middle.x - from.x) * s +
-            sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
+          x: from.x + (middle.x - from.x) * s + swayed.x,
           y: from.y + (middle.y - from.y) * s,
-          z:
-            from.z +
-            (middle.z - from.z) * s +
-            sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+          z: from.z + (middle.z - from.z) * s + swayed.z,
         };
         return {
           root,
