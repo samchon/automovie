@@ -250,10 +250,12 @@ export namespace HumanHeldUse {
   }
 
   /**
-   * The other hand on a held tool's other handle: carried in joint space
-   * from its entry angles, by the act's own weight, to the grasp of that
-   * handle where the holding hand's goal puts the tool at each second, so
-   * it meets the tool as the tool arrives and leaves it as it goes. The
+   * The other hand on a held tool's other handle: its reach, hold and
+   * return planned as one trajectory over the span the act's own weight
+   * states (`AutoMovieMotionHumanArm.stated`), from its entry angles to the
+   * grasp of that handle where the holding hand's goal puts the tool at
+   * each second, so it meets the tool as the tool arrives and leaves it as
+   * it goes. The
    * turn about the handle is chosen once, the one the arm reaches best with
    * the tool at its use (`HumanGrasp.reachable`), and the arm is held to
    * that solution.
@@ -336,6 +338,9 @@ export namespace HumanHeldUse {
         fallback: "hang",
       }),
     );
+    // The other hand's reach, hold and return, as its weight states them.
+    const span: AutoMovieMotionHumanArm.ISpan | undefined =
+      AutoMovieMotionHumanArm.stated(props.weight, 0, clock.duration);
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
         body,
@@ -344,6 +349,7 @@ export namespace HumanHeldUse {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
         weight: props.weight,
+        ...(span === undefined ? {} : { span }),
         goal: (
           posture: IHumanPosture,
           seconds: number,
