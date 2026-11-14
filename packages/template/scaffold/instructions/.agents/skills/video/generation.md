@@ -16,7 +16,7 @@ Generate the takes per request that [project context](../production/project-cont
 
 Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), first what the request [locks](requests.md#adherence). The user judges its sound and its continuous motion.
 
-Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut. A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), because a take follows the hint's framing more closely than the prompt's words.
+Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut. A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt's words.
 
 ## Place takes in time
 

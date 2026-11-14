@@ -14,7 +14,7 @@ Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md
 
 Keep measurements out, under the [settings rule](settings.md#records). User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 
-Embed a subject's canon images, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, as [settings](settings.md#records) records do.
+Embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, as [settings](settings.md#records) records do.
 
 ## Growth
 

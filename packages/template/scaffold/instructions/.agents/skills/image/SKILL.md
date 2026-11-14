@@ -1,6 +1,6 @@
 ---
 name: image
-description: Generates the still images that carry the appearance of a production's people, places and props, which its polygon men and coarse forms cannot show, namely canon reference images, style frames, a shot's first or last frame and turnaround views for modeling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
+description: Generates the still images that carry the appearance of a production's people, places and props, which its polygon men and coarse forms cannot show, namely canon reference images, a shot's first, last or key frames and turnaround views for modeling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
 ---
 
 # Image
@@ -21,7 +21,7 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Canon references
 
-Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
+Generate each subject's canon references once, inspect them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A take's frame that continues the next request is a video input under [requests](../video/requests.md#inputs), not a derived image.
 
 Video models cap references per subject at about three or four images, and some read a multi-view sheet as several subjects. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
 
@@ -33,21 +33,21 @@ A wardrobe, makeup or wound state of a story day is its own reference set. Give 
 
 ## Control images
 
-Apart from shot frames and turnaround views, which take the hint's own structure, a prompt and the canon references are enough, because such an image carries only appearance. Add a control image rendered from the subject's own form only when its build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object, and pass it loosely: a pose skeleton for a person, an outline or a weakened depth for an object, because a dense pass imprints the coarse form, as [control channels](../motion/control-channels.md) explains.
+Apart from shot frames and turnaround views, which take the hint's own structure, a prompt is enough, with the canon references once they exist, because such an image carries only appearance. Add a control image rendered from the subject's entity in a neutral pose only when its build or shape departs from what the model draws by default, such as a child, a very tall person or an unusual object, and pass it loosely: a pose skeleton for a person, an edge or a weakened depth for an object, because a dense pass imprints the coarse form, as [control channels](../motion/control-channels.md#dense-passes) explains.
 
-Render every control image from the scene itself under control channels, because pose and depth estimators fail on featureless polygon men.
+Render every control image from the production's own forms, as control channels renders its passes, because pose and depth estimators fail on featureless polygon men.
 
 ## Shot frames
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as pose and outline control. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint render and regenerate when silhouettes, horizon or facing move. When the image model's sizes differ from the video model's, generate at the same aspect and crop or resize the frame to the exact size. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
+Render the hint's first frame at the video model's exact output size and aspect, and give it with the canon references, to a hosted model as an input labeled "pose and camera reference only" and to an open model as pose and edge control. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the hint's frame and regenerate when silhouettes, horizon or facing move. When the image model's sizes differ from the video model's, generate at the same aspect and crop or resize the frame to the exact size. Make a last frame, or a keyframe at another frame the model takes, the same way from the hint's frame there, where the shot must keep a pose: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
 
 ## Turnaround views for modeling
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, pose it as the [request](../3d-modeling/diffusion.md#request) of the chosen image-to-3D model asks, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with a pose skeleton, an outline or a weakened depth, passed as control images are, and the identity references, so the views agree by construction. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+When the hint already has the form, pose it as the [request](../3d-modeling/diffusion.md#request) of the chosen image-to-3D model asks, such as an A-pose with the limbs apart for a form that will deform, render its own turnaround from fixed cameras at one framing and light, and restyle each view with a pose skeleton, an edge or a weakened depth, passed as control images are, and the canon references; then check that the views agree before use. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 
@@ -57,6 +57,6 @@ Judge each image under [visual debugging](../visual-debugging/SKILL.md), against
 
 Follow the selected model's prompting guide, such as [OpenAI's](https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide). Describe scene, subject, key details and constraints in that order and state the image's use.
 
-Label each input image by index and role, such as "Image 1: identity of Mara; Image 2: style only", and keep style references apart from identity references. For an edit, state what changes and repeat what stays the same, each iteration editing the frozen canon reference again rather than the previous result.
+Label each input image by index and role, such as "Image 1: identity of Mara; Image 2: style only", and keep a style reference apart from the canon references. For an edit, state what changes and repeat what stays the same, each iteration editing the frozen canon reference again rather than the previous result.
 
-Camera and lens words steer the image only loosely, so an exact camera comes from a reference or a control channel.
+Camera and lens words steer the image only loosely, so an exact camera comes from a reference or a control image.

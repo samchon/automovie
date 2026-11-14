@@ -7,14 +7,14 @@ description: Chooses the video generation model for a production, plans each sce
 
 Video is generated only when the commission calls for it; a motion hint or a direct 3D film never silently requires a generator.
 
-A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, open models take the hint render through an adapter trained on gray layouts or pose, depth or edge passes at a strength the request sets, and others accept only still frames.
+A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, open models take either the hint video whole, through an adapter trained on gray layouts, or pose, depth or edge passes at a strength the request sets, and others accept only still frames.
 
 Its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
 
 1. Choose the model with the user from [diffusion models](diffusion.md), and record it in [project context](../production/project-context.md).
 2. [Read its documentation](#read-the-model) for every value the plan depends on.
 3. Plan each scene's [requests](requests.md): where each ends, how closely it follows the hint, and what it takes.
-4. Prepare the canon references and any first frame each request takes under [image](../image/SKILL.md).
+4. Prepare the canon references and any first frame or keyframe each request takes under [image](../image/SKILL.md).
 5. Write each request's prompt under [prompts](prompts.md), with the sound decided under [audio](../audio/SKILL.md).
 6. Submit, inspect and adopt takes under [generation](generation.md).
 

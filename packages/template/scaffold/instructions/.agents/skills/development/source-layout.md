@@ -8,7 +8,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
-| `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
+| `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, appearance, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
 | `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws [extend](../motion/extend.md) registers with the motion vocabulary, the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |

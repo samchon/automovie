@@ -4,17 +4,21 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 ## Render what the receiver takes
 
-Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, outline or a semantic mask, and read the installed packages' documentation for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
+Render only the channels the actual receiver needs, such as the hint video, pose, depth, normal, edge or a semantic mask, and read the installed packages' documentation for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. When no installed path produces an essential channel, follow [installed packages](../development/reuse.md#installed-packages).
 
-Light the hint video so each form is shaded, because a model reads less motion from a flat, single-color form than from a shaded one.
+Light the hint video so each form is shaded, because some models read less motion from a flat, single-color form than from a shaded one.
 
 Render from the scene the masks and handles a [request](../video/requests.md) asks for, such as the mask of the region and frames the request locks and the handle frames past each boundary, because the scene knows each silhouette and contact exactly where an estimate from pictures would guess.
+
+## Dense passes
+
+A dense pass, such as the hint video or depth, carries a form's shape as well as its place, so a general control at full strength returns the coarse form's boxes and the polygon man's smooth surface; pose, edge or a weakened depth carry the place with less of the shape. An adapter trained on gray layouts is the exception: it takes the whole hint video at full strength and replaces its forms, as its documentation states.
 
 ## Keep channels aligned
 
 Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#keep-passes-matched) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
 
-Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays. A dense pass, such as the hint render or depth, carries a form's shape as well as its place, so a general control at full strength returns the coarse form's boxes and the polygon man's smooth surface; pose, edges or a weakened depth carry the place with less of the shape. An adapter trained on gray layouts is the exception: it takes the whole hint render at full strength and replaces its forms, as its documentation states.
+Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays.
 
 ## Hand off
 

@@ -17,7 +17,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 | Domain | Facets the scenes may need |
 | --- | --- |
 | `world` | Rules of the world and of any practice shown, such as a sport's or ceremony's rules; time of day, weather and season defaults; tone |
-| `cast` | Identity; the body facts a polygon man's parameters derive from, and canon images; wardrobe, makeup and wounds by story day; carried props; movement style; repertoire and proficiency; habits and tells, each with its trigger and response; speech and voice; values, worldview and motives; relationships; knowledge; state changes over story time |
+| `cast` | Identity; the body facts a polygon man's parameters derive from, and canon references; wardrobe, makeup and wounds by story day; carried props; movement style; repertoire and proficiency; habits and tells, each with its trigger and response; speech and voice; values, worldview and motives; relationships; knowledge; state changes over story time |
 | `crowds` | Makeup, arrangement and what the crowd does and reacts to |
 | `props` | Form, material and markings; how people hold, use or ride it; state changes; vehicles and animals included |
 | `sets` | Shape, zones and landmarks; routes, entrances and levels; dressing; how people use the space; state changes |
@@ -26,7 +26,7 @@ Measurements such as dimensions, light positions and timings go to [research](..
 
 User-fixed interpretations are canon. Study what [when to study](../planning/research.md#when-to-study) assigns to settings, attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon.
 
-Embed a subject's canon images, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
+Embed a subject's canon references, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
 ## Outline and changes
 
