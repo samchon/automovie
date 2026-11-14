@@ -66,5 +66,17 @@ export namespace HUMAN_LEXICON_SCHEMAS {
 
     /** The alternatives of a union, such as a row whose parameters take one of several forms. */
     oneOf?: unknown;
+
+    /** A number's least value, when a named component is itself a bounded number. */
+    minimum?: unknown;
+
+    /** A number's greatest value, when a named component is itself a bounded number. */
+    maximum?: unknown;
+
+    /** The value a parameter takes when it is left out. */
+    default?: unknown;
+
+    /** The unit a number is in (`HumanUnit`), `""` for a pure number. */
+    "x-unit"?: unknown;
   }
 }
