@@ -16,7 +16,7 @@ const WARBOW: string =
 /**
  * A bow an archer braces, draws and looses: a longbow.
  *
- * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. Its limbs and grip are wood, the approximations' wych elm; its body keeps the 0.5 friction placeholder, as no source read measured wood on concrete. A recurve, a horse bow and a crossbow wait for the sizes their contacts need, listed in the sources record.
+ * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. Its limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A recurve, a horse bow and a crossbow wait for the sizes their contacts need, listed in the sources record.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -98,7 +98,7 @@ export function createBow(
     frame: ArchetypeFrame.facing(v(0, centre, string), v(0, 0, 1), v(0, 1, 0)),
     extent: null,
   });
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, { rests: "wood" });
 }
 
 /**

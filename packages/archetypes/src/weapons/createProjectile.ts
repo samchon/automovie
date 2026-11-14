@@ -41,7 +41,7 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
 /**
  * Something a weapon launches or a hand throws: a musket ball, an arrow, a crossbow bolt, a field gun's round shot or a hand grenade.
  *
- * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; a ball's lead has no measured pair, and every projectile's body keeps the 0.5 friction placeholder, as no source read measured wood or steel on concrete. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data (drag, restitution, embedding) is the model body's that #3479 adds. The cartridge of #3482 waits for the sizes its contacts need, listed in the sources record.
+ * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; each rests on that material, an arrow and a bolt on the wooden butt of its shaft, so its body's friction is that material's on concrete; a ball's lead has no measured pair, so its body keeps the 0.5 friction placeholder. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data (drag, restitution, embedding) is the model body's that #3479 adds. The cartridge of #3482 waits for the sizes its contacts need, listed in the sources record.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -128,7 +128,7 @@ export function createProjectile(
       frame: ArchetypeFrame.upright(v(0, length, 0)),
       extent: null,
     });
-    return builder.build(d.mass!);
+    return builder.build(d.mass!, { rests: "wood" });
   }
 
   // A sphere: a ball pinched, a shot taken in two hands, a grenade's body in one hand with its fuze on top.
@@ -164,7 +164,7 @@ export function createProjectile(
       ? d.mass!
       : createProjectile.SHOT.mass *
         (d.diameter! / createProjectile.SHOT.diameter) ** 3;
-  return builder.build(mass);
+  return builder.build(mass, kind === "ball" ? undefined : { rests: "steel" });
 }
 
 /**
