@@ -4,6 +4,7 @@ import type { IPlaygroundComposition } from "../src/playground/structures/IPlayg
 import { SCENES } from "../src/scenes/SCENES";
 import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
+import type { IScene } from "../src/scenes/structures/IScene";
 import { BakeSetup } from "./BakeSetup";
 
 /** Planning the scenes, or single actions, without posing them. */
@@ -46,7 +47,7 @@ export namespace BakeCheck {
     }
   };
 
-  /** Plan the first take of every scene that plays, without posing it, and list every refusal and every scene that waits. */
+  /** Plan every take of every scene that plays, sampling the first take's poses for their cost, and list every refusal and every scene that waits. */
   export const check: () => void = (): void => {
     if (options.rows.length !== 0) return rows();
     const refused: string[] = [];
@@ -60,35 +61,47 @@ export namespace BakeCheck {
         );
         continue;
       }
-      const t0: number = Date.now();
-      try {
-        const built: PlaygroundPerformance.IBuilt = PlaygroundPerformance.build(
-          SceneTake.apply(scene.composition!, scene.takes[0]!),
-        );
-        const planned: number = (Date.now() - t0) / 1000;
+      // Every take is planned, since another seed, other bodies or other
+      // skill can refuse what the scene itself plans; the first take's
+      // poses are sampled for their cost.
+      scene.takes.forEach((take: IScene.ITake, index: number): void => {
+        const t0: number = Date.now();
+        try {
+          const built: PlaygroundPerformance.IBuilt =
+            PlaygroundPerformance.build(
+              SceneTake.apply(scene.composition!, take),
+            );
+          const planned: number = (Date.now() - t0) / 1000;
+          if (index !== 0) {
+            console.log(
+              `${scene.id} take ${index} (${take.label}): plans, planned in ${planned.toFixed(1)} s`,
+            );
+            return;
+          }
 
-        // A few poses of each figure, spread over the film, show what posing
-        // will cost and which figure costs most.
-        const costs: string[] = built.figures.map(
-          (figure: PlaygroundPerformance.IFigure): string => {
-            const started: number = performance.now();
-            for (let k: number = 1; k <= 4; k++)
-              built.performance.pose(
-                figure.subject,
-                (built.performance.duration * k) / 5,
-              );
-            return `${figure.subject} ${((performance.now() - started) / 4).toFixed(0)} ms`;
-          },
-        );
-        console.log(
-          `${scene.id}: plans, ${built.performance.duration.toFixed(1)} s of film, planned in ${planned.toFixed(1)} s; a pose: ${costs.join(", ")}`,
-        );
-      } catch (error) {
-        // Printed at once as well, so a check stopped halfway keeps its findings.
-        const line: string = `${scene.id}: refused: ${error instanceof Error ? error.message : String(error)}`;
-        console.log(line);
-        refused.push(line);
-      }
+          // A few poses of each figure, spread over the film, show what
+          // posing will cost and which figure costs most.
+          const costs: string[] = built.figures.map(
+            (figure: PlaygroundPerformance.IFigure): string => {
+              const started: number = performance.now();
+              for (let k: number = 1; k <= 4; k++)
+                built.performance.pose(
+                  figure.subject,
+                  (built.performance.duration * k) / 5,
+                );
+              return `${figure.subject} ${((performance.now() - started) / 4).toFixed(0)} ms`;
+            },
+          );
+          console.log(
+            `${scene.id}: plans, ${built.performance.duration.toFixed(1)} s of film, planned in ${planned.toFixed(1)} s; a pose: ${costs.join(", ")}`,
+          );
+        } catch (error) {
+          // Printed at once as well, so a check stopped halfway keeps its findings.
+          const line: string = `${scene.id}${index === 0 ? "" : ` take ${index} (${take.label})`}: refused: ${error instanceof Error ? error.message : String(error)}`;
+          console.log(line);
+          refused.push(line);
+        }
+      });
     }
     if (refused.length !== 0) throw new Error(refused.join("\n"));
   };

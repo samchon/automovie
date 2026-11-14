@@ -4,8 +4,9 @@
 //   pnpm run bake --runner <k> --runners <n> one machine's share of the takes,
 //                                            in its own processes, then
 //   pnpm run bake --merge                    join the machines' results
-//   pnpm run bake --check                    plan each playing scene's first
-//                                            take only, and list every refusal
+//   pnpm run bake --check                    plan every take of each playing
+//                                            scene without posing it, and list
+//                                            every refusal
 //   pnpm run bake --check --row <name>...    plan each named action alone on
 //                                            one person, with no parameters
 //
