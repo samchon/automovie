@@ -13,9 +13,9 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  *
  * A dumped loop carries the closures of the cuts the trunk leaves to its neighbours (the arms, the breasts, the nose): invented arcs, not
  * skin, which a conversion that reads them as skin counts as grooves. Each loop edge whose middle or start stands farther than `INVENTED_MM`
- * from the reference's own cut at that station is invented. A loop with one invented run hands it to the tool as its closure (`FamilyConicConvert.ISection.closure`), so
- * the conversion breaks there and does not count it; a loop with several is left out and counted, since the tool takes one closure a
- * section.
+ * from the reference's own cut at that station is invented. Every invented run is handed to the tool as one of the section's closures
+ * (`FamilyConicConvert.ISection.closures`), so the conversion breaks there and does not count it: the arms' two cuts at the shoulder, the
+ * breasts' two at the chest.
  *
  * Run from `test` after bundling: `node <bundle>/FamilyConicConvertTrunk.cjs <sections.json> <from> <to> [label]`.
  */
@@ -25,7 +25,7 @@ export namespace FamilyConicConvertTrunk {
 
   /** A dumped section with its invented runs found. */
   export interface IMarked {
-    /** The section as the tool takes it, with its one closure when it has one. */
+    /** The section as the tool takes it, with its closures. */
     section: T.ISection;
 
     /** How many separate invented runs the loop holds. */
@@ -58,11 +58,14 @@ export namespace FamilyConicConvertTrunk {
       return distance([(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], skin) > INVENTED_MM || distance(p, skin) > INVENTED_MM;
     });
     const starts: number[] = invented.map((flag: boolean, k: number): number => (flag && !invented[(k - 1 + n) % n] ? k : -1)).filter((k: number): boolean => k >= 0);
-    if (starts.length !== 1) return { section: { s, points: loop }, runs: invented.every((flag: boolean): boolean => flag) ? 1 : starts.length };
-    let end: number = starts[0]!;
-    while (invented[(end + 1) % n]) end = (end + 1) % n;
+    if (starts.length === 0) return { section: { s, points: loop }, runs: 0 };
     const phase = (p: C.P): number => Math.atan2(p[1], p[0]);
-    return { section: { s, points: loop, closure: [phase(loop[starts[0]!]!), phase(loop[(end + 1) % n]!)] }, runs: 1 };
+    const closures: [number, number][] = starts.map((start: number): [number, number] => {
+      let end: number = start;
+      while (invented[(end + 1) % n]) end = (end + 1) % n;
+      return [phase(loop[start]!), phase(loop[(end + 1) % n]!)];
+    });
+    return { section: { s, points: loop, closures }, runs: closures.length };
   }
 
   /** Convert the dumped sections over the station range given on the command line, closures marked, and write the tables. */
@@ -81,12 +84,11 @@ export namespace FamilyConicConvertTrunk {
         const area: number = loop.reduce((sum: number, p: C.P, k: number): number => sum + p[0] * loop[(k + 1) % loop.length]![1] - loop[(k + 1) % loop.length]![0] * p[1], 0);
         return mark(row.s, area > 0 ? loop : [...loop].reverse(), R.cut(source.all, axis.at(row.s)).loop);
       });
-    const kept: T.ISection[] = marked.filter((m: IMarked): boolean => m.runs <= 1).map((m: IMarked): T.ISection => m.section);
-    const left: number[] = marked.filter((m: IMarked): boolean => m.runs > 1).map((m: IMarked): number => m.section.s);
-    const closed: number = marked.filter((m: IMarked): boolean => m.runs === 1).length;
-    const note: string = `the trunk's sections ${from}..${to} mm on its course as its fit reads them, from ${file}; ${closed} with one invented closure marked, ${left.length} with several left out${left.length === 0 ? "" : " (" + left.join(", ") + ")"}`;
+    const counts: Map<number, number> = new Map();
+    for (const m of marked) counts.set(m.runs, (counts.get(m.runs) ?? 0) + 1);
+    const note: string = `the trunk's sections ${from}..${to} mm on its course as its fit reads them, from ${file}; invented closures per section: ${[...counts.entries()].sort((a, b) => a[0] - b[0]).map(([runs, count]) => `${runs}: ${count}`).join(", ")}`;
     process.stdout.write(note + "\n");
-    await T.report(label, kept, { ladder: T.LADDER, note });
+    await T.report(label, marked.map((m: IMarked): T.ISection => m.section), { ladder: T.LADDER, note });
   }
 }
 
