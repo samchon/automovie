@@ -59,14 +59,14 @@ export namespace ArchetypeRide {
     /** The planned course. */
     plan: ArchetypeCourse.IPlan;
 
-    /** Running time, seconds. */
+    /** The film second the ride ends, its course's `duration`. */
     duration: number;
 
     /** Named instants in time order. */
     instants: readonly { seconds: number; label: string }[];
 
     /**
-     * The support at a second, held at its start before 0 and at its end after the running time.
+     * The support at a second, held at its start before its course begins and at its end after it ends.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and what is returned outside the course's range.
      * @evidence contracts/development/implementation.md#principled-implementation The plan's state at that second, mapped by the ride's pose function to the archetype's own state and placement.

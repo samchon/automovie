@@ -2,10 +2,13 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
+  createAppliance,
   createBar,
   createDoor,
   createLadder,
+  createObstacle,
   createRamp,
+  createSanitary,
   createStairs,
   createSwitch,
   createWall,
@@ -296,6 +299,25 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createWall.Kind): Archetype => createWall({ kind }),
       ),
     }),
+    fixtures: still({
+      ...kinds(
+        "sanitary",
+        createSanitary.KINDS,
+        (kind: createSanitary.Kind): Archetype => createSanitary({ kind }),
+      ),
+      ...kinds(
+        "appliance",
+        createAppliance.KINDS,
+        (kind: createAppliance.Kind): Archetype => createAppliance({ kind }),
+      ),
+    }),
+    obstacles: still(
+      kinds(
+        "obstacle",
+        createObstacle.KINDS,
+        (kind: createObstacle.Kind): Archetype => createObstacle({ kind }),
+      ),
+    ),
     vehicles: still({
       ...kinds(
         "car",
@@ -386,6 +408,15 @@ export function archetypeCaptureCatalog(): Readonly<
         wheel: 90,
       }),
       "bicycle-quarter": bicycle.articulate({ crank: 90 }),
+      "toilet-lid-down": createSanitary({ kind: "toilet" }).articulate({
+        lid: createSanitary.ESTIMATES.lift,
+      }),
+      "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
+        fridgeDoor: 90,
+      }),
+      "oven-open": createAppliance({ kind: "cooker" }).articulate({
+        ovenDoor: 90,
+      }),
       "carbine-extended": carbine.articulate({
         stock: carbine.affordance("stock").travel!,
       }),

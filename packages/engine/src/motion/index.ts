@@ -71,6 +71,7 @@ export * from "./sequenceMotion";
 export * from "./smoothMinimum";
 export * from "./solvePreparedChainPlant";
 export * from "./solveDistalTwist";
+export * from "./speedProfile";
 export * from "./splitDistalTwist";
 export * from "./superposeMinimumJerk";
 export * from "./timeScaleMotion";

@@ -8,7 +8,7 @@ import { AutoMovieGripKind } from "./AutoMovieGripKind";
  *
  * Bone attachments couple to a posed skeleton; an affordance instead marks a model-local contact used by prop anchoring and support consumers. propSupportFace transforms a stack-top footprint through the full affordance and staged matrices for placement support. The separate rigid-only affordanceSupportContacts helper currently has no product caller and does not establish a wired toppling pipeline.
  *
- * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius` and `travel` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
+ * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius` and `travel` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6); `follows` couples one articulation's travel to another's (#3475). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
  *
  * @evidence contracts/development/design.md#principled-representation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
@@ -94,4 +94,46 @@ export interface IAutoMovieAffordance {
    * Id of the articulation affordance of the same model that carries this affordance: its frame moves rigidly with that articulation's travel, as a door's handle rides the door's hinge and a pedal its crank, and when this affordance is itself an articulation its `parts` move with both. The chain of `rides` ends without returning to itself. Absent, the affordance is fixed in the model.
    */
   rides?: string;
+
+  /**
+   * Another articulation of the same model whose travel sets this one's, for the articulation kinds: a car's road wheels steer as its steering wheel turns, a bow's limbs bend as its string is drawn. This articulation's travel is `ratio` times the leader's, or the piecewise-linear function of the leader's travel that `table` lists. A state then names only the leader, and the follower moves with it. Absent, the articulation is set on its own.
+   */
+  follows?: IAutoMovieAffordance.Follows;
+}
+
+/**
+ * Companion types of {@link IAutoMovieAffordance}.
+ */
+export namespace IAutoMovieAffordance {
+  /**
+   * How a follower's travel is set from its leader's: by a ratio, or by a table of the leader's travel against the follower's.
+   *
+   * `id` names another articulation of the same model, and the chain of `follows` and `rides` together never returns to where it began. A `ratio` is any finite number, negative for a follower that turns against its leader; every travel it gives over the leader's range lies in the follower's own range. A `table` lists `[leader, follower]` pairs, each in the travel unit of its articulation's kind, the leader's travels strictly increasing from the least of its range to the greatest, and every follower's travel inside the follower's range; between pairs the follower's travel is interpolated linearly. A table need not be monotone: a pistol's hammer falls as its slide returns. Engine admission enforces these rules.
+   *
+   * @evidence contracts/development/design.md#principled-representation A one-input map between two articulations' travels, as a linear coupling or a sampled function; the alternatives are the union's two members, each forbidding the other's field, so a record cannot carry both or neither. The id's resolution, the absence of cycles and the ranges are left to engine admission.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the archetypes' articulation pose, which resolves a follower after its leader, and admitted by the engine's affordance articulation validation; the issue's car wheels and bow limbs are its first consumers (#3475).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain numbers and tuples, no wrapper; the two forms are separate members marking the other's field `never`, not two optional fields that could combine.
+   * @evidence contracts/development/common.md#meaningful-documentation States the id's meaning, both forms, their units, the interpolation, why a table need not be monotone, and who enforces the rules.
+   */
+  export type Follows =
+    | {
+        /** The leader's affordance id. */
+        id: string;
+
+        /** The follower's travel over the leader's, in the units of the two kinds. */
+        ratio: number;
+
+        /** A ratio is not a table. */
+        table?: never;
+      }
+    | {
+        /** The leader's affordance id. */
+        id: string;
+
+        /** `[leader, follower]` travel pairs, the leader's strictly increasing over its whole range. */
+        table: [number, number][];
+
+        /** A table is not a ratio. */
+        ratio?: never;
+      };
 }

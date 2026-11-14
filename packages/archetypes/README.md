@@ -31,7 +31,7 @@ open.site("aperture", 0.5, 0); // the middle of the threshold
 
 The same parameters and seed always give the same model. Without a seed every dimension takes the middle of its band. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` whose fields name the axis at fault and what would have been accepted: a dimension outside its band gives the band, and an affordance the variant lacks gives the ids it has.
 
-An archetype serialises as a plain model. Its accessors (`affordance`, `site`, `articulate`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
+An archetype serialises as a plain model. Its accessors (`affordance`, `site`, `articulate`, `travel`, `span`, `placed`, `shapes`, `moment`, `dimensions`, `properties`) are not part of the serialised data.
 
 ## Entry points
 
@@ -41,7 +41,7 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 | --- | --- |
 | `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch`, `createTableware`, `createFood`, `createLight` |
 | `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad` |
-| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap` |
+| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle` |
 | `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle` |
 | `/animals` | `createHorse`, the ride `rideHorse`, and the gait timing `HorseGait` |
 | `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createPolearm`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
@@ -54,9 +54,15 @@ Each producer's JSDoc states how the thing stands in its own space, and its name
 
 A door's leaf, a drawer, a lever, a suitcase's handle and a bicycle's crank are parts bound to an articulation affordance (`hinge`, `slider`, `knob`, `button`, `trigger`, `crank`, `wheel`, `pedal`). `archetype.articulate({ id: travel })` returns the archetype with those parts, and every contact that rides them, moved; the travel is degrees for a turning kind and metres otherwise, and a travel outside the articulation's range is refused.
 
+An articulation may follow another (`follows`): a car's front road wheels steer as its steering wheel turns. A state names only the leader, and `archetype.travel(id)` reads any articulation's travel, a follower's included. A span (`ArchetypeBuilder.span`) is a straight line between two moving frames, laid again after every pose; `archetype.span(id)` gives its ends and whether it is slack.
+
+### Assemblies
+
+`ArchetypeAssembly.of(id, name, { key: { archetype, placement } })` composes placed archetypes into one, which rides, seats and serialises like any archetype. A member's ids are read under its key: the seat of the member `bench2` is `bench2/seat`, and its door's hinge `door/hinge` in `articulate`. `assembly.couple(follower, { id: leader, ratio })` makes an articulation of one member follow another's, and `assembly.member(key)` gives a member as posed, with its own typed accessors. An assembly is composed in a production's source; the package ships none.
+
 ### Moving supports
 
-A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest.
+A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest. A course may also mark a speed at each leg's end (`speeds`, 0 for a stop, with a `pause` there), start or end moving (`startSpeed`, `endSpeed`), begin at a film second (`at`), climb or descend a leg (`rise`) and back along one (`reverse`); `ArchetypeCourse.timed(name, samples)` plans a path through points at given seconds instead.
 
 ```ts
 import { createCar, driveCar } from "@automovie/archetypes";

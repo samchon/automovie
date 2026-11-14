@@ -1,5 +1,6 @@
 import {
   type Archetype,
+  createAppliance,
   createBag,
   createBall,
   createBar,
@@ -42,6 +43,7 @@ import {
   createLongTool,
   createMagazine,
   createMotorcycle,
+  createObstacle,
   createParallelBars,
   createPell,
   createPlyoBox,
@@ -54,6 +56,7 @@ import {
   createRelayBaton,
   createRing,
   createRowingMachine,
+  createSanitary,
   createSeat,
   createShield,
   createShot,
@@ -201,6 +204,21 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createKerb({ kind }, seed),
     );
   add("tap", (seed?: number | string): Archetype => createTap({}, seed));
+  for (const kind of createSanitary.KINDS)
+    add(
+      `sanitary-${kind}`,
+      (seed?: number | string): Archetype => createSanitary({ kind }, seed),
+    );
+  for (const kind of createAppliance.KINDS)
+    add(
+      `appliance-${kind}`,
+      (seed?: number | string): Archetype => createAppliance({ kind }, seed),
+    );
+  for (const kind of createObstacle.KINDS)
+    add(
+      `obstacle-${kind}`,
+      (seed?: number | string): Archetype => createObstacle({ kind }, seed),
+    );
   for (const kind of createWall.KINDS)
     add(
       `wall-${kind}`,
