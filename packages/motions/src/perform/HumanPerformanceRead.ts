@@ -11,6 +11,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -117,14 +118,32 @@ export namespace HumanPerformanceRead {
    * takes that hand over. Released props stay where the last grip to end
    * released them; falling is the physics layer's.
    *
+   * A grip carries the prop only after it closes: at its first second the
+   * prop is where it was, which is where the offset the grip keeps puts it
+   * then. The offset is read off the hand at that second, whose pose may be
+   * an action reading the prop; read there by the closing grip, the frame
+   * would wait on itself.
+   *
+   * A performer reading a prop they carry themselves (`own`) reads it on
+   * their own body as the read gives it (an action's, as it entered the
+   * action), as a performer reads their own region: their displayed bones
+   * at that second are the posture still being solved, and through the
+   * hand that carries the prop they read the action reading it (a reload
+   * pressing the magazine of the gun the other hand holds).
+   *
    * @param subject The prop.
    * @param seconds Film seconds.
+   * @param own The performer reading the prop and their own bones, for a prop they may carry.
    * @returns Its frame.
    */
   export function prop(
     self: HumanPerformanceState,
     subject: string,
     seconds: number,
+    own?: {
+      subject: string;
+      bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    },
   ): IHumanProp.IFrame {
     const prop: IHumanProp | undefined = self.props.get(subject);
     if (prop === undefined)
@@ -140,7 +159,8 @@ export namespace HumanPerformanceRead {
     let active: HumanPerformanceState.IGrip | undefined;
     let released: HumanPerformanceState.IGrip | undefined;
     for (const g of grips) {
-      if (g.from > seconds) continue;
+      // A grip carries from after it closes; at its closing the prop is where it was.
+      if (g.from >= seconds) continue;
       if (seconds <= g.to) {
         // A performer's other hand on a prop that performer already holds
         // steadies it and does not take it over: a camera's far end held
@@ -205,7 +225,17 @@ export namespace HumanPerformanceRead {
       });
     };
     const offset: IHumanProp.IFrame = seat(window);
-    const hand: IHumanProp.IFrame = carrier(window, at);
+    // Carried by the performer reading it: their own body as the read gives it.
+    const hand: IHumanProp.IFrame =
+      own !== undefined &&
+      active !== undefined &&
+      window.subject === own.subject
+        ? held(
+            HumanPerformanceRead.person(self, own.subject).performer.body,
+            own.bones(),
+            window,
+          )
+        : carrier(window, at);
     return {
       position: Vector3.add(
         hand.position,
@@ -335,23 +365,11 @@ export namespace HumanPerformanceRead {
     side: "left" | "right",
     seconds: number,
   ): IHumanProp.IFrame {
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
-      self,
-      subject,
+    return held(
+      HumanPerformanceRead.person(self, subject).performer.body,
+      HumanPerformanceRead.bones(self, subject, seconds),
+      { side },
     );
-    const frame =
-      person.performer.body.surfaces.sockets[
-        side === "left" ? "gripLeft" : "gripRight"
-      ];
-    const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
-      self,
-      subject,
-      seconds,
-    ).get(frame.bone)!;
-    return {
-      position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
-      rotation: bone.worldRotation,
-    };
   }
 
   /**
@@ -449,4 +467,31 @@ export namespace HumanPerformanceRead {
       fix: `name one of the performance's ${what}s, or add ${subject} to them`,
     });
   }
+}
+
+/**
+ * Where a grip holds a prop on given bones: the hand's grip socket with the
+ * hand bone's world rotation, or the bone a worn span rides.
+ *
+ * @param body The body the bones are of.
+ * @param bones The bones.
+ * @param grip The holding hand, and the bone of a worn span.
+ * @returns The frame.
+ */
+function held(
+  body: IHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  grip: Pick<HumanPerformanceState.IGrip, "side" | "bone">,
+): IHumanProp.IFrame {
+  if (grip.bone !== undefined) {
+    const bone: IAutoMovieResolvedBone = bones.get(grip.bone)!;
+    return { position: bone.worldPosition, rotation: bone.worldRotation };
+  }
+  const frame =
+    body.surfaces.sockets[grip.side === "left" ? "gripLeft" : "gripRight"];
+  const bone: IAutoMovieResolvedBone = bones.get(frame.bone)!;
+  return {
+    position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
+    rotation: bone.worldRotation,
+  };
 }
