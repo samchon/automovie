@@ -2244,11 +2244,65 @@ namespace FamilyConicArmscyeRule {
     return `trunk station ${c.station.toFixed(1)}, phase ${degrees(Math.atan2(c.v, c.u)).toFixed(1)} deg, ${distance.toFixed(1)} mm from the fold's line`;
   }
 
+  /** A closed loop's area centroid in its chart. */
+  function areaCentroid(points: readonly C.P[]): C.P {
+    let [a, x, y]: number[] = [0, 0, 0];
+    for (let i: number = 0; i < points.length; ++i) {
+      const [p, q]: C.P[] = [points[i]!, points[(i + 1) % points.length]!];
+      const c: number = p![0] * q![1] - q![0] * p![1];
+      a = a! + c;
+      x = x! + (p![0] + q![0]) * c;
+      y = y! + (p![1] + q![1]) * c;
+    }
+    return [x! / (3 * a!), y! / (3 * a!)];
+  }
+
+  /**
+   * The ring's centre by rule (the supervisor's ruling on #3151, R3b): the area centroid of the largest closed loop of the trunk family's own
+   * wall (its loft with its nets, `trunkMesh`) cut by the girdle plane, against the reference skin's ray ring centroid the earlier runs used,
+   * and the k = 1.5 corner and turn each gives.
+   */
+  async function centreRule(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const elbow: V = P.frame("forearm").origin as V;
+    const frame: AutoMovieLoftFrame.IFrame = girdle.frame;
+    const origin: V = [...frame.origin] as V;
+    const pieces: IPiece[] = M.outline(trunkMesh(), { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const loop: IPiece = pieces.filter((piece: IPiece): boolean => piece.closed).sort((a: IPiece, b: IPiece): number => area(b.points) - area(a.points))[0]!;
+    const c: C.P = areaCentroid(loop.points);
+    const byRule: V = add(origin, add(scale(frame.u as V, c[0]), scale(frame.v as V, c[1])));
+    const rays: V[] = ring(source.all, frame).filter((h: V | null): h is V => h !== null);
+    const byRays: V = scale(rays.reduce((t: V, p: V): V => add(t, p), [0, 0, 0]), 1 / rays.length);
+    const corner = (centre: V): { s: number; corner: V; turn: number } => {
+      let s: number = TURN_K * r;
+      for (let i: number = 0; i < 100; ++i) {
+        const next: number = TURN_K * r * AutoMovieHumanConicPose.share(AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s)), elbow])[0]!);
+        if (Math.abs(next - s) < 1e-9) break;
+        s = next;
+      }
+      return { s, corner: add(centre, scale(n, s)), turn: degrees(AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s)), elbow])[0]!) };
+    };
+    const [a, b] = [corner(byRays), corner(byRule)];
+    const lines: string[] = [
+      `the ring's centre by rule (the area centroid of the trunk wall's girdle cut, ${pieces.length} pieces, the largest closed loop ${area(loop.points).toFixed(0)} sq mm): ${fixed(byRule, 2)}`,
+      `the reference ray ring's centroid: ${fixed(byRays, 2)}; apart ${norm(sub(byRule, byRays)).toFixed(2)} mm`,
+      `the k ${TURN_K} corner from the reference centroid: s ${a.s.toFixed(2)} mm, ${fixed(a.corner, 2)}, turn ${a.turn.toFixed(2)} deg`,
+      `the k ${TURN_K} corner from the rule's centre: s ${b.s.toFixed(2)} mm, ${fixed(b.corner, 2)}, turn ${b.turn.toFixed(2)} deg`,
+      `the corner moves ${norm(sub(b.corner, a.corner)).toFixed(2)} mm and the turn ${(b.turn - a.turn).toFixed(2)} deg`,
+    ];
+    process.stdout.write(lines.join("\n") + "\n");
+  }
+
   export async function main(): Promise<void> {
     if (process.argv[2] === "cause") return cause();
     if (process.argv[2] === "bend") return bend();
     if (process.argv[2] === "rails") return rails();
     if (process.argv[2] === "port") return port();
+    if (process.argv[2] === "centre") return centreRule();
     if (process.argv[2] === "precheck") return precheck();
     if (process.argv[2] === "cap") return cap();
     if (process.argv[2] === "course") return armCourse();
