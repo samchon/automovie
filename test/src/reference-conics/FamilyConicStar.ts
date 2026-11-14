@@ -1,0 +1,111 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { AutoMovieHumanConicLoft } from "@automovie/human";
+import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import type { FamilyConicSection as C } from "./FamilyConicSection";
+import { FamilyConicSource as R } from "./FamilyConicSource";
+
+/**
+ * Whether a region's sections are star-shaped about a trial course: the reference cut by each plane normal to the course, the cut's
+ * outermost loop kept only inside the region's box and closed across the box by chords, and each piece read along `RAYS` rays from the
+ * course point (`FamilyConicExcursion.star`, the fit's own test). A ray that crosses a piece more than once is a fold; a piece the course
+ * point lies outside of misses some rays. A family can carry a region only on a course under which every section is star-shaped (lofting.md,
+ * One section family: "The method's limit is that each section is star-shaped about the family's course").
+ *
+ * Usage, from `test`: `node <bundle> <trials.json>`, a list of `{ label, centres: [[x, y, z], ...], up: [x, y, z], box: [x0, x1, y0, y1,
+ * z0, z1], step }`, mm; it writes `star.txt` under `test/.shots/family-conic-star/<stamp>/`.
+ */
+export namespace FamilyConicStar {
+  /** One trial course and the region it is read over. */
+  export interface ITrial {
+    /** Its name in the report. */
+    label: string;
+
+    /** The course's centres, mm, in the reference frame. */
+    centres: [number, number, number][];
+
+    /** The direction the chart's `u` starts from. */
+    up: [number, number, number];
+
+    /** The region's box, `[x0, x1, y0, y1, z0, z1]`, mm: only skin inside it is the region's. */
+    box: [number, number, number, number, number, number];
+
+    /** Station step along the course, mm. */
+    step: number;
+  }
+
+  /** Rays a section is read along, as the fit reads a family's skin. */
+  export const RAYS: number = 1440;
+
+  /** The pieces of a loop inside a box, each closed by the chord between its ends. */
+  function pieces(loop: readonly C.P[], inside: (p: C.P) => boolean): C.P[][] {
+    const flags: boolean[] = loop.map(inside);
+    if (flags.every((f: boolean): boolean => f)) return [[...loop]];
+    const out: C.P[][] = [];
+    const start: number = flags.findIndex((f: boolean): boolean => !f);
+    let run: C.P[] = [];
+    for (let k: number = 1; k <= loop.length; ++k) {
+      const i: number = (start + k) % loop.length;
+      if (flags[i]) run.push(loop[i]!);
+      else if (run.length > 0) {
+        if (run.length >= 3) out.push(run);
+        run = [];
+      }
+    }
+    if (run.length >= 3) out.push(run);
+    return out;
+  }
+
+  /** Read every trial and write the report. */
+  export async function main(): Promise<void> {
+    const file: string | undefined = process.argv[2];
+    if (file === undefined) throw new Error("usage: FamilyConicStar <trials.json>");
+    const trials: ITrial[] = JSON.parse(await fs.readFile(file, "utf8")) as ITrial[];
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const lines: string[] = [];
+    for (const trial of trials) {
+      const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
+      const length: number = trial.centres.slice(1).reduce((sum: number, c, k: number): number => sum + Math.hypot(c[0] - trial.centres[k]![0], c[1] - trial.centres[k]![1], c[2] - trial.centres[k]![2]), 0);
+      const [x0, x1, y0, y1, z0, z1] = trial.box;
+      const rows: string[] = [];
+      let star: number = 0, folded: number = 0, missed: number = 0, empty: number = 0;
+      for (let s: number = 0; s <= length + 1e-9; s += trial.step) {
+        const frame = axis.at(s);
+        const loop: C.P[] | null = R.cut(source.all, frame).loop;
+        const world = (p: C.P): number[] => [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
+        const inside = (p: C.P): boolean => {
+          const w: number[] = world(p);
+          return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1;
+        };
+        const found: C.P[][] = loop === null ? [] : pieces(loop, inside);
+        if (found.length === 0) {
+          ++empty;
+          rows.push(`  ${s.toFixed(1).padStart(6)}  no skin in the box`);
+          continue;
+        }
+        const reads: string[] = found.map((piece: C.P[]): string => {
+          const got = X.star(piece, RAYS, "inner");
+          if (got === null) {
+            ++missed;
+            return `outside (${piece.length} pts)`;
+          }
+          if (got.folds > 0) ++folded;
+          else ++star;
+          return got.folds === 0 ? `star (${piece.length} pts)` : `${got.folds} folds (${piece.length} pts)`;
+        });
+        rows.push(`  ${s.toFixed(1).padStart(6)}  ${found.length} piece(s): ${reads.join("; ")}`);
+      }
+      lines.push(`## ${trial.label}: course ${JSON.stringify(trial.centres)}, up ${JSON.stringify(trial.up)}, box ${JSON.stringify(trial.box)}, ${length.toFixed(1)} mm`, `pieces star-shaped ${star}, folded ${folded}, course point outside ${missed}; stations with no skin in the box ${empty}`, ...rows, "");
+    }
+    const out: string = path.join(root, "test/.shots/family-conic-star", new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    await fs.writeFile(path.join(out, "star.txt"), lines.join("\n"));
+    process.stdout.write(JSON.stringify({ out }) + "\n" + lines.filter((line: string): boolean => line.startsWith("##") || line.startsWith("pieces")).join("\n") + "\n");
+  }
+}
+
+if (/FamilyConicStar\.c?[jt]s$/.test(process.argv[1] ?? "")) void FamilyConicStar.main().catch((error: unknown): void => {
+  process.stderr.write((error instanceof Error ? (error.stack ?? error.message) : String(error)) + "\n");
+  process.exitCode = 1;
+});
