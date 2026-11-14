@@ -171,9 +171,12 @@ export namespace HumanArmTrajectoryConvex {
         // Swept spheres.
         for (let probe: number = 0; probe < (c.still ? 0 : G.SURFACE); ++probe) {
           const [pa, r] = at.placed[a]![k]!.probes[probe]!;
-          const pb: IAutoMovieVector3 = at.placed[a]![k + 1]!.probes[probe]![0];
-          if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
           for (const shape of G.near(c.frames[a]![k]!, pa, r + T.REACH)) {
+            // The probe's motion relative to the shape, which may move too;
+            // the far end's gradient is carried back by the same turn.
+            const moved: { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } = P.relative(c, a, k, shape, at.placed[a]![k + 1]!.probes[probe]![0]);
+            const pb: IAutoMovieVector3 = moved.point;
+            if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
             const frame: G.IFrame = c.frames[a]![k]!;
             const d0: number = 1000 * (G.gap(frame, shape, pa, pb) - r);
             const lower: number = 1000 * Math.min(c.allowed(a, k, probe, shape), c.allowed(a, k + 1, probe, shape));
@@ -187,7 +190,7 @@ export namespace HumanArmTrajectoryConvex {
             const nearer: number = G.gap(frame, shape, pa, pa) <= G.gap(frame, shape, pb, pb) ? 0 : 1;
             const g: IAutoMovieVector3 = G.normal(frame, shape, nearer === 0 ? pa : pb);
             const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
-            const gb: IAutoMovieVector3 = Vector3.scale(g, u);
+            const gb: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(moved.turn), Vector3.scale(g, u));
             const s: ILinear = join(
               ...(inner(k) ? [along(a, k, jac[a]![k]!.probes[probe]!, ga)] : []),
               ...(inner(k + 1) ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, gb)] : []),

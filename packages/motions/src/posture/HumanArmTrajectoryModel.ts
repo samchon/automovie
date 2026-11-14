@@ -281,9 +281,10 @@ export namespace HumanArmTrajectoryModel {
         }
         for (let probe: number = 0; probe < (c.still ? 0 : G.SURFACE); ++probe) {
           const [pa, r]: readonly [IAutoMovieVector3, number] = placed[a]![k]!.probes[probe]!;
-          const pb: IAutoMovieVector3 = placed[a]![k + 1]!.probes[probe]![0];
-          if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
           for (const shape of G.near(c.frames[a]![k]!, pa, r + T.REACH)) {
+            // The probe's motion relative to the shape, which may move too.
+            const pb: IAutoMovieVector3 = P.relative(c, a, k, shape, placed[a]![k + 1]!.probes[probe]![0]).point;
+            if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
             const lower: number = Math.min(c.allowed(a, k, probe, shape), c.allowed(a, k + 1, probe, shape));
             const short: number = 1000 * (lower - (G.gap(c.frames[a]![k]!, shape, pa, pb) - r));
             note(short, "region", () => `probe ${probe} swept ${short.toFixed(1)} mm inside shape ${shape} after ${times[k]!.toFixed(3)} s`);

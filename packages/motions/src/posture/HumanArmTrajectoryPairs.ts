@@ -292,6 +292,31 @@ export namespace HumanArmTrajectoryPairs {
   }
 
   /**
+   * A probe's point at the next waypoint in a shape's frame at this one: the
+   * point carried back by the shape's own motion between the two, so a
+   * sweep reads the probe's motion relative to the shape, as continuous
+   * collision detection against a moving obstacle does. A body that carries
+   * an arm still is then never swept through its own old place.
+   *
+   * @param c The context.
+   * @param a The arm.
+   * @param k The waypoint the sweep starts at.
+   * @param shape The shape's index in the frame at `k` and at `k + 1`.
+   * @param p The probe's point at `k + 1`, world metres.
+   * @returns The point in frame `k`, and the turn that carries a direction there from `k + 1`'s frame (the point's derivative in `p`).
+   */
+  export function relative(c: M.IContext, a: number, k: number, shape: number, p: IAutoMovieVector3): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
+    const now: G.IShape = c.frames[a]![k]!.shapes[shape]!;
+    const next: G.IShape | undefined = c.frames[a]![k + 1]!.shapes[shape];
+
+    // A shape read at both waypoints by the same index is the same segment
+    // (the body's colliders lead every frame in profile order).
+    if (next === undefined || next.bone !== now.bone || next.part !== now.part) return { point: p, turn: Quaternion.identity() };
+    const turn: IAutoMovieQuaternion = Quaternion.multiply(now.pose.rotation, Quaternion.inverse(next.pose.rotation));
+    return { point: Vector3.add(now.pose.position, Quaternion.rotateVector(turn, Vector3.subtract(p, next.pose.position))), turn };
+  }
+
+  /**
    * A hand's contact point in the world.
    *
    * @param placed The arm placed.
