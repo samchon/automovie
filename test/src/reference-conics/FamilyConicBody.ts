@@ -419,6 +419,12 @@ namespace FamilyConicBody {
   const NOSE_FLOOR_MM: [number, number] = [20, 8];
 
   /**
+   * How far outside a neighbour's footprint (`IPart.unseen`) a net's landing starts to weigh less, mm: the smooth step spans a row of the
+   * finest net that reads the face (`trunk.mouth`, 1.5 mm; `trunk.face`, 2.6 mm), so the observed region ends over a row and not at once.
+   */
+  const UNSEEN_EDGE_MM: number = 3;
+
+  /**
    * Where the head's nets are held on the wall under the ear, mm, positive inside: the ear's cut (`ear`) less the concha's bowl. Held over
    * the whole cut, the head's skin under the bowl stood up to 8.3 mm farther out ([10.5, 1566, 77.9]), past the rail the concha's cutter
    * trims on the antihelix, and its cut kept neither side; the bowl, x 5 to 23, 1,557 to 1,569 mm high on the merged ear, keeps its nets.
@@ -932,6 +938,12 @@ namespace FamilyConicBody {
     kept?: (p: R.V) => number;
 
     /**
+     * Skin a neighbour owns, mm, positive inside, that the part's nets do not observe even where its `clip` lets the sections keep it: a
+     * neighbour on a port whose own sections carry that skin, as the nose's box is, whose floor fades for the sections alone (`noseCut`).
+     */
+    unseen?: (p: R.V) => number;
+
+    /**
      * Part of `clip` whose boundary is a surface of revolution about the course, positive outside it: where it alone cuts a stretch out, the
      * loop closes along that surface's circle instead of the chord.
      */
@@ -1291,7 +1303,7 @@ namespace FamilyConicBody {
         // without the nose stored -0.20, 0.03 and 1.17 there, out of the model's bounds, and the curvature match then held both arcs either side
         // of the front median at 0.09 to 0.14, near-chords that turned within 0.26 mm and drew an upright slash down each cheek (`head.front`
         // px 288..300 x 440..525). Laid as the natural cubic through 740, 814 to 912, they stand at 0.48 to 0.49 and the turn's radius at 9 mm.
-        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const, hullFrom: CHIN.y - 780 } : {}), opening: armHole, round: chin, kept: breasts, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), armHole(p)), reliefs: [
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const, hullFrom: CHIN.y - 780 } : {}), opening: armHole, round: chin, kept: breasts, unseen: nose, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), armHole(p)), reliefs: [
           // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width. On fixed axes the windows
           // had to stop at 1.0 to 1.2 rad: farther round a height slid a point along the wall instead of moving it in or out, which folded
           // the skin at the sides of the head and the shoulders.
@@ -2510,7 +2522,18 @@ namespace FamilyConicBody {
             const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
             // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
             const left: ((p: R.V) => number) | undefined = window.uncut === true ? part.kept : window.chord === true ? undefined : part.clip;
-            const open = left === undefined ? undefined : (p: C.P): boolean => left([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]) > 0.05;
+            // Skin a neighbour owns (`IPart.unseen`) weighs less the nearer a landing is to it, from `UNSEEN_EDGE_MM` outside it to its edge, by
+            // the quintic smooth step (`H.IRow.open`). The nose box's floor fades into the face for the sections alone (`noseCut`): between
+            // 1,544 and 1,550 mm its receding front let the face's nets land on the nose's own base, and at 0.15 rad the face net's targets
+            // swung from 1.21 to -4.71 to 0.02 mm over s 764 to 770 and the head net's from 9.63 to 5.10 to 9.47, every landing inside the box.
+            const unseen: ((p: R.V) => number) | undefined = window.uncut === true || window.chord === true ? undefined : part.unseen;
+            const open = left === undefined ? undefined : (p: C.P): boolean | number => {
+              const q: R.V = [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
+              if (left(q) > 0.05) return true;
+              if (unseen === undefined) return false;
+              const x: number = Math.min(1, Math.max(0, (unseen(q) + UNSEEN_EDGE_MM) / UNSEEN_EDGE_MM));
+              return x * x * x * (10 - 15 * x + 6 * x * x);
+            };
             // With `holdWidth` the hold is a share that rises from none at the held region's edge to all of it that far inside, by the quintic
             // smooth step, so the target is C2 across the edge (`H.IRow.hold`).
             const hold = window.hold === undefined ? undefined : (p: C.P): boolean | number => {
