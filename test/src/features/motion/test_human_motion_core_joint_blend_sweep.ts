@@ -39,13 +39,12 @@ const APART: number = 150;
  * of rotations to a point, which it is not, and two rotations half a turn
  * apart have no shorter way between them to follow. So a step is judged
  * where both its far ends lie under `APART` degrees from the near end, and
- * where every end's turn about the arm lies less than 45 degrees past the
- * shoulder's swing-twist interval (a swing-twist joint is blended by its
- * swing and its turn, `swingTwistRange.blend`, and the turn of an end
- * outside the interval is read as the alias nearer it, which changes at the
- * middle of the 115 degrees outside it), and points less than 150 degrees
- * from the arm's rest direction (at its antipode the turn about the arm has
- * no value at all).
+ * where the turn about the arm of the arc's rotation at the share, before it
+ * is brought into the range, lies less than 60 degrees past the shoulder's
+ * swing-twist interval (the clamp of a turn onto an interval breaks at the
+ * turn farthest from it, `swingTwistRange`), and where that rotation points
+ * less than 150 degrees from the arm's rest direction (at its antipode the
+ * turn about the arm has no value at all).
  *
  * Scenarios, on the average man:
  * 1. Along every travel, where the far end's own rotation turns less than
@@ -154,8 +153,8 @@ export function test_human_motion_core_joint_blend_sweep(): void {
         [far(k - 1), far(k)].every(
           (end: readonly [number, number, number]): boolean =>
             turn(rotation(near), rotation(end)) < APART &&
-            twistPast(rotation(near)) < 45 &&
-            twistPast(rotation(end)) < 45,
+            twistPast(Quaternion.slerp(rotation(near), rotation(end), share)) <
+              60,
         )
       ) {
         const value: number = turn(rotation(previous), rotation(here));
