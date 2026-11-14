@@ -270,6 +270,13 @@ export namespace athletics {
     );
     const into = (seconds: number): number =>
       clock.progress("start", "ready", seconds);
+    // The span the arms are planned over: the reach to the place, held to the end.
+    const span: AutoMovieMotionHumanArm.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("end"),
+      end: clock.at("end"),
+    };
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standingHips: IAutoMovieVector3 = Vector3.add(
       entry.root,
@@ -349,6 +356,7 @@ export namespace athletics {
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           weight: into,
+          span,
           place: () => target.palms[side],
           bend: "front",
         }),

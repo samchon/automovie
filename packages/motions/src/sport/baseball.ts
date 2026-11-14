@@ -144,6 +144,13 @@ export namespace baseball {
     const entry: IHumanPosture = context.entry.posture;
     const into = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
+    // The span the arms are planned over: the reach to the place, the hold and the return.
+    const span: AutoMovieMotionHumanArm.ISpan = {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    };
     const local = (
       posture: IHumanPosture,
       v: IAutoMovieVector3,
@@ -186,6 +193,7 @@ export namespace baseball {
         to: clock.duration,
         rest: rest(side),
         weight: into,
+        span,
         place,
         surface: shape === "fist" ? "grip" : "palm",
         shape,
