@@ -210,7 +210,7 @@ export namespace FamilyConicRelief {
       return (low > 0 ? step((s - window.stations[0]) / low) : 1) * (high > 0 ? step((window.stations[1] - s) / high) : 1) * (first > 0 ? step((phi - window.phases[0]) / first) : 1) * (last > 0 ? step((window.phases[1] - phi) / last) : 1);
     };
     // `--relief-dump=<directory>` with `--relief-dump-names=<name>,...`: every cast of the named windows written as `<name>.samples.tsv`
-    // (station, phase, the height asked for, the share, the hold, the height fitted, the angle the section plane meets the skin at where the
+    // (station, phase, the height asked for, the share, the hold, the height fitted, the weight a neighbour's footprint leaves it, the angle the section plane meets the skin at where the
     // window reads the skin's rise, and why a cast was left unobserved), to read a net's
     // misfit sample by sample on the failing place and its neighbours.
     const dumpDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relief-dump="))?.slice("--relief-dump=".length);
@@ -332,9 +332,9 @@ export namespace FamilyConicRelief {
       fs.mkdirSync(dumpDir!, { recursive: true });
       // One tab-separated line a cast, so a table reader streams it.
       const cell = (x: number | null | undefined, digits: number): string => (x === undefined || x === null ? "" : x.toFixed(digits));
-      const lines: string[] = ["s\tphi\theldout\twhy\talong\tu\tv\tmeets\tshare\theld\ttarget\tfitted"];
+      const lines: string[] = ["s\tphi\theldout\twhy\talong\tu\tv\tmeets\tshare\theld\ttarget\tfitted\tweight"];
       for (const record of records)
-        lines.push([cell(record.s, 2), cell(record.phi, 4), record.heldout ? "1" : "0", record.why ?? "", cell(record.along, 3), cell(record.landing?.[0], 2), cell(record.landing?.[1], 2), cell(record.meets, 1), cell(record.share, 3), cell(record.held, 3), cell(record.target, 3), record.sample === undefined ? "" : cell(fitted(record.sample), 3)].join("\t"));
+        lines.push([cell(record.s, 2), cell(record.phi, 4), record.heldout ? "1" : "0", record.why ?? "", cell(record.along, 3), cell(record.landing?.[0], 2), cell(record.landing?.[1], 2), cell(record.meets, 1), cell(record.share, 3), cell(record.held, 3), cell(record.target, 3), record.sample === undefined ? "" : cell(fitted(record.sample), 3), record.sample === undefined ? "" : cell(samples[record.sample]!.weight, 3)].join("\t"));
       fs.writeFileSync(path.join(dumpDir!, window.name + ".samples.tsv"), lines.join("\n") + "\n");
     }
     return { relief: { name: window.name, stations: window.stations, phases: window.phases, axis: window.axis, ...(window.turn === undefined ? {} : { turn: window.turn }), rows: R, columns: Cn, heights }, scalars: unknowns, deepestMm: deepest, trainMaxMm, heldMaxMm };
