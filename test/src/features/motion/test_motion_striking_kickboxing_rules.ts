@@ -5,7 +5,9 @@ import {
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import { createExerciseMat, createRing } from "@automovie/archetypes";
 import {
+  HumanObject,
   KickboxingRing,
   KickboxingRules,
   KnockdownCount,
@@ -24,8 +26,11 @@ import { TestValidator } from "@nestia/e2e";
  *    flagged once; the same punch after `b`'s next action has started, or
  *    before the knockdown, is not. A knee followed at once by a punch breaks
  *    the single clinch knee; with a pause between them it does not.
- * 3. A ring turned 30 degrees reports its corners a margin inside the ropes,
- *    keeps inside points and clamps outside ones onto the margin.
+ * 3. A ring (`createRing`) placed turned 30 degrees is read from its canvas,
+ *    ropes and posts: its centre the canvas's middle, its size the drawn
+ *    size between the ropes, its heading the placement's; a mat, no ring, is
+ *    refused. It reports its corners a margin inside the ropes, keeps inside
+ *    points and clamps outside ones onto the margin.
  * 4. The count's numbers land one second apart from its start, numbers
  *    outside one to ten throw, and the corner chosen is the neutral corner
  *    farther from the fallen fighter.
@@ -146,21 +151,37 @@ export function test_motion_striking_kickboxing_rules(): void {
     knees(false) === 1 && knees(true) === 0,
   );
 
-  const ring: KickboxingRing.IRing = {
-    centre: { x: 1, y: 0, z: 2 },
-    size: 6,
-    yaw: 30,
-  };
+  const model: ReturnType<typeof createRing> = createRing();
+  const ring: KickboxingRing.IRing = KickboxingRing.of(
+    HumanObject.prop("ring", model, { at: { x: 1, y: 0, z: 2 }, yaw: 30 }),
+  );
   const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) < 1e-9;
+  const floor: number = model.dimensions.platform!;
+  const size: number = model.dimensions.size!;
+  TestValidator.predicate(
+    "the placed ring's canvas, ropes and heading",
+    near(ring.centre, { x: 1, y: floor, z: 2 }) &&
+      Math.abs(ring.size - size) < 1e-9 &&
+      Math.abs(ring.yaw - 30) < 1e-9,
+  );
+  TestValidator.error("no ring", (): unknown =>
+    KickboxingRing.of(
+      HumanObject.prop("mat", createExerciseMat({ kind: "yoga" }), {
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+      }),
+    ),
+  );
   const blue: IAutoMovieVector3 = KickboxingRing.corner(ring, "blue", 0.5);
   const r: number = (30 * Math.PI) / 180;
+  const h: number = size / 2 - 0.5;
   TestValidator.predicate(
     "corner a margin inside",
     near(blue, {
-      x: 1 + 2.5 * Math.cos(r) + 2.5 * Math.sin(r),
-      y: 0,
-      z: 2 - 2.5 * Math.sin(r) + 2.5 * Math.cos(r),
+      x: 1 + h * Math.cos(r) + h * Math.sin(r),
+      y: floor,
+      z: 2 - h * Math.sin(r) + h * Math.cos(r),
     }) &&
       KickboxingRing.inside(ring, blue, 0.5) &&
       !KickboxingRing.inside(ring, blue, 0.6),
@@ -177,7 +198,7 @@ export function test_motion_striking_kickboxing_rules(): void {
     "inside points stay",
     near(KickboxingRing.clamp(ring, { x: 1.5, y: 0, z: 2.2 }, 0.4), {
       x: 1.5,
-      y: 0,
+      y: floor,
       z: 2.2,
     }),
   );
