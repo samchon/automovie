@@ -314,7 +314,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `cart-${kind}`,
       (seed?: number | string): Archetype => createCart({ kind }, seed),
-      kind === "limber",
+      kind === "limber" || kind === "wagon",
     );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
   for (const frame of createHandgun.FRAMES)

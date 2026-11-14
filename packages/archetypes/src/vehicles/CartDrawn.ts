@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { createHorse } from "../animals/createHorse";
 import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
 /**
@@ -11,7 +11,7 @@ import { createCart } from "./createCart";
  * @evidence contracts/development/common.md#meaningful-documentation States what it builds and where the axle stands.
  * @evidence contracts/development/design.md#principled-representation Each kind's body on its axle, its road wheels on spin knobs, and its coupling ahead where it is drawn from.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The four builders `createCart` calls for its two-wheeled drawn kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The wheels are one helper over the track and the diameter, not a copy per kind.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The wheels are `CartWheel.pair`, shared with the four-wheelers, not a copy per kind.
  */
 export namespace CartDrawn {
   /**
@@ -112,7 +112,14 @@ export namespace CartDrawn {
       frame: ArchetypeFrame.upright(v(0, tug, coupling)),
       extent: null,
     });
-    wheels(builder, d.track!, radius, 12);
+    CartWheel.pair(builder, {
+      track: d.track!,
+      radius,
+      spokes: 12,
+      z: 0,
+      prefix: "",
+      spins: ["leftSpin", "rightSpin"],
+    });
   }
 
   /**
@@ -223,7 +230,14 @@ export namespace CartDrawn {
       frame: ArchetypeFrame.upright(v(0, grip, tip - GRIP / 2)),
       extent: null,
     });
-    wheels(builder, track, radius, 12);
+    CartWheel.pair(builder, {
+      track: track,
+      radius,
+      spokes: 12,
+      z: 0,
+      prefix: "",
+      spins: ["leftSpin", "rightSpin"],
+    });
   }
 
   /**
@@ -315,7 +329,14 @@ export namespace CartDrawn {
       frame: ArchetypeFrame.upright(v(0, yoke, reach)),
       extent: null,
     });
-    wheels(builder, d.track!, radius, 6);
+    CartWheel.pair(builder, {
+      track: d.track!,
+      radius,
+      spokes: 6,
+      z: 0,
+      prefix: "",
+      spins: ["leftSpin", "rightSpin"],
+    });
   }
 
   /**
@@ -408,7 +429,14 @@ export namespace CartDrawn {
       frame: ArchetypeFrame.upright(v(0, pintle, rear - 0.08)),
       extent: null,
     });
-    wheels(builder, d.track!, radius, 12);
+    CartWheel.pair(builder, {
+      track: d.track!,
+      radius,
+      spokes: 12,
+      z: 0,
+      prefix: "",
+      spins: ["leftSpin", "rightSpin"],
+    });
   }
 }
 
@@ -432,66 +460,3 @@ const CLOTH: string = "#6b2f2f";
 
 /** Iron. */
 const METAL: string = "#55595f";
-
-/**
- * Add the two road wheels on the axle: each a disc with spokes, spinning on a `knob` about the axle, a positive travel rolling it forward. The spokes' count is read for the chariot's six only; for the others it is a construction no act reads.
- *
- * @param builder The carrier under construction.
- * @param track Between the wheels, centre to centre, metres.
- * @param radius The wheel's radius, metres.
- * @param spokes How many spokes each wheel shows.
- */
-function wheels(
-  builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
-  track: number,
-  radius: number,
-  spokes: number,
-): void {
-  const v: typeof Vector3.create = Vector3.create;
-  builder.rod("axle", 0.03, v(-track / 2, radius, 0), v(track / 2, radius, 0), {
-    color: METAL,
-  });
-  for (const [side, sign] of [
-    ["left", 1],
-    ["right", -1],
-  ] as const) {
-    const centre: IAutoMovieVector3 = v((sign * track) / 2, radius, 0);
-    const parts: string[] = [`wheel-${side}`];
-    builder.rod(
-      `wheel-${side}`,
-      radius,
-      v(centre.x - 0.03, radius, 0),
-      v(centre.x + 0.03, radius, 0),
-      {
-        color: WOOD,
-        density: 0.2,
-      },
-    );
-    for (let k: number = 0; k < spokes / 2; k++) {
-      const angle: number = (2 * Math.PI * k) / spokes;
-      const along: IAutoMovieVector3 = v(
-        0,
-        Math.cos(angle) * radius,
-        Math.sin(angle) * radius,
-      );
-      builder.rod(
-        `spoke-${side}-${k}`,
-        0.012,
-        Vector3.subtract(v(centre.x + sign * 0.035, radius, 0), along),
-        Vector3.add(v(centre.x + sign * 0.035, radius, 0), along),
-        {
-          color: BODY,
-        },
-      );
-      parts.push(`spoke-${side}-${k}`);
-    }
-    builder.affordance({
-      id: `${side}Spin`,
-      kind: "knob",
-      frame: ArchetypeFrame.facing(centre, v(1, 0, 0), v(0, 1, 0)),
-      extent: null,
-      travel: 360,
-      parts,
-    });
-  }
-}

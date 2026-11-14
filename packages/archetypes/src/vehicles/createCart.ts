@@ -5,13 +5,14 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
+import { CartCoach } from "./CartCoach";
 import { CartDrawn } from "./CartDrawn";
 import { CartPushed } from "./CartPushed";
 
 /**
- * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot or an artillery limber.
+ * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
  *
- * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's and a limber's pole at its end. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch; each road wheel spins on a `knob` the ride turns by the distance covered.
+ * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -19,7 +20,7 @@ import { CartPushed } from "./CartPushed";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, then build the kind on them: a pushed kind by `CartPushed`, a drawn kind by `CartDrawn`.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, then build the kind on them: a pushed kind by `CartPushed`, a two-wheeled drawn kind by `CartDrawn`, a four-wheeled one by `CartCoach`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One dispatch per family; each family is its own module.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every unread place a builder uses is a named provisional constant here, stating the source to read.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most about twenty parts.
@@ -56,7 +57,9 @@ export function createCart(
   else if (kind === "cart") CartDrawn.cart(builder, d);
   else if (kind === "rickshaw") CartDrawn.rickshaw(builder, d);
   else if (kind === "chariot") CartDrawn.chariot(builder, d);
-  else CartDrawn.limber(builder, d);
+  else if (kind === "limber") CartDrawn.limber(builder, d);
+  else if (kind === "wagon") CartCoach.wagon(builder, d);
+  else CartCoach.carriage(builder, d);
   return builder.build(d.mass!);
 }
 
@@ -76,7 +79,9 @@ export namespace createCart {
     | "cart"
     | "rickshaw"
     | "chariot"
-    | "limber";
+    | "limber"
+    | "wagon"
+    | "carriage";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -86,6 +91,8 @@ export namespace createCart {
     "rickshaw",
     "chariot",
     "limber",
+    "wagon",
+    "carriage",
   ];
 
   /** Each kind's model name. */
@@ -96,6 +103,8 @@ export namespace createCart {
     rickshaw: "rickshaw",
     chariot: "chariot",
     limber: "limber",
+    wagon: "wagon",
+    carriage: "brougham",
   };
 
   /** A wheelbarrow handgrip's length, metres: the 130 mm of the Matador M-130-L4 data sheet. */
@@ -136,6 +145,50 @@ export namespace createCart {
     pintle: 28.5 * 0.0254,
   };
 
+  /** A wagon's places beyond its bands, from the Army's specification (https://archive.org/details/specificationsf02deptgoog/page/n13) where read. */
+  export const WAGON: Readonly<{
+    /** The tongue's front end above the ground at rest, metres: it is "to hang within 2 feet of the ground" (p. 1). */
+    drop: number;
+
+    /** The body's floor above the hind axle, metres, a provisional value: not read. It rests on the hind bolster, 3.5 in deep (p. 2), over the axle-tree, whose depth the specification gives elsewhere; the source to read is its axle-tree clause. */
+    bed: number;
+
+    /** The front axle's lock to either side, degrees, a provisional value: not read. The four-horse wagon's specification gives iron plates for the front wheels to strike in turning (pp. 9-16) but no angle; the source to read is a drawing of the running gear. */
+    lock: number;
+  }> = { drop: 24 * 0.0254, bed: 0.15, lock: 35 };
+
+  /** A carriage's places no museum record read gives, each a provisional value: the source to read is a carriage builder's draft of a brougham (The Hub, the Carriage Journal's drafts) or a museum record with these measurements. */
+  export const CARRIAGE: Readonly<{
+    /** The wheels' track short of the overall width, metres: the hubs' projection, taken from the width because no record gives the track. */
+    hubs: number;
+
+    /** The body's floor above the ground, metres. */
+    floor: number;
+
+    /** The inside seat above the floor, metres. */
+    seat: number;
+
+    /** The driver's box seat above the ground, metres. */
+    box: number;
+
+    /** A door's width and height, metres, and its widest opening, degrees. */
+    door: Readonly<{ width: number; height: number; swing: number }>;
+
+    /** The pole from the front axle to its end, metres. */
+    pole: number;
+
+    /** The front axle's lock to either side, degrees. */
+    lock: number;
+  }> = {
+    hubs: 0.25,
+    floor: 0.55,
+    seat: 0.4,
+    box: 1.6,
+    door: { width: 0.6, height: 1.2, swing: 90 },
+    pole: 2.8,
+    lock: 40,
+  };
+
   /**
    * The affordance ids; a kind lacks the ids of the parts it does not have:
    *
@@ -150,7 +203,12 @@ export namespace createCart {
    * - `rim`: the top of a chariot's front siding, held by its crew.
    * - `chest`: a limber chest's lid on its hinge at its rear edge; a positive travel lifts its front.
    * - `pintle`: a limber's hook at its rear, which takes a gun's trail.
-   * - `leftSpin`, `rightSpin`: a drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
+   * - `leftSpin`, `rightSpin`: a two-wheeled drawn kind's road wheels' roll about the axle, a positive travel rolling them forward.
+   * - `frontAxle`: a wagon's or carriage's front axle turning about its pivot over the axle, positive to the left; the pole, the front wheels and the `coupling` ride it.
+   * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
+   * - `bed`: a wagon body's floor, inside.
+   * - `box`: a carriage driver's seat on the box at its front, facing forward.
+   * - `leftDoor`, `rightDoor`: a carriage's doors' hinges at their front edges; a positive travel swings a door outward. `leftAperture`, `rightAperture`: the openings behind them, passed through into the carriage.
    */
   export type Affordance =
     | "handle"
@@ -167,12 +225,27 @@ export namespace createCart {
     | "chest"
     | "pintle"
     | "leftSpin"
-    | "rightSpin";
+    | "rightSpin"
+    | "frontAxle"
+    | "frontLeftSpin"
+    | "frontRightSpin"
+    | "rearLeftSpin"
+    | "rearRightSpin"
+    | "bed"
+    | "box"
+    | "leftDoor"
+    | "rightDoor"
+    | "leftAperture"
+    | "rightAperture";
 
   /**
    * The free dimensions, metres unless stated; a kind lacks those of the parts it does not have:
    *
-   * - `length`, `width`: a pushed kind's overall size along `+Z` and `+X`; a rickshaw's overall length, wheels and shafts included, and width; a limber's frame without wheels or pole.
+   * - `length`, `width`: a pushed kind's overall size along `+Z` and `+X`; a rickshaw's overall length, wheels and shafts included, and width; a limber's frame without wheels or pole; a wagon body's inside length at its floor and width; a carriage's overall length and width.
+   * - `height`: a carriage's overall height.
+   * - `bedDepth`: a wagon body's inside depth.
+   * - `frontWheelDiameter`: a four-wheeled kind's front wheels; `wheelDiameter` is then its hind wheels'.
+   * - `wheelbase`: a four-wheeled kind's front axle's pivot to its rear axle.
    * - `handleHeight`: a pushed kind's handle above the floor, a wheelbarrow's at rest.
    * - `handleSpacing`: between a wheelbarrow's two handles.
    * - `gripDiameter`: a pushed kind's handle where the hands hold it.
@@ -183,7 +256,7 @@ export namespace createCart {
    * - `gripHeight`: a rickshaw's shafts above the ground where the standing runner's hands hold them, the hanging wrist's height.
    * - `floorWidth`, `floorDepth`: a chariot floor's width across and depth along it.
    * - `railHeight`: a chariot's siding above its floor.
-   * - `poleLength`: a chariot's pole from the axle to the yoke; a limber's pole beyond its frame.
+   * - `poleLength`: a chariot's pole from the axle to the yoke; a limber's pole beyond its frame; a wagon's tongue.
    * - `withersHeight`, `girth`: the height at the withers and the heart girth of the horse a cart or a chariot is sized for, as `createHorse` draws them.
    * - `mass`: the empty carrier, kilograms.
    */
@@ -204,6 +277,10 @@ export namespace createCart {
     | "poleLength"
     | "withersHeight"
     | "girth"
+    | "height"
+    | "bedDepth"
+    | "frontWheelDiameter"
+    | "wheelbase"
     | "mass";
 
   /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */

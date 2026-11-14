@@ -37,6 +37,14 @@ const CHARIOT: string =
 const LIMBER: string =
   "The Ordnance Manual for the Use of the Officers of the United States Army (1861), p. 74, the field carriages' table (https://archive.org/details/cu31924031187887/page/74)";
 
+/** The US Army's six-mule wagon. */
+const WAGON: string =
+  "Specifications for Six-Mule United States Army Wagon (Covered), Quartermaster's Department, Specifications for Means of Transportation (1882), pp. 1-7 (https://archive.org/details/specificationsf02deptgoog/page/n13)";
+
+/** Broughams read at museum records. */
+const BROUGHAM: string =
+  "the Brewster brougham of 1893 (H 78.5 in, W 68 in, L 145.5 in, wheelbase 91.5 in, wheels 36.5 and 48.25 in) and the Miner, Stevens brougham of 1840-1860 (H 79 in, W 69 in, L 153 in, wheels 42 and 50 in, wheelbase 105 in) at The Henry Ford (https://www.thehenryford.org/collections/explore/artifact/33937, https://www.thehenryford.org/collections/explore/artifact/7881), and the Peters bow-fronted double brougham of 1880 at York Castle Museum (H 6 ft 2 in, L 11 ft 7 in, W 5 ft 5 in, wheels 3 ft and 3 ft 8 in) (https://thecarriagefoundation.org.uk/item/bow-fronted-double-brougham)";
+
 /** The ANSUR II wrist centres, as the human package derives them. */
 const WRIST: string =
   "the wrist centre's height above the floor, ANSUR II stylion height less 1.5 mm: women's mean 793 mm, men's 846 mm (packages/human/docs/anatomy/skeleton.md, after the ANSUR II working databases)";
@@ -172,5 +180,62 @@ export const CART_BANDS: Readonly<
       860 * 0.45359237,
       `${LIMBER}: the limber complete without implements, 860 lb`,
     ),
+  },
+  wagon: {
+    frontWheelDiameter: ArchetypeBand.metres(
+      inch(46),
+      inch(46),
+      `${WAGON}: front wheels 3 ft 10 in high`,
+    ),
+    wheelDiameter: ArchetypeBand.metres(
+      inch(58),
+      inch(58),
+      `${WAGON}: hind wheels 4 ft 10 in high`,
+    ),
+    track: ArchetypeBand.metres(
+      inch(60),
+      inch(60),
+      `${WAGON}: to track 5 ft from centre to centre of the wheels`,
+    ),
+    wheelbase: ArchetypeBand.metres(
+      inch(73),
+      inch(73),
+      `${WAGON}: the centre of the king-bolt hole to the centre of the back axle-tree, 6 ft 1 in, the king-bolt standing over the front axle`,
+    ),
+    poleLength: ArchetypeBand.metres(
+      inch(128),
+      inch(128),
+      `${WAGON}: the tongue, 10 ft 8 in long`,
+    ),
+    length: ArchetypeBand.metres(
+      inch(120),
+      inch(120),
+      `${WAGON}: the body 10 ft long at the bottom, inside`,
+    ),
+    width: ArchetypeBand.metres(
+      inch(42),
+      inch(42),
+      `${WAGON}: the body 3 ft 6 in wide, inside`,
+    ),
+    bedDepth: ArchetypeBand.metres(
+      inch(24),
+      inch(24),
+      `${WAGON}: the body 2 ft deep, inside`,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      1950 * 0.45359237,
+      1950 * 0.45359237,
+      `${WAGON}: weight of wagon about 1,950 pounds`,
+    ),
+  },
+  carriage: {
+    frontWheelDiameter: ArchetypeBand.metres(inch(36), inch(42), BROUGHAM),
+    wheelDiameter: ArchetypeBand.metres(inch(44), inch(50), BROUGHAM),
+    wheelbase: ArchetypeBand.metres(inch(91.5), inch(105), BROUGHAM),
+    length: ArchetypeBand.metres(inch(139), inch(153), BROUGHAM),
+    width: ArchetypeBand.metres(inch(65), inch(69), BROUGHAM),
+    height: ArchetypeBand.metres(inch(74), inch(79), BROUGHAM),
+    mass: ArchetypeBand.of("kg", 400, 600, ArchetypeBand.TYPICAL_MASS, true),
   },
 };
