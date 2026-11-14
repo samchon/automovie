@@ -29,10 +29,14 @@ const SCREWDRIVER: string =
 const SPOON: string =
   "IKEA DRAGON dessert spoon 16 cm and spoon 17 cm (https://www.ikea.com/fi/en/p/dragon-dessert-spoon-stainless-steel-50090381, https://www.ikea.com/ie/en/p/dragon-spoon-stainless-steel-30091763/); the teaspoon's 13 cm seen only in search results";
 
+/** A table fork, from a maker's listing recalled and not read. */
+const FORK: string =
+  "IKEA DRAGON fork, about 19 cm, recalled and not read";
+
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver or a spoon.
+ * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon or a fork.
  *
- * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip and a spoon's bowl. The hand takes the `grip` from the `-Z` side with the thumb toward the working end.
+ * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl and a fork's tines. The hand takes the `grip` from the `-Z` side with the thumb toward the working end.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -83,13 +87,15 @@ export function createTool(
         ? length - d.blade!
         : kind === "screwdriver"
           ? length - d.blade!
-          : length - 2 * createTool.BOWL;
+          : kind === "spoon"
+            ? length - 2 * createTool.BOWL
+            : length - createTool.TINES.length;
   builder.rod(
     "handle",
     radius,
     Vector3.create(0, 0, 0),
     Vector3.create(0, handle, 0),
-    { color: kind === "spoon" ? "#b9bcc0" : "#8a5a35" },
+    { color: kind === "spoon" || kind === "fork" ? "#b9bcc0" : "#8a5a35" },
   );
   const held: number = Math.min(handle, createTool.GRIP);
   builder.affordance({
@@ -101,7 +107,7 @@ export function createTool(
       Vector3.create(0, 1, 0),
     ),
     extent: null,
-    grip: kind === "spoon" ? "precision" : "power",
+    grip: kind === "spoon" || kind === "fork" ? "precision" : "power",
     aperture: 2 * radius,
     length: held,
   });
@@ -155,6 +161,25 @@ export function createTool(
       frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
       extent: null,
     });
+  } else if (kind === "fork") {
+    // The tines are one flat plate on the handle's end, ending the fork's drawn length.
+    const tines: Readonly<{ width: number; length: number }> = createTool.TINES;
+    builder.box(
+      "tines",
+      Vector3.create(tines.width, tines.length, 0.002),
+      Vector3.create(0, handle + tines.length / 2, 0),
+      { color: "#b9bcc0" },
+    );
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, length, 0),
+        Vector3.create(0, 1, 0),
+        Vector3.create(1, 0, 0),
+      ),
+      extent: null,
+    });
   } else {
     // The bowl is a disc on the handle's end whose far rim is the spoon's drawn length.
     const centre: number = length - createTool.BOWL;
@@ -189,7 +214,7 @@ export function createTool(
  */
 export namespace createTool {
   /** The kinds of tool. */
-  export type Kind = "hammer" | "saw" | "screwdriver" | "spoon";
+  export type Kind = "hammer" | "saw" | "screwdriver" | "spoon" | "fork";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -197,7 +222,14 @@ export namespace createTool {
     "saw",
     "screwdriver",
     "spoon",
+    "fork",
   ];
+
+  /** A fork's tines as one plate, across and along, metres: an estimate, not read at a source. */
+  export const TINES: Readonly<{ width: number; length: number }> = {
+    width: 0.025,
+    length: 0.045,
+  };
 
   /** The length of handle a hand holds, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
   export const GRIP: number = 0.12;
@@ -209,7 +241,7 @@ export namespace createTool {
    * The affordance ids:
    *
    * - `grip`: the handle, held at its butt end on a hammer and next to the working part on the others.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines.
    */
   export type Affordance = "grip" | "face";
 
@@ -217,7 +249,7 @@ export namespace createTool {
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `gripDiameter`: the handle's diameter; a spoon handle's width.
+   * - `gripDiameter`: the handle's diameter; a spoon's or a fork's handle's width.
    * - `blade`: the length of a saw's blade or a screwdriver's shank.
    * - `mass`: kilograms.
    */
@@ -274,6 +306,16 @@ export namespace createTool {
         ArchetypeBand.TYPICAL_MASS,
         true,
       ),
+    },
+    fork: {
+      length: ArchetypeBand.metres(0.18, 0.2, FORK, true),
+      gripDiameter: ArchetypeBand.metres(
+        0.006,
+        0.013,
+        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a fork handle",
+        true,
+      ),
+      mass: ArchetypeBand.of("kg", 0.03, 0.06, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }

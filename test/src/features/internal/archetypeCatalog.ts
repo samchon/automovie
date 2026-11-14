@@ -11,6 +11,7 @@ import {
   createCar,
   createCareItem,
   createCart,
+  createCleaning,
   createClub,
   createDevice,
   createDiscus,
@@ -29,6 +30,7 @@ import {
   createHurdle,
   createJavelin,
   createJumpRope,
+  createKeyboard,
   createKettlebell,
   createLadder,
   createLandingMat,
@@ -40,6 +42,7 @@ import {
   createPell,
   createPlyoBox,
   createPolearm,
+  createPram,
   createPullUpBar,
   createRack,
   createRacket,
@@ -47,6 +50,7 @@ import {
   createRelayBaton,
   createRing,
   createRowingMachine,
+  createScabbard,
   createSeat,
   createShield,
   createShot,
@@ -58,11 +62,17 @@ import {
   createStorage,
   createSwitch,
   createSword,
+  createTorch,
+  createTray,
+  createVessel,
   createTable,
   createTool,
   createVaultingPole,
   createVaultingTable,
   createWall,
+  createWeaponLoop,
+  createWeaponRack,
+  createWearable,
   createWindow,
 } from "@automovie/archetypes";
 
@@ -286,7 +296,25 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createPolearm({ kind }, seed),
     );
   add("pell", (seed?: number | string): Archetype => createPell({}, seed));
+  for (const kind of createScabbard.KINDS)
+    add(`scabbard-${kind}`, (seed?: number | string): Archetype => createScabbard({ kind }, seed));
+  for (const kind of createWeaponLoop.KINDS)
+    add(`weaponLoop-${kind}`, (seed?: number | string): Archetype => createWeaponLoop({ kind }, seed));
+  add("weaponRack", (seed?: number | string): Archetype => createWeaponRack({}, seed));
 
+  // Everyday: vessels, wearables, keyboards, cleaning, carriers, a torch and a pram.
+  for (const kind of createVessel.KINDS)
+    add(`vessel-${kind}`, (seed?: number | string): Archetype => createVessel({ kind }, seed));
+  for (const kind of createWearable.KINDS)
+    add(`wearable-${kind}`, (seed?: number | string): Archetype => createWearable({ kind }, seed));
+  for (const kind of createKeyboard.KINDS)
+    add(`keyboard-${kind}`, (seed?: number | string): Archetype => createKeyboard({ kind }, seed));
+  for (const kind of createCleaning.KINDS)
+    add(`cleaning-${kind}`, (seed?: number | string): Archetype => createCleaning({ kind }, seed));
+  for (const kind of createTray.KINDS)
+    add(`tray-${kind}`, (seed?: number | string): Archetype => createTray({ kind }, seed));
+  add("torch", (seed?: number | string): Archetype => createTorch({}, seed));
+  add("pram", (seed?: number | string): Archetype => createPram({}, seed));
   // Sport: the jump apparatus.
   add(
     "vaultingPole",

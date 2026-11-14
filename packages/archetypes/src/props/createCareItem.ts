@@ -29,18 +29,28 @@ const BRUSH: string =
 const TUBE: string =
   "Alltub laminate tubes data sheet, diameters 19 to 50 mm and lengths 75 to 190 mm (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
 
+/** Cartridge razors, from makers' listings recalled and not read. */
+const RAZOR: string =
+  "Gillette Mach3 and Fusion cartridge razors, handles of about 13 to 15 cm, recalled and not read";
+
+/** Lipsticks, from makers' listings recalled and not read. */
+const LIPSTICK: string =
+  "bullet lipsticks of about 7 to 8.5 cm closed and 1.7 to 2.2 cm across, recalled and not read";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createCareItem.Kind, string>> = {
   tissue: "tissue",
   comb: "comb",
   toothbrush: "toothbrush",
   tube: "cream tube",
+  razor: "razor",
+  lipstick: "lipstick",
 };
 
 /**
- * A personal care item: a tissue, a comb, a toothbrush or a cream tube.
+ * A personal care item: a tissue, a comb, a toothbrush, a cream tube, a razor or a lipstick.
  *
- * Each lies at the origin with its long side along `+Z`, its working end at `+Z`: a comb's teeth point down along its length, a toothbrush's bristles face up at its far end, a tube's cap is at its far end. A tissue lies flat.
+ * Each lies at the origin with its long side along `+Z`, its working end at `+Z`: a comb's teeth point down along its length, a toothbrush's bristles and a razor's blades face up at its far end, a tube's cap is at its far end and a lipstick's bullet points out of its far end. A tissue lies flat.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -153,20 +163,22 @@ export function createCareItem(
     return builder.build(d.mass!);
   }
 
-  if (kind === "toothbrush") {
-    const head: number = 0.028;
+  if (kind === "toothbrush" || kind === "razor") {
+    // A handle with a head at its far end, its working face up: bristles, or a razor's cartridge of blades.
+    const head: number = kind === "razor" ? createCareItem.CARTRIDGE.depth : 0.028;
+    const across: number = kind === "razor" ? createCareItem.CARTRIDGE.width : width;
     builder.rod(
       "handle",
       width / 2,
       Vector3.create(0, width / 2, 0),
       Vector3.create(0, width / 2, length - head),
-      { color: "#3f8fc4" },
+      { color: kind === "razor" ? "#2c2f33" : "#3f8fc4" },
     );
     builder.box(
       "head",
-      Vector3.create(width, width * 1.6, head),
+      Vector3.create(across, width * 1.6, head),
       Vector3.create(0, width * 0.8, length - head / 2),
-      { color: "#eef2f5" },
+      { color: kind === "razor" ? "#b9bcc0" : "#eef2f5" },
     );
     builder.affordance({
       id: "grip",
@@ -188,8 +200,50 @@ export function createCareItem(
         Vector3.create(0, width * 1.6, length - head / 2),
       ),
       extent: null,
-      width,
+      width: across,
       depth: head,
+    });
+    return builder.build(d.mass!);
+  }
+
+  if (kind === "lipstick") {
+    // A case held in the fingers, its bullet out of its far end.
+    builder.rod(
+      "case",
+      width / 2,
+      Vector3.create(0, width / 2, 0),
+      Vector3.create(0, width / 2, length - createCareItem.BULLET),
+      { color: "#1d1f22" },
+    );
+    builder.rod(
+      "bullet",
+      width * 0.3,
+      Vector3.create(0, width / 2, length - createCareItem.BULLET),
+      Vector3.create(0, width / 2, length),
+      { color: "#b22234" },
+    );
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, width / 2, (length - createCareItem.BULLET) / 2),
+        Vector3.create(0, 1, 0),
+        Vector3.create(0, 0, 1),
+      ),
+      extent: null,
+      grip: "precision",
+      aperture: width,
+      length: length - createCareItem.BULLET,
+    });
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, width / 2, length),
+        Vector3.create(0, 0, 1),
+        Vector3.create(1, 0, 0),
+      ),
+      extent: null,
     });
     return builder.build(d.mass!);
   }
@@ -258,7 +312,13 @@ export function createCareItem(
  */
 export namespace createCareItem {
   /** The kinds. */
-  export type Kind = "tissue" | "comb" | "toothbrush" | "tube";
+  export type Kind =
+    | "tissue"
+    | "comb"
+    | "toothbrush"
+    | "tube"
+    | "razor"
+    | "lipstick";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -266,13 +326,24 @@ export namespace createCareItem {
     "comb",
     "toothbrush",
     "tube",
+    "razor",
+    "lipstick",
   ];
+
+  /** A razor's cartridge across and from front to back, metres: an estimate. */
+  export const CARTRIDGE: Readonly<{ width: number; depth: number }> = {
+    width: 0.04,
+    depth: 0.015,
+  };
+
+  /** A lipstick's bullet out of its case, metres: an estimate. */
+  export const BULLET: number = 0.015;
 
   /**
    * The affordance ids:
    *
-   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held sideways, a toothbrush's handle, a tube's body.
-   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth facing down, a toothbrush's bristles facing up, a tube's mouth facing along it.
+   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held sideways, a toothbrush's or a razor's handle, a tube's body, a lipstick's case.
+   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth facing down, a toothbrush's bristles and a razor's blades facing up, a tube's mouth facing along it, a lipstick's bullet's tip.
    * - `cap`: a tube's cap, a knob turned two turns to open (the turn is an estimate).
    */
   export type Affordance = "grip" | "face" | "cap";
@@ -281,7 +352,7 @@ export namespace createCareItem {
    * The free dimensions, metres unless stated:
    *
    * - `length`: along `+Z`.
-   * - `width`: a tissue's or a comb's width, a toothbrush handle's or a tube's diameter.
+   * - `width`: a tissue's or a comb's width, a toothbrush's or a razor's handle's, a tube's or a lipstick's diameter.
    * - `thickness`: a tissue's or a comb's thickness.
    * - `mass`: kilograms.
    */
@@ -331,6 +402,16 @@ export namespace createCareItem {
       length: ArchetypeBand.metres(0.075, 0.19, TUBE),
       width: ArchetypeBand.metres(0.019, 0.05, TUBE),
       mass: kg(0.02, 0.3),
+    },
+    razor: {
+      length: ArchetypeBand.metres(0.13, 0.15, RAZOR, true),
+      width: ArchetypeBand.metres(0.012, 0.016, RAZOR, true),
+      mass: kg(0.02, 0.06),
+    },
+    lipstick: {
+      length: ArchetypeBand.metres(0.07, 0.085, LIPSTICK, true),
+      width: ArchetypeBand.metres(0.017, 0.022, LIPSTICK, true),
+      mass: kg(0.01, 0.03),
     },
   };
 }
