@@ -6,11 +6,11 @@ Write it after [discovery](../planning/discovery.md), studying what [when to stu
 
 ## What it holds
 
-Hold only what the [needed-decisions statements](../../contracts/story/shared/statements/principles/brief.md#needed-decisions) list: the decisions about the people, places and recurring props that several scenes must keep true. Everything else, such as a person or object only one scene shows, the camera and the sound, is decided in the screenplay, which code then cites, because a brief decision binds every scene that cites it.
+Hold only what the [needed-decisions statements](../../contracts/story/shared/statements/principles/brief.md#needed-decisions) list: the decisions about the people, places and recurring props that several scenes must keep true. Everything else, such as a person or object only one scene shows, the camera and the sound, is decided in the screenplay, which code then cites, because a brief decision binds every scene that cites it. A commissioned generated film adds its look, the lighting style, lens character and grade, because every generation request repeats it.
 
 ## Records
 
-Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md`, in the settings domain of its kind: `cast` for people, `sets` for places and `props` for recurring props. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, so never reuse or renumber one.
+Give each subject one file in its domain, `docs/body/brief/<domain>/<subject>.md`, in the settings domain of its kind: `cast` for people, `sets` for places, `props` for recurring props and `cinematography` for the look. Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; the screenplay cites a decision by its path and anchor, so never reuse or renumber one.
 
 Keep measurements out, under the [settings rule](settings.md#records). User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 

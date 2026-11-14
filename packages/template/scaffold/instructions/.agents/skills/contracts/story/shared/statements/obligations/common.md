@@ -23,7 +23,7 @@ Layer boundaries:
 
 7. Settings establishes world facts, appearance and baseline constraints, and treatments decide events, event time and place and reveal order.
 8. Scripts decide partition, scene execution, staged audiovisual state and meaningful view, and the final screenplay decides finished emphasis, image-sound relations, transitions and temporal experience.
-9. A short gives its brief the decisions about people, places and recurring props that several scenes keep, as the [brief holds](../../../../../story/layers/brief.md#what-it-holds) them, and everything else to its screenplay, never to invented skipped stages.
+9. A short gives its brief the decisions about people, places and recurring props that several scenes keep, and a generated film's look, as the [brief holds](../../../../../story/layers/brief.md#what-it-holds) them, and everything else to its screenplay, never to invented skipped stages.
 10. Language, audience, variants, registers, code-switching, access rules and expressive form have one identifiable instruction or work-contract owner, while character voice remains a world property.
 11. Declared nonstandard forms and their audience context are preserved.
 12. Downstream inventions, duplicated authority and planning language that replaces a layer's output are reported, and the earliest owner and its consumers repaired.
