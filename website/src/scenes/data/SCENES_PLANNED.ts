@@ -361,7 +361,7 @@ export const SCENES_PLANNED: readonly IScene[] = [
       id: "grappling",
       title: "Grappling",
       summary:
-        "A judo throw by force exchange, a takedown, arm wrestling and a tug of war.",
+        "A judo throw carried through by force exchange, a takedown and a tug of war.",
       setting: "partner",
       needs: [3439, 3440, 3451],
     },

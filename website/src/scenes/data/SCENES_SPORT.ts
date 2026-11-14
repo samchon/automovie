@@ -132,7 +132,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "warm-up",
     title: "Park warm-up",
     summary:
-      "Four people warm up side by side: one jogs off, one squats and lunges, one does jumping jacks, one stretches.",
+      "Four people warm up: one jogs off; one squats and lunges; one does jumping jacks and a jump; one stretches the quadriceps and the side and runs high knees.",
     setting: "sport",
     cast: [
       { subject: "jo", role: "jogger" },
@@ -167,7 +167,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "court-drills",
     title: "Court drills",
     summary:
-      "Four players drill side by side: a dribble and a throw-in, a set and a dig, a batting stance, a racket's ready position and split step.",
+      "Four players drill side by side: a dribble and a throw-in, a set and a dig, a batting stance and a fielder's crouch, a racket's ready position and split step and an athlete's set.",
     setting: "sport",
     cast: [
       { subject: "quin", role: "basketball" },
@@ -184,7 +184,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "gymnastics-floor",
     title: "Gymnastics floor",
     summary:
-      "One gymnast tumbles, kneels and stands; another crawls and lies down.",
+      "One gymnast holds a gymnastics pose, kneels on both knees and rises; another crawls and lies on the back.",
     setting: "sport",
     cast: [
       { subject: "uma", role: "gymnast" },

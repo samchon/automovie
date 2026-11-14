@@ -11,7 +11,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "talking-hands",
       title: "Talking hands",
       summary:
-        "Three friends across a noisy room: palms together, fingers crossed, a thumbs down, four and five counted, a fist shaken, ears covered and a blown kiss.",
+        "Three friends across a noisy room: palms together, fingers crossed, a thumbs down, four and five counted, a fist shaken, ears covered and a blown kiss sent off the palm.",
       setting: "everyday",
       roles: { amy: "friend", bob: "friend", cat: "friend" },
       needs: [],
@@ -22,6 +22,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
         act("palmsTogether"),
         act("crossedFingers"),
         act("blownKiss"),
+        act("blownKissSend"),
       ]),
       person("bob", "m1", 1.2, 0.4, 270, [
         act("thumbsDown"),
@@ -67,7 +68,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
         act("pickUp", {
           prop: "camera",
           handle: "grip",
-          use: { tip: "screen", line: "across" },
+          use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
         }),
         act("photograph", { prop: "camera" }),
       ]),
@@ -78,7 +79,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("camera", "createDevice", "camera", -0.18, 0.42, 0, 0.91),
+      object("camera", "createDevice", "camera", -0.18, 0.42, 0, 0.914),
     ],
   ),
   scene(
@@ -103,7 +104,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "schoolyard-games",
       title: "Schoolyard games",
       summary:
-        "Two pairs at break: one plays rock, paper, scissors on a shared count, the other clasps hands for a thumb war.",
+        "Two pairs at break, one game after the other: first one pair plays rock, paper, scissors on a shared count, then the other clasps hands for a thumb war.",
       setting: "everyday",
       roles: { kas: "player", lin: "player", mia: "player", ned: "player" },
       needs: [],
@@ -225,7 +226,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       mutual(
         "armWrestle",
         { one: "tad", other: "uri" },
-        { table: { x: 0, y: 0.75, z: 0 }, winner: "other", pin: 30 },
+        { table: { x: 0, y: 0.736, z: 0 }, winner: "other", pin: 30 },
       ),
     ],
   ),

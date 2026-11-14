@@ -15,7 +15,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       id: "walk-and-talk",
       title: "Walk and talk",
       summary:
-        "Two people cross a square: one walks with a phone at the ear, the other strolls and waves to a friend on the way.",
+        "Two people cross a square in opposite directions: one walks with a phone at the ear, the other walks slowly and waves on the way.",
       setting: "street",
       roles: { kim: "caller", lou: "stroller" },
       needs: [],
@@ -80,7 +80,11 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       ]),
       person("pip", "m1", 0, 0.3, 0, [
         act("stand", { seconds: 0.4 }),
-        act("startle", {}, { sync: { of: "snap" } }),
+        act(
+          "startle",
+          { from: at("ola", "handBackRight") },
+          { sync: { of: "snap", event: "strokeEnd" } },
+        ),
       ]),
     ],
   ),
@@ -89,7 +93,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       id: "night-out",
       title: "Night out",
       summary:
-        "Leaving a bar: one reveller staggers drunk, a friend follows with a stiff limp, and a third steps up face to face with a stranger.",
+        "Leaving a bar: one reveller staggers drunk, a friend follows with a stiff limp, and a third steps up face to face with a stranger, who stands with hands on hips and sways to the music.",
       setting: "street",
       roles: {
         rae: "reveller",
@@ -113,6 +117,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       person("uma", "f2", 1, 1.6, 0, [
         act("stand", { seconds: 1 }),
         act("handsOnHips"),
+        act("sway"),
       ]),
     ],
   ),

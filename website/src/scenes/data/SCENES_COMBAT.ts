@@ -150,7 +150,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "sparring",
     title: "Sparring",
     summary:
-      "Two kickboxers trade straights, a hook and a round kick; one parries and slips, flinches and answers.",
+      "Two kickboxers: one steps in with a jab, a cross and a round kick, a lead hook, a clinch and a knee, and steps back; the other parries the jab, slips the cross, flinches, answers with a straight and steps aside.",
     setting: "combat",
     cast: [
       { subject: "red", role: "kickboxer" },

@@ -36,8 +36,11 @@ export const SCENES_STREET: readonly IScene[] = [
       person("f", "f1", 3, 3, 270, [act("proud", { to: to(-3, 3) })]),
       person("g", "m2", -3, 4, 90, [act("sad", { to: to(1, 4) })]),
       person("h", "f2", 2, -3, 300, [
-        act("readingWalk", { to: to(-2, -3.5) }),
-        act("checkPhone", { seconds: 1.5 }),
+        act(
+          "readingWalk",
+          { to: to(-2, -3.5) },
+          { over: [act("checkPhone", { seconds: 1.5 })] },
+        ),
       ]),
     ],
   ),
@@ -106,7 +109,7 @@ export const SCENES_STREET: readonly IScene[] = [
       id: "parade",
       title: "Parade",
       summary:
-        "Six soldiers march, double time, halt at parade rest and salute; each keeps their own step until formations and cadence land.",
+        "Six soldiers in two ranks march, move to double time, stand at parade rest and salute, each in their own step.",
       setting: "troops",
       roles: {
         s1: "soldier",
