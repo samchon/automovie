@@ -56,6 +56,43 @@ export namespace FamilyConicStar {
     return out;
   }
 
+  /** A region's section on its course: the star-shaped piece about the course point, and the chord that closes it across the box. */
+  export interface IRegionSection {
+    /** Station along the course, mm. */
+    s: number;
+
+    /** The piece's skin points, counter-clockwise about the course point, chart mm. */
+    points: C.P[];
+
+    /** The closing chord, from the skin's last point back to its first, as phases about the course point, radians. */
+    closure: [number, number];
+  }
+
+  /**
+   * A region's sections for the convert tool: at every station of the trial course, the piece of the reference's cut inside the box that is
+   * star-shaped about the course point, closed by its chord across the box (an invented closure, so the conversion breaks there and does not
+   * read it as skin). A station with no such piece is left out.
+   */
+  export function regionSections(source: R.ISource, trial: ITrial, from: number, to: number): IRegionSection[] {
+    const axis = AutoMovieHumanConicLoft.axis({ centres: trial.centres, halves: [], up: trial.up });
+    const [x0, x1, y0, y1, z0, z1] = trial.box;
+    const out: IRegionSection[] = [];
+    for (let s: number = from; s <= to + 1e-9; s += trial.step) {
+      const frame = axis.at(s);
+      const loop: C.P[] | null = R.cut(source.all, frame).loop;
+      if (loop === null) continue;
+      const inside = (p: C.P): boolean => {
+        const w: number[] = [0, 1, 2].map((c: number): number => frame.origin[c]! + p[0] * frame.u[c]! + p[1] * frame.v[c]!);
+        return w[0]! >= x0 && w[0]! <= x1 && w[1]! >= y0 && w[1]! <= y1 && w[2]! >= z0 && w[2]! <= z1;
+      };
+      const piece: C.P[] | undefined = pieces(loop, inside).find((candidate: C.P[]): boolean => X.star(candidate, RAYS, "inner")?.folds === 0);
+      if (piece === undefined) continue;
+      const phase = (p: C.P): number => Math.atan2(p[1], p[0]);
+      out.push({ s, points: piece, closure: [phase(piece.at(-1)!), phase(piece[0]!)] });
+    }
+    return out;
+  }
+
   /** Read every trial and write the report. */
   export async function main(): Promise<void> {
     const file: string | undefined = process.argv[2];
