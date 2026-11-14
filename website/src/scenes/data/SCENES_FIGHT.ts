@@ -13,7 +13,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
         "Two fencers in the German school: guards in ox, plough and from the roof, an advance, a lunge parried, a bind and wind, a feint and a riposte.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
-      needs: [3392],
+      needs: [],
       view: "side",
       skill: "novice",
       featured: 7,
@@ -49,7 +49,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
         "A stage fight in a bar: a shove and the stumble back, a slap, a grab and a headlock, a duck and a dodge, a club swung and a dive for cover.",
       setting: "combat",
       roles: { joe: "brawler", mac: "brawler", ned: "bystander" },
-      needs: [3392, 3430],
+      needs: [3430],
     },
     "bar-fight",
     [
@@ -83,7 +83,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
         "Two gunmen face each other: a hand to the holster, the draw, presenting at the ready, taking aim, a shot and its recoil; one surrenders.",
       setting: "combat",
       roles: { gun: "gunman", ace: "gunman" },
-      needs: [3392, 3479, 3488, 3480],
+      needs: [3479, 3488, 3480],
       view: "side",
     },
     "standoff",
@@ -109,7 +109,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
         "Three shooters at a range: low and high ready, aim, recoil, and a reload.",
       setting: "combat",
       roles: { f1: "shooter", f2: "shooter", f3: "shooter" },
-      needs: [3392, 3488],
+      needs: [3488],
       skill: "novice",
     },
     "range",
@@ -117,9 +117,17 @@ export const SCENES_FIGHT: readonly IScene[] = [
       (x: number, i: number): SceneBuild.Performer =>
         person(`f${i + 1}`, ["m1", "f1", "m2"][i]!, x, 0, 0, [
           act("lowReady"),
-          act("aim"),
+          act("aim", {
+            target: {
+              kind: "point",
+              at: { x, y: 1.4, z: 10 },
+              frame: "world",
+            },
+          }),
           act("recoil"),
-          act("reload"),
+          act("reloadFirearm", {
+            target: { kind: "self", region: "palmRight" },
+          }),
           act("highReady", { seconds: 1 }),
         ]),
     ),
