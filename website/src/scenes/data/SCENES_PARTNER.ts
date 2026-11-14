@@ -46,7 +46,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("approach", {
           target: at("lea", "upperArmRight"),
           side: "right",
-          at: 0.15,
+          at: 0.2,
         }),
         act("danceHold", { target: at("lea", "shoulderRight") }),
       ]),
@@ -219,7 +219,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "workshop",
       title: "Workshop",
       summary:
-        "Four workers: at the bench one hammers and saws, another drives a screw and hammers a nail; a porter carries a mimed box across in both hands and pushes a mimed cart back, and another carries a load in both hands, then on the hip, and tosses something to the porter.",
+        "Four workers, their tools and loads mimed: at the bench one hammers and saws, another drives a screw and hammers a nail; a porter carries a mimed box across in both hands and pushes a mimed cart back, and another carries a load in both hands, then on the hip, and tosses something to the porter.",
       setting: "work",
       roles: { w1: "carpenter", w2: "carpenter", w3: "porter", w4: "porter" },
       needs: [],

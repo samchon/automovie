@@ -24,7 +24,7 @@ export const SCENES_LABOUR: readonly IScene[] = [
       id: "kitchen-and-yard",
       title: "Kitchen and yard",
       summary:
-        "Closing time at an inn: a cook stirs at the stove counter, a server scrubs the bar, a porter carries a bag in one hand and then hauls a heavy load in both, and a stable hand hurls a throw overarm to him.",
+        "Closing time at an inn, every load and tool mimed: a cook stirs at the stove counter, a server scrubs the bar, a porter carries a bag in one hand and then hauls a heavy load in both, and a stable hand hurls a throw overarm to him.",
       setting: "work",
       roles: { kat: "cook", lev: "server", mak: "porter", nel: "stable hand" },
       needs: [],
