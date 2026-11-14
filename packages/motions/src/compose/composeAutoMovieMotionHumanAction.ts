@@ -20,11 +20,13 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
  * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
  * primitives before it, so a movement planned once over its span (an arm's
  * trajectory) reads the very postures it will be written on, and its plan
- * is a constant of the action.
+ * is a constant of the action. That plan is made here, when the action is
+ * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
+ * no posture read plans and a plan that cannot be made refuses the action.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows.
+ * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows; and whatever a primitive's plan refuses with (a planned arm's `HumanRefusal`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the base and the clock give, the writing order, where contacts and weapons come from, which channels the plan reports and every refusal.
  * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the base's with each active primitive's channels merged in, in the order of the kinematic tree, so a part reads the parts it hangs from as already placed; the posture so far before a primitive is the same composition stopped at it, at any second, so it is a pure function of time.
@@ -108,6 +110,9 @@ export function composeAutoMovieMotionHumanAction(
     ),
   ];
   const base: IHumanActionPlan = props.base;
+  // What is planned once over a span is planned now, in the order the
+  // primitives write, each on the posture so far before it.
+  primitives.forEach((p: IAutoMovieMotionHumanPrimitive, i: number): void => p.prepare?.(so(i)));
   return {
     duration,
     events: props.clock.events(),

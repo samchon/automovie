@@ -167,7 +167,7 @@ export namespace gesture {
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the moving arms planned to, on and from them as one trajectory clear of the body; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two bone resolves for the start and rest hands and, for a bow, one balance solve; the arms' trajectory is planned once, at the first posture written inside the gesture; each posture costs one base posture (the stand's or the carrier's), one stroke goal per moving hand (each may aim at the target) and one cubic read of the planned arms, or one hand solve at either end.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two bone resolves for the start and rest hands and, for a bow, one balance solve; the arms' trajectory is planned once, when the gesture is planned; each posture costs one base posture (the stand's or the carrier's), one stroke goal per moving hand (each may aim at the target) and one cubic read of the planned arms, or one hand solve at either end.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, start and rest hands and the bow's shift are computed once per instance and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, parameters, phase times and start and rest hands, released with the performance; nothing grows per call.
    */
@@ -411,7 +411,10 @@ export namespace gesture {
         Object.assign(joints, hand.fingers);
       }      return { posture: { ...posture, joints }, requests, envelope };
     };
-    let arms: Map<HumanHand.Side, HumanArmTrajectory.Trajectory> | undefined;
+    // The arms planned over the whole gesture as one trajectory, when the
+    // gesture is planned, so no posture read plans them.
+    const arms: Map<HumanHand.Side, HumanArmTrajectory.Trajectory> | undefined =
+      sides.length === 0 ? undefined : gestureHands.planned(body, { start: 0, ready: prepare, relax: retractAt, end: duration }, sides, begin, rest, prior);
 
     return {
       duration,
@@ -435,11 +438,7 @@ export namespace gesture {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const { posture, requests, envelope }: gestureHands.IPrior = prior(t);
-        // The arms planned over the whole gesture as one trajectory, once.
-        if (sides.length > 0 && t > 0 && t < duration) {
-          arms ??= gestureHands.planned(body, { start: 0, ready: prepare, relax: retractAt, end: duration }, sides, begin, rest, prior);
-          return gestureHands.written(posture, arms, t);
-        }
+        if (arms !== undefined && t > 0 && t < duration) return gestureHands.written(posture, arms, t);
         return AutoMovieMotionHumanArm.carry(
           body,
           handGoals(body, posture, requests),

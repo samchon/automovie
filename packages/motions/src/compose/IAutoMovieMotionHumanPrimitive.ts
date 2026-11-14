@@ -56,4 +56,23 @@ export interface IAutoMovieMotionHumanPrimitive {
     seconds: number,
     before?: (seconds: number) => IHumanPosture,
   ): IHumanPosture;
+
+  /**
+   * Plan what is planned once over the primitive's span, when its action is
+   * planned: the composer calls it once, in the order it writes, before any
+   * posture is read, so no pose read plans and a plan that cannot be made
+   * refuses the action, not a frame of it. None for a primitive that plans
+   * nothing.
+   *
+   * @param before The posture so far at any second of the action, as `write` is given it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when it is called, by whom, why and what it is given.
+   * @evidence contracts/development/implementation.md#principled-implementation A movement's plan is a constant of its action, made when the action is planned.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member called once per primitive by `composeAutoMovieMotionHumanAction`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Called before any posture, so an implementation never plans on a read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+   */
+  prepare?(before: (seconds: number) => IHumanPosture): void;
 }

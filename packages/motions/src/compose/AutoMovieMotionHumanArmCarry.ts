@@ -389,12 +389,12 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
-   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its constraints, at the first second written.
+   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its constraints: when its action is composed (`prepare`), or at the first second written where nothing composes it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two ways an arm is carried, what each reads, the channel claimed and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, then one hand solve with an attitude.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, by its first member written, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice; the hand's fingers are not claimed, so a row that shapes them composes with this one.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group and action; per written second one cubic read of it, or `carry`'s posture solve, none at weight 0 or 1; between the ends an attitude adds the hand's forward kinematics on the arm, the held end and the goal, and `HumanHandAttitude.held`.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanArmPlanned.planned`, `carry` and `HumanHandAttitude.held`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props and its group, which keeps the group's one solution.
@@ -420,6 +420,15 @@ export namespace AutoMovieMotionHumanArmCarry {
       channels: [limb],
       from: props.from,
       to: props.to,
+      // The group is planned when the action is, on the posture so far
+      // before its first member, which leaves every member's arm out.
+      ...(props.span === undefined
+        ? {}
+        : {
+            prepare: (before: (seconds: number) => IHumanPosture): void => {
+              planned(before);
+            },
+          }),
       write: (posture: IHumanPosture, seconds: number, before?: (seconds: number) => IHumanPosture): IHumanPosture => {
         const weight: number = props.weight(seconds);
         const span: AutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
