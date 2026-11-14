@@ -550,18 +550,23 @@ namespace FamilyConicScan {
       return;
     }
     if (process.argv[2] === "saddles") {
-      // `saddles [from] [to]`: along the hand family's own course (`AutoMovieHumanF1Hand`, open at its last knot as the construction lofts
+      // `saddles [from] [to] [family]`: along the family's own course (`hand`, the default, `AutoMovieHumanF1Hand`; or `leg`,
+      // `AutoMovieHumanF1Leg`, whose end the toes split), open at its last knot as the construction lofts
       // it), every millimetre: the reference's loops in the plane (count, chart centre, area), and on the loop nearest the course every
-      // hollow under its hull deeper than 0.3 mm (polar phase range and deepest point, rad and mm), with the hand wall's standoff from the
+      // hollow under its hull deeper than 0.3 mm (polar phase range and deepest point, rad and mm), with the family wall's standoff from the
       // skin at that deepest phase where the family reaches the station. A saddle is where a hollow's floor opens into a second loop: the
       // station at which the plane first cuts two digits apart along that phase.
-      const family: AutoMovieHumanConicLoft.IFamily = { ...AutoMovieHumanF1.BODY.hand, tips: [null, null] };
+      // The foot's dorsal forks stand where the leg's end ring meets the toes' bands, so the same reading on the leg's course places each
+      // dorsal saddle against that ring (975 mm) and its seam.
+      const which: string = process.argv[5] ?? "hand";
+      if (which !== "hand" && which !== "leg") throw new Error("saddles: family " + which + " is neither hand nor leg");
+      const family: AutoMovieHumanConicLoft.IFamily = { ...(which === "leg" ? AutoMovieHumanF1.BODY.leg : AutoMovieHumanF1.BODY.hand), tips: [null, null] };
       const course: AutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
       const last: number = family.knots.at(-1)!;
       const chain = AutoMovieHumanConicLoft.create(family, family.knots).chain;
       const polar = (p: C.P): number => ((Math.atan2(p[1], p[0]) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const from: number = Number(process.argv[3] ?? 556);
-      const to: number = Number(process.argv[4] ?? 610);
+      const from: number = Number(process.argv[3] ?? (which === "leg" ? 940 : 556));
+      const to: number = Number(process.argv[4] ?? (which === "leg" ? 995 : 610));
       for (let s: number = from; s <= to; s += 1) {
         const frame = course.at(s);
         const loops: C.P[][] = R.loops(source.body, frame).filter((loop: C.P[]): boolean => Math.hypot(...centre(loop)) < 90);
