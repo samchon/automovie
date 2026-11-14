@@ -33,6 +33,7 @@ export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
 export * from "./resolveAutoMovieCenterOfMass";
 export * from "./resolveAutoMovieHumanoidRingModules";
+export * from "./AutoMovieHumanoidSurfaceExtents";
 export * from "./AutoMovieHumanoidSurfaceRays";
 export * from "./AutoMovieHumanoidSurfaceRegions";
 export * from "./resolveAutoMovieHumanoidSurfaces";

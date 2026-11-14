@@ -9,6 +9,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
 import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
@@ -227,6 +228,11 @@ export function resolveAutoMovieHumanoidSurfaces(
     { x: 0, y: 0, z: -1 },
     { x: 0, y: 1, z: 0 },
   );
+  // Each region's extent about its point.
+  const radii: Record<AutoMovieHumanoidRegion, number> =
+    AutoMovieHumanoidSurfaceExtents(regions, at, bounds);
+  for (const name of Object.keys(regions) as AutoMovieHumanoidRegion[])
+    regions[name] = { ...regions[name], radius: radii[name] };
   return { regions, sockets };
 }
 
@@ -252,6 +258,9 @@ export namespace resolveAutoMovieHumanoidSurfaces {
 
     /** A socket's forward unit direction in the bone's rest frame. */
     forward?: IAutoMovieVector3;
+
+    /** A region's extent, metres: the radius about its point that is still the region (`AutoMovieHumanoidSurfaceExtents`); absent for a socket and for a point beside a region (`offset`). */
+    radius?: number;
   }
 
   /** Every region and socket of one body. */
