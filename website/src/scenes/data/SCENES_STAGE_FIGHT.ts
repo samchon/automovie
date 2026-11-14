@@ -10,7 +10,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "stage-slap",
       title: "Stage slap",
       summary:
-        "Two actors rehearse: a stage slap the partner sells by turning the head at its instant, a backhand, a poke in the chest that pushes them back, and a lean away from the next swing.",
+        "Two actors rehearse: a stage slap the partner sells by turning the head at its instant, a backhand, and one poke in the chest that pushes the partner back, who then leans away.",
       setting: "combat",
       roles: { vic: "actor", wyn: "actor" },
       needs: [],
@@ -25,7 +25,11 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
           { anchor: "slap" },
         ),
         act("backhand", { target: at("wyn", "cheekRight") }),
-        act("poke", { target: at("wyn", "chestLeft") }, { anchor: "poke" }),
+        act(
+          "poke",
+          { target: at("wyn", "chestLeft"), count: 1 },
+          { anchor: "poke" },
+        ),
       ]),
       person("wyn", "f1", 0, 0.6, 180, [
         act(
@@ -85,11 +89,15 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
     [
       person("zak", "m2", 0, 0, 0, [
         act("restrain", { partner: "abe" }),
-        act("hairPull", { target: at("abe", "crown") }),
+        act("hairPull", { target: at("abe", "crown") }, { anchor: "pull" }),
       ]),
       person("abe", "m1", 0, 0.5, 180, [
-        act("stand", { seconds: 3 }),
-        act("grabbed"),
+        act("stand", { seconds: 6 }),
+        act(
+          "grabbed",
+          { from: at("zak", "palmRight") },
+          { sync: { of: "pull", event: "stroke" } },
+        ),
       ]),
     ],
   ),

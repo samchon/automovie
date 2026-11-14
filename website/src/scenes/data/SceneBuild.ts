@@ -110,6 +110,38 @@ export namespace SceneBuild {
     };
   }
 
+  /** A counter's top above the floor, metres: the middle of its band, where an object waits to be taken up. */
+  export const COUNTER_TOP: number = 0.914;
+
+  /**
+   * A counter in front of a person facing +Z and the thing lying on it: the
+   * counter's front toward the person, 0.53 m ahead of their feet, and the
+   * thing near its front edge in line with the right shoulder, where the
+   * standing arm of every body reaches its grip without a bend (a pick up
+   * from an upright stance refuses a grip beyond the straight arm).
+   *
+   * @param stand The counter's id.
+   * @param thing The thing's id.
+   * @param producer The thing's producer.
+   * @param kind The thing's kind.
+   * @param x The person's floor point, metres.
+   * @param z The person's floor point, metres.
+   * @returns The counter and the thing.
+   */
+  export function counter(
+    stand: string,
+    thing: string,
+    producer: string,
+    kind: string,
+    x: number,
+    z: number,
+  ): IPlaygroundComposition.IObject[] {
+    return [
+      object(stand, "createTable", "counter", x, z + 0.53, 180),
+      object(thing, producer, kind, x - 0.18, z + 0.3, 0, COUNTER_TOP),
+    ];
+  }
+
   /**
    * A seat, named by the object that carries it, which the adapter resolves.
    *

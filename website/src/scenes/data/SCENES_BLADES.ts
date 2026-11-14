@@ -8,9 +8,9 @@ export const SCENES_BLADES: readonly IScene[] = [
   scene(
     {
       id: "sword-drill",
-      title: "Sword drill",
+      title: "Shadow sword drill",
       summary:
-        "Two fencers drill side by side: a draw, cuts and slashes, a thrust and a stab, a backslash, a traverse, a beat and a disengage, then a guard, a parry and a sword thrust.",
+        "Two fencers shadow-drill side by side, blades mimed: a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse; a guard, a beat and a disengage, a cut, a parry and a thrust.",
       setting: "combat",
       roles: { ari: "fencer", ben: "fencer" },
       needs: [],
@@ -39,9 +39,9 @@ export const SCENES_BLADES: readonly IScene[] = [
   scene(
     {
       id: "knife-drill",
-      title: "Knife and club drill",
+      title: "Shadow knife and club drill",
       summary:
-        "Two trainees run their drill: a knife slash and backslash, a stab and an overhand stab, and a club strike.",
+        "Two trainees shadow knife and club strokes, mimed: a slash and a backslash and a stab, an overhand stab and a club brought down from overhead.",
       setting: "combat",
       roles: { cal: "trainee", dee: "trainee" },
       needs: [],

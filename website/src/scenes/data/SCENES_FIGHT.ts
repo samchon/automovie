@@ -1,16 +1,18 @@
+import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene }: typeof SceneBuild = SceneBuild;
+const { act, at, counter, object, person, scene }: typeof SceneBuild =
+  SceneBuild;
 
-/** The combat scenes composed from the lexicon's blade, stage-fight and firearm families of #3392. */
+/** The combat scenes of the lexicon's blade, stage-fight and firearm families. */
 export const SCENES_FIGHT: readonly IScene[] = [
   scene(
     {
       id: "longsword-duel",
-      title: "Longsword duel",
+      title: "Shadow longsword bout",
       summary:
-        "Two fencers in the German school: guards in ox, plough and from the roof, an advance, a lunge parried, a bind and wind, a feint and a riposte.",
+        "Two fencers shadow a bout of the German school, blades mimed: guards in ox, plough and from the roof, an advance and a lunge, a parry drilled to its line, a bind and wind, a feint and a riposte.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
@@ -46,7 +48,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "bar-fight",
       title: "Bar fight",
       summary:
-        "A stage fight in a bar: a shove and the stumble back, a slap, a grab and a headlock, a duck and a dodge, a club swung and a dive for cover.",
+        "A stage fight in a bar: a grab and a headlock, a shove and the stumble back, a slap and the head turned by it, each reaction at the blow's stroke, a mimed bat swing ducked and dodged, and a bystander who startles and dives for cover.",
       setting: "combat",
       roles: { joe: "brawler", mac: "brawler", ned: "bystander" },
       needs: [],
@@ -54,16 +56,28 @@ export const SCENES_FIGHT: readonly IScene[] = [
     "bar-fight",
     [
       person("joe", "m2", 0, 0, 0, [
-        act("grab", { target: at("mac", "upperArmRight") }),
+        act("grab", { target: at("mac", "upperArmRight") }, { anchor: "grab" }),
         act("headlock", { partner: "mac" }),
-        act("shove", { target: at("mac", "sternum") }),
-        act("slap", { target: at("mac", "jawLeft") }),
+        act("shove", { target: at("mac", "sternum") }, { anchor: "shove" }),
+        act("slap", { target: at("mac", "jawLeft") }, { anchor: "slap" }),
         act("clubSwing", { target: at("mac", "shoulderLeft") }),
       ]),
       person("mac", "m1", 0, 0.52, 180, [
-        act("grabbed"),
-        act("shoved"),
-        act("slapped"),
+        act(
+          "grabbed",
+          { from: at("joe", "palmRight") },
+          { sync: { of: "grab", event: "stroke" } },
+        ),
+        act(
+          "shoved",
+          { from: at("joe", "palmRight") },
+          { sync: { of: "shove", event: "stroke" } },
+        ),
+        act(
+          "slapped",
+          { from: at("joe", "palmRight") },
+          { sync: { of: "slap", event: "stroke" } },
+        ),
         act("duck"),
         act("dodge", { length: 0.3 }),
       ]),
@@ -72,7 +86,6 @@ export const SCENES_FIGHT: readonly IScene[] = [
     [
       object("bar", "createTable", "counter", -1.5, 1.5, 90),
       object("stool", "createSeat", "barStool", 1.2, 0.3),
-      object("club", "createClub", "bat", 0.4, -0.2),
     ],
   ),
   scene(
@@ -80,56 +93,71 @@ export const SCENES_FIGHT: readonly IScene[] = [
       id: "standoff",
       title: "Standoff",
       summary:
-        "Two gunmen face each other: a hand to the holster, the draw, presenting at the ready, taking aim, a shot and its recoil; one surrenders.",
+        "Two gunmen face each other: one takes a handgun off the bar, brings it to high ready, takes aim and fires one shot; the other holds at high ready and surrenders.",
       setting: "combat",
       roles: { gun: "gunman", ace: "gunman" },
       needs: [],
       view: "side",
+      refusedUntil: 3528,
     },
     "standoff",
     [
       person("gun", "m1", 0, 0, 0, [
-        act("reachHolster"),
-        act("presentFirearm", { target: at("ace", "sternum") }),
-        act("takeAim", { target: at("ace", "sternum") }),
-        act("fireFirearm"),
-        act("recoil"),
+        act("drawFirearm", { prop: "pistol" }),
+        act("presentFirearm", {
+          gun: "pistol",
+          carriage: "highReady",
+          target: at("ace", "sternum"),
+        }),
+        act("takeAim", { gun: "pistol", target: at("ace", "sternum") }),
+        act("recoil", { gun: "pistol" }),
       ]),
       person("ace", "m2", 0, 6, 180, [
         act("highReady", { seconds: 1.5 }),
         act("surrender"),
       ]),
     ],
+    counter("bar", "pistol", "createHandgun", "fullSize", 0, 0),
   ),
   scene(
     {
       id: "firing-range",
       title: "Firing range",
       summary:
-        "Three shooters at a range: low and high ready, aim, recoil, and a reload.",
+        "Three shooters each take a handgun off their bench: low ready, an aim, a shot, a fresh magazine pressed home, and high ready.",
       setting: "combat",
       roles: { f1: "shooter", f2: "shooter", f3: "shooter" },
       needs: [],
       skill: "novice",
+      refusedUntil: 3528,
     },
     "range",
-    [-1.2, 0, 1.2].map(
+    [-1.6, 0, 1.6].map(
       (x: number, i: number): SceneBuild.Performer =>
         person(`f${i + 1}`, ["m1", "f1", "m2"][i]!, x, 0, 0, [
-          act("lowReady"),
-          act("aim", {
-            target: {
-              kind: "point",
-              at: { x, y: 1.4, z: 10 },
-              frame: "world",
-            },
+          act("drawFirearm", { prop: `gun${i + 1}` }),
+          act("lowReady", { gun: `gun${i + 1}` }),
+          act("takeAim", {
+            gun: `gun${i + 1}`,
+            target: { kind: "point", at: { x, y: 1.4, z: 10 }, frame: "world" },
           }),
-          act("recoil"),
+          act("recoil", { gun: `gun${i + 1}` }),
           act("reloadFirearm", {
-            target: { kind: "self", region: "palmRight" },
+            target: { kind: "prop", subject: `gun${i + 1}`, point: "magazine" },
           }),
-          act("highReady", { seconds: 1 }),
+          act("highReady", { gun: `gun${i + 1}`, seconds: 1 }),
         ]),
+    ),
+    [-1.6, 0, 1.6].flatMap(
+      (x: number, i: number): IPlaygroundComposition.IObject[] =>
+        counter(
+          `bench${i + 1}`,
+          `gun${i + 1}`,
+          "createHandgun",
+          "compact",
+          x,
+          0,
+        ),
     ),
   ),
 ];
