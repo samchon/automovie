@@ -36,7 +36,7 @@ const POWER: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a head length fixed on a staff.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, how the hands share the shaft, what the lengths measure and the two ends.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear, a head box `STEEL` times as dense as the wood, so the balance point moves toward the head as a steel head's does; mass properties follow from the parts under the drawn mass.
+ * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear and a lance, a head box `STEEL` times as dense as the wood, the ratio of the read densities, so the balance point moves toward the head as a steel head's does; mass properties follow from the parts under the drawn mass.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft and its bar, a lance's grip, the head, the two ends.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No socket, lugs or butt cap; the head's width and thickness are estimates named on a constant.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part for a staff, two for a spear or a lance.
@@ -145,8 +145,10 @@ export namespace createPolearm {
     thickness: 0.005,
   };
 
-  /** A steel head's density over an ash shaft's: about 7850 over 700 kg per cubic metre, handbook figures recalled and not read at a source. */
-  export const STEEL: number = 11;
+  /**
+   * A steel head's density over an ash shaft's, which places the balance toward the head: steel's 7850 kg per cubic metre, the 78.5 kN per cubic metre top of EN 1991-1-1:2002 Table A.4's 77.0 to 78.5 that structural practice adopts (https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.1.2002.pdf, p. 35; https://cdn.eurocodeapplied.com/design/en1993/steel-design-properties), over European ash's 680 kg per cubic metre at 12 % moisture (The Wood Database, https://www.wood-database.com/european-ash/), the wood the Royal Armouries records for lance shafts besides bamboo and the spear's and staff's shafts here.
+   */
+  export const STEEL: number = 7850 / 680;
 
   /**
    * The affordance ids:

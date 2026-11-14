@@ -38,9 +38,6 @@ const TABLET: string =
 const RADIO: string =
   "Motorola Solutions, MOTOTRBO CP200d data sheet (06-2020): 5.0 x 2.4 x 1.5 to 1.8 in (127.7 x 61.5 x 39.0 to 44.0 mm, H x W x D) with its four batteries, 12.1 to 14.3 oz (341 to 406 g) (https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf, p. 3)";
 
-/** The travel of a small push button, for which no specification was read. */
-const PRESS: string = "typical tactile switch travel, not read at a source";
-
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createDevice.Kind, string>> = {
   phone: "smartphone",
@@ -53,7 +50,7 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
 /**
  * A handheld device: a smartphone, a compact camera, a remote control, a tablet or a walkie-talkie.
  *
- * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote, a tablet and a walkie-talkie and along `+X` for a camera. A tablet and a walkie-talkie are held across their back anywhere up their height; a tablet's `screen` is its whole front, and no maker read places its lens, so it declares none; a walkie-talkie's `speaker` is its whole front, which the voice meets, and its antenna and push-to-talk key wait for a source of their size and place.
+ * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote, a tablet and a walkie-talkie and along `+X` for a camera. A tablet and a walkie-talkie are held across their back anywhere up their height; a tablet's `screen` is its whole front, and no maker read places its lens, so it declares none; a walkie-talkie's `speaker` is its whole front, which the voice meets, and its antenna and push-to-talk key wait for a source of their size and place. A camera's and a remote's `button` states no travel: no maker read gives one, so the press is not built.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -227,7 +224,6 @@ export function createDevice(
         Vector3.create(-width / 2 + grip, height, 0),
       ),
       extent: null,
-      travel: d.press!,
     });
     return builder.build(d.mass!);
   }
@@ -295,7 +291,6 @@ export function createDevice(
       kind: "button",
       frame: front(height * 0.75),
       extent: null,
-      travel: d.press!,
     });
   return builder.build(d.mass!);
 }
@@ -329,7 +324,7 @@ export namespace createDevice {
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
    * - `screen`: the face that is looked at: a phone's or a tablet's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
-   * - `button`: a camera's shutter release on its top, a remote's keys on its face.
+   * - `button`: a camera's shutter release on its top, a remote's keys on its face; it states no travel, so its press stays at rest until a source gives one.
    * - `speaker`: a walkie-talkie's front, which the voice meets.
    */
   export type Affordance =
@@ -347,10 +342,9 @@ export namespace createDevice {
    * - `width`: along `+X`.
    * - `height`: along `+Y`.
    * - `thickness`: along `+Z`; a camera's body without its lens.
-   * - `press`: a button's travel.
    * - `mass`: kilograms.
    */
-  export type Dimension = "width" | "height" | "thickness" | "press" | "mass";
+  export type Dimension = "width" | "height" | "thickness" | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -375,14 +369,12 @@ export namespace createDevice {
       width: ArchetypeBand.metres(0.1094, 0.128, CAMERA),
       height: ArchetypeBand.metres(0.0619, 0.0748, CAMERA),
       thickness: ArchetypeBand.metres(0.0332, 0.0553, CAMERA),
-      press: ArchetypeBand.metres(0.001, 0.002, PRESS, true),
       mass: kg(0.257, 0.521, CAMERA),
     },
     remote: {
       width: ArchetypeBand.metres(0.035, 0.042, REMOTE, true),
       height: ArchetypeBand.metres(0.136, 0.142, REMOTE, true),
       thickness: ArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
-      press: ArchetypeBand.metres(0.0005, 0.001, PRESS, true),
       mass: kg(0.0434, 0.085, REMOTE, true),
     },
     tablet: {
