@@ -1,3 +1,4 @@
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmPhrase } from "./AutoMovieMotionHumanArmPhrase";
@@ -93,18 +94,18 @@ export namespace AutoMovieMotionHumanArm {
     AutoMovieMotionHumanArmTarget.goal;
 
   /**
-   * {@link AutoMovieMotionHumanArmCarry.IAngles}, re-exported so a caller of the arm facade imports one namespace.
+   * {@link AutoMovieMotionHumanArmAngles.IAngles}, re-exported so a caller of the arm facade imports one namespace.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmCarry`; the members are documented there.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmAngles`; the members are documented there.
    * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmCarry` owns `IAngles`; this alias only lets callers of AutoMovieMotionHumanArm name it without a second import.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmAngles` owns `IAngles`; this alias only lets callers of AutoMovieMotionHumanArm name it without a second import.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
    */
-  export type IAngles = AutoMovieMotionHumanArmCarry.IAngles;
+  export type IAngles = AutoMovieMotionHumanArmAngles.IAngles;
 
-  /** {@link AutoMovieMotionHumanArmCarry.angles}. */
-  export const angles: typeof AutoMovieMotionHumanArmCarry.angles =
-    AutoMovieMotionHumanArmCarry.angles;
+  /** {@link AutoMovieMotionHumanArmAngles.angles}. */
+  export const angles: typeof AutoMovieMotionHumanArmAngles.angles =
+    AutoMovieMotionHumanArmAngles.angles;
 
   /** {@link AutoMovieMotionHumanArmCarry.carry}. */
   export const carry: typeof AutoMovieMotionHumanArmCarry.carry =

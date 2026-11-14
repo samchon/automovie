@@ -17,11 +17,11 @@ import { touchSite } from "./touchSite";
 
 /**
  * Where the touch law reads a region at a second: on which bones, and moved
- * to which site.
+ * to which site; and how far about that site a hand may land.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and the two things that decide it.
  * @evidence contracts/development/design.md#principled-representation One reader per plan, a function of the target and the posture so far, as the touch stroke asks for its region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; split from the touch law so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions, the reader and the landing disc; split from the touch law so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the touch stroke's region resolver and the site owner; no region is named.
  */
 export namespace touchRegion {
@@ -119,6 +119,29 @@ export namespace touchRegion {
               normal: frame.normal,
             };
       };
+  }
+
+  /**
+   * The radius about its site a hand may land within on its region: the
+   * first hand's site's own radius (drawn or chosen within), else the
+   * region's extent on the body it belongs to (a region is an area,
+   * `AutoMovieHumanoidSurfaceRegions`); none for a prop or a point.
+   *
+   * @param context The action's context.
+   * @param target The hand's target.
+   * @param site The hand's site, the first hand's only.
+   * @returns Metres, or `undefined`.
+   */
+  export function disc(
+    context: Pick<IHumanActionContext, "body" | "performer">,
+    target: AutoMovieMotionTarget,
+    site: touchSite.ISite | undefined,
+  ): number | undefined {
+    if (site !== undefined && "draw" in site) return site.draw;
+    if (site !== undefined && "within" in site) return site.within;
+    if (target.kind === "self") return context.body.surfaces.regions[target.region].radius;
+    if (target.kind === "person") return context.performer(target.subject).body.surfaces.regions[target.region].radius;
+    return undefined;
   }
 }
 
