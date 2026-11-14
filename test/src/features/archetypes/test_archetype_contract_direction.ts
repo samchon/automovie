@@ -7,7 +7,7 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
 /**
  * Every working affordance of every archetype states what its frame's `+Y` is (`IAutoMovieAffordance.direction`): `along` the object toward that point, or the `normal` of a working face, so a grasp chooser reads it instead of guessing from an angle.
  *
- * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a vessel's lip, mouth and spout, a cigarette's ends, a lighter's and a light's flame, and a loaf's bitten end run `along`; an apple's bitten side, a table knife's edge, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
+ * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a vessel's lip and mouth, a cigarette's ends, a lighter's and a light's flame, and a loaf's bitten end run `along`; an apple's bitten side, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
  *
  * Scenarios, for every row of the archetype catalog at the middle of its bands:
  * 1. Each working affordance the table names for the row's producer (or for the row's own kind where kinds differ) that the row declares states the table's direction.
@@ -65,15 +65,10 @@ export function test_archetype_contract_direction(): void {
     "tool-fork": { face: along },
     "instrument-violinBow": { hair: normal },
     "microphone-handheld": { head: along },
-    "tool-tableKnife": { face: normal },
     "longTool-fishingRod": { tip: along },
     "tool-ladle": { face: normal },
     "food-bread": { bite: along },
     "food-apple": { bite: normal },
-    "vessel-jug": { spout: along },
-    "vessel-teapot": { spout: along },
-    "vessel-kettle": { spout: along },
-    "vessel-wateringCan": { spout: along },
   };
   // Rows of those producers that have no working point: a remote, a hat and spectacles.
   const OPTIONAL: ReadonlySet<string> = new Set([

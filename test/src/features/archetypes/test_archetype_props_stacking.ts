@@ -1,6 +1,5 @@
 import {
   type Archetype,
-  createDrinkware,
   createFood,
   createTableware,
 } from "@automovie/archetypes";
@@ -53,17 +52,17 @@ function seated(
 }
 
 /**
- * Plates stack on one another's `top`, and a cup and food rest on a plate's `top`, without one collider entering another.
+ * Plates stack on one another's `top`, and food rests on a plate's `top`, without one collider entering another.
  *
  * Scenarios:
- * 1. Five dinner plates of five seeds, each standing on the `top` of the one below: every pair is at least -1e-6 m apart, and each plate touches the one beneath, the pair less than 1e-6 m apart.
- * 2. The same for five side plates, for five platters, and for a cup on a saucer.
+ * 1. Five round plates of five seeds, each standing on the `top` of the one below: every pair is at least -1e-6 m apart, and each plate touches the one beneath, the pair less than 1e-6 m apart.
+ * 2. The same for five platters.
  * 3. A loaf and an apple each on a platter's `top`: each rests on it, neither entering nor floating.
  * 4. The negative case: a plate set a millimetre lower than the `top` it should stand on enters the plate beneath, and the measure reports it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces plates, a cup and food, seats each on the `stack-top` beneath and measures every pair of colliders with the engine's signed distance; a `top` below or above the face, a foot that sinks into the plate beneath, or a stacked thing that floats is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces plates and food, seats each on the `stack-top` beneath and measures every pair of colliders with the engine's signed distance; a `top` below or above the face, a foot that sinks into the plate beneath, or a stacked thing that floats is caught.
  * @evidence contracts/development/testing.md#independent-expectations The 1e-6 m is #3501's acceptance for stacked plates; seating a thing's origin on a `stack-top` is the support convention of `AutoMovieAffordanceKind`; the distances are the engine's exact convex distance, not the archetypes'.
- * @evidence contracts/development/testing.md#distinguishing-cases Every plate kind, the cup and each food on the face; a plate a millimetre low is the overlap the measure must see; the sizes belong to the band tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every plate kind and each food on the face; a plate a millimetre low is the overlap the measure must see; the sizes belong to the band tests.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
@@ -96,17 +95,13 @@ export function test_archetype_props_stacking(): void {
           findings.push(`${name}: ${j} floats ${gap} m above ${i}`);
       }
   };
-  for (const kind of ["plate", "sidePlate", "platter"] as const)
+  for (const kind of createTableware.KINDS)
     stack(
       kind,
       [0, 1, 2, 3, 4].map(
         (seed: number): Archetype => createTableware({ kind }, seed),
       ),
     );
-  stack("cup on saucer", [
-    createTableware({ kind: "saucer" }, 3),
-    createDrinkware({ kind: "cup" }, 3),
-  ]);
 
   // 3. Food on a platter.
   for (const kind of createFood.KINDS)

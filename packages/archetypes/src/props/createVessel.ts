@@ -1,5 +1,4 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
@@ -26,45 +25,17 @@ const SAUCEPAN: string =
 const POT: string =
   "IKEA 365+ pot 5 qt, 9 in across, 6 in high, 12 in long with its handles (https://www.ikea.com/us/en/p/ikea-365-pot-with-lid-stainless-steel-50577914/)";
 
-/** IKEA's vase, read. */
+/** IKEA's vases: one read, two seen only in search results. */
 const VASE: string =
-  "IKEA BERÄKNA vase, 30 cm high and 16 cm across, packed at 1.35 kg (https://www.ikea.com/nl/en/p/beraekna-vase-clear-glass-20406297)";
-
-/** IKEA's jug, read, and its diameter seen only in search results. */
-const JUG: string =
-  "IKEA TILLBRINGARE jug 1.7 l, 26.5 cm high, packed at 0.96 kg (https://www.ikea.com/ie/en/p/tillbringare-jug-clear-glass-90362407); its 12.5 cm across from dimensions.com seen only in search results";
-
-/** Galvanised 10 litre buckets, seen only in search results. */
-const BUCKET: string =
-  "galvanised 10 l buckets in makers' and retailers' listings seen only in search results: DENIOS 180844, 265 mm high and across, 0.95 kg; a 10 l pail 270 mm high, 250 mm across, 0.6 kg";
-
-/** A stovetop kettle, seen only in search results. */
-const KETTLE: string =
-  "Le Creuset Kone kettle 1.6 l in retailers' listings seen only in search results: 19.8 to 20.9 cm wide, 24 to 25.3 cm high over its handle, 1.14 kg";
-
-/** IKEA's teapot, read. */
-const TEAPOT: string =
-  "IKEA GLADELIG teapot 1.2 l, 13 cm high, packed 25 by 14 cm at 1.13 kg (https://www.ikea.com/gb/en/p/gladelig-teapot-grey-00537548/)";
-
-/** IKEA's watering can, seen only in search results. */
-const WATERING: string =
-  "IKEA VATTENKRASSE watering can 2.0 l, 20 cm high and wide, packed 34 cm long, seen only in search results";
+  "IKEA BERÄKNA vase, 30 cm high and 16 cm across, packed at 1.35 kg (https://www.ikea.com/nl/en/p/beraekna-vase-clear-glass-20406297); TIDVATTEN, 30 cm by 11.5 cm, and OMTÄNKSAM, 30 cm by 15.5 cm, seen only in search results";
 
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
 /**
- * An open vessel that holds food, ash, flowers or water: a bowl, an ashtray, a saucepan, a stockpot, a vase, a jug, a bucket, a kettle, a teapot or a watering can.
+ * An open vessel that holds food, ash or flowers: a bowl, an ashtray, a saucepan, a stockpot or a vase.
  *
- * It stands on its base centred over the origin, open upward. `rim` is the top of the rim, facing up, as wide as the vessel; `inside` the floor inside, facing up, where a spoon stirs, a cigarette is stubbed or food lies. The hold depends on the kind:
- *
- * - a bowl and an ashtray by `body`, from beneath; a vase by `body`, round its middle;
- * - a saucepan by its long `handle` out along `+X`, a stockpot by `leftHandle` and `rightHandle` on either side along `X`;
- * - a jug and a teapot by an upright `handle` on `+X`, the right of a pourer facing `+Z`, with the `spout` on `-X`;
- * - a kettle and a watering can by a `handle` over the top running front to back along `Z`, with the `spout` toward `+Z`;
- * - a bucket by its `bail`, a bar over the top along `X`, hung from the fingers.
- *
- * `spout` is the end a pour leaves by, its `+Y` along the spout out of the vessel.
+ * It stands on its base centred over the origin, open upward, a saucepan's long handle out along `+X` and a stockpot's two side handles along `X`. `rim` is the top of the rim, facing up, as wide as the vessel; `inside` the floor inside, facing up, where a spoon stirs, a cigarette is stubbed or food lies; a bowl and an ashtray are held by `body`, from beneath, a vase by `body` round its middle; a saucepan by its `handle`, a stockpot by `leftHandle` and `rightHandle`.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -72,10 +43,10 @@ const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the vessel stands, its open side, and which contact each kind declares.
- * @evidence contracts/development/implementation.md#principled-implementation A floor disc and four wall boxes round it to the drawn height and diameter, then the kind's hold: one rod out along `+X`, two loops on either side, an upright bar off the side on two stubs, a bar over the top on two posts; and a pouring kind's spout as one rod rising from the wall.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the floor and the walls, the rim and the inside, then the kind's hold and spout.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walls are four flat boxes round a disc, not a turned shell, and a vase's or a jug's waist is not modelled; the wall's thickness, the handles' sizes, a top handle's rise and the spouts' lengths are named estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most nine parts.
+ * @evidence contracts/development/implementation.md#principled-implementation A floor disc and four wall boxes round it to the drawn height and diameter, then the kind's handles: one rod out along `+X`, or two loops on either side.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the floor and the walls, the rim and the inside, then the kind's hold.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walls are four flat boxes round a disc, not a turned shell; the wall's thickness and the handles' sizes are named estimates.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -101,7 +72,7 @@ export function createVessel(
   > = new ArchetypeBuilder({
     archetype: "vessel",
     id: params.id,
-    name: kind === "wateringCan" ? "watering can" : kind,
+    name: kind,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -204,120 +175,30 @@ export function createVessel(
         length: 0.1,
       });
     }
-  } else if (kind === "jug" || kind === "teapot") {
-    // An upright bar off the +X wall on two stubs, the fingers through the opening between, as a mug's handle.
-    const reach: number = r + createVessel.OPENING + grip / 2;
-    const low: number = d.height * 0.25;
-    const high: number = d.height * 0.75;
-    builder.rod("handle", grip / 2, v(reach, low, 0), v(reach, high, 0), {
-      color,
-      round: true,
-    });
-    builder.rod("handleLow", grip / 2, v(r, low, 0), v(reach, low, 0), {
-      color,
-    });
-    builder.rod("handleHigh", grip / 2, v(r, high, 0), v(reach, high, 0), {
-      color,
-    });
-    builder.affordance({
-      id: "handle",
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        v(reach, d.height / 2, 0),
-        v(1, 0, 0),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: grip,
-      length: high - low,
-    });
-  } else if (
-    kind === "kettle" ||
-    kind === "wateringCan" ||
-    kind === "bucket"
-  ) {
-    // A bar over the top on two posts from the rim, its top RISE above the rim: front to back on a kettle and a watering can, side to side on a bucket.
-    const top: number = d.height + createVessel.RISE - grip / 2;
-    const across: IAutoMovieVector3 =
-      kind === "bucket" ? v(1, 0, 0) : v(0, 0, 1);
-    const span: number = kind === "bucket" ? r : r * 0.6;
-    const end = (sign: number, y: number): IAutoMovieVector3 =>
-      v(across.x * sign * span, y, across.z * sign * span);
-    const id: "bail" | "handle" = kind === "bucket" ? "bail" : "handle";
-    builder.rod(id, grip / 2, end(-1, top), end(1, top), {
-      color: "#2c2f33",
-    });
-    builder.rod("postA", grip / 4, end(-1, d.height), end(-1, top), {
-      color: "#2c2f33",
-    });
-    builder.rod("postB", grip / 4, end(1, d.height), end(1, top), {
-      color: "#2c2f33",
-    });
-    builder.affordance({
-      id,
-      kind: "handle",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), across),
-      extent: null,
-      grip: kind === "bucket" ? "hook" : "power",
-      aperture: grip,
-      length: 2 * span,
-    });
-  } else
+  } else if (kind === "vase")
     builder.affordance({
       id: "body",
       kind: "handle",
       symmetry: "round",
-      ...(kind === "vase"
-        ? {
-            frame: ArchetypeFrame.facing(
-              v(0, d.height / 2, 0),
-              v(-1, 0, 0),
-              v(0, 1, 0),
-            ),
-            grip: "power" as const,
-            aperture: d.diameter,
-          }
-        : {
-            frame: ArchetypeFrame.facing(
-              v(0, wall / 2, 0),
-              v(0, -1, 0),
-              v(1, 0, 0),
-            ),
-            grip: kind === "bowl" ? ("two-hand" as const) : ("precision" as const),
-            aperture: wall,
-          }),
+      frame: ArchetypeFrame.facing(
+        v(0, d.height / 2, 0),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
+      grip: "power",
+      aperture: d.diameter,
     });
-
-  // A pouring kind's spout: one rod from the wall, rising at its named slope away from the handle, its end the pour's frame.
-  const spout: number | undefined = createVessel.SPOUT[kind];
-  if (spout !== undefined) {
-    const out: IAutoMovieVector3 =
-      kind === "jug" || kind === "teapot" ? v(-1, 0, 0) : v(0, 0, 1);
-    const rise: number = createVessel.SPOUT_SLOPE;
-    const along: IAutoMovieVector3 = Vector3.normalize(
-      v(out.x, rise, out.z),
-    );
-    const root: IAutoMovieVector3 =
-      kind === "jug"
-        ? v(out.x * r, d.height, out.z * r)
-        : v(out.x * r, d.height * 0.3, out.z * r);
-    const tip: IAutoMovieVector3 = Vector3.add(
-      root,
-      Vector3.scale(along, spout),
-    );
-    builder.rod("spout", createVessel.SPOUT_BORE, root, tip, { color });
+  else
     builder.affordance({
-      id: "spout",
-      kind: "socket",
-      direction: "along",
-      frame: ArchetypeFrame.facing(tip, along),
+      id: "body",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(v(0, wall / 2, 0), v(0, -1, 0), v(1, 0, 0)),
       extent: null,
+      grip: kind === "bowl" ? "two-hand" : "precision",
+      aperture: wall,
     });
-  }
   return builder.build(d.mass);
 }
 
@@ -325,23 +206,13 @@ export function createVessel(
  * Companion types, constants and bands of {@link createVessel}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the ten vessels and one band per dimension each.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The rim, the inside, the hold and the spout each vessel is used by.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read or, marked provisional, as seen in search results; a packed weight bounds a vessel's weight from above and is provisional; the wall's and the handles' sizes, a top handle's rise and the spouts' lengths are named estimates.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the four vessels and one band per dimension each.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The rim, the inside and the hold each vessel is used by.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read; a pan's weight alone is not given, so those bands are provisional; the wall's and the handles' sizes are named estimates.
  */
 export namespace createVessel {
   /** The kinds. */
-  export type Kind =
-    | "bowl"
-    | "ashtray"
-    | "saucepan"
-    | "stockpot"
-    | "vase"
-    | "jug"
-    | "bucket"
-    | "kettle"
-    | "teapot"
-    | "wateringCan";
+  export type Kind = "bowl" | "ashtray" | "saucepan" | "stockpot" | "vase";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -350,11 +221,6 @@ export namespace createVessel {
     "saucepan",
     "stockpot",
     "vase",
-    "jug",
-    "bucket",
-    "kettle",
-    "teapot",
-    "wateringCan",
   ];
 
   /** The wall's and the floor's thickness, metres: an estimate. */
@@ -366,26 +232,6 @@ export namespace createVessel {
   /** A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its handle less its 17 cm across. */
   export const HANDLE: number = 0.18;
 
-  /** The gap between a jug's or a teapot's wall and its handle bar, which the fingers pass through, metres: an estimate. */
-  export const OPENING: number = 0.03;
-
-  /** How far the top of a top handle or a bail stands above the rim, metres: an estimate. */
-  export const RISE: number = 0.08;
-
-  /** The rise of a spout per unit of its run out from the wall: an estimate. */
-  export const SPOUT_SLOPE: number = 1;
-
-  /** A spout's radius, metres: an estimate. */
-  export const SPOUT_BORE: number = 0.008;
-
-  /** Each pouring kind's spout length from the wall, metres; a watering can's is its 34 cm packed length less its 20 cm body, the rest estimates. */
-  export const SPOUT: Readonly<Partial<Record<Kind, number>>> = {
-    jug: 0.02,
-    kettle: 0.08,
-    teapot: 0.08,
-    wateringCan: 0.14,
-  };
-
   /** Each kind's flat colour, sRGB. */
   export const COLORS: Readonly<Record<Kind, string>> = {
     bowl: "#f2efe8",
@@ -393,11 +239,6 @@ export namespace createVessel {
     saucepan: "#b9bcc0",
     stockpot: "#b9bcc0",
     vase: "#a9c8d8",
-    jug: "#a9c8d8",
-    bucket: "#9aa1a6",
-    kettle: "#b9bcc0",
-    teapot: "#7d8287",
-    wateringCan: "#3c6e47",
   };
 
   /**
@@ -406,10 +247,8 @@ export namespace createVessel {
    * - `rim`: the rim's top, facing up.
    * - `inside`: the floor inside, facing up.
    * - `body`: a bowl or an ashtray held from beneath; a vase round its middle.
-   * - `handle`: a saucepan's long handle along `+X`; a jug's or a teapot's upright handle on `+X`; a kettle's or a watering can's handle over the top along `Z`.
+   * - `handle`: a saucepan's long handle along `+X`.
    * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and `-X`.
-   * - `bail`: a bucket's bar over the top along `X`.
-   * - `spout`: a jug's, a teapot's, a kettle's or a watering can's spout end, `+Y` out along the spout.
    */
   export type Affordance =
     | "rim"
@@ -417,9 +256,7 @@ export namespace createVessel {
     | "body"
     | "handle"
     | "leftHandle"
-    | "rightHandle"
-    | "bail"
-    | "spout";
+    | "rightHandle";
 
   /**
    * The free dimensions, metres unless stated:
@@ -446,13 +283,7 @@ export namespace createVessel {
     bowl: {
       diameter: ArchetypeBand.metres(0.16, 0.16, BOWL),
       height: ArchetypeBand.metres(0.07, 0.07, BOWL),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.4,
-        0.44,
-        `${BOWL}; the bowl alone is lighter than its packing by an unread amount`,
-        true,
-      ),
+      mass: ArchetypeBand.of("kg", 0.4, 0.44, `${BOWL}; the bowl alone is lighter than its packing by an unread amount`, true),
     },
     ashtray: {
       diameter: ArchetypeBand.metres(0.1, 0.168, ASHTRAY),
@@ -470,67 +301,15 @@ export namespace createVessel {
       mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {
-      diameter: ArchetypeBand.metres(0.16, 0.16, VASE),
+      diameter: ArchetypeBand.metres(0.115, 0.16, VASE, true),
       height: ArchetypeBand.metres(0.3, 0.3, VASE),
       mass: ArchetypeBand.of(
         "kg",
-        1.1,
         1.35,
-        `${VASE}; the vase alone is lighter than its packing by an unread amount`,
+        1.35,
+        `${VASE}; the packed weight, which the vase alone is lighter than by an amount no page gives`,
         true,
       ),
-    },
-    jug: {
-      diameter: ArchetypeBand.metres(0.12, 0.13, JUG, true),
-      height: ArchetypeBand.metres(0.265, 0.265, JUG),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.8,
-        0.96,
-        `${JUG}; the jug alone is lighter than its packing by an unread amount`,
-        true,
-      ),
-    },
-    bucket: {
-      diameter: ArchetypeBand.metres(0.25, 0.265, BUCKET, true),
-      height: ArchetypeBand.metres(0.265, 0.27, BUCKET, true),
-      mass: ArchetypeBand.of("kg", 0.6, 0.95, BUCKET, true),
-    },
-    kettle: {
-      diameter: ArchetypeBand.metres(0.198, 0.209, KETTLE, true),
-      height: ArchetypeBand.metres(
-        0.24 - RISE,
-        0.253 - RISE,
-        `${KETTLE}; the rim is the height over the handle less the handle's estimated rise`,
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 1.1, 1.25, KETTLE, true),
-    },
-    teapot: {
-      diameter: ArchetypeBand.metres(
-        0.12,
-        0.14,
-        `${TEAPOT}; no diameter is given, and the 14 cm packing bounds it`,
-        true,
-      ),
-      height: ArchetypeBand.metres(0.13, 0.13, TEAPOT),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.9,
-        1.13,
-        `${TEAPOT}; the teapot alone is lighter than its packing by an unread amount`,
-        true,
-      ),
-    },
-    wateringCan: {
-      diameter: ArchetypeBand.metres(0.18, 0.2, WATERING, true),
-      height: ArchetypeBand.metres(
-        0.2 - RISE,
-        0.2 - RISE,
-        `${WATERING}; the rim is the height less the handle's estimated rise`,
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 0.3, 0.6, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }

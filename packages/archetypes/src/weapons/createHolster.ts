@@ -28,11 +28,7 @@ const UNREAD: string =
 
 /** Back quivers, seen only in search results. */
 const QUIVER: string =
-  "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), and capacities to 50 arrows (TOPARCHERY), seen only in search results";
-
-/** Cartridge boxes, one read at a dealer and one seen only in search results. */
-const POUCH: string =
-  "an 1830s Baker's pattern infantry cartridge box, 9 1/4 in wide, 6 in high and 2 3/4 in deep, its block drilled with 26 holes (https://www.horsesoldier.com/products/military-accoutrements/leather/cap-and-cartridge-boxes/29154), and a First Empire chasseurs' box 20 cm wide and 12 cm high, seen only in search results";
+  "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), capacities to 50 arrows (TOPARCHERY), and 20 in quivers weighing 0.62 kg (MAYARMS) and 1.5 lb (CH Narchery), seen only in search results";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createHolster.Kind, string>> = {
@@ -40,28 +36,26 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
   scabbard: "scabbard",
   sheath: "sheath",
   quiver: "quiver",
-  pouch: "cartridge pouch",
 };
 
 /**
- * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, an archer's quiver or a soldier's cartridge pouch.
+ * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, or an archer's quiver. A cartridge pouch waits for a source of its weight.
  *
  * Each hangs with the wearer's body on its `-X` side and its front toward `+Z`; `belt` is the loop or hanger it hangs by, facing the wearer. The item in it is a separate prop: the container declares where that item sits, and the act takes it. How each kind stands:
  *
  * - a holster hangs with the middle of its belt loop at the origin. Its `socket` is the mouth the pistol is drawn from and returned to, facing up, lowered or raised from the belt line by the `ride` dimension. It marks where the pistol's butt leaves the mouth; a holstered pistol lies muzzle down in the pouch, which the holstering act places, and no frame of `createHandgun` seats coincident on the socket to give that.
- * - a scabbard and a sheath stand on their tip (the chape) at the origin, the mouth straight up along `+Y` at the drawn length, the blade's flats toward `X`. `mouth` is the opening, facing up: a sheathed blade stands point down in it with its shoulder (`createSword`'s origin) on the mouth. `throat` is the metal throat below the mouth, which the other hand holds from the outside while the blade is drawn; `belt` is the hanger on the throat. Its hanging angle is not modelled: it hangs straight, since no source read gives the angle a hanger sets.
- * - a quiver stands on its bottom at the origin, a tube open upward. `socket` is the mouth, facing up, and `slot1` to `slot<slots>` the places the arrows stand in it, each facing up on the mouth's plane; `belt` hangs it at a hip near the mouth, and `strap` slings it across the back at its middle.
- * - a pouch is a box standing on its bottom at the origin, its long side along `Z` the way the belt runs, under a flap hinged along its back top edge. `lid` is that hinge, opening upward by up to 180 degrees with the flap; `slot1` to `slot<slots>` are the holes of the block inside, in two rows along `Z`, each facing up on the box's top; `belt` is on its back, and `strap` is the same place for a cross-belt.
+ * - a scabbard and a sheath stand on their tip (the chape) at the origin, the mouth straight up along `+Y` at the drawn length, the blade's flats toward `X`. `mouth` is the opening, facing up: a sheathed blade stands point down in it with its shoulder (`createSword`'s origin) on the mouth. `belt` is the hanger on the metal throat below the mouth. A throat held while the blade is drawn waits for a source of the throat's size. Its hanging angle is not modelled: it hangs straight, since no source read gives the angle a hanger sets.
+ * - a quiver stands on its bottom at the origin, a tube open upward. `socket` is the mouth, facing up, and `slot1` to `slot<slots>` the places the arrows stand in it, each facing up on the mouth's plane; `belt` hangs it at a hip from its rim, and `strap` slings it across the back at its middle.
  *
- * @param params The kind, the number of slots of a quiver or a pouch, and any dimension the author fixes.
+ * @param params The kind, the number of slots of a quiver, and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The container.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of slots that is not a whole number from 1 to the kind's capacity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind hangs and stands, what each contact is and where a carried item sits.
- * @evidence contracts/development/implementation.md#principled-implementation A holster as a pouch box under a belt loop box with the socket at the maker's ride offset; a scabbard as one body box and a throat box; a quiver as one tube with its arrows' places spread over the mouth on Vogel's sunflower spiral, the even packing of points in a disc; a pouch as one box and a flap bound to its hinge, with its holes in two even rows.
+ * @evidence contracts/development/implementation.md#principled-implementation A holster as a pouch box under a belt loop box with the socket at the maker's ride offset; a scabbard as one body box and a throat box; a quiver as one tube with its arrows' places spread over the mouth on Vogel's sunflower spiral, the even packing of points in a disc.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the slots, draw the dimensions, then one branch per kind: its parts, then its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retention strap, cant, hanging angle, buckle or stitching; a scabbard is straight and does not taper or curve with a sabre's blade. The throat's length, the flap's thickness and the hanger's places are named estimates.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retention strap, cant, hanging angle, buckle or stitching; a scabbard is straight and does not taper or curve with a sabre's blade. The scabbard's throat's length and lip are the shipped scabbard's construction estimates, which only its belt hanger's offset reads, as it did; a quiver's hangers sit at its rim and its middle.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts, and one contact per slot.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -77,7 +71,7 @@ export function createHolster(
     createHolster.KINDS,
   );
 
-  // The slots a quiver or a pouch holds, from one to the most its source holds.
+  // The slots a quiver holds, from one to the most its source holds.
   const slotted: createHolster.ISlots | undefined = createHolster.SLOTS[kind];
   const capacity: number | undefined = slotted?.capacity;
   const slots: number =
@@ -96,7 +90,7 @@ export function createHolster(
       value: params.slots,
       feasible:
         capacity === undefined
-          ? { kind: "alternatives", values: ["quiver", "pouch"] }
+          ? { kind: "alternatives", values: ["quiver"] }
           : { kind: "range", minimum: 1, maximum: capacity, unit: "" },
       reason:
         capacity === undefined
@@ -104,7 +98,7 @@ export function createHolster(
           : `a ${kind} holds 1 to ${capacity}, not ${params.slots}`,
       fix:
         capacity === undefined
-          ? "leave slots out, or choose a quiver or a pouch"
+          ? "leave slots out, or choose a quiver"
           : "give a whole number of slots",
     });
   const d: Partial<Record<createHolster.Dimension, number>> =
@@ -176,20 +170,6 @@ export function createHolster(
       extent: null,
     });
     builder.affordance({
-      id: "throat",
-      kind: "handle",
-      symmetry: "half",
-      frame: ArchetypeFrame.facing(
-        v(0, length - throat / 2, 0),
-        v(1, 0, 0),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: thick,
-      length: throat,
-    });
-    builder.affordance({
       id: "belt",
       kind: "hook",
       frame: facingWearer(v(-thick / 2, length - throat / 2, 0)),
@@ -198,7 +178,7 @@ export function createHolster(
     return builder.build(d.mass!);
   }
 
-  if (kind === "quiver") {
+  // A quiver: a tube standing on its bottom, open at the top.
     const length: number = d.length!;
     const r: number = d.diameter! / 2;
     builder.rod("tube", r, v(0, 0, 0), v(0, length, 0), { color: "#6b4a2b" });
@@ -229,7 +209,7 @@ export function createHolster(
     builder.affordance({
       id: "belt",
       kind: "hook",
-      frame: facingWearer(v(-r, length * createHolster.BELT, 0)),
+      frame: facingWearer(v(-r, length, 0)),
       extent: null,
     });
     builder.affordance({
@@ -239,56 +219,6 @@ export function createHolster(
       extent: null,
     });
     return builder.build(d.mass!);
-  }
-
-  // A pouch: the box, its flap on a hinge along the back top edge, and its holes in two rows along Z.
-  const width: number = d.width!;
-  const height: number = d.height!;
-  const thick: number = d.thickness!;
-  const flap: number = createHolster.FLAP;
-  builder.box("box", v(thick, height, width), v(0, height / 2, 0), {
-    color: "#1e1c1a",
-  });
-  builder.box("flap", v(thick, flap, width), v(0, height + flap / 2, 0), {
-    color: "#1e1c1a",
-  });
-  builder.affordance({
-    id: "lid",
-    kind: "hinge",
-    frame: ArchetypeFrame.facing(
-      v(-thick / 2, height + flap / 2, 0),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    travel: 180,
-    parts: ["flap"],
-  });
-  const columns: number = Math.ceil(slots / 2);
-  for (let k: number = 0; k < slots; k++) {
-    const row: number = k % 2;
-    const column: number = Math.floor(k / 2);
-    builder.affordance({
-      id: `slot${k + 1}`,
-      kind: "socket",
-      frame: ArchetypeFrame.upright(
-        v(
-          (row === 0 ? -1 : 1) * (thick / 4),
-          height,
-          ((column + 0.5) / columns - 0.5) * width,
-        ),
-      ),
-      extent: null,
-    });
-  }
-  for (const id of ["belt", "strap"] as const)
-    builder.affordance({
-      id,
-      kind: "hook",
-      frame: facingWearer(v(-thick / 2, height / 2, 0)),
-      extent: null,
-    });
-  return builder.build(d.mass!);
 }
 
 /**
@@ -296,12 +226,12 @@ export function createHolster(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the five carriers and one cited band per dimension per kind; a carrier's slots are numbered contacts, so each item's place is a contact an act names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The opening and the item places a draw reads, the throat a draw steadies and the hangers it is worn by (#3374, #3485). A scabbard and a sheath keep the `mouth`, `throat` and `belt` the shipped scabbard had.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The opening and the item places a draw reads and the hangers it is worn by (#3374, #3485). A scabbard and a sheath keep the `mouth` and `belt` the shipped scabbard had.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each container is a kind of one producer, not a producer per weapon; the holster is the default kind, so a call without a kind builds the holster as before. Bands a source read gives are cited; the others are provisional with their search, and the throat, the flap and the hangers are named estimates.
  */
 export namespace createHolster {
-  /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, an archer's quiver and a cartridge pouch. */
-  export type Kind = "holster" | "scabbard" | "sheath" | "quiver" | "pouch";
+  /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, and an archer's quiver. */
+  export type Kind = "holster" | "scabbard" | "sheath" | "quiver";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -309,7 +239,6 @@ export namespace createHolster {
     "scabbard",
     "sheath",
     "quiver",
-    "pouch",
   ];
 
   /** A scabbard's metal throat at the mouth, its length along the scabbard, metres: an estimate. */
@@ -317,12 +246,6 @@ export namespace createHolster {
 
   /** How much wider and thicker the throat is than the body, metres: an estimate. */
   export const THROAT_LIP: number = 0.006;
-
-  /** A pouch flap's thickness, metres: an estimate. */
-  export const FLAP: number = 0.004;
-
-  /** Where a quiver's belt hanger is, as a share of its length from the bottom: an estimate. */
-  export const BELT: number = 0.8;
 
   /**
    * How many items a kind with slots holds.
@@ -340,10 +263,9 @@ export namespace createHolster {
     slots: number;
   }
 
-  /** The slots of the kinds that have them: a quiver at most the 50 arrows the largest capacity seen claims, a dozen when none are asked, as #3485 places; a pouch the 26 holes of the box read. */
+  /** The slots of the kinds that have them: a quiver at most the 50 arrows the largest capacity seen claims, a dozen when none are asked, as #3485 places. */
   export const SLOTS: Readonly<Partial<Record<Kind, ISlots>>> = {
     quiver: { capacity: 50, slots: 12 },
-    pouch: { capacity: 26, slots: 26 },
   };
 
   /**
@@ -351,19 +273,15 @@ export namespace createHolster {
    *
    * - `socket`: a holster's or a quiver's mouth, facing up.
    * - `mouth`: a scabbard's or a sheath's opening, facing up.
-   * - `throat`: a scabbard's or a sheath's throat, held from the outside on `+X`.
    * - `belt`: the hanger, facing the wearer on `-X`.
-   * - `strap`: a quiver's or a pouch's sling or cross-belt, facing the wearer.
-   * - `lid`: a pouch's flap hinge along its back top edge.
-   * - `slot1` to `slot<slots>`: where each arrow or cartridge stands, facing up.
+   * - `strap`: a quiver's sling, facing the wearer.
+   * - `slot1` to `slot<slots>`: where each arrow stands, facing up.
    */
   export type Affordance =
     | "socket"
     | "mouth"
-    | "throat"
     | "belt"
     | "strap"
-    | "lid"
     | `slot${number}`;
 
   /**
@@ -372,10 +290,9 @@ export namespace createHolster {
    * - `ride`: a holster's mouth above the belt line; negative below it.
    * - `depth`: a holster's pouch from its mouth down.
    * - `length`: a scabbard's or a sheath's from the tip to the mouth; a quiver's from its bottom to its mouth.
-   * - `width`: across a scabbard's blade from edge to back, along `Z`; a pouch's along `Z`.
-   * - `thickness`: across a scabbard's flats, along `X`; a pouch's from back to front, along `X`.
+   * - `width`: across a scabbard's blade from edge to back, along `Z`.
+   * - `thickness`: across a scabbard's flats, along `X`.
    * - `diameter`: a quiver's.
-   * - `height`: a pouch's box.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -385,7 +302,6 @@ export namespace createHolster {
     | "width"
     | "thickness"
     | "diameter"
-    | "height"
     | "mass";
 
   /** The parameters: the kind, the slots, and any free dimension fixed to a value inside its band. */
@@ -393,7 +309,7 @@ export namespace createHolster {
     /** Which carrier; `holster` when absent. */
     kind?: Kind;
 
-    /** How many arrows or cartridges a quiver or a pouch holds, 1 to its `SLOTS` capacity, and that table's count when absent. The other kinds have none. */
+    /** How many arrows a quiver holds, 1 to its `SLOTS` capacity, and that table's count when absent. The other kinds have none. */
     slots?: number;
 
     /** The model's id, unique in a scene; `holster` when absent. */
@@ -446,13 +362,7 @@ export namespace createHolster {
     quiver: {
       length: ArchetypeBand.metres(18 * 0.0254, 22.5 * 0.0254, QUIVER, true),
       diameter: ArchetypeBand.metres(3.5 * 0.0254, 3.5 * 0.0254, QUIVER, true),
-      mass: ArchetypeBand.of("kg", 0.2, 0.5, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    pouch: {
-      width: ArchetypeBand.metres(0.2, 9.25 * 0.0254, POUCH, true),
-      height: ArchetypeBand.metres(0.12, 6 * 0.0254, POUCH, true),
-      thickness: ArchetypeBand.metres(2.75 * 0.0254, 2.75 * 0.0254, POUCH),
-      mass: ArchetypeBand.of("kg", 0.3, 0.6, ArchetypeBand.TYPICAL_MASS, true),
+      mass: ArchetypeBand.of("kg", 0.62, 0.68, QUIVER, true),
     },
   };
 }

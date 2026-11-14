@@ -25,10 +25,6 @@ const SPOON: string =
 const FORK: string =
   "IKEA DRAGON fork, stainless steel, 19 cm, sold in fours at 0.18 kg the pack (https://www.ikea.com/de/en/p/dragon-fork-stainless-steel-00515527/)";
 
-/** A table knife, read. */
-const KNIFE: string =
-  "IKEA DRAGON knife, stainless steel, 21 cm, sold in fours at 0.32 kg the pack (https://www.ikea.com/gb/en/p/dragon-knife-stainless-steel-40515530/)";
-
 /** Two ladles, read. */
 const LADLE: string =
   "Rösle hook ladle, 320 mm, bowl 9 cm, 0.218 kg (https://www.roesle.com/en/hook-ladle-with-pouring-rim-oe-9-cm-35-in); IKEA FINMAT ladle, 31 cm (https://www.ikea.com/gb/en/p/finmat-soup-ladle-stainless-steel-50555196)";
@@ -103,21 +99,6 @@ export const TOOL_BANDS: Readonly<
         0.045,
         0.045,
         `${FORK}: a quarter of the pack`,
-      ),
-    },
-    tableKnife: {
-      length: ArchetypeBand.metres(0.21, 0.21, KNIFE),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a table knife's handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.08,
-        0.08,
-        `${KNIFE}: a quarter of the pack`,
       ),
     },
     ladle: {

@@ -22,17 +22,18 @@ const BREAD: string =
  *
  * Each lies on the floor of its own space at rest, as it lies on a plate's `top`. `grip` is where the hand holds it and `bite` the place `handToFace` brings to the mouth, as its `drink` task brings a cup's `lip`:
  *
- * - a loaf lies along `X` in two halves. The hand at `grip` holds the `+X` half from above; the other hand tears the `-X` half off by `tear`, a slider whose frame is that half's grip, travelling outward along `-X` of the model. `bite` is that half's outer end, and rides the tear.
- * - an apple sits on its base with its stalk up; `grip` closes round it and `bite` is its side toward `+Z`, `+Y` the skin's outward normal. *
+ * - a loaf lies along `X`; the hand at `grip` holds it from above at its middle, and `bite` is its `-X` end. Tearing it in two waits for a source of how far a torn half is drawn away.
+ * - an apple sits on its base with its stalk up; `grip` closes round it and `bite` is its side toward `+Z`, `+Y` the skin's outward normal.
+ *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The food.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and how the loaf tears.
- * @evidence contracts/development/implementation.md#principled-implementation A loaf as two boxes of half its drawn length, the `-X` half bound to a slider; an apple as one ball of the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span along its `+Y` as the aperture.
+ * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and why the loaf does not tear yet.
+ * @evidence contracts/development/implementation.md#principled-implementation A loaf as one box of its drawn length, width and height; an apple as one ball of the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span along its `+Y` as the aperture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's parts, grip and bite.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the tear's travel and the stalk are named estimates.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loaf's dome and an apple's dimples are not modelled; the stalk is a construction estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -69,46 +70,17 @@ export function createFood(
     const width: number = d.width!;
     const height: number = d.height!;
     const color: string = "#c98f4e";
-    builder.box(
-      "kept",
-      v(length / 2, height, width),
-      v(length / 4, height / 2, 0),
-      { color },
-    );
-    builder.box(
-      "torn",
-      v(length / 2, height, width),
-      v(-length / 4, height / 2, 0),
-      { color },
-    );
+    builder.box("loaf", v(length, height, width), v(0, height / 2, 0), {
+      color,
+    });
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "half",
-      frame: ArchetypeFrame.facing(
-        v(length / 4, height / 2, 0),
-        v(0, 1, 0),
-        v(0, 0, 1),
-      ),
+      frame: ArchetypeFrame.facing(v(0, height / 2, 0), v(0, 1, 0), v(0, 0, 1)),
       extent: null,
       grip: "power",
       aperture: height,
-    });
-
-    // The tear: the -X half slides away along the loaf, its frame at that half's grip with +X outward.
-    builder.affordance({
-      id: "tear",
-      kind: "slider",
-      frame: ArchetypeFrame.facing(
-        v(-length / 4, height / 2, 0),
-        v(0, 1, 0),
-        v(-1, 0, 0),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: height,
-      travel: createFood.TEAR,
-      parts: ["torn"],
     });
     builder.affordance({
       id: "bite",
@@ -116,7 +88,6 @@ export function createFood(
       direction: "along",
       frame: ArchetypeFrame.facing(v(-length / 2, height / 2, 0), v(-1, 0, 0)),
       extent: null,
-      rides: "tear",
     });
     return builder.build(d.mass!);
   }
@@ -154,9 +125,9 @@ export function createFood(
  * Companion types, constants and bands of {@link createFood}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of two generic foods, one cited band per dimension per kind; the tear is an articulation, so a torn loaf is a moved part.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the bite the mouth meets and the loaf's tear (#3501).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. A drumstick is left out until its shape has a source; the tear's travel and the stalk are named estimates.
+ * @evidence contracts/development/design.md#principled-representation A closed union of two generic foods, one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes and the bite the mouth meets (#3501).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every food has the same `grip` and `bite`, so an eating act is written once; no food is one production's dish. A drumstick and a loaf's tear are left out until their sizes have a source; the stalk is a construction estimate.
  */
 export namespace createFood {
   /** The kinds. */
@@ -165,10 +136,7 @@ export namespace createFood {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["bread", "apple"];
 
-  /** How far the torn half of a loaf is drawn from the kept one, metres: an estimate. */
-  export const TEAR: number = 0.1;
-
-  /** An apple's stalk, metres: an estimate. */
+  /** An apple's stalk, metres: a construction estimate that no act reads and no band declares. */
   export const STALK: Readonly<{ radius: number; length: number }> = {
     radius: 0.002,
     length: 0.015,
@@ -177,11 +145,10 @@ export namespace createFood {
   /**
    * The affordance ids:
    *
-   * - `grip`: where the hand holds it; a loaf's `+X` half from above, an apple round its middle.
+   * - `grip`: where the hand holds it; a loaf from above at its middle, an apple round it.
    * - `bite`: the place brought to the mouth.
-   * - `tear`: a loaf's `-X` half, a slider pulled away along the loaf.
    */
-  export type Affordance = "grip" | "bite" | "tear";
+  export type Affordance = "grip" | "bite";
 
   /**
    * The free dimensions, metres unless stated:

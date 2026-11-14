@@ -11,12 +11,12 @@ const FIT: string = "Wulflund, 1.5 cm longer and 2 cm wider than the blade";
  * Every carrier kind stays inside its cited dimensions for every seed, measured on the produced thing, and a scabbard made to fit a drawn sword holds it.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a holster's mouth 38 mm below to 38 mm above its belt line; a scabbard 0.793 to 1.055 m and a sheath 0.193 to 0.375 m from tip to mouth; a quiver 18 to 22.5 in deep; a pouch 2 3/4 in deep, 20 cm to 9 1/4 in wide and 12 cm to 6 in high.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a holster's mouth 38 mm below to 38 mm above its belt line; a scabbard 0.793 to 1.055 m and a sheath 0.193 to 0.375 m from tip to mouth; a quiver 18 to 22.5 in deep and 0.62 to 0.68 kg.
  * 2. For ten seeds each of an arming sword, a rapier, a dagger and a knife, a scabbard or a sheath made to Wulflund's fit on that blade is admitted, is longer than the blade and its throat wider than the blade at its guard.
- * 3. A scabbard's `throat` grip is the throat's own thickness, and its `mouth` the top of the throat.
+ * 3. A scabbard's `mouth` is the top of its throat.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each carrier for 200 seeds and measures its colliders and contact frames, then fits scabbards to drawn swords; a band other than the citation's, a seed that does not vary it, a scabbard shorter or narrower than its blade, or a throat grip off the throat is caught.
- * @evidence contracts/development/testing.md#independent-expectations Safariland's ride heights, Wulflund's rule of fit on createSword's blades, the back quivers' depths and the cartridge boxes' sizes are written here from their sources; a blade must be shorter and narrower than the scabbard that holds it.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces each carrier for 200 seeds and measures its colliders and contact frames, then fits scabbards to drawn swords; a band other than the citation's, a seed that does not vary it, a scabbard shorter or narrower than its blade, or a mouth off the scabbard's top is caught.
+ * @evidence contracts/development/testing.md#independent-expectations Safariland's ride heights, Wulflund's rule of fit on createSword's blades, the back quivers' depths and weights are written here from their sources; a blade must be shorter and narrower than the scabbard that holds it.
  * @evidence contracts/development/testing.md#distinguishing-cases Every kind; a sword fitted at each end of the scabbard's band (an arming sword's and a rapier's blades) and a knife's and a dagger's sheath; slots belong to `test_archetype_weapon_carriers_slots`, the default holster to `test_archetype_weapon_holster_unchanged`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
@@ -64,30 +64,11 @@ export function test_archetype_weapon_carriers_bands(): void {
           .translation.y,
     ),
     row(
-      "pouch depth",
-      2.75 * 0.0254,
-      2.75 * 0.0254,
-      "Baker's pattern box",
-      (seed: number): number =>
-        archetypeExtent(createHolster({ kind: "pouch" }, seed), "x", ["box"])
-          .size,
-    ),
-    row(
-      "pouch width",
-      0.2,
-      9.25 * 0.0254,
-      "chasseurs' and Baker's pattern boxes",
-      (seed: number): number =>
-        archetypeExtent(createHolster({ kind: "pouch" }, seed), "z").size,
-    ),
-    row(
-      "pouch height",
-      0.12,
-      6 * 0.0254,
-      "chasseurs' and Baker's pattern boxes",
-      (seed: number): number =>
-        archetypeExtent(createHolster({ kind: "pouch" }, seed), "y", ["box"])
-          .size,
+      "quiver mass",
+      0.62,
+      0.68,
+      "20 in back quivers",
+      (seed: number): number => createHolster({ kind: "quiver" }, seed).body.mass,
     ),
   ]);
 
@@ -125,27 +106,19 @@ export function test_archetype_weapon_carriers_bands(): void {
         findings.push(`${sword}@${seed}: its ${carrier} does not hold it`);
     }
 
-  // 3. The throat is held at the throat, and the mouth tops it.
   for (const kind of ["scabbard", "sheath"] as const)
     for (const seed of [0, 1, 2]) {
       const scabbard: ReturnType<typeof createHolster> = createHolster(
         { kind },
         seed,
       );
-      const throat: ReturnType<typeof archetypeExtent> = archetypeExtent(
-        scabbard,
-        "x",
-        ["throat"],
-      );
       if (
-        Math.abs(scabbard.affordance("throat").aperture! - throat.size) >
-          1e-9 ||
         Math.abs(
           scabbard.affordance("mouth").frame.translation.y -
             archetypeExtent(scabbard, "y", ["throat"]).high,
         ) > 1e-9
       )
-        findings.push(`${kind}@${seed}: the throat or the mouth is off`);
+        findings.push(`${kind}@${seed}: the mouth is off the throat's top`);
     }
   TestValidator.equals("the carriers stay in their cited bands", findings, []);
 }

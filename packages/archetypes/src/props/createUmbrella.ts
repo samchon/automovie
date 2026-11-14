@@ -20,7 +20,7 @@ const POWER: string =
 /**
  * A stick umbrella, open over the head or closed and carried.
  *
- * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter just under the ferrule, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle, and declares no canopy. A folding umbrella is not made: no maker read gives its shaft's open length.
+ * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle, and declares no canopy. A folding umbrella is not made: no maker read gives its shaft's open length.
  *
  * @param params Whether it is open, and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -30,7 +30,7 @@ const POWER: string =
  * @evidence contracts/development/common.md#meaningful-documentation States how the umbrella stands, where it is held and what opening it adds.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod and a shaft rod to the closed length, a stick umbrella's shaft keeping its length open or closed; open adds a canopy disc of the published open diameter.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the handle and its grip, the shaft, then the canopy when open.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and the furled canopy of a closed umbrella is not drawn; the shaft's radius, the handle's length, the canopy's thickness and the ferrule's length are named estimates. Opening is a state of the parameters, not an articulation, because the canopy changes size.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and the furled canopy of a closed umbrella is not drawn; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. Opening is a state of the parameters, not an articulation, because the canopy changes size.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -73,8 +73,8 @@ export function createUmbrella(
     length: handle,
   });
   if (params.open === true) {
-    // The canopy just under the ferrule, the full open diameter across.
-    const top: number = d.length - createUmbrella.FERRULE;
+    // The canopy under the shaft's top, the full open diameter across.
+    const top: number = d.length;
     builder.rod(
       "canopy",
       d.canopy / 2,
@@ -100,20 +100,17 @@ export function createUmbrella(
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation One cited band per dimension; open or closed is a parameter because the canopy's size, not a part's place, changes.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes and the canopy a shot reads (#3468's N15).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The open diameter, closed length and mass are the maker's as read; the handle's diameter is a grip band applied, provisional; the rest are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The open diameter, closed length and mass are the maker's as read; the handle's diameter is a grip band applied, provisional, and its length CCOHS's; the shaft's radius and the canopy's thickness are construction estimates.
  */
 export namespace createUmbrella {
-  /** The shaft's radius, metres: an estimate. */
+  /** The shaft's radius, metres: a construction estimate that no act reads and no band declares. */
   export const SHAFT: number = 0.006;
 
   /** The handle's length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
   export const HANDLE: number = 0.12;
 
-  /** The canopy's thickness as drawn, metres: an estimate. */
+  /** The canopy's thickness as drawn, metres: a construction estimate that no act reads and no band declares. */
   export const CANOPY: number = 0.01;
-
-  /** The ferrule above the open canopy, metres: an estimate. */
-  export const FERRULE: number = 0.03;
 
   /**
    * The affordance ids:

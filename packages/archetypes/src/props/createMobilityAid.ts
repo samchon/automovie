@@ -43,7 +43,7 @@ const POWER: string =
  * @evidence contracts/development/common.md#meaningful-documentation States how each aid stands, where it is held, what is missing for a gait, and which kinds wait for a source.
  * @evidence contracts/development/implementation.md#principled-implementation Rods from the published heights, widths and diameters; each grip's frame lies at the centre of the rod it closes on, with that rod's diameter as its aperture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind: its rods, its grips and its foot.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No wheels, glides, folding joints or rubber tip are drawn; the cane's offset handle's length is a named estimate.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No wheels, glides, folding joints or rubber tip are drawn; the cane's offset handle is CCOHS's recommended handle length, as no maker read gives its own.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most seven parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -153,7 +153,7 @@ export function createMobilityAid(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two aids with sourced bands, one band per dimension per kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The grips a hand takes and the foot on the floor (#3468's N5).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is a named estimate.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is CCOHS's recommended handle length.
  */
 export namespace createMobilityAid {
   /** The kinds: an offset cane and a walking frame. */
@@ -162,7 +162,7 @@ export namespace createMobilityAid {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cane", "walker"];
 
-  /** The cane's offset handle, forward of the shaft, metres: an estimate. */
+  /** The cane's offset handle, forward of the shaft, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html), the length a hand closes round. */
   export const HANDLE: number = 0.12;
 
   /**

@@ -417,10 +417,6 @@ export function archetypeCaptureCatalog(): Readonly<
       "book-open": createStationery({ kind: "book" }).articulate({
         hinge: 150,
       }),
-      "bread-torn": createFood({ kind: "bread" }).articulate({
-        tear: createFood.TEAR,
-      }),
-      "pouch-open": createHolster({ kind: "pouch" }).articulate({ lid: 120 }),
       "car-doors-open": car.articulate({
         driverDoor: 65,
         passengerDoor: 30,

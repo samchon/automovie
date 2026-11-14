@@ -41,12 +41,8 @@ export function test_archetype_contract_symmetry(): void {
       "hurdle-men110": { bar: "half" },
       "ball-football": { grip: "round" },
       "device-phone": { grip: "none" },
-      "tool-tableKnife": { grip: "none" },
       "tableware-plate": { leftRim: "half", rightRim: "half" },
       "food-apple": { grip: "round" },
-      "light-lantern": { grip: "round" },
-      "vessel-jug": { handle: "none" },
-      "holster-scabbard": { throat: "half" },
       "polearm-lance": { grip: "round" },
       "magazine-pistol": { grip: "none" },
     };

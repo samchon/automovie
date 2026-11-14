@@ -23,7 +23,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  * The everyday additions and the weapons' carriers and rack are placed in a scene where they were put, and their act-read sizes stay inside their sources for every seed, measured on the produced thing.
  *
  * Scenarios:
- * 1. The razor and the lipstick, the fork, every vessel, wearable, keyboard, cleaning thing and carrier, the torch, the pram, the scabbard, sheath, quiver and pouch kinds of the holster (the belt holster hangs from its loop at its origin, so it is not stood on a floor), both weapon carriers and the weapon rack, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
+ * 1. The razor and the lipstick, the fork, every vessel, wearable, keyboard, cleaning thing and carrier, the torch, the pram, the scabbard, sheath and quiver kinds of the holster (the belt holster hangs from its loop at its origin, so it is not stood on a floor), both weapon carriers and the weapon rack, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
  * 2. Over 200 seeds: the razor 0.129 to 0.137 m long (two Mach3 razors); the keyboard's home row two and a half key pitches (47.6 mm) behind its key field's front, the third row's middle; the sword's scabbard 0.793 to 1.055 m long (Wulflund's fit on createSword's blades); the pram's handle 41.3 in high (the Bugaboo Fox 5).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
@@ -92,7 +92,7 @@ export function test_archetype_everyday_placed(): void {
     { name: "pram", archetype: createPram(), yaw: 180 },
     ...kinds(
       "holster",
-      ["scabbard", "sheath", "quiver", "pouch"] as const,
+      ["scabbard", "sheath", "quiver"] as const,
       (kind: createHolster.Kind): Archetype => createHolster({ kind }),
       200,
     ),
