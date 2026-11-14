@@ -374,6 +374,14 @@ export namespace touch {
           goal: (): IHumanPosture.IGoal => shown.goal,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          // The shown hand's reach, hold and return, planned over the
+          // clock's instants.
+          span: {
+            start: clock.at("start"),
+            ready: clock.at("ready"),
+            relax: clock.at("relax"),
+            end: clock.at("end"),
+          },
         }),
       );
     // Two hands are planned as one trajectory.
