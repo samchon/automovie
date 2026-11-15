@@ -255,12 +255,12 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    *
    * @param sets The fragment sets, each an id and the parts it carries away.
    * @returns This builder.
-   * @throws {Error} When a set names a part not yet recorded, or a part another set already names, a producer's defect.
+   * @throws {Error} When a set's id is declared twice, a set carries no part, or a set names a part not yet recorded or one a set already names (its own included), a producer's defect.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
-   * @evidence contracts/development/implementation.md#principled-implementation Each set's parts must exist and belong to no other set, so every part is in at most one fragment and the remainder is the rest.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown or shared part throws rather than being dropped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part throws rather than being dropped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
@@ -271,7 +271,15 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
         (s: ArchetypeFracture.ISet): readonly string[] => s.parts,
       ),
     );
-    for (const set of sets)
+    const ids: Set<string> = new Set(
+      this.#fractures.map((s: ArchetypeFracture.ISet): string => s.id),
+    );
+    for (const set of sets) {
+      if (ids.has(set.id))
+        throw new Error(`fracture set ${set.id} is declared twice`);
+      if (set.parts.length === 0)
+        throw new Error(`fracture set ${set.id} carries no part`);
+      ids.add(set.id);
       for (const part of set.parts) {
         if (
           !this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
@@ -281,10 +289,11 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           );
         if (named.has(part))
           throw new Error(
-            `fracture set ${set.id} names ${part}, which another set already carries`,
+            `fracture set ${set.id} names ${part}, which a set already carries`,
           );
         named.add(part);
       }
+    }
     this.#fractures.push(...sets);
     return this;
   }

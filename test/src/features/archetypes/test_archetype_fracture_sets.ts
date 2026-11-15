@@ -17,11 +17,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. The fragment leaves with the hit's momentum over its mass, the perfectly inelastic share.
  * 4. A part-filled bottle, whose threshold is unread, and a mug, which declares no fracture, never break.
  * 4b. A hinged door's leaf leaves its frame whole at the 80 J that breaks an unreinforced softwood frame under ASTM F476's ram (US 11280110 B1), and not at 79 J, the pieces weighing the door.
- * 5. A fracture set naming an unrecorded part, or a part another set carries, is refused by the builder.
+ * 5. A fracture set naming an unrecorded part, a part another set carries or a part twice, a set id declared twice, and a set of no part are each refused by the builder.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Breaks real bottles at and below their thresholds and reads the pieces' masses, parts, contacts and velocities; a bottle that breaks below its energy, loses mass, duplicates a part, keeps the wrong contacts or flies off at another speed is caught.
  * @evidence contracts/development/testing.md#independent-expectations The energies are the cited drop-tower figures, written here; the velocity is momentum over mass, worked here.
- * @evidence contracts/development/testing.md#distinguishing-cases Empty and full, at and below the threshold, a part-filled bottle, a mug and two builder refusals.
+ * @evidence contracts/development/testing.md#distinguishing-cases Empty and full, at and below the threshold, a part-filled bottle, a mug, a door and five builder refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
@@ -159,6 +159,15 @@ export function test_archetype_fracture_sets(): void {
         { id: "y", parts: ["a", "b"] },
       ],
     ],
+    ["a part twice in one set", [{ id: "x", parts: ["a", "a"] }]],
+    [
+      "an id twice",
+      [
+        { id: "x", parts: ["a"] },
+        { id: "x", parts: ["b"] },
+      ],
+    ],
+    ["no part", [{ id: "x", parts: [] }]],
   ] as const) {
     let threw: boolean = false;
     try {

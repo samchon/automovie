@@ -26,9 +26,9 @@ const PAD: string =
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
  *
- * A piece is fitted to a body when the author gives the body's measure (`IAutoMovieBodyMeasure`, as the motion laws read the polygon man's): its inside follows the body part it covers, its plate the drawn thickness beyond it, a helmet's padding between the head and the plate. Without a measure it is the read piece as its museum record measures it, a box of its height, width and depth. Either way its mass is its record's. It is built centred on the body part it covers, `+Y` up the segment, and `wear` is that centre, which a worn prop rides on its bone (`createArmour.bone`); a limb piece is for the `side` given. A brimmed helmet carries its brim as wide as its record's depth.
+ * A piece is fitted to a body when the author gives the body's measure (`IAutoMovieBodyMeasure`, as the motion laws read the polygon man's): its inside follows the body part it covers, its plate the drawn thickness beyond it, a helmet's padding between the head and the plate. Without a measure it is the read piece as its museum record measures it, a box of its height, width and depth. Either way its mass is its record's. It is built centred on the body part it covers, `+Y` up the segment, and `wear` is that centre, which a worn prop rides on its bone (`createArmour.bone`); a limb piece is the same on either side, and `bone` names the side's bone. A brimmed helmet carries its brim as wide as its record's depth.
  *
- * @param params The kind, the side of a limb piece, the read piece, the body's measure, and any dimension the author fixes.
+ * @param params The kind, the read piece, the body's measure, and any dimension the author fixes.
  * @param seed The seed that picks the read piece left free and draws every dimension left free inside its band; absent, the first piece and the middle of each band.
  * @returns The piece.
  * @throws {ArchetypeRefusal} For a piece not of the kind, or a fixed dimension outside its band.
@@ -302,7 +302,7 @@ export namespace createArmour {
     greave: { thickness: { ...thickness, provisional: true } },
   };
 
-  /** The parameters: the kind, a limb piece's side, the read piece, the body to fit, and any free dimension fixed to a value inside its band. */
+  /** The parameters: the kind, the read piece, the body to fit, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which piece. */
     kind: Kind;
@@ -312,9 +312,6 @@ export namespace createArmour {
 
     /** The body the piece is fitted to, as the motion laws read it; absent, the piece is its record's box. */
     measure?: Partial<IAutoMovieBodyMeasure>;
-
-    /** A limb piece's side; the left when absent. */
-    side?: "left" | "right";
 
     /** The model's id, unique in a scene; `armour` when absent. */
     id?: string;
