@@ -206,8 +206,7 @@ export function steerAutoMovieCrowd(
       key: string,
       depth: number,
       agent: number,
-      other: number | null,
-      obstacle: number | null,
+      other: IAutoMovieCrowdAgent.IContact["other"],
     ): void => {
       seen.add(key);
       const was: { seconds: number; depth: number; ticks: number } = open.get(
@@ -219,7 +218,6 @@ export function steerAutoMovieCrowd(
         contacts.push({
           agent,
           other,
-          obstacle,
           seconds: was.seconds,
           depth: was.depth,
         });
@@ -240,13 +238,13 @@ export function steerAutoMovieCrowd(
           agents[i]!.radius +
           agents[j]!.radius -
           Math.hypot(x[4 * b]! - ax, x[4 * b + 1]! - az);
-        if (depth > 1e-9) touch(`a${i}:${j}`, depth, i, j, null);
+        if (depth > 1e-9) touch(`a${i}:${j}`, depth, i, { kind: "agent", index: j });
       }
       obstacles.forEach(
         (o: IAutoMovieCrowdAgent.IObstacle, k: number): void => {
           const depth: number =
             agents[i]!.radius - signedDistance(ax, az, footprintAt(o, seconds));
-          if (depth > 1e-9) touch(`o${i}:${k}`, depth, i, null, k);
+          if (depth > 1e-9) touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
         },
       );
     }

@@ -188,22 +188,23 @@ export namespace HumanCrowd {
       to: request.until,
     });
     const contact: IAutoMovieCrowdAgent.IContact | undefined = pass.contacts[0];
-    if (contact !== undefined)
+    if (contact !== undefined) {
+      const other: string =
+        contact.other.kind === "agent"
+          ? leaders[contact.other.index]!.subject
+          : request.obstacles![contact.other.index]!.subject;
       throw new HumanRefusal({
         kind: "participant",
         performer: leaders[contact.agent]!.subject,
         axis: "crowd",
         value:
-          contact.other === null
-            ? request.obstacles![contact.obstacle!]!.subject
-            : leaders[contact.other]!.subject,
+          other,
         reason: `${leaders[contact.agent]!.subject} and ${
-          contact.other === null
-            ? request.obstacles![contact.obstacle!]!.subject
-            : leaders[contact.other]!.subject
+          other
         } overlap by ${(contact.depth * 1000).toFixed(0)} mm from ${contact.seconds.toFixed(3)} s; the steering pass keeps people apart by anticipation and does not push them`,
         fix: "thin the crowd, widen the way, or start the members apart",
       });
+    }
 
     // Each agent's course sampled at the film's rate, a member taking its agent's.
     const step: number = 1 / 24;

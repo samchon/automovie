@@ -42,7 +42,14 @@ export interface IAutoMovieCrowdAgent {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A moving obstacle's footprint is in its own frame and placed by its motion, so a still one needs no motion.
  */
 export namespace IAutoMovieCrowdAgent {
-  /** Something the agents steer round. */
+  /**
+   * Something the agents steer round.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its footprint's frame with and without a motion, and that a motion is pure.
+   * @evidence contracts/development/design.md#principled-representation A convex footprint on the floor plan and an optional rigid placement by film second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members the pass reads; the motions package maps its obstacles onto it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A still obstacle carries no motion rather than a constant function.
+   */
   export interface IObstacle {
     /** A convex footprint's corners in order: world metres without a motion, its own frame (x to its left, z ahead) with one; `y` is not read. */
     footprint: readonly IAutoMovieVector3[];
@@ -51,7 +58,14 @@ export namespace IAutoMovieCrowdAgent {
     motion?: (seconds: number) => { position: IAutoMovieVector3; yaw: number };
   }
 
-  /** One agent's planned course. */
+  /**
+   * One agent's planned course.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the reader's units, the held ends and the meaning of a null arrival.
+   * @evidence contracts/development/design.md#principled-representation A course read by film second, and the first second within its radius of its destination.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What HumanCrowd.steer and the props planner read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No arrival is invented: an agent that does not arrive reads null.
+   */
   export interface ICourse {
     /** Its position and velocity at a film second, held at the pass's ends outside it. */
     at: (seconds: number) => {
@@ -63,16 +77,20 @@ export namespace IAutoMovieCrowdAgent {
     arrival: number | null;
   }
 
-  /** Two discs, or a disc and an obstacle, that overlapped for longer than one step. */
+  /**
+   * Two discs, or a disc and an obstacle, that overlapped for longer than one step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation The two parties by index, when the overlap began and how deep it was.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What a caller names in its refusal.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts other and obstacle are exclusive by construction: exactly one is null.
+   */
   export interface IContact {
     /** The first agent's index. */
     agent: number;
 
-    /** The other agent's index, or null for an obstacle. */
-    other: number | null;
-
-    /** The obstacle's index, for a contact with one. */
-    obstacle: number | null;
+    /** What it overlapped: another agent, or an obstacle, by index. */
+    other: { kind: "agent"; index: number } | { kind: "obstacle"; index: number };
 
     /** The film second the overlap began. */
     seconds: number;

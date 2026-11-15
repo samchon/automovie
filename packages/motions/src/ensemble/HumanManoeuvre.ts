@@ -37,6 +37,12 @@ export namespace HumanManoeuvre {
   /** Seconds between two blocks or ranks stepping off in turn: one step at the drill's quick time, 60 over `HumanGait.MARCH.cadence` (provisional: the drill books give the order, not the interval). */
   export const INTERVAL: number = 60 / HumanGait.MARCH.cadence;
 
+  /** Seconds between two kept points of a steered way (provisional: about a stride). */
+  export const STEERED: number = 0.5;
+
+  /** How many times the longest straight way's walking time a steered re-form is given (provisional: room to go round). */
+  export const SPAN: number = 3;
+
   /** Degrees between two points of a wheeling member's arc. */
   export const ARC: number = 10;
 
@@ -94,14 +100,17 @@ export namespace HumanManoeuvre {
 
     // Each way: about the pivot, straight, or none.
     const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
-    const ways: IAutoMovieVector3[][] = members.map(
-      (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
-        rule.path === "inPlace"
-          ? [starts[i]!]
-          : rule.path === "arc"
-            ? arc(pivot, starts[i]!, ends[i]!.at)
-            : [starts[i]!, ends[i]!.at],
-    );
+    const ways: IAutoMovieVector3[][] =
+      rule.path === "steered"
+        ? steered(ensemble, manoeuvre, starts, ends)
+        : members.map(
+            (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
+              rule.path === "inPlace"
+                ? [starts[i]!]
+                : rule.path === "arc"
+                  ? arc(pivot, starts[i]!, ends[i]!.at)
+                  : [starts[i]!, ends[i]!.at],
+          );
 
     // Who steps off when: by block for the deployments, by rank in turn, or together.
     const blocks: number[] = members.map(
@@ -386,4 +395,45 @@ function crossings(
           });
       }
   }
+}
+
+/**
+ * Each member's way to its new slot through the crowd's steering pass
+ * (`HumanCrowd.steer`), the members walking from where they stand at the
+ * word: the steered course sampled every `STEERED` seconds, ending on the
+ * slot. The pass runs for `SPAN` times the time the longest straight way
+ * takes at the slowest member's walk, which leaves room to go round.
+ */
+function steered(
+  ensemble: HumanEnsemble.IEnsemble,
+  manoeuvre: IHumanManoeuvre,
+  starts: readonly IAutoMovieVector3[],
+  ends: readonly IHumanFormation.ISlot[],
+): IAutoMovieVector3[][] {
+  const longest: number = Math.max(
+    1e-3,
+    ...starts.map((s: IAutoMovieVector3, i: number): number => Math.hypot(ends[i]!.at.x - s.x, ends[i]!.at.z - s.z)),
+  );
+  const slowest: number = Math.min(
+    ...ensemble.members.map((m: HumanEnsemble.IMember): number =>
+      Math.sqrt(walk.FROUDE.normal * AutoMovieGravity.STANDARD * m.body.measure.hipHeight),
+    ),
+  );
+  const until: number = manoeuvre.at + (HumanManoeuvre.SPAN * longest) / slowest;
+  const placed: HumanEnsemble.IEnsemble = {
+    ...ensemble,
+    members: ensemble.members.map((m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({ ...m, place: { at: starts[i]!, yaw: m.place.yaw } })),
+  };
+  const result: HumanCrowd.IResult = HumanCrowd.steer(placed, {
+    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ends[m.index]!.at,
+    gait: manoeuvre.gait === "run" ? "run" : "walk",
+    start: manoeuvre.at,
+    until,
+  });
+  return result.frames.map((frame: IHumanFormation.ICourse, i: number): IAutoMovieVector3[] => {
+    const way: IAutoMovieVector3[] = frame.samples
+      .filter((_: IHumanFormation.ISample, k: number): boolean => k % Math.max(1, Math.round(HumanManoeuvre.STEERED * 24)) === 0)
+      .map((s: IHumanFormation.ISample): IAutoMovieVector3 => ({ x: s.x, y: 0, z: s.z }));
+    return [...way, ends[i]!.at];
+  });
 }

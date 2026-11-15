@@ -42,6 +42,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    within its acceleration's time, and a slot's way read back by a timed
  *    course (`ArchetypeCourse.timed`) passes the same points at the same
  *    seconds within 1e-6 m.
+ * 7. A member's station from `HumanEnsemble.station`: its dress bound is
+ *    smaller for a disciplined member than for an undisciplined one, and a
+ *    member walking its dressed station ends within 0.15 m of its slot (the
+ *    deviation vanishes where the station ends).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Lays slots, moves frames and performs marches and walks that keep station; a wrong lattice, a frame that shears, an inward face, a member that loses its count or its slot, or a path the course cannot replay is caught.
  * @evidence contracts/development/testing.md#independent-expectations The lattice and its 22 and 13 inch spacings are the drill's; rigidity and outward faces are geometry; the lag bound is the cited gain's first-order law; the course passes through its samples by construction of a timed course.
@@ -330,5 +334,25 @@ export function test_human_motion_ensemble_formation(): void {
       break;
     }
   }
+
+  // 7. A member's dressed station.
+  const drilled: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "d", seed: "formation", count: 2, bodies, formation: marks, attributes: { discipline: { mean: 1, spread: 0 } } });
+  const raw: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "d", seed: "formation", count: 2, bodies, formation: marks, attributes: { discipline: { mean: 0, spread: 0 } } });
+  const steady: IHumanFormation.IStation = HumanEnsemble.station(drilled, drilled.members[0]!);
+  const loose: IHumanFormation.IStation = HumanEnsemble.station(raw, raw.members[0]!);
+  if (!(steady.dress!.bound < loose.dress!.bound)) findings.push(`the drilled member's dress bound ${steady.dress!.bound} is not below the undisciplined one's ${loose.dress!.bound}`);
+  const dressed: HumanPerformance = new HumanPerformance({
+    seed: "formation",
+    performers: HumanEnsemble.performers(raw),
+    composition: HumanEnsemble.chains(raw, (m: HumanEnsemble.IMember, chain: HumanChain) =>
+      chain.walk({ to: HumanFormation.slot(marks, m.index, stop).at, station: HumanEnsemble.station(raw, m) }),
+    ),
+  });
+  const walked: HumanSegment.ISegment = dressed.segments("d.0")[0]!;
+  const reach: number = Math.hypot(
+    dressed.posture("d.0", walked.end).root.x - HumanFormation.slot(marks, 0, stop).at.x,
+    dressed.posture("d.0", walked.end).root.z - HumanFormation.slot(marks, 0, stop).at.z,
+  );
+  if (reach > 0.15) findings.push(`the dressed member ends ${reach.toFixed(3)} m from its slot`);
   TestValidator.equals("a formation and its station keeping", findings, []);
 }
