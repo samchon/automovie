@@ -179,7 +179,7 @@ export function steerAutoMovieCrowd(
         ),
       );
 
-      // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its half of each avoidance, and no faster than its maximum (ORCA's linear program, the hard guarantee under the anticipatory force).
+      // A position moves at the velocity nearest the agent's own that keeps it clear of every other agent for the horizon, taking its share of each avoidance, and no faster than its maximum (ORCA's linear program, the hard guarantee under the anticipatory force).
       const top: number =
         agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
       const lines: solveAutoMovieHalfPlaneProgram.ILine[] = [];

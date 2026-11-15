@@ -214,7 +214,7 @@ export namespace steerAutoMovieCrowdGeometry {
 
   /**
    * The half-plane of velocities that keeps an agent clear of another for a
-   * time horizon, taking its half of the avoidance: optimal reciprocal
+   * time horizon, taking its share of the avoidance: optimal reciprocal
    * collision avoidance (van den Berg, Guy, Lin and Manocha 2011, section
    * 5.1). The velocity obstacle of the other, truncated at the horizon, is
    * left by the smallest change `u` of the relative velocity, and the agent
@@ -247,7 +247,7 @@ export namespace steerAutoMovieCrowdGeometry {
    * @returns The half-plane, its direction a unit vector, the admissible side on its left.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the constraint, its source, the overlap case and the coordinates.
-   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap, with the reciprocal half.
+   * @evidence contracts/development/implementation.md#principled-implementation The paper's construction: the truncated cone's cut-off disc or its nearer leg by the sign of the determinant, or the one-step disc for an overlap, with the alpha-weighted share of RVO, one half wherever both agents can take it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three cases, each one projection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coincident centres, which name no direction, take the relative velocity's own direction, or +x when that is zero, so the half-plane is always defined.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
