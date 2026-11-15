@@ -17,13 +17,17 @@ const STAFF: string =
 const SPEAR: string =
   "Viking Age spears, heads of 20 to 60 cm on shafts of 2 to 3 m (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
 
-/** The cavalry lance, read at the Royal Armouries, and its other patterns' records seen only in search results. */
+/** The cavalry lance, read at the Royal Armouries. */
 const LANCE: string =
-  "Royal Armouries, Pattern 1894 Lance: 2.76 m overall, 2.19 kg, a hide sling round the shaft's midpoint giving the hand its grip (https://royalarmouries.org/collection/first-world-war/type/rac-narrative-82.html); its records VII.2860 (2328 mm, 1.672 kg, a 207 to 214 mm head), VII.1433 (2625 mm, a 277 mm head) and India Pattern 1868 (2840 mm, 2.1 kg), seen only in search results";
+  "Royal Armouries, Pattern 1894 Lance: 2.76 m overall, 2.19 kg, a hide sling round the shaft's midpoint giving the hand its grip (https://royalarmouries.org/collection/first-world-war/type/rac-narrative-82.html)";
 
-/** Catalogued spearheads' widths, socket diameters and masses, read in museum records. */
-const SPEARHEAD: string =
-  "Metropolitan Museum 1989.220, European spearhead ca. 800-1000: W. 4.8 cm, 444 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/24939); Museum Wales medieval iron spearhead: width 33.3 mm, 141.7 g (https://museum.wales/collections/online/object/4042a243-29ff-3c1d-803d-7c2dda0d54d6); medieval spearhead: blade 36 mm wide, socket 23.5 mm across (https://museum.wales/collections/online/object/1b6580d3-f332-34d4-a3e7-5f9b5e6080c7); Roman spearheads, Segontium: blades 37 and 32 mm wide, sockets about 19 and 16 mm across (https://museum.wales/collections/online/object/06e68587-a7a8-3e9e-876d-c786513a288f, https://museum.wales/collections/online/object/ac74b18f-7c21-3b86-8546-be6de58baffa); Roman spearhead, Loughor: blade 27 mm wide (https://museum.wales/collections/online/object/431f598b-53fd-3500-953c-30ea6e544917)";
+/** Lance heads, seen only in search results. */
+const LANCE_HEADS: string =
+  "the Pattern 1894 lance's head is not stated; the Royal Armouries' lance records VII.2860 (a 207 to 214 mm head) and VII.1433 (a 277 mm head), seen only in search results, give the range applied";
+
+/** Catalogued spearheads' sockets, read in museum records. */
+const SOCKETS: string =
+  "a spearhead's socket, the shaft's end, where its record does not state it: the sockets read, Museum Wales' medieval spearhead's 23.5 mm (https://museum.wales/collections/online/object/1b6580d3-f332-34d4-a3e7-5f9b5e6080c7) and the Segontium Roman spearheads' about 19 and 16 mm (https://museum.wales/collections/online/object/06e68587-a7a8-3e9e-876d-c786513a288f, https://museum.wales/collections/online/object/ac74b18f-7c21-3b86-8546-be6de58baffa), applied";
 
 /** Two whole spears, read in museum records: later pieces than the Viking Age spears whose lengths the spear's bands take. */
 const SPEAR_MASS: string =
@@ -42,14 +46,14 @@ const POWER: string =
  *
  * It stands along `+Y` from its butt at the origin. The `shaft` is one bar the two hands share, so the hands' spacing and their sliding along it are the wielding act's choice of sites. A spear and a lance carry a flat head above the shaft, its edges toward `+Z` and `-Z`; `length` is the shaft alone and `headLength` the head above it. `tip` is the upper end, the way a thrust goes, and `butt` the lower. A lance also declares `grip`, the sling at the shaft's midpoint where the one hand holds it; the steel head puts the balance ahead of it, so a couched lance's point is carried forward of the hand. A thrown spear is `createJavelin`'s.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a spear's head and any dimension the author fixes.
+ * @param seed The seed that picks the head left free and draws every dimension left free inside its band; absent, the first head and the middle of each band.
  * @returns The weapon.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a head length fixed on a staff.
+ * @throws {ArchetypeRefusal} For a head not of the kind, a fixed dimension outside its band or one the head gives, or a head length fixed on a staff, or a lance's shaft length fixed, which its head sets.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the weapon stands, how the hands share the shaft, what the lengths measure and the two ends.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear and a lance, a head box of the read head width carrying the drawn head mass as its share of the whole, the shaft the rest, so the balance point moves toward the head by the read masses; mass properties follow from the parts under the drawn mass.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft and its bar, a lance's grip, the head, the two ends.
+ * @evidence contracts/development/implementation.md#principled-implementation A shaft rod and, for a spear and a lance, a head box of its head's width carrying its head's mass as its share of the whole, the shaft the rest, so the balance point moves toward the head; mass properties follow from the parts under the whole's mass. A lance's shaft is the read lance's overall length less its head.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the head, draw the other dimensions, a lance's shaft from its head, the shaft and its bar, a lance's grip, the head, the two ends.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No socket, lugs or butt cap; the head's thickness is a construction proportion of its read width, which no act reads, since the head's mass, not its volume, places the balance.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part for a staff, two for a spear or a lance.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -65,14 +69,15 @@ export function createPolearm(
     params.kind,
     createPolearm.KINDS,
   );
+  // A spear's head is one catalogued spearhead whole; a lance's shaft is the read lance's overall length less its head.
+  const model: { figures: Readonly<Partial<Record<createPolearm.Dimension, number>>> } =
+    ArchetypeDraw.model<createPolearm.Model, createPolearm.Dimension>("polearm", "model", params.model, createPolearm.MODELS[kind], seed, params);
+  const drawn: Partial<Record<createPolearm.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("polearm", createPolearm.BANDS[kind], seed, params, createPolearm.BANDS),
+    ...model.figures,
+  };
   const d: Partial<Record<createPolearm.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "polearm",
-      createPolearm.BANDS[kind],
-      seed,
-      params,
-      createPolearm.BANDS,
-    );
+    kind === "lance" ? { ...drawn, length: createPolearm.LANCE_LENGTH - drawn.headLength! } : drawn;
   const builder: ArchetypeBuilder<
     createPolearm.Affordance,
     createPolearm.Dimension
@@ -143,9 +148,9 @@ export function createPolearm(
  * Companion types, constants and bands of {@link createPolearm}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, in metres and kilograms.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and catalogued spearheads, each whole, and one cited band per dimension a head leaves, in metres and kilograms.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The shaft with sites along it, the two ends, the lengths and the mass a two-handed strike or thrust reads (#3202's spear and staff), and the lance's grip a couched charge reads (#3466, #3482).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A staff has no head length band, so fixing one on a staff is refused.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A staff has no head length band, so fixing one on a staff is refused. No spearhead's figure stands in another's record: a spear's head is one of the two catalogued heads that state their weight, and its socket, which neither states, is drawn from a provisional band citing the read sockets of other heads.
  */
 export namespace createPolearm {
   /** The kinds of polearm. */
@@ -156,6 +161,28 @@ export namespace createPolearm {
 
   /** A head's thickness as a share of its read width: a construction proportion that no act reads, since the head's read mass, not its volume, places the balance. */
   export const HEAD_THICKNESS: number = 0.25;
+
+  /** The read lance's overall length, metres: the Pattern 1894's 2.76 m (Royal Armouries). */
+  export const LANCE_LENGTH: number = 2.76;
+
+
+  /** The catalogued spearheads that state their weight: Met 1989.220 and Museum Wales' medieval iron head. */
+  export type Model = "met1989" | "walesIron";
+
+  /**
+   * Each kind's heads whole, the default first, each as its record states it:
+   *
+   * - Met 1989.220, European ca. 800-1000: L. 54 cm, W. 4.8 cm, 444 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/24939).
+   * - Museum Wales, medieval iron spearhead: 362 mm long, 33.3 mm wide, 141.7 g (https://museum.wales/collections/online/object/4042a243-29ff-3c1d-803d-7c2dda0d54d6).
+   *
+   * The head's mass places the spear's balance, so a head whose record states no weight is not a model: Museum Wales' socketed medieval head, its Segontium and its Loughor Roman heads. No volume model of a head derives it: a lozenge blade with its section's thickness a quarter of its width gives the Met head's blade 287 g against the whole head's read 444 g and the Wales head 131 g against its 141.7 g, and no weighed record gives the socket that would close the gap.
+   */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>>> = {
+    spear: {
+      met1989: { headLength: 0.54, headWidth: 0.048, headMass: 0.444 },
+      walesIron: { headLength: 0.362, headWidth: 0.0333, headMass: 0.1417 },
+    },
+  };
 
   /**
    * The affordance ids:
@@ -170,7 +197,7 @@ export namespace createPolearm {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `length`: the shaft.
+   * - `length`: the shaft; a lance's is its overall length less its head.
    * - `headLength`: a spear's or a lance's head above the shaft.
    * - `headWidth`: the head's blade across, edge to edge.
    * - `headMass`: the head's mass, kilograms, its share of the whole placing the balance.
@@ -185,16 +212,19 @@ export namespace createPolearm {
     | "diameter"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** The parameters: the kind, a spear's head, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which polearm. */
     kind: Kind;
+
+    /** Which catalogued spearhead a spear carries; picked from the seed when absent. A staff and a lance have none. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `polearm` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension a head leaves, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
@@ -216,28 +246,15 @@ export namespace createPolearm {
     },
     spear: {
       length: ArchetypeBand.metres(2, 3, SPEAR, true),
-      headLength: ArchetypeBand.metres(0.2, 0.6, SPEAR, true),
-      headWidth: ArchetypeBand.metres(0.027, 0.048, SPEARHEAD),
-      headMass: ArchetypeBand.of("kg", 0.1417, 0.444, SPEARHEAD),
-      diameter: ArchetypeBand.metres(
-        0.016,
-        0.0235,
-        `${SPEARHEAD}: the shaft's end the sockets take`,
-      ),
+      diameter: ArchetypeBand.metres(0.016, 0.0235, SOCKETS, true),
       mass: ArchetypeBand.of("kg", 1.8144, 2.5798, SPEAR_MASS),
     },
     lance: {
-      length: ArchetypeBand.metres(
-        2.625 - 0.277,
-        2.84 - 0.207,
-        `${LANCE}: the shaft is the 2.625 to 2.84 m overall less the 207 to 277 mm heads`,
-        true,
-      ),
-      headLength: ArchetypeBand.metres(0.207, 0.277, LANCE, true),
-      headWidth: ArchetypeBand.metres(0.015, 0.015, LANCE_HEAD),
-      headMass: ArchetypeBand.of("kg", 0.18, 0.18, LANCE_HEAD),
+      headLength: ArchetypeBand.metres(0.207, 0.277, LANCE_HEADS, true),
+      headWidth: ArchetypeBand.metres(0.015, 0.015, `${LANCE_HEAD}, applied to the Pattern 1894`, true),
+      headMass: ArchetypeBand.of("kg", 0.18, 0.18, `${LANCE_HEAD}, applied to the Pattern 1894`, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 1.672, 2.19, LANCE, true),
+      mass: ArchetypeBand.of("kg", 2.19, 2.19, LANCE),
     },
   };
 }

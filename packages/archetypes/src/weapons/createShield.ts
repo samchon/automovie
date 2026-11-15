@@ -10,9 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** Measured steel bucklers of a museum collection. */
-const WALLACE: string =
-  "K. Reeves, A Survey of Bucklers at the Wallace Collection: A315, about 17.5 in and 3 lb 7 oz, and A316, 20.75 in and 3 lb 13 oz, both about 1600 (https://nachtanz.org/kjr/a-survey-of-bucklers-wallace-museum.html)";
 
 /** The round shield's size, from a secondary source. */
 const ROUND: string =
@@ -23,14 +20,14 @@ const ROUND: string =
  *
  * The shield stands upright with its centre at the origin and its face toward `+Z`. It is a disc with a domed boss on the face and a bar across the back, behind the boss, that the fist closes on. `face` is the whole front that meets a blow, `boss` the dome's top that a punch leads with, and `rim` the top of the edge.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a buckler's model and any dimension the author fixes.
+ * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The shield.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation A short cylinder for the board, a ball for the boss and a rod for the grip, of one density, so the centre of mass sits at the disc's centre a little toward the boss and the inertia is a disc's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, three parts, four contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, three parts, four contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arm strap, no rim binding; the board's thickness and the boss's size are estimates named on their constants.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -46,12 +43,13 @@ export function createShield(
     params.kind,
     createShield.KINDS,
   );
-  const d: Record<createShield.Dimension, number> = ArchetypeDraw.dimensions(
-    "shield",
-    createShield.BANDS[kind],
-    seed,
-    params,
-  );
+  // A buckler is one of the two Wallace Collection bucklers whole; a round shield has no read model, its bands.
+  const model: { figures: Readonly<Partial<Record<createShield.Dimension, number>>> } =
+    ArchetypeDraw.model<createShield.Model, createShield.Dimension>("shield", "model", params.model, createShield.MODELS[kind], seed, params);
+  const d: Partial<Record<createShield.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("shield", createShield.BANDS[kind], seed, params, createShield.BANDS),
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createShield.Affordance,
     createShield.Dimension
@@ -62,7 +60,7 @@ export function createShield(
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const radius: number = d.diameter / 2;
+  const radius: number = d.diameter! / 2;
   const half: number = createShield.BOARD[kind] / 2;
   const bar: number = createShield.GRIP / 2;
   builder.rod("board", radius, v(0, 0, -half), v(0, 0, half), {
@@ -94,8 +92,8 @@ export function createShield(
     direction: "normal",
     frame: ArchetypeFrame.facing(v(0, 0, half), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
-    width: d.diameter,
-    depth: d.diameter,
+    width: d.diameter!,
+    depth: d.diameter!,
   });
   builder.affordance({
     id: "boss",
@@ -115,16 +113,16 @@ export function createShield(
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
  * Companion types, constants and bands of {@link createShield}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from or that it is an estimate.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, in metres and kilograms.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of kinds and read bucklers, each whole, and one cited band per dimension a model leaves, in metres and kilograms.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The diameter and mass a block reads, and the grip, face, boss and rim it is held and struck by (#3202's buckler and round shield).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension; the uncited sizes are named constants, not literals in the builder.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, a buckler's from one measured buckler, never between two; the uncited sizes are named constants, not literals in the builder.
  */
 export namespace createShield {
   /** The kinds of shield. */
@@ -163,23 +161,34 @@ export namespace createShield {
    */
   export type Dimension = "diameter" | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** The read bucklers: the Wallace Collection's A315 and A316. */
+  export type Model = "a315" | "a316";
+
+  /** Each kind's models whole, the default first: A315, about 17.5 in and 3 lb 7 oz, and A316, 20.75 in and 3 lb 13 oz (K. Reeves, A Survey of Bucklers at the Wallace Collection, https://nachtanz.org/kjr/a-survey-of-bucklers-wallace-museum.html); a round shield has none. */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    buckler: {
+      a315: { diameter: 17.5 * ArchetypeUnits.INCH, mass: 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE },
+      a316: { diameter: 20.75 * ArchetypeUnits.INCH, mass: 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE },
+    },
+  };
+
+  /** The parameters: the kind, a buckler's model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which shield. */
     kind: Kind;
+
+    /** Which of the read bucklers; picked from the seed when absent. A round shield has none. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `shield` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension a model leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
-    buckler: {
-      diameter: ArchetypeBand.metres(17.5 * ArchetypeUnits.INCH, 20.75 * ArchetypeUnits.INCH, WALLACE),
-      mass: ArchetypeBand.of("kg", 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE, 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE, WALLACE),
-    },
+    buckler: {},
     round: {
       diameter: ArchetypeBand.metres(0.75, 0.9, ROUND, true),
       mass: ArchetypeBand.of(

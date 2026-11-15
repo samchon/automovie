@@ -14,14 +14,40 @@ import {
   ArchetypeRefusal,
   type IArchetypeBand,
 } from "../core";
+import { createSword } from "./createSword";
 
-/** A duty-gear maker's description of holster ride heights. */
-const RIDE: string =
-  "Safariland, Holster Ride Options: mid-ride puts the pistol's butt level with the belt, low and high ride about 1.5 in lower and higher (https://inside.safariland.com/education/holster-ride-options/)";
 
 /** A scabbard maker's rule of fit, read. */
 const WULFLUND: string =
   "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
+
+/** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
+const FIT: Readonly<{ length: number; width: number }> = { length: 0.015, width: 0.02 };
+
+/** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
+const madeTo = (name: string, sword: Readonly<Partial<Record<createSword.Dimension, number>>>): createHolster.Fitted => ({
+  length: ArchetypeBand.metres(
+    sword.bladeLength! + FIT.length,
+    sword.bladeLength! + FIT.length,
+    `${WULFLUND}, on the ${name}'s read ${sword.bladeLength} m blade`,
+  ),
+  width: ArchetypeBand.metres(
+    sword.bladeWidth! + FIT.width,
+    sword.bladeWidth! + FIT.width,
+    `${WULFLUND}, on the ${name}'s read ${sword.bladeWidth} m blade width`,
+  ),
+});
+
+/** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
+const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
+  const blade: Readonly<Partial<Record<createSword.Dimension, IArchetypeBand>>> = createSword.BANDS[kind];
+  const length: IArchetypeBand = blade.bladeLength!;
+  const width: IArchetypeBand = blade.bladeWidth!;
+  return {
+    length: ArchetypeBand.metres(length.minimum + FIT.length, length.maximum + FIT.length, `${WULFLUND}, on ${length.source}`, length.provisional),
+    width: ArchetypeBand.metres(width.minimum + FIT.width, width.maximum + FIT.width, `${WULFLUND}, on ${width.source}`, width.provisional),
+  };
+};
 
 /** What no scabbard maker read gives. */
 const UNREAD: string =
@@ -48,14 +74,14 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
  * - a scabbard and a sheath stand on their tip (the chape) at the origin, the mouth straight up along `+Y` at the drawn length, the blade's flats toward `X`. `mouth` is the opening, facing up: a sheathed blade stands point down in it with its shoulder (`createSword`'s origin) on the mouth. `belt` is the hanger on the metal throat below the mouth. A throat held while the blade is drawn waits for a source of the throat's size. Its hanging angle is not modelled: it hangs straight, since no source read gives the angle a hanger sets.
  * - a quiver stands on its bottom at the origin, a tube open upward. `socket` is the mouth, facing up, and `slot1` to `slot<slots>` the places the arrows stand in it, each facing up on the mouth's plane; `belt` hangs it at a hip from its rim, and `strap` slings it across the back at its middle.
  *
- * @param params The kind, the number of slots of a quiver, and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a holster's ride, the blade a scabbard or a sheath is made to, the number of slots of a quiver, and any dimension the author fixes.
+ * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
  * @returns The container.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of slots that is not a whole number from 1 to the kind's capacity.
+ * @throws {ArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind hangs and stands, what each contact is and where a carried item sits.
- * @evidence contracts/development/implementation.md#principled-implementation A holster as a pouch box under a belt loop box with the socket at the maker's ride offset; a scabbard as one body box and a throat box; a quiver as one tube with its arrows' places spread over the mouth on Vogel's sunflower spiral, the even packing of points in a disc.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the slots, draw the dimensions, then one branch per kind: its parts, then its contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation A holster as a pouch box under a belt loop box with the socket at one of the maker's ride offsets; a scabbard as one body box and a throat box, as long and as wide as the blade it is made to with the maker's fit; a quiver as one tube with its arrows' places spread over the mouth on Vogel's sunflower spiral, the even packing of points in a disc.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the slots, pick the ride or the blade, draw the other dimensions, then one branch per kind: its parts, then its contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retention strap, cant, hanging angle, buckle or stitching; a scabbard is straight and does not taper or curve with a sabre's blade. The scabbard's throat's length and lip are the shipped scabbard's construction estimates, which only its belt hanger's offset reads, as it did; a quiver's hangers sit at its rim and its middle.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts, and one contact per slot.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -102,14 +128,25 @@ export function createHolster(
           ? "leave slots out, or choose a quiver"
           : "give a whole number of slots",
     });
-  const d: Partial<Record<createHolster.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "holster",
-      createHolster.BANDS[kind],
-      seed,
-      params,
-      createHolster.BANDS,
-    );
+  // A holster rides at one of the maker's three heights; a scabbard or a sheath is made to one blade, its length and width that blade's with the maker's fit.
+  const ride: { figures: Readonly<Partial<Record<createHolster.Dimension, number>>> } =
+    ArchetypeDraw.model<createHolster.Ride, createHolster.Dimension>("holster", "model", params.model, createHolster.MODELS[kind], seed, params);
+  const blades: Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>> | undefined =
+    kind === "scabbard" ? createHolster.BLADES.scabbard : kind === "sheath" ? createHolster.BLADES.sheath : undefined;
+  if (blades === undefined && params.blade !== undefined)
+    ArchetypeDraw.choice("holster", "blade", params.blade, [] as readonly createHolster.Blade[]);
+  const fitted: Readonly<Partial<Record<createHolster.Dimension, IArchetypeBand>>> =
+    blades === undefined
+      ? {}
+      : blades[ArchetypeDraw.pick("holster", "blade", params.blade, Object.keys(blades) as createHolster.Blade[], seed)]!;
+  const d: Partial<Record<createHolster.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("holster", { ...createHolster.BANDS[kind], ...fitted }, seed, params, {
+      ...createHolster.BANDS,
+      ...createHolster.BLADES.scabbard,
+      ...createHolster.BLADES.sheath,
+    }),
+    ...ride.figures,
+  };
   const builder: ArchetypeBuilder<
     createHolster.Affordance,
     createHolster.Dimension
@@ -228,7 +265,7 @@ export function createHolster(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the five carriers and one cited band per dimension per kind; a carrier's slots are numbered contacts, so each item's place is a contact an act names.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The opening and the item places a draw reads and the hangers it is worn by (#3374, #3485). A scabbard and a sheath keep the `mouth` and `belt` the shipped scabbard had.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each container is a kind of one producer, not a producer per weapon; the holster is the default kind, so a call without a kind builds the holster as before. Bands a source read gives are cited; the others are provisional with their search, and the throat, the flap and the hangers are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Each container is a kind of one producer, not a producer per weapon; the holster is the default kind, so a call without a kind builds the holster as before. Bands a source read gives are cited; the others are provisional with their search, and the throat, the flap and the hangers are named estimates. A ride is one of the maker's three, and a scabbard is made to one blade, a read sword whole or a kind whose source states a range, never to a length between two swords.
  */
 export namespace createHolster {
   /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, and an archer's quiver. */
@@ -249,12 +286,7 @@ export namespace createHolster {
   export const THROAT_LIP: number = 0.006;
 
   /**
-   * How many items a kind with slots holds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each member counts.
-   * @evidence contracts/development/design.md#principled-representation A kind's whole-number capacity and its count when none is asked, kept together so a kind has both or neither.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createHolster` to admit and default the `slots` parameter.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member, so a kind with slots states both numbers.
+   * How many items a kind with slots holds: its whole-number capacity and its count when none is asked, kept together with no optional member so a kind has both or neither; read by `createHolster` to admit and default the `slots` parameter.
    */
   export interface ISlots {
     /** The most it holds. */
@@ -305,10 +337,60 @@ export namespace createHolster {
     | "diameter"
     | "mass";
 
-  /** The parameters: the kind, the slots, and any free dimension fixed to a value inside its band. */
+  /** A holster's ride heights: Safariland's low, mid and high ride. */
+  export type Ride = "midRide" | "lowRide" | "highRide";
+
+  /** Each kind's rides whole, the default first: mid-ride puts the pistol's butt level with the belt, low and high ride about 1.5 in lower and higher (Safariland, Holster Ride Options, https://inside.safariland.com/education/holster-ride-options/). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Ride, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    holster: {
+      midRide: { ride: 0 },
+      lowRide: { ride: -1.5 * ArchetypeUnits.INCH },
+      highRide: { ride: 1.5 * ArchetypeUnits.INCH },
+    },
+  };
+
+  /** The blades a scabbard is made to: `createSword`'s read longswords and arming swords, and a sabre, a katana and a rapier. */
+  export type ScabbardBlade = "crecy" | "regent" | "knight" | "poitiers" | "sabre" | "katana" | "rapier";
+
+  /** The blades a sheath is made to: `createSword`'s dagger and knife. */
+  export type SheathBlade = "dagger" | "knife";
+
+  /** A blade a scabbard or a sheath is made to. */
+  export type Blade = ScabbardBlade | SheathBlade;
+
+  /** A scabbard's or a sheath's two bands made to one blade, both always given: `length` from the tip to the mouth and `width` across the blade from edge to back, each the blade's with the fit. */
+  export type Fitted = Readonly<Record<"length" | "width", IArchetypeBand>>;
+
+  /** The blades by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
+  export const BLADES: Readonly<{
+    scabbard: Readonly<Record<ScabbardBlade, Fitted>>;
+    sheath: Readonly<Record<SheathBlade, Fitted>>;
+  }> = {
+    scabbard: {
+      crecy: madeTo("Crecy", createSword.MODELS.longsword!.crecy!),
+      regent: madeTo("Regent", createSword.MODELS.longsword!.regent!),
+      knight: madeTo("Knight", createSword.MODELS.armingSword!.knight!),
+      poitiers: madeTo("Poitiers", createSword.MODELS.armingSword!.poitiers!),
+      sabre: madeFor("sabre"),
+      katana: madeFor("katana"),
+      rapier: madeFor("rapier"),
+    },
+    sheath: {
+      dagger: madeFor("dagger"),
+      knife: madeFor("knife"),
+    },
+  };
+
+  /** The parameters: the kind, a holster's ride, a scabbard's or a sheath's blade, the slots, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier; `holster` when absent. */
     kind?: Kind;
+
+    /** A holster's ride; picked from the seed when absent. The other kinds have none. */
+    model?: Ride;
+
+    /** The blade a scabbard or a sheath is made to; picked from the seed when absent. The other kinds have none. */
+    blade?: Blade;
 
     /** How many arrows a quiver holds, 1 to its `SLOTS` capacity, and that table's count when absent. The other kinds have none. */
     slots?: number;
@@ -317,12 +399,11 @@ export namespace createHolster {
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension a ride or a blade leaves, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     holster: {
-      ride: ArchetypeBand.of("m", -1.5 * ArchetypeUnits.INCH, 1.5 * ArchetypeUnits.INCH, RIDE),
       depth: ArchetypeBand.of(
         "m",
         0.12,
@@ -333,30 +414,10 @@ export namespace createHolster {
       mass: ArchetypeBand.of("kg", 0.15, 0.3, ArchetypeBand.TYPICAL_MASS, true),
     },
     scabbard: {
-      length: ArchetypeBand.metres(
-        0.7779 + 0.015,
-        1.04 + 0.015,
-        `${WULFLUND}, on createSword's arming sword to rapier blades of 0.7779 to 1.04 m`,
-      ),
-      width: ArchetypeBand.metres(
-        0.025 + 0.02,
-        0.0556 + 0.02,
-        `${WULFLUND}, on createSword's rapier to arming sword blades of 25 to 55.6 mm`,
-      ),
       thickness: ArchetypeBand.metres(0.015, 0.025, UNREAD, true),
       mass: ArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
     },
     sheath: {
-      length: ArchetypeBand.metres(
-        0.178 + 0.015,
-        0.36 + 0.015,
-        `${WULFLUND}, on createSword's knife to dagger blades of 0.178 to 0.36 m`,
-      ),
-      width: ArchetypeBand.metres(
-        0.02 + 0.02,
-        0.032 + 0.02,
-        `${WULFLUND}, on createSword's dagger to knife blades of 20 to 32 mm`,
-      ),
       thickness: ArchetypeBand.metres(0.012, 0.02, UNREAD, true),
       mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
     },

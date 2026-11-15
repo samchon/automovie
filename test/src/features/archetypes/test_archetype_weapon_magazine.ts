@@ -20,13 +20,13 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * A magazine is sized as its makers publish, seats up into a pistol's grip by its base, and a lance is held behind its balance.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a pistol magazine 125.55 mm long and 28.5 mm across its grip, 1.4 oz to 78 g; a rifle magazine 7.5 in long and 0.87 in across its grip, 5 oz to 146 g.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a pistol magazine 125.55 mm long and 28.5 mm across its grip, 1.4 oz, all Strike Industries'; a rifle magazine 7.5 in long and 0.87 in across its grip, 5 oz to 146 g.
  * 2. A loaded magazine weighs its rounds more: 237 g for the pistol's 17, 357 g for the rifle's 30.
  * 3. A pistol magazine whose `base` is made to coincide with a full-size pistol's `magazine` socket stands up inside the grip: its feed end above the grip's base by its length, its middle inside the grip's outline.
- * 4. Over 200 seeds a lance's shaft is 2.348 to 2.633 m and its head 207 to 277 mm, and for ten seeds its `grip` lies behind its centre of mass toward the butt, so a couched lance carries its point forward of the hand.
+ * 4. Over 200 seeds a lance's head is 207 to 277 mm and its shaft the Pattern 1894's 2.76 m overall less it, and for ten seeds its `grip` lies behind its centre of mass toward the butt, so a couched lance carries its point forward of the hand.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces magazines, a pistol and lances, measures colliders and masses, seats a magazine by its frames and compares a lance's grip with its mass properties; a magazine sized off its maker's table, a seat that hangs it below the gun or sideways, or a lance gripped ahead of its balance is caught.
- * @evidence contracts/development/testing.md#independent-expectations The sizes and masses are Strike Industries', GLOCK's, Magpul's and T.REX Arms' published tables and the Royal Armouries' lance records; seating by coincident frames is the affordance convention; a balance ahead of the hand follows from a steel head on a wooden shaft.
+ * @evidence contracts/development/testing.md#independent-expectations The sizes and masses are Strike Industries', GLOCK's, Magpul's and T.REX Arms' published tables and the Royal Armouries' Pattern 1894 lance and its other records' heads; seating by coincident frames is the affordance convention; a balance ahead of the hand follows from a steel head on a wooden shaft.
  * @evidence contracts/development/testing.md#distinguishing-cases Both magazine kinds, empty and loaded; the seated pistol magazine against the gun's own grip; the lance's balance against its grip. The long gun's well waits for #3483's firearms.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -59,8 +59,8 @@ export function test_archetype_weapon_magazine(): void {
     row(
       "pistol magazine mass",
       1.4 * ArchetypeUnits.OUNCE,
-      0.078,
-      "Strike Industries and GLOCK G17 Gen5",
+      1.4 * ArchetypeUnits.OUNCE,
+      "Strike Industries SI-G-MAG-17",
       (seed: number): number =>
         createMagazine({ kind: "pistol" }, seed).body.mass,
     ),
@@ -107,8 +107,8 @@ export function test_archetype_weapon_magazine(): void {
     ),
     row(
       "lance shaft",
-      2.625 - 0.277,
-      2.84 - 0.207,
+      2.76 - 0.277,
+      2.76 - 0.207,
       "Royal Armouries lances",
       (seed: number): number =>
         archetypeExtent(createPolearm({ kind: "lance" }, seed), "y", ["shaft"])

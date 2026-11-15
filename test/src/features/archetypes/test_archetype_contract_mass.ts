@@ -27,15 +27,14 @@ function builder(): ArchetypeBuilder<never, never> {
  * 2. Two equal balls a metre apart on X have their centre of mass midway and, about Y, twice the ball's own 2/5 m r squared plus twice m times a quarter: the parallel-axis theorem.
  * 3. A rod of length 1 m and 3 kg along Y has m l squared / 3 = 1 kg m squared about a perpendicular line through its end, read through `moment`, to within the 3 r squared term of a thin rod.
  * 4. A denser part pulls the centre of mass toward itself: two equal boxes side by side, one three times as dense, balance three quarters of the way to the dense one's centre.
- * 5. A wood bat of 0.893 m and 0.970 kg, the bats of Nathan, Smith and Russell 2026, has a moment of inertia about a line across it 6 in (0.1524 m) from the knob within a tenth of their measured 0.240 to 0.247 kg m squared.
- * 6. A bat of 0.84 m and 0.849 kg balances, to a nanometre, at the volume-weighted mean height of the bars it is built of, on its axis: one wood throughout, so its balance follows from its shape alone.
- * 7. That bat balances within 5 cm of the 0.526 m from the knob that Cross measured on a bat of that length and mass. The model, with its other dimensions at the middle of their bands, balances at about 0.562 m, 36 mm nearer the tip than the measured bat.
+ * 5. Each of the four maple bats of Nathan, Smith and Russell 2026, built as that bat, has a moment of inertia about a line across it 6 in (0.1524 m) from the knob within a tenth of its own measured moment.
+ * 6. The S154 bat balances, to a nanometre, at the volume-weighted mean height of the bars it is built of, on its axis: one wood throughout, so its balance follows from its shape alone.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds solids and a bat through the public builder and producer and reads their mass properties; a wrong primitive formula, a missed parallel-axis term, a density applied the wrong way, a bat part weighed other than by its volume or a bat profile that puts the wood in the wrong place is caught.
- * @evidence contracts/development/testing.md#independent-expectations Scenarios 1 to 4 use closed-form rigid-body results worked by hand here. Scenario 5's moments are the four bats of Nathan, Smith and Russell, Studies of the Torpedo Bat, ISEA 2026, Table 1 (13117 to 13527 oz in squared about the standard point 6 in from the knob). Scenario 6 is the centroid of coaxial uniform cylinders, the sum of radius squared times length times centre height over the sum of radius squared times length, worked here from each part's own radius, length and place. Scenario 7's balance point is R. Cross's measured bat (https://www.physics.sydney.edu.au/~cross/baseball.html). The 10 % and 5 cm tolerances allow for a bat's real taper, which the model steps, and for the measured bat's hollow aluminium barrel; the 5 cm is coarse, leaving 14 mm beyond the measured 36 mm gap, so scenario 7 catches only a profile grossly off and scenario 6 is what holds the balance to the shape.
- * @evidence contracts/development/testing.md#distinguishing-cases Each primitive rule alone, then the composite, then a real object against its own shape and against measurement; an aluminium bat's hollow barrel is why scenario 7 is given the wider tolerance.
+ * @evidence contracts/development/testing.md#independent-expectations Scenarios 1 to 4 use closed-form rigid-body results worked by hand here. Scenario 5's moments are the four bats' own in Nathan, Smith and Russell, Studies of the Torpedo Bat, ISEA 2026, Table 1 (S154 13354, S155 13302, T153 13117 and T156 13527 oz in squared about the standard point 6 in from the knob). Scenario 6 is the centroid of coaxial uniform cylinders, the sum of radius squared times length times centre height over the sum of radius squared times length, worked here from each part's own radius, length and place. The 10 % tolerance allows for a bat's real taper, which the model steps, and the torpedo bats' moved barrel.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each primitive rule alone, then the composite, then real objects against their own shape and against measurement, each bat against its own.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_contract_mass(): void {
   const box: ArchetypeMass.IProperties = builder()
@@ -82,24 +81,24 @@ export function test_archetype_contract_mass(): void {
     nclose(uneven.centerOfMass.x, 0.75, 1e-12),
   );
 
-  const wood: ReturnType<typeof createClub> = createClub({
-    kind: "bat",
-    length: 0.893,
-    mass: 0.97,
-  });
-  const swing: number = wood.moment(
-    { x: 0, y: 6 * ArchetypeUnits.INCH, z: 0 },
-    { x: 1, y: 0, z: 0 },
-  );
-  TestValidator.predicate(
-    `a wood bat's moment of inertia about the 6 in point, ${swing} kg m^2, is a measured bat's`,
-    swing >= 0.24 * 0.9 && swing <= 0.247 * 1.1,
-  );
-  const bat: ReturnType<typeof createClub> = createClub({
-    kind: "bat",
-    length: 0.84,
-    mass: 0.849,
-  });
+  // An ounce inch squared in kilogram metres squared.
+  const OZ_IN2: number = ArchetypeUnits.OUNCE * ArchetypeUnits.INCH * ArchetypeUnits.INCH;
+  for (const [model, measured] of [
+    ["s154", 13354],
+    ["s155", 13302],
+    ["t153", 13117],
+    ["t156", 13527],
+  ] as const) {
+    const swing: number = createClub({ kind: "bat", model }).moment(
+      { x: 0, y: 6 * ArchetypeUnits.INCH, z: 0 },
+      { x: 1, y: 0, z: 0 },
+    );
+    TestValidator.predicate(
+      `the ${model} bat's moment of inertia about the 6 in point, ${swing} kg m^2, is its measured ${measured * OZ_IN2}`,
+      Math.abs(swing - measured * OZ_IN2) <= 0.1 * measured * OZ_IN2,
+    );
+  }
+  const bat: ReturnType<typeof createClub> = createClub({ kind: "bat", model: "s154" });
   const balance: number = bat.properties.centerOfMass.y;
 
   // One wood throughout, so each bar weighs as its volume, radius squared times length, and the bat balances at the bars' volume-weighted mean height.
@@ -122,9 +121,5 @@ export function test_archetype_contract_mass(): void {
     nclose(balance, moment / volume, 1e-9) &&
       nclose(bat.properties.centerOfMass.x, 0, 1e-12) &&
       nclose(bat.properties.centerOfMass.z, 0, 1e-12),
-  );
-  TestValidator.predicate(
-    `a bat's balance point, ${balance} m from the knob, is a measured bat's`,
-    Math.abs(balance - 0.526) <= 0.05,
   );
 }

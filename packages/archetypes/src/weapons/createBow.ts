@@ -26,16 +26,16 @@ const POWER: string =
 /**
  * A bow an archer braces, draws and looses: a longbow or a Korean horse bow.
  *
- * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. Its limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A horse bow is braced its read brace height clear of its grip, its grip the power grip band applied; the dealer's bow length is taken as its length nock to nock, a choice the string's place reads, so that band is provisional; no maker read names its material, so it declares no surface and carries no friction. A recurve and a crossbow wait for the sizes their contacts need, listed in the sources record.
+ * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Its limbs run straight from the grip at the bow's centre to its two nocks, and the string runs straight between the nocks, its brace height clear of the belly at the grip. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `nock` is the string level with the grip, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string. Its draw force at its stated draw length is a dimension, for the draw that reads it. Its limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A horse bow is braced its read brace height clear of its grip, its grip the power grip band applied; the dealer's bow length is taken as its length nock to nock, a choice the string's place reads; no maker read names its material, so it declares no surface and carries no friction. A recurve and a crossbow wait for the sizes their contacts need, listed in the sources record.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the model and a horse bow's draw weight, and any dimension the author fixes.
+ * @param seed The seed that picks the model and the draw weight left free and draws every dimension left free inside its band; absent, the first model, the first draw weight and the middle of each band.
  * @returns The bow.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model or a draw weight not of the kind, a fixed dimension outside its band, or one the model or the draw weight gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the bow stands, where its back and string face, where it is held and where the arrow sits.
  * @evidence contracts/development/implementation.md#principled-implementation Two limbs of the read centre section from the grip to the nocks, the read length apart, the string a twelfth of that length clear of the belly as the brace rule gives, or a horse bow's read brace height; the whole lifted so its lowest point is on the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, place the nocks, then the limbs, the grip, the string spanning the limb tips, and the contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model and the draw weight, draw the other dimensions, place the nocks, then the limbs, the grip, the string spanning the limb tips, and the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limbs' taper, the bend of a braced limb and the horn nocks are not drawn; no contact reads them. The string's radius is half the read arrow nock width it fits.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four parts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The string is `ArchetypeBuilder.span`'s line between the limb tips, so it stays on them in any pose.
@@ -51,14 +51,16 @@ export function createBow(
     params.kind,
     createBow.KINDS,
   );
-  const d: Partial<Record<createBow.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "bow",
-      createBow.BANDS[kind],
-      seed,
-      params,
-      createBow.BANDS,
-    );
+  // A longbow is one of the three read approximations, its mass and draw whole; a horse bow one of the two read bows, drawn at one of its maker's draw weights.
+  const model: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
+    ArchetypeDraw.model<createBow.Model, createBow.Dimension>("bow", "model", params.model, createBow.MODELS[kind], seed, params);
+  const weight: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
+    ArchetypeDraw.model<createBow.Weight, createBow.Dimension>("bow", "weight", params.weight, createBow.WEIGHTS[kind], seed, params);
+  const d: Partial<Record<createBow.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("bow", createBow.BANDS[kind], seed, params, createBow.BANDS),
+    ...model.figures,
+    ...weight.figures,
+  };
   const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
     new ArchetypeBuilder({
       archetype: "bow",
@@ -113,9 +115,9 @@ export function createBow(
  * Companion types, constants and bands of {@link createBow}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of bows, named for what they are; the brace height follows the length by the brace rule, and the draw force is a dimension of its own.
+ * @evidence contracts/development/design.md#principled-representation A closed union of bows, named for what they are, and of the read models and draw weights, each whole; the brace height follows the length by the brace rule, and the draw force is a dimension of its own.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The grip the bow hand takes and the string's nocking point the arrow and the drawing hand share (#3482); the arrow is `createProjectile`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every longbow band is read; a horse bow's grip is the power grip band applied and its length the dealer's bow length taken as nock to nock, both provisional; the string's radius is derived from the read nock width it fits.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every longbow figure is read; nothing between two models or two draw weights is drawn; a horse bow's grip is the power grip band applied, provisional, and its length the dealer's bow length taken as nock to nock; the string's radius is derived from the read nock width it fits.
  */
 export namespace createBow {
   /** The kinds: a longbow, after the Mary Rose bow X1-3's approximations, and a Korean traditional horse bow. */
@@ -155,41 +157,67 @@ export namespace createBow {
    */
   export type Dimension = "length" | "depth" | "brace" | "draw" | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** The read models: the longbow approximations S1, S2 and S3, and the Freddie Warrior and Zenith horse bows. */
+  export type Model = "s1" | "s2" | "s3" | "warrior" | "zenith";
+
+  /** A horse bow's draw weights, its maker's 15 to 60 lb in 5 lb steps. */
+  export type Weight = "lb15" | "lb20" | "lb25" | "lb30" | "lb35" | "lb40" | "lb45" | "lb50" | "lb55" | "lb60";
+
+  /** Each kind's models whole, the default first: the longbow approximations' mass and draw at 30 in (Aston and Spencer, pp. 25-26, 29), the horse bows' length and mass (Bogentandler, the makers' figures; the bow length taken as nock to nock). */
+  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    longbow: {
+      s1: { mass: 0.905, draw: 108 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      s2: { mass: 0.868, draw: 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      s3: { mass: 0.785, draw: 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+    },
+    horseBow: {
+      warrior: { length: 53 * ArchetypeUnits.INCH, mass: 0.33 },
+      zenith: { length: 48 * ArchetypeUnits.INCH, mass: 0.315 },
+    },
+  };
+
+  /** A horse bow's draw weights as forces at 31 in, both makers' pages: "15 to 60 lbs in 5 lb steps"; a longbow's draw is its model's. */
+  export const WEIGHTS: Readonly<Partial<Record<Kind, Readonly<Record<Weight, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    horseBow: {
+      lb15: { draw: 15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb20: { draw: 20 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb25: { draw: 25 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb30: { draw: 30 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb35: { draw: 35 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb40: { draw: 40 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb45: { draw: 45 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb50: { draw: 50 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb55: { draw: 55 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb60: { draw: 60 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+    },
+  };
+
+  /** The parameters: the kind, the model and a horse bow's draw weight, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bow. */
     kind: Kind;
+
+    /** Which of the kind's read models; picked from the seed when absent. */
+    model?: Model;
+
+    /** A horse bow's draw weight; picked from the seed when absent. A longbow has none. */
+    weight?: Weight;
 
     /** The model's id, unique in a scene; `bow` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension a kind's model and draw weight leave, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     longbow: {
       length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
       depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
-      draw: ArchetypeBand.of("N", 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY, 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY, WARBOW),
-      mass: ArchetypeBand.of("kg", 0.785, 0.905, WARBOW),
     },
     horseBow: {
-      length: ArchetypeBand.metres(
-        48 * ArchetypeUnits.INCH,
-        53 * ArchetypeUnits.INCH,
-        `${HORSE_BOW}: the bow length, taken as its length nock to nock, a choice the string's place reads`,
-        true,
-      ),
       depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       brace: ArchetypeBand.metres(0.14, 0.15, HORSE_BOW),
-      draw: ArchetypeBand.of(
-        "N",
-        15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-        60 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-        HORSE_BOW,
-      ),
-      mass: ArchetypeBand.of("kg", 0.315, 0.33, HORSE_BOW),
     },
   };
 }

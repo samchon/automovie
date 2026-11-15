@@ -34,11 +34,11 @@ const KUBO: string = "Kubo et al. 1992, Table 4";
  * 3. A wheelbarrow's handgrips 38 mm across, measured on the grip's collider.
  * 4. A horse: the top of its withers 1.58 to 1.80 m high, the warmbloods of Jensen et al., its barrel's round over that height their mean girth over their mean height (204 over 172 cm), and its mass over the cube of that height their mean mass over the cube of their mean height (640 kg at 1.72 m), the girth-squared-times-length law with its girth in their proportion; its forearm, fore cannon and hind cannon, the bones that stand upright, the fractions of its height that Kubo's thoroughbreds have, to a twentieth of a percent of the height; its saddle 16 to 18 in long and its reins 5/8 to 3/4 in wide.
  * 5. A handgun: the trigger's face 70 to 74 mm ahead of the backstrap and its part drawn back 12.5 mm at full travel, the slide as long as the makers' overall lengths, the sights their sight radius apart, the mass between the makers' two.
- * 6. A carbine: 755.7 to 774.7 mm from butt to muzzle with its stock in and 838.2 to 857.2 mm with it drawn out, the two published lengths of each of its two sources; a shotgun's trigger 352.3 mm from its butt.
- * 7. A bat 0.84 to 0.894 m long, at most 66.3 mm across and 0.849 to 0.978 kg; a baton 0.61 to 0.66 m long; a holster's mouth within 38 mm of the belt line.
+ * 6. A carbine: Colt's 774.7 mm from butt to muzzle with its stock in and 857.25 mm with it drawn out; a shotgun's trigger 352.3 mm from its butt.
+ * 7. A bat 35.1 to 35.2 in long, at most 66.3 mm across and 33.9 to 34.5 oz; a baton 0.61 to 0.66 m long; a holster's mouth within 38 mm of the belt line.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each thing for 200 seeds and measures frames, collider extents, part lengths, the body's mass and an articulated stock; a dimension outside its source, a bone not in proportion or a seed that does not vary a banded dimension is caught.
- * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: SAE J1100 (H30, wheel diameter), Honda UK specification pages (lock turns, wheelbase 2.517 to 2.734 m, mass 1230 to 1503 kg, seat heights 760 to 764 and 785 mm with Yamaha's 805), US patent 6817062 (door swing), Bini, Hume and Croft 2011 (LeMond's 0.883), Matador's data sheet (38 mm), Jensen et al. 2019 (withers range; mean withers, girth and mass), Kubo et al. 1992 (0.382, 0.280, 0.384 and 0.368 m at 1.62 m), Wintec (seat sizes), Dover Saddlery (rein widths), GLOCK and SIG SAUER tables (lengths, sight radius, mass, trigger distance and travel), Colt's sheet and TM 9-1005-319-10 (carbine lengths), Mossberg (13.87 in), Official Baseball Rules 3.02 (2.61 in), Cross and Nathan et al. (bat length and mass), Monadnock (baton), Safariland (ride).
+ * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: SAE J1100 (H30, wheel diameter), Honda UK specification pages (lock turns, wheelbase 2.517 to 2.734 m, mass 1230 to 1503 kg, seat heights 760 to 764 and 785 mm with Yamaha's 805), US patent 6817062 (door swing), Bini, Hume and Croft 2011 (LeMond's 0.883), Matador's data sheet (38 mm), Jensen et al. 2019 (withers range; mean withers, girth and mass), Kubo et al. 1992 (0.382, 0.280, 0.384 and 0.368 m at 1.62 m), Wintec (seat sizes), Dover Saddlery (rein widths), GLOCK and SIG SAUER tables (lengths, sight radius, mass, trigger distance and travel), Colt's sheet (carbine lengths), Mossberg (13.87 in), Official Baseball Rules 3.02 (2.61 in), Nathan et al. (bat length and mass), Monadnock (baton), Safariland (ride).
  * @evidence contracts/development/testing.md#distinguishing-cases One or two act-read dimensions per thing; layout offsets that no source gives (a car's wheel and pedal places) are exported, marked constants and are not asserted as cited.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
@@ -338,16 +338,16 @@ export function test_archetype_ride_bands(): void {
       row(
         "full-size pistol mass",
         0.708,
-        0.839,
+        0.8391,
         "GLOCK G17 and SIG P320-M17",
         (seed: number): number =>
           createHandgun({ frame: "fullSize" }, seed).body.mass,
       ),
       row(
         "carbine length, stock in",
-        29.75 * ArchetypeUnits.INCH,
         30.5 * ArchetypeUnits.INCH,
-        "TM 9-1005-319-10 and Colt",
+        30.5 * ArchetypeUnits.INCH,
+        "Colt",
         (seed: number): number =>
           archetypeExtent(createLongGun({ kind: "carbine" }, seed), "z", [
             "stock",
@@ -356,9 +356,9 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "carbine length, stock out",
-        0.8382,
-        0.8572,
-        "TM 9-1005-319-10 and Colt",
+        33.75 * ArchetypeUnits.INCH,
+        33.75 * ArchetypeUnits.INCH,
+        "Colt",
         (seed: number): number => {
           const carbine: ReturnType<typeof createLongGun> = createLongGun(
             { kind: "carbine" },
@@ -389,9 +389,9 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "bat length",
-        0.84,
+        35.1 * ArchetypeUnits.INCH,
         35.2 * ArchetypeUnits.INCH,
-        "Cross; Nathan, Smith and Russell 2026",
+        "Nathan, Smith and Russell 2026",
         (seed: number): number =>
           archetypeExtent(createClub({ kind: "bat" }, seed), "y").size,
       ),
@@ -406,9 +406,9 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "bat mass",
-        0.849,
+        33.9 * ArchetypeUnits.OUNCE,
         34.5 * ArchetypeUnits.OUNCE,
-        "Cross; Nathan, Smith and Russell 2026",
+        "Nathan, Smith and Russell 2026",
         (seed: number): number => createClub({ kind: "bat" }, seed).body.mass,
       ),
       row(

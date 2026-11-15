@@ -425,12 +425,13 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `magazine-${kind}`,
       (seed?: number | string): Archetype => createMagazine({ kind }, seed),
+      settled(createMagazine.BANDS[kind]),
     );
   for (const kind of createProjectile.KINDS)
     add(
       `projectile-${kind}`,
       (seed?: number | string): Archetype => createProjectile({ kind }, seed),
-      settled(createProjectile.BANDS[kind]),
+      settled(createProjectile.BANDS[kind], createProjectile.MODELS[kind]),
     );
   for (const kind of createBow.KINDS)
     add(

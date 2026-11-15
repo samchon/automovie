@@ -10,9 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The pistol's maker's data, read, which gives its magazine's mass and a full load's. */
-const GLOCK: string =
-  "GLOCK G17 Gen5 technical data: 630 g without magazine, 708 g with an empty and 945 g with a loaded 17-round magazine (https://eu.glock.com/en/products/pistols/g17-gen5)";
 
 /** An aftermarket magazine for that pistol, read at a retailer. */
 const STRIKE: string =
@@ -111,7 +108,7 @@ export function createMagazine(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the two magazines and one cited band per dimension each; loading is a parameter that adds a published mass, as on `createHandgun`.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The end that seats in the well, the body a hand takes and the plate a palm strikes, which a reload reads (#3483, `reloadFirearm`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Its own producer, not a projectile kind: it holds rounds, it is not launched. Every band is a maker's or a retailer's published figure.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Its own producer, not a projectile kind: it holds rounds, it is not launched. Every band is a maker's or a retailer's published figure for that one magazine; GLOCK's own magazine, 708 less 630 g, is another maker's, so it stays out of Strike's.
  */
 export namespace createMagazine {
   /** The kinds: a pistol's double-stack magazine and a rifle's 30-round magazine. */
@@ -120,7 +117,7 @@ export namespace createMagazine {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["pistol", "rifle"];
 
-  /** What a full magazine's rounds add, kilograms: the G17 Gen5's 945 less 708 g, and the PMAG 30's 503 less 146 g. */
+  /** What a full magazine's rounds add, kilograms: the G17 Gen5's 945 less 708 g with its 17 rounds (https://eu.glock.com/en/products/pistols/g17-gen5), and the PMAG 30's 503 less 146 g. */
   export const ROUNDS: Readonly<Record<Kind, number>> = {
     pistol: 0.237,
     rifle: 0.357,
@@ -169,12 +166,7 @@ export namespace createMagazine {
         0.04188,
         `${STRIKE}; its 41.88 mm height is taken as front to back, the other two being the length and the double stack's width`,
       ),
-      mass: ArchetypeBand.of(
-        "kg",
-        1.4 * ArchetypeUnits.OUNCE,
-        0.078,
-        `${STRIKE}; ${GLOCK}, the maker's own magazine 708 less 630 g`,
-      ),
+      mass: ArchetypeBand.of("kg", 1.4 * ArchetypeUnits.OUNCE, 1.4 * ArchetypeUnits.OUNCE, STRIKE),
     },
     rifle: {
       length: ArchetypeBand.metres(7.5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, PMAG),

@@ -9,23 +9,20 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The makers' racks, read. */
-const RACKS: string =
-  "six-slot floor sword stands: Medieval Extreme's, a 66 x 23 x 3 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), and Gladney's, 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html)";
 
 /**
  * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
  *
  * The base lies on the floor centred over the origin, its row of slots along `X` and its front toward `+Z`; two end posts carry the top rail at the drawn height. `slot1` to `slot6`, counted from `-X`, are each slot's floor on the base's top, facing up, where a weapon's lower end (a sword's point, a bat's barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top rail's front, facing `+Z`, against which the weapon leans. A weapon set in a slot keeps its own `grip` for a hand to reach.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The model and any dimension the author fixes.
+ * @param seed The seed that picks the model left free and draws the mass inside its band; absent, the first model and the middle of the band.
  * @returns The rack.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model not read, a fixed mass outside its band, or a fixed dimension the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the rack stands, where each weapon rests and leans and that the weapon keeps its own grip.
- * @evidence contracts/development/implementation.md#principled-implementation A base box of the drawn width, two end post rods up to the drawn rail height and a rail box across their tops; the four slots are spaced evenly along the base.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, base, posts, rail, then a slot and a notch per place.
+ * @evidence contracts/development/implementation.md#principled-implementation A base box of the stand's width and depth, two end post rods up to its rail height and a rail box across their tops; the four slots are spaced evenly along the base.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the mass, base, posts, rail, then a slot and a notch per place.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No slot dividers or notches are cut; the base's, posts' and rail's sizes are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -35,13 +32,20 @@ export function createWeaponRack(
   params: createWeaponRack.IParams = {},
   seed?: number | string,
 ): Archetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
-  const d: Record<createWeaponRack.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  // The rack is one of the two read stands whole; only its unread mass is drawn.
+  const model: { figures: Readonly<Partial<Record<createWeaponRack.Dimension, number>>> } =
+    ArchetypeDraw.model<createWeaponRack.Model, createWeaponRack.Dimension>(
       "weaponRack",
-      createWeaponRack.BANDS,
+      "model",
+      params.model,
+      createWeaponRack.MODELS,
       seed,
       params,
     );
+  const d: Partial<Record<createWeaponRack.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("weaponRack", createWeaponRack.BANDS, seed, params),
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createWeaponRack.Affordance,
     createWeaponRack.Dimension
@@ -54,10 +58,10 @@ export function createWeaponRack(
   const v: typeof Vector3.create = Vector3.create;
   const base: number = createWeaponRack.BASE;
   const post: number = createWeaponRack.POST;
-  const half: number = d.width / 2;
+  const half: number = d.width! / 2;
   builder.box(
     "base",
-    v(d.width, base, createWeaponRack.DEPTH),
+    v(d.width!, base, d.depth!),
     v(0, base / 2, 0),
     {
       color: "#5a3e2b",
@@ -67,13 +71,13 @@ export function createWeaponRack(
     ["leftPost", -half + post / 2],
     ["rightPost", half - post / 2],
   ] as const)
-    builder.rod(id, post / 2, v(x, base, 0), v(x, d.height, 0), {
+    builder.rod(id, post / 2, v(x, base, 0), v(x, d.height!, 0), {
       color: "#5a3e2b",
     });
-  builder.box("rail", v(d.width, post, post), v(0, d.height - post / 2, 0), {
+  builder.box("rail", v(d.width!, post, post), v(0, d.height! - post / 2, 0), {
     color: "#5a3e2b",
   });
-  const inner: number = d.width - 2 * post;
+  const inner: number = d.width! - 2 * post;
   for (const [slot, rail, k] of [
     ["slot1", "rail1", 0],
     ["slot2", "rail2", 1],
@@ -89,36 +93,34 @@ export function createWeaponRack(
       frame: ArchetypeFrame.upright(v(x, base, 0)),
       extent: null,
       width: inner / createWeaponRack.SLOTS,
-      depth: createWeaponRack.DEPTH,
+      depth: d.depth!,
     });
     builder.affordance({
       id: rail,
       kind: "surface",
       frame: ArchetypeFrame.facing(
-        v(x, d.height - post / 2, post / 2),
+        v(x, d.height! - post / 2, post / 2),
         v(0, 0, 1),
         v(1, 0, 0),
       ),
       extent: null,
     });
   }
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
  * Companion types, constants and bands of {@link createWeaponRack}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension; the rail's height is the one that decides which weapons lean in it.
+ * @evidence contracts/development/design.md#principled-representation One read stand whole, and a band for the mass it leaves; the rail's height is the one that decides which weapons lean in it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Six places to stand a weapon, each a floor and a notch.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The width, the height, the base's depth and thickness and the six slots are the makers' as read; no weight is given, so the mass band is provisional; the posts' and rail's sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The width, the height, the base's depth and the six slots are one stand's as read, never between two; no weight is given, so the mass band is provisional; the posts' and rail's sizes are named estimates.
  */
 export namespace createWeaponRack {
-  /** The base's height, metres: an estimate. */
+  /** The base's height, metres: Medieval Extreme's read 3 cm, applied to Gladney's, whose page gives none; an estimate. */
   export const BASE: number = 0.03;
 
-  /** The base's depth front to back, metres: an estimate. */
-  export const DEPTH: number = 0.23;
 
   /** The slots along the base: the makers' six. */
   export const SLOTS: number = 6;
@@ -150,21 +152,32 @@ export namespace createWeaponRack {
    * The free dimensions, metres unless stated:
    *
    * - `width`: the rack's, post to post outside.
+   * - `depth`: the base's, front to back.
    * - `height`: the rail's top above the floor.
    * - `mass`: kilograms.
    */
-  export type Dimension = "width" | "height" | "mass";
+  export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /** The read stands: Medieval Extreme's and Gladney's six-slot floor sword stands. */
+  export type Model = "medievalExtreme" | "gladney";
+
+  /** The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), Gladney's 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html). */
+  export const MODELS: Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> = {
+    medievalExtreme: { width: 0.66, depth: 0.23, height: 0.84 },
+    gladney: { width: 0.695, depth: 0.22, height: 0.66 },
+  };
+
+  /** The parameters: the model, and the mass fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which read stand; picked from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `weaponRack` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(0.66, 0.695, RACKS),
-    height: ArchetypeBand.metres(0.66, 0.84, RACKS),
+  /** The band of the dimension a stand leaves. */
+  export const BANDS: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     mass: ArchetypeBand.of("kg", 8, 20, "the stands' pages read give no weight", true),
   };
 }
