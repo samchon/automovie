@@ -15,9 +15,10 @@ import { integrateAirborneRotation } from "./integrateAirborneRotation";
  * requested somersault and twist and lands it with no tilt (#3426), for a
  * given shape history and flight.
  *
- * The flight's attitude is read as Yeadon's somersault, tilt and twist angles
- * (Yeadon 1993, "The biomechanics of twisting somersaults", J Sports Sci 11,
- * Part I pp. 187-198): relative to the take-off frame turned by `frame`, the
+ * The flight's attitude is read as somersault, tilt and twist angles, the
+ * convention #3416 names after Yeadon 1993 ("The biomechanics of twisting
+ * somersaults", J Sports Sci 11, not yet read at the source; the order here
+ * is this module's own): relative to the take-off frame turned by `frame`, the
  * orientation is `Rx(φ) Rz(θ) Ry(ψ)`, a somersault `φ` about the frame's
  * lateral axis X, then a tilt `θ` about its forward axis Z, then a twist `ψ`
  * about the body's long axis Y (`angles`). The somersault and the twist are
@@ -172,7 +173,7 @@ export function solveAirborneTakeoff(
     );
 
   // Continuation in the twist with adaptive steps (Allgower and Georg,
-  // Introduction to Numerical Continuation Methods, ch. 1 and 6): the whole
+  // Introduction to Numerical Continuation Methods): the whole
   // twist is tried first; a stage whose Newton search misses is halved, and
   // one that meets its request is accepted and the next stage doubled, so
   // the stage count follows from convergence. A stage before any accepted
@@ -267,9 +268,9 @@ export namespace solveAirborneTakeoff {
   /**
    * The default tolerance on the residual's norm, radians: a hundredth of a
    * revolution, a quarter of the 0.04 revolution of somersault by which
-   * Yeadon, Atha and Hales (1990) found their simulation model to differ from
-   * recorded performances, so the solver's miss stays below the model's own
-   * error.
+   * #3416 reports Yeadon, Atha and Hales (1990) found their simulation model
+   * to differ from recorded performances (the paper not yet read at the
+   * source), so the solver's miss stays below the model's own error.
    */
   export const TOLERANCE: number = 2 * Math.PI * 0.01;
 

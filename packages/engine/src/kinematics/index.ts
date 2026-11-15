@@ -36,6 +36,7 @@ export * from "./poseJointCodec";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
+export * from "./resolveAutoMovieBalanceOutcome";
 export * from "./resolveAutoMovieCenterOfMass";
 export * from "./resolveAutoMovieMomentum";
 export * from "./resolveAutoMovieHumanoidRingModules";

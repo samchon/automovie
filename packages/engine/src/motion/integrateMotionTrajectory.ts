@@ -283,8 +283,8 @@ function scaled(
  * truncated after the second bracket, which keeps a fourth-order
  * Runge-Kutta-Munthe-Kaas step at its order (Munthe-Kaas 1999, "High order
  * Runge-Kutta methods on manifolds", Appl Numer Math 29:115-127; Iserles,
- * Munthe-Kaas, Nørsett and Zanna 2000, "Lie-group methods", Acta Numerica 9,
- * section 4). The signs are the body frame's: for `q̇ = q ŵ / 2`, the rate of
+ * Munthe-Kaas, Nørsett and Zanna 2000, "Lie-group methods", Acta Numerica 9;
+ * the truncation's order is checked here by the trajectory's own tests). The signs are the body frame's: for `q̇ = q ŵ / 2`, the rate of
  * `q exp(r)` is `ṙ - r × ṙ / 2 + ...`, whose inverse this is.
  *
  * @param r The rotation vector, radians; absent for a state without orientation.

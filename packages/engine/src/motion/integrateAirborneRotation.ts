@@ -22,10 +22,11 @@ import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
  * with `R` the root's orientation, `I_b` the composite inertia about the
  * centre in the root's frame, `w_b` the root's angular velocity in that frame
  * and `h_b` the angular momentum of the segments' motion relative to the
- * root, so the root turns at `w_b = I_b⁻¹ (Rᵀ L - h_b)` (Yeadon, Atha and
- * Hales 1990, "The simulation of aerial movement IV", J Biomech 23(1):85-89;
- * Yeadon 1993, "The biomechanics of twisting somersaults", J Sports Sci 11,
- * Part I pp. 187-198 for the rigid modes). `I_b` and `h_b` come from the
+ * root, so the root turns at `w_b = I_b⁻¹ (Rᵀ L - h_b)`: the angular
+ * momentum balance of a multibody, the model #3416 attributes to Yeadon,
+ * Atha and Hales 1990 ("The simulation of aerial movement IV", J Biomech
+ * 23(1)) and Yeadon 1993 ("The biomechanics of twisting somersaults", J
+ * Sports Sci 11), neither yet read at the source. `I_b` and `h_b` come from the
  * shape's history (`integrateAirborneRotation.history`), and the orientation
  * is integrated by the engine's fixed-step integrator on its quaternion block
  * (`integrateMotionTrajectory`), so the result is a value read by time,
