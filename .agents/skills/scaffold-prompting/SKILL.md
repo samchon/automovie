@@ -52,9 +52,7 @@ Keep the scaffold production-neutral and usable without repository operating ski
 
 ## The commissioned result
 
-Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that failure. When an existing item already covers it, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
-
-Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
+Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that failure. When an existing item already covers it, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory. Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
 
 ## Boundaries
 

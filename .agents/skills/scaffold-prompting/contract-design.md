@@ -1,8 +1,6 @@
 # Contract design
 
-A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs every scene it spans; what rendered media show stays [outside the graph](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#outside-the-graph).
-
-The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
+A shipped contract is a checklist of items that a respondent answers about its work. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 
@@ -22,14 +20,10 @@ A contract family is a folder of contracts that one owner keeps, and a new sente
 
 Compare proposed items with existing ones for overlap, contradiction and feasible joint satisfaction. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
-Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation.
-
-Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
+Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
 ## New criteria
 
-Keep verified source support and its limits in a source record or an HTML comment beside the item, remembering that the comment ships to productions.
-
-Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
+Record verified source support and its limits in [research routes](research-routes.md), never beside the item, because a shipped item cites no source under the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements). Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
 Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).

@@ -11,15 +11,11 @@ Before editing a prompt, fetch and read in full the current prompting guide for 
 
 ## What to state
 
-State only facts the code does not show, rules the user set, and mistakes an agent made. Leave dates and history to git.
-
-Write each instruction concretely enough that a reader can tell whether it was followed.
+State only facts the code does not show, rules the user set, and mistakes an agent made, each concretely enough that a reader can tell whether it was followed. Leave dates and history to git.
 
 [Writing](../documentation/writing.md) asks for a reason when it is not obvious. For a consequential instruction, that reason names who loses what when it is missed and sits in the instruction itself, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
 
-Leave the method to the agent unless a known failure requires a particular order or boundary. Where a skill does name methods, it gives one default and says when to leave it.
-
-Keep examples few and varied, because an agent copies an example's surface.
+Leave the method to the agent unless a known failure requires a particular order or boundary. Where a skill does name methods, it gives one default and says when to leave it, and it keeps examples few and varied, because an agent copies an example's surface.
 
 ## One owner
 
@@ -35,7 +31,7 @@ A skill routes to a package and stops there; naming the package is the routing. 
 
 A skill gives a job's goal and boundaries, and points to the checklists it relies on without restating their items.
 
-An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record of one kind must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected one answer it as its respondent, and [review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
+An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record of one kind must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected one answer it, and whoever answers is the question's respondent. [Review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
 Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent, proof or repair owner differs. Keep a question about the overall achievement apart from its detailed checks, because passing every check does not prove the whole works.
 
@@ -77,10 +73,6 @@ A skill shared with other projects, such as one a project template ships, holds 
 
 ## Verification
 
-Start a change from the actual failure it must fix, kept as a case, and check the changed instructions against that case and the strongest similar legitimate case they must leave alone.
+Start a change from the actual failure it must fix, kept as a case, and check the changed instructions against that case, the strongest similar legitimate case they must leave alone, and a real governed task with its actual consumers. When a separate context is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
 
-Check that links resolve, triggers reach their resources and each rule has one owner. Compare the instructions with a real governed task and its actual consumers.
-
-When a separate context is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
-
-Report static inspection, behavioral observation and unavailable checks separately. Explaining a rule does not prove another session follows it.
+Check statically that links resolve, triggers reach their resources and each rule has one owner. Report static inspection, behavioral observation and unavailable checks separately, because explaining a rule does not prove another session follows it.
