@@ -10,9 +10,9 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The handheld microphones read. */
+/** The handheld microphone read: the one whose length, head, tail and mass were all read, so it is built whole. */
 const HANDHELD: string =
-  "Shure SM58, 162 x 51 mm, 298 g (https://collegeofsanmateo.edu/theatre/docs/sm58_specsheet.pdf); Sennheiser e 835, 180.5 mm long, 49.2 mm head and 25.08 mm tail, 330 g (https://www.sennheiser.com/globalassets/digizuite/41678-en-sp_1209_v1.0_e_835_e_835-s_product_specification_en.pdf)";
+  "Sennheiser e 835, 180.5 mm long, 49.2 mm head and 25.08 mm tail, 330 g (https://www.sennheiser.com/globalassets/digizuite/41678-en-sp_1209_v1.0_e_835_e_835-s_product_specification_en.pdf)";
 
 /** The stand read. */
 const AURAY: string =
@@ -31,7 +31,7 @@ const AURAY: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands and every contact, with the slider's direction.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the drawn length; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
+ * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the length, all one microphone's; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind with its parts and contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A handle's taper and a boom's tilt are not drawn; the tubes' diameters, the legs' hub height, the tubes' overlap and the clip's size are named construction estimates (`createMicrophone.ESTIMATES`), none placing a contact.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most eight parts.
@@ -163,7 +163,7 @@ export function createMicrophone(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; the stand's height range is an articulation's travel, not a dimension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The grip and the head a singer's hand and mouth meet, and the clip and height a stand is loaded and set by (#3468 F8).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand's tube sizes, hub and clip are named estimates; the boom does not tilt.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The stand's tube sizes, hub and clip are named estimates; the boom does not tilt; the handheld is the Sennheiser e 835 alone, since no other microphone's tail was read to build one whole.
  */
 export namespace createMicrophone {
   /** The kinds. */
@@ -230,10 +230,10 @@ export namespace createMicrophone {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     handheld: {
-      length: ArchetypeBand.metres(0.162, 0.1805, HANDHELD),
-      head: ArchetypeBand.metres(0.0492, 0.051, HANDHELD),
-      tail: ArchetypeBand.metres(0.0251, 0.0251, HANDHELD),
-      mass: ArchetypeBand.of("kg", 0.298, 0.33, HANDHELD),
+      length: ArchetypeBand.metres(0.1805, 0.1805, HANDHELD),
+      head: ArchetypeBand.metres(0.0492, 0.0492, HANDHELD),
+      tail: ArchetypeBand.metres(0.02508, 0.02508, HANDHELD),
+      mass: ArchetypeBand.of("kg", 0.33, 0.33, HANDHELD),
     },
     boomStand: {
       minHeight: ArchetypeBand.metres(0.914, 0.919, AURAY),

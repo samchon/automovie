@@ -1,44 +1,36 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
 /** The cue's length read. */
 const LENGTH: string =
-  "McDermott carom cues: \"Carom cues are 56\" long (2\" shorter than a traditional pool cue)\" (https://www.mcdermottcue.com/crms07.php); Cuetec AVID Proof Black LTC: standard shaft length 29 in and butt length 29 in (https://www.cuetec.com/products/avid-cues-and-shafts/avid-proof-series-cues/avid-proof-black-ltc/)";
-
-/** The shaft read. */
-const SHAFT: string =
-  "McDermott shaft overview: Defy shafts 11.5 to 13.25 mm (https://mcdermottcue.com/mcdermott_shaft_overview.php); WPA Recommended Equipment Specifications 17: the tip at most 14 mm (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf)";
+  'McDermott carom cues: "Carom cues are 56" long (2" shorter than a traditional pool cue)" (https://www.mcdermottcue.com/crms07.php); Cuetec AVID Proof Black LTC: standard shaft length 29 in and butt length 29 in (https://www.cuetec.com/products/avid-cues-and-shafts/avid-proof-series-cues/avid-proof-black-ltc/)';
 
 /** The weight read. */
 const WEIGHT: string =
-  "Viking support: \"The standard weight range is 18 to 21oz.\" (https://www.vikingcue.com/support/); McDermott FAQ: 18 to 21 oz (https://www.mcdermottcue.com/faq.php)";
-
-/** The butt's diameter read. */
-const BUTT: string =
-  "Viking: \"The \"SKINNY\" Option on a Viking Cue Butt measures out about 1.205\" thick ... and compared to the Average Standard Size of 1.295\" thickness\" (https://www.vikingcue.com/new-skinny-cues-for-2016/); \"the standard butt diameter on all Viking cues measures a highly versatile and industry-standard 1.25\"\" (https://vikingcue.com/custom-materials-1)";
+  'Viking support: "The standard weight range is 18 to 21oz." (https://www.vikingcue.com/support/); McDermott FAQ: 18 to 21 oz (https://www.mcdermottcue.com/faq.php)';
 
 /**
  * A two-piece pool cue lying on the floor along `X`, its tip toward `+X`.
  *
- * The butt and the shaft are each half the cue's length, the butt at the drawn diameter and the shaft tapering from it to its tip's diameter. `butt` is the butt, a handle the back hand closes on, its diameter the aperture; `shaft` the shaft, a bar the bridge hand guides; `tip` the tip, the working point whose `+Y` runs out along the cue toward the ball.
+ * The butt and the shaft are each half the cue's length, the butt at one of Viking's diameters and the shaft tapering from it to one of McDermott's tip diameters, each given or drawn from the seed. `butt` is the butt, a handle the back hand closes on, its diameter the aperture; `shaft` the shaft, a bar the bridge hand guides; `tip` the tip, the working point whose `+Y` runs out along the cue toward the ball.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The butt, the shaft and any dimension the author fixes.
+ * @param seed The seed that draws the butt and the shaft when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The cue.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a butt Viking or a shaft McDermott does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the cue lies, its halves and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' 58 in from McDermott's statement that a carom cue is 2 in shorter than a pool cue's, split as Cuetec's 29 in butt and 29 in shaft; the butt at Viking's skinny to average standard diameters; the tip at McDermott's shaft diameters within the WPA's limit; the mass at the makers' standard weights.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the butt and the shaft, then the three contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The makers' 58 in from McDermott's statement that a carom cue is 2 in shorter than a pool cue's, split as Cuetec's 29 in butt and 29 in shaft; the butt one of Viking's three diameters; the tip one of McDermott's four shaft diameters, each within the WPA's limit; the mass at the makers' standard weights.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the butt and the shaft, draw the dimensions, the butt and the shaft, then the three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The butt is one cylinder; the shaft is one tapered rod as two.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -48,17 +40,43 @@ export function createCue(
   params: createCue.IParams = {},
   seed?: number | string,
 ): Archetype<createCue.Affordance, createCue.Dimension> {
-  const d: Record<createCue.Dimension, number> = ArchetypeDraw.dimensions(
+  // The butt's name shares its dimension's name, so only the numeric dimensions an author fixes are passed on.
+  const fixed: Partial<Record<createCue.Dimension, number | undefined>> = {
+    ...params,
+    butt: undefined,
+  };
+  const buttModel: {
+    name: createCue.Butt | undefined;
+    figures: Readonly<Partial<Record<createCue.Dimension, number>>>;
+  } = ArchetypeDraw.model<createCue.Butt, createCue.Dimension>(
     "cue",
-    createCue.BANDS,
+    "butt",
+    params.butt,
+    createCue.BUTTS,
     seed,
-    params,
+    fixed,
   );
+  const shaft: {
+    name: createCue.Shaft | undefined;
+    figures: Readonly<Partial<Record<createCue.Dimension, number>>>;
+  } = ArchetypeDraw.model<createCue.Shaft, createCue.Dimension>(
+    "cue",
+    "shaft",
+    params.shaft,
+    createCue.SHAFTS,
+    seed,
+    fixed,
+  );
+  const d: Record<createCue.Dimension, number> = {
+    ...ArchetypeDraw.dimensions("cue", createCue.BANDS, seed, params),
+    butt: buttModel.figures.butt!,
+    tip: shaft.figures.tip!,
+  };
   const builder: ArchetypeBuilder<createCue.Affordance, createCue.Dimension> =
     new ArchetypeBuilder({
       archetype: "cue",
       id: params.id,
-      name: "pool cue",
+      name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
       dimensions: d,
     });
   const v: typeof Vector3.create = Vector3.create;
@@ -70,12 +88,24 @@ export function createCue(
   builder.rod("butt", butt, v(back, butt, 0), v(0, butt, 0), {
     color: "#3b2414",
   });
-  builder.rod("shaft-back", (butt + middle) / 2, v(0, butt, 0), v(half / 2, butt, 0), {
-    color: "#e8d8b8",
-  });
-  builder.rod("shaft-front", (middle + tip) / 2, v(half / 2, butt, 0), v(half, butt, 0), {
-    color: "#e8d8b8",
-  });
+  builder.rod(
+    "shaft-back",
+    (butt + middle) / 2,
+    v(0, butt, 0),
+    v(half / 2, butt, 0),
+    {
+      color: "#e8d8b8",
+    },
+  );
+  builder.rod(
+    "shaft-front",
+    (middle + tip) / 2,
+    v(half / 2, butt, 0),
+    v(half, butt, 0),
+    {
+      color: "#e8d8b8",
+    },
+  );
   builder.affordance({
     id: "butt",
     kind: "handle",
@@ -109,9 +139,9 @@ export function createCue(
  * Companion types and bands of {@link createCue}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension.
+ * @evidence contracts/development/design.md#principled-representation Viking's butts and McDermott's shafts picked whole, one cited band per remaining dimension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two hands' places, the butt's size a grasp reads and the tip a stroke carries through the ball (#3468 N11).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a hand or a stroke reads is a read band.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a hand or a stroke reads is a read model or a read band; no diameter between two listed is made.
  */
 export namespace createCue {
   /**
@@ -133,17 +163,59 @@ export namespace createCue {
    */
   export type Dimension = "length" | "butt" | "tip" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** Viking's butt diameters. */
+  export type Butt = "standard" | "skinny" | "average";
+
+  /** Each butt's diameter, metres, the default first: Viking's "standard butt diameter on all Viking cues measures a highly versatile and industry-standard 1.25"" (https://vikingcue.com/custom-materials-1), its "SKINNY" option "about 1.205"" and the "Average Standard Size of 1.295"" (https://www.vikingcue.com/new-skinny-cues-for-2016/). */
+  export const BUTTS: Readonly<
+    Record<Butt, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    standard: { butt: 1.25 * ArchetypeUnits.INCH },
+    skinny: { butt: 1.205 * ArchetypeUnits.INCH },
+    average: { butt: 1.295 * ArchetypeUnits.INCH },
+  };
+
+  /** McDermott's shaft tip diameters. */
+  export type Shaft = "11.5mm" | "12mm" | "12.5mm" | "13mm";
+
+  /** Each shaft's tip diameter, metres, the default first: McDermott's shaft overview's 11.5, 12, 12.5 and 13 mm (https://mcdermottcue.com/mcdermott_shaft_overview.php), each within WPA Recommended Equipment Specifications 17's 14 mm at most (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf). */
+  export const SHAFTS: Readonly<
+    Record<Shaft, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "11.5mm": { tip: 11.5 * ArchetypeUnits.MILLIMETRE },
+    "12mm": { tip: 12 * ArchetypeUnits.MILLIMETRE },
+    "12.5mm": { tip: 12.5 * ArchetypeUnits.MILLIMETRE },
+    "13mm": { tip: 13 * ArchetypeUnits.MILLIMETRE },
+  };
+
+  /** The parameters: the butt, the shaft, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "butt" | "tip">, number>
+  > {
+    /** Viking's butt; drawn from the seed when absent. */
+    butt?: Butt;
+
+    /** McDermott's shaft; drawn from the seed when absent. */
+    shaft?: Shaft;
+
     /** The model's id, unique in a scene; `cue` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(58 * ArchetypeUnits.INCH, 58 * ArchetypeUnits.INCH, LENGTH),
-    butt: ArchetypeBand.metres(1.205 * ArchetypeUnits.INCH, 1.295 * ArchetypeUnits.INCH, BUTT),
-    tip: ArchetypeBand.metres(0.0115, 0.01325, SHAFT),
-    mass: ArchetypeBand.of("kg", 18 * ArchetypeUnits.OUNCE, 21 * ArchetypeUnits.OUNCE, WEIGHT),
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "butt" | "tip">, IArchetypeBand>
+  > = {
+    length: ArchetypeBand.metres(
+      58 * ArchetypeUnits.INCH,
+      58 * ArchetypeUnits.INCH,
+      LENGTH,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      18 * ArchetypeUnits.OUNCE,
+      21 * ArchetypeUnits.OUNCE,
+      WEIGHT,
+    ),
   };
 }

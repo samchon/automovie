@@ -14,6 +14,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 import { archetypePlaced } from "../internal/archetypePlaced";
 
 /** The boxing rules. */
@@ -24,7 +25,7 @@ const IBA: string = "IBA Technical and Competition Rules 2026";
  *
  * Scenarios:
  * 1. A glove placed on a 0.9 m table through the public chain rests there within a millimetre, its contacts named points of the prop.
- * 2. Over 200 seeds: the glove's fist 0.20 m long and 0.14 to 0.16 m high, its cuff 0.08 to 0.10 m (IBA Appendix 11), its mass 0.227 to 0.340 kg, the 8 to 12 oz of IBA rule 45.6; the bag 1.168 to 1.499 m tall and 0.33 to 0.368 m across (provisional listings).
+ * 2. Over 200 seeds: the glove's fist 0.20 m long and 0.14 to 0.16 m high, its cuff 0.08 to 0.10 m (IBA Appendix 11), its mass exactly one of IBA rule 45.6's 8, 10 and 12 oz, each drawn; the bag 1.168 to 1.499 m tall and 0.33 to 0.368 m across (provisional listings).
  * 3. The glove's `wear` socket lies inside the fist and its `+Y` points back out through the cuff, along `-Z`; its `face` lies on the fist's knuckle end, its `+Y` along `+Z`, and it states the `normal` direction of a working face.
  * 4. The bag hangs wholly below its `hook` at the origin; a centimetre behind its `target` along `-Y` lies in the bag and a centimetre out along `+Y` in no collider.
  *
@@ -57,24 +58,58 @@ export function test_archetype_boxing_equipment(): void {
   });
   findings.push(
     ...archetypeBandSweep([
-      row("glove length", 0.2, 0.2, `${IBA}, Appendix 11`, (s: number): number =>
-        archetypeExtent(createBoxingGlove({}, s), "z", ["fist"]).size,
+      row(
+        "glove length",
+        0.2,
+        0.2,
+        `${IBA}, Appendix 11`,
+        (s: number): number =>
+          archetypeExtent(createBoxingGlove({}, s), "z", ["fist"]).size,
       ),
-      row("glove height", 0.14, 0.16, `${IBA}, Appendix 11`, (s: number): number =>
-        archetypeExtent(createBoxingGlove({}, s), "y", ["fist"]).size,
+      row(
+        "glove height",
+        0.14,
+        0.16,
+        `${IBA}, Appendix 11`,
+        (s: number): number =>
+          archetypeExtent(createBoxingGlove({}, s), "y", ["fist"]).size,
       ),
-      row("glove cuff", 0.08, 0.1, `${IBA}, Appendix 11`, (s: number): number =>
-        archetypeExtent(createBoxingGlove({}, s), "z", ["cuff"]).size,
+      row(
+        "glove cuff",
+        0.08,
+        0.1,
+        `${IBA}, Appendix 11`,
+        (s: number): number =>
+          archetypeExtent(createBoxingGlove({}, s), "z", ["cuff"]).size,
       ),
-      row("glove weight", 0.227, 0.34, `${IBA}, rule 45.6`, (s: number): number =>
-        createBoxingGlove({}, s).body.mass,
+      row(
+        "bag height",
+        46 * ArchetypeUnits.INCH,
+        59 * ArchetypeUnits.INCH,
+        "listings",
+        (s: number): number =>
+          archetypeExtent(createHeavyBag({}, s), "y", ["bag"]).size,
       ),
-      row("bag height", 46 * ArchetypeUnits.INCH, 59 * ArchetypeUnits.INCH, "listings", (s: number): number =>
-        archetypeExtent(createHeavyBag({}, s), "y", ["bag"]).size,
+      row(
+        "bag diameter",
+        13 * ArchetypeUnits.INCH,
+        14.5 * ArchetypeUnits.INCH,
+        "listings",
+        (s: number): number =>
+          archetypeExtent(createHeavyBag({}, s), "x", ["bag"]).size,
       ),
-      row("bag diameter", 13 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, "listings", (s: number): number =>
-        archetypeExtent(createHeavyBag({}, s), "x", ["bag"]).size,
-      ),
+    ]),
+    ...archetypeModelSweep([
+      {
+        name: "glove weight",
+        measure: (s: number): readonly number[] => [
+          createBoxingGlove({}, s).body.mass,
+        ],
+        models: [[8], [10], [12]].map((oz: number[]): number[] => [
+          oz[0]! * ArchetypeUnits.OUNCE,
+        ]),
+        source: `${IBA}, rule 45.6`,
+      },
     ]),
   );
 
@@ -93,13 +128,17 @@ export function test_archetype_boxing_equipment(): void {
       out.z < -0.999
     )
   )
-    findings.push("the glove's socket is not in the fist opening toward the cuff");
+    findings.push(
+      "the glove's socket is not in the fist opening toward the cuff",
+    );
   if (
     Math.abs(face.frame.translation.z - fist.high) > 1e-9 ||
     ArchetypeFrame.axis(face.frame, "y").z < 0.999 ||
     face.direction !== "normal"
   )
-    findings.push("the glove's face is not the knuckle end facing +Z as a working face");
+    findings.push(
+      "the glove's face is not the knuckle end facing +Z as a working face",
+    );
 
   // 4. The bag below its hook, its target on its surface.
   const bag: ReturnType<typeof createHeavyBag> = createHeavyBag({}, 4);

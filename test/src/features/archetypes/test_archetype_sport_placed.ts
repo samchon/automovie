@@ -16,6 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 import { archetypePlaced } from "../internal/archetypePlaced";
 
 /**
@@ -23,7 +24,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. Every kind of ball, racket, golf club, glove, javelin, shot, discus, hammer and hurdle, the starting block and the baton, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the football 0.2165 to 0.2228 m, the basketball 0.2387 to 0.2451 m, the tennis ball 65.4 to 68.6 mm and the golf ball 42.67 mm across (each rule's circumference or diameter as read); the tennis racket 0.685 to 0.737 m long; the driver 1.156 to 1.168 m long; the men's javelin 2.6 to 2.7 m long; the men's shot 110 to 130 mm and the men's discus 219 to 221 mm across; the men's 110 m hurdle's top 1.064 to 1.070 m high; the baton 0.28 to 0.30 m long and 38 to 42 mm across.
+ * 2. Over 200 seeds: the football 0.2165 to 0.2228 m, the basketball 0.2387 to 0.2451 m, the tennis ball 65.4 to 68.6 mm and the golf ball 42.67 mm across (each rule's circumference or diameter as read); the tennis racket 0.685 to 0.737 m long; the driver 1.156 to 1.168 m long; the men's javelin 2.6 to 2.7 m long; the men's shot 110 to 130 mm and the men's discus 219 to 221 mm across; the men's 110 m hurdle's top 1.064 to 1.070 m high; the baton 0.28 to 0.30 m long and 38 to 42 mm across; the starting block exactly one of Polanik's, its bar width, footplate width and height and mass together, the PBS-01's 7.5 cm, 11.5 x 19 cm and 7.7 kg or the PBS15-02-W's 8 cm, 13 x 24.5 cm and 5.4 kg, both drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the rules each producer cites, a circumference divided by pi where the rule gives one.
@@ -244,6 +245,26 @@ export function test_archetype_sport_placed(): void {
           createRelayBaton({}, seed),
         ),
       ),
+    ]),
+    ...archetypeModelSweep([
+      {
+        name: "starting block bar, plates and mass",
+        measure: (seed: number): readonly number[] => {
+          const block: ReturnType<typeof createStartingBlock> =
+            createStartingBlock({}, seed);
+          return [
+            archetypeExtent(block, "x", ["rail"]).size,
+            block.affordance("front").width!,
+            block.affordance("front").depth!,
+            block.body.mass,
+          ];
+        },
+        models: [
+          [0.075, 0.115, 0.19, 7.7],
+          [0.08, 0.13, 0.245, 5.4],
+        ],
+        source: "Polanik PBS-01 and PBS15-02-W",
+      },
     ]),
   );
   TestValidator.equals(

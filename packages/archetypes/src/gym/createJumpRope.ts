@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -14,19 +14,22 @@ import {
 const ROGUE: string =
   "Rogue SR-1 bearing speed ropes: a coated 3/32 in cable of 120 in, or 10 and 11 ft, handles of 5.25 (SR-1S), 6.75 (SR-1) and 7.5 in (SR-1L), tapering to a 7/8 in grip (https://www.roguecanada.ca/rogue-bearing-speed-rope, https://www.roguefitness.com/ca/sr-1s-short-handle-bearing-speed-rope-color-series, https://www.rogueeurope.eu/rogue-sr-1-l-long-handle-speed-rope-eu?locale=en)";
 
+/** One read cable's or handle's figures, metres. */
+type Figures = Readonly<Partial<Record<createJumpRope.Dimension, number>>>;
+
 /**
- * A skipping rope: two handles joined by a cord, laid straight on the floor.
+ * A skipping rope:two handles joined by a cord, laid straight on the floor.
  *
  * It lies along `X` centred over the origin, a handle at each end and the cord between them. `leftGrip` (at `+X`) and `rightGrip` (at `-X`) are the handles, taken from above, each along `X`; the cord is rigid and straight here, its swing the act's.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The cable, the handle and any dimension the author fixes.
+ * @param seed The seed that draws the cable and the handle when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The rope.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a cable or handle Rogue does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the rope lies and its two handles.
- * @evidence contracts/development/implementation.md#principled-implementation A cord rod of the drawn cable length with a handle rod of the drawn length and diameter beyond each end, all resting on the floor.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cord, then each handle with its contact.
+ * @evidence contracts/development/implementation.md#principled-implementation A cord rod of one of Rogue's cables with a handle rod of one of its handles, each whole and picked apart, since the cable is sold apart from the handles, beyond each end, all resting on the floor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the cable and the handle, draw the dimensions, the cord, then each handle with its contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cord is one straight rigid rod; a rope that bends is a rig the act would own; the cord's diameter is a named estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -36,19 +39,36 @@ export function createJumpRope(
   params: createJumpRope.IParams = {},
   seed?: number | string,
 ): Archetype<createJumpRope.Affordance, createJumpRope.Dimension> {
-  const d: Record<createJumpRope.Dimension, number> = ArchetypeDraw.dimensions(
-    "jumpRope",
-    createJumpRope.BANDS,
-    seed,
-    params,
-  );
+  /** One of Rogue's lists, given or picked whole. */
+  const pick = <Name extends string>(
+    axis: string,
+    given: Name | undefined,
+    models: Readonly<Record<Name, Figures>>,
+  ): { name: Name | undefined; figures: Figures } =>
+    ArchetypeDraw.model<Name, createJumpRope.Dimension>(
+      "jumpRope",
+      axis,
+      given,
+      models,
+      seed,
+      params,
+    );
+  const cable: { name: createJumpRope.Cable | undefined; figures: Figures } =
+    pick("cable", params.cable, createJumpRope.CABLES);
+  const handle: { name: createJumpRope.Handle | undefined; figures: Figures } =
+    pick("handle", params.handle, createJumpRope.HANDLES);
+  const d: Record<createJumpRope.Dimension, number> = {
+    ...ArchetypeDraw.dimensions("jumpRope", createJumpRope.BANDS, seed, params),
+    length: cable.figures.length!,
+    handleLength: handle.figures.handleLength!,
+  };
   const builder: ArchetypeBuilder<
     createJumpRope.Affordance,
     createJumpRope.Dimension
   > = new ArchetypeBuilder({
     archetype: "jumpRope",
     id: params.id,
-    name: "skipping rope",
+    name: `skipping rope ${handle.name}, ${cable.name} cable`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -89,7 +109,7 @@ export function createJumpRope(
  * Companion types, constants and bands of {@link createJumpRope}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
+ * @evidence contracts/development/design.md#principled-representation Rogue's cables and handles picked whole, one band per remaining dimension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two handles a skip holds.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The cable's length, the handles' and the cable's diameter are a maker's as read; the maker gives no weight, so the mass band is provisional.
  */
@@ -113,17 +133,58 @@ export namespace createJumpRope {
    */
   export type Dimension = "length" | "handleLength" | "gripDiameter" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** Rogue's cable lengths. */
+  export type Cable = "10ft" | "11ft";
+
+  /** Each cable's length, metres, the default first: Rogue's "cable of 120 in, or 10 and 11 ft". */
+  export const CABLES: Readonly<
+    Record<Cable, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "10ft": { length: 120 * ArchetypeUnits.INCH },
+    "11ft": { length: 11 * ArchetypeUnits.FOOT },
+  };
+
+  /** Rogue's SR-1 handles. */
+  export type Handle = "SR-1" | "SR-1S" | "SR-1L";
+
+  /** Each handle's length, metres, the default first: Rogue's "handles of 5.25 (SR-1S), 6.75 (SR-1) and 7.5 in (SR-1L)". */
+  export const HANDLES: Readonly<
+    Record<Handle, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "SR-1": { handleLength: 6.75 * ArchetypeUnits.INCH },
+    "SR-1S": { handleLength: 5.25 * ArchetypeUnits.INCH },
+    "SR-1L": { handleLength: 7.5 * ArchetypeUnits.INCH },
+  };
+
+  /** The parameters: the cable, the handle, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "length" | "handleLength">, number>
+  > {
+    /** Rogue's cable; drawn from the seed when absent. */
+    cable?: Cable;
+
+    /** Rogue's handle; drawn from the seed when absent. */
+    handle?: Handle;
+
     /** The model's id, unique in a scene; `jumpRope` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(120 * ArchetypeUnits.INCH, 132 * ArchetypeUnits.INCH, ROGUE),
-    handleLength: ArchetypeBand.metres(5.25 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, ROGUE),
-    gripDiameter: ArchetypeBand.metres(0.875 * ArchetypeUnits.INCH, 0.875 * ArchetypeUnits.INCH, ROGUE),
-    mass: ArchetypeBand.of("kg", 0.1, 0.3, "the Rogue pages read give no weight", true),
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "length" | "handleLength">, IArchetypeBand>
+  > = {
+    gripDiameter: ArchetypeBand.metres(
+      0.875 * ArchetypeUnits.INCH,
+      0.875 * ArchetypeUnits.INCH,
+      ROGUE,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      0.1,
+      0.3,
+      "the Rogue pages read give no weight",
+      true,
+    ),
   };
 }

@@ -729,6 +729,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `microphone-${kind}`,
       (seed?: number | string): Archetype => createMicrophone({ kind }, seed),
+      kind === "handheld",
     );
   return rows;
 }

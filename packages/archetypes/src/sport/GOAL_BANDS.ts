@@ -53,9 +53,12 @@ export const GOAL_BANDS: Readonly<
       10,
       `${FIVB}: the net's length; the side bands 9 m apart, as 9.50 m less two 25 cm or 10 m less two 50 cm`,
     ),
-    height: ArchetypeBand.metres(2.24, 2.43, `${FIVB}: women's to men's`),
     board: ArchetypeBand.metres(1, 1, `${FIVB}: the net's width`),
-    offset: ArchetypeBand.metres(0.5, 1, `${FIVB}: posts outside the side lines`),
+    offset: ArchetypeBand.metres(
+      0.5,
+      1,
+      `${FIVB}: posts outside the side lines`,
+    ),
     post: ArchetypeBand.metres(2.55, 2.55, FIVB),
     mass: ArchetypeBand.of("kg", 40, 80, ArchetypeBand.TYPICAL_MASS, true),
   },
@@ -64,7 +67,11 @@ export const GOAL_BANDS: Readonly<
     height: ArchetypeBand.metres(0.914, 0.914, `${ITF}: at the centre`),
     post: ArchetypeBand.metres(1.07, 1.07, `${ITF}: at the posts`),
     offset: ArchetypeBand.metres(0.914, 0.914, ITF),
-    bar: ArchetypeBand.metres(0.15, 0.15, `${ITF}: the post; the model takes the limit`),
+    bar: ArchetypeBand.metres(
+      0.15,
+      0.15,
+      `${ITF}: the post; the model takes the limit`,
+    ),
     mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

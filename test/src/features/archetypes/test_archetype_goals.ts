@@ -1,9 +1,10 @@
-import { createGoal } from "@automovie/archetypes";
+import { ArchetypeRefusal, createGoal } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -14,7 +15,7 @@ const MM: number = 1e-3;
  * Scenarios:
  * 1. A football goal's mouth is IFAB's 7.32 by 2.44 m between the posts' inner faces and under the crossbar, its posts and crossbar 12 cm square.
  * 2. A basketball ring's top is FIBA's 3,050 mm up, its inside 450 to 459 mm across with its nearest point 151 mm from the backboard's face, and the backboard's bottom edge 150 mm below the ring's top.
- * 3. A volleyball net's top lies at FIVB's 2.24 to 2.43 m, its posts 2.55 m high and 0.50 to 1.00 m outside side lines 9 m apart.
+ * 3. Over 200 seeds a volleyball net's top lies exactly at FIVB's 2.43 m for men or 2.24 m for women, both drawn, and a net height an author fixes is refused on height, since it is the class's own figure; its posts 2.55 m high and 0.50 to 1.00 m outside side lines 9 m apart.
  * 4. A tennis net's cord runs from ITF's 1.07 m at the posts to 0.914 m at the centre, its posts' centres 0.914 m outside a 10.97 m doubles court.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a goal, ring or net off its rule's figures is caught with the numbers.
@@ -41,8 +42,16 @@ export function test_archetype_goals(): void {
       archetypeExtent(goal, "x", ["post-right"]).high,
     7.32,
   );
-  near("the crossbar's lower edge", archetypeExtent(goal, "y", ["crossbar"]).low, 2.44);
-  near("the crossbar's depth", archetypeExtent(goal, "z", ["crossbar"]).size, 0.12);
+  near(
+    "the crossbar's lower edge",
+    archetypeExtent(goal, "y", ["crossbar"]).low,
+    2.44,
+  );
+  near(
+    "the crossbar's depth",
+    archetypeExtent(goal, "z", ["crossbar"]).size,
+    0.12,
+  );
   const mouth: IAutoMovieAffordance = goal.affordance("mouth");
   near("the mouth's width", mouth.width!, 7.32);
   near("the mouth's height", mouth.height!, 2.44);
@@ -95,16 +104,18 @@ export function test_archetype_goals(): void {
 
   // 3. The volleyball net.
   findings.push(
-    ...archetypeBandSweep([
+    ...archetypeModelSweep([
       {
         name: "volleyball net top",
-        measure: (seed: number): number =>
+        measure: (seed: number): readonly number[] => [
           createGoal({ kind: "volleyballNet" }, seed).affordance("top").frame
             .translation.y,
-        minimum: 2.24,
-        maximum: 2.43,
+        ],
+        models: [[2.43], [2.24]],
         source: "FIVB 2.1.1",
       },
+    ]),
+    ...archetypeBandSweep([
       {
         name: "volleyball post outside the side line",
         measure: (seed: number): number =>
@@ -116,11 +127,26 @@ export function test_archetype_goals(): void {
       },
     ]),
   );
+  try {
+    createGoal({ kind: "volleyballNet", height: 2.3 }, 2);
+    findings.push("a fixed volleyball net height was accepted");
+  } catch (error) {
+    if (
+      !(error instanceof ArchetypeRefusal) ||
+      error.kind !== "parameter" ||
+      error.axis !== "height"
+    )
+      findings.push("a fixed volleyball net height was not refused on height");
+  }
   const volley: ReturnType<typeof createGoal> = createGoal(
     { kind: "volleyballNet" },
     2,
   );
-  near("the volleyball posts", archetypeExtent(volley, "y", ["post-left"]).high, 2.55);
+  near(
+    "the volleyball posts",
+    archetypeExtent(volley, "y", ["post-left"]).high,
+    2.55,
+  );
 
   // 4. The tennis net.
   const tennis: ReturnType<typeof createGoal> = createGoal(
@@ -128,8 +154,16 @@ export function test_archetype_goals(): void {
     2,
   );
   const post: number = 10.97 / 2 + 0.914;
-  near("the tennis post's centre", tennis.affordance("leftPost").frame.translation.x, post);
-  near("the net at the centre", tennis.affordance("top").frame.translation.y, 0.914);
+  near(
+    "the tennis post's centre",
+    tennis.affordance("leftPost").frame.translation.x,
+    post,
+  );
+  near(
+    "the net at the centre",
+    tennis.affordance("top").frame.translation.y,
+    0.914,
+  );
   const cord: { low: number; high: number } = archetypeExtent(tennis, "y", [
     "cord-left",
   ]);

@@ -22,14 +22,14 @@ const POLE: string =
  *
  * The mat lies on the floor with the middle of its footprint at the origin, its length along `Z` (the direction of the jump) and its width along `X`. `surface` is its top, the place a landing lies on.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a pole vault mat's layout and any dimension the author fixes.
+ * @param seed The seed that draws a pole vault mat's layout when it is not given and every dimension left free inside its band; absent, the first layout and the middle of each band.
  * @returns The mat.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a layout the rules do not give or one named for a high jump mat, a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn length, width and height; its top is the contact, as large as the top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one box, one contact.
+ * @evidence contracts/development/implementation.md#principled-implementation One box of the rules' length, width and height, a pole vault mat's length its layout's whole; its top is the contact, as large as the top.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a pole vault mat's layout, draw the dimensions, one box, one contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bed is rigid: how far it gives under a body is the landing act's. A pole vault mat's cut-out round the box is not drawn.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -45,46 +45,64 @@ export function createLandingMat(
     params.kind,
     createLandingMat.KINDS,
   );
-  const d: Record<createLandingMat.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const layout: {
+    name: createLandingMat.Layout | undefined;
+    figures: Readonly<Partial<Record<createLandingMat.Dimension, number>>>;
+  } = ArchetypeDraw.model<createLandingMat.Layout, createLandingMat.Dimension>(
+    "landingMat",
+    "layout",
+    params.layout,
+    createLandingMat.LAYOUTS[kind],
+    seed,
+    params,
+  );
+  const d: Partial<Record<createLandingMat.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "landingMat",
       createLandingMat.BANDS[kind],
       seed,
       params,
-    );
+      createLandingMat.BANDS,
+    ),
+    ...layout.figures,
+  };
+  const length: number = d.length!;
+  const width: number = d.width!;
+  const height: number = d.height!;
   const builder: ArchetypeBuilder<
     createLandingMat.Affordance,
     createLandingMat.Dimension
   > = new ArchetypeBuilder({
     archetype: "landingMat",
     id: params.id,
-    name: kind === "highJump" ? "high jump mat" : "pole vault mat",
+    name:
+      kind === "highJump" ? "high jump mat" : `pole vault mat ${layout.name}`,
     dimensions: d,
   });
   builder.box(
     "bed",
-    Vector3.create(d.width, d.height, d.length),
-    Vector3.create(0, d.height / 2, 0),
+    Vector3.create(width, height, length),
+    Vector3.create(0, height / 2, 0),
     { color: "#2f5d9e" },
   );
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
-    width: d.width,
-    depth: d.length,
+    width,
+    depth: length,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
  * Companion types and bands of {@link createLandingMat}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union and one band per dimension per kind; the rules give the least size, so each band runs from it.
+ * @evidence contracts/development/design.md#principled-representation A closed union, a pole vault mat's two layouts picked whole, and one band per remaining dimension per kind; the rules give the least size, which each band takes.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The top's height and extent a landing reads, and the one contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both kinds have every dimension, so the table is total.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A pole vault mat's length is its layout's, never a size between the rules' two.
  */
 export namespace createLandingMat {
   /** The kinds of mat. */
@@ -106,10 +124,31 @@ export namespace createLandingMat {
    */
   export type Dimension = "length" | "width" | "height" | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** A pole vault mat's layouts. */
+  export type Layout = "without front pads" | "with front pads";
+
+  /** The figures each layout fixes, by kind, the default first: the pole vault's landing area "6 m by 6 m by 0.8 m behind the box, 8 m with the front pads" (at the address `POLE` gives). */
+  export const LAYOUTS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Layout, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
+    poleVault: {
+      "without front pads": { length: 6 },
+      "with front pads": { length: 8 },
+    },
+  };
+
+  /** The parameters: the kind, a pole vault mat's layout, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which mat. */
     kind: Kind;
+
+    /** A pole vault mat's layout; drawn from the seed when absent. A high jump mat has none. */
+    layout?: Layout;
 
     /** The model's id, unique in a scene; `landingMat` when absent. */
     id?: string;
@@ -117,7 +156,7 @@ export namespace createLandingMat {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     highJump: {
       length: ArchetypeBand.metres(4, 4, HIGH),
@@ -132,7 +171,6 @@ export namespace createLandingMat {
       ),
     },
     poleVault: {
-      length: ArchetypeBand.metres(6, 8, POLE),
       width: ArchetypeBand.metres(6, 6, POLE),
       height: ArchetypeBand.metres(0.8, 0.8, POLE),
       mass: ArchetypeBand.of(

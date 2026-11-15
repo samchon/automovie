@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -30,16 +31,16 @@ const STANCE: number = 0.02;
 /**
  * An alpine ski lying flat on the snow, its tip toward `-Z`.
  *
- * Its outline is LINE Blend's shape at the drawn length, as a forebody from the tip's width to the waist's and an afterbody from the waist's to the tail's, at the thickness Rossignol's patent claims for an alpine ski's middle. `stance` is the top at the maker's stance mark, the surface the boot stands on; the binding is not built. Skiing is balance on a sliding support, which no motion law covers yet (#3468 N11), so the ski is built for static use and carrying.
+ * Its length is one of LINE Blend's four, given or drawn from the seed, and its outline is LINE Blend's shape at that length, as a forebody from the tip's width to the waist's and an afterbody from the waist's to the tail's, at the thickness Rossignol's patent claims for an alpine ski's middle. `stance` is the top at the maker's stance mark, the surface the boot stands on; the binding is not built. Skiing is balance on a sliding support, which no motion law covers yet (#3468 N11), so the ski is built for static use and carrying.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The length LINE lists and any dimension the author fixes.
+ * @param seed The seed that draws the length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The ski.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, its contact and its static use with the missing law.
- * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and lengths with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the two halves, then the contact.
+ * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and one of its lengths whole, with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the length, draw the dimensions, the two halves, then the contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each half is a box at its two ends' mean width; no sidecut curve, rocker, camber or binding.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -49,22 +50,31 @@ export function createSki(
   params: createSki.IParams = {},
   seed?: number | string,
 ): Archetype<createSki.Affordance, createSki.Dimension> {
-  const d: Record<createSki.Dimension, number> = ArchetypeDraw.dimensions(
+  const length: {
+    name: createSki.Length | undefined;
+    figures: Readonly<Partial<Record<createSki.Dimension, number>>>;
+  } = ArchetypeDraw.model<createSki.Length, createSki.Dimension>(
     "ski",
-    createSki.BANDS,
+    "length",
+    params.length,
+    createSki.LENGTHS,
     seed,
-    params,
+    { ...params, length: undefined },
   );
+  const d: Partial<Record<createSki.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("ski", createSki.BANDS, seed, params),
+    ...length.figures,
+  };
   const builder: ArchetypeBuilder<createSki.Affordance, createSki.Dimension> =
     new ArchetypeBuilder({
       archetype: "ski",
       id: params.id,
-      name: "ski",
+      name: `ski ${length.name}`,
       dimensions: d,
     });
   const v: typeof Vector3.create = Vector3.create;
-  const half: number = d.length / 2;
-  const thick: number = d.thickness;
+  const half: number = d.length! / 2;
+  const thick: number = d.thickness!;
   builder.box(
     "forebody",
     v((WIDTH.tip + WIDTH.waist) / 2, thick, half),
@@ -84,14 +94,14 @@ export function createSki(
     extent: null,
     width: WIDTH.waist,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
  * Companion types and bands of {@link createSki}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension; the shape's widths and the stance are the maker's constants.
+ * @evidence contracts/development/design.md#principled-representation LINE's lengths picked whole, one cited band per remaining dimension; the shape's widths and the stance are the maker's constants.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The place the boot stands (#3468 N11).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The thickness is a patent's claimed range, not one model's, and says so.
  */
@@ -102,21 +112,40 @@ export namespace createSki {
   /**
    * The free dimensions:
    *
-   * - `length`: the ski, metres.
+   * - `length`: the ski, metres, its picked length's.
    * - `thickness`: its middle, metres.
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "thickness" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** LINE Blend's lengths. */
+  export type Length = "163cm" | "169cm" | "175cm" | "180cm";
+
+  /** Each length LINE Blend lists, metres, the default first. */
+  export const LENGTHS: Readonly<
+    Record<Length, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "163cm": { length: 163 * ArchetypeUnits.CENTIMETRE },
+    "169cm": { length: 169 * ArchetypeUnits.CENTIMETRE },
+    "175cm": { length: 175 * ArchetypeUnits.CENTIMETRE },
+    "180cm": { length: 180 * ArchetypeUnits.CENTIMETRE },
+  };
+
+  /** The parameters: the length, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "length">, number>
+  > {
+    /** LINE Blend's length; drawn from the seed when absent. */
+    length?: Length;
+
     /** The model's id, unique in a scene; `ski` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(1.63, 1.8, LINE),
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "length">, IArchetypeBand>
+  > = {
     thickness: ArchetypeBand.metres(0.015, 0.03, ROSSIGNOL),
     mass: ArchetypeBand.of(
       "kg",
