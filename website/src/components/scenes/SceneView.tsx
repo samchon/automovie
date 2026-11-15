@@ -19,29 +19,32 @@ import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SharedStage } from "../../stage/SharedStage";
 
 /**
- * One baked take drawn in a canvas through the page's shared renderer and
- * posed by a clock, fetched when the view first comes near the window. With
- * `orbit`, a drag or the arrow keys turn the camera about the action, the
- * wheel while the view has focus or plus and minus zoom, and a double-click
- * or the 0 key frames it again.
+ * One take drawn in a canvas through the page's shared renderer and posed by
+ * a clock. With `orbit`, a drag or the arrow keys turn the camera about the
+ * action, the wheel while the view has focus or plus and minus zoom, and a
+ * double-click or the 0 key frames it again.
  *
- * While a take loads, the view says so; a take the packages refuse shows
- * their refusal, and one that fails to load its error. Each note is cleared
- * when the scene or the take changes. A decorative view, as in a card's
- * link, keeps its notes out of assistive technology, so they do not become
- * the link's name and a grid of cards raises no alert per card.
+ * The take is computed in the take worker only while the view is in the
+ * window: a view scrolled past before its take starts drops its request, and
+ * one that comes back reads a take already computed from the page's cache.
+ * Until the take is ready the view says it is computing; a take the packages
+ * refuse shows their refusal, and one that fails its error. Each note is
+ * cleared when the scene or the take changes, and `data-take` names the
+ * phase. A decorative view, as in a card's link, keeps its notes out of
+ * assistive technology, so they do not become the link's name and a grid of
+ * cards raises no alert per card.
  *
  * @param props The scene, the take, the clock and whether the view orbits.
  * @returns The view.
  */
 export function SceneView(props: SceneView.IProps): ReactElement {
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
-  const [state, setState]: [string, Dispatch<SetStateAction<string>>] =
-    useState<string>("loading");
-  const [refusal, setRefusal]: [
-    string | null,
-    Dispatch<SetStateAction<string | null>>,
-  ] = useState<string | null>(null);
+  const [phase, setPhase]: [
+    SceneView.Phase,
+    Dispatch<SetStateAction<SceneView.Phase>>,
+  ] = useState<SceneView.Phase>("waiting");
+  const [message, setMessage]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
   const { scene, take, clock, orbit }: SceneView.IProps = props;
   const name: string =
     props.label === undefined ? scene.title : `${scene.title}, ${props.label}`;
@@ -52,61 +55,89 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   callback.current = props.onLoad;
 
   useEffect((): (() => void) => {
-    // A new take starts from loading, with no note of the one before.
-    setState("loading");
-    setRefusal(null);
+    // A new take starts from waiting, with no note of the one before.
+    setPhase("waiting");
+    setMessage("");
 
     let alive: boolean = true;
     let player: IScenePlayer | null = null;
     let registration: SharedStage.IRegistration | null = null;
     let detach: (() => void) | null = null;
-    // The take is fetched only when its view comes near the window, so a
-    // page of cards loads the cards it shows.
-    let cancel: () => void = (): void => undefined;
-    const near: Promise<void> = new Promise((resolve: () => void): void => {
-      if (canvas.current === null) return resolve();
-      cancel = SharedStage.near(canvas.current, resolve);
-    });
-    near
-      .then((): Promise<IScenePlayer> => loadScenePlayer(scene, take))
-      .then((loaded: IScenePlayer): void => {
-        if (!alive || canvas.current === null) {
-          loaded.dispose();
-          return;
-        }
-        player = loaded;
-        let shown: number = -1;
-        const registered: SharedStage.IRegistration = SharedStage.register({
-          canvas: canvas.current,
-          scene: loaded.scene,
-          camera: loaded.camera,
-          tick: (now: number): boolean => {
-            const time: number = clock.advance(now);
-            if (time === shown) return false;
-            shown = time;
-            loaded.seek(time);
-            return true;
-          },
-        });
-        registration = registered;
-        const redraw: () => void = (): void => registered.invalidate();
-        if (orbit === true)
-          detach = attachOrbit(canvas.current, loaded, redraw);
+    let request: AbortController | null = null;
+    let unwatch: () => void = (): void => undefined;
 
-        // A toolbar that moves the camera redraws through the registration,
-        // since a paused clock draws nothing by itself.
-        callback.current?.(loaded, redraw);
-        setState("ready");
-      })
-      .catch((error: unknown): void => {
-        if (!alive) return;
-        if (error instanceof Error && error.name === SCENE_REFUSAL)
-          setRefusal(error.message);
-        setState(error instanceof Error ? error.message : String(error));
-      });
+    // Compute the take, unless it is ready or already asked for.
+    const start: () => void = (): void => {
+      if (player !== null || request !== null) return;
+      const controller: AbortController = new AbortController();
+      request = controller;
+      setPhase("computing");
+      loadScenePlayer(scene, take, controller.signal)
+        .then((loaded: IScenePlayer): void => {
+          request = null;
+          if (!alive || canvas.current === null) {
+            loaded.dispose();
+            return;
+          }
+          unwatch();
+          player = loaded;
+          let shown: number = -1;
+          const registered: SharedStage.IRegistration = SharedStage.register({
+            canvas: canvas.current,
+            scene: loaded.scene,
+            camera: loaded.camera,
+            tick: (now: number): boolean => {
+              const time: number = clock.advance(now);
+              if (time === shown) return false;
+              shown = time;
+              loaded.seek(time);
+              return true;
+            },
+          });
+          registration = registered;
+          const redraw: () => void = (): void => registered.invalidate();
+          if (orbit === true)
+            detach = attachOrbit(canvas.current, loaded, redraw);
+
+          // A toolbar that moves the camera redraws through the
+          // registration, since a paused clock draws nothing by itself.
+          callback.current?.(loaded, redraw);
+          setPhase("ready");
+        })
+        .catch((error: unknown): void => {
+          if (request === controller) request = null;
+
+          // A view scrolled past waits again; its take may still be kept.
+          if (!alive || controller.signal.aborted) return;
+          unwatch();
+          setPhase(
+            error instanceof Error && error.name === SCENE_REFUSAL
+              ? "refused"
+              : "failed",
+          );
+          setMessage(error instanceof Error ? error.message : String(error));
+        });
+    };
+
+    // The take is computed only while its view is in the window, so a page
+    // of cards computes the cards the visitor looks at.
+    if (canvas.current === null) start();
+    else
+      unwatch = SharedStage.visibility(
+        canvas.current,
+        (inside: boolean): void => {
+          if (inside) start();
+          else if (request !== null) {
+            request.abort();
+            request = null;
+            setPhase("waiting");
+          }
+        },
+      );
     return (): void => {
       alive = false;
-      cancel();
+      unwatch();
+      request?.abort();
       detach?.();
       registration?.release();
       player?.dispose();
@@ -116,7 +147,11 @@ export function SceneView(props: SceneView.IProps): ReactElement {
   // A decorative view's notes are shown but not announced.
   const quiet: boolean = props.decorative === true;
   return (
-    <div className="am-scene-view" aria-busy={state === "loading"}>
+    <div
+      className="am-scene-view"
+      aria-busy={phase === "waiting" || phase === "computing"}
+      data-take={phase}
+    >
       <canvas
         ref={canvas}
         tabIndex={orbit === true ? 0 : -1}
@@ -130,15 +165,15 @@ export function SceneView(props: SceneView.IProps): ReactElement {
               : name
         }
       />
-      {state === "loading" ? (
+      {phase === "waiting" || phase === "computing" ? (
         <p
           className="am-scene-view-note"
           role={quiet ? undefined : "status"}
           aria-hidden={quiet ? true : undefined}
         >
-          Loading the take.
+          Computing the take.
         </p>
-      ) : state === "ready" ? null : refusal !== null ? (
+      ) : phase === "ready" ? null : phase === "refused" ? (
         <p
           className="am-scene-view-note am-scene-view-refusal"
           role={quiet ? undefined : "note"}
@@ -148,7 +183,7 @@ export function SceneView(props: SceneView.IProps): ReactElement {
           {scene.refusedUntil === undefined
             ? ""
             : `, until #${scene.refusedUntil}`}
-          : {refusal}
+          : {message}
         </p>
       ) : (
         <p
@@ -156,13 +191,20 @@ export function SceneView(props: SceneView.IProps): ReactElement {
           role={quiet ? undefined : "alert"}
           aria-hidden={quiet ? true : undefined}
         >
-          {state}
+          {message}
         </p>
       )}
     </div>
   );
 }
 export namespace SceneView {
+  /**
+   * Where a view's take is: waiting for the view to come into the window,
+   * computing, drawn, refused by the packages as its scene's record expects,
+   * or failed.
+   */
+  export type Phase = "waiting" | "computing" | "ready" | "refused" | "failed";
+
   /** What a view draws. */
   export interface IProps {
     /** The scene's record. */
@@ -184,8 +226,9 @@ export namespace SceneView {
     decorative?: boolean;
 
     /**
-     * Called with the loaded take, for a toolbar that moves its camera, and
-     * with what redraws the view after such a move.
+     * Called with the computed take, for a toolbar that moves its camera and
+     * a page that reads its length or timeline, and with what redraws the
+     * view after such a move.
      */
     onLoad?: (player: IScenePlayer, redraw: () => void) => void;
   }

@@ -3,4 +3,3 @@ _pagefind/
 node_modules/
 out/
 tsconfig.tsbuildinfo
-public/baked/

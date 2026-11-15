@@ -16,10 +16,10 @@ import type { IScene } from "../../src/scenes/structures/IScene";
 import type { ISceneChainNames } from "../../src/scenes/structures/ISceneChainNames";
 
 /**
- * The code a scene page shows under "How is this made?" is the composition the scene plays: run against the packages, it builds exactly the composition, registers exactly the laws, and places exactly the props the playground and the bake build, and hands them to `HumanPerformance` as `PlaygroundPerformance` does.
+ * The code a scene page shows under "How is this made?" is the composition the scene plays: run against the packages, it builds exactly the composition, registers exactly the laws, and places exactly the props the take worker builds for the playground and every scene, and hands them to `HumanPerformance` as `PlaygroundPerformance` does.
  *
  * Scenarios:
- * 1. For every scene the bake computes, refused ones included, objects and mutual actions included, the shown code, compiled from TypeScript and run with the names it imports from `@automovie/motions`, with `@automovie/archetypes` and with a stand-in for each body, up to its last line, `const performance = new HumanPerformance(input);`, which it must end with and which is not run because planning costs seconds a scene: gives a `scene` whose composition node equals the playground's, and a `laws` list of the same laws.
+ * 1. For every scene a page computes, refused ones included, objects and mutual actions included, the shown code, compiled from TypeScript and run with the names it imports from `@automovie/motions`, with `@automovie/archetypes` and with a stand-in for each body, up to its last line, `const performance = new HumanPerformance(input);`, which it must end with and which is not run because planning costs seconds a scene: gives a `scene` whose composition node equals the playground's, and a `laws` list of the same laws.
  * 2. The code names every performer's subject.
  * 3. The shown `input` carries that composition node, each performer's subject, body, floor point, heading and skill, the laws only when there are some, and the props only when the scene places objects; its props are those `PlaygroundObjects.props` builds: the same subjects in order, the same `worn` wearer, bone and offset, and the same placed frame within a micrometre and a millionth of a quaternion component.
  */
@@ -31,7 +31,10 @@ export function test_website_scene_chain(): void {
   let checked: number = 0;
   const LAST: string = "const performance = new HumanPerformance(input);";
   for (const scene of SCENES) {
-    if (scene.composition === null || !SceneStatus.bakes(SceneStatus.of(scene)))
+    if (
+      scene.composition === null ||
+      !SceneStatus.computes(SceneStatus.of(scene))
+    )
       continue;
     const composition: IPlaygroundComposition = scene.composition;
     const names: ISceneChainNames = SceneChainNames.read(composition);
@@ -124,7 +127,7 @@ export function test_website_scene_chain(): void {
         (s: IScene): boolean =>
           s.composition !== null &&
           (s.composition.objects ?? []).length !== 0 &&
-          SceneStatus.bakes(SceneStatus.of(s)),
+          SceneStatus.computes(SceneStatus.of(s)),
       ) &&
       SCENES.some(
         (s: IScene): boolean =>
@@ -133,13 +136,13 @@ export function test_website_scene_chain(): void {
             (o: IPlaygroundComposition.IObject): boolean =>
               o.worn !== undefined,
           ) &&
-          SceneStatus.bakes(SceneStatus.of(s)),
+          SceneStatus.computes(SceneStatus.of(s)),
       ) &&
       SCENES.some(
         (s: IScene): boolean =>
           s.composition !== null &&
           s.composition.mutuals.length !== 0 &&
-          SceneStatus.bakes(SceneStatus.of(s)),
+          SceneStatus.computes(SceneStatus.of(s)),
       ),
   );
 }

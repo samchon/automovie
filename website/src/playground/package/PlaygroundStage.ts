@@ -1,6 +1,3 @@
-import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { HumanPerformance } from "@automovie/motions";
 import {
   type AutoMovieHumanPolygon,
   type IAutoMovieDrawScene,
@@ -10,22 +7,28 @@ import {
 import { mountAutoMovieInspectorPage } from "@automovie/viewer";
 import * as THREE from "three";
 
+import { SceneTrack } from "../../scenes/SceneTrack";
+import { FILM_FPS } from "../../takes/FILM_FPS";
+import type { ITake } from "../../takes/structures/ITake";
 import type { IPlaygroundAdapter } from "../IPlaygroundAdapter";
-import type { PlaygroundPerformance } from "./PlaygroundPerformance";
 
 /**
- * Draws a performance with the shipped instrument: the polygon man of
+ * Draws a computed take with the shipped instrument: the polygon man of
  * `@automovie/render` for every performer, shown by the inspector of
  * `@automovie/viewer`.
  *
  * The playground adds no renderer and no camera code of its own. It only
  * states the subject the inspector draws: a scene with one polygon man per
- * performer on a floor grid, the film clock of the performance, and a `seek`
- * that asks the performance for each person's pose.
+ * performer on a floor grid, the film clock of the take, and a `seek` that
+ * reads each person's pose from the take's track.
  */
 export namespace PlaygroundStage {
-  /** Frames per second of the subject's clock: the grid the package's own checks read. */
-  export const FPS: number = 24;
+  /**
+   * Frames per second of the subject's clock and of the take it draws: film's
+   * rate, the grid the package's own checks read, so every frame the
+   * inspector steps to is a computed pose.
+   */
+  export const FPS: number = FILM_FPS;
 
   /** Side in metres of one cell of the floor grid. */
   const GRID_CELL: number = 0.25;
@@ -33,28 +36,31 @@ export namespace PlaygroundStage {
   /** Metres of floor drawn around every place a performer stands. */
   const MARGIN: number = 1.2;
 
-  /** One performer to draw. */
-  export type IFigure = PlaygroundPerformance.IFigure;
+  /** One performer's drawing and the group that puts it in the world. */
+  interface IDrawn {
+    /** The polygon man. */
+    drawing: AutoMovieHumanPolygon.IDrawing;
+
+    /** Its group under the reflection matrix. */
+    group: THREE.Group;
+  }
 
   /**
-   * Mount the inspector over a performance.
+   * Mount the inspector over a take.
    *
    * @param root The element to draw into.
-   * @param performance The performance.
-   * @param figures Its performers' bodies.
+   * @param take The take, computed at `FPS`.
    * @returns What unmounts the inspector.
    */
   export function mount(
     root: HTMLElement,
-    performance: HumanPerformance,
-    figures: readonly IFigure[],
+    take: ITake,
   ): IPlaygroundAdapter.IMounted {
     // The inspector keys its canvas on the subject object, so the record is
     // made once per mount.
     const subjects: Readonly<Record<string, IAutoMovieDrawSubject>> = {
       performance: {
-        create: async (): Promise<IAutoMovieDrawScene> =>
-          build(performance, figures),
+        create: async (): Promise<IAutoMovieDrawScene> => build(take),
       },
     };
     return mountAutoMovieInspectorPage({
@@ -65,11 +71,8 @@ export namespace PlaygroundStage {
     });
   }
 
-  /** Build the scene of a performance. */
-  function build(
-    performance: HumanPerformance,
-    figures: readonly IFigure[],
-  ): IAutoMovieDrawScene {
+  /** Build the scene of a take. */
+  function build(take: ITake): IAutoMovieDrawScene {
     const scene: THREE.Scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe9e6df);
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
@@ -83,36 +86,41 @@ export namespace PlaygroundStage {
 
     // One polygon man per performer, under the matrix that puts Human's own
     // frame in the canonical world.
-    const drawn: {
-      figure: IFigure;
-      drawing: AutoMovieHumanPolygon.IDrawing;
-      group: THREE.Group;
-    }[] = figures.map((figure: IFigure) => {
-      const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
-        AutoMovieHumanCanonicalBody.display(figure.canonical),
-      );
-      const group: THREE.Group = new THREE.Group();
-      group.name = figure.subject;
-      group.matrixAutoUpdate = false;
-      group.matrix.fromArray([...AutoMovieHumanCanonicalBody.REFLECTION]);
-      group.add(drawing.object);
-      scene.add(group);
-      disposers.push((): void => drawing.dispose());
-      return { figure, drawing, group };
-    });
+    const reflect: THREE.Matrix4 = new THREE.Matrix4().fromArray(
+      take.reflection,
+    );
+    const first: SceneTrack.IPlacement[][] = SceneTrack.sample(take.track, 0);
+    const drawn: IDrawn[] = take.figures.map(
+      (figure: ITake.IFigure, i: number): IDrawn => {
+        const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
+          bones: figure.bones,
+          posed: first[i]!,
+        });
+        const group: THREE.Group = new THREE.Group();
+        group.name = figure.subject;
+        group.matrixAutoUpdate = false;
+        group.matrix.copy(reflect);
+        group.add(drawing.object);
+        scene.add(group);
+        disposers.push((): void => drawing.dispose());
+        return { drawing, group };
+      },
+    );
 
-    // The floor under every place a performer's root passes, read from the
-    // postures at nine evenly spaced instants of the film.
+    // The floor under every place a performer passes, read from every
+    // placement at nine evenly spaced instants of the film.
     const extent: THREE.Box3 = new THREE.Box3();
-    for (const figure of figures)
-      for (let k: number = 0; k <= 8; ++k) {
-        const root: IAutoMovieVector3 = performance.posture(
-          figure.subject,
-          (performance.duration * k) / 8,
-        ).root;
-        extent.expandByPoint(new THREE.Vector3(root.x, 0, root.z));
-        extent.expandByPoint(new THREE.Vector3(root.x, 2, root.z));
-      }
+    const point: THREE.Vector3 = new THREE.Vector3();
+    for (let k: number = 0; k <= 8; ++k)
+      SceneTrack.sample(take.track, (take.duration * k) / 8)
+        .slice(0, take.figures.length)
+        .forEach((entries: SceneTrack.IPlacement[]): void => {
+          for (const entry of entries) {
+            point.fromArray(entry.position).applyMatrix4(reflect);
+            extent.expandByPoint(new THREE.Vector3(point.x, 0, point.z));
+            extent.expandByPoint(new THREE.Vector3(point.x, 2, point.z));
+          }
+        });
     extent.min.x -= MARGIN;
     extent.min.z -= MARGIN;
     extent.max.x += MARGIN;
@@ -166,21 +174,19 @@ export namespace PlaygroundStage {
     return {
       scene,
       camera,
-      durationSeconds: performance.duration,
-      fps: FPS,
+      durationSeconds: take.duration,
+      fps: take.track.fps,
       width,
       height,
       seek: async (seconds: number): Promise<void> => {
-        const at: number = Math.min(performance.duration, Math.max(0, seconds));
-        for (const { figure, drawing, group } of drawn) {
-          drawing.setPose({
-            posed: AutoMovieHumanCanonicalBody.display(
-              figure.canonical,
-              performance.pose(figure.subject, at),
-            ).posed,
-          });
-          group.updateMatrixWorld(true);
-        }
+        const sampled: SceneTrack.IPlacement[][] = SceneTrack.sample(
+          take.track,
+          seconds,
+        );
+        drawn.forEach((each: IDrawn, i: number): void => {
+          each.drawing.setPose({ posed: sampled[i]! });
+          each.group.updateMatrixWorld(true);
+        });
       },
       dispose: (): void =>
         disposers.forEach((dispose: () => void): void => dispose()),

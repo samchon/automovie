@@ -4,11 +4,12 @@ import type { IPlaygroundComposition } from "../../playground/structures/IPlaygr
  * One applied scene the site plays: who is in it, what is placed in it, what
  * they do, and the takes that replay it with other seeds, bodies or skill.
  *
- * A scene is data. The build computes every take of a scene that plays into
- * a baked track, the gallery lists it, its page plays it, and the playground
- * opens its composition. A scene marked `refusedUntil` is baked with each
- * refused take's refusal in place of its track, and its page shows that
- * refusal; neither the playground nor a reference page's trial opens it. A
+ * A scene is data. The gallery lists a scene that plays, a page computes
+ * each of its takes in the browser when the take's view comes into the
+ * window, and the playground opens its composition. A scene marked
+ * `refusedUntil` is computed the same way, and each refused take shows the
+ * packages' refusal in place of its picture; neither the playground nor a
+ * reference page's trial opens it. A
  * scene whose pieces the installed packages lack still lists, with the
  * issues it waits on, so it turns playable the day those pieces land
  * without a change to any page.
@@ -50,9 +51,9 @@ export interface IScene {
   /**
    * The issue whose fix lets the packages perform this scene, when they
    * refuse or fail on it today. The scene is built exactly as it should
-   * play; the bake keeps each refused take's refusal in place of its track
-   * and the page shows it, so a motion the code cannot perform yet is on
-   * the site with its reason. An unmarked refusal still fails the bake.
+   * play, and its page shows each refused take's refusal in place of its
+   * picture, so a motion the code cannot perform yet is on the site with its
+   * reason. An unmarked refusal is shown as an error.
    */
   refusedUntil?: number;
 
@@ -62,7 +63,7 @@ export interface IScene {
   /** Its place in the landing page's hero, lowest first; not featured when absent. */
   featured?: number;
 
-  /** Baked and played by a page, but not listed in the gallery. */
+  /** Played by a page, but not listed in the gallery. */
   hidden?: boolean;
 }
 export namespace IScene {

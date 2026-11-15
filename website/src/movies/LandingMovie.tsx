@@ -36,7 +36,10 @@ const START: readonly string[] = [
  * scene, by the stage or the arrows, plays it unless the visitor asked for
  * reduced motion.
  *
- * @param props The featured scenes the packages play in every take, in their order; the titles of the listed scenes the build did not bake, which wait on a release or are planned; and the motion package's counts. The records are read while the site is exported, so the page carries only these.
+ * Each view computes its take in the browser when it comes into the window,
+ * and the stage's length is read from its take once computed.
+ *
+ * @param props The featured scenes that play, in their order; the titles of the listed scenes the installed packages cannot compute, which wait on a release or are planned; and the motion package's counts. The records are read while the site is exported, so the page carries only these.
  * @returns The page.
  */
 export default function LandingMovie(props: {

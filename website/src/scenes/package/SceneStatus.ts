@@ -20,9 +20,9 @@ export namespace SceneStatus {
     | {
         /**
          * The installed packages have every piece, but the record says they
-         * refuse the scene until an issue lands: the bake keeps each refused
-         * take's refusal in place of its track, and nothing opens the scene
-         * as one that plays.
+         * refuse the scene until an issue lands: its takes are still
+         * computed, each refused one shows the refusal in place of its
+         * picture, and nothing opens the scene as one that plays.
          */
         kind: "refused";
 
@@ -55,13 +55,13 @@ export namespace SceneStatus {
   }
 
   /**
-   * Whether the bake computes a scene's takes: every piece is installed, so
+   * Whether a page computes a scene's takes: every piece is installed, so
    * each take is either a track or, for a refused scene, the refusal.
    *
    * @param status The scene's status.
    * @returns Whether it plays or is refused.
    */
-  export function bakes(status: Status): boolean {
+  export function computes(status: Status): boolean {
     return status.kind === "plays" || status.kind === "refused";
   }
 

@@ -1,14 +1,16 @@
-// Refuse a page that plays baked scenes but ships the motion or Human code.
+// Refuse a page that draws scenes but runs the motion or Human code on its
+// main thread.
 //
 //   pnpm run bundles     (after `next build`; `build` runs it)
 //
 // The landing page, the scene gallery, a scene's page and the object
-// gallery only pose baked placements and build archetypes, so neither
-// `@automovie/motions` nor `@automovie/human` belongs in what they load:
-// their initial chunks, and the chunk that plays a baked take, which they
-// load on demand. A string literal only each package holds marks it, since
-// minifying keeps string literals. The playground, the Human page's
-// inspector and the motion reference may load them; they are not checked.
+// gallery compute every take in the take worker, so neither
+// `@automovie/motions` nor `@automovie/human` belongs in what the page itself
+// loads: its initial chunks, and the chunk that draws a computed take, which
+// it loads on demand. Only the take worker's chunk carries them. A string
+// literal only each package holds marks it, since minifying keeps string
+// literals. The playground, the Human page's inspector and the motion
+// reference may load them; they are not checked.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -26,8 +28,8 @@ const MARKERS: Readonly<Record<string, string>> = {
   "@automovie/human": "Common and head source stature arithmetic disagree",
 };
 
-/** A string the chunk that plays a baked take holds, from an error it throws. */
-const PLAYER: string = "The baked scenes did not load";
+/** A string the chunk that draws a computed take holds, from an error it throws. */
+const PLAYER: string = "The packages refused the scene";
 
 const next: string = path.resolve(__dirname, "..", ".next");
 const manifest: { pages: Record<string, string[]> } = JSON.parse(
@@ -54,8 +56,8 @@ const players: string[] = all.filter((file: string): boolean =>
   read(file).includes(PLAYER),
 );
 if (players.length === 0)
-  throw new Error("No chunk plays a baked take; update build/bundles.ts");
-for (const file of players) chunks.set(file, "the baked-take player");
+  throw new Error("No chunk draws a computed take; update build/bundles.ts");
+for (const file of players) chunks.set(file, "the take player");
 
 const violations: string[] = [];
 for (const [file, owner] of chunks) {
@@ -66,7 +68,7 @@ for (const [file, owner] of chunks) {
 }
 if (violations.length !== 0) {
   console.error(
-    "A page that plays baked scenes ships motion or Human code:\n" +
+    "A page that draws scenes runs motion or Human code on its main thread:\n" +
       violations.map((line: string): string => `  ${line}`).join("\n"),
   );
   process.exit(1);

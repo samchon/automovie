@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import { SceneTrack } from "../../src/scenes/SceneTrack";
 
 /**
- * A baked track keeps every placement to the precision it states, and reading between frames moves smoothly from one to the next.
+ * A computed track keeps every placement to the precision it states, and reading between frames moves smoothly from one to the next.
  *
  * Scenarios:
  * 1. Two frames of two groups encode and read back at each frame within half a millimetre and a quaternion component's quantum; a quaternion stored with w below zero reads back as the same rotation.

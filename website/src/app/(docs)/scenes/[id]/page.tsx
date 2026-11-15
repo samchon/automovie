@@ -6,9 +6,8 @@ import type { IMotionReference } from "../../../../motions/structures/IMotionRef
 import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
 import { SceneChainNames } from "../../../../scenes/package/SceneChainNames";
-import { readBakedManifest } from "../../../../scenes/readBakedManifest";
+import { SceneStatus } from "../../../../scenes/package/SceneStatus";
 import type { IScene } from "../../../../scenes/structures/IScene";
-import type { ISceneManifest } from "../../../../scenes/structures/ISceneManifest";
 
 /** What Next passes a page of this route. */
 interface IPageProps {
@@ -47,7 +46,8 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
 }
 
 /**
- * One scene's route: its record and, when the build baked it, its takes.
+ * One scene's route: its record and whether the installed packages compute
+ * its takes, which the page then computes in the browser.
  *
  * @param props The route's parameters.
  * @returns The page.
@@ -57,7 +57,6 @@ export default async function ScenePage(
 ): Promise<ReactElement> {
   const { id }: { id: string } = await props.params;
   const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
-  const manifest: ISceneManifest | null = readBakedManifest();
 
   // Each action links to its page of the motion reference.
   const reference: IMotionReference = MotionReference.read();
@@ -77,7 +76,7 @@ export default async function ScenePage(
   return (
     <SceneMovie
       scene={scene}
-      baked={manifest?.scenes[id] ?? null}
+      computes={SceneStatus.computes(SceneStatus.of(scene))}
       pages={pages}
       names={
         scene.composition === null
