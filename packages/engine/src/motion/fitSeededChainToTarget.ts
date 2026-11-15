@@ -25,5 +25,9 @@ export const fitSeededChainToTarget: (
   input: IFitChainToTargetProps,
 ): IAutoMovieSeededChainFit => {
   const bend: IAutoMovieSeededChainFit = fitChainBend(input);
-  return { pose: orientChainEffector(input, bend.pose), seed: bend.seed };
+  return {
+    pose: orientChainEffector(input, bend.pose),
+    seed: bend.seed,
+    ...(bend.value === undefined ? {} : { value: bend.value }),
+  };
 };

@@ -279,6 +279,7 @@ export const fitChainBend: (
             ],
           },
           seed: hinged.seed ?? null,
+          ...(hinged.value === undefined ? {} : { value: hinged.value }),
         };
       consider(hinged);
     }

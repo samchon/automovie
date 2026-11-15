@@ -82,11 +82,14 @@ export interface IFitChainToTargetProps {
   /**
    * A hinged chain's strain of a candidate, non-negative: the candidate's
    * bone-local root and mid rotations and the mid bone's world rotation. When
-   * given, the mid joint bends toward the legal candidate of least strain of
-   * the fit's own sweep (Tolani, Goswami and Badler 2000: the elbow's place
-   * on its swivel circle chosen by a cost of the joints), read from the same
-   * candidates the fit then chooses among, so one sweep's readings give both
-   * the hint and the fit; `bend` is the hint only when no candidate is legal.
+   * given, a hinged chain's swivels are ranked by task priority (Siciliano
+   * and Slotine 1991): legality, then the effector's rotation error, two
+   * errors within the joints' tolerance being one, then the turn from
+   * `referencePose` when one is given, else this strain, so the
+   * elbow takes its place of least strain among the swivels that turn the
+   * hand best (Tolani, Goswami and Badler 2000: the elbow's place on its
+   * swivel circle chosen by a cost of the joints), and `bend` is not read.
+   * The fit reports the value it chose by (`IAutoMovieSeededChainFit.value`).
    * Omitted, `bend` is the hint.
    */
   strain?: (
