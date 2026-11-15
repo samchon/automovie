@@ -1,6 +1,6 @@
 # Reuse
 
-This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
+Reuse covers what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
 
 ## Installed packages
 

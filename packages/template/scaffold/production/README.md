@@ -25,7 +25,7 @@ Run `pnpm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows 
 
 `pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, omitting `--subject` while only one film exists. It draws every frame in the browser `pnpm run review:setup` installs, through the same draw function `pnpm run capture` uses, and encodes them once, picture only; no server needs to be running. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg.
 
-It writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames. The report's hashes describe the drawn frames; judge the film under [delivery review]({{skills}}/review/delivery-review.md), and ask the user to watch its playback before accepting it.
+It writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames. The report's hashes describe the drawn frames; judge the film under [delivery review]({{skills}}/review/delivery-review.md).
 
 ## Stills
 
@@ -112,4 +112,4 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `tsconfig.test.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
-[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations, and the source layout also owns the dependency direction between source folders. Installed package READMEs, public types and JSDoc own API behavior.
+[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations, and the source layout also owns the dependency direction between source folders.

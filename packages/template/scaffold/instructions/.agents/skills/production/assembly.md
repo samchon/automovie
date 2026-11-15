@@ -17,7 +17,7 @@ Before scaling a new host, run one small path through capture or take ingestion,
 ## Repair and delivery
 Route defects to their owners: entity form to [entity work](../development/entities.md), performance and clocks to [motion](../motion/SKILL.md), sound to [audio](../audio/SKILL.md), takes to [video generation](../video/generation.md), host and source to [development](../development/SKILL.md) and narrative to [repair](../story/correction/repair.md). Rebuild the affected outputs and inspect them again.
 
-Hand off the following, without secrets:
+Hand off the following, without secrets, for [delivery review](../review/delivery-review.md) to accept:
 
 - the accepted output revision and its media identities;
 - the fixed inputs, source entry and dependencies;
@@ -27,5 +27,3 @@ Hand off the following, without secrets:
 - the takes that carry content credentials;
 - the disclosure the release owes;
 - the remaining limits.
-
-[Delivery review](../review/delivery-review.md) accepts the result.
