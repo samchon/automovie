@@ -9,6 +9,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
@@ -34,9 +35,9 @@ import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
  * placed on character physics bodies in game engines (a bone plus a local
  * offset on its collider), generalised so the offset comes from the body's
  * own shapes and fits any size. The palm, sole, heel and seat regions share
- * their sockets' points, and the index fingertip region is the exit of a ray
- * along the finger through the distal phalanx's colliders (the hand's when the
- * profile has no phalanx segment), riding the distal phalanx.
+ * their sockets' points, and every digit's tip and pad ride its distal
+ * phalanx (`AutoMovieHumanoidDigitSurfaces`): the tip the exit of a ray along
+ * the phalanx, the pad that of a ray from its middle toward the palm.
  * Sockets of the foot, seat and back are read
  * from the exact axis bounds of their segment's colliders at rest (heel at
  * the back of the sole, ball under the toe joint, toe at the front, sole at
@@ -188,14 +189,10 @@ export function resolveAutoMovieHumanoidSurfaces(
   );
 
   // Contact points the body presents are regions too: the palm, the sole,
-  // the heel and the seat take their sockets' points, and the index
-  // fingertip is where a ray along the finger leaves the hand's colliders,
-  // riding the distal phalanx.
+  // the heel and the seat take their sockets' points, and each digit's tip
+  // and pad ride its distal phalanx.
   regions.seat = { ...sockets.seat };
   for (const Side of ["Left", "Right"] as const) {
-    const side: string = Side.toLowerCase();
-    const bone = (name: string): AutoMovieHumanoidBone =>
-      `${side}${name}` as AutoMovieHumanoidBone;
     regions[`palm${Side}` as AutoMovieHumanoidRegion] = {
       ...sockets[`palm${Side}` as AutoMovieHumanoidSocket],
     };
@@ -205,27 +202,11 @@ export function resolveAutoMovieHumanoidSurfaces(
     regions[`heel${Side}` as AutoMovieHumanoidRegion] = {
       ...sockets[`heel${Side}` as AutoMovieHumanoidSocket],
     };
-    const distal: IAutoMovieVector3 = at(bone("IndexDistal")).worldPosition;
-    const along: IAutoMovieVector3 = Vector3.subtract(
-      distal,
-      at(bone("IndexIntermediate")).worldPosition,
-    );
-    const phalanx: AutoMovieHumanoidBone = profile.segments.some(
-      (x: P.ISegment): boolean => x.bone === bone("IndexDistal"),
-    )
-      ? bone("IndexDistal")
-      : bone("Hand");
-    const tip: AutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
-      phalanx,
-      distal,
-      along,
-    );
-    regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(
-      bone("IndexDistal"),
-      tip.point,
-      tip.normal,
-    );
   }
+  Object.assign(
+    regions,
+    AutoMovieHumanoidDigitSurfaces({ at, local, surface }, profile),
+  );
   const thorax = bounds("chest");
   sockets.back = local(
     "chest",
@@ -342,7 +323,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * Whether a region is placed by a ray, so `offset` accepts it.
    *
    * @param region The region.
-   * @returns False for the palms, soles, heels, seat and index fingertips, which take a socket's point or a finger's line.
+   * @returns False for the palms, soles, heels, seat and the digits' tips and pads, which take a socket's point or a phalanx's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
     return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
@@ -360,7 +341,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    *
    * @param skeleton The canonical rig.
    * @param profile Its physical profile, segments keyed by rig bones.
-   * @param region A region placed by a ray: every region but the palms, soles, heels, seat and index fingertips.
+   * @param region A region placed by a ray: every region but the palms, soles, heels, seat and the digits' tips and pads.
    * @param tangent The offset on the region's tangent plane.
    * @returns The bone-local frame of the surface point.
    * @throws {Error} When the region is not placed by a ray, or a bone or segment it needs is missing.
