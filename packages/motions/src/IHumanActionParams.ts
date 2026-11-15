@@ -32,6 +32,7 @@ import type { clinch } from "./grappling/clinch";
 import type { handOver } from "./handling/handOver";
 import type { handshake } from "./handling/handshake";
 import type { pickUp } from "./handling/pickUp";
+import type { pushPull } from "./handling/pushPull";
 import type { putDown } from "./handling/putDown";
 import type { receive } from "./handling/receive";
 import type { flinch } from "./reaction/flinch";
@@ -226,6 +227,9 @@ export interface IHumanActionParams {
 
   /** Walking with a load. */
   carry: carry.IParams;
+
+  /** Pushing, pulling or dragging a heavy load by its handles. */
+  pushPull: pushPull.IParams;
 
   /** A kiss. */
   kiss: kiss.IParams;

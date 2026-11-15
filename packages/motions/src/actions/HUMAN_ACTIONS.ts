@@ -28,6 +28,7 @@ import { clinch } from "../grappling/clinch";
 import { handOver } from "../handling/handOver";
 import { handshake } from "../handling/handshake";
 import { pickUp } from "../handling/pickUp";
+import { pushPull } from "../handling/pushPull";
 import { putDown } from "../handling/putDown";
 import { receive } from "../handling/receive";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -123,6 +124,7 @@ export const HUMAN_ACTIONS: Readonly<
   wipe,
   dress,
   carry,
+  pushPull,
   kiss,
   highFive,
   selfAction,

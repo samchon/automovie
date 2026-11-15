@@ -53,6 +53,7 @@
  * - `wipe`: wiping a level surface with the flat palm in circles.
  * - `dress`: putting on a hat or a pair of glasses with both hands.
  * - `carry`: walking while carrying a load in one hand, a box in both, a child on the hip, or pushing a cart.
+ * - `pushPull`: a heavy load moved by its two handles, pushed ahead, pulled walking backward or dragged behind, or pressed and not moved.
  * - `kiss`: the lips brought to a partner's region by a lean and a neck flexion.
  * - `highFive`: two partners' hands meeting at one shared point and instant.
  * - `selfAction`: a whole-body self action (stretch, victory arms, fist pump, neck or shoulder roll).
@@ -118,6 +119,7 @@ export type HumanActionName =
   | "wipe"
   | "dress"
   | "carry"
+  | "pushPull"
   | "kiss"
   | "highFive"
   | "selfAction"

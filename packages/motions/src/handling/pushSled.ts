@@ -11,7 +11,9 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
+import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
+import type { walkFacing } from "../actions/walkFacing";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -55,6 +57,13 @@ import { pushSledStance } from "./pushSledStance";
  * `HumanFreedomChoice`), so the handle is in the fist. Each hand's place is
  * then kept in the chest's frame for the rest of the push, its turn kept
  * with it; a turn the arm cannot meet gives way about the grip socket.
+ *
+ * The same hold serves the other ways a load is moved by its handles
+ * (`pushPull`): an incline asked outright, leaning back for a pull; a walk
+ * facing the load, so the body walks backward and draws it along; a stand in
+ * place (`seconds`) instead of the walk; and a load that does not move,
+ * whose handles the hands press (a `bear` contact bearing none of the
+ * body's weight) instead of gripping, so it stays where it stands.
  *
  * First pass: the load slides with the grip and is not dragged by a
  * friction; the push's force and the slowing it brings to the walk are not
@@ -106,6 +115,18 @@ export namespace pushSled {
 
     /** How far the trunk leans into the load at least, degrees from the vertical in [0, `pushSledStance.RANGE`]; absent, the trunk leans as measured pushers do at the handles' height (`pushSledStance.INCLINES`), which a lean beyond it overrides. */
     lean?: number;
+
+    /** The trunk's incline from the vertical asked outright, degrees in [-`pushSledStance.RANGE`, `pushSledStance.RANGE`], negative leaning back away from the load; it replaces the measured incline and `lean` (a haul at a declared load, `pushPull`); absent, the measured one. */
+    incline?: number;
+
+    /** Which way the body faces while it walks (`walk.IParams.facing`), so a pull walks backward facing the load; along the way when absent. */
+    facing?: walkFacing.IFacing;
+
+    /** Seconds to stand in place against the load instead of walking to `to`, the hands on the handles throughout; absent, the body walks. */
+    seconds?: number;
+
+    /** Whether the load moves with the hands; `false` presses the handles without gripping, so the load stays where it stands (a stuck door, a car that will not move); `true` when absent. */
+    moves?: boolean;
   }
 
   /**
@@ -113,7 +134,7 @@ export namespace pushSled {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the lean is out of range, the walk is shorter than the settle, the prop lacks a named handle, or a fist does not reach its handle as the grip closes; and whatever the walk refuses.
+   * @throws {HumanRefusal} When the lean or the asked incline is out of range, the walk or the stand is shorter than the settle, the prop lacks a named handle, or a fist does not reach its handle as the grip closes; and whatever the walk refuses.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The handles are read on the prop's frame at the start; each hand's place on its handle is taken into the leaning chest's frame where the hands arrive and carried with it after, so the load follows the trunk through the grip.
@@ -130,6 +151,14 @@ export namespace pushSled {
     const body = context.body;
     const lean: number = p.lean ?? 0;
     HumanBound.within("lean", lean, 0, pushSledStance.RANGE, "degrees");
+    if (p.incline !== undefined)
+      HumanBound.within(
+        "incline",
+        p.incline,
+        -pushSledStance.RANGE,
+        pushSledStance.RANGE,
+        "degrees",
+      );
 
     // The two handles, read where the sled stands (`pushSledHandles`).
     const grips: Record<HumanHand.Side, pushSledHandles.IHandle> =
@@ -140,9 +169,22 @@ export namespace pushSled {
     };
     const walking: IHumanActionContext<walk.IParams> = {
       ...context,
-      params: { to: p.to, pace: "slow", armSwing: 0 },
+      params: {
+        to: p.to,
+        pace: "slow",
+        armSwing: 0,
+        ...(p.facing === undefined ? {} : { facing: p.facing }),
+      },
     } as IHumanActionContext<walk.IParams>;
-    const base: IHumanActionPlan = walk.plan(walking);
+
+    // The walk the load is moved over, or a stand in place against it.
+    const base: IHumanActionPlan =
+      p.seconds === undefined
+        ? walk.plan(walking)
+        : stand.plan({
+            ...context,
+            params: { seconds: p.seconds },
+          } as IHumanActionContext<stand.IParams>);
     const duration: number = base.duration;
     HumanBound.above("walk", duration, SETTLE, "s");
 
@@ -157,6 +199,7 @@ export namespace pushSled {
       context.entry.feet,
       { left: grips.left.frame, right: grips.right.frame },
       lean,
+      p.incline,
     );
     const leaned = (posture: IHumanPosture, share: number): IHumanPosture =>
       AutoMovieMotionHumanTrunk.sunk(
@@ -414,7 +457,11 @@ export namespace pushSled {
         ...sides.map(
           (side: HumanHand.Side): IHumanContactWindow => ({
             part: `${side}Hand`,
-            kind: "grip",
+            // A load that does not move is pressed, bearing none of the
+            // body's weight, not gripped, so it stays where it stands.
+            ...(p.moves === false
+              ? { kind: "bear" as const, load: 0 }
+              : { kind: "grip" as const }),
             from: SETTLE / duration,
             to: 1,
             support: { kind: "prop", subject: p.sled },

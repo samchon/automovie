@@ -30,6 +30,8 @@ export * from "./handling/pickUp";
 export * from "./handling/putDown";
 export * from "./handling/relayPass";
 export * from "./handling/carryHang";
+export * from "./handling/pushPull";
+export * from "./handling/pushPullLean";
 export * from "./handling/pushSled";
 export * from "./handling/HumanHandover";
 export * from "./handling/handOver";
