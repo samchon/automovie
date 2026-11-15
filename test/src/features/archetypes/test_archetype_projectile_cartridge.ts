@@ -64,7 +64,9 @@ export function test_archetype_projectile_cartridge(): void {
       refused = error instanceof ArchetypeRefusal ? error.axis : String(error);
     }
     if (refused !== axis)
-      findings.push(`a cartridge's ${axis} of ${value} was refused at ${refused}`);
+      findings.push(
+        `a cartridge's ${axis} of ${value} was refused at ${refused}`,
+      );
   }
   TestValidator.equals(
     "a paper cartridge is the manual's, pinched and torn",

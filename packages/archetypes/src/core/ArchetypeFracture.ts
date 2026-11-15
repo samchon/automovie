@@ -216,7 +216,9 @@ export namespace ArchetypeFracture {
     );
     return {
       remainder:
-        kept.size === 0 ? null : record<Id>(rest.id, kept, remaining(rest, kept)),
+        kept.size === 0
+          ? null
+          : record<Id>(rest.id, kept, remaining(rest, kept)),
       fragments: fragments.map((f) => ({ ...f, velocity })),
     };
   }

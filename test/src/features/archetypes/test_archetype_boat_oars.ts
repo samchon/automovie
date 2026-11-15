@@ -1,10 +1,10 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   type ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRefusal,
   type ArchetypeRide,
+  ArchetypeUnits,
   createBoat,
   rowBoat,
 } from "@automovie/archetypes";

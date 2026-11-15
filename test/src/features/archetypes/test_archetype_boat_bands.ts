@@ -1,8 +1,8 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   createBoat,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
