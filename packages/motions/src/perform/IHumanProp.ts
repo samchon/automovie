@@ -3,6 +3,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
+  IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -76,6 +77,17 @@ export interface IHumanProp {
 
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];
+
+  /**
+   * The prop's cloth or cord lattice, for a prop that bends: a towel, a
+   * flag, a rope. Its particles are solved once over the performance from
+   * the displayed poses (`HumanPerformanceSoft`): its anchors may ride a
+   * performer's bone (`actor-bone`) or a rigid prop's frame (a `node`
+   * binding naming that prop's subject), its body capsules a performer's
+   * bones, and a hand's grip on the prop holds the particle nearest the
+   * hand. Its rest is in world metres. Rigid when absent.
+   */
+  soft?: IAutoMovieSoftBodyDomain;
 
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
   shapes?: readonly IAutoMoviePhysicalProfile.IShape[];
