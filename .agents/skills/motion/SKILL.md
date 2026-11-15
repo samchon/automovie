@@ -20,7 +20,7 @@ Take the first form that expresses the act, because each later one writes more m
 3. An entry in the data table of the action that owns the family.
 4. A law of its own, for an act that owns what no shipped action plans.
 
-A row writes no motion, so it is fitted, refused and checked as its action is. An act needs a law of its own when it changes what carries the body, decides an outcome between performers, or needs its own planner; the law is composed from the vocabulary's own kernel of a clock, a base and part movements, so it inherits its supports and can be performed over another action. The motions package's README shows each form.
+A row writes no motion, so it is fitted, refused and checked as its action is. What no shipped action plans can be a change of what carries the body, an outcome between performers, or a planner of its own; such a law is composed from the vocabulary's own kernel of a clock, a base and part movements, so it inherits its supports and can be performed over another action. The motions package's README shows each form.
 
 An act that needs a missing axis or operator, such as a new kind of support, effector or join, is a change to the grammar. Make it once in the grammar's owner, never inside one action.
 

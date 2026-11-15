@@ -23,7 +23,7 @@ Answer each item in four steps:
 3. If the code falls short of the item, fix the code, and state any gap that remains instead of claiming the requirement is met.
 4. Write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
 
-Use `@evidenceExclude` the same way only for an item that does not apply, never for a whole file.
+For an item that does not apply, write `@evidenceExclude` the same way instead of `@evidence`, never for a whole file.
 
 ## Selection
 

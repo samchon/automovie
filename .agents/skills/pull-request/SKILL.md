@@ -9,7 +9,7 @@ Pushing, opening, and merging each need the user's request or a mandate that nam
 
 ## Branch and commit
 
-Work in one branch per pull request:
+Branch and commit by these rules:
 
 - Branch `<type>/<scope>` from `master` in the current checkout.
 - Never commit to `master` or use another clone or worktree.
