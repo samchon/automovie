@@ -49,7 +49,7 @@ namespace FamilyConicNeutral {
     const premises: string[] = [];
 
     lines.push("datums at neutral (reference -> neutral):");
-    for (const name of ["upperarm", "lowerarm", "hand", "middle1", "handEnd", "thigh", "calf", "foot", "footBall", "footEnd", "armRoot", "armTurn", "armpit"]) lines.push("  " + name + " [" + reference.point(name).map((x: number): string => n(x)).join(", ") + "] -> [" + neutral.point(name).map((x: number): string => n(x)).join(", ") + "]");
+    for (const name of ["upperarm", "lowerarm", "hand", "middle1", "handEnd", "thigh", "calf", "foot", "footBall", "footEnd", "armpit"]) lines.push("  " + name + " [" + reference.point(name).map((x: number): string => n(x)).join(", ") + "] -> [" + neutral.point(name).map((x: number): string => n(x)).join(", ") + "]");
     lines.push("");
 
     for (const [i, stored] of reference.families.entries()) {

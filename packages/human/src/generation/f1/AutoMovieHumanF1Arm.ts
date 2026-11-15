@@ -1,6 +1,6 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
-import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Girdle } from "./AutoMovieHumanF1Girdle";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
@@ -21,8 +21,11 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1Arm: AutoMovieHumanConicLoft.IFamily = {
   name: "arm",
-  centres: [AutoMovieHumanF1Joints.armRoot, AutoMovieHumanF1Joints.armTurn, AutoMovieHumanF1Joints.lowerarm, AutoMovieHumanF1Joints.hand, AutoMovieHumanF1Joints.middle1, AutoMovieHumanF1Joints.handEnd],
-  halves: [65,30,10,16],
+  // The girdle's course (`AutoMovieHumanF1Girdle`): computed from the trunk's own wall and the skeleton, once, at first use.
+  get centres(): [number, number, number][] {
+    return AutoMovieHumanF1Girdle.course().map((c: [number, number, number]): [number, number, number] => [c[0], c[1], c[2]]);
+  },
+  halves: [AutoMovieHumanF1Girdle.HALF_MM, 30, 10, 16],
   up: AutoMovieHumanF1Placement.direction("arm.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [32, 40, 48, 60, 68, 80, 100, 124, 144, 190.73, 228, 240, 256, 268, 288, 300, 312, 423.45, 447.45, 470, 482, 494, 506, 518, 532.5, 554, 566, 578, 595],

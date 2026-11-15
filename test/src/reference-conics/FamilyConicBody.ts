@@ -20,7 +20,7 @@ import { FamilyConicLoop } from "./FamilyConicLoop";
  * numbers, regenerated from that stored text through the engine's view loft,
  * measured against the cuts and rendered beside the reference.
  */
-namespace FamilyConicBody {
+export namespace FamilyConicBody {
   /** Sampled position target of campaign 1, mm. */
   const TARGET_MM: number = 0.5;
 
@@ -846,7 +846,7 @@ namespace FamilyConicBody {
   }
 
   /** One part to fit. */
-  interface IPart {
+  export interface IPart {
     /** Chain name. */
     name: string;
 
@@ -1037,6 +1037,13 @@ namespace FamilyConicBody {
   }
 
   /** Run every part and write the receipt and the renders. */
+  /**
+   * Parts another tool lays on a course of its own (`FamilyConicArmRule`): each replaces the part of its name as `main` builds the parts,
+   * given that part and the reference's joints. Empty when this tool runs on its own, which then fits every part as defined here.
+   */
+  export const OVERRIDES: Map<string, (part: IPart, joint: (name: string) => R.V) => IPart> = new Map();
+
+  /** Fit the parts the command line names (every part when none is named) and write their receipts, modules and frames; see the flags above. */
   export async function main(): Promise<void> {
     const started: number = performance.now();
     const root: string = path.resolve(process.cwd(), "..");
@@ -1429,7 +1436,7 @@ namespace FamilyConicBody {
           // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
         ] },
       ] satisfies IPart[]
-    ).filter((part: IPart, i: number, all: IPart[]): boolean => (only.length === 0 || only.includes(part.name)) && all.findIndex((other: IPart): boolean => other.name === part.name) === i);
+    ).map((part: IPart): IPart => OVERRIDES.get(part.name)?.(part, joint) ?? part).filter((part: IPart, i: number, all: IPart[]): boolean => (only.length === 0 || only.includes(part.name)) && all.findIndex((other: IPart): boolean => other.name === part.name) === i);
     // `--head=<heightMm>,<degrees>,<halfMm>`: a trial of the trunk's course turning backward at that height by that angle, to read (with
     // `--observe`) how its tilted planes cut the jaw and the skin under it. Turned at 1,430 mm by 30, 45 and 60 degrees, a plane takes
     // in the chin and the throat together and the tape bridges them: hollows of 46 to 81 mm against 4 mm on level planes, and no loop
@@ -3774,7 +3781,9 @@ namespace FamilyConicBody {
     return Math.round(value * 1e4) / 1e4;
   }
 }
-void FamilyConicBody.main().catch((error: unknown): void => {
-  process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
-  process.exitCode = 1;
-});
+// Run only as its own entry: another tool (`FamilyConicArmRule`) imports its parts and runs `main` itself.
+if (path.basename(process.argv[1] ?? "").startsWith("FamilyConicBody."))
+  void FamilyConicBody.main().catch((error: unknown): void => {
+    process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
+    process.exitCode = 1;
+  });

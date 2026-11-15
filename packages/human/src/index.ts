@@ -11,6 +11,7 @@ export * from "./generation/f1/AutoMovieHumanF1";
 export * from "./generation/f1/AutoMovieHumanF1Joints";
 export * from "./generation/f1/AutoMovieHumanF1Landmarks";
 export * from "./generation/f1/AutoMovieHumanF1Frames";
+export * from "./generation/f1/AutoMovieHumanF1Girdle";
 export * from "./generation/f1/AutoMovieHumanF1Placing";
 export * from "./generation/f1/AutoMovieHumanF1Placement";
 export * from "./generation/frame/AutoMovieHumanSegmentFrame";

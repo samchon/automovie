@@ -71,7 +71,7 @@ namespace FamilyConicRebase {
    * point belongs to the segment it stands in; a landmark to the segment whose frame it sets.
    *
    * The choices that are not forced:
-   * - `armRoot`, `armTurn`, `armpit`, the axilla's and the vault's courses and the breast's fan point: the thorax, the trunk's side they
+   * - the girdle's ring centre and corner (computed, `AutoMovieHumanF1Placing.COMPUTED`), `armpit`, the axilla's and the vault's courses and the breast's fan point: the thorax, the trunk's side they
    *   were read on, although the arm's course starts through the first two.
    * - `axisFloor` in the pelvis and `axisCrown` in the head: the trunk is one family on one straight course whose ends stand in the
    *   tree's first and last trunk frames.
@@ -86,7 +86,7 @@ namespace FamilyConicRebase {
     const direct: Record<string, string> = {
       upperarm: "humerus", lowerarm: "forearm", hand: "hand", thigh: "femur", calf: "tibia", foot: "foot",
       axisFloor: "pelvis", axisCrown: "head", footBall: "foot", footEnd: "foot", handEnd: "hand",
-      armpit: "thorax", armRoot: "thorax", armTurn: "thorax", axilla: "thorax", vault: "thorax", breastFan: "thorax",
+      armpit: "thorax", girdle: "thorax", axilla: "thorax", vault: "thorax", breastFan: "thorax",
       helix: "ear", plate: "ear", antihelix: "ear", conchaRoot: "ear", conchaTip: "ear", tragion: "ear",
       noseRoot: "nose", noseTip: "nose", nostrilRoot: "nose", nostrilTip: "nose", pronasale: "nose", nasion: "nose", subnasale: "nose",
       breastRoot: "breast", breastTip: "breast",
@@ -118,8 +118,8 @@ namespace FamilyConicRebase {
    */
   const COURSES: Record<string, string[]> = {
     trunk: ["axisFloor", "axisCrown"],
-    arm: ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
-    hand: ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
+    arm: ["girdle.centre", "girdle.corner", "lowerarm", "hand", "middle1", "handEnd"],
+    hand: ["girdle.centre", "girdle.corner", "lowerarm", "hand", "middle1", "handEnd"],
     leg: ["thigh", "calf", "foot", "footBall", "footEnd"],
     plate: line("plate", 5),
     helix: line("helix", 11),
@@ -136,7 +136,7 @@ namespace FamilyConicRebase {
 
   /**
    * The segment each leg of a jointed course lies on, by family: a relief's directions are stored in the segment its window's middle
-   * lies on. The arm's and the hand's first leg, from `armRoot` to `armTurn`, runs through the shoulder inside the thorax.
+   * lies on. The arm's and the hand's first leg, from the girdle's ring centre to its corner, runs through the shoulder inside the thorax.
    */
   const LEGS: Record<string, string[]> = {
     arm: ["thorax", "humerus", "forearm", "hand", "hand"],

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanBendArc, AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieMeshExtract as M, AutoMovieNaturalSpline, type AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieHumanBendArc, AutoMovieHumanConicLoft as H, AutoMovieHumanConicPose, AutoMovieHumanF1, AutoMovieHumanF1Girdle, AutoMovieHumanF1Placement as P, AutoMovieHumanF1Placing, AutoMovieHumanSegmentFrame as SF } from "@automovie/human";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
@@ -1429,8 +1429,12 @@ namespace FamilyConicArmscyeRule {
         high[c] = Math.max(high[c]!, p[c]!);
       }
     const target: V = scale(add(low, high), 0.5);
-    const extentX: number = Math.max(...points.map((p: V): number => Math.abs(dot(sub(p, target), right))));
-    const extentY: number = Math.max(...points.map((p: V): number => Math.abs(dot(sub(p, target), up))));
+    // A loop, not a spread: a frame's mesh holds more points than a call's arguments may.
+    let [extentX, extentY]: number[] = [0, 0];
+    for (const p of points) {
+      extentX = Math.max(extentX!, Math.abs(dot(sub(p, target), right)));
+      extentY = Math.max(extentY!, Math.abs(dot(sub(p, target), up)));
+    }
     return { name, target, back: b, right, up, scale: 0.88 * Math.min((width - 40) / Math.max(2 * extentX, 0.001), (height - 110) / Math.max(2 * extentY, 0.001)), width, height };
   }
 
@@ -2297,12 +2301,989 @@ namespace FamilyConicArmscyeRule {
     process.stdout.write(lines.join("\n") + "\n");
   }
 
+  /**
+   * The ring's centre by rule (the supervisor's ruling on #3151, R3b): the area centroid of the largest closed loop of the trunk family's
+   * own wall (its loft with its nets, `trunkMesh`) cut by the girdle plane, the island in the axillary pocket left out. An area centroid is a
+   * closed curve's own centre, independent of where rays start and how densely they are spaced; the ray centroid the earlier runs used
+   * depended on GH as the rays' origin and on phase weighting. The notch into the pocket pulls it 14.4 mm below that one because the loop
+   * has that shape.
+   */
+  function ruleCentre(): V {
+    const frame: AutoMovieLoftFrame.IFrame = plane(0, 0).frame;
+    const origin: V = [...frame.origin] as V;
+    const pieces: IPiece[] = M.outline(trunkMesh(), { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+    const loop: IPiece = pieces.filter((piece: IPiece): boolean => piece.closed).sort((a: IPiece, b: IPiece): number => area(b.points) - area(a.points))[0]!;
+    const c: C.P = areaCentroid(loop.points);
+    return add(origin, add(scale(frame.u as V, c[0]), scale(frame.v as V, c[1])));
+  }
+
+  /**
+   * R3b's basis re-measured on the ring's centre by rule (`ruleCentre`) with k = 1.5: R3a's course measurements (`courseFacts`) on the
+   * reference and on f1 as generated, and the course against today's armRoot and armTurn course: their distance every 10 mm, the station
+   * from which they agree within 1 mm, and the station offset between the two courses there and at the elbow, which re-dates the knots the
+   * refit holds.
+   */
+  async function basis(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const r: number = UPPER_ARM_GIRTH_MM / (2 * Math.PI);
+    const girdle = plane(0, 0);
+    const n: V = girdle.normal;
+    const elbow: V = P.frame("forearm").origin as V;
+    const centre: V = ruleCentre();
+    let s: number = TURN_K * r;
+    for (let i: number = 0; i < 100; ++i) {
+      const next: number = TURN_K * r * AutoMovieHumanConicPose.share(AutoMovieHumanConicPose.angles([centre, add(centre, scale(n, s)), elbow])[0]!);
+      if (Math.abs(next - s) < 1e-9) break;
+      s = next;
+    }
+    const frames: P.IFrames = P.frames();
+    const arm: H.IFamily = AutoMovieHumanF1.BODY.arm;
+    const centres: V[] = [centre, add(centre, scale(n, s + 1e-6)), ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
+    const halves: number[] = [TURN_K * r, ...arm.halves.slice(1)];
+    const axis: IAxis = H.axis({ centres, halves, up: P.direction("arm.up", frames) as V });
+    const pieces: AutoMovieHumanF1.IPiece[] = AutoMovieHumanF1.create();
+    const indices: number[] = [];
+    let offset: number = 0;
+    for (const piece of pieces) {
+      for (const i of piece.indices) indices.push(i + offset);
+      offset += piece.positions.length / 3;
+    }
+    const generated: M.IMesh = { positions: pieces.flatMap((piece: AutoMovieHumanF1.IPiece): number[] => piece.positions.map((x: number): number => 1000 * x)), indices };
+    const ringPoints: V[] = ring(source.all, girdle.frame).filter((h: V | null): h is V => h !== null);
+    const facts = courseFacts(axis, centres, halves, frames, [["reference", source.all], ["generated", generated]], ringPoints, slitSkin(), n);
+
+    // The course against today's.
+    const today: IAxis = H.axis(arm);
+    const s0: number = arm.knots[0]!;
+    const path0: V[] = [];
+    for (let t: number = s0; t <= s0 + 800; t += 0.5) path0.push(today.at(t).origin as V);
+    const nearest = (p: V): { d: number; station: number } => {
+      let best: { d: number; station: number } = { d: Infinity, station: s0 };
+      for (let i: number = 0; i + 1 < path0.length; ++i) {
+        const [a, b]: V[] = [path0[i]!, path0[i + 1]!];
+        const e: V = sub(b!, a!);
+        const w: number = Math.max(0, Math.min(1, dot(sub(p, a!), e) / Math.max(1e-12, dot(e, e))));
+        const d: number = norm(sub(p, add(a!, scale(e, w))));
+        if (d < best.d) best = { d, station: s0 + 0.5 * (i + w) };
+      }
+      return best;
+    };
+    let elbowStation: number = 0;
+    for (let t: number = 0; t < 800; t += 0.5) if (norm(sub(axis.at(t).origin as V, elbow)) < norm(sub(axis.at(elbowStation).origin as V, elbow))) elbowStation = t;
+    let agree: number = 0;
+    for (let t: number = elbowStation; t >= 0; t -= 1)
+      if (nearest(axis.at(t).origin as V).d >= 1) {
+        agree = t + 1;
+        break;
+      }
+    const at = (t: number): string => {
+      const q = nearest(axis.at(t).origin as V);
+      return `rule station ${t.toFixed(1)} mm stands ${q.d.toFixed(2)} mm from today's course at its station ${q.station.toFixed(2)} mm (offset ${(t - q.station).toFixed(2)} mm)`;
+    };
+    const lines: string[] = [
+      `R3b's basis on the ring's centre by rule ${fixed(centre, 2)}, k ${TURN_K}: s ${s.toFixed(2)} mm, corner ${fixed(centres[1]!, 2)}, turn ${degrees(AutoMovieHumanConicPose.angles(centres)[0]!).toFixed(2)} deg, half ${(TURN_K * r).toFixed(2)} mm`,
+      "",
+      "R3A'S COURSE MEASUREMENTS (the reference and f1 as generated, sections every 2 mm from the ring to the elbow):",
+      ...facts.lines,
+      "",
+      "THE COURSE AGAINST TODAY'S:",
+      `  the distance every 10 mm of the rule's station: ${Array.from({ length: Math.floor(elbowStation / 10) + 1 }, (_: unknown, k: number): string => `${k * 10} ${nearest(axis.at(k * 10).origin as V).d.toFixed(1)}`).join(", ")} (mm)`,
+      `  they agree within 1 mm from the rule's station ${agree} mm on; ${at(agree)}`,
+      `  at the elbow: ${at(elbowStation)}`,
+      `  further on: ${[300, 400, 500, 595].map((t: number): string => at(t)).join("; ")}`,
+    ];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "basis-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    await fs.writeFile(path.join(out, "basis.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The course before the girdle's rule, as `AutoMovieHumanF1Placing` stored it until R3b: armRoot and armTurn in the thorax (which is the
+   * world's frame at every pose), today's later centres, halves 65, 30, 10 and 16 mm, `up` [0.9998, -0.0212, 0], first knot 32 mm.
+   */
+  function earlierCourse(): { axis: IAxis; centres: V[]; halves: number[]; up: V; first: number } {
+    const frames: P.IFrames = P.frames();
+    const centres: V[] = [[-12, 1300, 121], [-12, 1300, 203], ...T_COURSE_AFTER.map((name: string): V => SF.toWorld(frames.get(PLACED[name]!.frame)!, PLACED[name]!.local) as V)];
+    const halves: number[] = [65, 30, 10, 16];
+    const up: V = [0.9998, -0.0212, 0];
+    return { axis: H.axis({ centres, halves, up }), centres, halves, up, first: 32 };
+  }
+
+  /**
+   * The girdle's course (`AutoMovieHumanF1Girdle.course()`) against the earlier one (`earlierCourse`): the station offset past the elbow's
+   * turn (the girdle's station nearest the earlier course's point at 400 mm, less 400), the `up` that matches the two charts at the middle
+   * of the forearm's run (as `FamilyConicBody` matches a new arm course's), and the first earlier station from which the frames agree within
+   * 0.05 mm and 0.05 degrees, which the refit's splice holds from.
+   */
+  async function matchChart(): Promise<void> {
+    const elbow: V = P.frame("forearm").origin as V;
+    const centres: V[] = AutoMovieHumanF1Girdle.course().map((c): V => [c[0], c[1], c[2]]);
+    // `up` is turned about the course's first run, which every later chart's roll follows.
+    const n: V = unit(sub(centres[1]!, centres[0]!));
+    const halves: number[] = [AutoMovieHumanF1Girdle.HALF_MM, 30, 10, 16];
+    const earlier = earlierCourse();
+    const today: IAxis = earlier.axis;
+    const nearestOn = (axis: IAxis, p: V, around: number): number => {
+      let best: number = around;
+      for (let t: number = around - 30; t <= around + 30; t += 0.01) if (norm(sub(axis.at(t).origin as V, p)) < norm(sub(axis.at(best).origin as V, p))) best = t;
+      return best;
+    };
+    const probe: V = today.at(400).origin as V;
+    const rough: IAxis = H.axis({ centres, halves, up: earlier.up });
+    const offset: number = Math.round((nearestOn(rough, probe, 400) - 400) * 100) / 100;
+    let elbowStation: number = earlier.first;
+    for (let t: number = earlier.first; t < 800; t += 0.5) if (norm(sub(today.at(t).origin as V, elbow)) < norm(sub(today.at(elbowStation).origin as V, elbow))) elbowStation = t;
+    const angles: number[] = AutoMovieHumanConicPose.angles(earlier.centres);
+    const backs: number[] = earlier.halves.map((h: number, k: number): number => h * AutoMovieHumanConicPose.share(angles[k]!));
+    const forearm: number = norm(sub(earlier.centres[3]!, earlier.centres[2]!));
+    const mid: number = elbowStation + backs[1]! + (forearm - backs[1]! - backs[2]!) / 2;
+    const roll = (up: V): number => {
+      const old: AutoMovieLoftFrame.IFrame = today.at(mid);
+      const now: AutoMovieLoftFrame.IFrame = H.axis({ centres, halves, up }).at(mid + offset);
+      return Math.atan2(dot(old.u as V, now.v as V), dot(old.u as V, now.u as V));
+    };
+    const first: number = roll(earlier.up);
+    const turnAbout = (v: V, axisDir: V, angle: number): V => add(add(scale(v, Math.cos(angle)), scale(cross(axisDir, v), Math.sin(angle))), scale(axisDir, dot(axisDir, v) * (1 - Math.cos(angle))));
+    const candidates: V[] = [-first, first].map((a: number): V => turnAbout(earlier.up, n, a));
+    let up: V = Math.abs(roll(candidates[0]!)) <= Math.abs(roll(candidates[1]!)) ? candidates[0]! : candidates[1]!;
+    // Settled by repeating the turn, each by the roll left, the sign that lessens it: the first run's direction and the turn's carry are
+    // not exactly one rotation, and one turn left 0.1 degrees on the tilted plane.
+    for (let i: number = 0; i < 12 && Math.abs(roll(up)) > 1e-7; ++i) {
+      const [a, b] = [turnAbout(up, n, -roll(up)), turnAbout(up, n, roll(up))];
+      up = Math.abs(roll(a)) <= Math.abs(roll(b)) ? a : b;
+    }
+    const rounded: V = up.map((x: number): number => Math.round(x * 1e4) / 1e4) as V;
+    const axis: IAxis = H.axis({ centres, halves, up: rounded });
+    const tangent = (x: IAxis, q: number): V => unit(sub(x.at(q + 0.25).origin as V, x.at(q - 0.25).origin as V));
+    const apart = (t: number): { origin: number; tangent: number; u: number } => {
+      const [a, b] = [today.at(t), axis.at(t + offset)];
+      return { origin: norm(sub(a.origin as V, b.origin as V)), tangent: degrees(Math.acos(Math.min(1, dot(tangent(today, t), tangent(axis, t + offset))))), u: degrees(Math.acos(Math.min(1, dot(a.u as V, b.u as V)))) };
+    };
+    let agreeing: number = 595;
+    for (let t: number = 595; t >= 200; t -= 0.5) {
+      const d = apart(t);
+      if (d.origin > 0.05 || d.tangent > 0.05 || d.u > 0.05) break;
+      agreeing = t;
+    }
+    const stored: number[] = AutoMovieHumanF1.BODY.arm.knots;
+    const join: number | undefined = stored.find((k: number): boolean => k >= agreeing);
+    const lines: string[] = [
+      `the girdle's course: centre ${fixed(centres[0]!, 3)}, corner ${fixed(centres[1]!, 3)}; the earlier course's stations stand ${offset.toFixed(2)} mm later along it past the elbow's turn (read at the earlier 400 mm)`,
+      `the chart matched at the earlier station ${mid.toFixed(1)} mm, the girdle's ${(mid + offset).toFixed(1)}: roll ${degrees(first).toFixed(4)} deg with the earlier up, ${degrees(roll(rounded)).toFixed(4)} deg with the matched one, world ${fixed(rounded, 4)}, the thorax's frame ${fixed(SF.toLocalDirection(P.frame("thorax"), rounded) as V, 6)}`,
+      `the frames agree within 0.05 mm and 0.05 deg from the earlier station ${agreeing.toFixed(1)} (the girdle's ${(agreeing + offset).toFixed(2)}); the first stored knot there ${join ?? "-"}, the join at ${join === undefined ? "-" : (join + offset).toFixed(2)} on the girdle's course`,
+    ];
+    process.stdout.write(lines.join("\n") + "\n");
+  }
+
+  /**
+   * Whether the girdle's sampling sets its answer (the supervisor's ruling on #3151, R3b, under crafting.md's generating definition): the
+   * ring's centre and the corner read at the figure's sampling (`AutoMovieHumanF1Girdle`, 1 mm by 720 phases) and at twice as fine (0.5 mm by
+   * 1,440), and the solve's cost on a cold run against `AutoMovieHumanF1.create` and `construction`, which pay it once per process.
+   */
+  async function resolution(): Promise<void> {
+    const t0: number = performance.now();
+    const centre: V = AutoMovieHumanF1Girdle.centre() as V;
+    const corner: V = AutoMovieHumanF1Girdle.corner() as V;
+    const solveMs: number = performance.now() - t0;
+    const t1: number = performance.now();
+    const fine = AutoMovieHumanF1Girdle.resolve(0.5, 1440);
+    const fineMs: number = performance.now() - t1;
+    const t2: number = performance.now();
+    AutoMovieHumanF1.create();
+    const createMs: number = performance.now() - t2;
+    const t3: number = performance.now();
+    AutoMovieHumanF1.construction();
+    const constructionMs: number = performance.now() - t3;
+    const lines: string[] = [
+      `at 1 mm by 720: centre ${fixed(centre, 3)}, corner ${fixed(corner, 3)} (cold solve ${solveMs.toFixed(0)} ms)`,
+      `at 0.5 mm by 1440: centre ${fixed(fine.centre, 3)}, corner ${fixed(fine.corner, 3)} (${fineMs.toFixed(0)} ms)`,
+      `the change: centre ${norm(sub(fine.centre as V, centre)).toFixed(4)} mm, corner ${norm(sub(fine.corner as V, corner)).toFixed(4)} mm`,
+      `AutoMovieHumanF1.create ${createMs.toFixed(0)} ms and construction ${constructionMs.toFixed(0)} ms with the girdle already solved; the solve adds ${solveMs.toFixed(0)} ms once per process`,
+    ];
+    process.stdout.write(lines.join("\n") + "\n");
+  }
+
+  /**
+   * f1 realized once without the axilla's slit cutter (the supervisor's ruling on #3151, R3b): the construction with every `cut.axilla` join
+   * replaced by its host, at a chord of 1 mm. Reported: the realization's faults (its diagnostics), the mesh's pieces (connected by shared
+   * vertices), and frames of each shoulder and armpit from the armpit's view (along the girdle's normal, from outside), front, back, the
+   * side and low oblique, so whether the armpit is clean is read off them.
+   */
+  async function cutterless(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const declared = AutoMovieHumanF1.construction();
+    const strip = (node: unknown): unknown => {
+      if (Array.isArray(node)) return node.map(strip);
+      if (node === null || typeof node !== "object") return node;
+      const record: Record<string, unknown> = node as Record<string, unknown>;
+      if (record.type === "join" && record.kind === "diff" && typeof record.name === "string" && record.name.startsWith("cut.axilla")) return strip(record.host);
+      return Object.fromEntries(Object.entries(record).map(([key, value]: [string, unknown]): [string, unknown] => [key, key === "host" || key === "part" || key === "children" ? strip(value) : value]));
+    };
+    const started: number = performance.now();
+    const real = realizeAutoMovieConstruction({ name: "f1.body.cutterless", root: strip(declared.root) as typeof declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    const ms: number = performance.now() - started;
+    const positions: number[] = Array.from(real.mesh.positions, (x: number): number => 1000 * x);
+    const indices: number[] = Array.from(real.mesh.indices);
+    // Pieces: the mesh's vertices joined through its triangles.
+    const parent: Int32Array = Int32Array.from({ length: positions.length / 3 }, (_: unknown, i: number): number => i);
+    const find = (i: number): number => {
+      while (parent[i] !== i) {
+        parent[i] = parent[parent[i]!]!;
+        i = parent[i]!;
+      }
+      return i;
+    };
+    for (let t: number = 0; t < indices.length; t += 3) {
+      const [a, b, c]: number[] = [find(indices[t]!), find(indices[t + 1]!), find(indices[t + 2]!)];
+      parent[b!] = a!;
+      parent[find(c!)] = a!;
+    }
+    const sizes: Map<number, number> = new Map();
+    for (let t: number = 0; t < indices.length; t += 3) sizes.set(find(indices[t]!), (sizes.get(find(indices[t]!)) ?? 0) + 1);
+    const lines: string[] = [
+      `f1 without the axilla's cutter: realized in ${(ms / 1000).toFixed(0)} s; ${indices.length / 3} triangles, ${positions.length / 3} vertices`,
+      `faults: ${real.diagnostics.length === 0 ? "none" : real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => d.node + " (" + d.contract + "): " + d.detail.slice(0, 200)).join("; ")}`,
+      `pieces (triangles connected through shared vertices): ${sizes.size}${sizes.size > 1 ? ": " + [...sizes.values()].sort((a: number, b: number): number => b - a).slice(0, 10).join(", ") + " triangles" : ""}`,
+    ];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "cutterless-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const mesh: M.IMesh = { positions, indices };
+    const n: V = plane(0, 0).normal;
+    for (const side of [1, -1] as const) {
+      const gh: V = P.frame("humerus").origin as V;
+      const at: V = [gh[0], gh[1], side * gh[2]];
+      const shoulder: N.Mesh = cropMesh("cutterless", mesh, add(at, [0, -60, 0]), 170);
+      const points: V[] = meshPoints(shoulder);
+      const views: [string, N.Camera][] = [
+        ["armpit", facing("armpit", scale(n, side), [0, 1, 0], points, 900, 900)],
+        ["front", NodeCanvasCamera.fit("front", points, 900, 900)],
+        ["back", NodeCanvasCamera.fit("back", points, 900, 900)],
+        [side > 0 ? "left" : "right", NodeCanvasCamera.fit(side > 0 ? "left" : "right", points, 900, 900)],
+        ["low-oblique", NodeCanvasCamera.fit("low-oblique", points, 900, 900)],
+      ];
+      for (const [view, camera] of views) {
+        const file: string = path.join(out, `cutterless.${side > 0 ? "+z" : "-z"}.${view}.png`);
+        await fs.writeFile(file, NodeCanvasRaster.render(camera, [shoulder], [], "depth", `f1 without the axilla's cutter, ${side > 0 ? "+Z" : "-Z"} shoulder and armpit | ${view}`).png);
+        lines.push(`  ${file}`);
+      }
+    }
+    await fs.writeFile(path.join(out, "cutterless.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The head wall's notch under the armpit (the supervisor's review of the refit's head, #3151 R3b), on a fitted family (`--family=<the
+   * fit's directory>`, its `arm.family.json`, laid on the girdle's course):
+   * 1. for stations 4 to 80 mm at the inner phases (60 to 125 degrees about the course point), the curvature's sign across the section (each
+   *    ray's point against the chord of its neighbours 2 degrees either side) and along the course (its distance against the mean of the
+   *    stations 2 mm either side), the fitted wall's (its loft cut by the course's planes) against the reference's arm arc (`readStation`,
+   *    cut at the fold); counted where the two differ by more than `SIGN_MM` each, with the last such station, and the knots in 4 to 80;
+   * 2. the rule port's rail (the arm's first knot plus the ordinary margin, at every phase) against that extent;
+   * 3. the fit's input there: the reference's loop round the course point (a fitted section's own reading) against its arm arc, on each
+   *    inner ray, and how many of the points the loop adds outside the arc stand inside the axilla cutter's volume today;
+   * and frames of the armpit side, the fitted wall's clay with its knot rings, both arms.
+   */
+  async function notch(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const directory: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--family="))?.slice("--family=".length);
+    if (directory === undefined) throw new Error("notch: give --family=<the fit's directory>");
+    const stored = JSON.parse(await fs.readFile(path.join(directory, "arm.family.json"), "utf8")) as H.IFamily;
+    const family: H.IFamily = { ...stored, centres: AutoMovieHumanF1Girdle.course().map((c): V => [c[0], c[1], c[2]]), halves: [AutoMovieHumanF1Girdle.HALF_MM, 30, 10, 16], up: P.direction("arm.up") as V };
+    const axis: IAxis = H.axis(family);
+    const source: R.ISource = await R.load(root);
+    const reference: ISkins = skinsOf(await realizedSkin(root, "reference", (): void => undefined), source.all, "reference");
+    const n: V = plane(0, 0).normal;
+    // The fitted wall as a mesh: its loft every 0.5 mm over 0 to 120 mm at 720 phases.
+    const stations: number[] = [];
+    for (let s: number = family.knots[0]!; s <= 120; s += 0.5) stations.push(s);
+    const loft: AutoMovieViewLoft.IResult = H.create({ ...family, tips: undefined }, stations);
+    if (loft.chain === null) throw new Error("notch: the fitted wall does not loft");
+    const chain = loft.chain;
+    const positions: number[] = [];
+    const indices: number[] = [];
+    for (const s of stations) {
+      const read = AutoMovieLoftChain.sampler(chain, s);
+      for (let j: number = 0; j < 720; ++j) positions.push(...read((2 * Math.PI * j) / 720));
+    }
+    for (let i: number = 0; i + 1 < stations.length; ++i)
+      for (let j: number = 0; j < 720; ++j) {
+        const a: number = i * 720 + j;
+        const b: number = i * 720 + ((j + 1) % 720);
+        indices.push(a, a + 720, b, b, a + 720, b + 720);
+      }
+    const wall: M.IMesh = { positions, indices };
+
+    // Signs: across, a ray's point against the chord of its neighbours 4 rays (2 degrees) either side, outward positive; along, its
+    // distance from the course against the mean of the stations 2 mm either side, outward positive.
+    const across = (rays: (V | null)[], j: number, origin: V): number => {
+      const [a, p, b] = [rays[(j + RAYS - 4) % RAYS] ?? null, rays[j] ?? null, rays[(j + 4) % RAYS] ?? null];
+      if (a === null || p === null || b === null) return NaN;
+      const m: V = scale(add(a, b), 0.5);
+      return dot(sub(p, m), unit(sub(m, origin)));
+    };
+    const SIGN_MM: number = 0.05;
+    const inner: number[] = Array.from({ length: RAYS }, (_: unknown, j: number): number => j).filter((j: number): boolean => (360 * j) / RAYS >= 60 && (360 * j) / RAYS <= 125);
+    // The fit reads a section as the loop round its course point, so its input is the reference's loop round the course (reading 0), the
+    // arm arc that loop cut at the fold (reading 1): where the loop stands outside the arc, it takes the pocket's skin across the fold.
+    const read = (s: number): { wall: (V | null)[]; arc: (V | null)[]; input: (V | null)[]; origin: V } => {
+      const readings: IRead[] = readStation(axis, s, reference, false);
+      return { wall: castSection(axis, s, wall, (): boolean => true), arc: readings[1]!.rays, input: readings[0]!.rays, origin: axis.at(s).origin as V };
+    };
+    const reads: Map<number, ReturnType<typeof read>> = new Map();
+    for (let s: number = 2; s <= 82; s += 1) reads.set(s, read(s));
+    const inCutter = cutterVolume();
+    const lines: string[] = [`the head wall's notch, on ${directory}: knots in 4..80 mm ${family.knots.filter((k: number): boolean => k >= 4 && k <= 80).join(", ")}`];
+    let last: number = -1;
+    const rail: number = Math.round((family.knots[0]! + AutoMovieHumanF1.RAIL_MM.arm) * 100) / 100;
+    for (let s: number = 4; s <= 80; s += 1) {
+      const now = reads.get(s)!;
+      const [before, after] = [reads.get(s - 2)!, reads.get(s + 2)!];
+      let crossDiffer: number = 0;
+      let alongDiffer: number = 0;
+      let added: number = 0;
+      let addedInCutter: number = 0;
+      let worst: { mm: number; phase: number } = { mm: 0, phase: 0 };
+      for (const j of inner) {
+        const [w, a] = [across(now.wall, j, now.origin), across(now.arc, j, now.origin)];
+        if (Math.abs(w) > SIGN_MM && Math.abs(a) > SIGN_MM && Math.sign(w) !== Math.sign(a)) ++crossDiffer;
+        const radial = (x: { wall: (V | null)[]; arc: (V | null)[]; origin: V }, key: "wall" | "arc"): number => ((x[key][j] ?? null) === null ? NaN : norm(sub(x[key][j]!, x.origin)));
+        const [wl, al] = [radial(now, "wall") - (radial(before, "wall") + radial(after, "wall")) / 2, radial(now, "arc") - (radial(before, "arc") + radial(after, "arc")) / 2];
+        if (Math.abs(wl) > SIGN_MM && Math.abs(al) > SIGN_MM && Math.sign(wl) !== Math.sign(al)) ++alongDiffer;
+        const [ip, ap] = [now.input[j] ?? null, now.arc[j] ?? null];
+        if (ip !== null && ap !== null && norm(sub(ip, now.origin)) - norm(sub(ap, now.origin)) > 1) {
+          ++added;
+          if (inCutter(ip)) ++addedInCutter;
+          if (norm(sub(ip, ap)) > worst.mm) worst = { mm: norm(sub(ip, ap)), phase: (360 * j) / RAYS };
+        }
+      }
+      if (crossDiffer + alongDiffer > 0) last = s;
+      if (crossDiffer + alongDiffer > 0 || added > 0) lines.push(`  ${s} mm: curvature sign against the arm arc differs across on ${crossDiffer}, along on ${alongDiffer} of ${inner.length} inner rays; the fit's input stands over 1 mm outside the arm arc on ${added} (up to ${worst.mm.toFixed(1)} mm at ${worst.phase.toFixed(1)} deg), ${addedInCutter} of them inside today's cutter`);
+    }
+    lines.push(`the last station where the signs differ: ${last < 0 ? "none" : last + " mm"}; the rule port's rail stands at ${rail} mm at every phase (the first knot plus ${AutoMovieHumanF1.RAIL_MM.arm} mm): the notch ${last < 0 ? "is absent" : last <= rail ? "lies inside the band's span" : "reaches past the rail"}`);
+
+    // Frames: the fitted wall's clay and its knot rings, the armpit side, both arms (the -Z arm the reflection).
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "notch-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    for (const side of [1, -1] as const) {
+      const flip = (p: readonly number[]): V => [p[0]!, p[1]!, side * p[2]!];
+      const mesh: N.Mesh = { id: "wall", positions: Array.from({ length: positions.length / 3 }, (_: unknown, i: number): number[] => flip([positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!])).flat(), indices: side > 0 ? indices : indices.map((_: number, i: number): number => indices[i - (i % 3) + [0, 2, 1][i % 3]!]!), colour: [0.64, 0.65, 0.67] };
+      const rings: N.Curve[] = family.knots.filter((k: number): boolean => k <= 120).map((k: number): N.Curve => {
+        const ringRead = AutoMovieLoftChain.sampler(chain, k);
+        return { id: "knot" + k, points: Array.from({ length: 128 }, (_: unknown, j: number): V => flip(ringRead((2 * Math.PI * j) / 128))), closed: true, xray: true, colour: "2f6fd0" };
+      });
+      const points: V[] = meshPoints(mesh);
+      for (const [view, camera] of [["armpit", facing("armpit", scale(n, side), [0, 1, 0], points, 900, 900)], ["low-oblique", NodeCanvasCamera.fit("low-oblique", points, 900, 900)]] as [string, N.Camera][]) {
+        const file: string = path.join(out, `notch.${side > 0 ? "+z" : "-z"}.${view}.png`);
+        await fs.writeFile(file, NodeCanvasRaster.render(camera, [mesh], rings, "depth", `the refit arm's head wall (0..120 mm) and its knots (blue), ${side > 0 ? "+Z" : "-Z"} arm | ${view}`).png);
+        lines.push(`  ${file}`);
+      }
+    }
+    await fs.writeFile(path.join(out, "notch.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The fold rails of a fitted arm wall on the girdle's course (the supervisor's ruling on #3151, R3b): the port's band replaces the arm's
+   * wall up to each phase's rail (`IAutoMovieConstructionPort.rails`), and the wall's sections square to the turning course reach past its
+   * centre of curvature on the inner side near the ring, where they fold. On the wall alone (`--family=<the fit's directory>`, its loft cut
+   * by its own frames, every piece read, no clip):
+   * 1. per ray the no-fold boundary, the last station a step of that ray goes back at (`folds`); its rail, that boundary and then the band's
+   *    ordinary margin (`AutoMovieHumanF1.RAIL_MM.arm`) read along the skin, or the ordinary rail (the first knot plus that margin) where the
+   *    ray never steps back; and the same rails at the arm's own phases (each phase's first station whose ray's rail it has reached), which
+   *    the port reads, per 10 degrees;
+   * 2. past the rails, the kept wall's curvature sign at every ray, across and along (as `notch`), against the reference's arm arc, from the
+   *    rail to 120 mm: every station and phase where they differ by more than 0.05 mm each;
+   * and a close frame of the wall's inner side with the rails (red) and any differing point (orange).
+   */
+  async function foldRails(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const directory: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--family="))?.slice("--family=".length);
+    if (directory === undefined) throw new Error("foldrails: give --family=<the fit's directory>");
+    const stored = JSON.parse(await fs.readFile(path.join(directory, "arm.family.json"), "utf8")) as H.IFamily;
+    const family: H.IFamily = { ...stored, centres: AutoMovieHumanF1Girdle.course().map((c): V => [c[0], c[1], c[2]]), halves: [AutoMovieHumanF1Girdle.HALF_MM, 30, 10, 16], up: P.direction("arm.up") as V };
+    const axis: IAxis = H.axis(family);
+    const source: R.ISource = await R.load(root);
+    const reference: ISkins = skinsOf(await realizedSkin(root, "reference", (): void => undefined), source.all, "reference");
+    const first: number = family.knots[0]!;
+    const END_MM: number = 120;
+    const stations: number[] = [];
+    for (let s: number = first; s <= END_MM + 2; s += 0.5) stations.push(s);
+    const loft: AutoMovieViewLoft.IResult = H.create({ ...family, tips: undefined }, stations);
+    if (loft.chain === null) throw new Error("foldrails: the fitted wall does not loft");
+    const chain = loft.chain;
+    const positions: number[] = [];
+    const indices: number[] = [];
+    for (const s of stations) {
+      const read = AutoMovieLoftChain.sampler(chain, s);
+      for (let j: number = 0; j < 720; ++j) positions.push(...read((2 * Math.PI * j) / 720));
+    }
+    for (let i: number = 0; i + 1 < stations.length; ++i)
+      for (let j: number = 0; j < 720; ++j) {
+        const a: number = i * 720 + j;
+        const b: number = i * 720 + ((j + 1) % 720);
+        indices.push(a, a + 720, b, b, a + 720, b + 720);
+      }
+    const wall: M.IMesh = { positions, indices };
+    const margin: number = AutoMovieHumanF1.RAIL_MM.arm;
+
+    // 1. The boundary per ray and its rail.
+    const fold = folds(axis, first, END_MM, (s: number): (V | null)[] => castSection(axis, s, wall, (): boolean => true));
+    const railOf: number[] = fold.boundary.map((b: number, j: number): number => {
+      if (b <= first) return first + margin;
+      let k: number = fold.stations.findIndex((s: number): boolean => s >= b);
+      let walked: number = 0;
+      for (; k + 1 < fold.stations.length && walked < margin; ++k) {
+        const [p, q] = [fold.points[k]![j] ?? null, fold.points[k + 1]![j] ?? null];
+        if (p !== null && q !== null) walked += norm(sub(q, p));
+      }
+      return walked >= margin ? fold.stations[k]! : NaN;
+    });
+    // The rails at the arm's own phases: each phase's first station at which its point's ray has reached that ray's rail.
+    const PHASES: number = 48;
+    const partRails: number[] = Array.from({ length: PHASES }, (_: unknown, k: number): number => {
+      const psi: number = (2 * Math.PI * k) / PHASES;
+      for (const s of fold.stations) {
+        const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+        const p: V = AutoMovieLoftChain.point(chain, s, psi) as V;
+        const d: V = sub(p, frame.origin as V);
+        const angle: number = Math.atan2(dot(d, frame.v as V), dot(d, frame.u as V));
+        const j: number = ((Math.round((angle * RAYS) / (2 * Math.PI)) % RAYS) + RAYS) % RAYS;
+        if (s >= railOf[j]!) return s;
+      }
+      return NaN;
+    });
+    const folding: number = fold.boundary.filter((b: number): boolean => b > first).length;
+    const lines: string[] = [
+      `the fold rails of ${directory} (first knot ${first} mm): ${fold.back.length} ray steps go back on its own frames from ${first} to ${END_MM} mm; ${folding} of ${RAYS} rays fold, the boundary up to ${Math.max(...fold.boundary).toFixed(0)} mm`,
+      "  the rail per 10 deg of ray (mm along the course):",
+      ...everyTen(railOf, 1).map((x: string): string => `    ${x}`),
+      `  the rail at the arm's own phases, ${PHASES} of them (mm past the first knot): ${partRails.map((s: number): string => (s - first).toFixed(1)).join(", ")}`,
+    ];
+
+    // 2. The kept wall past the rails against the arm arc, every ray.
+    const SIGN_MM: number = 0.05;
+    const across = (rays: (V | null)[], j: number, origin: V): number => {
+      const [a, p, b] = [rays[(j + RAYS - 4) % RAYS] ?? null, rays[j] ?? null, rays[(j + 4) % RAYS] ?? null];
+      if (a === null || p === null || b === null) return NaN;
+      const m: V = scale(add(a, b), 0.5);
+      return dot(sub(p, m), unit(sub(m, origin)));
+    };
+    const reads: Map<number, { wall: (V | null)[]; arc: (V | null)[]; origin: V }> = new Map();
+    const at = (s: number): { wall: (V | null)[]; arc: (V | null)[]; origin: V } => {
+      const known = reads.get(s);
+      if (known !== undefined) return known;
+      const made = { wall: castSection(axis, s, wall, (): boolean => true), arc: readStation(axis, s, reference, false)[1]!.rays, origin: axis.at(s).origin as V };
+      reads.set(s, made);
+      return made;
+    };
+    // Each flagged point's principal curvature across the section, on the kept wall and on the arm arc: the circle through the ray's point
+    // and its neighbours 2 degrees either side, signed outward as `across` is.
+    const curvature = (rays: (V | null)[], j: number, origin: V): number => {
+      const [a, p, b] = [rays[(j + RAYS - 4) % RAYS] ?? null, rays[j] ?? null, rays[(j + 4) % RAYS] ?? null];
+      if (a === null || p === null || b === null) return NaN;
+      const k: number = (2 * norm(cross(sub(p, a), sub(b, a)))) / (norm(sub(p, a)) * norm(sub(b, p)) * norm(sub(b, a)));
+      return Math.sign(across(rays, j, origin)) * k;
+    };
+    // A bend a frame can show: a radius under 200 mm, a fortieth of a degree of turn per millimetre of skin; under it a sign change is a
+    // zero crossing of a near-flat stretch.
+    const KAPPA: number = 1 / 200;
+    const flagged: { s: number; phase: number; p: V; wall: number; arc: number }[] = [];
+    const from: number = Math.ceil(Math.min(...railOf.filter((x: number): boolean => Number.isFinite(x))));
+    for (let s: number = from; s <= END_MM; s += 1) {
+      const [now, before, after] = [at(s), at(s - 2), at(s + 2)];
+      for (let j: number = 0; j < RAYS; ++j) {
+        if (!(s >= railOf[j]!)) continue;
+        const [w, a] = [across(now.wall, j, now.origin), across(now.arc, j, now.origin)];
+        const radial = (x: { wall: (V | null)[]; arc: (V | null)[]; origin: V }, key: "wall" | "arc"): number => ((x[key][j] ?? null) === null ? NaN : norm(sub(x[key][j]!, x.origin)));
+        const [wl, al] = [radial(now, "wall") - (radial(before, "wall") + radial(after, "wall")) / 2, radial(now, "arc") - (radial(before, "arc") + radial(after, "arc")) / 2];
+        const differs: boolean = (Math.abs(w) > SIGN_MM && Math.abs(a) > SIGN_MM && Math.sign(w) !== Math.sign(a)) || (Math.abs(wl) > SIGN_MM && Math.abs(al) > SIGN_MM && Math.sign(wl) !== Math.sign(al));
+        const kept: V | null = now.wall[j] ?? null;
+        if (differs && kept !== null) flagged.push({ s, phase: (360 * j) / RAYS, p: kept, wall: curvature(now.wall, j, now.origin), arc: curvature(now.arc, j, now.origin) });
+      }
+    }
+    const large = flagged.filter((f): boolean => Math.abs(f.wall) > KAPPA || Math.abs(f.arc) > KAPPA);
+    lines.push(`past the rails, from ${from} to ${END_MM} mm: ${flagged.length} ray points where the kept wall's curvature sign differs from the arm arc's; ${large.length} of them bend by more than 1/200 per mm on either side, ${flagged.length - large.length} are zero crossings of near-flat stretches`);
+    for (let band: number = 0; band < 36; ++band) {
+      const here = large.filter((f): boolean => f.phase >= band * 10 && f.phase < band * 10 + 10);
+      if (here.length > 0) lines.push(`  ${band * 10}..${band * 10 + 10} deg: ${here.length} points over 1/200, stations ${Math.min(...here.map((f): number => f.s))}..${Math.max(...here.map((f): number => f.s))} mm; curvature on the wall ${Math.min(...here.map((f): number => f.wall)).toFixed(4)}..${Math.max(...here.map((f): number => f.wall)).toFixed(4)}, on the arm arc ${Math.min(...here.map((f): number => f.arc)).toFixed(4)}..${Math.max(...here.map((f): number => f.arc)).toFixed(4)} per mm`);
+    }
+
+    // The rails smoothed between the axillary folds (the supervisor's ruling): the raised window's edges stand on the two fold lines, the
+    // anterior and posterior axillary folds where they run onto the arm, read as the middle phase of the kept sign differences either side
+    // of the armpit (30 to 60 and 120 to 145 degrees), since the folds bound the axilla; its rise is the quintic smoothstep the engine's
+    // turns use, C2, from the ordinary rail at a fold line to the window's top at the first folding ray, and its fall as wide as its rise
+    // or out to the other fold line, whichever is wider; and it never stands below a ray's own fold rail. No step: a step runs one band
+    // column far along the arm, a seam.
+    const middleOf = (lo: number, hi: number): number => {
+      const sorted: number[] = flagged.map((f): number => f.phase).filter((x: number): boolean => x >= lo && x <= hi).sort((a: number, b: number): number => a - b);
+      return sorted.length === 0 ? NaN : sorted[Math.floor(sorted.length / 2)]!;
+    };
+    const ordinary: number = first + margin;
+    const foldingPhases: number[] = railOf.map((r: number, j: number): number => (r > ordinary + 1e-9 ? (360 * j) / RAYS : NaN)).filter((x: number): boolean => Number.isFinite(x) && x < 180);
+    const [f0, f1] = [Math.min(...foldingPhases), Math.max(...foldingPhases)];
+    const anterior: number = middleOf(30, 60);
+    const posterior: number = middleOf(120, 145);
+    const fallEnd: number = Math.max(posterior, f1 + (f0 - anterior));
+    const top: number = Math.max(...railOf.filter((r: number): boolean => r > ordinary + 1e-9));
+    const quintic = (x: number): number => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * x * (10 - 15 * x + 6 * x * x));
+    const lift = (deg: number): number => (deg < f0 ? quintic((deg - anterior) / (f0 - anterior)) : deg <= f1 ? 1 : quintic((fallEnd - deg) / (fallEnd - f1)));
+    const smooth: number[] = railOf.map((r: number, j: number): number => Math.max(r, ordinary + (top - ordinary) * lift((360 * j) / RAYS)));
+    const toParts = (perRay: readonly number[], count: number = PHASES): number[] =>
+      Array.from({ length: count }, (_: unknown, k: number): number => {
+        const psi: number = (2 * Math.PI * k) / count;
+        for (const s of fold.stations) {
+          const frame: AutoMovieLoftFrame.IFrame = axis.at(s);
+          const d: V = sub(AutoMovieLoftChain.point(chain, s, psi) as V, frame.origin as V);
+          const j: number = ((Math.round((Math.atan2(dot(d, frame.v as V), dot(d, frame.u as V)) * RAYS) / (2 * Math.PI)) % RAYS) + RAYS) % RAYS;
+          if (s >= perRay[j]!) return s;
+        }
+        return NaN;
+      });
+    lines.push(
+      `the smoothed rails: the anterior fold line at ${anterior.toFixed(1)} deg, the posterior at ${posterior.toFixed(1)}; folding rays ${f0.toFixed(1)}..${f1.toFixed(1)} deg; the rise ${anterior.toFixed(1)}..${f0.toFixed(1)}, the fall ${f1.toFixed(1)}..${fallEnd.toFixed(1)} deg; the top ${top.toFixed(1)} mm`,
+      "  per 10 deg of ray (mm along the course):",
+      ...everyTen(smooth, 1).map((x: string): string => `    ${x}`),
+      `  at the arm's own ${PHASES} phases (mm past the first knot): ${toParts(smooth).map((s: number): string => (s - first).toFixed(1)).join(", ")}`,
+    );
+    // The engine's rails between the stored ones (`AutoMovieHumanF1.armRails`, joined by the periodic natural cubic as the port reads them)
+    // against each phase's own fold rail at 720 of the arm's phases: where the interpolated rail stands short of it, a fold stays outside
+    // the band.
+    // Sampled as the engine samples it (`AutoMovieConstructionPortRealize`): 8 columns to each of the 48 values, 384 in all.
+    const engine = AutoMovieNaturalSpline.periodic(AutoMovieHumanF1.armRails(1));
+    const COLUMNS: number = 8 * AutoMovieHumanF1.armRails(1).length;
+    const boundaryParts: number[] = toParts(fold.boundary.map((b: number): number => Math.max(b, first)), COLUMNS);
+    const railParts: number[] = toParts(railOf, COLUMNS);
+    const columns = boundaryParts.map((b: number, k: number) => ({ phase: (360 * k) / COLUMNS, have: engine((2 * Math.PI * k) / COLUMNS), boundary: b - first, rail: railParts[k]! - first }));
+    const storedRails: number[] = AutoMovieHumanF1.armRails(1);
+    const inWindow = (phase: number): boolean => storedRails[Math.floor((phase / 360) * storedRails.length) % storedRails.length]! > margin + 1e-6 || storedRails[Math.ceil((phase / 360) * storedRails.length) % storedRails.length]! > margin + 1e-6;
+    const overBoundary = columns.reduce((a, b) => (b.have - b.boundary < a.have - a.boundary ? b : a));
+    const overRail = columns.reduce((a, b) => (b.have - b.rail < a.have - a.rail ? b : a));
+    const outside = columns.filter((c): boolean => !inWindow(c.phase));
+    const lowest = outside.reduce((a, b) => (b.have < a.have ? b : a), outside[0]!);
+    const under = columns.filter((c): boolean => c.have < c.boundary - 1e-6);
+    lines.push(
+      `the engine's rails at its ${COLUMNS} columns (the periodic natural cubic through the ${storedRails.length} stored values), mm past the first knot:`,
+      `  least margin over the no-fold boundary ${(overBoundary.have - overBoundary.boundary).toFixed(2)} at ${overBoundary.phase.toFixed(2)} deg; ${under.length} columns under it${under.length === 0 ? "" : `: ${under.map((c): string => `${c.phase.toFixed(2)} deg by ${(c.boundary - c.have).toFixed(2)}`).slice(0, 30).join(", ")}`}`,
+      `  least margin over the fold rail (boundary plus ${margin} mm along the skin) ${(overRail.have - overRail.rail).toFixed(2)} at ${overRail.phase.toFixed(2)} deg`,
+      `  least value outside the window ${lowest.have.toFixed(2)} at ${lowest.phase.toFixed(2)} deg against the ordinary ${margin}; overshoot ${(Math.max(...columns.map((c): number => c.have)) - Math.max(...storedRails)).toFixed(2)} over the largest stored ${Math.max(...storedRails)}`,
+    );
+    // The values to store: from the smoothed rails at the arm's phases, raised only where the engine's spline at its columns falls short of
+    // a column's fold rail (the no-fold boundary plus the margin along the skin) or of the ordinary margin, each round by the shortfall at
+    // the stored value nearest the column, until no column is short; then rounded up to 0.1 mm and checked again.
+    const need: number[] = railParts.map((s: number): number => Math.max(s - first, margin));
+    let chosen: number[] = toParts(smooth, storedRails.length).map((s: number): number => s - first);
+    for (let round: number = 0; round < 400; ++round) {
+      const spline = AutoMovieNaturalSpline.periodic(chosen);
+      const raise: number[] = chosen.map((): number => 0);
+      let worst: number = 0;
+      need.forEach((n: number, k: number): void => {
+        const short: number = n - spline((2 * Math.PI * k) / COLUMNS);
+        if (short <= 1e-3) return;
+        const j: number = Math.round((k * chosen.length) / COLUMNS) % chosen.length;
+        raise[j] = Math.max(raise[j]!, short);
+        worst = Math.max(worst, short);
+      });
+      if (worst <= 1e-3) break;
+      chosen = chosen.map((v: number, j: number): number => v + raise[j]!);
+    }
+    chosen = chosen.map((v: number): number => Math.ceil(v * 10 - 1e-9) / 10);
+    const check = AutoMovieNaturalSpline.periodic(chosen);
+    const margins: number[] = need.map((n: number, k: number): number => check((2 * Math.PI * k) / COLUMNS) - n);
+    lines.push(`the rails to store (${chosen.length} values, mm past the first knot): ${chosen.join(", ")}; the engine's spline through them stands ${Math.min(...margins).toFixed(2)} mm at its least over each column's fold rail and the ordinary margin, its top ${Math.max(...columns.map((_c, k: number): number => check((2 * Math.PI * k) / COLUMNS))).toFixed(2)}`);
+
+    // The frame: the wall's inner side, the rails measured (red) and smoothed (blue), the sign differences over 1/200 (magenta) and under it (orange).
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "foldrails-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const mesh: N.Mesh = { id: "wall", positions, indices, colour: [0.64, 0.65, 0.67] };
+    const curveOf = (perRay: readonly number[]): V[] => perRay.map((s: number, j: number): V | null => (Number.isFinite(s) ? (castSection(axis, s, wall, (): boolean => true)[j] ?? null) : null)).filter((p: V | null): p is V => p !== null);
+    const points: V[] = meshPoints(mesh);
+    const curves: N.Curve[] = [
+      { id: "rail", points: curveOf(railOf), closed: true, xray: true, colour: "e01b1b" },
+      { id: "smooth", points: curveOf(smooth), closed: true, xray: true, colour: "2f6fd0" },
+      ...marks(large.map((f): V => f.p), "c2185b", "large"),
+      ...marks(flagged.filter((f): boolean => !(Math.abs(f.wall) > KAPPA || Math.abs(f.arc) > KAPPA)).map((f): V => f.p), "d08a1f", "small"),
+    ];
+    for (const [view, camera] of [["armpit", facing("armpit", plane(0, 0).normal, [0, 1, 0], points, 900, 900)], ["low-oblique", NodeCanvasCamera.fit("low-oblique", points, 900, 900)]] as [string, N.Camera][]) {
+      const file: string = path.join(out, `foldrails.${view}.png`);
+      await fs.writeFile(file, NodeCanvasRaster.render(camera, [mesh], curves, "depth", `the refit arm's head wall to ${END_MM} mm | red: the fold rails; blue: smoothed between the axillary folds; magenta: sign differences bending over 1/200 per mm; orange: under it | ${view}`).png);
+      lines.push(`  ${file}`);
+    }
+    await fs.writeFile(path.join(out, "foldrails.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The armpit without the axilla's cutter, its triangles coloured by the face that owns them (the supervisor's inspection round,
+   * verification.md item 3): the construction with every `cut.axilla` join replaced by its host, realized at a chord of 1 mm, each triangle's
+   * owner by two of its corners agreeing (else the middle one's). Each armpit within `OWNER_CROP_MM` of the crease from the armpit's view,
+   * the front and the low oblique: every owner its own colour, the triangles a view sees from behind in the faces shade (a flipped surface,
+   * or one seen through an opening), and every open edge (one used by a single triangle) red.
+   */
+  async function owners(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const declared = AutoMovieHumanF1.construction();
+    const strip = (node: unknown): unknown => {
+      if (Array.isArray(node)) return node.map(strip);
+      if (node === null || typeof node !== "object") return node;
+      const record: Record<string, unknown> = node as Record<string, unknown>;
+      if (record.type === "join" && record.kind === "diff" && typeof record.name === "string" && record.name.startsWith("cut.axilla")) return strip(record.host);
+      return Object.fromEntries(Object.entries(record).map(([key, value]: [string, unknown]): [string, unknown] => [key, key === "host" || key === "part" || key === "children" ? strip(value) : value]));
+    };
+    const real = realizeAutoMovieConstruction({ name: "f1.body.owners", root: strip(declared.root) as typeof declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    const mesh = real.mesh;
+    const at = (v: number): V => [1000 * mesh.positions[3 * v]!, 1000 * mesh.positions[3 * v + 1]!, 1000 * mesh.positions[3 * v + 2]!];
+    const ownerOf = (t: number): string => {
+      const names: string[] = [0, 1, 2].map((k: number): string => mesh.owners[mesh.coordinates[mesh.indices[3 * t + k]! * 3]!]!);
+      return names[0] === names[1] || names[0] === names[2] ? names[0]! : names[1]!;
+    };
+    const OWNER_CROP_MM: number = 110;
+    const palette: Record<string, string> = { arm: "d03030", "arm.mirror": "d03030", "band.arm": "3060e0", "band.arm.mirror": "3060e0", trunk: "a3a6aa" };
+    const spare: string[] = ["2fae4a", "e0b020", "9a3fb5", "20b0c0", "e07020", "7a5230"];
+    const colourOf = (name: string): string => {
+      if (palette[name] === undefined) palette[name] = spare[Object.keys(palette).length % spare.length]!;
+      return palette[name]!;
+    };
+    const rgb = (hex: string): [number, number, number] => [parseInt(hex.slice(0, 2), 16) / 255, parseInt(hex.slice(2, 4), 16) / 255, parseInt(hex.slice(4, 6), 16) / 255];
+    const lines: string[] = [`f1 without the axilla's cutter, triangles by their owning face: ${mesh.indices.length / 3} triangles; faults ${real.diagnostics.length}`];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "owners-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const n: V = plane(0, 0).normal;
+    for (const side of [1, -1] as const) {
+      const crease: V = P.point("armpit") as V;
+      const focus: V = [crease[0], crease[1], side * crease[2]];
+      const near: number[] = [];
+      const wider: number[] = [];
+      for (let t: number = 0; t < mesh.indices.length / 3; ++t) {
+        const c: V = scale(add(add(at(mesh.indices[3 * t]!), at(mesh.indices[3 * t + 1]!)), at(mesh.indices[3 * t + 2]!)), 1 / 3);
+        const d: number = norm(sub(c, focus));
+        if (d < OWNER_CROP_MM + 15) wider.push(t);
+        if (d < OWNER_CROP_MM) near.push(t);
+      }
+      // Open edges: those used by one triangle among the wider set, kept where they stand within the crop.
+      const uses: Map<string, number> = new Map();
+      for (const t of wider)
+        for (let k: number = 0; k < 3; ++k) {
+          const [a, b]: number[] = [mesh.indices[3 * t + k]!, mesh.indices[3 * t + ((k + 1) % 3)]!];
+          const key: string = a! < b! ? a + "," + b : b + "," + a;
+          uses.set(key, (uses.get(key) ?? 0) + 1);
+        }
+      const open: N.Curve[] = [...uses.entries()]
+        .filter(([key, count]: [string, number]): boolean => count === 1 && norm(sub(scale(add(at(Number(key.split(",")[0])), at(Number(key.split(",")[1]))), 0.5), focus)) < OWNER_CROP_MM)
+        .map(([key]: [string, number], i: number): N.Curve => ({ id: "open" + i, points: key.split(",").map((v: string): V => at(Number(v))), closed: false, xray: true, colour: "ff0000" }));
+      const counts: Map<string, number> = new Map();
+      for (const t of near) counts.set(ownerOf(t), (counts.get(ownerOf(t)) ?? 0) + 1);
+      lines.push(`${side > 0 ? "+Z" : "-Z"} armpit, within ${OWNER_CROP_MM} mm of the crease: ${[...counts.entries()].map(([name, count]: [string, number]): string => `${name} ${count}`).join(", ")}; ${open.length} open edges`);
+      const points: V[] = near.map((t: number): V => at(mesh.indices[3 * t]!));
+      for (const [view, camera] of [["armpit", facing("armpit", scale(n, side), [0, 1, 0], points, 900, 900)], ["front", NodeCanvasCamera.fit("front", points, 900, 900)], ["low-oblique", NodeCanvasCamera.fit("low-oblique", points, 900, 900)]] as [string, N.Camera][]) {
+        const groups: Map<string, { positions: number[]; indices: number[] }> = new Map();
+        let behind: number = 0;
+        for (const t of near) {
+          const [a, b, c]: V[] = [at(mesh.indices[3 * t]!), at(mesh.indices[3 * t + 1]!), at(mesh.indices[3 * t + 2]!)];
+          const facingAway: boolean = dot(cross(sub(b!, a!), sub(c!, a!)), camera.back as V) < 0;
+          const name: string = facingAway ? "faces" : ownerOf(t);
+          if (facingAway) ++behind;
+          const group = groups.get(name) ?? { positions: [], indices: [] };
+          group.positions.push(...a!, ...b!, ...c!);
+          group.indices.push(group.positions.length / 3 - 3, group.positions.length / 3 - 2, group.positions.length / 3 - 1);
+          groups.set(name, group);
+        }
+        const meshes: N.Mesh[] = [...groups.entries()].map(([name, group]): N.Mesh => ({ id: name, ...group, colour: name === "faces" ? [0.85, 0.1, 0.75] : rgb(colourOf(name)) }));
+        const legend: string = [...groups.keys()].filter((name: string): boolean => name !== "faces").map((name: string): string => `${name} #${colourOf(name)}`).join(", ");
+        const file: string = path.join(out, `owners.${side > 0 ? "+z" : "-z"}.${view}.png`);
+        await fs.writeFile(file, NodeCanvasRaster.render(camera, meshes, open, "depth", `f1 without the axilla's cutter by owning face: ${legend}; magenta: seen from behind (${behind}); red: open edges (${open.length}) | ${side > 0 ? "+Z" : "-Z"} ${view}`).png);
+        lines.push(`  ${file}`);
+      }
+    }
+    await fs.writeFile(path.join(out, "owners.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The girdle plane tilted (the supervisor's ruling on #3151, R3b, after the rule loop's lower arc hung a lobe under the armpit): the
+   * plane through GH turned about the thorax's anterior-posterior axis by `beta` every 5 degrees to 30 either way, each cut of the trunk's
+   * own wall (its loft with its nets, the largest closed loop) read for whether it closes, its star-shape in the trunk's chart (steps that
+   * turn back about its centre), its least angle to the wall's surface along it (a plane that grazes the wall cuts a long, ill-defined
+   * arc), its distances to the accepted landmarks (`LANDMARKS`: the acromion, the anterior and posterior axillary fold points) and to R1's
+   * axilla reading (refused at the window's end, a check only), and its lowest point against the fold points' level. Frames: the loops over
+   * the reference from the armpit's view, the front and the back, the landmarks marked.
+   */
+  async function tilts(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const trunk: M.IMesh = trunkMesh();
+    const normalAt = normalsOf(trunk);
+    const thorax: SF.IFrame = P.frame("thorax");
+    const [ax, ay, az]: V[] = [thorax.axes[0] as V, thorax.axes[1] as V, thorax.axes[2] as V];
+    const gh: V = P.frame("humerus").origin as V;
+    const axillaR1: V = [33.74, 1305.07, 149.71];
+    const foldLevel: number = (LANDMARKS["fold-anterior"]![1] + LANDMARKS["fold-posterior"]![1]) / 2;
+    const chart = trunkChart();
+    const armpitV: number = chart(P.point("armpit") as V).v;
+    const lines: string[] = [`the girdle plane through GH ${fixed(gh, 2)} tilted about the thorax's anterior-posterior axis (positive: its normal turned toward the thorax's up); the fold points' level ${foldLevel.toFixed(1)} mm`, "", "| tilt (deg) | closes | steps back in the chart | least angle to the wall (deg) | acromion / front fold / back fold (mm) | R1 axilla, refused (mm) | lowest point, below the folds' level (mm) |", "| ---: | --- | ---: | ---: | --- | ---: | --- |"];
+    const drawn: { beta: number; points: V[] }[] = [];
+    for (let beta: number = -30; beta <= 30; beta += 5) {
+      const b: number = (beta * Math.PI) / 180;
+      const normal: V = unit(add(scale(az!, Math.cos(b)), scale(ay!, Math.sin(b))));
+      const u: V = perpendicular(ax!, normal);
+      const v: V = cross(normal, u);
+      const pieces: IPiece[] = M.outline(trunk, { origin: gh, axes: [normal, u, v] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+      const closed: IPiece[] = pieces.filter((piece: IPiece): boolean => piece.closed).sort((p: IPiece, q: IPiece): number => area(q.points) - area(p.points));
+      const loop: IPiece | undefined = closed[0];
+      if (loop === undefined) {
+        lines.push(`| ${beta} | no closed loop (${pieces.length} pieces) | - | - | - | - | - |`);
+        continue;
+      }
+      const world: V[] = loop.points.map((p: C.P): V => add(gh, add(scale(u, p[0]), scale(v, p[1]))));
+      const q: [number, number][] = world.map((p: V): [number, number] => {
+        const c = chart(p);
+        return [c.station, armpitV * Math.atan2(c.v, c.u)];
+      });
+      const middle: [number, number] = [q.reduce((t, x): number => t + x[0], 0) / q.length, q.reduce((t, x): number => t + x[1], 0) / q.length];
+      const steps: number[] = q.map((a, i): number => {
+        const c = q[(i + 1) % q.length]!;
+        const d: number = Math.atan2(c[1] - middle[1], c[0] - middle[0]) - Math.atan2(a[1] - middle[1], a[0] - middle[0]);
+        return Math.atan2(Math.sin(d), Math.cos(d));
+      });
+      const sense: number = Math.sign(steps.reduce((t: number, x: number): number => t + x, 0)) || 1;
+      const back: number = steps.filter((x: number): boolean => sense * x < 0).length;
+      let least: number = 90;
+      for (const p of world) least = Math.min(least, degrees(Math.acos(Math.min(1, Math.abs(dot(normalAt(p), normal))))));
+      const lowest: V = world.reduce((p: V, w: V): V => (w[1] < p[1] ? w : p));
+      lines.push(`| ${beta} | ${closed.length} closed of ${pieces.length} | ${back} | ${least.toFixed(1)} | ${Object.values(LANDMARKS).map((p: V): string => distanceTo(p, world).toFixed(1)).join(" / ")} | ${distanceTo(axillaR1, world).toFixed(1)} | ${fixed(lowest, 1)}, ${(foldLevel - lowest[1]).toFixed(1)} |`);
+      drawn.push({ beta, points: world });
+    }
+    lines.push("", "least angle to the wall: the least angle between the plane and the wall's surface along the loop, where a small angle grazes; distances: straight, landmark to the loop's nearest point");
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "tilts-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const shoulder: N.Mesh = cropMesh("reference", source.all, add(gh, [0, -40, 0]), 170);
+    const colours: string[] = ["1f9d3a", "2f6fd0", "d08a1f", "9a3fb5", "e01b1b", "20b0c0", "7a5230"];
+    const curves: N.Curve[] = [...drawn.filter((d): boolean => d.beta % 10 === 0).map((d, i: number): N.Curve => ({ id: "tilt" + d.beta, points: d.points, closed: true, xray: true, colour: colours[i % colours.length]! })), ...marks([...Object.values(LANDMARKS), axillaR1], "000000", "landmark")];
+    const legend: string = drawn.filter((d): boolean => d.beta % 10 === 0).map((d, i: number): string => `${d.beta} deg #${colours[i % colours.length]}`).join(", ");
+    for (const [view, camera] of [["armpit", facing("armpit", az!, [0, 1, 0], meshPoints(shoulder), 900, 900)], ["front", NodeCanvasCamera.fit("front", meshPoints(shoulder), 900, 900)], ["back", NodeCanvasCamera.fit("back", meshPoints(shoulder), 900, 900)]] as [string, N.Camera][]) {
+      const file: string = path.join(out, `tilts.${view}.reference.png`);
+      await fs.writeFile(file, NodeCanvasRaster.render(camera, [shoulder], curves, "depth", `f1 reference | the girdle plane's cut of the trunk's wall at tilts ${legend}; black: the acromion, the fold points and R1's (refused) axilla | ${view}`).png);
+      lines.push(`  ${file}`);
+    }
+    await fs.writeFile(path.join(out, "tilts.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The armscye's plane fitted by two numbers of the person (the supervisor's ruling on #3151, R3b): fixed in the thorax's frame, its tilt
+   * about the thorax's anterior-posterior axis (its normal the thorax's lateral axis turned toward its up) and its offset from GH along its
+   * own normal, chosen as the least root-mean-square distance from its cut of the trunk's own wall to the acromion and the two axillary fold
+   * points (`LANDMARKS`, ISO 8559-1 3.1.1 and 3.1.13), among the cuts that close as one loop, are star-shaped in the trunk's chart and stand
+   * at least `LEAST_ANGLE_DEG` from the wall's surface everywhere. A grid every 2.5 degrees from -30 to 40 and every 5 mm from -20 to 60
+   * mm, then refined round the best by a quarter of each step twice. The axilla is read as a check only, as the arm-root studies read it:
+   * the lowest point of the loop's lower arc between the two fold points, with its drop below the folds' level.
+   */
+  async function tiltFit(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const trunk: M.IMesh = trunkMesh();
+    const normalAt = normalsOf(trunk);
+    const thorax: SF.IFrame = P.frame("thorax");
+    const [ax, ay, az]: V[] = [thorax.axes[0] as V, thorax.axes[1] as V, thorax.axes[2] as V];
+    const gh: V = P.frame("humerus").origin as V;
+    const chart = trunkChart();
+    const armpitV: number = chart(P.point("armpit") as V).v;
+    // No grazing: the cuts tilted 15 to 30 degrees through GH stood 30 to 42 degrees from the wall at their least (run `tilts`).
+    const LEAST_ANGLE_DEG: number = 30;
+    const marksAt: V[] = Object.values(LANDMARKS);
+    const [front, back]: V[] = [LANDMARKS["fold-anterior"]!, LANDMARKS["fold-posterior"]!];
+    const foldLevel: number = (front![1] + back![1]) / 2;
+    const cutAt = (tilt: number, offset: number) => {
+      const b: number = (tilt * Math.PI) / 180;
+      const normal: V = unit(add(scale(az!, Math.cos(b)), scale(ay!, Math.sin(b))));
+      const origin: V = add(gh, scale(normal, offset));
+      const u: V = perpendicular(ax!, normal);
+      const v: V = cross(normal, u);
+      const pieces: IPiece[] = M.outline(trunk, { origin, axes: [normal, u, v] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+      const closed: IPiece[] = pieces.filter((piece: IPiece): boolean => piece.closed);
+      if (closed.length !== 1 || pieces.length !== 1) return { tilt, offset, ok: false, why: `${closed.length} closed of ${pieces.length} pieces`, rms: Infinity, world: [] as V[], least: 0, back: 0, distances: [] as number[], axilla: null as V | null };
+      const world: V[] = closed[0]!.points.map((p: C.P): V => add(origin, add(scale(u, p[0]), scale(v, p[1]))));
+      const q: [number, number][] = world.map((p: V): [number, number] => {
+        const c = chart(p);
+        return [c.station, armpitV * Math.atan2(c.v, c.u)];
+      });
+      const middle: [number, number] = [q.reduce((t, x): number => t + x[0], 0) / q.length, q.reduce((t, x): number => t + x[1], 0) / q.length];
+      const steps: number[] = q.map((a, i): number => {
+        const c = q[(i + 1) % q.length]!;
+        const d: number = Math.atan2(c[1] - middle[1], c[0] - middle[0]) - Math.atan2(a[1] - middle[1], a[0] - middle[0]);
+        return Math.atan2(Math.sin(d), Math.cos(d));
+      });
+      const sense: number = Math.sign(steps.reduce((t: number, x: number): number => t + x, 0)) || 1;
+      const backSteps: number = steps.filter((x: number): boolean => sense * x < 0).length;
+      let least: number = 90;
+      for (const p of world) least = Math.min(least, degrees(Math.acos(Math.min(1, Math.abs(dot(normalAt(p), normal))))));
+      const distances: number[] = marksAt.map((p: V): number => distanceTo(p, world));
+      // The axilla: the lowest point of the loop's lower arc between the two fold points (the arc whose points stand lower on average).
+      const nearest = (p: V): number => world.reduce((best: number, w: V, i: number): number => (norm(sub(w, p)) < norm(sub(world[best]!, p)) ? i : best), 0);
+      const [i, j] = [nearest(front!), nearest(back!)];
+      const arc = (from: number, to: number): V[] => {
+        const out: V[] = [];
+        for (let k: number = from; k !== to; k = (k + 1) % world.length) out.push(world[k]!);
+        return out;
+      };
+      const [one, two] = [arc(i, j), arc(j, i)];
+      const meanY = (points: V[]): number => points.reduce((t: number, p: V): number => t + p[1], 0) / Math.max(1, points.length);
+      const lower: V[] = meanY(one) <= meanY(two) ? one : two;
+      const axilla: V | null = lower.length === 0 ? null : lower.reduce((p: V, w: V): V => (w[1] < p[1] ? w : p));
+      const ok: boolean = backSteps === 0 && least >= LEAST_ANGLE_DEG;
+      return { tilt, offset, ok, why: ok ? "" : `${backSteps} steps back, least angle ${least.toFixed(1)}`, rms: Math.sqrt(distances.reduce((t: number, d: number): number => t + d * d, 0) / distances.length), world, least, back: backSteps, distances, axilla };
+    };
+    type ICut = ReturnType<typeof cutAt>;
+    const tried: ICut[] = [];
+    for (let tilt: number = -30; tilt <= 40; tilt += 2.5) for (let offset: number = -20; offset <= 60; offset += 5) tried.push(cutAt(tilt, offset));
+    let [stepT, stepO]: number[] = [2.5, 5];
+    for (let round: number = 0; round < 2; ++round) {
+      const best: ICut = tried.filter((c: ICut): boolean => c.ok).sort((a: ICut, b: ICut): number => a.rms - b.rms)[0]!;
+      [stepT, stepO] = [stepT! / 4, stepO! / 4];
+      for (let a: number = -4; a <= 4; ++a) for (let b: number = -4; b <= 4; ++b) tried.push(cutAt(best.tilt + a * stepT!, best.offset + b * stepO!));
+    }
+    const admitted: ICut[] = tried.filter((c: ICut): boolean => c.ok).sort((a: ICut, b: ICut): number => a.rms - b.rms);
+    // The next two: the best admitted candidates at least 2.5 degrees or 5 mm from those before them.
+    const shown: ICut[] = [];
+    for (const c of admitted) if (shown.length < 3 && shown.every((s: ICut): boolean => Math.abs(s.tilt - c.tilt) >= 2.5 || Math.abs(s.offset - c.offset) >= 5)) shown.push(c);
+    const lines: string[] = [`the armscye's plane by tilt and offset: ${tried.length} cuts read, ${admitted.length} admitted (one closed loop, star-shaped in the chart, at least ${LEAST_ANGLE_DEG} degrees from the wall); the folds' level ${foldLevel.toFixed(1)} mm`, ""];
+    shown.forEach((c: ICut, n: number): void => {
+      lines.push(`${n === 0 ? "BEST" : "next"}: tilt ${c.tilt.toFixed(3)} deg, offset ${c.offset.toFixed(2)} mm: root-mean-square ${c.rms.toFixed(2)} mm; acromion / front fold / back fold ${c.distances.map((d: number): string => d.toFixed(2)).join(" / ")} mm; least angle to the wall ${c.least.toFixed(1)} deg; the axilla (the lower arc's lowest point) ${c.axilla === null ? "none" : `${fixed(c.axilla, 1)}, ${(foldLevel - c.axilla[1]).toFixed(1)} mm below the folds' level`}`);
+    });
+    const refusedNear = tried.filter((c: ICut): boolean => !c.ok && c.rms < (shown[0]?.rms ?? Infinity)).sort((a: ICut, b: ICut): number => a.rms - b.rms).slice(0, 5);
+    if (refusedNear.length > 0) lines.push("", "nearer cuts refused:", ...refusedNear.map((c: ICut): string => `  tilt ${c.tilt.toFixed(3)}, offset ${c.offset.toFixed(2)}: root-mean-square ${c.rms.toFixed(2)} mm; ${c.why}`));
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "tiltfit-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const shoulder: N.Mesh = cropMesh("reference", source.all, add(gh, [0, -40, 0]), 170);
+    const colours: string[] = ["e01b1b", "2f6fd0", "1f9d3a"];
+    const curves: N.Curve[] = [...shown.map((c: ICut, n: number): N.Curve => ({ id: "cut" + n, points: c.world, closed: true, xray: true, colour: colours[n]! })), ...marks(marksAt, "000000", "landmark"), ...marks(shown.map((c: ICut): V | null => c.axilla).filter((p: V | null): p is V => p !== null), "d08a1f", "axilla")];
+    for (const [view, camera] of [["armpit", facing("armpit", az!, [0, 1, 0], meshPoints(shoulder), 900, 900)], ["front", NodeCanvasCamera.fit("front", meshPoints(shoulder), 900, 900)], ["back", NodeCanvasCamera.fit("back", meshPoints(shoulder), 900, 900)]] as [string, N.Camera][]) {
+      const file: string = path.join(out, `tiltfit.${view}.reference.png`);
+      await fs.writeFile(file, NodeCanvasRaster.render(camera, [shoulder], curves, "depth", `f1 reference | the armscye plane's cut of the trunk's wall: red the best (tilt, offset), blue and green the next two; black: the acromion and fold points; orange: each loop's axilla (its lower arc's lowest point) | ${view}`).png);
+      lines.push(`  ${file}`);
+    }
+    await fs.writeFile(path.join(out, "tiltfit.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.join("\n") + "\nout " + out + "\n");
+  }
+
+  /**
+   * The arm's sections against the port plane and the fit's clip, on two courses (the supervisor's survey, #3151 R3b): the girdle's course
+   * on the accepted armscye plane (`AutoMovieHumanF1Girdle`, its clip the plane 2 mm out, `FamilyConicArmRule`) and today's armRoot and
+   * armTurn course (`earlierCourse`, its clip the plane z = 151 mm, `FamilyConicBody`'s `ARMPIT_MM`). At every 2 mm from 0 to 330 mm, on the
+   * reference: the cut's loop round the course point (by winding; the smallest such), whether it is free of the trunk (all on the arm's side
+   * of the port plane) or merged with it across the plane (and at which phases it crosses); what the clip does to it (whole, opened at which
+   * phases, or emptied); and its arm-side part (the loop kept lateral of the port plane): star-shaped about the course point or not, its
+   * extent from it, and its reach toward the course's centre of curvature against the course's local radius (over 1, the sections fold).
+   * Frames: the sections every 10 mm coloured by class over the reference, the port loop drawn.
+   */
+  async function survey(): Promise<void> {
+    const root: string = path.resolve(process.cwd(), "..");
+    const source: R.ISource = await R.load(root);
+    const girdle = AutoMovieHumanF1Girdle.plane();
+    const earlier = earlierCourse();
+    const courses: { name: string; axis: IAxis; side: (p: V) => number; clip: number }[] = [
+      { name: "girdle", axis: H.axis({ centres: AutoMovieHumanF1Girdle.course().map((c): V => [c[0], c[1], c[2]]), halves: [AutoMovieHumanF1Girdle.HALF_MM, 30, 10, 16], up: P.direction("arm.up") as V }), side: (p: V): number => dot(sub(p, girdle.point as V), girdle.normal as V), clip: 2 },
+      { name: "today", axis: earlier.axis, side: (p: V): number => p[2] - 151, clip: 0 },
+    ];
+    const lines: string[] = [];
+    const out: string = path.join(root, "test/.shots/family-conic-armscye-rule", "survey-" + new Date().toISOString().replaceAll(":", "-"));
+    await fs.mkdir(out, { recursive: true });
+    NodeCanvasRaster.initialize();
+    const shoulder: N.Mesh = cropMesh("reference", source.all, add(P.frame("humerus").origin as V, [0, -60, 0]), 220);
+    for (const course of courses) {
+      const counts: Map<string, number> = new Map();
+      const drawn: N.Curve[] = [];
+      lines.push(`${course.name.toUpperCase()} COURSE (the clip: the port plane ${course.clip} mm out):`);
+      for (let s: number = 0; s <= 330; s += 2) {
+        const frame: AutoMovieLoftFrame.IFrame = course.axis.at(s);
+        const origin: V = [...frame.origin] as V;
+        const world = (p: C.P): V => add(origin, add(scale(frame.u as V, p[0]), scale(frame.v as V, p[1])));
+        const pieces: IPiece[] = M.outline(source.all, { origin, axes: [cross(frame.v as V, frame.u as V), [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!.loops.map((loop: M.ILoop): IPiece => ({ points: [...loop.points], closed: loop.closed }));
+        const loop: IPiece | undefined = pieces.filter((piece: IPiece): boolean => piece.closed && Math.abs(winding(piece.points)) >= 0.5).sort((a: IPiece, b: IPiece): number => area(a.points) - area(b.points))[0];
+        const phaseOf = (p: C.P): number => ((Math.atan2(p[1], p[0]) * 180) / Math.PI + 360) % 360;
+        const ranges = (flags: boolean[], pts: C.P[]): string => {
+          const marked: number[] = pts.map(phaseOf).filter((_: number, i: number): boolean => flags[i]!);
+          return marked.length === 0 ? "-" : `${Math.min(...marked).toFixed(0)}..${Math.max(...marked).toFixed(0)} deg`;
+        };
+        let cls: string;
+        let detail: string;
+        if (loop === undefined) {
+          cls = "none";
+          detail = `no closed loop round the course point (${pieces.length} pieces)`;
+        } else {
+          const sides: number[] = loop.points.map((p: C.P): number => course.side(world(p)));
+          const merged: boolean = sides.some((x: number): boolean => x < 0);
+          const crossings: number[] = loop.points.map((_: C.P, i: number): number => i).filter((i: number): boolean => (sides[i]! < 0) !== (sides[(i + 1) % sides.length]! < 0));
+          const cut: boolean[] = sides.map((x: number): boolean => x < course.clip);
+          const removed: number = cut.filter((x: boolean): boolean => x).length;
+          const clipped: string = removed === 0 ? "whole" : removed === sides.length ? "emptied" : `opened at ${ranges(cut, loop.points)}`;
+          // The arm-side part: the loop's points on the arm's side of the port plane.
+          const arm: C.P[] = loop.points.filter((_: C.P, i: number): boolean => sides[i]! >= 0);
+          const extent: number = Math.max(0, ...arm.map((p: C.P): number => Math.hypot(p[0], p[1])));
+          // Star-shape about the course point: rays every 1 degree meeting the arm-side part more than once.
+          const segments: [C.P, C.P][] = loop.points.map((p: C.P, i: number): [C.P, C.P] => [p, loop.points[(i + 1) % loop.points.length]!]).filter((_: [C.P, C.P], i: number): boolean => sides[i]! >= 0 && sides[(i + 1) % sides.length]! >= 0);
+          let notStar: number = 0;
+          for (let j: number = 0; j < 360; ++j) {
+            const d: C.P = [Math.cos((j * Math.PI) / 180), Math.sin((j * Math.PI) / 180)];
+            let hits: number = 0;
+            for (const [a, b] of segments) {
+              const e: C.P = [b[0] - a[0], b[1] - a[1]];
+              const den: number = d[0] * e[1] - d[1] * e[0];
+              if (den === 0) continue;
+              const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+              const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+              if (w >= 0 && w < 1 && t > 0) ++hits;
+            }
+            if (hits > 1) ++notStar;
+          }
+          // The reach toward the course's centre of curvature against its local radius.
+          const R: number = courseRadius(course.axis, s);
+          const [p0, p1, p2]: V[] = [course.axis.at(s - 1).origin as V, origin, course.axis.at(s + 1).origin as V];
+          const towardCentre: V = unit(sub(scale(add(p0!, p2!), 0.5), p1!));
+          const reach: number = Number.isFinite(R) ? Math.max(0, ...arm.map((p: C.P): number => dot(sub(world(p), origin), towardCentre))) / R : 0;
+          cls = reach > 1 ? "folding" : removed === sides.length ? "emptied" : removed > 0 ? "opened" : merged ? "merged" : "free";
+          detail = `${merged ? `merged, crossing the port plane ${crossings.length} times at ${crossings.map((i: number): string => phaseOf(loop.points[i]!).toFixed(0)).join(", ")} deg` : "free"}; the clip: ${clipped}; arm side: ${notStar === 0 ? "star-shaped" : `${notStar} of 360 rays meet it more than once`}, extent ${extent.toFixed(1)} mm, reach toward the turn's centre ${(reach * (Number.isFinite(R) ? R : 0)).toFixed(1)} mm against its radius ${Number.isFinite(R) ? R.toFixed(1) : "straight"} (${reach.toFixed(2)})`;
+          if (s % 10 === 0) drawn.push({ id: `${course.name}${s}`, points: loop.points.map(world), closed: true, xray: true, colour: { free: "1f9d3a", merged: "2f6fd0", opened: "d08a1f", emptied: "e01b1b", folding: "c2185b" }[cls]! });
+        }
+        counts.set(cls, (counts.get(cls) ?? 0) + 1);
+        lines.push(`  ${s} mm: ${cls}; ${detail}`);
+      }
+      lines.push(`  ${course.name}: ${[...counts.entries()].map(([k, n]: [string, number]): string => `${k} ${n}`).join(", ")} of ${166} stations`, "");
+      const ring: N.Curve = { id: "port", points: AutoMovieHumanF1Girdle.ring().map((c): V => [c[0], c[1], c[2]]), closed: true, xray: true, colour: "9a3fb5" };
+      for (const [view, camera] of [["front", NodeCanvasCamera.fit("front", meshPoints(shoulder), 900, 900)], ["armpit", facing("armpit", girdle.normal as V, [0, 1, 0], meshPoints(shoulder), 900, 900)], ["low-oblique", NodeCanvasCamera.fit("low-oblique", meshPoints(shoulder), 900, 900)]] as [string, N.Camera][]) {
+        const file: string = path.join(out, `survey.${course.name}.${view}.reference.png`);
+        await fs.writeFile(file, NodeCanvasRaster.render(camera, [shoulder], [...drawn, ring], "depth", `f1 reference | the ${course.name} course's sections every 10 mm: green free, blue merged with the trunk, orange opened by the clip, red emptied, magenta folding; purple: the port loop | ${view}`).png);
+        lines.push(`  ${file}`);
+      }
+      lines.push("");
+    }
+    await fs.writeFile(path.join(out, "survey.txt"), lines.join("\n") + "\n");
+    process.stdout.write(lines.filter((l: string): boolean => !/^ {2}\d+ mm:/.test(l)).join("\n") + "\nout " + out + "\n");
+  }
+
   export async function main(): Promise<void> {
+    if (process.argv[2] === "survey") return survey();
+    if (process.argv[2] === "tiltfit") return tiltFit();
+    if (process.argv[2] === "tilts") return tilts();
+    if (process.argv[2] === "owners") return owners();
+    if (process.argv[2] === "foldrails") return foldRails();
     if (process.argv[2] === "cause") return cause();
     if (process.argv[2] === "bend") return bend();
     if (process.argv[2] === "rails") return rails();
     if (process.argv[2] === "port") return port();
     if (process.argv[2] === "centre") return centreRule();
+    if (process.argv[2] === "basis") return basis();
+    if (process.argv[2] === "chart") return matchChart();
+    if (process.argv[2] === "resolution") return resolution();
+    if (process.argv[2] === "cutterless") return cutterless();
+    if (process.argv[2] === "notch") return notch();
     if (process.argv[2] === "precheck") return precheck();
     if (process.argv[2] === "cap") return cap();
     if (process.argv[2] === "course") return armCourse();

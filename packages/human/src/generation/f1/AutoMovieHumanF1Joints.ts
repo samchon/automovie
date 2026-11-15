@@ -152,14 +152,6 @@ export namespace AutoMovieHumanF1Joints {
    */
   export const armpit: V3 = AutoMovieHumanF1Placement.point("armpit");
 
-  /**
-   * Where the arm's course starts, inside the trunk beside the armscye's plane, 35 mm above the armpit's crease and midway between the
-   * shoulder's fore and aft edges. The course leaves it straight to the side, so the arm's first sections lie beside that plane.
-   */
-  export const armRoot: V3 = AutoMovieHumanF1Placement.point("armRoot");
-
-  /** The corner the arm's course turns at, round the shoulder, from straight to the side to the line down to the elbow. */
-  export const armTurn: V3 = AutoMovieHumanF1Placement.point("armTurn");
 
   /**
    * The helix's course, along the rim's crest from the front limb over the top and down the back to the lobule. Each inner centre is the

@@ -126,8 +126,6 @@ export namespace AutoMovieHumanF1Placing {
     "axisCrown": {"frame": "head", "local": [-21.55, 142, 0]},
     "footBall": {"frame": "foot", "local": [133.52325668883222, -54.69000000000031, 7.006969616616802]},
     "armpit": {"frame": "thorax", "local": [-68.15, -139.5, 151]},
-    "armRoot": {"frame": "thorax", "local": [-55.15, -115.5, 121]},
-    "armTurn": {"frame": "thorax", "local": [-55.15, -115.5, 203]},
     "helix.0": {"frame": "ear", "local": [0.9376622073767451, 15.025129217183776, -5.589488491068543]},
     "helix.1": {"frame": "ear", "local": [1.6756936841377579, 23.600971060139795, -1.6007234912327988]},
     "helix.2": {"frame": "ear", "local": [1.3012077748914788, 35.15634574979207, 0.8359496681214882]},
@@ -234,16 +232,16 @@ export namespace AutoMovieHumanF1Placing {
     "trunk.chin.turn": {"frame": "head", "local": [0, 0, -1]},
     "trunk.shoulder.axis": {"frame": "thorax", "local": [0, -1, 0]},
     "trunk.shoulder.twin.axis": {"frame": "thorax", "local": [0, -1, 0]},
-    "arm.up": {"frame": "thorax", "local": [0.9998, -0.0212, 0]},
-    "arm.hollow.0.axis": {"frame": "thorax", "local": [-0.04714, 0.98995, 0.13334], "note": "window 2 to 96 mm runs from the thorax to the humerus; its middle at 49 mm lies on the thorax"},
-    "arm.hollow.0.turn": {"frame": "thorax", "local": [0.9988852454272917, 0.047043744259454574, 0.0038926332617188718], "note": "window 2 to 96 mm runs from the thorax to the humerus; its middle at 49 mm lies on the thorax"},
-    "arm.hollow.1.axis": {"frame": "humerus", "local": [-0.0772089069339165, -0.038389198491451115, 0.9962801958933308], "note": "window 204 to 310 mm runs from the humerus to the forearm; its middle at 257 mm lies on the humerus"},
-    "arm.hollow.1.turn": {"frame": "humerus", "local": [0.9830307598673831, 0.1638434222187679, 0.08249762511853184], "note": "window 204 to 310 mm runs from the humerus to the forearm; its middle at 257 mm lies on the humerus"},
+    "arm.up": {"frame": "thorax", "local": [0.9963, -0.0849, -0.0154], "note": "on the girdle's course, turned about its first run so the chart along the forearm is the earlier course's (roll 0.0030 deg at its middle)"},
+    "arm.hollow.0.axis": {"frame": "thorax", "local": [-0.386, 0.91639, 0.10602], "note": "window -19.25 to 82.75 mm runs from the thorax to the humerus; its middle at 31.75 mm lies on the thorax"},
+    "arm.hollow.0.turn": {"frame": "thorax", "local": [0.9224953191104004, 0.38380637936871875, 0.04117097734176015], "note": "window -19.25 to 82.75 mm runs from the thorax to the humerus; its middle at 31.75 mm lies on the thorax"},
+    "arm.hollow.1.axis": {"frame": "humerus", "local": [-0.4102715248298904, -0.1632675375161874, 0.8972306289952193], "note": "window 208.75 to 316.75 mm runs from the humerus to the forearm; its middle at 262.75 mm lies on the humerus"},
+    "arm.hollow.1.turn": {"frame": "humerus", "local": [0.8975925032126272, 0.10168502854914063, 0.4289380528065211], "note": "window 208.75 to 316.75 mm runs from the humerus to the forearm; its middle at 262.75 mm lies on the humerus"},
     "arm.fore.axis": {"frame": "forearm", "local": [-0.12363697875583601, 0.13586346620072087, 0.9829827572933587]},
-    "arm.fore.turn": {"frame": "forearm", "local": [0.9923041196664164, 0.010152893022966736, 0.12340766935779326]},
-    "arm.hand.axis": {"frame": "forearm", "local": [-0.12363697875583601, 0.13586346620072087, 0.9829827572933587], "note": "window 400 to 575 mm runs from the forearm to the hand; its middle at 487.5 mm lies on the forearm"},
-    "arm.hand.turn": {"frame": "forearm", "local": [0.9923041196664164, 0.010152893022966736, 0.12340766935779326], "note": "window 400 to 575 mm runs from the forearm to the hand; its middle at 487.5 mm lies on the forearm"},
-    "hand.up": {"frame": "thorax", "local": [0.9998, -0.0212, 0]},
+    "arm.fore.turn": {"frame": "forearm", "local": [0.9923041196664156, 0.010152893022967013, 0.12340766935779343]},
+    "arm.hand.axis": {"frame": "forearm", "local": [-0.12363697875583601, 0.13586346620072087, 0.9829827572933587], "note": "window 406.51 to 581.51 mm runs from the forearm to the hand; its middle at 494.01 mm lies on the forearm"},
+    "arm.hand.turn": {"frame": "forearm", "local": [0.9923041196664156, 0.010152893022967013, 0.12340766935779343], "note": "window 406.51 to 581.51 mm runs from the forearm to the hand; its middle at 494.01 mm lies on the forearm"},
+    "hand.up": {"frame": "thorax", "local": [0.9963, -0.0849, -0.0154], "note": "the arm's: the hand lies on the arm's course"},
     "hand.hollow.0.axis": {"frame": "hand", "local": [-0.9882296983462031, -0.05696617796621972, 0.14195048987056577], "note": "window 480 to 575 mm runs from the forearm to the hand; its middle at 527.5 mm lies on the hand"},
     "hand.hollow.0.turn": {"frame": "hand", "local": [0.13934102527425735, 0.047458241164047676, 0.9891065635315202], "note": "window 480 to 575 mm runs from the forearm to the hand; its middle at 527.5 mm lies on the hand"},
     "hand.hand.axis": {"frame": "hand", "local": [0.2053612687715829, 0.05107441175865396, 0.9773479538281301], "note": "window 452 to 575 mm runs from the forearm to the hand; its middle at 513.5 mm lies on the hand"},
@@ -284,11 +282,18 @@ export namespace AutoMovieHumanF1Placing {
     "leg.fan.up": {"frame": "foot", "local": [0, -0.9999999999999994, 0]}
   };
 
-  /** Every family's course as the names of its centres in `POINTS`. */
+  /**
+   * The centres a family computes instead of reading them from `POINTS`, each by the segment it is fixed in: the arm's and the hand's
+   * ring centre and corner (`AutoMovieHumanF1Girdle`), read at the reference pose from the family's own course and carried with the
+   * thorax at every pose.
+   */
+  export const COMPUTED: Record<string, string> = { "girdle.centre": "thorax", "girdle.corner": "thorax" };
+
+  /** Every family's course as the names of its centres in `POINTS` or `COMPUTED`. */
   export const COURSES: Record<string, string[]> = {
     "trunk": ["axisFloor", "axisCrown"],
-    "arm": ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
-    "hand": ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
+    "arm": ["girdle.centre", "girdle.corner", "lowerarm", "hand", "middle1", "handEnd"],
+    "hand": ["girdle.centre", "girdle.corner", "lowerarm", "hand", "middle1", "handEnd"],
     "leg": ["thigh", "calf", "foot", "footBall", "footEnd"],
     "plate": ["plate.0", "plate.1", "plate.2", "plate.3", "plate.4"],
     "helix": ["helix.0", "helix.1", "helix.2", "helix.3", "helix.4", "helix.5", "helix.6", "helix.7", "helix.8", "helix.9", "helix.10"],

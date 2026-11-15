@@ -16,6 +16,7 @@ import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
 import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
 import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
+import { AutoMovieHumanF1Girdle } from "./AutoMovieHumanF1Girdle";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
 import { AutoMovieHumanF1Nose } from "./AutoMovieHumanF1Nose";
 import { AutoMovieHumanF1Nostril } from "./AutoMovieHumanF1Nostril";
@@ -377,7 +378,7 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
-   * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
+   * webs, and each opening bridged to its finger by a band. The hand's end at 586.36 mm on the arm's course, which turns at the middle
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
    * `FamilyConicScan.ts webs` every 2 mm along each seam's chord, depths of 0 left out so the seam leaves its fork along the host, with the
    * run-out knots it reads beside a palm fork; they were read again once the palm's net (`arm.palm`) brought the end ring's palm side onto
@@ -464,7 +465,8 @@ export namespace AutoMovieHumanF1 {
    * (half 22) is fitted from 448, past the forearm's last level that a single section turn still follows, and the arm stops 3 mm before it
    * so that the band starts on the arm's own surface, not on a ring the hand's fit also claims.
    */
-  const ARM_TO_MM: number = 445;
+  // Re-dated onto the girdle's course by -8.64 mm, as the hand's stations are (`AutoMovieHumanF1Hand`).
+  const ARM_TO_MM: number = 436.36;
 
   /**
    * The band joining the arm's end to the hand (`IAutoMovieConstructionContinuation.band`): its rail into the hand, mm, its columns and its
@@ -517,53 +519,27 @@ export namespace AutoMovieHumanF1 {
   const LAYER_MM: number = 4;
 
   /**
-   * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
-   * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
-   * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
-   * the shoulder.
+   * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
+   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The nose's band lands on a curve (`NOSE_RAILS_MM`).
    */
-  const ARMSCYE_MARGIN_MM: number = 6;
+  export const RAIL_MM: { arm: number; leg: number; breast: number } = { arm: 10, leg: 6, breast: 1 };
 
   /**
-   * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
-   * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
-   * web across the hollow.
+   * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 48`, joined by the periodic cubic (#3151,
+   * R3b). The arm's sections square to its course reach past the shoulder turn's centre of curvature on the inner side near the ring and
+   * fold there, and the band replaces the arm's wall up to each phase's rail (`IAutoMovieConstructionPort.rails`): at each phase the rail
+   * stands past the last station a ray of the arm's own wall steps back at, plus the band's margin (`RAIL_MM.arm`) read along the skin, and
+   * the ordinary margin where it never steps back. The raised window's edges stand on the anterior and posterior axillary folds where they
+   * run onto the arm (the axilla's bounds), and it rises and falls by the quintic smoothstep the course's turns use, so no band column runs
+   * far along the arm alone. Read on the fitted wall by `FamilyConicArmscyeRule foldrails` (run 2026-11-15T03-00-16): 114 of 720 rays fold,
+   * to 87 mm; the folds at 48.0 and 126.5 degrees of ray.
    */
-  const ARMPIT_DROP_MM: number = -6;
-
-  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
-  const ARMPIT_ROUND_MM: number = 12;
-
-  /**
-   * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 24`, joined by the periodic cubic. Behind
-   * the armpit's crease the trunk's side and the arm's inner side meet in a slit, its top at 1,272 to 1,274 mm 25 to 35 mm behind the
-   * crease's datum, and the arm's side falls 2 to 4 mm for each millimetre outward from it (`vault`, a scratch survey of the skin in planes
-   * x = const); the ring 10 mm in hangs 22 mm below the slit's top at the arm's phases 96 to 136 degrees, and the band there left the
-   * trunk upward and folded back over it (108 to 139 degrees, a speck on `shoulder.high-oblique`; `FamilyConicArmscye.ts --table`: host
-   * cosines down to -0.82 over 24 columns). There, from 75 to 135 degrees, the rail comes up to 1.5 mm, to the first section's foot at
-   * 1,263 mm, and the loop follows the ring under the slit (`ARMPIT_SINK_MM`): the band crosses the slit near its foot and the slit above
-   * it is closed. Read by `FamilyConicArmscye.ts --table`, 3 columns point back, at -0.17 at worst, where the dip meets the front fold.
-   */
-  const ARM_RAILS_MM: number[] = [10, 10, 10, 10, 8, 3, 1.5, 1.5, 1.5, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-
-  /**
-   * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
-   * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
-   * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
-   * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
-   */
-  const ARMPIT_SINK_MM: number = 23;
+  const ARM_RAILS_MM: number[] = [10, 10, 10, 10, 10, 10, 10, 23, 94, 106, 106, 106, 106, 106, 106, 106, 106, 77, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 
   /** `ARM_RAILS_MM` for one side: the twin's chart runs the other way round, so its phase `psi` is the +Z arm's `-psi`. */
   export function armRails(side: 1 | -1): number[] {
     return side > 0 ? ARM_RAILS_MM : ARM_RAILS_MM.map((_: number, j: number): number => ARM_RAILS_MM[(ARM_RAILS_MM.length - j) % ARM_RAILS_MM.length]!);
   }
-
-  /**
-   * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The nose's band lands on a curve (`NOSE_RAILS_MM`).
-   */
-  export const RAIL_MM: { arm: number; leg: number; breast: number } = { arm: 10, leg: 6, breast: 1 };
 
   /**
    * How far from the breast's course the trunk's own skin starts round the port, mm, at the clocks `2 pi j / 8` about the course: 0 up, a
@@ -811,45 +787,57 @@ export namespace AutoMovieHumanF1 {
   const BREAST_FAN_FILL_MM: number = 4;
 
   /**
-   * The armscye's port on the trunk's chart.
+   * The armscye's port on the trunk's chart, by rule (#3151, R3b).
    *
-   * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
-   * included. The arm's course leaves the trunk square to that plane, so the ring the band lands on lies beside the plane. The port is that
-   * ring's own outline as the trunk's chart sees it, each point's height above the axis's foot and its phase about the axis, pushed out from
-   * the outline's centre by the margin so the loop stands on the trunk's own skin round the ring. The loop is written as the ellipse on the
-   * outline's half extents with a share per column. An ellipse alone stood up to 29 mm from the ring under the armpit, where the ring's
-   * lower edge runs aslant, and the band there reached the arm against the arm's own direction.
-   *
-   * The ring, the armpit's crease and the axis's foot are read in the trunk's chart at the pose (`trunkChart`), heights as stations along
-   * the trunk's course, so the loop follows a posed arm.
+   * The armscye is the trunk's opening the shoulder girdle bounds, so its loop is the girdle's ring (`AutoMovieHumanF1Girdle`): the cut of
+   * the trunk's own wall by the thorax's sagittal plane through the shoulder joint, fixed in the thorax and carried with it at a pose. In the
+   * trunk's chart (each point's station along the trunk's course, and its phase about it read as millimetres at the armpit's side distance)
+   * the cut runs a notch into the axillary pocket, so the loop is the cut's star-shaped envelope there: from the cut's own centre in the
+   * chart, its area centroid, on each ray the outermost crossing. Where neighbouring rays jump across the pocket the loop's bridge is the
+   * chart's straight line between them, a curve on the skin and not a chord through air, and the region inside it goes with the port. It is
+   * written as `around` writes a port loop, with no margin, since the loop is the ring itself; the band runs from it to the arm's ring at
+   * its ordinary rail (`RAIL_MM.arm`). The rays are as many as the outline the earlier loop was written from, four to a column.
    *
    * @param side +1 for the +Z side, -1 for its twin.
    * @param placed The figure's families at a pose; absent, the reference pose.
    */
   export function armscye(side: 1 | -1, placed: IAssembly = assemble()): IAutoMovieConstructionPort.ILoop {
-    const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? placed.body.arm : AutoMovieHumanConicLoft.mirror(placed.body.arm, placed.body.arm.name + ".mirror");
-    // Stations past the arm's first knot as the stored arm dates them, carried to the pose: the first sections lie in the shoulder's turn.
-    const past = (mm: number): number => placed.station(BODY.arm.name, BODY.arm.knots[0]! + mm);
     const chart: (p: readonly number[]) => IChart = trunkChart(placed);
     const armpit: IChart = chart(placed.point("armpit"));
-
-    // The arm's ring at its rail curve (`armRails`), read from a loft of its first stations alone.
-    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map(past));
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [past(0), past(Math.min(...ARM_RAILS_MM) / 2), past(RAIL_MM.arm), past(2 * RAIL_MM.arm), past(4 * RAIL_MM.arm)]);
-    if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const behind: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map((mm: number): number => (RAIL_MM.arm - mm) / (RAIL_MM.arm - Math.min(...ARM_RAILS_MM))));
-    const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
-      const psi: number = (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS);
-      const p: IChart = chart(AutoMovieLoftChain.point(chain, along(psi), psi));
-      // The floor under the crease, met by a smooth maximum: held by a plain one, the loop ran level along the floor and turned up at a
-      // corner at each end, and the band stood a box-shaped notch at the back of the armpit. Behind the crease, where the rail comes up to
-      // the arm's first section, the floor sinks by the same share, so the loop follows the ring there.
-      const floor: number = armpit.station - ARMPIT_DROP_MM - ARMPIT_SINK_MM * Math.max(0, Math.min(1, behind(psi)));
-      return [(p.station + floor + Math.hypot(p.station - floor, ARMPIT_ROUND_MM)) / 2, Math.atan2(p.v, p.u)];
+    const reference: F.IFrame = AutoMovieHumanF1Placement.frame("thorax");
+    const thorax: F.IFrame = placed.frames.get("thorax")!;
+    const cut: [number, number][] = AutoMovieHumanF1Girdle.ring().map((p: F.V3): [number, number] => {
+      const q: F.V3 = F.toWorld(thorax, F.toLocal(reference, p));
+      const c: IChart = chart(side > 0 ? q : [q[0], q[1], -q[2]]);
+      return [c.station, armpit.v * Math.atan2(c.v, c.u)];
     });
-    // The margin's phase is taken at the armpit's side distance from the trunk's course.
-    return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, armpit.v, side);
+    let [twice, cx, cy]: number[] = [0, 0, 0];
+    cut.forEach((p: [number, number], i: number): void => {
+      const q: [number, number] = cut[(i + 1) % cut.length]!;
+      const w: number = p[0] * q[1] - q[0] * p[1];
+      twice = twice! + w;
+      cx = cx! + (p[0] + q[0]) * w;
+      cy = cy! + (p[1] + q[1]) * w;
+    });
+    const centre: [number, number] = [cx! / (3 * twice!), cy! / (3 * twice!)];
+    const rays: number = 4 * SHOULDER_COLUMNS;
+    const outline: [number, number][] = [];
+    for (let j: number = 0; j < rays; ++j) {
+      const d: [number, number] = [Math.cos((2 * Math.PI * j) / rays), Math.sin((2 * Math.PI * j) / rays)];
+      let best: number = NaN;
+      cut.forEach((p: [number, number], i: number): void => {
+        const a: [number, number] = [p[0] - centre[0], p[1] - centre[1]];
+        const q: [number, number] = cut[(i + 1) % cut.length]!;
+        const e: [number, number] = [q[0] - p[0], q[1] - p[1]];
+        const den: number = d[0] * e[1] - d[1] * e[0];
+        if (den === 0) return;
+        const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+        const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0 && !(t <= best)) best = t;
+      });
+      if (Number.isFinite(best)) outline.push([centre[0] + best * d[0], (centre[1] + best * d[1]) / armpit.v]);
+    }
+    return around(outline, SHOULDER_COLUMNS, 0, armpit.v, side);
   }
 
   /**

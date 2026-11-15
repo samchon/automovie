@@ -85,11 +85,20 @@ export namespace AutoMovieHumanF1Placement {
     return F.toWorldDirection(frame(placed.frame, at), placed.local);
   }
 
-  /** A family's course in the figure's frame: the centres `AutoMovieHumanF1Placing.COURSES` names for it. */
-  export function course(family: string, at: IFrames = REFERENCE): F.V3[] {
+  /**
+   * A family's course in the figure's frame: the centres `AutoMovieHumanF1Placing.COURSES` names for it. A centre the family computes
+   * (`AutoMovieHumanF1Placing.COMPUTED`) is the family's own centre at the reference pose, `own`, carried rigidly with the segment it is
+   * fixed in.
+   */
+  export function course(family: string, at: IFrames = REFERENCE, own?: readonly F.V3[]): F.V3[] {
     const names: string[] | undefined = T.COURSES[family];
     if (names === undefined) throw new Error("f1 has no course for " + family);
-    return names.map((name: string): F.V3 => point(name, at));
+    return names.map((name: string, k: number): F.V3 => {
+      const segment: string | undefined = T.COMPUTED[name];
+      if (segment === undefined) return point(name, at);
+      if (own === undefined || own[k] === undefined) throw new Error("f1's " + name + " is computed by the family " + family + ": its own centres are needed");
+      return F.toWorld(frame(segment, at), F.toLocal(frame(segment), own[k]));
+    });
   }
 
   /**
@@ -101,6 +110,8 @@ export namespace AutoMovieHumanF1Placement {
     const names: string[] | undefined = T.COURSES[family];
     if (names === undefined) throw new Error("f1 has no course for " + family);
     return names.slice(1).map((name: string): string => {
+      const computed: string | undefined = T.COMPUTED[name];
+      if (computed !== undefined) return computed;
       const far: T.IPlaced = T.POINTS[name]!;
       const parent: string | null = T.CHAIN.find((joint: F.IJoint): boolean => joint.name === far.frame)?.parent ?? null;
       return far.local.every((x: number): boolean => x === 0) && parent !== null ? parent : far.frame;
@@ -124,7 +135,7 @@ export namespace AutoMovieHumanF1Placement {
    * @param family A stored family, or one derived from it that keeps its name, course and stations.
    */
   export function repose(family: AutoMovieHumanConicLoft.IFamily, at: IFrames = REFERENCE): { family: AutoMovieHumanConicLoft.IFamily; station: ((station: number) => number) | null } {
-    const centres: F.V3[] = course(family.name, at);
+    const centres: F.V3[] = course(family.name, at, family.centres);
     if (centres.length !== family.centres.length) throw new Error("f1's table names " + centres.length + " centres for " + family.name + ", whose course has " + family.centres.length);
     const segments: string[] = runs(family.name);
     const carried = (run: number, d: F.V3): F.V3 => F.toWorldDirection(frame(segments[run]!, at), F.toLocalDirection(frame(segments[run]!), d));
