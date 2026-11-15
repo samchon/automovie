@@ -21,7 +21,9 @@ function apart(
   b: Archetype,
   bt: IAutoMovieTransform,
 ): number {
-  const pose = (t: IAutoMovieTransform): IAutoMoviePhysicalProfile.ITransform => ({
+  const pose = (
+    t: IAutoMovieTransform,
+  ): IAutoMoviePhysicalProfile.ITransform => ({
     position: t.translation,
     rotation: t.rotation,
   });
@@ -88,7 +90,12 @@ export function test_archetype_props_stacking(): void {
       );
     for (let i: number = 0; i < things.length; i++)
       for (let j: number = i + 1; j < things.length; j++) {
-        const gap: number = apart(things[i]!, frames[i]!, things[j]!, frames[j]!);
+        const gap: number = apart(
+          things[i]!,
+          frames[i]!,
+          things[j]!,
+          frames[j]!,
+        );
         if (gap < -OVERLAP)
           findings.push(`${name}: ${i} and ${j} overlap by ${-gap} m`);
         if (j === i + 1 && gap > OVERLAP)

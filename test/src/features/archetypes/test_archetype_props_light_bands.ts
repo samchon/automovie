@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeFrame, createLight } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createLight,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";

@@ -69,12 +69,7 @@ export namespace ForestAxe {
       2 * ArchetypeUnits.POUND,
       `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
     ),
-    mass: ArchetypeBand.of(
-      "kg",
-      1.2,
-      1.2,
-      `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
-    ),
+    mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
   };
 
   /**

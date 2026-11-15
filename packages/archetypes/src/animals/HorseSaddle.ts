@@ -80,16 +80,10 @@ export namespace HorseSaddle {
       ["pommel", centre + d.seatSize / 2],
       ["cantle", centre - d.seatSize / 2],
     ] as const) {
-      builder.rod(
-        id,
-        0.015,
-        v(-0.06, top + 0.03, z),
-        v(0.06, top + 0.03, z),
-        {
-          color: "#4a3324",
-          share: 0,
-        },
-      );
+      builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
+        color: "#4a3324",
+        share: 0,
+      });
       builder.affordance({
         id,
         kind: "handle",
@@ -151,7 +145,11 @@ export namespace HorseSaddle {
         id: `${side}Rein`,
         kind: "rein",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(hand, v(0, 1, 0), Vector3.subtract(bit, hand)),
+        frame: ArchetypeFrame.facing(
+          hand,
+          v(0, 1, 0),
+          Vector3.subtract(bit, hand),
+        ),
         extent: null,
         grip: "power",
         aperture: d.reinWidth,
@@ -200,7 +198,11 @@ export namespace HorseSaddle {
       id: "lead",
       kind: "rein",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(held, v(1, 0, 0), Vector3.subtract(halter, held)),
+      frame: ArchetypeFrame.facing(
+        held,
+        v(1, 0, 0),
+        Vector3.subtract(halter, held),
+      ),
       extent: null,
       grip: "power",
       aperture: LEAD,

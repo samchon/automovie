@@ -8,7 +8,8 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 const IKEA_365: string = "IKEA 365+ side plate, plate and serving plates";
 
 /** The platters read: IKEA's 27 by 15 by 3 cm, Rosenthal's Heritage Midas 33.20 by 21.20 by 3.80 cm, Thomas's Loft 33.80 by 24.00 by 3.10 cm. */
-const PLATTERS: string = "IKEA 365+ serving plate, Rosenthal Heritage Midas and Thomas Loft platters";
+const PLATTERS: string =
+  "IKEA 365+ serving plate, Rosenthal Heritage Midas and Thomas Loft platters";
 
 /**
  * Tableware stays inside its cited dimensions for every seed, measured on the produced thing where a hand, a plate or food meets it.
@@ -95,7 +96,8 @@ export function test_archetype_props_tableware_bands(): void {
       { kind: "plate" },
       seed,
     );
-    const left: ReturnType<typeof plate.affordance> = plate.affordance("leftRim");
+    const left: ReturnType<typeof plate.affordance> =
+      plate.affordance("leftRim");
     const right: ReturnType<typeof plate.affordance> =
       plate.affordance("rightRim");
     if (

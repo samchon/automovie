@@ -26,7 +26,20 @@ export namespace FIELD_IMPLEMENTS {
   export const SOURCE: string = `${ORDNANCE}: Dimensions and Weights of Implements, pp. 138-139, 6-pdr gun and 12-pdr howitzer column; Worms, p. 140, field; Handspikes, p. 137, trail, for field carriage; implements, pp. 128-129`;
 
   /** A sponge and rammer on one ash staff, as field guns carry it (p. 129: "For field-guns ... the rammer and sponge heads are on the same staff"). */
-  export const SPONGE_RAMMER: Readonly<Record<"length" | "mass" | "staff" | "rammer" | "rammerDiameter" | "sponge" | "spongeDiameter" | "loops" | "wool", number>> = {
+  export const SPONGE_RAMMER: Readonly<
+    Record<
+      | "length"
+      | "mass"
+      | "staff"
+      | "rammer"
+      | "rammerDiameter"
+      | "sponge"
+      | "spongeDiameter"
+      | "loops"
+      | "wool",
+      number
+    >
+  > = {
     /** The finished implement's length, 77 in. */
     length: 77 * ArchetypeUnits.INCH,
     /** Its weight, 4.5 lb. */
@@ -48,7 +61,19 @@ export namespace FIELD_IMPLEMENTS {
   };
 
   /** A worm on its ash staff. */
-  export const WORM: Readonly<Record<"length" | "mass" | "staff" | "iron" | "socket" | "socketDiameter" | "circle" | "wormMass", number>> = {
+  export const WORM: Readonly<
+    Record<
+      | "length"
+      | "mass"
+      | "staff"
+      | "iron"
+      | "socket"
+      | "socketDiameter"
+      | "circle"
+      | "wormMass",
+      number
+    >
+  > = {
     /** The finished worm and staff's length, 72 in. */
     length: 72 * ArchetypeUnits.INCH,
     /** Its weight, 3.6 lb. */
@@ -68,7 +93,12 @@ export namespace FIELD_IMPLEMENTS {
   };
 
   /** A trail handspike for the field carriage, hickory. */
-  export const HANDSPIKE: Readonly<Record<"length" | "mass" | "conical" | "upper" | "lower" | "largest", number>> = {
+  export const HANDSPIKE: Readonly<
+    Record<
+      "length" | "mass" | "conical" | "upper" | "lower" | "largest",
+      number
+    >
+  > = {
     /** Its whole length, 53 in. */
     length: 53 * ArchetypeUnits.INCH,
     /** Its weight, 7.25 lb. */
@@ -115,7 +145,10 @@ export namespace FIELD_IMPLEMENTS {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function build(
-    builder: ArchetypeBuilder<createLongTool.Affordance, createLongTool.Dimension>,
+    builder: ArchetypeBuilder<
+      createLongTool.Affordance,
+      createLongTool.Dimension
+    >,
     kind: "spongeRammer" | "worm" | "trailHandspike",
     length: number,
     radius: number,
@@ -145,7 +178,11 @@ export namespace FIELD_IMPLEMENTS {
         id: "shaft",
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(v(0, (from + to) / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+        frame: ArchetypeFrame.facing(
+          v(0, (from + to) / 2, 0),
+          v(0, 0, -1),
+          v(0, 1, 0),
+        ),
         extent: null,
         grip: "two-hand",
         aperture: 2 * wrap,
@@ -159,9 +196,11 @@ export namespace FIELD_IMPLEMENTS {
       const core: number = s.spongeDiameter / 2;
       const top: number = length - s.sponge;
       // The wood's weights by volume times density; the wool keeps its own read weight.
-      const rammer: number = HEAD_WOODS.rammer * Math.PI * head * head * s.rammer;
+      const rammer: number =
+        HEAD_WOODS.rammer * Math.PI * head * head * s.rammer;
       const staff: number = ASH * Math.PI * radius * radius * (top - s.rammer);
-      const sponge: number = HEAD_WOODS.sponge * Math.PI * core * core * s.sponge;
+      const sponge: number =
+        HEAD_WOODS.sponge * Math.PI * core * core * s.sponge;
       const wood: number = (mass - s.wool) / (rammer + staff + sponge);
       builder.rod("rammer", head, v(0, 0, 0), v(0, s.rammer, 0), {
         color: ash,
@@ -217,7 +256,9 @@ export namespace FIELD_IMPLEMENTS {
     const h: typeof HANDSPIKE = HANDSPIKE;
     const foot: number = (h.lower + h.largest) / 4;
     const lever: number = (h.largest + h.upper) / 4;
-    builder.rod("foot", foot, v(0, 0, 0), v(0, h.conical, 0), { color: "#b98d5b" });
+    builder.rod("foot", foot, v(0, 0, 0), v(0, h.conical, 0), {
+      color: "#b98d5b",
+    });
     builder.rod("lever", lever, v(0, h.conical, 0), v(0, length, 0), {
       color: "#b98d5b",
     });
@@ -256,11 +297,7 @@ export namespace FIELD_IMPLEMENTS {
       mass: ArchetypeBand.of("kg", WORM.mass, WORM.mass, SOURCE),
     },
     trailHandspike: {
-      length: ArchetypeBand.metres(
-        HANDSPIKE.length,
-        HANDSPIKE.length,
-        SOURCE,
-      ),
+      length: ArchetypeBand.metres(HANDSPIKE.length, HANDSPIKE.length, SOURCE),
       mass: ArchetypeBand.of("kg", HANDSPIKE.mass, HANDSPIKE.mass, SOURCE),
     },
   };

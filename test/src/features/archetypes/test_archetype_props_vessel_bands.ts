@@ -94,5 +94,9 @@ export function test_archetype_props_vessel_bands(): void {
     )
       findings.push(`vase@${seed}: not held round its middle`);
   }
-  TestValidator.equals("vases and bowls stay in their cited bands", findings, []);
+  TestValidator.equals(
+    "vases and bowls stay in their cited bands",
+    findings,
+    [],
+  );
 }

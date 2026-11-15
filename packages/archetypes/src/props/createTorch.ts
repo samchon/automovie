@@ -7,7 +7,6 @@ import {
   ArchetypeFrame,
 } from "../core";
 
-
 /**
  * A handheld electric torch (a flashlight): a barrel with a wider head and a switch on the barrel, one of Maglite's two- and three-cell D torches whole.
  *

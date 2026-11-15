@@ -27,10 +27,22 @@ export function test_archetype_fracture_contact(): void {
   const findings: string[] = [];
   const momentum: { x: number; y: number; z: number } = { x: 0, y: 0, z: 2 };
   const cases: readonly [string, IAutoMovieModel, number | undefined][] = [
-    ["an empty beer bottle", createDrinkware({ kind: "beerBottle", fill: 0 }), 40],
-    ["a full beer bottle", createDrinkware({ kind: "beerBottle", fill: 1 }), 30],
+    [
+      "an empty beer bottle",
+      createDrinkware({ kind: "beerBottle", fill: 0 }),
+      40,
+    ],
+    [
+      "a full beer bottle",
+      createDrinkware({ kind: "beerBottle", fill: 1 }),
+      30,
+    ],
     ["a hinged door", createDoor({ kind: "hinged" }), 80],
-    ["a half-full beer bottle", createDrinkware({ kind: "beerBottle", fill: 0.5 }), undefined],
+    [
+      "a half-full beer bottle",
+      createDrinkware({ kind: "beerBottle", fill: 0.5 }),
+      undefined,
+    ],
     ["a mug", createDrinkware({ kind: "mug" }), undefined],
     ["a sliding door", createDoor({ kind: "sliding" }), undefined],
   ];
@@ -38,8 +50,11 @@ export function test_archetype_fracture_contact(): void {
   // 1 and 2. The thresholds and their admission.
   for (const [label, model, fracture] of cases) {
     if (model.body?.contact?.fracture !== fracture)
-      findings.push(`${label} carries ${model.body?.contact?.fracture} J, not ${fracture} J`);
-    if (!validateModel({ model }).success) findings.push(`${label} is not admitted`);
+      findings.push(
+        `${label} carries ${model.body?.contact?.fracture} J, not ${fracture} J`,
+      );
+    if (!validateModel({ model }).success)
+      findings.push(`${label} is not admitted`);
   }
   const bottle: IAutoMovieModel = JSON.parse(
     JSON.stringify(createDrinkware({ kind: "beerBottle", fill: 0 })),
@@ -47,13 +62,19 @@ export function test_archetype_fracture_contact(): void {
   for (const bad of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
     const model: IAutoMovieModel = {
       ...bottle,
-      body: { ...bottle.body!, contact: { ...bottle.body!.contact, fracture: bad } },
+      body: {
+        ...bottle.body!,
+        contact: { ...bottle.body!.contact, fracture: bad },
+      },
     };
-    if (validateModel({ model }).success) findings.push(`a fracture of ${bad} J is admitted`);
+    if (validateModel({ model }).success)
+      findings.push(`a fracture of ${bad} J is admitted`);
   }
 
   // 3. A sliding door never breaks.
-  if (createDoor({ kind: "sliding" }).broken({ energy: 10000, momentum }) !== null)
+  if (
+    createDoor({ kind: "sliding" }).broken({ energy: 10000, momentum }) !== null
+  )
     findings.push("a sliding door breaks");
 
   // 4. The serialised models.
@@ -61,7 +82,9 @@ export function test_archetype_fracture_contact(): void {
     ["a mug", createDrinkware({ kind: "mug" })],
     ["an empty beer bottle", createDrinkware({ kind: "beerBottle", fill: 0 })],
   ] as const) {
-    const keys: string[] = Object.keys(JSON.parse(JSON.stringify(model)) as object);
+    const keys: string[] = Object.keys(
+      JSON.parse(JSON.stringify(model)) as object,
+    );
     if (keys.includes("fractures") || keys.includes("masses"))
       findings.push(`${label} serialises ${keys.join(", ")}`);
   }
@@ -82,11 +105,14 @@ export function test_archetype_fracture_contact(): void {
             {
               id: "remainder",
               model: broken.remainder,
-              again: broken.remainder.broken({ energy: 10000, momentum }) !== null,
+              again:
+                broken.remainder.broken({ energy: 10000, momentum }) !== null,
             },
           ]),
       ...broken.fragments.map(
-        (f: ArchetypeFracture.IPiece<D>): { id: string; model: IAutoMovieModel; again: boolean } => ({
+        (
+          f: ArchetypeFracture.IPiece<D>,
+        ): { id: string; model: IAutoMovieModel; again: boolean } => ({
           id: f.id,
           model: f.archetype,
           again: f.archetype.broken({ energy: 10000, momentum }) !== null,
@@ -98,10 +124,25 @@ export function test_archetype_fracture_contact(): void {
         findings.push(`${label}'s ${piece.id} is not admitted`);
       if (piece.again) findings.push(`${label}'s ${piece.id} breaks again`);
       if (piece.model.body?.contact?.fracture !== undefined)
-        findings.push(`${label}'s ${piece.id} carries a ${piece.model.body.contact.fracture} J threshold`);
+        findings.push(
+          `${label}'s ${piece.id} carries a ${piece.model.body.contact.fracture} J threshold`,
+        );
     }
   };
-  inspect("the bottle", createDrinkware({ kind: "beerBottle", fill: 1 }).broken({ energy: 30, momentum }));
-  inspect("the door", createDoor({ kind: "hinged" }).broken({ energy: 80, momentum }));
-  TestValidator.equals("a threshold rides the body and is admitted only as an energy", findings, []);
+  inspect(
+    "the bottle",
+    createDrinkware({ kind: "beerBottle", fill: 1 }).broken({
+      energy: 30,
+      momentum,
+    }),
+  );
+  inspect(
+    "the door",
+    createDoor({ kind: "hinged" }).broken({ energy: 80, momentum }),
+  );
+  TestValidator.equals(
+    "a threshold rides the body and is admitted only as an energy",
+    findings,
+    [],
+  );
 }

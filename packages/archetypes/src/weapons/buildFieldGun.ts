@@ -156,8 +156,7 @@ export function buildFieldGun(
   const nave: number = arm * e.nave;
   const naveLength: number = c.tyre * e.naveLength;
   const vDisc: number = Math.PI * radius * radius * c.tyre;
-  const vSpokes: number =
-    (c.spokes / 2) * Math.PI * spoke * spoke * 2 * radius;
+  const vSpokes: number = (c.spokes / 2) * Math.PI * spoke * spoke * 2 * radius;
   const vNave: number = Math.PI * nave * nave * naveLength;
   const vWheel: number = vDisc + vSpokes + vNave;
   for (const [k, side, sign] of [
@@ -307,11 +306,7 @@ export function buildFieldGun(
   builder.affordance({
     id: "elevatingScrew",
     kind: "knob",
-    frame: ArchetypeFrame.facing(
-      v(0, screwTop, base),
-      v(0, 1, 0),
-      v(1, 0, 0),
-    ),
+    frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
     rides: "recoil",
   });

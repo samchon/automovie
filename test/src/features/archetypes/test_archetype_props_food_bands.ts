@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeFrame, createFood } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createFood,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
