@@ -397,9 +397,9 @@ export namespace HumanLimbFit {
    * naming other bodies' colliders, and a pose without a root, stay keyed in
    * the world.
    *
-   * A fit continued from a nearby one (`near`) is solved and not kept: it is
-   * read once, at the sample beside the instant it continues, where the
-   * memory serves the fits an instant is read at again.
+   * A fit continued from a nearby one (`near`) is kept under that seed too,
+   * which is one more input it is a pure function of: an entry and the cut
+   * after it read the same continued samples, and the second reads them here.
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -427,8 +427,7 @@ export namespace HumanLimbFit {
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {
-    if (!REMEMBERING.on || near !== undefined)
-      return fit(body, pose, limb, goal, placed, rival, near);
+    if (!REMEMBERING.on) return fit(body, pose, limb, goal, placed, rival, near);
     // A left limb's fit is its mirror's, remembered under the right limb's
     // key, so a fit and its mirror image share one entry.
     if (limb.startsWith("left")) {
@@ -439,6 +438,7 @@ export namespace HumanLimbFit {
         reflected(goal),
         placed.map(other),
         rival === undefined ? undefined : HumanArmMirror.flip(rival),
+        near,
       );
       return { pose: mirrored(image.pose), seed: image.seed };
     }
@@ -464,6 +464,7 @@ export namespace HumanLimbFit {
       aim,
       own.root,
       own.joints,
+      near ?? null,
     ]);
     let fits: Map<string, IAutoMovieSeededChainFit> | undefined =
       FITS.get(body);
@@ -473,7 +474,7 @@ export namespace HumanLimbFit {
     }
     let out: IAutoMovieSeededChainFit | undefined = fits.get(key);
     HumanLimbFitFrame.count(body, out !== undefined);
-    if (out === undefined) out = fit(body, own, limb, aim, placed, away);
+    if (out === undefined) out = fit(body, own, limb, aim, placed, away, near);
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
