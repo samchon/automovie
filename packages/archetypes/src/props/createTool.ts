@@ -13,7 +13,7 @@ import { TOOL_BANDS } from "./TOOL_BANDS";
 /**
  * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a ladle or a table knife.
  *
- * A spoon, a fork and a ladle are stainless steel throughout, as their makers' pages state; they rest on that steel, so their bodies' friction is steel's on concrete. A hammer's, a saw's and a screwdriver's materials are not read, so their bodies keep the 0.5 friction placeholder, as does a table knife's, whose read makers' handles differ.
+ * A spoon, a fork and a ladle are stainless steel throughout, as their makers' pages state; they rest on that steel, so their bodies' friction is steel's on concrete. A hammer's, a saw's and a screwdriver's materials are not read, so their bodies carry no friction, as does a table knife's, whose read makers' handles differ.
  *
  * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines, a ladle's bowl toward `+Z`, and a table knife's edge toward `+Z`. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *

@@ -98,8 +98,8 @@ export const INSTRUMENT_BANDS: Readonly<
     ),
   },
   sideDrum: {
-    diameter: ArchetypeBand.metres(0.3556, 0.3556, SONOR),
-    depth: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 12 * ArchetypeUnits.INCH, SONOR),
+    diameter: ArchetypeBand.metres(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, SONOR),
+    depth: ArchetypeBand.metres(ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, SONOR),
     mass: ArchetypeBand.of(
       "kg",
       4.9,

@@ -8,32 +8,32 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The cutlery, the longbow, the projectiles and the stones declare the surfaces their records state, and each body's friction is its resting material's on concrete, or the named placeholder where that material has no measured pair.
+ * The cutlery, the longbow, the projectiles and the stones declare the surfaces their records state, and each body's friction is its resting material's on concrete, or none where that material has no measured pair.
  *
  * Scenarios:
  * 1. Each part below reads back the material its record states: a spoon's, a fork's and a ladle's steel, the longbow's wooden limbs and grip, an arrow's and a bolt's wooden shaft and a bolt's steel head, a round shot's and a grenade's iron or steel, a cobble's and a boulder's stone.
  * 2. Parts whose material no record states declare none: the longbow's string, a musket ball's lead, a grenade's fuze.
- * 3. Each body carries its resting pair against concrete, as the sources give them: wood 0.61 to 0.88 static (0.745) with no kinetic for the longbow, the arrow and the bolt; steel 0.52 static and 0.46 kinetic for the cutlery, the round shot and the grenade; stone 0.57 and 0.53 for the cobble and the boulder; the musket ball, whose lead has no measured pair, the 0.5 placeholder with no kinetic.
+ * 3. Each body carries its resting pair against concrete, as the sources give them: wood 0.61 to 0.88 static (0.745) with no kinetic for the longbow, the arrow and the bolt; steel 0.52 static and 0.46 kinetic for the cutlery, the round shot and the grenade; stone 0.57 and 0.53 for the cobble and the boulder; the musket ball, whose lead has no measured pair, no friction, static or kinetic.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each model and reads its parts' declared surfaces and its body's friction; a material the record does not state, a part left bare that should not be, a body resting on another material, or a body given a coefficient no source measured is caught.
  * @evidence contracts/development/testing.md#independent-expectations The materials are the cited pages' (IKEA's stainless cutlery, Rösle's ladle, Aston and Spencer's elm bows and poplar arrows, the Met's steel-and-oak bolts, Roberts' cast-iron shot, the M67's steel sphere, Britannica's granite), and the coefficients the friction table's sources' (Araki et al. 2009, Ikenaga et al. 2008 with Gomez et al. 2011, Badika et al. 2022), written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases Four producers, steel, wood and stone, declared and bare parts, three measured resting pairs and the placeholder.
+ * @evidence contracts/development/testing.md#distinguishing-cases Four producers, steel, wood and stone, declared and bare parts, three measured resting pairs and an unmeasured one.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
  */
 export function test_archetype_props_surfaces(): void {
   const findings: string[] = [];
-  const wood: readonly [number, number | undefined] = [
+  const wood: readonly [number | undefined, number | undefined] = [
     (0.61 + 0.88) / 2,
     undefined,
   ];
-  const steel: readonly [number, number | undefined] = [0.52, 0.46];
-  const stone: readonly [number, number | undefined] = [0.57, 0.53];
+  const steel: readonly [number | undefined, number | undefined] = [0.52, 0.46];
+  const stone: readonly [number | undefined, number | undefined] = [0.57, 0.53];
   const rows: readonly [
     string,
     Archetype,
     Readonly<Record<string, string | null>>,
-    readonly [number, number | undefined],
+    readonly [number | undefined, number | undefined],
   ][] = [
     [
       "spoon",
@@ -70,7 +70,7 @@ export function test_archetype_props_surfaces(): void {
       "ball",
       createProjectile({ kind: "ball" }, 1),
       { ball: null },
-      [0.5, undefined],
+      [undefined, undefined],
     ],
     [
       "round shot",
@@ -94,7 +94,9 @@ export function test_archetype_props_surfaces(): void {
           `${name}: ${part} is ${model.surface(part)}, not ${material}`,
         );
     if (
-      Math.abs(model.body.friction - friction) > 1e-12 ||
+      (friction === undefined
+        ? model.body.friction !== undefined
+        : Math.abs((model.body.friction ?? -1) - friction) > 1e-12) ||
       (kinetic === undefined
         ? model.body.kineticFriction !== undefined
         : Math.abs((model.body.kineticFriction ?? -1) - kinetic) > 1e-12)

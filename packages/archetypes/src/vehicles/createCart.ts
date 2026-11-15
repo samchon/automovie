@@ -110,7 +110,7 @@ export namespace createCart {
   };
 
   /**
-   * What each kind rests on and on what ground, for its body's friction (`ArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so they keep the builder's placeholder until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
+   * What each kind rests on and on what ground, for its body's friction (`ArchetypeFriction`): a wheelbarrow's pneumatic tyre on concrete, a wagon's iron tyres on stone. The other kinds' tyres no source read names, so their bodies carry no friction until one does: the trolley's castor treads, the cart's and the carriage's tyres (rubber or iron), the rickshaw's (the Hong Kong rules of 1882 give its tyre's width only), the chariot's (rawhide or wood) and the limber's.
    */
   export const RESTS: Readonly<
     Record<

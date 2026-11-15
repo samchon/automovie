@@ -62,8 +62,8 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "pendant drop",
-      (4 * 12 + 11 + 11) * ArchetypeUnits.INCH,
-      (4 * 12 + 11 + 11) * ArchetypeUnits.INCH,
+      4 * ArchetypeUnits.FOOT + (11 + 11) * ArchetypeUnits.INCH,
+      4 * ArchetypeUnits.FOOT + (11 + 11) * ArchetypeUnits.INCH,
       "IKEA SKURUP, cord and shade",
       (seed: number): number =>
         -archetypeExtent(createLight({ kind: "pendant" }, seed), "y").low,

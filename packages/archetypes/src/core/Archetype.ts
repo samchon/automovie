@@ -114,7 +114,7 @@ export class Archetype<
     this.body = {
       mass: props.properties.mass,
       centerOfMass: { ...props.properties.centerOfMass },
-      friction: props.friction,
+      ...(props.friction === null ? {} : { friction: props.friction }),
       ...(props.kineticFriction === null
         ? {}
         : { kineticFriction: props.kineticFriction }),
@@ -465,8 +465,8 @@ export namespace Archetype {
     /** Mass, centre of mass and inertia. */
     properties: ArchetypeMass.IProperties;
 
-    /** Static Coulomb friction coefficient of what the model rests on against its ground, 0 to 1. */
-    friction: number;
+    /** Static Coulomb friction coefficient of what the model rests on against its ground, 0 to 1; null when its producer has not declared what it rests on. */
+    friction: number | null;
 
     /** Kinetic Coulomb friction coefficient of the same pair, 0 to 1; null when no measured pair gives it. */
     kineticFriction: number | null;

@@ -10,7 +10,7 @@ import {
   createMotorcycle,
   createWheelchair,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Vector3, validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,11 +21,11 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A pair no source measured, rubber on ice, is refused, naming the pairs that were.
  * 3. Each producer that declares what it rests on carries that pair's coefficients, as the sources give them: rubber on asphalt 0.84 to 0.98 static (0.91) and 0.72 kinetic for a car, a bicycle and a motorcycle; rubber on dry concrete 1.0 and 0.7 for a wheelchair and a wheelbarrow; a horseshoe on concrete 0.48 and 0.47 for a horse; iron on stone 0.30 to 0.70 static (0.5) with no kinetic for the wagon.
  * 4. A part's declared surface reads back, and its friction against a ground is the pair's; an undeclared part is refused.
- * 5. A model built without a resting pair keeps the 0.5 placeholder and no kinetic friction.
+ * 5. A model built without a resting pair carries no friction, static or kinetic, and passes model validation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the producers and reads their bodies and parts' friction; a coefficient off its source, a pair read in one order only, an unmeasured pair admitted, or a placeholder taken for a measurement is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the producers and reads their bodies and parts' friction; a coefficient off its source, a pair read in one order only, an unmeasured pair admitted, or an invented coefficient given to an unread rest is caught.
  * @evidence contracts/development/testing.md#independent-expectations The numbers are OpenStax's Table 5.1 and The Physics Hypertextbook's rows as read, written here as literals, not read back from the table.
- * @evidence contracts/development/testing.md#distinguishing-cases The table, a refused pair, six producers over four grounds and materials, a part query and the placeholder.
+ * @evidence contracts/development/testing.md#distinguishing-cases The table, a refused pair, six producers over four grounds and materials, a part query and an unread rest.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
@@ -73,7 +73,7 @@ export function test_archetype_contract_friction(): void {
     ["wagon", createCart({ kind: "wagon" }, 1), 0.5, undefined],
   ];
   for (const [name, model, friction, kinetic] of rows) {
-    if (!close(model.body.friction, friction))
+    if (!close(model.body.friction ?? -1, friction))
       findings.push(
         `${name}: static friction ${model.body.friction}, not ${friction}`,
       );
@@ -108,7 +108,7 @@ export function test_archetype_contract_friction(): void {
       findings.push(`an undeclared part failed otherwise: ${String(error)}`);
   }
 
-  // The placeholder.
+  // An unread rest.
   const plain: Archetype = new ArchetypeBuilder<never, never>({
     archetype: "fixture",
     name: "box",
@@ -116,7 +116,11 @@ export function test_archetype_contract_friction(): void {
   })
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .build(1);
-  if (plain.body.friction !== 0.5 || plain.body.kineticFriction !== undefined)
-    findings.push("the placeholder changed");
+  if ("friction" in plain.body || "kineticFriction" in plain.body)
+    findings.push(
+      `an unread rest carries friction ${plain.body.friction} and ${plain.body.kineticFriction}`,
+    );
+  if (!validateModel({ model: plain }).success)
+    findings.push("an unread rest fails model validation");
   TestValidator.equals("friction comes from measured pairs", findings, []);
 }

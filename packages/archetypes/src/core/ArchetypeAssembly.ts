@@ -64,7 +64,7 @@ export class ArchetypeAssembly<
    * @throws {ArchetypeRefusal} When there is no member, a key is empty or contains `/`, or a placement is not rigid with unit scale.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's role, what a member keeps and each refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, its parts' transforms and affordances' frames composed under its placement and every id and reference prefixed; mass properties by `ArchetypeMass.combine`; the members' set travels become the assembly's under their prefixes. Static and kinetic friction and restitution are the members' mass-weighted means, a stand-in because the model's body carries one coefficient of each for the whole, the kinetic one only when every member has one; each part keeps its member's declared surface under its prefixed id.
+   * @evidence contracts/development/implementation.md#principled-implementation Each member is read at rest, its parts' transforms and affordances' frames composed under its placement and every id and reference prefixed; mass properties by `ArchetypeMass.combine`; the members' set travels become the assembly's under their prefixes. Static and kinetic friction and restitution are the members' mass-weighted means, a stand-in because the model's body carries one coefficient of each for the whole, each friction only when every member has it; each part keeps its member's declared surface under its prefixed id.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the members, merge them, construct.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-rigid placement is refused rather than having its scale dropped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the members' parts, affordances and spans.
@@ -102,7 +102,7 @@ export class ArchetypeAssembly<
     const spans: ArchetypeSpan.ISpan[] = [];
     const placed: ArchetypeMass.IPlaced[] = [];
     const state: Partial<Record<ArchetypeAssembly.Ids<M>, number>> = {};
-    let friction: number = 0;
+    let friction: number | null = 0;
     let kinetic: number | null = 0;
     let restitution: number = 0;
     const surfaces: Record<string, ArchetypeFriction.Material> = {};
@@ -183,7 +183,10 @@ export class ArchetypeAssembly<
         });
       placed.push({ properties: rest.properties, placement });
       const weight: number = rest.properties.mass;
-      friction += rest.body.friction * weight;
+      friction =
+        friction === null || rest.body.friction === undefined
+          ? null
+          : friction + rest.body.friction * weight;
       kinetic =
         kinetic === null || rest.body.kineticFriction === undefined
           ? null
@@ -204,7 +207,7 @@ export class ArchetypeAssembly<
         affordances,
         materials: [...materials.values()],
         properties: ArchetypeMass.combine(placed),
-        friction: friction / mass,
+        friction: friction === null ? null : friction / mass,
         kineticFriction: kinetic === null ? null : kinetic / mass,
         surfaces,
         restitution: restitution / mass,

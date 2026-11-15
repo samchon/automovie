@@ -130,10 +130,10 @@ export function test_archetype_music_instruments(): void {
   });
   findings.push(
     ...archetypeBandSweep([
-      row("drum diameter", 0.3556, 0.3556, "Sonor MP 1412 X", (s: number): number =>
+      row("drum diameter", 14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, "Sonor MP 1412 X", (s: number): number =>
         archetypeExtent(createInstrument({ kind: "sideDrum" }, s), "x").size,
       ),
-      row("drum depth", 12 * ArchetypeUnits.INCH, 12 * ArchetypeUnits.INCH, "Sonor MP 1412 X", (s: number): number =>
+      row("drum depth", ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, "Sonor MP 1412 X", (s: number): number =>
         archetypeExtent(createInstrument({ kind: "sideDrum" }, s), "y").size,
       ),
       row("microphone length", 0.162, 0.1805, "SM58, e 835", (s: number): number =>

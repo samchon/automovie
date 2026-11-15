@@ -312,8 +312,8 @@ export namespace createLight {
       height: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11 * ArchetypeUnits.INCH, PENDANT),
       shade: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, PENDANT),
       cord: ArchetypeBand.metres(
-        (4 * 12 + 11) * ArchetypeUnits.INCH,
-        (4 * 12 + 11) * ArchetypeUnits.INCH,
+        4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
+        4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
         PENDANT,
       ),
       mass: ArchetypeBand.of("kg", 1.35, 1.37, PENDANT, true),
