@@ -1,5 +1,6 @@
 export * from "./createAppliance";
 export * from "./createBar";
+export * from "./createBeerTap";
 export * from "./createBin";
 export * from "./createBoard";
 export * from "./createCellFront";

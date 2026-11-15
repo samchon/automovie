@@ -8,6 +8,7 @@ import {
   createBarbell,
   createBarrel,
   createBed,
+  createBeerTap,
   createBench,
   createBicycle,
   createBin,
@@ -343,6 +344,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createControl({ kind }, seed),
     );
   add("hatch", (seed?: number | string): Archetype => createHatch({}, seed));
+  add(
+    "beerTap",
+    (seed?: number | string): Archetype => createBeerTap({}, seed),
+  );
   add(
     "cellFront",
     (seed?: number | string): Archetype => createCellFront({ bars: 12 }, seed),

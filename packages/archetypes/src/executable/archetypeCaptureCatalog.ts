@@ -4,6 +4,7 @@ import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
   createAppliance,
   createBar,
+  createBeerTap,
   createBin,
   createBoard,
   createCellFront,
@@ -339,6 +340,7 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createControl.Kind): Archetype => createControl({ kind }),
       ),
       hatch: createHatch(),
+      beerTap: createBeerTap(),
     }),
     climbing: still({
       stairs: createStairs({ steps: 8 }),
