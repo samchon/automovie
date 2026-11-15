@@ -208,9 +208,13 @@ export namespace HumanPerformanceSoft {
         anchors: [
           ...domain.anchors.filter(
             (a: IAutoMovieSoftAnchor): boolean =>
-              !grips.some((g: IGripAnchor): boolean => g.particle === a.particle),
+              !grips.some(
+                (g: IGripAnchor): boolean => g.particle === a.particle,
+              ),
           ),
-          ...[...new Set(grips.map((g: IGripAnchor): number => g.particle))].map(
+          ...[
+            ...new Set(grips.map((g: IGripAnchor): number => g.particle)),
+          ].map(
             (particle: number): IAutoMovieSoftAnchor => ({
               id: `${GRIP}${particle}`,
               particle,
@@ -227,7 +231,9 @@ export namespace HumanPerformanceSoft {
       const boundaries: IAutoMovieSoftBodyBoundarySample[] = [];
       for (let k: number = 0; k <= upto; ++k)
         boundaries.push(boundary(state, anchored, grips, bones, k, k * dt));
-      const steps: Float64Array[] = [new Float64Array(rest(anchored, boundaries[0]!))];
+      const steps: Float64Array[] = [
+        new Float64Array(rest(anchored, boundaries[0]!)),
+      ];
       const loads: Map<string, IAutoMovieVector3>[] = [new Map()];
       const observer: IAutoMovieSoftBodyObserver = {
         step: (
@@ -241,7 +247,11 @@ export namespace HumanPerformanceSoft {
           const hands: Map<string, IAutoMovieVector3> = new Map();
           const seconds: number = index * dt;
           for (const g of grips)
-            if (seconds >= g.from && seconds <= g.to && owner(grips, g.particle, seconds) === g) {
+            if (
+              seconds >= g.from &&
+              seconds <= g.to &&
+              owner(grips, g.particle, seconds) === g
+            ) {
               const f: IAutoMovieVector3 | undefined = held.get(g.particle);
               if (f !== undefined) hands.set(`${g.person}:${g.side}`, f);
             }
@@ -249,7 +259,13 @@ export namespace HumanPerformanceSoft {
         },
       };
       if (upto > 0)
-        simulateSoftBodyWithBoundaries(anchored, upto, boundaries, null, observer);
+        simulateSoftBodyWithBoundaries(
+          anchored,
+          upto,
+          boundaries,
+          null,
+          observer,
+        );
       return { steps, loads };
     };
 
@@ -292,7 +308,13 @@ export namespace HumanPerformanceSoft {
           nearest = p;
         }
       }
-      grips.push({ particle: nearest, person: window.subject, side: window.side, from: window.from, to: window.to });
+      grips.push({
+        particle: nearest,
+        person: window.subject,
+        side: window.side,
+        from: window.from,
+        to: window.to,
+      });
     }
     const whole: Pick<HumanPerformanceSoft.ISolved, "steps" | "loads"> = solve(
       count,
@@ -362,12 +384,13 @@ const owner: (
   seconds: number,
 ): IGripAnchor | undefined =>
   grips
-    .filter((g: IGripAnchor): boolean => g.particle === particle && seconds >= g.from && seconds <= g.to)
-    .reduce<IGripAnchor | undefined>(
-      (last: IGripAnchor | undefined, g: IGripAnchor): IGripAnchor =>
-        last === undefined || g.from >= last.from ? g : last,
-      undefined,
-    );
+    .filter(
+      (g: IGripAnchor): boolean =>
+        g.particle === particle && seconds >= g.from && seconds <= g.to,
+    )
+    .reduce<
+      IGripAnchor | undefined
+    >((last: IGripAnchor | undefined, g: IGripAnchor): IGripAnchor => (last === undefined || g.from >= last.from ? g : last), undefined);
 
 /** A hand's grip socket in the world at a step. */
 const gripSocket: (
@@ -430,32 +453,56 @@ const boundary: (
       continue;
     }
     if (binding.kind === "node") {
-      const frame: IHumanProp.IFrame = HumanPerformanceRead.prop(state, binding.node, seconds);
+      const frame: IHumanProp.IFrame = HumanPerformanceRead.prop(
+        state,
+        binding.node,
+        seconds,
+      );
       anchors.push({
         particle: anchor.particle,
-        position: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, binding.offset)),
+        position: Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, binding.offset),
+        ),
       });
       continue;
     }
-    const bone: IAutoMovieResolvedBone = bones(binding.actor, k, seconds).get(binding.bone)!;
+    const bone: IAutoMovieResolvedBone = bones(binding.actor, k, seconds).get(
+      binding.bone,
+    )!;
     anchors.push({
       particle: anchor.particle,
-      position: Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, binding.offset)),
+      position: Vector3.add(
+        bone.worldPosition,
+        Quaternion.rotateVector(bone.worldRotation, binding.offset),
+      ),
     });
   }
   const capsules: IAutoMovieSoftBodyResolvedCapsule[] = domain.colliders
-    .filter((c: IAutoMovieSoftCollider): c is IAutoMovieSoftCollider.IBodyCapsule => c.kind === "body-capsule")
-    .map((c: IAutoMovieSoftCollider.IBodyCapsule): IAutoMovieSoftBodyResolvedCapsule => {
-      const read: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        bones(c.actor, k, seconds);
-      return {
-        id: c.id,
-        from: { ...read.get(c.capsule.from)!.worldPosition },
-        to: { ...read.get(c.capsule.to)!.worldPosition },
-        radius: c.capsule.radius,
-      };
-    });
-  return { step: k, anchors, capsules, ...(released.length === 0 ? {} : { released }) };
+    .filter(
+      (c: IAutoMovieSoftCollider): c is IAutoMovieSoftCollider.IBodyCapsule =>
+        c.kind === "body-capsule",
+    )
+    .map(
+      (
+        c: IAutoMovieSoftCollider.IBodyCapsule,
+      ): IAutoMovieSoftBodyResolvedCapsule => {
+        const read: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          bones(c.actor, k, seconds);
+        return {
+          id: c.id,
+          from: { ...read.get(c.capsule.from)!.worldPosition },
+          to: { ...read.get(c.capsule.to)!.worldPosition },
+          radius: c.capsule.radius,
+        };
+      },
+    );
+  return {
+    step: k,
+    anchors,
+    capsules,
+    ...(released.length === 0 ? {} : { released }),
+  };
 };
 
 /** The node name prefix of an anchor a grip makes. */

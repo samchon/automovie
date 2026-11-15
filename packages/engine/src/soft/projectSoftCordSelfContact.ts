@@ -95,8 +95,7 @@ export const projectSoftCordSelfContact: (props: {
           for (const b of grid.get(key(cx + x, cy + y, cz + z)) ?? [])
             if (b >= a + 2) candidates.push(b);
     candidates.sort((l: number, r: number): number => l - r);
-    for (const b of candidates)
-      if (separate(props, a, b, reach)) ++contacts;
+    for (const b of candidates) if (separate(props, a, b, reach)) ++contacts;
   }
   return contacts;
 };
@@ -110,12 +109,12 @@ interface IPair {
 }
 
 /** Project one pair of segments apart and apply friction between them, returning whether they were in contact. */
-const separate: (props: IPair, a: number, b: number, reach: number) => boolean = (
+const separate: (
   props: IPair,
   a: number,
   b: number,
   reach: number,
-): boolean => {
+) => boolean = (props: IPair, a: number, b: number, reach: number): boolean => {
   const { predicted, position, inverseMass }: typeof props = props;
   const [s, t]: [number, number] = closest(predicted, a, b);
   const point = (

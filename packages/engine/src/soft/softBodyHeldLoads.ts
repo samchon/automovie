@@ -73,7 +73,8 @@ export const softBodyHeldLoads: (props: {
         const dz: number = position[particle * 3 + 2] - position[other * 3 + 2];
         const length: number = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (length === 0) continue;
-        const f: number = (props.lambda[particle * slots + at] * scale) / length;
+        const f: number =
+          (props.lambda[particle * slots + at] * scale) / length;
 
         // On i the force is +lambda n / dt^2, on k it is -lambda n / dt^2.
         if (heldI) add(particle, f * dx, f * dy, f * dz);

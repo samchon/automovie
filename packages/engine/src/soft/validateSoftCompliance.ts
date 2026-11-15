@@ -78,7 +78,8 @@ export const validateSoftCompliance: (
     );
   }
   if (!domain.selfCollision || contact === null) return;
-  const cord: boolean = domain.lattice.columns === 1 || domain.lattice.rows === 1;
+  const cord: boolean =
+    domain.lattice.columns === 1 || domain.lattice.rows === 1;
   if (!cord) {
     out.push(
       "type",

@@ -110,12 +110,8 @@ export namespace HumanArmOvershoot {
         if (gap > MARGIN) continue;
         if (
           !(gap < -MARGIN) &&
-          closestPointsBetweenSegments(
-            elbow,
-            wrist,
-            bound.centre,
-            bound.centre,
-          ).distance -
+          closestPointsBetweenSegments(elbow, wrist, bound.centre, bound.centre)
+            .distance -
             bound.radius >=
             radius
         )
@@ -131,7 +127,11 @@ export namespace HumanArmOvershoot {
     // least with 0 ignores, so it is not queried.
     let grazing: number = 0;
     for (const shape of near)
-      if (goal && !shape.free && !(BROAD.on && beyond(wrist, shape.framed, MARGIN)))
+      if (
+        goal &&
+        !shape.free &&
+        !(BROAD.on && beyond(wrist, shape.framed, MARGIN))
+      )
         grazing = Math.min(
           grazing,
           physicalShapeSegmentDistance(shape.pose, shape.shape, wrist, wrist),
@@ -160,7 +160,8 @@ export namespace HumanArmOvershoot {
         // A shape that cannot ask more than the depth already found leaves
         // the greatest as it is: the needed clearance less the least the
         // distance can be, `grazing` only lowering it.
-        if (BROAD.on && beyond(at, shape.framed, needed - depth + MARGIN)) continue;
+        if (BROAD.on && beyond(at, shape.framed, needed - depth + MARGIN))
+          continue;
         depth = Math.max(
           depth,
           needed +
@@ -396,11 +397,7 @@ function roomOf(
  * scan stops at the first face beyond, so the answer is the greatest's
  * without reading every face.
  */
-function beyond(
-  p: IAutoMovieVector3,
-  shape: IFramed,
-  bound: number,
-): boolean {
+function beyond(p: IAutoMovieVector3, shape: IFramed, bound: number): boolean {
   const cx: number = p.x - shape.centre.x;
   const cy: number = p.y - shape.centre.y;
   const cz: number = p.z - shape.centre.z;
@@ -422,7 +419,10 @@ function beyond(
   const z: number = vz + q.w * tz + (q.x * ty - q.y * tx);
   const lead: number = shape.lead;
   if (
-    faces[lead]! * x + faces[lead + 1]! * y + faces[lead + 2]! * z - faces[lead + 3]! >
+    faces[lead]! * x +
+      faces[lead + 1]! * y +
+      faces[lead + 2]! * z -
+      faces[lead + 3]! >
     bound
   )
     return true;

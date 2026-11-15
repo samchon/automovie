@@ -41,7 +41,8 @@ export const applySoftBodyFriction: (props: {
   if (props.friction === 0) return;
   const base: number = props.particle * 3;
   const push: number[] = [0, 1, 2].map(
-    (axis: number): number => props.predicted[base + axis] - props.before[axis]!,
+    (axis: number): number =>
+      props.predicted[base + axis] - props.before[axis]!,
   );
   const depth: number = Math.hypot(push[0]!, push[1]!, push[2]!);
   if (depth === 0) return;

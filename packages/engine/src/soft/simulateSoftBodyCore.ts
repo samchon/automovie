@@ -17,10 +17,10 @@ import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
 import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
 import { projectSoftCordSelfContact } from "./projectSoftCordSelfContact";
 import { softBodyHeldLoads } from "./softBodyHeldLoads";
-import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
+import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 
 /** Integrate an admitted cloth lattice from its authored rest boundary to one absolute fixed step.
  *
@@ -132,7 +132,9 @@ export const simulateSoftBodyCore: (
   // the velocity its target last moved at, so a dropped corner keeps the
   // hand's motion instead of starting from rest.
   const moving: number[] = domain.anchors
-    .filter((anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined)
+    .filter(
+      (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
+    )
     .map((anchor: IAutoMovieSoftAnchor): number => anchor.particle);
   const carried: Float64Array<ArrayBuffer> = new Float64Array(count * 3);
   const free: Uint8Array<ArrayBuffer> = new Uint8Array(count);
