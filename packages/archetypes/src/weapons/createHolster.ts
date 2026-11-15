@@ -10,6 +10,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   type IArchetypeBand,
@@ -91,6 +92,7 @@ export function createHolster(
   params: createHolster.IParams = {},
   seed?: number | string,
 ): Archetype<createHolster.Affordance, createHolster.Dimension> {
+  const draw: ArchetypeDrawSession<createHolster.Dimension> = new ArchetypeDrawSession<createHolster.Dimension>("holster", createHolster.UNITS, seed, params);
   const kind: createHolster.Kind = ArchetypeDraw.choice(
     "holster",
     "kind",
@@ -130,17 +132,23 @@ export function createHolster(
     });
   // A holster rides at one of the maker's three heights; a scabbard or a sheath is made to one blade, its length and width that blade's with the maker's fit.
   const ride: { figures: Readonly<Partial<Record<createHolster.Dimension, number>>> } =
-    ArchetypeDraw.model<createHolster.Ride, createHolster.Dimension>("holster", "model", params.model, createHolster.MODELS[kind], seed, params);
+    draw.model<createHolster.Ride>("model", params.model, createHolster.MODELS[kind]);
   const blades: Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>> | undefined =
     kind === "scabbard" ? createHolster.BLADES.scabbard : kind === "sheath" ? createHolster.BLADES.sheath : undefined;
-  if (blades === undefined && params.blade !== undefined)
-    ArchetypeDraw.choice("holster", "blade", params.blade, [] as readonly createHolster.Blade[]);
-  const fitted: Readonly<Partial<Record<createHolster.Dimension, IArchetypeBand>>> =
+  // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
+  const blade: createHolster.Blade | undefined = draw.model<createHolster.Blade>(
+    "blade",
+    params.blade,
     blades === undefined
-      ? {}
-      : blades[ArchetypeDraw.pick("holster", "blade", params.blade, Object.keys(blades) as createHolster.Blade[], seed)]!;
+      ? undefined
+      : (Object.fromEntries(
+          Object.keys(blades).map((name: string): [string, Readonly<Record<never, number>>] => [name, {}]),
+        ) as Readonly<Record<createHolster.Blade, Readonly<Partial<Record<createHolster.Dimension, number>>>>>),
+  ).name;
+  const fitted: Readonly<Partial<Record<createHolster.Dimension, IArchetypeBand>>> =
+    blade === undefined || blades === undefined ? {} : blades[blade]!;
   const d: Partial<Record<createHolster.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("holster", { ...createHolster.BANDS[kind], ...fitted }, seed, params, {
+    ...draw.dimensions({ ...createHolster.BANDS[kind], ...fitted }, {
       ...createHolster.BANDS,
       ...createHolster.BLADES.scabbard,
       ...createHolster.BLADES.sheath,
@@ -151,10 +159,9 @@ export function createHolster(
     createHolster.Affordance,
     createHolster.Dimension
   > = new ArchetypeBuilder({
-    archetype: "holster",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const facingWearer = (at: IAutoMovieVector3): IAutoMovieTransform =>
@@ -336,6 +343,17 @@ export namespace createHolster {
     | "thickness"
     | "diameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    ride: "m",
+    depth: "m",
+    length: "m",
+    width: "m",
+    thickness: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** A holster's ride heights: Safariland's low, mid and high ride. */
   export type Ride = "midRide" | "lowRide" | "highRide";

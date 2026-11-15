@@ -5,6 +5,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
 } from "../core";
 import { SWORD_BANDS } from "./SWORD_BANDS";
@@ -34,6 +35,7 @@ export function createSword(
   params: createSword.IParams,
   seed?: number | string,
 ): Archetype<createSword.Affordance, createSword.Dimension> {
+  const draw: ArchetypeDrawSession<createSword.Dimension> = new ArchetypeDrawSession<createSword.Dimension>("sword", createSword.UNITS, seed, params);
   const kind: createSword.Kind = ArchetypeDraw.choice(
     "sword",
     "kind",
@@ -42,9 +44,9 @@ export function createSword(
   );
   // A longsword or an arming sword is one of its maker's swords whole, a sabre one of its pattern's two weights; the rest are drawn in their bands.
   const model: { figures: Readonly<Partial<Record<createSword.Dimension, number>>> } =
-    ArchetypeDraw.model<createSword.Model, createSword.Dimension>("sword", "model", params.model, createSword.MODELS[kind], seed, params);
+    draw.model<createSword.Model>("model", params.model, createSword.MODELS[kind]);
   const drawn: Partial<Record<createSword.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("sword", createSword.BANDS[kind], seed, params, createSword.BANDS),
+    ...draw.dimensions(createSword.BANDS[kind], createSword.BANDS),
     ...model.figures,
   };
   const d: Record<createSword.Dimension, number> = {
@@ -58,10 +60,9 @@ export function createSword(
     createSword.Affordance,
     createSword.Dimension
   > = new ArchetypeBuilder({
-    archetype: "sword",
     id: params.id,
     name: createSword.NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const shape: createSword.IShape = createSword.SHAPES[kind];
@@ -414,6 +415,15 @@ export namespace createSword {
     | "hiltLength"
     | "balance"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    bladeLength: "m",
+    bladeWidth: "m",
+    hiltLength: "m",
+    balance: "m",
+    mass: "kg",
+  };
 
   /** The read models: Albion's Crecy and Regent longswords and Knight and Poitiers arming swords, and the 1796 sabre's officer's and trooper's patterns. */
   export type Model = "crecy" | "regent" | "knight" | "poitiers" | "officer" | "trooper";

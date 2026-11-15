@@ -1,11 +1,12 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
 } from "@automovie/archetypes";
 import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -22,7 +23,7 @@ const REACH: number = 2;
  * @returns The fixture.
  */
 function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
-  return new ArchetypeBuilder<Id, never>({ archetype: "fixture", name: id, dimensions: {} })
+  return new ArchetypeBuilder<Id, never>({ name: id, draw: new ArchetypeDrawSession<never>("fixture", {}, undefined), })
     .box("body", Vector3.create(1, 0.5, 1), Vector3.create(0, 0.25, 0))
     .affordance({ id, kind: "hook", frame: ArchetypeFrame.upright(Vector3.create(0, 0.5, z)), extent: null })
     .build(100);

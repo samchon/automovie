@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -68,6 +69,7 @@ export function createGoal(
   params: createGoal.IParams,
   seed?: number | string,
 ): Archetype<createGoal.Affordance, createGoal.Dimension> {
+  const draw: ArchetypeDrawSession<createGoal.Dimension> = new ArchetypeDrawSession<createGoal.Dimension>("goal", createGoal.UNITS, seed, params);
   const kind: createGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",
@@ -77,32 +79,18 @@ export function createGoal(
   const net: {
     name: createGoal.Net | undefined;
     figures: Readonly<Partial<Record<createGoal.Dimension, number>>>;
-  } = ArchetypeDraw.model<createGoal.Net, createGoal.Dimension>(
-    "goal",
-    "net",
-    params.net,
-    createGoal.NETS[kind],
-    seed,
-    params,
-  );
+  } = draw.model<createGoal.Net>("net", params.net, createGoal.NETS[kind]);
   const d: Drawn = {
-    ...ArchetypeDraw.dimensions(
-      "goal",
-      createGoal.BANDS[kind],
-      seed,
-      params,
-      createGoal.BANDS,
-    ),
+    ...draw.dimensions(createGoal.BANDS[kind], createGoal.BANDS),
     ...net.figures,
   };
   const builder: Builder = new ArchetypeBuilder({
-    archetype: "goal",
     id: params.id,
     name:
       net.name === undefined
         ? createGoal.NAMES[kind]
         : `${net.name}'s ${createGoal.NAMES[kind]}`,
-    dimensions: d,
+    draw,
   });
   if (kind === "footballGoal") football(builder, d);
   else if (kind === "basketballHoop") hoop(builder, d);
@@ -431,6 +419,19 @@ export namespace createGoal {
     | "offset"
     | "post"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    bar: "m",
+    board: "m",
+    thickness: "m",
+    ring: "m",
+    offset: "m",
+    post: "m",
+    mass: "kg",
+  };
 
   /** A volleyball net's classes, FIVB 2.1.1's. */
   export type Net = "men" | "women";

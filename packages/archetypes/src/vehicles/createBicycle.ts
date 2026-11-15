@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -43,20 +43,15 @@ export function createBicycle(
   params: createBicycle.IParams = {},
   seed?: number | string,
 ): Archetype<createBicycle.Affordance, createBicycle.Dimension> {
-  const d: Record<createBicycle.Dimension, number> = ArchetypeDraw.dimensions(
-    "bicycle",
-    createBicycle.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createBicycle.Dimension> = new ArchetypeDrawSession<createBicycle.Dimension>("bicycle", createBicycle.UNITS, seed, params);
+  const d: Record<createBicycle.Dimension, number> = draw.dimensions(createBicycle.BANDS);
   const builder: ArchetypeBuilder<
     createBicycle.Affordance,
     createBicycle.Dimension
   > = new ArchetypeBuilder({
-    archetype: "bicycle",
     id: params.id,
     name: "bicycle",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.wheelDiameter / 2;
@@ -263,6 +258,22 @@ export namespace createBicycle {
     | "handlebarWidth"
     | "gripDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    wheelDiameter: "m",
+    wheelbase: "m",
+    bottomBracket: "m",
+    crank: "m",
+    stance: "m",
+    saddleHeight: "m",
+    seatAngle: "degrees",
+    saddleWidth: "m",
+    reach: "m",
+    handlebarWidth: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -1,11 +1,12 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
   createCart,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -209,9 +210,8 @@ export function test_archetype_ride_towed_wagon(): void {
  */
 function hitched(): Archetype<"hitch", never> {
   return new ArchetypeBuilder<"hitch", never>({
-    archetype: "fixture",
     name: "leader",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .affordance({

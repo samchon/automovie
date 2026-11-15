@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -40,26 +41,21 @@ export function createCleaning(
   params: createCleaning.IParams,
   seed?: number | string,
 ): Archetype<createCleaning.Affordance, createCleaning.Dimension> {
+  const draw: ArchetypeDrawSession<createCleaning.Dimension> = new ArchetypeDrawSession<createCleaning.Dimension>("cleaning", createCleaning.UNITS, seed, params);
   const kind: createCleaning.Kind = ArchetypeDraw.choice(
     "cleaning",
     "kind",
     params.kind,
     createCleaning.KINDS,
   );
-  const d: Record<createCleaning.Dimension, number> = ArchetypeDraw.dimensions(
-    "cleaning",
-    createCleaning.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createCleaning.Dimension, number> = draw.dimensions(createCleaning.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createCleaning.Affordance,
     createCleaning.Dimension
   > = new ArchetypeBuilder({
-    archetype: "cleaning",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   builder.box(
     kind,
@@ -122,6 +118,14 @@ export namespace createCleaning {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "length" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -5,7 +5,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -40,21 +40,16 @@ export function createExerciseBike(
   params: createExerciseBike.IParams = {},
   seed?: number | string,
 ): Archetype<createExerciseBike.Affordance, createExerciseBike.Dimension> {
+  const draw: ArchetypeDrawSession<createExerciseBike.Dimension> = new ArchetypeDrawSession<createExerciseBike.Dimension>("exerciseBike", createExerciseBike.UNITS, seed, params);
   const d: Record<createExerciseBike.Dimension, number> =
-    ArchetypeDraw.dimensions(
-      "exerciseBike",
-      createExerciseBike.BANDS,
-      seed,
-      params,
-    );
+    draw.dimensions(createExerciseBike.BANDS);
   const builder: ArchetypeBuilder<
     createExerciseBike.Affordance,
     createExerciseBike.Dimension
   > = new ArchetypeBuilder({
-    archetype: "exerciseBike",
     id: params.id,
     name: "exercise bike",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const bracket: number = createExerciseBike.BRACKET;
@@ -269,6 +264,16 @@ export namespace createExerciseBike {
     | "saddleWidth"
     | "crank"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    saddleHeight: "m",
+    handlebarHeight: "m",
+    handlebarWidth: "m",
+    saddleWidth: "m",
+    crank: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

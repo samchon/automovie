@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -39,6 +40,7 @@ export function createMotorcycle(
   params: createMotorcycle.IParams,
   seed?: number | string,
 ): Archetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
+  const draw: ArchetypeDrawSession<createMotorcycle.Dimension> = new ArchetypeDrawSession<createMotorcycle.Dimension>("motorcycle", createMotorcycle.UNITS, seed, params);
   const kind: createMotorcycle.Kind = ArchetypeDraw.choice(
     "motorcycle",
     "kind",
@@ -47,32 +49,18 @@ export function createMotorcycle(
   );
   // One read machine of the kind, its figures laid over the dimensions no maker states.
   const model: { figures: Readonly<Partial<Record<createMotorcycle.Dimension, number>>> } =
-    ArchetypeDraw.model<createMotorcycle.Model, createMotorcycle.Dimension>(
-      "motorcycle",
-      "model",
-      params.model,
-      createMotorcycle.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createMotorcycle.Model>("model", params.model, createMotorcycle.MODELS[kind]);
   const d: Record<createMotorcycle.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "motorcycle",
-      createMotorcycle.BANDS[kind],
-      seed,
-      params,
-      createMotorcycle.BANDS,
-    ),
+    ...draw.dimensions(createMotorcycle.BANDS[kind], createMotorcycle.BANDS),
     ...model.figures,
   } as Record<createMotorcycle.Dimension, number>;
   const builder: ArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
   > = new ArchetypeBuilder({
-    archetype: "motorcycle",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.wheelDiameter / 2;
@@ -267,6 +255,18 @@ export namespace createMotorcycle {
     | "gripDiameter"
     | "footrestHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatHeight: "m",
+    wheelbase: "m",
+    width: "m",
+    wheelDiameter: "m",
+    frontWheelDiameter: "m",
+    gripDiameter: "m",
+    footrestHeight: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

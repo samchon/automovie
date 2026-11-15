@@ -1,6 +1,7 @@
 import {
   type Archetype,
   ArchetypeBuilder,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   type ArchetypeSpan,
@@ -32,9 +33,8 @@ function fixture(
 ): Archetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
   return new ArchetypeBuilder<Id, never>({
-    archetype: "fixture",
     name: "fixture",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("post", v(0.05, 1, 0.05), v(0, 0.5, 0))
     .box("arm", v(0.5, 0.05, 0.05), v(0.25, 1, 0))

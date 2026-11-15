@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -38,37 +38,22 @@ export function createVaultingPole(
   params: createVaultingPole.IParams = {},
   seed?: number | string,
 ): Archetype<createVaultingPole.Affordance, createVaultingPole.Dimension> {
+  const draw: ArchetypeDrawSession<createVaultingPole.Dimension> = new ArchetypeDrawSession<createVaultingPole.Dimension>("vaultingPole", createVaultingPole.UNITS, seed, params);
   const series: {
     name: createVaultingPole.Series | undefined;
     figures: Readonly<Partial<Record<createVaultingPole.Dimension, number>>>;
-  } = ArchetypeDraw.model<
-    createVaultingPole.Series,
-    createVaultingPole.Dimension
-  >(
-    "vaultingPole",
-    "series",
-    params.series,
-    createVaultingPole.SERIES,
-    seed,
-    params,
-  );
+  } = draw.model<createVaultingPole.Series>("series", params.series, createVaultingPole.SERIES);
   const d: Record<createVaultingPole.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "vaultingPole",
-      createVaultingPole.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createVaultingPole.BANDS),
     length: series.figures.length!,
   };
   const builder: ArchetypeBuilder<
     createVaultingPole.Affordance,
     createVaultingPole.Dimension
   > = new ArchetypeBuilder({
-    archetype: "vaultingPole",
     id: params.id,
     name: `vaulting pole, ${series.name} series`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length;
@@ -146,6 +131,15 @@ export namespace createVaultingPole {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "hold" | "spacing" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    hold: "m",
+    spacing: "m",
+    mass: "kg",
+  };
 
   /** UCS Spirit's series read with a length. */
   export type Series = "235" | "305" | "520";

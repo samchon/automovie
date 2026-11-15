@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -113,6 +114,7 @@ export function createDrinkware(
   params: createDrinkware.IParams,
   seed?: number | string,
 ): Archetype<createDrinkware.Affordance, createDrinkware.Dimension> {
+  const draw: ArchetypeDrawSession<createDrinkware.Dimension> = new ArchetypeDrawSession<createDrinkware.Dimension>("drinkware", createDrinkware.UNITS, seed, params);
   const kind: createDrinkware.Kind = ArchetypeDraw.choice(
     "drinkware",
     "kind",
@@ -131,23 +133,10 @@ export function createDrinkware(
       fix: "give a fill from 0 to 1",
     });
   const drawn: Partial<Record<createDrinkware.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "drinkware",
-      createDrinkware.BANDS[kind],
-      seed,
-      params,
-      createDrinkware.BANDS,
-    );
+    draw.dimensions(createDrinkware.BANDS[kind], createDrinkware.BANDS);
   // A beer bottle is one of the longnecks read, whole.
   const model: { name: createDrinkware.Model | undefined; figures: createDrinkware.Figures } =
-    ArchetypeDraw.model<createDrinkware.Model, createDrinkware.Dimension>(
-      "drinkware",
-      "model",
-      params.model,
-      createDrinkware.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createDrinkware.Model>("model", params.model, createDrinkware.MODELS[kind]);
   const d: Partial<Record<createDrinkware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -158,10 +147,9 @@ export function createDrinkware(
     createDrinkware.Affordance,
     createDrinkware.Dimension
   > = new ArchetypeBuilder({
-    archetype: "drinkware",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const bottle: boolean =
     kind === "beerBottle" || kind === "waterBottle" || kind === "wineBottle";
@@ -384,6 +372,20 @@ export namespace createDrinkware {
     | "baseDiameter"
     | "neckDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    handleDiameter: "m",
+    handleOpening: "m",
+    handleLoop: "m",
+    stemLength: "m",
+    stemDiameter: "m",
+    baseDiameter: "m",
+    neckDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, the fill, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

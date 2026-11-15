@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -80,6 +81,7 @@ export function createTable(
   params: createTable.IParams,
   seed?: number | string,
 ): Archetype<createTable.Affordance, createTable.Dimension> {
+  const draw: ArchetypeDrawSession<createTable.Dimension> = new ArchetypeDrawSession<createTable.Dimension>("table", createTable.UNITS, seed, params);
   const kind: createTable.Kind = ArchetypeDraw.choice(
     "table",
     "kind",
@@ -87,21 +89,9 @@ export function createTable(
     createTable.KINDS,
   );
   const d: Partial<Record<createTable.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "table",
-      createTable.BANDS[kind],
-      seed,
-      params,
-      createTable.BANDS,
-    );
+    draw.dimensions(createTable.BANDS[kind], createTable.BANDS);
   // A service counter's length and a pupil desk's height are one of the sizes their sheets list, never a value between two.
-  const size: { figures: Readonly<Partial<Record<createTable.Dimension, number>>> } = ArchetypeDraw.model(
-    "table",
-    "size",
-    params.size,
-    createTable.SIZES[kind],
-    seed,
-  );
+  const size: { figures: Readonly<Partial<Record<createTable.Dimension, number>>> } = draw.model("size", params.size, createTable.SIZES[kind]);
   const sized: Partial<Record<createTable.Dimension, number>> = {
     ...d,
     ...size.figures,
@@ -113,10 +103,9 @@ export function createTable(
     createTable.Affordance,
     createTable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "table",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const slab: number =
     kind === "pupilDesk" ? createTable.PUPIL_TOP : 0.04;
@@ -329,6 +318,14 @@ export namespace createTable {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "length" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

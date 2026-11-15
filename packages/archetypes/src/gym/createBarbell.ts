@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -40,6 +41,7 @@ export function createBarbell(
   params: createBarbell.IParams,
   seed?: number | string,
 ): Archetype<createBarbell.Affordance, createBarbell.Dimension> {
+  const draw: ArchetypeDrawSession<createBarbell.Dimension> = new ArchetypeDrawSession<createBarbell.Dimension>("barbell", createBarbell.UNITS, seed, params);
   const kind: createBarbell.Kind = ArchetypeDraw.choice(
     "barbell",
     "kind",
@@ -47,23 +49,16 @@ export function createBarbell(
     createBarbell.KINDS,
   );
   const d: Partial<Record<createBarbell.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "barbell",
-      createBarbell.BANDS[kind],
-      seed,
-      params,
-      createBarbell.BANDS,
-    );
+    draw.dimensions(createBarbell.BANDS[kind], createBarbell.BANDS);
   const half: number = d.length! / 2;
   const collar: number = createBarbell.BETWEEN / 2;
   const builder: ArchetypeBuilder<
     createBarbell.Affordance,
     createBarbell.Dimension
   > = new ArchetypeBuilder({
-    archetype: "barbell",
     id: params.id,
     name: kind === "mens" ? "men's barbell" : "women's barbell",
-    dimensions: d,
+    draw,
   });
   const along: (x: number) => ReturnType<typeof Vector3.create> = (
     x: number,
@@ -187,6 +182,15 @@ export namespace createBarbell {
    * - `load`: the discs and collar on each side, kilograms; 0 is the empty bar.
    */
   export type Dimension = "length" | "diameter" | "mass" | "grip" | "load";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+    grip: "m",
+    load: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

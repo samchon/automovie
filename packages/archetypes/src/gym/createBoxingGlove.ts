@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -36,37 +36,22 @@ export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
   seed?: number | string,
 ): Archetype<createBoxingGlove.Affordance, createBoxingGlove.Dimension> {
+  const draw: ArchetypeDrawSession<createBoxingGlove.Dimension> = new ArchetypeDrawSession<createBoxingGlove.Dimension>("boxingGlove", createBoxingGlove.UNITS, seed, params);
   const weight: {
     name: createBoxingGlove.Weight | undefined;
     figures: Readonly<Partial<Record<createBoxingGlove.Dimension, number>>>;
-  } = ArchetypeDraw.model<
-    createBoxingGlove.Weight,
-    createBoxingGlove.Dimension
-  >(
-    "boxingGlove",
-    "weight",
-    params.weight,
-    createBoxingGlove.WEIGHTS,
-    seed,
-    params,
-  );
+  } = draw.model<createBoxingGlove.Weight>("weight", params.weight, createBoxingGlove.WEIGHTS);
   const d: Record<createBoxingGlove.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "boxingGlove",
-      createBoxingGlove.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createBoxingGlove.BANDS),
     mass: weight.figures.mass!,
   };
   const builder: ArchetypeBuilder<
     createBoxingGlove.Affordance,
     createBoxingGlove.Dimension
   > = new ArchetypeBuilder({
-    archetype: "boxingGlove",
     id: params.id,
     name: `boxing glove ${weight.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const cuff: number = createBoxingGlove.CUFF;
@@ -140,6 +125,15 @@ export namespace createBoxingGlove {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "height" | "width" | "cuff" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    width: "m",
+    cuff: "m",
+    mass: "kg",
+  };
 
   /** The glove weights the rules set. */
   export type Weight = "8oz" | "10oz" | "12oz";

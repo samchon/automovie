@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -57,6 +58,7 @@ export function createStick(
   params: createStick.IParams,
   seed?: number | string,
 ): Archetype<createStick.Affordance, createStick.Dimension> {
+  const draw: ArchetypeDrawSession<createStick.Dimension> = new ArchetypeDrawSession<createStick.Dimension>("stick", createStick.UNITS, seed, params);
   const kind: createStick.Kind = ArchetypeDraw.choice(
     "stick",
     "kind",
@@ -64,21 +66,14 @@ export function createStick(
     createStick.KINDS,
   );
   const d: Partial<Record<createStick.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "stick",
-      createStick.BANDS[kind],
-      seed,
-      params,
-      createStick.BANDS,
-    );
+    draw.dimensions(createStick.BANDS[kind], createStick.BANDS);
   const builder: ArchetypeBuilder<
     createStick.Affordance,
     createStick.Dimension
   > = new ArchetypeBuilder({
-    archetype: "stick",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -183,6 +178,16 @@ export namespace createStick {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "head" | "reach" | "width" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    head: "m",
+    reach: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -3,6 +3,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { FIELD_GUN } from "./FIELD_GUN";
@@ -29,6 +30,7 @@ export function createCannon(
   params: createCannon.IParams,
   seed?: number | string,
 ): Archetype<createCannon.Affordance, createCannon.Dimension> {
+  const draw: ArchetypeDrawSession<createCannon.Dimension> = new ArchetypeDrawSession<createCannon.Dimension>("cannon", createCannon.UNITS, seed, params);
   const kind: createCannon.Kind = ArchetypeDraw.choice(
     "cannon",
     "kind",
@@ -36,19 +38,12 @@ export function createCannon(
     createCannon.KINDS,
   );
   const d: Partial<Record<createCannon.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "cannon",
-      createCannon.BANDS[kind],
-      seed,
-      params,
-      createCannon.BANDS,
-    );
+    draw.dimensions(createCannon.BANDS[kind], createCannon.BANDS);
   const builder: ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension> =
     new ArchetypeBuilder({
-      archetype: "cannon",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   FIELD_GUN.build(builder);
   return builder.build(d.mass!);
@@ -103,6 +98,15 @@ export namespace createCannon {
     | "wheelDiameter"
     | "track"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    trunnionHeight: "m",
+    wheelDiameter: "m",
+    track: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any dimension fixed to its value. */
   export interface IParams extends Partial<Record<Dimension, number>> {

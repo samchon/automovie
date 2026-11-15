@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,26 +36,21 @@ export function createDiscus(
   params: createDiscus.IParams,
   seed?: number | string,
 ): Archetype<createDiscus.Affordance, createDiscus.Dimension> {
+  const draw: ArchetypeDrawSession<createDiscus.Dimension> = new ArchetypeDrawSession<createDiscus.Dimension>("discus", createDiscus.UNITS, seed, params);
   const kind: createDiscus.Kind = ArchetypeDraw.choice(
     "discus",
     "kind",
     params.kind,
     createDiscus.KINDS,
   );
-  const d: Record<createDiscus.Dimension, number> = ArchetypeDraw.dimensions(
-    "discus",
-    createDiscus.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createDiscus.Dimension, number> = draw.dimensions(createDiscus.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createDiscus.Affordance,
     createDiscus.Dimension
   > = new ArchetypeBuilder({
-    archetype: "discus",
     id: params.id,
     name: `${kind}'s discus`,
-    dimensions: d,
+    draw,
   });
   builder.rod(
     "disc",
@@ -117,6 +113,13 @@ export namespace createDiscus {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the category, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

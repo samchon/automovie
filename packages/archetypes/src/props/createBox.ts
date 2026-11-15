@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -37,6 +37,7 @@ export function createBox(
   params: createBox.IParams = {},
   seed?: number | string,
 ): Archetype<createBox.Affordance, createBox.Dimension> {
+  const draw: ArchetypeDrawSession<createBox.Dimension> = new ArchetypeDrawSession<createBox.Dimension>("box", createBox.UNITS, seed, params);
   const load: number = params.load ?? 0;
   if (!(load >= 0 && load <= createBox.LOAD))
     throw new ArchetypeRefusal({
@@ -54,21 +55,15 @@ export function createBox(
       fix: "give a load of at most 25 kg, or split it over several boxes",
     });
   const d: Record<createBox.Dimension, number> =
-    ArchetypeDraw.dimensions<createBox.Dimension>(
-      "box",
-      createBox.BANDS,
-      seed,
-      params,
-    );
+    draw.dimensions(createBox.BANDS);
   const width: number = d.width;
   const height: number = d.height;
   const depth: number = d.depth;
   const builder: ArchetypeBuilder<createBox.Affordance, createBox.Dimension> =
     new ArchetypeBuilder({
-      archetype: "box",
       id: params.id,
       name: "cardboard box",
-      dimensions: d,
+      draw,
     });
   builder.box(
     "box",
@@ -147,6 +142,14 @@ export namespace createBox {
    * - `mass`: the empty carton, kilograms.
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the load, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

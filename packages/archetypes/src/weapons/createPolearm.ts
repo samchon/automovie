@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -63,6 +64,7 @@ export function createPolearm(
   params: createPolearm.IParams,
   seed?: number | string,
 ): Archetype<createPolearm.Affordance, createPolearm.Dimension> {
+  const draw: ArchetypeDrawSession<createPolearm.Dimension> = new ArchetypeDrawSession<createPolearm.Dimension>("polearm", createPolearm.UNITS, seed, params);
   const kind: createPolearm.Kind = ArchetypeDraw.choice(
     "polearm",
     "kind",
@@ -71,9 +73,9 @@ export function createPolearm(
   );
   // A spear's head is one catalogued spearhead whole; a lance's shaft is the read lance's overall length less its head.
   const model: { figures: Readonly<Partial<Record<createPolearm.Dimension, number>>> } =
-    ArchetypeDraw.model<createPolearm.Model, createPolearm.Dimension>("polearm", "model", params.model, createPolearm.MODELS[kind], seed, params);
+    draw.model<createPolearm.Model>("model", params.model, createPolearm.MODELS[kind]);
   const drawn: Partial<Record<createPolearm.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("polearm", createPolearm.BANDS[kind], seed, params, createPolearm.BANDS),
+    ...draw.dimensions(createPolearm.BANDS[kind], createPolearm.BANDS),
     ...model.figures,
   };
   const d: Partial<Record<createPolearm.Dimension, number>> =
@@ -82,10 +84,9 @@ export function createPolearm(
     createPolearm.Affordance,
     createPolearm.Dimension
   > = new ArchetypeBuilder({
-    archetype: "polearm",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
@@ -211,6 +212,16 @@ export namespace createPolearm {
     | "headMass"
     | "diameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    headLength: "m",
+    headWidth: "m",
+    headMass: "kg",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, a spear's head, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

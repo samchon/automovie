@@ -1,13 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
-  ArchetypeCourse,
   ArchetypeBand,
   ArchetypeBuilder,
+  ArchetypeCourse,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -45,6 +46,7 @@ export function createBow(
   params: createBow.IParams,
   seed?: number | string,
 ): Archetype<createBow.Affordance, createBow.Dimension> {
+  const draw: ArchetypeDrawSession<createBow.Dimension> = new ArchetypeDrawSession<createBow.Dimension>("bow", createBow.UNITS, seed, params);
   const kind: createBow.Kind = ArchetypeDraw.choice(
     "bow",
     "kind",
@@ -53,20 +55,19 @@ export function createBow(
   );
   // A longbow is one of the three read approximations, its mass and draw whole; a horse bow one of the two read bows, drawn at one of its maker's draw weights.
   const model: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
-    ArchetypeDraw.model<createBow.Model, createBow.Dimension>("bow", "model", params.model, createBow.MODELS[kind], seed, params);
+    draw.model<createBow.Model>("model", params.model, createBow.MODELS[kind]);
   const weight: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
-    ArchetypeDraw.model<createBow.Weight, createBow.Dimension>("bow", "weight", params.weight, createBow.WEIGHTS[kind], seed, params);
+    draw.model<createBow.Weight>("weight", params.weight, createBow.WEIGHTS[kind]);
   const d: Partial<Record<createBow.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("bow", createBow.BANDS[kind], seed, params, createBow.BANDS),
+    ...draw.dimensions(createBow.BANDS[kind], createBow.BANDS),
     ...model.figures,
     ...weight.figures,
   };
   const builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bow",
       id: params.id,
       name: kind === "longbow" ? "longbow" : "horse bow",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -156,6 +157,15 @@ export namespace createBow {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "depth" | "brace" | "draw" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    depth: "m",
+    brace: "m",
+    draw: "N",
+    mass: "kg",
+  };
 
   /** The read models: the longbow approximations S1, S2 and S3, and the Freddie Warrior and Zenith horse bows. */
   export type Model = "s1" | "s2" | "s3" | "warrior" | "zenith";

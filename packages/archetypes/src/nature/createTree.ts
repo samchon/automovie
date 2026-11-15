@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -58,24 +59,19 @@ export function createTree(
   params: createTree.IParams,
   seed?: number | string,
 ): Archetype<createTree.Affordance, createTree.Dimension> {
+  const draw: ArchetypeDrawSession<createTree.Dimension> = new ArchetypeDrawSession<createTree.Dimension>("tree", createTree.UNITS, seed, params);
   const kind: createTree.Kind = ArchetypeDraw.choice(
     "tree",
     "kind",
     params.kind,
     createTree.KINDS,
   );
-  const d: Record<createTree.Dimension, number> = ArchetypeDraw.dimensions(
-    "tree",
-    createTree.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createTree.Dimension, number> = draw.dimensions(createTree.BANDS[kind]);
   const builder: ArchetypeBuilder<createTree.Affordance, createTree.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tree",
       id: params.id,
       name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -179,6 +175,14 @@ export namespace createTree {
    * - `moisture`: the green wood's moisture content, a share of its dry mass.
    */
   export type Dimension = "height" | "dbh" | "crownBase" | "moisture";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    dbh: "m",
+    crownBase: "",
+    moisture: "",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

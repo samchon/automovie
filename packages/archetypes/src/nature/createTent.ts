@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,24 +36,19 @@ export function createTent(
   params: createTent.IParams,
   seed?: number | string,
 ): Archetype<createTent.Affordance, createTent.Dimension> {
+  const draw: ArchetypeDrawSession<createTent.Dimension> = new ArchetypeDrawSession<createTent.Dimension>("tent", createTent.UNITS, seed, params);
   const kind: createTent.Kind = ArchetypeDraw.choice(
     "tent",
     "kind",
     params.kind,
     createTent.KINDS,
   );
-  const d: Record<createTent.Dimension, number> = ArchetypeDraw.dimensions(
-    "tent",
-    createTent.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createTent.Dimension, number> = draw.dimensions(createTent.BANDS[kind]);
   const builder: ArchetypeBuilder<createTent.Affordance, createTent.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tent",
       id: params.id,
       name: "relief family tent",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const canvas: string = "#c9c2a8";
@@ -171,6 +167,21 @@ export namespace createTent {
     | "innerWidth"
     | "innerHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    ridge: "m",
+    centre: "m",
+    wall: "m",
+    base: "m",
+    endWidth: "m",
+    door: "m",
+    doorWidth: "m",
+    innerWidth: "m",
+    innerHeight: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

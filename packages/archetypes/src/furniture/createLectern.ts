@@ -1,12 +1,12 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -39,20 +39,15 @@ export function createLectern(
   params: createLectern.IParams = {},
   seed?: number | string,
 ): Archetype<createLectern.Affordance, createLectern.Dimension> {
-  const d: Record<createLectern.Dimension, number> = ArchetypeDraw.dimensions(
-    "lectern",
-    createLectern.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createLectern.Dimension> = new ArchetypeDrawSession<createLectern.Dimension>("lectern", createLectern.UNITS, seed, params);
+  const d: Record<createLectern.Dimension, number> = draw.dimensions(createLectern.BANDS);
   const builder: ArchetypeBuilder<
     createLectern.Affordance,
     createLectern.Dimension
   > = new ArchetypeBuilder({
-    archetype: "lectern",
     id: params.id,
     name: "lectern",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const slope: number = d.slope * ArchetypeUnits.DEGREE;
@@ -115,6 +110,15 @@ export namespace createLectern {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "slope" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    slope: "degrees",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

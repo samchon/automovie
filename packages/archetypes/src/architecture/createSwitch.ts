@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,27 +36,21 @@ export function createSwitch(
   params: createSwitch.IParams,
   seed?: number | string,
 ): Archetype<createSwitch.Affordance, createSwitch.Dimension> {
+  const draw: ArchetypeDrawSession<createSwitch.Dimension> = new ArchetypeDrawSession<createSwitch.Dimension>("switch", createSwitch.UNITS, seed, params);
   const kind: createSwitch.Kind = ArchetypeDraw.choice(
     "switch",
     "kind",
     params.kind,
     createSwitch.KINDS,
   );
-  const d: Record<createSwitch.Dimension, number> = ArchetypeDraw.dimensions(
-    "switch",
-    createSwitch.BANDS[kind],
-    seed,
-    params,
-    createSwitch.BANDS,
-  );
+  const d: Record<createSwitch.Dimension, number> = draw.dimensions(createSwitch.BANDS[kind], createSwitch.BANDS);
   const builder: ArchetypeBuilder<
     createSwitch.Affordance,
     createSwitch.Dimension
   > = new ArchetypeBuilder({
-    archetype: "switch",
     id: params.id,
     name: kind === "rocker" ? "light switch" : "call button",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "plate",
@@ -121,6 +116,15 @@ export namespace createSwitch {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "size" | "width" | "travel" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    size: "m",
+    width: "m",
+    travel: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -47,26 +48,21 @@ export function createWearable(
   params: createWearable.IParams,
   seed?: number | string,
 ): Archetype<createWearable.Affordance, createWearable.Dimension> {
+  const draw: ArchetypeDrawSession<createWearable.Dimension> = new ArchetypeDrawSession<createWearable.Dimension>("wearable", createWearable.UNITS, seed, params);
   const kind: createWearable.Kind = ArchetypeDraw.choice(
     "wearable",
     "kind",
     params.kind,
     createWearable.KINDS,
   );
-  const d: Record<createWearable.Dimension, number> = ArchetypeDraw.dimensions(
-    "wearable",
-    createWearable.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createWearable.Dimension, number> = draw.dimensions(createWearable.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createWearable.Affordance,
     createWearable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "wearable",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const thin: number = createWearable.THIN;
@@ -227,6 +223,14 @@ export namespace createWearable {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

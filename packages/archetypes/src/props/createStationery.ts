@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -60,6 +61,7 @@ export function createStationery(
   params: createStationery.IParams,
   seed?: number | string,
 ): Archetype<createStationery.Affordance, createStationery.Dimension> {
+  const draw: ArchetypeDrawSession<createStationery.Dimension> = new ArchetypeDrawSession<createStationery.Dimension>("stationery", createStationery.UNITS, seed, params);
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
     "kind",
@@ -67,23 +69,10 @@ export function createStationery(
     createStationery.KINDS,
   );
   const drawn: Partial<Record<createStationery.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "stationery",
-      createStationery.BANDS[kind],
-      seed,
-      params,
-      createStationery.BANDS,
-    );
+    draw.dimensions(createStationery.BANDS[kind], createStationery.BANDS);
   // A clipboard is one of Esselte's two models whole.
   const model: { name: createStationery.Model | undefined; figures: createStationery.Figures } =
-    ArchetypeDraw.model<createStationery.Model, createStationery.Dimension>(
-      "stationery",
-      "model",
-      params.model,
-      createStationery.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createStationery.Model>("model", params.model, createStationery.MODELS[kind]);
   const d: Partial<Record<createStationery.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -92,10 +81,9 @@ export function createStationery(
     createStationery.Affordance,
     createStationery.Dimension
   > = new ArchetypeBuilder({
-    archetype: "stationery",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const width: number = d.width!;
   const length: number = d.length!;
@@ -280,6 +268,14 @@ export namespace createStationery {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "length" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

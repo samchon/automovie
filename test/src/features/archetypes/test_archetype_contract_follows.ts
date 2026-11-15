@@ -1,6 +1,7 @@
 import {
   type Archetype,
   ArchetypeBuilder,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
 } from "@automovie/archetypes";
@@ -43,9 +44,8 @@ function fixture(
 ): Archetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
   return new ArchetypeBuilder<Id, never>({
-    archetype: "fixture",
     name: "fixture",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("base", v(1, 0.1, 1), v(0, 0.05, 0))
     .box("carriage", v(0.1, 0.1, 0.1), v(0, 0.2, 0))

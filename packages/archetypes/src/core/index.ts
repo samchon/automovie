@@ -5,6 +5,7 @@ export * from "./ArchetypeBand";
 export * from "./ArchetypeBuilder";
 export * from "./ArchetypeCourse";
 export * from "./ArchetypeDraw";
+export * from "./ArchetypeDrawSession";
 export * from "./ArchetypeFrame";
 export * from "./ArchetypeFriction";
 export * from "./ArchetypeMarks";

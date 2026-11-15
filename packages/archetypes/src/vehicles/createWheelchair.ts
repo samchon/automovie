@@ -2,12 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -35,6 +36,7 @@ export function createWheelchair(
   params: createWheelchair.IParams = {},
   seed?: number | string,
 ): Archetype<createWheelchair.Affordance, createWheelchair.Dimension> {
+  const draw: ArchetypeDrawSession<createWheelchair.Dimension> = new ArchetypeDrawSession<createWheelchair.Dimension>("wheelchair", createWheelchair.UNITS, seed, params);
   const kind: createWheelchair.Kind = ArchetypeDraw.choice(
     "wheelchair",
     "kind",
@@ -43,31 +45,18 @@ export function createWheelchair(
   );
   // One read model of the kind whole, then the ranges its own row states inside it.
   const model: { name: createWheelchair.Model | undefined; figures: Readonly<Partial<Record<createWheelchair.Dimension, number>>> } =
-    ArchetypeDraw.model<createWheelchair.Model, createWheelchair.Dimension>(
-      "wheelchair",
-      "model",
-      params.model,
-      createWheelchair.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createWheelchair.Model>("model", params.model, createWheelchair.MODELS[kind]);
   const d: Record<createWheelchair.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "wheelchair",
-      createWheelchair.ranges(kind, model.name!),
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createWheelchair.ranges(kind, model.name!)),
     ...model.figures,
   } as Record<createWheelchair.Dimension, number>;
   const builder: ArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
   > = new ArchetypeBuilder({
-    archetype: "wheelchair",
     id: params.id,
     name: kind === "selfPropelled" ? "wheelchair" : "transport wheelchair",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const frame: string = "#55595f";
@@ -335,6 +324,23 @@ export namespace createWheelchair {
     | "width"
     | "height"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatWidth: "m",
+    seatDepth: "m",
+    seatHeight: "m",
+    backHeight: "m",
+    backAngle: "degrees",
+    armHeight: "m",
+    footDrop: "m",
+    wheelDiameter: "m",
+    casterDiameter: "m",
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its model's range. */
   export interface IParams extends Partial<Record<Dimension, number>> {

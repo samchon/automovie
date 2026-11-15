@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -32,28 +32,21 @@ export function createWeaponRack(
   params: createWeaponRack.IParams = {},
   seed?: number | string,
 ): Archetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
+  const draw: ArchetypeDrawSession<createWeaponRack.Dimension> = new ArchetypeDrawSession<createWeaponRack.Dimension>("weaponRack", createWeaponRack.UNITS, seed, params);
   // The rack is one of the two read stands whole; only its unread mass is drawn.
   const model: { figures: Readonly<Partial<Record<createWeaponRack.Dimension, number>>> } =
-    ArchetypeDraw.model<createWeaponRack.Model, createWeaponRack.Dimension>(
-      "weaponRack",
-      "model",
-      params.model,
-      createWeaponRack.MODELS,
-      seed,
-      params,
-    );
+    draw.model<createWeaponRack.Model>("model", params.model, createWeaponRack.MODELS);
   const d: Partial<Record<createWeaponRack.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("weaponRack", createWeaponRack.BANDS, seed, params),
+    ...draw.dimensions(createWeaponRack.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createWeaponRack.Affordance,
     createWeaponRack.Dimension
   > = new ArchetypeBuilder({
-    archetype: "weaponRack",
     id: params.id,
     name: "weapon rack",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const base: number = createWeaponRack.BASE;
@@ -157,6 +150,14 @@ export namespace createWeaponRack {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The read stands: Medieval Extreme's and Gladney's six-slot floor sword stands. */
   export type Model = "medievalExtreme" | "gladney";

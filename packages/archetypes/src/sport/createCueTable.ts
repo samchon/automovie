@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -39,20 +39,15 @@ export function createCueTable(
   params: createCueTable.IParams = {},
   seed?: number | string,
 ): Archetype<createCueTable.Affordance, createCueTable.Dimension> {
-  const d: Record<createCueTable.Dimension, number> = ArchetypeDraw.dimensions(
-    "cueTable",
-    createCueTable.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createCueTable.Dimension> = new ArchetypeDrawSession<createCueTable.Dimension>("cueTable", createCueTable.UNITS, seed, params);
+  const d: Record<createCueTable.Dimension, number> = draw.dimensions(createCueTable.BANDS);
   const builder: ArchetypeBuilder<
     createCueTable.Affordance,
     createCueTable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "cueTable",
     id: params.id,
     name: "pool table",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const width: number = d.width;
@@ -135,6 +130,16 @@ export namespace createCueTable {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "length" | "height" | "nose" | "rail" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    height: "m",
+    nose: "",
+    rail: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

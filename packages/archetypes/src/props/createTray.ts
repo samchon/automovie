@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -34,6 +35,7 @@ export function createTray(
   params: createTray.IParams,
   seed?: number | string,
 ): Archetype<createTray.Affordance, createTray.Dimension> {
+  const draw: ArchetypeDrawSession<createTray.Dimension> = new ArchetypeDrawSession<createTray.Dimension>("tray", createTray.UNITS, seed, params);
   const kind: createTray.Kind = ArchetypeDraw.choice(
     "tray",
     "kind",
@@ -41,22 +43,10 @@ export function createTray(
     createTray.KINDS,
   );
   const drawn: Partial<Record<createTray.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-    "tray",
-    createTray.BANDS[kind],
-    seed,
-    params,
-  );
+    draw.dimensions(createTray.BANDS[kind]);
   // A tray or a basket is one of IKEA's read models whole.
   const model: { name: createTray.Model | undefined; figures: createTray.Figures } =
-    ArchetypeDraw.model<createTray.Model, createTray.Dimension>(
-      "tray",
-      "model",
-      params.model,
-      createTray.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createTray.Model>("model", params.model, createTray.MODELS[kind]);
   const read: Partial<Record<createTray.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -69,10 +59,9 @@ export function createTray(
   };
   const builder: ArchetypeBuilder<createTray.Affordance, createTray.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tray",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const wall: number = createTray.WALL;
@@ -195,6 +184,14 @@ export namespace createTray {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

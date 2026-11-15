@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -42,6 +43,7 @@ export function createStairs(
   params: createStairs.IParams = {},
   seed?: number | string,
 ): Archetype<createStairs.Affordance, createStairs.Dimension> {
+  const draw: ArchetypeDrawSession<createStairs.Dimension> = new ArchetypeDrawSession<createStairs.Dimension>("stairs", createStairs.UNITS, seed, params);
   const steps: number = params.steps ?? 12;
   if (!Number.isInteger(steps) || steps < 2 || steps > createStairs.STEPS)
     throw new ArchetypeRefusal({
@@ -67,16 +69,9 @@ export function createStairs(
   const occupancy: {
     name: createStairs.Occupancy | undefined;
     figures: Readonly<Partial<Record<createStairs.Dimension, number>>>;
-  } = ArchetypeDraw.model<createStairs.Occupancy, createStairs.Dimension>(
-    "stairs",
-    "occupancy",
-    params.occupancy,
-    createStairs.OCCUPANCIES,
-    seed,
-    params,
-  );
+  } = draw.model<createStairs.Occupancy>("occupancy", params.occupancy, createStairs.OCCUPANCIES);
   const d: Record<createStairs.Dimension, number> = {
-    ...ArchetypeDraw.dimensions("stairs", createStairs.BANDS, seed, params),
+    ...draw.dimensions(createStairs.BANDS),
     width: occupancy.figures.width!,
   };
   const { riser, tread, width }: Record<createStairs.Dimension, number> = d;
@@ -84,10 +79,9 @@ export function createStairs(
     createStairs.Affordance,
     createStairs.Dimension
   > = new ArchetypeBuilder({
-    archetype: "stairs",
     id: params.id,
     name: "stairs",
-    dimensions: d,
+    draw,
   });
 
   // Treads 1 to steps - 1, then the landing at the top; each nosing is the front edge of its tread.
@@ -237,6 +231,16 @@ export namespace createStairs {
     | "railHeight"
     | "railDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    riser: "m",
+    tread: "m",
+    width: "m",
+    railHeight: "m",
+    railDiameter: "m",
+    mass: "kg",
+  };
 
   /** The code's occupant classes for a stair's width: under 50 occupants, and 50 or more. */
   export type Occupancy = "under50" | "over50";

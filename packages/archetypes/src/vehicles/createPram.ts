@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -36,18 +36,13 @@ export function createPram(
   params: createPram.IParams = {},
   seed?: number | string,
 ): Archetype<createPram.Affordance, createPram.Dimension> {
-  const d: Record<createPram.Dimension, number> = ArchetypeDraw.dimensions(
-    "pram",
-    createPram.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createPram.Dimension> = new ArchetypeDrawSession<createPram.Dimension>("pram", createPram.UNITS, seed, params);
+  const d: Record<createPram.Dimension, number> = draw.dimensions(createPram.BANDS);
   const builder: ArchetypeBuilder<createPram.Affordance, createPram.Dimension> =
     new ArchetypeBuilder({
-      archetype: "pram",
       id: params.id,
       name: "pram",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const wheel: number = createPram.WHEEL.rear;
@@ -165,6 +160,14 @@ export namespace createPram {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "handleHeight" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    handleHeight: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

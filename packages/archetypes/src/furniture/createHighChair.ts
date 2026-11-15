@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -41,20 +41,15 @@ export function createHighChair(
   params: createHighChair.IParams = {},
   seed?: number | string,
 ): Archetype<createHighChair.Affordance, createHighChair.Dimension> {
-  const d: Record<createHighChair.Dimension, number> = ArchetypeDraw.dimensions(
-    "highChair",
-    createHighChair.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createHighChair.Dimension> = new ArchetypeDrawSession<createHighChair.Dimension>("highChair", createHighChair.UNITS, seed, params);
+  const d: Record<createHighChair.Dimension, number> = draw.dimensions(createHighChair.BANDS);
   const builder: ArchetypeBuilder<
     createHighChair.Affordance,
     createHighChair.Dimension
   > = new ArchetypeBuilder({
-    archetype: "highChair",
     id: params.id,
     name: "high chair",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -128,6 +123,17 @@ export namespace createHighChair {
     | "seatWidth"
     | "seatDepth"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    seatHeight: "m",
+    seatWidth: "m",
+    seatDepth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

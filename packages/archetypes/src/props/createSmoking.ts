@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,7 @@ export function createSmoking(
   params: createSmoking.IParams,
   seed?: number | string,
 ): Archetype<createSmoking.Affordance, createSmoking.Dimension> {
+  const draw: ArchetypeDrawSession<createSmoking.Dimension> = new ArchetypeDrawSession<createSmoking.Dimension>("smoking", createSmoking.UNITS, seed, params);
   const kind: createSmoking.Kind = ArchetypeDraw.choice(
     "smoking",
     "kind",
@@ -42,32 +44,18 @@ export function createSmoking(
     createSmoking.KINDS,
   );
   const drawn: Partial<Record<createSmoking.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "smoking",
-      createSmoking.BANDS[kind],
-      seed,
-      params,
-      createSmoking.BANDS,
-    );
+    draw.dimensions(createSmoking.BANDS[kind], createSmoking.BANDS);
   // A lighter is one of BIC's two models whole.
   const model: { name: createSmoking.Model | undefined; figures: createSmoking.Figures } =
-    ArchetypeDraw.model<createSmoking.Model, createSmoking.Dimension>(
-      "smoking",
-      "model",
-      params.model,
-      createSmoking.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createSmoking.Model>("model", params.model, createSmoking.MODELS[kind]);
   const d: Partial<Record<createSmoking.Dimension, number>> = { ...drawn, ...model.figures };
   const builder: ArchetypeBuilder<
     createSmoking.Affordance,
     createSmoking.Dimension
   > = new ArchetypeBuilder({
-    archetype: "smoking",
     id: params.id,
     name: model.name === undefined ? kind : ` ${model.name}`,
-    dimensions: d,
+    draw,
   });
 
   if (kind === "cigarette") {
@@ -224,6 +212,15 @@ export namespace createSmoking {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "width" | "filter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    width: "m",
+    filter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

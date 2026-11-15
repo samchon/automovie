@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
@@ -51,6 +52,7 @@ export function createLongTool(
   params: createLongTool.IParams,
   seed?: number | string,
 ): Archetype<createLongTool.Affordance, createLongTool.Dimension> {
+  const draw: ArchetypeDrawSession<createLongTool.Dimension> = new ArchetypeDrawSession<createLongTool.Dimension>("longTool", createLongTool.UNITS, seed, params);
   const kind: createLongTool.Kind = ArchetypeDraw.choice(
     "longTool",
     "kind",
@@ -58,23 +60,10 @@ export function createLongTool(
     createLongTool.KINDS,
   );
   const drawn: Partial<Record<createLongTool.Dimension, number>> =
-    ArchetypeDraw.dimensions<createLongTool.Dimension>(
-      "longTool",
-      createLongTool.BANDS[kind],
-      seed,
-      params,
-      createLongTool.BANDS,
-    );
+    draw.dimensions(createLongTool.BANDS[kind], createLongTool.BANDS);
   // A fishing rod is one of Daiwa's Ninja X spinning rods whole.
   const model: { name: createLongTool.Model | undefined; figures: createLongTool.Figures } =
-    ArchetypeDraw.model<createLongTool.Model, createLongTool.Dimension>(
-      "longTool",
-      "model",
-      params.model,
-      createLongTool.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createLongTool.Model>("model", params.model, createLongTool.MODELS[kind]);
   const d: Partial<Record<createLongTool.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -84,10 +73,9 @@ export function createLongTool(
     createLongTool.Affordance,
     createLongTool.Dimension
   > = new ArchetypeBuilder({
-    archetype: "longTool",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
 
   if (kind === "forestAxe") {
@@ -334,6 +322,16 @@ export namespace createLongTool {
     | "headLength"
     | "headMass"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    shaftDiameter: "m",
+    edge: "m",
+    headLength: "m",
+    headMass: "kg",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

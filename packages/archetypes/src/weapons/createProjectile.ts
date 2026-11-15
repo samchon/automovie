@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -58,6 +59,7 @@ export function createProjectile(
   params: createProjectile.IParams,
   seed?: number | string,
 ): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+  const draw: ArchetypeDrawSession<createProjectile.Dimension> = new ArchetypeDrawSession<createProjectile.Dimension>("projectile", createProjectile.UNITS, seed, params);
   const kind: createProjectile.Kind = ArchetypeDraw.choice(
     "projectile",
     "kind",
@@ -66,26 +68,18 @@ export function createProjectile(
   );
   // An arrow, a bolt and a round shot are each one read object whole; a band is drawn only for a figure its object does not give.
   const model: { figures: Readonly<Partial<Record<createProjectile.Dimension, number>>> } =
-    ArchetypeDraw.model<createProjectile.Model, createProjectile.Dimension>(
-      "projectile",
-      "model",
-      params.model,
-      createProjectile.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createProjectile.Model>("model", params.model, createProjectile.MODELS[kind]);
   const d: Partial<Record<createProjectile.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("projectile", createProjectile.BANDS[kind], seed, params, createProjectile.BANDS),
+    ...draw.dimensions(createProjectile.BANDS[kind], createProjectile.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createProjectile.Affordance,
     createProjectile.Dimension
   > = new ArchetypeBuilder({
-    archetype: "projectile",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -253,6 +247,15 @@ export namespace createProjectile {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "length" | "head" | "headWidth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    head: "m",
+    headWidth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, the read object, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

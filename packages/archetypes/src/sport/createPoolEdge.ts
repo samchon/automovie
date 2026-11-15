@@ -1,12 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -41,6 +42,7 @@ export function createPoolEdge(
   params: createPoolEdge.IParams,
   seed?: number | string,
 ): Archetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
+  const draw: ArchetypeDrawSession<createPoolEdge.Dimension> = new ArchetypeDrawSession<createPoolEdge.Dimension>("poolEdge", createPoolEdge.UNITS, seed, params);
   const kind: createPoolEdge.Kind = ArchetypeDraw.choice(
     "poolEdge",
     "kind",
@@ -48,21 +50,14 @@ export function createPoolEdge(
     createPoolEdge.KINDS,
   );
   const d: Partial<Record<createPoolEdge.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "poolEdge",
-      createPoolEdge.BANDS[kind],
-      seed,
-      params,
-      createPoolEdge.BANDS,
-    );
+    draw.dimensions(createPoolEdge.BANDS[kind], createPoolEdge.BANDS);
   const builder: ArchetypeBuilder<
     createPoolEdge.Affordance,
     createPoolEdge.Dimension
   > = new ArchetypeBuilder({
-    archetype: "poolEdge",
     id: params.id,
     name: kind === "deckEdge" ? "pool edge" : "starting platform",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof createPoolEdge.ESTIMATES = createPoolEdge.ESTIMATES;
@@ -225,6 +220,20 @@ export namespace createPoolEdge {
     | "gripHeight"
     | "slope"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    freeboard: "m",
+    poolDepth: "m",
+    ledgeDepth: "m",
+    ledgeWidth: "m",
+    platformHeight: "m",
+    platformSize: "m",
+    gripHeight: "m",
+    slope: "degrees",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -212,6 +212,7 @@ export class ArchetypeAssembly<
         surfaces,
         restitution: restitution / mass,
         dimensions: {},
+        provenance: { bands: {}, models: {}, figures: {}, units: {} },
         spans,
       },
       state,

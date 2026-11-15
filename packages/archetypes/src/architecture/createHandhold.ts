@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -49,6 +50,7 @@ export function createHandhold(
   params: createHandhold.IParams,
   seed?: number | string,
 ): Archetype<createHandhold.Affordance, createHandhold.Dimension> {
+  const draw: ArchetypeDrawSession<createHandhold.Dimension> = new ArchetypeDrawSession<createHandhold.Dimension>("handhold", createHandhold.UNITS, seed, params);
   const kind: createHandhold.Kind = ArchetypeDraw.choice(
     "handhold",
     "kind",
@@ -58,33 +60,19 @@ export function createHandhold(
   const strap: {
     name: createHandhold.Strap | undefined;
     figures: Readonly<Partial<Record<createHandhold.Dimension, number>>>;
-  } = ArchetypeDraw.model<createHandhold.Strap, createHandhold.Dimension>(
-    "handhold",
-    "strap",
-    params.strap,
-    createHandhold.STRAPS[kind],
-    seed,
-    params,
-  );
+  } = draw.model<createHandhold.Strap>("strap", params.strap, createHandhold.STRAPS[kind]);
   const d: Partial<Record<createHandhold.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "handhold",
-      createHandhold.BANDS[kind],
-      seed,
-      params,
-      createHandhold.BANDS,
-    ),
+    ...draw.dimensions(createHandhold.BANDS[kind], createHandhold.BANDS),
     ...strap.figures,
   };
   const builder: ArchetypeBuilder<
     createHandhold.Affordance,
     createHandhold.Dimension
   > = new ArchetypeBuilder({
-    archetype: "handhold",
     id: params.id,
     name:
       strap.name === undefined ? "grab pole" : `hanging strap ${strap.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -176,6 +164,14 @@ export namespace createHandhold {
    * - `mass`: kilograms; a strap's is its model's, the strap's alone, the rail being the vehicle's.
    */
   export type Dimension = "height" | "diameter" | "length" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    length: "m",
+    mass: "kg",
+  };
 
   /** The straps read: HAPPICH's 625 and 673 mm straps, each with its three clamping pieces' masses. */
   export type Strap =

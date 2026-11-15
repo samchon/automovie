@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -93,6 +94,7 @@ export function createBag(
   params: createBag.IParams,
   seed?: number | string,
 ): Archetype<createBag.Affordance, createBag.Dimension> {
+  const draw: ArchetypeDrawSession<createBag.Dimension> = new ArchetypeDrawSession<createBag.Dimension>("bag", createBag.UNITS, seed, params);
   const kind: createBag.Kind = ArchetypeDraw.choice(
     "bag",
     "kind",
@@ -111,32 +113,12 @@ export function createBag(
       fix: "give a load the bag carries",
     });
   const drawn: Partial<Record<createBag.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "bag",
-      createBag.BANDS[kind],
-      seed,
-      params,
-      createBag.BANDS,
-    );
+    draw.dimensions(createBag.BANDS[kind], createBag.BANDS);
   // A suitcase is one of the two cabin limits read whole, its pull handle one of the two heights the study tested.
   const model: { name: createBag.Model | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Model, createBag.Dimension>(
-      "bag",
-      "model",
-      params.model,
-      createBag.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createBag.Model>("model", params.model, createBag.MODELS[kind]);
   const pull: { name: createBag.Pull | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Pull, createBag.Dimension>(
-      "bag",
-      "pull",
-      params.pull,
-      createBag.PULLS[kind],
-      seed,
-      params,
-    );
+    draw.model<createBag.Pull>("pull", params.pull, createBag.PULLS[kind]);
   const d: Partial<Record<createBag.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -147,10 +129,9 @@ export function createBag(
   const depth: number = d.depth!;
   const builder: ArchetypeBuilder<createBag.Affordance, createBag.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bag",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   builder.box(
     "body",
@@ -361,6 +342,18 @@ export namespace createBag {
     | "pullHeight"
     | "handleDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    handleDrop: "m",
+    strapDrop: "m",
+    pullHeight: "m",
+    handleDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, the load, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

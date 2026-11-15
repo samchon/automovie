@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -37,6 +38,7 @@ export function createShield(
   params: createShield.IParams,
   seed?: number | string,
 ): Archetype<createShield.Affordance, createShield.Dimension> {
+  const draw: ArchetypeDrawSession<createShield.Dimension> = new ArchetypeDrawSession<createShield.Dimension>("shield", createShield.UNITS, seed, params);
   const kind: createShield.Kind = ArchetypeDraw.choice(
     "shield",
     "kind",
@@ -45,19 +47,18 @@ export function createShield(
   );
   // A buckler is one of the two Wallace Collection bucklers whole; a round shield has no read model, its bands.
   const model: { figures: Readonly<Partial<Record<createShield.Dimension, number>>> } =
-    ArchetypeDraw.model<createShield.Model, createShield.Dimension>("shield", "model", params.model, createShield.MODELS[kind], seed, params);
+    draw.model<createShield.Model>("model", params.model, createShield.MODELS[kind]);
   const d: Partial<Record<createShield.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("shield", createShield.BANDS[kind], seed, params, createShield.BANDS),
+    ...draw.dimensions(createShield.BANDS[kind], createShield.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createShield.Affordance,
     createShield.Dimension
   > = new ArchetypeBuilder({
-    archetype: "shield",
     id: params.id,
     name: kind === "buckler" ? "buckler" : "round shield",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.diameter! / 2;
@@ -160,6 +161,12 @@ export namespace createShield {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The read bucklers: the Wallace Collection's A315 and A316. */
   export type Model = "a315" | "a316";

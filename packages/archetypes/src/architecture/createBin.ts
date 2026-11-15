@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
 } from "../core";
@@ -93,6 +94,7 @@ export function createBin(
   params: createBin.IParams,
   seed?: number | string,
 ): Archetype<createBin.Affordance, createBin.Dimension> {
+  const draw: ArchetypeDrawSession<createBin.Dimension> = new ArchetypeDrawSession<createBin.Dimension>("bin", createBin.UNITS, seed);
   const kind: createBin.Kind = ArchetypeDraw.choice(
     "bin",
     "kind",
@@ -102,21 +104,14 @@ export function createBin(
   const model: {
     name: createBin.Model | undefined;
     figures: Readonly<Partial<Record<createBin.Dimension, number>>>;
-  } = ArchetypeDraw.model<createBin.Model, createBin.Dimension>(
-    "bin",
-    "model",
-    params.model,
-    createBin.MODELS[kind],
-    seed,
-  );
+  } = draw.model<createBin.Model>("model", params.model, createBin.MODELS[kind]);
   const read: Readonly<Partial<Record<createBin.Dimension, number>>> =
     model.figures;
   const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bin",
       id: params.id,
       name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
-      dimensions: read,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -255,6 +250,18 @@ export namespace createBin {
     | "handle"
     | "wheel"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    top: "m",
+    reach: "m",
+    handle: "m",
+    wheel: "m",
+    mass: "kg",
+  };
 
   /** Each kind's models with their figures, its default first. */
   export const MODELS: typeof BIN_MODELS = BIN_MODELS;

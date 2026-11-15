@@ -5,6 +5,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -37,6 +38,7 @@ export function createTool(
   params: createTool.IParams,
   seed?: number | string,
 ): Archetype<createTool.Affordance, createTool.Dimension> {
+  const draw: ArchetypeDrawSession<createTool.Dimension> = new ArchetypeDrawSession<createTool.Dimension>("tool", createTool.UNITS, seed, params);
   const kind: createTool.Kind = ArchetypeDraw.choice(
     "tool",
     "kind",
@@ -44,23 +46,10 @@ export function createTool(
     createTool.KINDS,
   );
   const drawn: Partial<Record<createTool.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "tool",
-      createTool.BANDS[kind],
-      seed,
-      params,
-      createTool.BANDS,
-    );
+    draw.dimensions(createTool.BANDS[kind], createTool.BANDS);
   // A table knife is one of the two read knives whole.
   const model: { name: createTool.Model | undefined; figures: createTool.Figures } =
-    ArchetypeDraw.model<createTool.Model, createTool.Dimension>(
-      "tool",
-      "model",
-      params.model,
-      createTool.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createTool.Model>("model", params.model, createTool.MODELS[kind]);
   const d: Partial<Record<createTool.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -69,10 +58,9 @@ export function createTool(
   const radius: number = d.gripDiameter! / 2;
   const builder: ArchetypeBuilder<createTool.Affordance, createTool.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tool",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
 
   const v: typeof Vector3.create = Vector3.create;
@@ -397,6 +385,16 @@ export namespace createTool {
     | "bladeWidth"
     | "bowl"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    gripDiameter: "m",
+    blade: "m",
+    bladeWidth: "m",
+    bowl: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

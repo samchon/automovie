@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -71,6 +72,7 @@ export function createHandgun(
   params: createHandgun.IParams,
   seed?: number | string,
 ): Archetype<createHandgun.Affordance, createHandgun.Dimension> {
+  const draw: ArchetypeDrawSession<createHandgun.Dimension> = new ArchetypeDrawSession<createHandgun.Dimension>("handgun", createHandgun.UNITS, seed, params);
   const frame: createHandgun.Frame = ArchetypeDraw.choice(
     "handgun",
     "frame",
@@ -79,18 +81,11 @@ export function createHandgun(
   );
   // One of the frame's two read pistols whole, and a GLOCK's sights, which set its sight radius.
   const model: { name: createHandgun.Model | undefined; figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Model, createHandgun.Dimension>("handgun", "model", params.model, createHandgun.MODELS[frame], seed, params);
+    draw.model<createHandgun.Model>("model", params.model, createHandgun.MODELS[frame]);
   const sights: { figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Sights, createHandgun.Dimension>(
-      "handgun",
-      "sights",
-      params.sights,
-      model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
-      seed,
-      params,
-    );
+    draw.model<createHandgun.Sights>("sights", params.sights, model.name === undefined ? undefined : createHandgun.SIGHTS[model.name]);
   const d: Partial<Record<createHandgun.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("handgun", createHandgun.BANDS[frame], seed, params, createHandgun.BANDS),
+    ...draw.dimensions(createHandgun.BANDS[frame], createHandgun.BANDS),
     ...model.figures,
     ...sights.figures,
   };
@@ -98,10 +93,9 @@ export function createHandgun(
     createHandgun.Affordance,
     createHandgun.Dimension
   > = new ArchetypeBuilder({
-    archetype: "handgun",
     id: params.id,
     name: `${frame === "fullSize" ? "full-size" : "compact"} handgun`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const slide: number = 0.028;
@@ -268,6 +262,18 @@ export namespace createHandgun {
     | "triggerTravel"
     | "gripDepth"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    width: "m",
+    sightRadius: "m",
+    triggerReach: "m",
+    triggerTravel: "m",
+    gripDepth: "m",
+    mass: "kg",
+  };
 
   /** The read pistols: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact. */
   export type Model = "g17" | "p320m17" | "g19" | "p320m18";

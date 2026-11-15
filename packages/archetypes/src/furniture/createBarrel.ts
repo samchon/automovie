@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -56,6 +57,7 @@ export function createBarrel(
   params: createBarrel.IParams,
   seed?: number | string,
 ): Archetype<createBarrel.Affordance, createBarrel.Dimension> {
+  const draw: ArchetypeDrawSession<createBarrel.Dimension> = new ArchetypeDrawSession<createBarrel.Dimension>("barrel", createBarrel.UNITS, seed, params);
   const kind: createBarrel.Kind = ArchetypeDraw.choice(
     "barrel",
     "kind",
@@ -63,22 +65,9 @@ export function createBarrel(
     createBarrel.KINDS,
   );
   const drum: Readonly<Partial<Record<createBarrel.Dimension, number>>> =
-    ArchetypeDraw.model<createBarrel.Drum, createBarrel.Dimension>(
-      "barrel",
-      "model",
-      params.model,
-      createBarrel.DRUMS[kind],
-      seed,
-      params,
-    ).figures;
+    draw.model<createBarrel.Drum>("model", params.model, createBarrel.DRUMS[kind]).figures;
   const d: Partial<Record<createBarrel.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "barrel",
-      createBarrel.BANDS[kind],
-      seed,
-      params,
-      createBarrel.BANDS,
-    ),
+    ...draw.dimensions(createBarrel.BANDS[kind], createBarrel.BANDS),
     ...drum,
   };
   const radius: number = d.diameter! / 2;
@@ -87,10 +76,9 @@ export function createBarrel(
     createBarrel.Affordance,
     createBarrel.Dimension
   > = new ArchetypeBuilder({
-    archetype: "barrel",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   builder.rod(
     kind,
@@ -162,6 +150,13 @@ export namespace createBarrel {
    * - `mass`: the empty barrel, kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The steel drums read: Pipeline Packaging's DWG20459 tight head and DWG20443 open head. */
   export type Drum = "DWG20459" | "DWG20443";

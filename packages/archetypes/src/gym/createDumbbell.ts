@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,7 @@ export function createDumbbell(
   params: createDumbbell.IParams,
   seed?: number | string,
 ): Archetype<createDumbbell.Affordance, createDumbbell.Dimension> {
+  const draw: ArchetypeDrawSession<createDumbbell.Dimension> = new ArchetypeDrawSession<createDumbbell.Dimension>("dumbbell", createDumbbell.UNITS, seed, params);
   const kind: createDumbbell.Kind = ArchetypeDraw.choice(
     "dumbbell",
     "kind",
@@ -42,13 +44,7 @@ export function createDumbbell(
     createDumbbell.KINDS,
   );
   const d: Partial<Record<createDumbbell.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "dumbbell",
-      createDumbbell.BANDS[kind],
-      seed,
-      params,
-      createDumbbell.BANDS,
-    );
+    draw.dimensions(createDumbbell.BANDS[kind], createDumbbell.BANDS);
   const half: number = d.handle! / 2;
   const slim: number = d.diameter! / 2;
 
@@ -67,10 +63,9 @@ export function createDumbbell(
     createDumbbell.Affordance,
     createDumbbell.Dimension
   > = new ArchetypeBuilder({
-    archetype: "dumbbell",
     id: params.id,
     name: "dumbbell",
-    dimensions: d,
+    draw,
   });
   builder.rod(
     "handle",
@@ -136,6 +131,13 @@ export namespace createDumbbell {
    * - `mass`: kilograms.
    */
   export type Dimension = "handle" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    handle: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

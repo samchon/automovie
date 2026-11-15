@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,20 +35,15 @@ export function createTorch(
   params: createTorch.IParams = {},
   seed?: number | string,
 ): Archetype<createTorch.Affordance, createTorch.Dimension> {
-  const d: Record<createTorch.Dimension, number> = ArchetypeDraw.dimensions(
-    "torch",
-    createTorch.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createTorch.Dimension> = new ArchetypeDrawSession<createTorch.Dimension>("torch", createTorch.UNITS, seed, params);
+  const d: Record<createTorch.Dimension, number> = draw.dimensions(createTorch.BANDS);
   const builder: ArchetypeBuilder<
     createTorch.Affordance,
     createTorch.Dimension
   > = new ArchetypeBuilder({
-    archetype: "torch",
     id: params.id,
     name: "torch",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const head: number = createTorch.HEAD;
@@ -130,6 +125,13 @@ export namespace createTorch {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

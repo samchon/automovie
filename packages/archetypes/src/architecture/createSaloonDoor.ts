@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -43,34 +43,22 @@ export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
+  const draw: ArchetypeDrawSession<createSaloonDoor.Dimension> = new ArchetypeDrawSession<createSaloonDoor.Dimension>("saloonDoor", createSaloonDoor.UNITS, seed, params);
   const opening: {
     name: createSaloonDoor.Opening | undefined;
     figures: Readonly<Partial<Record<createSaloonDoor.Dimension, number>>>;
-  } = ArchetypeDraw.model<createSaloonDoor.Opening, createSaloonDoor.Dimension>(
-    "saloonDoor",
-    "size",
-    params.size,
-    createSaloonDoor.OPENINGS,
-    seed,
-    params,
-  );
+  } = draw.model<createSaloonDoor.Opening>("size", params.size, createSaloonDoor.OPENINGS);
   const d: Record<createSaloonDoor.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "saloonDoor",
-      createSaloonDoor.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createSaloonDoor.BANDS),
     opening: opening.figures.opening!,
   };
   const builder: ArchetypeBuilder<
     createSaloonDoor.Affordance,
     createSaloonDoor.Dimension
   > = new ArchetypeBuilder({
-    archetype: "saloonDoor",
     id: params.id,
     name: `saloon doors for a ${opening.name} opening`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.opening / 2;
@@ -157,6 +145,15 @@ export namespace createSaloonDoor {
    * - `mass`: both leaves, kilograms.
    */
   export type Dimension = "opening" | "height" | "thickness" | "gap" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    opening: "m",
+    height: "m",
+    thickness: "m",
+    gap: "m",
+    mass: "kg",
+  };
 
   /** The doorway openings the maker sizes its doors for: its "30",32",36" Door Opening Sizes". */
   export type Opening = "30in" | "32in" | "36in";

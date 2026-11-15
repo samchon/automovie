@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -50,6 +51,7 @@ export function createMirror(
   params: createMirror.IParams,
   seed?: number | string,
 ): Archetype<createMirror.Affordance, createMirror.Dimension> {
+  const draw: ArchetypeDrawSession<createMirror.Dimension> = new ArchetypeDrawSession<createMirror.Dimension>("mirror", createMirror.UNITS, seed, params);
   const kind: createMirror.Kind = ArchetypeDraw.choice(
     "mirror",
     "kind",
@@ -59,33 +61,19 @@ export function createMirror(
   const size: {
     name: createMirror.Size | undefined;
     figures: Readonly<Partial<Record<createMirror.Dimension, number>>>;
-  } = ArchetypeDraw.model<createMirror.Size, createMirror.Dimension>(
-    "mirror",
-    "size",
-    params.size,
-    createMirror.SIZES[kind],
-    seed,
-    params,
-  );
+  } = draw.model<createMirror.Size>("size", params.size, createMirror.SIZES[kind]);
   const d: Partial<Record<createMirror.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "mirror",
-      createMirror.BANDS[kind],
-      seed,
-      params,
-      createMirror.BANDS,
-    ),
+    ...draw.dimensions(createMirror.BANDS[kind], createMirror.BANDS),
     ...size.figures,
   };
   const builder: ArchetypeBuilder<
     createMirror.Affordance,
     createMirror.Dimension
   > = new ArchetypeBuilder({
-    archetype: "mirror",
     id: params.id,
     name:
       size.name === undefined ? "standing mirror" : `wall mirror ${size.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const width: number = d.width!;
@@ -226,6 +214,17 @@ export namespace createMirror {
     | "offset"
     | "depth"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    bottom: "m",
+    frame: "m",
+    offset: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

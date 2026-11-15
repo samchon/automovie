@@ -2,12 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -46,6 +47,7 @@ export function createHighJump(
   params: createHighJump.IParams = {},
   seed?: number | string,
 ): Archetype<createHighJump.Affordance, createHighJump.Dimension> {
+  const draw: ArchetypeDrawSession<createHighJump.Dimension> = new ArchetypeDrawSession<createHighJump.Dimension>("highJump", createHighJump.UNITS, seed, params);
   const kind: createHighJump.Kind = ArchetypeDraw.choice(
     "highJump",
     "kind",
@@ -53,21 +55,14 @@ export function createHighJump(
     createHighJump.KINDS,
   );
   const d: Partial<Record<createHighJump.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "highJump",
-      createHighJump.BANDS[kind],
-      seed,
-      params,
-      createHighJump.BANDS,
-    );
+    draw.dimensions(createHighJump.BANDS[kind], createHighJump.BANDS);
   const builder: ArchetypeBuilder<
     createHighJump.Affordance,
     createHighJump.Dimension
   > = new ArchetypeBuilder({
-    archetype: "highJump",
     id: params.id,
     name: kind === "highJump" ? "high jump" : "pole vault",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.diameter! / 2;
@@ -176,6 +171,21 @@ export namespace createHighJump {
     | "boxWidth"
     | "boxEnd"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    diameter: "m",
+    span: "m",
+    setback: "m",
+    boxLength: "m",
+    boxFloor: "m",
+    boxDepth: "m",
+    boxWidth: "m",
+    boxEnd: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

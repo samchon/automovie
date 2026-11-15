@@ -5,6 +5,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -39,6 +40,7 @@ export function createDoor(
   params: createDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createDoor.Affordance, createDoor.Dimension> {
+  const draw: ArchetypeDrawSession<createDoor.Dimension> = new ArchetypeDrawSession<createDoor.Dimension>("door", createDoor.UNITS, seed, params);
   const kind: createDoor.Kind = ArchetypeDraw.choice(
     "door",
     "kind",
@@ -89,22 +91,9 @@ export function createDoor(
         >
       | undefined,
   ): Readonly<Partial<Record<createDoor.Dimension, number>>> =>
-    ArchetypeDraw.model<Name, createDoor.Dimension>(
-      "door",
-      name,
-      given,
-      models,
-      seed,
-      params,
-    ).figures;
+    draw.model<Name>(name, given, models).figures;
   const d: Partial<Record<createDoor.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "door",
-      createDoor.BANDS[variant],
-      seed,
-      params,
-      createDoor.BANDS,
-    ),
+    ...draw.dimensions(createDoor.BANDS[variant], createDoor.BANDS),
     ...axis("nominalWidth", params.nominalWidth, DOOR_SIZES.width),
     ...axis("nominalHeight", params.nominalHeight, DOOR_SIZES.height),
     ...axis("nominalThickness", params.nominalThickness, DOOR_SIZES.thickness),
@@ -116,10 +105,9 @@ export function createDoor(
   const thick: number = d.thickness!;
   const builder: ArchetypeBuilder<createDoor.Affordance, createDoor.Dimension> =
     new ArchetypeBuilder({
-      archetype: "door",
       id: params.id,
       name: kind === "sliding" ? "sliding door" : "hinged door",
-      dimensions: d,
+      draw,
     });
 
   // The frame: two jambs and a head round the leaf.
@@ -396,6 +384,21 @@ export namespace createDoor {
     | "swing"
     | "force"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    thickness: "m",
+    hardwareHeight: "m",
+    backset: "m",
+    grip: "m",
+    projection: "m",
+    latchTurn: "degrees",
+    swing: "degrees",
+    force: "N",
+    mass: "kg",
+  };
 
   /** The leaf's nominal widths, ANSI/SDI A250.8's. */
   export type Width = "2ft10in" | "3ft0in";

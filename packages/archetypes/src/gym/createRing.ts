@@ -5,7 +5,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -44,18 +44,13 @@ export function createRing(
   params: createRing.IParams = {},
   seed?: number | string,
 ): Archetype<createRing.Affordance, createRing.Dimension> {
-  const d: Record<createRing.Dimension, number> = ArchetypeDraw.dimensions(
-    "ring",
-    createRing.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createRing.Dimension> = new ArchetypeDrawSession<createRing.Dimension>("ring", createRing.UNITS, seed, params);
+  const d: Record<createRing.Dimension, number> = draw.dimensions(createRing.BANDS);
   const builder: ArchetypeBuilder<createRing.Affordance, createRing.Dimension> =
     new ArchetypeBuilder({
-      archetype: "ring",
       id: params.id,
       name: "ring",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.size / 2;
@@ -196,6 +191,14 @@ export namespace createRing {
    * - `mass`: kilograms.
    */
   export type Dimension = "size" | "platform" | "topRope" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    size: "m",
+    platform: "m",
+    topRope: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

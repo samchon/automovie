@@ -1,7 +1,6 @@
 import {
   ARCHETYPE_FAMILIES,
   type Archetype,
-  type IArchetypeBand,
 } from "@automovie/archetypes";
 
 import { formatArchetypeLabel } from "../formatArchetypeLabel";
@@ -14,7 +13,7 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  * which names each subpath it exports with that subpath's module. A producer
  * is every function a family exports whose name starts with `create`. Its
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
- * its bands are its `BANDS`, and the parameters it needs beyond its variant
+ * and the parameters it needs beyond its variant
  * are its `REFERENCE`, the stated instance it carries for a caller without
  * a site. Nothing here names a producer or a kind, so
  * one a package adds, in a family it already has or a new one, appears
@@ -35,8 +34,6 @@ export namespace GalleryCatalogue {
     /** The frames, where the producer's variants are frames. */
     FRAMES?: readonly string[];
 
-    /** The band of each free dimension, by variant where the producer has variants. */
-    BANDS?: Readonly<Record<string, unknown>>;
 
     /** The parameters a producer needs beyond its variant, as the stated reference instance it carries, such as a cell front's narrowest width. */
     REFERENCE?: Readonly<Record<string, unknown>>;
@@ -91,40 +88,6 @@ export namespace GalleryCatalogue {
     if (Array.isArray(made.KINDS)) return { key: "kind", list: made.KINDS };
     if (Array.isArray(made.FRAMES)) return { key: "frame", list: made.FRAMES };
     return { key: "", list: [] };
-  }
-
-  /**
-   * The rows of a producer's band table: one record of bands per dimension
-   * for each form the producer draws.
-   *
-   * A producer with one form carries one flat record. A producer with
-   * several carries one record per form, keyed by whatever decides the
-   * bands: usually the kind, but a door's are keyed by its hardware.
-   *
-   * @param made The producer.
-   * @returns Every row; empty when the producer carries no bands.
-   */
-  export function bands(made: IProducer): Record<string, IArchetypeBand>[] {
-    const band = (value: unknown): value is IArchetypeBand =>
-      typeof value === "object" &&
-      value !== null &&
-      typeof (value as IArchetypeBand).minimum === "number" &&
-      typeof (value as IArchetypeBand).maximum === "number";
-    const row = (record: object): Record<string, IArchetypeBand> =>
-      Object.fromEntries(
-        Object.entries(record).filter(([, value]: [string, unknown]): boolean =>
-          band(value),
-        ),
-      ) as Record<string, IArchetypeBand>;
-
-    const table: Readonly<Record<string, unknown>> = made.BANDS ?? {};
-    if (Object.values(table).some(band)) return [row(table)];
-    return Object.values(table)
-      .filter(
-        (value: unknown): value is object =>
-          typeof value === "object" && value !== null,
-      )
-      .map(row);
   }
 
   /**

@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -65,6 +66,7 @@ export function createLight(
   params: createLight.IParams,
   seed?: number | string,
 ): Archetype<createLight.Affordance, createLight.Dimension> {
+  const draw: ArchetypeDrawSession<createLight.Dimension> = new ArchetypeDrawSession<createLight.Dimension>("light", createLight.UNITS, seed, params);
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",
     "kind",
@@ -72,21 +74,14 @@ export function createLight(
     createLight.KINDS,
   );
   const d: Partial<Record<createLight.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "light",
-      createLight.BANDS[kind],
-      seed,
-      params,
-      createLight.BANDS,
-    );
+    draw.dimensions(createLight.BANDS[kind], createLight.BANDS);
   const builder: ArchetypeBuilder<
     createLight.Affordance,
     createLight.Dimension
   > = new ArchetypeBuilder({
-    archetype: "light",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -283,6 +278,20 @@ export namespace createLight {
     | "stem"
     | "base"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    headDiameter: "m",
+    height: "m",
+    shade: "m",
+    cord: "m",
+    overall: "m",
+    stem: "m",
+    base: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

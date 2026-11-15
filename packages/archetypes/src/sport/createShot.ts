@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -36,24 +37,19 @@ export function createShot(
   params: createShot.IParams,
   seed?: number | string,
 ): Archetype<createShot.Affordance, createShot.Dimension> {
+  const draw: ArchetypeDrawSession<createShot.Dimension> = new ArchetypeDrawSession<createShot.Dimension>("shot", createShot.UNITS, seed, params);
   const kind: createShot.Kind = ArchetypeDraw.choice(
     "shot",
     "kind",
     params.kind,
     createShot.KINDS,
   );
-  const d: Record<createShot.Dimension, number> = ArchetypeDraw.dimensions(
-    "shot",
-    createShot.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createShot.Dimension, number> = draw.dimensions(createShot.BANDS[kind]);
   const builder: ArchetypeBuilder<createShot.Affordance, createShot.Dimension> =
     new ArchetypeBuilder({
-      archetype: "shot",
       id: params.id,
       name: `${kind}'s shot`,
-      dimensions: d,
+      draw,
     });
   const centre: IAutoMovieVector3 = Vector3.create(0, d.diameter / 2, 0);
   builder.ball("shot", d.diameter / 2, centre, { color: "#4a4d52" });
@@ -98,6 +94,12 @@ export namespace createShot {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the category, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

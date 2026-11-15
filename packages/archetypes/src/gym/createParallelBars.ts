@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -38,6 +39,7 @@ export function createParallelBars(
   params: createParallelBars.IParams,
   seed?: number | string,
 ): Archetype<createParallelBars.Affordance, createParallelBars.Dimension> {
+  const draw: ArchetypeDrawSession<createParallelBars.Dimension> = new ArchetypeDrawSession<createParallelBars.Dimension>("parallelBars", createParallelBars.UNITS, seed, params);
   const kind: createParallelBars.Kind = ArchetypeDraw.choice(
     "parallelBars",
     "kind",
@@ -45,13 +47,7 @@ export function createParallelBars(
     createParallelBars.KINDS,
   );
   const d: Partial<Record<createParallelBars.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "parallelBars",
-      createParallelBars.BANDS[kind],
-      seed,
-      params,
-      createParallelBars.BANDS,
-    );
+    draw.dimensions(createParallelBars.BANDS[kind], createParallelBars.BANDS);
   const half: number = d.length! / 2;
   const height: number = d.height!;
   const slim: number = d.diameter! / 2;
@@ -59,10 +55,9 @@ export function createParallelBars(
     createParallelBars.Affordance,
     createParallelBars.Dimension
   > = new ArchetypeBuilder({
-    archetype: "parallelBars",
     id: params.id,
     name: kind === "dipStation" ? "dip station" : "parallel bars",
-    dimensions: d,
+    draw,
   });
   for (const side of [1, -1] as const) {
     const name: string = side === 1 ? "left" : "right";
@@ -138,6 +133,15 @@ export namespace createParallelBars {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "length" | "spacing" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    spacing: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

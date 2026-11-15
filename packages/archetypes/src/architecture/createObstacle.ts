@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -33,6 +34,7 @@ export function createObstacle(
   params: createObstacle.IParams,
   seed?: number | string,
 ): Archetype<createObstacle.Affordance, createObstacle.Dimension> {
+  const draw: ArchetypeDrawSession<createObstacle.Dimension> = new ArchetypeDrawSession<createObstacle.Dimension>("obstacle", createObstacle.UNITS, seed, params);
   const kind: createObstacle.Kind = ArchetypeDraw.choice(
     "obstacle",
     "kind",
@@ -40,39 +42,18 @@ export function createObstacle(
     createObstacle.KINDS,
   );
   const section: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
-    ArchetypeDraw.model<createObstacle.Section, createObstacle.Dimension>(
-      "obstacle",
-      "section",
-      params.section,
-      TIE_SIZES.section[kind],
-      seed,
-      params,
-    ).figures;
+    draw.model<createObstacle.Section>("section", params.section, TIE_SIZES.section[kind]).figures;
   const length: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
-    ArchetypeDraw.model<createObstacle.TieLength, createObstacle.Dimension>(
-      "obstacle",
-      "tieLength",
-      params.tieLength,
-      TIE_SIZES.length[kind],
-      seed,
-      params,
-    ).figures;
+    draw.model<createObstacle.TieLength>("tieLength", params.tieLength, TIE_SIZES.length[kind]).figures;
   const d: Partial<Record<createObstacle.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "obstacle",
-      createObstacle.BANDS[kind],
-      seed,
-      params,
-      createObstacle.BANDS,
-    ),
+    ...draw.dimensions(createObstacle.BANDS[kind], createObstacle.BANDS),
     ...section,
     ...length,
   };
   const builder: Builder = new ArchetypeBuilder({
-    archetype: "obstacle",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   if (kind === "crosstie" || kind === "sandbag") {
     block(builder, d, kind);
@@ -156,6 +137,23 @@ export namespace createObstacle {
     | "ropeDiameter"
     | "mass"
     | "massPerMetre";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    width: "m",
+    top: "m",
+    curb: "m",
+    lowerFace: "m",
+    tube: "m",
+    spacing: "m",
+    post: "m",
+    base: "m",
+    ropeDiameter: "m",
+    mass: "kg",
+    massPerMetre: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   /** A crosstie's sections read, depth by face in inches: FOR-108's most common 7 x 9 and its 6 x 8 and 7 x 8. */

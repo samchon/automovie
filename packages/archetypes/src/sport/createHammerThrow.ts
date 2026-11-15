@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,7 @@ export function createHammerThrow(
   params: createHammerThrow.IParams,
   seed?: number | string,
 ): Archetype<createHammerThrow.Affordance, createHammerThrow.Dimension> {
+  const draw: ArchetypeDrawSession<createHammerThrow.Dimension> = new ArchetypeDrawSession<createHammerThrow.Dimension>("hammerThrow", createHammerThrow.UNITS, seed, params);
   const kind: createHammerThrow.Kind = ArchetypeDraw.choice(
     "hammerThrow",
     "kind",
@@ -42,20 +44,14 @@ export function createHammerThrow(
     createHammerThrow.KINDS,
   );
   const d: Record<createHammerThrow.Dimension, number> =
-    ArchetypeDraw.dimensions(
-      "hammerThrow",
-      createHammerThrow.BANDS[kind],
-      seed,
-      params,
-    );
+    draw.dimensions(createHammerThrow.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createHammerThrow.Affordance,
     createHammerThrow.Dimension
   > = new ArchetypeBuilder({
-    archetype: "hammerThrow",
     id: params.id,
     name: `${kind}'s hammer`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.diameter / 2;
@@ -136,6 +132,13 @@ export namespace createHammerThrow {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the category, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

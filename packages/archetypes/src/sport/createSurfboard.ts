@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -32,29 +32,22 @@ export function createSurfboard(
   params: createSurfboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSurfboard.Affordance, createSurfboard.Dimension> {
+  const draw: ArchetypeDrawSession<createSurfboard.Dimension> = new ArchetypeDrawSession<createSurfboard.Dimension>("surfboard", createSurfboard.UNITS, seed, params);
   const model: {
     name: createSurfboard.Model | undefined;
     figures: Readonly<Partial<Record<createSurfboard.Dimension, number>>>;
-  } = ArchetypeDraw.model<createSurfboard.Model, createSurfboard.Dimension>(
-    "surfboard",
-    "model",
-    params.model,
-    createSurfboard.MODELS,
-    seed,
-    params,
-  );
+  } = draw.model<createSurfboard.Model>("model", params.model, createSurfboard.MODELS);
   const d: Partial<Record<createSurfboard.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("surfboard", createSurfboard.BANDS, seed, params),
+    ...draw.dimensions(createSurfboard.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createSurfboard.Affordance,
     createSurfboard.Dimension
   > = new ArchetypeBuilder({
-    archetype: "surfboard",
     id: params.id,
     name: `surfboard ${model.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
@@ -107,6 +100,14 @@ export namespace createSurfboard {
    * - `mass`: kilograms, free.
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** Each board's figures, metres, the default first: Lost Driver 2.0 size chart, 5'10 x 18.75 x 2.36 in, 6'0 x 19.18 x 2.40 in, 6'2 x 19.50 x 2.50 in (https://lostsurfboards.com/surfboards/driver/). */
   export const MODELS: Readonly<

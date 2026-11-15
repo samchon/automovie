@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -51,6 +52,7 @@ export function createVessel(
   params: createVessel.IParams,
   seed?: number | string,
 ): Archetype<createVessel.Affordance, createVessel.Dimension> {
+  const draw: ArchetypeDrawSession<createVessel.Dimension> = new ArchetypeDrawSession<createVessel.Dimension>("vessel", createVessel.UNITS, seed, params);
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
     "kind",
@@ -58,22 +60,10 @@ export function createVessel(
     createVessel.KINDS,
   );
   const drawn: Partial<Record<createVessel.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-    "vessel",
-    createVessel.BANDS[kind],
-    seed,
-    params,
-  );
+    draw.dimensions(createVessel.BANDS[kind]);
   // An ashtray is one of the two glass ashtrays read, whole.
   const model: { name: createVessel.Model | undefined; figures: createVessel.Figures } =
-    ArchetypeDraw.model<createVessel.Model, createVessel.Dimension>(
-      "vessel",
-      "model",
-      params.model,
-      createVessel.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createVessel.Model>("model", params.model, createVessel.MODELS[kind]);
   const read: Partial<Record<createVessel.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -87,10 +77,9 @@ export function createVessel(
     createVessel.Affordance,
     createVessel.Dimension
   > = new ArchetypeBuilder({
-    archetype: "vessel",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const wall: number = createVessel.WALL;
@@ -283,6 +272,13 @@ export namespace createVessel {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

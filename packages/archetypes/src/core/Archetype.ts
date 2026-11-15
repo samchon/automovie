@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -25,7 +26,7 @@ import { ArchetypeSpan } from "./ArchetypeSpan";
  *
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
  * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
- * - `dimensions` gives the value drawn for each free dimension, and `properties` the mass, centre of mass and inertia;
+ * - `dimensions` gives the value drawn for each free dimension, `provenance` the band each was drawn in and the model picked on each axis, and `properties` the mass, centre of mass and inertia;
  * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
  * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
  *
@@ -134,6 +135,11 @@ export class Archetype<
   /** The value of each free dimension this variant has, in the unit of its band: drawn from the seed, or fixed by a parameter. A dimension the variant lacks, as a stool lacks a back height, is absent. */
   public get dimensions(): Readonly<Partial<Record<Dimension, number>>> {
     return this.#rest.dimensions;
+  }
+
+  /** Where the dimensions came from: the band each drawn dimension was drawn in, and the model picked on each axis, by axis. A figure a model gives has no band; its model's name is the record. */
+  public get provenance(): ArchetypeDrawSession.IProvenance<Dimension> {
+    return this.#rest.provenance;
   }
 
   /** Mass, centre of mass and inertia about it, at rest. */
@@ -479,6 +485,9 @@ export namespace Archetype {
 
     /** The value of each free dimension the variant has. */
     dimensions: Readonly<Partial<Record<Dimension, number>>>;
+
+    /** Where each dimension came from: the band of each drawn one and the model picked on each axis. */
+    provenance: ArchetypeDrawSession.IProvenance<Dimension>;
 
     /** The spans laid between moving frames after every pose; empty for most archetypes. */
     spans: readonly ArchetypeSpan.ISpan[];

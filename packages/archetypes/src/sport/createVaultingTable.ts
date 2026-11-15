@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,7 @@ export function createVaultingTable(
   params: createVaultingTable.IParams,
   seed?: number | string,
 ): Archetype<createVaultingTable.Affordance, createVaultingTable.Dimension> {
+  const draw: ArchetypeDrawSession<createVaultingTable.Dimension> = new ArchetypeDrawSession<createVaultingTable.Dimension>("vaultingTable", createVaultingTable.UNITS, seed, params);
   const kind: createVaultingTable.Kind = ArchetypeDraw.choice(
     "vaultingTable",
     "kind",
@@ -42,20 +44,14 @@ export function createVaultingTable(
     createVaultingTable.KINDS,
   );
   const d: Record<createVaultingTable.Dimension, number> =
-    ArchetypeDraw.dimensions(
-      "vaultingTable",
-      createVaultingTable.BANDS[kind],
-      seed,
-      params,
-    );
+    draw.dimensions(createVaultingTable.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createVaultingTable.Affordance,
     createVaultingTable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "vaultingTable",
     id: params.id,
     name: "vaulting table",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const top: number = createVaultingTable.TOP;
@@ -121,6 +117,14 @@ export namespace createVaultingTable {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "length" | "width" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

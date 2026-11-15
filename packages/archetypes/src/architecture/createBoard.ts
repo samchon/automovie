@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -112,6 +113,7 @@ export function createBoard(
   params: createBoard.IParams,
   seed?: number | string,
 ): Archetype<createBoard.Affordance, createBoard.Dimension> {
+  const draw: ArchetypeDrawSession<createBoard.Dimension> = new ArchetypeDrawSession<createBoard.Dimension>("board", createBoard.UNITS, seed, params);
   const kind: createBoard.Kind = ArchetypeDraw.choice(
     "board",
     "kind",
@@ -121,32 +123,18 @@ export function createBoard(
   const size: {
     name: createBoard.Size | undefined;
     figures: Readonly<Partial<Record<createBoard.Dimension, number>>>;
-  } = ArchetypeDraw.model<createBoard.Size, createBoard.Dimension>(
-    "board",
-    "size",
-    params.size,
-    createBoard.SIZES[kind],
-    seed,
-    params,
-  );
+  } = draw.model<createBoard.Size>("size", params.size, createBoard.SIZES[kind]);
   const d: Partial<Record<createBoard.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "board",
-      createBoard.BANDS[kind],
-      seed,
-      params,
-      createBoard.BANDS,
-    ),
+    ...draw.dimensions(createBoard.BANDS[kind], createBoard.BANDS),
     ...size.figures,
   };
   const builder: ArchetypeBuilder<
     createBoard.Affordance,
     createBoard.Dimension
   > = new ArchetypeBuilder({
-    archetype: "board",
     id: params.id,
     name: `${NAMES[kind]} ${size.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -305,6 +293,16 @@ export namespace createBoard {
     | "tray"
     | "mount"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    tray: "m",
+    mount: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<

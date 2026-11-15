@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -40,19 +40,13 @@ export function createValve(
   params: createValve.IParams = {},
   seed?: number | string,
 ): Archetype<createValve.Affordance, createValve.Dimension> {
+  const draw: ArchetypeDrawSession<createValve.Dimension> = new ArchetypeDrawSession<createValve.Dimension>("valve", createValve.UNITS, seed, params);
   const model: {
     name: createValve.Model | undefined;
     figures: Readonly<Partial<Record<createValve.Dimension, number>>>;
-  } = ArchetypeDraw.model<createValve.Model, createValve.Dimension>(
-    "valve",
-    "model",
-    params.model,
-    createValve.MODELS,
-    seed,
-    params,
-  );
+  } = draw.model<createValve.Model>("model", params.model, createValve.MODELS);
   const d: Record<createValve.Dimension, number> = {
-    ...ArchetypeDraw.dimensions("valve", createValve.BANDS, seed, params),
+    ...draw.dimensions(createValve.BANDS),
     bore: model.figures.bore!,
     height: model.figures.height!,
     wheel: model.figures.wheel!,
@@ -61,10 +55,9 @@ export function createValve(
     createValve.Affordance,
     createValve.Dimension
   > = new ArchetypeBuilder({
-    archetype: "valve",
     id: params.id,
     name: `gate valve ${model.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -153,6 +146,14 @@ export namespace createValve {
    * - `mass`: kilograms, free.
    */
   export type Dimension = "bore" | "height" | "wheel" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    bore: "m",
+    height: "m",
+    wheel: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<"mass", number>> {

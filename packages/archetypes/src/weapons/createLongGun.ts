@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -43,6 +44,7 @@ export function createLongGun(
   params: createLongGun.IParams,
   seed?: number | string,
 ): Archetype<createLongGun.Affordance, createLongGun.Dimension> {
+  const draw: ArchetypeDrawSession<createLongGun.Dimension> = new ArchetypeDrawSession<createLongGun.Dimension>("longGun", createLongGun.UNITS, seed, params);
   const kind: createLongGun.Kind = ArchetypeDraw.choice(
     "longGun",
     "kind",
@@ -51,19 +53,18 @@ export function createLongGun(
   );
   // A carbine is one of Colt's three, each weighed whole; a shotgun has one read model, its bands.
   const model: { figures: Readonly<Partial<Record<createLongGun.Dimension, number>>> } =
-    ArchetypeDraw.model<createLongGun.Model, createLongGun.Dimension>("longGun", "model", params.model, createLongGun.MODELS[kind], seed, params);
+    draw.model<createLongGun.Model>("model", params.model, createLongGun.MODELS[kind]);
   const d: Partial<Record<createLongGun.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("longGun", createLongGun.BANDS[kind], seed, params, createLongGun.BANDS),
+    ...draw.dimensions(createLongGun.BANDS[kind], createLongGun.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createLongGun.Affordance,
     createLongGun.Dimension
   > = new ArchetypeBuilder({
-    archetype: "longGun",
     id: params.id,
     name: kind === "carbine" ? "carbine" : "pump shotgun",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const steel: string = "#2c2f33";
@@ -249,6 +250,16 @@ export namespace createLongGun {
     | "travel"
     | "sightHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    barrel: "m",
+    lengthOfPull: "m",
+    travel: "m",
+    sightHeight: "m",
+    mass: "kg",
+  };
 
   /** The read carbines: Colt's R0977HB heavy barrel, R0979 and CR6921. */
   export type Model = "r0977hb" | "r0979" | "cr6921";

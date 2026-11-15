@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -38,6 +39,7 @@ export function createSafe(
   params: createSafe.IParams = {},
   seed?: number | string,
 ): Archetype<createSafe.Affordance, createSafe.Dimension> {
+  const draw: ArchetypeDrawSession<createSafe.Dimension> = new ArchetypeDrawSession<createSafe.Dimension>("safe", createSafe.UNITS, seed, params);
   const s: number =
     ArchetypeDraw.choice("safe", "hinge", params.hinge ?? "right", [
       "left",
@@ -45,18 +47,12 @@ export function createSafe(
     ]) === "right"
       ? 1
       : -1;
-  const d: Record<createSafe.Dimension, number> = ArchetypeDraw.dimensions(
-    "safe",
-    createSafe.BANDS,
-    seed,
-    params,
-  );
+  const d: Record<createSafe.Dimension, number> = draw.dimensions(createSafe.BANDS);
   const builder: ArchetypeBuilder<createSafe.Affordance, createSafe.Dimension> =
     new ArchetypeBuilder({
-      archetype: "safe",
       id: params.id,
       name: "gun safe",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const steel: string = "#2f3236";
@@ -138,6 +134,17 @@ export namespace createSafe {
     | "clearWidth"
     | "door"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    clearHeight: "m",
+    clearWidth: "m",
+    door: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the hinge side, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

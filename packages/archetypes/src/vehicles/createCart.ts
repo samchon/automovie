@@ -1,14 +1,15 @@
 import { HorseHarness } from "../animals/HorseHarness";
 import { createHorse } from "../animals/createHorse";
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type ArchetypeFriction,
   ArchetypeRefusal,
   type ArchetypeRide,
   type ArchetypeSpan,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
@@ -38,6 +39,7 @@ export function createCart(
   params: createCart.IParams,
   seed?: number | string,
 ): Archetype<createCart.Affordance, createCart.Dimension> {
+  const draw: ArchetypeDrawSession<createCart.Dimension> = new ArchetypeDrawSession<createCart.Dimension>("cart", createCart.UNITS, seed, params);
   const kind: createCart.Kind = ArchetypeDraw.choice(
     "cart",
     "kind",
@@ -45,24 +47,17 @@ export function createCart(
     createCart.KINDS,
   );
   const drawn: Partial<Record<createCart.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "cart",
-      createCart.BANDS[kind],
-      seed,
-      params,
-      createCart.BANDS,
-    );
+    draw.dimensions(createCart.BANDS[kind], createCart.BANDS);
   // A horse's cart fits the horse of its withers height, whose girth follows that height.
   const d: Partial<Record<createCart.Dimension, number>> =
     kind === "cart"
-      ? { ...drawn, girth: createHorse.PROFILE.girth(drawn.withersHeight!) }
+      ? { ...drawn, girth: draw.derive("girth", createHorse.PROFILE.girth(drawn.withersHeight!)) }
       : drawn;
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
-      archetype: "cart",
       id: params.id,
       name: createCart.NAMES[kind],
-      dimensions: d,
+      draw,
     });
   if (kind === "trolley") CartPushed.trolley(builder, d);
   else if (kind === "wheelbarrow") CartPushed.wheelbarrow(builder, d);
@@ -335,6 +330,31 @@ export namespace createCart {
     | "frontWheelDiameter"
     | "wheelbase"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    handleHeight: "m",
+    handleSpacing: "m",
+    gripDiameter: "m",
+    wheelDiameter: "m",
+    track: "m",
+    shaftLength: "m",
+    seatHeight: "m",
+    gripHeight: "m",
+    floorWidth: "m",
+    floorDepth: "m",
+    railHeight: "m",
+    poleLength: "m",
+    withersHeight: "m",
+    girth: "m",
+    height: "m",
+    bedDepth: "m",
+    frontWheelDiameter: "m",
+    wheelbase: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

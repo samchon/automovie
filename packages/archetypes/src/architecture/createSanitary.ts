@@ -2,6 +2,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
@@ -34,6 +35,7 @@ export function createSanitary(
   params: createSanitary.IParams,
   seed?: number | string,
 ): Archetype<createSanitary.Affordance, createSanitary.Dimension> {
+  const draw: ArchetypeDrawSession<createSanitary.Dimension> = new ArchetypeDrawSession<createSanitary.Dimension>("sanitary", createSanitary.UNITS, seed, params);
   const kind: createSanitary.Kind = ArchetypeDraw.choice(
     "sanitary",
     "kind",
@@ -41,21 +43,14 @@ export function createSanitary(
     createSanitary.KINDS,
   );
   const d: Partial<Record<createSanitary.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "sanitary",
-      createSanitary.BANDS[kind],
-      seed,
-      params,
-      createSanitary.BANDS,
-    );
+    draw.dimensions(createSanitary.BANDS[kind], createSanitary.BANDS);
   const builder: ArchetypeBuilder<
     createSanitary.Affordance,
     createSanitary.Dimension
   > = new ArchetypeBuilder({
-    archetype: "sanitary",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   SanitaryConstruction[kind](builder, d);
   return builder.build(d.mass!);
@@ -143,6 +138,33 @@ export namespace createSanitary {
     | "threshold"
     | "control"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    rim: "m",
+    basinDepth: "m",
+    width: "m",
+    depth: "m",
+    length: "m",
+    bowlWidth: "m",
+    bowlDepth: "m",
+    tapHeight: "m",
+    tapReach: "m",
+    tapOutlet: "m",
+    seat: "m",
+    seatDepth: "m",
+    tankWidth: "m",
+    tankDepth: "m",
+    tankTop: "m",
+    wellLength: "m",
+    wellWidth: "m",
+    waterDepth: "m",
+    interior: "m",
+    wallHeight: "m",
+    threshold: "m",
+    control: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

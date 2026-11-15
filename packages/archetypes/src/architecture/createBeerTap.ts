@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -67,20 +67,15 @@ export function createBeerTap(
   params: createBeerTap.IParams = {},
   seed?: number | string,
 ): Archetype<createBeerTap.Affordance, createBeerTap.Dimension> {
-  const d: Record<createBeerTap.Dimension, number> = ArchetypeDraw.dimensions(
-    "beerTap",
-    createBeerTap.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createBeerTap.Dimension> = new ArchetypeDrawSession<createBeerTap.Dimension>("beerTap", createBeerTap.UNITS, seed, params);
+  const d: Record<createBeerTap.Dimension, number> = draw.dimensions(createBeerTap.BANDS);
   const builder: ArchetypeBuilder<
     createBeerTap.Affordance,
     createBeerTap.Dimension
   > = new ArchetypeBuilder({
-    archetype: "beerTap",
     id: params.id,
     name: "beer tower",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -167,6 +162,11 @@ export namespace createBeerTap {
 
   /** The free dimension: `mass`, kilograms. */
   export type Dimension = "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

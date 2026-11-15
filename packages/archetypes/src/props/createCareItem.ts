@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -66,49 +67,38 @@ export function createCareItem(
   params: createCareItem.IParams,
   seed?: number | string,
 ): Archetype<createCareItem.Affordance, createCareItem.Dimension> {
+  const draw: ArchetypeDrawSession<createCareItem.Dimension> = new ArchetypeDrawSession<createCareItem.Dimension>("careItem", createCareItem.UNITS, seed, params);
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
     "kind",
     params.kind,
     createCareItem.KINDS,
   );
-  const drawn: Partial<Record<createCareItem.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "careItem",
-      createCareItem.BANDS[kind],
-      seed,
-      kind === "tube" ? { ...params, length: undefined } : params,
-      createCareItem.BANDS,
-    );
   // A tube is one of Alltub's diameters, its length drawn in that diameter's own range; a razor one of the two razors read, whole.
-  const model: { name: createCareItem.Model | undefined; figures: createCareItem.Figures } =
-    ArchetypeDraw.model<createCareItem.Model, createCareItem.Dimension>(
-      "careItem",
-      "model",
-      params.model,
-      createCareItem.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: { name: createCareItem.Model | undefined; figures: createCareItem.Figures } = draw.model<createCareItem.Model>(
+    "model",
+    params.model,
+    createCareItem.MODELS[kind],
+  );
+  // The model's own range bands its length, so the author's length is checked in it.
   const range: IArchetypeBand | undefined =
     model.name === undefined ? undefined : createCareItem.TUBE_LENGTHS[model.name];
-  const own: Partial<Record<createCareItem.Dimension, number>> =
-    range === undefined
-      ? {}
-      : ArchetypeDraw.dimensions("careItem", { length: range }, seed, params);
   const d: Partial<Record<createCareItem.Dimension, number>> = {
-    ...drawn,
+    ...draw.dimensions(
+      range === undefined
+        ? createCareItem.BANDS[kind]
+        : { ...createCareItem.BANDS[kind], length: range },
+      createCareItem.BANDS,
+    ),
     ...model.figures,
-    ...own,
   };
   const builder: ArchetypeBuilder<
     createCareItem.Affordance,
     createCareItem.Dimension
   > = new ArchetypeBuilder({
-    archetype: "careItem",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const length: number = d.length!;
   const width: number = d.width!;
@@ -387,6 +377,14 @@ export namespace createCareItem {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

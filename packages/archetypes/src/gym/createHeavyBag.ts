@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -38,20 +38,15 @@ export function createHeavyBag(
   params: createHeavyBag.IParams = {},
   seed?: number | string,
 ): Archetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
-  const d: Record<createHeavyBag.Dimension, number> = ArchetypeDraw.dimensions(
-    "heavyBag",
-    createHeavyBag.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createHeavyBag.Dimension> = new ArchetypeDrawSession<createHeavyBag.Dimension>("heavyBag", createHeavyBag.UNITS, seed, params);
+  const d: Record<createHeavyBag.Dimension, number> = draw.dimensions(createHeavyBag.BANDS);
   const builder: ArchetypeBuilder<
     createHeavyBag.Affordance,
     createHeavyBag.Dimension
   > = new ArchetypeBuilder({
-    archetype: "heavyBag",
     id: params.id,
     name: "heavy bag",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const top: number = 0;
@@ -101,6 +96,13 @@ export namespace createHeavyBag {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

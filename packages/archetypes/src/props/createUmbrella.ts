@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,18 +35,12 @@ export function createUmbrella(
   params: createUmbrella.IParams = {},
   seed?: number | string,
 ): Archetype<createUmbrella.Affordance, createUmbrella.Dimension> {
+  const draw: ArchetypeDrawSession<createUmbrella.Dimension> = new ArchetypeDrawSession<createUmbrella.Dimension>("umbrella", createUmbrella.UNITS, seed, params);
   const drawn: Partial<Record<createUmbrella.Dimension, number>> =
-    ArchetypeDraw.dimensions("umbrella", createUmbrella.BANDS, seed, params);
+    draw.dimensions(createUmbrella.BANDS);
   // The umbrella is one of BLUNT's two models whole.
   const model: { name: createUmbrella.Model | undefined; figures: createUmbrella.Figures } =
-    ArchetypeDraw.model<createUmbrella.Model, createUmbrella.Dimension>(
-      "umbrella",
-      "model",
-      params.model,
-      createUmbrella.MODELS,
-      seed,
-      params,
-    );
+    draw.model<createUmbrella.Model>("model", params.model, createUmbrella.MODELS);
   const d: Record<createUmbrella.Dimension, number> = {
     length: model.figures.length!,
     canopy: model.figures.canopy!,
@@ -57,10 +51,9 @@ export function createUmbrella(
     createUmbrella.Affordance,
     createUmbrella.Dimension
   > = new ArchetypeBuilder({
-    archetype: "umbrella",
     id: params.id,
     name: params.open === true ? "open umbrella" : "umbrella",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const handle: number = createUmbrella.HANDLE;
@@ -137,6 +130,14 @@ export namespace createUmbrella {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "canopy" | "gripDiameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    canopy: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: whether it is open, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -34,26 +35,20 @@ export function createWall(
   params: createWall.IParams,
   seed?: number | string,
 ): Archetype<createWall.Affordance, createWall.Dimension> {
+  const draw: ArchetypeDrawSession<createWall.Dimension> = new ArchetypeDrawSession<createWall.Dimension>("wall", createWall.UNITS, seed, params);
   const kind: createWall.Kind = ArchetypeDraw.choice(
     "wall",
     "kind",
     params.kind,
     createWall.KINDS,
   );
-  const d: Record<createWall.Dimension, number> = ArchetypeDraw.dimensions(
-    "wall",
-    createWall.BANDS[kind],
-    seed,
-    params,
-    createWall.BANDS,
-  );
+  const d: Record<createWall.Dimension, number> = draw.dimensions(createWall.BANDS[kind], createWall.BANDS);
   const { height, length, thickness }: Record<createWall.Dimension, number> = d;
   const builder: ArchetypeBuilder<createWall.Affordance, createWall.Dimension> =
     new ArchetypeBuilder({
-      archetype: "wall",
       id: params.id,
       name: kind === "full" ? "wall" : "low wall",
-      dimensions: d,
+      draw,
     });
   builder.box(
     "wall",
@@ -125,6 +120,14 @@ export namespace createWall {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "length" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

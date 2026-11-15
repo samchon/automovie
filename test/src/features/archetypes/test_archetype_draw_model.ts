@@ -1,8 +1,15 @@
-import { ArchetypeDraw, ArchetypeRefusal } from "@automovie/archetypes";
+import { ArchetypeDrawSession, ArchetypeRefusal } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** A made-up producer's dimensions. */
 type Dimension = "length" | "mass" | "height";
+
+/** The made-up dimensions' units. */
+const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  length: "m",
+  mass: "kg",
+  height: "m",
+};
 
 /** Made-up sizes on one axis, the default first, each with its read figures. */
 const SIZES: Readonly<Record<"small" | "large", Readonly<Partial<Record<Dimension, number>>>>> = {
@@ -18,6 +25,32 @@ const HEIGHTS: Readonly<Record<"low" | "mid" | "high", Readonly<Partial<Record<D
 };
 
 /**
+ * One axis's pick through a fresh session, as a producer makes it.
+ *
+ * @param archetype The producer's name.
+ * @param axis The axis.
+ * @param value The model given, or undefined.
+ * @param models The models on the axis.
+ * @param seed The seed.
+ * @param fixed The dimensions the author fixed.
+ * @returns The pick.
+ */
+function model<Name extends string>(
+  archetype: string,
+  axis: string,
+  value: Name | undefined,
+  models: Readonly<Partial<Record<Name, Readonly<Partial<Record<Dimension, number>>>>>> | undefined,
+  seed: number | string | undefined,
+  fixed: Partial<Record<Dimension, number>> = {},
+): ArchetypeDrawSession.IModel<Name, Dimension> {
+  return new ArchetypeDrawSession<Dimension>(archetype, UNITS, seed, fixed).model<Name>(
+    axis,
+    value,
+    models,
+  );
+}
+
+/**
  * A model is one of a variant's read models on a named axis, given or picked whole with its figures; each axis draws on its own stream, a dependent axis picks among the models an earlier pick admits, and a variant without models has none.
  *
  * Scenarios:
@@ -27,10 +60,10 @@ const HEIGHTS: Readonly<Record<"low" | "mid" | "high", Readonly<Partial<Record<D
  * 4. A variant without models, absent or empty, gives no name and no figures; a model given to it, and an unlisted model given to a variant with models, are refused with kind `parameter` on the axis.
  * 5. A fixed dimension the picked model supplies (its length) is refused with kind `parameter` on that dimension, given or picked; a fixed dimension it lacks (a height) is left to the producer's band, and the model is still picked.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models, accepts a stray model, or drops a fixed figure in silence is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Picks through a draw session's `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models, accepts a stray model, or drops a fixed figure in silence is caught.
  * @evidence contracts/development/testing.md#independent-expectations Made-up figures written here; a uniform draw of two or three over 200 seeds draws each with certainty for any practical purpose, and two independent axes agree on far fewer than 200 seeds.
  * @evidence contracts/development/testing.md#distinguishing-cases Given, seedless and picked; one axis and two; a filtered list; absent, empty and stray models; a fixed figure the model has and one it lacks.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over a pure function, discovered by its exported name; it starts no host.
+ * @evidence contracts/development/testing.md#execution-ownership A unit test over fresh draw sessions, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  */
 export function test_archetype_draw_model(): void {
@@ -38,32 +71,32 @@ export function test_archetype_draw_model(): void {
 
   // 1. One axis.
   const given: { name: "small" | "large" | undefined; figures: Readonly<Partial<Record<Dimension, number>>> } =
-    ArchetypeDraw.model("thing", "size", "large", SIZES, 3);
+    model("thing", "size", "large", SIZES, 3);
   if (given.name !== "large" || given.figures !== SIZES.large)
     findings.push("a given model was not kept with its figures");
-  if (ArchetypeDraw.model("thing", "size", undefined, SIZES, undefined).name !== "small")
+  if (model("thing", "size", undefined, SIZES, undefined).name !== "small")
     findings.push("the seedless model is not the first");
   const sizes: Set<string> = new Set<string>();
   const heights: Set<string> = new Set<string>();
   let agree: number = 0;
   for (let seed: number = 0; seed < 200; seed++) {
     const size: { name: "small" | "large" | undefined; figures: Readonly<Partial<Record<Dimension, number>>> } =
-      ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", undefined, SIZES, seed);
-    if (ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", undefined, SIZES, seed).name !== size.name)
+      model<"small" | "large">("thing", "size", undefined, SIZES, seed);
+    if (model<"small" | "large">("thing", "size", undefined, SIZES, seed).name !== size.name)
       findings.push(`seed ${seed}: two calls disagree`);
     if (size.name === undefined || size.figures !== SIZES[size.name])
       findings.push(`seed ${seed}: the figures are no read model's`);
     else sizes.add(size.name);
 
     // 2. A second axis on its own stream.
-    const tone: string | undefined = ArchetypeDraw.model(
+    const tone: string | undefined = model(
       "thing",
       "tone",
       undefined,
       { a: {}, b: {} },
       seed,
     ).name;
-    if (ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", undefined, SIZES, seed).name !== size.name)
+    if (model<"small" | "large">("thing", "size", undefined, SIZES, seed).name !== size.name)
       findings.push(`seed ${seed}: a second axis moved the first`);
     if ((tone === "a") === (size.name === "small")) agree++;
 
@@ -76,7 +109,7 @@ export function test_archetype_draw_model(): void {
             (figures.height ?? 0) <= reach,
         ),
       );
-    const height: string | undefined = ArchetypeDraw.model(
+    const height: string | undefined = model(
       "thing",
       "height",
       undefined,
@@ -95,7 +128,7 @@ export function test_archetype_draw_model(): void {
   // 4. No models, and the refusals.
   for (const none of [undefined, {}] as const) {
     const plain: { name: string | undefined; figures: Readonly<Partial<Record<Dimension, number>>> } =
-      ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", undefined, none, 5);
+      model<"small" | "large">("thing", "size", undefined, none, 5);
     if (plain.name !== undefined || Object.keys(plain.figures).length !== 0)
       findings.push("a variant without models was given one");
   }
@@ -104,7 +137,7 @@ export function test_archetype_draw_model(): void {
     ["an unlisted model", SIZES, "huge"],
   ] as const) {
     try {
-      ArchetypeDraw.model("thing", "size", value as "small", models, 1);
+      model("thing", "size", value as "small", models, 1);
       findings.push(`${label} was accepted`);
     } catch (error) {
       if (
@@ -122,7 +155,7 @@ export function test_archetype_draw_model(): void {
     ["a picked model", undefined],
   ] as const)
     try {
-      ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", value, SIZES, 2, { length: 0.25 });
+      model<"small" | "large">("thing", "size", value, SIZES, 2, { length: 0.25 });
       findings.push(`${label}'s fixed length was accepted`);
     } catch (error) {
       if (
@@ -133,7 +166,7 @@ export function test_archetype_draw_model(): void {
         findings.push(`${label}'s fixed length was not refused on its dimension`);
     }
   if (
-    ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", "small", SIZES, 2, { height: 0.15 }).name !==
+    model<"small" | "large">("thing", "size", "small", SIZES, 2, { height: 0.15 }).name !==
     "small"
   )
     findings.push("a fixed dimension the model lacks stopped the pick");

@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -54,24 +54,13 @@ export function createSkateboard(
   params: createSkateboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSkateboard.Affordance, createSkateboard.Dimension> {
+  const draw: ArchetypeDrawSession<createSkateboard.Dimension> = new ArchetypeDrawSession<createSkateboard.Dimension>("skateboard", createSkateboard.UNITS, seed, params);
   const model: {
     name: createSkateboard.Model | undefined;
     figures: Readonly<Partial<Record<createSkateboard.Dimension, number>>>;
-  } = ArchetypeDraw.model<createSkateboard.Model, createSkateboard.Dimension>(
-    "skateboard",
-    "model",
-    params.model,
-    createSkateboard.MODELS,
-    seed,
-    params,
-  );
+  } = draw.model<createSkateboard.Model>("model", params.model, createSkateboard.MODELS);
   const d: Record<createSkateboard.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "skateboard",
-      createSkateboard.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createSkateboard.BANDS),
     width: model.figures.width!,
     length: model.figures.length!,
     wheelbase: model.figures.wheelbase!,
@@ -80,10 +69,9 @@ export function createSkateboard(
     createSkateboard.Affordance,
     createSkateboard.Dimension
   > = new ArchetypeBuilder({
-    archetype: "skateboard",
     id: params.id,
     name: `skateboard ${model.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -203,6 +191,17 @@ export namespace createSkateboard {
     | "truck"
     | "wheel"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    wheelbase: "m",
+    thickness: "m",
+    truck: "m",
+    wheel: "m",
+    mass: "kg",
+  };
 
   /** The free dimensions, each drawn from its band. */
   export type Free = Exclude<Dimension, "width" | "length" | "wheelbase">;

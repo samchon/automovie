@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -39,6 +40,7 @@ export function createLandingMat(
   params: createLandingMat.IParams,
   seed?: number | string,
 ): Archetype<createLandingMat.Affordance, createLandingMat.Dimension> {
+  const draw: ArchetypeDrawSession<createLandingMat.Dimension> = new ArchetypeDrawSession<createLandingMat.Dimension>("landingMat", createLandingMat.UNITS, seed, params);
   const kind: createLandingMat.Kind = ArchetypeDraw.choice(
     "landingMat",
     "kind",
@@ -48,22 +50,9 @@ export function createLandingMat(
   const layout: {
     name: createLandingMat.Layout | undefined;
     figures: Readonly<Partial<Record<createLandingMat.Dimension, number>>>;
-  } = ArchetypeDraw.model<createLandingMat.Layout, createLandingMat.Dimension>(
-    "landingMat",
-    "layout",
-    params.layout,
-    createLandingMat.LAYOUTS[kind],
-    seed,
-    params,
-  );
+  } = draw.model<createLandingMat.Layout>("layout", params.layout, createLandingMat.LAYOUTS[kind]);
   const d: Partial<Record<createLandingMat.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "landingMat",
-      createLandingMat.BANDS[kind],
-      seed,
-      params,
-      createLandingMat.BANDS,
-    ),
+    ...draw.dimensions(createLandingMat.BANDS[kind], createLandingMat.BANDS),
     ...layout.figures,
   };
   const length: number = d.length!;
@@ -73,11 +62,10 @@ export function createLandingMat(
     createLandingMat.Affordance,
     createLandingMat.Dimension
   > = new ArchetypeBuilder({
-    archetype: "landingMat",
     id: params.id,
     name:
       kind === "highJump" ? "high jump mat" : `pole vault mat ${layout.name}`,
-    dimensions: d,
+    draw,
   });
   builder.box(
     "bed",
@@ -123,6 +111,14 @@ export namespace createLandingMat {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** A pole vault mat's layouts. */
   export type Layout = "without front pads" | "with front pads";

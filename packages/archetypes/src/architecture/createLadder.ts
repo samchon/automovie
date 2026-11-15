@@ -2,13 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -45,6 +46,7 @@ export function createLadder(
   params: createLadder.IParams,
   seed?: number | string,
 ): Archetype<createLadder.Affordance, createLadder.Dimension> {
+  const draw: ArchetypeDrawSession<createLadder.Dimension> = new ArchetypeDrawSession<createLadder.Dimension>("ladder", createLadder.UNITS, seed, params);
   const kind: createLadder.Kind = ArchetypeDraw.choice(
     "ladder",
     "kind",
@@ -67,21 +69,14 @@ export function createLadder(
       reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${rungs}`,
       fix: "give a whole number of rungs",
     });
-  const d: Record<createLadder.Dimension, number> = ArchetypeDraw.dimensions(
-    "ladder",
-    createLadder.BANDS[kind],
-    seed,
-    params,
-    createLadder.BANDS,
-  );
+  const d: Record<createLadder.Dimension, number> = draw.dimensions(createLadder.BANDS[kind], createLadder.BANDS);
   const builder: ArchetypeBuilder<
     createLadder.Affordance,
     createLadder.Dimension
   > = new ArchetypeBuilder({
-    archetype: "ladder",
     id: params.id,
     name: `${kind} ladder`,
-    dimensions: d,
+    draw,
   });
 
   // The ladder's own line: up, tilted back toward the wall at -Z by the pitch from the floor.
@@ -193,6 +188,15 @@ export namespace createLadder {
     | "rungDiameter"
     | "pitch"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    spacing: "m",
+    width: "m",
+    rungDiameter: "m",
+    pitch: "degrees",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, the count, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

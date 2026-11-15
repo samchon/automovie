@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -36,19 +36,13 @@ export function createSled(
   params: createSled.IParams = {},
   seed?: number | string,
 ): Archetype<createSled.Affordance, createSled.Dimension> {
+  const draw: ArchetypeDrawSession<createSled.Dimension> = new ArchetypeDrawSession<createSled.Dimension>("sled", createSled.UNITS, seed, params);
   const model: {
     name: createSled.Model | undefined;
     figures: Readonly<Partial<Record<createSled.Dimension, number>>>;
-  } = ArchetypeDraw.model<createSled.Model, createSled.Dimension>(
-    "sled",
-    "model",
-    params.model,
-    createSled.MODELS,
-    seed,
-    params,
-  );
+  } = draw.model<createSled.Model>("model", params.model, createSled.MODELS);
   const d: Partial<Record<createSled.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("sled", createSled.BANDS, seed, params),
+    ...draw.dimensions(createSled.BANDS),
     ...model.figures,
   };
   const width: number = d.width!;
@@ -56,10 +50,9 @@ export function createSled(
   const height: number = d.height!;
   const builder: ArchetypeBuilder<createSled.Affordance, createSled.Dimension> =
     new ArchetypeBuilder({
-      archetype: "sled",
       id: params.id,
       name: `push sled ${model.name}`,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const base: number = createSled.BASE;
@@ -137,6 +130,15 @@ export namespace createSled {
    * - `mass`: kilograms, unloaded.
    */
   export type Dimension = "height" | "spacing" | "length" | "width" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    spacing: "m",
+    length: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** Rogue's sleds. */
   export type Model = "Slice" | "Echo Dog";

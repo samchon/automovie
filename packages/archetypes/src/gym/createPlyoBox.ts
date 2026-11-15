@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -39,6 +40,7 @@ export function createPlyoBox(
   params: createPlyoBox.IParams,
   seed?: number | string,
 ): Archetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
+  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> = new ArchetypeDrawSession<createPlyoBox.Dimension>("plyoBox", createPlyoBox.UNITS, seed, params);
   const kind: createPlyoBox.Kind = ArchetypeDraw.choice(
     "plyoBox",
     "kind",
@@ -46,21 +48,14 @@ export function createPlyoBox(
     createPlyoBox.KINDS,
   );
   const d: Partial<Record<createPlyoBox.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "plyoBox",
-      createPlyoBox.BANDS[kind],
-      seed,
-      params,
-      createPlyoBox.BANDS,
-    );
+    draw.dimensions(createPlyoBox.BANDS[kind], createPlyoBox.BANDS);
   const builder: ArchetypeBuilder<
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
   > = new ArchetypeBuilder({
-    archetype: "plyoBox",
     id: params.id,
     name: "plyometric box",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "box",
@@ -106,6 +101,14 @@ export namespace createPlyoBox {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "width" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

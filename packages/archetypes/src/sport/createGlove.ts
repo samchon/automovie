@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -32,26 +33,21 @@ export function createGlove(
   params: createGlove.IParams,
   seed?: number | string,
 ): Archetype<createGlove.Affordance, createGlove.Dimension> {
+  const draw: ArchetypeDrawSession<createGlove.Dimension> = new ArchetypeDrawSession<createGlove.Dimension>("glove", createGlove.UNITS, seed, params);
   const kind: createGlove.Kind = ArchetypeDraw.choice(
     "glove",
     "kind",
     params.kind,
     createGlove.KINDS,
   );
-  const d: Record<createGlove.Dimension, number> = ArchetypeDraw.dimensions(
-    "glove",
-    createGlove.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createGlove.Dimension, number> = draw.dimensions(createGlove.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createGlove.Affordance,
     createGlove.Dimension
   > = new ArchetypeBuilder({
-    archetype: "glove",
     id: params.id,
     name: kind === "fielder" ? "fielder's glove" : "catcher's mitt",
-    dimensions: d,
+    draw,
   });
   const thick: number = createGlove.THICKNESS[kind];
   builder.box(
@@ -119,6 +115,13 @@ export namespace createGlove {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

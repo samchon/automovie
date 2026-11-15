@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -40,6 +41,7 @@ export function createControl(
   params: createControl.IParams,
   seed?: number | string,
 ): Archetype<createControl.Affordance, createControl.Dimension> {
+  const draw: ArchetypeDrawSession<createControl.Dimension> = new ArchetypeDrawSession<createControl.Dimension>("control", createControl.UNITS, seed, params);
   const kind: createControl.Kind = ArchetypeDraw.choice(
     "control",
     "kind",
@@ -56,20 +58,14 @@ export function createControl(
       reason: "a dial has no lever",
       fix: "leave lever out for a dial",
     });
-  const d: Record<"height", number> = ArchetypeDraw.dimensions(
-    "control",
-    createControl.BANDS,
-    seed,
-    params,
-  );
+  const d: Record<"height", number> = draw.dimensions(createControl.BANDS);
   const builder: ArchetypeBuilder<
     createControl.Affordance,
     createControl.Dimension
   > = new ArchetypeBuilder({
-    archetype: "control",
     id: params.id,
     name: kind === "lever" ? "ball lever" : "selector dial",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const y: number = d.height;
@@ -93,14 +89,7 @@ export function createControl(
   const model: {
     name: createControl.Lever | undefined;
     figures: Readonly<Partial<Record<createControl.Dimension, number>>>;
-  } = ArchetypeDraw.model<createControl.Lever, createControl.Dimension>(
-    "control",
-    "lever",
-    params.lever,
-    createControl.LEVERS,
-    seed,
-    params,
-  );
+  } = draw.model<createControl.Lever>("lever", params.lever, createControl.LEVERS);
   const lever: Readonly<Record<createControl.LeverDimension, number>> = {
     length: model.figures.length!,
     knob: model.figures.knob!,
@@ -228,6 +217,17 @@ export namespace createControl {
 
   /** The dimensions: `height`, the control's axis above the floor, metres, free; and a lever's figures, its model's. */
   export type Dimension = "height" | LeverDimension;
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    knob: "m",
+    arm: "m",
+    hub: "m",
+    bore: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and the height fixed to a value inside its band. */
   export interface IParams extends Partial<Record<"height", number>> {

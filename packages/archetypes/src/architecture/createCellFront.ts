@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -46,12 +46,8 @@ export function createCellFront(
   params: createCellFront.IParams,
   seed?: number | string,
 ): Archetype<createCellFront.Affordance, createCellFront.Dimension> {
-  const d: Record<createCellFront.Dimension, number> = ArchetypeDraw.dimensions(
-    "cellFront",
-    createCellFront.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createCellFront.Dimension> = new ArchetypeDrawSession<createCellFront.Dimension>("cellFront", createCellFront.UNITS, seed, params);
+  const d: Record<createCellFront.Dimension, number> = draw.dimensions(createCellFront.BANDS);
   // As many bars as fit inside the width at the drawn centres: the first bar's
   // round section and then one centre per further bar.
   const width: number = params.width;
@@ -71,10 +67,9 @@ export function createCellFront(
     createCellFront.Affordance,
     createCellFront.Dimension
   > = new ArchetypeBuilder({
-    archetype: "cellFront",
     id: params.id,
     name: "cell front",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const span: number = (bars - 1) * d.spacing;
@@ -134,6 +129,16 @@ export namespace createCellFront {
     | "brace"
     | "flat"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    spacing: "m",
+    brace: "m",
+    flat: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the cell's width, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

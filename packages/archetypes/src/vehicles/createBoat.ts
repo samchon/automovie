@@ -2,11 +2,12 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { BOAT_BANDS } from "./BOAT_BANDS";
@@ -35,6 +36,7 @@ export function createBoat(
   params: createBoat.IParams,
   seed?: number | string,
 ): Archetype<createBoat.Affordance, createBoat.Dimension> {
+  const draw: ArchetypeDrawSession<createBoat.Dimension> = new ArchetypeDrawSession<createBoat.Dimension>("boat", createBoat.UNITS, seed, params);
   const kind: createBoat.Kind = ArchetypeDraw.choice(
     "boat",
     "kind",
@@ -43,42 +45,26 @@ export function createBoat(
   );
   // One read hull whole and, for a canoe, one of its layups; a rowboat's blades are the oar its span calls for.
   const hull: { name: createBoat.Model | undefined; figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
-    ArchetypeDraw.model<createBoat.Model, createBoat.Dimension>(
-      "boat",
-      "model",
-      params.model,
-      BOAT_MODELS.hulls[kind],
-      seed,
-      params,
-    );
+    draw.model<createBoat.Model>("model", params.model, BOAT_MODELS.hulls[kind]);
   const layup: { figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
-    ArchetypeDraw.model<createBoat.Layup, createBoat.Dimension>(
-      "boat",
-      "layup",
-      params.layup,
-      hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name],
-      seed,
-      params,
-    );
+    draw.model<createBoat.Layup>("layup", params.layup, hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name]);
   const drawn: Partial<Record<createBoat.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "boat",
-      createBoat.BANDS[kind],
-      seed,
-      params,
-      createBoat.BANDS,
-    ),
+    ...draw.dimensions(createBoat.BANDS[kind], createBoat.BANDS),
     ...hull.figures,
     ...layup.figures,
   };
+  // A rowboat's blades follow its beam, by the oar its span calls for: derived, not drawn.
+  const derived = (blade: { bladeLength: number; bladeWidth: number }): Partial<Record<createBoat.Dimension, number>> => ({
+    bladeLength: draw.derive("bladeLength", blade.bladeLength),
+    bladeWidth: draw.derive("bladeWidth", blade.bladeWidth),
+  });
   const d: Partial<Record<createBoat.Dimension, number>> =
-    kind === "rowboat" ? { ...drawn, ...BoatOars.blade(drawn.beam!) } : drawn;
+    kind === "rowboat" ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) } : drawn;
   const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
     new ArchetypeBuilder({
-      archetype: "boat",
       id: params.id,
       name: kind === "launch" ? "pulling boat" : kind,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
@@ -339,6 +325,19 @@ export namespace createBoat {
     | "bladeLength"
     | "bladeWidth"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    beam: "m",
+    depth: "m",
+    draft: "m",
+    endHeight: "m",
+    seatHeight: "m",
+    bladeLength: "m",
+    bladeWidth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
   /** The read hulls: the rowboats' Thames skiff, Whitehall skiff and Glen-L 17 ft Whitehall, and the canoes' Prospector 16, Discovery 169, Spirit II and Minnesota II (`BOAT_MODELS`). */

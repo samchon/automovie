@@ -6,6 +6,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -39,7 +40,16 @@ export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  return createHorse.equid(createHorse.PROFILE, params, seed);
+  return createHorse.equid(
+    createHorse.PROFILE,
+    params,
+    new ArchetypeDrawSession<createHorse.Dimension>(
+      createHorse.PROFILE.archetype,
+      createHorse.UNITS,
+      seed,
+      params,
+    ),
+  );
 }
 
 /**
@@ -107,6 +117,19 @@ export namespace createHorse {
     | "reinWidth"
     | "tempo"
     | "breechingDrop";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    withersHeight: "m",
+    mass: "kg",
+    girth: "m",
+    seatSize: "m",
+    stirrupDrop: "m",
+    stirrupWidth: "m",
+    reinWidth: "m",
+    tempo: "",
+    breechingDrop: "m",
+  };
 
   /** The dimensions drawn from a band: the others follow from these (`girth`, `mass`) or are a read model's (`seatSize`, `reinWidth`). */
   export type Free = Exclude<Dimension, "girth" | "mass" | "seatSize" | "reinWidth">;
@@ -252,15 +275,15 @@ export namespace createHorse {
    *
    * @param profile The equid's name, bands and body.
    * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
-   * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
+   * @param draw The equid's draw session, opened with its name, the seed and the dimensions the author fixed; a pony's has already picked its breed.
    * @returns The equid.
    * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
    *
    */
   export function equid(
     profile: IProfile,
-    params: IParams = {},
-    seed?: number | string,
+    params: IParams,
+    draw: ArchetypeDrawSession<Dimension>,
   ): Archetype<Affordance, Dimension> {
     const tack: createHorse.Tack = ArchetypeDraw.choice(
       profile.archetype,
@@ -269,39 +292,24 @@ export namespace createHorse {
       createHorse.TACKS,
     );
     const free: Record<createHorse.Free, number> = {
-      ...ArchetypeDraw.dimensions(profile.archetype, profile.bands, seed, params),
+      ...draw.dimensions(profile.bands),
       ...profile.figures,
     } as Record<createHorse.Free, number>;
-    const girth: number = profile.girth(free.withersHeight);
+    const girth: number = draw.derive("girth", profile.girth(free.withersHeight));
     const d: Record<createHorse.Dimension, number> = {
       ...free,
       girth,
-      mass: profile.mass ?? mass(free.withersHeight, girth),
-      seatSize: ArchetypeDraw.model<Seat, Dimension>(
-        profile.archetype,
-        "seat",
-        params.seat,
-        SEATS,
-        seed,
-        params,
-      ).figures.seatSize!,
-      reinWidth: ArchetypeDraw.model<Rein, Dimension>(
-        profile.archetype,
-        "rein",
-        params.rein,
-        REINS,
-        seed,
-        params,
-      ).figures.reinWidth!,
+      mass: draw.derive("mass", profile.mass ?? mass(free.withersHeight, girth)),
+      seatSize: draw.model<Seat>("seat", params.seat, SEATS).figures.seatSize!,
+      reinWidth: draw.model<Rein>("rein", params.rein, REINS).figures.reinWidth!,
     };
     const builder: ArchetypeBuilder<
       createHorse.Affordance,
       createHorse.Dimension
     > = new ArchetypeBuilder({
-      archetype: profile.archetype,
       id: params.id,
       name: profile.names[tack],
-      dimensions: d,
+      draw,
     });
     const v: typeof Vector3.create = Vector3.create;
     const h: number = d.withersHeight;

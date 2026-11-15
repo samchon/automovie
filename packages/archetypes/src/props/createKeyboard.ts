@@ -2,11 +2,12 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -32,6 +33,7 @@ export function createKeyboard(
   params: createKeyboard.IParams,
   seed?: number | string,
 ): Archetype<createKeyboard.Affordance, createKeyboard.Dimension> {
+  const draw: ArchetypeDrawSession<createKeyboard.Dimension> = new ArchetypeDrawSession<createKeyboard.Dimension>("keyboard", createKeyboard.UNITS, seed, params);
   const kind: createKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
     "kind",
@@ -39,22 +41,10 @@ export function createKeyboard(
     createKeyboard.KINDS,
   );
   const drawn: Partial<Record<createKeyboard.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-    "keyboard",
-    createKeyboard.BANDS[kind],
-    seed,
-    params,
-  );
+    draw.dimensions(createKeyboard.BANDS[kind]);
   // Each kind is one of Apple's read models whole.
   const model: { name: createKeyboard.Model | undefined; figures: createKeyboard.Figures } =
-    ArchetypeDraw.model<createKeyboard.Model, createKeyboard.Dimension>(
-      "keyboard",
-      "model",
-      params.model,
-      createKeyboard.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createKeyboard.Model>("model", params.model, createKeyboard.MODELS[kind]);
   const read: Partial<Record<createKeyboard.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -69,10 +59,9 @@ export function createKeyboard(
     createKeyboard.Affordance,
     createKeyboard.Dimension
   > = new ArchetypeBuilder({
-    archetype: "keyboard",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const pitch: number = createKeyboard.PITCH;
@@ -189,6 +178,14 @@ export namespace createKeyboard {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -65,49 +66,38 @@ export function createMobilityAid(
   params: createMobilityAid.IParams,
   seed?: number | string,
 ): Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension> {
+  const draw: ArchetypeDrawSession<createMobilityAid.Dimension> = new ArchetypeDrawSession<createMobilityAid.Dimension>("mobilityAid", createMobilityAid.UNITS, seed, params);
   const kind: createMobilityAid.Kind = ArchetypeDraw.choice(
     "mobilityAid",
     "kind",
     params.kind,
     createMobilityAid.KINDS,
   );
-  const drawn: Partial<Record<createMobilityAid.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "mobilityAid",
-      createMobilityAid.BANDS[kind],
-      seed,
-      kind === "walker" ? { ...params, height: undefined } : params,
-      createMobilityAid.BANDS,
-    );
   // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
-  const model: { name: createMobilityAid.Model | undefined; figures: createMobilityAid.Figures } =
-    ArchetypeDraw.model<createMobilityAid.Model, createMobilityAid.Dimension>(
-      "mobilityAid",
-      "model",
-      params.model,
-      createMobilityAid.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: { name: createMobilityAid.Model | undefined; figures: createMobilityAid.Figures } = draw.model<createMobilityAid.Model>(
+    "model",
+    params.model,
+    createMobilityAid.MODELS[kind],
+  );
+  // The model's own range bands its height, so the author's height is checked in it.
   const range: IArchetypeBand | undefined =
     model.name === undefined ? undefined : createMobilityAid.HANDLE_HEIGHTS[model.name];
-  const own: Partial<Record<createMobilityAid.Dimension, number>> =
-    range === undefined
-      ? {}
-      : ArchetypeDraw.dimensions("mobilityAid", { height: range }, seed, params);
   const d: Partial<Record<createMobilityAid.Dimension, number>> = {
-    ...drawn,
+    ...draw.dimensions(
+      range === undefined
+        ? createMobilityAid.BANDS[kind]
+        : { ...createMobilityAid.BANDS[kind], height: range },
+      createMobilityAid.BANDS,
+    ),
     ...model.figures,
-    ...own,
   };
   const builder: ArchetypeBuilder<
     createMobilityAid.Affordance,
     createMobilityAid.Dimension
   > = new ArchetypeBuilder({
-    archetype: "mobilityAid",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -291,6 +281,15 @@ export namespace createMobilityAid {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

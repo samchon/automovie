@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -47,19 +47,13 @@ export function createConsole(
   params: createConsole.IParams = {},
   seed?: number | string,
 ): Archetype<createConsole.Affordance, createConsole.Dimension> {
+  const draw: ArchetypeDrawSession<createConsole.Dimension> = new ArchetypeDrawSession<createConsole.Dimension>("console", createConsole.UNITS, seed, params);
   const size: {
     name: createConsole.Size | undefined;
     figures: Readonly<Partial<Record<createConsole.Dimension, number>>>;
-  } = ArchetypeDraw.model<createConsole.Size, createConsole.Dimension>(
-    "console",
-    "size",
-    params.size,
-    createConsole.SIZES,
-    seed,
-    params,
-  );
+  } = draw.model<createConsole.Size>("size", params.size, createConsole.SIZES);
   const d: Record<createConsole.Dimension, number> = {
-    ...ArchetypeDraw.dimensions("console", createConsole.BANDS, seed, params),
+    ...draw.dimensions(createConsole.BANDS),
     width: size.figures.width!,
   };
   const width: number = d.width;
@@ -67,10 +61,9 @@ export function createConsole(
     createConsole.Affordance,
     createConsole.Dimension
   > = new ArchetypeBuilder({
-    archetype: "console",
     id: params.id,
     name: `control console ${size.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const { depth, surface, thickness } = CONSOLE;
@@ -146,6 +139,13 @@ export namespace createConsole {
    * - `mass`: kilograms.
    */
   export type Dimension = "width" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The base console's sizes the sheet lists, by their widths in inches. */
   export type Size = "48in" | "60in" | "72in";

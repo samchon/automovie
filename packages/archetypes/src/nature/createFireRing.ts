@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -36,26 +37,21 @@ export function createFireRing(
   params: createFireRing.IParams,
   seed?: number | string,
 ): Archetype<createFireRing.Affordance, createFireRing.Dimension> {
+  const draw: ArchetypeDrawSession<createFireRing.Dimension> = new ArchetypeDrawSession<createFireRing.Dimension>("fireRing", createFireRing.UNITS, seed, params);
   const kind: createFireRing.Kind = ArchetypeDraw.choice(
     "fireRing",
     "kind",
     params.kind,
     createFireRing.KINDS,
   );
-  const d: Record<createFireRing.Dimension, number> = ArchetypeDraw.dimensions(
-    "fireRing",
-    createFireRing.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createFireRing.Dimension, number> = draw.dimensions(createFireRing.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createFireRing.Affordance,
     createFireRing.Dimension
   > = new ArchetypeBuilder({
-    archetype: "fireRing",
     id: params.id,
     name: "fire ring",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -129,6 +125,14 @@ export namespace createFireRing {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "height" | "wall" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    height: "m",
+    wall: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

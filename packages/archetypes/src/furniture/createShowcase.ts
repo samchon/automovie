@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import {
   Archetype,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
 } from "../core";
@@ -36,24 +36,18 @@ export function createShowcase(
   params: createShowcase.IParams = {},
   seed?: number | string,
 ): Archetype<createShowcase.Affordance, createShowcase.Dimension> {
+  const draw: ArchetypeDrawSession<createShowcase.Dimension> = new ArchetypeDrawSession<createShowcase.Dimension>("showcase", createShowcase.UNITS, seed);
   const model: {
     name: createShowcase.Model | undefined;
     figures: Readonly<Partial<Record<createShowcase.Dimension, number>>>;
-  } = ArchetypeDraw.model<createShowcase.Model, createShowcase.Dimension>(
-    "showcase",
-    "model",
-    params.model,
-    createShowcase.MODELS,
-    seed,
-  );
+  } = draw.model<createShowcase.Model>("model", params.model, createShowcase.MODELS);
   const builder: ArchetypeBuilder<
     createShowcase.Affordance,
     createShowcase.Dimension
   > = new ArchetypeBuilder({
-    archetype: "showcase",
     id: params.id,
     name: `glass showcase ${model.name}`,
-    dimensions: model.figures,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = model.figures.length!;
@@ -97,6 +91,12 @@ export namespace createShowcase {
 
   /** The dimensions, each its model's: `length`, the case along `X`, metres; `mass`, kilograms. */
   export type Dimension = "length" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    mass: "kg",
+  };
 
   /** Each showcase's length and mass, the default first: Econoco Showcases and Counters 2025, Full Vision Showcase, "Available in two lengths; 48" long and 70" long", "48" unit weighs 170 lbs. 70" unit weighs 190 lbs." (https://www.econoco.com/media/contentmanager/content/brochure/Showcases_and_Counters_-_2025_1.pdf). */
   export const MODELS: Readonly<

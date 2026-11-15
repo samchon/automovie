@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -34,6 +35,7 @@ export function createRack(
   params: createRack.IParams,
   seed?: number | string,
 ): Archetype<createRack.Affordance, createRack.Dimension> {
+  const draw: ArchetypeDrawSession<createRack.Dimension> = new ArchetypeDrawSession<createRack.Dimension>("rack", createRack.UNITS, seed, params);
   const kind: createRack.Kind = ArchetypeDraw.choice(
     "rack",
     "kind",
@@ -41,20 +43,13 @@ export function createRack(
     createRack.KINDS,
   );
   const d: Partial<Record<createRack.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "rack",
-      createRack.BANDS[kind],
-      seed,
-      params,
-      createRack.BANDS,
-    );
+    draw.dimensions(createRack.BANDS[kind], createRack.BANDS);
   const half: number = d.width! / 2;
   const builder: ArchetypeBuilder<createRack.Affordance, createRack.Dimension> =
     new ArchetypeBuilder({
-      archetype: "rack",
       id: params.id,
       name: "squat rack",
-      dimensions: d,
+      draw,
     });
   for (const side of [1, -1] as const) {
     const name: string = side === 1 ? "left" : "right";
@@ -127,6 +122,14 @@ export namespace createRack {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "width" | "rest" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    rest: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

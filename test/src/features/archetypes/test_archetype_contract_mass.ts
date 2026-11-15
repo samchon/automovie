@@ -1,6 +1,7 @@
 import {
   type Archetype,
   ArchetypeBuilder,
+  ArchetypeDrawSession,
   ArchetypeMass,
   ArchetypeUnits,
   createClub,
@@ -13,9 +14,8 @@ import { nclose, vclose } from "../internal/predicates";
 /** An empty builder for a made-up solid. */
 function builder(): ArchetypeBuilder<never, never> {
   return new ArchetypeBuilder<never, never>({
-    archetype: "solid",
     name: "solid",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("solid", {}, undefined),
   });
 }
 

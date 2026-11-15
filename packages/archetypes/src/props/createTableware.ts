@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -36,6 +37,7 @@ export function createTableware(
   params: createTableware.IParams,
   seed?: number | string,
 ): Archetype<createTableware.Affordance, createTableware.Dimension> {
+  const draw: ArchetypeDrawSession<createTableware.Dimension> = new ArchetypeDrawSession<createTableware.Dimension>("tableware", createTableware.UNITS, seed, params);
   const kind: createTableware.Kind = ArchetypeDraw.choice(
     "tableware",
     "kind",
@@ -43,23 +45,10 @@ export function createTableware(
     createTableware.KINDS,
   );
   const drawn: Partial<Record<createTableware.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "tableware",
-      createTableware.BANDS[kind],
-      seed,
-      params,
-      createTableware.BANDS,
-    );
+    draw.dimensions(createTableware.BANDS[kind], createTableware.BANDS);
   // A round plate or a platter is one of IKEA's read models whole.
   const model: { name: createTableware.Model | undefined; figures: createTableware.Figures } =
-    ArchetypeDraw.model<createTableware.Model, createTableware.Dimension>(
-      "tableware",
-      "model",
-      params.model,
-      createTableware.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.model<createTableware.Model>("model", params.model, createTableware.MODELS[kind]);
   const d: Partial<Record<createTableware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -68,10 +57,9 @@ export function createTableware(
     createTableware.Affordance,
     createTableware.Dimension
   > = new ArchetypeBuilder({
-    archetype: "tableware",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -177,6 +165,15 @@ export namespace createTableware {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "length" | "width" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

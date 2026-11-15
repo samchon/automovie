@@ -2,6 +2,7 @@ import {
   type Archetype,
   ArchetypeArticulation,
   ArchetypeBuilder,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeMarks,
   ArchetypeRefusal,
@@ -48,9 +49,8 @@ function fixture(
   const facing = (at: IAutoMovieVector3): IAutoMovieAffordance["frame"] =>
     ArchetypeFrame.facing(at, v(0, 1, 0), v(1, 0, 0));
   return new ArchetypeBuilder<Id, never>({
-    archetype: "fixture",
     name: "fixture",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("base", v(1, 0.1, 1), v(0, 0.05, 0))
     .box("leaf", v(0.4, 0.3, 0.02), v(0.3, 0.5, 0))

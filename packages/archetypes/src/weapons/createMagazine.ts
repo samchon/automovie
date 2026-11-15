@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -41,26 +42,21 @@ export function createMagazine(
   params: createMagazine.IParams,
   seed?: number | string,
 ): Archetype<createMagazine.Affordance, createMagazine.Dimension> {
+  const draw: ArchetypeDrawSession<createMagazine.Dimension> = new ArchetypeDrawSession<createMagazine.Dimension>("magazine", createMagazine.UNITS, seed, params);
   const kind: createMagazine.Kind = ArchetypeDraw.choice(
     "magazine",
     "kind",
     params.kind,
     createMagazine.KINDS,
   );
-  const d: Record<createMagazine.Dimension, number> = ArchetypeDraw.dimensions(
-    "magazine",
-    createMagazine.BANDS[kind],
-    seed,
-    params,
-  );
+  const d: Record<createMagazine.Dimension, number> = draw.dimensions(createMagazine.BANDS[kind]);
   const builder: ArchetypeBuilder<
     createMagazine.Affordance,
     createMagazine.Dimension
   > = new ArchetypeBuilder({
-    archetype: "magazine",
     id: params.id,
     name: `${kind} magazine`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   builder.box(
@@ -141,6 +137,14 @@ export namespace createMagazine {
    * - `mass`: empty, kilograms.
    */
   export type Dimension = "length" | "width" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, whether it is loaded, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
