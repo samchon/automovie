@@ -202,7 +202,8 @@ export namespace HorsePack {
     straps.push(["croup", v(0, rig.back + r, centre - size.along / 2), end]);
 
     // The breeching an inch behind the hindquarters' rounded end at the point of buttock's height, held up from the croup piece's end.
-    const reach: number = barrel + BREECHING + r;
+    // Its straight straps circumscribe the strap's circle: each strap's middle, its nearest to the body, keeps the inch.
+    const reach: number = (barrel + BREECHING + r) / Math.cos(Math.PI / (2 * steps));
     const behind = (angle: number): IAutoMovieVector3 =>
       v(
         reach * Math.cos(angle),

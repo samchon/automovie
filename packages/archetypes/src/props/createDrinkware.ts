@@ -266,7 +266,9 @@ export function createDrinkware(
   const breaking: number | undefined =
     kind === "beerBottle" ? createDrinkware.BREAKING[fill] : undefined;
   if (breaking !== undefined)
-    builder.fracture([{ id: "shards", parts: ["body"] }]);
+    builder.fracture([
+      { id: "shards", parts: ["body"], affordances: ["body"] },
+    ]);
   return builder.build(
     d.mass! + fill * CAPACITY[kind],
     breaking === undefined ? undefined : { outcome: { fracture: breaking } },

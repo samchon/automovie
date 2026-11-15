@@ -13,12 +13,14 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * 2. The ramrod drawn by its whole travel leaves its pipe: its tail stands ahead of the front `pipe` socket, and its tip stands beyond the muzzle by less than the rod's length.
  * 3. Rammed home, the rod reaches the breech: its length is the barrel's.
  * 4. Every pose, the cock at half and full, the frizzen open and the rod drawn, is an admitted model.
+ * 5. The cock's `spur`, its thumb piece, is a handle riding the cock at its jaw end, and stands farther back at full cock.
+ * 6. The `foreEnd`, where the 1764 Manual Exercise puts the left hand "at the swell", is the stock's swell at the rearmost of the four pipes, where the rod enters the stock, ahead of the lock's pan.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Articulates the musket and measures the posed parts against the contacts; a cock that does not turn, a frizzen that does not open, a rod still in its pipe when drawn or a refused pose is caught.
  * @evidence contracts/development/testing.md#independent-expectations The rod's reach and its release are worked here from the barrel's length and the pipe's and muzzle's frames, not from the producer's travel.
  * @evidence contracts/development/testing.md#distinguishing-cases Four seeds, two cock travels, the frizzen's two ends and the rod's whole draw.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_weapon_musket_lock(): void {
   const findings: string[] = [];
@@ -80,6 +82,45 @@ export function test_archetype_weapon_musket_lock(): void {
       );
     if (!(rest("ramrod") < pipe.z))
       findings.push(`${label}: the rod at rest is not in its pipe`);
+
+    // 5. The spur, the cock's thumb piece, rides the cock at its jaw end and goes back with it at full cock.
+    const spur: ReturnType<typeof musket.affordance> = musket.affordance("spur");
+    const cocked: IAutoMovieVector3 = musket
+      .articulate({ cock })
+      .affordance("spur").frame.translation;
+    const piece: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      musket,
+      "y",
+      ["spur"],
+    );
+    if (
+      spur.kind !== "handle" ||
+      spur.rides !== "cock" ||
+      !(musket.affordance("cock").parts ?? []).includes("spur") ||
+      Math.abs(spur.frame.translation.y - (piece.low + piece.high) / 2) >
+        1e-9 ||
+      Math.abs(piece.high - piece.low - spur.aperture!) > 1e-9 ||
+      !(cocked.z < spur.frame.translation.z)
+    )
+      findings.push(
+        `${label}: the spur at ${JSON.stringify(spur.frame.translation)} does not ride the cock's jaw back to ${JSON.stringify(cocked)}`,
+      );
+
+    // 6. The supporting hand holds the swell, the stock's bulge at the rearmost pipe where the rod enters it, ahead of the lock.
+    const hold: IAutoMovieVector3 =
+      musket.affordance("foreEnd").frame.translation;
+    const tailPipe: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      musket,
+      "z",
+      ["pipe-4"],
+    );
+    if (
+      Math.abs(hold.z - (tailPipe.low + tailPipe.high) / 2) > 1e-9 ||
+      !(hold.z > musket.affordance("pan").frame.translation.z)
+    )
+      findings.push(
+        `${label}: the fore-end hold at ${hold.z} is not the swell at the tail pipe ${(tailPipe.low + tailPipe.high) / 2}`,
+      );
   }
   TestValidator.equals(
     "a musket's lock and rod move as the drill needs",

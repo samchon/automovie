@@ -1,10 +1,10 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   type ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRefusal,
   type ArchetypeRide,
+  ArchetypeUnits,
   createBoat,
   rowBoat,
 } from "@automovie/archetypes";
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * A rowed rowboat's oars keep their handles at the oarlocks, put their blades in the water only between catch and finish, and stroke at the rate the speed sets.
  *
- * Scenarios, for a rowboat rowed 40 m straight at 1.5 m/s, read every twentieth of a second through its first five strokes:
+ * Scenarios, for a rowboat rowed 40 m straight at 1.5 m/s, already at that speed when the course begins and still at it when it ends, so no rate of speeding up or slowing enters, read every twentieth of a second through its first five strokes; the handle's held run is read off the boat's handle contact and each blade's corners off its own posed box:
  * 1. Each handle stays its inboard length less half its grip from its oarlock's pivot, the inboard Shaw and Tenney's half span plus 2 in, within 1e-9 m.
  * 2. Each blade's lowest corner is below the water only while the stroke is between a catch and the next finish, the drive taking Kleshnev's 0.84 r + 25.1 percent of the cycle at the stroke rate r held inside 26 to 36.5 strokes a minute.
  * 3. The ride names `catch1` to `catch5`, each where the boat has covered that many strokes' distance, within 1e-6 m.
@@ -41,9 +41,11 @@ export function test_archetype_boat_oars(): void {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 40 }],
     cruise: 1.5,
-    acceleration: 100,
-    deceleration: 100,
+    startSpeed: 1.5,
+    endSpeed: 1.5,
   };
+  // The handle's held run, read off the boat's own handle contact.
+  const grip: number = boat.affordance("leftHandle").length!;
   const ride: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
     rowBoat(boat, course);
   const inboard: number = d.beam! / 2 + 2 * ArchetypeUnits.INCH;
@@ -95,7 +97,7 @@ export function test_archetype_boat_oars(): void {
       if (
         Math.abs(
           Vector3.length(Vector3.subtract(handle, pivot)) -
-            (inboard - 0.12 / 2),
+            (inboard - grip / 2),
         ) > 1e-9
       )
         findings.push(
@@ -105,7 +107,6 @@ export function test_archetype_boat_oars(): void {
         sample.archetype.parts.find(
           (p: IAutoMovieModelPart): boolean => p.id === `blade-${side}`,
         )!,
-        d,
         sample.placement,
       );
       if (driving && !(low < 0))
@@ -131,16 +132,21 @@ export function test_archetype_boat_oars(): void {
 /**
  * A blade's lowest corner above the water.
  *
- * @param blade The posed blade part.
- * @param d The boat's dimensions.
+ * @param blade The posed blade part, a box whose own size gives its corners.
  * @param placement The boat's placement.
  * @returns The corner's height, metres.
  */
 function lowest(
   blade: IAutoMovieModelPart,
-  d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
   placement: IAutoMovieTransform,
 ): number {
+  if (
+    blade.geometry.type !== "primitive" ||
+    blade.geometry.shape.type !== "box"
+  )
+    throw new Error(`the blade ${blade.id} is not a box`);
+  const size: { width: number; height: number; depth: number } =
+    blade.geometry.shape;
   let least: number = Number.POSITIVE_INFINITY;
   for (const x of [-1, 1])
     for (const y of [-1, 1])
@@ -150,9 +156,9 @@ function lowest(
           Quaternion.rotateVector(
             blade.transform!.rotation,
             Vector3.create(
-              (x * d.bladeLength!) / 2,
-              (y * d.bladeWidth!) / 2,
-              z * 0.006,
+              (x * size.width) / 2,
+              (y * size.height) / 2,
+              (z * size.depth) / 2,
             ),
           ),
         );

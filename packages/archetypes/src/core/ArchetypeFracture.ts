@@ -12,7 +12,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
 /**
  * How an archetype breaks: the sets of its parts a hit breaks off as fragments, and what is left.
  *
- * A producer declares its fragment sets (`ArchetypeBuilder.fracture`), each a group of its own parts that leaves as one fragment, and the energy above which a hit breaks it, which its model body carries as `contact.fracture` so a flight's or a melee hit's one outcome rule reads it. A hit at or above that energy breaks every set off: each set becomes an archetype of its own, carrying its parts' own masses, and the parts no set names stay as the remainder, keeping the affordances whose moving parts all remain; no piece breaks again. The fragments leave together with the hit's momentum shared over their masses, as a perfectly inelastic collision gives; how they spread about that direction no source read gives, so they do not spread. The same archetype and hit always break the same way.
+ * A producer declares its fragment sets (`ArchetypeBuilder.fracture`), each a group of its own parts that leaves as one fragment, and the energy above which a hit breaks it, which its model body carries as `contact.fracture` so a flight's or a melee hit's one outcome rule reads it. A hit at or above that energy breaks every set off: each set becomes an archetype of its own, carrying its parts' own masses, and the parts no set names stay as the remainder, keeping the affordances whose moving parts all remain, that no set carries away (a set names the contacts on its parts that move none of them) and whose `rides` and `follows` still name a kept contact; no piece breaks again. The fragments leave together with the hit's momentum shared over their masses, as a perfectly inelastic collision gives; how they spread about that direction no source read gives, so they do not spread. The same archetype and hit always break the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold lives, what breaking leaves, how fragments leave and what is not modelled.
  * @evidence contracts/development/design.md#principled-representation A set is an id and the producer's own part ids; a hit is its energy and momentum; the result is the remainder and fragments as archetypes, each with a velocity.
@@ -24,7 +24,7 @@ export namespace ArchetypeFracture {
    * One fragment set: the parts that break off together.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation An id and the producer's part ids.
+   * @evidence contracts/development/design.md#principled-representation An id, the producer's part ids and the contacts on them that move none.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Declared by producers through `ArchetypeBuilder.fracture`, read by `split`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -34,6 +34,9 @@ export namespace ArchetypeFracture {
 
     /** The parts it carries away, by part id. */
     parts: readonly string[];
+
+    /** The contacts that lie on its parts but move none of them, such as a grip round a bottle's body, which leave with it; a contact that moves a part of the set, or rides or follows one that leaves, goes without being named. Absent, none. */
+    affordances?: readonly string[];
   }
 
   /**
@@ -130,7 +133,7 @@ export namespace ArchetypeFracture {
    * @returns The remainder and fragments, or null when the archetype declares no fracture or the hit is below its threshold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when nothing breaks.
-   * @evidence contracts/development/implementation.md#principled-implementation Each set's record carries its parts, their spans with both ends on them, and their own masses' mass properties (`ArchetypeMass.of` with those masses as shares); the remainder the rest, keeping each affordance whose moving parts all remain; every piece the rest's contact without its threshold, since it declares no fracture set; every fragment's velocity the hit's momentum over the fragments' summed mass.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's record carries its parts, their spans with both ends on them, and their own masses' mass properties (`ArchetypeMass.of` with those masses as shares); the remainder the rest, keeping each affordance whose moving parts all remain, that no set carries away and whose `rides` and `follows` chain stays whole, so the remainder is a model the engine admits; every piece the rest's contact without its threshold, since it declares no fracture set; every fragment's velocity the hit's momentum over the fragments' summed mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the hit, then one record per set and one for the remainder.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A set that names a part twice or a part of another set is a producer's defect the builder refuses; no spread is drawn.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, the affordances and the spans.
@@ -215,15 +218,51 @@ export namespace ArchetypeFracture {
       remainder:
         kept.size === 0
           ? null
-          : record<Id>(
-              rest.id,
-              kept,
-              rest.affordances.filter(
-                (a: IAutoMovieAffordance & { id: Id }): boolean =>
-                  (a.parts ?? []).every((p: string): boolean => kept.has(p)),
-              ),
-            ),
+          : record<Id>(rest.id, kept, remaining(rest, kept)),
       fragments: fragments.map((f) => ({ ...f, velocity })),
     };
+  }
+
+  /**
+   * The contacts the remainder keeps: each whose moving parts all remain and that no set carries away, then, until none drops, each whose `rides` and `follows` name a contact still kept.
+   *
+   * @param rest The archetype's rest record.
+   * @param kept The remainder's parts.
+   * @returns The kept contacts, in the rest record's order.
+   */
+  function remaining<Id extends string, Dimension extends string>(
+    rest: Archetype.IProps<Id, Dimension>,
+    kept: ReadonlySet<string>,
+  ): (IAutoMovieAffordance & { id: Id })[] {
+    const carried: Set<string> = new Set(
+      rest.fractures.flatMap(
+        (s: ISet): readonly string[] => s.affordances ?? [],
+      ),
+    );
+    const ids: Set<string> = new Set(
+      rest.affordances
+        .filter(
+          (a: IAutoMovieAffordance): boolean =>
+            !carried.has(a.id) &&
+            (a.parts ?? []).every((p: string): boolean => kept.has(p)),
+        )
+        .map((a: IAutoMovieAffordance): string => a.id),
+    );
+    // A contact riding or following one that left goes with it; a chain drops link by link.
+    for (let dropped: boolean = true; dropped; ) {
+      dropped = false;
+      for (const a of rest.affordances)
+        if (
+          ids.has(a.id) &&
+          ((a.rides !== undefined && !ids.has(a.rides)) ||
+            (a.follows !== undefined && !ids.has(a.follows.id)))
+        ) {
+          ids.delete(a.id);
+          dropped = true;
+        }
+    }
+    return rest.affordances.filter(
+      (a: IAutoMovieAffordance & { id: Id }): boolean => ids.has(a.id),
+    );
   }
 }

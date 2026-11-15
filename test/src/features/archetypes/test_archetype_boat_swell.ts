@@ -16,7 +16,9 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two seas of the same height, heading and seed give the same elevation and slope at every point and second read; another seed gives another surface.
  * 2. The components' variance is the Pierson-Moskowitz spectrum's over its band: four times the root of the summed squared amplitudes over two is within 2 percent of the significant height asked for (WMO-No. 702, Hm0 = 4 times the root of the zeroth moment), the band holding nearly all the energy.
  * 3. Through a minute the elevation never exceeds the summed amplitudes and the slope never the summed amplitude-wavenumber products.
- * 4. A rowboat rowed on that sea heaves by the elevation under its root, and pitches and rolls inside the steepest slope's angle; on a calm sea of zero height it does not move off still water.
+ * 4. A rowboat rowed 20 m on that sea at 1.5 m/s, already at that speed when the course begins and still at it when it ends, so no rate of speeding up or slowing enters, heaves by the elevation under its root, and pitches and rolls inside the steepest slope's angle; on a calm sea of zero height it does not move off still water.
+ *
+ * The sea is the top of the WMO sea state code's slight band, 1.25 m significant height.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds seas and a floating ride and reads them across points and seconds; a sea depending on anything but its seed and second, one off its spectrum, a surface beyond its bounds, or a boat not following it is caught.
  * @evidence contracts/development/testing.md#independent-expectations The significant height from the zeroth moment is WMO-No. 702's relation, worked here from the components; the bounds are the triangle inequality on a sum of sinusoids.
@@ -26,7 +28,8 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_boat_swell(): void {
   const findings: string[] = [];
-  const options: ArchetypeSea.IOptions = { height: 1, seed: 7 };
+  // The top of the WMO sea state code's slight band, 0.5 to 1.25 m significant height.
+  const options: ArchetypeSea.IOptions = { height: 1.25, seed: 7 };
   const sea: ArchetypeSea.ISea = ArchetypeSea.of(options);
   const again: ArchetypeSea.ISea = ArchetypeSea.of(options);
   const other: ArchetypeSea.ISea = ArchetypeSea.of({ ...options, seed: 8 });
@@ -69,8 +72,8 @@ export function test_archetype_boat_swell(): void {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 20 }],
     cruise: 1.5,
-    acceleration: 1,
-    deceleration: 1,
+    startSpeed: 1.5,
+    endSpeed: 1.5,
   };
   const still: ArchetypeRide.IRide<
     createBoat.Affordance,

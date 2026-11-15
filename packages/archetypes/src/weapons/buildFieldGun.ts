@@ -164,7 +164,11 @@ export function buildFieldGun(
     [1, "right", -1],
   ] as const) {
     const x: number = (sign * c.track) / 2;
-    const parts: string[] = [`wheel-${side}`, `nave-${side}`];
+    const parts: string[] = [
+      `wheel-${side}`,
+      `nave-${side}-in`,
+      `nave-${side}-out`,
+    ];
     builder.rod(
       `wheel-${side}`,
       radius,
@@ -175,16 +179,21 @@ export function buildFieldGun(
         share: (c.wheelMass * vDisc) / vWheel / total,
       },
     );
-    builder.rod(
-      `nave-${side}`,
-      nave,
-      v(x - naveLength / 2, radius, 0),
-      v(x + naveLength / 2, radius, 0),
-      {
-        color: wood,
-        share: (c.wheelMass * vNave) / vWheel / total,
-      },
-    );
+    // The nave stands out from the wheel on both faces, an inner and an outer half.
+    for (const [half, outward] of [
+      ["in", -1],
+      ["out", 1],
+    ] as const)
+      builder.rod(
+        `nave-${side}-${half}`,
+        nave,
+        v(x, radius, 0),
+        v(x + (outward * sign * naveLength) / 2, radius, 0),
+        {
+          color: wood,
+          share: (c.wheelMass * vNave) / 2 / vWheel / total,
+        },
+      );
     for (let n: number = 0; n < c.spokes / 2; n++) {
       const angle: number = (2 * Math.PI * n) / c.spokes;
       const along: IAutoMovieVector3 = v(
@@ -348,7 +357,7 @@ export function buildFieldGun(
     extent: null,
     rides: "recoil",
   });
-  // Each wheel's top, where a cannoneer takes the spokes to run the gun up; it turns with the wheel.
+  // Each wheel's top, where a cannoneer takes the rim from the wheel's outer face to run the gun up, the hand closing across the tyre; it turns with the wheel.
   for (const [id, spin, sign] of [
     ["leftWheel", "leftSpin", 1],
     ["rightWheel", "rightSpin", -1],
@@ -359,8 +368,8 @@ export function buildFieldGun(
       symmetry: "none",
       frame: ArchetypeFrame.facing(
         v((sign * c.track) / 2, 2 * radius, 0),
-        v(0, 1, 0),
-        v(1, 0, 0),
+        v(sign, 0, 0),
+        v(0, 0, 1),
       ),
       extent: null,
       grip: "power",

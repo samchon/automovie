@@ -281,6 +281,7 @@ export namespace HandgunActions {
     trigger(builder, d, bore - e.bore);
     FlintLock.lay(builder, v(0, bore, breech), {
       cock: "cock",
+      spur: "spur",
       frizzen: "frizzen",
       pan: "pan",
     });

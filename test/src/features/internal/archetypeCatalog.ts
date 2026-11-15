@@ -592,6 +592,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `food-${kind}`,
       (seed?: number | string): Archetype => createFood({ kind }, seed),
+      settled(createFood.BANDS[kind], createFood.MODELS[kind]),
     );
   for (const kind of createLight.KINDS)
     add(

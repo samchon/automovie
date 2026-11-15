@@ -278,8 +278,8 @@ export class ArchetypeDrawSession<Dimension extends string> {
       this.#values[dimension] = figures[dimension];
       this.#figures[dimension] = axis;
       this.#given[dimension] = unit;
-      // A band drawn before the pick no longer stands behind this value.
-      this.#bands[dimension] = undefined;
+      // A band drawn before the pick no longer stands behind this value, so the record names no band for it.
+      delete this.#bands[dimension];
     }
     this.#models[axis] = name;
     return { name, figures };

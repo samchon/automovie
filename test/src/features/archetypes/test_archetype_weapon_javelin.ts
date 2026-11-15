@@ -1,4 +1,8 @@
-import { createJavelin, createPolearm } from "@automovie/archetypes";
+import {
+  ArchetypeRefusal,
+  createJavelin,
+  createPolearm,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -7,12 +11,13 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  * 1. For the men's and the women's javelin, at each end of its length band and of its balance band (World Athletics Technical Rule 38: 2.60 to 2.70 m and 0.90 to 1.06 m for the men, 2.20 to 2.30 m and 0.80 to 0.92 m for the women), its centre of mass lies on its point-to-tail axis at the rule's balance distance from the point, within 1e-9 m, inside the cord's width around the `grip`; its mass is the rule's 800 g or 600 g and its length the drawn one.
  * 2. A lance's `grip` lies behind its centre of mass, toward the butt, so its steel head carries the point forward of the couching hand.
+ * 3. A length or a balance a millimetre past either end of the rule's band is refused on that dimension, for both categories.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces javelins at every band end and a lance and reads their mass properties against their contacts; a javelin balanced off its cord, or a lance balanced behind its grip, is caught.
  * @evidence contracts/development/testing.md#independent-expectations The balance distances, lengths and masses are the rule's, written here; the centre of mass is read from the produced model's own mass properties.
- * @evidence contracts/development/testing.md#distinguishing-cases Both categories at all four band corners, and the lance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both categories at all four band corners and a millimetre past each band end, and the lance.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
  */
 export function test_archetype_weapon_javelin(): void {
   const findings: string[] = [];
@@ -55,6 +60,26 @@ export function test_archetype_weapon_javelin(): void {
         if (Math.abs(javelin.dimensions.length! - length) > 1e-12)
           findings.push(`${label}: ${javelin.dimensions.length} m long`);
       }
+  // 3. A millimetre past either end of either band is refused on that dimension.
+  for (const kind of createJavelin.KINDS)
+    for (const axis of ["length", "balance"] as const)
+      for (const value of [
+        rule[kind][axis][0] - 0.001,
+        rule[kind][axis][1] + 0.001,
+      ]) {
+        let refused: string | null = null;
+        try {
+          createJavelin({ kind, [axis]: value });
+        } catch (error) {
+          refused =
+            error instanceof ArchetypeRefusal ? error.axis : String(error);
+        }
+        if (refused !== axis)
+          findings.push(
+            `the ${kind}'s javelin with a ${axis} of ${value} m was refused at ${refused}`,
+          );
+      }
+
   const lance: ReturnType<typeof createPolearm> = createPolearm({
     kind: "lance",
   });

@@ -25,12 +25,13 @@ const CONTACTS: Readonly<{
  * 1. Every drawn dimension lies inside the band the archetype records it was drawn in.
  * 2. The lock time of every new kind is marked provisional: none is read at a primary source.
  * 3. Each has a `grip`, a `trigger`, a `muzzle` and a `sight`, and a long gun a `foreEnd` and a `butt`; each publishes a muzzle velocity and a lock time.
+ * 4. For three seeds, every flintlock, the musket's and the pistol's, has a `cock`, its thumb piece the `spur` (a handle riding the cock), a `frizzen` and a `pan`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each kind for 200 seeds and reads its dimensions against its recorded bands and its contacts by id; a value outside its band, an unmarked lock time or a missing contact is caught.
  * @evidence contracts/development/testing.md#independent-expectations The contact ids are the firearm laws' (`HumanWeaponFirearm`), written here; the bands are read from the archetype's own provenance, so the check is that the draw honours what it records.
  * @evidence contracts/development/testing.md#distinguishing-cases Five kinds over two producers, each across its models and bands.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
 export function test_archetype_weapon_firearm_eras_bands(): void {
   const findings: string[] = [];
@@ -83,7 +84,23 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
         createHandgun({ frame }, seed),
       false,
     );
-  TestValidator.equals(
+  // 4. Every flintlock, the musket's and the pistol's, offers the lock a drill works: the cock with its spur riding it, the frizzen and the pan.
+  for (const seed of [0, 1, 2])
+    for (const [label, lock] of [
+      ["musket", createLongGun({ kind: "musket" }, seed)],
+      ["flintlock", createHandgun({ frame: "flintlock" }, seed)],
+    ] as const) {
+      const ids: readonly string[] = lock.affordances.map(
+        (a: { id: string }): string => a.id,
+      );
+      for (const id of ["cock", "spur", "frizzen", "pan"])
+        if (!ids.includes(id))
+          findings.push(`${label}@${seed}: its lock has no ${id}`);
+      const spur: { kind: string; rides?: string } | undefined =
+        lock.affordances.find((a: { id: string }): boolean => a.id === "spur");
+      if (spur !== undefined && (spur.kind !== "handle" || spur.rides !== "cock"))
+        findings.push(`${label}@${seed}: the spur does not ride the cock`);
+    }  TestValidator.equals(
     "the period and repeating firearms stay in their bands",
     findings,
     [],

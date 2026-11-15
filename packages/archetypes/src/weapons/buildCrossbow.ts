@@ -16,10 +16,10 @@ import { createBow } from "./createBow";
  * @returns The crossbow.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is built, where it lies and where its places come from.
- * @evidence contracts/development/implementation.md#principled-implementation The stock a box of its fore-end's section; the bow's halves straight from its centre, braced its read height ahead of the string at rest; the string a slider following the crank by the cranequin's travel over its turns, the halves hinges following the string by `createBow.limbs`, and the string's halves spans from the tips to the nock.
+ * @evidence contracts/development/implementation.md#principled-implementation The stock a box of its fore-end's section, split at the nut into the butt-stock and the fore-stock the bow hand closes across, its aperture the stock's read thickness; the bow's halves straight from its centre, braced its read height ahead of the string at rest; the string a slider following the crank by the cranequin's travel over its turns, the halves hinges following the string by `createBow.limbs`, and the string's halves spans from the tips to the nock.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The parts, then the crank, the string and the limbs that follow, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stock's taper is not drawn; the cranequin's axle direction and the stirrup's height are unread and placed provisionally, as `createBow.CROSSBOW` states.
- * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts; the limbs' table is bisected once.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Nine parts; the limbs' table is bisected once.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `createBow.limbs` and `ArchetypeBuilder.span`, as a bow does.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -37,8 +37,13 @@ export function buildCrossbow(
   const limb: number = Math.hypot(half, d.brace!);
   const r: number = c.thickness / 2;
 
-  // The stock, a box of its fore-end's section; the groove is its top.
-  builder.box("stock", v(d.depth!, top, c.stock), v(0, top / 2, c.stock / 2), {
+  // The stock, a box of its fore-end's section, the groove its top: the butt-stock from the butt to the nut and the fore-stock from the nut to the fore-end, which the bow hand holds.
+  builder.box("stock", v(d.depth!, top, nut), v(0, top / 2, nut / 2), {
+    color: "#7a5230",
+    surface: "wood",
+  });
+  const fore: number = (nut + c.stock) / 2;
+  builder.box("foreStock", v(d.depth!, top, c.nut), v(0, top / 2, fore), {
     color: "#7a5230",
     surface: "wood",
   });
@@ -122,15 +127,12 @@ export function buildCrossbow(
       createBow.STRING,
       { color: "#e8e1cf", density: 0.5 },
     );
+  // The bow hand closes across the fore-stock's thickness, Payne-Gallwey's 1½ in, its palm on the stock's left face, `+X`, with the stock along its line.
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      v(0, 0, (nut + rest) / 2),
-      v(0, -1, 0),
-      v(0, 0, 1),
-    ),
+    frame: ArchetypeFrame.facing(v(0, top / 2, fore), v(1, 0, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
     aperture: d.depth!,
