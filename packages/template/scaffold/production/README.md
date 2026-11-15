@@ -57,7 +57,7 @@ Run `pnpm run review:setup` once to install Playwright's recording FFmpeg and it
 
 2. Write the screenplay as the user's [choice of writer]({{skills}}/story/workflow/SKILL.md#who-writes-the-screenplay) sets.
 
-   When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it, then write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow/SKILL.md), which also sets when evidence and independent review run; a short drafts its entities, scenes and film before evidence and review, as its route's film draft step sets.
+   When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it. When the choice runs the narrative passes, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow/SKILL.md), which also sets when evidence and independent review run; a short drafts its entities, scenes and film before evidence and review, as its route's film draft step sets.
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 
