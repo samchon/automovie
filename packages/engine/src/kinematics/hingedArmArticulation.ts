@@ -274,8 +274,7 @@ export const hingedArmArticulation: (props: {
       if (a.exact !== undefined && a.deviation >= theirs) return false;
       return exactOf(a) < theirs;
     }
-    if (a.exact !== undefined && a.deviation > theirs + props.tie)
-      return false;
+    if (a.exact !== undefined && a.deviation > theirs + props.tie) return false;
     const mine: number = exactOf(a);
     if (Math.abs(mine - theirs) > props.tie) return mine < theirs;
     return thenOf(a) < thenOf(b);
