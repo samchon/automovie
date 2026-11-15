@@ -93,7 +93,7 @@ export namespace HumanArmTrajectory {
     const grid: number[] = [start];
     for (let j: number = 1; start + j * STEP < end - 1e-9; ++j) grid.push(start + j * STEP);
     grid.push(end);
-    const fine: M.IContext = HumanArmTrajectoryContext.of(reading(grid));
+    const fine: M.IContext = HumanArmTrajectoryContext.of(reading(grid), context);
     // Split where the waypoints do not bound what lies between them, and
     // about a waypoint the solve could not meet its constraints at, the arms
     // carried onto the new waypoints by their own interpolant.
@@ -107,7 +107,10 @@ export namespace HumanArmTrajectory {
       const next: number[] = HumanArmRefine.split(context.times, split);
       const carried: number[][][] = x.map((arm: number[][]): number[][] => next.map((t: number): number[] => HumanArmRefine.hermite(context.times, arm, t)));
       problem = reading(next);
-      context = HumanArmTrajectoryContext.of(problem);
+
+      // The waypoints kept from the last reading keep what its context
+      // built on them; only the new ones are read.
+      context = HumanArmTrajectoryContext.of(problem, context);
       return carried;
     };
     let seed: number[][][] = HumanArmSeed.seed(problem, context);
@@ -174,8 +177,15 @@ export namespace HumanArmTrajectory {
     return found;
   }
 
-  /** A site's mirror image across the world's x = 0 plane. */
+  /** A site's mirror image across the world's x = 0 plane, one record per site, as `mirroredBase`. */
   function mirroredSite(site: ISite): ISite {
+    let found: ISite | undefined = SITES.get(site);
+    if (found === undefined) SITES.set(site, (found = flipped(site)));
+    return found;
+  }
+
+  /** A site's mirror image, built. */
+  function flipped(site: ISite): ISite {
     return {
       ...site,
       point: HumanArmMirror.flip(site.point),
@@ -203,3 +213,6 @@ const STEP: number = 1 / 30;
 
 /** Each base's mirror image, kept while the base is held. */
 const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();
+
+/** Each site's mirror image, kept while the site is held. */
+const SITES: WeakMap<HumanArmTrajectory.ISite, HumanArmTrajectory.ISite> = new WeakMap();

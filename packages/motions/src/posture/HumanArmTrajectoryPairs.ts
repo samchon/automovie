@@ -130,10 +130,18 @@ export namespace HumanArmTrajectoryPairs {
       for (const shape of G.nearby(frame, placed, probe, T.REACH, screened)) {
         const other: number = frame.shapes[shape]!.part;
         if (part >= 0 && other >= 0 && frame.related[part]![other]!) continue;
-        const short: number = 1000 * (c.allowed(a, k, probe, shape) - (G.gap(frame, shape, p, p) - r));
+
         // A part of -1 is the arm's own segment's; one number keys the pair.
         const key: number = (part + 1) * frame.shapes.length + shape;
         const known: IPair | undefined = out.get(key);
+        const allowance: number = c.allowed(a, k, probe, shape);
+
+        // The shape's bounding sphere bounds its distance from below, so a
+        // probe it shows no deeper than the pair's deepest so far is not
+        // read exactly: it could not replace it (branch and bound).
+        if (known !== undefined && 1000 * (allowance - (Vector3.length(Vector3.subtract(p, frame.shapes[shape]!.centre)) - frame.shapes[shape]!.radius - r)) <= known.short)
+          continue;
+        const short: number = 1000 * (allowance - (G.gap(frame, shape, p, p) - r));
         if (known === undefined || short > known.short)
           out.set(key, { probe, shape, short, rested: c.rested(a, k, probe, frame.shapes[shape]!.bone) });
       }
@@ -182,10 +190,16 @@ export namespace HumanArmTrajectoryPairs {
           if (!mine[i]) return;
           // The two arms' segments on one grasped object meet by design.
           if (c.grasped(a, k, segment, owners[i] === "upper" ? "upperArm" : owners[i] === "lower" ? "lowerArm" : "hand")) return;
-          if (Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius - r >= T.REACH) return;
-          const short: number = 1000 * (c.between(a, k, probe, i, shape.bone) - (physicalShapeSegmentDistance(shape.pose, shape.shape, p, p) - r));
+          const apart: number = Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius - r;
+          if (apart >= T.REACH) return;
           const key: string = `${a}|${segment}|${i}`;
           const known: ICrossing | undefined = out.get(key);
+          const allowance: number = c.between(a, k, probe, i, shape.bone);
+
+          // Bounded as `deepest`: a probe the bounding sphere shows no
+          // deeper than the pair's deepest so far is not read exactly.
+          if (known !== undefined && 1000 * (allowance - apart) <= known.short) return;
+          const short: number = 1000 * (allowance - (physicalShapeSegmentDistance(shape.pose, shape.shape, p, p) - r));
           if (known === undefined || short > known.short)
             out.set(key, { a, probe, shape, owner: owners[i]!, bone: shape.bone, short, rested: c.rested(a, k, probe, shape.bone) });
         });
@@ -228,11 +242,17 @@ export namespace HumanArmTrajectoryPairs {
       if (!close.upper && !close.lower && !close.hand) return;
       mine.forEach((shape: G.IShape, j: number): void => {
         if (!close[owners[j]!]) return;
-        if (Vector3.length(Vector3.subtract(corner.point, shape.centre)) - shape.radius >= T.REACH) return;
+        const apart: number = Vector3.length(Vector3.subtract(corner.point, shape.centre)) - shape.radius;
+        if (apart >= T.REACH) return;
         if (frame.related[corner.part]![shape.part]!) return;
-        const short: number = 1000 * (c.inside(a, k, i, j) - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));
         const key: number = corner.part * mine.length + j;
         const known: IEmbedded | undefined = out.get(key);
+        const allowance: number = c.inside(a, k, i, j);
+
+        // Bounded as `deepest`: a corner the bounding sphere shows no
+        // deeper than the pair's deepest so far is not read exactly.
+        if (known !== undefined && 1000 * (allowance - apart) <= known.short) return;
+        const short: number = 1000 * (allowance - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));
         if (known === undefined || short > known.short) {
           const own: "upperArm" | "lowerArm" | "hand" = owners[j] === "upper" ? "upperArm" : owners[j] === "lower" ? "lowerArm" : "hand";
           out.set(key, { corner: i, shape, index: j, owner: owners[j]!, bone: corner.bone, short, rested: c.lying(a, k, own, corner.bone) });

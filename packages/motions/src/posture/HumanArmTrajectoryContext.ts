@@ -17,7 +17,9 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * What an arms' trajectory reads, built once per problem
  * (`HumanArmTrajectoryModel.IContext`): each arm's setup and frames, its
  * variables, its hard bounds, every probe's allowance against every shape,
- * and each site's touched collider and normal.
+ * and each site's touched collider and normal. What a waypoint holds is
+ * built once per waypoint, so a refinement of the same arms reads only the
+ * waypoints it adds.
  */
 export namespace HumanArmTrajectoryContext {
   /** What the context is built from: the trajectory's problem, or a still configuration of it. */
@@ -53,15 +55,13 @@ export namespace HumanArmTrajectoryContext {
    * The context of a problem.
    *
    * @param problem The problem.
+   * @param previous The context of the same arms on other waypoints, an earlier reading of the trajectory a refinement splits: a waypoint at a second it read, on the same base and with the same sites, keeps what was built there (its frames, the rest arm placed there, each probe's allowances, each site's touched collider and normal), so only the new waypoints are read.
    * @returns The context.
    */
-  export function of(problem: IProblem): M.IContext {
+  export function of(problem: IProblem, previous?: M.IContext): M.IContext {
     const n: number = problem.times.length;
     const alone: boolean = problem.arms.length === 1;
     const setups: G.ISetup[] = problem.arms.map((arm: IProblem["arms"][number]): G.ISetup => G.prepare(problem.body, arm.side));
-    const frames: G.IFrame[][] = setups.map((setup: G.ISetup): G.IFrame[] =>
-      problem.bases.map((base: G.IBase): G.IFrame => HumanArmFrame.of(setup, base, alone)),
-    );
     const rest: number[][] = problem.arms.map((arm: IProblem["arms"][number], a: number): number[] => G.encode(setups[a]!, arm.rest));
     const back: number[][] = problem.arms.map((arm: IProblem["arms"][number], a: number): number[] => G.encode(setups[a]!, arm.back ?? arm.rest));
     const free: number[][] = setups.map((setup: G.ISetup): number[] => {
@@ -75,11 +75,29 @@ export namespace HumanArmTrajectoryContext {
       offset.push(width);
       width += f.length;
     }
-    const restPlaced: G.IPlaced[][] = setups.map((setup: G.ISetup, a: number): G.IPlaced[] =>
-      frames[a]!.map((frame: G.IFrame): G.IPlaced => G.placed(setup, frame, rest[a]!)),
-    );
-    const sites: (M.ISite | undefined)[][] = problem.arms.map((arm: IProblem["arms"][number]): (M.ISite | undefined)[] => [...arm.sites]);
     const model: AutoMovieMotionHumanAuditTangleModel.IModel = AutoMovieMotionHumanAuditTangleModel.model(problem.body);
+
+    // Each waypoint's record, kept from an earlier reading of the same arms
+    // where its base and its sites are the same records, built otherwise.
+    const store: Map<number, IWaypoint> = (previous === undefined ? undefined : STORES.get(previous)) ?? new Map();
+    const points: IWaypoint[] = problem.times.map((t: number, k: number): IWaypoint => {
+      const frames: G.IFrame[] = setups.map((setup: G.ISetup): G.IFrame => HumanArmFrame.of(setup, problem.bases[k]!, alone));
+      const sites: (M.ISite | undefined)[] = problem.arms.map((arm: IProblem["arms"][number]): M.ISite | undefined => arm.sites[k]);
+      const known: IWaypoint | undefined = store.get(t);
+      if (
+        known !== undefined &&
+        known.frames.every((f: G.IFrame, a: number): boolean => f === frames[a]) &&
+        known.sites.every((s: M.ISite | undefined, a: number): boolean => s === sites[a])
+      )
+        return known;
+      const made: IWaypoint = waypoint(problem, setups, rest, frames, sites);
+      store.set(t, made);
+      return made;
+    });
+    const frames: G.IFrame[][] = setups.map((_: G.ISetup, a: number): G.IFrame[] => points.map((p: IWaypoint): G.IFrame => p.frames[a]!));
+    const sites: (M.ISite | undefined)[][] = setups.map((_: G.ISetup, a: number): (M.ISite | undefined)[] =>
+      points.map((p: IWaypoint): M.ISite | undefined => p.sites[a]),
+    );
 
     // A declared rest, on the hold: a segment of one arm lying on a bone. A
     // contact is one pair whichever way it is read, so a rest an arm
@@ -106,45 +124,42 @@ export namespace HumanArmTrajectoryContext {
       AutoMovieMotionHumanAuditTangleModel.reference(model, frames[a]![k]!.segments[probe - G.SURFACE]!, part)[
         frames[a]![k]!.corners[probe - G.SURFACE]!
       ]!;
-    // Each memo is one map per arm and waypoint, keyed by the pair's two
-    // indices as one number, since the pair readings ask it for every probe
-    // and shape at every iterate.
-    const maps = (): Map<number, number>[][] => frames.map((arm: G.IFrame[]): Map<number, number>[] => arm.map((): Map<number, number> => new Map()));
-    const memo: Map<number, number>[][] = maps();
+
+    // Each memo is the waypoint's own, one map per arm keyed by the pair's
+    // two indices as one number, since the pair readings ask it for every
+    // probe and shape at every iterate.
     const allowed = (a: number, k: number, probe: number, shape: number): number => {
-      const key: number = probe * frames[a]![k]!.shapes.length + shape;
-      let v: number | undefined = memo[a]![k]!.get(key);
+      const point: IWaypoint = points[k]!;
+      const key: number = probe * point.frames[a]!.shapes.length + shape;
+      let v: number | undefined = point.allowed[a]!.get(key);
       if (v === undefined) {
-        const frame: G.IFrame = frames[a]![k]!;
+        const frame: G.IFrame = point.frames[a]!;
         const s: G.IShape = frame.shapes[shape]!;
         const rested: number = give(declared(a, k, probe, s.bone));
         if (probe >= G.SURFACE) v = (s.part >= 0 ? -corner(a, k, probe, s.part) : 0) - rested;
         else {
-          const [p, r]: readonly [IAutoMovieVector3, number] = restPlaced[a]![k]!.probes[probe]!;
+          const [p, r]: readonly [IAutoMovieVector3, number] = point.placed[a]!.probes[probe]!;
           v = Math.min(0, G.gap(frame, shape, p, p) - r) - rested;
         }
-        memo[a]![k]!.set(key, v);
+        point.allowed[a]!.set(key, v);
       }
       return v;
     };
 
     // A probe of one arm against a collider of the other, both at rest.
-    const restColliders: G.IShape[][][] = setups.map((_: G.ISetup, a: number): G.IShape[][] =>
-      frames[a]!.map((frame: G.IFrame, k: number): G.IShape[] => G.colliders(frame, restPlaced[a]![k]!)),
-    );
-    const memoBetween: Map<number, number>[][] = maps();
     const between = (a: number, k: number, probe: number, shape: number, bone: string): number => {
-      const key: number = probe * restColliders[1 - a]![k]!.length + shape;
-      let v: number | undefined = memoBetween[a]![k]!.get(key);
+      const point: IWaypoint = points[k]!;
+      const key: number = probe * point.colliders[1 - a]!.length + shape;
+      let v: number | undefined = point.between[a]!.get(key);
       if (v === undefined) {
-        const s: G.IShape = restColliders[1 - a]![k]![shape]!;
+        const s: G.IShape = point.colliders[1 - a]![shape]!;
         const rested: number = give(declared(a, k, probe, bone));
         if (probe >= G.SURFACE) v = -corner(a, k, probe, s.part) - rested;
         else {
-          const [p, r]: readonly [IAutoMovieVector3, number] = restPlaced[a]![k]!.probes[probe]!;
+          const [p, r]: readonly [IAutoMovieVector3, number] = point.placed[a]!.probes[probe]!;
           v = Math.min(0, physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r) - rested;
         }
-        memoBetween[a]![k]!.set(key, v);
+        point.between[a]!.set(key, v);
       }
       return v;
     };
@@ -154,64 +169,30 @@ export namespace HumanArmTrajectoryContext {
     // depth in the arm's segments as the arm's keep theirs in the body.
     const lying = (a: number, k: number, own: "upperArm" | "lowerArm" | "hand", bone: string): boolean =>
       sites[a]![k] !== undefined && (problem.arms[a]!.rests ?? []).some((r: M.IRest): boolean => r.part === own && r.on === bone);
-    const flat: Map<string, G.IFrame["colliders"]> = new Map();
     const collider = (a: number, k: number, shape: number): G.IFrame["colliders"][number] => {
-      const key: string = `${a}|${k}`;
-      let list: G.IFrame["colliders"] | undefined = flat.get(key);
+      const point: IWaypoint = points[k]!;
+      let list: G.IFrame["colliders"] | undefined = point.flat[a];
       if (list === undefined) {
-        list = frames[a]![k]!.colliders.flatMap((col: G.IFrame["colliders"][number]): G.IFrame["colliders"] => col.shapes.map((): G.IFrame["colliders"][number] => col));
-        flat.set(key, list);
+        list = point.frames[a]!.colliders.flatMap((col: G.IFrame["colliders"][number]): G.IFrame["colliders"] => col.shapes.map((): G.IFrame["colliders"][number] => col));
+        point.flat[a] = list;
       }
       return list[shape]!;
     };
-    const memoInside: Map<number, number>[][] = maps();
     const inside = (a: number, k: number, corner: number, shape: number): number => {
-      const key: number = shape * frames[a]![k]!.body.length + corner;
-      let v: number | undefined = memoInside[a]![k]!.get(key);
+      const point: IWaypoint = points[k]!;
+      const key: number = shape * point.frames[a]!.body.length + corner;
+      let v: number | undefined = point.inside[a]!.get(key);
       if (v === undefined) {
-        const body: G.IFrame["body"][number] = frames[a]![k]!.body[corner]!;
+        const body: G.IFrame["body"][number] = point.frames[a]!.body[corner]!;
         const col: G.IFrame["colliders"][number] = collider(a, k, shape);
         const own: "upperArm" | "lowerArm" | "hand" = col.owner === "upper" ? "upperArm" : col.owner === "lower" ? "lowerArm" : "hand";
         v = -AutoMovieMotionHumanAuditTangleModel.reference(model, body.part, col.part)[body.corner]! - give(lying(a, k, own, body.bone));
-        memoInside[a]![k]!.set(key, v);
+        point.inside[a]!.set(key, v);
       }
       return v;
     };
 
-    // Each site's touched collider and outward normal: the collider nearest
-    // the site's point, among the riding arm's own segment's for a site that
-    // rides an arm.
-    const touched: number[][] = sites.map((arm: (M.ISite | undefined)[]): number[] => arm.map((): number => -1));
-    const normals: (IAutoMovieVector3 | undefined)[][] = sites.map((arm: (M.ISite | undefined)[], a: number): (IAutoMovieVector3 | undefined)[] =>
-      arm.map((site: M.ISite | undefined, k: number): IAutoMovieVector3 | undefined => {
-        // A grip on a held object touches no surface of the body: it is
-        // held to its point on every axis, so it has no touched collider.
-        if (site === undefined || problem.arms[a]!.grasp !== undefined) return undefined;
-        const on: M.ISite["on"] = site.on;
-        const candidates: G.IShape[] = on === undefined ? frames[a]![k]!.shapes : G.colliders(frames[on.arm]![k]!, restPlaced[on.arm]![k]!);
-        const owners: ("upper" | "lower" | "hand")[] =
-          on === undefined
-            ? []
-            : frames[on.arm]![k]!.colliders.flatMap((col: G.IFrame["colliders"][number]): ("upper" | "lower" | "hand")[] =>
-                col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
-              );
-        let best: number = -1;
-        let least: number = Infinity;
-        candidates.forEach((shape: G.IShape, i: number): void => {
-          if (on !== undefined && owners[i] !== on.owner) return;
-          const d: number = physicalShapeSegmentDistance(shape.pose, shape.shape, site.point, site.point);
-          if (d < least) {
-            least = d;
-            best = i;
-          }
-        });
-        touched[a]![k] = best;
-        if (best < 0) return undefined;
-        const s: G.IShape = candidates[best]!;
-        return physicalShapeNormal(s.pose, s.shape, site.point, Vector3.normalize(Vector3.subtract(site.point, s.centre)));
-      }),
-    );
-    return {
+    const context: M.IContext = {
       n,
       still: problem.still === true,
       // A hold that lasts to the end leaves the last waypoint to be solved;
@@ -239,12 +220,104 @@ export namespace HumanArmTrajectoryContext {
         problem.arms.length === 2 && (problem.arms[a]!.grasp ?? []).includes(own) && (problem.arms[1 - a]!.grasp ?? []).includes(other),
       inside,
       lying,
-      normals,
-      touched,
+      normals: setups.map((_: G.ISetup, a: number): (IAutoMovieVector3 | undefined)[] => points.map((p: IWaypoint): IAutoMovieVector3 | undefined => p.normals[a])),
+      touched: setups.map((_: G.ISetup, a: number): number[] => points.map((p: IWaypoint): number => p.touched[a]!)),
       rested: declared,
     };
+    STORES.set(context, store);
+    return context;
   }
 }
+
+/**
+ * What a context holds at one waypoint for every arm, built once and kept
+ * by every later reading of the same arms that has the waypoint
+ * (`HumanArmTrajectoryContext.of`): its frames and sites, which identify
+ * it, the rest arm placed and its colliders, each site's touched collider
+ * and normal, and the memos of the allowances read there.
+ */
+interface IWaypoint {
+  /** Each arm's frame. */
+  frames: G.IFrame[];
+  /** Each arm's site, on the hold. */
+  sites: (M.ISite | undefined)[];
+  /** Each arm at rest, placed. */
+  placed: G.IPlaced[];
+  /** Each arm's colliders at rest, which the other arm's probes are read against. */
+  colliders: G.IShape[][];
+  /** Each arm's site's touched collider; -1 where none. */
+  touched: number[];
+  /** Each arm's site's outward normal. */
+  normals: (IAutoMovieVector3 | undefined)[];
+  /** Each arm's probes' allowances against the frame's shapes (`allowed`), by pair. */
+  allowed: Map<number, number>[];
+  /** Each arm's probes' allowances against the other arm's colliders (`between`), by pair. */
+  between: Map<number, number>[];
+  /** The body's corners' allowances inside each arm's colliders (`inside`), by pair. */
+  inside: Map<number, number>[];
+  /** Each arm's colliders, one entry per shape, once read. */
+  flat: (G.IFrame["colliders"] | undefined)[];
+}
+
+/**
+ * A waypoint's record, built: the rest arm placed there and its colliders,
+ * and each site's touched collider and outward normal, the collider nearest
+ * the site's point, among the riding arm's own segment's for a site that
+ * rides an arm.
+ */
+function waypoint(
+  problem: HumanArmTrajectoryContext.IProblem,
+  setups: readonly G.ISetup[],
+  rest: readonly (readonly number[])[],
+  frames: G.IFrame[],
+  sites: (M.ISite | undefined)[],
+): IWaypoint {
+  const placed: G.IPlaced[] = setups.map((setup: G.ISetup, a: number): G.IPlaced => G.placed(setup, frames[a]!, rest[a]!));
+  const colliders: G.IShape[][] = frames.map((frame: G.IFrame, a: number): G.IShape[] => G.colliders(frame, placed[a]!));
+  const touched: number[] = sites.map((): number => -1);
+  const normals: (IAutoMovieVector3 | undefined)[] = sites.map((site: M.ISite | undefined, a: number): IAutoMovieVector3 | undefined => {
+    // A grip on a held object touches no surface of the body: it is held to
+    // its point on every axis, so it has no touched collider.
+    if (site === undefined || problem.arms[a]!.grasp !== undefined) return undefined;
+    const on: M.ISite["on"] = site.on;
+    const candidates: G.IShape[] = on === undefined ? frames[a]!.shapes : colliders[on.arm]!;
+    const owners: ("upper" | "lower" | "hand")[] =
+      on === undefined
+        ? []
+        : frames[on.arm]!.colliders.flatMap((col: G.IFrame["colliders"][number]): ("upper" | "lower" | "hand")[] =>
+            col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
+          );
+    let best: number = -1;
+    let least: number = Infinity;
+    candidates.forEach((shape: G.IShape, i: number): void => {
+      if (on !== undefined && owners[i] !== on.owner) return;
+      const d: number = physicalShapeSegmentDistance(shape.pose, shape.shape, site.point, site.point);
+      if (d < least) {
+        least = d;
+        best = i;
+      }
+    });
+    touched[a] = best;
+    if (best < 0) return undefined;
+    const s: G.IShape = candidates[best]!;
+    return physicalShapeNormal(s.pose, s.shape, site.point, Vector3.normalize(Vector3.subtract(site.point, s.centre)));
+  });
+  return {
+    frames,
+    sites,
+    placed,
+    colliders,
+    touched,
+    normals,
+    allowed: sites.map((): Map<number, number> => new Map()),
+    between: sites.map((): Map<number, number> => new Map()),
+    inside: sites.map((): Map<number, number> => new Map()),
+    flat: sites.map((): undefined => undefined),
+  };
+}
+
+/** Each context's waypoint records by second, shared with every later context built from it, kept while a context that reads them is held. */
+const STORES: WeakMap<M.IContext, Map<number, IWaypoint>> = new WeakMap();
 
 /**
  * Each coordinate's hard bounds, every QP's box constraints as in TrajOpt:
