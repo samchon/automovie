@@ -12,8 +12,10 @@ import {
   ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
+import { HorseChange } from "./HorseChange";
 import { HorseGait } from "./HorseGait";
 import { HorseLimb } from "./HorseLimb";
+import { HorseMotion } from "./HorseMotion";
 import { createHorse } from "./createHorse";
 
 /**
@@ -21,7 +23,7 @@ import { createHorse } from "./createHorse";
  *
  * The stride's timing is `HorseGait`'s at the course's speed for the horse's height at the withers, shifted by the horse's `tempo`; scaled from the measured horses by dynamic similarity, it is provisional, as `HorseGait.scale` states. Each hoof lands at its phase of the stride, stays planted for the duty factor's share of it while the body passes over, then swings forward, lifted clear of the ground, with its carpus or hock folded. A planted hoof stays where it landed on a straight leg at any speed, steady or changing, and across a change of gait; on a turn it is carried along the model's own fore-and-aft line, so it slides sideways by the turn's sagitta over one stance. The ride adds an instant for every landing, `leftForeOn`, `rightHindOn` and so on, which a rider's rising trot or a walker's step beside the horse locks to. The saddle, the stirrups and the reins ride the trunk, so `frame("seat", seconds)` is the moving support a rider sits on.
  *
- * The gait of each stride is the one a course leg names, else the one `gait` names, else the one the speed calls for: from walk to trot at the measured Froude number (`FROUDE`), and between the faster gaits, where their measured ranges overlap, at the overlap's middle (provisional), going up above a change point by `HYSTERESIS` and coming down below it by as much, so a speed hovering at the boundary does not flip the gait every stride. A change is decided at the left fore's landing, the stride's start, and takes the next stride: each hoof's landing moves from the old gait's phase to the new one's, so a planted hoof stays planted, and the ride names `gait:<from>-<to>` there. A leg may name a `lead` for the canter and the gallop, whose right lead mirrors the left; a change of lead at a canter is a flying change, taken the same way and named `lead:<from>-<to>`.
+ * The gait of each stride is the one a course leg names, else the one `gait` names, else the one the speed calls for at the change points `HorseChange` derives (walk to trot at the measured Froude number, trot to canter at the measured trot-gallop speed for the horse's mass, canter to gallop at the middle of the two gaits' measured ranges, provisional), going up above a change point by `HorseChange.HYSTERESIS` and coming down below it by as much, so a speed hovering at the boundary does not flip the gait every stride. A change is decided at the left fore's landing, the stride's start, and takes the next stride: each hoof's landing moves from the old gait's phase to the new one's, so a planted hoof stays planted, and the ride names `gait:<from>-<to>` there. A leg may name a `lead` for the canter and the gallop, whose right lead mirrors the left; a change of lead at a canter is a flying change, taken the same way and named `lead:<from>-<to>`.
  *
  * While the horse gathers speed from rest or slows to a halt, below the gait's slowest measured speed, the stride keeps that slowest speed's timing and the steps shorten with the speed.
  *
@@ -32,9 +34,9 @@ import { createHorse } from "./createHorse";
  * @throws {ArchetypeRefusal} When the cruising speed lies outside a given gait's range for the horse's height, a leg's speed exceeds the range of the gait it names, giving the range, or the course is malformed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the instants added, what the support frame is and what happens below the gait's slowest speed.
- * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each hoof's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted hoof is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links, the upper bone and the three lower bones held as one piece whose carpus or hock is folded by a set angle, the planar two-bone solution with the elbow kept behind and the stifle in front. The fold's peak is the joint's measured range (Back, Schamhardt and Barneveld 1996, Vet Q 18:79, Tables 1 and 2: carpus 68.7 degrees at walk and 90.8 at trot, tarsus 35.6 and 55.4), the trunk's rise and fall the measured withers range (Rhodin et al. 2022, Animals 12:3053, warmbloods: 33 mm at walk, 92 mm at trot), the head's pitch the measured head range (Dunbar et al. 2008, J Exp Biol 211:3889, Table 1), and the top joint follows the hoof by the share the scapula's and pelvis's measured swing gives it.
+ * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each hoof's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted hoof is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links, the upper bone and the three lower bones held as one piece whose carpus or hock is folded by a set angle, the planar two-bone solution with the elbow kept behind and the stifle in front. The fold's peak is the joint's measured range (Back, Schamhardt and Barneveld 1996, Vet Q 18:79, Tables 1 and 2: carpus 68.7 degrees at walk and 90.8 at trot, tarsus 35.6 and 55.4), the trunk's rise and fall the measured withers range (Rhodin et al. 2022, Animals 12:3053, warmbloods: 33 mm at walk, 92 mm at trot), the head's pitch the measured head range timed to the footfalls (`HorseMotion.nod`, Dunbar et al. 2008, J Exp Biol 211:3889), each swinging hoof brought to its next landing by the minimum-jerk lift-and-place path (`HorseMotion.swing`), and the top joint follows the hoof by the share the scapula's and pelvis's measured swing gives it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canter's and gallop's fold and bob reuse the trot's and the gallop's nod the canter's, for want of a measured source; the change points and the hysteresis are named provisional values; the reins and the lead rope keep their rest lines while the head nods. A hoof beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted hoof stays planted and no bone stretches; the swing's lift is an estimate, stated on its constant.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canter's and gallop's fold and bob reuse the trot's and the gallop's nod the canter's, for want of a measured source; the canter-to-gallop change point, the walk-to-trot change's leg landmark and the hysteresis are named provisional values (`HorseChange`); the reins and the lead rope keep their rest lines while the head nods. A hoof beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted hoof stays planted and no bone stretches; the swing's lift is an estimate, stated on its constant.
  * @evidence contracts/development/implementation.md#efficient-algorithms The phase table has `STEPS` rows over the running time, built once; a sample is one table read, a few binary searches of it per limb for the stances' ends, and four closed-form limb solutions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan, the phase table, the strides' gaits and the rest rig are shared by every sample; the ride samples the plan made here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the horse, the plan and the tables for as long as the caller keeps the ride.
@@ -99,39 +101,8 @@ export function rideHorse(
   });
 
   // The stride's gait as the speed calls for it, from the one it is in.
-  const order: readonly HorseGait.Gait[] = HorseGait.GAITS;
-  const by: number = HorseGait.scale(withers);
-  const hip: number = createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y;
-  const boundary = (low: HorseGait.Gait, high: HorseGait.Gait): number => {
-    if (low === "walk" && high === "trot")
-      return Math.sqrt(rideHorse.FROUDE * rideHorse.GRAVITY * hip);
-    const a: { minimum: number; maximum: number } = HorseGait.range(
-      low,
-      withers,
-    );
-    const b: { minimum: number; maximum: number } = HorseGait.range(
-      high,
-      withers,
-    );
-    return (Math.max(a.minimum, b.minimum) + Math.min(a.maximum, b.maximum)) / 2;
-  };
-  const called = (
-    speed: number,
-    from: HorseGait.Gait,
-  ): HorseGait.Gait => {
-    let k: number = order.indexOf(from);
-    while (
-      k < order.length - 1 &&
-      speed > boundary(order[k]!, order[k + 1]!) + rideHorse.HYSTERESIS * by
-    )
-      k++;
-    while (
-      k > 0 &&
-      speed < boundary(order[k - 1]!, order[k]!) - rideHorse.HYSTERESIS * by
-    )
-      k--;
-    return order[k]!;
-  };
+  const called = (speed: number, from: HorseGait.Gait): HorseGait.Gait =>
+    HorseChange.called(speed, from, horse.dimensions);
   const decide = (
     state: ArchetypeCourse.IState,
     from: rideHorse.IStride,
@@ -266,14 +237,15 @@ export function rideHorse(
         const swing: number = planted
           ? 0
           : (local - current.duty) / (coming - landed - current.duty);
+        const path: { along: number; rise: number } = HorseMotion.swing(swing);
 
-        // Planted, the hoof goes back through the model by what the body has travelled since it landed, half the stance's travel ahead of its rest place at the landing; swinging, it eases from where it lifted to where it lands next.
+        // Planted, the hoof goes back through the model by what the body has travelled since it landed, half the stance's travel ahead of its rest place at the landing; swinging, it is brought from where it lifted to where it lands next by the minimum-jerk path, clearing the ground by the swing's lift at the middle.
         const ahead: number = planted
           ? current.travel / 2 - (state.distance - current.from)
           : -current.travel / 2 +
             ((current.travel + stance(coming, strideOf(m + 1).gait).travel) /
               2) *
-              ((1 - Math.cos(Math.PI * swing)) / 2);
+              path.along;
         const joints: IAutoMovieVector3[] = HorseLimb.solve(
           rest,
           fore,
@@ -282,12 +254,12 @@ export function rideHorse(
             going *
               rideHorse.LIFT[which === "walk" ? 0 : 1] *
               withers *
-              Math.sin(Math.PI * swing),
+              path.rise,
           going *
             (fore ? rideHorse.FOLD.fore : rideHorse.FOLD.hind)[
               which === "walk" ? 0 : 1
             ] *
-            Math.sin(Math.PI * swing),
+            path.rise,
         );
         createHorse.BONES[limb].forEach(
           (bone: createHorse.Bone, k: number): void => {
@@ -307,10 +279,14 @@ export function rideHorse(
         );
       }
 
-      // The neck and head pitch about the neck's root, down as the trunk sinks, by half the measured range either side.
+      // The neck and head pitch about the neck's root, timed to the footfalls as measured.
       const nod: number =
-        ((going * rideHorse.NOD[now]) / 2) *
-        -Math.cos(2 * Math.PI * beats * phase);
+        going *
+        HorseMotion.nod(
+          strideOf(Math.floor(phase)),
+          phase,
+          paced(now, state.speed).duty,
+        );
       const turn: IAutoMovieQuaternion =
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, nod);
       for (const part of horse.parts)
@@ -381,23 +357,6 @@ export namespace rideHorse {
     fore: 0.16,
     hind: 0.05,
   };
-
-  /** The head's pitch range in a stride, degrees, by gait: 9 at walk, 5 at trot and 10 at canter, the head's pitch displacement relative to space (Dunbar et al. 2008, J Exp Biol 211:3889, Table 1, https://pmc.ncbi.nlm.nih.gov/articles/PMC2768006). The gallop reuses the canter's; no measured value was found. The nod's timing against the stride, down as the trunk sinks, is not read: provisional. */
-  export const NOD: Readonly<Record<HorseGait.Gait, number>> = {
-    walk: 9,
-    trot: 5,
-    canter: 10,
-    gallop: 10,
-  };
-
-  /** The Froude number at which horses change from walk to trot: 0.35, speed squared over gravity times leg length, across nine horses of 90 to 720 kg and legs of 0.7 to 1.4 m changing at 1.6 to 2.3 m/s (Griffin, Kram, Wickler and Hoyt 2004, J Exp Biol 207:4215, abstract, https://journals.biologists.com/jeb/article/207/24/4215/2679/Biomechanical-and-energetic-determinants-of-the). The walk-to-trot change point is the square root of this times gravity times the leg's length. The paper's Methods, which name the landmark its leg length was measured to, could not be read (the article page shows the abstract only and the journal's PDF refused the fetch); the hip joint's height from the ground (`createHorse.rig`) stands for it, a provisional choice consistent with the paper's figures: its 1.4 m for its 720 kg horse against 1.29 m at the hip of the 718 kg, 1.80 m warmblood the bands allow. */
-  export const FROUDE: number = 0.35;
-
-  /** The acceleration of gravity, metres per second squared. */
-  export const GRAVITY: number = 9.81;
-
-  /** How far past a change point the speed must go before the gait changes, metres per second at the measured horses' height, scaled with the gait's speeds. A gap is needed at all because a speed at a change point wavers, and without one the gait would flicker between its two gaits every stride. A provisional value: no measured difference between a horse's up and down changes was found (searches for gait transition hysteresis in horses found Griffin et al. 2004's speed steps, upward only; a 2013 quadruped simulation, arXiv 1310.7568, reporting hysteresis without a horse's measure; and Nauwelaerts et al.'s acceleration study, read at its abstract only). Twice the 0.1 m/s a steady speed wavers by in the hysteresis spec. */
-  export const HYSTERESIS: number = 0.2;
 
   /** The sides a canter or gallop leads on. */
   export type Lead = "left" | "right";
