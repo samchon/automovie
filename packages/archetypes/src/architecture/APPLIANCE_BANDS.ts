@@ -1,4 +1,5 @@
 import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ADA_RANGES } from "./ADA_RANGES";
 import type { createAppliance } from "./createAppliance";
 
 /** The fridge-freezer read. */
@@ -40,9 +41,9 @@ export const APPLIANCE_BANDS: Readonly<
     width: ArchetypeBand.metres(0.6, 0.6, FRIDGE),
     depth: ArchetypeBand.metres(0.66, 0.66, FRIDGE),
     pullHeight: ArchetypeBand.metres(
-      0.865,
-      1.22,
-      "2010 ADA Standards 308.2.1 and 309.3, operable parts at most 48 in (1220 mm) above the floor, from the 34 in (865 mm) a wardrobe's pulls share with door hardware (404.2.7) (https://www.access-board.gov/ada/)",
+      ADA_RANGES.hardware.low,
+      ADA_RANGES.hardware.high,
+      `${ADA_RANGES.hardware.source}; a cabinet's pulls share door hardware's range within ${ADA_RANGES.reach.source}`,
     ),
     mass: ArchetypeBand.of("kg", 62, 82, `${FRIDGE}; ${TALL}`, true),
   },

@@ -8,6 +8,7 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** The accessible car read. */
 const ADA: string =
@@ -18,8 +19,7 @@ const KONE: string =
   "KONE MonoSpace 4 DX Core and Pro / 300 and 500 DX planning guide: car height 2 100 to 2 400 mm, door height 2 000 to 2 300 mm, centre-opening doors (https://www.kone.co.uk/Images/KONE-MonoSpace-4-DX-Core-and-Pro-Planning-Guide-GBIR_tcm45-139450.pdf)";
 
 /** The call button's height read. */
-const CALL: string =
-  "2010 ADA Standards 407.2.1.1, call buttons \"located within one of the reach ranges specified in 308\", measured to the centreline of the highest operable part; 308.2.1, a forward reach 15 in (380 mm) minimum and 48 in (1220 mm) maximum (https://www.access-board.gov/ada/chapter/ch04/, https://www.access-board.gov/ada/chapter/ch03/)";
+const CALL: string = `2010 ADA Standards 407.2.1.1, call buttons "located within one of the reach ranges specified in 308", measured to the centreline of the highest operable part (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`;
 
 /** A landing call station's faceplate, metres: KONE KSS 280's landing call station, 58 wide, 180 high and 15 thick (https://www.kone.com.au/Images/KONE%20KSS280%20Signalisation_tcm46-17878.pdf). */
 const STATION: Readonly<{ width: number; height: number; depth: number }> = {
@@ -255,7 +255,11 @@ export namespace createElevator {
       2.1,
       `${KONE}; the model stops at the least car height`,
     ),
-    callHeight: ArchetypeBand.metres(0.38, 1.22, CALL),
+    callHeight: ArchetypeBand.metres(
+      ADA_RANGES.reach.low,
+      ADA_RANGES.reach.high,
+      CALL,
+    ),
     mass: ArchetypeBand.of("kg", 500, 1000, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

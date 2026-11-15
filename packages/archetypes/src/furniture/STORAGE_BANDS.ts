@@ -1,13 +1,10 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import { ADA_RANGES } from "../architecture/ADA_RANGES";
 import type { createStorage } from "./createStorage";
 
 /** The UK furniture schedule. */
 const ADM: string =
   "Approved Document M Volume 1, Appendix D furniture schedule (https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/540330/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf)";
-
-/** The height band operable parts must lie in. */
-const REACH: string =
-  "2010 ADA Standards 308.2.1, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
 
 /** The filing cabinet, from a search only. */
 const HON: string =
@@ -53,9 +50,9 @@ export const STORAGE_BANDS: Readonly<
       true,
     ),
     pullHeight: ArchetypeBand.metres(
-      0.865,
-      1.22,
-      `${REACH}; the upper part of the range, shared with door hardware (404.2.7)`,
+      ADA_RANGES.hardware.low,
+      ADA_RANGES.hardware.high,
+      `${ADA_RANGES.hardware.source}; a cabinet's pulls share door hardware's range within ${ADA_RANGES.reach.source}`,
     ),
     swing: ArchetypeBand.of(
       "degrees",

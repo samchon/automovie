@@ -1,4 +1,5 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import { ADA_RANGES } from "./ADA_RANGES";
 import type { createDoor } from "./createDoor";
 
 /** The steel door standard's nominal sizes and hardware locations. */
@@ -62,9 +63,9 @@ export const DOOR_BANDS: Readonly<
     ...LEAF,
     swing: SWING,
     hardwareHeight: ArchetypeBand.metres(
-      0.865,
-      1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
+      ADA_RANGES.hardware.low,
+      ADA_RANGES.hardware.high,
+      ADA_RANGES.hardware.source,
     ),
     backset: ArchetypeBand.metres(
       (2 + 3 / 8) * ArchetypeUnits.INCH,
@@ -92,9 +93,9 @@ export const DOOR_BANDS: Readonly<
     ...LEAF,
     swing: SWING,
     hardwareHeight: ArchetypeBand.metres(
-      0.865,
-      1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
+      ADA_RANGES.hardware.low,
+      ADA_RANGES.hardware.high,
+      ADA_RANGES.hardware.source,
     ),
     backset: ArchetypeBand.metres(
       (2 + 3 / 8) * ArchetypeUnits.INCH,
@@ -134,9 +135,9 @@ export const DOOR_BANDS: Readonly<
   sliding: {
     ...LEAF,
     hardwareHeight: ArchetypeBand.metres(
-      0.865,
-      1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
+      ADA_RANGES.hardware.low,
+      ADA_RANGES.hardware.high,
+      ADA_RANGES.hardware.source,
     ),
     backset: ArchetypeBand.metres(
       (2 + 3 / 8) * ArchetypeUnits.INCH,

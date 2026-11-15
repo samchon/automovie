@@ -8,10 +8,7 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** The reach range for operable parts. */
-const REACH: string =
-  "2010 ADA Standards 308.2.1 and 309.3, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** The travel of a switch or a button, for which no specification was read. */
 const TRAVEL: string = "switch travel, not read at a source";
@@ -141,8 +138,8 @@ export namespace createSwitch {
     rocker: {
       height: ArchetypeBand.metres(
         1.065,
-        1.22,
-        `${REACH}; the upper part of the range, where switches are mounted`,
+        ADA_RANGES.reach.high,
+        `${ADA_RANGES.reach.source}; the upper part of the range, where switches are mounted`,
         true,
       ),
       size: ArchetypeBand.metres(
@@ -162,9 +159,9 @@ export namespace createSwitch {
     },
     button: {
       height: ArchetypeBand.metres(
-        0.38,
-        1.22,
-        `2010 ADA Standards 407.2.1.1, call buttons within the reach ranges of 308 (https://www.access-board.gov/ada/chapter/ch04/)`,
+        ADA_RANGES.reach.low,
+        ADA_RANGES.reach.high,
+        `2010 ADA Standards 407.2.1.1, call buttons within the reach ranges of 308 (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`,
       ),
       size: ArchetypeBand.metres(
         0.019,

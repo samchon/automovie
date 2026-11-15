@@ -9,10 +9,7 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** The reach range for operable parts. */
-const REACH: string =
-  "2010 ADA Standards 308.2.1, operable parts within a forward reach 15 in (380 mm) minimum and 48 in (1220 mm) maximum above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** The levers read. */
 const LEVER: string =
@@ -234,9 +231,9 @@ export namespace createControl {
   > = {
     lever: {
       height: ArchetypeBand.metres(
-        15 * ArchetypeUnits.INCH,
-        48 * ArchetypeUnits.INCH,
-        REACH,
+        ADA_RANGES.reach.low,
+        ADA_RANGES.reach.high,
+        ADA_RANGES.reach.source,
       ),
       length: ArchetypeBand.metres(
         63 * ArchetypeUnits.MILLIMETRE,
@@ -246,9 +243,9 @@ export namespace createControl {
     },
     dial: {
       height: ArchetypeBand.metres(
-        15 * ArchetypeUnits.INCH,
-        48 * ArchetypeUnits.INCH,
-        REACH,
+        ADA_RANGES.reach.low,
+        ADA_RANGES.reach.high,
+        ADA_RANGES.reach.source,
       ),
     },
   };

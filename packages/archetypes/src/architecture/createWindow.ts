@@ -10,6 +10,7 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { ADA_RANGES } from "./ADA_RANGES";
 
 /** Window sizes, for which no standard was read. */
 const SIZE: string = "window opening size, not read at a source";
@@ -17,10 +18,6 @@ const SIZE: string = "window opening size, not read at a source";
 /** The sill band between the residential and the commercial fall-protection triggers. */
 const SILL: string =
   "sill below the 36 in (914 mm) at which IBC 2021 1015.8 requires fall protection (https://up.codes/s/window-openings) and above the 24 in of IRC R312.2.1, which was not read";
-
-/** The reach range for operable parts. */
-const REACH: string =
-  "2010 ADA Standards 309.3 and 308.2.1, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
 
 /**
  * A window in a piece of wall: a casement that swings out, or a sash that slides up or sideways.
@@ -245,8 +242,8 @@ export namespace createWindow {
   /** The band of a handle that stands at a height of its own, on a stile. */
   const HANDLE: IArchetypeBand = ArchetypeBand.metres(
     0.95,
-    1.22,
-    `${REACH}; the part of the range above the sill`,
+    ADA_RANGES.reach.high,
+    `${ADA_RANGES.reach.source}; the part of the range above the sill`,
   );
 
   /** The band of each free dimension, by kind. */

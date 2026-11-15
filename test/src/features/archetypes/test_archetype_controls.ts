@@ -18,7 +18,7 @@ const MM: number = 1e-3;
  * Hand controls, a control console, a roof hatch and a gun safe stand at their makers' sizes, and the hatch's cover opens as the maker draws it.
  *
  * Scenarios:
- * 1. A lever's and a dial's axis lie in the ADA's 15 to 48 in reach range, a lever's length in DIN 6337's 63 to 160 mm. A 100 mm lever is the sheet's: a 25 mm ball, 100 g, the ball 100 mm from the hub's centre, 18.5 / 2 mm out from the panel, along an arm rising 20 degrees. A 90 mm lever lies midway between the 80 and 100 mm ones: a 22.5 mm ball and 76.5 g.
+ * 1. A lever's and a dial's axis lie in the ADA's 380 to 1220 mm (15 to 48 in) reach range, a lever's length in DIN 6337's 63 to 160 mm. A 100 mm lever is the sheet's: a 25 mm ball, 100 g, the ball 100 mm from the hub's centre, 18.5 / 2 mm out from the panel, along an arm rising 20 degrees. A 90 mm lever lies midway between the 80 and 100 mm ones: a 22.5 mm ball and 76.5 g.
  * 2. A dial's head is the ZB4BD3's 28.5 mm across and 27 mm proud of the panel, turns 45 degrees and weighs 0.04 kg.
  * 3. A console's work surface is the Winsted sheet's 48 to 72 in wide and 28-9/16 to 29 in high; the console is 34-5/8 in deep with its edge at its front, the surface 20 in deep.
  * 4. A hatch's opening is the Bilco Type S's 30 in along its hinge by 36 in across, the cover on the 12 in curb, the hatch 50 to 83 kg; opened its 70 degrees, the cover's top corner rises to its length times sin 70 plus its thickness times cos 70 over the hinge.
@@ -47,8 +47,8 @@ export function test_archetype_controls(): void {
             createControl({ kind }, seed).affordance(
               kind === "lever" ? "shaft" : "dial",
             ).frame.translation.y,
-          minimum: 15 * inch,
-          maximum: 48 * inch,
+          minimum: 0.38,
+          maximum: 1.22,
           source: "ADA 308.2.1",
         }),
       ),
