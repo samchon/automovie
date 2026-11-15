@@ -1,5 +1,5 @@
 import { HORSE_BANDS } from "../animals/HORSE_BANDS";
-import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { CART_MODELS } from "./CART_MODELS";
 import type { createCart } from "./createCart";
 
@@ -46,10 +46,21 @@ const BROUGHAM: string =
  * @param dimension The dimension.
  * @returns The least and the greatest read figure.
  */
-function spread(kind: createCart.Kind, dimension: createCart.Dimension): [number, number] {
+function spread(
+  kind: createCart.Kind,
+  dimension: createCart.Dimension,
+): [number, number] {
   const figures: number[] = Object.values(CART_MODELS.figures[kind] ?? {})
-    .map((model: Readonly<Partial<Record<createCart.Dimension, number>>> | undefined): number | undefined => model?.[dimension])
-    .filter((figure: number | undefined): figure is number => figure !== undefined);
+    .map(
+      (
+        model:
+          | Readonly<Partial<Record<createCart.Dimension, number>>>
+          | undefined,
+      ): number | undefined => model?.[dimension],
+    )
+    .filter(
+      (figure: number | undefined): figure is number => figure !== undefined,
+    );
   return [Math.min(...figures), Math.max(...figures)];
 }
 
@@ -118,7 +129,7 @@ export const CART_BANDS: Readonly<
     clearance: ArchetypeBand.metres(
       8 * ArchetypeUnits.INCH,
       20 * ArchetypeUnits.INCH,
-      "IVC Carriage, Types of Horse Carriage Shafts: \"there should be 8-20\" of clearance from the horse to the closest part of the vehicle\" (https://www.ivccarriage.com/blogs/ivc-carriage/types-of-horse-carriage-shafts)",
+      'IVC Carriage, Types of Horse Carriage Shafts: "there should be 8-20" of clearance from the horse to the closest part of the vehicle" (https://www.ivccarriage.com/blogs/ivc-carriage/types-of-horse-carriage-shafts)',
     ),
     seatHeight: ArchetypeBand.metres(
       51 * ArchetypeUnits.INCH,
@@ -170,7 +181,11 @@ export const CART_BANDS: Readonly<
       57 * ArchetypeUnits.INCH,
       `${LIMBER}: height of wheel 57 in, every field carriage's`,
     ),
-    track: ArchetypeBand.metres(60 * ArchetypeUnits.INCH, 60 * ArchetypeUnits.INCH, `${LIMBER}: track 60 in`),
+    track: ArchetypeBand.metres(
+      60 * ArchetypeUnits.INCH,
+      60 * ArchetypeUnits.INCH,
+      `${LIMBER}: track 60 in`,
+    ),
     length: ArchetypeBand.metres(
       52.85 * ArchetypeUnits.INCH,
       52.85 * ArchetypeUnits.INCH,

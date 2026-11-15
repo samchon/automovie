@@ -250,7 +250,10 @@ export namespace ArchetypeTrack {
     else {
       const trajectory: integrateMotionTrajectory.ITrajectory =
         integrateMotionTrajectory({
-          f: (_t: number, x: readonly number[]): integrateMotionTrajectory.IRate => ({
+          f: (
+            _t: number,
+            x: readonly number[],
+          ): integrateMotionTrajectory.IRate => ({
             dx: [x[1]!, -omega * omega * Math.sin(x[0]!)],
           }),
           x0: [theta0, 0],
@@ -357,13 +360,15 @@ export namespace ArchetypeTrack {
     positive(archetype, "seconds", props.seconds);
     within(archetype, articulation, "from", props.from, [props.from]);
     within(archetype, articulation, "to", props.to, [props.to]);
-    const profile = (s: number): number => s * s * s * (10 - 15 * s + 6 * s * s);
+    const profile = (s: number): number =>
+      s * s * s * (10 - 15 * s + 6 * s * s);
     const share = (seconds: number): number =>
       Math.max(0, Math.min(1, (seconds - props.start) / props.seconds));
     const span: number = props.to - props.from;
     let launch: ILaunch | null = null;
     if (props.launch !== undefined) {
-      const part: number = span === 0 ? Number.NaN : (props.launch - props.from) / span;
+      const part: number =
+        span === 0 ? Number.NaN : (props.launch - props.from) / span;
       if (!(part >= 0 && part <= 1))
         throw new ArchetypeRefusal({
           kind: "parameter",

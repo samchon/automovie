@@ -61,7 +61,8 @@ export namespace createQuadruped {
   export type Dimension = createHorse.Dimension;
 
   /** The parameters: the kind, and the kind's own parameters. */
-  export type IParams = { kind: Kind } & createPony.IParams & createMule.IParams;
+  export type IParams = { kind: Kind } & createPony.IParams &
+    createMule.IParams;
 
   /** Each kind's producer. */
   export const PRODUCERS: Readonly<
@@ -72,7 +73,12 @@ export namespace createQuadruped {
         seed?: number | string,
       ) => Archetype<Affordance, Dimension>
     >
-  > = { horse: createHorse, pony: createPony, donkey: createDonkey, mule: createMule };
+  > = {
+    horse: createHorse,
+    pony: createPony,
+    donkey: createDonkey,
+    mule: createMule,
+  };
 
   /**
    * A species: what the shared body and the ride read for an animal of its kind.

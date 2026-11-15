@@ -24,17 +24,21 @@ export function test_archetype_projectile_flight_data(): void {
   const findings: string[] = [];
   const inch: number = 0.0254;
   // Every read object of every kind, and the kinds without one at their seedless draw.
-  const rows: { kind: createProjectile.Kind; model?: createProjectile.Model }[] =
-    createProjectile.KINDS.flatMap(
-      (kind: createProjectile.Kind): { kind: createProjectile.Kind; model?: createProjectile.Model }[] => {
-        const models: createProjectile.Model[] = Object.keys(
-          createProjectile.MODELS[kind] ?? {},
-        ) as createProjectile.Model[];
-        return models.length === 0
-          ? [{ kind }]
-          : models.map((model: createProjectile.Model) => ({ kind, model }));
-      },
-    );
+  const rows: {
+    kind: createProjectile.Kind;
+    model?: createProjectile.Model;
+  }[] = createProjectile.KINDS.flatMap(
+    (
+      kind: createProjectile.Kind,
+    ): { kind: createProjectile.Kind; model?: createProjectile.Model }[] => {
+      const models: createProjectile.Model[] = Object.keys(
+        createProjectile.MODELS[kind] ?? {},
+      ) as createProjectile.Model[];
+      return models.length === 0
+        ? [{ kind }]
+        : models.map((model: createProjectile.Model) => ({ kind, model }));
+    },
+  );
   for (const { kind, model } of rows) {
     const made: ReturnType<typeof createProjectile> = createProjectile(
       model === undefined ? { kind } : { kind, model },
@@ -45,11 +49,16 @@ export function test_archetype_projectile_flight_data(): void {
     const outcome: string = createProjectile.OUTCOME[kind];
     if (outcome !== "stick" && !(body.restitution > 0))
       findings.push(`${kind} ${outcome}s without a restitution`);
-    if (outcome === "stick" && kind !== "bolt" && body.contact?.embed === undefined)
+    if (
+      outcome === "stick" &&
+      kind !== "bolt" &&
+      body.contact?.embed === undefined
+    )
       findings.push(`${kind} sticks without a depth`);
     const radius: number = made.dimensions.diameter! / 2;
     if (kind === "bolt") {
-      if (body.drag !== undefined) findings.push("the bolt carries an unread drag");
+      if (body.drag !== undefined)
+        findings.push("the bolt carries an unread drag");
     } else if (
       body.drag === undefined ||
       body.drag.coefficient !==
@@ -71,7 +80,10 @@ export function test_archetype_projectile_flight_data(): void {
   const table: Readonly<
     Record<
       createProjectile.Kind,
-      readonly [(typeof createProjectile.ATTITUDE)[createProjectile.Kind], (typeof createProjectile.OUTCOME)[createProjectile.Kind]]
+      readonly [
+        (typeof createProjectile.ATTITUDE)[createProjectile.Kind],
+        (typeof createProjectile.OUTCOME)[createProjectile.Kind],
+      ]
     >
   > = {
     arrow: ["velocity", "stick"],
@@ -85,7 +97,9 @@ export function test_archetype_projectile_flight_data(): void {
       createProjectile.ATTITUDE[kind] !== table[kind][0] ||
       createProjectile.OUTCOME[kind] !== table[kind][1]
     )
-      findings.push(`${kind}: attitude ${createProjectile.ATTITUDE[kind]}, outcome ${createProjectile.OUTCOME[kind]}`);
+      findings.push(
+        `${kind}: attitude ${createProjectile.ATTITUDE[kind]}, outcome ${createProjectile.OUTCOME[kind]}`,
+      );
   for (const [model, feet] of [
     ["sixPounder", 3.5],
     ["twelvePounder", 8.5],

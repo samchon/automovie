@@ -51,123 +51,260 @@ export function test_archetype_harness(): void {
       const shoulder: IAutoMovieVector3 = rig.limbs.leftFore[0]!;
       const hip: IAutoMovieVector3 = rig.limbs.leftHind[0]!;
       const buttock: number = shoulder.z - (185 / 172) * h;
-      if (!close(archetypeExtent(horse, "z", ["hindquarters"]).low, buttock, 1e-6))
-        findings.push(`${label}: the hindquarters end at ${archetypeExtent(horse, "z", ["hindquarters"]).low}, not the point of buttock ${buttock}`);
+      if (
+        !close(archetypeExtent(horse, "z", ["hindquarters"]).low, buttock, 1e-6)
+      )
+        findings.push(
+          `${label}: the hindquarters end at ${archetypeExtent(horse, "z", ["hindquarters"]).low}, not the point of buttock ${buttock}`,
+        );
       if (!close(rig.buttock.y, hip.y) || !close(rig.buttock.z, buttock))
-        findings.push(`${label}: the rig's point of buttock is ${JSON.stringify(rig.buttock)}`);
+        findings.push(
+          `${label}: the rig's point of buttock is ${JSON.stringify(rig.buttock)}`,
+        );
       const barrel: number = d.girth / (2 * Math.PI);
-      if (!close(archetypeExtent(horse, "z", ["trunk"]).high, shoulder.z + barrel, 1e-6) || !close(archetypeExtent(horse, "z", ["trunk"]).low, hip.z - barrel, 1e-6))
-        findings.push(`${label}: the trunk no longer runs from the shoulder joints to the hip joints`);
+      if (
+        !close(
+          archetypeExtent(horse, "z", ["trunk"]).high,
+          shoulder.z + barrel,
+          1e-6,
+        ) ||
+        !close(archetypeExtent(horse, "z", ["trunk"]).low, hip.z - barrel, 1e-6)
+      )
+        findings.push(
+          `${label}: the trunk no longer runs from the shoulder joints to the hip joints`,
+        );
       // The tack's read weight on top of the horse's: Wintec's 5.4 kg saddle, nothing for the unread harness, and the rigged pack saddle.
       const tackMass: number =
-        tack === "saddle" ? 5.4 : tack === "pack" ? 95 * ArchetypeUnits.POUND * (h / (((59 + 62) / 2) * ArchetypeUnits.INCH)) ** 3 : 0;
+        tack === "saddle"
+          ? 5.4
+          : tack === "pack"
+            ? 95 *
+              ArchetypeUnits.POUND *
+              (h / (((59 + 62) / 2) * ArchetypeUnits.INCH)) ** 3
+            : 0;
       if (!close(horse.properties.mass, d.mass + tackMass, 1e-6))
-        findings.push(`${label}: the body's mass is ${horse.properties.mass}, not ${d.mass + tackMass}`);
+        findings.push(
+          `${label}: the body's mass is ${horse.properties.mass}, not ${d.mass + tackMass}`,
+        );
       if (!validateModel({ model: horse }).success)
         findings.push(`${label}: the model is refused`);
-      const ids: readonly string[] = horse.affordances.map((a: { id: string }): string => a.id);
+      const ids: readonly string[] = horse.affordances.map(
+        (a: { id: string }): string => a.id,
+      );
       if (tack === "saddle") {
         if (ids.includes("hitch") || !ids.includes("seat"))
-          findings.push(`${label}: the saddle horse's contacts are ${ids.join(", ")}`);
+          findings.push(
+            `${label}: the saddle horse's contacts are ${ids.join(", ")}`,
+          );
         continue;
       }
       if (tack === "pack") {
-        if ([...ids].sort((a: string, b: string): number => a.localeCompare(b)).join(",") !== "lead,leftLoad,rightLoad")
-          findings.push(`${label}: the pack horse's contacts are ${ids.join(", ")}`);
+        if (
+          [...ids]
+            .sort((a: string, b: string): number => a.localeCompare(b))
+            .join(",") !== "lead,leftLoad,rightLoad"
+        )
+          findings.push(
+            `${label}: the pack horse's contacts are ${ids.join(", ")}`,
+          );
         const along: number = archetypeExtent(horse, "z", ["pad-left-1"]).size;
-        if (!close(along, (23 * ArchetypeUnits.INCH * h) / (((59 + 62) / 2) * ArchetypeUnits.INCH), 1e-6))
+        if (
+          !close(
+            along,
+            (23 * ArchetypeUnits.INCH * h) /
+              (((59 + 62) / 2) * ArchetypeUnits.INCH),
+            1e-6,
+          )
+        )
           findings.push(`${label}: the pads run ${along} m along the back`);
         if (!(d.croupClearance >= 0.0782 && d.croupClearance <= 0.0883))
-          findings.push(`${label}: the croup piece's clearance is ${d.croupClearance} m`);
-        const behind: number = archetypeExtent(horse, "z", ["breeching-3", "breeching-4"]).low;
-        const expected: number = rig.buttock.z - ArchetypeUnits.INCH - 2 * 0.012;
+          findings.push(
+            `${label}: the croup piece's clearance is ${d.croupClearance} m`,
+          );
+        const behind: number = archetypeExtent(horse, "z", [
+          "breeching-3",
+          "breeching-4",
+        ]).low;
+        const expected: number =
+          rig.buttock.z - ArchetypeUnits.INCH - 2 * 0.012;
         if (!close(behind, expected, 1e-3))
-          findings.push(`${label}: the breeching's back stands at ${behind}, not an inch behind the buttocks at ${expected}`);
+          findings.push(
+            `${label}: the breeching's back stands at ${behind}, not an inch behind the buttocks at ${expected}`,
+          );
         continue;
       }
       if (ids.join(",") !== "hitch")
-        findings.push(`${label}: the driving horse's contacts are ${ids.join(", ")}`);
-      const hitch: IAutoMovieVector3 = horse.affordance("hitch").frame.translation;
-      if (!close(hitch.y, createHorse.BACK * h - barrel) || !close(hitch.z, shoulder.z - createHorse.SADDLE))
+        findings.push(
+          `${label}: the driving horse's contacts are ${ids.join(", ")}`,
+        );
+      const hitch: IAutoMovieVector3 =
+        horse.affordance("hitch").frame.translation;
+      if (
+        !close(hitch.y, createHorse.BACK * h - barrel) ||
+        !close(hitch.z, shoulder.z - createHorse.SADDLE)
+      )
         findings.push(`${label}: the hitch is at ${JSON.stringify(hitch)}`);
       const part = (id: string): IAutoMovieModelPart =>
         horse.parts.find((p: IAutoMovieModelPart): boolean => p.id === id)!;
-      for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
-        const draft: IAutoMovieVector3 = part(`draft-${side}`).transform!.translation;
-        if (!close(draft.y, shoulder.y) || !close(draft.z, rig.limbs.leftFore[1]!.z) || !(sign * draft.x > 0))
-          findings.push(`${label}: the ${side} point of draft is at ${JSON.stringify(draft)}`);
+      for (const [side, sign] of [
+        ["left", 1],
+        ["right", -1],
+      ] as const) {
+        const draft: IAutoMovieVector3 = part(`draft-${side}`).transform!
+          .translation;
+        if (
+          !close(draft.y, shoulder.y) ||
+          !close(draft.z, rig.limbs.leftFore[1]!.z) ||
+          !(sign * draft.x > 0)
+        )
+          findings.push(
+            `${label}: the ${side} point of draft is at ${JSON.stringify(draft)}`,
+          );
       }
       const seat: number = part("breeching-3").transform!.translation.y;
       const drop: number = rig.buttock.y - seat;
-      if (!(drop >= 2 * ArchetypeUnits.INCH - 1e-9 && drop <= 4 * ArchetypeUnits.INCH + 1e-9))
-        findings.push(`${label}: the breeching lies ${drop / ArchetypeUnits.INCH} in below the point of buttock`);
-      const quarters: IAutoMovieVector3 = Vector3.create(0, rig.buttock.y, rig.buttock.z + barrel);
-      const rearmost: number = archetypeExtent(horse, "z", ["breeching-3", "breeching-4"]).low;
-      const surface: number = quarters.z - Math.sqrt(barrel * barrel - drop * drop);
+      if (
+        !(
+          drop >= 2 * ArchetypeUnits.INCH - 1e-9 &&
+          drop <= 4 * ArchetypeUnits.INCH + 1e-9
+        )
+      )
+        findings.push(
+          `${label}: the breeching lies ${drop / ArchetypeUnits.INCH} in below the point of buttock`,
+        );
+      const quarters: IAutoMovieVector3 = Vector3.create(
+        0,
+        rig.buttock.y,
+        rig.buttock.z + barrel,
+      );
+      const rearmost: number = archetypeExtent(horse, "z", [
+        "breeching-3",
+        "breeching-4",
+      ]).low;
+      const surface: number =
+        quarters.z - Math.sqrt(barrel * barrel - drop * drop);
       if (!(rearmost < surface && rearmost > surface - 3 * 0.012 - 1e-3))
-        findings.push(`${label}: the breeching's back stands at ${rearmost}, off the hindquarters' surface at ${surface}`);
+        findings.push(
+          `${label}: the breeching's back stands at ${rearmost}, off the hindquarters' surface at ${surface}`,
+        );
     }
 
   // 3. The cart built for the horse, joined at the hitch.
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> = createHorse({ tack: "harness" }, 4);
-  const cart: Archetype<createCart.Affordance, createCart.Dimension> = createCart(
-    {
-      kind: "cart",
-      withersHeight: horse.dimensions.withersHeight!,
-    },
-    4,
-  );
+  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
+    createHorse({ tack: "harness" }, 4);
+  const cart: Archetype<createCart.Affordance, createCart.Dimension> =
+    createCart(
+      {
+        kind: "cart",
+        withersHeight: horse.dimensions.withersHeight!,
+      },
+      4,
+    );
   const rig: createHorse.IRig = createHorse.rig(horse.dimensions);
-  const coupling: IAutoMovieVector3 = cart.affordance("coupling").frame.translation;
+  const coupling: IAutoMovieVector3 =
+    cart.affordance("coupling").frame.translation;
   const hitch: IAutoMovieVector3 = horse.affordance("hitch").frame.translation;
   if (!close(coupling.y, hitch.y))
-    findings.push(`the cart's coupling stands ${coupling.y} m high, the hitch ${hitch.y} m`);
-  const tree: IAutoMovieModelPart = cart.parts.find((p: IAutoMovieModelPart): boolean => p.id === "single-tree")!;
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(tree.transform!.rotation, { x: 0, y: 1, z: 0 });
-  const ends: IAutoMovieVector3[] = [1, -1].map((sign: number): IAutoMovieVector3 =>
-    Vector3.add(tree.transform!.translation, Vector3.scale(along, sign * rig.draft.x)),
+    findings.push(
+      `the cart's coupling stands ${coupling.y} m high, the hitch ${hitch.y} m`,
+    );
+  const tree: IAutoMovieModelPart = cart.parts.find(
+    (p: IAutoMovieModelPart): boolean => p.id === "single-tree",
+  )!;
+  const along: IAutoMovieVector3 = Quaternion.rotateVector(
+    tree.transform!.rotation,
+    { x: 0, y: 1, z: 0 },
+  );
+  const ends: IAutoMovieVector3[] = [1, -1].map(
+    (sign: number): IAutoMovieVector3 =>
+      Vector3.add(
+        tree.transform!.translation,
+        Vector3.scale(along, sign * rig.draft.x),
+      ),
   );
   for (const end of ends)
     if (!close(end.y, rig.draft.y) || !close(Math.abs(end.x), rig.draft.x))
       findings.push(`the single tree's end stands at ${JSON.stringify(end)}`);
   const ball = (id: string): IAutoMovieVector3 =>
-    horse.parts.find((p: IAutoMovieModelPart): boolean => p.id === id)!.transform!.translation;
+    horse.parts.find((p: IAutoMovieModelPart): boolean => p.id === id)!
+      .transform!.translation;
   for (const side of ["left", "right"] as const) {
     const used: number =
-      gap(ball(`bit-${side}`), ball(`ring-${side}`)) + gap(ball(`ring-${side}`), ball(`terret-${side}`));
+      gap(ball(`bit-${side}`), ball(`ring-${side}`)) +
+      gap(ball(`ring-${side}`), ball(`terret-${side}`));
     const held = cart.affordance(`${side}Line`);
     const forward: IAutoMovieVector3 = ArchetypeFrame.axis(held.frame, "x");
-    const near: IAutoMovieVector3 = Vector3.add(held.frame.translation, Vector3.scale(forward, held.length! / 2));
-    const terret: IAutoMovieVector3 = Vector3.add(ball(`terret-${side}`), Vector3.create(0, coupling.y - hitch.y, coupling.z - hitch.z));
-    if (!close(held.length!, 14 * 12 * ArchetypeUnits.INCH - used, 1e-9) || gap(near, terret) > 1e-9)
-      findings.push(`the ${side} held run is ${held.length} m from ${JSON.stringify(near)}, not the 14 ft line's ${14 * 12 * ArchetypeUnits.INCH - used} m behind the terret at ${JSON.stringify(terret)}`);
+    const near: IAutoMovieVector3 = Vector3.add(
+      held.frame.translation,
+      Vector3.scale(forward, held.length! / 2),
+    );
+    const terret: IAutoMovieVector3 = Vector3.add(
+      ball(`terret-${side}`),
+      Vector3.create(0, coupling.y - hitch.y, coupling.z - hitch.z),
+    );
+    if (
+      !close(held.length!, 14 * 12 * ArchetypeUnits.INCH - used, 1e-9) ||
+      gap(near, terret) > 1e-9
+    )
+      findings.push(
+        `the ${side} held run is ${held.length} m from ${JSON.stringify(near)}, not the 14 ft line's ${14 * 12 * ArchetypeUnits.INCH - used} m behind the terret at ${JSON.stringify(terret)}`,
+      );
   }
 
   // 4. Drawn through a quarter turn.
-  const ride: ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension> = rideHorse(horse, COURSE);
+  const ride: ArchetypeRide.IRide<
+    createHorse.Affordance,
+    createHorse.Dimension
+  > = rideHorse(horse, COURSE);
   const lines: ArchetypeRide.ILine[] = createCart.lines(cart);
-  const towedRide: ArchetypeRide.IRide<createCart.Affordance, createCart.Dimension> =
-    ArchetypeRide.towed(ride, "hitch", cart, "coupling", { lines });
+  const towedRide: ArchetypeRide.IRide<
+    createCart.Affordance,
+    createCart.Dimension
+  > = ArchetypeRide.towed(ride, "hitch", cart, "coupling", { lines });
   const world = <I extends string, D extends string>(
     sample: ArchetypeRide.ISample<I, D>,
     id: string,
     local: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieVector3 => {
-    const part: IAutoMovieModelPart = sample.archetype.parts.find((p: IAutoMovieModelPart): boolean => p.id === id)!;
-    return ArchetypeFrame.point(sample.placement, ArchetypeFrame.point(part.transform!, local));
+    const part: IAutoMovieModelPart = sample.archetype.parts.find(
+      (p: IAutoMovieModelPart): boolean => p.id === id,
+    )!;
+    return ArchetypeFrame.point(
+      sample.placement,
+      ArchetypeFrame.point(part.transform!, local),
+    );
   };
   const relative: number[] = [];
   for (const seconds of [0, 3, 6, 9, 12, 15]) {
-    const lead: ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension> = ride.at(seconds);
-    const sample: ArchetypeRide.ISample<createCart.Affordance, createCart.Dimension> = towedRide.at(seconds);
+    const lead: ArchetypeRide.ISample<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = ride.at(seconds);
+    const sample: ArchetypeRide.ISample<
+      createCart.Affordance,
+      createCart.Dimension
+    > = towedRide.at(seconds);
     const laid: readonly ArchetypeRide.ILineState[] = sample.lines ?? [];
-    if (laid.map((l: ArchetypeRide.ILineState): string => l.id).join(",") !== "trace-left,trace-right,line-left,line-right")
-      findings.push(`${seconds} s: the lines laid are ${laid.map((l: ArchetypeRide.ILineState): string => l.id).join(", ")}`);
+    if (
+      laid.map((l: ArchetypeRide.ILineState): string => l.id).join(",") !==
+      "trace-left,trace-right,line-left,line-right"
+    )
+      findings.push(
+        `${seconds} s: the lines laid are ${laid.map((l: ArchetypeRide.ILineState): string => l.id).join(", ")}`,
+      );
     for (const [k, side] of (["left", "right"] as const).entries()) {
       const trace: ArchetypeRide.ILineState = laid[k]!;
       const length: number = (k === 0 ? 1 : -1) * rig.draft.x;
-      if (gap(trace.points[0]!, world(lead, `draft-${side}`)) > 1e-9 || gap(trace.points[1]!, world(sample, "single-tree", { x: 0, y: length, z: 0 })) > 1e-9)
-        findings.push(`${seconds} s: the ${side} trace leaves the collar or the single tree`);
+      if (
+        gap(trace.points[0]!, world(lead, `draft-${side}`)) > 1e-9 ||
+        gap(
+          trace.points[1]!,
+          world(sample, "single-tree", { x: 0, y: length, z: 0 }),
+        ) > 1e-9
+      )
+        findings.push(
+          `${seconds} s: the ${side} trace leaves the collar or the single tree`,
+        );
       const line: ArchetypeRide.ILineState = laid[2 + k]!;
       const expected: IAutoMovieVector3[] = [
         world(lead, `bit-${side}`),
@@ -175,14 +312,28 @@ export function test_archetype_harness(): void {
         world(lead, `terret-${side}`),
         towedRide.frame(`${side}Line`, seconds).translation,
       ];
-      if (line.points.length !== 4 || expected.some((p: IAutoMovieVector3, i: number): boolean => gap(p, line.points[i]!) > 1e-9))
-        findings.push(`${seconds} s: the ${side} driving line leaves the bit, the ring, the terret or the driver's hands`);
+      if (
+        line.points.length !== 4 ||
+        expected.some(
+          (p: IAutoMovieVector3, i: number): boolean =>
+            gap(p, line.points[i]!) > 1e-9,
+        )
+      )
+        findings.push(
+          `${seconds} s: the ${side} driving line leaves the bit, the ring, the terret or the driver's hands`,
+        );
     }
     relative.push(world(lead, "bit-left").y - world(lead, "pad").y);
   }
   if (!(Math.max(...relative) - Math.min(...relative) > 1e-3))
-    findings.push(`the bit rings do not move with the head: ${relative.join(", ")}`);
-  TestValidator.equals("the harness lies on the horse and joins it to the cart", findings, []);
+    findings.push(
+      `the bit rings do not move with the head: ${relative.join(", ")}`,
+    );
+  TestValidator.equals(
+    "the harness lies on the horse and joins it to the cart",
+    findings,
+    [],
+  );
 }
 
 /** A straight, a quarter turn of 10 m radius and a straight, at a walk. */

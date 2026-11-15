@@ -41,7 +41,8 @@ export function test_archetype_weapon_bow_draw(): void {
       posed: ReturnType<typeof createBow>,
       limb: "upperLimb" | "lowerLimb",
     ): IAutoMovieVector3 => {
-      const half: string = limb === "upperLimb" ? "string-upper" : "string-lower";
+      const half: string =
+        limb === "upperLimb" ? "string-upper" : "string-lower";
       return posed.span(half).from;
     };
     const rest: Record<"upperLimb" | "lowerLimb", number> = {
@@ -57,17 +58,23 @@ export function test_archetype_weapon_bow_draw(): void {
       const drawn: ReturnType<typeof createBow> = bow.articulate({
         string: travel,
       });
-      const nock: IAutoMovieVector3 = drawn.affordance("nock").frame.translation;
+      const nock: IAutoMovieVector3 =
+        drawn.affordance("nock").frame.translation;
       for (const limb of ["upperLimb", "lowerLimb"] as const) {
         const at: IAutoMovieVector3 = tip(drawn, limb);
         if (Math.abs(distance(at, grip) - rest[limb]) > 1e-9)
-          findings.push(`${kind} at ${travel} m: the ${limb}'s tip leaves its arc`);
+          findings.push(
+            `${kind} at ${travel} m: the ${limb}'s tip leaves its arc`,
+          );
       }
       for (const half of ["string-upper", "string-lower"] as const) {
         const line: ReturnType<typeof drawn.span> = drawn.span(half);
         if (distance(line.to, nock) > 1e-9)
           findings.push(`${kind} at ${travel} m: ${half} leaves the nock`);
-        if (Math.abs(distance(line.from, line.to) - halves[half]!) > createBow.STRING)
+        if (
+          Math.abs(distance(line.from, line.to) - halves[half]!) >
+          createBow.STRING
+        )
           findings.push(
             `${kind} at ${travel} m: ${half} is ${distance(line.from, line.to)} m, ${halves[half]} m braced`,
           );
@@ -76,13 +83,16 @@ export function test_archetype_weapon_bow_draw(): void {
         Math.hypot(nock.x - braced.x, nock.y - braced.y) > 1e-4 ||
         Math.abs(nock.z - braced.z - travel) > 1e-4
       )
-        findings.push(`${kind} at ${travel} m: the nock is off the arrow's line`);
+        findings.push(
+          `${kind} at ${travel} m: the nock is off the arrow's line`,
+        );
     }
     let refused: string | null = null;
     try {
       bow.articulate({ upperLimb: 10 });
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal ? String(error.value) : String(error);
+      refused =
+        error instanceof ArchetypeRefusal ? String(error.value) : String(error);
     }
     if (refused === null)
       findings.push(`${kind}: a limb named in a state was not refused`);

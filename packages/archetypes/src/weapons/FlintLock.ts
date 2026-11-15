@@ -1,7 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeBand, type ArchetypeBuilder, ArchetypeFrame, type IArchetypeBand } from "../core";
+import {
+  ArchetypeBand,
+  type ArchetypeBuilder,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
 
 /**
  * A flintlock, laid on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock. A musket's and a pistol's lock are the same lock (`createLongGun`, `createHandgun`).
@@ -88,13 +93,33 @@ export namespace FlintLock {
     const steel: { color: string } = { color: "#2c2f33" };
     const x: number = hole.x - e.side;
     const pan: IAutoMovieVector3 = v(x, hole.y + e.rise, hole.z + e.pan);
-    const frizzen: IAutoMovieVector3 = v(x, hole.y + e.rise, hole.z + e.frizzen);
+    const frizzen: IAutoMovieVector3 = v(
+      x,
+      hole.y + e.rise,
+      hole.z + e.frizzen,
+    );
     const cock: IAutoMovieVector3 = v(x, hole.y, hole.z - e.cock);
-    builder.box("lock-plate", v(e.plate, e.height, e.cock + e.frizzen), v(x - e.plate, hole.y, hole.z + (e.frizzen - e.cock) / 2), steel);
+    builder.box(
+      "lock-plate",
+      v(e.plate, e.height, e.cock + e.frizzen),
+      v(x - e.plate, hole.y, hole.z + (e.frizzen - e.cock) / 2),
+      steel,
+    );
     builder.box("pan", v(e.pan, e.depth, e.pan), pan, steel);
-    builder.box("frizzen", v(e.pan, e.height, e.steel), Vector3.add(frizzen, v(0, e.height / 2, 0)), steel);
+    builder.box(
+      "frizzen",
+      v(e.pan, e.height, e.steel),
+      Vector3.add(frizzen, v(0, e.height / 2, 0)),
+      steel,
+    );
     // The cock at rest lies forward and up from its pivot, its jaw down on the frizzen's face.
-    builder.rod("cock", e.jaw, cock, Vector3.add(frizzen, v(0, e.height, 0)), steel);
+    builder.rod(
+      "cock",
+      e.jaw,
+      cock,
+      Vector3.add(frizzen, v(0, e.height, 0)),
+      steel,
+    );
     builder.affordance({
       id: ids.pan,
       kind: "socket",

@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
@@ -40,10 +40,16 @@ export namespace BoatOars {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function blade(span: number): { bladeLength: number; bladeWidth: number } {
+  export function blade(span: number): {
+    bladeLength: number;
+    bladeWidth: number;
+  } {
     const length: number = (span / 2 + INBOARD) * RATIO;
     const oar: (typeof BOAT_MODELS.oars)[number] = BOAT_MODELS.oars.reduce(
-      (best: (typeof BOAT_MODELS.oars)[number], o: (typeof BOAT_MODELS.oars)[number]): (typeof BOAT_MODELS.oars)[number] =>
+      (
+        best: (typeof BOAT_MODELS.oars)[number],
+        o: (typeof BOAT_MODELS.oars)[number],
+      ): (typeof BOAT_MODELS.oars)[number] =>
         Math.abs(o.length - length) < Math.abs(best.length - length) ? o : best,
     );
     return { bladeLength: oar.bladeLength, bladeWidth: oar.bladeWidth };
@@ -121,7 +127,8 @@ export namespace BoatOars {
     const outboard: number = inboard * RATIO - inboard;
     const half: number = d.bladeWidth! / 2;
     const root: number = outboard - d.bladeLength!;
-    const degrees = (radians: number): number => radians / ArchetypeUnits.DEGREE;
+    const degrees = (radians: number): number =>
+      radians / ArchetypeUnits.DEGREE;
 
     // At rest the blade's upper root corner meets the water; lifted, its lower tip corner stands at a height above it.
     const rest: number = degrees(

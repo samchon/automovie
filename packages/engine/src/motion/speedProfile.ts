@@ -17,7 +17,9 @@
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One profile serves every sample of its path.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The profile holds one record per phase and per stretch for as long as its caller keeps it.
  */
-export function speedProfile(props: speedProfile.IProps): speedProfile.IProfile {
+export function speedProfile(
+  props: speedProfile.IProps,
+): speedProfile.IProfile {
   const fail = (what: string): never => {
     throw new Error(`speedProfile: ${what}`);
   };
@@ -116,7 +118,9 @@ export function speedProfile(props: speedProfile.IProps): speedProfile.IProfile 
       rises && falls
         ? Math.min(
             cap,
-            Math.sqrt((2 * length * a * b + b * v * v + a * end * end) / (a + b)),
+            Math.sqrt(
+              (2 * length * a * b + b * v * v + a * end * end) / (a + b),
+            ),
           )
         : cap;
     const up: number = rises ? (peak - v) / a : 0;
@@ -224,7 +228,8 @@ export function speedProfile(props: speedProfile.IProps): speedProfile.IProfile 
         (phase.speed === 0
           ? Math.sqrt((2 * left) / rate)
           : (2 * left) /
-            (phase.speed + Math.sqrt(phase.speed * phase.speed + 2 * rate * left)))
+            (phase.speed +
+              Math.sqrt(phase.speed * phase.speed + 2 * rate * left)))
       );
     }
     const into: number = d - phase.from;
@@ -456,7 +461,9 @@ export namespace speedProfile {
     deceleration: number,
   ): { minimum: number; maximum: number } {
     return {
-      minimum: Math.sqrt(Math.max(0, speed * speed - 2 * deceleration * length)),
+      minimum: Math.sqrt(
+        Math.max(0, speed * speed - 2 * deceleration * length),
+      ),
       maximum: Math.sqrt(speed * speed + 2 * acceleration * length),
     };
   }

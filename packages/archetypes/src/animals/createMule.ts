@@ -29,17 +29,17 @@ export function createMule(
   params: createMule.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  const draw: ArchetypeDrawSession<createHorse.Dimension> = new ArchetypeDrawSession<createHorse.Dimension>(
-    createMule.ARCHETYPE,
-    createHorse.UNITS,
-    seed,
-    params,
-  );
-  const sex: ArchetypeDrawSession.IModel<createMule.Sex, createHorse.Dimension> = draw.model<createMule.Sex>(
-    "sex",
-    params.sex,
-    createMule.MEASURES,
-  );
+  const draw: ArchetypeDrawSession<createHorse.Dimension> =
+    new ArchetypeDrawSession<createHorse.Dimension>(
+      createMule.ARCHETYPE,
+      createHorse.UNITS,
+      seed,
+      params,
+    );
+  const sex: ArchetypeDrawSession.IModel<
+    createMule.Sex,
+    createHorse.Dimension
+  > = draw.model<createMule.Sex>("sex", params.sex, createMule.MEASURES);
   return createHorse.equid(createMule.profile(sex.figures), params, draw);
 }
 
@@ -59,7 +59,9 @@ export namespace createMule {
   export type Sex = "female" | "male";
 
   /** Each sex's read figures, the default first: Velásquez Mosquera, Corrales Alvarez and Bespalhok Jacometo 2020, Acta Sci Anim Sci 42:e46379, p. 3, Table 1, means of 55 females and 39 males, each weighed: height at the withers 130.40 and 135.28 cm, thoracic perimeter 147.85 and 152.58 cm, body weight 275.36 and 298.88 kg (https://www.redalyc.org/journal/3031/303162575011/303162575011.pdf). */
-  export const MEASURES: Readonly<Record<Sex, Readonly<Partial<Record<createHorse.Dimension, number>>>>> = {
+  export const MEASURES: Readonly<
+    Record<Sex, Readonly<Partial<Record<createHorse.Dimension, number>>>>
+  > = {
     female: {
       withersHeight: 130.4 * ArchetypeUnits.CENTIMETRE,
       girth: 147.85 * ArchetypeUnits.CENTIMETRE,
@@ -79,7 +81,9 @@ export namespace createMule {
   }
 
   /** The band of each dimension a mule draws: the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the mule's size; its height is its sex's (`MEASURES`). */
-  export const BANDS: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> = {
+  export const BANDS: Readonly<
+    Partial<Record<createHorse.Free, IArchetypeBand>>
+  > = {
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
     tempo: HORSE_BANDS.tempo,
@@ -97,7 +101,11 @@ export namespace createMule {
   ): createHorse.IProfile {
     return {
       archetype: ARCHETYPE,
-      names: { saddle: "saddle mule", harness: "driving mule", pack: "pack mule" },
+      names: {
+        saddle: "saddle mule",
+        harness: "driving mule",
+        pack: "pack mule",
+      },
       bands: BANDS,
       figures,
       girth: (): number => figures.girth!,

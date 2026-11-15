@@ -21,10 +21,38 @@ const CM: number = ArchetypeUnits.CENTIMETRE;
  * - A carriage: the Brewster brougham of 1893 (H 78.5 in, W 68, L 145.5, wheelbase 91.5, wheels 36.5 and 48.25 in) and the Miner, Stevens brougham of 1840-1860 (H 79, W 69, L 153, wheelbase 105, wheels 42 and 50 in) at The Henry Ford (https://www.thehenryford.org/collections/explore/artifact/33937, https://www.thehenryford.org/collections/explore/artifact/7881), and the Peters bow-fronted double brougham of 1880 at York Castle Museum (H 6 ft 2 in, L 11 ft 7 in, W 5 ft 5 in, wheels 3 ft and 3 ft 8 in; https://thecarriagefoundation.org.uk/item/bow-fronted-double-brougham); the smaller wheel is taken as the front.
  */
 export const CART_MODELS: Readonly<{
-  figures: Readonly<Partial<Record<createCart.Kind, Readonly<Partial<Record<createCart.Model, Figures>>>>>>;
-  castors: Readonly<Partial<Record<createCart.Kind, Readonly<Partial<Record<createCart.Castor, Figures>>>>>>;
-  shafts: Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Shaft, Figures>>>>>>;
-  ranges: Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Dimension, IArchetypeBand>>>>>>;
+  figures: Readonly<
+    Partial<
+      Record<
+        createCart.Kind,
+        Readonly<Partial<Record<createCart.Model, Figures>>>
+      >
+    >
+  >;
+  castors: Readonly<
+    Partial<
+      Record<
+        createCart.Kind,
+        Readonly<Partial<Record<createCart.Castor, Figures>>>
+      >
+    >
+  >;
+  shafts: Readonly<
+    Partial<
+      Record<
+        createCart.Model,
+        Readonly<Partial<Record<createCart.Shaft, Figures>>>
+      >
+    >
+  >;
+  ranges: Readonly<
+    Partial<
+      Record<
+        createCart.Model,
+        Readonly<Partial<Record<createCart.Dimension, IArchetypeBand>>>
+      >
+    >
+  >;
 }> = {
   figures: {
     cart: {
@@ -32,22 +60,71 @@ export const CART_MODELS: Readonly<{
       dennettGig: { wheelDiameter: 53 * IN },
     },
     rickshaw: {
-      edo89210382: { length: 213 * CM, width: 102 * CM, wheelDiameter: 108 * CM },
+      edo89210382: {
+        length: 213 * CM,
+        width: 102 * CM,
+        wheelDiameter: 108 * CM,
+      },
       edo90360001: { length: 198 * CM, width: 107 * CM },
       powerhouse245268: { length: 2.15, width: 0.9 },
     },
     chariot: {
-      carter120: { floorWidth: 105 * CM, railHeight: 78 * CM, floorDepth: 46 * CM, wheelDiameter: 93 * CM },
-      carter121: { floorWidth: 100 * CM, poleLength: 243 * CM, wheelDiameter: 94 * CM },
-      carter122: { floorWidth: 102 * CM, railHeight: 75 * CM, floorDepth: 44 * CM, poleLength: 256 * CM, wheelDiameter: 92 * CM },
-      carter161: { floorWidth: 107 * CM, railHeight: 71 * CM, floorDepth: 50 * CM, poleLength: 250 * CM, wheelDiameter: 97 * CM },
+      carter120: {
+        floorWidth: 105 * CM,
+        railHeight: 78 * CM,
+        floorDepth: 46 * CM,
+        wheelDiameter: 93 * CM,
+      },
+      carter121: {
+        floorWidth: 100 * CM,
+        poleLength: 243 * CM,
+        wheelDiameter: 94 * CM,
+      },
+      carter122: {
+        floorWidth: 102 * CM,
+        railHeight: 75 * CM,
+        floorDepth: 44 * CM,
+        poleLength: 256 * CM,
+        wheelDiameter: 92 * CM,
+      },
+      carter161: {
+        floorWidth: 107 * CM,
+        railHeight: 71 * CM,
+        floorDepth: 50 * CM,
+        poleLength: 250 * CM,
+        wheelDiameter: 97 * CM,
+      },
       carter332: { poleLength: 260 * CM, wheelDiameter: 84 * CM },
-      carter333: { floorWidth: 96 * CM, floorDepth: 38.5 * CM, wheelDiameter: 80 * CM },
+      carter333: {
+        floorWidth: 96 * CM,
+        floorDepth: 38.5 * CM,
+        wheelDiameter: 80 * CM,
+      },
     },
     carriage: {
-      brewster: { height: 78.5 * IN, width: 68 * IN, length: 145.5 * IN, wheelbase: 91.5 * IN, frontWheelDiameter: 36.5 * IN, wheelDiameter: 48.25 * IN },
-      minerStevens: { height: 79 * IN, width: 69 * IN, length: 153 * IN, wheelbase: 105 * IN, frontWheelDiameter: 42 * IN, wheelDiameter: 50 * IN },
-      peters: { height: 74 * IN, width: 65 * IN, length: 139 * IN, frontWheelDiameter: 36 * IN, wheelDiameter: 44 * IN },
+      brewster: {
+        height: 78.5 * IN,
+        width: 68 * IN,
+        length: 145.5 * IN,
+        wheelbase: 91.5 * IN,
+        frontWheelDiameter: 36.5 * IN,
+        wheelDiameter: 48.25 * IN,
+      },
+      minerStevens: {
+        height: 79 * IN,
+        width: 69 * IN,
+        length: 153 * IN,
+        wheelbase: 105 * IN,
+        frontWheelDiameter: 42 * IN,
+        wheelDiameter: 50 * IN,
+      },
+      peters: {
+        height: 74 * IN,
+        width: 65 * IN,
+        length: 139 * IN,
+        frontWheelDiameter: 36 * IN,
+        wheelDiameter: 44 * IN,
+      },
     },
   },
   castors: {

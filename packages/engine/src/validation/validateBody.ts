@@ -64,7 +64,10 @@ export const validateBody: (
           `drag ${field} must be a finite number > 0, but was ${body.drag[field]}`,
           body.drag[field],
         );
-  if (body.contact?.embed !== undefined && !(Number.isFinite(body.contact.embed) && body.contact.embed >= 0))
+  if (
+    body.contact?.embed !== undefined &&
+    !(Number.isFinite(body.contact.embed) && body.contact.embed >= 0)
+  )
     collector.push(
       "range",
       `${path}.contact.embed`,
@@ -72,9 +75,21 @@ export const validateBody: (
       body.contact.embed,
     );
   if (body.contact?.rolling !== undefined)
-    collector.range(`${path}.contact.rolling`, body.contact.rolling, 0, 1, "rolling resistance");
+    collector.range(
+      `${path}.contact.rolling`,
+      body.contact.rolling,
+      0,
+      1,
+      "rolling resistance",
+    );
   if (body.contact?.passLoss !== undefined)
-    collector.range(`${path}.contact.passLoss`, body.contact.passLoss, 0, 1, "pass loss");
+    collector.range(
+      `${path}.contact.passLoss`,
+      body.contact.passLoss,
+      0,
+      1,
+      "pass loss",
+    );
   if (body.centerOfMass !== null) {
     const com: IAutoMovieVector3 = body.centerOfMass;
     for (const axis of ["x", "y", "z"] as const)

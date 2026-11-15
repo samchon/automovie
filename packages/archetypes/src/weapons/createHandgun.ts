@@ -14,7 +14,6 @@ import { FlintLock } from "./FlintLock";
 import { HandgunActions } from "./HandgunActions";
 import { LockTimes } from "./LockTimes";
 
-
 /** The Graz test of a flintlock pistol. */
 const GRAZ_PISTOL: string =
   "Krenn, Kalaus and Hall, Material History Review 42 (1995), p. 104, Table 1, flintlock pistol STP 1128 (Ferlach, about 1700): barrel 332 mm, 1.16 kg, ball 13.5 mm and 14.45 g, charge 5.00 g, 385 m/s at the muzzle, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944): borrowed from it";
@@ -50,7 +49,12 @@ const UNPUBLISHED: string = "not published by either maker; an estimate";
 /** The bands of the dimensions a model leaves, the same for both frames: each drawn only for a model that does not give it. */
 const SHARED: Readonly<
   Record<
-    "width" | "triggerReach" | "triggerTravel" | "gripDepth" | "muzzleVelocity" | "lockTime",
+    | "width"
+    | "triggerReach"
+    | "triggerTravel"
+    | "gripDepth"
+    | "muzzleVelocity"
+    | "lockTime",
     IArchetypeBand
   >
 > = {
@@ -124,14 +128,27 @@ export function createHandgun(
     createHandgun.FRAMES,
   );
   // One of the frame's two read pistols whole, and a GLOCK's sights, which set its sight radius.
-  const model: { name: createHandgun.Model | undefined; figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    draw.model<createHandgun.Model>("model", params.model, createHandgun.MODELS[frame]);
-  draw.model<createHandgun.Sights>("sights", params.sights, model.name === undefined ? undefined : createHandgun.SIGHTS[model.name]);
+  const model: {
+    name: createHandgun.Model | undefined;
+    figures: Readonly<Partial<Record<createHandgun.Dimension, number>>>;
+  } = draw.model<createHandgun.Model>(
+    "model",
+    params.model,
+    createHandgun.MODELS[frame],
+  );
+  draw.model<createHandgun.Sights>(
+    "sights",
+    params.sights,
+    model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
+  );
   draw.dimensions(createHandgun.BANDS[frame], createHandgun.BANDS);
   // A revolver's or a flintlock pistol's sight line, where no maker gives its radius: a revolver's from the top strap's groove to the muzzle, a flintlock's along its barrel, which carries no sights.
-  if (frame === "revolver" && draw.values.sightRadius === undefined) draw.derive("sightRadius", HandgunActions.radius(draw.values));
+  if (frame === "revolver" && draw.values.sightRadius === undefined)
+    draw.derive("sightRadius", HandgunActions.radius(draw.values));
   if (frame === "flintlock") draw.derive("sightRadius", draw.values.barrel!);
-  const d: Partial<Record<createHandgun.Dimension, number>> = { ...draw.values };
+  const d: Partial<Record<createHandgun.Dimension, number>> = {
+    ...draw.values,
+  };
   const builder: ArchetypeBuilder<
     createHandgun.Affordance,
     createHandgun.Dimension
@@ -140,7 +157,8 @@ export function createHandgun(
     name: createHandgun.NAMES[frame],
     draw,
   });
-  const loaded: number = params.loaded === true ? createHandgun.AMMUNITION[frame] : 0;
+  const loaded: number =
+    params.loaded === true ? createHandgun.AMMUNITION[frame] : 0;
   if (frame === "revolver" || frame === "flintlock") {
     if (frame === "revolver") HandgunActions.revolver(builder, d);
     else HandgunActions.flintlock(builder, d);
@@ -260,7 +278,12 @@ export namespace createHandgun {
   export type Frame = "fullSize" | "compact" | "revolver" | "flintlock";
 
   /** Every frame, for a caller that reads one at run time. */
-  export const FRAMES: readonly Frame[] = ["fullSize", "compact", "revolver", "flintlock"];
+  export const FRAMES: readonly Frame[] = [
+    "fullSize",
+    "compact",
+    "revolver",
+    "flintlock",
+  ];
 
   /** Each frame's model name. */
   export const NAMES: Readonly<Record<Frame, string>> = {
@@ -359,7 +382,15 @@ export namespace createHandgun {
   };
 
   /** The read handguns: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact; Colt's Single Action Army with a 7.5 in barrel and Ruger's Vaquero 5104; the Light Dragoon and the Sea Service flintlock pistols. */
-  export type Model = "g17" | "p320m17" | "g19" | "p320m18" | "saa75" | "vaquero5104" | "lightDragoon" | "seaService";
+  export type Model =
+    | "g17"
+    | "p320m17"
+    | "g19"
+    | "p320m18"
+    | "saa75"
+    | "vaquero5104"
+    | "lightDragoon"
+    | "seaService";
 
   /** A GLOCK's sights, which set its sight radius: polymer, steel or GNS. */
   export type Sights = "polymer" | "steel" | "gns";
@@ -419,11 +450,25 @@ export namespace createHandgun {
         triggerReach: 2.8 * ArchetypeUnits.INCH,
         mass: 40.8 * ArchetypeUnits.OUNCE,
       },
-      vaquero5104: { length: 11.12 * ArchetypeUnits.INCH, barrel: 5.5 * ArchetypeUnits.INCH, mass: 41 * ArchetypeUnits.OUNCE },
+      vaquero5104: {
+        length: 11.12 * ArchetypeUnits.INCH,
+        barrel: 5.5 * ArchetypeUnits.INCH,
+        mass: 41 * ArchetypeUnits.OUNCE,
+      },
     },
     flintlock: {
-      lightDragoon: { length: 0.397, height: 0.14, width: 0.055, barrel: 9 * ArchetypeUnits.INCH },
-      seaService: { length: 0.5, height: 0.18, width: 0.04, barrel: 12 * ArchetypeUnits.INCH },
+      lightDragoon: {
+        length: 0.397,
+        height: 0.14,
+        width: 0.055,
+        barrel: 9 * ArchetypeUnits.INCH,
+      },
+      seaService: {
+        length: 0.5,
+        height: 0.18,
+        width: 0.04,
+        barrel: 12 * ArchetypeUnits.INCH,
+      },
     },
   };
 
@@ -479,8 +524,18 @@ export namespace createHandgun {
         `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
         true,
       ),
-      width: ArchetypeBand.metres(1.55 * ArchetypeUnits.INCH, MODELS.revolver!.saa75!.width!, `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`, true),
-      triggerReach: ArchetypeBand.metres(MODELS.revolver!.saa75!.triggerReach!, 3.5 * ArchetypeUnits.INCH, `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`, true),
+      width: ArchetypeBand.metres(
+        1.55 * ArchetypeUnits.INCH,
+        MODELS.revolver!.saa75!.width!,
+        `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
+        true,
+      ),
+      triggerReach: ArchetypeBand.metres(
+        MODELS.revolver!.saa75!.triggerReach!,
+        3.5 * ArchetypeUnits.INCH,
+        `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
+        true,
+      ),
       triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
       gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
       muzzleVelocity: ArchetypeBand.of(
@@ -496,10 +551,27 @@ export namespace createHandgun {
       triggerReach: borrowed(SHARED.triggerReach, "trigger reach"),
       triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
       gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
-      mass: ArchetypeBand.of("kg", 1.16, 1.16, `${GRAZ_PISTOL}, because no record weighs a Light Dragoon or Sea Service pistol (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`, true),
-      muzzleVelocity: ArchetypeBand.of("m/s", 385, 385, `${GRAZ_PISTOL}, because no measured velocity of a British service pistol was found (searched: Griffiths 1856, Robins 1805; records-firearms-flintlock.md)`, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        1.16,
+        1.16,
+        `${GRAZ_PISTOL}, because no record weighs a Light Dragoon or Sea Service pistol (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,
+        true,
+      ),
+      muzzleVelocity: ArchetypeBand.of(
+        "m/s",
+        385,
+        385,
+        `${GRAZ_PISTOL}, because no measured velocity of a British service pistol was found (searched: Griffiths 1856, Robins 1805; records-firearms-flintlock.md)`,
+        true,
+      ),
       lockTime: FlintLock.TIME,
-      ball: ArchetypeBand.metres(0.0135, 0.0135, `${GRAZ_PISTOL}, because no record gives the British pistols' ball (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`, true),
+      ball: ArchetypeBand.metres(
+        0.0135,
+        0.0135,
+        `${GRAZ_PISTOL}, because no record gives the British pistols' ball (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,
+        true,
+      ),
     },
   };
 }

@@ -1,4 +1,8 @@
-import { ArchetypeRefusal, createHorse, createQuadruped } from "@automovie/archetypes";
+import {
+  ArchetypeRefusal,
+  createHorse,
+  createQuadruped,
+} from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,33 +43,52 @@ export function test_archetype_animal_quadruped_bands(): void {
   const findings: string[] = [];
   const seen: Set<string> = new Set();
   for (let seed: number = 0; seed < archetypeBandSweep.SEEDS; seed++) {
-    const pony: ReturnType<typeof createQuadruped> = createQuadruped({ kind: "pony" }, seed);
+    const pony: ReturnType<typeof createQuadruped> = createQuadruped(
+      { kind: "pony" },
+      seed,
+    );
     const withers: number = archetypeExtent(pony, "y", ["withers"]).high;
     const breed: string | undefined = Object.keys(PONIES).find(
       (b: string): boolean => Math.abs(withers - PONIES[b]![0] / 100) < 1e-3,
     );
     if (breed === undefined) {
-      findings.push(`seed ${seed}: a pony's withers at ${withers} m are no breed's`);
+      findings.push(
+        `seed ${seed}: a pony's withers at ${withers} m are no breed's`,
+      );
       continue;
     }
     seen.add(breed);
-    const [height, girth, cannon]: readonly [number, number, number] = PONIES[breed]!;
+    const [height, girth, cannon]: readonly [number, number, number] =
+      PONIES[breed]!;
     const round: number = Math.PI * archetypeExtent(pony, "x", ["trunk"]).size;
-    const fraction: number = archetypeExtent(pony, "y", ["rightForeCannon"]).size / withers;
-    const expected: number = KUBO * (cannon / height / (THOROUGHBRED[1] / THOROUGHBRED[0]));
+    const fraction: number =
+      archetypeExtent(pony, "y", ["rightForeCannon"]).size / withers;
+    const expected: number =
+      KUBO * (cannon / height / (THOROUGHBRED[1] / THOROUGHBRED[0]));
     if (Math.abs(round - girth / 100) > 1e-3)
-      findings.push(`seed ${seed}: a ${breed}'s barrel is ${round} m round, not ${girth / 100}`);
+      findings.push(
+        `seed ${seed}: a ${breed}'s barrel is ${round} m round, not ${girth / 100}`,
+      );
     if (Math.abs(fraction - expected) > 0.0005)
-      findings.push(`seed ${seed}: a ${breed}'s fore cannon is ${fraction} of its height, not ${expected}`);
+      findings.push(
+        `seed ${seed}: a ${breed}'s fore cannon is ${fraction} of its height, not ${expected}`,
+      );
     // The law's oracle on the weighed warmbloods' means, which the horse states once (`createHorse.JENSEN`, metres and kilograms).
     const anchor: typeof createHorse.JENSEN = createHorse.JENSEN;
-    const weight: number = anchor.mass * (girth / 100 / anchor.girth) ** 2 * (height / 100 / anchor.withers);
+    const weight: number =
+      anchor.mass *
+      (girth / 100 / anchor.girth) ** 2 *
+      (height / 100 / anchor.withers);
     // The pony under its riding saddle: the law's mass and the saddle's 5.4 kg, Wintec's stated weight for its 500 All Purpose.
     if (Math.abs(pony.body.mass - 5.4 - weight) > 1e-6 * weight)
-      findings.push(`seed ${seed}: a ${breed} weighs ${pony.body.mass - 5.4} kg without its saddle, not the ${weight} kg its girth and height give`);
+      findings.push(
+        `seed ${seed}: a ${breed} weighs ${pony.body.mass - 5.4} kg without its saddle, not the ${weight} kg its girth and height give`,
+      );
   }
   if (seen.size !== Object.keys(PONIES).length)
-    findings.push(`only ${[...seen].join(", ")} appear over ${archetypeBandSweep.SEEDS} seeds`);
+    findings.push(
+      `only ${[...seen].join(", ")} appear over ${archetypeBandSweep.SEEDS} seeds`,
+    );
 
   // 3. The tack's contacts.
   const contacts = (affordances: readonly IAutoMovieAffordance[]): string =>
@@ -75,9 +98,12 @@ export function test_archetype_animal_quadruped_bands(): void {
       .join(",");
   for (const kind of createQuadruped.KINDS)
     for (const tack of createHorse.TACKS) {
-      const made: string = contacts(createQuadruped({ kind, tack }, 3).affordances);
+      const made: string = contacts(
+        createQuadruped({ kind, tack }, 3).affordances,
+      );
       const horse: string = contacts(createHorse({ tack }, 3).affordances);
-      if (made !== horse) findings.push(`a ${kind} in its ${tack} offers ${made}, not ${horse}`);
+      if (made !== horse)
+        findings.push(`a ${kind} in its ${tack} offers ${made}, not ${horse}`);
     }
   // 4. A breed's own figure is refused when fixed.
   let refused: unknown = null;
@@ -86,7 +112,11 @@ export function test_archetype_animal_quadruped_bands(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight"))
-    findings.push("a fixed height at the withers, a pony breed's own figure, is not refused");
+  if (
+    !(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight")
+  )
+    findings.push(
+      "a fixed height at the withers, a pony breed's own figure, is not refused",
+    );
   TestValidator.equals("every quadruped kind stays in its bands", findings, []);
 }

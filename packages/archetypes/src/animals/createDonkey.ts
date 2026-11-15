@@ -1,4 +1,9 @@
-import { type Archetype, ArchetypeBand, ArchetypeDrawSession, type IArchetypeBand } from "../core";
+import {
+  type Archetype,
+  ArchetypeBand,
+  ArchetypeDrawSession,
+  type IArchetypeBand,
+} from "../core";
 import { EquidSegments } from "./EquidSegments";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
@@ -32,7 +37,12 @@ export function createDonkey(
   return createHorse.equid(
     createDonkey.PROFILE,
     params,
-    new ArchetypeDrawSession<createHorse.Dimension>(createDonkey.ARCHETYPE, createHorse.UNITS, seed, params),
+    new ArchetypeDrawSession<createHorse.Dimension>(
+      createDonkey.ARCHETYPE,
+      createHorse.UNITS,
+      seed,
+      params,
+    ),
   );
 }
 
@@ -52,7 +62,9 @@ export namespace createDonkey {
   export const GIRTH: number = 121.2 / 112.62;
 
   /** The band of each dimension a donkey draws: its height over the weighed sample's range, and the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the donkey's size. */
-  export const BANDS: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> = {
+  export const BANDS: Readonly<
+    Partial<Record<createHorse.Free, IArchetypeBand>>
+  > = {
     withersHeight: ArchetypeBand.metres(0.93, 1.27, VERACRUZ),
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
@@ -63,7 +75,11 @@ export namespace createDonkey {
   /** The donkey's profile: its girth in the sample's proportion to its height, and the jackstock's bone fractions. */
   export const PROFILE: createHorse.IProfile = {
     archetype: ARCHETYPE,
-    names: { saddle: "saddle donkey", harness: "driving donkey", pack: "pack donkey" },
+    names: {
+      saddle: "saddle donkey",
+      harness: "driving donkey",
+      pack: "pack donkey",
+    },
     bands: BANDS,
     girth: (withers: number): number => withers * GIRTH,
     body: {

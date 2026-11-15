@@ -54,16 +54,31 @@ export function createCart(
     createCart.KINDS,
   );
   // One read model of the kind, among those made for the horse when its height is fixed, then its castors or its shafts, their figures recorded first; the kind's bands and the model's own ranges draw what they leave.
-  const model: { name: createCart.Model | undefined; figures: Readonly<Partial<Record<createCart.Dimension, number>>> } =
-    draw.model<createCart.Model>(
-      "model",
-      params.model,
-      params.model === undefined ? fitting(CART_MODELS.figures[kind], params) : CART_MODELS.figures[kind],
-    );
-  draw.model<createCart.Castor>("castor", params.castor, CART_MODELS.castors[kind]);
-  draw.model<createCart.Shaft>("shaft", params.shaft, model.name === undefined ? undefined : CART_MODELS.shafts[model.name]);
+  const model: {
+    name: createCart.Model | undefined;
+    figures: Readonly<Partial<Record<createCart.Dimension, number>>>;
+  } = draw.model<createCart.Model>(
+    "model",
+    params.model,
+    params.model === undefined
+      ? fitting(CART_MODELS.figures[kind], params)
+      : CART_MODELS.figures[kind],
+  );
+  draw.model<createCart.Castor>(
+    "castor",
+    params.castor,
+    CART_MODELS.castors[kind],
+  );
+  draw.model<createCart.Shaft>(
+    "shaft",
+    params.shaft,
+    model.name === undefined ? undefined : CART_MODELS.shafts[model.name],
+  );
   draw.dimensions(
-    { ...createCart.BANDS[kind], ...(model.name === undefined ? {} : CART_MODELS.ranges[model.name]) },
+    {
+      ...createCart.BANDS[kind],
+      ...(model.name === undefined ? {} : CART_MODELS.ranges[model.name]),
+    },
     createCart.BANDS,
   );
   if (kind === "cart") harnessed(draw);
@@ -93,15 +108,37 @@ export function createCart(
  * @returns The models whose range admits the fixed withers height, or every model when it is free.
  */
 function fitting(
-  models: Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Dimension, number>>>>>> | undefined,
+  models:
+    | Readonly<
+        Partial<
+          Record<
+            createCart.Model,
+            Readonly<Partial<Record<createCart.Dimension, number>>>
+          >
+        >
+      >
+    | undefined,
   params: createCart.IParams,
-): Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Dimension, number>>>>>> | undefined {
+):
+  | Readonly<
+      Partial<
+        Record<
+          createCart.Model,
+          Readonly<Partial<Record<createCart.Dimension, number>>>
+        >
+      >
+    >
+  | undefined {
   const withers: number | undefined = params.withersHeight;
   if (models === undefined || withers === undefined) return models;
   return Object.fromEntries(
     Object.entries(models).filter(([name]: [string, unknown]): boolean => {
-      const band: IArchetypeBand | undefined = CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
-      return band === undefined || (band.minimum <= withers && withers <= band.maximum);
+      const band: IArchetypeBand | undefined =
+        CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
+      return (
+        band === undefined ||
+        (band.minimum <= withers && withers <= band.maximum)
+      );
     }),
   );
 }
@@ -112,11 +149,21 @@ function fitting(
  * @param draw The cart's draw, its height, clearance and any read shafts recorded; the girth and, where unread, the shafts' length are derived into it.
  */
 function harnessed(draw: ArchetypeDrawSession<createCart.Dimension>): void {
-  const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> = draw.values;
-  const girth: number = draw.derive("girth", createHorse.PROFILE.girth(drawn.withersHeight!));
+  const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> =
+    draw.values;
+  const girth: number = draw.derive(
+    "girth",
+    createHorse.PROFILE.girth(drawn.withersHeight!),
+  );
   if (drawn.shaftLength !== undefined) return;
-  const horse: createHorse.IRig = createHorse.rig({ withersHeight: drawn.withersHeight!, girth });
-  draw.derive("shaftLength", horse.limbs.leftFore[0]!.z - horse.buttock.z + drawn.clearance!);
+  const horse: createHorse.IRig = createHorse.rig({
+    withersHeight: drawn.withersHeight!,
+    girth,
+  });
+  draw.derive(
+    "shaftLength",
+    horse.limbs.leftFore[0]!.z - horse.buttock.z + drawn.clearance!,
+  );
 }
 
 /**

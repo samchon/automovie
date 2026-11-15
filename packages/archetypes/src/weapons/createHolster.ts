@@ -283,8 +283,15 @@ export function createHolster(
     const length: number = d.length!;
     const deep: number = d.depth!;
     const thick: number = d.thickness!;
-    builder.box("box", v(thick, deep, length), v(thick / 2, deep / 2, 0), { color: "#1f1a17" });
-    builder.box("lid", v(thick, createHolster.FLAP.thickness, d.width!), v(thick / 2, deep + createHolster.FLAP.thickness / 2, 0), { color: "#1f1a17" });
+    builder.box("box", v(thick, deep, length), v(thick / 2, deep / 2, 0), {
+      color: "#1f1a17",
+    });
+    builder.box(
+      "lid",
+      v(thick, createHolster.FLAP.thickness, d.width!),
+      v(thick / 2, deep + createHolster.FLAP.thickness / 2, 0),
+      { color: "#1f1a17" },
+    );
     builder.affordance({
       id: "lid",
       kind: "hinge",
@@ -294,7 +301,10 @@ export function createHolster(
       parts: ["lid"],
     });
     // The cartridges' places: each tin's upper parts side by side along the box, the two tins with the box's spare length shared at both ends, each part's cells filled in rows along the box and columns across it.
-    const tin: number = createHolster.TINS.parts.reduce((sum: number, part: { length: number }): number => sum + part.length, 0);
+    const tin: number = createHolster.TINS.parts.reduce(
+      (sum: number, part: { length: number }): number => sum + part.length,
+      0,
+    );
     const spare: number = (length - createHolster.TINS.count * tin) / 2;
     const places: IAutoMovieVector3[] = [];
     for (let t: number = 0; t < createHolster.TINS.count; t++) {
@@ -304,7 +314,8 @@ export function createHolster(
           for (let column: number = 0; column < part.columns; column++)
             places.push(
               v(
-                (thick - part.across) / 2 + ((column + 0.5) * part.across) / part.columns,
+                (thick - part.across) / 2 +
+                  ((column + 0.5) * part.across) / part.columns,
                 deep,
                 start + ((row + 0.5) * part.length) / part.rows,
               ),
@@ -320,8 +331,18 @@ export function createHolster(
         extent: null,
       });
     });
-    builder.affordance({ id: "strap", kind: "hook", frame: facingWearer(v(0, deep / 2, 0)), extent: null });
-    builder.affordance({ id: "belt", kind: "hook", frame: facingWearer(v(0, deep / 2, 0)), extent: null });
+    builder.affordance({
+      id: "strap",
+      kind: "hook",
+      frame: facingWearer(v(0, deep / 2, 0)),
+      extent: null,
+    });
+    builder.affordance({
+      id: "belt",
+      kind: "hook",
+      frame: facingWearer(v(0, deep / 2, 0)),
+      extent: null,
+    });
     return builder.build(d.mass!);
   }
 
@@ -390,17 +411,35 @@ export namespace createHolster {
    */
   export const TINS: Readonly<{
     count: number;
-    parts: readonly Readonly<{ length: number; across: number; rows: number; columns: number }>[];
+    parts: readonly Readonly<{
+      length: number;
+      across: number;
+      rows: number;
+      columns: number;
+    }>[];
   }> = {
     count: 2,
     parts: [
-      { length: 2 * ArchetypeUnits.INCH, across: 1.35 * ArchetypeUnits.INCH, rows: 3, columns: 2 },
-      { length: 1.35 * ArchetypeUnits.INCH, across: 1.35 * ArchetypeUnits.INCH, rows: 2, columns: 2 },
+      {
+        length: 2 * ArchetypeUnits.INCH,
+        across: 1.35 * ArchetypeUnits.INCH,
+        rows: 3,
+        columns: 2,
+      },
+      {
+        length: 1.35 * ArchetypeUnits.INCH,
+        across: 1.35 * ArchetypeUnits.INCH,
+        rows: 2,
+        columns: 2,
+      },
     ],
   };
 
   /** A cartridge box's flap's opening, degrees, and its thickness, metres: estimates, the manual giving the flap's width only (searched: the 1841 and 1850 Ordnance Manuals; records-cartridge-pouch.md). */
-  export const FLAP: Readonly<{ open: number; thickness: number }> = { open: 150, thickness: 0.004 };
+  export const FLAP: Readonly<{ open: number; thickness: number }> = {
+    open: 150,
+    thickness: 0.004,
+  };
 
   /** A scabbard's metal throat at the mouth, its length along the scabbard, metres: an estimate. */
   export const THROAT: number = 0.05;
@@ -594,10 +633,26 @@ export namespace createHolster {
       ),
     },
     pouch: {
-      length: ArchetypeBand.metres(7.7 * ArchetypeUnits.INCH, 7.7 * ArchetypeUnits.INCH, BOX),
-      thickness: ArchetypeBand.metres(1.6 * ArchetypeUnits.INCH, 1.6 * ArchetypeUnits.INCH, BOX),
-      depth: ArchetypeBand.metres(5.8 * ArchetypeUnits.INCH, 5.8 * ArchetypeUnits.INCH, BOX),
-      width: ArchetypeBand.metres(8.5 * ArchetypeUnits.INCH, 8.5 * ArchetypeUnits.INCH, `${BOX}: the flap's width at its bottom`),
+      length: ArchetypeBand.metres(
+        7.7 * ArchetypeUnits.INCH,
+        7.7 * ArchetypeUnits.INCH,
+        BOX,
+      ),
+      thickness: ArchetypeBand.metres(
+        1.6 * ArchetypeUnits.INCH,
+        1.6 * ArchetypeUnits.INCH,
+        BOX,
+      ),
+      depth: ArchetypeBand.metres(
+        5.8 * ArchetypeUnits.INCH,
+        5.8 * ArchetypeUnits.INCH,
+        BOX,
+      ),
+      width: ArchetypeBand.metres(
+        8.5 * ArchetypeUnits.INCH,
+        8.5 * ArchetypeUnits.INCH,
+        `${BOX}: the flap's width at its bottom`,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         0.3,

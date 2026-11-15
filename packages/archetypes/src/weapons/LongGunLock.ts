@@ -6,7 +6,10 @@ import { FlintLock } from "./FlintLock";
 import type { createLongGun } from "./createLongGun";
 
 /** A long gun under construction. */
-type Builder = ArchetypeBuilder<createLongGun.Affordance, createLongGun.Dimension>;
+type Builder = ArchetypeBuilder<
+  createLongGun.Affordance,
+  createLongGun.Dimension
+>;
 
 /** A long gun's drawn and read dimensions. */
 type Drawn = Readonly<Partial<Record<createLongGun.Dimension, number>>>;
@@ -30,8 +33,23 @@ export namespace LongGunLock {
    * - `lever`: the lever's swing and the hammer's fall, degrees; the loop's length, its pivot below the barrel's line and ahead of the trigger, its end's drop, the lever's and the hammer's radius, the hammer's pivot above the line and behind the breech, and its spur's rise and lean, metres; Marlin's page states a half-cock hammer but no angle or size (searched in records-firearms-rifles.md).
    */
   export const ESTIMATES: Readonly<{
-    rod: Readonly<{ radius: number; below: number; pipe: number; ring: number; band: number }>;
-    bolt: Readonly<{ reach: number; stroke: number; lift: number; radius: number; handle: number; body: number; knob: number; well: number }>;
+    rod: Readonly<{
+      radius: number;
+      below: number;
+      pipe: number;
+      ring: number;
+      band: number;
+    }>;
+    bolt: Readonly<{
+      reach: number;
+      stroke: number;
+      lift: number;
+      radius: number;
+      handle: number;
+      body: number;
+      knob: number;
+      well: number;
+    }>;
     lever: Readonly<{
       swing: number;
       hammer: number;
@@ -47,8 +65,29 @@ export namespace LongGunLock {
     }>;
   }> = {
     rod: { radius: 0.0055, below: 0.022, pipe: 0.1, ring: 0.01, band: 0.008 },
-    bolt: { reach: 0.06, stroke: 0.09, lift: 70, radius: 0.009, handle: 0.005, body: 0.03, knob: 0.02, well: 0.02 },
-    lever: { swing: 60, hammer: 40, loop: 0.11, drop: 0.04, ahead: 0.03, depth: 0.08, radius: 0.005, rise: 0.02, back: 0.06, spur: 0.05, lean: 0.01 },
+    bolt: {
+      reach: 0.06,
+      stroke: 0.09,
+      lift: 70,
+      radius: 0.009,
+      handle: 0.005,
+      body: 0.03,
+      knob: 0.02,
+      well: 0.02,
+    },
+    lever: {
+      swing: 60,
+      hammer: 40,
+      loop: 0.11,
+      drop: 0.04,
+      ahead: 0.03,
+      depth: 0.08,
+      radius: 0.005,
+      rise: 0.02,
+      back: 0.06,
+      spur: 0.05,
+      lean: 0.01,
+    },
   };
 
   /**
@@ -71,12 +110,22 @@ export namespace LongGunLock {
     const steel: { color: string } = { color: "#2c2f33" };
     const length: number = d.length!;
     const breech: number = length - d.barrel!;
-    FlintLock.lay(builder, v(0, 0, breech), { cock: "cock", frizzen: "frizzen", pan: "pan" });
+    FlintLock.lay(builder, v(0, 0, breech), {
+      cock: "cock",
+      frizzen: "frizzen",
+      pan: "pan",
+    });
 
     // The ramrod under the barrel, the barrel's length, its head at the muzzle; its pipes along the fore-end.
     const rod: number = d.barrel!;
     const below: number = -e.rod.below;
-    builder.rod("ramrod", e.rod.radius, v(0, below, length - rod), v(0, below, length), steel);
+    builder.rod(
+      "ramrod",
+      e.rod.radius,
+      v(0, below, length - rod),
+      v(0, below, length),
+      steel,
+    );
     const front: number = length - e.rod.pipe;
     for (let k: number = 0; k < PIPES; k++)
       builder.rod(
@@ -92,7 +141,11 @@ export namespace LongGunLock {
     builder.affordance({
       id: "ramrod",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, below, length), v(0, -1, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, below, length),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: mouth - (length - rod),
       parts: ["ramrod"],
@@ -133,7 +186,13 @@ export namespace LongGunLock {
     const tail: number = breech - e.bolt.stroke - e.bolt.body;
     const knob: number = tail + e.bolt.knob;
     builder.rod("bolt", e.bolt.radius, v(0, 0, tail), v(0, 0, breech), steel);
-    builder.rod("bolt-handle", e.bolt.handle, v(0, 0, knob), v(-e.bolt.reach, 0, knob), steel);
+    builder.rod(
+      "bolt-handle",
+      e.bolt.handle,
+      v(0, 0, knob),
+      v(-e.bolt.reach, 0, knob),
+      steel,
+    );
     builder.affordance({
       id: "bolt",
       kind: "hinge",
@@ -144,7 +203,11 @@ export namespace LongGunLock {
     builder.affordance({
       id: "boltSlide",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(-e.bolt.reach, 0, knob), v(0, 1, 0), v(0, 0, -1)),
+      frame: ArchetypeFrame.facing(
+        v(-e.bolt.reach, 0, knob),
+        v(0, 1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       travel: e.bolt.stroke,
       parts: ["bolt", "bolt-handle"],
@@ -153,7 +216,11 @@ export namespace LongGunLock {
     builder.affordance({
       id: "magazine",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, e.bolt.well, breech - e.bolt.stroke / 2), v(0, 1, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, e.bolt.well, breech - e.bolt.stroke / 2),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
   }
@@ -179,9 +246,21 @@ export namespace LongGunLock {
     const pull: number = d.lengthOfPull!;
     const breech: number = d.length! - d.barrel!;
     const pivot: IAutoMovieVector3 = v(0, -e.lever.drop, pull + e.lever.ahead);
-    builder.rod("lever", e.lever.radius, pivot, v(0, -e.lever.depth, pivot.z - e.lever.loop), steel);
+    builder.rod(
+      "lever",
+      e.lever.radius,
+      pivot,
+      v(0, -e.lever.depth, pivot.z - e.lever.loop),
+      steel,
+    );
     const hammer: IAutoMovieVector3 = v(0, e.lever.rise, breech - e.lever.back);
-    builder.rod("hammer", e.lever.radius, hammer, v(0, e.lever.spur, hammer.z + e.lever.lean), steel);
+    builder.rod(
+      "hammer",
+      e.lever.radius,
+      hammer,
+      v(0, e.lever.spur, hammer.z + e.lever.lean),
+      steel,
+    );
     builder.affordance({
       id: "lever",
       kind: "hinge",

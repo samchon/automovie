@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HorseHarness } from "../animals/HorseHarness";
 import { createHorse } from "../animals/createHorse";
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
@@ -135,7 +135,8 @@ export namespace CartDrawn {
     );
 
     // The driving lines' held runs: each line's length behind its terret, IVC's 14 ft single-horse lines less their run from the bit through the ring to the terret, laid from the terret toward the line's rest point over the seat. The driving act's hands choose where along it they hold.
-    const pass: ReturnType<typeof HorseHarness.passes> = HorseHarness.passes(horse);
+    const pass: ReturnType<typeof HorseHarness.passes> =
+      HorseHarness.passes(horse);
     const ahead: number = coupling - horse.hitch.z;
     const used: number =
       Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +

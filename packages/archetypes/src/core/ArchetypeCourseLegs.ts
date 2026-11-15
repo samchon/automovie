@@ -171,8 +171,7 @@ export namespace ArchetypeCourseLegs {
             ? Math.sqrt(
                 Math.max(
                   0,
-                  from * from -
-                    2 * rate("deceleration", from, value) * span,
+                  from * from - 2 * rate("deceleration", from, value) * span,
                 ),
               )
             : from,
@@ -250,7 +249,12 @@ export namespace ArchetypeCourseLegs {
           before === 0 && mark === 0 ? course.cruise : Math.max(before, mark);
         reach(before, row.span, `speeds[${index}]`, mark, cap);
         legStretch.push(stretches.length);
-        stretches.push({ kind: "distance", length: row.span, speed: mark, cap });
+        stretches.push({
+          kind: "distance",
+          length: row.span,
+          speed: mark,
+          cap,
+        });
         const pause: number | undefined = row.leg.pause;
         if (pause !== undefined) {
           if (!(Number.isFinite(pause) && pause > 0))

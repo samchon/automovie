@@ -156,7 +156,12 @@ export namespace QuadrupedBody {
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
-    tail: Readonly<{ radius: number; drop: number; back: number; dock: number }>;
+    tail: Readonly<{
+      radius: number;
+      drop: number;
+      back: number;
+      dock: number;
+    }>;
 
     /** Each limb bone's radius, from the top down, as a fraction of the height at the withers. */
     bones: readonly [number, number, number, number];
@@ -252,8 +257,11 @@ export namespace QuadrupedBody {
       const lengths: readonly number[] = fore
         ? body.lengths.fore
         : body.lengths.hind;
-      const angles: readonly number[] = fore ? body.stance.fore : body.stance.hind;
-      const x: number = (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
+      const angles: readonly number[] = fore
+        ? body.stance.fore
+        : body.stance.hind;
+      const x: number =
+        (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
 
       // From the foot on the ground up to the top joint, then listed from the top down.
       let y: number = 0;
@@ -360,7 +368,8 @@ export namespace QuadrupedBody {
       const shape: AutoMoviePrimitiveShape | null =
         part.geometry.type === "primitive" ? part.geometry.shape : null;
       const half: number =
-        shape !== null && (shape.type === "cylinder" || shape.type === "capsule")
+        shape !== null &&
+        (shape.type === "cylinder" || shape.type === "capsule")
           ? shape.height / 2
           : 0;
       const along: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -374,13 +383,16 @@ export namespace QuadrupedBody {
     };
     const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
     for (const limb of LIMBS) {
-      const bones: readonly (readonly [IAutoMovieVector3, IAutoMovieVector3])[] =
-        BONES[limb].map(ends);
+      const bones: readonly (readonly [
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+      ])[] = BONES[limb].map(ends);
       limbs[limb] = [
         bones[0]![0],
         ...bones.map(
-          (b: readonly [IAutoMovieVector3, IAutoMovieVector3]): IAutoMovieVector3 =>
-            b[1],
+          (
+            b: readonly [IAutoMovieVector3, IAutoMovieVector3],
+          ): IAutoMovieVector3 => b[1],
         ),
       ];
     }
@@ -425,7 +437,11 @@ export namespace QuadrupedBody {
         share.neck +
         share.head +
         share.tail +
-        2 * [...share.fore, ...share.hind].reduce((a: number, b: number): number => a + b, 0));
+        2 *
+          [...share.fore, ...share.hind].reduce(
+            (a: number, b: number): number => a + b,
+            0,
+          ));
 
     // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, the torso's share shared between them by volume.
     const back: number = rig.back;
@@ -441,12 +457,14 @@ export namespace QuadrupedBody {
     builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
       color: coat,
       round: true,
-      share: (scale * share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
+      share:
+        (scale * share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
     });
     builder.rod("hindquarters", barrel, rear, quarters, {
       color: coat,
       round: true,
-      share: (scale * share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
+      share:
+        (scale * share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
     });
     builder.ball(
       "withers",

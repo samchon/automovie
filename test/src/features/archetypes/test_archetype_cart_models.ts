@@ -7,12 +7,16 @@ import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 const IN: number = 0.0254;
 
 /** A cart's built figures for some dimensions, in order. */
-const figures = (
-  params: createCart.IParams,
-  names: readonly createCart.Dimension[],
-): ((seed: number) => number[]) =>
+const figures =
+  (
+    params: createCart.IParams,
+    names: readonly createCart.Dimension[],
+  ): ((seed: number) => number[]) =>
   (seed: number): number[] =>
-    names.map((n: createCart.Dimension): number => createCart(params, seed).dimensions[n]!);
+    names.map(
+      (n: createCart.Dimension): number =>
+        createCart(params, seed).dimensions[n]!,
+    );
 
 /** The refusal a call throws, or null. */
 const refusal = (call: () => unknown): ArchetypeRefusal | null => {
@@ -54,11 +58,15 @@ export function test_archetype_cart_models(): void {
         name: "cart",
         measure: figures({ kind: "cart" }, ["wheelDiameter"]),
         models: [[43 * IN], [53 * IN]],
-        source: "the multi-use cart's seller and the Carriage Foundation's Dennett gig",
+        source:
+          "the multi-use cart's seller and the Carriage Foundation's Dennett gig",
       },
       {
         name: "cart shafts",
-        measure: figures({ kind: "cart", model: "multiUse" }, ["shaftLength", "track"]),
+        measure: figures({ kind: "cart", model: "multiUse" }, [
+          "shaftLength",
+          "track",
+        ]),
         models: [
           [89.5 * IN, 57 * IN],
           [93.5 * IN, 57 * IN],
@@ -83,7 +91,13 @@ export function test_archetype_cart_models(): void {
       },
       {
         name: "carriage",
-        measure: figures({ kind: "carriage" }, ["height", "width", "length", "frontWheelDiameter", "wheelDiameter"]),
+        measure: figures({ kind: "carriage" }, [
+          "height",
+          "width",
+          "length",
+          "frontWheelDiameter",
+          "wheelDiameter",
+        ]),
         models: [
           [78.5 * IN, 68 * IN, 145.5 * IN, 36.5 * IN, 48.25 * IN],
           [79 * IN, 69 * IN, 153 * IN, 42 * IN, 50 * IN],
@@ -99,25 +113,40 @@ export function test_archetype_cart_models(): void {
   for (let seed: number = 0; seed < archetypeModelSweep.SEEDS; seed++) {
     const gig: Readonly<Partial<Record<createCart.Dimension, number>>> =
       createCart({ kind: "cart", model: "dennettGig" }, seed).dimensions;
-    const clearance: number = gig.shaftLength! - (185 / 172) * gig.withersHeight!;
+    const clearance: number =
+      gig.shaftLength! - (185 / 172) * gig.withersHeight!;
     if (!(clearance >= 8 * IN - 1e-9 && clearance <= 20 * IN + 1e-9))
-      findings.push(`gig@${seed}: the single tree stands ${clearance} m behind the point of buttock`);
+      findings.push(
+        `gig@${seed}: the single tree stands ${clearance} m behind the point of buttock`,
+      );
     if (Math.abs(clearance - gig.clearance!) > 1e-9)
-      findings.push(`gig@${seed}: the shafts are not the horse's length and the drawn clearance`);
-    const multi: number = createCart({ kind: "cart", model: "multiUse" }, seed).dimensions.withersHeight!;
+      findings.push(
+        `gig@${seed}: the shafts are not the horse's length and the drawn clearance`,
+      );
+    const multi: number = createCart({ kind: "cart", model: "multiUse" }, seed)
+      .dimensions.withersHeight!;
     if (!(multi >= 1.58 && multi <= 67 * IN))
-      findings.push(`multi-use@${seed}: drawn for a horse ${multi} m at the withers`);
-    const tall: number = createCart({ kind: "cart", withersHeight: 1.75 }, seed).dimensions.wheelDiameter!;
+      findings.push(
+        `multi-use@${seed}: drawn for a horse ${multi} m at the withers`,
+      );
+    const tall: number = createCart({ kind: "cart", withersHeight: 1.75 }, seed)
+      .dimensions.wheelDiameter!;
     if (Math.abs(tall - 53 * IN) > 1e-9)
-      findings.push(`cart@${seed}: a 1.75 m horse drew a cart on ${tall} m wheels, not the gig`);
+      findings.push(
+        `cart@${seed}: a 1.75 m horse drew a cart on ${tall} m wheels, not the gig`,
+      );
   }
   TestValidator.equals("a cart's shafts and horse fit", findings, []);
 
   TestValidator.equals(
     "a read figure and a missing axis are refused",
     [
-      refusal((): unknown => createCart({ kind: "cart", model: "multiUse", shaftLength: 2.3 }, 1))?.axis,
-      refusal((): unknown => createCart({ kind: "trolley", model: "brewster" }, 1))?.axis,
+      refusal((): unknown =>
+        createCart({ kind: "cart", model: "multiUse", shaftLength: 2.3 }, 1),
+      )?.axis,
+      refusal((): unknown =>
+        createCart({ kind: "trolley", model: "brewster" }, 1),
+      )?.axis,
     ],
     ["shaftLength", "model"],
   );

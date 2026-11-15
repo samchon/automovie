@@ -23,24 +23,39 @@ export function test_archetype_weapon_revolver_cylinder(): void {
   const findings: string[] = [];
   for (const model of ["saa75", "vaquero5104"] as const)
     for (const seed of [0, 3, 7, 12]) {
-      const revolver: Archetype<createHandgun.Affordance, createHandgun.Dimension> = createHandgun({ frame: "revolver", model }, seed);
+      const revolver: Archetype<
+        createHandgun.Affordance,
+        createHandgun.Dimension
+      > = createHandgun({ frame: "revolver", model }, seed);
       const label: string = `${model}@${seed}`;
       const full: number = revolver.affordance("hammer").travel!;
       for (const [share, expected] of [
         [1, 360 / CHAMBERS],
         [0.5, 180 / CHAMBERS],
       ] as const) {
-        const cocked: Archetype<createHandgun.Affordance, createHandgun.Dimension> = revolver.articulate({ hammer: full * share });
+        const cocked: Archetype<
+          createHandgun.Affordance,
+          createHandgun.Dimension
+        > = revolver.articulate({ hammer: full * share });
         if (Math.abs(cocked.travel("cylinder") - expected) > 1e-9)
-          findings.push(`${label}: at ${share} of a cock the cylinder turns ${cocked.travel("cylinder")}, not ${expected}`);
-        if (!validateModel({ model: cocked }).success) findings.push(`${label}: the cocked pose is refused`);
+          findings.push(
+            `${label}: at ${share} of a cock the cylinder turns ${cocked.travel("cylinder")}, not ${expected}`,
+          );
+        if (!validateModel({ model: cocked }).success)
+          findings.push(`${label}: the cocked pose is refused`);
       }
       const chambers: number = revolver.affordances.filter(
-        (a: { id: string; kind: string; rides?: string }): boolean => a.id.startsWith("chamber") && a.kind === "socket" && a.rides === "cylinder",
+        (a: { id: string; kind: string; rides?: string }): boolean =>
+          a.id.startsWith("chamber") &&
+          a.kind === "socket" &&
+          a.rides === "cylinder",
       ).length;
-      if (chambers !== CHAMBERS) findings.push(`${label}: ${chambers} chambers ride the cylinder`);
-      const open: Archetype<createHandgun.Affordance, createHandgun.Dimension> = revolver.articulate({ gate: revolver.affordance("gate").travel! });
-      if (!validateModel({ model: open }).success) findings.push(`${label}: the open gate is refused`);
+      if (chambers !== CHAMBERS)
+        findings.push(`${label}: ${chambers} chambers ride the cylinder`);
+      const open: Archetype<createHandgun.Affordance, createHandgun.Dimension> =
+        revolver.articulate({ gate: revolver.affordance("gate").travel! });
+      if (!validateModel({ model: open }).success)
+        findings.push(`${label}: the open gate is refused`);
     }
   TestValidator.equals("a revolver turns one chamber per cock", findings, []);
 }

@@ -41,7 +41,9 @@ export function test_archetype_track_ease(): void {
       `the ends hold ${closing.travel(0)} and ${closing.travel(START + SECONDS + 1)} degrees`,
     );
   if (Math.abs(closing.travel(START + SECONDS / 2) - open / 2) > 1e-9)
-    findings.push(`halfway the cover is at ${closing.travel(START + SECONDS / 2)} degrees`);
+    findings.push(
+      `halfway the cover is at ${closing.travel(START + SECONDS / 2)} degrees`,
+    );
   for (let t: number = START; t < START + SECONDS; t += 0.01)
     if (closing.travel(t + 0.01) > closing.travel(t))
       findings.push(`the cover turns back at ${t} s`);

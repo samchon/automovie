@@ -76,7 +76,10 @@ export namespace HorseHarness {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the collar's round, read by `lay` for its segments and by `passes` for the neck strap's foot.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chest(rig: createHorse.IRig, angle: number): IAutoMovieVector3 {
+  export function chest(
+    rig: createHorse.IRig,
+    angle: number,
+  ): IAutoMovieVector3 {
     return Vector3.create(
       rig.draft.x * Math.cos(angle),
       rig.draft.y,
@@ -107,13 +110,20 @@ export namespace HorseHarness {
   }> {
     const r: number = ESTIMATES.strap;
     const foot: IAutoMovieVector3 = chest(rig, Math.PI / 3);
-    const crest: IAutoMovieVector3 = Vector3.add(rig.crest, Vector3.create(0, r, 0));
+    const crest: IAutoMovieVector3 = Vector3.add(
+      rig.crest,
+      Vector3.create(0, r, 0),
+    );
     return {
       bit: Vector3.create(rig.headRadius + r, rig.mouth.y, rig.mouth.z),
       foot,
       crest,
       ring: Vector3.scale(Vector3.add(foot, crest), 0.5),
-      terret: Vector3.create(ESTIMATES.terret.x, rig.back + ESTIMATES.terret.rise, rig.hitch.z),
+      terret: Vector3.create(
+        ESTIMATES.terret.x,
+        rig.back + ESTIMATES.terret.rise,
+        rig.hitch.z,
+      ),
     };
   }
 
@@ -176,11 +186,20 @@ export namespace HorseHarness {
       );
       builder.ball(ENDS.draft[side], e.ring, mirror(draft, sign), metal);
     }
-    rods("collar", arc((angle: number): IAutoMovieVector3 => chest(rig, angle), 0, Math.PI));
+    rods(
+      "collar",
+      arc((angle: number): IAutoMovieVector3 => chest(rig, angle), 0, Math.PI),
+    );
 
     // The neck strap: from the collar's front up over the neck just ahead of the withers, a ring on each side carrying a driving line.
     for (const [side, sign] of SIDES) {
-      builder.rod(`neck-strap-${side}`, r, mirror(pass.foot, sign), pass.crest, strap);
+      builder.rod(
+        `neck-strap-${side}`,
+        r,
+        mirror(pass.foot, sign),
+        pass.crest,
+        strap,
+      );
       builder.ball(ENDS.ring[side], e.ring, mirror(pass.ring, sign), metal);
     }
 
@@ -194,10 +213,15 @@ export namespace HorseHarness {
     );
     for (const [side, sign] of SIDES) {
       builder.ball(ENDS.terret[side], e.ring, mirror(pass.terret, sign), metal);
-      builder.ball(`tug-${side}`, 2 * e.ring, v(sign * (barrel + r), axis, saddle), {
-        color: LEATHER,
-        share: 0,
-      });
+      builder.ball(
+        `tug-${side}`,
+        2 * e.ring,
+        v(sign * (barrel + r), axis, saddle),
+        {
+          color: LEATHER,
+          share: 0,
+        },
+      );
     }
     const girth = (angle: number): IAutoMovieVector3 =>
       v(
@@ -223,7 +247,10 @@ export namespace HorseHarness {
       croup,
       Vector3.add(
         quarters,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(rig.dock, quarters)), barrel + r),
+        Vector3.scale(
+          Vector3.normalize(Vector3.subtract(rig.dock, quarters)),
+          barrel + r,
+        ),
       ),
       strap,
     );
@@ -263,7 +290,11 @@ export namespace HorseHarness {
     const head: number = rig.headRadius;
     const crown: IAutoMovieVector3 = v(0, rig.poll.y + head + r, rig.poll.z);
     for (const [side, sign] of SIDES) {
-      const top: IAutoMovieVector3 = v(sign * (head + r), rig.poll.y, rig.poll.z);
+      const top: IAutoMovieVector3 = v(
+        sign * (head + r),
+        rig.poll.y,
+        rig.poll.z,
+      );
       const ring: IAutoMovieVector3 = mirror(pass.bit, sign);
       builder.rod(`crown-${side}`, r, crown, top, strap);
       builder.rod(`cheek-${side}`, r, top, ring, strap);
@@ -272,7 +303,10 @@ export namespace HorseHarness {
         `blinker-${side}`,
         v(0.01, e.blinker.height, e.blinker.length),
         Vector3.add(
-          Vector3.add(top, Vector3.scale(Vector3.subtract(ring, top), e.blinker.along)),
+          Vector3.add(
+            top,
+            Vector3.scale(Vector3.subtract(ring, top), e.blinker.along),
+          ),
           v(sign * r, 0, 0),
         ),
         { color: LEATHER, share: 0 },

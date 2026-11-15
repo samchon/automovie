@@ -29,7 +29,8 @@ export function test_archetype_weapon_crossbow_span(): void {
   const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const centre: IAutoMovieVector3 = bow.affordance("upperLimb").frame.translation;
+  const centre: IAutoMovieVector3 =
+    bow.affordance("upperLimb").frame.translation;
   const reach: Record<string, number> = {
     "string-upper": distance(bow.span("string-upper").from, centre),
     "string-lower": distance(bow.span("string-lower").from, centre),
@@ -41,8 +42,11 @@ export function test_archetype_weapon_crossbow_span(): void {
     });
     const travel: number = spanned.travel("string");
     if (Math.abs(travel - turned * ratio) > 1e-12)
-      findings.push(`at ${turned} degrees the string is ${travel} m back, ${turned * ratio} m expected`);
-    const nock: IAutoMovieVector3 = spanned.affordance("nock").frame.translation;
+      findings.push(
+        `at ${turned} degrees the string is ${travel} m back, ${turned * ratio} m expected`,
+      );
+    const nock: IAutoMovieVector3 =
+      spanned.affordance("nock").frame.translation;
     if (
       Math.hypot(nock.x - braced.x, nock.y - braced.y) > 1e-4 ||
       Math.abs(braced.z - nock.z - travel) > 1e-4
@@ -57,9 +61,17 @@ export function test_archetype_weapon_crossbow_span(): void {
         findings.push(`at ${turned} degrees the tip of ${half} leaves its arc`);
     }
   }
-  if (Math.abs(bow.articulate({ crank: full }).travel("string") - 5.5 * ArchetypeUnits.INCH) > 1e-12)
+  if (
+    Math.abs(
+      bow.articulate({ crank: full }).travel("string") -
+        5.5 * ArchetypeUnits.INCH,
+    ) > 1e-12
+  )
     findings.push("the full count does not span the string its 5½ in");
-  if (Math.abs(bow.affordance("trigger").travel! - 0.125 * ArchetypeUnits.INCH) > 1e-12)
+  if (
+    Math.abs(bow.affordance("trigger").travel! - 0.125 * ArchetypeUnits.INCH) >
+    1e-12
+  )
     findings.push(`the trigger travels ${bow.affordance("trigger").travel} m`);
   let refused: boolean = false;
   try {

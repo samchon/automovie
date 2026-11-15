@@ -79,8 +79,8 @@ import {
   createPell,
   createPlyoBox,
   createPolearm,
-  createPoolEdge,
   createPony,
+  createPoolEdge,
   createPram,
   createProjectile,
   createPullUpBar,
@@ -95,9 +95,9 @@ import {
   createSaloonDoor,
   createSanitary,
   createSeat,
-  createShowcase,
   createShield,
   createShot,
+  createShowcase,
   createSkateboard,
   createSki,
   createSled,
@@ -360,7 +360,8 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   );
   add(
     "cellFront",
-    (seed?: number | string): Archetype => createCellFront(createCellFront.REFERENCE, seed),
+    (seed?: number | string): Archetype =>
+      createCellFront(createCellFront.REFERENCE, seed),
   );
   add(
     "elevator",

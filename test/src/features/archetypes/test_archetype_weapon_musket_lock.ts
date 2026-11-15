@@ -23,38 +23,67 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 export function test_archetype_weapon_musket_lock(): void {
   const findings: string[] = [];
   for (const seed of [0, 3, 7, 12]) {
-    const musket: Archetype<createLongGun.Affordance, createLongGun.Dimension> = createLongGun({ kind: "musket" }, seed);
+    const musket: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+      createLongGun({ kind: "musket" }, seed);
     const label: string = `musket@${seed}`;
     const cock: number = musket.affordance("cock").travel!;
     const frizzen: number = musket.affordance("frizzen").travel!;
     const draw: number = musket.affordance("ramrod").travel!;
-    const poses: Readonly<Record<string, Partial<Record<createLongGun.Affordance, number>>>> = {
+    const poses: Readonly<
+      Record<string, Partial<Record<createLongGun.Affordance, number>>>
+    > = {
       half: { cock: cock / 2 },
       full: { cock },
       open: { frizzen },
       drawn: { ramrod: draw },
     };
     for (const [name, state] of Object.entries(poses)) {
-      const posed: Archetype<createLongGun.Affordance, createLongGun.Dimension> = musket.articulate(state);
-      if (!validateModel({ model: posed }).success) findings.push(`${label}: the ${name} pose is refused`);
+      const posed: Archetype<
+        createLongGun.Affordance,
+        createLongGun.Dimension
+      > = musket.articulate(state);
+      if (!validateModel({ model: posed }).success)
+        findings.push(`${label}: the ${name} pose is refused`);
     }
-    const rest = (part: string): number => archetypeExtent(musket, "z", [part]).low;
-    if (archetypeExtent(musket.articulate({ cock }), "z", ["cock"]).high >= archetypeExtent(musket, "z", ["cock"]).high)
+    const rest = (part: string): number =>
+      archetypeExtent(musket, "z", [part]).low;
+    if (
+      archetypeExtent(musket.articulate({ cock }), "z", ["cock"]).high >=
+      archetypeExtent(musket, "z", ["cock"]).high
+    )
       findings.push(`${label}: the cock does not come back at full cock`);
-    if (archetypeExtent(musket.articulate({ frizzen }), "z", ["frizzen"]).high <= archetypeExtent(musket, "z", ["frizzen"]).high)
+    if (
+      archetypeExtent(musket.articulate({ frizzen }), "z", ["frizzen"]).high <=
+      archetypeExtent(musket, "z", ["frizzen"]).high
+    )
       findings.push(`${label}: the frizzen does not open forward`);
 
     const length: number = musket.dimensions.length!;
     const barrel: number = musket.dimensions.barrel!;
     const rod: number = archetypeExtent(musket, "z", ["ramrod"]).size;
-    if (Math.abs(rod - barrel) > 1e-6) findings.push(`${label}: the rod is ${rod} m, not the barrel's ${barrel} m`);
-    const drawn: Archetype<createLongGun.Affordance, createLongGun.Dimension> = musket.articulate({ ramrod: draw });
+    if (Math.abs(rod - barrel) > 1e-6)
+      findings.push(
+        `${label}: the rod is ${rod} m, not the barrel's ${barrel} m`,
+      );
+    const drawn: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+      musket.articulate({ ramrod: draw });
     const pipe: IAutoMovieVector3 = musket.affordance("pipe").frame.translation;
     const tail: number = archetypeExtent(drawn, "z", ["ramrod"]).low;
     const tip: number = archetypeExtent(drawn, "z", ["ramrod"]).high;
-    if (!(tail >= pipe.z - 1e-6)) findings.push(`${label}: the drawn rod's tail at ${tail} is still in the pipe at ${pipe.z}`);
-    if (!(tip > length && tip - length < rod)) findings.push(`${label}: the drawn rod's tip stands ${tip - length} m beyond the muzzle`);
-    if (!(rest("ramrod") < pipe.z)) findings.push(`${label}: the rod at rest is not in its pipe`);
+    if (!(tail >= pipe.z - 1e-6))
+      findings.push(
+        `${label}: the drawn rod's tail at ${tail} is still in the pipe at ${pipe.z}`,
+      );
+    if (!(tip > length && tip - length < rod))
+      findings.push(
+        `${label}: the drawn rod's tip stands ${tip - length} m beyond the muzzle`,
+      );
+    if (!(rest("ramrod") < pipe.z))
+      findings.push(`${label}: the rod at rest is not in its pipe`);
   }
-  TestValidator.equals("a musket's lock and rod move as the drill needs", findings, []);
+  TestValidator.equals(
+    "a musket's lock and rod move as the drill needs",
+    findings,
+    [],
+  );
 }

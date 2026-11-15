@@ -50,8 +50,10 @@ export function createDeck(
       seed,
       params,
     );
-  const d: Record<Exclude<createDeck.Dimension, "mass">, number> =
-    draw.dimensions(createDeck.BANDS);
+  const d: Record<
+    Exclude<createDeck.Dimension, "mass">,
+    number
+  > = draw.dimensions(createDeck.BANDS);
   const { length, beam }: createDeck.IParams = params;
   if (!(Number.isFinite(length) && length > 0))
     throw new ArchetypeRefusal({

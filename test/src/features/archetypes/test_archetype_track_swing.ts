@@ -84,10 +84,16 @@ export function test_archetype_track_swing(): void {
   const gentle: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
     body,
     "hinge",
-    { start: START, release: ArchetypeTrack.SMALL * (180 / Math.PI), seconds: 4 * small },
+    {
+      start: START,
+      release: ArchetypeTrack.SMALL * (180 / Math.PI),
+      seconds: 4 * small,
+    },
   );
   if (Math.abs(period(gentle) / small - 1) > 0.005)
-    findings.push(`released at the closed form's reach it swings at ${period(gentle)} s, ${small} s expected`);
+    findings.push(
+      `released at the closed form's reach it swings at ${period(gentle)} s, ${small} s expected`,
+    );
 
   // 2. A large release.
   const wide: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
@@ -96,7 +102,9 @@ export function test_archetype_track_swing(): void {
     { start: START, release: 90, seconds: 3 * exact(90) },
   );
   if (Math.abs(period(wide) / exact(90) - 1) > 0.005)
-    findings.push(`released 90 degrees it swings at ${period(wide)} s, ${exact(90)} s expected`);
+    findings.push(
+      `released 90 degrees it swings at ${period(wide)} s, ${exact(90)} s expected`,
+    );
   let reach: number = 0;
   for (let t: number = wide.start; t <= wide.end; t += 1e-3)
     reach = Math.max(reach, Math.abs(wide.travel(t)));
@@ -113,7 +121,9 @@ export function test_archetype_track_swing(): void {
     if (twin.travel(t) !== wide.travel(t))
       findings.push(`two tracks of one release differ at ${t} s`);
   if (wide.travel(0) !== 90)
-    findings.push(`before its release the hinge is at ${wide.travel(0)} degrees`);
+    findings.push(
+      `before its release the hinge is at ${wide.travel(0)} degrees`,
+    );
 
   // 4. A launch at the bottom.
   const thrown: ArchetypeTrack.ITrack<"hinge"> = ArchetypeTrack.swing(
@@ -148,7 +158,9 @@ export function test_archetype_track_swing(): void {
     tossed.launch === null ||
     Math.abs(tossed.launch.seconds - START - small / 4) > 1e-9
   )
-    findings.push(`the closed form's launch is ${JSON.stringify(tossed.launch)}, ${small / 4} s after the release expected`);
+    findings.push(
+      `the closed form's launch is ${JSON.stringify(tossed.launch)}, ${small / 4} s after the release expected`,
+    );
 
   // 5. Refusals.
   for (const [field, make] of [

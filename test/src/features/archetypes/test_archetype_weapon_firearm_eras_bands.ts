@@ -1,11 +1,19 @@
-import { type Archetype, createHandgun, createLongGun, type IArchetypeBand } from "@automovie/archetypes";
+import {
+  type Archetype,
+  type IArchetypeBand,
+  createHandgun,
+  createLongGun,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** How many seeds are swept: the 200 of the archetype campaign's acceptance law (#3365). */
 const SEEDS: number = 200;
 
 /** The contacts the firearm laws read on every gun, and the two more on a long gun. */
-const CONTACTS: Readonly<{ every: readonly string[]; long: readonly string[] }> = {
+const CONTACTS: Readonly<{
+  every: readonly string[];
+  long: readonly string[];
+}> = {
   every: ["grip", "trigger", "muzzle", "sight"],
   long: ["foreEnd", "butt"],
 };
@@ -34,23 +42,50 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
     for (let seed: number = 0; seed < SEEDS; seed++) {
       const gun: Archetype<string, Dimension> = make(seed);
       const d: Readonly<Partial<Record<Dimension, number>>> = gun.dimensions;
-      for (const [name, band] of Object.entries(gun.provenance.bands) as [Dimension, IArchetypeBand][]) {
+      for (const [name, band] of Object.entries(gun.provenance.bands) as [
+        Dimension,
+        IArchetypeBand,
+      ][]) {
         const value: number = d[name]!;
         if (!(value >= band.minimum - 1e-12 && value <= band.maximum + 1e-12))
-          findings.push(`${label}@${seed}: ${name} ${value} outside ${band.minimum} to ${band.maximum}`);
+          findings.push(
+            `${label}@${seed}: ${name} ${value} outside ${band.minimum} to ${band.maximum}`,
+          );
       }
-      const lock: IArchetypeBand | undefined = (gun.provenance.bands as Readonly<Record<string, IArchetypeBand>>)["lockTime"];
-      if (lock !== undefined && lock.provisional !== true) findings.push(`${label}@${seed}: its lock time is not marked provisional`);
+      const lock: IArchetypeBand | undefined = (
+        gun.provenance.bands as Readonly<Record<string, IArchetypeBand>>
+      )["lockTime"];
+      if (lock !== undefined && lock.provisional !== true)
+        findings.push(
+          `${label}@${seed}: its lock time is not marked provisional`,
+        );
       for (const name of ["muzzleVelocity", "lockTime"])
-        if ((d as Readonly<Record<string, number>>)[name] === undefined) findings.push(`${label}@${seed}: no ${name}`);
-      const ids: readonly string[] = gun.affordances.map((a: { id: string }): string => a.id);
+        if ((d as Readonly<Record<string, number>>)[name] === undefined)
+          findings.push(`${label}@${seed}: no ${name}`);
+      const ids: readonly string[] = gun.affordances.map(
+        (a: { id: string }): string => a.id,
+      );
       for (const id of [...CONTACTS.every, ...(long ? CONTACTS.long : [])])
         if (!ids.includes(id)) findings.push(`${label}@${seed}: no ${id}`);
     }
   };
   for (const kind of ["musket", "rifle", "leverAction"] as const)
-    sweep(kind, (seed: number): Archetype<string, createLongGun.Dimension> => createLongGun({ kind }, seed), true);
+    sweep(
+      kind,
+      (seed: number): Archetype<string, createLongGun.Dimension> =>
+        createLongGun({ kind }, seed),
+      true,
+    );
   for (const frame of ["revolver", "flintlock"] as const)
-    sweep(frame, (seed: number): Archetype<string, createHandgun.Dimension> => createHandgun({ frame }, seed), false);
-  TestValidator.equals("the period and repeating firearms stay in their bands", findings, []);
+    sweep(
+      frame,
+      (seed: number): Archetype<string, createHandgun.Dimension> =>
+        createHandgun({ frame }, seed),
+      false,
+    );
+  TestValidator.equals(
+    "the period and repeating firearms stay in their bands",
+    findings,
+    [],
+  );
 }

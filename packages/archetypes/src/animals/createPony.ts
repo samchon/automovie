@@ -123,7 +123,11 @@ export namespace createPony {
   ): createHorse.IProfile {
     return {
       archetype: ARCHETYPE,
-      names: { saddle: "saddle pony", harness: "driving pony", pack: "pack pony" },
+      names: {
+        saddle: "saddle pony",
+        harness: "driving pony",
+        pack: "pack pony",
+      },
       bands: BANDS,
       figures,
       girth: (): number => figures.girth!,

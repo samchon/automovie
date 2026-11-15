@@ -1,4 +1,4 @@
-import { ArchetypeUnits, ArchetypeCourse } from "@automovie/archetypes";
+import { ArchetypeCourse, ArchetypeUnits } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -274,7 +274,8 @@ function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
       const { distance, speed }: { distance: number; speed: number } =
         travelled(seconds);
       let row: IRow = rows[0]!;
-      for (const candidate of rows) if (distance >= candidate.from) row = candidate;
+      for (const candidate of rows)
+        if (distance >= candidate.from) row = candidate;
       const pose: { x: number; z: number; heading: number } = advance(
         row,
         Math.min(row.span, distance - row.from),
@@ -283,7 +284,9 @@ function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
         distance,
         speed,
         curvature:
-          row.leg.kind === "turn" ? Math.sign(row.leg.angle) / row.leg.radius : 0,
+          row.leg.kind === "turn"
+            ? Math.sign(row.leg.angle) / row.leg.radius
+            : 0,
         x: pose.x,
         z: pose.z,
         rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, pose.heading),

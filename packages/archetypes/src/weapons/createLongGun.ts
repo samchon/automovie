@@ -243,7 +243,13 @@ export namespace createLongGun {
   export type Kind = "carbine" | "shotgun" | "musket" | "rifle" | "leverAction";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["carbine", "shotgun", "musket", "rifle", "leverAction"];
+  export const KINDS: readonly Kind[] = [
+    "carbine",
+    "shotgun",
+    "musket",
+    "rifle",
+    "leverAction",
+  ];
 
   /** Each kind's model name. */
   export const NAMES: Readonly<Record<Kind, string>> = {
@@ -334,22 +340,44 @@ export namespace createLongGun {
   };
 
   /** The read models: Colt's carbines R0977HB heavy barrel, R0979 and CR6921; the Short Land musket; the M1903 and the Kar 98k. */
-  export type Model = "r0977hb" | "r0979" | "cr6921" | "shortLand" | "m1903" | "kar98k";
+  export type Model =
+    | "r0977hb"
+    | "r0979"
+    | "cr6921"
+    | "shortLand"
+    | "m1903"
+    | "kar98k";
 
   /**
    * Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); the Short Land musket's length and barrel (Museums Victoria ST 21813); the M1903's 43.46 in, 8.69 lb and 2,647 ft/s with M1 ball (TM 9-1270, 1944, par. 4, pp. 18-19, https://archive.org/download/1944TM9-1270/1944TM9-1270_djvu.txt), and the Kar 98k's 43.5 in, 23.4 in barrel, about 9 lb and about 2,800 ft/s (War Department, German Infantry Weapons, 1943, p. 23, https://archive.org/download/GermanInfantryWeapons1943/GermanInfantryWeapons1943_djvu.txt, a US assessment, not the maker's). A shotgun and a lever action have one read gun each, their bands.
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
+  > = {
     carbine: {
       r0977hb: { mass: 3.13 },
       r0979: { mass: 2.95 },
       cr6921: { mass: 2.9 },
     },
     musket: {
-      shortLand: { length: 147.3 * ArchetypeUnits.CENTIMETRE, barrel: 106.8 * ArchetypeUnits.CENTIMETRE },
+      shortLand: {
+        length: 147.3 * ArchetypeUnits.CENTIMETRE,
+        barrel: 106.8 * ArchetypeUnits.CENTIMETRE,
+      },
     },
     rifle: {
-      m1903: { length: 43.46 * ArchetypeUnits.INCH, mass: 8.69 * ArchetypeUnits.POUND, muzzleVelocity: 2647 * ArchetypeUnits.FOOT },
+      m1903: {
+        length: 43.46 * ArchetypeUnits.INCH,
+        mass: 8.69 * ArchetypeUnits.POUND,
+        muzzleVelocity: 2647 * ArchetypeUnits.FOOT,
+      },
       kar98k: {
         length: 43.5 * ArchetypeUnits.INCH,
         barrel: 23.4 * ArchetypeUnits.INCH,
@@ -409,7 +437,13 @@ export namespace createLongGun {
         2970 * ArchetypeUnits.FOOT,
         "FM 3-22.9, Rifle Marksmanship M16-/M4-Series Weapons (2008), Table 2-1, M4-series muzzle velocity 2,970 fps (https://archive.org/details/fm-3-22.9-rifle-marksmanship-m-16-m-4-series-weapons)",
       ),
-      lockTime: ArchetypeBand.of("s", LockTimes.AR15, LockTimes.AR15, "an AR-15's standard hammer's 10 ms, Geissele's Hi-Speed National Match trigger instruction sheet, p. 2, the maker's figure, its method not stated", true),
+      lockTime: ArchetypeBand.of(
+        "s",
+        LockTimes.AR15,
+        LockTimes.AR15,
+        "an AR-15's standard hammer's 10 ms, Geissele's Hi-Speed National Match trigger instruction sheet, p. 2, the maker's figure, its method not stated",
+        true,
+      ),
     },
     shotgun: {
       length: ArchetypeBand.metres(
@@ -503,11 +537,24 @@ export namespace createLongGun {
       ),
     },
     leverAction: {
-      length: ArchetypeBand.metres(38.625 * ArchetypeUnits.INCH, 38.625 * ArchetypeUnits.INCH, LEVER),
-      barrel: ArchetypeBand.metres(20.25 * ArchetypeUnits.INCH, 20.25 * ArchetypeUnits.INCH, LEVER),
+      length: ArchetypeBand.metres(
+        38.625 * ArchetypeUnits.INCH,
+        38.625 * ArchetypeUnits.INCH,
+        LEVER,
+      ),
+      barrel: ArchetypeBand.metres(
+        20.25 * ArchetypeUnits.INCH,
+        20.25 * ArchetypeUnits.INCH,
+        LEVER,
+      ),
       lengthOfPull: ArchetypeBand.metres(PULLS.lever, PULLS.lever, LEVER),
       sightHeight: BEAD,
-      mass: ArchetypeBand.of("kg", 7.5 * ArchetypeUnits.POUND, 7.5 * ArchetypeUnits.POUND, LEVER),
+      mass: ArchetypeBand.of(
+        "kg",
+        7.5 * ArchetypeUnits.POUND,
+        7.5 * ArchetypeUnits.POUND,
+        LEVER,
+      ),
       muzzleVelocity: ArchetypeBand.of(
         "m/s",
         2390 * ArchetypeUnits.FOOT,

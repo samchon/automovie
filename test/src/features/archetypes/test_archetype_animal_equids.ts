@@ -1,11 +1,20 @@
-import { ArchetypeRefusal, createHorse, createQuadruped } from "@automovie/archetypes";
+import {
+  ArchetypeRefusal,
+  createHorse,
+  createQuadruped,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** The Veracruz donkeys of López-Yáñez et al. 2025: the least and greatest height, and the mean height and thoracic perimeter, centimetres. */
-const VERACRUZ: Readonly<{ low: number; high: number; height: number; girth: number }> = {
+const VERACRUZ: Readonly<{
+  low: number;
+  high: number;
+  height: number;
+  girth: number;
+}> = {
   low: 93,
   high: 127,
   height: 112.62,
@@ -13,7 +22,10 @@ const VERACRUZ: Readonly<{ low: number; high: number; height: number; girth: num
 };
 
 /** The American Mammoth Jackstock's and the Thoroughbred's withers height and fore cannon in Brooks et al. 2010's published rows, as this campaign averaged them, centimetres. */
-const CANNONS: Readonly<{ jackstock: readonly [number, number]; thoroughbred: readonly [number, number] }> = {
+const CANNONS: Readonly<{
+  jackstock: readonly [number, number];
+  thoroughbred: readonly [number, number];
+}> = {
   jackstock: [151.1, 31.2],
   thoroughbred: [161.4, 32.9],
 };
@@ -37,7 +49,9 @@ const KUBO: number = 0.28 / 1.62;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
 export function test_archetype_animal_equids(): void {
-  const measured = (animal: ReturnType<typeof createQuadruped>): [number, number, number] => [
+  const measured = (
+    animal: ReturnType<typeof createQuadruped>,
+  ): [number, number, number] => [
     archetypeExtent(animal, "y", ["withers"]).high,
     Math.PI * archetypeExtent(animal, "x", ["trunk"]).size,
     // The animal alone: its whole less its riding saddle's 5.4 kg, Wintec's stated weight for its 500 All Purpose.
@@ -48,7 +62,8 @@ export function test_archetype_animal_equids(): void {
     archetypeModelSweep([
       {
         name: "mule",
-        measure: (seed: number): number[] => measured(createQuadruped({ kind: "mule" }, seed)),
+        measure: (seed: number): number[] =>
+          measured(createQuadruped({ kind: "mule" }, seed)),
         models: [
           [1.304, 1.4785, 275.36],
           [1.3528, 1.5258, 298.88],
@@ -66,26 +81,50 @@ export function test_archetype_animal_equids(): void {
   let low: boolean = false;
   let high: boolean = false;
   for (let seed: number = 0; seed < archetypeModelSweep.SEEDS; seed++) {
-    const donkey: ReturnType<typeof createQuadruped> = createQuadruped({ kind: "donkey" }, seed);
+    const donkey: ReturnType<typeof createQuadruped> = createQuadruped(
+      { kind: "donkey" },
+      seed,
+    );
     const [withers, round, mass]: [number, number, number] = measured(donkey);
-    if (!(withers >= VERACRUZ.low / 100 - 1e-3 && withers <= VERACRUZ.high / 100 + 1e-3))
-      findings.push(`seed ${seed}: a donkey's withers at ${withers} m lie outside the sample`);
+    if (
+      !(
+        withers >= VERACRUZ.low / 100 - 1e-3 &&
+        withers <= VERACRUZ.high / 100 + 1e-3
+      )
+    )
+      findings.push(
+        `seed ${seed}: a donkey's withers at ${withers} m lie outside the sample`,
+      );
     low ||= withers < middle;
     high ||= withers > middle;
     const height: number = donkey.dimensions.withersHeight!;
     const girth: number = (height * VERACRUZ.girth) / VERACRUZ.height;
     if (Math.abs(round - girth) > 1e-3)
-      findings.push(`seed ${seed}: a ${height} m donkey's barrel is ${round} m round, not ${girth}`);
-    const weight: number = anchor.mass * (girth / anchor.girth) ** 2 * (height / anchor.withers);
+      findings.push(
+        `seed ${seed}: a ${height} m donkey's barrel is ${round} m round, not ${girth}`,
+      );
+    const weight: number =
+      anchor.mass * (girth / anchor.girth) ** 2 * (height / anchor.withers);
     if (Math.abs(mass - weight) > 1e-6 * weight)
-      findings.push(`seed ${seed}: a ${height} m donkey weighs ${mass} kg, not ${weight}`);
-    const fraction: number = archetypeExtent(donkey, "y", ["rightForeCannon"]).size / withers;
+      findings.push(
+        `seed ${seed}: a ${height} m donkey weighs ${mass} kg, not ${weight}`,
+      );
+    const fraction: number =
+      archetypeExtent(donkey, "y", ["rightForeCannon"]).size / withers;
     const expected: number =
-      KUBO * (CANNONS.jackstock[1] / CANNONS.jackstock[0] / (CANNONS.thoroughbred[1] / CANNONS.thoroughbred[0]));
+      KUBO *
+      (CANNONS.jackstock[1] /
+        CANNONS.jackstock[0] /
+        (CANNONS.thoroughbred[1] / CANNONS.thoroughbred[0]));
     if (Math.abs(fraction - expected) > 0.0005)
-      findings.push(`seed ${seed}: a donkey's fore cannon is ${fraction} of its height, not ${expected}`);
+      findings.push(
+        `seed ${seed}: a donkey's fore cannon is ${fraction} of its height, not ${expected}`,
+      );
   }
-  if (!(low && high)) findings.push("the donkeys do not reach both halves of the sample's heights");
+  if (!(low && high))
+    findings.push(
+      "the donkeys do not reach both halves of the sample's heights",
+    );
 
   let refused: unknown = null;
   try {
@@ -93,7 +132,11 @@ export function test_archetype_animal_equids(): void {
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight"))
-    findings.push("a fixed height at the withers, a mule sex's own figure, is not refused");
+  if (
+    !(refused instanceof ArchetypeRefusal && refused.axis === "withersHeight")
+  )
+    findings.push(
+      "a fixed height at the withers, a mule sex's own figure, is not refused",
+    );
   TestValidator.equals("a donkey's measures follow its height", findings, []);
 }

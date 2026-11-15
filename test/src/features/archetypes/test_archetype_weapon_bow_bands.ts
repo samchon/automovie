@@ -1,4 +1,9 @@
-import { ArchetypeUnits, ArchetypeCourse, ArchetypeFrame, createBow } from "@automovie/archetypes";
+import {
+  ArchetypeCourse,
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createBow,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -65,7 +70,12 @@ export function test_archetype_weapon_bow_bands(): void {
       0.04,
       (s: number): number => horse(s).affordance("grip").aperture!,
     ),
-    row("horse bow mass", 0.315, 0.33, (s: number): number => horse(s).body.mass),
+    row(
+      "horse bow mass",
+      0.315,
+      0.33,
+      (s: number): number => horse(s).body.mass,
+    ),
     row(
       "horse bow draw",
       15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
@@ -84,7 +94,8 @@ export function test_archetype_weapon_bow_bands(): void {
       "recurve length",
       68 * ArchetypeUnits.INCH,
       70 * ArchetypeUnits.INCH,
-      (s: number): number => archetypeExtent(recurve(s), "y", STRING_PARTS).size,
+      (s: number): number =>
+        archetypeExtent(recurve(s), "y", STRING_PARTS).size,
     ),
     row(
       "recurve grip",
@@ -92,7 +103,12 @@ export function test_archetype_weapon_bow_bands(): void {
       0.04,
       (s: number): number => recurve(s).affordance("grip").aperture!,
     ),
-    row("recurve mass", 1.133, 1.338, (s: number): number => recurve(s).body.mass),
+    row(
+      "recurve mass",
+      1.133,
+      1.338,
+      (s: number): number => recurve(s).body.mass,
+    ),
     row(
       "recurve draw",
       49 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,

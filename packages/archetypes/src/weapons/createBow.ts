@@ -80,7 +80,11 @@ export function createBow(
   const model: {
     name: createBow.Model | undefined;
     figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
-  } = draw.model<createBow.Model>("model", params.model, createBow.MODELS[kind]);
+  } = draw.model<createBow.Model>(
+    "model",
+    params.model,
+    createBow.MODELS[kind],
+  );
   const weight: {
     figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
   } = draw.model<createBow.Weight>(
@@ -88,10 +92,11 @@ export function createBow(
     params.weight,
     createBow.WEIGHTS[kind],
   );
-  const bands: Readonly<Partial<Record<createBow.Dimension, IArchetypeBand>>> = {
-    ...createBow.BANDS[kind],
-    ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
-  };
+  const bands: Readonly<Partial<Record<createBow.Dimension, IArchetypeBand>>> =
+    {
+      ...createBow.BANDS[kind],
+      ...(model.name === undefined ? {} : createBow.BRACES[model.name]),
+    };
   const d: Partial<Record<createBow.Dimension, number>> = {
     ...draw.dimensions(bands, createBow.BANDS),
     ...model.figures,
@@ -151,11 +156,7 @@ export function createBow(
   });
 
   // Each limb turns about the grip's sideways axis, the upper's positive turn and the lower's bringing its tip back toward the string, by the table that keeps the tip the string's half length from the nocking point.
-  const table: [number, number][] = createBow.limbs(
-    length / 2,
-    string,
-    travel,
-  );
+  const table: [number, number][] = createBow.limbs(length / 2, string, travel);
   for (const [id, sign] of [
     ["upperLimb", 1],
     ["lowerLimb", -1],
@@ -567,9 +568,9 @@ export namespace createBow {
         ? KOOI.straight
         : KOOI.recurve;
     const share: number = Math.max(0, Math.min(1, travel / stroke));
-    const stored: number =
-      q * bow.dimensions.draw! * stroke * share ** (1 / q);
-    const virtual: number = (KOOI.arrow * (1 - KOOI.efficiency)) / KOOI.efficiency;
+    const stored: number = q * bow.dimensions.draw! * stroke * share ** (1 / q);
+    const virtual: number =
+      (KOOI.arrow * (1 - KOOI.efficiency)) / KOOI.efficiency;
     return Math.sqrt((2 * stored) / (mass + virtual));
   }
 }

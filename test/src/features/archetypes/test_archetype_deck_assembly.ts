@@ -83,7 +83,8 @@ export function test_archetype_deck_assembly(): void {
     if (
       posts.length < 2 ||
       Math.abs(posts[0]!.transform!.translation.z + length / 2) > EPSILON ||
-      Math.abs(posts[posts.length - 1]!.transform!.translation.z - length / 2) > EPSILON
+      Math.abs(posts[posts.length - 1]!.transform!.translation.z - length / 2) >
+        EPSILON
     )
       findings.push(`the ${side} stanchions do not run from end to end`);
     for (let k: number = 1; k < posts.length; k++) {
@@ -91,7 +92,9 @@ export function test_archetype_deck_assembly(): void {
         posts[k]!.transform!.translation.z -
         posts[k - 1]!.transform!.translation.z;
       if (gap > ISO.spacing + EPSILON)
-        findings.push(`the ${side} stanchions ${k - 1} and ${k} stand ${gap} m apart`);
+        findings.push(
+          `the ${side} stanchions ${k - 1} and ${k} stand ${gap} m apart`,
+        );
     }
     for (const post of posts) {
       const s: AutoMoviePrimitiveShape = shape(post);
@@ -100,45 +103,62 @@ export function test_archetype_deck_assembly(): void {
         s.width < ISO.breadth - EPSILON ||
         s.depth < ISO.thickness - EPSILON
       )
-        findings.push(`the ${side} stanchion ${post.id} is no 60 x 15 mm flat bar`);
+        findings.push(
+          `the ${side} stanchion ${post.id} is no 60 x 15 mm flat bar`,
+        );
     }
     const courses: { id: string; y: number; radius: number }[] = deck.parts
       .filter(
         (p: IAutoMovieModelPart): boolean =>
           p.id === `toprail-${side}` || p.id.startsWith(`rail-${side}-`),
       )
-      .map((p: IAutoMovieModelPart): { id: string; y: number; radius: number } => {
-        const s: AutoMoviePrimitiveShape = shape(p);
-        if (s.type !== "cylinder")
-          throw new Error(`deck course ${p.id} is not a bar`);
-        return { id: p.id, y: p.transform!.translation.y, radius: s.radius };
-      })
-      .sort(
-        (a: { y: number }, b: { y: number }): number => a.y - b.y,
-      );
-    const top: { id: string; y: number; radius: number } = courses[courses.length - 1]!;
+      .map(
+        (p: IAutoMovieModelPart): { id: string; y: number; radius: number } => {
+          const s: AutoMoviePrimitiveShape = shape(p);
+          if (s.type !== "cylinder")
+            throw new Error(`deck course ${p.id} is not a bar`);
+          return { id: p.id, y: p.transform!.translation.y, radius: s.radius };
+        },
+      )
+      .sort((a: { y: number }, b: { y: number }): number => a.y - b.y);
+    const top: { id: string; y: number; radius: number } =
+      courses[courses.length - 1]!;
     if (courses.length < ISO.courses)
       findings.push(`the ${side} guardrail has ${courses.length} courses`);
-    if (top.id !== `toprail-${side}` || top.y + top.radius < ISO.height - EPSILON)
-      findings.push(`the ${side} toprail's top stands ${top.y + top.radius} m above the deck`);
+    if (
+      top.id !== `toprail-${side}` ||
+      top.y + top.radius < ISO.height - EPSILON
+    )
+      findings.push(
+        `the ${side} toprail's top stands ${top.y + top.radius} m above the deck`,
+      );
     if (2 * top.radius < ISO.toprail - EPSILON)
       findings.push(`the ${side} toprail is ${2 * top.radius} m across`);
     if (courses[0]!.y - courses[0]!.radius > ISO.lowest + EPSILON)
-      findings.push(`the ${side} opening below the lowest course is ${courses[0]!.y - courses[0]!.radius} m`);
+      findings.push(
+        `the ${side} opening below the lowest course is ${courses[0]!.y - courses[0]!.radius} m`,
+      );
     for (let k: number = 1; k < courses.length; k++) {
       const opening: number =
-        courses[k]!.y - courses[k]!.radius - (courses[k - 1]!.y + courses[k - 1]!.radius);
+        courses[k]!.y -
+        courses[k]!.radius -
+        (courses[k - 1]!.y + courses[k - 1]!.radius);
       if (opening > ISO.opening + EPSILON)
-        findings.push(`the ${side} opening above ${courses[k - 1]!.id} is ${opening} m`);
+        findings.push(
+          `the ${side} opening above ${courses[k - 1]!.id} is ${opening} m`,
+        );
       if (2 * courses[k - 1]!.radius < ISO.rail - EPSILON)
-        findings.push(`the ${side} rail ${courses[k - 1]!.id} is ${2 * courses[k - 1]!.radius} m across`);
+        findings.push(
+          `the ${side} rail ${courses[k - 1]!.id} is ${2 * courses[k - 1]!.radius} m across`,
+        );
     }
   }
 
   // 1b. The contacts: the walking surface between the stanchions and each toprail a bar of the tube's size over the whole stretch.
   const walk: ReturnType<typeof deck.affordance> = deck.affordance("deck");
   if (
-    Math.abs(walk.width! - (createDeck.REFERENCE.beam - 2 * ISO.breadth)) > EPSILON ||
+    Math.abs(walk.width! - (createDeck.REFERENCE.beam - 2 * ISO.breadth)) >
+      EPSILON ||
     Math.abs(walk.depth! - createDeck.REFERENCE.length) > EPSILON
   )
     findings.push(`the deck surface is ${walk.width} by ${walk.depth} m`);
@@ -148,7 +168,8 @@ export function test_archetype_deck_assembly(): void {
       rail.kind !== "bar" ||
       Math.abs(rail.aperture! - ISO.toprail) > EPSILON ||
       Math.abs(rail.length! - createDeck.REFERENCE.length) > EPSILON ||
-      Math.abs(rail.frame.translation.y + rail.aperture! / 2 - ISO.height) > EPSILON
+      Math.abs(rail.frame.translation.y + rail.aperture! / 2 - ISO.height) >
+        EPSILON
     )
       findings.push(`the ${side} is not the toprail along the stretch`);
   }
@@ -170,24 +191,34 @@ export function test_archetype_deck_assembly(): void {
 
   // 3. A gun amidships, trained abeam to the left.
   type Members = {
-    deck: ArchetypeAssembly.IMember<createDeck.Affordance, createDeck.Dimension>;
+    deck: ArchetypeAssembly.IMember<
+      createDeck.Affordance,
+      createDeck.Dimension
+    >;
     gun: ArchetypeAssembly.IMember<
       createCannon.Affordance,
       createCannon.Dimension
     >;
   };
   type Id = ArchetypeAssembly.Ids<Members>;
-  const ship: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>("ship", "gun deck", {
-    deck: { archetype: deck, placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }) },
-    gun: {
-      archetype: createCannon({ kind: "fieldGun" }),
-      placement: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
-        scale: { x: 1, y: 1, z: 1 },
+  const ship: ArchetypeAssembly<Members> = ArchetypeAssembly.of<Members>(
+    "ship",
+    "gun deck",
+    {
+      deck: {
+        archetype: deck,
+        placement: ArchetypeFrame.upright({ x: 0, y: 0, z: 0 }),
+      },
+      gun: {
+        archetype: createCannon({ kind: "fieldGun" }),
+        placement: {
+          translation: { x: 0, y: 0, z: 0 },
+          rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+          scale: { x: 1, y: 1, z: 1 },
+        },
       },
     },
-  });
+  );
   if (!validateModel({ model: ship }).success)
     findings.push("the deck and its gun are not admitted");
   for (const id of ["deck/deck", "gun/muzzle"] as const)
@@ -210,7 +241,10 @@ export function test_archetype_deck_assembly(): void {
     heading: 90,
     seed: "deck",
   };
-  const still: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(ship, course);
+  const still: ArchetypeRide.IRide<Id, never> = ArchetypeRide.along(
+    ship,
+    course,
+  );
   const floating: ArchetypeRide.IRide<Id, never> = ArchetypeSea.float(
     still,
     ArchetypeSea.of(sea),
@@ -227,7 +261,9 @@ export function test_archetype_deck_assembly(): void {
   const within = (seconds: number): IAutoMovieTransform => {
     const frame: IAutoMovieTransform = floating.frame("deck/deck", seconds);
     const muzzle: IAutoMovieTransform = floating.frame("gun/muzzle", seconds);
-    const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(frame.rotation);
+    const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
+      frame.rotation,
+    );
     return {
       translation: Quaternion.rotateVector(
         inverse,
@@ -243,8 +279,10 @@ export function test_archetype_deck_assembly(): void {
     const moved: IAutoMovieTransform = floating.at(seconds).placement;
     const heave: number = moved.translation.y - base.translation.y;
     if (
-      Math.abs(heave - surface.elevation(base.translation.x, base.translation.z, seconds)) >
-      EPSILON
+      Math.abs(
+        heave -
+          surface.elevation(base.translation.x, base.translation.z, seconds),
+      ) > EPSILON
     )
       findings.push(`the deck does not heave with the sea at ${seconds} s`);
     const tilt: number =
@@ -263,7 +301,10 @@ export function test_archetype_deck_assembly(): void {
     if (tilt > Math.SQRT2 * Math.atan(surface.steepest) + EPSILON)
       findings.push(`the deck tilts ${tilt} rad at ${seconds} s`);
     const now: IAutoMovieTransform = within(seconds);
-    const drift: IAutoMovieVector3 = Vector3.subtract(now.translation, first.translation);
+    const drift: IAutoMovieVector3 = Vector3.subtract(
+      now.translation,
+      first.translation,
+    );
     if (Math.hypot(drift.x, drift.y, drift.z) > EPSILON)
       findings.push(`the gun moves on the deck at ${seconds} s`);
     const twin: IAutoMovieTransform = again.at(seconds).placement;

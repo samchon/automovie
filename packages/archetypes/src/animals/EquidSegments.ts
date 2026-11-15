@@ -167,9 +167,7 @@ export namespace EquidSegments {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per equid.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lengths(
-    breed: IBreed,
-  ): QuadrupedBody.IBody["lengths"] {
+  export function lengths(breed: IBreed): QuadrupedBody.IBody["lengths"] {
     const horse: QuadrupedBody.IBody["lengths"] = createHorse.LENGTHS;
     const reference: IBreed = BREEDS.thoroughbred;
     const ratio = (measure: keyof Omit<IBreed, "n" | "withers">): number =>

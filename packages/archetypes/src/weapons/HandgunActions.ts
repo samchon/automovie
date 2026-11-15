@@ -6,7 +6,10 @@ import { FlintLock } from "./FlintLock";
 import type { createHandgun } from "./createHandgun";
 
 /** A handgun under construction. */
-type Builder = ArchetypeBuilder<createHandgun.Affordance, createHandgun.Dimension>;
+type Builder = ArchetypeBuilder<
+  createHandgun.Affordance,
+  createHandgun.Dimension
+>;
 
 /** A handgun's drawn and read dimensions. */
 type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
@@ -53,7 +56,12 @@ export namespace HandgunActions {
     hammer: number;
     tip: number;
     door: Readonly<{ thickness: number; height: number; length: number }>;
-    trigger: Readonly<{ width: number; height: number; depth: number; drop: number }>;
+    trigger: Readonly<{
+      width: number;
+      height: number;
+      depth: number;
+      drop: number;
+    }>;
     sight: number;
   }> = {
     bore: 0.015,
@@ -143,13 +151,40 @@ export namespace HandgunActions {
     const breech: number = muzzle - d.barrel!;
     const axis: number = bore - e.chamber;
     const back: number = breech - e.cylinder;
-    builder.box("grip", v(e.grip, bore - e.bore, d.gripDepth!), v(0, (bore - e.bore) / 2, d.gripDepth! / 2), { color: steel.color, density: e.density });
+    builder.box(
+      "grip",
+      v(e.grip, bore - e.bore, d.gripDepth!),
+      v(0, (bore - e.bore) / 2, d.gripDepth! / 2),
+      { color: steel.color, density: e.density },
+    );
     // The frame as wide as the cylinder, the read width, which it holds.
-    builder.box("frame", v(d.width!, e.frame, back), v(0, bore, back / 2), steel);
-    builder.rod("cylinder", d.width! / 2, v(0, axis, back), v(0, axis, breech), steel);
-    builder.rod("barrel", e.barrel, v(0, bore, breech), v(0, bore, muzzle), steel);
+    builder.box(
+      "frame",
+      v(d.width!, e.frame, back),
+      v(0, bore, back / 2),
+      steel,
+    );
+    builder.rod(
+      "cylinder",
+      d.width! / 2,
+      v(0, axis, back),
+      v(0, axis, breech),
+      steel,
+    );
+    builder.rod(
+      "barrel",
+      e.barrel,
+      v(0, bore, breech),
+      v(0, bore, muzzle),
+      steel,
+    );
     builder.rod("hammer", e.hammer, v(0, bore, 0), v(0, top, -e.tip), steel);
-    builder.box("gate", v(e.door.thickness, e.door.height, e.door.length), v(-d.width! / 2, bore, back - e.door.length / 2), steel);
+    builder.box(
+      "gate",
+      v(e.door.thickness, e.door.height, e.door.length),
+      v(-d.width! / 2, bore, back - e.door.length / 2),
+      steel,
+    );
     trigger(builder, d, bore - e.bore);
     contacts(builder, d, bore, back, muzzle, "surface");
     const full: number = hammer(HAMMER.full);
@@ -173,7 +208,11 @@ export namespace HandgunActions {
     builder.affordance({
       id: "gate",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(-d.width! / 2, bore, back), v(0, 1, 0), v(0, 0, -1)),
+      frame: ArchetypeFrame.facing(
+        v(-d.width! / 2, bore, back),
+        v(0, 1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       travel: e.gate,
       parts: ["gate"],
@@ -184,7 +223,11 @@ export namespace HandgunActions {
         id: `chamber${k + 1}` as createHandgun.Affordance,
         kind: "socket",
         frame: ArchetypeFrame.facing(
-          v(e.chamber * Math.sin(angle), axis + e.chamber * Math.cos(angle), back),
+          v(
+            e.chamber * Math.sin(angle),
+            axis + e.chamber * Math.cos(angle),
+            back,
+          ),
           v(0, 0, -1),
           v(1, 0, 0),
         ),
@@ -214,14 +257,33 @@ export namespace HandgunActions {
     const bore: number = d.height! - e.bore;
     const muzzle: number = d.length! - e.bore;
     const breech: number = muzzle - d.barrel!;
-    const wood: { color: string; density: number } = { color: "#6b4a2f", density: e.density };
-    builder.box("grip", v(e.grip, bore - e.bore, d.gripDepth!), v(0, (bore - e.bore) / 2, d.gripDepth! / 2), wood);
+    const wood: { color: string; density: number } = {
+      color: "#6b4a2f",
+      density: e.density,
+    };
+    builder.box(
+      "grip",
+      v(e.grip, bore - e.bore, d.gripDepth!),
+      v(0, (bore - e.bore) / 2, d.gripDepth! / 2),
+      wood,
+    );
     // The fore-stock runs from the backstrap under the barrel's rear `fore` share.
     const fore: number = breech + e.fore * d.barrel!;
-    builder.box("stock", v(d.width!, e.stock, fore), v(0, bore - e.stock / 2, fore / 2), wood);
-    builder.rod("barrel", e.barrel, v(0, bore, breech), v(0, bore, muzzle), { color: "#2c2f33" });
+    builder.box(
+      "stock",
+      v(d.width!, e.stock, fore),
+      v(0, bore - e.stock / 2, fore / 2),
+      wood,
+    );
+    builder.rod("barrel", e.barrel, v(0, bore, breech), v(0, bore, muzzle), {
+      color: "#2c2f33",
+    });
     trigger(builder, d, bore - e.bore);
-    FlintLock.lay(builder, v(0, bore, breech), { cock: "cock", frizzen: "frizzen", pan: "pan" });
+    FlintLock.lay(builder, v(0, bore, breech), {
+      cock: "cock",
+      frizzen: "frizzen",
+      pan: "pan",
+    });
     contacts(builder, d, bore, breech, muzzle, "socket");
   }
 
@@ -234,7 +296,12 @@ export namespace HandgunActions {
    */
   function trigger(builder: Builder, d: Drawn, grip: number): void {
     const t: typeof ESTIMATES.trigger = ESTIMATES.trigger;
-    builder.box("trigger", Vector3.create(t.width, t.height, t.depth), Vector3.create(0, grip - t.drop, d.triggerReach! - t.depth / 2), { color: "#55595f" });
+    builder.box(
+      "trigger",
+      Vector3.create(t.width, t.height, t.depth),
+      Vector3.create(0, grip - t.drop, d.triggerReach! - t.depth / 2),
+      { color: "#55595f" },
+    );
   }
 
   /**
@@ -247,14 +314,25 @@ export namespace HandgunActions {
    * @param muzzle Where the muzzle stands along the gun.
    * @param mouth The muzzle's kind.
    */
-  function contacts(builder: Builder, d: Drawn, bore: number, sight: number, muzzle: number, mouth: "socket" | "surface"): void {
+  function contacts(
+    builder: Builder,
+    d: Drawn,
+    bore: number,
+    sight: number,
+    muzzle: number,
+    mouth: "socket" | "surface",
+  ): void {
     const v: typeof Vector3.create = Vector3.create;
     const grip: number = bore - ESTIMATES.bore;
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, grip / 2, d.gripDepth! / 2), v(0, 0, -1), v(0, 1, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, grip / 2, d.gripDepth! / 2),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: d.gripDepth!,
@@ -263,13 +341,22 @@ export namespace HandgunActions {
     builder.affordance({
       id: "trigger",
       kind: "trigger",
-      frame: ArchetypeFrame.facing(v(0, grip - ESTIMATES.trigger.drop, d.triggerReach!), v(0, 0, 1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, grip - ESTIMATES.trigger.drop, d.triggerReach!),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: d.triggerTravel!,
       parts: ["trigger"],
     });
     const top: IAutoMovieVector3 = v(0, bore + ESTIMATES.sight, sight);
-    builder.affordance({ id: "sight", kind: "surface", frame: ArchetypeFrame.upright(top), extent: null });
+    builder.affordance({
+      id: "sight",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(top),
+      extent: null,
+    });
     builder.affordance({
       id: "frontSight",
       kind: "surface",

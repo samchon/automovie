@@ -211,9 +211,9 @@ export class ArchetypeAssembly<
         kineticFriction: kinetic === null ? null : kinetic / mass,
         surfaces,
         restitution: restitution / mass,
-      // An assembly is no launched body: no member's flight data speaks for the whole.
-      drag: null,
-      contact: null,
+        // An assembly is no launched body: no member's flight data speaks for the whole.
+        drag: null,
+        contact: null,
         dimensions: {},
         provenance: { bands: {}, models: {}, figures: {}, units: {} },
         spans,

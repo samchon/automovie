@@ -308,7 +308,9 @@ export namespace createHorse {
     );
     // A pack saddle draws its own dimension beside the equid's.
     const bands: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> =
-      tack === "pack" ? { ...profile.bands, ...HorsePack.BANDS } : profile.bands;
+      tack === "pack"
+        ? { ...profile.bands, ...HorsePack.BANDS }
+        : profile.bands;
     const free: Record<createHorse.Free, number> = {
       ...draw.dimensions(bands),
       ...profile.figures,
@@ -371,10 +373,16 @@ export namespace createHorse {
         ["pommel", centre + d.seatSize / 2],
         ["cantle", centre - d.seatSize / 2],
       ] as const) {
-        builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-          color: "#4a3324",
-          share: 0,
-        });
+        builder.rod(
+          id,
+          0.015,
+          v(-0.06, top + 0.03, z),
+          v(0.06, top + 0.03, z),
+          {
+            color: "#4a3324",
+            share: 0,
+          },
+        );
         builder.affordance({
           id,
           kind: "handle",
@@ -453,13 +461,17 @@ export namespace createHorse {
       }
       lead(builder, nose, h);
       // The saddle's read weight is its own, beside the equid's; the rest of its tack is massless, unread.
-      return builder.build(d.mass + createHorse.SADDLE_WEIGHT, { rests: profile.body.foot });
+      return builder.build(d.mass + createHorse.SADDLE_WEIGHT, {
+        rests: profile.body.foot,
+      });
     } else if (tack === "harness") HorseHarness.lay(builder, d, rig);
     else {
       // The rigged pack saddle's mass is its own, beside the equid's, its parts' shares percents of the equid's mass as the body's are.
       HorsePack.lay(builder, d, rig);
       lead(builder, nose, h);
-      return builder.build(d.mass + HorsePack.saddle(h).rigged, { rests: profile.body.foot });
+      return builder.build(d.mass + HorsePack.saddle(h).rigged, {
+        rests: profile.body.foot,
+      });
     }
     return builder.build(d.mass, { rests: profile.body.foot });
   }
@@ -484,7 +496,10 @@ export namespace createHorse {
       LEAD / 2,
       Vector3.subtract(
         held,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(halter, held)), HELD.lead / 2),
+        Vector3.scale(
+          Vector3.normalize(Vector3.subtract(halter, held)),
+          HELD.lead / 2,
+        ),
       ),
       halter,
       { color: "#d8d2c4", share: 0 },
@@ -493,7 +508,11 @@ export namespace createHorse {
       id: "lead",
       kind: "rein",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(held, v(1, 0, 0), Vector3.subtract(halter, held)),
+      frame: ArchetypeFrame.facing(
+        held,
+        v(1, 0, 0),
+        Vector3.subtract(halter, held),
+      ),
       extent: null,
       grip: "power",
       aperture: LEAD,
@@ -588,7 +607,11 @@ export namespace createHorse {
   /** The horse's profile: its girth in the warmbloods' proportion to its height, so its mass is their mean mass times the cube of its height's ratio. */
   export const PROFILE: IProfile = {
     archetype: "horse",
-    names: { saddle: "saddle horse", harness: "driving horse", pack: "pack horse" },
+    names: {
+      saddle: "saddle horse",
+      harness: "driving horse",
+      pack: "pack horse",
+    },
     bands: BANDS,
     girth: (withers: number): number =>
       (withers * JENSEN.girth) / JENSEN.withers,
