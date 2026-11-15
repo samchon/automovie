@@ -8,8 +8,8 @@ import {
 import type {
   IAutoMovieBody,
   IAutoMovieBodyContact,
-  IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import type { HumanPropFlight } from "./HumanPropFlight";
@@ -251,8 +251,7 @@ export namespace HumanPropOutcome {
   /** A body's radius: its least round shape's, or half its boxes' least extent; none without such a shape. */
   function radius(prop: IHumanProp): number | undefined {
     let least: number = Infinity;
-    for (const shape of prop.shapes ?? [])
-      least = Math.min(least, half(shape));
+    for (const shape of prop.shapes ?? []) least = Math.min(least, half(shape));
     return Number.isFinite(least) ? least : undefined;
   }
 
@@ -261,7 +260,11 @@ export namespace HumanPropOutcome {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? shape.radius
       : shape.kind === "box"
-        ? Math.min(shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z)
+        ? Math.min(
+            shape.halfExtents.x,
+            shape.halfExtents.y,
+            shape.halfExtents.z,
+          )
         : Infinity;
   }
 

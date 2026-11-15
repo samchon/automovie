@@ -106,8 +106,7 @@ export function test_physics_projectile_bounce(): void {
   // The roll starts where the ball touched down, with its speed along the
   // ground there (2 m/s, gravity having no horizontal part).
   const start: number = rolling.kind === "roll" ? rolling.origin.x : NaN;
-  const stop: number =
-    start + (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);
+  const stop: number = start + (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);
   const rest = projectileContinue.at(rolling, 100);
   // The closed form's few operations at float resolution.
   const resolution: number = Number.EPSILON * stop * 2 ** 4;

@@ -158,7 +158,6 @@ export namespace HumanPropSweep {
     return { hit, struck, collider: id };
   }
 
-
   /** Whether any action launches a prop. */
   function launched(self: HumanPerformanceState, subject: string): boolean {
     for (const person of self.people.values())

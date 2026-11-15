@@ -331,8 +331,7 @@ export namespace HumanPropFlight {
       velocity: state.velocity,
       offset:
         carrier === undefined ? world : HumanPropFrame.relative(carrier, world),
-      outcome:
-        HumanPropOutcome.decide(prop, meeting.struck)?.kind ?? "stick",
+      outcome: HumanPropOutcome.decide(prop, meeting.struck)?.kind ?? "stick",
     };
   }
 
@@ -355,7 +354,6 @@ export namespace HumanPropFlight {
         return undefined;
     }
   }
-
 
   /** The flights found, per placed performance and prop. */
   const KEPT: WeakMap<
