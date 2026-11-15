@@ -1,10 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  type Archetype,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-} from "../core";
+import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { createBow } from "./createBow";
 
 /**
