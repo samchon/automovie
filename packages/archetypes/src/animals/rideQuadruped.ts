@@ -15,6 +15,7 @@ import {
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
+import { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLimb } from "./QuadrupedLimb";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { createQuadruped } from "./createQuadruped";
@@ -36,7 +37,7 @@ import { createQuadruped } from "./createQuadruped";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the instants added, what the support frame is and what happens below the gait's slowest speed.
  * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each foot's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted foot is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links (`QuadrupedLimb.solve`), its carpus or hock folded by the gait's fold, the trunk's rise and fall the gait's bob, the head's pitch the gait's nod timed to the footfalls (`QuadrupedMotion.nod`), and each swinging foot brought to its next landing by the minimum-jerk lift-and-place path (`QuadrupedMotion.swing`) at the gait's lift.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the species, read the rest joints off the animal (`QuadrupedBody.joints`), plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the species, read the rest joints off the animal (`QuadrupedJoints.read`), plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No species branch: every number is the species' table's or body's. The tack keeps its rest lines while the head nods, except the parts the species names as nodding. A foot beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted foot stays planted and no bone stretches.
  * @evidence contracts/development/implementation.md#efficient-algorithms The phase table has `STEPS` rows over the running time, built once; a sample is one table read, a few binary searches of it per limb for the stances' ends, and four closed-form limb solutions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan, the phase table, the strides' gaits and the rest joints are shared by every sample; the ride samples the plan made here.
@@ -71,7 +72,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       withers,
     );
   };
-  const rig: ReturnType<typeof QuadrupedBody.joints> = QuadrupedBody.joints(
+  const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
     animal.parts,
   );
   const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan(

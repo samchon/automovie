@@ -6,7 +6,6 @@ import type {
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
@@ -15,69 +14,9 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { createSword } from "./createSword";
-
-/** A scabbard maker's rule of fit, read. */
-const WULFLUND: string =
-  "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
-
-/** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
-const FIT: Readonly<{ length: number; width: number }> = {
-  length: 0.015,
-  width: 0.02,
-};
-
-/** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
-const madeTo = (
-  name: string,
-  sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
-): createHolster.Fitted => ({
-  length: ArchetypeBand.metres(
-    sword.bladeLength! + FIT.length,
-    sword.bladeLength! + FIT.length,
-    `${WULFLUND}, on the ${name}'s read ${sword.bladeLength} m blade`,
-  ),
-  width: ArchetypeBand.metres(
-    sword.bladeWidth! + FIT.width,
-    sword.bladeWidth! + FIT.width,
-    `${WULFLUND}, on the ${name}'s read ${sword.bladeWidth} m blade width`,
-  ),
-});
-
-/** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
-const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
-  const blade: Readonly<
-    Partial<Record<createSword.Dimension, IArchetypeBand>>
-  > = createSword.BANDS[kind];
-  const length: IArchetypeBand = blade.bladeLength!;
-  const width: IArchetypeBand = blade.bladeWidth!;
-  return {
-    length: ArchetypeBand.metres(
-      length.minimum + FIT.length,
-      length.maximum + FIT.length,
-      `${WULFLUND}, on ${length.source}`,
-      length.provisional,
-    ),
-    width: ArchetypeBand.metres(
-      width.minimum + FIT.width,
-      width.maximum + FIT.width,
-      `${WULFLUND}, on ${width.source}`,
-      width.provisional,
-    ),
-  };
-};
-
-/** What no scabbard maker read gives. */
-const UNREAD: string =
-  "no scabbard's thickness or weight was found in the makers' pages read";
-
-/** Back quivers, seen only in search results. */
-const QUIVER: string =
-  "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), capacities to 50 arrows (TOPARCHERY), and 20 in quivers weighing 0.62 kg (MAYARMS) and 1.5 lb (CH Narchery), seen only in search results";
-
-/** The US infantry cartridge box of 1841, read at the Ordnance Manual's page images. */
-const BOX: string =
-  "the 1841 Ordnance Manual, the infantry cartridge box: 7.7 in long, 1.6 in wide, 5.8 in deep at the front, its flap 8.5 in wide at the bottom; two tins, each with a lower part 3 x 3.3 in for a bundle of 10 cartridges and two upper parts 2.7 in deep, 2 x 1.35 in for 6 and 1.35 in square for 4, 40 rounds in all, p. 140 (https://archive.org/details/vol1841ordnancem00unit)";
+import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
+import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
+import { CartridgeBox } from "./CartridgeBox";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createHolster.Kind, string>> = {
@@ -279,70 +218,7 @@ export function createHolster(
   }
 
   if (kind === "pouch") {
-    // A cartridge box: the box on its bottom, its back to the wearer, the flap on a hinge along its back top edge.
-    const length: number = d.length!;
-    const deep: number = d.depth!;
-    const thick: number = d.thickness!;
-    builder.box("box", v(thick, deep, length), v(thick / 2, deep / 2, 0), {
-      color: "#1f1a17",
-    });
-    builder.box(
-      "lid",
-      v(thick, createHolster.FLAP.thickness, d.width!),
-      v(thick / 2, deep + createHolster.FLAP.thickness / 2, 0),
-      { color: "#1f1a17" },
-    );
-    builder.affordance({
-      id: "lid",
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, deep, 0), v(0, 0, 1), v(1, 0, 0)),
-      extent: null,
-      travel: createHolster.FLAP.open,
-      parts: ["lid"],
-    });
-    // The cartridges' places: each tin's upper parts side by side along the box, the two tins with the box's spare length shared at both ends, each part's cells filled in rows along the box and columns across it.
-    const tin: number = createHolster.TINS.parts.reduce(
-      (sum: number, part: { length: number }): number => sum + part.length,
-      0,
-    );
-    const spare: number = (length - createHolster.TINS.count * tin) / 2;
-    const places: IAutoMovieVector3[] = [];
-    for (let t: number = 0; t < createHolster.TINS.count; t++) {
-      let start: number = -length / 2 + spare + t * tin;
-      for (const part of createHolster.TINS.parts) {
-        for (let row: number = 0; row < part.rows; row++)
-          for (let column: number = 0; column < part.columns; column++)
-            places.push(
-              v(
-                (thick - part.across) / 2 +
-                  ((column + 0.5) * part.across) / part.columns,
-                deep,
-                start + ((row + 0.5) * part.length) / part.rows,
-              ),
-            );
-        start += part.length;
-      }
-    }
-    places.slice(0, slots).forEach((at: IAutoMovieVector3, k: number): void => {
-      builder.affordance({
-        id: `slot${k + 1}`,
-        kind: "socket",
-        frame: ArchetypeFrame.upright(at),
-        extent: null,
-      });
-    });
-    builder.affordance({
-      id: "strap",
-      kind: "hook",
-      frame: facingWearer(v(0, deep / 2, 0)),
-      extent: null,
-    });
-    builder.affordance({
-      id: "belt",
-      kind: "hook",
-      frame: facingWearer(v(0, deep / 2, 0)),
-      extent: null,
-    });
+    CartridgeBox.lay(builder, d, slots, facingWearer);
     return builder.build(d.mass!);
   }
 
@@ -405,41 +281,6 @@ export namespace createHolster {
     "quiver",
     "pouch",
   ];
-
-  /**
-   * A cartridge box's tins' upper parts, read at the 1841 Ordnance Manual: each tin has two, 2.7 in deep, one 2 x 1.35 in for 6 cartridges and one 1.35 in square for 4, and the box holds two tins. `cells` gives each part's cartridges as rows along the box's length by columns across it, the arrangement that fills each part's read size with its read count.
-   */
-  export const TINS: Readonly<{
-    count: number;
-    parts: readonly Readonly<{
-      length: number;
-      across: number;
-      rows: number;
-      columns: number;
-    }>[];
-  }> = {
-    count: 2,
-    parts: [
-      {
-        length: 2 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
-        rows: 3,
-        columns: 2,
-      },
-      {
-        length: 1.35 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
-        rows: 2,
-        columns: 2,
-      },
-    ],
-  };
-
-  /** A cartridge box's flap's opening, degrees, and its thickness, metres: estimates, the manual giving the flap's width only (searched: the 1841 and 1850 Ordnance Manuals; records-cartridge-pouch.md). */
-  export const FLAP: Readonly<{ open: number; thickness: number }> = {
-    open: 150,
-    thickness: 0.004,
-  };
 
   /** A scabbard's metal throat at the mouth, its length along the scabbard, metres: an estimate. */
   export const THROAT: number = 0.05;
@@ -555,21 +396,7 @@ export namespace createHolster {
   export const BLADES: Readonly<{
     scabbard: Readonly<Record<ScabbardBlade, Fitted>>;
     sheath: Readonly<Record<SheathBlade, Fitted>>;
-  }> = {
-    scabbard: {
-      crecy: madeTo("Crecy", createSword.MODELS.longsword!.crecy!),
-      regent: madeTo("Regent", createSword.MODELS.longsword!.regent!),
-      knight: madeTo("Knight", createSword.MODELS.armingSword!.knight!),
-      poitiers: madeTo("Poitiers", createSword.MODELS.armingSword!.poitiers!),
-      sabre: madeFor("sabre"),
-      katana: madeFor("katana"),
-      rapier: madeFor("rapier"),
-    },
-    sheath: {
-      dagger: madeFor("dagger"),
-      knife: madeFor("knife"),
-    },
-  };
+  }> = HOLSTER_BLADES;
 
   /** The parameters: the kind, a holster's ride, a scabbard's or a sheath's blade, the slots, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -592,74 +419,5 @@ export namespace createHolster {
   /** The band of each free dimension a ride or a blade leaves, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    holster: {
-      depth: ArchetypeBand.of(
-        "m",
-        0.12,
-        0.16,
-        "pouch depth for a 102 to 119 mm barrel, an estimate",
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 0.15, 0.3, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    scabbard: {
-      thickness: ArchetypeBand.metres(0.015, 0.025, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.3, 0.6, UNREAD, true),
-    },
-    sheath: {
-      thickness: ArchetypeBand.metres(0.012, 0.02, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
-    },
-    quiver: {
-      length: ArchetypeBand.metres(
-        18 * ArchetypeUnits.INCH,
-        22.5 * ArchetypeUnits.INCH,
-        QUIVER,
-        true,
-      ),
-      diameter: ArchetypeBand.metres(
-        3.5 * ArchetypeUnits.INCH,
-        3.5 * ArchetypeUnits.INCH,
-        QUIVER,
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.62,
-        1.5 * ArchetypeUnits.POUND,
-        QUIVER,
-        true,
-      ),
-    },
-    pouch: {
-      length: ArchetypeBand.metres(
-        7.7 * ArchetypeUnits.INCH,
-        7.7 * ArchetypeUnits.INCH,
-        BOX,
-      ),
-      thickness: ArchetypeBand.metres(
-        1.6 * ArchetypeUnits.INCH,
-        1.6 * ArchetypeUnits.INCH,
-        BOX,
-      ),
-      depth: ArchetypeBand.metres(
-        5.8 * ArchetypeUnits.INCH,
-        5.8 * ArchetypeUnits.INCH,
-        BOX,
-      ),
-      width: ArchetypeBand.metres(
-        8.5 * ArchetypeUnits.INCH,
-        8.5 * ArchetypeUnits.INCH,
-        `${BOX}: the flap's width at its bottom`,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.3,
-        0.6,
-        `${ArchetypeBand.TYPICAL_MASS}: an empty leather box with its two tins, an estimate; no empty weight is given (searched: the 1841, 1850 and 1861 Ordnance Manuals, Colonial Williamsburg; records-cartridge-pouch.md)`,
-        true,
-      ),
-    },
-  };
+  > = HOLSTER_BANDS;
 }

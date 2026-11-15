@@ -2,7 +2,6 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
@@ -10,87 +9,9 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { FlintLock } from "./FlintLock";
+import { HANDGUN_BANDS } from "./HANDGUN_BANDS";
+import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
 import { HandgunActions } from "./HandgunActions";
-import { LockTimes } from "./LockTimes";
-
-/** The Graz test of a flintlock pistol. */
-const GRAZ_PISTOL: string =
-  "Krenn, Kalaus and Hall, Material History Review 42 (1995), p. 104, Table 1, flintlock pistol STP 1128 (Ferlach, about 1700): barrel 332 mm, 1.16 kg, ball 13.5 mm and 14.45 g, charge 5.00 g, 385 m/s at the muzzle, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944): borrowed from it";
-
-/**
- * A band of a self-loading pistol's lent to a revolver or a flintlock pistol, whose own was not found, with what was searched.
- *
- * @param band The pistols' band.
- * @param what What is borrowed.
- * @returns The same range, provisional, labelled with its lender and the search.
- */
-function borrowed(band: IArchetypeBand, what: string): IArchetypeBand {
-  return ArchetypeBand.of(
-    band.unit,
-    band.minimum,
-    band.maximum,
-    `borrowed from the self-loading pistols' ${what} (${band.source}) because no revolver's or flintlock pistol's was found (searched: Colt's 1993 manual, Ruger's spec sheets, Gun Tests, Smith & Wesson's pages, Museums Victoria, Royal Museums Greenwich; records-firearms-revolver.md, records-firearms-flintlock.md)`,
-    true,
-  );
-}
-
-/** The double-action revolver Gun Tests measured, whose figures a revolver lacking them borrows with the Single Action Army's. */
-const GP100: string =
-  "Gun Tests, Ruger GP100 No. 1707 .357 Magnum: 5.5 in high, 1.55 in minimum width, trigger span 3.5 in single action (https://www.gun-tests.com/handguns/revolvers/ruger-gp100-no-1707-357-magnum/)";
-
-/** The maker's guide that gives the trigger's reach by backstrap and its travel. */
-const TRIGGER: string =
-  "GLOCK Gen4 Buyer's Guide, p. 4, trigger distance 70, 72 and 74 mm without, with the medium and with the large backstrap, and trigger travel about 12.5 mm (https://www.krale.shop/media/blfa_files/Glock_Generation_4_Models_manual_exploded_view_EN-min_2.pdf)";
-
-/** Dimensions no maker publishes. */
-const UNPUBLISHED: string = "not published by either maker; an estimate";
-
-/** The bands of the dimensions a model leaves, the same for both frames: each drawn only for a model that does not give it. */
-const SHARED: Readonly<
-  Record<
-    | "width"
-    | "triggerReach"
-    | "triggerTravel"
-    | "gripDepth"
-    | "muzzleVelocity"
-    | "lockTime",
-    IArchetypeBand
-  >
-> = {
-  width: ArchetypeBand.metres(
-    0.0255,
-    0.0255,
-    "slide width: SIG SAUER publishes only the overall width; the one slide width read, GLOCK's 25.5 mm on the G17 and G19 Gen5 (https://eu.glock.com/en/products/pistols/g17-gen5), applied",
-    true,
-  ),
-  triggerReach: ArchetypeBand.metres(
-    0.07,
-    0.074,
-    `${TRIGGER}: SIG SAUER publishes no trigger distance; the GLOCKs' read range applied`,
-    true,
-  ),
-  triggerTravel: ArchetypeBand.metres(
-    0.0125,
-    0.0125,
-    `${TRIGGER}: no Gen5 or SIG SAUER figure is published; the Gen4 figure applied`,
-    true,
-  ),
-  gripDepth: ArchetypeBand.metres(
-    0.048,
-    0.055,
-    `grip depth from front strap to backstrap, ${UNPUBLISHED}`,
-    true,
-  ),
-  muzzleVelocity: ArchetypeBand.of(
-    "m/s",
-    1198 * ArchetypeUnits.FOOT,
-    1198 * ArchetypeUnits.FOOT,
-    "SIG SAUER's 9mm +P 124 gr Elite Ball M17 FMJ, 1,198 fps from its 4.0 in test barrel (https://www.sigsauer.com/9mm-p-124gr-elite-ball-m17-fmj-box-50.html); the GLOCKs' borrowed from it because GLOCK publishes no velocity (searched: GLOCK's product pages and Gen4 guide; records-firearms-rifles.md)",
-    true,
-  ),
-  lockTime: LockTimes.BORROWED,
-};
 
 /**
  * A handgun as a film prop: a self-loading pistol, a slide over a frame with a grip, a trigger and sights; a revolver, its hammer cocking and its cylinder turning; or a flintlock pistol with the musket's lock (`HandgunActions`). It models no effect.
@@ -414,63 +335,7 @@ export namespace createHandgun {
         Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
       >
     >
-  > = {
-    fullSize: {
-      g17: {
-        length: 0.202,
-        height: 0.139,
-        width: 0.0255,
-        triggerReach: 0.07,
-        mass: 0.708,
-      },
-      p320m17: {
-        length: 0.216,
-        height: 0.139,
-        sightRadius: 0.168,
-        mass: 0.8391,
-      },
-    },
-    compact: {
-      g19: {
-        length: 0.185,
-        height: 0.128,
-        width: 0.0255,
-        triggerReach: 0.07,
-        mass: 0.67,
-      },
-      p320m18: { length: 0.183, height: 0.14, sightRadius: 0.147, mass: 0.797 },
-    },
-    revolver: {
-      saa75: {
-        length: 13 * ArchetypeUnits.INCH,
-        height: 5.5 * ArchetypeUnits.INCH,
-        width: 1.6 * ArchetypeUnits.INCH,
-        barrel: 7.5 * ArchetypeUnits.INCH,
-        sightRadius: 8.5 * ArchetypeUnits.INCH,
-        triggerReach: 2.8 * ArchetypeUnits.INCH,
-        mass: 40.8 * ArchetypeUnits.OUNCE,
-      },
-      vaquero5104: {
-        length: 11.12 * ArchetypeUnits.INCH,
-        barrel: 5.5 * ArchetypeUnits.INCH,
-        mass: 41 * ArchetypeUnits.OUNCE,
-      },
-    },
-    flintlock: {
-      lightDragoon: {
-        length: 0.397,
-        height: 0.14,
-        width: 0.055,
-        barrel: 9 * ArchetypeUnits.INCH,
-      },
-      seaService: {
-        length: 0.5,
-        height: 0.18,
-        width: 0.04,
-        barrel: 12 * ArchetypeUnits.INCH,
-      },
-    },
-  };
+  > = HANDGUN_MODELS;
 
   /** A GLOCK's sight radius by its sights, the maker's tables: G17 Gen5 165, 164 and 163 mm, G19 Gen5 153, 152 and 151 mm for polymer, steel and GNS. A SIG SAUER's is its model's. */
   export const SIGHTS: Readonly<
@@ -514,64 +379,5 @@ export namespace createHandgun {
   /** The band of each free dimension a model leaves, by frame. */
   export const BANDS: Readonly<
     Record<Frame, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    fullSize: SHARED,
-    compact: SHARED,
-    revolver: {
-      height: ArchetypeBand.metres(
-        5.5 * ArchetypeUnits.INCH,
-        MODELS.revolver!.saa75!.height!,
-        `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
-        true,
-      ),
-      width: ArchetypeBand.metres(
-        1.55 * ArchetypeUnits.INCH,
-        MODELS.revolver!.saa75!.width!,
-        `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
-        true,
-      ),
-      triggerReach: ArchetypeBand.metres(
-        MODELS.revolver!.saa75!.triggerReach!,
-        3.5 * ArchetypeUnits.INCH,
-        `borrowed from ${GP100} and the Single Action Army's, because Ruger's Vaquero 5104 sheet gives none (searched: Ruger's spec sheets and manual; records-firearms-revolver.md)`,
-        true,
-      ),
-      triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
-      gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
-      muzzleVelocity: ArchetypeBand.of(
-        "m/s",
-        725 * ArchetypeUnits.FOOT,
-        725 * ArchetypeUnits.FOOT,
-        "borrowed from Hornady's .45 Colt 255 gr Cowboy, 725 fps from a 4.75 in barrel (https://www.hornady.com/ammunition/handgun/45-colt-255-gr-cowboy), because no velocity from the Single Action Army's 7.5 in or the Vaquero's 5.5 in barrel was found (searched: Colt, Ruger, Gun Tests' load tables; records-firearms-revolver.md)",
-        true,
-      ),
-      lockTime: LockTimes.BORROWED,
-    },
-    flintlock: {
-      triggerReach: borrowed(SHARED.triggerReach, "trigger reach"),
-      triggerTravel: borrowed(SHARED.triggerTravel, "trigger travel"),
-      gripDepth: borrowed(SHARED.gripDepth, "grip depth estimate"),
-      mass: ArchetypeBand.of(
-        "kg",
-        1.16,
-        1.16,
-        `${GRAZ_PISTOL}, because no record weighs a Light Dragoon or Sea Service pistol (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,
-        true,
-      ),
-      muzzleVelocity: ArchetypeBand.of(
-        "m/s",
-        385,
-        385,
-        `${GRAZ_PISTOL}, because no measured velocity of a British service pistol was found (searched: Griffiths 1856, Robins 1805; records-firearms-flintlock.md)`,
-        true,
-      ),
-      lockTime: FlintLock.TIME,
-      ball: ArchetypeBand.metres(
-        0.0135,
-        0.0135,
-        `${GRAZ_PISTOL}, because no record gives the British pistols' ball (searched: Museums Victoria, Royal Museums Greenwich; records-firearms-flintlock.md)`,
-        true,
-      ),
-    },
-  };
+  > = HANDGUN_BANDS;
 }
