@@ -1,4 +1,8 @@
-import { hingedArmSwivel } from "@automovie/engine";
+import {
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
+  hingedArmSwivel,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { walkStanceCourse } from "../actions/walkStanceCourse";
@@ -34,7 +38,9 @@ export namespace staggerSequential {
    * the leg's own variables (`walkStanceCourse.ISwivel`), so the subproblem
    * sees how the knee follows the course, as TrajOpt linearises a nonconvex
    * function at the iterate. The slope is a forward difference of the fit
-   * with the branch held, of a step `sqrt(eps) x scale` (Nocedal and Wright
+   * with the branch held, each step's fit continuing the base fit's seed
+   * (`HumanLegChain.seeded`, a refinement about it rather than a sweep, the
+   * fit's own warm start), of a step `sqrt(eps) x scale` (Nocedal and Wright
    * 2006, section 8.1): `eps` the fit's own resolution relative to its
    * swivel, the engine's swivel resolution over its sweep's step
    * (`hingedArmSwivel.RESOLUTION`, `hingedArmSwivel.STEP`), and `scale` the
@@ -96,17 +102,19 @@ export namespace staggerSequential {
     // only the readings, never the variables or the rows' order.
     const shape: walkStanceCourse.IProblem = problemOf([]);
 
-    // The posture's fit of a planted leg at a course.
+    // The posture's fit of a planted leg at a course, continuing a nearby fit
+    // of the same leg when one is given (`HumanLegChain.seeded`).
     const fitOf = (
       k: number,
       p: walkStanceCourse.IPlanted,
       x: Float64Array,
-    ): HumanLegChain.ISwivel => {
+      near?: IAutoMovieSwivelNear,
+    ): ISeeded => {
       const root: IAutoMovieVector3 = knots[k]!.frame.root({
         pitch: x[shape.variables(k, p.side)[1]!]!,
         roll: x[shape.variables(k, p.side)[2]!]!,
       });
-      return HumanLegChain.fit(
+      const fitted = HumanLegChain.seeded(
         body,
         p.side,
         p.pelvis,
@@ -120,21 +128,22 @@ export namespace staggerSequential {
           p.heading,
         ),
         p.rotation,
+        near,
       );
+      return { ...fitted.swivel, seed: fitted.seed };
     };
-    type Fitted = (
-      | Partial<Record<"left" | "right", HumanLegChain.ISwivel>>
-      | undefined
-    )[];
+    type ISeeded = HumanLegChain.ISwivel & {
+      seed: IAutoMovieSwivelSeed | null;
+    };
+    type Fitted = (Partial<Record<"left" | "right", ISeeded>> | undefined)[];
     const fits = (x: Float64Array): Fitted =>
       knots.map(
         (
           _: staggerKnots.IKnot,
           k: number,
-        ): Partial<Record<"left" | "right", HumanLegChain.ISwivel>> | undefined => {
+        ): Partial<Record<"left" | "right", ISeeded>> | undefined => {
           if (k < shape.first) return undefined;
-          const out: Partial<Record<"left" | "right", HumanLegChain.ISwivel>> =
-            {};
+          const out: Partial<Record<"left" | "right", ISeeded>> = {};
           for (const p of shape.planted(x, k)) out[p.side] = fitOf(k, p, x);
           return out;
         },
@@ -167,15 +176,24 @@ export namespace staggerSequential {
       const edges: Map<number, number> = new Map();
       const swivels = fitted(x).map(
         (
-          fit: Partial<Record<"left" | "right", HumanLegChain.ISwivel>> | undefined,
+          fit: Partial<Record<"left" | "right", ISeeded>> | undefined,
           k: number,
         ): Partial<Record<"left" | "right", walkStanceCourse.ISwivel>> | undefined => {
           if (fit === undefined) return undefined;
           const out: Partial<Record<"left" | "right", walkStanceCourse.ISwivel>> =
             {};
           for (const side of ["left", "right"] as const) {
-            const base: HumanLegChain.ISwivel | undefined = fit[side];
-            if (base === undefined) continue;
+            const seededBase: ISeeded | undefined = fit[side];
+            if (seededBase === undefined) continue;
+            const { seed, ...base } = seededBase;
+            // A step's fit continues the base fit's seed: a step of `h` moves
+            // the swivel by far less than the sweep's own step, so the
+            // refinement about the seed finds the swivel the sweep would, to
+            // the fit's resolution (`hingedArmSwivel.RESOLUTION`).
+            const near: IAutoMovieSwivelNear | undefined =
+              seed === null
+                ? undefined
+                : { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
             const indices: number[] = shape.variables(k, side);
             const slope: number[] = indices.map((i: number, v: number): number => {
               const h: number =
@@ -189,7 +207,7 @@ export namespace staggerSequential {
                   .find(
                     (q: walkStanceCourse.IPlanted): boolean => q.side === side,
                   );
-                return p === undefined ? undefined : fitOf(k, p, moved);
+                return p === undefined ? undefined : fitOf(k, p, moved, near);
               };
               const turned = (a: number, b: number): number =>
                 ((((a - b + 180) % 360) + 360) % 360) - 180;

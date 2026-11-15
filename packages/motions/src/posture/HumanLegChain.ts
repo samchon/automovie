@@ -3,6 +3,9 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
+  type IAutoMovieSeededChainFit,
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
   type IPreparedChainPlant,
   Quaternion,
   Vector3,
@@ -26,14 +29,15 @@ import { HumanLimbFit } from "./HumanLimbFit";
  * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone,
  * and the leg is one bend branch and one swivel about its hip-to-ankle line.
  * `fit` runs the posture's leg fit itself (`HumanLimbFit.remembered`,
- * remembered by its exact inputs) on a pelvis and reads its branch and swivel;
+ * remembered by its exact inputs) on a pelvis and reads its branch and swivel,
+ * and `seeded` does so continuing a nearby fit's seed;
  * `pose` places the leg from a held branch and swivel for any ankle, so a
  * planner that holds them between fits poses the very knee the fit does
  * wherever its swivel is the fit's; `read` takes them from shown bones.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the representation, the three readings and what a held swivel guarantees.
  * @evidence contracts/development/design.md#principled-representation The swivel parameterisation of Tolani, Goswami and Badler 2000, as the engine's hinged chain owns it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The swivel, the posed leg and three functions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The swivel, the posed leg and four functions.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The knee is never placed by a model of its own: the fit is the posture's, the posing and the reading the engine's.
  */
 export namespace HumanLegChain {
@@ -227,6 +231,44 @@ export namespace HumanLegChain {
     bend: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ): ISwivel {
+    return seeded(body, side, pelvis, hip, target, bend, rotation).swivel;
+  }
+
+  /**
+   * The posture's own leg fit, as `fit`, with the seed that continues it and,
+   * given `near`, continuing a nearby fit of the same leg
+   * (`HumanLimbFit.remembered`'s `near`): every pass refines that seed
+   * instead of sweeping the swivel, so a fit of inputs a small step from a
+   * fitted leg's costs a refinement, not a sweep.
+   *
+   * @param body The body.
+   * @param side The leg.
+   * @param pelvis The pelvis's world rotation.
+   * @param hip The hip joint, world metres.
+   * @param target The ankle's target, world metres.
+   * @param bend The point the knee bends toward, world metres.
+   * @param rotation The foot's world rotation.
+   * @param near A nearby fit of the same leg to continue; cold when absent.
+   * @returns The fit's branch and swivel, and its seed (null when the fit's answer is not a hinged candidate).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the continuation and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture's fit run on the hips alone, continued from a nearby seed where one is given, its warm start (`IAutoMovieSwivelNear`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pose of the hips, the fit, the bones, the reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is the posture's own, ROM bend search included; a continuation only replaces its sweep with a refinement about the seed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanLimbFit.remembered`, whose memory reads a fit of the same inputs again, and `read`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function seeded(
+    body: IHumanBody,
+    side: "left" | "right",
+    pelvis: IAutoMovieQuaternion,
+    hip: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    bend: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    near?: IAutoMovieSwivelNear,
+  ): { swivel: ISwivel; seed: IAutoMovieSwivelSeed | null } {
     const restHip: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
     const hips: IAutoMoviePose = {
       skeleton: body.skeleton.id,
@@ -243,24 +285,29 @@ export namespace HumanLegChain {
 
     // The posture's own fit, remembered by its exact inputs as the posture's
     // fits are (`HumanLimbFit.remembered`), so a held leg is not fitted again.
-    const fitted: IAutoMoviePose = HumanLimbFit.remembered(
+    const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
       body,
       hips,
       side === "left" ? "leftLeg" : "rightLeg",
       { point: target, bend, rotation },
       [],
-    ).pose;
-    return read(
-      body,
-      side,
-      resolveBoneMap(
-        body.skeleton,
-        fitted,
-        body.topology,
-        skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES),
-        HUMANOID_REST_FRAME,
-      ),
+      undefined,
+      near,
     );
+    return {
+      swivel: read(
+        body,
+        side,
+        resolveBoneMap(
+          body.skeleton,
+          fitted.pose,
+          body.topology,
+          skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES),
+          HUMANOID_REST_FRAME,
+        ),
+      ),
+      seed: fitted.seed,
+    };
   }
   /** The leg's hinged chain at a pelvis toward a target. */
   function chainOf(
