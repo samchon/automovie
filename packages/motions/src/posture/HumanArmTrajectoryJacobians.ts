@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmJacobian } from "./HumanArmJacobian";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import type { HumanJacobian } from "./HumanJacobian";

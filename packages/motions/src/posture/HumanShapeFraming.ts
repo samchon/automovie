@@ -84,7 +84,10 @@ export namespace HumanShapeFraming {
               faces: planes(physicalHullFaces(shape.points).faces),
               origin: Vector3.add(
                 pose.position,
-                Quaternion.rotateVector(pose.rotation, shape.transform.position),
+                Quaternion.rotateVector(
+                  pose.rotation,
+                  shape.transform.position,
+                ),
               ),
               inverse: Quaternion.inverse(
                 Quaternion.multiply(pose.rotation, shape.transform.rotation),
@@ -126,7 +129,11 @@ export namespace HumanShapeFraming {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called per point with nothing to reuse but the remembered face.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Remembers only the deciding face on the framed record it is given.
    */
-  export function beyond(p: IAutoMovieVector3, shape: IFramed, bound: number): boolean {
+  export function beyond(
+    p: IAutoMovieVector3,
+    shape: IFramed,
+    bound: number,
+  ): boolean {
     const cx: number = p.x - shape.centre.x;
     const cy: number = p.y - shape.centre.y;
     const cz: number = p.z - shape.centre.z;

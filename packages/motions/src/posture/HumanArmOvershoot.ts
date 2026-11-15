@@ -141,7 +141,14 @@ export namespace HumanArmOvershoot {
       if (
         goal &&
         shape.rest &&
-        !(BROAD.on && HumanShapeFraming.beyond(wrist, shape.framed, radius - TISSUE + MARGIN))
+        !(
+          BROAD.on &&
+          HumanShapeFraming.beyond(
+            wrist,
+            shape.framed,
+            radius - TISSUE + MARGIN,
+          )
+        )
       )
         resting = Math.min(
           resting,
@@ -158,7 +165,10 @@ export namespace HumanArmOvershoot {
         // A shape that cannot ask more than the depth already found leaves
         // the greatest as it is: the needed clearance less the least the
         // distance can be, `grazing` only lowering it.
-        if (BROAD.on && HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN))
+        if (
+          BROAD.on &&
+          HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN)
+        )
           continue;
         depth = Math.max(
           depth,

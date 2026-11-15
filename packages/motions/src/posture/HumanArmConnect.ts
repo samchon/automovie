@@ -141,10 +141,7 @@ export namespace HumanArmConnect {
    * @param random The query's generator.
    * @returns The state, or undefined when no draw is valid.
    */
-  function repaired(
-    query: IQuery,
-    random: () => number,
-  ): number[] | undefined {
+  function repaired(query: IQuery, random: () => number): number[] | undefined {
     const reach: number = JIGGLE * query.extent;
     for (let i: number = 0; i < ATTEMPTS; ++i) {
       const q: number[] = query.start.map((v: number, d: number): number =>

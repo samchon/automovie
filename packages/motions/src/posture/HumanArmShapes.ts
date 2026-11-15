@@ -125,7 +125,11 @@ export namespace HumanArmShapes {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `nearby` for every surface probe of the placement.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function screen(at: G.IFrame, placed: G.IPlaced, reach: number): IScreen {
+  export function screen(
+    at: G.IFrame,
+    placed: G.IPlaced,
+    reach: number,
+  ): IScreen {
     const of = (
       owner: "upper" | "lower" | "hand",
       o: IAutoMovieVector3,
@@ -203,7 +207,13 @@ export namespace HumanArmShapes {
     shape: HumanColliders.IPlaced["shapes"][number],
   ): G.IShape {
     // Its bounding sphere is the clearance reading's own (`HumanShapeFraming.sphere`).
-    return { bone, part, pose, shape, ...HumanShapeFraming.sphere(pose, shape) };
+    return {
+      bone,
+      part,
+      pose,
+      shape,
+      ...HumanShapeFraming.sphere(pose, shape),
+    };
   }
 
   /**

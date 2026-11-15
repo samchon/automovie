@@ -472,7 +472,6 @@ export namespace HumanArmGeometry {
       hand: wh,
     };
   }
-
 }
 
 /** The skeleton's joint axes, read once per skeleton. */
