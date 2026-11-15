@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -48,7 +49,7 @@ export namespace HumanArmTrajectoryWaypoint {
   /**
    * A waypoint's record, built: the arm resting there placed (`resting`) and
    * its colliders, and each site's touched collider and outward normal, the
-   * collider nearest the site's point, among the riding arm's own segment's
+   * collider nearest the site's point when the point lies on it, among the riding arm's own segment's
    * for a site that rides an arm.
    *
    * @param problem The trajectory's problem.
@@ -107,8 +108,13 @@ export namespace HumanArmTrajectoryWaypoint {
             best = i;
           }
         });
+
+        // A site touches the collider its point lies on, within the depth a
+        // pressed skin gives (`AutoMovieMotionHumanAuditSkin.BUILT`); a site
+        // in free space, however near a collider, touches none.
+        if (best < 0 || least > AutoMovieMotionHumanAuditSkin.BUILT)
+          return undefined;
         touched[a] = best;
-        if (best < 0) return undefined;
         const s: G.IShape = candidates[best]!;
         return physicalShapeNormal(
           s.pose,
