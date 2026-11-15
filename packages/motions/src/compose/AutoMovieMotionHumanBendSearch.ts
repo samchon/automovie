@@ -1,12 +1,16 @@
 import {
+  DEFAULT_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
+  boxExcludedSwivels,
   decomposeJointRotation,
   getConstraint,
   hingedArmArticulation,
   jointRomOvershoot,
+  normalizeJointAxes,
   swingTwist,
+  swingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -217,6 +221,10 @@ export namespace AutoMovieMotionHumanBendSearch {
     if (lowerAxes === undefined) return null;
     const upperRange: IAutoMovieJointConstraint | null =
       prepared.upperDomain.constraint;
+    const upperBasis: IAutoMovieJointAxes = normalizeJointAxes(
+      chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
+      "AutoMovieMotionHumanBendSearch axes",
+    );
     const halves: [number | null, number | null, number | null] = [
       half(upperRange?.flexion ?? null),
       half(upperRange?.abduction ?? null),
@@ -235,6 +243,27 @@ export namespace AutoMovieMotionHumanBendSearch {
     const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
     const share = (value: number, of: number | null): number =>
       of === null ? 0 : (value / of) ** 2;
+    // A branch's candidates share one lower rotation, the same record, and
+    // differ only in the swivel of the upper arm, so the lower joint's
+    // overshoot is read once per record: the same value, read once.
+    let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
+    const midOf = (lower: IAutoMovieQuaternion): number => {
+      if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
+      const l: IAngles = decomposeJointRotation(
+        lower,
+        lowerAxes,
+        HUMANOID_REST_FRAME[lowerBone],
+        prepared.lowerDomain,
+      );
+      mid = {
+        rotation: lower,
+        overshoot: jointRomOvershoot(
+          { bone: lowerBone, ...l },
+          prepared.lowerDomain.constraint,
+        ),
+      };
+      return mid.overshoot;
+    };
     const read = (
       upper: IAutoMovieQuaternion,
       lower: IAutoMovieQuaternion,
@@ -244,12 +273,6 @@ export namespace AutoMovieMotionHumanBendSearch {
         chain.axes[upperBone],
         HUMANOID_REST_FRAME[upperBone],
         prepared.upperDomain,
-      );
-      const l: IAngles = decomposeJointRotation(
-        lower,
-        lowerAxes,
-        HUMANOID_REST_FRAME[lowerBone],
-        prepared.lowerDomain,
       );
       const turned: IAutoMovieQuaternion = Quaternion.multiply(
         prepared.upper.worldRotation,
@@ -342,10 +365,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         angles: u,
         overshoot:
           jointRomOvershoot({ bone: upperBone, ...u }, upperRange) +
-          jointRomOvershoot(
-            { bone: lowerBone, ...l },
-            prepared.lowerDomain.constraint,
-          ) +
+          midOf(lower) +
           HumanArmClearance.overshoot(body, chain.shapes, elbow, point, side),
         strain,
       };
@@ -358,6 +378,20 @@ export namespace AutoMovieMotionHumanBendSearch {
         endOffset: prepared.effectorOffset,
         hinge: lowerAxes.flexion,
         target: point,
+        // The upper arm's range refuses swivels its overshoot can only score
+        // above zero, which every ranking scores above zero in turn, so the
+        // sweep spares them (`boxExcludedSwivels`), read in the frame the
+        // overshoot reads it in.
+        excluded: (
+          upper: (swivel: number) => IAutoMovieQuaternion,
+        ): ((low: number, high: number) => boolean) =>
+          boxExcludedSwivels({
+            basis: upperBasis,
+            frame: HUMANOID_REST_FRAME[upperBone],
+            constraint: upperRange,
+            joint: swingTwistRange.of(upperBone),
+            rotation: upper,
+          }),
         score: (
           upper: IAutoMovieQuaternion,
           lower: IAutoMovieQuaternion,
@@ -415,7 +449,7 @@ export namespace AutoMovieMotionHumanBendSearch {
    * out of reach and returns the best candidate under a ranking.
    *
    * @param props The request.
-   * @param rank The ranking of a candidate, given the prepared chain.
+   * @param rank The ranking of a candidate, given the prepared chain; its overshoot is positive wherever the candidate's is, so the swivels the upper arm's range refuses are spared.
    * @param hang The `hang` preset's hint for an upright trunk at the origin, from which the hanging arm's angles are read.
    * @returns The candidate, or the reason there is none.
    *

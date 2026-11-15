@@ -11,6 +11,8 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
+import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
+import type { swingTwistRange } from "./swingTwistRange";
 import { swivelArcs } from "./swivelArcs";
 
 /**
@@ -44,7 +46,9 @@ import { swivelArcs } from "./swivelArcs";
  * angle's vector is then longer than `MARGIN`, past the gimbal band
  * (`sqrt(ε)`, 1.5e-8) inside which the decomposition pins that angle
  * instead. A joint gated by swing and twist, which the box does not score,
- * an axis without an interval, an outer interval wider than a half turn
+ * is read by its range instead (`swingTwistExcludedSwivels`) when the frame
+ * the overshoot reads it in is given, and refuses nothing otherwise; an
+ * axis without an interval, an outer interval wider than a half turn
  * (whose refusal is an intersection, not a union, of two arcs) and a middle
  * interval met twice by the half turn the middle angle covers refuse
  * nothing, so the test only ever says less than the box would.
@@ -70,15 +74,24 @@ export function boxExcludedSwivels(props: {
   /** The joint's resolved range of motion, as the decomposition's domain and the overshoot read it; `null` refuses nothing. */
   constraint: IAutoMovieJointConstraint | null;
 
+  /** The frame a swing-twist gate is read in, as the overshoot reads it (`scanJointRom`); omitted, a gated joint refuses nothing. */
+  joint?: swingTwistRange.IJoint | undefined;
+
   /** The joint's bone-local rotation at a swivel, degrees: a fixed rotation turned about a fixed axis by the swivel. */
   rotation: (swivel: number) => IAutoMovieQuaternion;
 }): (low: number, high: number) => boolean {
   const constraint: IAutoMovieJointConstraint | null = props.constraint;
-  if (
-    constraint === null ||
-    (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
-  )
-    return (): boolean => false;
+  if (constraint === null) return (): boolean => false;
+  if (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
+    return props.joint === undefined
+      ? (): boolean => false
+      : swingTwistExcludedSwivels({
+          basis: props.basis,
+          frame: props.frame,
+          constraint,
+          joint: props.joint,
+          rotation: props.rotation,
+        });
   const basis: IAutoMovieJointAxes = props.basis;
   const handed: 1 | -1 =
     Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0

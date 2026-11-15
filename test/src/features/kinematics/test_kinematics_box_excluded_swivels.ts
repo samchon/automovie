@@ -12,6 +12,7 @@ import {
   hingedArmArticulation,
   jointRomOvershoot,
   normalizeJointAxes,
+  swingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -33,19 +34,25 @@ import { TestValidator } from "@nestia/e2e";
  *    a seeded axis is decomposed every quarter degree, and every swivel the
  *    test refuses scores a positive overshoot; the test refuses some swivels
  *    of every joint.
- * 2. A joint gated by swing and twist (the upper arm's own range) and an
- *    unconstrained joint refuse nothing.
+ * 2. A joint gated by swing and twist (the upper arm's own range) without
+ *    the frame its range is read in, and an unconstrained joint, refuse
+ *    nothing.
  * 3. The sweep that spares the refused swivels returns the full sweep's pose,
  *    to every bit: 200 seeded leg chains, scored by the hip's decomposition
  *    and overshoot plus a deviation, solve to the same rotations and
  *    overshoot with the test as without it, among them chains with a legal
  *    pose and chains without, and the test refuses swivels in some of them.
+ * 4. A swing-twist gate given the frame its range is read in refuses by the
+ *    range: for both upper arms, each of 40 seeded rotations turned about a
+ *    seeded axis is decomposed every quarter degree, every swivel the test
+ *    refuses scores a positive overshoot, and the test refuses some; the
+ *    gate decomposed on another bone's basis refuses nothing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real test, the real decomposition and overshoot, and the real sweep with and without the test; a refused swivel the box admits, or a sweep that answers differently, fails with its joint and swivel or its chain.
  * @evidence contracts/development/testing.md#independent-expectations The oracle of 1 is the decomposition and overshoot the fit scores by, not the test's sinusoids, and the oracle of 3 is the same sweep without the test, compared to every bit.
- * @evidence contracts/development/testing.md#distinguishing-cases Proximal and distal twist placements, both sides' rest frames, a swing-twist gate and no constraint, and chains with and without a legal pose.
+ * @evidence contracts/development/testing.md#distinguishing-cases Proximal and distal twist placements, both sides' rest frames, a swing-twist gate with and without its range's frame and on another basis, no constraint, and chains with and without a legal pose.
  * @evidence contracts/development/testing.md#execution-ownership Seeded and in memory, under a few seconds alone; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios with their inputs and the behaviour each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios with their inputs and the behaviour each pins.
  */
 export function test_kinematics_box_excluded_swivels(): void {
   const random: () => number = seeded(20251115);
@@ -124,6 +131,63 @@ export function test_kinematics_box_excluded_swivels(): void {
       }
   }
   TestValidator.equals("a gated or free joint refuses nothing", nothing, []);
+
+  // 4. A swing-twist gate read in its range's frame refuses by its range.
+  const ranged: string[] = [];
+  let gatedRefused: number = 0;
+  for (const side of ["leftUpperArm", "rightUpperArm"] as const) {
+    const one: IJoint = joint(side, side, DEFAULT_HUMANOID_ROM[side]!);
+    for (let k: number = 0; k < 40; ++k) {
+      const rotation: (swivel: number) => IAutoMovieQuaternion =
+        turning(random);
+      const test: (low: number, high: number) => boolean = boxExcludedSwivels({
+        basis: one.basis,
+        frame: one.frame,
+        constraint: one.constraint,
+        joint: swingTwistRange.of(side),
+        rotation,
+      });
+      for (let swivel: number = 0; swivel < 360; swivel += 0.25) {
+        if (!test(swivel, swivel)) continue;
+        ++gatedRefused;
+        const overshoot: number = overshootOf(one, rotation(swivel));
+        if (!(overshoot > 0))
+          ranged.push(
+            `${one.name} rotation ${k} swivel ${swivel}: refused, overshoot ${overshoot}`,
+          );
+      }
+    }
+  }
+  TestValidator.equals(
+    "every swivel a swing-twist gate refuses is past its range",
+    ranged.slice(0, 20),
+    [],
+  );
+  TestValidator.predicate(
+    `a swing-twist gate refuses swivels (${gatedRefused})`,
+    gatedRefused > 0,
+  );
+  const foreign: IJoint = joint(
+    "leftUpperLeg",
+    "leftUpperArm",
+    DEFAULT_HUMANOID_ROM.leftUpperArm!,
+  );
+  const elsewhere: (low: number, high: number) => boolean = boxExcludedSwivels(
+    {
+      basis: foreign.basis,
+      frame: foreign.frame,
+      constraint: foreign.constraint,
+      joint: swingTwistRange.of("leftUpperArm"),
+      rotation: turning(random),
+    },
+  );
+  TestValidator.equals(
+    "a gate read on another basis refuses nothing",
+    Array.from({ length: 360 }, (_: unknown, swivel: number): number => swivel)
+      .filter((swivel: number): boolean => elsewhere(swivel, swivel))
+      .slice(0, 1),
+    [],
+  );
 
   // 3. The spared sweep is the full sweep.
   const leg: IJoint = joints[0]!;

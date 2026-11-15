@@ -11,6 +11,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
@@ -56,7 +57,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation; swivels the root's three-angle box certainly refuses are not scored (`boxExcludedSwivels`), with the full sweep's answer.
+ * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation; swivels the root's three-angle box or swing-twist range certainly refuses are not scored (`boxExcludedSwivels`), with the full sweep's answer.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input, called once per fit.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -183,8 +184,10 @@ export function fitHingedChainCandidate(
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
-      // The root's box refuses swivels its overshoot can only score above
-      // zero, so the sweep spares them (`boxExcludedSwivels`).
+      // The root's box, or its swing-twist range, refuses swivels its
+      // overshoot can only score above zero, so the sweep spares them
+      // (`boxExcludedSwivels`). The range is read in the frame
+      // `jointRomOvershoot` reads it in without a rig.
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
       ): ((low: number, high: number) => boolean) =>
@@ -192,6 +195,7 @@ export function fitHingedChainCandidate(
           basis: upperBasis,
           frame: props.restFrames?.[props.chain.upper],
           constraint: prepared.upperDomain.constraint,
+          joint: swingTwistRange.of(props.chain.upper),
           rotation: upper,
         }),
       score: (
