@@ -9,17 +9,17 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 const MM: number = 1e-3;
 
 /**
- * A vending machine stands at Crane's sizes, a pay station at Flowbird's StradaPAL's, and a gate valve is NIBCO's 4 in at one end of its size and 6 in at the other.
+ * A vending machine stands at Crane's sizes, a pay station at Flowbird's StradaPAL's, and a gate valve is NIBCO's 4 in or 6 in, whole.
  *
  * Scenarios:
  * 1. A vending machine is 1830 mm high, 813 mm deep and 895 to 1180 mm wide, its `front` on its `+Z` face.
  * 2. A pay station's body is the StradaPAL's 290 x 1488 x 328 mm under its 90 mm spacer and its 475 x 226 x 379 mm head, 1804 mm in all.
  * 3. An ATM's No. 5 key, card reader, cash slot and receipt slot stand at NCR's heights and depths from the shelf's front, across from the key by the remaining leg of the elevation distance after the height difference, to the clock position's side, the key on the centre line.
- * 4. A valve at size 0 has a 10 in handwheel 24 in above its pipe's axis, at size 1 a 12 in handwheel 31.06 in above it; its handwheel states no turns.
+ * 4. The 4 in valve has a 10 in handwheel 24 in above its pipe's axis, the 6 in a 12 in handwheel 31.06 in above it; its handwheel states no turns; over 200 seeds every valve drawn is one of the two exactly, and both are drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a cabinet or a handwheel off the maker's figures is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is Crane's or NIBCO's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases A ranging width over seeds; both ends of the valve's size.
+ * @evidence contracts/development/testing.md#distinguishing-cases A ranging width over seeds; both valves given, then the seeds' draws.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
@@ -61,12 +61,31 @@ export function test_archetype_machine_valve(): void {
     { kind: "payStation" },
     5,
   );
-  near("the pay station's body width", archetypeExtent(station, "x", ["cabinet"]).size, 0.29);
-  near("the pay station's body depth", archetypeExtent(station, "z", ["cabinet"]).size, 0.328);
-  near("the pay station's head width", archetypeExtent(station, "x", ["head"]).size, 0.475);
-  near("the pay station's height", archetypeExtent(station, "y").high, 1.488 + 0.09 + 0.226);
+  near(
+    "the pay station's body width",
+    archetypeExtent(station, "x", ["cabinet"]).size,
+    0.29,
+  );
+  near(
+    "the pay station's body depth",
+    archetypeExtent(station, "z", ["cabinet"]).size,
+    0.328,
+  );
+  near(
+    "the pay station's head width",
+    archetypeExtent(station, "x", ["head"]).size,
+    0.475,
+  );
+  near(
+    "the pay station's height",
+    archetypeExtent(station, "y").high,
+    1.488 + 0.09 + 0.226,
+  );
   // 3. The ATM.
-  const atm: ReturnType<typeof createMachine> = createMachine({ kind: "atm" }, 5);
+  const atm: ReturnType<typeof createMachine> = createMachine(
+    { kind: "atm" },
+    5,
+  );
   const shelf: number = archetypeExtent(atm, "z", ["shelf"]).high;
   for (const [id, height, depth, across] of [
     ["key5", 0.786, 0.089, 0],
@@ -82,11 +101,13 @@ export function test_archetype_machine_valve(): void {
   near("the ATM's shelf", archetypeExtent(atm, "y", ["shelf"]).high, 0.763);
   near("the ATM's fascia", archetypeExtent(atm, "x", ["cabinet"]).size, 0.77);
   // 4. The valve.
-  for (const [size, wheel, height] of [
-    [0, 0.254, 0.61],
-    [1, 0.305, 0.789],
-  ] as const) {
-    const valve: ReturnType<typeof createValve> = createValve({ size });
+  const read: Readonly<Record<createValve.Model, readonly [number, number]>> = {
+    "4in": [0.254, 0.61],
+    "6in": [0.305, 0.789],
+  };
+  for (const size of createValve.MODELS) {
+    const [wheel, height]: readonly [number, number] = read[size];
+    const valve: ReturnType<typeof createValve> = createValve({ model: size });
     const hand: IAutoMovieAffordance = valve.affordance("wheel");
     const pipe: { low: number; high: number } = archetypeExtent(valve, "y", [
       "pipe",
@@ -97,10 +118,29 @@ export function test_archetype_machine_valve(): void {
       hand.frame.translation.y - (pipe.low + pipe.high) / 2,
       height,
     );
-    if (pipe.low < -1e-9) findings.push(`valve ${size}: the pipe is below the floor`);
+    if (pipe.low < -1e-9)
+      findings.push(`valve ${size}: the pipe is below the floor`);
     if (hand.travel !== undefined)
-      findings.push(`valve ${size}: the handwheel states turns no source gives`);
+      findings.push(
+        `valve ${size}: the handwheel states turns no source gives`,
+      );
   }
+  const drawn: Set<string> = new Set();
+  for (let seed: number = 0; seed < 200; seed++) {
+    const diameter: number =
+      2 * createValve({}, seed).affordance("wheel").radius!;
+    const match: createValve.Model | undefined = createValve.MODELS.find(
+      (model: createValve.Model): boolean =>
+        Math.abs(read[model][0] - diameter) <= 1e-9,
+    );
+    if (match === undefined)
+      findings.push(
+        `valve ${seed}: a ${diameter} m handwheel is no read valve`,
+      );
+    else drawn.add(match);
+  }
+  if (drawn.size !== createValve.MODELS.length)
+    findings.push(`200 seeds drew only ${[...drawn].join(", ")}`);
   TestValidator.equals(
     "a vending machine and a gate valve stand at the makers' sizes",
     findings,

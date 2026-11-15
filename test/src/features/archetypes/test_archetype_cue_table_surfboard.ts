@@ -1,4 +1,8 @@
-import { ArchetypeUnits, createCueTable, createSurfboard } from "@automovie/archetypes";
+import {
+  ArchetypeUnits,
+  createCueTable,
+  createSurfboard,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -8,15 +12,15 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 const MM: number = 1e-3;
 
 /**
- * A pool table is the WPA's 9 ft table and a surfboard lies between the maker's 5'10 and 6'2 boards.
+ * A pool table is the WPA's 9 ft table and a surfboard is one of the maker's 5'10, 6'0 and 6'2 boards, whole.
  *
  * Scenarios:
  * 1. A pool table's bed is 100 by 50 in within the rule's 1/8 in, 29 1/4 to 31 in up; its cushions' nose lines stand 62 1/2 to 64 1/2% of a 2 1/4 in ball over the bed along the bed's four edges, each facing out; its rails are 4 to 7 1/2 in wide.
- * 2. A surfboard at size 0 is the 5'10 x 18.75 x 2.36 in board and at size 1 the 6'2 x 19.50 x 2.50 in; its deck is its top and its rail on its `+X` edge.
+ * 2. Each surfboard given is its chart row, 5'10 x 18.75 x 2.36, 6'0 x 19.18 x 2.40 or 6'2 x 19.50 x 2.50 in, its deck its top and its rail on its `+X` edge; over 200 seeds every board drawn is one of the three exactly, and all three are drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a table or board off its source is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is the WPA's or the maker's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases The four rails each way; both ends of the board's size.
+ * @evidence contracts/development/testing.md#distinguishing-cases The four rails each way; each board given, then the seeds' draws.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
  */
@@ -67,9 +71,19 @@ export function test_archetype_cue_table_surfboard(): void {
   const table: ReturnType<typeof createCueTable> = createCueTable({}, 4);
   const width: number = table.affordance("bed").width!;
   const length: number = table.affordance("bed").depth!;
-  if (!(width >= 50 * ArchetypeUnits.INCH - 1e-9 && width <= 50.125 * ArchetypeUnits.INCH + 1e-9))
+  if (
+    !(
+      width >= 50 * ArchetypeUnits.INCH - 1e-9 &&
+      width <= 50.125 * ArchetypeUnits.INCH + 1e-9
+    )
+  )
     findings.push(`the bed is ${width} wide`);
-  if (!(length >= 100 * ArchetypeUnits.INCH - 1e-9 && length <= 100.125 * ArchetypeUnits.INCH + 1e-9))
+  if (
+    !(
+      length >= 100 * ArchetypeUnits.INCH - 1e-9 &&
+      length <= 100.125 * ArchetypeUnits.INCH + 1e-9
+    )
+  )
     findings.push(`the bed is ${length} long`);
   for (const [id, axis, sign] of [
     ["leftRail", "x", 1],
@@ -86,14 +100,42 @@ export function test_archetype_cue_table_surfboard(): void {
   }
 
   // 2. The surfboard.
-  for (const [size, length, width, thickness] of [
-    [0, 70 * ArchetypeUnits.INCH, 18.75 * ArchetypeUnits.INCH, 2.36 * ArchetypeUnits.INCH],
-    [1, 74 * ArchetypeUnits.INCH, 19.5 * ArchetypeUnits.INCH, 2.5 * ArchetypeUnits.INCH],
-  ] as const) {
-    const board: ReturnType<typeof createSurfboard> = createSurfboard({ size });
+  const chart: readonly (readonly [
+    createSurfboard.Model,
+    number,
+    number,
+    number,
+  ])[] = [
+    [
+      "5'10",
+      70 * ArchetypeUnits.INCH,
+      18.75 * ArchetypeUnits.INCH,
+      2.36 * ArchetypeUnits.INCH,
+    ],
+    [
+      "6'0",
+      72 * ArchetypeUnits.INCH,
+      19.18 * ArchetypeUnits.INCH,
+      2.4 * ArchetypeUnits.INCH,
+    ],
+    [
+      "6'2",
+      74 * ArchetypeUnits.INCH,
+      19.5 * ArchetypeUnits.INCH,
+      2.5 * ArchetypeUnits.INCH,
+    ],
+  ];
+  for (const [size, length, width, thickness] of chart) {
+    const board: ReturnType<typeof createSurfboard> = createSurfboard({
+      model: size,
+    });
     near(`board ${size}: length`, archetypeExtent(board, "z").size, length);
     near(`board ${size}: width`, archetypeExtent(board, "x").size, width);
-    near(`board ${size}: thickness`, archetypeExtent(board, "y").size, thickness);
+    near(
+      `board ${size}: thickness`,
+      archetypeExtent(board, "y").size,
+      thickness,
+    );
     near(
       `board ${size}: the deck`,
       board.affordance("deck").frame.translation.y,
@@ -105,6 +147,31 @@ export function test_archetype_cue_table_surfboard(): void {
       width / 2,
     );
   }
+  const drawn: Set<string> = new Set();
+  for (let seed: number = 0; seed < 200; seed++) {
+    const board: ReturnType<typeof createSurfboard> = createSurfboard({}, seed);
+    const length: number = archetypeExtent(board, "z").size;
+    const width: number = archetypeExtent(board, "x").size;
+    const thickness: number = archetypeExtent(board, "y").size;
+    const row:
+      | readonly [createSurfboard.Model, number, number, number]
+      | undefined = chart.find(
+      ([, l, w, t]: readonly [
+        createSurfboard.Model,
+        number,
+        number,
+        number,
+      ]): boolean =>
+        Math.abs(l - length) <= 1e-9 &&
+        Math.abs(w - width) <= 1e-9 &&
+        Math.abs(t - thickness) <= 1e-9,
+    );
+    if (row === undefined)
+      findings.push(`seed ${seed}: a ${length} m board is no chart row`);
+    else drawn.add(row[0]);
+  }
+  if (drawn.size !== chart.length)
+    findings.push(`200 seeds drew only ${[...drawn].join(", ")}`);
   TestValidator.equals(
     "a pool table and a surfboard stand at their sources",
     findings,

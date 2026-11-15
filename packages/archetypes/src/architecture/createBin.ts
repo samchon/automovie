@@ -2,21 +2,11 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeUnits,
-  type IArchetypeBand,
 } from "../core";
-
-/** The wheeled bins read. */
-const SULO: string =
-  "SULO 240 and 360 litre containers: total height about 1060 and 1100 mm, bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848, width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and 17 kg empty (https://sulo.com.au/product/240-litre-container/, https://sulo.com.au/product/360-litre-container/)";
-
-/** The front-load containers read. */
-const WASTEQUIP: string =
-  "Wastequip steel front-load containers, 2 and 3 yd flat nestable: 81 7/8 and 82 7/16 in long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back, 505 and 602 lb (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf)";
 
 /** One container model read: its outline in metres and its mass in kilograms. */
 interface IModel {
@@ -31,53 +21,49 @@ interface IModel {
 }
 
 /**
- * The two models read for each kind, the smaller first. For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height with the lid, `reach` its depth with the handle, `handle` the handle's width, `wheel` its wheels' diameter. For a dumpster: `width` its length across the front, `depth` its depth at the lid, `reach` at the base, `height` at the front and `top` at the back; it has no handle or wheels.
+ * The models read, each whole, by name. The wheeled bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm, bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848, width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and 17 kg empty (https://sulo.com.au/product/240-litre-container/, https://sulo.com.au/product/360-litre-container/). The dumpsters: Wastequip steel front-load containers, 2 and 3 yd flat nestable, 81 7/8 and 82 7/16 in long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back, 505 and 602 lb (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf). For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height with the lid, `reach` its depth with the handle, `handle` the handle's width, `wheel` its wheels' diameter. For a dumpster: `width` its length across the front, `depth` its depth at the lid, `reach` at the base, `height` at the front and `top` at the back; it has no handle or wheels.
  */
-const MODELS: Readonly<Record<createBin.Kind, readonly [IModel, IModel]>> = {
-  wheelieBin: [
-    {
-      width: 0.585,
-      depth: 0.66,
-      height: 0.99,
-      top: 1.06,
-      reach: 0.73,
-      handle: 0.4,
-      wheel: 0.2,
-      mass: 12.5,
-    },
-    {
-      width: 0.68,
-      depth: 0.77,
-      height: 1.028,
-      top: 1.1,
-      reach: 0.848,
-      handle: 0.52,
-      wheel: 0.25,
-      mass: 17,
-    },
-  ],
-  dumpster: [
-    {
-      width: (81 + 7 / 8) * ArchetypeUnits.INCH,
-      depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
-      height: (40 + 15 / 16) * ArchetypeUnits.INCH,
-      top: (45 + 1 / 4) * ArchetypeUnits.INCH,
-      reach: 34 * ArchetypeUnits.INCH,
-      handle: 0,
-      wheel: 0,
-      mass: 505 * ArchetypeUnits.POUND,
-    },
-    {
-      width: (82 + 7 / 16) * ArchetypeUnits.INCH,
-      depth: (46 + 3 / 4) * ArchetypeUnits.INCH,
-      height: (48 + 1 / 2) * ArchetypeUnits.INCH,
-      top: (52 + 11 / 16) * ArchetypeUnits.INCH,
-      reach: 42 * ArchetypeUnits.INCH,
-      handle: 0,
-      wheel: 0,
-      mass: 602 * ArchetypeUnits.POUND,
-    },
-  ],
+const MODELS: Readonly<Record<createBin.Model, IModel>> = {
+  "240L": {
+    width: 0.585,
+    depth: 0.66,
+    height: 0.99,
+    top: 1.06,
+    reach: 0.73,
+    handle: 0.4,
+    wheel: 0.2,
+    mass: 12.5,
+  },
+  "360L": {
+    width: 0.68,
+    depth: 0.77,
+    height: 1.028,
+    top: 1.1,
+    reach: 0.848,
+    handle: 0.52,
+    wheel: 0.25,
+    mass: 17,
+  },
+  "2yd": {
+    width: (81 + 7 / 8) * ArchetypeUnits.INCH,
+    depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
+    height: (40 + 15 / 16) * ArchetypeUnits.INCH,
+    top: (45 + 1 / 4) * ArchetypeUnits.INCH,
+    reach: 34 * ArchetypeUnits.INCH,
+    handle: 0,
+    wheel: 0,
+    mass: 505 * ArchetypeUnits.POUND,
+  },
+  "3yd": {
+    width: (82 + 7 / 16) * ArchetypeUnits.INCH,
+    depth: (46 + 3 / 4) * ArchetypeUnits.INCH,
+    height: (48 + 1 / 2) * ArchetypeUnits.INCH,
+    top: (52 + 11 / 16) * ArchetypeUnits.INCH,
+    reach: 42 * ArchetypeUnits.INCH,
+    handle: 0,
+    wheel: 0,
+    mass: 602 * ArchetypeUnits.POUND,
+  },
 };
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `lid`, a dumpster lid's thickness; `bar`, a handle's and a wheel's width. */
@@ -89,19 +75,19 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
 /**
  * A waste container standing on the ground: a two-wheeled bin or a front-load dumpster.
  *
- * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along its back top edge. Its outline lies between the maker's two models read, by the drawn `size`, so every draw is one coherent container. A wheeled bin is its body, its lid and two wheels at its back's foot; `handle` is the bar behind its body by the sheet's difference of total and bin depth, at the bin's height, where it is gripped to tip the bin onto its wheels and haul it. A dumpster is its body, narrower at the base than at the lid, under a lid level at its mean height. `lid` is the lid's hinge on both; it states no travel, since no source read gives how far a lid opens. `front` is the front face a person pushes.
+ * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along its back top edge. It is one of its maker's two models read, whole: the model given, or one drawn from the seed. A wheeled bin is its body, its lid and two wheels at its back's foot; `handle` is the bar behind its body by the sheet's difference of total and bin depth, at the bin's height, where it is gripped to tip the bin onto its wheels and haul it. A dumpster is its body, narrower at the base than at the lid, under a lid level at its mean height. `lid` is the lid's hinge on both; it states no travel, since no source read gives how far a lid opens. `front` is the front face a person pushes.
  *
  * A dumpster rests on its steel body: steel on concrete (`ArchetypeFriction`).
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, and the model if the author fixes it.
+ * @param seed The seed that draws the model when it is not given; absent, the kind's first.
  * @returns The container.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind's maker does not list.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, how its size is drawn, its contacts and why its lid does not open.
- * @evidence contracts/development/implementation.md#principled-implementation Every size interpolated between the two models read by one drawn share, so no draw mixes one model's height with the other's depth; the handle where the total depth passes the body.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the share, interpolate the outline, then the body, lid and the kind's extra parts, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bin's taper and a dumpster's sloped front and lid are boxes; the lid's and handle's sections are construction estimates.
+ * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, how its model is chosen, its contacts and why its lid does not open.
+ * @evidence contracts/development/implementation.md#principled-implementation One read model whole, every size and the mass as its maker gives them; the handle where the total depth passes the body.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, then build the body, lid and the kind's extra parts, then the contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No container between the two read is made; a bin's taper and a dumpster's sloped front and lid are boxes; the lid's and handle's sections are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -109,40 +95,39 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
 export function createBin(
   params: createBin.IParams,
   seed?: number | string,
-): Archetype<createBin.Affordance, createBin.Dimension> {
+): Archetype<createBin.Affordance, never> {
   const kind: createBin.Kind = ArchetypeDraw.choice(
     "bin",
     "kind",
     params.kind,
     createBin.KINDS,
   );
-  const d: Record<createBin.Dimension, number> = ArchetypeDraw.dimensions(
+  const model: createBin.Model = ArchetypeDraw.pick(
     "bin",
-    createBin.BANDS,
+    "model",
+    params.model,
+    createBin.MODELS[kind],
     seed,
-    params,
   );
-  const [small, large]: readonly [IModel, IModel] = MODELS[kind];
-  const at = (key: keyof IModel): number =>
-    small[key] + (large[key] - small[key]) * d.size;
-  const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
+  const read: IModel = MODELS[model];
+  const builder: ArchetypeBuilder<createBin.Affordance, never> =
     new ArchetypeBuilder({
       archetype: "bin",
       id: params.id,
-      name: kind === "wheelieBin" ? "wheelie bin" : "dumpster",
-      dimensions: d,
+      name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model}`,
+      dimensions: {},
     });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
-  const width: number = at("width");
-  const depth: number = at("depth");
-  const height: number = at("height");
-  const top: number = at("top");
+  const width: number = read.width;
+  const depth: number = read.depth;
+  const height: number = read.height;
+  const top: number = read.top;
   const front: number = depth / 2;
   const back: number = -depth / 2;
   let hinge: number;
   if (kind === "wheelieBin") {
-    const wheel: number = at("wheel") / 2;
+    const wheel: number = read.wheel / 2;
     hinge = top;
     builder.box("body", v(width, height, depth), v(0, height / 2, 0), {
       color: "#2f6b3a",
@@ -164,8 +149,8 @@ export function createBin(
         v(sign * (width / 2 - E.bar), wheel, back),
         { color: "#1d1d1d" },
       );
-    const behind: number = front - at("reach");
-    const span: number = at("handle");
+    const behind: number = front - read.reach;
+    const span: number = read.handle;
     builder.rod(
       "handle",
       E.bar / 2,
@@ -187,7 +172,7 @@ export function createBin(
       length: span,
     });
   } else {
-    const base: number = at("reach");
+    const base: number = read.reach;
     const mean: number = (height + top) / 2;
     const body: number = mean - E.lid;
     hinge = mean;
@@ -224,14 +209,17 @@ export function createBin(
     width,
     depth: height,
   });
-  return builder.build(at("mass"), kind === "dumpster" ? { rests: "steel" } : {});
+  return builder.build(
+    read.mass,
+    kind === "dumpster" ? { rests: "steel" } : {},
+  );
 }
 
 /**
- * Companion types and bands of {@link createBin}.
+ * Companion types and constants of {@link createBin}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; the band its source.
- * @evidence contracts/development/design.md#principled-representation One drawn share between two read models, so the outline stays one maker's shape.
+ * @evidence contracts/development/common.md#meaningful-documentation Each kind, model and affordance states what it is; each model its source.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the models read, each built whole, listed by kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a bin is hauled by, the lid it is opened at and the face it is pushed at (#3468 N2).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A lid with no source for its opening states no travel.
  */
@@ -251,20 +239,24 @@ export namespace createBin {
    */
   export type Affordance = "lid" | "front" | "handle";
 
-  /** The free dimension: `size`, where the container lies between the maker's two models read, 0 the smaller (SULO 240 L, Wastequip 2 yd) and 1 the larger (SULO 360 L, Wastequip 3 yd). */
-  export type Dimension = "size";
+  /** The models read: SULO's 240 and 360 litre wheeled bins and Wastequip's 2 and 3 yd front-load containers. */
+  export type Model = "240L" | "360L" | "2yd" | "3yd";
 
-  /** The parameters: the kind, and the size fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** Each kind's models, its default first. */
+  export const MODELS: Readonly<Record<Kind, readonly Model[]>> = {
+    wheelieBin: ["240L", "360L"],
+    dumpster: ["2yd", "3yd"],
+  };
+
+  /** The parameters: the kind, and the model if fixed. */
+  export interface IParams {
     /** Which container. */
     kind: Kind;
+
+    /** Which of the kind's models; drawn from the seed when absent. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `bin` when absent. */
     id?: string;
   }
-
-  /** The band of the free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    size: ArchetypeBand.of("", 0, 1, `${SULO}; ${WASTEQUIP}`),
-  };
 }

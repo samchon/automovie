@@ -10,7 +10,7 @@ import type { IArchetypeBand } from "./IArchetypeBand";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stream's key, what it guarantees and how a number seed is read.
  * @evidence contracts/development/design.md#principled-representation Keyed draws by stable names, never by ordinals, the film's own seeding model (`deriveAutoMovieSeed`).
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions: `dimensions`, which every producer calls once, and `choice`, for a kind read at run time.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions: `dimensions`, which every producer calls once; `choice`, for a kind read at run time; and `pick`, for one of the catalogue models a producer read, given or drawn whole.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed value outside its band is refused, never clamped, so the band is the only variation there is.
  */
 export namespace ArchetypeDraw {
@@ -139,6 +139,67 @@ export namespace ArchetypeDraw {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function choice<Value extends string>(
+    archetype: string,
+    axis: string,
+    value: Value,
+    alternatives: readonly Value[],
+  ): Value {
+    return admit(archetype, axis, value, alternatives);
+  }
+
+  /**
+   * One of a producer's closed alternatives, given or drawn from the seed: the read model a producer builds whole, among the catalogue models it read.
+   *
+   * A given value is checked as {@link choice} checks it. Absent, it is drawn uniformly from the alternatives on the axis's own counter-based stream, keyed by the seed, the producer's name and the axis as {@link dimensions} keys a dimension, so the draw is deterministic and independent of the producer's other draws; with no seed either, it is the first alternative, the producer's stated default.
+   *
+   * @param archetype The producer's name, which keys the stream and names refusals.
+   * @param axis The parameter's name, which keys the stream.
+   * @param value The value given, or undefined to draw one.
+   * @param alternatives The accepted values, at least one, the default first.
+   * @param seed The seed; absent, the first alternative.
+   * @returns The value.
+   * @throws {ArchetypeRefusal} When a given value is not one of the alternatives.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the given, drawn and seedless cases and the stream's key.
+   * @evidence contracts/development/implementation.md#principled-implementation A uniform draw over a closed list from one 53-bit float on the stream `dimensions` would use for a dimension of the axis's name: uniform because a catalogue states which models exist, not how often each is met.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Given, seedless or drawn, in that order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing between two alternatives is ever produced; a value not listed is refused, never replaced by a default.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One hash and one Philox block.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per produced archetype.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pick<Value extends string>(
+    archetype: string,
+    axis: string,
+    value: Value | undefined,
+    alternatives: readonly Value[],
+    seed: number | string | undefined,
+  ): Value {
+    if (value !== undefined) return admit(archetype, axis, value, alternatives);
+    if (seed === undefined) return alternatives[0]!;
+    const root: string = deriveAutoMovieSeed(
+      String(seed),
+      "archetype",
+      archetype,
+    );
+    const index: number = Math.floor(
+      alternatives.length *
+        createAutoMovieRandom(deriveAutoMovieSeed(root, axis)).float(0),
+    );
+    return alternatives[Math.min(index, alternatives.length - 1)]!;
+  }
+
+  /**
+   * A value checked against a closed list: the one validation `choice` and `pick` share.
+   *
+   * @param archetype The producer's name.
+   * @param axis The parameter's name.
+   * @param value The value given.
+   * @param alternatives The accepted values.
+   * @returns The value.
+   * @throws {ArchetypeRefusal} When the value is not one of the alternatives.
+   */
+  function admit<Value extends string>(
     archetype: string,
     axis: string,
     value: Value,

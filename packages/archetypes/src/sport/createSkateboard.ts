@@ -12,19 +12,19 @@ import {
 
 /** The decks read. */
 const POWELL: string =
-  "Powell Peralta decks, \"7-Ply Maple\": Kilian Martin Wolf 4, 7.75 x 31.75 in, 14 in wheelbase (https://powell-peralta.com/powell-peralta-kilian-martin-wolf-4-skateboard-deck-7-75-x-31-75); Chin Mask, 8.5 x 33.5 in, 15 in wheelbase (https://powell-peralta.com/powell-peralta-chin-mask-skateboard-deck-black-8-5-x-33-5)";
+  'Powell Peralta decks, "7-Ply Maple": Kilian Martin Wolf 4, 7.75 x 31.75 in, 14 in wheelbase (https://powell-peralta.com/powell-peralta-kilian-martin-wolf-4-skateboard-deck-7-75-x-31-75); Chin Mask, 8.5 x 33.5 in, 15 in wheelbase (https://powell-peralta.com/powell-peralta-chin-mask-skateboard-deck-black-8-5-x-33-5)';
 
 /** The veneer read. */
 const VENEER: string =
-  "Roarockit Skateboard Co., Understand the Materials: maple veneer \"Normally this is 1/16\" thick\" (https://roa-rockit.squarespace.com/skateboard-building/2015/3/14/understand-the-materials)";
+  'Roarockit Skateboard Co., Understand the Materials: maple veneer "Normally this is 1/16" thick" (https://roa-rockit.squarespace.com/skateboard-building/2015/3/14/understand-the-materials)';
 
 /** The truck read. */
 const TRUCK: string =
-  "Independent Trucks, Stage 11 Standard: \"55MM HEIGHT.\" (https://independenttrucks.com/trucks)";
+  'Independent Trucks, Stage 11 Standard: "55MM HEIGHT." (https://independenttrucks.com/trucks)';
 
 /** The wheel read. */
 const WHEEL: string =
-  "Spitfire Formula Four Classic wheels, \"52 mm\" in the product title (https://www.skatedeluxe.com/en/p/spitfire-formula-four-classic-wheels-white-green-52-mm-99a-4-pack_p123290?cic=GB)";
+  'Spitfire Formula Four Classic wheels, "52 mm" in the product title (https://www.skatedeluxe.com/en/p/spitfire-formula-four-classic-wheels-white-green-52-mm-99a-4-pack_p123290?cic=GB)';
 
 /** One deck read: its width, length and wheelbase, metres. */
 interface IModel {
@@ -33,11 +33,19 @@ interface IModel {
   wheelbase: number;
 }
 
-/** The narrower and the wider deck read. */
-const MODELS: readonly [IModel, IModel] = [
-  { width: 7.75 * ArchetypeUnits.INCH, length: 31.75 * ArchetypeUnits.INCH, wheelbase: 14 * ArchetypeUnits.INCH },
-  { width: 8.5 * ArchetypeUnits.INCH, length: 33.5 * ArchetypeUnits.INCH, wheelbase: 15 * ArchetypeUnits.INCH },
-];
+/** The decks read, each whole, by Powell Peralta's width by length. */
+const MODELS: Readonly<Record<createSkateboard.Model, IModel>> = {
+  "7.75x31.75": {
+    width: 7.75 * ArchetypeUnits.INCH,
+    length: 31.75 * ArchetypeUnits.INCH,
+    wheelbase: 14 * ArchetypeUnits.INCH,
+  },
+  "8.5x33.5": {
+    width: 8.5 * ArchetypeUnits.INCH,
+    length: 33.5 * ArchetypeUnits.INCH,
+    wheelbase: 15 * ArchetypeUnits.INCH,
+  },
+};
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's block along the deck. */
 const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
@@ -48,17 +56,17 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
 /**
  * A skateboard standing on its wheels, its nose toward `-Z`.
  *
- * Its deck lies between the maker's narrower and wider deck read, by the drawn `size`, as thick as seven of the supplier's maple veneers, the ply count the maker states. Each truck holds its axle the truck's read height under the deck at the deck's wheelbase, and each axle carries two wheels of the read diameter. `deck` is the deck's top, the surface the feet stand on; `nose` and `tail` its ends, ledges a foot presses. Riding it is balance on a rolling support, which no motion law covers yet (#3468 N11), so it is built for static use and carrying.
+ * Its deck is one of the maker's two decks read, whole: the model given, or one drawn from the seed, as thick as seven of the supplier's maple veneers, the ply count the maker states. Each truck holds its axle the truck's read height under the deck at the deck's wheelbase, and each axle carries two wheels of the read diameter. `deck` is the deck's top, the surface the feet stand on; `nose` and `tail` its ends, ledges a foot presses. Riding it is balance on a rolling support, which no motion law covers yet (#3468 N11), so it is built for static use and carrying.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The deck and any dimension the author fixes.
+ * @param seed The seed that draws the deck when it is not given and every dimension left free inside its band; absent, the first deck and the middle of each band.
  * @returns The skateboard.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its size is drawn, its contacts and its static use with the missing law.
- * @evidence contracts/development/implementation.md#principled-implementation The deck's width, length and wheelbase interpolated between Powell Peralta's two decks by one drawn share; its thickness seven 1/16 in veneers, Powell Peralta's ply count times Roarockit's veneer; the deck's underside the Independent truck's 55 mm over the axle, the axle a 52 mm wheel's radius off the ground.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the share, the deck, the trucks and wheels, then the three contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The deck is flat, with no concave or kicked nose and tail; the wheels' width and the trucks' blocks are construction estimates.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its deck is chosen, its contacts and its static use with the missing law.
+ * @evidence contracts/development/implementation.md#principled-implementation One of Powell Peralta's two decks whole, its width, length and wheelbase as the maker's page gives them; its thickness seven 1/16 in veneers, Powell Peralta's ply count times Roarockit's veneer; the deck's underside the Independent truck's 55 mm over the axle, the axle a 52 mm wheel's radius off the ground.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the deck, draw the dimensions, then the deck, the trucks and wheels, and the three contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No deck between the two read is made; the deck is flat, with no concave or kicked nose and tail; the wheels' width and the trucks' blocks are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -67,35 +75,46 @@ export function createSkateboard(
   params: createSkateboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSkateboard.Affordance, createSkateboard.Dimension> {
-  const d: Record<createSkateboard.Dimension, number> = ArchetypeDraw.dimensions(
+  const model: createSkateboard.Model = ArchetypeDraw.pick(
     "skateboard",
-    createSkateboard.BANDS,
+    "model",
+    params.model,
+    createSkateboard.MODELS,
     seed,
-    params,
   );
-  const [narrow, wide]: readonly [IModel, IModel] = MODELS;
-  const at = (key: keyof IModel): number =>
-    narrow[key] + (wide[key] - narrow[key]) * d.size;
+  const read: IModel = MODELS[model];
+  const d: Record<createSkateboard.Dimension, number> =
+    ArchetypeDraw.dimensions(
+      "skateboard",
+      createSkateboard.BANDS,
+      seed,
+      params,
+    );
   const builder: ArchetypeBuilder<
     createSkateboard.Affordance,
     createSkateboard.Dimension
   > = new ArchetypeBuilder({
     archetype: "skateboard",
     id: params.id,
-    name: "skateboard",
+    name: `skateboard ${model}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
-  const width: number = at("width");
-  const length: number = at("length");
-  const base: number = at("wheelbase") / 2;
+  const width: number = read.width;
+  const length: number = read.length;
+  const base: number = read.wheelbase / 2;
   const radius: number = d.wheel / 2;
   const under: number = radius + d.truck;
   const top: number = under + d.thickness;
-  builder.box("deck", v(width, d.thickness, length), v(0, under + d.thickness / 2, 0), {
-    color: "#c8a77a",
-  });
+  builder.box(
+    "deck",
+    v(width, d.thickness, length),
+    v(0, under + d.thickness / 2, 0),
+    {
+      color: "#c8a77a",
+    },
+  );
   for (const [end, sign] of [
     ["front", -1],
     ["back", 1],
@@ -149,11 +168,17 @@ export function createSkateboard(
  * Companion types and bands of {@link createSkateboard}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One drawn share between two read decks; the thickness a derivation from a read ply count and a read veneer.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the decks read, each built whole; the thickness a derivation from a read ply count and a read veneer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The deck the feet stand on and the ends a foot presses (#3468 N11).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass, which no page read gives, is provisional.
  */
 export namespace createSkateboard {
+  /** The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in, and Chin Mask, 8.5 by 33.5 in. */
+  export type Model = "7.75x31.75" | "8.5x33.5";
+
+  /** Every deck, the default first. */
+  export const MODELS: readonly Model[] = ["7.75x31.75", "8.5x33.5"];
+
   /**
    * The affordance ids:
    *
@@ -165,23 +190,24 @@ export namespace createSkateboard {
   /**
    * The free dimensions:
    *
-   * - `size`: where the deck lies between the two read, 0 the narrower and 1 the wider.
    * - `thickness`: the deck, metres.
    * - `truck`: a truck's height from the deck's underside to the axle, metres.
    * - `wheel`: a wheel's diameter, metres.
    * - `mass`: kilograms.
    */
-  export type Dimension = "size" | "thickness" | "truck" | "wheel" | "mass";
+  export type Dimension = "thickness" | "truck" | "wheel" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /** The parameters: the deck, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which deck; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `skateboard` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    size: ArchetypeBand.of("", 0, 1, POWELL),
     thickness: ArchetypeBand.metres(
       (7 / 16) * ArchetypeUnits.INCH,
       (7 / 16) * ArchetypeUnits.INCH,

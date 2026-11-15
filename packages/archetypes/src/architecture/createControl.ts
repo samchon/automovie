@@ -6,16 +6,13 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeRefusal,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
-/** The levers read. */
-const LEVER: string =
-  "Elesa+Ganter DIN 6337 ball levers, type L: lever length l1 63, 80, 100, 125 and 160 mm from the hub's centre to the DIN 319 ball knob's, the arm rising 20 degrees off the plane square to the bore, with knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf)";
-
-/** One lever read, metres and kilograms: its length, knob, arm and hub across, hub along the bore, and mass. */
+/** One lever read, metres and kilograms: its length from the hub's centre to the knob's, its knob, arm and hub across, its hub along the bore, and its mass. */
 interface ILever {
   length: number;
   knob: number;
@@ -25,23 +22,14 @@ interface ILever {
   mass: number;
 }
 
-/** The five DIN 6337 levers read, the shortest first. */
-const LEVERS: readonly ILever[] = [
-  [63, 20, 8, 16, 12, 32],
-  [80, 20, 9, 20, 14.5, 53],
-  [100, 25, 11, 25, 18.5, 100],
-  [125, 32, 15, 32, 24, 216],
-  [160, 40, 18, 40, 30, 415],
-].map(
-  ([length, knob, arm, hub, bore, grams]: number[]): ILever => ({
-    length: length! * ArchetypeUnits.MILLIMETRE,
-    knob: knob! * ArchetypeUnits.MILLIMETRE,
-    arm: arm! * ArchetypeUnits.MILLIMETRE,
-    hub: hub! * ArchetypeUnits.MILLIMETRE,
-    bore: bore! * ArchetypeUnits.MILLIMETRE,
-    mass: grams! / 1000,
-  }),
-);
+/** The levers read, each whole, by its length l1 in millimetres: Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf). */
+const LEVERS: Readonly<Record<createControl.Lever, ILever>> = {
+  "63": row(63, 20, 8, 16, 12, 32),
+  "80": row(80, 20, 9, 20, 14.5, 53),
+  "100": row(100, 25, 11, 25, 18.5, 100),
+  "125": row(125, 32, 15, 32, 24, 216),
+  "160": row(160, 40, 18, 40, 30, 415),
+};
 
 /** A DIN 6337 lever's arm off the plane square to its bore, degrees: the drawing's 20. */
 const RISE: number = 20;
@@ -51,19 +39,19 @@ const RISE: number = 20;
  *
  * The panel is the `XY` plane facing `+Z`, not built, and the control's axis stands out of it at the drawn height above the origin on the floor, within the reach range for operable parts.
  *
- * - A lever's hub turns on a shaft along `+Z`, its arm pointing up at rest and rising off the panel at the drawing's 20 degrees to its ball knob. Its sizes are the maker's five levers', each interpolated at the drawn length between the two read either side. `knob` is the ball, a handle riding `shaft`, the shaft's turn about `+Z`; the shaft states no travel, since no source read gives a lever's throw.
+ * - A lever's hub turns on a shaft along `+Z`, its arm pointing up at rest and rising off the panel at the drawing's 20 degrees to its ball knob. It is one of the maker's five levers read, whole: the lever given, or one drawn from the seed. `knob` is the ball, a handle riding `shaft`, the shaft's turn about `+Z`; the shaft states no travel, since no source read gives a lever's throw.
  * - A dial is a selector head, its handle standing proud of the panel; `dial` turns it about `+Z` by the maker's 45 degrees, as far either way.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a lever's model and any dimension the author fixes.
+ * @param seed The seed that draws a lever's model when it is not given and every dimension left free inside its band; absent, the first lever and the middle of each band.
  * @returns The control.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a lever the sheet does not list, a lever named for a dial, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the control stands, how each kind moves, why the lever states no travel, and each contact.
- * @evidence contracts/development/implementation.md#principled-implementation The lever's hub, arm and knob at the maker's sizes, interpolated between its two levers either side of the drawn length, the knob at that length along an arm rising 20 degrees from the hub's centre half the hub out from the panel; the selector head at the maker's diameter, depth proud of the panel, turn and weight; the axis height in the ADA's reach range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's parts and contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The panel and the shaft behind it are the machine's, not built; a lever between two read sizes is interpolated, not a sixth catalogue size.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three parts and a five-row table.
+ * @evidence contracts/development/implementation.md#principled-implementation One of the maker's levers whole, its hub, arm, knob and mass as its row gives them, the knob at its length along an arm rising 20 degrees from the hub's centre half the hub out from the panel; the selector head at the maker's diameter, depth proud of the panel, turn and weight; the axis height in the ADA's reach range.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the height, pick a lever's row, then the kind's parts and contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lever between the sheet's rows is made; the panel and the shaft behind it are the machine's, not built.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -77,14 +65,22 @@ export function createControl(
     params.kind,
     createControl.KINDS,
   );
-  const d: Partial<Record<createControl.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "control",
-      createControl.BANDS[kind],
-      seed,
-      params,
-      createControl.BANDS,
-    );
+  if (kind === "dial" && params.lever !== undefined)
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "control",
+      axis: "lever",
+      value: params.lever,
+      feasible: null,
+      reason: "a dial has no lever",
+      fix: "leave lever out for a dial",
+    });
+  const d: Record<createControl.Dimension, number> = ArchetypeDraw.dimensions(
+    "control",
+    createControl.BANDS,
+    seed,
+    params,
+  );
   const builder: ArchetypeBuilder<
     createControl.Affordance,
     createControl.Dimension
@@ -95,7 +91,7 @@ export function createControl(
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const y: number = d.height!;
+  const y: number = d.height;
   const black: string = "#1d1d1d";
   if (kind === "dial") {
     const head: number = createControl.SELECTOR.head;
@@ -112,7 +108,14 @@ export function createControl(
     });
     return builder.build(createControl.SELECTOR.mass);
   }
-  const lever: ILever = interpolate(d.length!);
+  const model: createControl.Lever = ArchetypeDraw.pick(
+    "control",
+    "lever",
+    params.lever,
+    createControl.LEVERS,
+    seed,
+  );
+  const lever: ILever = LEVERS[model];
   const rise: number = RISE * ArchetypeUnits.DEGREE;
   const hub: ReturnType<typeof v> = v(0, y, lever.bore / 2);
   const knob: ReturnType<typeof v> = v(
@@ -147,35 +150,40 @@ export function createControl(
 }
 
 /**
- * The DIN 6337 lever at a length inside the read range: each size interpolated linearly between the two levers read either side.
+ * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and grams.
  *
- * @param length The lever's length, metres.
- * @returns The lever's sizes and mass.
+ * @param length The length l1, millimetres.
+ * @param knob The knob d5, millimetres.
+ * @param arm The arm d6, millimetres.
+ * @param hub The hub d3, millimetres.
+ * @param bore The hub's length b along the bore, millimetres.
+ * @param grams The mass, grams.
+ * @returns The lever.
  */
-function interpolate(length: number): ILever {
-  const above: number = Math.max(
-    1,
-    LEVERS.findIndex((l: ILever): boolean => l.length >= length),
-  );
-  const a: ILever = LEVERS[above - 1]!;
-  const b: ILever = LEVERS[above]!;
-  const t: number = (length - a.length) / (b.length - a.length);
-  const at = (key: keyof ILever): number => a[key] + (b[key] - a[key]) * t;
+function row(
+  length: number,
+  knob: number,
+  arm: number,
+  hub: number,
+  bore: number,
+  grams: number,
+): ILever {
+  const mm: number = ArchetypeUnits.MILLIMETRE;
   return {
-    length,
-    knob: at("knob"),
-    arm: at("arm"),
-    hub: at("hub"),
-    bore: at("bore"),
-    mass: at("mass"),
+    length: length * mm,
+    knob: knob * mm,
+    arm: arm * mm,
+    hub: hub * mm,
+    bore: bore * mm,
+    mass: grams / 1000,
   };
 }
 
 /**
  * Companion types, constants and bands of {@link createControl}.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, constant and dimension states what it is; each band and constant its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions; the lever drawn by its catalogue length, every other size following from it, and the selector's read single figures as constants.
+ * @evidence contracts/development/common.md#meaningful-documentation Each kind, lever, affordance, constant and dimension states what it is; each band, lever and constant its source.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, a lever one of the sheet's rows whole, and the selector's read single figures as constants.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The knob a hand takes, the shaft it turns and the dial it twists (#3468 N14).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A lever's throw no sheet gives is left out, not invented.
  */
@@ -185,6 +193,12 @@ export namespace createControl {
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["lever", "dial"];
+
+  /** The DIN 6337 ball levers read, by their length l1 in millimetres. */
+  export type Lever = "63" | "80" | "100" | "125" | "160";
+
+  /** Every lever, the default first. */
+  export const LEVERS: readonly Lever[] = ["63", "80", "100", "125", "160"];
 
   /** The selector head read, metres, degrees and kilograms: Schneider Electric Harmony XB4 ZB4BD3, head 28.5 mm across standing 27 mm proud of the panel, "3 positions +/- 45°", product weight 0.04 kg (https://assets.cef.co.uk/downloads/pdg/tele_zb4bd3_datasheet/tele_zb4bd3_datasheet.pdf). */
   export const SELECTOR: Readonly<{
@@ -208,45 +222,27 @@ export namespace createControl {
    */
   export type Affordance = "knob" | "shaft" | "dial";
 
-  /**
-   * The free dimensions, metres:
-   *
-   * - `height`: the control's axis above the floor.
-   * - `length`: a lever's length from its hub's centre to its knob's.
-   */
-  export type Dimension = "height" | "length";
+  /** The free dimension: `height`, the control's axis above the floor, metres. */
+  export type Dimension = "height";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which control. */
     kind: Kind;
 
+    /** A lever's model; drawn from the seed when absent. A dial has none. */
+    lever?: Lever;
+
     /** The model's id, unique in a scene; `control` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    lever: {
-      height: ArchetypeBand.metres(
-        ADA_RANGES.reach.low,
-        ADA_RANGES.reach.high,
-        ADA_RANGES.reach.source,
-      ),
-      length: ArchetypeBand.metres(
-        63 * ArchetypeUnits.MILLIMETRE,
-        160 * ArchetypeUnits.MILLIMETRE,
-        LEVER,
-      ),
-    },
-    dial: {
-      height: ArchetypeBand.metres(
-        ADA_RANGES.reach.low,
-        ADA_RANGES.reach.high,
-        ADA_RANGES.reach.source,
-      ),
-    },
+  /** The band of the free dimension. */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    height: ArchetypeBand.metres(
+      ADA_RANGES.reach.low,
+      ADA_RANGES.reach.high,
+      ADA_RANGES.reach.source,
+    ),
   };
 }

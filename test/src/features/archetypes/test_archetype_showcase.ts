@@ -1,25 +1,23 @@
 import { ArchetypeUnits, createShowcase } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
 
 /**
- * A glass showcase stands at Econoco's sizes, its length and mass one showcase's between the two read.
+ * A glass showcase is one of Econoco's two showcases read, whole.
  *
  * Scenarios:
- * 1. Over the seeds the length runs over the maker's 48 to 70 in; the case is 20 in deep and 38 in high, its top at 38 in.
- * 2. At either end of its size the showcase is the maker's: 48 in and 170 lb, or 70 in and 190 lb; midway, 59 in and 180 lb.
- * 3. The edge is the top's customer-side edge, at `+Z` half the depth out.
+ * 1. Each model given is the maker's: the PW/SC482 48 in long and 170 lb, the PW/SC702 70 in long and 190 lb, each 20 in deep and 38 in high with its top at 38 in and its edge at `+Z` half the depth out.
+ * 2. Over 200 seeds every showcase drawn is one of the two exactly, length and mass together, and both are drawn.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider, contacts and mass; a size off the sheet, a mass not following its length, or an edge on the clerk's side is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are the maker's restated here; the midway showcase is the two read ones' mean.
- * @evidence contracts/development/testing.md#distinguishing-cases Both ends of the size and its middle.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider, contacts and mass; a size off the sheet, a showcase between the two read, a mass not its model's or a model never drawn is caught with the numbers.
+ * @evidence contracts/development/testing.md#independent-expectations The figures are the maker's restated here.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both models given, then the seeds' draws.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
  */
 export function test_archetype_showcase(): void {
   const findings: string[] = [];
@@ -28,53 +26,52 @@ export function test_archetype_showcase(): void {
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
   const inch: number = ArchetypeUnits.INCH;
-  const pound: number = ArchetypeUnits.POUND;
-  findings.push(
-    ...archetypeBandSweep([
-      {
-        name: "showcase length",
-        measure: (seed: number): number =>
-          archetypeExtent(createShowcase({}, seed), "x").size,
-        minimum: 48 * inch,
-        maximum: 70 * inch,
-        source: "Econoco Full Vision Showcase",
-      },
-    ]),
-  );
-  for (const [size, length, mass] of [
-    [0, 48, 170],
-    [0.5, 59, 180],
-    [1, 70, 190],
-  ] as const) {
+  const read: Readonly<
+    Record<createShowcase.Model, readonly [number, number]>
+  > = {
+    "PW/SC482": [48 * inch, 170 * ArchetypeUnits.POUND],
+    "PW/SC702": [70 * inch, 190 * ArchetypeUnits.POUND],
+  };
+  for (const model of createShowcase.MODELS) {
     const showcase: ReturnType<typeof createShowcase> = createShowcase({
-      size,
+      model,
     });
+    const [length, mass]: readonly [number, number] = read[model];
+    near(`${model}'s length`, archetypeExtent(showcase, "x").size, length);
+    near(`${model}'s mass`, showcase.properties.mass, mass);
+    near(`${model}'s depth`, archetypeExtent(showcase, "z").size, 20 * inch);
+    near(`${model}'s height`, archetypeExtent(showcase, "y").size, 38 * inch);
     near(
-      `size ${size}'s length`,
-      archetypeExtent(showcase, "x").size,
-      length * inch,
-    );
-    near(`size ${size}'s mass`, showcase.properties.mass, mass * pound);
-    near(
-      `size ${size}'s depth`,
-      archetypeExtent(showcase, "z").size,
-      20 * inch,
-    );
-    near(
-      `size ${size}'s height`,
-      archetypeExtent(showcase, "y").size,
-      38 * inch,
-    );
-    near(
-      `size ${size}'s top`,
+      `${model}'s top`,
       showcase.affordance("top").frame.translation.y,
       38 * inch,
     );
     near(
-      `size ${size}'s edge`,
+      `${model}'s edge`,
       showcase.affordance("edge").frame.translation.z,
       10 * inch,
     );
   }
-  TestValidator.equals("a glass showcase is the maker's", findings, []);
+  const drawn: Set<string> = new Set();
+  for (let seed: number = 0; seed < 200; seed++) {
+    const showcase: ReturnType<typeof createShowcase> = createShowcase(
+      {},
+      seed,
+    );
+    const length: number = archetypeExtent(showcase, "x").size;
+    const mass: number = showcase.properties.mass;
+    const match: createShowcase.Model | undefined = createShowcase.MODELS.find(
+      (model: createShowcase.Model): boolean =>
+        Math.abs(read[model][0] - length) <= 1e-9 &&
+        Math.abs(read[model][1] - mass) <= 1e-9,
+    );
+    if (match === undefined)
+      findings.push(
+        `seed ${seed}: ${length} m and ${mass} kg is no read model`,
+      );
+    else drawn.add(match);
+  }
+  if (drawn.size !== createShowcase.MODELS.length)
+    findings.push(`200 seeds drew only ${[...drawn].join(", ")}`);
+  TestValidator.equals("a glass showcase is one the maker makes", findings, []);
 }
