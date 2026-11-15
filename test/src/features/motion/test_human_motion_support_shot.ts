@@ -120,8 +120,10 @@ export function test_human_motion_support_shot(): void {
     `the ball leaves the displayed muzzle (${(1000 * miss).toFixed(1)} mm)`,
     miss <= HumanVerdicts.SKIN,
   );
-  const bore: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(along("muzzle"), along("sight")),
+  // The bore runs along the muzzle's own +Y, as the archetype declares it.
+  const bore: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.multiply(held.rotation, gun.affordance("muzzle").frame.rotation),
+    { x: 0, y: 1, z: 0 },
   );
   const skew: number =
     (Math.atan(

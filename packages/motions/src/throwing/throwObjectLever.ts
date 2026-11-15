@@ -15,17 +15,19 @@ import { throwObjectLaunch } from "./throwObjectLaunch";
  * implement the hand holds (a sling, an atlatl), turning as one rigid lever
  * at the release (#3490).
  *
- * At the release the lever turns about the shoulder with one angular
- * velocity, so the speed square to it grows with the distance from the
- * shoulder: the implement's working point, `L` beyond the hand along the
- * lever, moves `(r + L) / r` times as fast across the lever as the hand at
- * `r`, while both share the speed along it. The launch velocity is aimed
- * from the working point, and the hand needs only its share: the speed
- * along the lever plus `r / (r + L)` of the speed across it. Through the
- * carry the hand turns at that angular velocity with the implement along
- * the lever, so the working point, and the prop riding it, leave with the
- * launch velocity. With no implement `L` is 0 and the hand carries the
- * launch velocity unturned, the throw as it was.
+ * At the release the arm and the implement move as one rigid body: a
+ * velocity shared by every point along the lever from the shoulder to the
+ * working point, plus a turn about the shoulder, `v(p) = u + w x (p - s)`.
+ * The implement keeps the grip the hand holds it by, so its working point
+ * lies where the release's hand rotation puts it (no wrist turn beyond its
+ * range is asked), and the launch is aimed from there. The turn is the
+ * least one that carries the launch velocity's part square to the line
+ * from the shoulder to the working point, `w = (r x v) / |r|^2`, and the
+ * shared velocity its part along that line, so the working point leaves
+ * with the launch velocity while the hand, nearer the shoulder, moves only
+ * as fast as the lever there: the implement's gain. Through the carry the
+ * hand turns at `w`. With no implement the working point is the grip, and
+ * the hand carries the launch velocity unturned, the throw as it was.
  *
  * A thrown prop keeps the lever's angular velocity in flight, so a knife's
  * spin (`ITurns`) is the lever's rate, rounded by the act to the nearest
@@ -104,8 +106,8 @@ export namespace throwObjectLever {
    * @throws {HumanRefusal} When the implement lacks the named point (`StrikingHeld.of`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation Rigid lever kinematics about the shoulder: the velocity split along and across the lever, the across part scaled by the radius; the implement's line turned onto the lever by the shortest rotation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The implement, the release point and its aim, the hand's share, then the turn.
+   * @evidence contracts/development/implementation.md#principled-implementation Rigid-body kinematics about the shoulder, v(p) = u + w x (p - s): the least turn carrying the velocity's part square to the lever, its part along it shared; the implement where the hand's grip holds it, so no wrist turn is asked.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The implement's point and its aim, the turn and the shared velocity, then the hand's velocity and turn.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable target returns undefined for the throw's refusal.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work after one held-tool reading.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The implement's point is the held-tool reading (`StrikingHeld.of`) and the aim the throw's (`throwObjectLaunch.aimed`).
@@ -127,16 +129,11 @@ export namespace throwObjectLever {
         : StrikingHeld.of(props.context, props.side, props.implement.prop, {
             tip: props.implement.point,
           }).tip;
-    const L: number = Vector3.length(tip);
-    const radius: IAutoMovieVector3 = Vector3.subtract(
-      props.release,
-      props.shoulder,
-    );
-    const r: number = Vector3.length(radius);
-    const out: IAutoMovieVector3 = Vector3.normalize(radius);
+
+    // The working point where the hand's grip at the release holds it.
     const point: IAutoMovieVector3 = Vector3.add(
       props.release,
-      Vector3.scale(out, L),
+      Quaternion.rotateVector(props.held, tip),
     );
     const velocity: IAutoMovieVector3 | undefined = throwObjectLaunch.aimed(
       point,
@@ -145,60 +142,41 @@ export namespace throwObjectLever {
     );
     if (velocity === undefined) return undefined;
 
-    // The velocity along the lever and across it; the lever turns so the
-    // across part is its angular speed times the radius.
-    const along: IAutoMovieVector3 = Vector3.scale(
-      out,
-      Vector3.dot(velocity, out),
+    // The least turn about the shoulder that carries the velocity's part
+    // square to the lever, w = (r x v) / |r|^2; its part along the lever is
+    // the velocity every point of the lever shares.
+    const lever: IAutoMovieVector3 = Vector3.subtract(point, props.shoulder);
+    const turn: IAutoMovieVector3 = Vector3.scale(
+      Vector3.cross(lever, velocity),
+      1 / Vector3.dot(lever, lever),
     );
-    const across: IAutoMovieVector3 = Vector3.subtract(velocity, along);
-    const omega: number = Vector3.length(across) / (r + L);
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(out, across),
+    const shared: IAutoMovieVector3 = Vector3.subtract(
+      velocity,
+      Vector3.cross(turn, lever),
     );
+    const omega: number = Vector3.length(turn);
+    const axis: IAutoMovieVector3 = Vector3.normalize(turn);
     const hand: IAutoMovieVector3 = Vector3.add(
-      along,
-      Vector3.scale(across, r / (r + L)),
+      shared,
+      Vector3.cross(turn, Vector3.subtract(props.release, props.shoulder)),
     );
-    if (props.implement === undefined)
-      return {
-        point,
-        velocity,
-        hand,
-        axis,
-        omega,
-        rotation: (): IAutoMovieQuaternion => props.held,
-      };
-
-    // The implement laid along the lever by the shortest turn of the hand.
-    const line: IAutoMovieVector3 = Quaternion.rotateVector(
-      props.held,
-      Vector3.normalize(tip),
-    );
-    const normal: IAutoMovieVector3 = Vector3.cross(line, out);
-    const sine: number = Vector3.length(normal);
-    const cosine: number = Vector3.dot(line, out);
-    const aligned: IAutoMovieQuaternion =
-      sine === 0 && cosine > 0
-        ? props.held
-        : Quaternion.multiply(
-            Quaternion.fromAxisAngle(
-              sine === 0 ? axis : normal,
-              (Math.atan2(sine, cosine) * 180) / Math.PI,
-            ),
-            props.held,
-          );
     return {
       point,
       velocity,
       hand,
       axis,
       omega,
-      rotation: (carried: number): IAutoMovieQuaternion =>
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle(axis, (omega * carried * 180) / Math.PI),
-          aligned,
-        ),
+      rotation:
+        props.implement === undefined
+          ? (): IAutoMovieQuaternion => props.held
+          : (carried: number): IAutoMovieQuaternion =>
+              Quaternion.multiply(
+                Quaternion.fromAxisAngle(
+                  axis,
+                  (omega * carried * 180) / Math.PI,
+                ),
+                props.held,
+              ),
     };
   }
 

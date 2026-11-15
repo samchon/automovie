@@ -66,8 +66,11 @@ export namespace HumanSupportFrame {
    * @returns The support.
    */
   export function of(
-    context: Pick<IHumanActionContext, "entry">,
+    context: Pick<IHumanActionContext, "entry" | "carrier">,
   ): IHumanContactWindow.Support {
+    // An overlay rides what its carrier stands on, even where its entry
+    // still stood on the ground before the carrier began.
+    if (context.carrier?.support !== undefined) return context.carrier.support;
     const bearing: IHumanEntryState.ISupport | undefined =
       context.entry.supports.find(
         (s: IHumanEntryState.ISupport): boolean =>

@@ -44,7 +44,7 @@ export interface IThrowObjectParams {
 
   /**
    * The implement held in the throwing hand that lengthens the arm: a
-   * sling, an atlatl. The thrown prop rides its working point, and the
+   * sling, an atlatl. The thrown prop leaves from its working point, and the
    * launch is the lever's (`throwObjectLever`). The hand throws when absent.
    */
   implement?: throwObjectLever.IImplement;

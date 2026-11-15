@@ -23,7 +23,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * `throwKnife` at floor points 4 m and 8 m ahead, at trained proficiency:
  * 1. Each throw launches the baton once with a spin.
  * 2. The spin's rate times the drag-free flight time to the target is a
- *    whole number of half turns, at least one, within 1e-9 half turns.
+ *    whole number of half turns, at least one, to the float resolution of
+ *    the rate's few products and quotients (`Number.EPSILON` times the turns
+ *    times their operations).
  * 3. The spin axis, carried into the world by the baton's displayed
  *    rotation at the release, is square to the launch velocity within the
  *    turn the audit's skin (`HumanVerdicts.SKIN`) makes over the baton's
@@ -99,7 +101,9 @@ export function test_human_motion_throw_knife_turns(): void {
     const halves: number = (attitude.rate * time) / 180;
     TestValidator.predicate(
       `${distance} m: whole half turns (${halves.toFixed(6)})`,
-      Math.abs(halves - Math.round(halves)) <= 1e-9 && Math.round(halves) >= 1,
+      Math.abs(halves - Math.round(halves)) <=
+        Number.EPSILON * 2 ** Math.ceil(Math.log2(8)) * Math.abs(halves) &&
+        Math.round(halves) >= 1,
     );
     turns.push(Math.round(halves));
     const shown = performance.prop("knife", segment.start + launch.seconds);

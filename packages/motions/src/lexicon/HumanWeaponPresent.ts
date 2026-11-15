@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
@@ -13,24 +12,20 @@ import type { tags } from "typia";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
-import { StrikingTarget } from "../striking/StrikingTarget";
-import { HumanFirearmReady } from "./HumanFirearmReady";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
+import { HumanWeaponPose } from "./HumanWeaponPose";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
 /**
@@ -134,9 +129,6 @@ export namespace HumanWeaponPresent {
   /** The angle the bore's line may miss the aim point by once presented, degrees: the declared dispersion (provisional). */
   export const DISPERSION: number = 1;
 
-  /** The share of the arm's length the support hand holds a fore-end at, short of a locked elbow (provisional). */
-  /** The share of the arm's length the support hand holds a fore-end at, short of a locked elbow (provisional), `HumanWeaponHeld`'s. */
-  export const REACH: number = HumanWeaponHeld.REACH;
 
   /** How far the sight line of a shouldered long gun lies below the head's joint, a share of the head's height over the firing shoulder (provisional: the head down on the stock; the head's own tilt is not posed yet). */
   export const CHEEK: number = 0.4;
@@ -170,15 +162,18 @@ export namespace HumanWeaponPresent {
     ],
   });
 
+
   /**
    * Present the weapon: bring the muzzle onto the line from the eye to the target, or to a ready position, by `stroke`, and hold it. A target more than `TURN` degrees off the heading is refused on `target`, a long gun in one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instant, the hold and the three refusals.
+   * A grip a pick up weighs for the presentation is judged at the pose the plan strokes to (`demands`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the instant, the hold, the three refusals and the demands a grip is judged by.
    * @evidence contracts/development/implementation.md#principled-implementation The bore's line is put on the line from the head's joint to the target with the muzzle a share of the arm ahead, so the weapon is sighted along the eye's line, canted about the bore the way the arm holds it with the least strain (the arm fit does not twist the forearm); the support hand's place follows from the weapon's own contacts as the firing hand holds it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The setup, the target and its angle, the pose by carriage, the support hand, then the shared stroke planner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The head's joint stands in for the eye and the sights' height over the bore is ignored; the presentation times, the muzzle's distance and the ready poses are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and its demands read one pose (`HumanWeaponPose`), so a grip is judged at the pose the plan strokes to.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
   export const present: IHumanActionLaw<IPresent> = {
@@ -187,108 +182,22 @@ export namespace HumanWeaponPresent {
     overlay: true,
     plan: (context: IHumanActionContext<IPresent>): IHumanActionPlan => {
       const p: IPresent = context.params;
-      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(context);
+      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+        context,
+        HumanWeaponHeld.held(context),
+      );
       const seconds: number = p.seconds ?? 1;
       HumanBound.least("seconds", seconds, 0, "s");
-      const entry: IHumanPosture = context.entry.posture;
-
-      // A long gun is shouldered with the support shoulder forward: the
-      // trunk turns toward the firing side, and the eye, the shoulders and
-      // the reach are read on the turned trunk.
-      const turn: number = !s.long
-        ? 0
-        : s.tool.side === "right"
-          ? -BLADED
-          : BLADED;
-      const bladed: IHumanPosture = StrikingBlade.turned(entry, turn);
-      const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
-        context.body,
-        bladed,
-      );
-
-      // The eye's place on the sight line. Over a long gun the head comes
-      // down to the stock, so the line lies `CHEEK` of the way from the
-      // head's joint down to the firing shoulder's height.
-      const head: IAutoMovieVector3 = bones.get("head")!.worldPosition;
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${s.tool.side}UpperArm`,
-      )!.worldPosition;
-      const anchor: Anchor = p.anchor ?? (s.long ? "cheek" : "eye");
-      const eye: IAutoMovieVector3 =
-        anchor === "eye"
-          ? head
-          : anchor === "cheek"
-            ? { ...head, y: head.y - CHEEK * (head.y - shoulder.y) }
-            : anchor === "arm"
-              ? shoulder
-              : resolveAutoMovieHumanoidSurfaces.place(
-                  context.body.surfaces.regions.mouth,
-                  bones.get(context.body.surfaces.regions.mouth.bone)!,
-                ).point;
-      const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
-      const ahead = (yaw: number): IAutoMovieVector3 =>
-        HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw },
-          { x: 0, y: 0, z: 1 },
+      // Over a carrier the weapon is presented from the carrier's posture
+      // where the presentation begins (a stance raised onto a cart's bed),
+      // not from the state before the carrier began.
+      const { turn, bladed, eye, target, line, carriage, pose } =
+        HumanWeaponPose.of(
+          context,
+          context.carrier?.posture(0) ?? context.entry.posture,
+          context.start,
+          s,
         );
-      const target: IAutoMovieVector3 =
-        p.target === undefined
-          ? Vector3.add(eye, Vector3.scale(ahead(entry.yaw), 10))
-          : context.aim(p.target, context.start).point;
-      const line: IAutoMovieVector3 = StrikingTarget.line(
-        entry.root,
-        target,
-        entry.yaw,
-      );
-      const off: number =
-        (Math.acos(
-          Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw)))),
-        ) *
-          180) /
-        Math.PI;
-      if (off > TURN)
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "target",
-          value: off,
-          feasible: { kind: "range", minimum: 0, maximum: TURN, unit: "deg" },
-          reason: `the target lies ${off.toFixed(0)} degrees off the heading, beyond the ${TURN} degrees the arms present to`,
-          fix: "turn to face the target first",
-        });
-      const carriage: Carriage = p.carriage ?? "aim";
-      const pose: StrikingHeld.IHandFrame = ((): StrikingHeld.IHandFrame => {
-        if (carriage === "aim") {
-          // The bore on the line from the eye to the target, the arms out
-          // (a handgun) or the butt drawn in to the shoulder (a long gun);
-          // the pose is chosen and judged by both ends of the bore.
-          const sight: IAutoMovieVector3 = Vector3.normalize(
-            Vector3.subtract(target, eye),
-          );
-          return StrikingRoll.hand(
-            context,
-            s.tool,
-            s.tool.length,
-            Vector3.add(
-              eye,
-              Vector3.scale(sight, (s.long ? 0.3 : 0.7) * s.arm),
-            ),
-            sight,
-            0,
-            bladed,
-          );
-        }
-        // A ready position is a region the doctrine describes, and the arm
-        // holds the weapon where in it it can.
-        return HumanFirearmReady.pose(context, {
-          tool: s.tool,
-          arm: s.arm,
-          chest,
-          shoulder: bones.get(`${s.tool.side}UpperArm`)!.worldPosition,
-          line,
-          low: carriage === "lowReady",
-          posture: bladed,
-        });
-      })();
       StrikingRoll.reachable(
         context,
         s.tool,
@@ -334,6 +243,47 @@ export namespace HumanWeaponPresent {
         carriage === "aim" ? { target, pivot: eye } : undefined,
       );
     },
+    // A grip a pick up weighs for this presentation is judged at the pose
+    // the plan strokes to, with that grip's weapon, by the bound the plan
+    // refuses it by (`StrikingRoll.reachable`); a presentation the plan
+    // refuses whatever the grip (a target past `TURN`) asks nothing of it.
+    demands: (
+      ahead: IHumanActionLaw.IAhead<IPresent>,
+    ): readonly IHumanActionLaw.IDemand[] => {
+      const p: IPresent = ahead.params;
+      const grip: IHumanActionLaw.IGrip = ahead.grip;
+      if (
+        p.gun === undefined ||
+        grip.prop !== p.gun ||
+        grip.side !== HumanWeaponHeld.hand(p)
+      )
+        return [];
+      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+        ahead,
+        (points: StrikingHeld.IPoints): StrikingHeld.ITool =>
+          grip.tool(points),
+      );
+      try {
+        const { bladed, pose } = HumanWeaponPose.of(
+          ahead,
+          grip.posture,
+          ahead.start,
+          s,
+        );
+        return [
+          {
+            posture: bladed,
+            tool: s.tool,
+            frame: pose,
+            back: s.tool.length,
+            bound: StrikingRoll.MISS,
+          },
+        ];
+      } catch (error) {
+        if (error instanceof HumanRefusal) return [];
+        throw error;
+      }
+    },
   };
 
   /**
@@ -352,7 +302,10 @@ export namespace HumanWeaponPresent {
     interrupts: from("relax"),
     overlay: true,
     plan: (context: IHumanActionContext<IWield>): IHumanActionPlan => {
-      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(context);
+      const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(
+        context,
+        HumanWeaponHeld.held(context),
+      );
       const bones: ReturnType<typeof poseBones> = poseBones(
         context.body,
         context.entry.pose,

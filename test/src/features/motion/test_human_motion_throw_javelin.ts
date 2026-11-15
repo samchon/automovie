@@ -1,5 +1,5 @@
 import { createJavelin } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import {
   HumanChain,
   HumanObject,
@@ -16,7 +16,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the elite release angles, its shaft along its flight.
  *
  * Scenarios, the average man and the small woman throwing a men's javelin
- * from the hand at a point 25 m ahead on the floor, at trained proficiency:
+ * from the hand at a point 25 m ahead on the floor, at trained proficiency,
+ * then standing for the flight's longest time to that point:
  * 1. The throw launches the javelin once, with the velocity attitude.
  * 2. The release angle above the horizontal is the row's, (27.7 + 40.1) / 2
  *    degrees (Campos, Brizuela and Ramón 2004), within 1e-6 degrees.
@@ -36,6 +37,15 @@ export function test_human_motion_throw_javelin(): void {
   });
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
+    // The flight's time to the floor point, at most sqrt(2 (d tan a + h) / g)
+    // for a release no higher than the stature `h`: the range equation's own
+    // time to the target. The thrower stands that long after the throw.
+    const aloft: number = Math.sqrt(
+      (2 *
+        (25 * Math.tan((HumanThrownWeapon.JAVELIN * Math.PI) / 180) +
+          body.measure.stature)) /
+        AutoMovieGravity.STANDARD,
+    );
     let performance: HumanPerformance;
     try {
       performance = new HumanPerformance({
@@ -61,7 +71,8 @@ export function test_human_motion_throw_javelin(): void {
           .registered("throwJavelin", {
             at: { kind: "point", frame: "world", at: { x: 0, y: 0, z: 25 } },
             prop: "javelin",
-          }).node,
+          })
+          .stand({ seconds: aloft }).node,
       });
     } catch (error) {
       TestValidator.predicate(

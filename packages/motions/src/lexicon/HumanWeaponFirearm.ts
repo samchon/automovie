@@ -53,9 +53,6 @@ export namespace HumanWeaponFirearm {
   /** The declared dispersion, degrees (`HumanWeaponPresent.DISPERSION`). */
   export const DISPERSION: number = HumanWeaponPresent.DISPERSION;
 
-  /** The support hand's reach share (`HumanWeaponPresent.REACH`). */
-  export const REACH: number = HumanWeaponPresent.REACH;
-
   /** The cheek's share down the head (`HumanWeaponPresent.CHEEK`). */
   export const CHEEK: number = HumanWeaponPresent.CHEEK;
 

@@ -19,6 +19,7 @@ import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanActionPlan } from "./IHumanActionPlan";
+import type { IHumanContactWindow } from "./IHumanContactWindow";
 import type { IHumanEntryState } from "./IHumanEntryState";
 
 /**
@@ -295,6 +296,14 @@ export namespace IHumanActionContext {
      * @returns The carrier's posture at that instant; its last posture once it has ended.
      */
     posture(seconds: number): IHumanPosture;
+
+    /**
+     * What the carrier stands on when it is not the ground: the first prop
+     * its plan plants a foot on (a stance on a cart's bed), so an overlay
+     * that begins with it is carried by that prop (`HumanSupportFrame`).
+     * Absent on the ground.
+     */
+    support?: IHumanContactWindow.Support;
   }
 
   /** A prop and its displayed frame. */

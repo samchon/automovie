@@ -14,6 +14,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -197,6 +198,15 @@ export namespace HumanPerformancePlace {
                 }
                 return posture;
               },
+              // The prop the carrier plants on, the support the overlay rides.
+              ...((): { support?: IHumanContactWindow.Support } => {
+                const plant: IHumanContactWindow | undefined =
+                  previous.plan.contacts.find(
+                    (c: IHumanContactWindow): boolean =>
+                      c.kind === "plant" && c.support.kind !== "ground",
+                  );
+                return plant === undefined ? {} : { support: plant.support };
+              })(),
             },
           }
         : {}),

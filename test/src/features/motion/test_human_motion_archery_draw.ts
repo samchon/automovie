@@ -15,13 +15,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * Archery (#3487) as rows: the bow held out on the line from the face, the
  * string drawn over it to the anchor, and the arrow loosed along its line.
- * The bow's `string` slider and its launch speed are #3481's; until the bow
- * declares them this spec records the acceptance and fails.
+ * The bow's `string` slider is #3481's.
  *
  * Scenarios, the average man and the small woman, each holding a longbow in
  * the left hand and an arrow on the string, at a target 18 m ahead at chest
  * height:
- * 1. `presentBow` with `drawBow` over it, then `loose`, plans.
+ * 1. `presentBow`, with `drawBow` over it from the instant the bow is held
+ *    out (the set-up), then `loose`, plans.
  * 2. Through the draw the drawing hand stays within 5 mm of the string's
  *    nocking point (the string's drive carries the nock with the hand).
  * 3. At full draw the bow arm is within 10 degrees of full extension.
@@ -84,9 +84,11 @@ export function test_human_motion_archery_draw(): void {
             hand: "left",
             target: { kind: "point", frame: "world", at: target },
             seconds: 3,
-          })
+          }, "present")
           .over((u) =>
             u
+              // The draw begins once the bow is held out (the set-up), not
+              // while it is still raised from the side.
               .registered("drawBow", {
                 hand: "right",
                 mechanism: {
@@ -95,6 +97,7 @@ export function test_human_motion_archery_draw(): void {
                   travel: createBow.DRAW_LENGTH.longbow,
                 },
               })
+              .sync({ of: "present", event: "strokeEnd" })
               .registered("loose", {
                 hand: "right",
                 launch: {

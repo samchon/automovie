@@ -5,6 +5,7 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanVerdicts,
   HumanWeaponFirearm,
   type IHumanBody,
 } from "@automovie/motions";
@@ -22,8 +23,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * once with a lock time of 5 ms:
  * 1. The shot publishes one launch of the ball.
  * 2. Its second is the break (the decisive instant) plus the lock's time,
- *    within 1e-9 s, for both lock times.
- * 3. Its speed is the stated 350 m/s within 1e-6 m/s (the shooter stands
+ *    to float resolution, for both lock times.
+ * 3. Its speed is the stated 350 m/s to float resolution (the shooter stands
  *    still).
  * 4. Its direction lies within `DISPERSION` degrees of the bore as the hand
  *    holds the gun at the break.
@@ -31,7 +32,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 6. A shot with no `shot` launches nothing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Fires a real handgun and a real ball archetype through the public chain and reads the launch and the flight; a launch at the wrong instant, speed or direction, or a shot that launches nothing, fails.
- * @evidence contracts/development/testing.md#independent-expectations The speed and lock time are the scene's; the cone is the law's declared dispersion; the bore is read off the displayed gun's own muzzle and sight.
+ * @evidence contracts/development/testing.md#independent-expectations The speed and lock time are the scene's; the cone is the law's declared dispersion; the bore is the displayed muzzle's own +Y, its place the displayed muzzle within the audit's skin; the speed's bound is float resolution.
  * @evidence contracts/development/testing.md#distinguishing-cases No lock time and a lock time; a shot with and without a ball.
  * @evidence contracts/development/testing.md#execution-ownership Builds three performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
@@ -94,24 +95,33 @@ export function test_human_motion_firearm_shot_launch(): void {
     if (launch === undefined) continue;
     TestValidator.predicate(
       `it leaves at the break plus ${lock} s`,
-      Math.abs(launch.seconds - ((shot.plan.contact ?? NaN) + lock)) <= 1e-9,
+      Math.abs(launch.seconds - ((shot.plan.contact ?? NaN) + lock)) <=
+        Number.EPSILON * launch.seconds * 2 ** Math.ceil(Math.log2(8)),
     );
     TestValidator.predicate(
       `it leaves at 350 m/s (${Vector3.length(launch.velocity).toFixed(6)})`,
-      Math.abs(Vector3.length(launch.velocity) - 350) <= 1e-6,
+      // A unit direction scaled by the speed: a few roundings of it.
+      Math.abs(Vector3.length(launch.velocity) - 350) <=
+        Number.EPSILON * 350 * 2 ** Math.ceil(Math.log2(8)),
     );
     const brk: number = shot.start + (shot.plan.contact ?? 0);
     const held = performance.prop("gun", brk);
-    const along = (id: "muzzle" | "sight"): IAutoMovieVector3 =>
-      Vector3.add(
-        held.position,
-        Quaternion.rotateVector(
-          held.rotation,
-          gun.affordance(id).frame.translation,
-        ),
-      );
-    const bore: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(along("muzzle"), along("sight")),
+    const muzzle: IAutoMovieVector3 = Vector3.add(
+      held.position,
+      Quaternion.rotateVector(
+        held.rotation,
+        gun.affordance("muzzle").frame.translation,
+      ),
+    );
+    TestValidator.predicate(
+      `${Math.round(lock * 1000)} ms lock: it leaves the displayed muzzle (${(1000 * Vector3.length(Vector3.subtract(launch.point, muzzle))).toFixed(1)} mm)`,
+      Vector3.length(Vector3.subtract(launch.point, muzzle)) <=
+        HumanVerdicts.SKIN,
+    );
+    // The bore runs along the muzzle's own +Y, as the archetype declares it.
+    const bore: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.multiply(held.rotation, gun.affordance("muzzle").frame.rotation),
+      { x: 0, y: 1, z: 0 },
     );
     const off: number =
       (Math.acos(
@@ -124,7 +134,9 @@ export function test_human_motion_firearm_shot_launch(): void {
       Math.PI;
     TestValidator.predicate(
       `it leaves along the bore within the dispersion (${off.toFixed(3)} degrees)`,
-      off <= HumanWeaponFirearm.DISPERSION + 1e-6,
+      off <=
+        HumanWeaponFirearm.DISPERSION +
+        (Number.EPSILON * 2 ** Math.ceil(Math.log2(8)) * 180) / Math.PI,
     );
     TestValidator.predicate(
       "the ball flies",

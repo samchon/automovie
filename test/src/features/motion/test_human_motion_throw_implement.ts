@@ -1,5 +1,5 @@
 import { createStick } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -26,7 +26,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * stick by its grip as the implement, its blade as the working point,
  * casting at a point 15 m ahead on the floor, at trained proficiency:
  * 1. The cast plans.
- * 2. The launch's drag-free path passes through the target, within 1e-6 m
+ * 2. The launch's drag-free path passes through the target, to the float
+ *    resolution of the aim and the path (`Number.EPSILON` times the
+ *    magnitudes they sum, times their operations)
  *    at the time its horizontal distance takes at its horizontal speed.
  * 3. At the release second the stick's blade is at the launch point, within
  *    the audit's skin (`HumanVerdicts.SKIN`).
@@ -37,7 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    carries its end faster than the hand.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Casts from a real stick archetype through the public chain and reads the launch, the displayed implement and the target; an implement left out of the lever, turned off its line or a hand carrying the full launch fails.
- * @evidence contracts/development/testing.md#independent-expectations The target and the stick are the scene's; the path's bound is round-off, the placement bounds the audit's skin and the span the law's carry.
+ * @evidence contracts/development/testing.md#independent-expectations The target and the stick are the scene's; the path's bound is the float resolution of its own arithmetic, the placement bounds the audit's skin and the span the law's carry.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the aim, the release point, the release velocity and the lever's gain.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios with their bounds.
@@ -97,12 +99,22 @@ export function test_human_motion_throw_implement(): void {
     const time: number =
       Math.hypot(target.x - launch.point.x, target.z - launch.point.z) /
       Math.hypot(launch.velocity.x, launch.velocity.z);
+    // The range equation's square root, tangent, cosine and quotients and
+    // the path's products and sums (about ten and six operations), each
+    // rounding at most an epsilon of the magnitudes summed.
+    const resolution: number =
+      Number.EPSILON *
+      2 ** Math.ceil(Math.log2(10 + 6)) *
+      (Vector3.length(launch.point) +
+        Vector3.length(target) +
+        Vector3.length(launch.velocity) * time +
+        0.5 * AutoMovieGravity.STANDARD * time * time);
     const miss: number = Vector3.length(
       Vector3.subtract(throwObject.path(launch, time), target),
     );
     TestValidator.predicate(
       `${name}: the path passes through the target (${miss.toExponential(2)} m)`,
-      miss <= 1e-6,
+      miss <= resolution,
     );
 
     const at = (id: string, seconds: number): IAutoMovieVector3 => {
