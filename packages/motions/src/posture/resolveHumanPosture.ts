@@ -1,4 +1,4 @@
-import { Quaternion, clampPose } from "@automovie/engine";
+import { Quaternion, Transform, clampPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -78,11 +78,7 @@ export function resolveHumanPosture(
   let pose: IAutoMoviePose = clampPose(
     {
       skeleton: body.skeleton.id,
-      root: {
-        translation: posture.root,
-        rotation: resolveHumanPosture.heading(posture),
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      root: Transform.of(posture.root, resolveHumanPosture.heading(posture)),
       joints,
     },
     body.skeleton,

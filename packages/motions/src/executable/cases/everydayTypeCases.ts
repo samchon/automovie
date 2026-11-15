@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Transform, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
@@ -190,21 +190,13 @@ function board(at: IAutoMovieVector3): IHumanProp {
       {
         id: "homeRow",
         kind: "surface",
-        frame: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        frame: Transform.identity(),
         extent: null,
       },
       {
         id: "keys",
         kind: "surface",
-        frame: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-          scale: { x: 1, y: 1, z: 1 },
-        },
+        frame: Transform.identity(),
         extent: null,
         width: typeText.WIDTH,
       },

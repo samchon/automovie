@@ -23,6 +23,7 @@ export * from "./IAutoMovieSingularDecomposition";
 export * from "./IAutoMovieSingularMatrixBudget";
 export * from "./Matrix4";
 export * from "./Quaternion";
+export * from "./Transform";
 export * from "./Vector3";
 export * from "./addAutoMovieQuadraticProduct";
 export * from "./addPositiveModulo";

@@ -14,6 +14,7 @@ import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
 import { Vector3 } from "./math/Vector3";
 import { validatePose } from "./validation/validatePose";
+import { Transform } from "./math/Transform";
 
 /**
  * Measure each available arm's rest-chain reach gap in model metres at shot-local seconds; report solved-pose ROM separately and refuse degenerate node scale or absent arm chains.
@@ -63,10 +64,7 @@ export function measureAutoMovieGeometryReach(
   const localTarget: IAutoMovieVector3 | null =
     nodeLocal === null || spatial.poseRoot === null
       ? nodeLocal
-      : toModelPoint(nodeLocal, {
-          ...spatial.poseRoot,
-          scale: { x: 1, y: 1, z: 1 },
-        });
+      : toModelPoint(nodeLocal, Transform.of(spatial.poseRoot.translation, spatial.poseRoot.rotation));
 
   if (localTarget === null)
     throw new Error(

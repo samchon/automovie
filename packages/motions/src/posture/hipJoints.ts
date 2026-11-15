@@ -1,4 +1,4 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Transform } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
@@ -29,7 +29,7 @@ export function hipJoints(
     body,
     {
       skeleton: body.skeleton.id,
-      root: { translation: root, rotation, scale: { x: 1, y: 1, z: 1 } },
+      root: Transform.of(root, rotation),
       joints:
         pelvis === undefined
           ? []

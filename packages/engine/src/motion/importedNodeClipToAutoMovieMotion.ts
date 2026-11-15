@@ -20,6 +20,7 @@ import { getConstraint } from "../rom/getConstraint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneMapping";
 import { IAutoMovieImportedNodeMotionProps } from "./IAutoMovieImportedNodeMotionProps";
+import { Transform } from "../math/Transform";
 
 /**
  * Lower admitted imported node tracks into clinical keyframes at the sorted union of source key times. Every mapped node needs a rotation track; only hips translation is supported, all tracks share step or linear interpolation, and unsupported/missing/duplicate/nonfinite content throws. Key orientations are retained within clinical inversion tolerance; inter-key linear clinical interpolation generally differs from quaternion slerp.
@@ -251,15 +252,11 @@ const rootTransform: (
 ) => IAutoMovieTransform = (
   value: readonly number[],
   rest: IAutoMovieVector3,
-): IAutoMovieTransform => ({
-  translation: {
+): IAutoMovieTransform => (Transform.of({
     x: value[0]! - rest.x,
     y: value[1]! - rest.y,
     z: value[2]! - rest.z,
-  },
-  rotation: { x: 0, y: 0, z: 0, w: 1 },
-  scale: { x: 1, y: 1, z: 1 },
-});
+  }, { x: 0, y: 0, z: 0, w: 1 }));
 
 const finiteUnitQuaternion: (
   value: readonly number[],

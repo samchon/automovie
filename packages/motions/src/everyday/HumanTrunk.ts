@@ -2,6 +2,7 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
+  Transform,
   resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
@@ -65,11 +66,7 @@ export namespace HumanTrunk {
       resolvePose(
         {
           skeleton: body.skeleton.id,
-          root: {
-            translation: posture.root,
-            rotation: resolveHumanPosture.heading(posture),
-            scale: { x: 1, y: 1, z: 1 },
-          },
+          root: Transform.of(posture.root, resolveHumanPosture.heading(posture)),
           joints: list,
         },
         body.skeleton,

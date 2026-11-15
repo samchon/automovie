@@ -1,6 +1,7 @@
 import {
   type IAutoMovieResolvedBone,
   Quaternion,
+  Transform,
   Vector3,
   quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
@@ -218,24 +219,16 @@ export function dressCases(
 
 /** The wear sockets of the two items, in their own frames, as `createWearable` declares them. */
 const WEAR: Readonly<Record<dress.Item, IAutoMovieAffordance["frame"]>> = {
-  hat: {
-    translation: { x: 0, y: 0.11, z: 0 },
-    rotation: quaternionFromAutoMovieBasis(
+  hat: Transform.of({ x: 0, y: 0.11, z: 0 }, quaternionFromAutoMovieBasis(
       { x: 0, y: 0, z: 1 },
       { x: 0, y: -1, z: 0 },
       { x: 1, y: 0, z: 0 },
-    ),
-    scale: { x: 1, y: 1, z: 1 },
-  },
-  glasses: {
-    translation: { x: 0, y: 0.016, z: -0.002 },
-    rotation: quaternionFromAutoMovieBasis(
+    )),
+  glasses: Transform.of({ x: 0, y: 0.016, z: -0.002 }, quaternionFromAutoMovieBasis(
       { x: 1, y: 0, z: 0 },
       { x: 0, y: 0, z: -1 },
       { x: 0, y: 1, z: 0 },
-    ),
-    scale: { x: 1, y: 1, z: 1 },
-  },
+    )),
 };
 
 /**
@@ -263,9 +256,7 @@ function wearable(item: dress.Item, at: IAutoMovieVector3): IHumanProp {
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: {
-      translation: hat ? { x: -0.13, y: 0.002, z: 0 } : { x: 0, y: 0.02, z: 0 },
-      rotation: hat
+    frame: Transform.of(hat ? { x: -0.13, y: 0.002, z: 0 } : { x: 0, y: 0.02, z: 0 }, hat
         ? quaternionFromAutoMovieBasis(
             { x: 0, y: 0, z: 1 },
             { x: 0, y: 1, z: 0 },
@@ -275,9 +266,7 @@ function wearable(item: dress.Item, at: IAutoMovieVector3): IHumanProp {
             { x: 1, y: 0, z: 0 },
             { x: 0, y: 0, z: 1 },
             { x: 0, y: -1, z: 0 },
-          ),
-      scale: { x: 1, y: 1, z: 1 },
-    },
+          )),
     extent: null,
     grip: "precision",
     aperture: 0.004,

@@ -1,6 +1,7 @@
 import { IAutoMovieNode, IAutoMovieSkeleton } from "@automovie/interface";
 
 import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
+import { Transform } from "../math/Transform";
 
 /**
  * Lower an admitted skeleton into a fresh identity group root and bone rest nodes. Prefixes concatenate onto node/parent ids and rootParent seats the synthetic root under a placement. Root records are independent; bone rest translation/rotation are borrowed and bone scales are fresh unit vectors.
@@ -33,11 +34,7 @@ export const lowerSkeletonNodes: (props: {
       name: null,
       parent: props.rootParent ?? null,
       kind: "group",
-      transform: {
-        translation: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      transform: Transform.identity(),
       mesh: null,
       camera: null,
       light: null,
@@ -50,11 +47,7 @@ export const lowerSkeletonNodes: (props: {
       name: null,
       parent: bone.parent === null ? rootId : `${prefix}${bone.parent}`,
       kind: "bone",
-      transform: {
-        translation: bone.rest.translation,
-        rotation: bone.rest.rotation,
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      transform: Transform.of(bone.rest.translation, bone.rest.rotation),
       mesh: null,
       camera: null,
       light: null,

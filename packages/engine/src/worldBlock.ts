@@ -3,6 +3,7 @@ import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
 import { srgbHexToLinearColor } from "./math/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "./productionRuntimeModelId";
+import { Transform } from "./math/Transform";
 
 /**
  * Build a box model group, placed node and bounds from a grounded base and size.
@@ -82,15 +83,11 @@ export const worldBlock: (input: {
     node: {
       id: input.id,
       model: model.id,
-      transform: {
-        translation: {
+      transform: Transform.of({
           x: input.base.x,
           y: input.base.y + input.size.y / 2,
           z: input.base.z,
-        },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
+        }, { x: 0, y: 0, z: 0, w: 1 }),
       motion: null,
       pose: null,
     },
