@@ -2,8 +2,10 @@ import {
   ArchetypeCourse,
   ArchetypeFrame,
   ArchetypeRefusal,
-  HorseGait,
+  QuadrupedBody,
+  QuadrupedGait,
   createHorse,
+  createQuadruped,
   rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -15,6 +17,9 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
+
+/** The horse's species, whose gait table the expectations read. */
+const HORSE: createQuadruped.ISpecies = createQuadruped.SPECIES.horse;
 
 /** The height at the withers of Icelandic horses, metres: 1.38 m, Jensen et al. 2019, Acta Vet Scand 61, Table 2. */
 const ICELANDIC: number = 1.38;
@@ -40,7 +45,7 @@ function course(
 /** The seconds of every landing of a limb's hoof over the whole ride, in time order. */
 function footfalls(
   ride: ReturnType<typeof rideHorse>,
-  limb: createHorse.Limb,
+  limb: QuadrupedBody.Limb,
 ): number[] {
   return ride.instants
     .filter((i: { label: string }): boolean => i.label === `${limb}On`)
@@ -50,7 +55,7 @@ function footfalls(
 /** The seconds of a hoof's landings while the course holds its cruising speed, a second after reaching it and half a second before braking. */
 function landings(
   ride: ReturnType<typeof rideHorse>,
-  limb: createHorse.Limb,
+  limb: QuadrupedBody.Limb,
 ): number[] {
   const cruise: number = ride.plan.instants.find(
     (i: { label: string }): boolean => i.label === "cruise",
@@ -92,20 +97,20 @@ function ends(
 /** Where a limb's hoof joint, the lower end of its lowest bone, is in the world at a second of a ride. */
 function hoof(
   ride: ReturnType<typeof rideHorse>,
-  limb: createHorse.Limb,
+  limb: QuadrupedBody.Limb,
   seconds: number,
 ): IAutoMovieVector3 {
   const sample: ReturnType<typeof ride.at> = ride.at(seconds);
   return ArchetypeFrame.point(
     sample.placement,
-    ends(sample.archetype, createHorse.BONES[limb][3])[1],
+    ends(sample.archetype, QuadrupedBody.BONES[limb][3])[1],
   );
 }
 
 /** How many hooves stand still on the ground over the four milliseconds after a second: a planted hoof does not move, and any other travels with or ahead of the body. */
 function planted(ride: ReturnType<typeof rideHorse>, seconds: number): number {
-  return createHorse.LIMBS.filter(
-    (limb: createHorse.Limb): boolean =>
+  return QuadrupedBody.LIMBS.filter(
+    (limb: QuadrupedBody.Limb): boolean =>
       Math.abs(
         hoof(ride, limb, seconds + 0.004).z - hoof(ride, limb, seconds).z,
       ) < MM,
@@ -138,14 +143,14 @@ export function test_archetype_ride_horse(): void {
   const withers: number = archetypeExtent(steady, "y", ["withers"]).high;
 
   // 1. The rows as measured, at the measured horses' height.
-  const rows: readonly (readonly [HorseGait.Gait, number, number])[] = [
+  const rows: readonly (readonly [QuadrupedGait.Gait, number, number])[] = [
     ["walk", 1, 1.121],
     ["trot", 2, 0.649],
     ["trot", 6.5, 0.482],
     ["canter", 5, 0.496],
   ];
   for (const [gait, speed, stride] of rows)
-    if (Math.abs(HorseGait.timing(gait, speed).stride - stride) > 1e-9)
+    if (Math.abs(QuadrupedGait.timing(HORSE, gait, speed).stride - stride) > 1e-9)
       findings.push(`${gait} at ${speed} m/s is not the paper's ${stride} s`);
 
   // 1. Stride times of this horse, at the speeds of equal Froude number, scaled by the square root of the height ratio.
@@ -186,7 +191,7 @@ export function test_archetype_ride_horse(): void {
   if (high - low < 1) findings.push("seeds do not vary the stride time");
 
   // 3. Footfall order: each hoof's first landing after a left fore landing, as a share of the stride.
-  const order = (gait: HorseGait.Gait, speed: number): string => {
+  const order = (gait: QuadrupedGait.Gait, speed: number): string => {
     const ride: ReturnType<typeof rideHorse> = rideHorse(
       steady,
       course(speed),
@@ -195,7 +200,7 @@ export function test_archetype_ride_horse(): void {
     const fore: number[] = landings(ride, "leftFore");
     const start: number = fore[1]!;
     const stride: number = fore[2]! - fore[1]!;
-    return createHorse.LIMBS.map((limb: createHorse.Limb): [string, number] => [
+    return QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): [string, number] => [
       limb,
       Math.round(
         ((landings(ride, limb).find(
@@ -228,8 +233,8 @@ export function test_archetype_ride_horse(): void {
 
   // 4. Duty factor falls with speed.
   if (
-    !(HorseGait.timing("walk", 1).duty > HorseGait.timing("walk", 3).duty) ||
-    !(HorseGait.timing("trot", 2).duty > HorseGait.timing("trot", 6.5).duty)
+    !(QuadrupedGait.timing(HORSE, "walk", 1).duty > QuadrupedGait.timing(HORSE, "walk", 3).duty) ||
+    !(QuadrupedGait.timing(HORSE, "trot", 2).duty > QuadrupedGait.timing(HORSE, "trot", 6.5).duty)
   )
     findings.push("duty factor does not fall with speed");
 
@@ -243,7 +248,7 @@ export function test_archetype_ride_horse(): void {
       course(speed),
       gait,
     );
-    const timing: HorseGait.ITiming = HorseGait.timing(gait, speed);
+    const timing: QuadrupedGait.ITiming = QuadrupedGait.timing(HORSE, gait, speed);
     for (const limb of ["leftFore", "rightHind"] as const) {
       const on: number = landings(ride, limb)[1]!;
       const landed: IAutoMovieVector3 = hoof(
@@ -267,8 +272,8 @@ export function test_archetype_ride_horse(): void {
     for (let k: number = 0; k < 8; k++) {
       const seconds: number = start + (k * timing.stride) / 8;
       const sample: ReturnType<typeof ride.at> = ride.at(seconds);
-      for (const limb of createHorse.LIMBS) {
-        const chain: readonly string[] = createHorse.BONES[limb];
+      for (const limb of QuadrupedBody.LIMBS) {
+        const chain: readonly string[] = QuadrupedBody.BONES[limb];
         if (hoof(ride, limb, seconds).y < -0.01)
           findings.push(
             `${gait}: ${limb} hoof under the ground at phase ${k}/8`,
@@ -308,8 +313,8 @@ export function test_archetype_ride_horse(): void {
     course(1.5, 30, 0.5),
     "walk",
   );
-  const share: number = HorseGait.timing("walk", 1.5, 0, withers).duty;
-  for (const limb of createHorse.LIMBS) {
+  const share: number = QuadrupedGait.timing(HORSE, "walk", 1.5, 0, withers).duty;
+  for (const limb of QuadrupedBody.LIMBS) {
     const on: number[] = footfalls(walk, limb);
     let worst: number = 0;
     let where: number = 0;

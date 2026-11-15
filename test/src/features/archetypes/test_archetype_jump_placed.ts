@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   createHighJump,
   createLandingMat,
   createVaultingPole,
@@ -8,6 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 import { archetypePlaced } from "../internal/archetypePlaced";
 
 /**
@@ -15,10 +17,10 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. The vaulting pole standing on its tip, the high jump, both landing mats and both vaulting tables, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the pole 2.337 to 5.207 m from its tip to its top (UCS Spirit's 7 ft 8 in to 17 ft 1 in poles, the rules leaving the length free); the high jump's crossbar 3.98 to 4.02 m long and its top 1 to 2.45 m high (a setting); the high jump mat's top 0.7 m and the pole vault mat's 0.8 m high (the rules' least heights); the men's vaulting table's top 1.34 to 1.36 m and the women's 1.24 to 1.26 m high (the norms' heights to a centimetre).
+ * 2. Over 200 seeds: the pole exactly one of UCS Spirit's 235, 305 and 520 series, 7 ft 8 in, 10 ft and 17 ft 1 in from its tip to its top, each drawn (the rules leaving the length free); the pole vault mat exactly 6 m long without its front pads or 8 m with them, both drawn; the high jump's crossbar 3.98 to 4.02 m long and its top 1 to 2.45 m high (a setting); the high jump mat's top 0.7 m and the pole vault mat's 0.8 m high (the rules' least heights); the men's vaulting table's top 1.34 to 1.36 m and the women's 1.24 to 1.26 m high (the norms' heights to a centimetre).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every jump archetype through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; an archetype that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The bands are written here from their sources: World Athletics' columns of the 2025 rules comparison sheets, the FIG norms as Wikipedia gives them, the makers' pole lengths.
+ * @evidence contracts/development/testing.md#independent-expectations The bands are written here from their sources: World Athletics' columns of the 2025 rules comparison sheets, the FIG norms as Wikipedia gives them, the makers' pole lengths, each a model the pole is built as.
  * @evidence contracts/development/testing.md#distinguishing-cases Every producer and kind for placement; one act-read size per thing for the bands.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man for the placing performance and in-memory models; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
@@ -57,15 +59,30 @@ export function test_archetype_jump_placed(): void {
     tolerance: 1e-9,
   });
   findings.push(
-    ...archetypeBandSweep([
-      row(
-        "vaulting pole length",
-        2.337,
-        5.207,
-        "UCS Spirit poles, 7 ft 8 in to 17 ft 1 in",
-        (seed: number): number =>
+    ...archetypeModelSweep([
+      {
+        name: "vaulting pole length",
+        measure: (seed: number): readonly number[] => [
           archetypeExtent(createVaultingPole({}, seed), "y").size,
-      ),
+        ],
+        models: [
+          [7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH],
+          [10 * ArchetypeUnits.FOOT],
+          [17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH],
+        ],
+        source: "UCS Spirit's 235, 305 and 520 series",
+      },
+      {
+        name: "pole vault mat length",
+        measure: (seed: number): readonly number[] => [
+          archetypeExtent(createLandingMat({ kind: "poleVault" }, seed), "z")
+            .size,
+        ],
+        models: [[6], [8]],
+        source: "World Athletics, 6 m behind the box, 8 m with the front pads",
+      },
+    ]),
+    ...archetypeBandSweep([
       row(
         "crossbar length",
         3.98,

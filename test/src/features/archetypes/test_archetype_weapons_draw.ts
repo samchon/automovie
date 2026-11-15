@@ -1,7 +1,7 @@
 import {
   type Archetype,
   createClub,
-  createScabbard,
+  createHolster,
   createSword,
   createWeaponLoop,
 } from "@automovie/archetypes";
@@ -31,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * A weapon is drawn from the carrier worn on the body: a knife from its sheath, a baton from a belt loop and a bat from a back sleeve, each carrier worn on the hips or the chest (`IHumanProp.worn`) with its weapon standing in it grip up, its lower end on the carrier's `mouth` or `socket`.
  *
- * Each weapon is turned point or tip down and worn on the same bone as its carrier, so it sits in it: a knife's shoulder on its sheath's mouth, a baton a hand's breadth below its knob on the loop, a bat's tip on its sleeve's bottom. The right hand takes it by its `grip` and lifts it straight up as far as brings its lower end to the opening, drawing it out. The knife's sheath and the baton's loop hang at the right hip, 0.9 of the shoulders' half width out and 0.08 m ahead of the hips joint; the bat's sleeve stands against the chest's back on the right, its opening 0.1 m below the chest joint, so the bat's grip stands above the right shoulder blade, where a back carry puts it.
+ * Each weapon is turned point or tip down and worn on the same bone as its carrier, so it sits in it: a knife's shoulder on the mouth of the sheath made to it, a baton a hand's breadth below its knob on the loop, a bat's tip on its sleeve's bottom. The right hand takes it by its `grip` and lifts it straight up as far as brings its lower end to the opening, drawing it out. The knife's sheath and the baton's loop hang at the right hip, 0.9 of the shoulders' half width out and 0.08 m ahead of the hips joint; the bat's sleeve stands against the chest's back on the right, its opening 0.1 m below the chest joint, so the bat's grip stands above the right shoulder blade, where a back carry puts it.
  *
  * Scenarios, on the average man and the small woman, one film per carrier:
  * 1. A draw the body can make plans, and one it cannot is refused on `lift`, never lifted less in silence. No stance raises the shoulder above its standing height, so a grip whose lifted place lies higher above the standing shoulder than the arm (upper arm and forearm) and the hand's grip socket together is beyond any draw, and one within the arm less the socket of the shoulder within the arm alone; between them either answer stands, a refusal still on `lift`.
@@ -53,9 +53,9 @@ export function test_archetype_weapons_draw(): void {
     const body: IHumanBody = motionHumanBody(name);
     const out: number = 0.9 * body.measure.shoulderHalfWidth;
     const knife: Archetype = createSword({ kind: "knife" });
-    const sheath: ReturnType<typeof createScabbard> = createScabbard({
-      kind: "knife",
-      length: 0.2,
+    const sheath: ReturnType<typeof createHolster> = createHolster({
+      kind: "sheath",
+      blade: "knife",
     });
     const baton: Archetype = createClub({ kind: "baton" });
     const loop: ReturnType<typeof createWeaponLoop> = createWeaponLoop({

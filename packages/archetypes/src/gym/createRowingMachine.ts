@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -19,14 +20,14 @@ const CONCEPT2: string =
  *
  * The rail runs along `Z` centred over the origin, its front (the flywheel's end) toward `+Z`, so the rower sits facing `+Z`. `seat` is the seat at its catch-most place near the feet, `+Z` the way the rower faces; `handle` the bar the hands pull, along `X` in front of the stretchers at rest on its hook; `leftFoot` and `rightFoot` the stretchers' plates, tilted back toward the rower.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The legs and any dimension the author fixes.
+ * @param seed The seed that draws the legs when they are not given and every dimension left free inside its band; absent, the standard legs and the middle of each band.
  * @returns The rowing machine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For legs Concept2 does not list or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the machine stands, the way the rower faces and its four contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A rail box of the drawn length on two feet, a seat box on it at the drawn height, a flywheel box at the front, two stretcher plates turned back by a fixed tilt and a handle rod before them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the rail and its feet, the seat, the flywheel, the stretchers, the handle.
+ * @evidence contracts/development/implementation.md#principled-implementation A rail box of the drawn length on two feet, a seat box on it at the picked legs' height, a flywheel box at the front, two stretcher plates turned back by a fixed tilt and a handle rod before them.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the legs, draw the dimensions, the rail and its feet, the seat, the flywheel, the stretchers, the handle.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The seat does not slide and the chain is not drawn; the rail is level; the parts' sizes are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -36,20 +37,37 @@ export function createRowingMachine(
   params: createRowingMachine.IParams = {},
   seed?: number | string,
 ): Archetype<createRowingMachine.Affordance, createRowingMachine.Dimension> {
-  const d: Record<createRowingMachine.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const legs: {
+    name: createRowingMachine.Legs | undefined;
+    figures: Readonly<Partial<Record<createRowingMachine.Dimension, number>>>;
+  } = ArchetypeDraw.model<
+    createRowingMachine.Legs,
+    createRowingMachine.Dimension
+  >(
+    "rowingMachine",
+    "legs",
+    params.legs,
+    createRowingMachine.LEGS,
+    seed,
+    params,
+  );
+  const d: Record<createRowingMachine.Dimension, number> = {
+    ...ArchetypeDraw.dimensions(
       "rowingMachine",
       createRowingMachine.BANDS,
       seed,
       params,
-    );
+    ),
+    seatHeight: legs.figures.seatHeight!,
+    mass: legs.figures.mass!,
+  };
   const builder: ArchetypeBuilder<
     createRowingMachine.Affordance,
     createRowingMachine.Dimension
   > = new ArchetypeBuilder({
     archetype: "rowingMachine",
     id: params.id,
-    name: "rowing machine",
+    name: `rowing machine on ${legs.name} legs`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -107,8 +125,8 @@ export function createRowingMachine(
   const stretch: number = front - 0.35;
   const normal: IAutoMovieVector3 = v(
     0,
-    Math.sin((tilt * Math.PI) / 180),
-    -Math.cos((tilt * Math.PI) / 180),
+    Math.sin(tilt * ArchetypeUnits.DEGREE),
+    -Math.cos(tilt * ArchetypeUnits.DEGREE),
   );
   for (const [id, sign] of [
     ["leftFoot", 1],
@@ -116,8 +134,8 @@ export function createRowingMachine(
   ] as const) {
     const centre: IAutoMovieVector3 = v(
       (sign * plate.width) / 2 + sign * 0.02,
-      top + (plate.height / 2) * Math.cos((tilt * Math.PI) / 180),
-      stretch + (plate.height / 2) * Math.sin((tilt * Math.PI) / 180),
+      top + (plate.height / 2) * Math.cos(tilt * ArchetypeUnits.DEGREE),
+      stretch + (plate.height / 2) * Math.sin(tilt * ArchetypeUnits.DEGREE),
     );
     builder.box(`${id}Plate`, v(plate.width, plate.height, 0.02), centre, {
       color: "#55595f",
@@ -169,9 +187,9 @@ export function createRowingMachine(
  * Companion types, constants and bands of {@link createRowingMachine}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the maker's figures as read; the seat's height is the one a seated workout reads.
+ * @evidence contracts/development/design.md#principled-representation The maker's standard and tall legs picked whole, one band per remaining dimension, the maker's figures as read; the seat's height is the one a seated workout reads.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The seat, the handle and the two stretchers a rower uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat's height, the footprint and the mass are the maker's as read; the maker gives no handle width, so its band is provisional; the parts' sizes are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat's height and the mass are one of the maker's two legs as read, never mixed, the footprint the maker's; the maker gives no handle width, so its band is provisional; the parts' sizes are named estimates.
  */
 export namespace createRowingMachine {
   /** The rail's section, metres: an estimate. */
@@ -225,27 +243,46 @@ export namespace createRowingMachine {
     | "handleWidth"
     | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** Concept2's legs. */
+  export type Legs = "standard" | "tall";
+
+  /** Each legs' seat height and mass, metres and kilograms, the default first: Concept2's "14 in (36 cm) from the floor on the standard legs and 20 in (51 cm) on the tall legs", "57 lb on the standard legs, 68 lb on the tall legs" (at the address `CONCEPT2` gives). */
+  export const LEGS: Readonly<
+    Record<Legs, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    standard: {
+      seatHeight: 14 * ArchetypeUnits.INCH,
+      mass: 57 * ArchetypeUnits.POUND,
+    },
+    tall: {
+      seatHeight: 20 * ArchetypeUnits.INCH,
+      mass: 68 * ArchetypeUnits.POUND,
+    },
+  };
+
+  /** The parameters: the legs, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "seatHeight" | "mass">, number>
+  > {
+    /** Concept2's legs; drawn from the seed when absent. */
+    legs?: Legs;
+
     /** The model's id, unique in a scene; `rowingMachine` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    seatHeight: ArchetypeBand.metres(
-      14 * 0.0254,
-      20 * 0.0254,
-      `${CONCEPT2}: the seat 14 in (36 cm) from the floor on the standard legs and 20 in (51 cm) on the tall legs`,
-    ),
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "seatHeight" | "mass">, IArchetypeBand>
+  > = {
     length: ArchetypeBand.metres(
-      96 * 0.0254,
-      96 * 0.0254,
+      96 * ArchetypeUnits.INCH,
+      96 * ArchetypeUnits.INCH,
       `${CONCEPT2}: 96 in long`,
     ),
     width: ArchetypeBand.metres(
-      24 * 0.0254,
-      24 * 0.0254,
+      24 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
       `${CONCEPT2}: 2 ft wide`,
     ),
     handleWidth: ArchetypeBand.metres(
@@ -253,12 +290,6 @@ export namespace createRowingMachine {
       0.55,
       "Concept2's page read gives no handle width",
       true,
-    ),
-    mass: ArchetypeBand.of(
-      "kg",
-      57 * 0.45359237,
-      68 * 0.45359237,
-      `${CONCEPT2}: 57 lb on the standard legs, 68 lb on the tall legs`,
     ),
   };
 }

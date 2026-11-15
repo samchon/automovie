@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,6 +9,7 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
+import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
 
 /** Broom and mop handles from a maker's listings seen in search results. */
 const HANDLES: string =
@@ -17,21 +19,31 @@ const HANDLES: string =
 const SHOVEL: string =
   "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
 
+/** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
+const FOREST_AXE: string =
+  "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
+
+/** The same axe as a retailer measures it. */
+const FOREST_AXE_SHOP: string =
+  "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
+
 /**
- * A two-hand tool that works on the floor or the ground: a broom, a mop or a shovel.
+ * A long tool: a broom, a mop or a shovel that works on the floor or the ground, a forest axe, a fishing rod, or a field gun's sponge and rammer, worm or trail handspike.
  *
- * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down.
+ * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down; a forest axe's `face` is its edge instead, facing `+Z` the way the swing goes, with the handle's back flush with the poll. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it. Chopping with two hands has no motion law yet; the axe is built for holding, carrying and the swing rows that exist.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * The 6-pdr field gun's implements follow the 1862 Ordnance Manual: a sponge and rammer stands on its rammer head, whose end is its `face`, with the sponge at the top, whose end is its `tip`, `+Y` along it; a worm stands on its iron worm, whose point is its `face`, `-Y` along it, out of the tool; a trail handspike stands on its large end, its `face`, and tapers to the small end the hands bear down on.
+ *
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The tool.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tool stands, where the hands go and which way the head faces.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the shaft and the head, then a shovel's grip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom or a mop, a head and a shaft; four for a shovel, with its grip and yoke.
+ * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice. An axe's head and handle carry their read masses as shares, and its handle's diameter is the one at which hickory of the read density, over the handle's length below the head, weighs the read handle mass.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build an axe whole, or the shaft and the head, then a shovel's grip.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate; an axe's wedge head is a block of the retailer's poll thickness, and its oval handle, which slims below the grip, a round rod.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom, a mop or an axe, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod; three for a sponge and rammer or a worm, and two for a handspike.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -45,7 +57,7 @@ export function createLongTool(
     params.kind,
     createLongTool.KINDS,
   );
-  const d: Partial<Record<createLongTool.Dimension, number>> =
+  const drawn: Partial<Record<createLongTool.Dimension, number>> =
     ArchetypeDraw.dimensions<createLongTool.Dimension>(
       "longTool",
       createLongTool.BANDS[kind],
@@ -53,8 +65,21 @@ export function createLongTool(
       params,
       createLongTool.BANDS,
     );
+  // A fishing rod is one of Daiwa's Ninja X spinning rods whole.
+  const model: { name: createLongTool.Model | undefined; figures: createLongTool.Figures } =
+    ArchetypeDraw.model<createLongTool.Model, createLongTool.Dimension>(
+      "longTool",
+      "model",
+      params.model,
+      createLongTool.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createLongTool.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const length: number = d.length!;
-  const radius: number = d.shaftDiameter! / 2;
   const builder: ArchetypeBuilder<
     createLongTool.Affordance,
     createLongTool.Dimension
@@ -64,6 +89,92 @@ export function createLongTool(
     name: kind,
     dimensions: d,
   });
+
+  if (kind === "forestAxe") {
+    // The handle's diameter at which its hickory weighs the read handle mass: d = sqrt(4 m / (pi rho L)).
+    const edge: number = d.edge!;
+    const head: number = d.headLength!;
+    const handle: number = d.mass! - d.headMass!;
+    const shaft: number = Math.sqrt(
+      handle / (Math.PI * createLongTool.HICKORY * (length - edge)),
+    );
+    // The head on the floor, its poll flush with the handle's back and its edge toward +Z.
+    builder.box(
+      "head",
+      Vector3.create(createLongTool.AXE_HEAD_THICKNESS, edge, head),
+      Vector3.create(0, edge / 2, head / 2 - shaft),
+      { color: "#6c7076", share: d.headMass! / d.mass! },
+    );
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, edge / 2, head - shaft),
+        Vector3.create(0, 0, 1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      width: edge,
+    });
+    builder.rod(
+      "shaft",
+      shaft,
+      Vector3.create(0, edge, 0),
+      Vector3.create(0, length, 0),
+      { color: "#b98d5b", share: handle / d.mass! },
+    );
+    builder.affordance({
+      id: "shaft",
+      kind: "bar",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, (edge + length) / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "two-hand",
+      aperture: 2 * shaft,
+      length: length - edge,
+    });
+    return builder.build(d.mass!);
+  }
+
+  const radius: number = d.shaftDiameter! / 2;
+  if (kind === "spongeRammer" || kind === "worm" || kind === "trailHandspike") {
+    FIELD_IMPLEMENTS.build(builder, kind, length, radius, d.mass!);
+    return builder.build(d.mass!);
+  }
+  if (kind === "fishingRod") {
+    // A rod on its butt: the grip a hand takes and the tip it casts with.
+    const grip: number = createLongTool.ROD_GRIP;
+    builder.rod("rod", radius, Vector3.create(0, 0, 0), Vector3.create(0, length, 0), {
+      color: "#2c2f33",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, grip / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "power",
+      aperture: 2 * radius,
+      length: grip,
+    });
+    builder.affordance({
+      id: "tip",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.upright(Vector3.create(0, length, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
 
   // The head on the floor: a broom's block, a mop's pad, a shovel's blade standing on its edge.
   const head: number =
@@ -156,10 +267,36 @@ export function createLongTool(
  */
 export namespace createLongTool {
   /** The kinds of tool. */
-  export type Kind = "broom" | "mop" | "shovel";
+  export type Kind =
+    | "broom"
+    | "mop"
+    | "shovel"
+    | "forestAxe"
+    | "fishingRod"
+    | "spongeRammer"
+    | "worm"
+    | "trailHandspike";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["broom", "mop", "shovel"];
+  export const KINDS: readonly Kind[] = [
+    "broom",
+    "mop",
+    "shovel",
+    "forestAxe",
+    "fishingRod",
+    "spongeRammer",
+    "worm",
+    "trailHandspike",
+  ];
+
+  /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
+  export const HICKORY: number = 800;
+
+  /** An axe head's thickness across `X`, metres: the retailer's 2.6 cm at the poll ({@link FOREST_AXE_SHOP}). No act reads it, and the head's inertia about the swing's axis does not depend on it. */
+  export const AXE_HEAD_THICKNESS: number = 0.026;
+
+  /** A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
+  export const ROD_GRIP: number = 0.12;
 
   /** The width of a broom's or a mop's head along `+X`, metres, which its `face` publishes. An estimate, not read at a source. */
   export const HEAD_WIDTH: number = 0.3;
@@ -174,62 +311,183 @@ export namespace createLongTool {
    * The affordance ids:
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
-   * - `grip`: a shovel's D grip at its top, held from above.
-   * - `face`: the working side of the head, facing down onto the floor or the ground.
+   * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
+   * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge; a rammer head's or a handspike's lower end, facing down; a worm's point, `+Y` down along the tool.
+   * - `tip`: a fishing rod's end, or a sponge's, `+Y` along it.
    */
-  export type Affordance = "shaft" | "grip" | "face";
+  export type Affordance = "shaft" | "grip" | "face" | "tip";
 
   /**
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `shaftDiameter`: the shaft the hands wrap.
+   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its handle's mass instead, and a handspike's from its read tapers.
+   * - `edge`: an axe's cutting edge, along `+Y`, which is the head's height.
+   * - `headLength`: an axe head from its poll to its edge, along `+Z`.
+   * - `headMass`: an axe head's mass, kilograms, its share of the whole placing the balance.
    * - `mass`: kilograms.
    */
-  export type Dimension = "length" | "shaftDiameter" | "mass";
+  export type Dimension =
+    | "length"
+    | "shaftDiameter"
+    | "edge"
+    | "headLength"
+    | "headMass"
+    | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tool. */
     kind: Kind;
 
+    /** A fishing rod's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `longTool` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by length and casting weight. */
+  export type Model =
+    | "NJX602MLFS"
+    | "NJX702MLFS"
+    | "NJX702MHFS"
+    | "NJX802MLFS"
+    | "NJX802MHFS"
+    | "NJX802HFS"
+    | "NJX902MLFS";
+
+  /** Each kind's models whole, the default first, length and mass: 183 cm and 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g, and 274 cm and 178 g (Daiwa Ninja X Spin specifications, https://www.daiwa.com/scandinavia/product/n753a5g). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    fishingRod: {
+      NJX602MLFS: { length: 1.83, mass: 0.106 },
+      NJX702MLFS: { length: 2.13, mass: 0.131 },
+      NJX702MHFS: { length: 2.13, mass: 0.133 },
+      NJX802MLFS: { length: 2.44, mass: 0.141 },
+      NJX802MHFS: { length: 2.44, mass: 0.157 },
+      NJX802HFS: { length: 2.44, mass: 0.165 },
+      NJX902MLFS: { length: 2.74, mass: 0.178 },
+    },
+  };
+
+  /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
+    spongeRammer: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.length,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      shaftDiameter: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.staff,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.staff,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.mass,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
+    worm: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.WORM.length,
+        FIELD_IMPLEMENTS.WORM.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      shaftDiameter: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.WORM.staff,
+        FIELD_IMPLEMENTS.WORM.staff,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.WORM.mass,
+        FIELD_IMPLEMENTS.WORM.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
+    trailHandspike: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.HANDSPIKE.length,
+        FIELD_IMPLEMENTS.HANDSPIKE.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.HANDSPIKE.mass,
+        FIELD_IMPLEMENTS.HANDSPIKE.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
+    forestAxe: {
+      length: ArchetypeBand.metres(
+        25 * ArchetypeUnits.INCH,
+        0.65,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      edge: ArchetypeBand.metres(
+        3.5 * ArchetypeUnits.INCH,
+        0.09,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      headLength: ArchetypeBand.metres(
+        0.163,
+        0.163,
+        `${FOREST_AXE_SHOP}; where the handle sits in the head no maker's page, the Axe Book or a retailer gives, and no drawing was found, so the handle's back stands flush with the poll, a provisional construction from which the edge's reach ahead of the handle follows`,
+        true,
+      ),
+      headMass: ArchetypeBand.of(
+        "kg",
+        0.9,
+        2 * ArchetypeUnits.POUND,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
+    },
+    fishingRod: {
+      shaftDiameter: ArchetypeBand.metres(
+        0.032,
+        0.038,
+        "no rod grip diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a rod's grip",
+        true,
+      ),
+    },
     broom: {
       length: ArchetypeBand.metres(
-        1.524,
-        1.604,
+        60 * ArchetypeUnits.INCH,
+        60 * ArchetypeUnits.INCH + 0.08,
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, 0.0254, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     mop: {
       length: ArchetypeBand.metres(
-        1.372,
-        1.402,
+        54 * ArchetypeUnits.INCH,
+        54 * ArchetypeUnits.INCH + 0.03,
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, 0.0254, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     shovel: {
-      length: ArchetypeBand.metres(1.054, 1.168, SHOVEL, true),
+      length: ArchetypeBand.metres(41.5 * ArchetypeUnits.INCH, 46 * ArchetypeUnits.INCH, SHOVEL, true),
       shaftDiameter: ArchetypeBand.metres(
         0.032,
         0.038,
         "no shovel shaft diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 2.04, 2.54, SHOVEL, true),
+      mass: ArchetypeBand.of("kg", 4.5 * ArchetypeUnits.POUND, 5.6 * ArchetypeUnits.POUND, SHOVEL, true),
     },
   };
 }

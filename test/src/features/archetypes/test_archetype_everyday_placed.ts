@@ -1,10 +1,11 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   createCareItem,
   createCleaning,
+  createHolster,
   createKeyboard,
   createPram,
-  createScabbard,
   createTool,
   createTorch,
   createTray,
@@ -23,8 +24,8 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  * The everyday additions and the weapons' carriers and rack are placed in a scene where they were put, and their act-read sizes stay inside their sources for every seed, measured on the produced thing.
  *
  * Scenarios:
- * 1. The razor and the lipstick, the fork, every vessel, wearable, keyboard, cleaning thing and carrier, the torch, the pram, both scabbards, both weapon carriers and the weapon rack, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
- * 2. Over 200 seeds: the razor 0.129 to 0.137 m long (two Mach3 razors); the keyboard's home row two and a half key pitches (47.6 mm) behind its key field's front, the third row's middle; the sword's scabbard 0.793 to 1.055 m long (Wulflund's fit on createSword's blades); the pram's handle 41.3 in high (the Bugaboo Fox 5).
+ * 1. The razor and the lipstick, the fork, every vessel, wearable, keyboard, cleaning thing and carrier, the torch, the pram, the scabbard, sheath and quiver kinds of the holster (the belt holster hangs from its loop at its origin, so it is not stood on a floor), both weapon carriers and the weapon rack, placed on a line through the public chain, each turned a different way: each rests at its placement on the floor, its lowest point on the floor within a millimetre, and every contact it declares is a named point of the prop at its own place.
+ * 2. Over 200 seeds: the razor 0.129 to 0.137 m long (two Mach3 razors); the keyboard's home row two and a half key pitches (47.6 mm) behind its key field's front, the third row's middle; the sword's scabbard 0.621 to 1.055 m long (Wulflund's fit on createSword's blades, a katana's shortest to a rapier's); the pram's handle 41.3 in high (the Bugaboo Fox 5).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every archetype of the family through the public chain and reads the displayed prop frames, and measures colliders and contacts on the produced things; one that floats, sinks, drops a contact or leaves its source's band fails with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bands are written here from the sources each producer cites; the home row's place is the standard key pitch's arithmetic.
@@ -91,9 +92,9 @@ export function test_archetype_everyday_placed(): void {
     { name: "torch", archetype: createTorch(), yaw: 160 },
     { name: "pram", archetype: createPram(), yaw: 180 },
     ...kinds(
-      "scabbard",
-      createScabbard.KINDS,
-      (kind: createScabbard.Kind): Archetype => createScabbard({ kind }),
+      "holster",
+      ["scabbard", "sheath", "quiver"] as const,
+      (kind: createHolster.Kind): Archetype => createHolster({ kind }),
       200,
     ),
     ...kinds(
@@ -124,7 +125,7 @@ export function test_archetype_everyday_placed(): void {
       row(
         "razor length",
         0.129,
-        5.4 * 0.0254,
+        5.4 * ArchetypeUnits.INCH,
         "Mach3 razors, 129 mm and 5.4 in",
         (seed: number): number =>
           archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size,
@@ -147,16 +148,16 @@ export function test_archetype_everyday_placed(): void {
       ),
       row(
         "sword scabbard length",
-        0.7779 + 0.015,
+        0.606 + 0.015,
         1.04 + 0.015,
         "Wulflund's 1.5 cm beyond createSword's blades",
         (seed: number): number =>
-          archetypeExtent(createScabbard({ kind: "sword" }, seed), "y").size,
+          archetypeExtent(createHolster({ kind: "scabbard" }, seed), "y").size,
       ),
       row(
         "pram handle height",
-        41.3 * 0.0254,
-        41.3 * 0.0254,
+        41.3 * ArchetypeUnits.INCH,
+        41.3 * ArchetypeUnits.INCH,
         "Bugaboo Fox 5, 41.3 in open",
         (seed: number): number =>
           createPram({}, seed).affordance("handle").frame.translation.y,

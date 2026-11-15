@@ -13,6 +13,7 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
+import { caseFrame } from "./caseFrame";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -162,22 +163,13 @@ export function climbCases(
  */
 function ladderProp(): IHumanProp {
   // Each rung's frame turns +Y to -Z, toward the climber.
-  const out: IAutoMovieQuaternion = {
-    x: -Math.SQRT1_2,
-    y: 0,
-    z: 0,
-    w: Math.SQRT1_2,
-  };
+  const out: IAutoMovieQuaternion = { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
   const affordances: IAutoMovieAffordance[] = Array.from(
     { length: 10 },
     (_: unknown, i: number): IAutoMovieAffordance => ({
       id: `rung${i + 1}`,
       kind: "bar",
-      frame: {
-        translation: { x: 0, y: 0.3 * (i + 1), z: 0 },
-        rotation: out,
-        scale: { x: 1, y: 1, z: 1 },
-      },
+      frame: caseFrame({ x: 0, y: 0.3 * (i + 1), z: 0 }, out),
       extent: null,
       grip: "power",
       aperture: 0.03,

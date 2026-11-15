@@ -1,0 +1,482 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMoviePrimitiveShape,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  type ArchetypeBuilder,
+  type ArchetypeFriction,
+  ArchetypeUnits,
+} from "../core";
+
+/**
+ * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
+ *
+ * The animal stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its bones are a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb; each is a bar from joint to joint, so the animal is posed by moving joints. A species differs from another only by its `IBody`: bone lengths and standing angles as fractions of the height at the withers and degrees, mass shares as percentages, and the few shapes of the head, neck and tail.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States how the animal stands, what its bones are and what a species gives.
+ * @evidence contracts/development/design.md#principled-representation One bone vocabulary and one rest rig for every quadruped, with each species' proportions as data in the forms the anatomical studies report: fractions of withers height, degrees and percentages of body mass.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The vocabulary lives with the animals because `IAutoMovieBone` names humanoid bones only (#3373, #2805); the producers lay the body here and add their tack, and the ride poses these bones.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch: a species is its `IBody`, never a case in this code.
+ */
+export namespace QuadrupedBody {
+  /**
+   * The four limbs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it names.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the four limbs by side and end.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the key of every limb table and of the rig's joints.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
+  export type Limb = "leftFore" | "rightFore" | "leftHind" | "rightHind";
+
+  /** Every limb, in a fixed order. */
+  export const LIMBS: readonly Limb[] = [
+    "leftFore",
+    "rightFore",
+    "leftHind",
+    "rightHind",
+  ];
+
+  /**
+   * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it and the uppermost from the trunk.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each bone and what it includes.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the trunk, the head and tail and four bones a limb, as template literals over the limbs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the ids of the parts the body lays and the ride poses.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a quadruped's, the defect #2805 removed.
+   */
+  export type Bone =
+    | "trunk"
+    | "hindquarters"
+    | "neck"
+    | "head"
+    | "tail"
+    | `${"leftFore" | "rightFore"}${"Humerus" | "Radius" | "Cannon" | "Pastern"}`
+    | `${"leftHind" | "rightHind"}${"Femur" | "Tibia" | "Cannon" | "Pastern"}`;
+
+  /** Each limb's four bones from the top down, which are also the ids of the parts that draw them. */
+  export const BONES: Readonly<
+    Record<Limb, readonly [Bone, Bone, Bone, Bone]>
+  > = {
+    leftFore: [
+      "leftForeHumerus",
+      "leftForeRadius",
+      "leftForeCannon",
+      "leftForePastern",
+    ],
+    rightFore: [
+      "rightForeHumerus",
+      "rightForeRadius",
+      "rightForeCannon",
+      "rightForePastern",
+    ],
+    leftHind: [
+      "leftHindFemur",
+      "leftHindTibia",
+      "leftHindCannon",
+      "leftHindPastern",
+    ],
+    rightHind: [
+      "rightHindFemur",
+      "rightHindTibia",
+      "rightHindCannon",
+      "rightHindPastern",
+    ],
+  };
+
+  /**
+   * The dimensions every quadruped draws, metres unless stated:
+   *
+   * - `withersHeight`: the withers above the ground, which scales every bone.
+   * - `mass`: body mass, kilograms.
+   * - `girth`: the heart girth's circumference, which sizes the barrel.
+   * - `tempo`: how far this animal's stride time lies from the mean, in standard deviations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each dimension's unit and meaning.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the four dimensions every quadruped draws.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what the rig and the ride read of any species.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
+  export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
+
+  /**
+   * A species' body: the proportions the rig and the bars are built from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
+   * @evidence contracts/development/design.md#principled-representation Fractions of withers height, degrees from straight down and percentages of body mass, the forms the anatomical studies report.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; each species states its own, read by `rig` and `lay`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; every member is a proportion a species states with its source or as an estimate.
+   */
+  export interface IBody {
+    /** Bone lengths as fractions of the height at the withers, from the top of each limb down, and the trunk from the shoulder joints to the hip joints. */
+    lengths: Readonly<{
+      fore: readonly [number, number, number, number];
+      hind: readonly [number, number, number, number];
+      trunk: number;
+    }>;
+
+    /** Each limb bone's standing direction, degrees from straight down toward the front, from the top of each limb down. */
+    stance: Readonly<{
+      fore: readonly [number, number, number, number];
+      hind: readonly [number, number, number, number];
+    }>;
+
+    /** The back's height as a fraction of the height at the withers. */
+    back: number;
+
+    /** The point of buttock behind the point of shoulder, as a fraction of the height at the withers. */
+    buttock: number;
+
+    /** Mass shares, percent of body mass: the torso, shared by the trunk and the hindquarters by their volumes, the neck, the head, the tail, the withers' ball, and each limb's bones from the top down. */
+    mass: Readonly<{
+      trunk: number;
+      neck: number;
+      head: number;
+      tail: number;
+      withers: number;
+      fore: readonly [number, number, number, number];
+      hind: readonly [number, number, number, number];
+    }>;
+
+    /** The withers' ball's radius as a fraction of the height at the withers; its top stands at the withers height, just behind the neck's root. */
+    withers: number;
+
+    /** The neck's root below the back and the neck bar's radius, fractions of the height at the withers. */
+    neck: Readonly<{ root: number; radius: number }>;
+
+    /** The head, fractions of the height at the withers: the poll above the back and ahead of the shoulder joints, the nose below and ahead of the poll, the head bar's radius, and the mouth's corners above and behind the nose. */
+    head: Readonly<{
+      poll: Readonly<{ rise: number; ahead: number }>;
+      nose: Readonly<{ drop: number; ahead: number }>;
+      radius: number;
+      mouth: number;
+    }>;
+
+    /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
+    tail: Readonly<{ radius: number; drop: number; back: number; dock: number }>;
+
+    /** Each limb bone's radius, from the top down, as a fraction of the height at the withers. */
+    bones: readonly [number, number, number, number];
+
+    /** How far each limb stands inside the barrel's side, metres. */
+    inset: number;
+
+    /** The coat's colour, and the tail's. */
+    colors: Readonly<{ coat: string; tail: string }>;
+
+    /** What the feet are, which the lowest bones' surfaces and the body's friction on the ground read. */
+    foot: ArchetypeFriction.Material;
+  }
+
+  /**
+   * The joints and landmarks of a quadruped at rest, in the model's space.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation Points in the model's space and lengths in metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `rig`, read by the producers' tack and the ride.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IRig {
+    /** The back's height above the ground, metres. */
+    back: number;
+
+    /** The distance from the shoulder joints to the hip joints, metres. */
+    trunk: number;
+
+    /** Each limb's five joints from the top down: the shoulder or hip joint, the elbow or stifle, the carpus or hock, the fetlock, and the foot on the ground. */
+    limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
+
+    /** The point of buttock, the rear of the hindquarters: `IBody.buttock` behind the shoulder joints, at the hip joints' height. No source read gives its height, so the hip joint's is a provisional value; the searches are in the sources record. */
+    buttock: IAutoMovieVector3;
+
+    /** The neck's root on the trunk, where its bar starts. */
+    neck: IAutoMovieVector3;
+
+    /** The neck bar's radius, metres. */
+    neckRadius: number;
+
+    /** The top of the neck at its root, just ahead of the withers, where a neck strap crosses it. */
+    crest: IAutoMovieVector3;
+
+    /** The poll, where the head meets the neck. */
+    poll: IAutoMovieVector3;
+
+    /** The head bar's radius, metres. */
+    headRadius: number;
+
+    /** The nose, the head's front end. */
+    nose: IAutoMovieVector3;
+
+    /** The mouth's corners' middle, where a bit lies across the head. */
+    mouth: IAutoMovieVector3;
+
+    /** The barrel's radius, the heart girth over two pi, metres: the trunk's and the hindquarters' bars' radius. */
+    barrel: number;
+
+    /** The centre of the hindquarters' rounded rear end, a ball of the barrel's radius whose rearmost point is the point of buttock. */
+    quarters: IAutoMovieVector3;
+
+    /** The tail's root, just inside the hindquarters' rounded rear end, up and back from that end's centre. */
+    dock: IAutoMovieVector3;
+  }
+
+  /**
+   * A quadruped's joints and landmarks at rest.
+   *
+   * @param body The species' body.
+   * @param dimensions The animal's dimensions: its withers height and girth are read.
+   * @returns The rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Each limb is laid from its foot on the ground up through its bones at their standing angles, then shifted along the trunk so its top joint lies at its end of the trunk; the landmarks are the species' fractions of the withers height from the back and the trunk's ends.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The limbs, then the landmarks.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; the producer's bands admit the dimensions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function rig(
+    body: IBody,
+    dimensions: Readonly<Partial<Record<Dimension, number>>>,
+  ): IRig {
+    const h: number = dimensions.withersHeight!;
+    const barrel: number = dimensions.girth! / (2 * Math.PI);
+    const trunk: number = body.lengths.trunk * h;
+    const back: number = body.back * h;
+    const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
+    for (const limb of LIMBS) {
+      const fore: boolean = limb.endsWith("Fore");
+      const lengths: readonly number[] = fore
+        ? body.lengths.fore
+        : body.lengths.hind;
+      const angles: readonly number[] = fore ? body.stance.fore : body.stance.hind;
+      const x: number = (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
+
+      // From the foot on the ground up to the top joint, then listed from the top down.
+      let y: number = 0;
+      let z: number = 0;
+      const up: IAutoMovieVector3[] = [Vector3.create(x, 0, 0)];
+      for (let k: number = 3; k >= 0; k--) {
+        const angle: number = angles[k]! * ArchetypeUnits.DEGREE;
+        y += lengths[k]! * h * Math.cos(angle);
+        z -= lengths[k]! * h * Math.sin(angle);
+        up.push(Vector3.create(x, y, z));
+      }
+      const top: number = (fore ? 1 : -1) * (trunk / 2) - z;
+      limbs[limb] = up
+        .reverse()
+        .map(
+          (p: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.create(p.x, p.y, p.z + top),
+        );
+    }
+    const joints: Record<Limb, IAutoMovieVector3[]> = limbs as Record<
+      Limb,
+      IAutoMovieVector3[]
+    >;
+    const shoulder: IAutoMovieVector3 = joints.leftFore[0]!;
+    const hip: IAutoMovieVector3 = joints.leftHind[0]!;
+    const buttock: IAutoMovieVector3 = Vector3.create(
+      0,
+      hip.y,
+      shoulder.z - body.buttock * h,
+    );
+    const poll: IAutoMovieVector3 = Vector3.create(
+      0,
+      back + body.head.poll.rise * h,
+      trunk / 2 + body.head.poll.ahead * h,
+    );
+    const nose: IAutoMovieVector3 = Vector3.create(
+      0,
+      poll.y - body.head.nose.drop * h,
+      poll.z + body.head.nose.ahead * h,
+    );
+
+    // The hindquarters' rear end is a ball of the barrel's radius whose rearmost point is the point of buttock.
+    const quarters: IAutoMovieVector3 = Vector3.create(
+      0,
+      buttock.y,
+      buttock.z + barrel,
+    );
+    const neck: IAutoMovieVector3 = Vector3.create(
+      0,
+      back - body.neck.root * h,
+      trunk / 2,
+    );
+    const neckRadius: number = body.neck.radius * h;
+    return {
+      back,
+      trunk,
+      limbs: joints,
+      buttock,
+      neck,
+      neckRadius,
+      crest: Vector3.create(0, neck.y + neckRadius, neck.z),
+      poll,
+      headRadius: body.head.radius * h,
+      nose,
+      mouth: Vector3.create(
+        0,
+        nose.y + body.head.mouth * h,
+        nose.z - body.head.mouth * h,
+      ),
+      barrel,
+      quarters,
+      dock: Vector3.create(
+        0,
+        quarters.y + body.tail.dock * barrel,
+        quarters.z - body.tail.dock * barrel,
+      ),
+    };
+  }
+
+  /**
+   * The joints a ride poses from, read off an animal's own bars at rest: each limb's five joints and the neck's root.
+   *
+   * Each bone is a bar from joint to joint whose `+Y` runs from its upper joint to its lower (`lay`), so its upper joint is its centre less half its length along that axis and its lower joint its centre plus as much. Reading them off the animal, rather than rebuilding them from a species' proportions, poses the animal the producer built, whatever breed or sample it drew.
+   *
+   * @param parts The animal's parts at rest.
+   * @returns Each limb's five joints from the top down, and the neck's root.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which bars and why.
+   * @evidence contracts/development/implementation.md#principled-implementation A bar's two ends from its transform and its cylinder's height, the convention `lay` builds every bone by.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One end per bone, then the neck's root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parts are found by the bone vocabulary's ids; a model without them is no quadruped `lay` built, and the ride refuses it by its species first.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Seventeen lookups.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per ride.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function joints(parts: readonly IAutoMovieModelPart[]): {
+    limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
+    neck: IAutoMovieVector3;
+  } {
+    const ends = (id: Bone): [IAutoMovieVector3, IAutoMovieVector3] => {
+      const part: IAutoMovieModelPart = parts.find(
+        (p: IAutoMovieModelPart): boolean => p.id === id,
+      )!;
+      const shape: AutoMoviePrimitiveShape | null =
+        part.geometry.type === "primitive" ? part.geometry.shape : null;
+      const half: number =
+        shape !== null && (shape.type === "cylinder" || shape.type === "capsule")
+          ? shape.height / 2
+          : 0;
+      const along: IAutoMovieVector3 = Quaternion.rotateVector(
+        part.transform!.rotation,
+        Vector3.create(0, half, 0),
+      );
+      return [
+        Vector3.subtract(part.transform!.translation, along),
+        Vector3.add(part.transform!.translation, along),
+      ];
+    };
+    const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
+    for (const limb of LIMBS) {
+      const bones: readonly (readonly [IAutoMovieVector3, IAutoMovieVector3])[] =
+        BONES[limb].map(ends);
+      limbs[limb] = [
+        bones[0]![0],
+        ...bones.map(
+          (b: readonly [IAutoMovieVector3, IAutoMovieVector3]): IAutoMovieVector3 =>
+            b[1],
+        ),
+      ];
+    }
+    return {
+      limbs: limbs as Record<Limb, IAutoMovieVector3[]>,
+      neck: ends("neck")[0],
+    };
+  }
+
+  /**
+   * Lay a quadruped's body on a model under construction: a bar per bone from joint to joint at rest, and the withers.
+   *
+   * @param body The species' body.
+   * @param builder The model under construction.
+   * @param withers The animal's height at the withers, metres.
+   * @param rig The animal's rest rig, from `rig`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation Each bone's bar runs between its joints in the rig, carrying its species' measured share of the body's mass; the torso's share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in the studies that measure it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, the withers, the neck, head and tail, then the limbs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula is part of the trunk and the pelvis of the trunk and the hindquarters, as the studies' torso includes them; ears, mane and hooves are not modelled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones and the withers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one body.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function lay<Affordance extends string, D extends string>(
+    body: IBody,
+    builder: ArchetypeBuilder<Affordance, D>,
+    withers: number,
+    rig: IRig,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const h: number = withers;
+    const barrel: number = rig.barrel;
+    const coat: string = body.colors.coat;
+    const share: IBody["mass"] = body.mass;
+
+    // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, the torso's share shared between them by volume.
+    const back: number = rig.back;
+    const half: number = rig.trunk / 2;
+    const rear: IAutoMovieVector3 = v(0, back - barrel, -half);
+    const quarters: IAutoMovieVector3 = rig.quarters;
+    const capsule = (length: number): number =>
+      Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
+    const trunkVolume: number = capsule(2 * half);
+    const quartersVolume: number = capsule(
+      Vector3.length(Vector3.subtract(quarters, rear)),
+    );
+    builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
+      color: coat,
+      round: true,
+      share: (share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
+    });
+    builder.rod("hindquarters", barrel, rear, quarters, {
+      color: coat,
+      round: true,
+      share: (share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
+    });
+    builder.ball(
+      "withers",
+      body.withers * h,
+      v(0, (1 - body.withers) * h, half - body.withers * h),
+      { color: coat, share: share.withers },
+    );
+    builder.rod("neck", rig.neckRadius, rig.neck, rig.poll, {
+      color: coat,
+      share: share.neck,
+    });
+    builder.rod("head", rig.headRadius, rig.poll, rig.nose, {
+      color: coat,
+      round: true,
+      share: share.head,
+    });
+    const dock: IAutoMovieVector3 = rig.dock;
+    builder.rod(
+      "tail",
+      body.tail.radius * h,
+      dock,
+      v(0, dock.y - body.tail.drop * h, dock.z - body.tail.back * h),
+      { color: body.colors.tail, share: share.tail },
+    );
+
+    // The limbs: one bar per bone, from each joint to the next.
+    for (const limb of LIMBS) {
+      const joints: readonly IAutoMovieVector3[] = rig.limbs[limb];
+      const shares: readonly number[] = limb.endsWith("Fore")
+        ? share.fore
+        : share.hind;
+      BONES[limb].forEach((bone: Bone, k: number): void => {
+        builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
+          color: coat,
+          share: shares[k]!,
+          // The digit ends in the foot.
+          ...(k === 3 ? { surface: body.foot } : {}),
+        });
+      });
+    }
+  }
+}

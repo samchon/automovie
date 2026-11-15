@@ -6,18 +6,21 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
 /** What a plyometric box commonly measures. */
 const BOX: string =
-  "the common three-height plyometric box, 20 by 24 by 30 in (0.508, 0.61 and 0.762 m), as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
+  "the common three-height plyometric box, 20 by 24 by 30 in, as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
 
 /**
  * A plyometric box: a closed wooden box stepped or jumped onto.
  *
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
+ *
+ * The wooden box rests on its wooden base: wood on concrete (`ArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -73,7 +76,7 @@ export function createPlyoBox(
     width: d.width!,
     depth: d.depth!,
   });
-  return builder.build(d.mass!);
+  return builder.build(d.mass!, { rests: "wood" });
 }
 
 /**
@@ -118,9 +121,9 @@ export namespace createPlyoBox {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      width: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      depth: ArchetypeBand.metres(0.508, 0.762, BOX, true),
+      height: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      width: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      depth: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
       mass: ArchetypeBand.of(
         "kg",
         15,

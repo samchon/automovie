@@ -41,6 +41,10 @@ export function test_archetype_contract_symmetry(): void {
       "hurdle-men110": { bar: "half" },
       "ball-football": { grip: "round" },
       "device-phone": { grip: "none" },
+      "tableware-plate": { leftRim: "half", rightRim: "half" },
+      "food-apple": { grip: "round" },
+      "polearm-lance": { grip: "round" },
+      "magazine-pistol": { grip: "none" },
     };
   const complaints: string[] = [];
   for (const row of archetypeCatalog()) {

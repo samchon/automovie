@@ -17,6 +17,8 @@ export * from "./IAutoMovieTextureClosureInput";
 export * from "./IAutoMovieTextureImageFacts";
 export * from "./IAutoMovieToppling";
 export * from "./ViolationCollector";
+export * from "./affordanceFollowedTravel";
+export * from "./affordanceTravelRange";
 export * from "./appendCameraClearanceArtifact";
 export * from "./appendCameraIntentArtifact";
 export * from "./appendGraphCycles";

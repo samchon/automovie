@@ -17,6 +17,7 @@ export * from "./IAutoMovieSubjectContribution";
 export * from "./IAutoMovieSubjectReviewCurrentContext";
 export * from "./IAutoMovieWorldBlock";
 export * from "./analysis";
+export * from "./anthropometry";
 export * from "./architecture";
 export * from "./assertWorldPlacements";
 export * from "./autoMovieInstanceAddress";
