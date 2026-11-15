@@ -17,10 +17,22 @@ const ADA: string =
 const KONE: string =
   "KONE MonoSpace 4 DX Core and Pro / 300 and 500 DX planning guide: car height 2 100 to 2 400 mm, door height 2 000 to 2 300 mm, centre-opening doors (https://www.kone.co.uk/Images/KONE-MonoSpace-4-DX-Core-and-Pro-Planning-Guide-GBIR_tcm45-139450.pdf)";
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wall`, the car's wall and roof thickness; `leaf`, a door leaf's thickness. */
-const ESTIMATES: Readonly<{ wall: number; leaf: number }> = {
+/** The call button's height read. */
+const CALL: string =
+  "2010 ADA Standards 407.2.1.1, call buttons \"located within one of the reach ranges specified in 308\", measured to the centreline of the highest operable part; 308.2.1, a forward reach 15 in (380 mm) minimum and 48 in (1220 mm) maximum (https://www.access-board.gov/ada/chapter/ch04/, https://www.access-board.gov/ada/chapter/ch03/)";
+
+/** A landing call station's faceplate, metres: KONE KSS 280's landing call station, 58 wide, 180 high and 15 thick (https://www.kone.com.au/Images/KONE%20KSS280%20Signalisation_tcm46-17878.pdf). */
+const STATION: Readonly<{ width: number; height: number; depth: number }> = {
+  width: 0.058,
+  height: 0.18,
+  depth: 0.015,
+};
+
+/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wall`, the car's wall and roof thickness; `leaf`, a door leaf's thickness; `across`, the call station's place across the `+X` front return, as a share of the return's width from the opening, which no source read places and no act reads until a press act places the hand. */
+const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
   wall: 0.05,
   leaf: 0.03,
+  across: 0.5,
 };
 
 /**
@@ -28,7 +40,7 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number }> = {
  *
  * The car's floor is at the landing's level, `y = 0`, and the inside face of its closed door lies in the plane `z = 0`, the car behind it toward `-Z` and the landing toward `+Z`; a person enters walking `-Z`. The front returns flank the door at the depth the regulation gives between the door's face and the front return. Each door leaf slides out toward its own side by half the clear width, opening the entrance.
  *
- * The car is built for static use: riding it between floors is standing on a moving support, which no motion law covers yet (#3491). Its hall and car buttons are not declared, since no source read places them across the wall.
+ * A landing call station, KONE's faceplate, stands on the `+X` front return's landing face at the drawn call height; `call` is its button. Its place across the return is a construction estimate, since no source read places it. The car is built for static use: riding it between floors is standing on a moving support, which no motion law covers yet (#3491). The car's own buttons are not declared, since no source read places them.
  *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -142,6 +154,24 @@ export function createElevator(
       parts: [part],
     });
   }
+  const station: number = returns + E.wall + STATION.depth / 2;
+  const across: number = half + strip * E.across;
+  builder.box(
+    "call-station",
+    v(STATION.width, STATION.height, STATION.depth),
+    v(across, d.callHeight, station),
+    { color: "#b9bec4" },
+  );
+  builder.affordance({
+    id: "call",
+    kind: "button",
+    frame: ArchetypeFrame.facing(
+      v(across, d.callHeight, station + STATION.depth / 2),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
+    extent: null,
+  });
   builder.affordance({
     id: "entrance",
     kind: "aperture",
@@ -166,7 +196,7 @@ export function createElevator(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation One cited band per dimension.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The entrance a person passes through, the leaves that clear it and the floor they stand on (#3468 N7).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The entrance a person passes through, the leaves that clear it, the floor they stand on and the button that calls the car (#3468 N7).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The door's height band stops at the least car height, so no draw puts the door above the roof.
  */
 export namespace createElevator {
@@ -176,8 +206,14 @@ export namespace createElevator {
    * - `entrance`: the door's clear opening, an aperture in the plane of the door's inside face.
    * - `leftDoor`, `rightDoor`: the leaves on `+X` and `-X`, sliders running out along their own side by half the clear width.
    * - `floor`: the car's floor, the surface the riders stand on.
+   * - `call`: the landing call button, pressed along `-Z`.
    */
-  export type Affordance = "entrance" | "leftDoor" | "rightDoor" | "floor";
+  export type Affordance =
+    | "entrance"
+    | "leftDoor"
+    | "rightDoor"
+    | "floor"
+    | "call";
 
   /**
    * The free dimensions, metres unless stated:
@@ -188,6 +224,7 @@ export namespace createElevator {
    * - `door`: the door's clear width.
    * - `height`: inside the car.
    * - `doorHeight`: the door's clear height.
+   * - `callHeight`: the landing call button's centre above the floor.
    * - `mass`: the car, kilograms.
    */
   export type Dimension =
@@ -197,6 +234,7 @@ export namespace createElevator {
     | "door"
     | "height"
     | "doorHeight"
+    | "callHeight"
     | "mass";
 
   /** The parameters: any free dimension fixed to a value inside its band. */
@@ -217,6 +255,7 @@ export namespace createElevator {
       2.1,
       `${KONE}; the model stops at the least car height`,
     ),
+    callHeight: ArchetypeBand.metres(0.381, 1.219, CALL),
     mass: ArchetypeBand.of("kg", 500, 1000, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

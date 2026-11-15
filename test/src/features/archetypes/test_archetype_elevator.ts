@@ -29,12 +29,13 @@ const KONE: Readonly<{ car: readonly [number, number]; door: number }> = {
  * 1. The inside is 80 in wide and 54 in from the back wall to the door, the front returns 51 in from it, the clear width inside the regulation's tolerance and the inside height inside KONE's range.
  * 2. The entrance's width and height are the clear opening, its height at least KONE's least door height and below the roof.
  * 3. At rest the leaves fill the opening, meeting at the middle; at full travel each has slid out by half the clear width, leaving the opening free.
+ * 4. The landing call button lies within ADA 308's 15 to 48 in reach, on the `+X` front return beside the opening, facing the landing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the leaves; a car of the wrong size, an entrance off its opening or a leaf that slides into the opening is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The sizes are ADA Table 407.4.1's and KONE's figures restated here; the open leaves' places follow from half the clear width.
  * @evidence contracts/development/testing.md#distinguishing-cases Closed and open leaves on both sides, a fixed and a ranging size.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
 export function test_archetype_elevator(): void {
   const findings: string[] = [];
@@ -118,7 +119,29 @@ export function test_archetype_elevator(): void {
       -half,
     );
   }
-  TestValidator.equals(
+  // 4. The call button.
+  findings.push(
+    ...archetypeBandSweep([
+      {
+        name: "landing call button height",
+        measure: (seed: number): number =>
+          createElevator({}, seed).affordance("call").frame.translation.y,
+        minimum: 0.381,
+        maximum: 1.219,
+        source: "ADA 407.2.1.1 and 308.2.1",
+      },
+    ]),
+  );
+  const lift: ReturnType<typeof createElevator> = createElevator({}, 4);
+  const call: IAutoMovieAffordance = lift.affordance("call");
+  if (
+    !(
+      call.frame.translation.x > lift.affordance("entrance").width! / 2 &&
+      call.frame.translation.x < archetypeExtent(lift, "x", ["return-left"]).high &&
+      call.frame.translation.z > archetypeExtent(lift, "z", ["return-left"]).high - 1e-9
+    )
+  )
+    findings.push("the call button is not on the +X front return's landing face");  TestValidator.equals(
     "a lift car is the accessible car and its leaves clear the entrance",
     findings,
     [],
