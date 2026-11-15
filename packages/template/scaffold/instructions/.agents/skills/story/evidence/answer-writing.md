@@ -6,7 +6,7 @@ Read the whole selected respondent and the parents it needs, and find its questi
 
 An answer states the current work; it cannot argue missing material into existence or overturn a locked recipient loss. Support each assertion with exact quotations and owner addresses checked against the current body or parent, and check claimed counts, sequence, causes, places and states across the whole scope. Answer only what the question asks, because an unneeded inventory becomes a stale fact, and group a repeated cause and cite its grounds once.
 
-An inapplicable question states its inspected scope and reason through the mechanism its relationship permits, under [answer placement](answer-placement.md), which also says where each answer goes.
+An inapplicable question is answered through the mechanism its relationship permits, under [answer placement](answer-placement.md), which also says where each answer goes.
 
 When the author edits an open pass whose stage is enabled, the answerer reconciles the dependent answers; changes touching closed work follow [closed passes](../correction/repair.md#closed-passes).
 

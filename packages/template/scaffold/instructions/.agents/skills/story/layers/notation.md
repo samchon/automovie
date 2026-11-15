@@ -10,7 +10,7 @@ Read the blocks as a continuous sequence, each entry following the preceding exi
 
 A script file is one episode: its H1 names the episode and each H2 is a [scene](screenplay.md#scenes). A screenplay file is one scene: its H1 names the scene, each H2 is a section of it, such as a phase or a movement, and each H3 a beat. Every heading below the H1 has an explicit anchor such as `{#s03}` and `{#s03-b04}`. Headings are addresses for code, evidence and reviews; they prescribe neither shot boundaries nor duration.
 
-Never reuse or renumber an anchor or a scene file's number, so an existing citation never silently points at different content:
+Never reuse or renumber an anchor in any layer, or a scene file's number, so an existing citation never silently points at different content. In scripts and the screenplay:
 
 - a removed script scene, or screenplay section or beat, keeps its heading over the single line `OMITTED`;
 - a removed screenplay scene file keeps only its H1 over `OMITTED`, retiring its section and beat anchors;

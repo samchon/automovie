@@ -20,7 +20,7 @@ Lock the whole initial table before author defenses. The author repairs or raise
 
 ## Verify changed work
 
-Keep the same author through the correction cycle. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence. A repaired passage receives another yes only for a clear applicable failure.
+The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence. A repaired passage receives another yes only for a clear applicable failure.
 
 Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds).
 

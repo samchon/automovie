@@ -8,7 +8,7 @@ Read the [instructions](../planning/requirements.md#requirements) and finish [di
 
 ## Records
 
-Give each subject one file in its domain under the [document layout](../document-layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one.
+Give each subject one file in its domain under the [document layout](../document-layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, which stays stable as [identities](notation.md#identities) sets.
 
 Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record, which also states the adopted representation and what it cannot show.
 

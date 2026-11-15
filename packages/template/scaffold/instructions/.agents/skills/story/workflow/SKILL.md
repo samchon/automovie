@@ -18,7 +18,7 @@ Choose the long route when the work's causes, setups and payoffs span many scene
 
 Record the choice in [project context](../../production/project-context.md); in an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route.
 
-Asset-only work has no narrative. Choose form and scale through [direction](../planning/direction.md); complete work is the default.
+Asset-only work has no narrative. Choose form and scale through [direction](../planning/direction.md), and make the complete work unless the user authorizes a slice.
 
 ## Who writes the screenplay
 
