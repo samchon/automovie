@@ -20,7 +20,7 @@ const IN: number = 0.0254;
  *
  * Scenarios:
  * 1. The box is 7.7 in long, 1.6 in wide and 5.8 in deep, its flap 8.5 in wide, as the manual reads; its mass band is marked provisional.
- * 2. It holds 20 loose cartridges by default, `slot1` to `slot20`, each a socket facing up at the box's top and inside its outline; no two closer than the smaller part's cell, 1.35 in over 2; a box asked for 6 has `slot1` to `slot6` only.
+ * 2. It holds 20 loose cartridges by default, `slot1` to `slot20`, each a socket facing up at the box's top and inside its outline; no two closer than the tightest square cell the read parts allow, six in 2 by 1.35 in three along by two across, so 2 in over 3; a box asked for 6 has `slot1` to `slot6` only.
  * 3. Asking for 0 or 21 cartridges, or 2.5, is refused at `slots`.
  * 4. The `lid` hinge opens to its travel and back, each pose an admitted model, and the opened flap stands higher than the shut one; the box has a `strap` and a `belt` hook.
  *
@@ -70,7 +70,8 @@ export function test_archetype_weapon_cartridge_box(): void {
         `${slot.id} stands at ${JSON.stringify(at)}, off the box's top`,
       );
   }
-  const cell: number = (1.35 * IN) / 2;
+  // The tightest square cell the read parts allow: six in a 2 by 1.35 in part at best three along by two across, 2 in over 3; four in a 1.35 in square two by two, 1.35 in over 2.
+  const cell: number = Math.min((2 * IN) / 3, (1.35 * IN) / 2);
   for (let a: number = 0; a < slots.length; a++)
     for (let b: number = a + 1; b < slots.length; b++) {
       const p: IAutoMovieVector3 = slots[a]!.frame.translation;

@@ -135,7 +135,8 @@ export namespace SiegeArm {
       frame: ArchetypeFrame.facing(v(0, axle, 0), v(-1, 0, 0), v(0, 0, 1)),
       extent: null,
       travel: d.reach!,
-      reverse: d.cocked!,
+      // A traction engine's arm starts level, so it has no travel below level.
+      ...(d.cocked! > 0 ? { reverse: d.cocked! } : {}),
       parts: ["arm"],
     });
     if (counterweight)
@@ -177,8 +178,7 @@ export namespace SiegeArm {
       ),
       extent: null,
       radius: d.winchRadius!,
-      travel: d.winchRatio! * (d.cocked! + d.reach!),
-      reverse: d.winchRatio! * (d.cocked! + d.reach!),
+      // A windlass's drum turns without a stop, so the crank states no travel: it follows the arm both ways.
       follows: { id: "arm", ratio: -d.winchRatio! },
     });
     builder.affordance({

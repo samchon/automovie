@@ -91,6 +91,36 @@ export namespace LongGunLock {
   };
 
   /**
+   * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind the muzzle.
+   *
+   * @param d The gun's dimensions.
+   * @returns Its place along `+Z`.
+   */
+  function pipeFront(d: Drawn): number {
+    return d.length! - ESTIMATES.rod.pipe;
+  }
+
+  /**
+   * Where a musket's supporting hand holds it, the swell of the stock, along the gun from the butt, metres. The 1764 Manual Exercise puts the left hand "at the swell" at the shoulder, the advance and the present, and at Make Ready "about the middle of that part of the firelock between the Lock and the Swell" (The Manual Exercise, as Ordered by His Majesty in 1764, https://battlefields.org/learn/primary-sources/manual-exercise-ordered-his-majesty-1764). The swell is the stock's bulge where the ramrod enters it, behind the rearmost pipe (American Rifleman, The Redcoats' Brown Bess, 2009, and collectors' descriptions, seen only in search results), so it is taken at the tail pipe, whose place is `ESTIMATES.rod`'s: provisional, no measured distance from the lock to the swell being found (searched: the 1764 Manual Exercise, Museums Victoria ST 21813, American Rifleman; records-firearms-flintlock.md).
+   *
+   * @param d The gun's dimensions.
+   * @returns The swell's place along `+Z`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States where the hand goes, the drill that puts it there and where the place comes from.
+   * @evidence contracts/development/implementation.md#principled-implementation The swell at the rearmost of the pipes laid along the fore-end, the ramrod's entry into the stock.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression over the pipes' spacing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pipes' places are `ESTIMATES.rod`'s, and so the swell's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per musket.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function swell(d: Drawn): number {
+    const breech: number = d.length! - d.barrel!;
+    const front: number = pipeFront(d);
+    return front - ((PIPES - 1) * (front - breech)) / PIPES;
+  }
+
+  /**
    * A flintlock musket's lock, ramrod and contacts: the lock at the breech (`FlintLock.lay`: the `pan`, the `frizzen` and the `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn forward out of its pipes until its tail leaves the front `pipe`; the `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s socket over the muzzle.
    *
    * @param builder The gun under construction, its stock and barrel laid.
@@ -112,6 +142,7 @@ export namespace LongGunLock {
     const breech: number = length - d.barrel!;
     FlintLock.lay(builder, v(0, 0, breech), {
       cock: "cock",
+      spur: "spur",
       frizzen: "frizzen",
       pan: "pan",
     });
@@ -126,7 +157,7 @@ export namespace LongGunLock {
       v(0, below, length),
       steel,
     );
-    const front: number = length - e.rod.pipe;
+    const front: number = pipeFront(d);
     for (let k: number = 0; k < PIPES; k++)
       builder.rod(
         `pipe-${k + 1}`,

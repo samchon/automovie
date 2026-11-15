@@ -235,7 +235,7 @@ export namespace createHandgun {
    * - `muzzle`: the end of the barrel, facing forward.
    * - `magazine`: the magazine well under the grip, a socket facing down.
    * - `hammer`, `cylinder`, `gate`, `chamber1` to `chamber6`: a revolver's hammer, its cylinder following it, its loading gate and the chambers on the cylinder's rear face (`HandgunActions.revolver`).
-   * - `cock`, `frizzen`, `pan`: a flintlock pistol's lock (`FlintLock.lay`).
+   * - `cock`, `spur`, `frizzen`, `pan`: a flintlock pistol's lock (`FlintLock.lay`), the spur the cock's thumb piece riding it.
    */
   export type Affordance =
     | "grip"
@@ -255,6 +255,7 @@ export namespace createHandgun {
     | "chamber5"
     | "chamber6"
     | "cock"
+    | "spur"
     | "frizzen"
     | "pan";
 

@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   ArchetypeBand,
@@ -116,10 +117,10 @@ export namespace Throwers {
    * @param d The tool's dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation Folded in the hand, each cord runs half the read length less the pouch's to the pouch's ends, so the whole sling is its read length.
+   * @evidence contracts/development/implementation.md#principled-implementation Folded in the hand, each cord runs half the read length less the pouch's to the pouch's ends, so the whole sling is its read length; the finger loop and the knot are balls of their sizes where the cords meet the hand, each grip on its own.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pouch, cords, then the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cords are straight; the loop and the knot are `ESTIMATES`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three parts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one sling.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -143,11 +144,16 @@ export namespace Throwers {
         v(0, hand, 0),
         wool,
       );
+    // The finger loop and the release knot where the cords meet the hand, side by side across it.
+    const loop: IAutoMovieVector3 = v(ESTIMATES.loop / 2, hand, 0);
+    const knot: IAutoMovieVector3 = v(-ESTIMATES.knot / 2, hand, 0);
+    builder.ball("loop", ESTIMATES.loop / 2, loop, wool);
+    builder.ball("knot", ESTIMATES.knot / 2, knot, wool);
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, hand, 0), v(0, 0, -1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(loop, v(0, 0, -1), v(1, 0, 0)),
       extent: null,
       grip: "hook",
       aperture: ESTIMATES.loop,
@@ -157,7 +163,7 @@ export namespace Throwers {
       id: "release",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, hand, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(knot, v(0, 0, 1), v(1, 0, 0)),
       extent: null,
       grip: "lateral",
       aperture: ESTIMATES.knot,
@@ -178,7 +184,7 @@ export namespace Throwers {
    * @param d The tool's dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The shaft of the read length and spur-end width; the handle runs from the butt to the read point the handle proper begins, and the spur stands the read setback from the far end.
+   * @evidence contracts/development/implementation.md#principled-implementation The shaft of the read length and spur-end width; the handle runs from the butt to the read point the handle proper begins, the hand closing across the shaft's thickness from its face, and the spur stands the read setback from the far end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Shaft, then the contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The taper to the grip end, the finger loops and the weight stone are not modelled; the thickness is `ESTIMATES.thickness`.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
@@ -202,7 +208,7 @@ export namespace Throwers {
       frame: ArchetypeFrame.facing(v(0, grip / 2, 0), v(0, 0, -1), v(0, 1, 0)),
       extent: null,
       grip: "power",
-      aperture: d.width!,
+      aperture: ESTIMATES.thickness,
       length: grip,
     });
     builder.affordance({

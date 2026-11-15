@@ -44,7 +44,7 @@ const LB: number = ArchetypeUnits.POUND;
  * 2. A keyboard is Apple's Magic Keyboard with Numeric Keypad or its Touch ID version; a laptop the 13 or 15 inch MacBook Air M4; an apple one of USDA's four portions.
  * 3. A camera is the Ricoh GR III or the Fujifilm X100VI; a tablet the iPad's Wi-Fi or cellular model; a walkie-talkie the CP200d with one of its four batteries.
  * 4. A beer bottle is one of the four longnecks read; a table knife Eichenlaub's or Robert Welch's; a fishing rod one of Daiwa's seven Ninja X rods.
- * 5. A tray is SMÖRLING, GRILLTIDER or SMULA; a basket one of the two RISATORPs; a round plate IKEA 365+'s side plate or plate.
+ * 5. A tray is SMÖRLING, GRILLTIDER or SMULA; a basket one of the two RISATORPs; a round plate IKEA 365+'s side plate or plate, Rosenthal's Joyn or Thomas's Sunny Day; a platter IKEA 365+'s, Thomas's Loft or Rosenthal's Midas; a bowl IKEA 365+'s or one of Thomas's two Sunny Day bowls.
  * 6. A suitcase is Lufthansa's or IATA's cabin limit, and its pull handle one of the study's two heights, on their own axes; a razor is Edwin Jagger's or Gillette's Mach3.
  * 7. A tube is one of Alltub's ten diameters, its length inside that diameter's own range; a walker Drive's adult or junior, its handle height inside that model's own range.
  * 8. A dimension a model gives is the model's: fixing a camera's mass or a fishing rod's length is refused on that dimension, while a rod's grip diameter, which no model gives, is still fixed inside its band.
@@ -194,12 +194,50 @@ export function test_archetype_props_models(): void {
     },
     {
       name: "plate",
-      source: "IKEA 365+ side plate and plate",
+      source:
+        "IKEA 365+ side plate and plate, Rosenthal Joyn and Thomas Sunny Day 27 cm plates",
       measure: (seed: number): readonly number[] => {
         const a: Archetype = createTableware({ kind: "plate" }, seed);
-        return [dim(a, "diameter"), dim(a, "height")];
+        return [dim(a, "diameter"), dim(a, "height"), dim(a, "mass")];
       },
-      models: [[0.2, 0.02], [0.27, 0.03]],
+      models: [
+        [0.2, 0.02, 0.41],
+        [0.27, 0.03, 0.77],
+        [0.27, 0.025, 0.71],
+        [0.27, 0.028, 0.59],
+      ],
+    },
+    {
+      name: "platter",
+      source:
+        "IKEA 365+ serving plate, Thomas Loft 34 cm and Rosenthal Heritage Midas 33 cm platters",
+      measure: (seed: number): readonly number[] => {
+        const a: Archetype = createTableware({ kind: "platter" }, seed);
+        return [
+          dim(a, "length"),
+          dim(a, "width"),
+          dim(a, "height"),
+          dim(a, "mass"),
+        ];
+      },
+      models: [
+        [0.27, 0.15, 0.03, 0.52],
+        [0.338, 0.24, 0.031, 0.965],
+        [0.332, 0.212, 0.038, 0.78],
+      ],
+    },
+    {
+      name: "bowl",
+      source: "IKEA 365+ bowl, Thomas Sunny Day 18 cm bowl and cereal bowl",
+      measure: (seed: number): readonly number[] => {
+        const a: Archetype = createVessel({ kind: "bowl" }, seed);
+        return [dim(a, "diameter"), dim(a, "height"), dim(a, "mass")];
+      },
+      models: [
+        [0.16, 0.07, 0.44],
+        [0.166, 0.079, 0.477],
+        [0.122, 0.08, 0.3],
+      ],
     },
     {
       name: "suitcase",

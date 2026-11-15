@@ -9,7 +9,7 @@ import {
 } from "../core";
 
 /**
- * A flintlock, laid on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock. A musket's and a pistol's lock are the same lock (`createLongGun`, `createHandgun`).
+ * A flintlock, laid on the right of a gun's breech, the gun lying along `+Z` with its barrel's line at `y = 0`: the `pan` holding the priming by the touch hole, the `frizzen`, the steel standing over the pan on its pivot ahead, opened forward to prime and thrown open by the cock's fall, and the `cock` behind on its pivot, resting down on the frizzen and drawn back to half and full cock by the thumb on its `spur`, the thumb piece at the top of its jaw, which rides it. A musket's and a pistol's lock are the same lock (`createLongGun`, `createHandgun`).
  *
  * The lock's places and angles are not read at any source: the searches (museum records, the 1764 Manual Exercise, replica lock makers, high-speed ignition studies) are recorded in the sources record, records-firearms-flintlock.md; each is a named estimate in `ESTIMATES`.
  *
@@ -73,20 +73,25 @@ export namespace FlintLock {
    *
    * @param builder The gun under construction.
    * @param hole The touch hole on the barrel's line, at the breech.
-   * @param ids The gun's ids for the cock, the frizzen and the pan.
+   * @param ids The gun's ids for the cock, its spur, the frizzen and the pan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds.
-   * @evidence contracts/development/implementation.md#principled-implementation The pan by the touch hole, the frizzen's pivot ahead of it and the cock's behind, each hinge turning about the cross axis: the frizzen forward to open, the cock back to cock.
+   * @evidence contracts/development/implementation.md#principled-implementation The pan by the touch hole, the frizzen's pivot ahead of it and the cock's behind, each hinge turning about the cross axis: the frizzen forward to open, the cock back to cock; the spur at the cock's jaw end, the farthest point from its pivot, where a thumb has the most leverage, riding the cock.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plate, pan, frizzen and cock, then the three contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The flint, the springs and the tumbler are not modelled; half cock is a travel of the one hinge, `ESTIMATES.half`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one lock.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay<Affordance extends string, Dimension extends string>(
     builder: ArchetypeBuilder<Affordance, Dimension>,
     hole: IAutoMovieVector3,
-    ids: Readonly<{ cock: Affordance; frizzen: Affordance; pan: Affordance }>,
+    ids: Readonly<{
+      cock: Affordance;
+      spur: Affordance;
+      frizzen: Affordance;
+      pan: Affordance;
+    }>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
@@ -112,14 +117,10 @@ export namespace FlintLock {
       Vector3.add(frizzen, v(0, e.height / 2, 0)),
       steel,
     );
-    // The cock at rest lies forward and up from its pivot, its jaw down on the frizzen's face.
-    builder.rod(
-      "cock",
-      e.jaw,
-      cock,
-      Vector3.add(frizzen, v(0, e.height, 0)),
-      steel,
-    );
+    // The cock at rest lies forward and up from its pivot, its jaw down on the frizzen's face; the thumb piece tops the jaw.
+    const jaw: IAutoMovieVector3 = Vector3.add(frizzen, v(0, e.height, 0));
+    builder.rod("cock", e.jaw, cock, jaw, steel);
+    builder.ball("spur", e.jaw, jaw, steel);
     builder.affordance({
       id: ids.pan,
       kind: "socket",
@@ -140,7 +141,23 @@ export namespace FlintLock {
       frame: ArchetypeFrame.facing(cock, v(-1, 0, 0), v(0, 0, 1)),
       extent: null,
       travel: e.full,
-      parts: ["cock"],
+      parts: ["cock", "spur"],
+    });
+    // The thumb takes the spur from behind the cock's end, drawing it back about the pivot.
+    builder.affordance({
+      id: ids.spur,
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(
+        jaw,
+        Vector3.normalize(Vector3.subtract(jaw, cock)),
+        v(1, 0, 0),
+      ),
+      extent: null,
+      grip: "precision",
+      aperture: 2 * e.jaw,
+      length: 2 * e.jaw,
+      rides: ids.cock,
     });
   }
 }

@@ -72,7 +72,9 @@ export function createLongGun(
   const pull: number = d.lengthOfPull!;
   const breech: number = d.length! - d.barrel!;
   const hand: number = createLongGun.FORE_END / 2;
-  const fore: number = breech + d.barrel! * 0.45;
+  // The supporting hand: a musket's at the swell, as the 1764 drill holds it (`LongGunLock.swell`); a modern gun's under the middle of its barrel.
+  const fore: number =
+    kind === "musket" ? LongGunLock.swell(d) : breech + d.barrel! * 0.45;
 
   // Where the stock ends, behind the grip by the room a hand and its mark take: picture only.
   const neck: number = pull - 0.175;
@@ -242,7 +244,7 @@ export namespace createLongGun {
    * - `sight`: the rear of the sight line, above the barrel's line.
    * - `stock`: a carbine's stock, a slider drawn back to lengthen the pull.
    * - `pump`: a shotgun's fore-end slide, drawn back.
-   * - `cock`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket.
+   * - `cock`, `spur`, `frizzen`, `pan`, `ramrod`, `pipe`, `bayonet`: a musket's lock, the cock's thumb piece riding it, its rod and their sockets (`LongGunLock.musket`); a musket's `muzzle` is a socket.
    * - `bolt`, `boltSlide`, `magazine`: a bolt action's lift, its draw and its magazine (`LongGunLock.bolt`).
    * - `lever`, `hammer`: a lever action's lever and the hammer that follows it (`LongGunLock.lever`).
    */
@@ -256,6 +258,7 @@ export namespace createLongGun {
     | "stock"
     | "pump"
     | "cock"
+    | "spur"
     | "frizzen"
     | "pan"
     | "ramrod"
