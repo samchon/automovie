@@ -4,6 +4,7 @@ export * from "./ArchetypeAssembly";
 export * from "./ArchetypeBand";
 export * from "./ArchetypeBuilder";
 export * from "./ArchetypeCourse";
+export * from "./ArchetypeDensity";
 export * from "./ArchetypeDraw";
 export * from "./ArchetypeDrawSession";
 export * from "./ArchetypeFracture";

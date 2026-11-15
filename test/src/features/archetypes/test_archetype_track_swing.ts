@@ -1,14 +1,13 @@
 import {
   type Archetype,
   ArchetypeBuilder,
-  ArchetypeCourse,
   ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeTrack,
   createDoor,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -50,7 +49,7 @@ export function test_archetype_track_swing(): void {
     })
     .build(2);
   const START: number = 1;
-  const g: number = ArchetypeCourse.GRAVITY;
+  const g: number = AutoMovieGravity.STANDARD;
   const d: number = pivot.y - body.properties.centerOfMass.y;
   const omega: number = Math.sqrt(
     (body.properties.mass * g * d) / body.moment(pivot, v(1, 0, 0)),

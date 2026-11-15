@@ -322,7 +322,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
+   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, the provisional `ArchetypeBuilder.RESTITUTION` when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
    * @throws {ArchetypeRefusal} When no source measured the resting pair.
@@ -330,7 +330,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and what is returned.
    * @evidence contracts/development/implementation.md#principled-implementation Mass properties from the recorded parts under the stated total mass, the body's friction from the measured pair of what it rests on and its ground, then one `Archetype` over the recorded lists with the declared surfaces.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; a producer that has not declared what it rests on leaves the body's friction absent rather than given an invented coefficient.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is the producer's cited value, never derived from the volume; an unmeasured resting pair is refused; a producer that has not declared what it rests on leaves the body's friction absent rather than given an invented coefficient. The restitution a producer leaves unstated is the unsourced `RESTITUTION`, a violation that remains until #3557 reads it per material.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `ArchetypeMass.of`.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records one independent part or contact per call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps what it records until `build` hands it to the archetype.
@@ -372,7 +372,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           ? null
           : ArchetypeFriction.value(pair.kinetic),
       surfaces: this.#surfaces,
-      restitution: contact?.restitution ?? 0.2,
+      restitution: contact?.restitution ?? ArchetypeBuilder.RESTITUTION,
       drag: contact?.drag ?? null,
       contact: contact?.outcome ?? null,
       fractures: this.#fractures,
@@ -442,6 +442,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 export namespace ArchetypeBuilder {
   /** The colour of a part that states none: a mid grey. */
   export const NEUTRAL: string = "#9a9a9a";
+
+  /** The restitution of a body whose producer states none, 0 to 1: 0.2, a provisional value no source read gives. #3557 replaces it with each material's cited restitution; until then every body that does not bounce or roll by a read figure carries it. */
+  export const RESTITUTION: number = 0.2;
 
   /**
    * A model's identity and its producer's draws.

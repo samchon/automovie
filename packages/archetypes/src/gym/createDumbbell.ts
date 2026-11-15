@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
+  ArchetypeDensity,
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
@@ -25,7 +26,7 @@ import {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies, how the heads are sized and the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density, so no head size is stated beside the mass and the two cannot disagree.
+ * @evidence contracts/development/implementation.md#principled-implementation The heads' size follows from the mass at steel's density (`ArchetypeDensity.STEEL`, EN 1991-1-1's), so no head size is stated beside the mass and the two cannot disagree.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, size the heads, lay three rods, one contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Round heads stand for the hexagonal ones of a rubber dumbbell, and no maker's sizes were read: every band is an estimate and says so.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three rods.
@@ -61,11 +62,13 @@ export function createDumbbell(
   const steel: number =
     Math.max(
       0,
-      d.mass! - createDumbbell.STEEL * Math.PI * slim * slim * d.handle!,
+      d.mass! - ArchetypeDensity.STEEL * Math.PI * slim * slim * d.handle!,
     ) / 2;
   const radius: number = Math.max(
     slim,
-    Math.cbrt(steel / (createDumbbell.STEEL * Math.PI * createDumbbell.SQUAT)),
+    Math.cbrt(
+      steel / (ArchetypeDensity.STEEL * Math.PI * createDumbbell.SQUAT),
+    ),
   );
   const builder: ArchetypeBuilder<
     createDumbbell.Affordance,
@@ -121,9 +124,6 @@ export namespace createDumbbell {
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["fixed"];
-
-  /** Steel's density, kilograms per cubic metre. */
-  export const STEEL: number = 7850;
 
   /** A head's thickness in its own radii. An estimate, not read at a source. */
   export const SQUAT: number = 0.8;

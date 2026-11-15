@@ -1,6 +1,5 @@
 import {
   type Archetype,
-  ArchetypeCourse,
   ArchetypeRefusal,
   ArchetypeUnits,
   createBow,
@@ -15,6 +14,7 @@ import {
   createWeaponLoop,
   createWeaponRack,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeModelSweep } from "../internal/archetypeModelSweep";
@@ -37,7 +37,7 @@ const LB: number = ArchetypeUnits.POUND;
 const OZ: number = ArchetypeUnits.OUNCE;
 
 /** A pound-force, newtons. */
-const LBF: number = ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY;
+const LBF: number = ArchetypeUnits.POUND * AutoMovieGravity.STANDARD;
 
 
 /**

@@ -5,6 +5,7 @@ import {
   createQuadruped,
   rideHorse,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
@@ -39,7 +40,7 @@ export function test_archetype_ride_horse_transition(): void {
       return (Math.max(p.minimum, q.minimum) + Math.min(p.maximum, q.maximum)) / 2;
     };
     const hip: number = createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y;
-    const trot: number = 1.6 * Math.sqrt(0.35 * ArchetypeCourse.GRAVITY * hip);
+    const trot: number = 1.6 * Math.sqrt(0.35 * AutoMovieGravity.STANDARD * hip);
     const gallop: number = 5 * (horse.dimensions.mass! / 170) ** 0.216;
     const canter: number = (gallop + middle("canter", "gallop")) / 2;
     for (const which of ["trot", "canter"] as const) {

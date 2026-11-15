@@ -1,9 +1,6 @@
-import {
-  ArchetypeBand,
-  ArchetypeCourse,
-  ArchetypeUnits,
-  type IArchetypeBand,
-} from "../core";
+import { AutoMovieGravity } from "@automovie/engine";
+
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createBow } from "./createBow";
 
 /** The Mary Rose bow X1-3 and its approximations, read in the bowyers' study. */
@@ -47,8 +44,8 @@ export const BOW_BANDS: Readonly<
     depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
     draw: ArchetypeBand.of(
       "N",
-      49 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-      54 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      49 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      54 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       KSL,
       true,
     ),

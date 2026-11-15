@@ -1,4 +1,8 @@
-import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Vector3,
+  integrateMotionTrajectory,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -6,7 +10,6 @@ import type {
 
 import type { Archetype } from "./Archetype";
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
-import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeUnits } from "./ArchetypeUnits";
@@ -236,7 +239,7 @@ export namespace ArchetypeTrack {
       body.rest + reach,
     ]);
     const omega: number = Math.sqrt(
-      (body.mass * ArchetypeCourse.GRAVITY * body.arm) / body.moment,
+      (body.mass * AutoMovieGravity.STANDARD * body.arm) / body.moment,
     );
     const theta0: number = (props.release - body.rest) * ArchetypeUnits.DEGREE;
 

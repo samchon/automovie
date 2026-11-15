@@ -9,6 +9,7 @@ import {
   driveCar,
   rideMotorcycle,
 } from "@automovie/archetypes";
+import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";
@@ -118,7 +119,7 @@ export function test_archetype_ride_course_timed(): void {
       ArchetypeCourse.timed("motorcycle", circle(5, 12, 4, 0.05)),
     ),
   );
-  const allowed: number = Math.sqrt(ArchetypeCourse.GRAVITY * 5 * Math.tan(50 * ArchetypeUnits.DEGREE));
+  const allowed: number = Math.sqrt(AutoMovieGravity.STANDARD * 5 * Math.tan(50 * ArchetypeUnits.DEGREE));
   if (
     !(fast instanceof ArchetypeRefusal) ||
     !fast.axis.startsWith("samples[") ||

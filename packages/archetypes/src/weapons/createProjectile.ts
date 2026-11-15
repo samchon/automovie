@@ -3,6 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import {
   Archetype,
   ArchetypeBuilder,
+  ArchetypeDensity,
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
@@ -226,14 +227,11 @@ export namespace createProjectile {
   /** A grenade fuze's radius as a share of the body's diameter: a construction estimate that no act reads and no band declares; the fuze's height is the data sheet's length less the body. */
   export const FUZE: number = 0.25;
 
-  /** Steel's density, kilograms per cubic metre: 7850, the 78.5 kN per cubic metre top of EN 1991-1-1:2002 Table A.4's 77.0 to 78.5 that structural practice adopts (https://www.phd.eng.br/wp-content/uploads/2015/12/en.1991.1.1.2002.pdf, p. 35; https://cdn.eurocodeapplied.com/design/en1993/steel-design-properties). */
-  export const STEEL: number = 7850;
-
   /** European ash's density at 12 % moisture, kilograms per cubic metre (The Wood Database, https://www.wood-database.com/european-ash/), the Met's bolts being steel on oak and ash. */
   export const ASH: number = 680;
 
-  /** A bolt's steel head's density over its ash shaft's, which places the bolt's balance toward its head. */
-  export const STEEL_OVER_ASH: number = STEEL / ASH;
+  /** A bolt's steel head's density (`ArchetypeDensity.STEEL`) over its ash shaft's, which places the bolt's balance toward its head. */
+  export const STEEL_OVER_ASH: number = ArchetypeDensity.STEEL / ASH;
 
   /** How each launched kind is held in flight: `velocity`, its axis along its velocity, point first, as an arrow and a bolt fly; `free`, turning as it will, as a sphere does (#3482). A cartridge is loaded, not launched, so it has none. */
   export const ATTITUDE: Readonly<
@@ -329,7 +327,7 @@ export namespace createProjectile {
         headWidth: 0.0136,
         mass:
           Math.PI * (0.0136 / 2) ** 2 * (0.36 - 0.077) * ASH +
-          ((0.0136 ** 2 * 0.077) / 3) * STEEL,
+          ((0.0136 ** 2 * 0.077) / 3) * ArchetypeDensity.STEEL,
       },
       met33754: { length: 0.437, head: 0.066, headWidth: 0.019, mass: 0.074 },
     },

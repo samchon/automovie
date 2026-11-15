@@ -1,10 +1,9 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeCourse,
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
@@ -294,15 +293,15 @@ export namespace createBow {
     longbow: {
       s1: {
         mass: 0.905,
-        draw: 108 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+        draw: 108 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
       s2: {
         mass: 0.868,
-        draw: 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+        draw: 101 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
       s3: {
         mass: 0.785,
-        draw: 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+        draw: 141 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       },
     },
     recurve: {
@@ -346,16 +345,16 @@ export namespace createBow {
     >
   > = {
     horseBow: {
-      lb15: { draw: 15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb20: { draw: 20 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb25: { draw: 25 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb30: { draw: 30 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb35: { draw: 35 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb40: { draw: 40 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb45: { draw: 45 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb50: { draw: 50 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb55: { draw: 55 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      lb60: { draw: 60 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      lb15: { draw: 15 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb20: { draw: 20 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb25: { draw: 25 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb30: { draw: 30 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb35: { draw: 35 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb40: { draw: 40 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb45: { draw: 45 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb50: { draw: 50 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb55: { draw: 55 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
+      lb60: { draw: 60 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD },
     },
   };
 
