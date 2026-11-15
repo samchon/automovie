@@ -1,6 +1,6 @@
 # Motion models
 
-The generators table shows what each model takes and which skeleton and frame rate it returns, and the estimators table what each traces from. Neither is a required list; a model's own documentation holds every value, and [clips](clips.md#licenses) sets how to read its license.
+These tables show current motion generators and pose estimators as examples, not a required list, and the user may choose any other. A model's own documentation holds every value, and [clips](clips.md#licenses) sets how to read its license.
 
 ## Generators
 

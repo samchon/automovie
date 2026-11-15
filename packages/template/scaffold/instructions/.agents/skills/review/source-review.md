@@ -4,7 +4,7 @@ Read the whole requested change with its callers, inputs, consumers, error paths
 
 ## Truth of answers
 
-Each answer states what the code actually does and claims no behavior, measurement or limit the code does not have. It cites what the code actually follows:
+Each answer states what the code actually does and claims no behavior, measurement or limit the code lacks. It cites what the code actually follows:
 
 | Declaration | Cites |
 | --- | --- |
@@ -16,8 +16,4 @@ Check each answer against its item's [statements](../contracts/SKILL.md#items-an
 
 ## The actual consumer
 
-Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../visual-debugging/SKILL.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md).
-
-## Report
-
-Report host or platform checks that could not run. Repairs go to [development](../development/SKILL.md).
+Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../visual-debugging/SKILL.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md). Report the host or platform checks that could not run, and send repairs to [development](../development/SKILL.md).

@@ -1,9 +1,0 @@
-# Local speech
-
-A voice preview the user requested under [audio](SKILL.md) can be made on the local machine. [VoxCPM](https://github.com/OpenBMB/VoxCPM) is one local speech option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces. Choose against the requested language, performance and the actual machine.
-
-Before an agent-managed installation, get the user's approval for the environment location, dependencies, model downloads and storage, including downloads the first inference triggers; an existing approval covering that setup is enough. Install in an isolated environment outside the JavaScript dependencies.
-
-Generate one take of a few full lines in the production's language and voice, measure it and have the user listen to it before any batch, keeping the checkpoint and settings with the take.
-
-Adopt accepted takes through [audio acquisition](acquisition.md#take-adoption), record the setup in [project context](../production/project-context.md), and document the commands in the README.

@@ -16,7 +16,7 @@ Name the instants other work depends on: the phases of the movement, the start a
 
 ## Outcome as input
 
-When an action can end in different outcomes, such as a strike that lands, is blocked or misses, the outcome is decided before the geometry: by the caller who authored the scene, or by a declared rule over the participants' intents. Geometry then realizes that outcome and is checked against it. An outcome left to wherever the geometry happens to arrive changes when a body or a distance changes, and nobody chose the change.
+When an action can end in different outcomes, such as a strike that lands, is blocked or misses, or a shove that is absorbed, stepped out or ends in a fall, the outcome is decided before the geometry and the forces: by the caller who authored the scene, or by a declared rule over the participants' intents that the caller selects. Geometry and forces then realize that outcome and are checked against it, and an outcome they cannot produce is refused with the range that would produce it. An outcome left to wherever the geometry happens to arrive changes when a body, a distance or a mass changes, and nobody chose the change.
 
 ## Time scale
 

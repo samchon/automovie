@@ -1,10 +1,10 @@
 # Reuse
 
-Reuse covers what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
+What each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject or an action gets another version without a copy.
 
 ## Installed packages
 
-Search the installed packages before writing a capability, and use what they provide. A capability written a second time in the production diverges from the package at its first repair.
+Search the installed packages before writing a capability, and use what they provide, because a capability written again in the production diverges from the package at its first repair.
 
 The skills name installed packages by role. This table is the one place that says which package each role is and what a production uses it for:
 
@@ -22,29 +22,27 @@ The skills name installed packages by role. This table is the one place that say
 | Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |
 | Command-line tool | `automovie` | Create and add productions, and run the capture, render and review commands |
 
-The first seven rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
+The first seven rows follow a film from authored data to encoded video; [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry it.
 
 ### Reading a package
 
-A package's public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
+A package's public types and JSDoc are its API, and they change between releases, so read them in the package's folder under `node_modules` instead of recalling a call. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
 ### A defect or a gap
 
-A production cannot repair an installed package. An edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production.
-
-When a package misbehaves or lacks something the work needs:
+A production cannot repair an installed package: an edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production. When a package misbehaves or lacks something the work needs:
 
 1. Give the user the failing case, its numbers and the installed version, for the tracker the package's `repository` field names.
 2. Continue with the work that does not depend on it.
-3. Where the work cannot wait, use a local substitute that is marked as one and names the report it waits on.
+3. Where the work cannot wait, use a local substitute marked as one, naming the report it waits on.
 4. Remove the substitute when the package ships the fix.
 
 A workspace's own `packages/<name>` is the exception: the workspace owns that code and repairs it in place.
 
-A row or a law registered with the motion vocabulary under [vocabulary extension](../motion/laws/SKILL.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
+A row or law registered with the motion vocabulary under [vocabulary extension](../motion/laws/extension.md) is not a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
 ## One module
 
-Every object and motion is a module the films reuse. A different version of a subject, such as a taller fighter or a second referee, or a different performance of an action, such as a tired walk, is the same module with other parameters or another seed, never a copy with edited constants, because a repair reaches only one copy.
+Every object and motion is a module the films reuse. Another version of a subject, such as a taller fighter or a second referee, or another performance of an action, such as a tired walk, is the same module with other parameters or another seed, never a copy with edited constants, because a repair reaches only one copy.
 
-When one needs something the module cannot express, give the module that parameter. [Shared modules](source-layout.md#shared-modules) covers a module a second production needs.
+When a version needs something the module cannot express, give the module that parameter. [Shared modules](source-layout.md#shared-modules) covers a module a second production needs.

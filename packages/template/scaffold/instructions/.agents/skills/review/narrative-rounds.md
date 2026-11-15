@@ -1,6 +1,6 @@
 # Narrative rounds
 
-A narrative pass closes through independent review: a fresh reviewer reads the body, the author decides each finding, and each round leaves a record and a verdict. How many rounds a pass has, and what follows its closure, is set by its [route](../story/workflow/SKILL.md).
+A narrative pass closes through independent review: a fresh reviewer reads the body, the author decides each finding, and each round leaves a record and a verdict. The pass's [route](../story/workflow/SKILL.md) sets how many rounds it has and what follows its closure.
 
 ## Records
 
@@ -10,9 +10,11 @@ Each unit with no body finding carries its current review, which the installed e
 
 ## Reviewers
 
-Each round uses a fresh reviewer, and the reviewer judges only the body: against the commission, [project context](../production/project-context.md) and the actual parents, reading it first as the recipient that [independent reading](independent-reading.md#reading-as-the-recipient) assigns its layer. It never opens the evidence answers, whose truth the [evidence answerer](../story/evidence/answer-writing.md) owns. Research and earlier reviews are never its subject: it consults a study only for the practice facts and targets the body must meet, and an earlier verdict, after locking its own reading, only for the findings the author declined. Add another reader only for a question the reviewer cannot judge.
+Each round uses a fresh reviewer, who judges only the body against the commission, [project context](../production/project-context.md) and the actual parents, reading it first under [independent reading](independent-reading.md#reading-as-the-recipient) before opening any author record. The reviewer never opens the evidence answers, whose truth the [evidence answerer](../story/answers.md) owns.
 
-Follow [independent reading](independent-reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author decisions, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
+Research and earlier reviews are never the subject. The reviewer consults a study only for the practice facts and targets the body must meet, and an earlier verdict, after locking its own reading, only for the findings the author declined. Add another reader only for a question the reviewer cannot judge.
+
+Record the revision, inputs, scope, findings with literal support, causes, protected achievements, author decisions, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
 
 A whole-work review rereads every selected body afresh and carries no unit verdict.
 

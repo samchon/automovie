@@ -1,8 +1,6 @@
 # Behaviors
 
-Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md).
-
-It cites the research it follows as `@evidence docs/research/<discipline>/<topic>.md <the section, law and values it uses>`, and every study is followed by some behavior.
+Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). It cites the research it follows as `@evidence docs/research/<discipline>/<topic>.md <the section, law and values it uses>`, and every study is followed by some behavior.
 
 Statements: [statements/behaviors.md](statements/behaviors.md).
 
@@ -20,6 +18,6 @@ State its goals and targets, its out-of-reach rule, its contact windows, how its
 
 ## Deterministic evaluation
 
-Does the behavior plan once from its entry state and then evaluate a pure function of film time, with its events, its admitted cuts and its seeded variation declared, so that playback, seeking and capture give the same result? History that only sequential playback builds, an unseeded draw or an undeclared cut makes the film differ between a seek and a replay.
+Does the behavior plan once from its entry state and then evaluate a pure function of film time, with its events, admitted cuts and seeded variation declared, so that playback, seeking and capture give the same result? History that only sequential playback builds, an unseeded draw or an undeclared cut makes a seek and a replay show different films.
 
 State what it plans at its start, the events and cuts it declares, and the streams its variation draws from.

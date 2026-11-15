@@ -1,6 +1,6 @@
 # Source layout
 
-This document says where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
+Where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
 
 ## Source
 
@@ -9,7 +9,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
 | `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, appearance, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
-| `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws a production registers with the motion vocabulary under [vocabulary extension](../motion/laws/SKILL.md), the laws of what is not a person, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
+| `src/laws/<discipline>/` | Pure laws of a practice the installed packages do not carry: the rows and laws a production registers with the motion vocabulary under [vocabulary extension](../motion/laws/extension.md), the laws of a body no installed package moves, and legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition | That scene file, its sections and beats, [composition](../contracts/development/composition.md) |
@@ -24,21 +24,29 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Runtime `README.md` and `.env.example` | Nonsecret setup, commands, environment-variable names and example configuration | Nothing |
 | Ignored local `.env` | Secret values required by adopted integrations | Nothing |
 
-Settings or brief domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities and, for a generated film, the film's look in the video prompts' shared description, or for a direct 3D film the materials of the entities' detail options and the film's grade, world rules become laws and interactions, and sound palettes become each shot's sound description in the video-diffusion prompt under [audio](../audio/SKILL.md). Weather and atmosphere are a set's state by story day, and ambience reads the same state.
+Each settings or brief domain maps onto code:
 
-`<film>` is the screenplay film folder's path under `docs/body/screenplay/`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`, and `<scene>` is a scene file's name without `.md`, such as `010-ring`, so two scenes at the same place keep separate folders. The same film name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
+| Domain | Becomes |
+| --- | --- |
+| Cast, crowds, props and sets | Entities of the same kind |
+| Cinematography | Camera and light entities, and the film's look: for a generated film in the video prompts' shared description, for a direct 3D film in the materials of the entities' detail options and the film's grade |
+| World rules | Laws and interactions |
+| Sound palettes | Each shot's sound description in the video-diffusion prompt, under [audio](../audio/SKILL.md) |
+| Weather and atmosphere | A set's state by story day, which ambience also reads |
+
+`<film>` is the screenplay film folder's path under `docs/body/screenplay/` with `/` replaced by `--`, such as `duet` or `001-part--001-episode`, and `<scene>` is a scene file's name without `.md`, such as `010-ring`, so two scenes at the same place keep separate folders. The same film name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
 
 ## How the parts work together
 
 An entity is constructed from its settings or brief facts and composes small fragments. Its methods are capabilities that return intent records: what the subject means to do and to whom, never a pose, a coordinate or a time.
 
-A person's capability carries the installed motion vocabulary. Its intent is the vocabulary's own [composition](../motion/compose/SKILL.md) of that action, built with the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. The entity adds no motion of its own; a clip the user chose or the commission supplies reaches the person [retargeted](../motion/retargeting.md) instead. The vocabulary performs an action the production [registers](../motion/laws/SKILL.md) like one of its own, so it reaches a scene the same way.
+A person's capability returns the installed motion vocabulary's own [composition](../motion/compose/composition.md) of the action, built from the body prepared for the cast member, the proficiency the cast record gives and the targets the scene passes, as the vocabulary's README shows. An action the production [registers](../motion/laws/extension.md) with the vocabulary arrives the same way, and a clip the user chose or the commission supplies arrives [retargeted](../motion/retargeting.md); the entity adds no motion of its own.
 
-A scene joins capabilities through the operators of the installed motion vocabulary and engine, as their READMEs show. Interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. Logic lives in pure laws the methods call, so a unit test needs no mock.
+A scene joins capabilities through the operators of the installed motion vocabulary and engine, as their READMEs show. Interactions align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. Logic lives in pure laws the methods call, so a unit test needs no mock.
 
-The whole composition resolves once per film into a frozen schedule, and every film second is a pure function of that schedule. Each film has one seed, and every seeded stream derives from it, the motion vocabulary's included, so reseeding a film reseeds every performer together. A film that continues another starts from that film's final state snapshots.
+The whole composition resolves once per film into a frozen schedule, and every film second is a pure function of that schedule. Each film has one seed from which every seeded stream derives, the motion vocabulary's included, so reseeding a film reseeds every performer together. A film that continues another starts from that film's final state snapshots.
 
-A film only composes: the catalog and the screenplay films call the same capabilities with the same kind of parameters, so a case accepted in the catalog plays the same way in the film. The [composition contract](../contracts/development/composition.md#composition-only) holds every scene to this.
+A film only composes. The catalog and the screenplay films call the same capabilities with the same kind of parameters, so a case accepted in the catalog plays the same way in the film, and the [composition contract](../contracts/development/composition.md#composition-only) holds every scene to this.
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 
@@ -48,11 +56,15 @@ Imports point down the chain: host and commands to films, films to scenes, scene
 
 What serves every production belongs to the installed packages and never grows as a production folder; a missing capability follows [installed packages](reuse.md#installed-packages).
 
-Node-only tooling the installed command-line tool does not run, such as the physics and recovery commands, is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
+Node-only tooling the installed command-line tool does not run, such as the physics and recovery commands, is not published. The production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
 
-A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary. Only when [vocabulary extension](../motion/laws/SKILL.md) finds the vocabulary lacks it does it start from its research, then its registered row or law and the interaction that uses it. A new scene starts from its screenplay scene file, then its composition folder and its place in the film.
+Work starts at the document it realizes:
+
+- a new subject starts from its settings or brief record, then its entity folder and tests;
+- a new action starts from the installed motion vocabulary, and only when [vocabulary extension](../motion/laws/extension.md) finds the vocabulary lacks it, from its research, then its registered row or law and the interaction that uses it;
+- a new scene starts from its screenplay scene file, then its composition folder and its place in the film.
 
 ## Shared modules
 

@@ -20,6 +20,4 @@ Contract: [discovery/settings.md](../../discovery/settings.md).
     - an authority, cause, resource or knowledge boundary;
     - a relationship, space, appearance or voice.
 6. Chosen events, choices, results, setups, payoffs and reveal order stay with the next narrative owner.
-7. The observable choices of the reference form are identified: how a record marks its owner, orders facts, separates evidence from invention and names downstream subjects.
-8. Labels such as rigorous or immersive establish none of those choices.
-9. A negative names the concrete planned risk and its adequate existing owner.
+7. The reference form's observable choices are identified: how a record marks its owner, orders facts, separates evidence from invention and names downstream subjects. A label such as rigorous or immersive establishes none of them.

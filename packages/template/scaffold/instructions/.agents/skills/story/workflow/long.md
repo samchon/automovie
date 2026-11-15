@@ -25,7 +25,7 @@ A pass runs these steps in order:
 
 2. Evidence.
 
-    The [evidence answerer](../evidence/answer-writing.md) enables the stage through [evidence configuration](../../evidence/configuration.md), writes the answers and returns the gaps it cannot answer truthfully; the author fills them.
+    The [evidence answerer](../answers.md) enables the stage through [evidence configuration](../../evidence/configuration.md), writes the answers and returns the gaps it cannot answer truthfully; the author fills them.
 
 3. Review.
 

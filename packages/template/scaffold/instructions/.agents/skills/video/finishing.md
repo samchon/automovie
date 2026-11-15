@@ -1,10 +1,10 @@
 # Finishing
 
-An accepted take is finished before [assembly](../production/assembly.md), in this order: repair, upscale, conform the frame rate, then match it to its neighbors. Each step makes a derivative kept beside the take's original under [media records](../production/media-records.md#records). A take's sound is finished separately under [film sound](../audio/film-sound.md).
+An accepted take is finished before [assembly](../production/assembly.md), in this order: repair, upscale, conform the frame rate, then match it to its neighbors. Each step makes a derivative kept beside the take's original under [media records](../production/media-records.md#records). The take's sound is finished under [film sound](../audio/film-sound.md).
 
 ## Partial repair
 
-A take that is right except for a local flaw, such as a hand, a face, a stray object or a failed seam, is repaired in place rather than regenerated, by one of these methods:
+Repair a take that is right except for a local flaw, such as a hand, a face, a stray object or a failed seam, in place rather than regenerating it, by one of these methods:
 
 - regenerate a time range and keep the rest;
 - regenerate a masked region over its frames;
@@ -19,11 +19,11 @@ Composite legible text, signs and logos in post from their own clean render, bec
 
 ## Upscaling
 
-Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, and a model's own high-resolution tier may be one, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md).
+Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler, which a model's own high-resolution tier may be, invents detail, so check identity on stills afterwards and measure the result against the [delivery profile](../production/project-context.md).
 
 ## Frame-rate conform
 
-Generate at the model's frame rate and conform each take to the delivery profile by the method [project context](../production/project-context.md) records:
+Generate at the model's frame rate, and conform each take to the delivery profile by the method project context records:
 
 | Method | Cost |
 | --- | --- |
@@ -33,14 +33,12 @@ Generate at the model's frame rate and conform each take to the delivery profile
 
 ## Take matching
 
-Providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop a take's color tags. Read each take's tags, such as with ffprobe, choose one working color space for the film and record it in project context, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
+Takes arrive in anything from 8-bit SDR to HDR, and a re-encode can drop their color tags. Read each take's tags, choose one working color space for the film and record it in project context, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
 
-Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness.
+Grade neighboring takes to match in color and exposure, because a jump at a cut calls for a grade, not a regeneration. A shared grain or texture over the film hides the takes' differing sharpness.
 
 ## Provenance and disclosure
 
-Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand the record and the originals to [assembly](../production/assembly.md#repair-and-delivery).
+Some providers sign their output with content credentials or a watermark, which a tool that does not carry them breaks on editing or re-encoding, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand both to [assembly](../production/assembly.md#repair-and-delivery).
 
-A film made with generated video may owe a disclosure where it is released, such as under Article 50 of the EU AI Act or a video platform's rules. Ask the user which disclosure the release owes, and record it in the [delivery profile](../production/project-context.md#what-to-record).
-
-Sources: [LTX Retake](https://docs.ltx.io/api-documentation/api-reference/async-video-generation/submit-retake), [VACE](https://github.com/ali-vilab/VACE/blob/main/UserGuide.md), [Aleph prompting](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide), [Runway upscaling](https://help.runwayml.com/hc/en-us/articles/55474983733395-Upscaling-videos-and-images), [Topaz models](https://developer.topazlabs.com/video-models/upscaling-and-enhancement), [frame-rate conversion](https://docs.hybrik.com/tutorials/frame_rate_conversion/), [upscaling order](https://hackernoon.com/how-to-upscale-ai-generated-video-without-making-the-artifacts-worse), [Kling limitations](https://kling.ai/blog/limitations-of-current-ai-video-generation-technology), [Vertex content credentials](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/content-credentials), [AI Act Article 50](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50), [YouTube disclosure](https://support.google.com/youtube/answer/14328491).
+A film made with generated video may owe a disclosure where it is released, such as under [Article 50 of the EU AI Act](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50) or a video platform's rules. Ask the user which disclosure the release owes, and record it in the [delivery profile](../production/project-context.md#the-delivery-profile).

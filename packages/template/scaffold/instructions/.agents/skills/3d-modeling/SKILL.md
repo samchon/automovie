@@ -5,17 +5,20 @@ description: Defines the form each subject of a production takes, namely the pol
 
 # 3D modeling
 
-A motion hint guides video diffusion, which supplies the appearance, so each subject takes the least form that serves the hint; a [direct 3D film](../direct-film/SKILL.md) adds the detail its delivery shows. Read [project context](../production/project-context.md) first for the representation the production adopted.
+3D modeling gives each subject its form: the coarse default every scene uses and, on request, a detailed one. Read [project context](../production/project-context.md) first for the representation the production adopted.
 
 ## Default form
 
-A subject the hint does not need takes no form and stays a description in the generation prompt. A person is the polygon man that [entity work](../development/entities.md#people) prepares. An object a person holds, uses, sits on or rides is an [installed archetype](../development/entities.md#objects) where one offers it. Anything else a scene shows or touches is a [coarse form](coarse-forms.md), a few primitives that are just enough to tell what it is.
+Each subject takes the least form its motion hint needs, as [coarse first](../development/entities.md#coarse-first) sets:
+
+- no form for a subject the hint does not need, which stays a description in the generation prompt;
+- the polygon man for a [person](../development/entities.md#people);
+- an [installed archetype](../development/entities.md#objects), where one offers it, for an object a person holds, uses, sits on or rides;
+- a [coarse form](coarse-forms.md) for anything else a scene shows or touches.
 
 ## Requested detail
 
-Go further only for a [detail option](../development/entities.md#detail) or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh.
-
-Build only what the request names and the subject's visible role needs. Finer geometry than that takes the time motion needed, and diffusion repaints it anyway.
+Go further only for a [detail option](../development/entities.md#detail), such as a [direct 3D film](../direct-film/SKILL.md)'s, or when primitives cannot make a form identifiable. The user chooses its source: a diffusion model's output, code that shapes it in detail, or an existing mesh. Build only what the request names and the subject's visible role needs, because finer geometry takes the time motion needs and diffusion repaints it anyway.
 
 | Task | Read |
 | --- | --- |
@@ -29,4 +32,4 @@ Build only what the request names and the subject's visible role needs. Finer ge
 | Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
 | Inspect a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |
 
-Whatever its source, a form is reproducible, rigged when it moves and judged on screen under [visual debugging](../visual-debugging/SKILL.md): a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.
+Whatever its source, a form is reproducible, rigged when it moves, and judged on screen under [visual debugging](../visual-debugging/SKILL.md), because a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.

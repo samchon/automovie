@@ -1,6 +1,6 @@
 # Clips
 
-A generated or captured clip is frozen data, never generated at playback, and it lacks what the installed vocabulary guarantees. Check it before [retargeting](../retargeting.md) it onto the polygon man:
+A generated or captured clip is frozen data, never generated at playback, and lacks what the installed vocabulary guarantees. Check it before [retargeting](../retargeting.md) it onto the polygon man:
 
 | Check | Expect | Repair |
 | --- | --- | --- |

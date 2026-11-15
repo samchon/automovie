@@ -22,12 +22,12 @@ A short runs these steps in order:
 
 4. Film draft.
 
-    For a commission with a film, build the entities, the scene composition and the film from the screenplay. Judge the film within [what you can observe](../../../../AGENTS.md#what-you-can-observe). Repair each cause where it lies, in the screenplay, the brief, the code or an [extension](../../motion/laws/SKILL.md) of the motion vocabulary, until the film reads as intended. A screenplay-only commission skips this step.
+    For a commission with a film, build the entities, the scene composition and the film from the screenplay. Judge the film within [what you can observe](../../../../AGENTS.md#what-you-can-observe). Repair each cause where it lies, in the screenplay, the brief, the code or an [extension](../../motion/laws/extension.md) of the motion vocabulary, until the film reads as intended. A screenplay-only commission skips this step.
 
 5. Evidence.
 
-    Read the brief and screenplay once, whole, against the contracts the evidence stages will select, and repair what fails by cause, in the code and film too. No independent classification runs, because the review that follows reads afresh. Then enable the brief and screenplay construction stages, and the development stages the code needs, through [evidence configuration](../../evidence/configuration.md). The [evidence answerer](../evidence/answer-writing.md) writes the answers, and the author fills the gaps it returns.
+    Read the brief and screenplay once, whole, against the contracts the evidence stages will select, and repair what fails by cause, in the code and film too. No independent classification runs, because the review that follows reads afresh. Then enable the brief and screenplay construction stages, and the development stages the code needs, through [evidence configuration](../../evidence/configuration.md). The [evidence answerer](../answers.md) writes the answers, and the author fills the gaps it returns.
 
 6. Review.
 
-    One independent reviewer reads the brief and screenplay under [narrative rounds](../../review/narrative-rounds.md). Once the reviewer's findings reach the author, the brief and screenplay stages go back to disabled, so the repairs that follow owe no story answers and later edits reopen none. The author decides each finding and repairs the accepted ones, in the code and film too, keeping the code's development answers current, and that closes the pass. The film's [delivery review](../../review/delivery-review.md) belongs to [completion](SKILL.md#completion).
+    One independent reviewer reads the brief and screenplay under [narrative rounds](../../review/narrative-rounds.md). Once the reviewer's findings reach the author, the brief and screenplay stages go back to disabled, so the repairs that follow owe no story answers and later edits reopen none. The author decides each finding and repairs the accepted ones, in the code and film too, keeping the code's development answers current, and that closes the pass. The film's [delivery review](../../review/delivery-review.md) belongs to [completion](routes.md#completion).
