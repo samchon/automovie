@@ -16,7 +16,7 @@ Test it on the production's own takes, shouts and breaths included, and have the
 
 ## One bed and one score per scene
 
-Ambience generated per request jumps at every cut, and music generated per request restarts. Lay one continuous bed per scene under its cuts, ducking or replacing each take's own ambience at the joins, and fill gaps with room tone. Score a scene as one separate track.
+Ambience generated per request jumps at every cut, and music generated per request restarts. Lay one continuous bed per scene under its cuts, ducking or replacing each take's own ambience at the joins, and fill gaps with room tone. Lay the score the screenplay gives a scene as one separate track.
 
 ## Loudness
 
