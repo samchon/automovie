@@ -192,7 +192,6 @@ export class HumanPerformance {
   }
 
   /**
-  /**
    * A soft prop's particle positions at a film second: its lattice solved
    * once over the performance from the displayed poses at its domain's
    * fixed step, and read between the two steps around the second, so a seek
@@ -234,6 +233,7 @@ export class HumanPerformance {
     );
   }
 
+  /**
    * The film second of an instant: a second as given, or a named instant of
    * an anchored action or of a cue track.
    *
