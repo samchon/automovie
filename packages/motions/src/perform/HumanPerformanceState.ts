@@ -327,8 +327,17 @@ export class HumanPerformanceState {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A worn span names its bone; a held span leaves it absent, so one list orders both.
  */
 export namespace HumanPerformanceState {
-  /** How many resolved performances a process keeps, the most recently read: a memory bound no act reads, sized to the most takes one consumer interleaves (the rows of a law that a test process reads in turn, the cards a page shows at once), and few enough that each one's pose caches stay in memory. */
-  export const KEEP: number = 8;
+  /**
+   * How many resolved performances a process keeps, the most recently read:
+   * a memory bound no act reads, sized to the most distinct inputs a consumer
+   * reads between two reads of one input, plus that one. Measured at 1: over
+   * nine row families of the touch and hand-to-face laws read in the test
+   * program's order (68 reads of 12 inputs, every reread at most one other
+   * input after its last read), and on the website, where the playground
+   * asks a take's verdicts of the worker that built it right after the take
+   * and a scene page's repeated takes are its own cache's.
+   */
+  export const KEEP: number = 2;
 
   /**
    * The resolved performance of an input: the one resolved before from an
