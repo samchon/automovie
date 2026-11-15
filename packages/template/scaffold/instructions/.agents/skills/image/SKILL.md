@@ -29,7 +29,7 @@ Prompt each subject's images with its record's wording and, for a generated film
 
 ## Control images
 
-A canon reference or a plate needs only a prompt, because it carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, as [dense passes](../motion/control-channels.md#dense-channels) sets.
+A canon reference or a plate needs only a prompt, because it carries only appearance. Add a control image only when a subject's build or shape departs from what the model draws by default, such as a child or an unusual object: render it from the subject's entity in a neutral pose and pass it loosely, as [dense channels](../motion/control-channels.md#dense-channels) sets.
 
 ## Shot frames
 
@@ -37,7 +37,7 @@ A model that starts from a first frame takes the appearance from it while the hi
 
 Render the first frame of the request's hint at the video model's exact output size and aspect, cropping when the image model's sizes differ, and crop the canon references given beside it to the same aspect, because a reference's aspect can override the frame's.
 
-Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a hosted model as an input labeled "pose and camera reference only", and to an open model as the control images [dense passes](../motion/control-channels.md#dense-channels) sets. Then [overlay](../visual-debugging/comparison.md#reading-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move. Upscale a frame only in a mode that keeps detail rather than inventing it, and overlay it again.
+Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a hosted model as an input labeled "pose and camera reference only", and to an open model as the control images [dense channels](../motion/control-channels.md#dense-channels) sets. Then [overlay](../visual-debugging/comparison.md#reading-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move. Upscale a frame only in a mode that keeps detail rather than inventing it, and overlay it again.
 
 Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
 

@@ -1,6 +1,6 @@
 # Continuity
 
-Every request is a separate generation, so identity, light, color and motion can jump wherever two meet. [Requests](../requests.md#intervals) sets where requests end; this page keeps them continuous across those ends.
+Every request is a separate generation, so identity, light, color and motion can jump wherever two meet. [Requests](../requests.md#intervals) sets where requests end; continuity keeps them continuous across those ends.
 
 ## Chaining requests
 
@@ -10,7 +10,7 @@ Choose the chain frame before the take slows toward its [drifting end](../reques
 
 Pass the take on in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
 
-An extend mode often takes no hint and keeps only the last frame or last seconds as context, and [place takes in time](../generation.md#placement-in-time) places its result. Where the model cannot take the continuation beside the hint, end the request at a cut; a continuous shot longer than one request then needs another model, so tell the user.
+An extend mode often takes no hint and keeps only the last frame or last seconds as context, and [placement in time](../generation.md#placement-in-time) places its result. Where the model cannot take the continuation beside the hint, end the request at a cut; a continuous shot longer than one request then needs another model, so tell the user.
 
 ## Across the film
 

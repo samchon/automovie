@@ -1,6 +1,6 @@
 # Video models
 
-Each row shows how a current model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its documentation, as [read the model](SKILL.md#model-documentation) sets.
+Each row shows how a current model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its documentation, as [model documentation](SKILL.md#model-documentation) sets.
 
 | Model | Takes the hint as | Sets [adherence](../requests.md#adherence) by | Continues a take by | Documentation |
 | --- | --- | --- | --- | --- |
