@@ -16,6 +16,7 @@ import { SOFT_MAX_PARTICLES } from "./constants/SOFT_MAX_PARTICLES";
 import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
 import { SOFT_MAX_STEPS } from "./constants/SOFT_MAX_STEPS";
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
+import { validateSoftCompliance } from "./validateSoftCompliance";
 import { validateSoftIdentity as identity } from "./validateSoftIdentity";
 import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
@@ -194,6 +195,7 @@ export const validateSoftBodyDomain: (props: {
           coincident(out, root, domain, particle, particle + columns);
       }
 
+  validateSoftCompliance(out, root, domain);
   const travel: number = softBodyTravelNumber(domain);
   if (travel > 1)
     out.push(

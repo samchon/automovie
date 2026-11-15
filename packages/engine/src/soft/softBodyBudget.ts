@@ -32,6 +32,15 @@ export const softBodyBudget: (
   const structural: number = span(columns, 1) * rows + columns * span(rows, 1);
   const shear: number = 2 * quads;
   const bend: number = span(columns, 2) * rows + columns * span(rows, 2);
+
+  // A cord's self-contact pairs every two segments that share no particle.
+  const segments: number = particles - 1;
+  const selfContact: boolean =
+    (domain.contact ?? null) !== null &&
+    domain.selfCollision &&
+    (columns === 1 || rows === 1);
+  const pairs: number =
+    selfContact && segments > 2 ? ((segments - 1) * (segments - 2)) / 2 : 0;
   return {
     domain: domain.id,
     particles,
@@ -47,6 +56,8 @@ export const softBodyBudget: (
       (structural + shear + bend) *
       domain.solver.iterations *
       domain.solver.maxSteps,
+    worstCaseSelfContactPairs:
+      pairs * domain.solver.iterations * domain.solver.maxSteps,
     travel: softBodyTravelNumber(domain),
   };
 };
