@@ -248,4 +248,36 @@ export namespace HumanUpperRows {
     shape: "fist",
     from: { out: 0, up: 0, forward: 0.1 },
   });
+
+  /** Clapping: both palms meet ahead of the chest and part, out and in. */
+  export const clapHands = HumanActionRow.of("clapHands", armPhrase, {
+    phrase: "oscillate",
+    side: "both",
+    target: { kind: "self", region: "sternum" },
+    offset: { out: 0, up: 0, forward: 0.35 },
+    swing: { out: 0.08, up: 0, forward: 0 },
+    cycles: 3,
+    facing: { fingers: "up", palm: "in" },
+  });
+
+  /** Rubbing the hands: both palms together ahead of the chest, sliding up and down. */
+  export const rubPalms = HumanActionRow.of("rubPalms", armPhrase, {
+    phrase: "oscillate",
+    side: "both",
+    target: { kind: "self", region: "sternum" },
+    offset: { out: 0, up: -0.1, forward: 0.3 },
+    swing: { out: 0, up: 0.04, forward: 0 },
+    cycles: 4,
+    facing: { fingers: "up", palm: "in" },
+  });
+
+  /** Hands clasped in front: both palms meet before the abdomen and stay. */
+  export const handsTogetherFront = HumanActionRow.of("handsTogetherFront", armPhrase, {
+    phrase: "visit",
+    side: "both",
+    target: { kind: "self", region: "abdomen" },
+    offset: { out: 0, up: 0, forward: 0.15 },
+    facing: { fingers: "forward", palm: "in" },
+    hold: "long",
+  });
 }

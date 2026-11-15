@@ -34,7 +34,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. `waveHand` keeps the palm above the shoulder through its stroke, and
  *    its hand moves out and back: the palm's lateral travel over the stroke
  *    exceeds a twentieth of the arm's length.
- * 4. Every phrase publishes the standard instants `ready`, `strokeStart`,
+ * 4. The two-hand rows bring the palms together: clapHands at its
+ *    stroke's start and handsTogetherFront at its stroke, within 10 mm.
+ * 5. Every phrase publishes the standard instants `ready`, `strokeStart`,
  *    `stroke`, `strokeEnd` and `relax` in time order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each row through the public chain on generated bodies and measures the displayed hand surfaces at the phrase's instants.
@@ -115,6 +117,15 @@ export function test_human_motion_recompose_upper_phrase(): void {
           const miss: number = Vector3.length(Vector3.subtract(hand, goal));
           if (!(miss <= 0.01))
             complaints.push(`${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within 10 mm expected`);
+        }
+        if (row.name === "clapHands" || row.name === "handsTogetherFront") {
+          const t: number = row.name === "clapHands" ? at("strokeStart") : at("stroke");
+          const bones = p.bones("a", t);
+          const left: IAutoMovieVector3 = HumanHand.frame(body, bones, "left", "palm", "flat").point;
+          const right: IAutoMovieVector3 = HumanHand.frame(body, bones, "right", "palm", "flat").point;
+          const apart: number = Vector3.length(Vector3.subtract(left, right));
+          if (!(apart <= 0.01))
+            complaints.push(`${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within 10 mm expected`);
         }
         if (row.name === "waveHand") {
           const shoulder: number = p.bones("a", at("stroke")).get("rightShoulder")!.worldPosition.y;
