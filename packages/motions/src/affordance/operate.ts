@@ -24,6 +24,7 @@ import { poseBones } from "../posture/poseBones";
 import type { StrikingHeld } from "../striking/StrikingHeld";
 import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
+import { operateState } from "./operateState";
 
 /**
  * Operating an articulated thing with one hand while standing: pressing a
@@ -32,8 +33,10 @@ import { operateInsert } from "./operateInsert";
  *
  * The goal is the hand on the thing's moving part, and the part's motion is
  * the mechanism's own: a button's face goes in along its axis, a knob turns
- * about its axis, a slider's handle travels along its axis, a door's handle
- * turns about the vertical hinge line. The hand is shaped to the part (the
+ * about its axis, a slider's handle travels along its axis, a leaf's handle
+ * turns about its hinge line: a door's vertical line through the point it
+ * names, or the prop's own hinge axis (a cock's cross pin,
+ * `operateDrive.hinge`). The hand is shaped to the part (the
  * index fingertip on a button, a closed grip on a knob, a drawer handle or a
  * door handle) and laid on it by `AutoMovieMotionHumanTarget.hand`. A part
  * on an upright face is grasped with the hand along the face's normal: a
@@ -129,12 +132,16 @@ export namespace operate {
         travel: number;
       }
     | {
-        /** A door swung about a vertical hinge line by its handle. */
+        /** A leaf swung about its hinge line by its handle: a door, a lid, a gun's cock. */
         kind: "hinge";
         /** The handle, its normal out of the leaf toward the hand. */
         at: AutoMovieMotionTarget;
-        /** A point on the hinge line. */
-        hinge: AutoMovieMotionTarget;
+        /**
+         * A point on a vertical hinge line, a door's. Absent, the line is the
+         * operated prop's own hinge articulation (`operateDrive.IPart.line`):
+         * its point and its `+Y` axis, however it lies, a cock's cross pin.
+         */
+        hinge?: AutoMovieMotionTarget;
         /** How far the leaf swings, degrees; positive pulls it toward the hand. */
         swing: number;
       }
@@ -186,82 +193,8 @@ export namespace operate {
     insert: 0.03,
   };
 
-  /**
-   * The moving part's place at a progress of its movement.
-   *
-   * @param mechanism The mechanism.
-   * @param place The part's place at rest: its point and outward normal.
-   * @param hinge The hinge line's point, for a door.
-   * @param progress 0 at rest, 1 at the end of the movement.
-   * @returns The point and the normal, and the roll about the normal in degrees.
-   */
-  export function state(
-    mechanism: Mechanism,
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
-    hinge: IAutoMovieVector3 | undefined,
-    progress: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } {
-    const n: IAutoMovieVector3 = Vector3.normalize(place.normal);
-    switch (mechanism.kind) {
-      case "button":
-        return {
-          point: Vector3.add(
-            place.point,
-            Vector3.scale(n, -(mechanism.travel ?? 0.005) * progress),
-          ),
-          normal: n,
-          roll: 0,
-        };
-      case "knob":
-        return {
-          point: place.point,
-          normal: n,
-          roll: mechanism.turn * progress,
-        };
-      case "slider":
-        return {
-          point: Vector3.add(
-            place.point,
-            Vector3.scale(n, mechanism.travel * progress),
-          ),
-          normal: n,
-          roll: 0,
-        };
-      case "hinge": {
-        // A pull turns the handle toward its normal's side about the line.
-        const arm: IAutoMovieVector3 = Vector3.subtract(place.point, {
-          ...hinge!,
-          y: place.point.y,
-        });
-        const sign: number =
-          Vector3.dot(Vector3.cross({ x: 0, y: 1, z: 0 }, arm), n) >= 0
-            ? 1
-            : -1;
-        const turn = Quaternion.fromAxisAngle(
-          { x: 0, y: 1, z: 0 },
-          sign * mechanism.swing * progress,
-        );
-        return {
-          point: Vector3.add(
-            { ...hinge!, y: place.point.y },
-            Quaternion.rotateVector(turn, arm),
-          ),
-          normal: Quaternion.rotateVector(turn, n),
-          roll: 0,
-        };
-      }
-      case "insert":
-        return {
-          point: Vector3.add(
-            place.point,
-            Vector3.scale(n, -operateInsert.depth(mechanism, progress)),
-          ),
-          normal: n,
-          roll: 0,
-        };
-    }
-  }
-
+  /** The moving part's place at a progress of its movement (operateState.at). */
+  export const state: typeof operateState.at = operateState.at;
   /**
    * Plan an operation.
    *
@@ -279,9 +212,23 @@ export namespace operate {
     const at: AutoMovieMotionTarget =
       mechanism.kind === "insert" ? mechanism.into : mechanism.at;
     const place = context.aim(at, context.start);
-    const hinge: IAutoMovieVector3 | undefined =
+
+    // On a prop that articulates, the hand follows the part the prop poses
+    // and the operation drives that articulation; a held prop inserted into
+    // a socket is moved by the hand that holds it.
+    const part: operateDrive.IPart | undefined =
+      mechanism.kind === "insert"
+        ? undefined
+        : operateDrive.part(
+            context,
+            at,
+            operateDrive.amount(mechanism),
+            mechanism.kind,
+          );
+
+    const hinge: operateDrive.IHinge | undefined =
       mechanism.kind === "hinge"
-        ? context.aim(mechanism.hinge, context.start).point
+        ? operateDrive.hinge(context, mechanism, part)
         : undefined;
 
     // The movement's length by the mechanism's pace.
@@ -296,9 +243,7 @@ export namespace operate {
         case "hinge":
           return (
             (((Math.abs(mechanism.swing) * Math.PI) / 180) *
-              Vector3.length(
-                Vector3.subtract({ ...place.point, y: 0 }, { ...hinge!, y: 0 }),
-              )) /
+              operateDrive.radius(hinge!, place.point)) /
             PACE.swing
           );
         case "insert":
@@ -306,13 +251,6 @@ export namespace operate {
       }
     })();
 
-    // On a prop that articulates, the hand follows the part the prop poses
-    // and the operation drives that articulation; a held prop inserted into
-    // a socket is moved by the hand that holds it.
-    const part: operateDrive.IPart | undefined =
-      mechanism.kind === "insert"
-        ? undefined
-        : operateDrive.part(context, at, operateDrive.amount(mechanism));
     const inserted: StrikingHeld.ITool | undefined =
       mechanism.kind === "insert"
         ? operateInsert.tool(context, mechanism, side)

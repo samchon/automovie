@@ -96,7 +96,7 @@ export function test_human_motion_object_drive_overlap(): void {
     refusal = error;
   }
   TestValidator.predicate(
-    "two drives at once are refused on drives",
+    `two drives at once are refused on drives (${refusal instanceof Error ? refusal.message : "accepted"})`,
     refusal instanceof HumanRefusal &&
       refusal.kind === "cut" &&
       refusal.axis === "drives" &&
@@ -115,11 +115,12 @@ export function test_human_motion_object_drive_overlap(): void {
         ),
       ),
     );
-  } catch {
+  } catch (error) {
     resolved = undefined;
+    refusal = error;
   }
   TestValidator.predicate(
-    "drives one after the other resolve",
+    `drives one after the other resolve (${resolved === undefined && refusal instanceof Error ? refusal.message : "resolved"})`,
     resolved !== undefined,
   );
   if (resolved !== undefined)

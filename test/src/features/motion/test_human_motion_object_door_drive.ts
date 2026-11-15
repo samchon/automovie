@@ -17,23 +17,24 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * An act drives the articulation it operates (#3476): a door pulled open by
  * `operate` stays open, its handle where the hand let it go.
  *
- * Scenarios, the average man and the small woman, each 0.45 m from a
- * right-hinged lever door on its pull side, facing it, pulling it open 70
+ * Scenarios, the average man and the small woman, each 0.45 m out from a
+ * right-hinged lever door on its pull side and 0.3 m beside the lever on the
+ * latch side, clear of the leaf, facing the door, pulling it open 40
  * degrees by its `pull` lever and then standing 3 s:
  * 1. The opening plans and publishes one drive of the door's `hinge`.
  * 2. Before the stroke the door's state is empty (at rest).
  * 3. At the end of the stroke and at 1, 2 and 3 s after it the hinge's travel
- *    is 70 degrees within 1e-9: the last travel holds.
+ *    is 40 degrees within 1e-9: the last travel holds.
  * 4. At those instants the `pull` contact the performance aims at is within
  *    1 mm of the door posed at that travel, placed where the scene put it
  *    (the archetype's own pose, not the law's arc).
- * 5. Halfway through the stroke the travel lies strictly between 0 and 70.
+ * 5. Halfway through the stroke the travel lies strictly between 0 and 40.
  * 6. The hand's grip at the stroke's end is within 0.7 hand lengths of the
  *    moved handle (the ride grips test's share), so hand and part did not
  *    drift apart.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs a real door archetype through the public chain and reads the performance's state, its aim at the moved contact and the displayed hand; a drive never published, a state that snaps shut, a handle read at rest or a hand that leaves the part fails.
- * @evidence contracts/development/testing.md#independent-expectations The 70 degrees is the scene's ask, the handle's place the archetype's own `articulate` and `placed`, and the 0.7 share the ride grips test's; none is read from the law.
+ * @evidence contracts/development/testing.md#independent-expectations The 40 degrees and the stance beside the latch are the scene's asks, the handle's place the archetype's own `articulate` and `placed`, and the 0.7 share the ride grips test's; none is read from the law.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite build; before, during and after the stroke.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory and reads a dozen instants of each.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios with their bounds.
@@ -49,7 +50,11 @@ export function test_human_motion_object_door_drive(): void {
     scale: { x: 1, y: 1, z: 1 },
   };
   const lever: IAutoMovieVector3 = door.placed("pull", placement).translation;
-  const SWING: number = 70;
+  const hinge: IAutoMovieVector3 = door.placed("hinge", placement).translation;
+  // A swing a standing person pulls without stepping, from beside the
+  // latch, clear of the leaf's sweep (a pull of 70 degrees walks round).
+  const SWING: number = 40;
+  const beside: number = Math.sign(lever.x - hinge.x) * 0.3;
   const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   for (const name of ["m-average", "f-small"] as const) {
@@ -69,7 +74,7 @@ export function test_human_motion_object_door_drive(): void {
           {
             subject: "a",
             body,
-            at: { x: lever.x, y: 0, z: 0.45 },
+            at: { x: lever.x + beside, y: 0, z: 0.45 },
             yaw: 180,
             proficiency: { level: "trained" },
           },
