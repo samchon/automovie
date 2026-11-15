@@ -8,6 +8,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { caseFrame } from "./caseFrame";
 import { everydayCaseKit } from "./everydayCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -190,19 +191,13 @@ function board(at: IAutoMovieVector3): IHumanProp {
       {
         id: "homeRow",
         kind: "surface",
-        frame: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-        },
+        frame: caseFrame({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
         extent: null,
       },
       {
         id: "keys",
         kind: "surface",
-        frame: {
-          translation: { x: 0, y: 0, z: 0 },
-          rotation: { x: 0, y: 0, z: 0, w: 1 },
-        },
+        frame: caseFrame({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }),
         extent: null,
         width: typeText.WIDTH,
       },
