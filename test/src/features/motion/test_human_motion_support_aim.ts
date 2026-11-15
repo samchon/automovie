@@ -6,6 +6,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  HumanSegment,
   HumanVerdicts,
   HumanWeaponFirearm,
   type IHumanBody,
@@ -25,7 +26,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * stance:
  * 1. With the cart running sideways at 1 m/s along +X, the presentation
  *    plans.
- * 2. Over its hold, at seven instants, the angle between the bore and the
+ * 2. Over its hold, at seven instants from its middle to where its fade-out
+ *    begins (`HumanSegment.FADE` before its end), the angle between the bore and the
  *    line from the muzzle to the target stays within the first instant's
  *    by the turn the audit's skin (`HumanVerdicts.SKIN`) at each end of the
  *    bore makes over its length from the sight to the muzzle, while the cart
@@ -138,10 +140,12 @@ export function test_human_motion_support_aim(): void {
     );
   };
   const from: number = overlay.start + overlay.plan.duration * 0.5;
-  const to: number = overlay.start + overlay.plan.duration;
+  // The hold runs until the overlay begins to fade out (`HumanSegment.FADE`).
+  const to: number =
+    overlay.start + overlay.plan.duration - HumanSegment.FADE;
   const first: number = off(from);
   let worst: number = 0;
-  for (let k: number = 1; k < 7; k++)
+  for (let k: number = 1; k <= 6; k++)
     worst = Math.max(worst, Math.abs(off(from + ((to - from) * k) / 6) - first));
   TestValidator.predicate(
     `the bore stays on the target across the carry (${worst.toFixed(3)} of ${bound.toFixed(3)} degrees)`,

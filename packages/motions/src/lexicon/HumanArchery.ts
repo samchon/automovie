@@ -16,10 +16,16 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  *   socket, its shaft on the bow's `rest`.
  * - `presentBow`: presenting the bow in one hand with the line of aim from
  *   the face (`HumanWeaponPresent`, anchor `face`), the bow's `rest` as the
- *   working point the line passes through.
+ *   working point the line passes through, the bow arm extended to its own
+ *   reach along the line (`extended`), as the shot cycle's set-up raises it
+ *   toward the target.
  * - `drawBow`: an operation of the bow's `string` slider by the drawing
- *   hand, performed over `presentBow` (`HumanChain.over`); the string's drive
- *   moves the nock and, by `follows`, bends the limbs (#3476).
+ *   hand, performed over `presentBow` (`HumanChain.over`) from the set-up, so
+ *   the string is drawn while the bow rises and the bow arm extends (the
+ *   shot cycle's set-up and pre-draw, KSL Shot Cycle); the hand takes the
+ *   string where the raised bow carries it (`operateDrive.IPart.place`), and
+ *   the string's drive moves the nock and, by `follows`, bends the limbs
+ *   (#3476).
  * - `loose`: a release of the drawing hand that launches the nocked arrow
  *   along its line from `nock` to `tip` at the bow's launch speed, which the
  *   composition gives from the bow's `launchSpeed` at the string's travel
@@ -54,7 +60,7 @@ export namespace HumanArchery {
   export const presentBow = HumanActionRow.of(
     "presentBow",
     HumanWeaponPresent.present,
-    { anchor: "face", hands: 1, tip: "rest", edge: "grip" },
+    { anchor: "face", hands: 1, tip: "rest", edge: "grip", extended: true },
   );
 
   /** Draw the string back to the anchor, over `presentBow`. */

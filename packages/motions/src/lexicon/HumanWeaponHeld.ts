@@ -49,6 +49,12 @@ export namespace HumanWeaponHeld {
 
     /** The arm's length, upper arm and forearm, metres. */
     arm: number;
+
+    /** The butt's point from the grip in the hand's frame, for a weapon that declares a `butt`; absent otherwise. */
+    butt?: IAutoMovieVector3;
+
+    /** The support hand's hold at the lock, for a firelock that declares a `cock`: the recover's left hand, which "seizes the Firelock strong above the Lock" (the 1764 Manual Exercise); absent otherwise. */
+    lock?: StrikingBlade.ISupport;
   }
 
   /** The hand a weapon action holds the weapon in: the right when the parameters name none. */
@@ -143,6 +149,24 @@ export namespace HumanWeaponHeld {
                 handle: "edge",
               },
       arm: context.body.measure.upperArm + context.body.measure.forearm,
+      ...(found("butt") === undefined
+        ? {}
+        : { butt: read({ tip: "butt" }).tip }),
+      ...(found("cock") === undefined
+        ? {}
+        : {
+            lock: ((): StrikingBlade.ISupport => {
+              const at: IAutoMovieVector3 = read({ tip: "cock" }).tip;
+              return {
+                offset: {
+                  x: Vector3.dot(at, tool.axis),
+                  y: Vector3.dot(at, tool.edge),
+                  z: Vector3.dot(at, Vector3.cross(tool.axis, tool.edge)),
+                },
+                handle: "axis",
+              };
+            })(),
+          }),
     };
   };
 

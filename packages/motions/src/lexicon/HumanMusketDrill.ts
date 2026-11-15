@@ -20,8 +20,10 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * cartridge into the `muzzle`), `drawRammer` (an operation of the `ramrod`
  * slider, then a pick up of the rod), `ramDown` (an operation inserting the
  * rod into the `muzzle`, withdrawn), `returnRammer` (a put down into the
- * pipe), `makeReady` (an operation of the `cock` hinge to full cock), then
- * `presentMusket` and `fireMusket`. `shoulderArms` takes the musket by its
+ * pipe), `recover` (the firelock upright before the body, its butt at the
+ * left breast, the manual's Make Ready beginning "SPRING the firelock
+ * briskly to the recover"), `makeReady` over it (an operation of the `cock`
+ * hinge to full cock), then `presentMusket` and `fireMusket`. `shoulderArms` takes the musket by its
  * `butt` and `orderArms` sets its butt down by the foot.
  *
  * The manual gives the order and the count of motions, not their
@@ -81,7 +83,19 @@ export namespace HumanMusketDrill {
   /** Return the rammer to its pipe. */
   export const returnRammer = HumanActionRow.of("returnRammer", putDown, {});
 
-  /** Make ready: the cock drawn to full cock. */
+  /**
+   * Recover: the firelock brought from the shoulder upright before the body,
+   * "the Butt close to the left breast, but not pressed, the Firelock
+   * perpendicular, opposite the left Side of the Face" (the 1764 Manual
+   * Exercise, Make Ready: "SPRING the firelock briskly to the recover").
+   */
+  export const recover = HumanActionRow.of(
+    "recover",
+    HumanWeaponPresent.present,
+    { carriage: "recover" },
+  );
+
+  /** Make ready: the cock drawn to full cock, over `recover` (`HumanChain.over`). */
   export const makeReady = HumanActionRow.of("makeReady", operate, {});
 
   /** Present: the musket to the cheek on the line. */

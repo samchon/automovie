@@ -195,7 +195,14 @@ export namespace HumanSupportCarry {
     };
     const carried = (seconds: number): IHumanPosture => {
       const carry: ICarry = of(frame, context.start, context.start + seconds);
-      const made: IHumanPosture = posture(carry, plan.posture(seconds));
+      // The root and the heading are the carrier's, which its own plan has
+      // already carried; only the goals this plan made at its start ride on.
+      const own: IHumanPosture = plan.posture(seconds);
+      const made: IHumanPosture = {
+        ...posture(carry, own),
+        root: own.root,
+        yaw: own.yaw,
+      };
       return aim === undefined
         ? made
         : HumanSupportAim.posture(carry, made, aim);

@@ -292,6 +292,22 @@ export namespace operate {
       mechanism.kind === "button" ? "indexTip" : "grip";
     const shape: HumanHand.Shape =
       mechanism.kind === "button" ? "point" : "relaxed";
+    // The second the stroke reaches a progress, read off the clock's own
+    // progress by bisection until the interval is a float apart, so the part
+    // is taken on its prop where the prop is then (a bow raised while it is
+    // drawn); the stroke's start for the reach before it.
+    const reached = (progress: number): number => {
+      let lo: number = clock.at("strokeStart");
+      let hi: number = clock.at("strokeEnd");
+      if (!(progress > 0)) return lo;
+      if (!(progress < 1)) return hi;
+      for (;;) {
+        const mid: number = (lo + hi) / 2;
+        if (mid === lo || mid === hi) return mid;
+        if (clock.progress("strokeStart", "strokeEnd", mid) < progress) lo = mid;
+        else hi = mid;
+      }
+    };
     const target = (
       posture: IHumanPosture,
       progress: number,
@@ -313,7 +329,7 @@ export namespace operate {
         part === undefined
           ? state(mechanism, place, hinge, progress)
           : {
-              ...part.place(progress),
+              ...part.place(progress, context.start + reached(progress)),
               roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
             };
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -370,6 +386,7 @@ export namespace operate {
         },
       );
     };
+
 
     // The lean into a part beyond the standing arm.
     const standing: IHumanPosture = base.posture(0);

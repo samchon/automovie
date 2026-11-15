@@ -80,12 +80,15 @@ export namespace operateDrive {
     amount: number;
 
     /**
-     * The contact's world place at a progress of the stroke.
+     * The contact's world place at a progress of the stroke, on the prop as
+     * it is shown at a film second: a held prop that moves meanwhile (a bow
+     * raised while it is drawn) carries its part with it.
      *
      * @param progress 0 at the stroke's start, 1 at its end.
+     * @param seconds The film second the prop is read at; the operation's start when absent.
      * @returns The point and outward normal.
      */
-    place(progress: number): IPlace;
+    place(progress: number, seconds?: number): IPlace;
 
     /**
      * A hinge articulation's own line at the stroke's start, world: a point
@@ -199,7 +202,9 @@ export namespace operateDrive {
 
     // One posed prop per progress read last: a stroke reads the same
     // progress for the hand's point and its turn.
-    let last: { progress: number; place: IPlace } | undefined;
+    let last:
+      | { progress: number; seconds: number | undefined; place: IPlace }
+      | undefined;
     return {
       prop: at.subject,
       contact: contact.id,
@@ -207,8 +212,15 @@ export namespace operateDrive {
       base,
       amount,
       ...(line === undefined ? {} : { line }),
-      place: (progress: number): IPlace => {
-        if (last !== undefined && last.progress === progress) return last.place;
+      place: (progress: number, seconds?: number): IPlace => {
+        if (
+          last !== undefined &&
+          last.progress === progress &&
+          last.seconds === seconds
+        )
+          return last.place;
+        const shown: IHumanProp.IFrame =
+          seconds === undefined ? frame : held.frame(seconds);
         const posed: IHumanProp.IPosed = articulate({
           ...before,
           [articulation]: base + amount * progress,
@@ -217,17 +229,17 @@ export namespace operateDrive {
           (a: IAutoMovieAffordance): boolean => a.id === contact.id,
         )!;
         const turn: IAutoMovieQuaternion = Quaternion.multiply(
-          frame.rotation,
+          shown.rotation,
           moved.frame.rotation,
         );
         const place: IPlace = {
           point: Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(frame.rotation, moved.frame.translation),
+            shown.position,
+            Quaternion.rotateVector(shown.rotation, moved.frame.translation),
           ),
           normal: Quaternion.rotateVector(turn, { x: 0, y: 1, z: 0 }),
         };
-        last = { progress, place };
+        last = { progress, seconds, place };
         return place;
       },
     };

@@ -105,8 +105,13 @@ export namespace HumanWeaponPresent {
   /** Where a line of aim starts: the eye, the cheek on a stock, the face a bow's hand draws to, the arm a lance is couched under. */
   export type Anchor = "eye" | "cheek" | "face" | "arm";
 
-  /** How the weapon is carried: on the line of aim, or at a ready position with the muzzle down or up. */
-  export type Carriage = "aim" | "lowReady" | "highReady";
+  /**
+   * How the weapon is carried: on the line of aim; at a ready position with
+   * the muzzle down or up; or at a long arm's recover, the firelock upright
+   * with its butt at the support side's breast (the 1764 Manual Exercise's
+   * position from which it is cocked).
+   */
+  export type Carriage = "aim" | "lowReady" | "highReady" | "recover";
 
   /** Parameters of presenting the weapon. */
   export interface IPresent extends IWield, HumanWeaponTrack.IParams {
@@ -115,6 +120,14 @@ export namespace HumanWeaponPresent {
 
     /** The carriage; `aim` when absent. */
     carriage?: Carriage;
+
+    /**
+     * Whether the presenting arm reaches straight out along the line of aim
+     * to its own reach, a bow arm extended to the target; otherwise the
+     * working point is held the presentation's own share of the arm out.
+     * Not extended when absent.
+     */
+    extended?: boolean;
 
     /** Seconds the carriage is held once reached; 1 when absent. */
     seconds?: number & tags.Minimum<0> & HumanUnit<"s">;
@@ -227,7 +240,11 @@ export namespace HumanWeaponPresent {
             carriage === "aim" ? target : null,
           ),
           back: carriage === "aim" ? 0 : s.tool.length,
-          support: HumanWeaponHeld.supported(context, s, pose, bladed),
+          // At the recover the left hand holds the firelock above the lock.
+          support:
+            carriage === "recover" && s.lock !== undefined
+              ? s.lock
+              : HumanWeaponHeld.supported(context, s, pose, bladed),
           turn,
           advance: "none",
           line,

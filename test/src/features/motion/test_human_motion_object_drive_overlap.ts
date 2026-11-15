@@ -1,6 +1,9 @@
 import { createStorage } from "@automovie/archetypes";
-import { AutoMovieComposition } from "@automovie/engine";
-import type { IAutoMovieTransform } from "@automovie/interface";
+import { AutoMovieComposition, Quaternion } from "@automovie/engine";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -39,17 +42,33 @@ export function test_human_motion_object_drive_overlap(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     scale: { x: 1, y: 1, z: 1 },
   };
-  const drawer = (chest.affordances ?? []).find((a) => a.kind === "slider");
+  // The top drawer, whose handle a standing person reaches; a lower one is
+  // crouched to, which `operate` does not do.
+  const drawer = (chest.affordances ?? [])
+    .filter((a) => a.kind === "slider")
+    .sort((a, b) => b.frame.translation.y - a.frame.translation.y)[0];
   TestValidator.predicate("the chest has a drawer", drawer !== undefined);
   if (drawer === undefined) return;
   const handle = (chest.affordances ?? []).find((a) => a.rides === drawer.id);
   TestValidator.predicate("the drawer has a handle", handle !== undefined);
   if (handle === undefined) return;
-  const at = chest.placed(handle.id as never, placement).translation;
+  const placed: IAutoMovieTransform = chest.placed(handle.id as never, placement);
+  const at: IAutoMovieVector3 = placed.translation;
+  // The handle's outward normal, its frame's +Y: the side a person pulls from.
+  const out: IAutoMovieVector3 = Quaternion.rotateVector(placed.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const facing: number = (Math.atan2(-out.x, -out.z) * 180) / Math.PI;
+  const across: IAutoMovieVector3 = { x: out.z, y: 0, z: -out.x };
   const body: IHumanBody = motionHumanBody("m-average");
+  // Each pulls with the hand on the handle's side: "a" stands to its left
+  // (the handle at a's right), "b" to its right.
   const pull = (who: string) =>
     HumanChain.subject(who).operate(
       {
+        hand: who === "a" ? "right" : "left",
         mechanism: {
           kind: "slider",
           at: { kind: "prop", subject: "chest", point: handle.id },
@@ -71,15 +90,23 @@ export function test_human_motion_object_drive_overlap(): void {
       {
         subject: "a",
         body,
-        at: { x: at.x - 0.15, y: 0, z: at.z + 0.45 },
-        yaw: 180,
+        at: {
+          x: at.x + 0.45 * out.x - 0.15 * across.x,
+          y: 0,
+          z: at.z + 0.45 * out.z - 0.15 * across.z,
+        },
+        yaw: facing,
         proficiency: { level: "trained" as const },
       },
       {
         subject: "b",
         body,
-        at: { x: at.x + 0.15, y: 0, z: at.z + 0.45 },
-        yaw: 180,
+        at: {
+          x: at.x + 0.45 * out.x + 0.15 * across.x,
+          y: 0,
+          z: at.z + 0.45 * out.z + 0.15 * across.z,
+        },
+        yaw: facing,
         proficiency: { level: "trained" as const },
       },
     ],
