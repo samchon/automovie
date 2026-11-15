@@ -6489,6 +6489,78 @@
       ]
     },
     {
+      "law": "pushPull",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "mirror",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "way=push",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "way=pull",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "way=drag",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "load=light",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "load=moderate",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "load=heavy",
+          "tests": ["test_human_motion_haul_push_pull"],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
       "law": "kiss",
       "checks": [
         "tangle",
