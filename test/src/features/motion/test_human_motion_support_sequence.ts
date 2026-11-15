@@ -129,8 +129,8 @@ export function test_human_motion_support_sequence(): void {
         ],
       },
     ]);
-    const w: readonly IHumanContactWindow[] = kneel.segments("a")[0]!.plan
-      .contacts;
+    const w: readonly IHumanContactWindow[] =
+      kneel.segments("a")[0]!.plan.contacts;
     const knee: IHumanContactWindow | undefined = w.find(
       (x: IHumanContactWindow): boolean => x.part === "rightLowerLeg",
     );
@@ -146,7 +146,10 @@ export function test_human_motion_support_sequence(): void {
       foot !== undefined && foot.to < 1,
     );
   } catch (error) {
-    all.check(`the half kneel plans, refused ${(error as Error).message}`, false);
+    all.check(
+      `the half kneel plans, refused ${(error as Error).message}`,
+      false,
+    );
   }
 
   // The feet where the quiet stance has them.

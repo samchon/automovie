@@ -252,7 +252,6 @@ export namespace getUp {
     // Standing is the stand law's quiet stance (`quiet`).
     const stood: IPose = quiet(context.body);
 
-
     // The stances: each posture of the route on what it bears on, turned half
     // about the vertical after a roll from the back, so the head stays where
     // it lay.
@@ -312,12 +311,10 @@ export namespace getUp {
         resolveHumanPosture(
           body,
           stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-        ).joints.map(
-          (j): [string, readonly [number, number, number]] => [
-            j.bone,
-            [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
-          ],
-        ),
+        ).joints.map((j): [string, readonly [number, number, number]] => [
+          j.bone,
+          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
+        ]),
       ) as AutoMovieMotionHumanJoints.Angles,
     };
   }

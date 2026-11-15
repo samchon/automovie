@@ -144,7 +144,11 @@ export namespace supportKey {
     let dx: number = 0;
     let dz: number = 0;
     for (const a of anchors) {
-      const now: IAutoMovieVector3 = supportContact.pinned(body, turned, a.part);
+      const now: IAutoMovieVector3 = supportContact.pinned(
+        body,
+        turned,
+        a.part,
+      );
       dx += (a.at.x - now.x) / anchors.length;
       dz += (a.at.z - now.z) / anchors.length;
     }

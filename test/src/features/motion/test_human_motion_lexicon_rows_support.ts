@@ -90,7 +90,10 @@ export function test_human_motion_lexicon_rows_support(): void {
           composition: HumanChain.subject("a").registered(row, { on }).node,
         });
       } catch (error) {
-        complaints.check(`${cell}: refused, ${(error as Error).message}`, false);
+        complaints.check(
+          `${cell}: refused, ${(error as Error).message}`,
+          false,
+        );
         continue;
       }
       const placed: HumanSegment.ISegment | undefined =
