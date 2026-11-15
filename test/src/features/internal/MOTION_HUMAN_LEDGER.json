@@ -1901,6 +1901,13 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanColliders.prepare",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanFoot.sockets",
       "tests": [
         "test_motion_posture_frames"
@@ -2009,6 +2016,14 @@
       "symbol": "HumanFrame.heading",
       "tests": [
         "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.forward",
+      "tests": [
+        "test_human_motion_floor_crawl_down",
+        "test_human_motion_travel_inchworm"
       ]
     },
     {
