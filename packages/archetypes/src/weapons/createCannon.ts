@@ -17,6 +17,7 @@ import {
 } from "../core";
 import { CannonPieces } from "./CannonPieces";
 import { FIELD_GUN } from "./FIELD_GUN";
+import { buildFieldGun } from "./buildFieldGun";
 
 /** A hundredweight, kilograms: 112 pounds. */
 const CWT: number = 112 * ArchetypeUnits.POUND;
@@ -44,9 +45,9 @@ const DOUGLAS: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the gun stands, each contact and articulation, what is provisional and why it carries no friction.
- * @evidence contracts/development/implementation.md#principled-implementation Every size and weight is the manual's, built by `FIELD_GUN.build`; the dimensions are its single figures, so the gun is the one the manual describes.
+ * @evidence contracts/development/implementation.md#principled-implementation Every size and weight is the manual's, built by `buildFieldGun`; the dimensions are its single figures, so the gun is the one the manual describes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the gun, and weigh it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None here; the construction's shortcuts are `FIELD_GUN.build`'s.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None here; the construction's shortcuts are `buildFieldGun`'s.
  * @evidence contracts/development/implementation.md#efficient-algorithms One builder pass.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -84,7 +85,7 @@ export function createCannon(
     name: kind,
     draw,
   });
-  if (kind === "fieldGun") FIELD_GUN.build(builder, d.recoil!);
+  if (kind === "fieldGun") buildFieldGun(builder, d.recoil!);
   else if (kind === "navalGun") CannonPieces.naval(builder, d);
   else if (kind === "mortar") CannonPieces.mortar(builder, d);
   else CannonPieces.swivel(builder, d);

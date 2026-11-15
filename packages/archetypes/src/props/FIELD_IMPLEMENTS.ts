@@ -1,6 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
-import { ArchetypeFrame, ArchetypeUnits, type ArchetypeBuilder } from "../core";
+import {
+  ArchetypeBand,
+  type ArchetypeBuilder,
+  ArchetypeFrame,
+  ArchetypeUnits,
+  type IArchetypeBand,
+} from "../core";
 import type { createLongTool } from "./createLongTool";
 
 /** The 1862 Ordnance Manual, read at its scan. */
@@ -12,7 +18,7 @@ const ORDNANCE: string =
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each figure is, where it is read, and why the table is its own file.
  * @evidence contracts/development/design.md#principled-representation One record per implement, every member a read figure converted through `ArchetypeUnits`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createLongTool`'s bands and by `build`, which `createLongTool` calls.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by its own `BANDS`, which `createLongTool` takes, and by `build`, which `createLongTool` calls.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each figure names its page; the two head woods are named as the manual's first-listed choice.
  */
 export namespace FIELD_IMPLEMENTS {
@@ -218,4 +224,44 @@ export namespace FIELD_IMPLEMENTS {
     end("normal");
     shaft(h.conical, length, lever);
   }
+
+  /** Each implement's bands: its read length, its staff where it has one, and its weight; a handspike's diameter follows from its read tapers instead. */
+  export const BANDS: Readonly<
+    Record<
+      "spongeRammer" | "worm" | "trailHandspike",
+      Readonly<Partial<Record<createLongTool.Dimension, IArchetypeBand>>>
+    >
+  > = {
+    spongeRammer: {
+      length: ArchetypeBand.metres(
+        SPONGE_RAMMER.length,
+        SPONGE_RAMMER.length,
+        SOURCE,
+      ),
+      shaftDiameter: ArchetypeBand.metres(
+        SPONGE_RAMMER.staff,
+        SPONGE_RAMMER.staff,
+        SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        SPONGE_RAMMER.mass,
+        SPONGE_RAMMER.mass,
+        SOURCE,
+      ),
+    },
+    worm: {
+      length: ArchetypeBand.metres(WORM.length, WORM.length, SOURCE),
+      shaftDiameter: ArchetypeBand.metres(WORM.staff, WORM.staff, SOURCE),
+      mass: ArchetypeBand.of("kg", WORM.mass, WORM.mass, SOURCE),
+    },
+    trailHandspike: {
+      length: ArchetypeBand.metres(
+        HANDSPIKE.length,
+        HANDSPIKE.length,
+        SOURCE,
+      ),
+      mass: ArchetypeBand.of("kg", HANDSPIKE.mass, HANDSPIKE.mass, SOURCE),
+    },
+  };
 }

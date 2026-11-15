@@ -6,13 +6,13 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
-  ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { HorseHarness } from "./HorseHarness";
 import { HorsePack } from "./HorsePack";
+import { HorseSaddle } from "./HorseSaddle";
 import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
@@ -32,7 +32,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
  * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `equid`'s, stated there.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `HorseSaddle`'s, `HorseHarness`'s and `HorsePack`'s, stated there.
  * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `equid`, which the pony shares; each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -67,12 +67,6 @@ export namespace createHorse {
 
   /** Every tack, for a caller that reads one at run time. */
   export const TACKS: readonly Tack[] = ["saddle", "harness", "both", "pack"];
-
-  /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
-  export const HELD: Readonly<{ rein: number; lead: number }> = {
-    rein: 0.2,
-    lead: 0.3,
-  };
 
   /**
    * The affordance ids:
@@ -210,15 +204,6 @@ export namespace createHorse {
   /** The saddle's middle behind the shoulder joints, metres: an estimate, no source read gives it. A harness's tugs hang on the saddle pad there, so a cart's shafts are held there too. */
   export const SADDLE: number = 0.45;
 
-  /** The saddle's seat width, metres: an estimate, no source read gives it. */
-  export const SEAT_WIDTH: number = 0.3;
-
-  /** The riding saddle's mass, kilograms: the Wintec 500 All Purpose's "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not included, at its maker's page (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle whose seat sizes `SEATS` reads. It is added on top of the equid's drawn mass, its share that weight as a percent of the equid's. The stirrups, the leathers, the reins and the lead rope are massless, a share of 0: no maker's weight was read for them (searched: Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb, secondary). */
-  export const SADDLE_WEIGHT: number = 5.4;
-
-  /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
-  export const LEAD: number = (5 / 8) * ArchetypeUnits.INCH;
-
   /**
    * The point of buttock behind the point of shoulder, as a fraction of the height at the withers: Jensen et al. 2019, Acta Vet Scand 61, Methods and Table 2, L1, the horizontal length "from the tuber ischium (point of the buttocks) to greater tubercle (point of the shoulder)", 185 cm on warmbloods of 172 cm mean height at the withers (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). The point of shoulder is taken at the shoulder joint.
    */
@@ -338,188 +323,30 @@ export namespace createHorse {
       name: profile.names[tack],
       draw,
     });
-    const v: typeof Vector3.create = Vector3.create;
     const h: number = d.withersHeight;
     const rig: createHorse.IRig = createHorse.rig(d, profile.body);
-    const barrel: number = rig.barrel;
-    const back: number = rig.back;
-    const half: number = rig.trunk / 2;
     const nose: IAutoMovieVector3 = rig.nose;
     QuadrupedBody.lay(profile.body, builder, h, rig);
 
     if (tack === "saddle" || tack === "both") {
-      // The saddle on the back behind the withers, and what the rider holds and stands in.
-      const top: number = back + 0.04;
-      const centre: number = half - createHorse.SADDLE;
-      builder.box(
-        "saddle",
-        v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
-        v(0, top - 0.02, centre),
-        { color: "#4a3324", share: (100 * createHorse.SADDLE_WEIGHT) / d.mass },
-      );
-      builder.affordance({
-        id: "seat",
-        kind: "seat",
-        frame: ArchetypeFrame.upright(v(0, top, centre + d.seatSize / 2)),
-        extent: null,
-        depth: d.seatSize,
-        width: createHorse.SEAT_WIDTH,
-        astride: true,
-
-        // A horse is mounted from its near side, the left.
-        mount: "left",
-      });
-      for (const [id, z] of [
-        ["pommel", centre + d.seatSize / 2],
-        ["cantle", centre - d.seatSize / 2],
-      ] as const) {
-        builder.rod(
-          id,
-          0.015,
-          v(-0.06, top + 0.03, z),
-          v(0.06, top + 0.03, z),
-          {
-            color: "#4a3324",
-            share: 0,
-          },
-        );
-        builder.affordance({
-          id,
-          kind: "handle",
-          symmetry: "none",
-          frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
-          extent: null,
-          grip: "power",
-          aperture: 0.03,
-          length: 0.12,
-        });
-      }
-      for (const [side, sign] of [
-        ["left", 1],
-        ["right", -1],
-      ] as const) {
-        const x: number = sign * (barrel + 0.03);
-        const tread: IAutoMovieVector3 = v(
-          x,
-          top - d.stirrupDrop,
-          centre + 0.05,
-        );
-        builder.rod(
-          `leather-${side}`,
-          0.008,
-          v(x, top - 0.02, centre + 0.05),
-          v(x, tread.y + 0.01, tread.z),
-          { color: "#4a3324", share: 0 },
-        );
-        builder.box(
-          `stirrup-${side}`,
-          v(d.stirrupWidth, 0.01, 0.05),
-          v(x, tread.y - 0.005, tread.z),
-          { color: "#b9bcc0", share: 0 },
-        );
-        builder.affordance({
-          id: `${side}Stirrup`,
-          kind: "stirrup",
-          frame: ArchetypeFrame.upright(tread),
-          extent: null,
-          width: d.stirrupWidth,
-          length: d.stirrupDrop,
-        });
-
-        // A rein from the corner of the mouth back to where the hand holds it, above the withers.
-        const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
-        const bit: IAutoMovieVector3 = v(
-          sign * 0.05 * h,
-          rig.mouth.y,
-          rig.mouth.z,
-        );
-        // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
-        const run: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.subtract(bit, hand),
-        );
-        builder.rod(
-          `rein-${side}`,
-          d.reinWidth / 2,
-          Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
-          bit,
-          { color: "#4a3324", share: 0 },
-        );
-        builder.affordance({
-          id: `${side}Rein`,
-          kind: "rein",
-          symmetry: "round",
-          frame: ArchetypeFrame.facing(
-            hand,
-            v(0, 1, 0),
-            Vector3.subtract(bit, hand),
-          ),
-          extent: null,
-          grip: "power",
-          aperture: d.reinWidth,
-          length: createHorse.HELD.rein,
-        });
-      }
-      lead(builder, nose, h);
+      HorseSaddle.lay(builder, d, rig);
+      HorseSaddle.lead(builder, nose, h);
       // A postilion's horse wears its harness under the riding saddle.
       if (tack === "both") HorseHarness.lay(builder, d, rig);
       // The saddle's read weight is its own, beside the equid's; the rest of its tack is massless, unread.
-      return builder.build(d.mass + createHorse.SADDLE_WEIGHT, {
+      return builder.build(d.mass + HorseSaddle.WEIGHT, {
         rests: profile.body.foot,
       });
     } else if (tack === "harness") HorseHarness.lay(builder, d, rig);
     else {
       // The rigged pack saddle's mass is its own, beside the equid's, its parts' shares percents of the equid's mass as the body's are.
       HorsePack.lay(builder, d, rig);
-      lead(builder, nose, h);
+      HorseSaddle.lead(builder, nose, h);
       return builder.build(d.mass + HorsePack.saddle(h).rigged, {
         rests: profile.body.foot,
       });
     }
     return builder.build(d.mass, { rests: profile.body.foot });
-  }
-
-  /**
-   * Lay the lead rope's held run beside the head on the equid's left, up to the halter, with its `lead` contact.
-   *
-   * @param builder The equid under construction.
-   * @param nose The rig's nose.
-   * @param h The height at the withers, metres.
-   */
-  function lead(
-    builder: ArchetypeBuilder<Affordance, Dimension>,
-    nose: IAutoMovieVector3,
-    h: number,
-  ): void {
-    const v: typeof Vector3.create = Vector3.create;
-    const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
-    const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
-    builder.rod(
-      "lead",
-      LEAD / 2,
-      Vector3.subtract(
-        held,
-        Vector3.scale(
-          Vector3.normalize(Vector3.subtract(halter, held)),
-          HELD.lead / 2,
-        ),
-      ),
-      halter,
-      { color: "#d8d2c4", share: 0 },
-    );
-    builder.affordance({
-      id: "lead",
-      kind: "rein",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        held,
-        v(1, 0, 0),
-        Vector3.subtract(halter, held),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: LEAD,
-      length: HELD.lead,
-    });
   }
 
   /**
