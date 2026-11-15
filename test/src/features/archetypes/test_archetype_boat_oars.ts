@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   type ArchetypeCourse,
   ArchetypeFrame,
@@ -14,9 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-/** One inch, metres. */
-const INCH: number = 0.0254;
 
 /**
  * A rowed rowboat's oars keep their handles at the oarlocks, put their blades in the water only between catch and finish, and stroke at the rate the speed sets.
@@ -48,7 +46,7 @@ export function test_archetype_boat_oars(): void {
   };
   const ride: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
     rowBoat(boat, course);
-  const inboard: number = d.beam! / 2 + 2 * INCH;
+  const inboard: number = d.beam! / 2 + 2 * ArchetypeUnits.INCH;
   const pivotY: number = d.depth! - d.draft! + createBoat.LOCK;
   const share: number =
     (0.84 * Math.min(Math.max((60 * 1.5) / rowBoat.STROKE, 26), 36.5) + 25.1) /

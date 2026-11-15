@@ -1,4 +1,4 @@
-import { createProjectile } from "@automovie/archetypes";
+import { ArchetypeUnits, createProjectile } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -38,14 +38,14 @@ export function test_archetype_weapon_projectile_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "ball diameter",
-      0.66 * 0.0254,
-      0.72 * 0.0254,
+      0.66 * ArchetypeUnits.INCH,
+      0.72 * ArchetypeUnits.INCH,
       (s: number): number => archetypeExtent(ball(s), "x").size,
     ),
     row(
       "ball pinch",
-      0.66 * 0.0254,
-      0.72 * 0.0254,
+      0.66 * ArchetypeUnits.INCH,
+      0.72 * ArchetypeUnits.INCH,
       (s: number): number => ball(s).affordance("body").aperture!,
     ),
     row(
@@ -89,15 +89,15 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "grenade body",
-      2.5 * 0.0254,
-      2.5 * 0.0254,
+      2.5 * ArchetypeUnits.INCH,
+      2.5 * ArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "grenade" }, s), "x").size,
     ),
     row(
       "grenade length",
-      3.53 * 0.0254,
-      3.53 * 0.0254,
+      3.53 * ArchetypeUnits.INCH,
+      3.53 * ArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "grenade" }, s), "y").size,
     ),
@@ -109,8 +109,8 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "shot diameter",
-      3.58 * 0.0254,
-      4.52 * 0.0254,
+      3.58 * ArchetypeUnits.INCH,
+      4.52 * ArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(createProjectile({ kind: "roundShot" }, s), "x").size,
     ),
@@ -142,7 +142,7 @@ export function test_archetype_weapon_projectile_bands(): void {
     [4.52, 12.3],
   ] as const) {
     const mass: number = createProjectile(
-      { kind: "roundShot", diameter: diameter * 0.0254 },
+      { kind: "roundShot", diameter: diameter * ArchetypeUnits.INCH },
       1,
     ).body.mass;
     if (Math.abs(mass / 0.4536 - pounds) > 0.1)

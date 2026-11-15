@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -71,7 +72,7 @@ export function createBicycle(
     -Math.sqrt(stay * stay - (radius - d.bottomBracket) ** 2),
   );
   const fore: IAutoMovieVector3 = v(0, radius, rear.z + d.wheelbase);
-  const angle: number = (d.seatAngle * Math.PI) / 180;
+  const angle: number = d.seatAngle * ArchetypeUnits.DEGREE;
   const saddle: IAutoMovieVector3 = v(
     0,
     d.bottomBracket + d.saddleHeight * Math.sin(angle),

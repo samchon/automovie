@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -107,8 +108,8 @@ export function createRowingMachine(
   const stretch: number = front - 0.35;
   const normal: IAutoMovieVector3 = v(
     0,
-    Math.sin((tilt * Math.PI) / 180),
-    -Math.cos((tilt * Math.PI) / 180),
+    Math.sin(tilt * ArchetypeUnits.DEGREE),
+    -Math.cos(tilt * ArchetypeUnits.DEGREE),
   );
   for (const [id, sign] of [
     ["leftFoot", 1],
@@ -116,8 +117,8 @@ export function createRowingMachine(
   ] as const) {
     const centre: IAutoMovieVector3 = v(
       (sign * plate.width) / 2 + sign * 0.02,
-      top + (plate.height / 2) * Math.cos((tilt * Math.PI) / 180),
-      stretch + (plate.height / 2) * Math.sin((tilt * Math.PI) / 180),
+      top + (plate.height / 2) * Math.cos(tilt * ArchetypeUnits.DEGREE),
+      stretch + (plate.height / 2) * Math.sin(tilt * ArchetypeUnits.DEGREE),
     );
     builder.box(`${id}Plate`, v(plate.width, plate.height, 0.02), centre, {
       color: "#55595f",
@@ -234,16 +235,16 @@ export namespace createRowingMachine {
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     seatHeight: ArchetypeBand.metres(
-      14 * 0.0254,
-      20 * 0.0254,
+      14 * ArchetypeUnits.INCH,
+      20 * ArchetypeUnits.INCH,
       `${CONCEPT2}: the seat 14 in (36 cm) from the floor on the standard legs and 20 in (51 cm) on the tall legs`,
     ),
     length: ArchetypeBand.metres(
-      96 * 0.0254,
-      96 * 0.0254,
+      96 * ArchetypeUnits.INCH,
+      96 * ArchetypeUnits.INCH,
       `${CONCEPT2}: 96 in long`,
     ),
-    width: ArchetypeBand.metres(24 * 0.0254, 24 * 0.0254, `${CONCEPT2}: 2 ft wide`),
+    width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, `${CONCEPT2}: 2 ft wide`),
     handleWidth: ArchetypeBand.metres(
       0.45,
       0.55,
@@ -252,8 +253,8 @@ export namespace createRowingMachine {
     ),
     mass: ArchetypeBand.of(
       "kg",
-      57 * 0.45359237,
-      68 * 0.45359237,
+      57 * ArchetypeUnits.POUND,
+      68 * ArchetypeUnits.POUND,
       `${CONCEPT2}: 57 lb on the standard legs, 68 lb on the tall legs`,
     ),
   };

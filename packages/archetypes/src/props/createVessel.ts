@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -296,8 +297,8 @@ export namespace createVessel {
       mass: ArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
     },
     stockpot: {
-      diameter: ArchetypeBand.metres(9 * 0.0254, 9 * 0.0254, POT),
-      height: ArchetypeBand.metres(6 * 0.0254, 6 * 0.0254, POT),
+      diameter: ArchetypeBand.metres(9 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, POT),
+      height: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, POT),
       mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {

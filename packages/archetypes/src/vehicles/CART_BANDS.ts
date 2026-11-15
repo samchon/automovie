@@ -1,5 +1,5 @@
 import { HORSE_BANDS } from "../animals/HORSE_BANDS";
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
 import type { createCart } from "./createCart";
 
 /** A shopping trolley, from its maker's page and a reseller's listing. */
@@ -9,9 +9,6 @@ const TROLLEY: string =
 /** A wheelbarrow read at its maker's data sheet. */
 const BARROW: string =
   "Matador M-130-L4 wheelbarrow data sheet (https://bati-avenue.com/media/akeneo_connector/media_files/1/0/10868_M_130_L4_EN_Data_sheet_final_1_f9d6.pdf)";
-
-/** A length in inches, in metres. */
-const inch = (value: number): number => value * 0.0254;
 
 /** Single-horse two-wheeled driving carts read at their makers' and museums' pages. */
 const INTRO: string =
@@ -108,18 +105,18 @@ export const CART_BANDS: Readonly<
   cart: {
     wheelDiameter: ArchetypeBand.metres(
       0.94,
-      inch(53),
+      53 * ArchetypeUnits.INCH,
       `${INTRO}; ${MULTI}; ${GIG}`,
     ),
-    track: ArchetypeBand.metres(1.37, inch(57), `${INTRO}; ${MULTI}`),
+    track: ArchetypeBand.metres(1.37, 57 * ArchetypeUnits.INCH, `${INTRO}; ${MULTI}`),
     shaftLength: ArchetypeBand.metres(
-      inch(89.5),
-      inch(93.5),
+      89.5 * ArchetypeUnits.INCH,
+      93.5 * ArchetypeUnits.INCH,
       `${MULTI}, how the seller measured not stated; read as IVC Carriage's harness measuring chart defines a shaft's length, tip to single tree in a straight line (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/IVC_Harness_Fitting_Diagram_Electronic.pdf)`,
     ),
     seatHeight: ArchetypeBand.metres(
-      inch(51),
-      inch(51),
+      51 * ArchetypeUnits.INCH,
+      51 * ArchetypeUnits.INCH,
       "a used Bennington two-wheeler's 51 in seat height, seen only in search results (the listing's page no longer answers)",
       true,
     ),
@@ -128,7 +125,7 @@ export const CART_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 110, 110, INTRO),
   },
   rickshaw: {
-    wheelDiameter: ArchetypeBand.metres(inch(42), 1.08, RICKSHAW),
+    wheelDiameter: ArchetypeBand.metres(42 * ArchetypeUnits.INCH, 1.08, RICKSHAW),
     width: ArchetypeBand.metres(0.9, 1.07, RICKSHAW),
     length: ArchetypeBand.metres(
       2.13,
@@ -159,83 +156,83 @@ export const CART_BANDS: Readonly<
   },
   limber: {
     wheelDiameter: ArchetypeBand.metres(
-      inch(57),
-      inch(57),
+      57 * ArchetypeUnits.INCH,
+      57 * ArchetypeUnits.INCH,
       `${LIMBER}: height of wheel 57 in, every field carriage's`,
     ),
-    track: ArchetypeBand.metres(inch(60), inch(60), `${LIMBER}: track 60 in`),
+    track: ArchetypeBand.metres(60 * ArchetypeUnits.INCH, 60 * ArchetypeUnits.INCH, `${LIMBER}: track 60 in`),
     length: ArchetypeBand.metres(
-      inch(52.85),
-      inch(52.85),
+      52.85 * ArchetypeUnits.INCH,
+      52.85 * ArchetypeUnits.INCH,
       `${LIMBER}: the limber's length without wheels or pole, 52.85 in`,
     ),
     poleLength: ArchetypeBand.metres(
-      inch(161.2 - 52.85),
-      inch(161.2 - 52.85),
+      (161.2 - 52.85) * ArchetypeUnits.INCH,
+      (161.2 - 52.85) * ArchetypeUnits.INCH,
       `${LIMBER}: the pole beyond the frame, the limber's 161.2 in without wheels less its 52.85 in without wheels or pole`,
     ),
     mass: ArchetypeBand.of(
       "kg",
-      860 * 0.45359237,
-      860 * 0.45359237,
+      860 * ArchetypeUnits.POUND,
+      860 * ArchetypeUnits.POUND,
       `${LIMBER}: the limber complete without implements, 860 lb`,
     ),
   },
   wagon: {
     frontWheelDiameter: ArchetypeBand.metres(
-      inch(46),
-      inch(46),
+      46 * ArchetypeUnits.INCH,
+      46 * ArchetypeUnits.INCH,
       `${WAGON}: front wheels 3 ft 10 in high`,
     ),
     wheelDiameter: ArchetypeBand.metres(
-      inch(58),
-      inch(58),
+      58 * ArchetypeUnits.INCH,
+      58 * ArchetypeUnits.INCH,
       `${WAGON}: hind wheels 4 ft 10 in high`,
     ),
     track: ArchetypeBand.metres(
-      inch(60),
-      inch(60),
+      60 * ArchetypeUnits.INCH,
+      60 * ArchetypeUnits.INCH,
       `${WAGON}: to track 5 ft from centre to centre of the wheels`,
     ),
     wheelbase: ArchetypeBand.metres(
-      inch(73),
-      inch(73),
+      73 * ArchetypeUnits.INCH,
+      73 * ArchetypeUnits.INCH,
       `${WAGON}: the centre of the king-bolt hole to the centre of the back axle-tree, 6 ft 1 in, the king-bolt standing over the front axle`,
     ),
     poleLength: ArchetypeBand.metres(
-      inch(128),
-      inch(128),
+      128 * ArchetypeUnits.INCH,
+      128 * ArchetypeUnits.INCH,
       `${WAGON}: the tongue, 10 ft 8 in long`,
     ),
     length: ArchetypeBand.metres(
-      inch(120),
-      inch(120),
+      120 * ArchetypeUnits.INCH,
+      120 * ArchetypeUnits.INCH,
       `${WAGON}: the body 10 ft long at the bottom, inside`,
     ),
     width: ArchetypeBand.metres(
-      inch(42),
-      inch(42),
+      42 * ArchetypeUnits.INCH,
+      42 * ArchetypeUnits.INCH,
       `${WAGON}: the body 3 ft 6 in wide, inside`,
     ),
     bedDepth: ArchetypeBand.metres(
-      inch(24),
-      inch(24),
+      24 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
       `${WAGON}: the body 2 ft deep, inside`,
     ),
     mass: ArchetypeBand.of(
       "kg",
-      1950 * 0.45359237,
-      1950 * 0.45359237,
+      1950 * ArchetypeUnits.POUND,
+      1950 * ArchetypeUnits.POUND,
       `${WAGON}: weight of wagon about 1,950 pounds`,
     ),
   },
   carriage: {
-    frontWheelDiameter: ArchetypeBand.metres(inch(36), inch(42), BROUGHAM),
-    wheelDiameter: ArchetypeBand.metres(inch(44), inch(50), BROUGHAM),
-    wheelbase: ArchetypeBand.metres(inch(91.5), inch(105), BROUGHAM),
-    length: ArchetypeBand.metres(inch(139), inch(153), BROUGHAM),
-    width: ArchetypeBand.metres(inch(65), inch(69), BROUGHAM),
-    height: ArchetypeBand.metres(inch(74), inch(79), BROUGHAM),
+    frontWheelDiameter: ArchetypeBand.metres(36 * ArchetypeUnits.INCH, 42 * ArchetypeUnits.INCH, BROUGHAM),
+    wheelDiameter: ArchetypeBand.metres(44 * ArchetypeUnits.INCH, 50 * ArchetypeUnits.INCH, BROUGHAM),
+    wheelbase: ArchetypeBand.metres(91.5 * ArchetypeUnits.INCH, 105 * ArchetypeUnits.INCH, BROUGHAM),
+    length: ArchetypeBand.metres(139 * ArchetypeUnits.INCH, 153 * ArchetypeUnits.INCH, BROUGHAM),
+    width: ArchetypeBand.metres(65 * ArchetypeUnits.INCH, 69 * ArchetypeUnits.INCH, BROUGHAM),
+    height: ArchetypeBand.metres(74 * ArchetypeUnits.INCH, 79 * ArchetypeUnits.INCH, BROUGHAM),
     mass: ArchetypeBand.of("kg", 400, 600, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

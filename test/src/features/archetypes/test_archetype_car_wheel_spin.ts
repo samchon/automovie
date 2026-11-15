@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type ArchetypeCourse,
   createCar,
   driveCar,
@@ -55,7 +56,7 @@ export function test_archetype_car_wheel_spin(): void {
         archetype.parts.find((p: IAutoMovieModelPart): boolean => p.id === "hub-rear-left")!.transform!.rotation,
         { x: 0, y: 1, z: 0 },
       );
-    const turned: number = (Math.atan2(hub(forward).z, hub(forward).y) * 180) / Math.PI;
+    const turned: number = Math.atan2(hub(forward).z, hub(forward).y) / ArchetypeUnits.DEGREE;
     if (Math.abs((((turned - expected(10)) % 360) + 540) % 360 - 180) > 1e-6)
       findings.push(`${kind}: the hub bar turned ${turned}, not ${expected(10)}`);
 

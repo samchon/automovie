@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type IArchetypeBand,
   createWheelchair,
   rideWheelchair,
@@ -100,7 +101,7 @@ export function test_archetype_wheelchair(): void {
     Vector3.subtract(archetype.site("leftRim", 0).translation, centre);
   const before: IAutoMovieVector3 = site(chair);
   const after: IAutoMovieVector3 = site(rolled);
-  const angle: number = (Math.atan2(after.z * before.y - after.y * before.z, after.y * before.y + after.z * before.z) * 180) / Math.PI;
+  const angle: number = Math.atan2(after.z * before.y - after.y * before.z, after.y * before.y + after.z * before.z) / ArchetypeUnits.DEGREE;
   if (Math.abs((((angle - expected) % 360) + 540) % 360 - 180) > 1e-6)
     findings.push(`the rim's site went round ${angle}, not ${expected}`);
   TestValidator.equals("a wheelchair is its maker's chair", findings, []);

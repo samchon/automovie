@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createCar } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeFrame, createCar } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
@@ -38,7 +38,7 @@ export function test_archetype_car_controls(): void {
         const h30: number = car.dimensions.seatHeight!;
         const z: number = h30 * 100;
         const angle: number =
-          ((78.96 - 0.15 * z - 0.0173 * z * z) * Math.PI) / 180;
+          (78.96 - 0.15 * z - 0.0173 * z * z) * ArchetypeUnits.DEGREE;
         const pedal: IAutoMovieTransform = car.affordance("accelerator").frame;
         const sole: IAutoMovieVector3 = ArchetypeFrame.axis(pedal, "y");
         if (!close(sole.y, Math.cos(angle)) || !close(sole.z, -Math.sin(angle)))

@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -302,17 +303,17 @@ export namespace createLight {
       mass: ArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),
     },
     fireTorch: {
-      length: ArchetypeBand.metres(16 * 0.0254, 24 * 0.0254, TORCH, true),
+      length: ArchetypeBand.metres(16 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, TORCH, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       headDiameter: ArchetypeBand.metres(0.065, 0.065, TORCH, true),
       mass: ArchetypeBand.of("kg", 0.205, 0.265, TORCH, true),
     },
     pendant: {
-      height: ArchetypeBand.metres(11 * 0.0254, 11 * 0.0254, PENDANT),
-      shade: ArchetypeBand.metres(15 * 0.0254, 15 * 0.0254, PENDANT),
+      height: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11 * ArchetypeUnits.INCH, PENDANT),
+      shade: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, PENDANT),
       cord: ArchetypeBand.metres(
-        (4 * 12 + 11) * 0.0254,
-        (4 * 12 + 11) * 0.0254,
+        (4 * 12 + 11) * ArchetypeUnits.INCH,
+        (4 * 12 + 11) * ArchetypeUnits.INCH,
         PENDANT,
       ),
       mass: ArchetypeBand.of("kg", 1.35, 1.37, PENDANT, true),

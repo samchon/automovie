@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createBow } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeFrame, createBow } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -36,7 +36,7 @@ export function test_archetype_weapon_bow_bands(): void {
     row(
       "length",
       1.67,
-      66 * 0.0254,
+      66 * ArchetypeUnits.INCH,
       (s: number): number => archetypeExtent(bow(s), "y", ["string"]).size,
     ),
     row(

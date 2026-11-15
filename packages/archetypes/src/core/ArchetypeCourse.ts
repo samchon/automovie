@@ -5,6 +5,7 @@ import { ArchetypeCourseLegs } from "./ArchetypeCourseLegs";
 import { ArchetypeCourseTimed } from "./ArchetypeCourseTimed";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * The path a moving support follows and how fast it goes along it: straight legs and circular turns with speeds, or a path timed by samples.
@@ -314,9 +315,8 @@ export namespace ArchetypeCourse {
    */
   export function lean(state: IState): number {
     const balance: number =
-      (Math.atan((state.speed * state.speed * state.curvature) / GRAVITY) *
-        180) /
-      Math.PI;
+      Math.atan((state.speed * state.speed * state.curvature) / GRAVITY) /
+      ArchetypeUnits.DEGREE;
     return state.reverse ? -balance : balance;
   }
 
@@ -371,7 +371,7 @@ export namespace ArchetypeCourse {
   ): void {
     const planned: IPlan =
       course.kind === "plan" ? course : plan(archetype, course);
-    const tangent: number = Math.tan((limit * Math.PI) / 180);
+    const tangent: number = Math.tan(limit * ArchetypeUnits.DEGREE);
     for (const bend of planned.bends) {
       const least: number = (bend.speed * bend.speed) / (GRAVITY * tangent);
       if (!(bend.radius < least)) continue;

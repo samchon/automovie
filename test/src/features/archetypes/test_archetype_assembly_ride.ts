@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type ArchetypeAssembly,
   type ArchetypeCourse,
   ArchetypeFrame,
@@ -98,7 +99,7 @@ export function test_archetype_assembly_ride(): void {
     placed(0),
     "bench2/seat",
   );
-  const radians: number = (seat.yaw * Math.PI) / 180;
+  const radians: number = seat.yaw * ArchetypeUnits.DEGREE;
   const performance: HumanPerformance = new HumanPerformance({
     seed: "carriage",
     laws: [HumanRide.ride],

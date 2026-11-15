@@ -1,11 +1,5 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
 import type { createBoat } from "./createBoat";
-
-/** A length in inches, in metres. */
-const inch = (value: number): number => value * 0.0254;
-
-/** A mass in pounds, in kilograms. */
-const pound = (value: number): number => value * 0.45359237;
 
 /** Fixed-seat rowboats read at their designers' pages. */
 const ROWBOAT: string =
@@ -37,34 +31,34 @@ export const BOAT_BANDS: Readonly<
   >
 > = {
   rowboat: {
-    length: ArchetypeBand.metres(inch(168), inch(203), ROWBOAT),
-    beam: ArchetypeBand.metres(inch(50), inch(54), ROWBOAT),
-    depth: ArchetypeBand.metres(inch(18), inch(22), ROWBOAT),
-    draft: ArchetypeBand.metres(inch(5), inch(7), `${DORY}; ${ROWBOAT}`),
+    length: ArchetypeBand.metres(168 * ArchetypeUnits.INCH, 203 * ArchetypeUnits.INCH, ROWBOAT),
+    beam: ArchetypeBand.metres(50 * ArchetypeUnits.INCH, 54 * ArchetypeUnits.INCH, ROWBOAT),
+    depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 22 * ArchetypeUnits.INCH, ROWBOAT),
+    draft: ArchetypeBand.metres(5 * ArchetypeUnits.INCH, 7 * ArchetypeUnits.INCH, `${DORY}; ${ROWBOAT}`),
     bladeLength: ArchetypeBand.metres(0.54, 0.6, OARS),
     bladeWidth: ArchetypeBand.metres(0.112, 0.115, OARS),
-    mass: ArchetypeBand.of("kg", pound(85), pound(350), ROWBOAT),
+    mass: ArchetypeBand.of("kg", 85 * ArchetypeUnits.POUND, 350 * ArchetypeUnits.POUND, ROWBOAT),
   },
   canoe: {
-    length: ArchetypeBand.metres(inch(192), inch(222), CANOE),
-    beam: ArchetypeBand.metres(inch(33.5), inch(37), CANOE),
-    depth: ArchetypeBand.metres(inch(13.5), inch(15), CANOE),
-    endHeight: ArchetypeBand.metres(inch(20.5), inch(23), CANOE),
+    length: ArchetypeBand.metres(192 * ArchetypeUnits.INCH, 222 * ArchetypeUnits.INCH, CANOE),
+    beam: ArchetypeBand.metres(33.5 * ArchetypeUnits.INCH, 37 * ArchetypeUnits.INCH, CANOE),
+    depth: ArchetypeBand.metres(13.5 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, CANOE),
+    endHeight: ArchetypeBand.metres(20.5 * ArchetypeUnits.INCH, 23 * ArchetypeUnits.INCH, CANOE),
     seatHeight: ArchetypeBand.metres(
-      inch(7),
-      inch(9),
+      7 * ArchetypeUnits.INCH,
+      9 * ArchetypeUnits.INCH,
       "Clipper Canoes, seats 7 to 9 in off the hull bottom (https://www.clippercanoes.com/pages/canoe-design)",
     ),
-    mass: ArchetypeBand.of("kg", pound(36.5), pound(91), CANOE),
+    mass: ArchetypeBand.of("kg", 36.5 * ArchetypeUnits.POUND, 91 * ArchetypeUnits.POUND, CANOE),
   },
   launch: {
-    length: ArchetypeBand.metres(inch(360), inch(360), LAUNCH),
-    beam: ArchetypeBand.metres(inch(105), inch(105), LAUNCH),
-    depth: ArchetypeBand.metres(inch(42), inch(42), LAUNCH),
+    length: ArchetypeBand.metres(360 * ArchetypeUnits.INCH, 360 * ArchetypeUnits.INCH, LAUNCH),
+    beam: ArchetypeBand.metres(105 * ArchetypeUnits.INCH, 105 * ArchetypeUnits.INCH, LAUNCH),
+    depth: ArchetypeBand.metres(42 * ArchetypeUnits.INCH, 42 * ArchetypeUnits.INCH, LAUNCH),
     mass: ArchetypeBand.of(
       "kg",
-      pound(38 * 112),
-      pound(38 * 112),
+      (38 * 112) * ArchetypeUnits.POUND,
+      (38 * 112) * ArchetypeUnits.POUND,
       `${LAUNCH}; a hundredweight is 112 lb`,
     ),
   },

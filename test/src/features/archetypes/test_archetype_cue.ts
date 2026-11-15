@@ -1,12 +1,9 @@
-import { createCue } from "@automovie/archetypes";
+import { ArchetypeUnits, createCue } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -32,12 +29,12 @@ export function test_archetype_cue(): void {
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
   const cue: ReturnType<typeof createCue> = createCue({}, 4);
-  near("the cue's length", archetypeExtent(cue, "x").size, 58 * INCH);
-  near("the butt", archetypeExtent(cue, "x", ["butt"]).size, 29 * INCH);
+  near("the cue's length", archetypeExtent(cue, "x").size, 58 * ArchetypeUnits.INCH);
+  near("the butt", archetypeExtent(cue, "x", ["butt"]).size, 29 * ArchetypeUnits.INCH);
   near(
     "the shaft",
     archetypeExtent(cue, "x", ["shaft-back", "shaft-front"]).size,
-    29 * INCH,
+    29 * ArchetypeUnits.INCH,
   );
   findings.push(
     ...archetypeBandSweep([
@@ -45,8 +42,8 @@ export function test_archetype_cue(): void {
         name: "cue butt",
         measure: (seed: number): number =>
           archetypeExtent(createCue({}, seed), "y", ["butt"]).size,
-        minimum: 1.205 * INCH,
-        maximum: 1.295 * INCH,
+        minimum: 1.205 * ArchetypeUnits.INCH,
+        maximum: 1.295 * ArchetypeUnits.INCH,
         source: "Viking skinny and average standard butts",
       },
       {
@@ -59,8 +56,8 @@ export function test_archetype_cue(): void {
       {
         name: "cue mass",
         measure: (seed: number): number => createCue({}, seed).body.mass,
-        minimum: 18 * 0.028349523125,
-        maximum: 21 * 0.028349523125,
+        minimum: 18 * ArchetypeUnits.OUNCE,
+        maximum: 21 * ArchetypeUnits.OUNCE,
         source: "Viking and McDermott",
       },
     ]),
@@ -71,13 +68,13 @@ export function test_archetype_cue(): void {
     archetypeExtent(cue, "y", ["butt"]).size,
   );
   const tip: IAutoMovieAffordance = cue.affordance("tip");
-  near("the tip's place", tip.frame.translation.x, 29 * INCH);
+  near("the tip's place", tip.frame.translation.x, 29 * ArchetypeUnits.INCH);
   for (const [id, x] of [
-    ["butt", -14.5 * INCH],
-    ["shaft", 14.5 * INCH],
+    ["butt", -14.5 * ArchetypeUnits.INCH],
+    ["shaft", 14.5 * ArchetypeUnits.INCH],
   ] as const) {
     near(`the ${id}'s middle`, cue.affordance(id).frame.translation.x, x);
-    near(`the ${id}'s length`, cue.affordance(id).length!, 29 * INCH);
+    near(`the ${id}'s length`, cue.affordance(id).length!, 29 * ArchetypeUnits.INCH);
   }
   TestValidator.equals("a pool cue is the makers' cue", findings, []);
 }

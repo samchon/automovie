@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   ArchetypeFrame,
   createBed,
   createSeat,
@@ -58,7 +59,7 @@ export function test_archetype_furniture_bands(): void {
 
   /** The angle of a frame's +Y from upright, degrees. */
   const tilt = (frame: Parameters<typeof ArchetypeFrame.axis>[0]): number =>
-    (Math.acos(Math.min(1, ArchetypeFrame.axis(frame, "y").y)) * 180) / Math.PI;
+    Math.acos(Math.min(1, ArchetypeFrame.axis(frame, "y").y)) / ArchetypeUnits.DEGREE;
   TestValidator.equals(
     "furniture stays in its cited bands",
     archetypeBandSweep([

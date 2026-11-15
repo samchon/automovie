@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   ArchetypeCourse,
   ArchetypeRefusal,
   ArchetypeRide,
@@ -117,7 +118,7 @@ export function test_archetype_ride_course_timed(): void {
       ArchetypeCourse.timed("motorcycle", circle(5, 12, 4, 0.05)),
     ),
   );
-  const allowed: number = Math.sqrt(9.80665 * 5 * Math.tan((50 * Math.PI) / 180));
+  const allowed: number = Math.sqrt(ArchetypeCourse.GRAVITY * 5 * Math.tan(50 * ArchetypeUnits.DEGREE));
   if (
     !(fast instanceof ArchetypeRefusal) ||
     !fast.axis.startsWith("samples[") ||

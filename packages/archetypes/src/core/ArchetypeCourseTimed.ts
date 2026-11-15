@@ -7,6 +7,7 @@ import type {
 import type { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * How a timed course is planned: a path through samples of points at film seconds, each coordinate a C1 cubic in time, so position, velocity, speed and heading are continuous and the path passes through every sample at its second.
@@ -214,7 +215,7 @@ export namespace ArchetypeCourseTimed {
           if (j < 0 || j > n - 2) continue;
           const d: IAutoMovieVector3 = Vector3.subtract(points[j + 1]!, points[j]!);
           if (Math.hypot(d.x, d.z) > 1e-9)
-            return (Math.atan2(d.x, d.z) * 180) / Math.PI;
+            return Math.atan2(d.x, d.z) / ArchetypeUnits.DEGREE;
         }
       return null;
     };
@@ -225,14 +226,14 @@ export namespace ArchetypeCourseTimed {
       const ground: number = Math.hypot(v.x, v.z);
       const moving: boolean = ground > 1e-9;
       const heading: number = moving
-        ? (Math.atan2(v.x, v.z) * 180) / Math.PI
+        ? Math.atan2(v.x, v.z) / ArchetypeUnits.DEGREE
         : (chordHeading(at.interval) ?? 0);
       const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
         heading,
       );
       const climb: number = moving
-        ? (Math.atan2(v.y, ground) * 180) / Math.PI
+        ? Math.atan2(v.y, ground) / ArchetypeUnits.DEGREE
         : 0;
       const distance: number = distanceAt(seconds);
       return {

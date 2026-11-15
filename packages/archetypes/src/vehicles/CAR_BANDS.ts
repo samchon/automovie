@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
 import type { createCar } from "./createCar";
 
 /** A band in degrees. */
@@ -9,9 +9,6 @@ const deg = (
   provisional?: boolean,
 ): IArchetypeBand =>
   ArchetypeBand.of("degrees", minimum, maximum, source, provisional);
-
-/** A length in inches, in metres. */
-const inch = (value: number): number => value * 0.0254;
 
 /** Two hatchbacks read at their maker's specification pages. */
 const HATCH: string =
@@ -209,14 +206,14 @@ export const CAR_BANDS: Readonly<
     ...SHARED,
     seatHeight: COMMERCIAL_SEAT,
     steeringRatio: CAR.steeringRatio,
-    length: ArchetypeBand.metres(inch(210.6), inch(210.6), PICKUP),
+    length: ArchetypeBand.metres(210.6 * ArchetypeUnits.INCH, 210.6 * ArchetypeUnits.INCH, PICKUP),
     width: ArchetypeBand.metres(
-      inch(75.5),
-      inch(75.5),
+      75.5 * ArchetypeUnits.INCH,
+      75.5 * ArchetypeUnits.INCH,
       `${PICKUP}: width excluding mirrors`,
     ),
-    height: ArchetypeBand.metres(inch(73.9), inch(74.4), PICKUP),
-    wheelbase: ArchetypeBand.metres(inch(128.7), inch(128.7), PICKUP),
+    height: ArchetypeBand.metres(73.9 * ArchetypeUnits.INCH, 74.4 * ArchetypeUnits.INCH, PICKUP),
+    wheelbase: ArchetypeBand.metres(128.7 * ArchetypeUnits.INCH, 128.7 * ArchetypeUnits.INCH, PICKUP),
     wheelDiameter: ArchetypeBand.metres(
       0.788,
       0.789,
@@ -224,29 +221,29 @@ export const CAR_BANDS: Readonly<
     ),
     mass: ArchetypeBand.of(
       "kg",
-      4203 * 0.45359237,
-      4415 * 0.45359237,
+      4203 * ArchetypeUnits.POUND,
+      4415 * ArchetypeUnits.POUND,
       `${PICKUP}: base curb weight, 4,203 to 4,415 lb`,
     ),
     bedLength: ArchetypeBand.metres(
-      inch(59.6),
-      inch(59.6),
+      59.6 * ArchetypeUnits.INCH,
+      59.6 * ArchetypeUnits.INCH,
       `${PICKUP}: cargo bed length at floor`,
     ),
     bedWidth: ArchetypeBand.metres(
-      inch(62.4),
-      inch(62.4),
+      62.4 * ArchetypeUnits.INCH,
+      62.4 * ArchetypeUnits.INCH,
       `${PICKUP}: maximum width inside the box`,
     ),
     bedDepth: ArchetypeBand.metres(
-      inch(20.8),
-      inch(20.9),
+      20.8 * ArchetypeUnits.INCH,
+      20.9 * ArchetypeUnits.INCH,
       "a 2024-2025 Ranger SuperCrew bed's inside height, 20.8 to 20.9 in, in dealers' and outfitters' guides (https://www.greghublerford.com/2024-ford-ranger-bed-size/, https://offroadtents.com/blogs/news/ford-ranger-bed-dimensions-guide-for-every-model), seen in search results only",
       true,
     ),
     bedFloor: ArchetypeBand.metres(
-      inch(34.0),
-      inch(34.7),
+      34.0 * ArchetypeUnits.INCH,
+      34.7 * ArchetypeUnits.INCH,
       `${PICKUP}: lift-in height`,
     ),
   },

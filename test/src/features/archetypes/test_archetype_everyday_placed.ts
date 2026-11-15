@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   createCareItem,
   createCleaning,
@@ -124,7 +125,7 @@ export function test_archetype_everyday_placed(): void {
       row(
         "razor length",
         0.129,
-        5.4 * 0.0254,
+        5.4 * ArchetypeUnits.INCH,
         "Mach3 razors, 129 mm and 5.4 in",
         (seed: number): number =>
           archetypeExtent(createCareItem({ kind: "razor" }, seed), "z").size,
@@ -155,8 +156,8 @@ export function test_archetype_everyday_placed(): void {
       ),
       row(
         "pram handle height",
-        41.3 * 0.0254,
-        41.3 * 0.0254,
+        41.3 * ArchetypeUnits.INCH,
+        41.3 * ArchetypeUnits.INCH,
         "Bugaboo Fox 5, 41.3 in open",
         (seed: number): number =>
           createPram({}, seed).affordance("handle").frame.translation.y,

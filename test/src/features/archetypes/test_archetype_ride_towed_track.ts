@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
@@ -61,7 +62,7 @@ export function test_archetype_ride_towed_track(): void {
   const towed: ArchetypeRide.IRide<"coupling", never> = ArchetypeRide.towed(leader, "hitch", trailer, "coupling");
   const headingOf = (frame: Parameters<typeof ArchetypeFrame.axis>[0]): number => {
     const z: IAutoMovieVector3 = ArchetypeFrame.axis(frame, "z");
-    return (Math.atan2(z.x, z.z) * 180) / Math.PI;
+    return Math.atan2(z.x, z.z) / ArchetypeUnits.DEGREE;
   };
   const turnStart: number = leader.plan.when(20);
   const turnEnd: number = leader.plan.when(20 + 5 * Math.PI);

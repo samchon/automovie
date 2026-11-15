@@ -1,4 +1,4 @@
-import { createHolster, createSword } from "@automovie/archetypes";
+import { ArchetypeUnits, createHolster, createSword } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -56,8 +56,8 @@ export function test_archetype_weapon_carriers_bands(): void {
     ),
     row(
       "quiver depth",
-      18 * 0.0254,
-      22.5 * 0.0254,
+      18 * ArchetypeUnits.INCH,
+      22.5 * ArchetypeUnits.INCH,
       "back quivers, 18 to 22.5 in",
       (seed: number): number =>
         createHolster({ kind: "quiver" }, seed).affordance("socket").frame

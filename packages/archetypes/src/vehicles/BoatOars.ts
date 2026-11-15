@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { createBoat } from "./createBoat";
 
 /**
@@ -20,7 +20,7 @@ export namespace BoatOars {
   export const AFT: number = 0.22;
 
   /** An oar's inboard length beyond half the span, metres: 2 in, Shaw and Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of the inboard (WoodenBoat, https://www.woodenboat.com/online-exclusives/choosing-proper-length-oars). */
-  export const INBOARD: number = 2 * 0.0254;
+  export const INBOARD: number = 2 * ArchetypeUnits.INCH;
 
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
@@ -29,7 +29,7 @@ export namespace BoatOars {
   export const LOOM: number = 0.044;
 
   /** The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf). */
-  export const HANDLE: number = 1.25 * 0.0254;
+  export const HANDLE: number = 1.25 * ArchetypeUnits.INCH;
 
   /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
   export const GRIP: number = 0.12;
@@ -97,7 +97,7 @@ export namespace BoatOars {
     const outboard: number = inboard * RATIO - inboard;
     const half: number = d.bladeWidth! / 2;
     const root: number = outboard - d.bladeLength!;
-    const degrees = (radians: number): number => (radians * 180) / Math.PI;
+    const degrees = (radians: number): number => radians / ArchetypeUnits.DEGREE;
 
     // At rest the blade's upper root corner meets the water; lifted, its lower tip corner stands at a height above it.
     const rest: number = degrees(
@@ -140,7 +140,7 @@ export namespace BoatOars {
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const g: IGeometry = geometry(d);
-    const rest: number = (g.rest * Math.PI) / 180;
+    const rest: number = g.rest * ArchetypeUnits.DEGREE;
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],

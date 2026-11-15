@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,9 +9,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** The surfboards read. */
 const LOST: string =
@@ -25,8 +23,8 @@ interface IModel {
 
 /** The smallest and largest boards read. */
 const MODELS: readonly [IModel, IModel] = [
-  { length: 70 * INCH, width: 18.75 * INCH, thickness: 2.36 * INCH },
-  { length: 74 * INCH, width: 19.5 * INCH, thickness: 2.5 * INCH },
+  { length: 70 * ArchetypeUnits.INCH, width: 18.75 * ArchetypeUnits.INCH, thickness: 2.36 * ArchetypeUnits.INCH },
+  { length: 74 * ArchetypeUnits.INCH, width: 19.5 * ArchetypeUnits.INCH, thickness: 2.5 * ArchetypeUnits.INCH },
 ];
 
 /**

@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -202,7 +203,7 @@ export namespace createCar {
     wheelbase: number,
     side: number,
   ): number {
-    const tangent: number = Math.tan((centre * Math.PI) / 180);
+    const tangent: number = Math.tan(centre * ArchetypeUnits.DEGREE);
     return (
       (Math.atan2(wheelbase * tangent, wheelbase - side * tangent) * 180) /
       Math.PI

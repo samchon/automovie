@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -176,9 +177,9 @@ export namespace createMagazine {
       ),
     },
     rifle: {
-      length: ArchetypeBand.metres(7.5 * 0.0254, 7.5 * 0.0254, PMAG),
-      width: ArchetypeBand.metres(0.87 * 0.0254, 0.87 * 0.0254, PMAG),
-      depth: ArchetypeBand.metres(2.6 * 0.0254, 2.6 * 0.0254, PMAG),
+      length: ArchetypeBand.metres(7.5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, PMAG),
+      width: ArchetypeBand.metres(0.87 * ArchetypeUnits.INCH, 0.87 * ArchetypeUnits.INCH, PMAG),
+      depth: ArchetypeBand.metres(2.6 * ArchetypeUnits.INCH, 2.6 * ArchetypeUnits.INCH, PMAG),
       mass: ArchetypeBand.of("kg", 5 * 0.02835, 0.146, PMAG),
     },
   };

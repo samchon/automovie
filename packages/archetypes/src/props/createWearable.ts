@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -248,16 +249,16 @@ export namespace createWearable {
     },
     hat: {
       width: ArchetypeBand.metres(
-        (20.25 * 0.0254) / Math.PI + 2 * 2 * 0.0254,
-        (22.25 * 0.0254) / Math.PI + 2 * 4.125 * 0.0254,
+        (20.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 2 * ArchetypeUnits.INCH,
+        (22.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 4.125 * ArchetypeUnits.INCH,
         `${STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
       depth: ArchetypeBand.metres(
-        (20.25 * 0.0254) / Math.PI,
-        (22.25 * 0.0254) / Math.PI,
+        (20.25 * ArchetypeUnits.INCH) / Math.PI,
+        (22.25 * ArchetypeUnits.INCH) / Math.PI,
         `${STETSON}: the head's round as a circle's across`,
       ),
-      height: ArchetypeBand.metres(3.75 * 0.0254, 4.5 * 0.0254, STETSON),
+      height: ArchetypeBand.metres(3.75 * ArchetypeUnits.INCH, 4.5 * ArchetypeUnits.INCH, STETSON),
       mass: ArchetypeBand.of("kg", 0.08, 0.2, `the hat's weight: ${UNREAD}`, true),
     },
     spectacles: {

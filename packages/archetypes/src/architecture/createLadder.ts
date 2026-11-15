@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -16,7 +17,7 @@ const OSHA: string =
   "29 CFR 1910.23 (https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.23)";
 
 /** The pitch of a ladder whose foot stands a quarter of its length from the wall, degrees: the arccosine of one quarter. */
-const QUARTER: number = (Math.acos(0.25) * 180) / Math.PI;
+const QUARTER: number = Math.acos(0.25) / ArchetypeUnits.DEGREE;
 
 /** A rung's diameter, which the regulation does not give. */
 const RUNG: string =
@@ -84,7 +85,7 @@ export function createLadder(
   });
 
   // The ladder's own line: up, tilted back toward the wall at -Z by the pitch from the floor.
-  const pitch: number = (d.pitch * Math.PI) / 180;
+  const pitch: number = d.pitch * ArchetypeUnits.DEGREE;
   const along: IAutoMovieVector3 = Vector3.create(
     0,
     Math.sin(pitch),

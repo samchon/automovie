@@ -12,6 +12,7 @@ import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
@@ -257,7 +258,7 @@ export namespace ArchetypeRide {
         const x: readonly number[] = heading.at(
           Math.min(heading.t0 + k * heading.h, heading.t1),
         ).x;
-        most = Math.max(most, Math.abs(((x[0]! - x[1]!) * 180) / Math.PI));
+        most = Math.max(most, Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE));
       }
       if (most > lock)
         throw new ArchetypeRefusal({
@@ -282,7 +283,7 @@ export namespace ArchetypeRide {
       const turn = (radians: number): IAutoMovieTransform["rotation"] =>
         Quaternion.fromAxisAngle(
           { x: 0, y: 1, z: 0 },
-          (radians * 180) / Math.PI,
+          radians / ArchetypeUnits.DEGREE,
         );
       const point: IAutoMovieVector3 = hitchAt(seconds);
       const posed: Archetype<Id, Dimension> =
@@ -320,7 +321,7 @@ export namespace ArchetypeRide {
         scale: { ...ArchetypeFrame.UNIT },
       };
       const steer: Partial<Record<Id, number>> = {};
-      steer[options.front.turn] = ((theta - phi) * 180) / Math.PI;
+      steer[options.front.turn] = (theta - phi) / ArchetypeUnits.DEGREE;
       return {
         archetype: posed.articulate({ ...posed.state, ...steer }),
         placement,

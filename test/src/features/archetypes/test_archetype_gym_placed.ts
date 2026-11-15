@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   createExerciseBike,
   createExerciseMat,
   createJumpRope,
@@ -58,8 +59,8 @@ export function test_archetype_gym_placed(): void {
     ...archetypeBandSweep([
       row(
         "rowing seat height",
-        14 * 0.0254,
-        20 * 0.0254,
+        14 * ArchetypeUnits.INCH,
+        20 * ArchetypeUnits.INCH,
         "Concept2, 14 and 20 in seats",
         (seed: number): number =>
           archetypeExtent(createRowingMachine({}, seed), "y", ["seat"]).high,
@@ -84,16 +85,16 @@ export function test_archetype_gym_placed(): void {
       ),
       row(
         "skipping rope length",
-        120 * 0.0254,
-        132 * 0.0254,
+        120 * ArchetypeUnits.INCH,
+        132 * ArchetypeUnits.INCH,
         "Rogue SR-1, 120 in to 11 ft cables",
         (seed: number): number =>
           archetypeExtent(createJumpRope({}, seed), "x", ["cord"]).size,
       ),
       row(
         "sled handle height",
-        37.25 * 0.0254,
-        37.5 * 0.0254,
+        37.25 * ArchetypeUnits.INCH,
+        37.5 * ArchetypeUnits.INCH,
         "Rogue's sleds, 37.25 and 37.5 in",
         (seed: number): number =>
           archetypeExtent(createSled({}, seed), "y", ["leftPole"]).high,

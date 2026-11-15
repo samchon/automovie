@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -280,7 +281,7 @@ function jersey(builder: Builder, d: Drawn): void {
   const upper: number = d.height! - curb - lower;
   const top: number = d.top!;
   const middle: number =
-    base - (2 * lower) / Math.tan((createObstacle.LOWER_FACE * Math.PI) / 180);
+    base - (2 * lower) / Math.tan(createObstacle.LOWER_FACE * ArchetypeUnits.DEGREE);
   const centre: number = base / 2;
   builder.box("curb", v(length, curb, base), v(0, curb / 2, centre), {
     color: "#b5b2aa",

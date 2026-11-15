@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -256,7 +257,7 @@ export namespace createLongTool {
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, 0.0254, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres(0.0238, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     mop: {
@@ -266,7 +267,7 @@ export namespace createLongTool {
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, 0.0254, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres(0.0238, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     shovel: {

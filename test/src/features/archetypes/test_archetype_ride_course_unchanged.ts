@@ -1,4 +1,4 @@
-import { ArchetypeCourse } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeCourse } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -208,7 +208,7 @@ function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
     const span: number =
       leg.kind === "straight"
         ? leg.length
-        : (leg.radius * Math.abs(leg.angle) * Math.PI) / 180;
+        : leg.radius * Math.abs(leg.angle) * ArchetypeUnits.DEGREE;
     const row: IRow = { leg, from: length, span, x, z, heading };
     rows.push(row);
     const end: { x: number; z: number; heading: number } = advance(row, span);
@@ -300,7 +300,7 @@ function advance(
   row: IRow,
   distance: number,
 ): { x: number; z: number; heading: number } {
-  const h: number = (row.heading * Math.PI) / 180;
+  const h: number = row.heading * ArchetypeUnits.DEGREE;
   if (row.leg.kind === "straight")
     return {
       x: row.x + distance * Math.sin(h),
@@ -314,6 +314,6 @@ function advance(
   return {
     x: cx - side * row.leg.radius * Math.cos(h + swept),
     z: cz + side * row.leg.radius * Math.sin(h + swept),
-    heading: row.heading + (swept * 180) / Math.PI,
+    heading: row.heading + swept / ArchetypeUnits.DEGREE,
   };
 }

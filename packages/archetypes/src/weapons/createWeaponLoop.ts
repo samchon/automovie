@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -149,7 +150,7 @@ export namespace createWeaponLoop {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     belt: {
-      aperture: ArchetypeBand.metres(0.035, 1.5 * 0.0254, RINGS),
+      aperture: ArchetypeBand.metres(0.035, 1.5 * ArchetypeUnits.INCH, RINGS),
       length: ArchetypeBand.metres(
         0.025,
         0.04,

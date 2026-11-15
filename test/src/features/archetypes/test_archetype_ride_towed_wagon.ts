@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
@@ -14,9 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-/** One inch, metres. */
-const INCH: number = 0.0254;
 
 /**
  * A wagon and a carriage stand on their sources' running gear, and towed through a turn their front axle turns with the pole while the rear axle tracks inside it.
@@ -49,26 +47,26 @@ export function test_archetype_ride_towed_wagon(): void {
   // The wagon's running gear and body.
   const pivot: IAutoMovieVector3 = at(wagon, "frontAxle");
   if (
-    !close(at(wagon, "rearLeftSpin").y, 29 * INCH) ||
-    !close(at(wagon, "frontLeftSpin").y, 23 * INCH)
+    !close(at(wagon, "rearLeftSpin").y, 29 * ArchetypeUnits.INCH) ||
+    !close(at(wagon, "frontLeftSpin").y, 23 * ArchetypeUnits.INCH)
   )
     findings.push("the wagon's wheels are not the specification's");
   if (
     !close(
       at(wagon, "rearLeftSpin").x - at(wagon, "rearRightSpin").x,
-      60 * INCH,
+      60 * ArchetypeUnits.INCH,
     )
   )
     findings.push("the wagon's track is not 5 ft");
-  if (!close(pivot.z, 73 * INCH))
+  if (!close(pivot.z, 73 * ArchetypeUnits.INCH))
     findings.push(
-      `the wagon's pivot is ${pivot.z / INCH} in ahead of the hind axle`,
+      `the wagon's pivot is ${pivot.z / ArchetypeUnits.INCH} in ahead of the hind axle`,
     );
   const tip: IAutoMovieVector3 = at(wagon, "coupling");
-  if (!close(tip.y, 24 * INCH) || !close(gap(tip, pivot), 128 * INCH))
+  if (!close(tip.y, 24 * ArchetypeUnits.INCH) || !close(gap(tip, pivot), 128 * ArchetypeUnits.INCH))
     findings.push("the wagon's tongue is not 10 ft 8 in hanging to 2 ft");
   const bed: IAutoMovieAffordance = wagon.affordance("bed");
-  if (!close(bed.depth!, 120 * INCH) || !close(bed.width!, 42 * INCH))
+  if (!close(bed.depth!, 120 * ArchetypeUnits.INCH) || !close(bed.width!, 42 * ArchetypeUnits.INCH))
     findings.push("the wagon's bed is not the body's inside");
 
   // The carriage.

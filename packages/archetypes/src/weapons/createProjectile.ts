@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -205,7 +206,7 @@ export namespace createProjectile {
 
   /** The 6-pdr. shot a round shot's mass scales from: 3.58 in and 6.1 lb, Roberts (1863). */
   export const SHOT: Readonly<{ diameter: number; mass: number }> = {
-    diameter: 3.58 * 0.0254,
+    diameter: 3.58 * ArchetypeUnits.INCH,
     mass: 6.1 * 0.4536,
   };
 
@@ -243,7 +244,7 @@ export namespace createProjectile {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     ball: {
-      diameter: ArchetypeBand.metres(0.66 * 0.0254, 0.72 * 0.0254, BALL, true),
+      diameter: ArchetypeBand.metres(0.66 * ArchetypeUnits.INCH, 0.72 * ArchetypeUnits.INCH, BALL, true),
       mass: ArchetypeBand.of(
         "kg",
         0.4536 / 14,
@@ -264,11 +265,11 @@ export namespace createProjectile {
       mass: ArchetypeBand.of("kg", 0.074, 0.074, BOLT),
     },
     roundShot: {
-      diameter: ArchetypeBand.metres(3.58 * 0.0254, 4.52 * 0.0254, SHOT_TABLE),
+      diameter: ArchetypeBand.metres(3.58 * ArchetypeUnits.INCH, 4.52 * ArchetypeUnits.INCH, SHOT_TABLE),
     },
     grenade: {
-      diameter: ArchetypeBand.metres(2.5 * 0.0254, 2.5 * 0.0254, M67),
-      length: ArchetypeBand.metres(3.53 * 0.0254, 3.53 * 0.0254, M67),
+      diameter: ArchetypeBand.metres(2.5 * ArchetypeUnits.INCH, 2.5 * ArchetypeUnits.INCH, M67),
+      length: ArchetypeBand.metres(3.53 * ArchetypeUnits.INCH, 3.53 * ArchetypeUnits.INCH, M67),
       mass: ArchetypeBand.of("kg", 14 * 0.02835, 14 * 0.02835, M67),
     },
   };

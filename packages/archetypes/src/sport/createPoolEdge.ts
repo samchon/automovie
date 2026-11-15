@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -113,7 +114,7 @@ export function createPoolEdge(
   // The platform: a pedestal set back from the wall's line, the top slab over it sloping down toward the water, its front on the wall's line. The pedestal's level top meets the slab's underside at its own middle, so the slab neither floats over it nor is pierced by it: the slope moves the underside by less than the slab's thickness across the pedestal.
   const size: number = d.platformSize!;
   const top: number = water + d.platformHeight!;
-  const slope: number = (d.slope! * Math.PI) / 180;
+  const slope: number = d.slope! * ArchetypeUnits.DEGREE;
   const pedestal: number =
     top + (Math.tan(slope) * E.recess) / 2 - E.slab / Math.cos(slope);
   builder.box(

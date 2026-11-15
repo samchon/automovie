@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -9,15 +10,12 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** Metres in an inch. */
-const INCH: number = 0.0254;
-
 /** The pool table read. */
 const WPA: string =
   "WPA Recommended Equipment Specifications: a 9 ft table's playing surface 100 (+1/8) x 50 (+1/8) in (5); the bed 29 1/4 to 31 in above the floor (2); the cushion's nose 62 1/2 to 64 1/2% of the ball's diameter above the bed (7); rails 4 to 7 1/2 in wide with the cushions (6); balls 2 1/4 in across (16) (https://wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf)";
 
 /** The ball's diameter, metres: WPA 16, 2 1/4 in. */
-const BALL: number = 2.25 * INCH;
+const BALL: number = 2.25 * ArchetypeUnits.INCH;
 
 /**
  * A 9 ft pool table: its bed, the cushions' nose line round it and the rails outside.
@@ -146,11 +144,11 @@ export namespace createCueTable {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(50 * INCH, 50.125 * INCH, WPA),
-    length: ArchetypeBand.metres(100 * INCH, 100.125 * INCH, WPA),
-    height: ArchetypeBand.metres(29.25 * INCH, 31 * INCH, WPA),
+    width: ArchetypeBand.metres(50 * ArchetypeUnits.INCH, 50.125 * ArchetypeUnits.INCH, WPA),
+    length: ArchetypeBand.metres(100 * ArchetypeUnits.INCH, 100.125 * ArchetypeUnits.INCH, WPA),
+    height: ArchetypeBand.metres(29.25 * ArchetypeUnits.INCH, 31 * ArchetypeUnits.INCH, WPA),
     nose: ArchetypeBand.of("", 0.625, 0.645, WPA),
-    rail: ArchetypeBand.metres(4 * INCH, 7.5 * INCH, WPA),
+    rail: ArchetypeBand.metres(4 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, WPA),
     mass: ArchetypeBand.of("kg", 300, 450, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

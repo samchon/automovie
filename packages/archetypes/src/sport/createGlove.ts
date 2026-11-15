@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,9 +9,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /**
  * A baseball glove: a fielder's glove or a catcher's mitt.
@@ -145,13 +143,13 @@ export namespace createGlove {
   > = {
     fielder: {
       length: m(
-        13 * INCH,
-        13 * INCH,
+        13 * ArchetypeUnits.INCH,
+        13 * ArchetypeUnits.INCH,
         `${OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
       ),
       width: m(
-        7.75 * INCH,
-        7.75 * INCH,
+        7.75 * ArchetypeUnits.INCH,
+        7.75 * ArchetypeUnits.INCH,
         `${OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
       ),
       mass: ArchetypeBand.of(
@@ -164,13 +162,13 @@ export namespace createGlove {
     },
     catcher: {
       length: m(
-        15.5 * INCH,
-        15.5 * INCH,
+        15.5 * ArchetypeUnits.INCH,
+        15.5 * ArchetypeUnits.INCH,
         `${OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
       width: m(
-        2 * ((38 * INCH) / Math.PI - (15.5 * INCH) / 2),
-        2 * ((38 * INCH) / Math.PI - (15.5 * INCH) / 2),
+        2 * ((38 * ArchetypeUnits.INCH) / Math.PI - (15.5 * ArchetypeUnits.INCH) / 2),
+        2 * ((38 * ArchetypeUnits.INCH) / Math.PI - (15.5 * ArchetypeUnits.INCH) / 2),
         `${OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
       ),
       mass: ArchetypeBand.of(

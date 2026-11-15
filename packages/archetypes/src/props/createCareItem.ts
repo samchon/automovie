@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -416,7 +417,7 @@ export namespace createCareItem {
       mass: kg(0.02, 0.3),
     },
     razor: {
-      length: ArchetypeBand.metres(0.129, 5.4 * 0.0254, RAZOR),
+      length: ArchetypeBand.metres(0.129, 5.4 * ArchetypeUnits.INCH, RAZOR),
       width: ArchetypeBand.metres(
         0.012,
         0.016,

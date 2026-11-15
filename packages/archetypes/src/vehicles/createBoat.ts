@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -236,19 +237,19 @@ export namespace createBoat {
   export const DRAFT: Readonly<Record<Kind, number>> = {
     rowboat: 0.15,
     canoe: 0.1,
-    launch: 18 * 0.0254,
+    launch: 18 * ArchetypeUnits.INCH,
   };
 
   /** A rowboat's places no source read gives, each provisional: the forward thwart's distance ahead of the rowing thwart, taken as the 32 in a single-banked Navy boat's thwarts stand apart (USNI Proceedings, June 1890), and the stern seat's front edge ahead of the transom. The oarlocks stand amidships. The source to read is a rowboat's plan sheet. */
   export const ROWBOAT: Readonly<{ forward: number; stern: number }> = {
-    forward: 32 * 0.0254,
+    forward: 32 * ArchetypeUnits.INCH,
     stern: 0.6,
   };
 
   /** A canoe's seats' front edges from its middle, metres, each provisional: the bow seat's 40 in ahead and the stern seat's 50 in astern, the middle of 48 to 52 in, as a builder quotes a 16 ft Chestnut Prospector's plans (https://forums.wcha.org/threads/chestnut-prospector-stripper-seats.2027); the source to read is the plans. */
   export const CANOE: Readonly<{ bow: number; stern: number }> = {
-    bow: 40 * 0.0254,
-    stern: 50 * 0.0254,
+    bow: 40 * ArchetypeUnits.INCH,
+    stern: 50 * ArchetypeUnits.INCH,
   };
 
   /** The launch's thwarts: five, 28 in apart and 7 in below the gunwale, the Peake boat's (USNI Proceedings, June 1890). */
@@ -258,8 +259,8 @@ export namespace createBoat {
     below: number;
   }> = {
     thwarts: 5,
-    room: 28 * 0.0254,
-    below: 7 * 0.0254,
+    room: 28 * ArchetypeUnits.INCH,
+    below: 7 * ArchetypeUnits.INCH,
   };
 
   /**
@@ -355,7 +356,7 @@ function panel(
 ): void {
   const run: number = Math.hypot(to.x - from.x, to.z - from.z);
   const yaw: number =
-    (Math.atan2(to.x - from.x, to.z - from.z) * 180) / Math.PI;
+    Math.atan2(to.x - from.x, to.z - from.z) / ArchetypeUnits.DEGREE;
   builder.box(
     id,
     Vector3.create(0.025, gunwale - bottom, run),

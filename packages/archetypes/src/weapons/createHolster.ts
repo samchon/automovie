@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -360,8 +361,8 @@ export namespace createHolster {
       mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
     },
     quiver: {
-      length: ArchetypeBand.metres(18 * 0.0254, 22.5 * 0.0254, QUIVER, true),
-      diameter: ArchetypeBand.metres(3.5 * 0.0254, 3.5 * 0.0254, QUIVER, true),
+      length: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, QUIVER, true),
+      diameter: ArchetypeBand.metres(3.5 * ArchetypeUnits.INCH, 3.5 * ArchetypeUnits.INCH, QUIVER, true),
       mass: ArchetypeBand.of("kg", 0.62, 0.68, QUIVER, true),
     },
   };

@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -89,7 +90,7 @@ export function createKeyboard(
   if (kind === "laptop") {
     const tilt: number = createKeyboard.LID;
     const thick: number = createKeyboard.LID_THICKNESS;
-    const rad: number = (tilt * Math.PI) / 180;
+    const rad: number = tilt * ArchetypeUnits.DEGREE;
     // The lid's bottom edge on the base's back edge, turned up from the base's forward line by the tilt, so its top leans back.
     const up: IAutoMovieVector3 = v(0, Math.sin(rad), Math.cos(rad));
     const out: IAutoMovieVector3 = v(0, -Math.cos(rad), Math.sin(rad));

@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createPoolEdge } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeFrame, createPoolEdge } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -41,7 +41,7 @@ export function test_archetype_pool_edge(): void {
       edge.affordance("platform").frame,
       "y",
     );
-    return (Math.atan2(normal.z, normal.y) * 180) / Math.PI;
+    return Math.atan2(normal.z, normal.y) / ArchetypeUnits.DEGREE;
   };
   const row = (
     name: string,
@@ -104,7 +104,7 @@ export function test_archetype_pool_edge(): void {
       !(tilt(edge) > 0 && front.y < edge.affordance("platform").frame.translation.y)
     )
       findings.push(`seed ${seed}: the top does not fall toward the water`);
-    if (Math.abs(front.z) > 0.5 * (1 - Math.cos((10 * Math.PI) / 180)) + 1e-9)
+    if (Math.abs(front.z) > 0.5 * (1 - Math.cos(10 * ArchetypeUnits.DEGREE)) + 1e-9)
       findings.push(`seed ${seed}: the front edge stands ${front.z} m off the wall's line`);
     const grip: number = above(edge, "backstrokeGrip");
     const bar: { low: number; high: number } = archetypeExtent(edge, "y", [

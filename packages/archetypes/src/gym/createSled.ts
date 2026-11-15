@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -142,11 +143,11 @@ export namespace createSled {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(37.25 * 0.0254, 37.5 * 0.0254, ROGUE),
+    height: ArchetypeBand.metres(37.25 * ArchetypeUnits.INCH, 37.5 * ArchetypeUnits.INCH, ROGUE),
     // Inside the narrowest base less a pole, so both poles stand on it.
     spacing: ArchetypeBand.metres(0.45, 0.53, UNREAD, true),
-    length: ArchetypeBand.metres(27.5 * 0.0254, 36.5 * 0.0254, ROGUE),
-    width: ArchetypeBand.metres(22.75 * 0.0254, 25 * 0.0254, ROGUE),
-    mass: ArchetypeBand.of("kg", 65 * 0.45359237, 87 * 0.45359237, ROGUE),
+    length: ArchetypeBand.metres(27.5 * ArchetypeUnits.INCH, 36.5 * ArchetypeUnits.INCH, ROGUE),
+    width: ArchetypeBand.metres(22.75 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, ROGUE),
+    mass: ArchetypeBand.of("kg", 65 * ArchetypeUnits.POUND, 87 * ArchetypeUnits.POUND, ROGUE),
   };
 }

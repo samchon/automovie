@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -67,7 +68,7 @@ export function createStartingBlock(
   builder.box("rail", v(rail, rail / 2, length), v(0, rail / 4, -length / 2), {
     color: "#8a8d91",
   });
-  const tilt: number = (d.angle * Math.PI) / 180;
+  const tilt: number = d.angle * ArchetypeUnits.DEGREE;
   // Turned about -X, the plate's top leans back toward -Z and its face
   // (+Z) looks forward and up.
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

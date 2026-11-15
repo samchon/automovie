@@ -1,13 +1,11 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeFrame,
   createBoat,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-/** One inch, metres. */
-const INCH: number = 0.0254;
 
 /**
  * Each boat stays inside its bands and seats its people where its sources put them.
@@ -92,7 +90,7 @@ export function test_archetype_boat_bands(): void {
     ["thwart0", "thwart1", "thwart2", "thwart3", "thwart4"] as const
   ).map((id: createBoat.Affordance): number => {
     if (
-      !close(at(launch, id).y, gunwale - 7 * INCH) ||
+      !close(at(launch, id).y, gunwale - 7 * ArchetypeUnits.INCH) ||
       facing(launch, id) !== -1
     )
       findings.push(
@@ -101,7 +99,7 @@ export function test_archetype_boat_bands(): void {
     return at(launch, id).z;
   });
   for (let k: number = 1; k < seats.length; k++)
-    if (!close(seats[k]! - seats[k - 1]!, 28 * INCH))
+    if (!close(seats[k]! - seats[k - 1]!, 28 * ArchetypeUnits.INCH))
       findings.push(`launch: thwarts ${k - 1} and ${k} are not 28 in apart`);
   TestValidator.equals("the boats stand inside their bands", findings, []);
 }

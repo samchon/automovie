@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   createBall,
   createDiscus,
   createGlove,
@@ -182,8 +183,8 @@ export function test_archetype_sport_placed(): void {
       ),
       row(
         "driver length",
-        45.5 * 0.0254,
-        46 * 0.0254,
+        45.5 * ArchetypeUnits.INCH,
+        46 * ArchetypeUnits.INCH,
         "PING G440 MAX, 45 1/2 and 46 in",
         tall((seed: number): archetypePlaced.IRow["archetype"] =>
           createGolfClub({ kind: "driver" }, seed),

@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { createCar } from "./createCar";
 
 /**
@@ -121,7 +121,7 @@ export namespace CarBody {
 
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
     const pedal: number = createCar.pedalPlane(d.seatHeight!);
-    const slope: number = (pedal * Math.PI) / 180;
+    const slope: number = pedal * ArchetypeUnits.DEGREE;
     const ball: IAutoMovieVector3 = Vector3.create(
       sx,
       floor + createCar.BALL * Math.sin(slope),

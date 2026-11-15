@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -143,10 +144,10 @@ export namespace createCart {
   export const RICKSHAW_SHAFTS: number = 0.55;
 
   /** A rickshaw seat's width, metres: 21 in, the Hong Kong public rickshaw rules of 1882 (The China Mail, quoted at https://industrialhistoryhk.org/hong-kong-rickshaw-design/). */
-  export const RICKSHAW_SEAT_WIDTH: number = 21 * 0.0254;
+  export const RICKSHAW_SEAT_WIDTH: number = 21 * ArchetypeUnits.INCH;
 
   /** A rickshaw's footboard ahead of its seat, metres: 23 in from the seat to the front of the footboard, the same rules, taken along the rickshaw. */
-  export const RICKSHAW_FOOTBOARD: number = 23 * 0.0254;
+  export const RICKSHAW_FOOTBOARD: number = 23 * ArchetypeUnits.INCH;
 
   /** A limber's frame, read and derived from The Ordnance Manual (1861), p. 74 and p. 77 (https://archive.org/details/cu31924031187887/page/74). */
   export const LIMBER: Readonly<{
@@ -162,10 +163,10 @@ export namespace createCart {
     /** The pintle hook above the ground, metres, a provisional value: taken at the axle's height, not read. The source to read is the Ordnance Manual's limber plate or the Instruction for Field Artillery (1864). */
     pintle: number;
   }> = {
-    rear: (28.5 - 11.88) * 0.0254,
-    chest: { length: 40 * 0.0254, width: 18 * 0.0254, depth: 14.75 * 0.0254 },
+    rear: (28.5 - 11.88) * ArchetypeUnits.INCH,
+    chest: { length: 40 * ArchetypeUnits.INCH, width: 18 * ArchetypeUnits.INCH, depth: 14.75 * ArchetypeUnits.INCH },
     board: 0.025,
-    pintle: 28.5 * 0.0254,
+    pintle: 28.5 * ArchetypeUnits.INCH,
   };
 
   /** A wagon's places beyond its bands, from the Army's specification (https://archive.org/details/specificationsf02deptgoog/page/n13) where read. */
@@ -178,7 +179,7 @@ export namespace createCart {
 
     /** The front axle's lock to either side, degrees, a provisional value: not read. The four-horse wagon's specification gives iron plates for the front wheels to strike in turning (pp. 9-16) but no angle; the source to read is a drawing of the running gear. */
     lock: number;
-  }> = { drop: 24 * 0.0254, bed: 0.15, lock: 35 };
+  }> = { drop: 24 * ArchetypeUnits.INCH, bed: 0.15, lock: 35 };
 
   /** A carriage's places no museum record read gives, each a provisional value: the source to read is a carriage builder's draft of a brougham (The Hub, the Carriage Journal's drafts) or a museum record with these measurements. */
   export const CARRIAGE: Readonly<{

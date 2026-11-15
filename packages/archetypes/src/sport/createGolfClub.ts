@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,9 +9,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /**
  * A golf club: a driver, an iron or a putter.
@@ -144,7 +142,7 @@ export namespace createGolfClub {
   export const SHAFT: number = 0.013;
 
   /** The grip's length, metres: a common 10.5 in grip, an estimate. */
-  export const GRIP_LENGTH: number = 10.5 * INCH;
+  export const GRIP_LENGTH: number = 10.5 * ArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -220,13 +218,13 @@ export namespace createGolfClub {
   > = {
     driver: {
       length: m(
-        45.5 * INCH,
-        46 * INCH,
+        45.5 * ArchetypeUnits.INCH,
+        46 * ArchetypeUnits.INCH,
         "PING G440 MAX driver, standard 45 1/2 and 46 in by shaft (https://ping.com/clubs/drivers/g440-max), inside the R&A rule 2.1c's 48 in",
       ),
       headWidth: m(
         0.11,
-        5 * INCH,
+        5 * ArchetypeUnits.INCH,
         `${RANDA}, 2.4b(i): a wood's head at most 5 in from heel to toe; the narrower end ${UNREAD}`,
         true,
       ),
@@ -245,7 +243,7 @@ export namespace createGolfClub {
       ),
     },
     iron: {
-      length: m(37 * INCH, 37 * INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
+      length: m(37 * ArchetypeUnits.INCH, 37 * ArchetypeUnits.INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
       headWidth: m(0.075, 0.085, UNREAD, true),
       headDepth: m(0.02, 0.03, UNREAD, true),
       gripDiameter: GRIP,
@@ -253,8 +251,8 @@ export namespace createGolfClub {
     },
     putter: {
       length: m(
-        33 * INCH,
-        35 * INCH,
+        33 * ArchetypeUnits.INCH,
+        35 * ArchetypeUnits.INCH,
         "PING putters, the G Le4 Anser 2D's 33 in and the 2024 Anser D's 35 in standard lengths (https://ping.com/en-us/golf-clubs/womens/g-le4-anser-2d-putter, https://ping.com/en-us/golf-clubs/putters/2024-2023-anser-d-putter)",
       ),
       headWidth: m(

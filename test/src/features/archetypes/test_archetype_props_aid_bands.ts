@@ -1,4 +1,4 @@
-import { createMobilityAid, createUmbrella } from "@automovie/archetypes";
+import { ArchetypeUnits, createMobilityAid, createUmbrella } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -63,16 +63,16 @@ export function test_archetype_props_aid_bands(): void {
     ),
     row(
       "cane handle height",
-      30 * 0.0254,
-      39 * 0.0254,
+      30 * ArchetypeUnits.INCH,
+      39 * ArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "y").high,
     ),
     row(
       "cane shaft",
-      0.75 * 0.0254,
-      0.75 * 0.0254,
+      0.75 * ArchetypeUnits.INCH,
+      0.75 * ArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "cane" }, seed), "x", [
@@ -81,16 +81,16 @@ export function test_archetype_props_aid_bands(): void {
     ),
     row(
       "walker height",
-      32 * 0.0254,
-      39 * 0.0254,
+      32 * ArchetypeUnits.INCH,
+      39 * ArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "walker" }, seed), "y").high,
     ),
     row(
       "walker width",
-      24 * 0.0254,
-      24 * 0.0254,
+      24 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
         archetypeExtent(createMobilityAid({ kind: "walker" }, seed), "x").size,

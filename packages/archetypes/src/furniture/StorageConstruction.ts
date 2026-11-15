@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The builder every construction fills. */
@@ -70,7 +70,7 @@ export namespace StorageConstruction {
   };
 
   /** A single-tier locker's hat shelf above the locker's bottom, metres: Penco Vanguard specification, "Hat shelf 48 inches from locker bottom" (https://www.pencoproducts.com/media/3677/vanguard-snapshot-specs_jan2019.pdf). */
-  export const LOCKER_SHELF: number = 48 * 0.0254;
+  export const LOCKER_SHELF: number = 48 * ArchetypeUnits.INCH;
 
   /** A bookcase's shelves above its bottom, as the BILLY's one fixed and four adjustable. */
   export const SHELVES: number = 5;

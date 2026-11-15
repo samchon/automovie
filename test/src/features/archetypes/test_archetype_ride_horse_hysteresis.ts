@@ -1,5 +1,5 @@
 import {
-  type ArchetypeCourse,
+  ArchetypeCourse,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -28,7 +28,7 @@ export function test_archetype_ride_horse_hysteresis(): void {
     ] as const) {
       const point: number =
         low === "walk"
-          ? Math.sqrt(0.35 * 9.80665 * createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y)
+          ? Math.sqrt(0.35 * ArchetypeCourse.GRAVITY * createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y)
           : 5 * (horse.dimensions.mass! / 170) ** 0.216;
       const speeds: number[] = [point + 0.3];
       for (let k: number = 0; k < 8; k++) speeds.push(point + (k % 2 === 0 ? -0.1 : 0.1));

@@ -1,12 +1,9 @@
-import { createBall } from "@automovie/archetypes";
+import { ArchetypeUnits, createBall } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -47,15 +44,15 @@ export function test_archetype_ball_kinds(): void {
   findings.push(
     ...archetypeBandSweep([
       size("cricket", "x", 0.224 / Math.PI, 0.229 / Math.PI, "MCC Law 4"),
-      size("bowling", "y", 8.5 * INCH, 8.595 * INCH, "USBC"),
+      size("bowling", "y", 8.5 * ArchetypeUnits.INCH, 8.595 * ArchetypeUnits.INCH, "USBC"),
       size("rugby", "x", 0.28, 0.3, "World Rugby Law 2"),
       size("rugby", "z", 0.58 / Math.PI, 0.62 / Math.PI, "World Rugby Law 2"),
-      size("americanFootball", "x", 11 * INCH, 11.25 * INCH, "NFL Rule 2"),
+      size("americanFootball", "x", 11 * ArchetypeUnits.INCH, 11.25 * ArchetypeUnits.INCH, "NFL Rule 2"),
       size(
         "americanFootball",
         "y",
-        (21 * INCH) / Math.PI,
-        (21.25 * INCH) / Math.PI,
+        (21 * ArchetypeUnits.INCH) / Math.PI,
+        (21.25 * ArchetypeUnits.INCH) / Math.PI,
         "NFL Rule 2",
       ),
     ]),

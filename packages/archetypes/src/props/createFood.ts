@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -174,17 +175,17 @@ export namespace createFood {
   > = {
     bread: {
       length: ArchetypeBand.metres(
-        8.5 * 0.0254,
-        14.75 * 0.0254,
+        8.5 * ArchetypeUnits.INCH,
+        14.75 * ArchetypeUnits.INCH,
         BREAD,
         true,
       ),
-      width: ArchetypeBand.metres(4.25 * 0.0254, 4.5 * 0.0254, BREAD, true),
-      height: ArchetypeBand.metres(2.75 * 0.0254, 4.25 * 0.0254, BREAD, true),
+      width: ArchetypeBand.metres(4.25 * ArchetypeUnits.INCH, 4.5 * ArchetypeUnits.INCH, BREAD, true),
+      height: ArchetypeBand.metres(2.75 * ArchetypeUnits.INCH, 4.25 * ArchetypeUnits.INCH, BREAD, true),
       mass: ArchetypeBand.of("kg", 0.4536, 0.9072, BREAD, true),
     },
     apple: {
-      diameter: ArchetypeBand.metres(2.5 * 0.0254, 3.25 * 0.0254, APPLE),
+      diameter: ArchetypeBand.metres(2.5 * ArchetypeUnits.INCH, 3.25 * ArchetypeUnits.INCH, APPLE),
       mass: ArchetypeBand.of("kg", 0.101, 0.223, APPLE),
     },
   };

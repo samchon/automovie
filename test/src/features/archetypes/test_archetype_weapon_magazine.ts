@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   ArchetypeFrame,
   createHandgun,
   createMagazine,
@@ -65,16 +66,16 @@ export function test_archetype_weapon_magazine(): void {
     ),
     row(
       "rifle magazine length",
-      7.5 * 0.0254,
-      7.5 * 0.0254,
+      7.5 * ArchetypeUnits.INCH,
+      7.5 * ArchetypeUnits.INCH,
       "Magpul PMAG 30",
       (seed: number): number =>
         archetypeExtent(createMagazine({ kind: "rifle" }, seed), "y").size,
     ),
     row(
       "rifle magazine grip",
-      0.87 * 0.0254,
-      0.87 * 0.0254,
+      0.87 * ArchetypeUnits.INCH,
+      0.87 * ArchetypeUnits.INCH,
       "T.REX Arms' PMAG table",
       (seed: number): number =>
         createMagazine({ kind: "rifle" }, seed).affordance("grip").aperture!,

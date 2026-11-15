@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
@@ -9,9 +10,6 @@ import {
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-/** One inch, metres. */
-const INCH: number = 0.0254;
 
 /**
  * A drawn cart stands where its horse, its runner and its sources put it, and is drawn by its coupling.
@@ -66,7 +64,7 @@ export function test_archetype_cart_drawn(): void {
           cart.affordance(id).frame,
           "y",
         );
-        const track: number = kind === "rickshaw" ? d.width! - INCH : d.track!;
+        const track: number = kind === "rickshaw" ? d.width! - ArchetypeUnits.INCH : d.track!;
         if (
           !close(spin.x, (sign * track) / 2) ||
           !close(spin.y, radius) ||
@@ -122,13 +120,13 @@ export function test_archetype_cart_drawn(): void {
         if (spokes * 2 !== 6)
           findings.push(`${label}: a wheel shows ${spokes * 2} spokes`);
       } else {
-        if (!close(coupling.z, 144.58 * INCH, 1e-6))
+        if (!close(coupling.z, 144.58 * ArchetypeUnits.INCH, 1e-6))
           findings.push(
-            `${label}: the pole's end is ${coupling.z / INCH} in ahead of the axle`,
+            `${label}: the pole's end is ${coupling.z / ArchetypeUnits.INCH} in ahead of the axle`,
           );
         if (!(at(cart, "pintle").z < 0))
           findings.push(`${label}: the pintle is not behind the axle`);
-        if (!close(d.wheelDiameter!, 57 * INCH) || !close(d.track!, 60 * INCH))
+        if (!close(d.wheelDiameter!, 57 * ArchetypeUnits.INCH) || !close(d.track!, 60 * ArchetypeUnits.INCH))
           findings.push(`${label}: the wheels are not the Manual's`);
       }
 

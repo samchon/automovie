@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import { createHorse } from "../animals/createHorse";
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
@@ -447,7 +447,7 @@ const SHAFT: number = 0.025;
 const GRIP: number = 0.12;
 
 /** A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track is the overall width less it. */
-const TYRE: number = 0.0254;
+const TYRE: number = ArchetypeUnits.INCH;
 
 /** The body's paint. */
 const BODY: string = "#2f4f3f";

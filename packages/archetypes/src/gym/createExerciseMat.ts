@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -118,15 +119,15 @@ export namespace createExerciseMat {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     yoga: {
-      length: ArchetypeBand.metres(68 * 0.0254, 85 * 0.0254, MANDUKA),
+      length: ArchetypeBand.metres(68 * ArchetypeUnits.INCH, 85 * ArchetypeUnits.INCH, MANDUKA),
       width: ArchetypeBand.metres(0.66, 0.66, MANDUKA),
       thickness: ArchetypeBand.metres(0.006, 0.006, MANDUKA),
       mass: ArchetypeBand.of("kg", 3.4, 4.3, MANDUKA),
     },
     gym: {
-      length: ArchetypeBand.metres(73.2 * 0.0254, 74 * 0.0254, THICK),
-      width: ArchetypeBand.metres(24 * 0.0254, 24.3 * 0.0254, THICK),
-      thickness: ArchetypeBand.metres(0.5 * 0.0254, 0.5 * 0.0254, THICK),
+      length: ArchetypeBand.metres(73.2 * ArchetypeUnits.INCH, 74 * ArchetypeUnits.INCH, THICK),
+      width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24.3 * ArchetypeUnits.INCH, THICK),
+      thickness: ArchetypeBand.metres(0.5 * ArchetypeUnits.INCH, 0.5 * ArchetypeUnits.INCH, THICK),
       mass: ArchetypeBand.of("kg", 1, 1, THICK),
     },
   };

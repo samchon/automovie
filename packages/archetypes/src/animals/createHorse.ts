@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -455,7 +456,7 @@ export namespace createHorse {
       let z: number = 0;
       const up: IAutoMovieVector3[] = [Vector3.create(x, 0, 0)];
       for (let k: number = 3; k >= 0; k--) {
-        const angle: number = (angles[k]! * Math.PI) / 180;
+        const angle: number = angles[k]! * ArchetypeUnits.DEGREE;
         y += lengths[k]! * h * Math.cos(angle);
         z -= lengths[k]! * h * Math.sin(angle);
         up.push(Vector3.create(x, y, z));

@@ -1,11 +1,8 @@
-import { createCueTable, createSurfboard } from "@automovie/archetypes";
+import { ArchetypeUnits, createCueTable, createSurfboard } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -37,8 +34,8 @@ export function test_archetype_cue_table_surfboard(): void {
         name: "pool table bed height",
         measure: (seed: number): number =>
           createCueTable({}, seed).affordance("bed").frame.translation.y,
-        minimum: 29.25 * INCH,
-        maximum: 31 * INCH,
+        minimum: 29.25 * ArchetypeUnits.INCH,
+        maximum: 31 * ArchetypeUnits.INCH,
         source: "WPA 2",
       },
       {
@@ -53,16 +50,16 @@ export function test_archetype_cue_table_surfboard(): void {
             table.affordance("bed").frame.translation.y
           );
         },
-        minimum: 0.625 * 2.25 * INCH,
-        maximum: 0.645 * 2.25 * INCH,
+        minimum: 0.625 * 2.25 * ArchetypeUnits.INCH,
+        maximum: 0.645 * 2.25 * ArchetypeUnits.INCH,
         source: "WPA 7",
       },
       {
         name: "pool table rail width",
         measure: (seed: number): number =>
           archetypeExtent(createCueTable({}, seed), "x", ["rail-left"]).size,
-        minimum: 4 * INCH,
-        maximum: 7.5 * INCH,
+        minimum: 4 * ArchetypeUnits.INCH,
+        maximum: 7.5 * ArchetypeUnits.INCH,
         source: "WPA 6",
       },
     ]),
@@ -70,9 +67,9 @@ export function test_archetype_cue_table_surfboard(): void {
   const table: ReturnType<typeof createCueTable> = createCueTable({}, 4);
   const width: number = table.affordance("bed").width!;
   const length: number = table.affordance("bed").depth!;
-  if (!(width >= 50 * INCH - 1e-9 && width <= 50.125 * INCH + 1e-9))
+  if (!(width >= 50 * ArchetypeUnits.INCH - 1e-9 && width <= 50.125 * ArchetypeUnits.INCH + 1e-9))
     findings.push(`the bed is ${width} wide`);
-  if (!(length >= 100 * INCH - 1e-9 && length <= 100.125 * INCH + 1e-9))
+  if (!(length >= 100 * ArchetypeUnits.INCH - 1e-9 && length <= 100.125 * ArchetypeUnits.INCH + 1e-9))
     findings.push(`the bed is ${length} long`);
   for (const [id, axis, sign] of [
     ["leftRail", "x", 1],
@@ -90,8 +87,8 @@ export function test_archetype_cue_table_surfboard(): void {
 
   // 2. The surfboard.
   for (const [size, length, width, thickness] of [
-    [0, 70 * INCH, 18.75 * INCH, 2.36 * INCH],
-    [1, 74 * INCH, 19.5 * INCH, 2.5 * INCH],
+    [0, 70 * ArchetypeUnits.INCH, 18.75 * ArchetypeUnits.INCH, 2.36 * ArchetypeUnits.INCH],
+    [1, 74 * ArchetypeUnits.INCH, 19.5 * ArchetypeUnits.INCH, 2.5 * ArchetypeUnits.INCH],
   ] as const) {
     const board: ReturnType<typeof createSurfboard> = createSurfboard({ size });
     near(`board ${size}: length`, archetypeExtent(board, "z").size, length);

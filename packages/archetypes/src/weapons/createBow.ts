@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -123,7 +124,7 @@ export namespace createBow {
   export const STRING: number = 0.0015;
 
   /** The draw length the draw force is stated at, metres: 30 in, the approximations' read draw. */
-  export const DRAW_LENGTH: number = 30 * 0.0254;
+  export const DRAW_LENGTH: number = 30 * ArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -157,7 +158,7 @@ export namespace createBow {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     longbow: {
-      length: ArchetypeBand.metres(1.67, 66 * 0.0254, WARBOW),
+      length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
       depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
       draw: ArchetypeBand.of("N", 101 * 4.448222, 141 * 4.448222, WARBOW),
       mass: ArchetypeBand.of("kg", 0.785, 0.905, WARBOW),

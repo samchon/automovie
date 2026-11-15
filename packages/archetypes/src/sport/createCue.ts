@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,9 +9,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** The cue's length read. */
 const LENGTH: string =
@@ -143,9 +141,9 @@ export namespace createCue {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(58 * INCH, 58 * INCH, LENGTH),
-    butt: ArchetypeBand.metres(1.205 * INCH, 1.295 * INCH, BUTT),
+    length: ArchetypeBand.metres(58 * ArchetypeUnits.INCH, 58 * ArchetypeUnits.INCH, LENGTH),
+    butt: ArchetypeBand.metres(1.205 * ArchetypeUnits.INCH, 1.295 * ArchetypeUnits.INCH, BUTT),
     tip: ArchetypeBand.metres(0.0115, 0.01325, SHAFT),
-    mass: ArchetypeBand.of("kg", 18 * 0.028349523125, 21 * 0.028349523125, WEIGHT),
+    mass: ArchetypeBand.of("kg", 18 * ArchetypeUnits.OUNCE, 21 * ArchetypeUnits.OUNCE, WEIGHT),
   };
 }

@@ -1,4 +1,4 @@
-import { createStorage } from "@automovie/archetypes";
+import { ArchetypeUnits, createStorage } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -130,7 +130,7 @@ export function test_archetype_storage_kinds(): void {
   near(
     "the locker's hat shelf",
     locker.affordance("shelf1").frame.translation.y,
-    LYON.legs + 48 * 0.0254,
+    LYON.legs + 48 * ArchetypeUnits.INCH,
   );
   if (locker.affordance("door").travel !== undefined)
     findings.push("the locker door states a travel no source gives");

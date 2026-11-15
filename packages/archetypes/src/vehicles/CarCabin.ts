@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { CarBody } from "./CarBody";
 import { createCar } from "./createCar";
 
@@ -154,7 +154,7 @@ export namespace CarCabin {
     const v: typeof Vector3.create = Vector3.create;
     const d: Readonly<Partial<Record<createCar.Dimension, number>>> = l.d;
     const sx: number = l.reference.x;
-    const tilt: number = (d.steeringAngle! * Math.PI) / 180;
+    const tilt: number = d.steeringAngle! * ArchetypeUnits.DEGREE;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
     const hub: IAutoMovieVector3 = l.wheel;
     builder.rod(
@@ -203,7 +203,7 @@ export namespace CarCabin {
     });
 
     // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
-    const slope: number = (l.pedal * Math.PI) / 180;
+    const slope: number = l.pedal * ArchetypeUnits.DEGREE;
     const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
     const at: IAutoMovieVector3 = v(sx - createCar.FOOT, l.ball.y, l.ball.z);
     builder.box("pedal-accelerator", v(0.05, 0.01, 0.08), at, {

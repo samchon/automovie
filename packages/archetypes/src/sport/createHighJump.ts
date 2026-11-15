@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -278,7 +279,7 @@ function box(
     behind: IAutoMovieVector3,
   ): void => {
     const span: IAutoMovieVector3 = Vector3.subtract(to, from);
-    const tilt: number = (Math.atan2(-span.y, span.z) * 180) / Math.PI;
+    const tilt: number = Math.atan2(-span.y, span.z) / ArchetypeUnits.DEGREE;
     builder.box(
       id,
       v(width, t, Vector3.length(span)),

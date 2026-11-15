@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -94,7 +95,7 @@ export function createJumpRope(
  */
 export namespace createJumpRope {
   /** The cable's diameter, metres: the maker's 3/32 in (see the source). */
-  export const CORD: number = (3 / 32) * 0.0254;
+  export const CORD: number = (3 / 32) * ArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -120,9 +121,9 @@ export namespace createJumpRope {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(120 * 0.0254, 132 * 0.0254, ROGUE),
-    handleLength: ArchetypeBand.metres(5.25 * 0.0254, 7.5 * 0.0254, ROGUE),
-    gripDiameter: ArchetypeBand.metres(0.875 * 0.0254, 0.875 * 0.0254, ROGUE),
+    length: ArchetypeBand.metres(120 * ArchetypeUnits.INCH, 132 * ArchetypeUnits.INCH, ROGUE),
+    handleLength: ArchetypeBand.metres(5.25 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, ROGUE),
+    gripDiameter: ArchetypeBand.metres(0.875 * ArchetypeUnits.INCH, 0.875 * ArchetypeUnits.INCH, ROGUE),
     mass: ArchetypeBand.of("kg", 0.1, 0.3, "the Rogue pages read give no weight", true),
   };
 }

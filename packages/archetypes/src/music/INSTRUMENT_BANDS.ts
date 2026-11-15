@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
 import type { createInstrument } from "./createInstrument";
 
 /** The upright piano, from a search only. */
@@ -99,7 +99,7 @@ export const INSTRUMENT_BANDS: Readonly<
   },
   sideDrum: {
     diameter: ArchetypeBand.metres(0.3556, 0.3556, SONOR),
-    depth: ArchetypeBand.metres(0.3048, 0.3048, SONOR),
+    depth: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 12 * ArchetypeUnits.INCH, SONOR),
     mass: ArchetypeBand.of(
       "kg",
       4.9,

@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -9,12 +10,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
-
-/** Kilograms in an ounce. */
-const OUNCE: number = 0.028349523125;
 
 /**
  * A ball of a game: a football, a basketball, a volleyball, a handball, a tennis ball, a baseball, a softball, a golf ball, a cricket ball, a bowling ball, a rugby ball, an American football, or an ice hockey puck.
@@ -289,26 +284,26 @@ export namespace createBall {
     },
     baseball: {
       diameter: round(
-        9 * INCH,
-        9.25 * INCH,
+        9 * ArchetypeUnits.INCH,
+        9.25 * ArchetypeUnits.INCH,
         `${OBR}: not less than nine nor more than 9 1/4 in round`,
       ),
       mass: kg(
-        5 * OUNCE,
-        5.25 * OUNCE,
+        5 * ArchetypeUnits.OUNCE,
+        5.25 * ArchetypeUnits.OUNCE,
         `${OBR}: not less than five nor more than 5 1/4 oz`,
       ),
     },
     softball: {
       diameter: round(
-        11.88 * INCH,
-        12.13 * INCH,
+        11.88 * ArchetypeUnits.INCH,
+        12.13 * ArchetypeUnits.INCH,
         "the 12 in fastpitch softball, 11.88 to 12.13 in round, as recalled; the WBSC rule book was searched for and not opened",
         true,
       ),
       mass: kg(
-        6.25 * OUNCE,
-        7 * OUNCE,
+        6.25 * ArchetypeUnits.OUNCE,
+        7 * ArchetypeUnits.OUNCE,
         "the 12 in fastpitch softball, 6.25 to 7 oz, as recalled; the WBSC rule book was searched for and not opened",
         true,
       ),
@@ -332,13 +327,13 @@ export namespace createBall {
     },
     bowling: {
       diameter: ArchetypeBand.metres(
-        8.5 * INCH,
-        8.595 * INCH,
+        8.5 * ArchetypeUnits.INCH,
+        8.595 * ArchetypeUnits.INCH,
         `${USBC}: 8.500 to 8.595 in in diameter`,
       ),
       mass: kg(
-        16 * 0.45359237,
-        16 * 0.45359237,
+        16 * ArchetypeUnits.POUND,
+        16 * ArchetypeUnits.POUND,
         `${USBC}: not exceeding 16.00 lb, with no minimum, the limit the model takes`,
       ),
     },
@@ -348,9 +343,9 @@ export namespace createBall {
       mass: kg(0.41, 0.46, RUGBY),
     },
     americanFootball: {
-      diameter: round(21 * INCH, 21.25 * INCH, NFL),
-      length: ArchetypeBand.metres(11 * INCH, 11.25 * INCH, NFL),
-      mass: kg(14 * OUNCE, 15 * OUNCE, NFL),
+      diameter: round(21 * ArchetypeUnits.INCH, 21.25 * ArchetypeUnits.INCH, NFL),
+      length: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11.25 * ArchetypeUnits.INCH, NFL),
+      mass: kg(14 * ArchetypeUnits.OUNCE, 15 * ArchetypeUnits.OUNCE, NFL),
     },
     puck: {
       diameter: ArchetypeBand.metres(0.076, 0.076, PUCK),

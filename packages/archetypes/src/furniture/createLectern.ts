@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -8,9 +9,6 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
-
-/** Metres in an inch. */
-const INCH: number = 0.0254;
 
 /** The lectern read. */
 const SAFCO: string =
@@ -57,7 +55,7 @@ export function createLectern(
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const slope: number = (d.slope * Math.PI) / 180;
+  const slope: number = d.slope * ArchetypeUnits.DEGREE;
   const run: number = d.depth * Math.cos(slope);
   const front: number = d.height - d.depth * Math.sin(slope);
   builder.box("cabinet", v(d.width, front, run), v(0, front / 2, 0), {
@@ -126,9 +124,9 @@ export namespace createLectern {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(23 * INCH, 23 * INCH, SAFCO),
-    depth: ArchetypeBand.metres(15.75 * INCH, 15.75 * INCH, SAFCO),
-    height: ArchetypeBand.metres(46 * INCH, 46 * INCH, SAFCO),
+    width: ArchetypeBand.metres(23 * ArchetypeUnits.INCH, 23 * ArchetypeUnits.INCH, SAFCO),
+    depth: ArchetypeBand.metres(15.75 * ArchetypeUnits.INCH, 15.75 * ArchetypeUnits.INCH, SAFCO),
+    height: ArchetypeBand.metres(46 * ArchetypeUnits.INCH, 46 * ArchetypeUnits.INCH, SAFCO),
     slope: ArchetypeBand.of("degrees", 15, 15, SAFCO),
     mass: ArchetypeBand.of("kg", 15, 30, ArchetypeBand.TYPICAL_MASS, true),
   };

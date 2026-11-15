@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createLight } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeFrame, createLight } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -38,8 +38,8 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "torch length",
-      16 * 0.0254,
-      24 * 0.0254,
+      16 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
       "fire-performance torches, 16 to 24 in",
       (seed: number): number =>
         archetypeExtent(createLight({ kind: "fireTorch" }, seed), "y").size,
@@ -62,16 +62,16 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "pendant drop",
-      (4 * 12 + 11 + 11) * 0.0254,
-      (4 * 12 + 11 + 11) * 0.0254,
+      (4 * 12 + 11 + 11) * ArchetypeUnits.INCH,
+      (4 * 12 + 11 + 11) * ArchetypeUnits.INCH,
       "IKEA SKURUP, cord and shade",
       (seed: number): number =>
         -archetypeExtent(createLight({ kind: "pendant" }, seed), "y").low,
     ),
     row(
       "pendant shade",
-      15 * 0.0254,
-      15 * 0.0254,
+      15 * ArchetypeUnits.INCH,
+      15 * ArchetypeUnits.INCH,
       "IKEA SKURUP",
       (seed: number): number =>
         archetypeExtent(createLight({ kind: "pendant" }, seed), "x", ["shade"])

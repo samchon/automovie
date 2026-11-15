@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeCourse, ArchetypeRide } from "../core";
+import { ArchetypeUnits, type Archetype, ArchetypeCourse, ArchetypeRide } from "../core";
 import type { createCar } from "./createCar";
 
 /**
@@ -38,14 +38,14 @@ export function driveCar(
     return (
       Math.sign(curvature) *
       ratio *
-      ((Math.atan2(wheelbase, axle) * 180) / Math.PI)
+      (Math.atan2(wheelbase, axle) / ArchetypeUnits.DEGREE)
     );
   };
 
   // The tightest turn the lock allows: the road wheels at lock over ratio.
   const plan: ArchetypeCourse.IPlan =
     course.kind === "plan" ? course : ArchetypeCourse.plan("car", course);
-  const most: number = (lock / ratio) * (Math.PI / 180);
+  const most: number = (lock / ratio) * ArchetypeUnits.DEGREE;
   const least: number = Math.hypot(wheelbase / Math.tan(most), wheelbase / 2);
   ArchetypeCourse.admitRadius(
     "car",

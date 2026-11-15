@@ -1,4 +1,4 @@
-import { createAppliance, createSanitary } from "@automovie/archetypes";
+import { ArchetypeUnits, createAppliance, createSanitary } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -142,7 +142,7 @@ export function test_archetype_fixture_articulation(): void {
   near(
     "the lifted lever's top",
     lifted.high - lever.high,
-    0.045 * Math.sin((39 * Math.PI) / 180) + 0.012 * (Math.cos((39 * Math.PI) / 180) - 1),
+    0.045 * Math.sin(39 * ArchetypeUnits.DEGREE) + 0.012 * (Math.cos(39 * ArchetypeUnits.DEGREE) - 1),
   );
   const turned: { low: number; high: number } = archetypeExtent(
     basin.articulate({ tap: 50 }),
@@ -152,7 +152,7 @@ export function test_archetype_fixture_articulation(): void {
   near(
     "the turned lever's reach toward +X",
     turned.high,
-    0.045 * Math.sin((50 * Math.PI) / 180) + 0.0075 * Math.cos((50 * Math.PI) / 180),
+    0.045 * Math.sin(50 * ArchetypeUnits.DEGREE) + 0.0075 * Math.cos(50 * ArchetypeUnits.DEGREE),
   );
   TestValidator.equals(
     "fixture and appliance doors move as the things do",

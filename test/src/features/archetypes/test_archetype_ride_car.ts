@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   type ArchetypeCourse,
   ArchetypeRefusal,
   createCar,
@@ -53,7 +54,7 @@ export function test_archetype_ride_car(): void {
           { x: 0, y: 1, z: 0 },
         );
         const sign: number = axle.x < 0 ? -1 : 1;
-        return (Math.atan2(-sign * axle.z, sign * axle.x) * 180) / Math.PI;
+        return Math.atan2(-sign * axle.z, sign * axle.x) / ArchetypeUnits.DEGREE;
       };
       for (const side of [1, -1]) {
         const course: ArchetypeCourse.ICourse = {
@@ -82,7 +83,7 @@ export function test_archetype_ride_car(): void {
         const axle: number = Math.sqrt(RADIUS * RADIUS - (wheelbase * wheelbase) / 4);
         const expected = (offset: number): number =>
           side *
-          ((Math.atan(wheelbase / (axle - side * offset)) * 180) / Math.PI);
+          (Math.atan(wheelbase / (axle - side * offset)) / ArchetypeUnits.DEGREE);
         const left: number = steered(turning, "wheel-front-left");
         const right: number = steered(turning, "wheel-front-right");
         for (const [name, angle, offset, id] of [
@@ -103,9 +104,9 @@ export function test_archetype_ride_car(): void {
           findings.push(`${label}: inner ${inner} and outer ${outer}`);
 
         // 3. The equivalent single wheel is the steering wheel's turn over the ratio.
-        const cot = (degrees: number): number => 1 / Math.tan((degrees * Math.PI) / 180);
+        const cot = (degrees: number): number => 1 / Math.tan(degrees * ArchetypeUnits.DEGREE);
         const equivalent: number =
-          (Math.atan(2 / (cot(left) + cot(right))) * 180) / Math.PI;
+          Math.atan(2 / (cot(left) + cot(right))) / ArchetypeUnits.DEGREE;
         if (Math.abs(equivalent - turning.travel("wheel") / ratio) > TENTH)
           findings.push(
             `${label}: the wheels' equivalent ${equivalent} is not the steering ${turning.travel("wheel") / ratio}`,

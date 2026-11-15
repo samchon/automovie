@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -142,9 +143,9 @@ export namespace createCleaning {
       mass: ArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
     },
     sponge: {
-      width: ArchetypeBand.metres(2.6 * 0.0254, 2.6 * 0.0254, SPONGE),
-      length: ArchetypeBand.metres(4.4 * 0.0254, 4.4 * 0.0254, SPONGE),
-      thickness: ArchetypeBand.metres(0.6 * 0.0254, 0.7 * 0.0254, SPONGE),
+      width: ArchetypeBand.metres(2.6 * ArchetypeUnits.INCH, 2.6 * ArchetypeUnits.INCH, SPONGE),
+      length: ArchetypeBand.metres(4.4 * ArchetypeUnits.INCH, 4.4 * ArchetypeUnits.INCH, SPONGE),
+      thickness: ArchetypeBand.metres(0.6 * ArchetypeUnits.INCH, 0.7 * ArchetypeUnits.INCH, SPONGE),
       mass: ArchetypeBand.of("kg", 0.005, 0.02, "the sponge's weight: the listings read do not give it", true),
     },
   };

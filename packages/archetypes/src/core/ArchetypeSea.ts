@@ -13,6 +13,7 @@ import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import type { ArchetypeRide } from "./ArchetypeRide";
+import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * A seeded swell: the sea surface as a sum of sinusoids drawn from a measured wave spectrum, and a water-borne ride heaving, pitching and rolling on it.
@@ -179,7 +180,7 @@ export namespace ArchetypeSea {
         });
       }
     }
-    const radians: number = (heading * Math.PI) / 180;
+    const radians: number = heading * ArchetypeUnits.DEGREE;
     const along = (x: number, z: number): number =>
       x * Math.sin(radians) + z * Math.cos(radians);
     return {
@@ -304,11 +305,11 @@ export namespace ArchetypeSea {
       const tilt: IAutoMovieTransform["rotation"] = Quaternion.multiply(
         Quaternion.fromAxisAngle(
           { x: -1, y: 0, z: 0 },
-          (moved.pitch * 180) / Math.PI,
+          moved.pitch / ArchetypeUnits.DEGREE,
         ),
         Quaternion.fromAxisAngle(
           { x: 0, y: 0, z: 1 },
-          (moved.roll * 180) / Math.PI,
+          moved.roll / ArchetypeUnits.DEGREE,
         ),
       );
       const placement: IAutoMovieTransform = {

@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -284,8 +285,8 @@ export namespace createMobilityAid {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     cane: {
-      height: ArchetypeBand.metres(30 * 0.0254, 39 * 0.0254, CANE),
-      diameter: ArchetypeBand.metres(0.75 * 0.0254, 0.75 * 0.0254, CANE),
+      height: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, CANE),
+      diameter: ArchetypeBand.metres(0.75 * ArchetypeUnits.INCH, 0.75 * ArchetypeUnits.INCH, CANE),
       mass: ArchetypeBand.of(
         "kg",
         0.85 * 0.4536,
@@ -295,9 +296,9 @@ export namespace createMobilityAid {
       ),
     },
     walker: {
-      height: ArchetypeBand.metres(32 * 0.0254, 39 * 0.0254, WALKER),
-      width: ArchetypeBand.metres(24 * 0.0254, 24 * 0.0254, WALKER),
-      depth: ArchetypeBand.metres(18 * 0.0254, 18 * 0.0254, WALKER, true),
+      height: ArchetypeBand.metres(32 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, WALKER),
+      width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, WALKER),
+      depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, WALKER, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       mass: ArchetypeBand.of("kg", 7 * 0.4536, 7.5 * 0.4536, WALKER),
     },

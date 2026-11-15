@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createFood } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeFrame, createFood } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -34,16 +34,16 @@ export function test_archetype_props_food_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "apple diameter",
-      2.5 * 0.0254,
-      3.25 * 0.0254,
+      2.5 * ArchetypeUnits.INCH,
+      3.25 * ArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "apple" }, seed), "x").size,
     ),
     row(
       "apple grip",
-      2.5 * 0.0254,
-      3.25 * 0.0254,
+      2.5 * ArchetypeUnits.INCH,
+      3.25 * ArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
         createFood({ kind: "apple" }, seed).affordance("grip").aperture!,
@@ -57,24 +57,24 @@ export function test_archetype_props_food_bands(): void {
     ),
     row(
       "loaf length",
-      8.5 * 0.0254,
-      14.75 * 0.0254,
+      8.5 * ArchetypeUnits.INCH,
+      14.75 * ArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "x").size,
     ),
     row(
       "loaf width",
-      4.25 * 0.0254,
-      4.5 * 0.0254,
+      4.25 * ArchetypeUnits.INCH,
+      4.5 * ArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "z").size,
     ),
     row(
       "loaf height",
-      2.75 * 0.0254,
-      4.25 * 0.0254,
+      2.75 * ArchetypeUnits.INCH,
+      4.25 * ArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "y").size,

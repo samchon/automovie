@@ -4,6 +4,7 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 import type { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * How a course of legs is planned: its legs measured and placed end to end, its speed marks admitted and handed to the engine's speed profile, and each second's state read back from the leg that holds it.
@@ -96,7 +97,7 @@ export namespace ArchetypeCourseLegs {
       const run: number =
         leg.kind === "straight"
           ? leg.length
-          : (leg.radius * Math.abs(leg.angle) * Math.PI) / 180;
+          : leg.radius * Math.abs(leg.angle) * ArchetypeUnits.DEGREE;
       const span: number =
         rise === 0 ? run : run * Math.sqrt(1 + (rise / run) * (rise / run));
       const row: IRow = {
@@ -354,7 +355,7 @@ export namespace ArchetypeCourseLegs {
         const climb: number =
           row.rise === 0
             ? 0
-            : ((Math.atan(row.rise / row.run) * 180) / Math.PI) *
+            : (Math.atan(row.rise / row.run) / ArchetypeUnits.DEGREE) *
               (row.reverse ? -1 : 1);
         return {
           distance,
@@ -452,7 +453,7 @@ function advance(row: IRow, along: number): IPose {
 
   // A reversed leg travels opposite to the heading it faces.
   const travel: number = row.reverse ? row.heading + 180 : row.heading;
-  const h: number = (travel * Math.PI) / 180;
+  const h: number = travel * ArchetypeUnits.DEGREE;
   if (row.leg.kind === "straight")
     return {
       x: row.x + ground * Math.sin(h),
@@ -470,6 +471,6 @@ function advance(row: IRow, along: number): IPose {
     x: cx - side * row.leg.radius * Math.cos(h + swept),
     y: height,
     z: cz + side * row.leg.radius * Math.sin(h + swept),
-    heading: row.heading + (swept * 180) / Math.PI,
+    heading: row.heading + swept / ArchetypeUnits.DEGREE,
   };
 }

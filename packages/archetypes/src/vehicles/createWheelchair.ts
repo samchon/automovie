@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   type Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -64,8 +65,8 @@ export function createWheelchair(
   const half: number = d.seatWidth / 2;
   const wheel: number = d.wheelDiameter / 2;
   const caster: number = d.casterDiameter / 2;
-  const tilt: number = (createWheelchair.SEAT_PLANE * Math.PI) / 180;
-  const recline: number = (d.backAngle * Math.PI) / 180;
+  const tilt: number = createWheelchair.SEAT_PLANE * ArchetypeUnits.DEGREE;
+  const recline: number = d.backAngle * ArchetypeUnits.DEGREE;
 
   // The seat: its front edge at the seat height, the sling falling toward the back by the seat plane angle.
   const frontEdge: IAutoMovieVector3 = v(0, d.seatHeight, d.seatDepth);
@@ -368,7 +369,7 @@ export namespace createWheelchair {
       ),
       armHeight: m(0.22, 0.23, "armrest to seat distance"),
       footDrop: m(0.355, 0.46, "footrest to seat distance"),
-      casterDiameter: m(7 * 0.0254, 7 * 0.0254, "front caster, 7 in"),
+      casterDiameter: m(7 * ArchetypeUnits.INCH, 7 * ArchetypeUnits.INCH, "front caster, 7 in"),
     };
     return {
       selfPropelled: {
@@ -379,7 +380,7 @@ export namespace createWheelchair {
           0.495,
           "seat surface height at the front edge of the 24-inch models",
         ),
-        wheelDiameter: m(24 * 0.0254, 24 * 0.0254, "rear wheel, 24 in"),
+        wheelDiameter: m(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, "rear wheel, 24 in"),
         length: m(
           1.0,
           1.03,
@@ -402,7 +403,7 @@ export namespace createWheelchair {
           0.5,
           "seat surface height at the front edge of the 14-inch models",
         ),
-        wheelDiameter: m(14 * 0.0254, 14 * 0.0254, "rear wheel, 14 in"),
+        wheelDiameter: m(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, "rear wheel, 14 in"),
         length: m(
           1.01,
           1.03,
