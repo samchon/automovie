@@ -32,7 +32,7 @@ Write the prompt in plain prose, in this order: the inputs' roles, the shared de
 
 ### What to show
 
-Describe what to show, not what to avoid, because a negated word still primes its concept. Use a negative field only as the model's guide describes it.
+Describe what to show, not what to avoid, because a negated word still primes its concept. Use a negative field, or exclusion wording, only as the model's guide describes it, such as a model that adds music or subtitles unless the prompt excludes them.
 
 ### Settings stay out of prose
 
@@ -50,7 +50,7 @@ Name the gray forms as what each one becomes, never as their appearance, such as
 
 ## Sound
 
-Write the request's sound, decided under [audio](../../audio/SKILL.md), in the syntax of the model's guide, which differs between models: attribute each line to its speaker as the visual description names them, and keep effects and ambience apart from speech. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../../audio/SKILL.md), in the syntax of the model's guide, which differs between models: attribute each line to its speaker as the visual description names them, and keep effects, ambience and music apart from speech. Where the guide's examples disagree, as quotation marks can render a line as on-screen text in one model, take the form the selected model's current guide gives for dialogue. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 

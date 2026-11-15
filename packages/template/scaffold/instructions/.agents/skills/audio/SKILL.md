@@ -11,9 +11,17 @@ Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure 
 
 A generated film's voices, effects and ambience come from the video model, which generates them in sync with the picture. The production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into each request's prompt in the selected model's syntax under [video](../video/SKILL.md).
 
-The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length.
+The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, one speaker at a time.
 
-When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, which adds effects and ambience but no speech, and follow their choice.
+A character's generated voice can change between requests even with the same description and seed. Describe each voice once in the [shared description](../video/diffusion/prompts.md#shared-description), and where the model binds reference audio to a character, give it the voice the user accepted, such as a [voice preview](#voice-preview). Ask the user to listen across takes for a voice that drifts, and re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take.
+
+When the selected model or mode generates no sound, report it to the user with these choices and follow theirs:
+
+- a sound-generating model or mode;
+- a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;
+- separate speech under [acquisition](acquisition.md), lip-synced onto the take, which works only on a visible, mostly frontal face with one speaker at a time.
+
+Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#choose-a-source) checks any asset, because several are non-commercial or exclude regions.
 
 ## Voice preview
 
@@ -23,6 +31,6 @@ Make a preview only when the user wants to hear the voices before video generati
 
 A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
 
-When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
+When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), asking the user for the target where the release sets one, such as EBU R128's -23 LUFS for broadcast or a platform's own specification, acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
 
 Record which takes and passages the user heard, because a measurement cannot stand for a listening.

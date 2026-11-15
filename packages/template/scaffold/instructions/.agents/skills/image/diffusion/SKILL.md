@@ -15,6 +15,8 @@ Hosted generators take a rendered frame only as an image to follow. An open mode
 
 Follow the selected generator's prompting guide. Describe scene, subject, key details and constraints in that order and state the image's use.
 
-Label each input image by index and role in the prompt, never as text in the image, such as "Image 1: identity of Mara; Image 2: the kitchen plate". For an edit, state what changes and repeat what stays the same.
+Label each input image by index and role in the prompt, never as text in the image, such as "Image 1: identity of Mara; Image 2: the kitchen plate". Generators take the output's size from different inputs, some from the first and some from the last, so set the size explicitly or put the render where the generator reads it. Turn off any prompt rewriting the generator offers, since it rewords the shared description.
+
+For an edit, state what changes and repeat what stays the same. Where everything else must stay identical, composite the approved change back over the original instead of accepting the whole regenerated image.
 
 Camera and lens words steer the image only loosely, so an exact camera comes from a reference or a control image.
