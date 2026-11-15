@@ -12,7 +12,7 @@ Assembly decides nothing. The screenplay owns the order of scenes, the cuts, tra
 
 ## Render
 
-A programmed film and a film joined from accepted takes, captions and audio tracks both render through the installed renderer, as its README shows. Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it.
+Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it. A programmed film renders with the README's render command; accepted takes and captions are joined as the installed renderer's README plans them.
 
 ## Repair and deliver
 
