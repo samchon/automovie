@@ -1,4 +1,7 @@
-import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import {
   Archetype,
@@ -29,7 +32,6 @@ const SWIVEL: string =
 /** Douglas's naval gunnery. */
 const DOUGLAS: string =
   "Douglas, A Treatise on Naval Gunnery, 5th ed. (1860), p. 110: a 32-pounder with its carriage of 65 cwt, a 10 lb charge, a shot's initial velocity of 1600 ft/s, and a recoil observed at 9 ft on a platform inclined 2 1/2 degrees (https://archive.org/details/atreatiseonnava00douggoog)";
-
 
 /**
  * A cannon on its carriage: the 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them.
@@ -67,7 +69,11 @@ export function createCannon(
     createCannon.KINDS,
   );
   // A mortar is one of the manual's two whole; the guns have one read gun each, their bands.
-  draw.model<createCannon.Model>("model", params.model, createCannon.MODELS[kind]);
+  draw.model<createCannon.Model>(
+    "model",
+    params.model,
+    createCannon.MODELS[kind],
+  );
   draw.dimensions(createCannon.BANDS[kind], createCannon.BANDS);
   const d: Partial<Record<createCannon.Dimension, number>> = { ...draw.values };
   const builder: ArchetypeBuilder<
@@ -98,13 +104,27 @@ export namespace createCannon {
   export type Kind = "fieldGun" | "navalGun" | "mortar" | "swivelGun";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["fieldGun", "navalGun", "mortar", "swivelGun"];
+  export const KINDS: readonly Kind[] = [
+    "fieldGun",
+    "navalGun",
+    "mortar",
+    "swivelGun",
+  ];
 
   /** The read mortars: the US 10-inch siege mortar and the 24-pounder Coehorn, model 1841. */
   export type Model = "siege10" | "coehorn24";
 
   /** Each kind's models whole: the 10-inch siege mortar's 10 in bore, 28 in length and 1,852 lb, on its cast-iron bed 51.8 by 40 in of 1,830 lb, and the Coehorn's 5.82 in bore, 16.32 in length and 164 lb, on its oak bed 31 by 15 in of 132 lb (the 1861 Ordnance Manual, p. 21 for the mortars' bores, lengths and weights and p. 77 for their beds, https://archive.org/details/cu31924031187887; each mass the mortar's with its bed's). The guns have none. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
+  > = {
     mortar: {
       siege10: {
         bore: 10 * ArchetypeUnits.INCH,
@@ -262,7 +282,7 @@ export namespace createCannon {
       recoil: ArchetypeBand.metres(
         FIELD_GUN.SERVICE.recoil.least,
         FIELD_GUN.SERVICE.recoil.most,
-        "Gibbon, The Artillerist's Manual (1860), p. 272: \"under some circumstances the 6-pdr. gun will recoil but 1 1/2 or 2 yards\"; the run depends on the ground, the elevation and the charge (Roberts, p. 77), so the band is provisional",
+        'Gibbon, The Artillerist\'s Manual (1860), p. 272: "under some circumstances the 6-pdr. gun will recoil but 1 1/2 or 2 yards"; the run depends on the ground, the elevation and the charge (Roberts, p. 77), so the band is provisional',
         true,
       ),
       ball: ArchetypeBand.metres(
@@ -270,22 +290,74 @@ export namespace createCannon {
         FIELD_GUN.SERVICE.shot,
         "the 1861 Ordnance Manual, p. 34, shot table: the 6-pdr. shot's diameter, 3.58 in",
       ),
-      bore: ArchetypeBand.metres(FIELD_GUN.TUBE.bore, FIELD_GUN.TUBE.bore, FIELD_GUN.SOURCE),
+      bore: ArchetypeBand.metres(
+        FIELD_GUN.TUBE.bore,
+        FIELD_GUN.TUBE.bore,
+        FIELD_GUN.SOURCE,
+      ),
     },
     navalGun: {
-      length: ArchetypeBand.metres(114 * ArchetypeUnits.INCH, 114 * ArchetypeUnits.INCH, GRIFFITHS),
-      bore: ArchetypeBand.metres(6.41 * ArchetypeUnits.INCH, 6.41 * ArchetypeUnits.INCH, GRIFFITHS),
-      frontWheelDiameter: ArchetypeBand.metres(19 * ArchetypeUnits.INCH, 19 * ArchetypeUnits.INCH, `${GRIFFITHS}: the land service's fore truck, borrowed for the sea carriage because no sea-service truck size was found (searched: the 1852 and 1866 US Navy instructions, Douglas 1860; records-cannon.md)`, true),
-      wheelDiameter: ArchetypeBand.metres(16 * ArchetypeUnits.INCH, 16 * ArchetypeUnits.INCH, `${GRIFFITHS}: the land service's hind truck, borrowed for the sea carriage because no sea-service truck size was found`, true),
-      mass: ArchetypeBand.of("kg", (56 + 13.75) * CWT, (56 + 13.75) * CWT, `${GRIFFITHS}: the gun's 56 cwt and the carriage's 13 cwt 3 qr at 112 lb the hundredweight`),
-      muzzleVelocity: ArchetypeBand.of("m/s", 1600 * ArchetypeUnits.FOOT, 1600 * ArchetypeUnits.FOOT, DOUGLAS),
-      recoil: ArchetypeBand.metres(9 * ArchetypeUnits.FOOT, 9 * ArchetypeUnits.FOOT, `${DOUGLAS}; the run depends on the deck's slope and the charge, so the band is provisional`, true),
+      length: ArchetypeBand.metres(
+        114 * ArchetypeUnits.INCH,
+        114 * ArchetypeUnits.INCH,
+        GRIFFITHS,
+      ),
+      bore: ArchetypeBand.metres(
+        6.41 * ArchetypeUnits.INCH,
+        6.41 * ArchetypeUnits.INCH,
+        GRIFFITHS,
+      ),
+      frontWheelDiameter: ArchetypeBand.metres(
+        19 * ArchetypeUnits.INCH,
+        19 * ArchetypeUnits.INCH,
+        `${GRIFFITHS}: the land service's fore truck, borrowed for the sea carriage because no sea-service truck size was found (searched: the 1852 and 1866 US Navy instructions, Douglas 1860; records-cannon.md)`,
+        true,
+      ),
+      wheelDiameter: ArchetypeBand.metres(
+        16 * ArchetypeUnits.INCH,
+        16 * ArchetypeUnits.INCH,
+        `${GRIFFITHS}: the land service's hind truck, borrowed for the sea carriage because no sea-service truck size was found`,
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        (56 + 13.75) * CWT,
+        (56 + 13.75) * CWT,
+        `${GRIFFITHS}: the gun's 56 cwt and the carriage's 13 cwt 3 qr at 112 lb the hundredweight`,
+      ),
+      muzzleVelocity: ArchetypeBand.of(
+        "m/s",
+        1600 * ArchetypeUnits.FOOT,
+        1600 * ArchetypeUnits.FOOT,
+        DOUGLAS,
+      ),
+      recoil: ArchetypeBand.metres(
+        9 * ArchetypeUnits.FOOT,
+        9 * ArchetypeUnits.FOOT,
+        `${DOUGLAS}; the run depends on the deck's slope and the charge, so the band is provisional`,
+        true,
+      ),
     },
     mortar: {},
     swivelGun: {
-      length: ArchetypeBand.metres(1, 1, `${SWIVEL}: its overall 1000 mm taken as the tube's length, provisional because the record does not say what the overall includes`, true),
-      bore: ArchetypeBand.metres(2.25 * ArchetypeUnits.INCH, 2.25 * ArchetypeUnits.INCH, `${SWIVEL}: calibre 2.25 in`),
-      mass: ArchetypeBand.of("kg", 30, 60, `${ArchetypeBand.TYPICAL_MASS}: an estimate, no swivel gun's weight being found (searched: Royal Museums Greenwich, the Industry wreck's exhibit, the National Park Service's manual, Griffiths; records-cannon.md)`, true),
+      length: ArchetypeBand.metres(
+        1,
+        1,
+        `${SWIVEL}: its overall 1000 mm taken as the tube's length, provisional because the record does not say what the overall includes`,
+        true,
+      ),
+      bore: ArchetypeBand.metres(
+        2.25 * ArchetypeUnits.INCH,
+        2.25 * ArchetypeUnits.INCH,
+        `${SWIVEL}: calibre 2.25 in`,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        30,
+        60,
+        `${ArchetypeBand.TYPICAL_MASS}: an estimate, no swivel gun's weight being found (searched: Royal Museums Greenwich, the Industry wreck's exhibit, the National Park Service's manual, Griffiths; records-cannon.md)`,
+        true,
+      ),
     },
   };
 
@@ -335,13 +407,17 @@ export namespace createCannon {
         reason: `the ${gun.name} publishes no muzzle velocity`,
         fix: "launch from a field gun or a naval gun",
       });
-    const posed: Archetype<Affordance, Dimension> = Object.keys(state).length === 0 ? gun : gun.articulate(state);
+    const posed: Archetype<Affordance, Dimension> =
+      Object.keys(state).length === 0 ? gun : gun.articulate(state);
     const muzzle: IAutoMovieTransform = posed.affordance("muzzle").frame;
     return {
       origin: muzzle.translation,
       direction: ArchetypeFrame.axis(muzzle, "y"),
       speed,
-      calibre: gun.dimensions.ball !== undefined ? gun.dimensions.ball : gun.dimensions.bore!,
+      calibre:
+        gun.dimensions.ball !== undefined
+          ? gun.dimensions.ball
+          : gun.dimensions.bore!,
     };
   }
 
@@ -363,8 +439,13 @@ export namespace createCannon {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one gun.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The track keeps three numbers.
    */
-  export function recoil(gun: Archetype<Affordance, Dimension>, start: number): ArchetypeTrack.ITrack<Affordance> {
-    if (!gun.affordances.some((a: { id: string }): boolean => a.id === "recoil"))
+  export function recoil(
+    gun: Archetype<Affordance, Dimension>,
+    start: number,
+  ): ArchetypeTrack.ITrack<Affordance> {
+    if (
+      !gun.affordances.some((a: { id: string }): boolean => a.id === "recoil")
+    )
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: "cannon",
@@ -375,7 +456,9 @@ export namespace createCannon {
         fix: "drive the recoil of a field gun",
       });
     const run: number = gun.dimensions.recoil!;
-    const speed: number = (FIELD_GUN.SERVICE.shotMass * gun.dimensions.muzzleVelocity!) / gun.dimensions.mass!;
+    const speed: number =
+      (FIELD_GUN.SERVICE.shotMass * gun.dimensions.muzzleVelocity!) /
+      gun.dimensions.mass!;
     const duration: number = (2 * run) / speed;
     return {
       articulation: "recoil",

@@ -1,11 +1,18 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, type ArchetypeTrack } from "../core";
+import {
+  type ArchetypeBuilder,
+  ArchetypeFrame,
+  type ArchetypeTrack,
+} from "../core";
 import type { createSiegeEngine } from "./createSiegeEngine";
 
 /** A siege engine under construction. */
-type Builder = ArchetypeBuilder<createSiegeEngine.Affordance, createSiegeEngine.Dimension>;
+type Builder = ArchetypeBuilder<
+  createSiegeEngine.Affordance,
+  createSiegeEngine.Dimension
+>;
 
 /** A siege engine's dimensions. */
 type Drawn = Readonly<Partial<Record<createSiegeEngine.Dimension, number>>>;
@@ -25,7 +32,13 @@ export namespace SiegeArm {
   export const REST: number = 90;
 
   /** The sizes no source read gives, metres, each an estimate: the posts' and the base's section, the counterweight box's side, the release pin's grip and pull, and the winch's height above the ground (searched: Saimre 2006, Hansen 1992, Tarver 1995; records-siege.md). */
-  export const ESTIMATES: Readonly<{ post: number; beam: number; box: number; pin: Readonly<{ aperture: number; length: number; pull: number }>; winch: number }> = {
+  export const ESTIMATES: Readonly<{
+    post: number;
+    beam: number;
+    box: number;
+    pin: Readonly<{ aperture: number; length: number; pull: number }>;
+    winch: number;
+  }> = {
     post: 0.25,
     beam: 0.3,
     box: 1,
@@ -55,8 +68,12 @@ export namespace SiegeArm {
     const stone: number = d.projectile!;
     const mass: number = beam + counter + stone;
     const middle: number = (long - short) / 2;
-    const moment: number = (beam * (long ** 3 + short ** 3)) / (3 * (long + short)) + counter * short * short + stone * long * long;
-    const centre: number = (beam * middle - counter * short + stone * long) / mass;
+    const moment: number =
+      (beam * (long ** 3 + short ** 3)) / (3 * (long + short)) +
+      counter * short * short +
+      stone * long * long;
+    const centre: number =
+      (beam * middle - counter * short + stone * long) / mass;
     return {
       moment,
       mass,
@@ -80,7 +97,11 @@ export namespace SiegeArm {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one engine.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lay(builder: Builder, d: Drawn, counterweight: boolean): void {
+  export function lay(
+    builder: Builder,
+    d: Drawn,
+    counterweight: boolean,
+  ): void {
     const v: typeof Vector3.create = Vector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const wood: { color: string } = { color: "#6b5a3e" };
@@ -93,11 +114,21 @@ export namespace SiegeArm {
       ["left", 1],
       ["right", -1],
     ] as const)
-      builder.box(`post-${side}`, v(e.post, axle, e.post), v((sign * width) / 2, axle / 2, 0), wood);
+      builder.box(
+        `post-${side}`,
+        v(e.post, axle, e.post),
+        v((sign * width) / 2, axle / 2, 0),
+        wood,
+      );
     builder.rod("arm", e.beam / 2, v(0, axle, -short), v(0, axle, long), wood);
     const pin: IAutoMovieVector3 = v(0, axle, -short);
     if (counterweight)
-      builder.box("counterweight", v(e.box, e.box, e.box), v(0, axle - e.box / 2, -short), { color: "#5a5a5a" });
+      builder.box(
+        "counterweight",
+        v(e.box, e.box, e.box),
+        v(0, axle - e.box / 2, -short),
+        { color: "#5a5a5a" },
+      );
     builder.affordance({
       id: "arm",
       kind: "hinge",
@@ -139,7 +170,11 @@ export namespace SiegeArm {
     builder.affordance({
       id: "winch",
       kind: "crank",
-      frame: ArchetypeFrame.facing(v(width / 2 + e.post, e.winch, 0), v(1, 0, 0), v(0, 1, 0)),
+      frame: ArchetypeFrame.facing(
+        v(width / 2 + e.post, e.winch, 0),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       radius: d.winchRadius!,
       travel: d.winchRatio! * (d.cocked! + d.reach!),

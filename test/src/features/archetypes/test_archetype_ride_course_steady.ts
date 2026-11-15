@@ -43,10 +43,14 @@ export function test_archetype_ride_course_steady(): void {
       Math.abs(state.speed - 10) > 1e-9 ||
       Math.abs(state.distance - 10 * t) > 1e-9
     )
-      findings.push(`at ${t} s the steady course is at ${state.speed} m/s after ${state.distance} m`);
+      findings.push(
+        `at ${t} s the steady course is at ${state.speed} m/s after ${state.distance} m`,
+      );
     const other: ArchetypeCourse.IState = rated.at(t);
     if (other.distance !== state.distance || other.speed !== state.speed)
-      findings.push(`at ${t} s the rates a steady course never reads changed it`);
+      findings.push(
+        `at ${t} s the rates a steady course never reads changed it`,
+      );
   }
 
   // 1b. Two legs marked at the cruise, entered at it: steady with marks, no rate read.
@@ -60,8 +64,13 @@ export function test_archetype_ride_course_steady(): void {
     startSpeed: 10,
     speeds: [10, 10],
   });
-  if (Math.abs(marked.duration - 20) > 1e-9 || Math.abs(marked.at(13).distance - 130) > 1e-9)
-    findings.push(`the marked steady course runs ${marked.duration} s and is at ${marked.at(13).distance} m at 13 s`);
+  if (
+    Math.abs(marked.duration - 20) > 1e-9 ||
+    Math.abs(marked.at(13).distance - 130) > 1e-9
+  )
+    findings.push(
+      `the marked steady course runs ${marked.duration} s and is at ${marked.at(13).distance} m at 13 s`,
+    );
 
   // 2. Slowing to a stop needs only the braking.
   const stopping: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
@@ -74,7 +83,9 @@ export function test_archetype_ride_course_steady(): void {
     Math.abs(stopping.at(stopping.duration).distance - 200) > 1e-9 ||
     Math.abs(stopping.when(200 - braking) - (200 - braking) / 10) > 1e-9
   )
-    findings.push(`the stopping course does not cruise to ${200 - braking} m and brake over ${braking} m`);
+    findings.push(
+      `the stopping course does not cruise to ${200 - braking} m and brake over ${braking} m`,
+    );
 
   // 2 and 3. A speed change without its rate.
   for (const [field, course] of [

@@ -334,7 +334,14 @@ export namespace createLongTool {
    * - `pouch`: a sling's pouch a stone sits in, facing up.
    * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back along the shaft (`Throwers.atlatl`); its `grip` is the handle at the butt.
    */
-  export type Affordance = "shaft" | "grip" | "face" | "tip" | "release" | "pouch" | "spur";
+  export type Affordance =
+    | "shaft"
+    | "grip"
+    | "face"
+    | "tip"
+    | "release"
+    | "pouch"
+    | "spur";
 
   /**
    * The free dimensions, metres unless stated:

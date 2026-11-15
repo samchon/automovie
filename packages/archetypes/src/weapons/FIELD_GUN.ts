@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeFrame, ArchetypeUnits, type ArchetypeBuilder } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import type { createCannon } from "./createCannon";
 
 /** The 1862 Ordnance Manual, read at its scan. */
@@ -173,7 +173,10 @@ export namespace FIELD_GUN {
    * - `handspike`: the share of the trail handspike's read 53 in that stands behind the trail's end where the hands take it; its seat in the trail's rings is not given (searched: the 1861 Ordnance Manual's handspike table and Plate 2, Gibbon; records-cannon.md).
    */
   export const ESTIMATES: Readonly<
-    Record<"cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength" | "handspike", number>
+    Record<
+      "cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength" | "handspike",
+      number
+    >
   > = {
     cascabel: 0.5,
     stockDepth: 0.75,
@@ -227,15 +230,18 @@ export namespace FIELD_GUN {
     const vBreech: number = Math.PI * breech * breech * (trunnions - base);
     const vKnob: number = Math.PI * knob * knob * (base - end);
     const vChase: number = Math.PI * chase * chase * (muzzle - trunnions);
-    const vTrunnions: number = 2 * Math.PI * trunnion * trunnion * t.trunnionLength;
+    const vTrunnions: number =
+      2 * Math.PI * trunnion * trunnion * t.trunnionLength;
     const density: number = t.mass / (vBreech + vKnob + vChase + vTrunnions);
     const tube: number = t.mass - density * vTrunnions;
     const rearArm: number =
-      (vBreech * (trunnions - base) / 2 + vKnob * (trunnions - (base + end) / 2)) /
+      ((vBreech * (trunnions - base)) / 2 +
+        vKnob * (trunnions - (base + end) / 2)) /
       (vBreech + vKnob);
     const frontArm: number = (muzzle - trunnions) / 2;
     const rear: number =
-      (t.preponderance * (trunnions - base) + tube * frontArm) / (rearArm + frontArm);
+      (t.preponderance * (trunnions - base) + tube * frontArm) /
+      (rearArm + frontArm);
     const front: number = tube - rear;
 
     // The carriage's and wheels' shares of the whole.
@@ -304,24 +310,35 @@ export namespace FIELD_GUN {
       builder.box(
         `cheek-${side}`,
         v(cheek, cheekHeight, cheekLength),
-        v(sign * (width / 2 + cheek / 2), (axis + radius) / 2, (trunnions + trunnion + base - trunnion) / 2),
+        v(
+          sign * (width / 2 + cheek / 2),
+          (axis + radius) / 2,
+          (trunnions + trunnion + base - trunnion) / 2,
+        ),
         { color: wood, share: (wooden * vCheeks) / 2 / vWood / total },
       );
     builder.rod("screw", arm, v(0, screwFoot, base), v(0, screwTop, base), {
       color: iron,
       share: (wooden * vScrew) / vWood / total,
     });
-    builder.rod("axle", arm, v(-c.axle / 2, radius, 0), v(c.axle / 2, radius, 0), {
-      color: iron,
-      share: c.axleMass / total,
-    });
+    builder.rod(
+      "axle",
+      arm,
+      v(-c.axle / 2, radius, 0),
+      v(c.axle / 2, radius, 0),
+      {
+        color: iron,
+        share: c.axleMass / total,
+      },
+    );
 
     // The wheels: a disc of the tire's width, its spokes through the nave, turning on the axle.
     const spoke: number = c.tyre * e.spoke;
     const nave: number = arm * e.nave;
     const naveLength: number = c.tyre * e.naveLength;
     const vDisc: number = Math.PI * radius * radius * c.tyre;
-    const vSpokes: number = (c.spokes / 2) * Math.PI * spoke * spoke * 2 * radius;
+    const vSpokes: number =
+      (c.spokes / 2) * Math.PI * spoke * spoke * 2 * radius;
     const vNave: number = Math.PI * nave * nave * naveLength;
     const vWheel: number = vDisc + vSpokes + vNave;
     for (const [k, side, sign] of [
@@ -330,22 +347,48 @@ export namespace FIELD_GUN {
     ] as const) {
       const x: number = (sign * c.track) / 2;
       const parts: string[] = [`wheel-${side}`, `nave-${side}`];
-      builder.rod(`wheel-${side}`, radius, v(x - c.tyre / 2, radius, 0), v(x + c.tyre / 2, radius, 0), {
-        color: wood,
-        share: (c.wheelMass * vDisc) / vWheel / total,
-      });
-      builder.rod(`nave-${side}`, nave, v(x - naveLength / 2, radius, 0), v(x + naveLength / 2, radius, 0), {
-        color: wood,
-        share: (c.wheelMass * vNave) / vWheel / total,
-      });
+      builder.rod(
+        `wheel-${side}`,
+        radius,
+        v(x - c.tyre / 2, radius, 0),
+        v(x + c.tyre / 2, radius, 0),
+        {
+          color: wood,
+          share: (c.wheelMass * vDisc) / vWheel / total,
+        },
+      );
+      builder.rod(
+        `nave-${side}`,
+        nave,
+        v(x - naveLength / 2, radius, 0),
+        v(x + naveLength / 2, radius, 0),
+        {
+          color: wood,
+          share: (c.wheelMass * vNave) / vWheel / total,
+        },
+      );
       for (let n: number = 0; n < c.spokes / 2; n++) {
         const angle: number = (2 * Math.PI * n) / c.spokes;
-        const along: IAutoMovieVector3 = v(0, Math.cos(angle) * radius, Math.sin(angle) * radius);
-        const hub: IAutoMovieVector3 = v(x + sign * (c.tyre / 2 + spoke), radius, 0);
-        builder.rod(`spoke-${side}-${n}`, spoke, Vector3.subtract(hub, along), Vector3.add(hub, along), {
-          color: wood,
-          share: (c.wheelMass * vSpokes) / (c.spokes / 2) / vWheel / total,
-        });
+        const along: IAutoMovieVector3 = v(
+          0,
+          Math.cos(angle) * radius,
+          Math.sin(angle) * radius,
+        );
+        const hub: IAutoMovieVector3 = v(
+          x + sign * (c.tyre / 2 + spoke),
+          radius,
+          0,
+        );
+        builder.rod(
+          `spoke-${side}-${n}`,
+          spoke,
+          Vector3.subtract(hub, along),
+          Vector3.add(hub, along),
+          {
+            color: wood,
+            share: (c.wheelMass * vSpokes) / (c.spokes / 2) / vWheel / total,
+          },
+        );
         parts.push(`spoke-${side}-${n}`);
       }
       builder.affordance({
@@ -363,7 +406,11 @@ export namespace FIELD_GUN {
     builder.affordance({
       id: "elevation",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, axis, trunnions), v(-1, 0, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis, trunnions),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: c.elevation,
       reverse: c.depression,
@@ -392,7 +439,11 @@ export namespace FIELD_GUN {
     const entry: number = muzzle - t.boreLength + t.bore / 4;
     const rise: number = breech - t.bore / 2;
     const lean: number = (VENT * Math.PI) / 180;
-    const orifice: IAutoMovieVector3 = v(0, axis + breech, entry - rise / Math.tan(lean));
+    const orifice: IAutoMovieVector3 = v(
+      0,
+      axis + breech,
+      entry - rise / Math.tan(lean),
+    );
     const out: IAutoMovieVector3 = v(0, Math.sin(lean), -Math.cos(lean));
     builder.affordance({
       id: "vent",
@@ -405,7 +456,10 @@ export namespace FIELD_GUN {
 
     // The friction primer in the vent, its long tube standing out along it; its wire's eye at the tube's top is where the lanyard's hook takes it.
     const s: typeof SERVICE = SERVICE;
-    const eye: IAutoMovieVector3 = Vector3.add(orifice, Vector3.scale(out, s.tube));
+    const eye: IAutoMovieVector3 = Vector3.add(
+      orifice,
+      Vector3.scale(out, s.tube),
+    );
     builder.affordance({
       id: "primer",
       kind: "socket",
@@ -418,7 +472,11 @@ export namespace FIELD_GUN {
     builder.affordance({
       id: "lanyard",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, eye.y, eye.z - s.lanyard), v(0, 1, 0), v(0, 0, -1)),
+      frame: ArchetypeFrame.facing(
+        v(0, eye.y, eye.z - s.lanyard),
+        v(0, 1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       grip: "power",
       aperture: s.toggle.diameter,
@@ -430,7 +488,11 @@ export namespace FIELD_GUN {
     builder.affordance({
       id: "elevatingScrew",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, screwTop, base),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       rides: "recoil",
     });
@@ -447,7 +509,11 @@ export namespace FIELD_GUN {
       id: "handspike",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, depth, trailEnd - (s.handspike * e.handspike) / 2), v(0, 1, 0), v(0, 0, -1)),
+      frame: ArchetypeFrame.facing(
+        v(0, depth, trailEnd - (s.handspike * e.handspike) / 2),
+        v(0, 1, 0),
+        v(0, 0, -1),
+      ),
       extent: null,
       grip: "power",
       aperture: depth,
@@ -477,7 +543,11 @@ export namespace FIELD_GUN {
         id,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(v((sign * c.track) / 2, 2 * radius, 0), v(0, 1, 0), v(1, 0, 0)),
+        frame: ArchetypeFrame.facing(
+          v((sign * c.track) / 2, 2 * radius, 0),
+          v(0, 1, 0),
+          v(1, 0, 0),
+        ),
         extent: null,
         grip: "power",
         aperture: c.tyre,

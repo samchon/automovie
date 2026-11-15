@@ -23,9 +23,11 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  */
 export function test_archetype_siege_trebuchet(): void {
   const findings: string[] = [];
-  const close = (a: number, b: number, tolerance: number = 1e-9): boolean => Math.abs(a - b) <= tolerance;
+  const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
+    Math.abs(a - b) <= tolerance;
   const FT: number = 0.3048;
-  const t: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> = createSiegeEngine({ kind: "trebuchet" }, 1).dimensions;
+  const t: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
+    createSiegeEngine({ kind: "trebuchet" }, 1).dimensions;
   for (const [name, expected] of [
     ["armLength", 5.85],
     ["shortArm", 1.2],
@@ -33,53 +35,118 @@ export function test_archetype_siege_trebuchet(): void {
     ["cocked", 32],
     ["projectile", 15],
   ] as const)
-    if (!close(t[name]!, expected)) findings.push(`trebuchet ${name} is ${t[name]}, not ${expected}`);
-  const m: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> = createSiegeEngine({ kind: "mangonel" }, 1).dimensions;
+    if (!close(t[name]!, expected))
+      findings.push(`trebuchet ${name} is ${t[name]}, not ${expected}`);
+  const m: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
+    createSiegeEngine({ kind: "mangonel" }, 1).dimensions;
   for (const [name, expected] of [
     ["armLength", (16 * FT * 6) / 7],
     ["shortArm", (16 * FT) / 7],
     ["axleHeight", 12 * FT],
     ["projectile", 2.5],
   ] as const)
-    if (!close(m[name]!, expected)) findings.push(`mangonel ${name} is ${m[name]}, not ${expected}`);
+    if (!close(m[name]!, expected))
+      findings.push(`mangonel ${name} is ${m[name]}, not ${expected}`);
   for (const kind of createSiegeEngine.KINDS)
     for (const [name, band] of Object.entries(createSiegeEngine.BANDS[kind]))
-      if (band !== undefined && /borrowed|estimate|provisional/.test(band.source) && band.provisional !== true)
+      if (
+        band !== undefined &&
+        /borrowed|estimate|provisional/.test(band.source) &&
+        band.provisional !== true
+      )
         findings.push(`${kind}: ${name} is not marked provisional`);
 
   for (const kind of createSiegeEngine.KINDS)
     for (const seed of [0, 3, 7, 12]) {
-      const engine: Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> = createSiegeEngine({ kind }, seed);
-      const d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> = engine.dimensions;
+      const engine: Archetype<
+        createSiegeEngine.Affordance,
+        createSiegeEngine.Dimension
+      > = createSiegeEngine({ kind }, seed);
+      const d: Readonly<Partial<Record<createSiegeEngine.Dimension, number>>> =
+        engine.dimensions;
       const label: string = `${kind}@${seed}`;
-      const cocked: Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> = engine.articulate({ arm: -d.cocked! });
-      if (!close(cocked.travel("winch"), d.winchRatio! * d.cocked!, 1e-6)) findings.push(`${label}: the winch turns ${cocked.travel("winch")}, not the ratio times the cocked travel`);
+      const cocked: Archetype<
+        createSiegeEngine.Affordance,
+        createSiegeEngine.Dimension
+      > = engine.articulate({ arm: -d.cocked! });
+      if (!close(cocked.travel("winch"), d.winchRatio! * d.cocked!, 1e-6))
+        findings.push(
+          `${label}: the winch turns ${cocked.travel("winch")}, not the ratio times the cocked travel`,
+        );
       for (const arm of [-d.cocked!, 0, 90, d.release!, d.reach!]) {
-        const posed: Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> = engine.articulate({ arm });
-        if (!validateModel({ model: posed }).success) findings.push(`${label}: the arm at ${arm} is refused`);
+        const posed: Archetype<
+          createSiegeEngine.Affordance,
+          createSiegeEngine.Dimension
+        > = engine.articulate({ arm });
+        if (!validateModel({ model: posed }).success)
+          findings.push(`${label}: the arm at ${arm} is refused`);
         if (kind === "trebuchet") {
-          const tilt: number = posed.travel("arm") + posed.travel("counterweight");
-          if (Math.abs(tilt) > 0.5 || !(archetypeExtent(posed, "x", ["counterweight"]).size > 0)) findings.push(`${label}: the counterweight tilts ${tilt} degrees at ${arm}`);
+          const tilt: number =
+            posed.travel("arm") + posed.travel("counterweight");
+          if (
+            Math.abs(tilt) > 0.5 ||
+            !(archetypeExtent(posed, "x", ["counterweight"]).size > 0)
+          )
+            findings.push(
+              `${label}: the counterweight tilts ${tilt} degrees at ${arm}`,
+            );
         }
       }
-      const shot: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 1);
+      const shot: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+        engine,
+        1,
+      );
       let last: number = -Infinity;
       for (let k: number = 0; k <= 50; k++) {
         const second: number = 1 + ((shot.second - 1) * k) / 50;
         const arm: number = shot.track.travel(second);
-        if (arm < last - 1e-9) findings.push(`${label}: the arm falls back before release at ${second}`);
+        if (arm < last - 1e-9)
+          findings.push(
+            `${label}: the arm falls back before release at ${second}`,
+          );
         last = arm;
       }
-      if (!close(shot.track.travel(1), -d.cocked!, 1e-6) || !close(shot.track.travel(shot.second), d.release!, 1e-6))
-        findings.push(`${label}: the swing runs from ${shot.track.travel(1)} to ${shot.track.travel(shot.second)}`);
+      if (
+        !close(shot.track.travel(1), -d.cocked!, 1e-6) ||
+        !close(shot.track.travel(shot.second), d.release!, 1e-6)
+      )
+        findings.push(
+          `${label}: the swing runs from ${shot.track.travel(1)} to ${shot.track.travel(shot.second)}`,
+        );
       const step: number = 1e-6;
-      const rate: number = ((shot.track.travel(shot.second + step) - shot.track.travel(shot.second - step)) / (2 * step)) * (Math.PI / 180);
+      const rate: number =
+        ((shot.track.travel(shot.second + step) -
+          shot.track.travel(shot.second - step)) /
+          (2 * step)) *
+        (Math.PI / 180);
       const a: number = (d.release! * Math.PI) / 180;
-      const expected: IAutoMovieVector3 = { x: 0, y: rate * d.armLength! * Math.cos(a), z: -rate * d.armLength! * Math.sin(a) };
-      if (Math.hypot(shot.velocity.y - expected.y, shot.velocity.z - expected.z) > 1e-3)
-        findings.push(`${label}: the stone leaves at ${JSON.stringify(shot.velocity)}, not the pouch's ${JSON.stringify(expected)}`);
-      const pouch: IAutoMovieVector3 = engine.articulate({ arm: d.release! }).affordance("pouch").frame.translation;
-      if (Math.hypot(pouch.x - shot.origin.x, pouch.y - shot.origin.y, pouch.z - shot.origin.z) > 1e-9) findings.push(`${label}: the stone does not leave from the pouch`);
+      const expected: IAutoMovieVector3 = {
+        x: 0,
+        y: rate * d.armLength! * Math.cos(a),
+        z: -rate * d.armLength! * Math.sin(a),
+      };
+      if (
+        Math.hypot(shot.velocity.y - expected.y, shot.velocity.z - expected.z) >
+        1e-3
+      )
+        findings.push(
+          `${label}: the stone leaves at ${JSON.stringify(shot.velocity)}, not the pouch's ${JSON.stringify(expected)}`,
+        );
+      const pouch: IAutoMovieVector3 = engine
+        .articulate({ arm: d.release! })
+        .affordance("pouch").frame.translation;
+      if (
+        Math.hypot(
+          pouch.x - shot.origin.x,
+          pouch.y - shot.origin.y,
+          pouch.z - shot.origin.z,
+        ) > 1e-9
+      )
+        findings.push(`${label}: the stone does not leave from the pouch`);
     }
-  TestValidator.equals("a siege engine winds, swings and throws by its own masses", findings, []);
+  TestValidator.equals(
+    "a siege engine winds, swings and throws by its own masses",
+    findings,
+    [],
+  );
 }

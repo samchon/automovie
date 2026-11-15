@@ -28,15 +28,41 @@ const HAUL: number = 25;
 
 /** The band of each dimension of a siege engine, by kind. */
 export const SIEGE_BANDS: Readonly<
-  Record<createSiegeEngine.Kind, Readonly<Partial<Record<createSiegeEngine.Dimension, IArchetypeBand>>>>
+  Record<
+    createSiegeEngine.Kind,
+    Readonly<Partial<Record<createSiegeEngine.Dimension, IArchetypeBand>>>
+  >
 > = {
   trebuchet: {
-    armLength: ArchetypeBand.metres(5.85, 5.85, `${SAIMRE}: the long arm 5.85 m`),
+    armLength: ArchetypeBand.metres(
+      5.85,
+      5.85,
+      `${SAIMRE}: the long arm 5.85 m`,
+    ),
     shortArm: ArchetypeBand.metres(1.2, 1.2, `${SAIMRE}: the short arm 1.2 m`),
-    axleHeight: ArchetypeBand.metres(3.15, 3.15, `${SAIMRE}: axle height 3.15 m`),
-    counterweight: ArchetypeBand.of("kg", 2000, 4000, `${SAIMRE}: 2000 kg tested, 4000 kg rated`),
-    projectile: ArchetypeBand.of("kg", 15, 15, `${SAIMRE}: 15 kg cast cement, thrown 168 m`),
-    cocked: ArchetypeBand.of("degrees", 32, 32, `${SAIMRE}: the beam's initial angle to the horizon, 32 degrees`),
+    axleHeight: ArchetypeBand.metres(
+      3.15,
+      3.15,
+      `${SAIMRE}: axle height 3.15 m`,
+    ),
+    counterweight: ArchetypeBand.of(
+      "kg",
+      2000,
+      4000,
+      `${SAIMRE}: 2000 kg tested, 4000 kg rated`,
+    ),
+    projectile: ArchetypeBand.of(
+      "kg",
+      15,
+      15,
+      `${SAIMRE}: 15 kg cast cement, thrown 168 m`,
+    ),
+    cocked: ArchetypeBand.of(
+      "degrees",
+      32,
+      32,
+      `${SAIMRE}: the beam's initial angle to the horizon, 32 degrees`,
+    ),
     release: ArchetypeBand.of(
       "degrees",
       70,
@@ -44,16 +70,56 @@ export const SIEGE_BANDS: Readonly<
       `${HANSEN}: the sling's free end released at about 70 degrees from the horizontal, taken as the arm's travel because the sling's swing is not modelled; provisional`,
       true,
     ),
-    armMass: ArchetypeBand.of("kg", 300, 600, `${ArchetypeBand.TYPICAL_MASS}: the beam's mass, ${UNREAD}`, true),
-    frameWidth: ArchetypeBand.metres(1.5, 2.5, `the posts' spread, an estimate, ${UNREAD}`, true),
-    winchRadius: ArchetypeBand.metres(0.3, 0.5, `the windlass's handle radius, an estimate: Hansen's crew cocked with block and tackle, no winch being read; ${UNREAD}`, true),
-    winchRatio: ArchetypeBand.of("", 10, 20, `the windlass's turns per turn of the arm, an estimate, ${UNREAD}`, true),
-    mass: ArchetypeBand.of("kg", 4000, 8000, `${ArchetypeBand.TYPICAL_MASS}: the whole engine with its box, ${UNREAD}`, true),
+    armMass: ArchetypeBand.of(
+      "kg",
+      300,
+      600,
+      `${ArchetypeBand.TYPICAL_MASS}: the beam's mass, ${UNREAD}`,
+      true,
+    ),
+    frameWidth: ArchetypeBand.metres(
+      1.5,
+      2.5,
+      `the posts' spread, an estimate, ${UNREAD}`,
+      true,
+    ),
+    winchRadius: ArchetypeBand.metres(
+      0.3,
+      0.5,
+      `the windlass's handle radius, an estimate: Hansen's crew cocked with block and tackle, no winch being read; ${UNREAD}`,
+      true,
+    ),
+    winchRatio: ArchetypeBand.of(
+      "",
+      10,
+      20,
+      `the windlass's turns per turn of the arm, an estimate, ${UNREAD}`,
+      true,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      4000,
+      8000,
+      `${ArchetypeBand.TYPICAL_MASS}: the whole engine with its box, ${UNREAD}`,
+      true,
+    ),
   },
   mangonel: {
-    armLength: ArchetypeBand.metres((BEAM * 6) / 7, (BEAM * 6) / 7, `${TARVER}: the beam 16 ft at al-Tarsusi's six to one, its long arm six sevenths of it`),
-    shortArm: ArchetypeBand.metres(BEAM / 7, BEAM / 7, `${TARVER}: the short arm one seventh of the 16 ft beam`),
-    axleHeight: ArchetypeBand.metres(12 * ArchetypeUnits.FOOT, 12 * ArchetypeUnits.FOOT, `${TARVER}: the uprights 12 ft high`),
+    armLength: ArchetypeBand.metres(
+      (BEAM * 6) / 7,
+      (BEAM * 6) / 7,
+      `${TARVER}: the beam 16 ft at al-Tarsusi's six to one, its long arm six sevenths of it`,
+    ),
+    shortArm: ArchetypeBand.metres(
+      BEAM / 7,
+      BEAM / 7,
+      `${TARVER}: the short arm one seventh of the 16 ft beam`,
+    ),
+    axleHeight: ArchetypeBand.metres(
+      12 * ArchetypeUnits.FOOT,
+      12 * ArchetypeUnits.FOOT,
+      `${TARVER}: the uprights 12 ft high`,
+    ),
     counterweight: ArchetypeBand.of(
       "kg",
       PULLERS * HAUL,
@@ -61,13 +127,58 @@ export const SIEGE_BANDS: Readonly<
       `${TARVER}: twenty pullers, each taken to haul as hard as 25 kg hangs, an estimate (a puller's force is not measured); the weight that pulls as hard as the crew, provisional`,
       true,
     ),
-    projectile: ArchetypeBand.of("kg", 2.5, 2.5, `${TARVER}: stones of around 2.5 kg, thrown 100 m on average`),
-    cocked: ArchetypeBand.of("degrees", 0, 0, `${TARVER}: the arm swings a little over 90 degrees and the ropes stop it just past the vertical, so it starts about level; provisional`, true),
-    release: ArchetypeBand.of("degrees", 60, 60, `the arm's travel at release, an estimate: Tarver gives the release hook's 30 to 40 degrees, not the arm's; ${UNREAD}`, true),
-    armMass: ArchetypeBand.of("kg", 40, 80, `${ArchetypeBand.TYPICAL_MASS}: the beam's mass, ${UNREAD}`, true),
-    frameWidth: ArchetypeBand.metres(12 * ArchetypeUnits.FOOT, 12 * ArchetypeUnits.FOOT, `${TARVER}: the base's struts 12 and 16 ft, the shorter taken as the posts' spread; provisional`, true),
-    winchRadius: ArchetypeBand.metres(0.3, 0.5, `the windlass's handle radius, an estimate: a traction engine is hauled by its crew; ${UNREAD}`, true),
-    winchRatio: ArchetypeBand.of("", 10, 20, `the windlass's turns per turn of the arm, an estimate, ${UNREAD}`, true),
-    mass: ArchetypeBand.of("kg", 300, 600, `${ArchetypeBand.TYPICAL_MASS}: the whole engine, ${UNREAD}`, true),
+    projectile: ArchetypeBand.of(
+      "kg",
+      2.5,
+      2.5,
+      `${TARVER}: stones of around 2.5 kg, thrown 100 m on average`,
+    ),
+    cocked: ArchetypeBand.of(
+      "degrees",
+      0,
+      0,
+      `${TARVER}: the arm swings a little over 90 degrees and the ropes stop it just past the vertical, so it starts about level; provisional`,
+      true,
+    ),
+    release: ArchetypeBand.of(
+      "degrees",
+      60,
+      60,
+      `the arm's travel at release, an estimate: Tarver gives the release hook's 30 to 40 degrees, not the arm's; ${UNREAD}`,
+      true,
+    ),
+    armMass: ArchetypeBand.of(
+      "kg",
+      40,
+      80,
+      `${ArchetypeBand.TYPICAL_MASS}: the beam's mass, ${UNREAD}`,
+      true,
+    ),
+    frameWidth: ArchetypeBand.metres(
+      12 * ArchetypeUnits.FOOT,
+      12 * ArchetypeUnits.FOOT,
+      `${TARVER}: the base's struts 12 and 16 ft, the shorter taken as the posts' spread; provisional`,
+      true,
+    ),
+    winchRadius: ArchetypeBand.metres(
+      0.3,
+      0.5,
+      `the windlass's handle radius, an estimate: a traction engine is hauled by its crew; ${UNREAD}`,
+      true,
+    ),
+    winchRatio: ArchetypeBand.of(
+      "",
+      10,
+      20,
+      `the windlass's turns per turn of the arm, an estimate, ${UNREAD}`,
+      true,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      300,
+      600,
+      `${ArchetypeBand.TYPICAL_MASS}: the whole engine, ${UNREAD}`,
+      true,
+    ),
   },
 };

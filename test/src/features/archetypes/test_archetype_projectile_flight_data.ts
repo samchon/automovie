@@ -29,7 +29,9 @@ export function test_archetype_projectile_flight_data(): void {
   const launched: Launched[] = createProjectile.KINDS.filter(
     (kind: createProjectile.Kind): kind is Launched => kind !== "cartridge",
   );
-  const cartridge: IAutoMovieBody = createProjectile({ kind: "cartridge" }).body;
+  const cartridge: IAutoMovieBody = createProjectile({
+    kind: "cartridge",
+  }).body;
   if (cartridge.drag !== undefined || cartridge.contact !== undefined)
     findings.push("the cartridge carries flight data");
   // Every read object of every kind, and the kinds without one at their seedless draw.

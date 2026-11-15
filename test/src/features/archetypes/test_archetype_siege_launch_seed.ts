@@ -1,5 +1,8 @@
 import { type Archetype, createSiegeEngine } from "@automovie/archetypes";
-import { type IAutoMovieProjectileState, projectileAt } from "@automovie/engine";
+import {
+  type IAutoMovieProjectileState,
+  projectileAt,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /** Standard gravity, metres per second squared. */
@@ -23,23 +26,49 @@ export function test_archetype_siege_launch_seed(): void {
   const findings: string[] = [];
   for (const kind of createSiegeEngine.KINDS)
     for (const seed of [0, 5, 9]) {
-      const engine: Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> = createSiegeEngine({ kind }, seed);
+      const engine: Archetype<
+        createSiegeEngine.Affordance,
+        createSiegeEngine.Dimension
+      > = createSiegeEngine({ kind }, seed);
       const label: string = `${kind}@${seed}`;
       const a: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 2);
       const b: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 2);
-      const late: createSiegeEngine.IThrow = createSiegeEngine.throwAt(engine, 5);
-      if (a.second !== b.second || JSON.stringify(a.origin) !== JSON.stringify(b.origin) || JSON.stringify(a.velocity) !== JSON.stringify(b.velocity))
+      const late: createSiegeEngine.IThrow = createSiegeEngine.throwAt(
+        engine,
+        5,
+      );
+      if (
+        a.second !== b.second ||
+        JSON.stringify(a.origin) !== JSON.stringify(b.origin) ||
+        JSON.stringify(a.velocity) !== JSON.stringify(b.velocity)
+      )
         findings.push(`${label}: the same pin second gives another throw`);
-      if (Math.abs(late.second - a.second - 3) > 1e-9 || JSON.stringify(late.velocity) !== JSON.stringify(a.velocity))
+      if (
+        Math.abs(late.second - a.second - 3) > 1e-9 ||
+        JSON.stringify(late.velocity) !== JSON.stringify(a.velocity)
+      )
         findings.push(`${label}: a later pin does not shift the throw whole`);
       const { y: y0, z: z0 } = a.origin;
       const { y: vy, z: vz } = a.velocity;
       const t: number = (vy + Math.sqrt(vy * vy + 2 * G * y0)) / G;
       const closed: number = z0 + vz * t;
-      const landed: IAutoMovieProjectileState = projectileAt({ origin: a.origin, velocity: a.velocity, gravity: { x: 0, y: -G, z: 0 } }, t);
+      const landed: IAutoMovieProjectileState = projectileAt(
+        {
+          origin: a.origin,
+          velocity: a.velocity,
+          gravity: { x: 0, y: -G, z: 0 },
+        },
+        t,
+      );
       const z: number = landed.position.z;
-      if (Math.abs(landed.position.y) > 0.001) findings.push(`${label}: the flight is not on the ground at the closed form's landing`);
-      if (Math.abs(z - closed) > 0.001) findings.push(`${label}: the flight lands at ${z}, not the closed form's ${closed}`);
+      if (Math.abs(landed.position.y) > 0.001)
+        findings.push(
+          `${label}: the flight is not on the ground at the closed form's landing`,
+        );
+      if (Math.abs(z - closed) > 0.001)
+        findings.push(
+          `${label}: the flight lands at ${z}, not the closed form's ${closed}`,
+        );
     }
   TestValidator.equals("a throw is the pin second's alone", findings, []);
 }

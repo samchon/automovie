@@ -19,7 +19,11 @@ export function test_archetype_weapon_javelin(): void {
   const rule: Readonly<
     Record<
       createJavelin.Kind,
-      { length: readonly [number, number]; balance: readonly [number, number]; mass: number }
+      {
+        length: readonly [number, number];
+        balance: readonly [number, number];
+        mass: number;
+      }
     >
   > = {
     men: { length: [2.6, 2.7], balance: [0.9, 1.06], mass: 0.8 },
@@ -35,23 +39,37 @@ export function test_archetype_weapon_javelin(): void {
         });
         const centre: { x: number; y: number; z: number } =
           javelin.properties.centerOfMass;
-        const grip: ReturnType<typeof javelin.affordance> = javelin.affordance("grip");
+        const grip: ReturnType<typeof javelin.affordance> =
+          javelin.affordance("grip");
         const label: string = `the ${kind}'s javelin ${length} m long balanced at ${balance} m`;
         if (
           Math.abs(centre.y - balance) > 1e-9 ||
           Math.hypot(centre.x, centre.z) > 1e-9 ||
           Math.abs(grip.frame.translation.y - centre.y) > grip.length! / 2
         )
-          findings.push(`${label}: its centre of mass is at ${JSON.stringify(centre)}, its grip at ${grip.frame.translation.y} m`);
+          findings.push(
+            `${label}: its centre of mass is at ${JSON.stringify(centre)}, its grip at ${grip.frame.translation.y} m`,
+          );
         if (Math.abs(javelin.body.mass - rule[kind].mass) > 1e-12)
           findings.push(`${label}: ${javelin.body.mass} kg`);
         if (Math.abs(javelin.dimensions.length! - length) > 1e-12)
           findings.push(`${label}: ${javelin.dimensions.length} m long`);
       }
-  const lance: ReturnType<typeof createPolearm> = createPolearm({ kind: "lance" });
-  if (!(lance.affordance("grip").frame.translation.y < lance.properties.centerOfMass.y))
+  const lance: ReturnType<typeof createPolearm> = createPolearm({
+    kind: "lance",
+  });
+  if (
+    !(
+      lance.affordance("grip").frame.translation.y <
+      lance.properties.centerOfMass.y
+    )
+  )
     findings.push(
       `a lance's grip at ${lance.affordance("grip").frame.translation.y} m is not behind its centre of mass at ${lance.properties.centerOfMass.y} m`,
     );
-  TestValidator.equals("a javelin balances at its grip, a lance ahead of it", findings, []);
+  TestValidator.equals(
+    "a javelin balances at its grip, a lance ahead of it",
+    findings,
+    [],
+  );
 }

@@ -84,7 +84,11 @@ export function createArmour(
   if (m === undefined)
     // The read piece as its record measures it.
     builder.box("piece", v(d.width!, d.height!, d.depth!), v(0, 0, 0), steel);
-  else if (kind === "openHelmet" || kind === "closedHelmet" || kind === "brimmedHelmet") {
+  else if (
+    kind === "openHelmet" ||
+    kind === "closedHelmet" ||
+    kind === "brimmedHelmet"
+  ) {
     const r: number = m.headRadius! + d.pad! + t;
     builder.ball("piece", r, v(0, 0, 0), steel);
     if (kind === "brimmedHelmet")
@@ -335,7 +339,11 @@ export namespace createArmour {
     kind: Kind,
     side: "left" | "right" = "left",
   ): AutoMovieHumanoidBone {
-    if (kind === "openHelmet" || kind === "closedHelmet" || kind === "brimmedHelmet")
+    if (
+      kind === "openHelmet" ||
+      kind === "closedHelmet" ||
+      kind === "brimmedHelmet"
+    )
       return "head";
     if (kind === "cuirass" || kind === "mail") return "chest";
     if (kind === "gauntlet") return side === "left" ? "leftHand" : "rightHand";

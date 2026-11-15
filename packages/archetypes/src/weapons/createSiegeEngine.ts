@@ -34,18 +34,29 @@ export function createSiegeEngine(
   params: createSiegeEngine.IParams,
   seed?: number | string,
 ): Archetype<createSiegeEngine.Affordance, createSiegeEngine.Dimension> {
-  const draw: ArchetypeDrawSession<createSiegeEngine.Dimension> = new ArchetypeDrawSession<createSiegeEngine.Dimension>(
+  const draw: ArchetypeDrawSession<createSiegeEngine.Dimension> =
+    new ArchetypeDrawSession<createSiegeEngine.Dimension>(
+      "siegeEngine",
+      createSiegeEngine.UNITS,
+      seed,
+      params,
+    );
+  const kind: createSiegeEngine.Kind = ArchetypeDraw.choice(
     "siegeEngine",
-    createSiegeEngine.UNITS,
-    seed,
-    params,
+    "kind",
+    params.kind,
+    createSiegeEngine.KINDS,
   );
-  const kind: createSiegeEngine.Kind = ArchetypeDraw.choice("siegeEngine", "kind", params.kind, createSiegeEngine.KINDS);
   draw.dimensions(createSiegeEngine.BANDS[kind], createSiegeEngine.BANDS);
   // The arm's rise past level: released from its cocked travel it swings through its rest, the long end straight up, and as far again, energy being kept.
   draw.derive("reach", 2 * SiegeArm.REST + draw.values.cocked!);
-  const d: Partial<Record<createSiegeEngine.Dimension, number>> = { ...draw.values };
-  const builder: ArchetypeBuilder<createSiegeEngine.Affordance, createSiegeEngine.Dimension> = new ArchetypeBuilder({
+  const d: Partial<Record<createSiegeEngine.Dimension, number>> = {
+    ...draw.values,
+  };
+  const builder: ArchetypeBuilder<
+    createSiegeEngine.Affordance,
+    createSiegeEngine.Dimension
+  > = new ArchetypeBuilder({
     id: params.id,
     name: kind,
     draw,
@@ -79,7 +90,13 @@ export namespace createSiegeEngine {
    * - `winch`: the windlass at the posts' foot, turning by its ratio as the arm is wound down.
    * - `frame`: the base the crew stands on.
    */
-  export type Affordance = "arm" | "counterweight" | "pouch" | "pin" | "winch" | "frame";
+  export type Affordance =
+    | "arm"
+    | "counterweight"
+    | "pouch"
+    | "pin"
+    | "winch"
+    | "frame";
 
   /**
    * The dimensions, metres unless stated:
@@ -133,7 +150,9 @@ export namespace createSiegeEngine {
   }
 
   /** The band of each dimension, by kind. */
-  export const BANDS: Readonly<Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>> = SIEGE_BANDS;
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = SIEGE_BANDS;
 
   /** A throw: the arm's swing and the stone's launch from the pouch. */
   export interface IThrow {
@@ -163,16 +182,23 @@ export namespace createSiegeEngine {
     start: number,
   ): IThrow {
     const d: Readonly<Partial<Record<Dimension, number>>> = engine.dimensions;
-    const track: ArchetypeTrack.ITrack<Affordance> = ArchetypeTrack.swing(engine, "arm", {
-      start,
-      release: -d.cocked!,
-      seconds: SWING,
-      pendulum: SiegeArm.pendulum(d),
-      launch: d.release!,
-    });
+    const track: ArchetypeTrack.ITrack<Affordance> = ArchetypeTrack.swing(
+      engine,
+      "arm",
+      {
+        start,
+        release: -d.cocked!,
+        seconds: SWING,
+        pendulum: SiegeArm.pendulum(d),
+        launch: d.release!,
+      },
+    );
     const launch: ArchetypeTrack.ILaunch = track.launch!;
-    const posed: Archetype<Affordance, Dimension> = engine.articulate({ arm: launch.travel });
-    const pouch: IAutoMovieVector3 = posed.affordance("pouch").frame.translation;
+    const posed: Archetype<Affordance, Dimension> = engine.articulate({
+      arm: launch.travel,
+    });
+    const pouch: IAutoMovieVector3 =
+      posed.affordance("pouch").frame.translation;
     // The long end at travel a stands at (0, L sin a, L cos a) from the axle, so its velocity is the rate times (0, L cos a, -L sin a).
     const angle: number = launch.travel * ArchetypeUnits.DEGREE;
     const rate: number = launch.rate * ArchetypeUnits.DEGREE * d.armLength!;
@@ -187,4 +213,3 @@ export namespace createSiegeEngine {
   /** How long a throw's swing is followed, seconds: long enough for any release; a construction bound, no act reads it. */
   export const SWING: number = 10;
 }
-

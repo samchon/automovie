@@ -1,4 +1,8 @@
-import { type Archetype, ArchetypeRefusal, createCannon } from "@automovie/archetypes";
+import {
+  type Archetype,
+  ArchetypeRefusal,
+  createCannon,
+} from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -28,25 +32,45 @@ const G: number = 9.80665;
  */
 export function test_archetype_cannon_launch(): void {
   const findings: string[] = [];
-  const gun: Archetype<createCannon.Affordance, createCannon.Dimension> = createCannon({ kind: "fieldGun" }, 1);
+  const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
+    createCannon({ kind: "fieldGun" }, 1);
   for (const elevation of [-8, 0, 5, 12]) {
     const shot: createCannon.ILaunch = createCannon.launch(gun, { elevation });
-    const muzzle: IAutoMovieVector3 = gun.articulate({ elevation }).affordance("muzzle").frame.translation;
-    if (Vector3.length(Vector3.subtract(shot.origin, muzzle)) > 1e-9) findings.push(`at ${elevation} degrees the launch is off the muzzle`);
-    if (Math.abs(Vector3.length(shot.direction) - 1) > 1e-9 || Math.abs(shot.direction.y - Math.sin((elevation * Math.PI) / 180)) > 1e-9)
-      findings.push(`at ${elevation} degrees the direction is ${JSON.stringify(shot.direction)}`);
-    if (Math.abs(shot.speed - 1439 * FT) > 1e-9 || Math.abs(shot.calibre - 3.58 * IN) > 1e-12)
-      findings.push(`at ${elevation} degrees the speed is ${shot.speed} and the calibre ${shot.calibre}`);
+    const muzzle: IAutoMovieVector3 = gun
+      .articulate({ elevation })
+      .affordance("muzzle").frame.translation;
+    if (Vector3.length(Vector3.subtract(shot.origin, muzzle)) > 1e-9)
+      findings.push(`at ${elevation} degrees the launch is off the muzzle`);
+    if (
+      Math.abs(Vector3.length(shot.direction) - 1) > 1e-9 ||
+      Math.abs(shot.direction.y - Math.sin((elevation * Math.PI) / 180)) > 1e-9
+    )
+      findings.push(
+        `at ${elevation} degrees the direction is ${JSON.stringify(shot.direction)}`,
+      );
+    if (
+      Math.abs(shot.speed - 1439 * FT) > 1e-9 ||
+      Math.abs(shot.calibre - 3.58 * IN) > 1e-12
+    )
+      findings.push(
+        `at ${elevation} degrees the speed is ${shot.speed} and the calibre ${shot.calibre}`,
+      );
   }
   const speed: number = createCannon.launch(gun).speed;
   const range: number = (speed * speed * Math.sin((10 * Math.PI) / 180)) / G;
-  if (!(range > 1500 && range > 1523 * 3 * FT)) findings.push(`the drag-free range at 5 degrees is ${range} m`);
+  if (!(range > 1500 && range > 1523 * 3 * FT))
+    findings.push(`the drag-free range at 5 degrees is ${range} m`);
   let refused: unknown = null;
   try {
     createCannon.launch(createCannon({ kind: "mortar" }, 1));
   } catch (error) {
     refused = error;
   }
-  if (!(refused instanceof ArchetypeRefusal && refused.axis === "kind")) findings.push("a mortar's launch is not refused");
-  TestValidator.equals("a shot leaves along the bore at the read speed", findings, []);
+  if (!(refused instanceof ArchetypeRefusal && refused.axis === "kind"))
+    findings.push("a mortar's launch is not refused");
+  TestValidator.equals(
+    "a shot leaves along the bore at the read speed",
+    findings,
+    [],
+  );
 }

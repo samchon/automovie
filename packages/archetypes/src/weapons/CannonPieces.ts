@@ -5,7 +5,10 @@ import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import type { createCannon } from "./createCannon";
 
 /** A cannon under construction. */
-type Builder = ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension>;
+type Builder = ArchetypeBuilder<
+  createCannon.Affordance,
+  createCannon.Dimension
+>;
 
 /** A cannon's drawn and read dimensions. */
 type Drawn = Readonly<Partial<Record<createCannon.Dimension, number>>>;
@@ -38,13 +41,24 @@ export namespace CannonPieces {
   export const ESTIMATES: Readonly<{
     tube: number;
     trunnion: number;
-    carriage: Readonly<{ length: number; width: number; height: number; trucks: number }>;
+    carriage: Readonly<{
+      length: number;
+      width: number;
+      height: number;
+      trucks: number;
+    }>;
     elevation: number;
     depression: number;
     vent: number;
     mortar: number;
     bed: number;
-    swivel: Readonly<{ pin: number; arm: number; spread: number; tilt: number; tiller: number }>;
+    swivel: Readonly<{
+      pin: number;
+      arm: number;
+      spread: number;
+      tilt: number;
+      tiller: number;
+    }>;
   }> = {
     tube: 2,
     trunnion: 0.1,
@@ -83,9 +97,27 @@ export namespace CannonPieces {
       ["left", 1],
       ["right", -1],
     ] as const)
-      builder.rod(`yoke-${side}`, outer / 4, v(0, e.pin, 0), v((sign * e.spread) / 2, axis, 0), iron);
-    builder.rod("tube", outer, v(0, axis, -length / 2), v(0, axis, length / 2), { color: "#8c6a3a" });
-    builder.rod("tiller", outer / 3, v(0, axis, -length / 2), v(0, axis, -length / 2 - e.tiller), { color: "#6b5a3e" });
+      builder.rod(
+        `yoke-${side}`,
+        outer / 4,
+        v(0, e.pin, 0),
+        v((sign * e.spread) / 2, axis, 0),
+        iron,
+      );
+    builder.rod(
+      "tube",
+      outer,
+      v(0, axis, -length / 2),
+      v(0, axis, length / 2),
+      { color: "#8c6a3a" },
+    );
+    builder.rod(
+      "tiller",
+      outer / 3,
+      v(0, axis, -length / 2),
+      v(0, axis, -length / 2 - e.tiller),
+      { color: "#6b5a3e" },
+    );
     builder.affordance({
       id: "traverse",
       kind: "hinge",
@@ -109,7 +141,11 @@ export namespace CannonPieces {
       id: "muzzle",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, axis, length / 2), v(0, 0, 1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis, length / 2),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       rides: "elevation",
     });
@@ -117,7 +153,11 @@ export namespace CannonPieces {
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, axis + outer, -length / 2 + length * ESTIMATES.vent), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis + outer, -length / 2 + length * ESTIMATES.vent),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       rides: "elevation",
     });
@@ -125,7 +165,11 @@ export namespace CannonPieces {
       id: "tiller",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, axis, -length / 2 - e.tiller / 2), v(0, 1, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis, -length / 2 - e.tiller / 2),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: (2 * outer) / 3,
@@ -166,19 +210,40 @@ export namespace CannonPieces {
     const trunnions: number = -length * e.trunnion;
     const muzzle: number = trunnions + length / 2 + length * e.trunnion;
     const breech: number = muzzle - length;
-    builder.box("carriage", v(c.width, c.height, c.length), v(0, deck + c.height / 2, 0), wood);
+    builder.box(
+      "carriage",
+      v(c.width, c.height, c.length),
+      v(0, deck + c.height / 2, 0),
+      wood,
+    );
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
     ] as const) {
-      builder.rod(`truck-fore-${side}`, fore, v(sign * c.width / 2, fore, (c.length * c.trucks) / 2), v(sign * (c.width / 2 + outer / 2), fore, (c.length * c.trucks) / 2), wood);
-      builder.rod(`truck-hind-${side}`, hind, v(sign * c.width / 2, hind, (-c.length * c.trucks) / 2), v(sign * (c.width / 2 + outer / 2), hind, (-c.length * c.trucks) / 2), wood);
+      builder.rod(
+        `truck-fore-${side}`,
+        fore,
+        v((sign * c.width) / 2, fore, (c.length * c.trucks) / 2),
+        v(sign * (c.width / 2 + outer / 2), fore, (c.length * c.trucks) / 2),
+        wood,
+      );
+      builder.rod(
+        `truck-hind-${side}`,
+        hind,
+        v((sign * c.width) / 2, hind, (-c.length * c.trucks) / 2),
+        v(sign * (c.width / 2 + outer / 2), hind, (-c.length * c.trucks) / 2),
+        wood,
+      );
     }
     builder.rod("tube", outer, v(0, axis, breech), v(0, axis, muzzle), iron);
     builder.affordance({
       id: "elevation",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, axis, trunnions), v(-1, 0, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis, trunnions),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: e.elevation,
       reverse: e.depression,
@@ -196,7 +261,11 @@ export namespace CannonPieces {
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, axis + outer, breech + length * e.vent), v(0, 1, 0), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, axis + outer, breech + length * e.vent),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       rides: "elevation",
     });
@@ -226,9 +295,17 @@ export namespace CannonPieces {
     const outer: number = (d.bore! / 2) * e.tube;
     const angle: number = MORTAR_ELEVATION * ArchetypeUnits.DEGREE;
     const along: IAutoMovieVector3 = v(0, Math.sin(angle), Math.cos(angle));
-    const muzzle: IAutoMovieVector3 = Vector3.add(pivot, Vector3.scale(along, length / 2));
-    const breech: IAutoMovieVector3 = Vector3.subtract(pivot, Vector3.scale(along, length / 2));
-    builder.box("bed", v(width, height, d.bedLength!), v(0, height / 2, 0), { color: "#6b5a3e" });
+    const muzzle: IAutoMovieVector3 = Vector3.add(
+      pivot,
+      Vector3.scale(along, length / 2),
+    );
+    const breech: IAutoMovieVector3 = Vector3.subtract(
+      pivot,
+      Vector3.scale(along, length / 2),
+    );
+    builder.box("bed", v(width, height, d.bedLength!), v(0, height / 2, 0), {
+      color: "#6b5a3e",
+    });
     builder.rod("tube", outer, breech, muzzle, { color: "#3f4246" });
     builder.affordance({
       id: "muzzle",
@@ -241,7 +318,11 @@ export namespace CannonPieces {
       id: "vent",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(Vector3.add(breech, Vector3.scale(along, length * e.vent)), v(0, Math.cos(angle), -Math.sin(angle)), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        Vector3.add(breech, Vector3.scale(along, length * e.vent)),
+        v(0, Math.cos(angle), -Math.sin(angle)),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }

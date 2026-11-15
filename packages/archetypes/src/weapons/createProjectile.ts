@@ -419,13 +419,7 @@ export namespace createProjectile {
    * - `grip`: a cartridge's paper, pinched between the thumb and two fingers.
    * - `end`: a cartridge's powder end, `+Y` out along it, which the teeth tear open.
    */
-  export type Affordance =
-    | "body"
-    | "shaft"
-    | "nock"
-    | "tip"
-    | "grip"
-    | "end";
+  export type Affordance = "body" | "shaft" | "nock" | "tip" | "grip" | "end";
 
   /**
    * The free dimensions, metres unless stated:

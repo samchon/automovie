@@ -457,7 +457,11 @@ export class Archetype<
    */
   public broken(hit: ArchetypeFracture.IHit): {
     remainder: Archetype<Id, Dimension> | null;
-    fragments: { id: string; archetype: Archetype<never, Dimension>; velocity: IAutoMovieVector3 }[];
+    fragments: {
+      id: string;
+      archetype: Archetype<never, Dimension>;
+      velocity: IAutoMovieVector3;
+    }[];
   } | null {
     const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
       ArchetypeFracture.split(this.#rest, hit);
@@ -468,7 +472,11 @@ export class Archetype<
           ? null
           : new Archetype<Id, Dimension>(split.remainder),
       fragments: split.fragments.map(
-        (f: { id: string; props: Archetype.IProps<never, Dimension>; velocity: IAutoMovieVector3 }) => ({
+        (f: {
+          id: string;
+          props: Archetype.IProps<never, Dimension>;
+          velocity: IAutoMovieVector3;
+        }) => ({
           id: f.id,
           archetype: new Archetype<never, Dimension>(f.props),
           velocity: f.velocity,

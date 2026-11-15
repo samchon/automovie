@@ -91,7 +91,11 @@ export namespace ArchetypeFracture {
     hit: IHit,
   ): IBroken<Id, Dimension> | null {
     const threshold: number | undefined = rest.contact?.fracture;
-    if (rest.fractures.length === 0 || threshold === undefined || hit.energy < threshold)
+    if (
+      rest.fractures.length === 0 ||
+      threshold === undefined ||
+      hit.energy < threshold
+    )
       return null;
     const record = <I extends string>(
       id: string,
@@ -102,7 +106,8 @@ export namespace ArchetypeFracture {
         (p: IAutoMovieModelPart): boolean => keep.has(p.id),
       );
       const mass: number = parts.reduce(
-        (sum: number, p: IAutoMovieModelPart): number => sum + (rest.masses[p.id] ?? 0),
+        (sum: number, p: IAutoMovieModelPart): number =>
+          sum + (rest.masses[p.id] ?? 0),
         0,
       );
       return {
@@ -119,18 +124,23 @@ export namespace ArchetypeFracture {
         ),
         fractures: [],
         masses: Object.fromEntries(
-          parts.map((p: IAutoMovieModelPart): [string, number] => [p.id, rest.masses[p.id] ?? 0]),
+          parts.map((p: IAutoMovieModelPart): [string, number] => [
+            p.id,
+            rest.masses[p.id] ?? 0,
+          ]),
         ),
       };
     };
     const broken: Set<string> = new Set(
       rest.fractures.flatMap((s: ISet): readonly string[] => s.parts),
     );
-    const fragments: { id: string; props: Archetype.IProps<never, Dimension> }[] =
-      rest.fractures.map((s: ISet) => ({
-        id: s.id,
-        props: record<never>(`${rest.id}/${s.id}`, new Set(s.parts), []),
-      }));
+    const fragments: {
+      id: string;
+      props: Archetype.IProps<never, Dimension>;
+    }[] = rest.fractures.map((s: ISet) => ({
+      id: s.id,
+      props: record<never>(`${rest.id}/${s.id}`, new Set(s.parts), []),
+    }));
     const total: number = fragments.reduce(
       (sum: number, f: { props: Archetype.IProps<never, Dimension> }): number =>
         sum + f.props.properties.mass,

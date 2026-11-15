@@ -1,4 +1,8 @@
-import { type Archetype, ArchetypeRefusal, createCannon } from "@automovie/archetypes";
+import {
+  type Archetype,
+  ArchetypeRefusal,
+  createCannon,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,9 +34,12 @@ const LB: number = 0.45359237;
  */
 export function test_archetype_cannon_kinds(): void {
   const findings: string[] = [];
-  const close = (a: number, b: number, tolerance: number = 1e-9): boolean => Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
-  const naval: Archetype<createCannon.Affordance, createCannon.Dimension> = createCannon({ kind: "navalGun" }, 1);
-  const n: Readonly<Partial<Record<createCannon.Dimension, number>>> = naval.dimensions;
+  const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
+    Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
+  const naval: Archetype<createCannon.Affordance, createCannon.Dimension> =
+    createCannon({ kind: "navalGun" }, 1);
+  const n: Readonly<Partial<Record<createCannon.Dimension, number>>> =
+    naval.dimensions;
   for (const [name, expected] of [
     ["length", 114 * IN],
     ["bore", 6.41 * IN],
@@ -42,16 +49,19 @@ export function test_archetype_cannon_kinds(): void {
     ["muzzleVelocity", 1600 * 12 * IN],
     ["recoil", 9 * 12 * IN],
   ] as const)
-    if (!close(n[name]!, expected)) findings.push(`naval ${name} is ${n[name]}, not ${expected}`);
+    if (!close(n[name]!, expected))
+      findings.push(`naval ${name} is ${n[name]}, not ${expected}`);
   for (const name of ["frontWheelDiameter", "wheelDiameter", "recoil"] as const)
-    if (createCannon.BANDS.navalGun[name]?.provisional !== true) findings.push(`naval ${name} is not marked provisional`);
+    if (createCannon.BANDS.navalGun[name]?.provisional !== true)
+      findings.push(`naval ${name} is not marked provisional`);
 
   findings.push(
     ...archetypeModelSweep([
       {
         name: "mortar",
         measure: (seed: number): number[] => {
-          const m: Readonly<Partial<Record<createCannon.Dimension, number>>> = createCannon({ kind: "mortar" }, seed).dimensions;
+          const m: Readonly<Partial<Record<createCannon.Dimension, number>>> =
+            createCannon({ kind: "mortar" }, seed).dimensions;
           return [m.bore!, m.length!, m.bedLength!, m.bedWidth!, m.mass!];
         },
         models: [
@@ -64,28 +74,47 @@ export function test_archetype_cannon_kinds(): void {
   );
 
   for (const model of ["siege10", "coehorn24"] as const) {
-    const mortar: Archetype<createCannon.Affordance, createCannon.Dimension> = createCannon({ kind: "mortar", model }, 1);
-    const muzzle: IAutoMovieVector3 = mortar.affordance("muzzle").frame.translation;
+    const mortar: Archetype<createCannon.Affordance, createCannon.Dimension> =
+      createCannon({ kind: "mortar", model }, 1);
+    const muzzle: IAutoMovieVector3 =
+      mortar.affordance("muzzle").frame.translation;
     const vent: IAutoMovieVector3 = mortar.affordance("vent").frame.translation;
-    const angle: number = (Math.atan2(muzzle.y - vent.y, muzzle.z - vent.z) * 180) / Math.PI;
-    if (Math.abs(angle - 45) > 5) findings.push(`${model}: the bore points ${angle} degrees up`);
-    for (const id of ["muzzle", "vent"] as const) if (mortar.affordance(id).kind !== "socket") findings.push(`${model}: ${id} is not a socket`);
-    if (!validateModel({ model: mortar }).success) findings.push(`${model} is refused`);
+    const angle: number =
+      (Math.atan2(muzzle.y - vent.y, muzzle.z - vent.z) * 180) / Math.PI;
+    if (Math.abs(angle - 45) > 5)
+      findings.push(`${model}: the bore points ${angle} degrees up`);
+    for (const id of ["muzzle", "vent"] as const)
+      if (mortar.affordance(id).kind !== "socket")
+        findings.push(`${model}: ${id} is not a socket`);
+    if (!validateModel({ model: mortar }).success)
+      findings.push(`${model} is refused`);
   }
 
   const up: number = naval.affordance("elevation").travel!;
   const down: number = naval.affordance("elevation").reverse!;
   const level: number = naval.affordance("muzzle").frame.translation.y;
-  const raised: Archetype<createCannon.Affordance, createCannon.Dimension> = naval.articulate({ elevation: up });
-  const lowered: Archetype<createCannon.Affordance, createCannon.Dimension> = naval.articulate({ elevation: -down });
-  if (!(raised.affordance("muzzle").frame.translation.y > level)) findings.push("the naval muzzle does not rise");
-  if (!(lowered.affordance("muzzle").frame.translation.y < level)) findings.push("the naval muzzle does not fall");
-  for (const posed of [naval, raised, lowered]) if (!validateModel({ model: posed }).success) findings.push("a naval pose is refused");
-  for (const id of ["muzzle", "vent"] as const) if (naval.affordance(id).kind !== "socket") findings.push(`naval ${id} is not a socket`);
+  const raised: Archetype<createCannon.Affordance, createCannon.Dimension> =
+    naval.articulate({ elevation: up });
+  const lowered: Archetype<createCannon.Affordance, createCannon.Dimension> =
+    naval.articulate({ elevation: -down });
+  if (!(raised.affordance("muzzle").frame.translation.y > level))
+    findings.push("the naval muzzle does not rise");
+  if (!(lowered.affordance("muzzle").frame.translation.y < level))
+    findings.push("the naval muzzle does not fall");
+  for (const posed of [naval, raised, lowered])
+    if (!validateModel({ model: posed }).success)
+      findings.push("a naval pose is refused");
+  for (const id of ["muzzle", "vent"] as const)
+    if (naval.affordance(id).kind !== "socket")
+      findings.push(`naval ${id} is not a socket`);
 
   for (const call of [
     (): unknown => createCannon({ kind: "fieldGun", model: "siege10" }, 1),
-    (): unknown => createCannon({ kind: "mortar", model: "howitzer" as createCannon.Model }, 1),
+    (): unknown =>
+      createCannon(
+        { kind: "mortar", model: "howitzer" as createCannon.Model },
+        1,
+      ),
   ]) {
     let refused: unknown = null;
     try {
@@ -93,18 +122,51 @@ export function test_archetype_cannon_kinds(): void {
     } catch (error) {
       refused = error;
     }
-    if (!(refused instanceof ArchetypeRefusal && refused.axis === "model")) findings.push("a model is not refused");
+    if (!(refused instanceof ArchetypeRefusal && refused.axis === "model"))
+      findings.push("a model is not refused");
   }
-  const swivel: Archetype<createCannon.Affordance, createCannon.Dimension> = createCannon({ kind: "swivelGun" }, 1);
-  if (!close(swivel.dimensions.bore!, 2.25 * IN) || !close(swivel.dimensions.length!, 1)) findings.push("the swivel gun is not KTP0053's");
-  if (createCannon.BANDS.swivelGun.length?.provisional !== true) findings.push("the swivel's length is not marked provisional");
-  if (swivel.affordance("elevation").rides !== "traverse" || swivel.affordance("tiller").rides !== "elevation") findings.push("the swivel's hinges do not ride each other");
+  const swivel: Archetype<createCannon.Affordance, createCannon.Dimension> =
+    createCannon({ kind: "swivelGun" }, 1);
+  if (
+    !close(swivel.dimensions.bore!, 2.25 * IN) ||
+    !close(swivel.dimensions.length!, 1)
+  )
+    findings.push("the swivel gun is not KTP0053's");
+  if (createCannon.BANDS.swivelGun.length?.provisional !== true)
+    findings.push("the swivel's length is not marked provisional");
+  if (
+    swivel.affordance("elevation").rides !== "traverse" ||
+    swivel.affordance("tiller").rides !== "elevation"
+  )
+    findings.push("the swivel's hinges do not ride each other");
   const tilt: number = swivel.affordance("elevation").travel!;
-  const ahead: IAutoMovieVector3 = swivel.articulate({ elevation: tilt }).affordance("muzzle").frame.translation;
-  const round: IAutoMovieVector3 = swivel.articulate({ elevation: tilt, traverse: 90 }).affordance("muzzle").frame.translation;
-  if (!(Math.abs(round.y - ahead.y) < 1e-9 && Math.abs(round.z) < 1e-6 && Math.abs(round.x) > 0.1))
-    findings.push(`panning a quarter turn leaves the tilted muzzle at ${JSON.stringify(round)}`);
-  for (const state of [{ elevation: tilt }, { elevation: -swivel.affordance("elevation").reverse! }, { traverse: 180 }, { traverse: -180 }])
-    if (!validateModel({ model: swivel.articulate(state) }).success) findings.push(`the swivel pose ${JSON.stringify(state)} is refused`);
-  TestValidator.equals("the naval gun, the mortars and the swivel gun are their sources'", findings, []);
+  const ahead: IAutoMovieVector3 = swivel
+    .articulate({ elevation: tilt })
+    .affordance("muzzle").frame.translation;
+  const round: IAutoMovieVector3 = swivel
+    .articulate({ elevation: tilt, traverse: 90 })
+    .affordance("muzzle").frame.translation;
+  if (
+    !(
+      Math.abs(round.y - ahead.y) < 1e-9 &&
+      Math.abs(round.z) < 1e-6 &&
+      Math.abs(round.x) > 0.1
+    )
+  )
+    findings.push(
+      `panning a quarter turn leaves the tilted muzzle at ${JSON.stringify(round)}`,
+    );
+  for (const state of [
+    { elevation: tilt },
+    { elevation: -swivel.affordance("elevation").reverse! },
+    { traverse: 180 },
+    { traverse: -180 },
+  ])
+    if (!validateModel({ model: swivel.articulate(state) }).success)
+      findings.push(`the swivel pose ${JSON.stringify(state)} is refused`);
+  TestValidator.equals(
+    "the naval gun, the mortars and the swivel gun are their sources'",
+    findings,
+    [],
+  );
 }

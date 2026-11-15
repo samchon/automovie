@@ -1,4 +1,9 @@
-import { type Archetype, ArchetypeRefusal, createHandgun, createLongGun } from "@automovie/archetypes";
+import {
+  type Archetype,
+  ArchetypeRefusal,
+  createHandgun,
+  createLongGun,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,15 +40,28 @@ const FPS: number = 12 * IN;
  */
 export function test_archetype_weapon_firearm_models(): void {
   const findings: string[] = [];
-  const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+  const close = (a: number, b: number): boolean =>
+    Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
   const long =
-    (kind: createLongGun.Kind, names: readonly createLongGun.Dimension[]): ((seed: number) => number[]) =>
+    (
+      kind: createLongGun.Kind,
+      names: readonly createLongGun.Dimension[],
+    ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
-      names.map((n: createLongGun.Dimension): number => createLongGun({ kind }, seed).dimensions[n]!);
+      names.map(
+        (n: createLongGun.Dimension): number =>
+          createLongGun({ kind }, seed).dimensions[n]!,
+      );
   const hand =
-    (frame: createHandgun.Frame, names: readonly createHandgun.Dimension[]): ((seed: number) => number[]) =>
+    (
+      frame: createHandgun.Frame,
+      names: readonly createHandgun.Dimension[],
+    ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
-      names.map((n: createHandgun.Dimension): number => createHandgun({ frame }, seed).dimensions[n]!);
+      names.map(
+        (n: createHandgun.Dimension): number =>
+          createHandgun({ frame }, seed).dimensions[n]!,
+      );
   findings.push(
     ...archetypeModelSweep([
       {
@@ -75,39 +93,72 @@ export function test_archetype_weapon_firearm_models(): void {
       },
     ]),
   );
-  const musket: Archetype<createLongGun.Affordance, createLongGun.Dimension> = createLongGun({ kind: "musket" }, 3);
-  if (!close(musket.dimensions.length!, 1.473) || !close(musket.dimensions.barrel!, 1.068)) findings.push("the musket is not the Short Land");
-  const lever: Archetype<createLongGun.Affordance, createLongGun.Dimension> = createLongGun({ kind: "leverAction" }, 3);
+  const musket: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+    createLongGun({ kind: "musket" }, 3);
+  if (
+    !close(musket.dimensions.length!, 1.473) ||
+    !close(musket.dimensions.barrel!, 1.068)
+  )
+    findings.push("the musket is not the Short Land");
+  const lever: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+    createLongGun({ kind: "leverAction" }, 3);
   for (const [name, expected] of [
     ["length", 38.625 * IN],
     ["barrel", 20.25 * IN],
     ["lengthOfPull", 13.38 * IN],
     ["mass", 7.5 * LB],
   ] as const)
-    if (!close(lever.dimensions[name]!, expected)) findings.push(`the lever action's ${name} is ${lever.dimensions[name]}, not ${expected}`);
-  const kar98k: number = createLongGun({ kind: "rifle", model: "kar98k" }, 3).dimensions.barrel!;
-  if (!close(kar98k, 23.4 * IN)) findings.push(`the Kar 98k's barrel is ${kar98k}`);
+    if (!close(lever.dimensions[name]!, expected))
+      findings.push(
+        `the lever action's ${name} is ${lever.dimensions[name]}, not ${expected}`,
+      );
+  const kar98k: number = createLongGun({ kind: "rifle", model: "kar98k" }, 3)
+    .dimensions.barrel!;
+  if (!close(kar98k, 23.4 * IN))
+    findings.push(`the Kar 98k's barrel is ${kar98k}`);
 
-  const rifle: Archetype<createLongGun.Affordance, createLongGun.Dimension> = createLongGun({ kind: "rifle" }, 3);
+  const rifle: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+    createLongGun({ kind: "rifle" }, 3);
   const lift: number = rifle.affordance("bolt").travel!;
   const stroke: number = rifle.affordance("boltSlide").travel!;
-  const drawn: Archetype<createLongGun.Affordance, createLongGun.Dimension> = rifle.articulate({ bolt: lift, boltSlide: stroke });
-  const back: number = archetypeExtent(rifle, "z", ["bolt"]).low - archetypeExtent(drawn, "z", ["bolt"]).low;
-  if (!(Math.abs(back - stroke) < 1e-6)) findings.push(`the drawn bolt moves back ${back} m, not its stroke ${stroke}`);
+  const drawn: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+    rifle.articulate({ bolt: lift, boltSlide: stroke });
+  const back: number =
+    archetypeExtent(rifle, "z", ["bolt"]).low -
+    archetypeExtent(drawn, "z", ["bolt"]).low;
+  if (!(Math.abs(back - stroke) < 1e-6))
+    findings.push(
+      `the drawn bolt moves back ${back} m, not its stroke ${stroke}`,
+    );
   for (const state of [{ bolt: lift }, { bolt: lift, boltSlide: stroke }])
-    if (!validateModel({ model: rifle.articulate(state) }).success) findings.push(`the bolt pose ${JSON.stringify(state)} is refused`);
+    if (!validateModel({ model: rifle.articulate(state) }).success)
+      findings.push(`the bolt pose ${JSON.stringify(state)} is refused`);
 
   const swing: number = lever.affordance("lever").travel!;
   const fall: number = lever.affordance("hammer").travel!;
   for (const share of [0.5, 1]) {
-    const posed: Archetype<createLongGun.Affordance, createLongGun.Dimension> = lever.articulate({ lever: swing * share });
-    if (!(Math.abs(posed.travel("hammer") - fall * share) < 1e-9)) findings.push(`at ${share} of the swing the hammer is at ${posed.travel("hammer")}`);
-    if (!validateModel({ model: posed }).success) findings.push(`the lever at ${share} is refused`);
+    const posed: Archetype<createLongGun.Affordance, createLongGun.Dimension> =
+      lever.articulate({ lever: swing * share });
+    if (!(Math.abs(posed.travel("hammer") - fall * share) < 1e-9))
+      findings.push(
+        `at ${share} of the swing the hammer is at ${posed.travel("hammer")}`,
+      );
+    if (!validateModel({ model: posed }).success)
+      findings.push(`the lever at ${share} is refused`);
   }
 
   for (const [label, call, axis] of [
-    ["musket length", (): unknown => createLongGun({ kind: "musket", length: 1.4 }, 1), "length"],
-    ["revolver length", (): unknown => createHandgun({ frame: "revolver", model: "saa75", length: 0.3 }, 1), "length"],
+    [
+      "musket length",
+      (): unknown => createLongGun({ kind: "musket", length: 1.4 }, 1),
+      "length",
+    ],
+    [
+      "revolver length",
+      (): unknown =>
+        createHandgun({ frame: "revolver", model: "saa75", length: 0.3 }, 1),
+      "length",
+    ],
   ] as const) {
     let refused: unknown = null;
     try {
@@ -115,7 +166,8 @@ export function test_archetype_weapon_firearm_models(): void {
     } catch (error) {
       refused = error;
     }
-    if (!(refused instanceof ArchetypeRefusal && refused.axis === axis)) findings.push(`a fixed ${label} is not refused`);
+    if (!(refused instanceof ArchetypeRefusal && refused.axis === axis))
+      findings.push(`a fixed ${label} is not refused`);
   }
   TestValidator.equals("each firearm is one read model whole", findings, []);
 }

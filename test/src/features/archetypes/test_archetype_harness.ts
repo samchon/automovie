@@ -133,7 +133,11 @@ export function test_archetype_harness(): void {
           );
         continue;
       }
-      if (tack === "both" ? !(ids.includes("hitch") && ids.includes("seat")) : ids.join(",") !== "hitch")
+      if (
+        tack === "both"
+          ? !(ids.includes("hitch") && ids.includes("seat"))
+          : ids.join(",") !== "hitch"
+      )
         findings.push(
           `${label}: the driving horse's contacts are ${ids.join(", ")}`,
         );

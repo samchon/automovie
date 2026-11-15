@@ -188,7 +188,9 @@ export namespace ArchetypeMass {
     const weights: [string, number][] = parts.map(
       (part: IAutoMovieModelPart): [string, number] => {
         const solid: ILocal | null =
-          part.geometry.type === "primitive" ? local(part.geometry.shape) : null;
+          part.geometry.type === "primitive"
+            ? local(part.geometry.shape)
+            : null;
         return [
           part.id,
           solid === null
@@ -222,7 +224,10 @@ export namespace ArchetypeMass {
     properties: IProperties;
 
     /** Where its space sits in the common one. */
-    placement: { translation: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+    placement: {
+      translation: IAutoMovieVector3;
+      rotation: IAutoMovieQuaternion;
+    };
   }
 
   /**

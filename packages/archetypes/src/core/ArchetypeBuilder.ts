@@ -267,14 +267,22 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    */
   public fracture(sets: readonly ArchetypeFracture.ISet[]): this {
     const named: Set<string> = new Set(
-      this.#fractures.flatMap((s: ArchetypeFracture.ISet): readonly string[] => s.parts),
+      this.#fractures.flatMap(
+        (s: ArchetypeFracture.ISet): readonly string[] => s.parts,
+      ),
     );
     for (const set of sets)
       for (const part of set.parts) {
-        if (!this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part))
-          throw new Error(`fracture set ${set.id} names the unrecorded part ${part}`);
+        if (
+          !this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
+        )
+          throw new Error(
+            `fracture set ${set.id} names the unrecorded part ${part}`,
+          );
         if (named.has(part))
-          throw new Error(`fracture set ${set.id} names ${part}, which another set already carries`);
+          throw new Error(
+            `fracture set ${set.id} names ${part}, which another set already carries`,
+          );
         named.add(part);
       }
     this.#fractures.push(...sets);

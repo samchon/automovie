@@ -28,7 +28,9 @@ export function test_archetype_armour_fit(): void {
   const PLATE: readonly [number, number] = [0.0015, 0.003];
   const PAD: number = 0.75 * 0.0254;
   const EPSILON: number = 1e-9;
-  const shape = (piece: ReturnType<typeof createArmour>): AutoMoviePrimitiveShape => {
+  const shape = (
+    piece: ReturnType<typeof createArmour>,
+  ): AutoMoviePrimitiveShape => {
     const part: IAutoMovieModelPart = piece.parts.find(
       (p: IAutoMovieModelPart): boolean => p.id === "piece",
     )!;
@@ -43,44 +45,73 @@ export function test_archetype_armour_fit(): void {
   for (const name of motionHumanBody.SWEEP) {
     const m: IAutoMovieBodyMeasure = motionHumanBody(name).measure;
     for (const kind of createArmour.KINDS) {
-      const piece: ReturnType<typeof createArmour> = createArmour({ kind, measure: m });
+      const piece: ReturnType<typeof createArmour> = createArmour({
+        kind,
+        measure: m,
+      });
       const s: AutoMoviePrimitiveShape = shape(piece);
       const label: string = `${kind} on ${name}`;
-      if (kind === "openHelmet" || kind === "closedHelmet" || kind === "brimmedHelmet") {
-        if (s.type !== "sphere" || !inside(s.radius - m.headRadius, PAD + PLATE[0], PAD + PLATE[1]))
-          findings.push(`${label}: ${JSON.stringify(s)} round a head of ${m.headRadius} m`);
+      if (
+        kind === "openHelmet" ||
+        kind === "closedHelmet" ||
+        kind === "brimmedHelmet"
+      ) {
+        if (
+          s.type !== "sphere" ||
+          !inside(s.radius - m.headRadius, PAD + PLATE[0], PAD + PLATE[1])
+        )
+          findings.push(
+            `${label}: ${JSON.stringify(s)} round a head of ${m.headRadius} m`,
+          );
       } else if (kind === "cuirass" || kind === "mail") {
-        const plate: readonly [number, number] = kind === "mail" ? [0, 0] : PLATE;
+        const plate: readonly [number, number] =
+          kind === "mail" ? [0, 0] : PLATE;
         const height: number =
-          kind === "mail" ? piece.dimensions.height! : m.shoulderHeight - m.waistHeight;
+          kind === "mail"
+            ? piece.dimensions.height!
+            : m.shoulderHeight - m.waistHeight;
         if (
           s.type !== "box" ||
           !inside(s.width - m.chestBreadth, 2 * plate[0], 2 * plate[1]) ||
           !inside(s.depth - m.chestDepth, 2 * plate[0], 2 * plate[1]) ||
           Math.abs(s.height - height) > EPSILON
         )
-          findings.push(`${label}: ${JSON.stringify(s)} round a chest ${m.chestBreadth} by ${m.chestDepth} m`);
+          findings.push(
+            `${label}: ${JSON.stringify(s)} round a chest ${m.chestBreadth} by ${m.chestDepth} m`,
+          );
       } else {
-        const radius: number = kind === "greave" ? m.shankRadius : m.forearmRadius;
+        const radius: number =
+          kind === "greave" ? m.shankRadius : m.forearmRadius;
         const length: number =
-          kind === "greave" ? m.shank : kind === "vambrace" ? m.forearm : m.hand;
+          kind === "greave"
+            ? m.shank
+            : kind === "vambrace"
+              ? m.forearm
+              : m.hand;
         if (
           s.type !== "cylinder" ||
           !inside(s.radius - radius, PLATE[0], PLATE[1]) ||
           Math.abs(s.height - length) > EPSILON
         )
-          findings.push(`${label}: ${JSON.stringify(s)} round a limb of ${radius} m over ${length} m`);
+          findings.push(
+            `${label}: ${JSON.stringify(s)} round a limb of ${radius} m over ${length} m`,
+          );
       }
     }
   }
 
   // 2. Every read piece unfitted: its record's box and mass.
   for (const kind of createArmour.KINDS)
-    for (const [model, figures] of Object.entries(createArmour.MODELS[kind]) as [
+    for (const [model, figures] of Object.entries(
+      createArmour.MODELS[kind],
+    ) as [
       createArmour.Model,
       Readonly<Partial<Record<createArmour.Dimension, number>>>,
     ][]) {
-      const piece: ReturnType<typeof createArmour> = createArmour({ kind, model });
+      const piece: ReturnType<typeof createArmour> = createArmour({
+        kind,
+        model,
+      });
       const s: AutoMoviePrimitiveShape = shape(piece);
       if (!validateModel({ model: piece }).success)
         findings.push(`${kind} ${model}: not admitted`);
@@ -91,25 +122,34 @@ export function test_archetype_armour_fit(): void {
         Math.abs(s.depth - figures.depth!) > EPSILON ||
         Math.abs(piece.body.mass - figures.mass!) > EPSILON
       )
-        findings.push(`${kind} ${model}: ${JSON.stringify(s)}, ${piece.body.mass} kg`);
+        findings.push(
+          `${kind} ${model}: ${JSON.stringify(s)}, ${piece.body.mass} kg`,
+        );
     }
 
   // 3. The bones.
-  const bones: Readonly<Record<createArmour.Kind, readonly [string, string]>> = {
-    openHelmet: ["head", "head"],
-    closedHelmet: ["head", "head"],
-    brimmedHelmet: ["head", "head"],
-    cuirass: ["chest", "chest"],
-    mail: ["chest", "chest"],
-    gauntlet: ["leftHand", "rightHand"],
-    vambrace: ["leftLowerArm", "rightLowerArm"],
-    greave: ["leftLowerLeg", "rightLowerLeg"],
-  };
+  const bones: Readonly<Record<createArmour.Kind, readonly [string, string]>> =
+    {
+      openHelmet: ["head", "head"],
+      closedHelmet: ["head", "head"],
+      brimmedHelmet: ["head", "head"],
+      cuirass: ["chest", "chest"],
+      mail: ["chest", "chest"],
+      gauntlet: ["leftHand", "rightHand"],
+      vambrace: ["leftLowerArm", "rightLowerArm"],
+      greave: ["leftLowerLeg", "rightLowerLeg"],
+    };
   for (const kind of createArmour.KINDS)
     if (
       createArmour.bone(kind, "left") !== bones[kind][0] ||
       createArmour.bone(kind, "right") !== bones[kind][1]
     )
-      findings.push(`${kind} rides ${createArmour.bone(kind, "left")} and ${createArmour.bone(kind, "right")}`);
-  TestValidator.equals("armour fits every body and is its record unfitted", findings, []);
+      findings.push(
+        `${kind} rides ${createArmour.bone(kind, "left")} and ${createArmour.bone(kind, "right")}`,
+      );
+  TestValidator.equals(
+    "armour fits every body and is its record unfitted",
+    findings,
+    [],
+  );
 }

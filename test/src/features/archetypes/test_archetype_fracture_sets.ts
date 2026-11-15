@@ -47,47 +47,98 @@ export function test_archetype_fracture_sets(): void {
       findings.push(`${label} does not break at ${energy} J`);
       continue;
     }
-    const shards: (typeof broken.fragments)[number] | undefined = broken.fragments.find((f: { id: string }): boolean => f.id === "shards");
+    const shards: (typeof broken.fragments)[number] | undefined =
+      broken.fragments.find((f: { id: string }): boolean => f.id === "shards");
     if (shards === undefined || broken.fragments.length !== 1) {
-      findings.push(`${label}: fragments ${broken.fragments.map((f: { id: string }): string => f.id).join(", ")}`);
+      findings.push(
+        `${label}: fragments ${broken.fragments.map((f: { id: string }): string => f.id).join(", ")}`,
+      );
       continue;
     }
     const ids = (parts: readonly IAutoMovieModelPart[]): string[] =>
-      parts.map((p: IAutoMovieModelPart): string => p.id).sort((a: string, b: string): number => a.localeCompare(b));
+      parts
+        .map((p: IAutoMovieModelPart): string => p.id)
+        .sort((a: string, b: string): number => a.localeCompare(b));
     const all: string[] = ids(bottle.parts);
-    const pieces: string[] = [...ids(broken.remainder.parts), ...ids(shards.archetype.parts)].sort((a: string, b: string): number => a.localeCompare(b));
+    const pieces: string[] = [
+      ...ids(broken.remainder.parts),
+      ...ids(shards.archetype.parts),
+    ].sort((a: string, b: string): number => a.localeCompare(b));
     if (JSON.stringify(all) !== JSON.stringify(pieces))
-      findings.push(`${label}: parts ${JSON.stringify(pieces)} against ${JSON.stringify(all)}`);
-    if (JSON.stringify(ids(shards.archetype.parts)) !== JSON.stringify(["body"]))
-      findings.push(`${label}: the shards are ${JSON.stringify(ids(shards.archetype.parts))}`);
-    const mass: number = broken.remainder.body.mass + shards.archetype.body.mass;
+      findings.push(
+        `${label}: parts ${JSON.stringify(pieces)} against ${JSON.stringify(all)}`,
+      );
+    if (
+      JSON.stringify(ids(shards.archetype.parts)) !== JSON.stringify(["body"])
+    )
+      findings.push(
+        `${label}: the shards are ${JSON.stringify(ids(shards.archetype.parts))}`,
+      );
+    const mass: number =
+      broken.remainder.body.mass + shards.archetype.body.mass;
     if (Math.abs(mass - bottle.body.mass) > 1e-9)
-      findings.push(`${label}: the pieces weigh ${mass} kg, the bottle ${bottle.body.mass} kg`);
-    const kept: string[] = broken.remainder.affordances.map((a: { id: string }): string => a.id);
+      findings.push(
+        `${label}: the pieces weigh ${mass} kg, the bottle ${bottle.body.mass} kg`,
+      );
+    const kept: string[] = broken.remainder.affordances.map(
+      (a: { id: string }): string => a.id,
+    );
     if (!kept.includes("neck") || !kept.includes("mouth"))
       findings.push(`${label}: the neck keeps ${kept.join(", ")}`);
     const v: number = momentum.z / shards.archetype.body.mass;
-    if (Math.abs(shards.velocity.z - v) > 1e-9 || shards.velocity.x !== 0 || shards.velocity.y !== 0)
-      findings.push(`${label}: the shards leave at ${JSON.stringify(shards.velocity)}, ${v} m/s expected`);
+    if (
+      Math.abs(shards.velocity.z - v) > 1e-9 ||
+      shards.velocity.x !== 0 ||
+      shards.velocity.y !== 0
+    )
+      findings.push(
+        `${label}: the shards leave at ${JSON.stringify(shards.velocity)}, ${v} m/s expected`,
+      );
   }
-  if (createDrinkware({ kind: "beerBottle", fill: 0.5 }).broken({ energy: 1000, momentum }) !== null)
+  if (
+    createDrinkware({ kind: "beerBottle", fill: 0.5 }).broken({
+      energy: 1000,
+      momentum,
+    }) !== null
+  )
     findings.push("a part-filled bottle breaks");
-  if (createDrinkware({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null)
+  if (
+    createDrinkware({ kind: "mug" }).broken({ energy: 1000, momentum }) !== null
+  )
     findings.push("a mug breaks");
 
   // A hinged door's leaf leaves its frame whole at 80 J, and not below.
   const door: ReturnType<typeof createDoor> = createDoor({ kind: "hinged" });
   if (door.broken({ energy: 79, momentum }) !== null)
     findings.push("a door breaks below 80 J");
-  const kicked: ReturnType<typeof door.broken> = door.broken({ energy: 80, momentum });
-  const leaf: { archetype: { parts: readonly IAutoMovieModelPart[]; body: { mass: number } } } | undefined =
-    kicked?.fragments.find((f: { id: string }): boolean => f.id === "leaf");
+  const kicked: ReturnType<typeof door.broken> = door.broken({
+    energy: 80,
+    momentum,
+  });
+  const leaf:
+    | {
+        archetype: {
+          parts: readonly IAutoMovieModelPart[];
+          body: { mass: number };
+        };
+      }
+    | undefined = kicked?.fragments.find(
+    (f: { id: string }): boolean => f.id === "leaf",
+  );
   if (kicked === null || kicked.remainder === null || leaf === undefined)
     findings.push("a door does not lose its leaf at 80 J");
   else {
-    if (!leaf.archetype.parts.some((p: IAutoMovieModelPart): boolean => p.id === "leaf"))
+    if (
+      !leaf.archetype.parts.some(
+        (p: IAutoMovieModelPart): boolean => p.id === "leaf",
+      )
+    )
       findings.push("the door's fragment holds no leaf");
-    if (Math.abs(kicked.remainder.body.mass + leaf.archetype.body.mass - door.body.mass) > 1e-9)
+    if (
+      Math.abs(
+        kicked.remainder.body.mass + leaf.archetype.body.mass - door.body.mass,
+      ) > 1e-9
+    )
       findings.push("the door's pieces do not weigh the door");
   }
 
@@ -101,7 +152,13 @@ export function test_archetype_fracture_sets(): void {
       .box("b", Vector3.create(1, 1, 1), Vector3.create(0, 1.5, 0));
   for (const [label, sets] of [
     ["an unrecorded part", [{ id: "x", parts: ["c"] }]],
-    ["a shared part", [{ id: "x", parts: ["a"] }, { id: "y", parts: ["a", "b"] }]],
+    [
+      "a shared part",
+      [
+        { id: "x", parts: ["a"] },
+        { id: "y", parts: ["a", "b"] },
+      ],
+    ],
   ] as const) {
     let threw: boolean = false;
     try {
@@ -111,5 +168,9 @@ export function test_archetype_fracture_sets(): void {
     }
     if (!threw) findings.push(`a fracture set naming ${label} was accepted`);
   }
-  TestValidator.equals("a bottle breaks into its declared pieces at its threshold", findings, []);
+  TestValidator.equals(
+    "a bottle breaks into its declared pieces at its threshold",
+    findings,
+    [],
+  );
 }

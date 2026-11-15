@@ -1,4 +1,8 @@
-import { type Archetype, createCannon, type IArchetypeBand } from "@automovie/archetypes";
+import {
+  type Archetype,
+  type IArchetypeBand,
+  createCannon,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /** How many seeds are swept: the 200 of the archetype campaign's acceptance law (#3365). */
@@ -26,22 +30,51 @@ export function test_archetype_cannon_bands(): void {
   for (const kind of createCannon.KINDS) {
     const reached: Map<string, { low: number; high: number }> = new Map();
     for (let seed: number = 0; seed < SEEDS; seed++) {
-      const gun: Archetype<createCannon.Affordance, createCannon.Dimension> = createCannon({ kind }, seed);
-      for (const [name, band] of Object.entries(gun.provenance.bands) as [createCannon.Dimension, IArchetypeBand][]) {
+      const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
+        createCannon({ kind }, seed);
+      for (const [name, band] of Object.entries(gun.provenance.bands) as [
+        createCannon.Dimension,
+        IArchetypeBand,
+      ][]) {
         const value: number = gun.dimensions[name]!;
         if (!(value >= band.minimum - 1e-12 && value <= band.maximum + 1e-12))
-          findings.push(`${kind}@${seed}: ${name} ${value} outside ${band.minimum} to ${band.maximum}`);
-        const seen: { low: number; high: number } = reached.get(name) ?? { low: Infinity, high: -Infinity };
-        reached.set(name, { low: Math.min(seen.low, value), high: Math.max(seen.high, value) });
+          findings.push(
+            `${kind}@${seed}: ${name} ${value} outside ${band.minimum} to ${band.maximum}`,
+          );
+        const seen: { low: number; high: number } = reached.get(name) ?? {
+          low: Infinity,
+          high: -Infinity,
+        };
+        reached.set(name, {
+          low: Math.min(seen.low, value),
+          high: Math.max(seen.high, value),
+        });
       }
-      for (const id of SOCKETS) if (gun.affordance(id).kind !== "socket") findings.push(`${kind}@${seed}: ${id} is not a socket`);
+      for (const id of SOCKETS)
+        if (gun.affordance(id).kind !== "socket")
+          findings.push(`${kind}@${seed}: ${id} is not a socket`);
     }
-    for (const [name, band] of Object.entries(createCannon.BANDS[kind]) as [string, IArchetypeBand][]) {
-      if (/borrowed|estimate/.test(band.source) && band.provisional !== true) findings.push(`${kind}: ${name} is borrowed or estimated but not provisional`);
+    for (const [name, band] of Object.entries(createCannon.BANDS[kind]) as [
+      string,
+      IArchetypeBand,
+    ][]) {
+      if (/borrowed|estimate/.test(band.source) && band.provisional !== true)
+        findings.push(
+          `${kind}: ${name} is borrowed or estimated but not provisional`,
+        );
       const seen: { low: number; high: number } | undefined = reached.get(name);
       const span: number = band.maximum - band.minimum;
-      if (seen !== undefined && span > 0 && !(seen.low < band.minimum + span / 4 && seen.high > band.maximum - span / 4))
-        findings.push(`${kind}: ${name} reached only ${seen.low} to ${seen.high}`);
+      if (
+        seen !== undefined &&
+        span > 0 &&
+        !(
+          seen.low < band.minimum + span / 4 &&
+          seen.high > band.maximum - span / 4
+        )
+      )
+        findings.push(
+          `${kind}: ${name} reached only ${seen.low} to ${seen.high}`,
+        );
     }
   }
   TestValidator.equals("every cannon stays in its bands", findings, []);
