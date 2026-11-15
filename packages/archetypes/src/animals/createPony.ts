@@ -126,6 +126,7 @@ export namespace createPony {
       names: {
         saddle: "saddle pony",
         harness: "driving pony",
+        both: "postilion pony",
         pack: "pack pony",
       },
       bands: BANDS,

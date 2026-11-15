@@ -20,7 +20,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  *
  * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`.
  *
  * Its height at the withers is drawn from the warmbloods' range; its heart girth and its mass follow that height, the girth in their mean proportion and the mass by the girth-squared-times-length law anchored on their means (`mass`), so a horse's three measures agree. The seat and the reins are each one of their read sizes.
  *
@@ -62,11 +62,11 @@ export function createHorse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
-  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, a driving harness, or a pack saddle with its lead rope. */
-  export type Tack = "saddle" | "harness" | "pack";
+  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, a driving harness, both at once (a postilion's horse, ridden in harness), or a pack saddle with its lead rope. */
+  export type Tack = "saddle" | "harness" | "both" | "pack";
 
   /** Every tack, for a caller that reads one at run time. */
-  export const TACKS: readonly Tack[] = ["saddle", "harness", "pack"];
+  export const TACKS: readonly Tack[] = ["saddle", "harness", "both", "pack"];
 
   /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
   export const HELD: Readonly<{ rein: number; lead: number }> = {
@@ -347,7 +347,7 @@ export namespace createHorse {
     const nose: IAutoMovieVector3 = rig.nose;
     QuadrupedBody.lay(profile.body, builder, h, rig);
 
-    if (tack === "saddle") {
+    if (tack === "saddle" || tack === "both") {
       // The saddle on the back behind the withers, and what the rider holds and stands in.
       const top: number = back + 0.04;
       const centre: number = half - createHorse.SADDLE;
@@ -460,6 +460,8 @@ export namespace createHorse {
         });
       }
       lead(builder, nose, h);
+      // A postilion's horse wears its harness under the riding saddle.
+      if (tack === "both") HorseHarness.lay(builder, d, rig);
       // The saddle's read weight is its own, beside the equid's; the rest of its tack is massless, unread.
       return builder.build(d.mass + createHorse.SADDLE_WEIGHT, {
         rests: profile.body.foot,
@@ -610,6 +612,7 @@ export namespace createHorse {
     names: {
       saddle: "saddle horse",
       harness: "driving horse",
+      both: "postilion horse",
       pack: "pack horse",
     },
     bands: BANDS,

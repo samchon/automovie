@@ -104,6 +104,7 @@ export namespace createMule {
       names: {
         saddle: "saddle mule",
         harness: "driving mule",
+        both: "postilion mule",
         pack: "pack mule",
       },
       bands: BANDS,

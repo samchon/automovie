@@ -78,6 +78,7 @@ export namespace createDonkey {
     names: {
       saddle: "saddle donkey",
       harness: "driving donkey",
+      both: "postilion donkey",
       pack: "pack donkey",
     },
     bands: BANDS,
