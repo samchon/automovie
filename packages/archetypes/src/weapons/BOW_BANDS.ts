@@ -27,6 +27,13 @@ const PAYNE: string =
 const RISERS: string =
   "Hoyt Grand Prix 25 in risers at retailers: Horizon about 1,133 g (Abbey Archery, https://abbeyarchery.com.au/p/HYRHZ/Hoyt+Grand+Prix+Horizon+Riser.html) to Arcos 2.95 lb, 1,338 g (Lancaster Archery, https://lancasterarchery.com/products/hoyt-grand-prix-arcos-25-recurve-riser); secondary, and the limbs' mass, which no read gives, is not counted";
 
+/** Easton's starting nocking point for a recurve shot with the fingers. */
+const EASTON: string =
+  'Easton, Arrow Tuning and Maintenance Guide, Bow Tuning: "position the nocking point on the bowstring about 1/2" (1.3 cm) above square" for a recurve shot with the fingers, a starting setting fine tuning moves; read in the copies of the guide (https://www.scribd.com/doc/270881055/Arrow-Tuning-Guide)';
+
+/** A nocking height borrowed for a bow its source does not cover. */
+const NOCK_BORROWED: string = `borrowed from ${EASTON}, because no nocking height of this bow's own was found (searched: Easton's guide, Glasgow Archers' bracing notes, World Archery's coaching pages)`;
+
 /**
  * The band of each free dimension of {@link createBow} a kind's model and draw weight leave, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. Read only as `createBow.BANDS`; a recurve's brace is its model's (`createBow.BRACES`), and every band names its source, one not read at its primary source provisional.
  */
@@ -39,6 +46,12 @@ export const BOW_BANDS: Readonly<
   longbow: {
     length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
     depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
+    nockHeight: ArchetypeBand.metres(
+      0.5 * ArchetypeUnits.INCH,
+      0.5 * ArchetypeUnits.INCH,
+      NOCK_BORROWED,
+      true,
+    ),
   },
   recurve: {
     depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
@@ -50,10 +63,21 @@ export const BOW_BANDS: Readonly<
       true,
     ),
     mass: ArchetypeBand.of("kg", 1.133, 1.338, RISERS, true),
+    nockHeight: ArchetypeBand.metres(
+      0.5 * ArchetypeUnits.INCH,
+      0.5 * ArchetypeUnits.INCH,
+      EASTON,
+    ),
   },
   horseBow: {
     depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
     brace: ArchetypeBand.metres(0.14, 0.15, HORSE_BOW),
+    nockHeight: ArchetypeBand.metres(
+      0.5 * ArchetypeUnits.INCH,
+      0.5 * ArchetypeUnits.INCH,
+      NOCK_BORROWED,
+      true,
+    ),
   },
   crossbow: {
     length: ArchetypeBand.metres(

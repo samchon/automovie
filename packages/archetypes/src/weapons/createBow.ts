@@ -22,7 +22,7 @@ const HOYT: string =
 /**
  * A bow an archer braces, draws and looses: a longbow, an Olympic recurve or a Korean horse bow.
  *
- * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Each limb runs straight from the grip at the bow's centre to its nock, hinged at the grip, and the string's two halves run from the limb tips to the nocking point, each a span laid again at every pose. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `string` is the nocking point drawn back along `+Z`, from brace to the kind's draw length from the grip; `upperLimb` and `lowerLimb` follow it, each turned so its tip stays the string's half length from the nocking point, so naming a limb in a state is refused with `string` as its leader. `nock` rides the string, where an arrow's nock sits and the drawing hand takes it; `rest` is the stave's side at the grip, where the arrow's shaft lies. Its draw force at its stated draw length is a dimension, and `launchSpeed` gives the speed an arrow leaves at for a draw. A longbow's limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A horse bow is braced its read brace height clear of its grip, a recurve its maker's; their grips are the power grip band applied, and their bow lengths are taken as their lengths nock to nock, a choice the string's place reads; no maker read names their material, so they declare no surface and carry no friction. A crossbow, Payne-Gallwey's sporting crossbow with its cranequin (`CROSSBOW`), lies on its stock along `+Z` from the butt at the origin, its bolt flying `+Z` along the stock's groove: its `string` slides back toward the butt, following its `crank` by the cranequin's thirty turns for the string's travel, so naming the string in a state is refused with `crank` as its leader; its bow's halves follow the string as a bow's limbs do; `grip` is the fore-stock ahead of the nut, closed across its thickness by the bow hand from the stock's left, `+X`, `rest` the groove, `butt` the stock's end against the shoulder, `trigger` the trigger under the stock and `stirrup` the iron ahead of the fore-end a foot holds down while spanning.
+ * It stands braced on its lower tip with its back toward `-Z`, the way an arrow flies, and its string toward `+Z`, the archer's side. Each limb runs straight from the grip at the bow's centre to its nock, hinged at the grip, and the string's two halves run from the limb tips to the nocking point, each a span laid again at every pose. `grip` is the bow's centre, taken from `+Z` in one hand with the stave along `+X`. `string` is the nocking point drawn back along `+Z`, from brace to the kind's draw length from the grip; `upperLimb` and `lowerLimb` follow it, each turned so its tip stays the string's half length from the nocking point, so naming a limb in a state is refused with `string` as its leader. `nock` rides the string, where an arrow's nock sits and the drawing hand takes it; `rest` is the stave's side at the grip, the `nockHeight` below the nocking point (Easton's half inch for a recurve, borrowed and provisional for the others), where the arrow's shaft lies. Its draw force at its stated draw length is a dimension, and `launchSpeed` gives the speed an arrow leaves at for a draw. A longbow's limbs and grip are wood, the approximations' wych elm; it stands on its wooden lower tip, so its body's friction is wood's on concrete. A horse bow is braced its read brace height clear of its grip, a recurve its maker's; their grips are the power grip band applied, and their bow lengths are taken as their lengths nock to nock, a choice the string's place reads; no maker read names their material, so they declare no surface and carry no friction. A crossbow, Payne-Gallwey's sporting crossbow with its cranequin (`CROSSBOW`), lies on its stock along `+Z` from the butt at the origin, its bolt flying `+Z` along the stock's groove: its `string` slides back toward the butt, following its `crank` by the cranequin's thirty turns for the string's travel, so naming the string in a state is refused with `crank` as its leader; its bow's halves follow the string as a bow's limbs do; `grip` is the fore-stock ahead of the nut, closed across its thickness by the bow hand from the stock's left, `+X`, `rest` the groove, `butt` the stock's end against the shoulder, `trigger` the trigger under the stock and `stirrup` the iron ahead of the fore-end a foot holds down while spanning.
  *
  * @param params The kind, the model and a horse bow's draw weight, and any dimension the author fixes.
  * @param seed The seed that picks the model and the draw weight left free and draws every dimension left free inside its band; absent, the first model, the first draw weight and the middle of each band.
@@ -170,10 +170,15 @@ export function createBow(
     grip: "power",
     aperture: d.depth!,
   });
+  // The rest on the stave's side, square to the string the drawn nocking height below the nocking point, as a tuned bow sets it.
   builder.affordance({
     id: "rest",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(-r, centre, 0), v(-1, 0, 0), v(0, 0, 1)),
+    frame: ArchetypeFrame.facing(
+      v(-r, centre - d.nockHeight!, 0),
+      v(-1, 0, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     width: d.depth!,
     depth: d.depth!,
@@ -206,7 +211,6 @@ export namespace createBow {
 
   /** The string's radius, metres: half the Mary Rose arrow nocks' median 3 mm width, the slot the string fills. */
   export const STRING: number = 0.0015;
-
   /** The draw length each kind's draw force is stated at, metres, from the grip to the drawn nock: the longbow approximations' read 30 in, the recurve maker's 28 in rating draw, the horse bows' read 31 in. */
   export const DRAW_LENGTH: Readonly<
     Record<Exclude<Kind, "crossbow">, number>
@@ -222,7 +226,7 @@ export namespace createBow {
    * - `grip`: the bow's centre, taken from `+Z` with the stave along `+X`; a crossbow's fore-stock, closed across its thickness from `+X` with the stock along it.
    * - `string`: the nocking point, drawn back along `+Z` from brace to the kind's draw length.
    * - `nock`: the nocking point, facing `+Z`, where an arrow's nock sits and the drawing hand takes the string; it rides `string`.
-   * - `rest`: the stave's `-X` side at the grip, where the arrow's shaft lies.
+   * - `rest`: the stave's `-X` side at the grip, square to the string `nockHeight` below the nocking point, where the arrow's shaft lies.
    * - `upperLimb`, `lowerLimb`: each limb's turn about the grip, following `string`; a crossbow's bow halves, toward `+X` and `-X`, turning about its centre.
    * - `butt`, `trigger`, `stirrup`, `crank`: a crossbow's stock end, its trigger under the stock, the stirrup ahead of its fore-end, and the cranequin's crank the string follows.
    */
@@ -245,9 +249,16 @@ export namespace createBow {
    * - `depth`: the stave's depth at its centre, back to belly, the grip's span.
    * - `brace`: a horse bow's and a recurve's brace height, belly to string; a longbow's follows its length by `BRACE`.
    * - `draw`: the force holding the string drawn the kind's `DRAW_LENGTH`, newtons.
+   * - `nockHeight`: a hand-drawn bow's nocking point above square to its rest.
    * - `mass`: kilograms.
    */
-  export type Dimension = "length" | "depth" | "brace" | "draw" | "mass";
+  export type Dimension =
+    | "length"
+    | "depth"
+    | "brace"
+    | "draw"
+    | "nockHeight"
+    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -255,6 +266,7 @@ export namespace createBow {
     depth: "m",
     brace: "m",
     draw: "N",
+    nockHeight: "m",
     mass: "kg",
   };
 
