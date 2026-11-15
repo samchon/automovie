@@ -73,6 +73,7 @@ export function createStairs(
     params.occupancy,
     createStairs.OCCUPANCIES,
     seed,
+    params,
   );
   const d: Record<createStairs.Dimension, number> = {
     ...ArchetypeDraw.dimensions("stairs", createStairs.BANDS, seed, params),

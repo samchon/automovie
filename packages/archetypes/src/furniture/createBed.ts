@@ -48,6 +48,7 @@ export function createBed(
       params.size,
       MATTRESS_SIZES[kind],
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createBed.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

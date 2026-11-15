@@ -40,21 +40,16 @@ export function createCue(
   params: createCue.IParams = {},
   seed?: number | string,
 ): Archetype<createCue.Affordance, createCue.Dimension> {
-  // The butt's name shares its dimension's name, so only the numeric dimensions an author fixes are passed on.
-  const fixed: Partial<Record<createCue.Dimension, number | undefined>> = {
-    ...params,
-    butt: undefined,
-  };
   const buttModel: {
     name: createCue.Butt | undefined;
     figures: Readonly<Partial<Record<createCue.Dimension, number>>>;
   } = ArchetypeDraw.model<createCue.Butt, createCue.Dimension>(
     "cue",
-    "butt",
-    params.butt,
+    "buttSize",
+    params.buttSize,
     createCue.BUTTS,
     seed,
-    fixed,
+    params,
   );
   const shaft: {
     name: createCue.Shaft | undefined;
@@ -65,7 +60,7 @@ export function createCue(
     params.shaft,
     createCue.SHAFTS,
     seed,
-    fixed,
+    params,
   );
   const d: Record<createCue.Dimension, number> = {
     ...ArchetypeDraw.dimensions("cue", createCue.BANDS, seed, params),
@@ -192,8 +187,8 @@ export namespace createCue {
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "butt" | "tip">, number>
   > {
-    /** Viking's butt; drawn from the seed when absent. */
-    butt?: Butt;
+    /** Viking's butt size, which sets `butt`; drawn from the seed when absent. */
+    buttSize?: Butt;
 
     /** McDermott's shaft; drawn from the seed when absent. */
     shaft?: Shaft;

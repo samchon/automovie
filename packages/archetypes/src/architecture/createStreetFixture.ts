@@ -94,6 +94,7 @@ export function createStreetFixture(
     params.model,
     createStreetFixture.MODELS[kind],
     seed,
+    params,
   );
   const d: Drawn = {
     ...ArchetypeDraw.dimensions(

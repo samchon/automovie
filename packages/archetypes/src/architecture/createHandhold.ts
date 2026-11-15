@@ -64,6 +64,7 @@ export function createHandhold(
     params.strap,
     createHandhold.STRAPS[kind],
     seed,
+    params,
   );
   const d: Partial<Record<createHandhold.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

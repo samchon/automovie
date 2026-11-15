@@ -46,6 +46,7 @@ export function createObstacle(
       params.section,
       TIE_SIZES.section[kind],
       seed,
+      params,
     ).figures;
   const length: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
     ArchetypeDraw.model<createObstacle.TieLength, createObstacle.Dimension>(
@@ -54,6 +55,7 @@ export function createObstacle(
       params.tieLength,
       TIE_SIZES.length[kind],
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createObstacle.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

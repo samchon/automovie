@@ -96,6 +96,7 @@ export function createMachine(
     params.model,
     createMachine.MODELS[kind],
     seed,
+    params,
   );
   const d: Partial<Record<createMachine.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

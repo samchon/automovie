@@ -48,10 +48,11 @@ export function createSaloonDoor(
     figures: Readonly<Partial<Record<createSaloonDoor.Dimension, number>>>;
   } = ArchetypeDraw.model<createSaloonDoor.Opening, createSaloonDoor.Dimension>(
     "saloonDoor",
-    "opening",
-    params.opening,
+    "size",
+    params.size,
     createSaloonDoor.OPENINGS,
     seed,
+    params,
   );
   const d: Record<createSaloonDoor.Dimension, number> = {
     ...ArchetypeDraw.dimensions(
@@ -173,8 +174,8 @@ export namespace createSaloonDoor {
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "opening">, number>
   > {
-    /** The doorway's opening; drawn from the seed when absent. */
-    opening?: Opening;
+    /** The doorway's opening size, which sets `opening`; drawn from the seed when absent. */
+    size?: Opening;
 
     /** The model's id, unique in a scene; `saloonDoor` when absent. */
     id?: string;

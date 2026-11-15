@@ -55,11 +55,11 @@ export function createSki(
     figures: Readonly<Partial<Record<createSki.Dimension, number>>>;
   } = ArchetypeDraw.model<createSki.Length, createSki.Dimension>(
     "ski",
-    "length",
-    params.length,
+    "size",
+    params.size,
     createSki.LENGTHS,
     seed,
-    { ...params, length: undefined },
+    params,
   );
   const d: Partial<Record<createSki.Dimension, number>> = {
     ...ArchetypeDraw.dimensions("ski", createSki.BANDS, seed, params),
@@ -135,8 +135,8 @@ export namespace createSki {
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "length">, number>
   > {
-    /** LINE Blend's length; drawn from the seed when absent. */
-    length?: Length;
+    /** LINE Blend's size, which sets `length`; drawn from the seed when absent. */
+    size?: Length;
 
     /** The model's id, unique in a scene; `ski` when absent. */
     id?: string;

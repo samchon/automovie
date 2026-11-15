@@ -58,17 +58,18 @@ export function createGate(
     figures: Readonly<Partial<Record<createGate.Dimension, number>>>;
   } = ArchetypeDraw.model<createGate.Passage, createGate.Dimension>(
     "gate",
-    "passage",
-    params.passage,
+    "lane",
+    params.lane,
     createGate.PASSAGES[kind],
     seed,
+    params,
   );
   const d: Partial<Record<createGate.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(
       "gate",
       createGate.BANDS[kind],
       seed,
-      { ...params, passage: undefined },
+      params,
       createGate.BANDS,
     ),
     ...model.figures,
@@ -207,7 +208,7 @@ export namespace createGate {
     kind: Kind;
 
     /** The lane's clear width, one the kind's maker lists; drawn from the seed when absent. */
-    passage?: Passage;
+    lane?: Passage;
 
     /** The model's id, unique in a scene; `gate` when absent. */
     id?: string;

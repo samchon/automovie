@@ -69,6 +69,7 @@ export function createBarrel(
       params.model,
       createBarrel.DRUMS[kind],
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createBarrel.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

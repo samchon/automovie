@@ -127,6 +127,7 @@ export function createBoard(
     params.size,
     createBoard.SIZES[kind],
     seed,
+    params,
   );
   const d: Partial<Record<createBoard.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

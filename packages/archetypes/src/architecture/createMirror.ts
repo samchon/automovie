@@ -65,6 +65,7 @@ export function createMirror(
     params.size,
     createMirror.SIZES[kind],
     seed,
+    params,
   );
   const d: Partial<Record<createMirror.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

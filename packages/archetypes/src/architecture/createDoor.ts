@@ -95,18 +95,19 @@ export function createDoor(
       given,
       models,
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createDoor.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(
       "door",
       createDoor.BANDS[variant],
       seed,
-      { ...params, width: undefined, height: undefined, thickness: undefined },
+      params,
       createDoor.BANDS,
     ),
-    ...axis("width", params.width, DOOR_SIZES.width),
-    ...axis("height", params.height, DOOR_SIZES.height),
-    ...axis("thickness", params.thickness, DOOR_SIZES.thickness),
+    ...axis("nominalWidth", params.nominalWidth, DOOR_SIZES.width),
+    ...axis("nominalHeight", params.nominalHeight, DOOR_SIZES.height),
+    ...axis("nominalThickness", params.nominalThickness, DOOR_SIZES.thickness),
     ...axis("latchBackset", params.latchBackset, DOOR_SIZES.backset[variant]),
     ...axis("lever", params.lever, DOOR_SIZES.lever[variant]),
   };
@@ -424,14 +425,14 @@ export namespace createDoor {
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "width" | "height" | "thickness">, number>
   > {
-    /** The leaf's nominal width; drawn from the seed when absent. */
-    width?: Width;
+    /** The leaf's nominal width, which sets its width; drawn from the seed when absent. */
+    nominalWidth?: Width;
 
-    /** The leaf's nominal height; drawn from the seed when absent. */
-    height?: Height;
+    /** The leaf's nominal height, which sets its height; drawn from the seed when absent. */
+    nominalHeight?: Height;
 
-    /** The leaf's thickness; drawn from the seed when absent. */
-    thickness?: Thickness;
+    /** The leaf's nominal thickness, which sets its 	hickness; drawn from the seed when absent. */
+    nominalThickness?: Thickness;
 
     /** A lever's or knob's backset, or a sliding door's pull's, the same lock's; drawn from the seed when absent. */
     latchBackset?: Backset;

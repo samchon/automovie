@@ -1,4 +1,8 @@
-import { ArchetypeUnits, createStorage } from "@automovie/archetypes";
+import {
+  ArchetypeRefusal,
+  ArchetypeUnits,
+  createStorage,
+} from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,7 +57,7 @@ const BILLY: Readonly<Record<string, number>> = {
  *
  * Scenarios:
  * 1. A filing cabinet has the HON 510's four drawers, equal up its height, each sliding its front and box out by the drawn filing length; it declares no pull, which no source places.
- * 2. A locker stands Lyon's height on its legs, over 200 seeds exactly one of Lyon's six 72 in single tier sizes, width and depth together, each drawn, its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
+ * 2. A locker stands Lyon's height on its legs, over 200 seeds exactly one of Lyon's six 72 in single tier sizes, width and depth together, each drawn, and a width an author fixes refused on `width` as the size's own figure; its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
  * 3. A bookcase is the BILLY's size and its five shelves divide its height into six equal steps, each shelf's extent inside the sides.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the drawers; a drawer that does not carry its front, a door that opens without a source, or a shelf off its step is caught with the numbers.
@@ -157,6 +161,17 @@ export function test_archetype_storage_kinds(): void {
     )
   )
     findings.push("the locker declares a handle no source places");
+  try {
+    createStorage({ kind: "locker", width: 0.35 }, 3);
+    findings.push("a fixed locker width was accepted");
+  } catch (error) {
+    if (
+      !(error instanceof ArchetypeRefusal) ||
+      error.kind !== "parameter" ||
+      error.axis !== "width"
+    )
+      findings.push("a fixed locker width was not refused on width");
+  }
 
   // 3. The bookcase.
   const bookcase: ReturnType<typeof createStorage> = createStorage(

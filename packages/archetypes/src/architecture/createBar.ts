@@ -51,6 +51,7 @@ export function createBar(
       params.wall,
       createBar.WALLS[kind],
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createBar.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

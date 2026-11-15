@@ -54,6 +54,7 @@ export function createStorage(
       params.model,
       STORAGE_MODELS[kind],
       seed,
+      params,
     ).figures;
   const d: Partial<Record<createStorage.Dimension, number>> = {
     ...ArchetypeDraw.dimensions(

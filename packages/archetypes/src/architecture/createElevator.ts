@@ -62,7 +62,7 @@ export function createElevator(
   const car: Picked = ArchetypeDraw.model<
     createElevator.Height,
     createElevator.Dimension
-  >("elevator", "car", params.car, createElevator.CARS, seed);
+  >("elevator", "car", params.car, createElevator.CARS, seed, params);
   const height: number = car.figures.height!;
   // A door is picked only among the heights below the car's, so it never reaches the roof.
   const door: Picked = ArchetypeDraw.model<
@@ -84,6 +84,7 @@ export function createElevator(
       ),
     ),
     seed,
+    params,
   );
   const doorHeight: number = door.figures.doorHeight!;
   const d: Record<
