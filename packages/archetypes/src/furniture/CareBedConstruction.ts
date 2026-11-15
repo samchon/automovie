@@ -81,6 +81,12 @@ export namespace CareBedConstruction {
   /** A hospital bed's caster radius, metres: half the GoBed II sheet's 6 in (15.2 cm) casters. */
   export const CASTER: number = 0.0762;
 
+  /** A stretcher's caster radius, metres: half the Prime spec sheet's "Caster diameter 8" (20 cm)" (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf). */
+  export const PRIME_CASTER: number = 0.1016;
+
+  /** Where a hospital bed's or a stretcher's casters stand from the centre, as a share of the bed's width and of its frame's length: a construction estimate no act reads. Neither the GoBed II nor either Prime spec sheet read gives the base's size or a wheelbase. */
+  export const CASTER_SPREAD: number = 1 / 3;
+
   /** The widest clear gap between a crib's slats, metres: 16 CFR 1508.4(a), 2 3/8 in (6 cm). */
   export const SLAT_GAP: number = 0.06;
 
@@ -119,9 +125,12 @@ export namespace CareBedConstruction {
       ["caster-3", 1, -1],
       ["caster-4", -1, -1],
     ] as const)
-      builder.ball(id, CASTER, v((sx * width) / 3, CASTER, (sz * long) / 3), {
-        color: "#3a3d42",
-      });
+      builder.ball(
+        id,
+        CASTER,
+        v(sx * width * CASTER_SPREAD, CASTER, sz * long * CASTER_SPREAD),
+        { color: "#3a3d42" },
+      );
     builder.box(
       "base",
       v(width, litter - 2 * CASTER, long),
@@ -183,7 +192,7 @@ export namespace CareBedConstruction {
    * @evidence contracts/development/common.md#meaningful-documentation States what is built, what is left out and its contacts.
    * @evidence contracts/development/implementation.md#principled-implementation The Prime's height range, patient surface and length, its ComfortGel mattress on the litter.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Casters, base, mattress, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No siderails, push handles or fifth wheel; the casters' size is the hospital bed's, a construction stand-in.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No siderails, push handles or fifth wheel; the casters are the sheet's 8 in, their spread `CASTER_SPREAD`'s construction estimate.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one stretcher.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -200,13 +209,16 @@ export namespace CareBedConstruction {
       ["caster-3", 1, -1],
       ["caster-4", -1, -1],
     ] as const)
-      builder.ball(id, CASTER, v((sx * width) / 3, CASTER, (sz * long) / 3), {
-        color: "#3a3d42",
-      });
+      builder.ball(
+        id,
+        PRIME_CASTER,
+        v(sx * width * CASTER_SPREAD, PRIME_CASTER, sz * long * CASTER_SPREAD),
+        { color: "#3a3d42" },
+      );
     builder.box(
       "base",
-      v(width, litter - 2 * CASTER, long),
-      v(0, (litter + 2 * CASTER) / 2, 0),
+      v(width, litter - 2 * PRIME_CASTER, long),
+      v(0, (litter + 2 * PRIME_CASTER) / 2, 0),
       { color: FRAME },
     );
     builder.box(
