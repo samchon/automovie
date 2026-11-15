@@ -58,8 +58,8 @@ export function createHorse(
   });
   const v: typeof Vector3.create = Vector3.create;
   const h: number = d.withersHeight;
-  const barrel: number = d.girth / (2 * Math.PI);
   const rig: createHorse.IRig = createHorse.rig(d);
+  const barrel: number = rig.barrel;
   const coat: string = "#8a5a3a";
   const share: typeof createHorse.MASS = createHorse.MASS;
 
@@ -67,11 +67,7 @@ export function createHorse(
   const back: number = rig.back;
   const half: number = rig.trunk / 2;
   const rear: IAutoMovieVector3 = v(0, back - barrel, -half);
-  const quarters: IAutoMovieVector3 = v(
-    0,
-    rig.buttock.y,
-    rig.buttock.z + barrel,
-  );
+  const quarters: IAutoMovieVector3 = rig.quarters;
   const capsule = (length: number): number =>
     Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
   const trunkVolume: number = capsule(2 * half);
@@ -94,11 +90,11 @@ export function createHorse(
   });
   const poll: IAutoMovieVector3 = rig.poll;
   const nose: IAutoMovieVector3 = rig.nose;
-  builder.rod("neck", 0.08 * h, v(0, back - 0.06 * h, half), poll, {
+  builder.rod("neck", rig.neckRadius, rig.neck, poll, {
     color: coat,
     share: share.neck,
   });
-  builder.rod("head", 0.06 * h, poll, nose, {
+  builder.rod("head", rig.headRadius, poll, nose, {
     color: coat,
     round: true,
     share: share.head,
@@ -472,14 +468,32 @@ export namespace createHorse {
     /** The point of buttock, the rear of the hindquarters: `BUTTOCK` behind the shoulder joints, at the hip joints' height. No source read gives its height, so the hip joint's is a provisional value; the searches are in the sources record. */
     buttock: IAutoMovieVector3;
 
+    /** The neck's root on the trunk, where its bar starts. */
+    neck: IAutoMovieVector3;
+
+    /** The neck bar's radius, metres. */
+    neckRadius: number;
+
+    /** The top of the neck at its root, just ahead of the withers, where a neck strap crosses it. */
+    crest: IAutoMovieVector3;
+
     /** The poll, where the head meets the neck. */
     poll: IAutoMovieVector3;
+
+    /** The head bar's radius, metres. */
+    headRadius: number;
 
     /** The nose, the head's front end. */
     nose: IAutoMovieVector3;
 
     /** The mouth's corners' middle, where a bit lies across the head. */
     mouth: IAutoMovieVector3;
+
+    /** The barrel's radius, the heart girth over two pi, metres: the trunk's and the hindquarters' bars' radius. */
+    barrel: number;
+
+    /** The centre of the hindquarters' rounded rear end, a ball of the barrel's radius whose rearmost point is the point of buttock. */
+    quarters: IAutoMovieVector3;
 
     /** The tail's root, just inside the hindquarters' rounded rear end, up and back from that end's centre. */
     dock: IAutoMovieVector3;
@@ -553,19 +567,27 @@ export namespace createHorse {
     );
 
     // The hindquarters' rear end is a ball of the barrel's radius whose rearmost point is the point of buttock.
-    const quarters: number = buttock.z + barrel;
+    const quarters: IAutoMovieVector3 = Vector3.create(0, buttock.y, buttock.z + barrel);
     const side: number = Math.sqrt(
       Math.max(0, barrel * barrel - (axis - shoulder.y) ** 2),
     );
+    const neck: IAutoMovieVector3 = Vector3.create(0, back - 0.06 * h, trunk / 2);
+    const neckRadius: number = 0.08 * h;
     return {
       back,
       trunk,
       limbs: joints,
       buttock,
+      neck,
+      neckRadius,
+      crest: Vector3.create(0, neck.y + neckRadius, neck.z),
       poll,
+      headRadius: 0.06 * h,
       nose,
       mouth: Vector3.create(0, nose.y + 0.03 * h, nose.z - 0.03 * h),
-      dock: Vector3.create(0, buttock.y + 0.65 * barrel, quarters - 0.65 * barrel),
+      barrel,
+      quarters,
+      dock: Vector3.create(0, quarters.y + 0.65 * barrel, quarters.z - 0.65 * barrel),
       draft: Vector3.create(side, shoulder.y, joints.leftFore[1]!.z),
       hitch: Vector3.create(0, axis, trunk / 2 - SADDLE),
     };

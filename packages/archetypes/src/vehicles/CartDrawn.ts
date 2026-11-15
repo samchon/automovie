@@ -40,7 +40,7 @@ export namespace CartDrawn {
       withersHeight: d.withersHeight!,
       girth: d.girth!,
     });
-    const barrel: number = d.girth! / (2 * Math.PI);
+    const barrel: number = horse.barrel;
     const tug: number = horse.back - barrel;
     const tree: number = createCart.SINGLE_TREE;
     const tip: number = tree + d.shaftLength!;
@@ -94,10 +94,7 @@ export namespace CartDrawn {
     });
 
     // The shafts: level at the tugs either side of the barrel, from their tips back to the dash, each held up on a strut from the floor.
-    for (const [side, sign] of [
-      ["left", 1],
-      ["right", -1],
-    ] as const) {
+    for (const [side, sign] of HorseHarness.SIDES) {
       const x: number = sign * (barrel + SHAFT);
       builder.rod(`shaft-${side}`, SHAFT, v(x, tug, tree), v(x, tug, tip), {
         color: WOOD,
@@ -138,20 +135,14 @@ export namespace CartDrawn {
     );
 
     // The driving lines' held runs: each line's length behind its terret, IVC's 14 ft single-horse lines less their run from the bit through the ring to the terret, laid from the terret toward the line's rest point over the seat. The driving act's hands choose where along it they hold.
-    const pass: ReturnType<typeof HorseHarness.passes> = HorseHarness.passes(
-      horse,
-      { withersHeight: d.withersHeight!, girth: d.girth! },
-    );
+    const pass: ReturnType<typeof HorseHarness.passes> = HorseHarness.passes(horse);
     const ahead: number = coupling - horse.hitch.z;
     const used: number =
       Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
       Vector3.length(Vector3.subtract(pass.terret, pass.ring));
     const run: number = createCart.LINES - used;
     const rest: IAutoMovieVector3 = v(0, seat + createCart.REST.elbow, edge);
-    for (const [side, sign] of [
-      ["left", 1],
-      ["right", -1],
-    ] as const) {
+    for (const [side, sign] of HorseHarness.SIDES) {
       const terret: IAutoMovieVector3 = v(
         sign * pass.terret.x,
         pass.terret.y,

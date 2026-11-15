@@ -155,8 +155,8 @@ export namespace createCart {
   /** A single horse's driving line's width, metres: the 3/4 in leather reins IVC Carriage finds most hands, and a larger horse, prefer (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
   export const LINE: number = (3 / 4) * ArchetypeUnits.INCH;
 
-  /** A trace's radius, metres: a construction estimate no act reads, the strap's width unread. */
-  export const TRACE: number = 0.012;
+  /** A trace's radius, metres: in a single horse's harness a trace is the same leather strap as the rest of the harness, so it takes the harness's strap (`HorseHarness.ESTIMATES.strap`, a construction estimate no act reads, the strap's width unread). */
+  export const TRACE: number = HorseHarness.ESTIMATES.strap;
 
   /** A rickshaw's seat above the ground, metres, a provisional value: not read at a source. The source to read is a museum record or a period rule that gives the seat's height (the Hong Kong rules of 1882 give its width and its distance to the footboard only). */
   export const RICKSHAW_SEAT: number = 0.9;
@@ -376,7 +376,7 @@ export namespace createCart {
       part,
       at: { x: 0, y: 0, z: 0 },
     });
-    const traces: ArchetypeRide.ILine[] = SIDES.map(
+    const traces: ArchetypeRide.ILine[] = HorseHarness.SIDES.map(
       ([side, sign]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
         id: `trace-${side}`,
         radius: TRACE,
@@ -386,7 +386,7 @@ export namespace createCart {
         ],
       }),
     );
-    const driving: ArchetypeRide.ILine[] = SIDES.map(
+    const driving: ArchetypeRide.ILine[] = HorseHarness.SIDES.map(
       ([side]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
         id: `line-${side}`,
         radius: LINE / 2,
@@ -401,9 +401,3 @@ export namespace createCart {
     return [...traces, ...driving];
   }
 }
-
-/** The two sides, `+X` first. */
-const SIDES: readonly (readonly ["left" | "right", number])[] = [
-  ["left", 1],
-  ["right", -1],
-];

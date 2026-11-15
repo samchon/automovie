@@ -62,35 +62,56 @@ export namespace HorseHarness {
   };
 
   /**
-   * Where a driving line passes on the horse's `+X` side, in the horse's space: the bit ring at the mouth's side, the neck strap's ring and the saddle's terret; the `-X` side's are their mirror. `lay` puts the balls there, and a vehicle reads them to give its lines their length.
+   * A point of the breast collar round the front of the chest, in the horse's space: at the point of draft's height, on the circle through the two points of draft's sides about the shoulder joints' plane, `angle` radians from the `+X` side toward the front.
    *
    * @param rig The horse's rest rig.
-   * @param d The horse's dimensions.
-   * @returns The three points, from the bit back.
+   * @param angle Radians from the `+X` side, `pi / 2` the chest's front, `pi` the `-X` side.
+   * @returns The point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the space and the angle's sense.
+   * @evidence contracts/development/implementation.md#principled-implementation A circle of the points of draft's spread about the trunk's front axis end at the point of draft's height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One point.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the collar's round, read by `lay` for its segments and by `passes` for the neck strap's foot.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function chest(rig: createHorse.IRig, angle: number): IAutoMovieVector3 {
+    return Vector3.create(
+      rig.draft.x * Math.cos(angle),
+      rig.draft.y,
+      rig.trunk / 2 + rig.draft.x * Math.sin(angle),
+    );
+  }
+
+  /**
+   * Where a driving line passes on the horse's `+X` side, in the horse's space, and the neck strap it passes through: the bit ring at the mouth's side, the neck strap's foot on the collar and its top over the crest, the strap's ring halfway between, and the saddle's terret; the `-X` side's are their mirror. `lay` builds on these places, and a vehicle reads them to give its lines their length.
+   *
+   * @param rig The horse's rest rig.
+   * @returns The places, from the bit back.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the space, the side and the order.
-   * @evidence contracts/development/implementation.md#principled-implementation The same places `lay` builds from: the bit ring a strap's radius outside the head at the mouth, the ring halfway up the neck strap from the collar's front to the crest, the terret on the pad.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three points.
+   * @evidence contracts/development/implementation.md#principled-implementation The bit ring a strap's radius outside the head at the mouth, the neck strap from the collar's front, a sixth of a turn round the chest from the point of draft's side, up to a strap's radius over the rig's crest, its ring halfway up, the terret on the pad.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Five points.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of these places, read by `lay` and by a vehicle's lines.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function passes(
-    rig: createHorse.IRig,
-    d: Readonly<Partial<Record<createHorse.Dimension, number>>>,
-  ): Readonly<{ bit: IAutoMovieVector3; ring: IAutoMovieVector3; terret: IAutoMovieVector3 }> {
+  export function passes(rig: createHorse.IRig): Readonly<{
+    bit: IAutoMovieVector3;
+    foot: IAutoMovieVector3;
+    crest: IAutoMovieVector3;
+    ring: IAutoMovieVector3;
+    terret: IAutoMovieVector3;
+  }> {
     const r: number = ESTIMATES.strap;
-    const h: number = d.withersHeight!;
-    const half: number = rig.trunk / 2;
-    const foot: IAutoMovieVector3 = Vector3.create(
-      rig.draft.x * Math.cos(Math.PI / 3),
-      rig.draft.y,
-      half + rig.draft.x * Math.sin(Math.PI / 3),
-    );
-    const crest: IAutoMovieVector3 = Vector3.create(0, rig.back + 0.02 * h + r, half);
+    const foot: IAutoMovieVector3 = chest(rig, Math.PI / 3);
+    const crest: IAutoMovieVector3 = Vector3.add(rig.crest, Vector3.create(0, r, 0));
     return {
-      bit: Vector3.create(0.06 * h + r, rig.mouth.y, rig.mouth.z),
+      bit: Vector3.create(rig.headRadius + r, rig.mouth.y, rig.mouth.z),
+      foot,
+      crest,
       ring: Vector3.scale(Vector3.add(foot, crest), 0.5),
       terret: Vector3.create(ESTIMATES.terret.x, rig.back + ESTIMATES.terret.rise, rig.hitch.z),
     };
@@ -119,11 +140,14 @@ export namespace HorseHarness {
     const v: typeof Vector3.create = Vector3.create;
     const e: typeof ESTIMATES = ESTIMATES;
     const r: number = e.strap;
-    const h: number = d.withersHeight;
-    const barrel: number = d.girth / (2 * Math.PI);
+    const barrel: number = rig.barrel;
     const half: number = rig.trunk / 2;
     const axis: number = rig.back - barrel;
     const strap = { color: LEATHER, share: 0.01 };
+    const metal = { color: METAL, share: 0.01 };
+    const pass: ReturnType<typeof passes> = passes(rig);
+    const mirror = (p: IAutoMovieVector3, sign: number): IAutoMovieVector3 =>
+      v(sign * p.x, p.y, p.z);
     const rods = (prefix: string, points: readonly IAutoMovieVector3[]): void =>
       points.slice(1).forEach((to: IAutoMovieVector3, k: number): void => {
         builder.rod(`${prefix}-${k + 1}`, r, points[k]!, to, strap);
@@ -146,33 +170,18 @@ export namespace HorseHarness {
       builder.rod(
         `collar-${side}`,
         r,
-        v(sign * w, draft.y, draft.z),
+        mirror(draft, sign),
         v(sign * w, draft.y, half),
         strap,
       );
-      builder.ball(
-        ENDS.draft[side],
-        e.ring,
-        v(sign * w, draft.y, draft.z),
-        { color: METAL, share: 0.01 },
-      );
+      builder.ball(ENDS.draft[side], e.ring, mirror(draft, sign), metal);
     }
-    const chest = (angle: number): IAutoMovieVector3 =>
-      v(w * Math.cos(angle), draft.y, half + w * Math.sin(angle));
-    rods("collar", arc(chest, 0, Math.PI));
+    rods("collar", arc((angle: number): IAutoMovieVector3 => chest(rig, angle), 0, Math.PI));
 
     // The neck strap: from the collar's front up over the neck just ahead of the withers, a ring on each side carrying a driving line.
-    const crest: IAutoMovieVector3 = v(0, rig.back + 0.02 * h + r, half);
-    const pass: ReturnType<typeof passes> = passes(rig, d);
-    const mirror = (p: IAutoMovieVector3, sign: number): IAutoMovieVector3 =>
-      v(sign * p.x, p.y, p.z);
     for (const [side, sign] of SIDES) {
-      const foot: IAutoMovieVector3 = chest(sign > 0 ? Math.PI / 3 : (2 * Math.PI) / 3);
-      builder.rod(`neck-strap-${side}`, r, foot, crest, strap);
-      builder.ball(ENDS.ring[side], e.ring, mirror(pass.ring, sign), {
-        color: METAL,
-        share: 0.01,
-      });
+      builder.rod(`neck-strap-${side}`, r, mirror(pass.foot, sign), pass.crest, strap);
+      builder.ball(ENDS.ring[side], e.ring, mirror(pass.ring, sign), metal);
     }
 
     // The driving saddle at the hitch, its terrets on top, and the girth round the barrel through the tugs.
@@ -184,10 +193,7 @@ export namespace HorseHarness {
       { color: LEATHER, share: 0.5 },
     );
     for (const [side, sign] of SIDES) {
-      builder.ball(ENDS.terret[side], e.ring, mirror(pass.terret, sign), {
-        color: METAL,
-        share: 0.01,
-      });
+      builder.ball(ENDS.terret[side], e.ring, mirror(pass.terret, sign), metal);
       builder.ball(`tug-${side}`, 2 * e.ring, v(sign * (barrel + r), axis, saddle), {
         color: LEATHER,
         share: 0.01,
@@ -202,7 +208,7 @@ export namespace HorseHarness {
     rods("girth", arc(girth, Math.PI / 3, -(4 * Math.PI) / 3));
 
     // The backstrap from behind the saddle along the back to the croup, the crupper down to the tail's root.
-    const quarters: IAutoMovieVector3 = v(0, rig.buttock.y, rig.buttock.z + barrel);
+    const quarters: IAutoMovieVector3 = rig.quarters;
     const croup: IAutoMovieVector3 = v(0, quarters.y + barrel + r, quarters.z);
     builder.rod(
       "backstrap",
@@ -254,14 +260,14 @@ export namespace HorseHarness {
     }
 
     // The bridle: the crownpiece over the poll, a cheekpiece down each side to its bit ring with a blinker on it, and the bit across the mouth.
-    const head: number = 0.06 * h;
+    const head: number = rig.headRadius;
     const crown: IAutoMovieVector3 = v(0, rig.poll.y + head + r, rig.poll.z);
     for (const [side, sign] of SIDES) {
       const top: IAutoMovieVector3 = v(sign * (head + r), rig.poll.y, rig.poll.z);
       const ring: IAutoMovieVector3 = mirror(pass.bit, sign);
       builder.rod(`crown-${side}`, r, crown, top, strap);
       builder.rod(`cheek-${side}`, r, top, ring, strap);
-      builder.ball(ENDS.bit[side], e.ring, ring, { color: METAL, share: 0.01 });
+      builder.ball(ENDS.bit[side], e.ring, ring, metal);
       builder.box(
         `blinker-${side}`,
         v(0.01, e.blinker.height, e.blinker.length),
@@ -275,9 +281,9 @@ export namespace HorseHarness {
     builder.rod(
       "bit",
       e.ring / 2,
-      v(head + r, rig.mouth.y, rig.mouth.z),
-      v(-(head + r), rig.mouth.y, rig.mouth.z),
-      { color: METAL, share: 0.01 },
+      mirror(pass.bit, 1),
+      mirror(pass.bit, -1),
+      metal,
     );
 
     // The hitch: the middle between the tugs, where a cart's shafts are held.
@@ -288,13 +294,13 @@ export namespace HorseHarness {
       extent: null,
     });
   }
-}
 
-/** The two sides, `+X` first. */
-const SIDES: readonly (readonly ["left" | "right", number])[] = [
-  ["left", 1],
-  ["right", -1],
-];
+  /** The two sides, `+X` first, with the sign of `X` on each: the one list a harness and a harnessed vehicle iterate. */
+  export const SIDES: readonly (readonly ["left" | "right", number])[] = [
+    ["left", 1],
+    ["right", -1],
+  ];
+}
 
 /** Harness leather. */
 const LEATHER: string = "#1f1a17";
