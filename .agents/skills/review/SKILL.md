@@ -11,7 +11,9 @@ Read the whole declared surface in the current checkout, without splitting it by
 
 Judge each finding before acting on it. Fix a defect the change introduces or worsens; report a pre-existing one without fixing it here; drop a preference no rule supports.
 
-How many passes a review takes depends on whether [contracts](../contracts/SKILL.md) Evidence covers what changed. Code that Evidence covers gets one complete pass, which checks that each checklist answer is true and complete for its declaration, fixed by cause under [`AGENTS.md`](../../../AGENTS.md#fixing-by-cause), and the review is done. A passing test or renamed wrapper does not prove a cause was fixed. Each declaration already answers its checklists in its doc comment, and CI's evidence job fails a missing answer, so a second pass over the same code repeats what Evidence guards and costs hours.
+Code that [contracts](../contracts/SKILL.md) Evidence covers gets one complete pass, and the review is done. Each declaration already answers its checklists in its doc comment and CI's evidence job fails a missing answer, so a second pass repeats what Evidence guards and costs hours.
+
+That pass checks that each checklist answer is true and complete for its declaration. Fix its findings by cause under [`AGENTS.md`](../../../AGENTS.md#fixing-by-cause); a passing test or renamed wrapper does not prove a cause was fixed.
 
 Everything Evidence does not cover goes in rounds: skills, `AGENTS.md`, documents, READMEs and the website. Run fresh complete rounds, each fixed by cause, until one finds no defect the change introduced or worsened, because these have no checklist to show that a fix left nothing behind.
 

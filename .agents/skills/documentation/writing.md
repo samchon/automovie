@@ -14,7 +14,7 @@ These rules govern what a document says and how each sentence says it:
 - Say simply what can be said simply.
 - Cut padding, preamble, filler and closing summaries.
 - Cut a qualification that changes nothing, an example that restates the rule, and a sentence that repeats another.
-- Make one point in one sentence.
+- Make one point per sentence.
 - Give the reason when it is not obvious.
 - Say what to do rather than what to avoid, and name the concrete pattern when a prohibition is needed.
 - Use plain language, without emphasis capitals, em-dashes, emoji in prose, promotional adjectives or hedging.

@@ -12,11 +12,11 @@ Judge sufficient and excessive detail in the same achievement. More explanation,
 
 ## Items and statements
 
-Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`, and an item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
+Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`. An item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it.
 
 Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 
-When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector reaches its statements.
+A contract family is a folder of contracts that one owner keeps, and a new sentence pattern needs no new family. When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector reaches its statements.
 
 ## Changing items
 
@@ -28,7 +28,7 @@ Follow the production's [closed-pass boundary](../../../packages/template/scaffo
 
 ## New criteria
 
-Keep verified source support and its limits in a source record or a comment, knowing that comments ship to productions with the text.
+Keep verified source support and its limits in a source record or an HTML comment beside the item, remembering that the comment ships to productions.
 
 Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
