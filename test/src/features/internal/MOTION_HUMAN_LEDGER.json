@@ -418,7 +418,7 @@
         "test_human_motion_overlay_channels_continuity_8"
       ]
     },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.ARM",

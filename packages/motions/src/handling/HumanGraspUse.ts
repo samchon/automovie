@@ -14,6 +14,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
@@ -21,6 +22,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingHeld } from "../striking/StrikingHeld";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspWorn } from "./HumanGraspWorn";
 
@@ -163,7 +165,7 @@ export namespace HumanGraspUse {
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the pose, each input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places: a tool's working point off where the key asks it, metres, read off the fitted hand (`HumanGrasp.IKey.judge`). The roll about that line, or the turn about the surface's normal, is free in a use that names only that much: the shared chooser takes it (`HumanFreedomChoice`, a wrapped freedom), the roll whose key the arm, fitted within its ranges, leaves the working point nearest, as a law presenting the tool takes it (`StrikingRoll`), so the grasp is judged at the roll the law will use.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool is rigid in the hand from the grasp on, so the hand's rotation there is the candidate grasp's rotation turned by the shortest turn that takes the tool's line, as it lies now, onto the asked line, or, laid along a surface, the working point's own face onto the surface; worn, the thing's own worn frame, the one `dress` puts it at (`HumanWorn.frame`), so the grasp is judged at the very pose it is put on in (`HumanGraspWorn`). Every key is judged in the unit of what it places, metres, read off the fitted hand (`HumanGrasp.IKey.judge`): a tool on a line by the measure the law presenting it judges a held tool by (`StrikingHeld.strayed`, its working point and its line a tool's length behind, so a grip that keeps the point and turns the line is counted), the tool read from the candidate grip as a held tool is read (`StrikingHeld.read`); a tool laid along a surface by its working point. The roll about that line, or the turn about the surface's normal, is free in a use that names only that much: the shared chooser takes it (`HumanFreedomChoice`, a wrapped freedom), the roll whose key the arm, fitted within its ranges, leaves the working point nearest, as a law presenting the tool takes it (`StrikingRoll`), so the grasp is judged at the roll the law will use.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The two contacts, the two lines, the turn between them, the place, the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lines that oppose each other turn about the body's left instead of an undefined axis. Given the closed hand's clearance, its depth inside the body adds to a roll's miss. The place's shares of the arm (0.6 ahead, 0.1 below) are provisional and named at the code.
    * @evidence contracts/development/implementation.md#efficient-algorithms The chooser's fits, each roll fitted and its elbow solved once, kept in a map, however often the search returns to it.
@@ -431,14 +433,34 @@ export namespace HumanGraspUse {
       judge: (values: readonly number[]): number[] => [missed(values[0]!)],
     }).values[0]!;
     const { point, rotation }: HumanHand.IWrist = keyed(roll);
-    // The use is judged by where the working point is once the arm is fitted
-    // to the key: rigid in the hand, its stray from where the key asks it is
-    // the hand's place and turn read in the tool's own metres.
+    // The use is judged once the arm is fitted to the key, rigid in the
+    // hand: laid along a surface, by its working point's stray from where
+    // the key asks it; on a line, as the law presenting it judges a held
+    // tool (`StrikingHeld.strayed`), its working point and its line a tool's
+    // length behind, the tool read from the candidate grip as a held one is
+    // (`StrikingHeld.read`).
     const working: IAutoMovieVector3 = Vector3.add(
       point,
       Quaternion.rotateVector(rotation, inHand),
     );
-    return {
+    const tool: StrikingHeld.ITool | undefined =
+      props.use.line === "along"
+        ? undefined
+        : StrikingHeld.read(
+            AutoMovieMotionHumanHeld.grasped(
+              context.body,
+              props.side,
+              props.prop,
+              held.frame(context.start),
+              held.prop.affordances ?? [],
+              props.wrist,
+            ),
+            { tip: props.use.tip },
+          );
+    const framed: StrikingHeld.IHandFrame = {
+      point: Vector3.add(point, Quaternion.rotateVector(rotation, socket)),
+      rotation,
+    };    return {
       posture: context.entry.posture,
       wrist: { point, rotation },
       // The elbow's hint of this pose: its place of least joint strain for
@@ -448,6 +470,17 @@ export namespace HumanGraspUse {
         bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       ): number => {
         const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
+        if (tool !== undefined)
+          return StrikingHeld.strayed(
+            tool,
+            {
+              point: HumanHand.frame(context.body, bones, props.side, "grip")
+                .point,
+              rotation: hand.worldRotation,
+            },
+            framed,
+            0,
+          );
         return Vector3.length(
           Vector3.subtract(
             Vector3.add(
