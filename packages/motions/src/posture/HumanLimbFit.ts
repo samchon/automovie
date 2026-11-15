@@ -22,6 +22,7 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanColliders } from "./HumanColliders";
 import { HumanFoot } from "./HumanFoot";
+import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import type { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
@@ -385,6 +386,17 @@ export namespace HumanLimbFit {
    * fit is kept under its mirror's key, the right limb's (`fit`), so a fit
    * and its mirror image are one entry, with the seed it was chosen at.
    *
+   * The key and the solve are in the root's floor frame (`HumanLimbFitFrame`):
+   * the pose's root, the goal's point, bend, contact and rotation and the
+   * rival wrist are moved by minus the root's floor point and turned by minus
+   * its heading, so one body doing the same thing in another place or facing
+   * another way reads the same fit. A hit hands back the stored pose with the
+   * caller's own root and the stored seed unchanged: the seed's swivel and
+   * branch live in the chain root's bone-local frame, which a turn about +Y
+   * and a floor translation leave invariant. A goal attached to a bone or
+   * naming other bodies' colliders, and a pose without a root, stay keyed in
+   * the world.
+   *
    * A fit continued from a nearby one (`near`) is solved and not kept: it is
    * read once, at the sample beside the instant it continues, where the
    * memory serves the fits an instant is read at again.
@@ -430,13 +442,21 @@ export namespace HumanLimbFit {
       );
       return { pose: mirrored(image.pose), seed: image.seed };
     }
+    // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
+    // one body doing the same thing elsewhere or facing elsewhere shares the
+    // fit; handed back with the caller's root and the seed as it is.
+    const frame: HumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(pose, goal);
+    const own: IAutoMoviePose = frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
+    const aim: IHumanPosture.IGoal = frame === null ? goal : HumanLimbFitFrame.goal(frame, goal);
+    const away: IAutoMovieVector3 | undefined =
+      frame === null || rival === undefined ? rival : HumanLimbFitFrame.point(frame, rival);
     const key: string = JSON.stringify([
       limb,
       placed,
-      rival ?? null,
-      goal,
-      pose.root,
-      pose.joints,
+      away ?? null,
+      aim,
+      own.root,
+      own.joints,
     ]);
     let fits: Map<string, IAutoMovieSeededChainFit> | undefined =
       FITS.get(body);
@@ -445,11 +465,12 @@ export namespace HumanLimbFit {
       FITS.set(body, fits);
     }
     let out: IAutoMovieSeededChainFit | undefined = fits.get(key);
-    if (out === undefined) out = fit(body, pose, limb, goal, placed, rival);
+    HumanLimbFitFrame.count(body, out !== undefined);
+    if (out === undefined) out = fit(body, own, limb, aim, placed, away);
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return out;
+    return frame === null ? out : { pose: { ...out.pose, root: pose.root }, seed: out.seed };
   }
 
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */
