@@ -1,3 +1,4 @@
+import { ArchetypeCourse } from "../core";
 import { HorseGait } from "./HorseGait";
 import { createHorse } from "./createHorse";
 
@@ -12,9 +13,6 @@ import { createHorse } from "./createHorse";
 export namespace HorseChange {
   /** The Froude number at which horses change from walk to trot: 0.35, speed squared over gravity times leg length, across nine horses of 90 to 720 kg and legs of 0.7 to 1.4 m changing at 1.6 to 2.3 m/s (Griffin, Kram, Wickler and Hoyt 2004, J Exp Biol 207:4215, abstract, https://journals.biologists.com/jeb/article/207/24/4215/2679/Biomechanical-and-energetic-determinants-of-the). The change point is the square root of this times gravity times the leg's length. The paper's Methods, which name the landmark its leg length was measured to, could not be read (the article page shows the abstract only, the journal's PDF refused the fetch, and searches for a copy found none); the hip joint's height from the ground (`createHorse.rig`) stands for it, a provisional choice consistent with the paper's figures: its 1.4 m for its 720 kg horse against 1.29 m at the hip of the 718 kg, 1.80 m warmblood the bands allow. */
   export const FROUDE: number = 0.35;
-
-  /** The acceleration of gravity, metres per second squared. */
-  export const GRAVITY: number = 9.81;
 
   /** The trot-gallop transition speed as it scales with body mass, the canter being the gallop's slow form: `speed` at `mass` times the mass ratio to `exponent`. Heglund and Taylor 1988 (J Exp Biol 138:301, https://doi.org/10.1242/jeb.138.1.301), as a summary of the paper reads (https://www.originalwisdom.com/wp-content/uploads/bsk-pdf-manager/2019/10/Heglund-and-Taylor_1988_Speed-and-stride-frequency-and-energy-cost-per-stride-how-do-they-change-with-body-size-and-gait.pdf): "Transition speed rose with body mass to the power 0.216; stride frequency there fell with body mass to the power -0.150." and "A 30 g mouse began to gallop at 0.8 m/s, a 170 kg pony at 5 m/s." The coefficient of the paper's Table 2 is unread (the journal's PDF refused the fetch and the summary gives no table), so the pony's point anchors the power law; the same page notes the paper's horse masses are given inconsistently. `rideHorse`'s spec checks that the speed falls inside the trot's and the canter's measured ranges. */
   export const GALLOP: Readonly<{ speed: number; mass: number; exponent: number }> = {
@@ -49,7 +47,9 @@ export namespace HorseChange {
   ): number {
     if (low === "walk" && high === "trot")
       return Math.sqrt(
-        FROUDE * GRAVITY * createHorse.rig(dimensions).limbs.leftHind[0]!.y,
+        FROUDE *
+          ArchetypeCourse.GRAVITY *
+          createHorse.rig(dimensions).limbs.leftHind[0]!.y,
       );
     if (low === "trot" && high === "canter")
       return GALLOP.speed * (dimensions.mass! / GALLOP.mass) ** GALLOP.exponent;

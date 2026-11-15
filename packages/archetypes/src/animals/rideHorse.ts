@@ -36,7 +36,7 @@ import { createHorse } from "./createHorse";
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, where the timing comes from, how the gait is chosen and changed, the instants added, what the support frame is and what happens below the gait's slowest speed.
  * @evidence contracts/development/implementation.md#principled-implementation Phase advances with time by one stride per stride time of the stride's own gait. Each hoof's landings are listed stride by stride at that stride's gait's phase, so across a change the gap to the next landing grows or shrinks and the swing between them stretches to meet it. A planted hoof is set back through the model by the distance the body has travelled since it landed, read from the course's plan; it lands half of its stance's travel ahead of its rest place, so the stance is centred under the joint that carries it. Each limb is solved in its own fore-and-aft plane as two links, the upper bone and the three lower bones held as one piece whose carpus or hock is folded by a set angle, the planar two-bone solution with the elbow kept behind and the stifle in front. The fold's peak is the joint's measured range (Back, Schamhardt and Barneveld 1996, Vet Q 18:79, Tables 1 and 2: carpus 68.7 degrees at walk and 90.8 at trot, tarsus 35.6 and 55.4), the trunk's rise and fall the measured withers range (Rhodin et al. 2022, Animals 12:3053, warmbloods: 33 mm at walk, 92 mm at trot), the head's pitch the measured head range timed to the footfalls (`HorseMotion.nod`, Dunbar et al. 2008, J Exp Biol 211:3889), each swinging hoof brought to its next landing by the minimum-jerk lift-and-place path (`HorseMotion.swing`), and the top joint follows the hoof by the share the scapula's and pelvis's measured swing gives it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the course, tabulate phase against time deciding each stride's gait at its start, list the landings, then one pose function: bob, nod, four limbs, new part transforms.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canter's and gallop's fold and bob reuse the trot's and the gallop's nod the canter's, for want of a measured source; the canter-to-gallop change point, the walk-to-trot change's leg landmark and the hysteresis are named provisional values (`HorseChange`); the reins and the lead rope keep their rest lines while the head nods. A hoof beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted hoof stays planted and no bone stretches; the swing's lift is an estimate, stated on its constant.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canter's and gallop's fold and bob reuse the trot's and the gallop's nod the canter's, for want of a measured source; the canter-to-gallop change point, the walk-to-trot change's leg landmark and the hysteresis are named provisional values (`HorseChange`); the reins and the lead rope keep their rest lines while the head nods. A hoof beyond the limb's reach draws the limb's top joint along the trunk until it is within reach, so a planted hoof stays planted and no bone stretches; the walk's swing lift is an estimate and the faster gaits reuse the trot's measured one, both stated on its constant.
  * @evidence contracts/development/implementation.md#efficient-algorithms The phase table has `STEPS` rows over the running time, built once; a sample is one table read, a few binary searches of it per limb for the stances' ends, and four closed-form limb solutions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan, the phase table, the strides' gaits and the rest rig are shared by every sample; the ride samples the plan made here.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the horse, the plan and the tables for as long as the caller keeps the ride.
@@ -252,7 +252,9 @@ export function rideHorse(
           rest[4]!.z + ahead,
           sink +
             going *
-              rideHorse.LIFT[which === "walk" ? 0 : 1] *
+              (fore ? rideHorse.LIFT.fore : rideHorse.LIFT.hind)[
+                which === "walk" ? 0 : 1
+              ] *
               withers *
               path.rise,
           going *
@@ -349,8 +351,11 @@ export namespace rideHorse {
     hind: readonly [number, number];
   }> = { fore: [68.7, 90.8], hind: [35.6, 55.4] };
 
-  /** How high a swinging hoof clears the ground at the middle of its swing, as a fraction of the height at the withers, at the walk and at the faster gaits: estimates, no source read gives them. */
-  export const LIFT: readonly [number, number] = [0.03, 0.06];
+  /** How high a swinging hoof rises at the middle of its swing, fore and hind, as a fraction of the height at the withers, at the walk and at the faster gaits. At the trot, the peak hoof heights of eight horses trotting on level ground, 13.8 cm fore and 10.8 cm hind (Brown, Stubbs, Kaiser, Lavagnino and Clayton 2015, Equine Vet J 2015, abstract read at Europe PMC, PMID 24593249), over their 142.3 cm at the withers (Clayton, Stubbs and Lavagnino 2015, Equine Vet J 47:113, Materials and methods, the same horses), so the model's horse of another height lifts in proportion: a derivation. The canter and the gallop reuse the trot's, no measured value having been found. The walk's 0.03 is a named estimate: no level-ground walk hoof height was read (searched: the SLU forward-walk study, its figures not reachable; the 2001 hindlimb walk kinematics, joint angles only; the Kentucky walk-lameness hoof study, no heights in its abstract; Animals 2025 15:2376 and Stutz et al. 2018, both refused). */
+  export const LIFT: Readonly<{
+    fore: readonly [number, number];
+    hind: readonly [number, number];
+  }> = { fore: [0.03, 0.138 / 1.423], hind: [0.03, 0.108 / 1.423] };
 
   /** The share of a hoof's fore-and-aft travel that its top joint follows, fore and hind: the shoulder joint's travel under a scapula of 0.311 of the withers height (Matsuura et al. 2008) turning through 19.4 degrees, and the hip joint's under the pelvis's 8.2 degrees (Back et al. 1996), each over the 1.1 m a hoof travels in stance; derived, not measured. */
   export const FOLLOW: Readonly<{ fore: number; hind: number }> = {

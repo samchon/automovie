@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import type { ArchetypeRide } from "./ArchetypeRide";
@@ -162,17 +163,17 @@ export namespace ArchetypeSea {
     const components: IComponent[] = [];
     if (options.height > 0) {
       const wind: number = 1.075 * Math.sqrt(options.height / 0.0246);
-      const peak: number = (0.877 * G) / (2 * Math.PI * wind);
+      const peak: number = (0.877 * ArchetypeCourse.GRAVITY) / (2 * Math.PI * wind);
       const low: number = BAND[0] * peak;
       const width: number = ((BAND[1] - BAND[0]) * peak) / COMPONENTS;
       for (let k: number = 0; k < COMPONENTS; k++) {
         const frequency: number = low + (k + 0.5) * width;
         const energy: number =
-          ((0.0081 * G * G) / ((2 * Math.PI) ** 4 * frequency ** 5)) *
-          Math.exp(-0.74 * (G / (2 * Math.PI * wind * frequency)) ** 4);
+          ((0.0081 * ArchetypeCourse.GRAVITY * ArchetypeCourse.GRAVITY) / ((2 * Math.PI) ** 4 * frequency ** 5)) *
+          Math.exp(-0.74 * (ArchetypeCourse.GRAVITY / (2 * Math.PI * wind * frequency)) ** 4);
         components.push({
           frequency,
-          wavenumber: (2 * Math.PI * frequency) ** 2 / G,
+          wavenumber: (2 * Math.PI * frequency) ** 2 / ArchetypeCourse.GRAVITY,
           amplitude: Math.sqrt(2 * energy * width),
           phase: random.float(k + 1) * 2 * Math.PI,
         });
@@ -336,5 +337,3 @@ export namespace ArchetypeSea {
   }
 }
 
-/** The acceleration of gravity, metres per second squared. */
-const G: number = 9.81;
