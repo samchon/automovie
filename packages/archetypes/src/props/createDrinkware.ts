@@ -39,6 +39,18 @@ const BORDEAUX: string =
 const MUG: string =
   "IKEA 365+ mug 24 cl (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/) and ITI 82245-02 diner mug 10 oz (https://www.katom.com/129-8224502.html)";
 
+/** A maker's porcelain cup, read. */
+const CUP: string =
+  "BHS tabletop SMART cup 0.18 l: diameter 90 mm, height 55 mm, 180 g (https://www.bhs-tabletop.com/en-en/product/smart-cup-000675528511000000-sku-000675526811000000/)";
+
+/** The fingers a cup's or a mug's handle loop admits, read in a hand anthropometry study. */
+const FINGER_SOURCE: string =
+  "Rastgoo Balov, Allahyari, Jafari and Hajaghazadeh 2026, Hand anthropometry, grip strength, and manual dexterity, SAGE Open Med, doi 10.1177/20503121261428206 (PMC13039577), Tables 1 and 2: index and middle fingers' breadth and girth at their second joint from the tip, women's and men's means";
+
+/** The handle bar's thickness, an industrial handle's read range standing in for a cup handle's, which no study read gives. */
+const BAR: string =
+  "Elesa+Ganter GN 425 U-handles, bar diameter d1 8 to 16 mm (https://www.elesa-ganter.in/siteassets/PDF/EN/GN%20425.pdf), an industrial-handle analogue: no maker or ergonomic study read gives a cup handle bar's thickness (search recorded), and the fingers' grasp reads the loop's clearance, not the bar";
+
 /** Two bar glasses read at distributor listings only. */
 const GLASS: string =
   "Libbey 5139 pint and Libbey 2045 highball glasses, distributor listings seen only in search results";
@@ -46,6 +58,7 @@ const GLASS: string =
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createDrinkware.Kind, string>> = {
   mug: "mug",
+  cup: "cup",
   glass: "drinking glass",
   wineGlass: "wine glass",
   beerBottle: "beer bottle",
@@ -56,6 +69,7 @@ const NAMES: Readonly<Record<createDrinkware.Kind, string>> = {
 /** The flat colour each kind is drawn in, picture only: a glazed mug, clear glass, brown glass for beer, a clear pale blue for water and dark green glass for wine, so the bottles are told apart on a still. */
 const COLORS: Readonly<Record<createDrinkware.Kind, string>> = {
   mug: "#e8e4da",
+  cup: "#f4f2ec",
   glass: "#a9c8d8",
   wineGlass: "#a9c8d8",
   beerBottle: "#6b3f1d",
@@ -66,6 +80,7 @@ const COLORS: Readonly<Record<createDrinkware.Kind, string>> = {
 /** What each kind holds when full, litres: the capacity its sources state. */
 const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
   mug: 0.24,
+  cup: 0.18,
   glass: 0.473,
   wineGlass: 0.215,
   beerBottle: 0.33,
@@ -74,11 +89,11 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
 };
 
 /**
- * A drinking vessel: a mug, a drinking glass, a wine glass, or a beer, water or wine bottle.
+ * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer, water or wine bottle.
  *
  * The model is the vessel's body as one upright cylinder, with a mug's handle as three bars, a wine glass's stem and foot, and a bottle's neck; with each kind's flat colour, brown for a beer bottle, pale blue for a water bottle and dark green for a wine bottle, that is what tells the six apart. What a hand and a mouth read is exact: each grip's frame lies on the axis of the part it wraps with the part's diameter as its `aperture`, and the `lip` stands on the rim on the vessel's `+Z` side, where the drinker's mouth meets it.
  *
- * The vessel stands on its base at the origin, `+Y` up. A mug's handle is on `+X`, the right of a drinker who faces the `+Z` side.
+ * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's handle is on `+X`, the right of a drinker who faces the `+Z` side: a loop centred on the body's half height, or resting its lower stub at the base where the body is too short for that, its inside as tall as an index and a middle finger are broad and as deep as the thicker of them, so the two fingers pass through it, its bar an industrial handle's read thickness as an analogue; the fingers' hook grip reads the loop's clearance, not the bar.
  *
  * @param params The kind, how full it is and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -163,12 +178,13 @@ export function createDrinkware(
     length: top - stem,
   });
 
-  if (kind === "mug") {
-    // The handle: an upright bar the fingers wrap, held off the body by two stubs.
+  if (kind === "mug" || kind === "cup") {
+    // The handle: an upright bar the fingers hook, held off the body by two stubs whose inner faces bound the loop.
     const bar: number = d.handleDiameter! / 2;
     const reach: number = radius + d.handleOpening! + bar;
-    const low: number = height * 0.25;
-    const high: number = height * 0.75;
+    // Centred on the body's half height, unless the loop and its stubs are taller than half the body allows: then the lower stub rests at the base.
+    const low: number = Math.max(height / 2 - d.handleLoop! / 2 - bar, bar);
+    const high: number = low + d.handleLoop! + 2 * bar;
     builder.rod(
       "handle",
       bar,
@@ -200,9 +216,9 @@ export function createDrinkware(
         Vector3.create(0, 1, 0),
       ),
       extent: null,
-      grip: "power",
+      grip: "hook",
       aperture: 2 * bar,
-      length: high - low,
+      length: d.handleLoop!,
     });
   }
 
@@ -292,6 +308,7 @@ export namespace createDrinkware {
   /** The kinds of vessel. */
   export type Kind =
     | "mug"
+    | "cup"
     | "glass"
     | "wineGlass"
     | "beerBottle"
@@ -301,6 +318,7 @@ export namespace createDrinkware {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "mug",
+    "cup",
     "glass",
     "wineGlass",
     "beerBottle",
@@ -312,7 +330,7 @@ export namespace createDrinkware {
    * The affordance ids:
    *
    * - `body`: a power grip round the body, taken from the `-X` side; every kind.
-   * - `handle`: a mug's handle bar.
+   * - `handle`: a mug's or a cup's handle bar, hooked by the fingers through its loop.
    * - `stem`: a wine glass's stem, pinched.
    * - `neck`: a bottle's neck.
    * - `mouth`: a bottle's opening, a socket facing up.
@@ -331,8 +349,9 @@ export namespace createDrinkware {
    *
    * - `height`: the rim above the base.
    * - `diameter`: the body's outer diameter.
-   * - `handleDiameter`: the thickness of a mug's handle bar.
-   * - `handleOpening`: the gap between a mug's body and its handle bar, which the fingers pass through.
+   * - `handleDiameter`: the thickness of a mug's or a cup's handle bar.
+   * - `handleOpening`: the gap between the body and the handle bar, which the fingers pass through.
+   * - `handleLoop`: the loop's inside height between its stubs, which the fingers pass through side by side.
    * - `stemLength`: the top of a wine glass's stem above its base.
    * - `stemDiameter`: a wine glass's stem.
    * - `baseDiameter`: a wine glass's foot.
@@ -344,6 +363,7 @@ export namespace createDrinkware {
     | "diameter"
     | "handleDiameter"
     | "handleOpening"
+    | "handleLoop"
     | "stemLength"
     | "stemDiameter"
     | "baseDiameter"
@@ -362,6 +382,49 @@ export namespace createDrinkware {
     fill?: number;
   }
 
+  /**
+   * The index and middle fingers' breadth and girth at their second joint from the tip, metres (the paper's millimetres), women's then men's means (Rastgoo Balov et al. 2026, Tables 1 and 2).
+   */
+  export const FINGERS: Readonly<
+    Record<"women" | "men", Readonly<Record<"index" | "middle", { breadth: number; girth: number }>>>
+  > = {
+    women: {
+      index: { breadth: 0.01648, girth: 0.05832 },
+      middle: { breadth: 0.0161, girth: 0.05928 },
+    },
+    men: {
+      index: { breadth: 0.01798, girth: 0.06406 },
+      middle: { breadth: 0.01793, girth: 0.06445 },
+    },
+  };
+
+  /** A finger's depth through the loop, metres: the larger of the two bounds its girth and breadth set on a joint's depth, the square root of the girth squared over four less the breadth squared, as the human model's digit box takes it, so the loop admits the finger. */
+  const depth = (finger: { breadth: number; girth: number }): number =>
+    Math.sqrt(finger.girth ** 2 / 4 - finger.breadth ** 2);
+
+  /** A hand's loop: the two fingers' breadths side by side, and the thicker finger's depth, metres. */
+  const loop = (hand: "women" | "men"): { tall: number; deep: number } => ({
+    tall: FINGERS[hand].index.breadth + FINGERS[hand].middle.breadth,
+    deep: Math.max(depth(FINGERS[hand].index), depth(FINGERS[hand].middle)),
+  });
+
+  /** A mug's and a cup's handle bands: the loop admitting the women's to the men's two fingers, and the industrial-handle analogue bar. */
+  export const LOOP: Readonly<
+    Record<"handleDiameter" | "handleOpening" | "handleLoop", IArchetypeBand>
+  > = {
+    handleDiameter: ArchetypeBand.metres(0.008, 0.016, BAR, true),
+    handleOpening: ArchetypeBand.metres(
+      loop("women").deep,
+      loop("men").deep,
+      `${FINGER_SOURCE}: the thicker finger's depth, the square root of its girth squared over four less its breadth squared`,
+    ),
+    handleLoop: ArchetypeBand.metres(
+      loop("women").tall,
+      loop("men").tall,
+      `${FINGER_SOURCE}: the two fingers' breadths side by side`,
+    ),
+  };
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
@@ -369,24 +432,19 @@ export namespace createDrinkware {
     mug: {
       height: ArchetypeBand.metres(0.07, 0.098, MUG),
       diameter: ArchetypeBand.metres(0.089, 0.09, MUG),
-      handleDiameter: ArchetypeBand.metres(
-        0.008,
-        0.013,
-        "no mug handle measurement was found; the 8 to 13 mm where the precision handle ranges of CCOHS (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html) and NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf) overlap",
-        true,
-      ),
-      handleOpening: ArchetypeBand.metres(
-        0.025,
-        0.035,
-        "no mug handle measurement was found; room for two to three fingers, not read at a source",
-        true,
-      ),
+      ...createDrinkware.LOOP,
       mass: kg(
         0.25,
         0.35,
         "IKEA 365+ mug package weight 0.29 kg (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/)",
         true,
       ),
+    },
+    cup: {
+      height: ArchetypeBand.metres(0.055, 0.055, CUP),
+      diameter: ArchetypeBand.metres(0.09, 0.09, CUP),
+      ...createDrinkware.LOOP,
+      mass: kg(0.18, 0.18, CUP),
     },
     glass: {
       height: ArchetypeBand.metres(0.14, 0.15, GLASS, true),
