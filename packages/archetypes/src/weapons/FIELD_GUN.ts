@@ -15,6 +15,9 @@ const GIBBON: string =
 /** An inch, metres. */
 const IN: number = ArchetypeUnits.INCH;
 
+/** A yard, metres: three feet. */
+const YARD: number = 3 * ArchetypeUnits.FOOT;
+
 /**
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them, in metres, kilograms and degrees, and the builder that draws them: kept apart from {@link createCannon} so each file stays within its size.
  *
@@ -23,7 +26,7 @@ const IN: number = ArchetypeUnits.INCH;
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, what each figure is and its page, and which places are provisional or construction.
  * @evidence contracts/development/design.md#principled-representation The read figures as named members converted through `ArchetypeUnits`, the construction estimates apart, and one builder.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createCannon`'s bands and its producer, which calls `build`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from; the service figures (`SERVICE`) are each the manual's or Gibbon's, with their pages.
  */
 export namespace FIELD_GUN {
   /** The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions. */
@@ -133,6 +136,33 @@ export namespace FIELD_GUN {
   export const VENT: number = 80;
 
   /**
+   * The gun's service, read at the 1861 Ordnance Manual and Gibbon: the 6-pdr's shot, 3.58 in and 6.1 lb (p. 34); its muzzle velocity at the 1.25 lb service charge, 1439 ft/s, from the Washington Arsenal's ballistic pendulum ("Initial Velocities of Cannon-Balls", p. 393); its recoil, "under some circumstances the 6-pdr. gun will recoil but 1½ or 2 yards" (Gibbon, p. 272); the lanyard, "a piece of strong cod-line (about .2 inch diam.) 12 feet long", a hook at one end and a toggle .75 inch across and 4 inches long at the other (p. 132); the friction primer's long tube 1.75 inch and its wire 3.4 inches (p. 298); the trail handspike, 53 inches long (p. 137).
+   */
+  export const SERVICE: Readonly<{
+    shot: number;
+    shotMass: number;
+    velocity: number;
+    recoil: Readonly<{ least: number; most: number }>;
+    lanyard: number;
+    line: number;
+    toggle: Readonly<{ diameter: number; length: number }>;
+    tube: number;
+    wire: number;
+    handspike: number;
+  }> = {
+    shot: 3.58 * IN,
+    shotMass: 6.1 * ArchetypeUnits.POUND,
+    velocity: 1439 * ArchetypeUnits.FOOT,
+    recoil: { least: 1.5 * YARD, most: 2 * YARD },
+    lanyard: 12 * ArchetypeUnits.FOOT,
+    line: 0.2 * IN,
+    toggle: { diameter: 0.75 * IN, length: 4 * IN },
+    tube: 1.75 * IN,
+    wire: 3.4 * IN,
+    handspike: 53 * IN,
+  };
+
+  /**
    * Construction estimates, read by no act, each sizing a part the manual gives no figure for:
    *
    * - `cascabel`: the cascabel's knob radius as a share of the base-ring's.
@@ -140,19 +170,21 @@ export namespace FIELD_GUN {
    * - `spoke`: a spoke's radius as a share of the tire's width.
    * - `nave`: the nave's radius as a multiple of the axle arm's.
    * - `naveLength`: the nave's length as a multiple of the tire's width.
+   * - `handspike`: the share of the trail handspike's read 53 in that stands behind the trail's end where the hands take it; its seat in the trail's rings is not given (searched: the 1861 Ordnance Manual's handspike table and Plate 2, Gibbon; records-cannon.md).
    */
   export const ESTIMATES: Readonly<
-    Record<"cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength", number>
+    Record<"cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength" | "handspike", number>
   > = {
     cascabel: 0.5,
     stockDepth: 0.75,
     spoke: 0.25,
     nave: 3,
     naveLength: 3,
+    handspike: 0.5,
   };
 
   /**
-   * Builds the field gun on the producer's builder: the tube on its trunnions, the cheeks and the stock to the trail's end, the axle and the two wheels, with every part's share of the read weights.
+   * Builds the field gun on the producer's builder: the tube on its trunnions, the cheeks and the stock to the trail's end, the axle and the two wheels, with every part's share of the read weights; then its contacts: the muzzle, the vent and the friction primer in it, the lanyard's toggle 12 ft behind the primer, the trail and its handspike, the limber's seat, the axle and each wheel's top.
    *
    * The tube's 884 lb is shared between its breech and its chase so that the breech bears the read 47 lb preponderance at the rear of the base-ring; the trunnions take their volume's part at the tube's mean density. The carriage's wood and irons share its 540 lb less the axle-tree's read 116 lb by volume, and each wheel carries its read 180 lb by the volumes of its disc, spokes and nave.
    *
@@ -160,7 +192,7 @@ export namespace FIELD_GUN {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the weights are shared.
    * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tube, the carriage, the wheels, then the affordances.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tube, the carriage, the wheels, then the affordances, the service contacts last, each placed from a read length: the primer the friction tube's 1.75 in out along the vent, the toggle the lanyard's 12 ft behind it, the handspike its read 53 in's `ESTIMATES.handspike` share behind the trail.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes.
    * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
@@ -336,7 +368,7 @@ export namespace FIELD_GUN {
     });
     builder.affordance({
       id: "muzzle",
-      kind: "surface",
+      kind: "socket",
       direction: "along",
       frame: ArchetypeFrame.facing(v(0, axis, muzzle), v(0, 0, 1), v(1, 0, 0)),
       extent: null,
@@ -347,17 +379,38 @@ export namespace FIELD_GUN {
     const entry: number = muzzle - t.boreLength + t.bore / 4;
     const rise: number = breech - t.bore / 2;
     const lean: number = (VENT * Math.PI) / 180;
+    const orifice: IAutoMovieVector3 = v(0, axis + breech, entry - rise / Math.tan(lean));
+    const out: IAutoMovieVector3 = v(0, Math.sin(lean), -Math.cos(lean));
     builder.affordance({
       id: "vent",
-      kind: "surface",
+      kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(
-        v(0, axis + breech, entry - rise / Math.tan(lean)),
-        v(0, Math.sin(lean), -Math.cos(lean)),
-        v(1, 0, 0),
-      ),
+      frame: ArchetypeFrame.facing(orifice, out, v(1, 0, 0)),
       extent: null,
       rides: "elevation",
+    });
+
+    // The friction primer in the vent, its long tube standing out along it; its wire's eye at the tube's top is where the lanyard's hook takes it.
+    const s: typeof SERVICE = SERVICE;
+    const eye: IAutoMovieVector3 = Vector3.add(orifice, Vector3.scale(out, s.tube));
+    builder.affordance({
+      id: "primer",
+      kind: "socket",
+      direction: "along",
+      frame: ArchetypeFrame.facing(eye, out, v(1, 0, 0)),
+      extent: null,
+      rides: "elevation",
+    });
+    // The lanyard's toggle, its 12 ft run straight back from the primer's eye at the eye's height, a slider the firing hand draws back by the friction wire's length, which pulls it out and fires the primer.
+    builder.affordance({
+      id: "lanyard",
+      kind: "slider",
+      frame: ArchetypeFrame.facing(v(0, eye.y, eye.z - s.lanyard), v(0, 1, 0), v(0, 0, -1)),
+      extent: null,
+      grip: "power",
+      aperture: s.toggle.diameter,
+      length: s.toggle.length,
+      travel: s.wire,
     });
 
     // The elevating screw's handle under the breech at the base-ring's rear, where the breech rests: Plate 2 draws it there without dimensions, so its place is provisional, its travel bounded by the vertical field of fire (p. 74). The trail's end, where the handspike bears.
@@ -374,5 +427,44 @@ export namespace FIELD_GUN {
       extent: null,
       width,
     });
+    // The trail handspike shipped in the trail's end, its read length running back along the trail, `ESTIMATES.handspike` of it behind the end; the limber's pintle takes the trail's end from below, and the axle's middle is where the carriage is drawn from.
+    builder.affordance({
+      id: "handspike",
+      kind: "handle",
+      symmetry: "none",
+      frame: ArchetypeFrame.facing(v(0, depth, trailEnd - (s.handspike * e.handspike) / 2), v(0, 1, 0), v(0, 0, -1)),
+      extent: null,
+      grip: "power",
+      aperture: depth,
+      length: s.handspike * e.handspike,
+    });
+    builder.affordance({
+      id: "limber",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(v(0, 0, trailEnd), v(0, -1, 0), v(1, 0, 0)),
+      extent: null,
+    });
+    builder.affordance({
+      id: "axle",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
+      extent: null,
+    });
+    // Each wheel's top, where a cannoneer takes the spokes to run the gun up; it turns with the wheel.
+    for (const [id, spin, sign] of [
+      ["leftWheel", "leftSpin", 1],
+      ["rightWheel", "rightSpin", -1],
+    ] as const)
+      builder.affordance({
+        id,
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.facing(v((sign * c.track) / 2, 2 * radius, 0), v(0, 1, 0), v(1, 0, 0)),
+        extent: null,
+        grip: "power",
+        aperture: c.tyre,
+        length: c.tyre,
+        rides: spin,
+      });
   }
 }
