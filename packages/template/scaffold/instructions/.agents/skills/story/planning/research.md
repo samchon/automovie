@@ -28,7 +28,7 @@ Start with the practice's density and distribution targets at the depicted level
 
 Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them.
 
-Read each passage in context and study footage as consecutive frames through its connected phases, measuring it where needed by [capture from footage](../../motion/generated-motion.md#techniques), whose values are estimates. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation.
+Read each passage in context and study footage as consecutive frames through its connected phases, measuring it where needed by [capture from footage](../../motion/diffusion/capture.md), whose values are estimates. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation.
 
 Check each value against its source once, when it is written. Cross-check disputed claims and record what stays unavailable.
 

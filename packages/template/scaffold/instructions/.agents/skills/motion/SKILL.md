@@ -11,7 +11,7 @@ Realize the screenplay's performance through code. Read [project context](../pro
 
 Whatever a person does is composed from the installed motion vocabulary, on the objects [entity work](../development/entities.md#objects) takes from the installed archetypes. The vocabulary fits each action to the performer's own body, refuses what that body cannot do and reports its own physical bounds, and motion code written for a person in the production has none of the three.
 
-The production writes code that moves a body only under [extend](laws/SKILL.md), for an action the vocabulary lacks or a subject that is not a person. Motion the commission supplies as a clip is [retargeted](retargeting.md) instead.
+The production writes code that moves a body only under [extend](laws/SKILL.md), for an action the vocabulary lacks or a subject that is not a person. Motion the commission supplies as a clip is [retargeted](retargeting.md) instead, and motion a model generates from the composed performance follows [motion diffusion](diffusion/SKILL.md).
 
 ## Order
 
@@ -31,6 +31,6 @@ Work in this order, because each step uses what the one before settled:
 | --- | --- |
 | Map film time onto the performance, or allow seeking and split renders | [Frame evaluation](frame-evaluation.md) |
 | Choose a scene's physical mode, or simulate a body | [Physical feedback](physical-feedback.md) |
-| Generate motion with a model, or capture it from footage | [Generated and captured motion](generated-motion.md) |
+| Generate or refine motion with a model hinted by the composed performance, or capture it from footage | [Motion diffusion](diffusion/SKILL.md) |
 | Use a recorded, generated or imported clip, or a changed rig | [Retargeting](retargeting.md) |
 | Render the motion hint's control channels | [Control channels](control-channels.md) |

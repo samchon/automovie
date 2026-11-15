@@ -4,7 +4,7 @@ Recorded, generated or imported motion is retargeted before use, and again when 
 
 ## Source and target meanings
 
-Freeze the source bytes and conversion settings with their skeleton, rest pose, time convention, root trajectory, scale and usage terms, and record the bone, axis, unit and frame correspondence. A generated or captured clip first passes [what a clip lacks](generated-motion.md#what-a-clip-lacks) and its [licenses](generated-motion.md#licenses).
+Freeze the source bytes and conversion settings with their skeleton, rest pose, time convention, root trajectory, scale and usage terms, and record the bone, axis, unit and frame correspondence. A generated or captured clip first passes [clips](diffusion/clips.md).
 
 Convert imported rotations to the representation the retargeter accepts through supported operations rather than relabeling a clip. Keep the retargeter's warnings and refusals, because a returned clip does not prove contact fidelity, and keep joint limits as the rig defines them.
 
