@@ -33,6 +33,9 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  * a solve of the same rows with other bounds.
  */
 export namespace HumanQuadraticProgram {
+  /** The relative accuracy a solve's iterates and multipliers are known to: the residual tests' relative tolerance (OSQP's eps_rel). */
+  export const TOLERANCE: number = 1e-3;
+
   /** One row: `l <= Σ coef·x[index] <= u`. */
   export interface IRow {
     /** The constraint the row linearises, so a later solve of the next convexification starts from its multiplier. */
@@ -275,7 +278,7 @@ const CHECK: number = 25;
 
 /** The residual tests' absolute and relative tolerances (OSQP's defaults). */
 const ABSOLUTE: number = 1e-3;
-const RELATIVE: number = 1e-3;
+const RELATIVE: number = HumanQuadraticProgram.TOLERANCE;
 
 /** The primal infeasibility certificate's tolerance (OSQP's default). */
 const INFEASIBLE: number = 1e-4;
