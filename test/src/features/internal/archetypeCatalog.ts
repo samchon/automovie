@@ -22,6 +22,8 @@ import {
   createCellFront,
   createCleaning,
   createClub,
+  createConsole,
+  createControl,
   createCue,
   createCueTable,
   createDevice,
@@ -36,11 +38,12 @@ import {
   createFood,
   createGate,
   createGlove,
-  createHandhold,
   createGoal,
   createGolfClub,
   createHammerThrow,
   createHandgun,
+  createHandhold,
+  createHatch,
   createHeavyBag,
   createHighChair,
   createHighJump,
@@ -82,6 +85,7 @@ import {
   createRing,
   createRock,
   createRowingMachine,
+  createSafe,
   createSaloonDoor,
   createSanitary,
   createSeat,
@@ -223,6 +227,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "lectern",
     (seed?: number | string): Archetype => createLectern({}, seed),
   );
+  add(
+    "console",
+    (seed?: number | string): Archetype => createConsole({}, seed),
+  );
+  for (const hinge of ["left", "right"] as const)
+    add(
+      `safe-${hinge}`,
+      (seed?: number | string): Archetype => createSafe({ hinge }, seed),
+      true,
+    );
   for (const kind of createBarrel.KINDS)
     add(
       `barrel-${kind}`,
@@ -303,10 +317,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `machine-${kind}`,
       (seed?: number | string): Archetype => createMachine({ kind }, seed),
     );
-  add(
-    "valve",
-    (seed?: number | string): Archetype => createValve({}, seed),
-  );
+  add("valve", (seed?: number | string): Archetype => createValve({}, seed));
   for (const kind of createHandhold.KINDS)
     add(
       `handhold-${kind}`,
@@ -326,6 +337,12 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "saloonDoor",
     (seed?: number | string): Archetype => createSaloonDoor({}, seed),
   );
+  for (const kind of createControl.KINDS)
+    add(
+      `control-${kind}`,
+      (seed?: number | string): Archetype => createControl({ kind }, seed),
+    );
+  add("hatch", (seed?: number | string): Archetype => createHatch({}, seed));
   add(
     "cellFront",
     (seed?: number | string): Archetype => createCellFront({ bars: 12 }, seed),
@@ -615,10 +632,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `stick-${kind}`,
       (seed?: number | string): Archetype => createStick({ kind }, seed),
     );
-  add(
-    "cue",
-    (seed?: number | string): Archetype => createCue({}, seed),
-  );
+  add("cue", (seed?: number | string): Archetype => createCue({}, seed));
   add(
     "cueTable",
     (seed?: number | string): Archetype => createCueTable({}, seed),
@@ -627,10 +641,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     "skateboard",
     (seed?: number | string): Archetype => createSkateboard({}, seed),
   );
-  add(
-    "ski",
-    (seed?: number | string): Archetype => createSki({}, seed),
-  );
+  add("ski", (seed?: number | string): Archetype => createSki({}, seed));
   add(
     "surfboard",
     (seed?: number | string): Archetype => createSurfboard({}, seed),
