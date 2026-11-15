@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -10,6 +14,7 @@ import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * A performer's arms over one action as one trajectory optimisation, in
@@ -170,7 +175,20 @@ export namespace HumanArmTrajectory {
           current.worst.axis === "duration"
             ? at[n - 1]! - at[0]!
             : current.worst.value,
-        feasible: null,
+        // A path too fast for the speed bound is met by the same path over a
+        // longer span: scaling time by a factor divides every speed by it
+        // (Hollerbach 1984, "Dynamic scaling of manipulator trajectories"),
+        // so the span it needs is its own times the fastest probe's speed over
+        // the bound.
+        feasible:
+          current.worst.axis === "duration"
+            ? {
+                kind: "range",
+                minimum: (at[n - 1]! - at[0]!) * slower(context, x),
+                maximum: null,
+                unit: "s",
+              }
+            : null,
         reason: `no path of the ${problem.arms.map((a: IArm): string => a.side).join(" and ")} arm over the action keeps the hand on its site, the arm clear and its speed within the audit's ${M.SPEED_LIMIT} m/s: ${current.worst.what}`,
         fix:
           current.worst.axis === "duration"
@@ -183,6 +201,34 @@ export namespace HumanArmTrajectory {
         (seconds: number): HumanArmClearance.IArm =>
           G.arm(setups[a]!, HumanArmRefine.hermite(at, x[a]!, seconds)),
     );
+  }
+
+  /**
+   * The factor a trajectory's span must grow by for every speed-bounded
+   * probe to move within the audit's bound: the largest ratio, over each
+   * interval and probe, of the probe's speed to the bound.
+   */
+  function slower(c: M.IContext, x: readonly (readonly number[])[][]): number {
+    let most: number = 1;
+    x.forEach((arm: readonly (readonly number[])[], a: number): void => {
+      for (let k: number = 0; k + 1 < c.n; ++k) {
+        const now: G.IPlaced = G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!);
+        const next: G.IPlaced = G.placed(
+          c.setups[a]!,
+          c.frames[a]![k + 1]!,
+          arm[k + 1]!,
+        );
+        const dt: number = c.times[k + 1]! - c.times[k]!;
+        for (const p of T.SPEED) {
+          const d: IAutoMovieVector3 = Vector3.subtract(
+            next.probes[p]![0],
+            now.probes[p]![0],
+          );
+          most = Math.max(most, Vector3.length(d) / (M.SPEED_LIMIT * dt));
+        }
+      }
+    });
+    return most;
   }
 
   /**

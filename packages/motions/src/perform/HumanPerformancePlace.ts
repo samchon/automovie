@@ -24,6 +24,7 @@ import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -397,12 +398,14 @@ export namespace HumanPerformancePlace {
         };
       },
     };
-    let plan = law.plan(context);
+    // A plan too fast for the speed bound is replanned slower by its own
+    // refusal's factor (`HumanPerformanceTempo`).
+    let plan = HumanPerformanceTempo.plan(law, context);
     const share: number =
       row === undefined ? 0 : HumanSegment.share(row.entry, plan);
     if (share > 0) {
       context.start = start - share * plan.duration;
-      plan = law.plan(context);
+      plan = HumanPerformanceTempo.plan(law, context);
     }
 
     // The timing the schedule reads: the part of the plan left after the

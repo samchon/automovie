@@ -60,6 +60,15 @@ export interface IHumanActionContext<P = object> {
   start: number;
 
   /**
+   * A factor on every span of the action that physics does not fix, over
+   * its manner's own tempo (`AutoMovieMotionManner.of`): 1 when absent, and
+   * more where the action is replanned to take the time its planned motion
+   * needs within the speed bound (Hollerbach 1984's time scaling, applied
+   * where the action is placed).
+   */
+  tempo?: number;
+
+  /**
    * The action this one is performed over, when it is an overlay: a wave
    * during a walk. The carrier keeps the root and the legs and whatever else
    * it does not yield; this action writes only the channels it claims, on

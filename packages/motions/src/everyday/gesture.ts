@@ -17,7 +17,7 @@ import type { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHuman
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
-import type { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -309,7 +309,10 @@ export namespace gesture {
       return far;
     };
 
-    const T: number = mods.tempo;
+    // The Effort's tempo, slowed by the action's own time scale where it is
+    // replanned to take the time its motion needs (`AutoMovieMotionManner.of`).
+    const T: number =
+      mods.tempo * AutoMovieMotionManner.of(context, undefined).tempo;
     const named: number = span();
     if (source !== undefined && named > 0)
       travel = {
