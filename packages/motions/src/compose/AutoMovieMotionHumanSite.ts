@@ -90,7 +90,8 @@ export namespace AutoMovieMotionHumanSite {
         kind: "parameter",
         axis: "sites",
         value: sites.map((s: IWeighted): string => `${s.id}:${s.weight}`),
-        reason: "a place is drawn among allowed places, each with a positive weight",
+        reason:
+          "a place is drawn among allowed places, each with a positive weight",
         fix: "give at least one allowed place, each with a positive weight",
       });
     const total: number = sites.reduce(

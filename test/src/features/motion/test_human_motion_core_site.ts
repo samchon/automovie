@@ -1,4 +1,7 @@
-import { type IAutoMovieRandom, createAutoMovieRandom } from "@automovie/engine";
+import {
+  type IAutoMovieRandom,
+  createAutoMovieRandom,
+} from "@automovie/engine";
 import {
   AutoMovieMotionHumanSite,
   HumanRefusal,
