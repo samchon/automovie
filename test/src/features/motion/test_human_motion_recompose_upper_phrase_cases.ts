@@ -78,11 +78,12 @@ export function test_human_motion_recompose_upper_phrase_cases(): void {
             ? { phrase: "visit", target: { kind: "self", region: "hipLeft" } }
             : {}
           : { target: { kind: "self", region: open[row.name] } };
-      // The open target is given for the right hand, so it is mirrored.
+      // An open target is given for the right hand, so it is mirrored; a
+      // row that fixes its own target fixes its mirror too.
       const params: object = {
         ...given,
         side: "left",
-        mirror: true,
+        ...(open[row.name] === undefined ? {} : { mirror: true }),
         ...(held.includes(row.name)
           ? {
               held: "stick",
