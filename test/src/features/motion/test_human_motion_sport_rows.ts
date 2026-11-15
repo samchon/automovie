@@ -35,9 +35,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    was released.
  * 4. Over two rows of the same kind at novice and elite proficiency, the
  *    pitch plans at both.
- * 5. Not repeated here: every row planning alone on two bodies is
- *    `motionSportRows`' (`test_human_motion_sport_rows_f_small` and
- *    `test_human_motion_sport_rows_m_average`).
+ * 5. The composition matrix: every row of the six sport families above
+ *    plans alone on the smallest and the largest body (`f-small`,
+ *    `m-large`) at novice and at elite proficiency.
  * 6. The sprint start's set (Harland and Steele 1997), on `f-small`,
  *    `m-average` and `m-large` at elite proficiency: at the `set` event
  *    the front (left) knee's included angle is 90 degrees and the rear
@@ -58,7 +58,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Reads the rows' records and performs a pitch with a real ball archetype; a row of the wrong law, a renamed skill, a ball left at the release or a proficiency that does not plan fails.
  * @evidence contracts/development/testing.md#independent-expectations The names and families are the shipped table's; the 2 m is a flight that left the hand, a bound well under the 10 m aimed at; the knee angles are Harland and Steele's, bounded by the limb fit's convergence scale, the release angle Linthorne and Everett's within the joints' resolution, and the flight and slip bounds the issue's.
  * @evidence contracts/development/testing.md#distinguishing-cases Every row family; three bodies; novice and elite; a throw-in with and without a ball.
- * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds about fifteen short performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds about seventy short performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the eight numbered scenarios with their bounds and sources.
  */
 export function test_human_motion_sport_rows(): void {
@@ -252,6 +252,20 @@ export function test_human_motion_sport_rows(): void {
       return error instanceof Error ? error.message : String(error);
     }
   };
+
+  // 5. The composition matrix.
+  for (const name of ["f-small", "m-large"] as const)
+    for (const level of ["novice", "elite"] as const)
+      for (const [law] of kinds) {
+        const built: HumanPerformance | string = solo(
+          motionHumanBody(name),
+          level,
+          law,
+          {},
+        );
+        if (typeof built === "string")
+          complaints.push(`${name} ${level} ${law.name}: ${built}`);
+      }
 
   // 6. The sprint start's set.
   const included = (
