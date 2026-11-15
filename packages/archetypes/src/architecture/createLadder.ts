@@ -214,7 +214,7 @@ export namespace createLadder {
       spacing: ArchetypeBand.metres(
         0.25,
         0.36,
-        `${OSHA}(b)(2), rungs 10 to 14 in apart`,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
       ),
       width: ArchetypeBand.metres(
         0.41,
@@ -235,7 +235,7 @@ export namespace createLadder {
       spacing: ArchetypeBand.metres(
         0.25,
         0.36,
-        `${OSHA}(b)(2), rungs 10 to 14 in apart`,
+        `${OSHA}(b)(2), rungs 10 to 14 in (25 to 36 cm) apart`,
       ),
       width: ArchetypeBand.metres(
         0.29,

@@ -171,7 +171,7 @@ export namespace createMagazine {
       ),
       mass: ArchetypeBand.of(
         "kg",
-        1.4 * 0.02835,
+        1.4 * ArchetypeUnits.OUNCE,
         0.078,
         `${STRIKE}; ${GLOCK}, the maker's own magazine 708 less 630 g`,
       ),
@@ -180,7 +180,7 @@ export namespace createMagazine {
       length: ArchetypeBand.metres(7.5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, PMAG),
       width: ArchetypeBand.metres(0.87 * ArchetypeUnits.INCH, 0.87 * ArchetypeUnits.INCH, PMAG),
       depth: ArchetypeBand.metres(2.6 * ArchetypeUnits.INCH, 2.6 * ArchetypeUnits.INCH, PMAG),
-      mass: ArchetypeBand.of("kg", 5 * 0.02835, 0.146, PMAG),
+      mass: ArchetypeBand.of("kg", 5 * ArchetypeUnits.OUNCE, 0.146, PMAG),
     },
   };
 }

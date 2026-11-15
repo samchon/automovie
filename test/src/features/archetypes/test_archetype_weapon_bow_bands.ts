@@ -1,4 +1,4 @@
-import { ArchetypeUnits, ArchetypeFrame, createBow } from "@automovie/archetypes";
+import { ArchetypeUnits, ArchetypeCourse, ArchetypeFrame, createBow } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -48,8 +48,8 @@ export function test_archetype_weapon_bow_bands(): void {
     row("mass", 0.785, 0.905, (s: number): number => bow(s).body.mass),
     row(
       "draw",
-      101 * 4.448222,
-      141 * 4.448222,
+      101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
       (s: number): number => bow(s).dimensions.draw!,
     ),
   ]);

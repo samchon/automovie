@@ -3,6 +3,7 @@ import { Vector3 } from "@automovie/engine";
 import {
   ArchetypeUnits,
   Archetype,
+  ArchetypeCourse,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
@@ -160,7 +161,7 @@ export namespace createBow {
     longbow: {
       length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
       depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
-      draw: ArchetypeBand.of("N", 101 * 4.448222, 141 * 4.448222, WARBOW),
+      draw: ArchetypeBand.of("N", 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY, 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY, WARBOW),
       mass: ArchetypeBand.of("kg", 0.785, 0.905, WARBOW),
     },
   };

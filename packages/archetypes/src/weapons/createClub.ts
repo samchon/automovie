@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -149,13 +150,13 @@ export namespace createClub {
   export const KINDS: readonly Kind[] = ["bat", "baton"];
 
   /** A bat's barrel length, metres: about 10 in (Nathan, Smith and Russell 2026, Introduction). */
-  export const BARREL: number = 0.254;
+  export const BARREL: number = 10 * ArchetypeUnits.INCH;
 
   /** The striking place from the tip, metres: a bat's sweet spot, 5 to 6 in from the barrel's tip (Nathan, Smith and Russell 2026, Introduction). */
-  export const SWEET: number = 0.14;
+  export const SWEET: number = 5.5 * ArchetypeUnits.INCH;
 
   /** A bat's knob diameter, metres: about 2.0 in, read off the profile plotted in Nathan, Smith and Russell 2026, Figure 2, not a stated number. */
-  export const KNOB: number = 0.051;
+  export const KNOB: number = 2 * ArchetypeUnits.INCH;
 
   /** A bat's knob length along the bat, metres. An estimate, not read at a source. */
   export const KNOB_LENGTH: number = 0.02;
@@ -195,28 +196,28 @@ export namespace createClub {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     bat: {
-      length: ArchetypeBand.metres(0.84, 0.894, BATS),
+      length: ArchetypeBand.metres(0.84, 35.2 * ArchetypeUnits.INCH, BATS),
       diameter: ArchetypeBand.metres(
-        0.0635,
-        0.0663,
+        2.5 * ArchetypeUnits.INCH,
+        2.61 * ArchetypeUnits.INCH,
         `${RULE}; the lower end, 2.5 in, is an estimate`,
         true,
       ),
       handleDiameter: ArchetypeBand.metres(
-        0.023,
+        0.9 * ArchetypeUnits.INCH,
         0.025,
         "about 0.9 in at the handle's thinnest, read off the profile plotted in Nathan, Smith and Russell 2026, Figure 2 (https://baseball.physics.illinois.edu/ISEA2026-Torpedo-v7.pdf), not a stated number",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.849, 0.978, BATS),
+      mass: ArchetypeBand.of("kg", 0.849, 34.5 * ArchetypeUnits.OUNCE, BATS),
     },
     baton: {
-      length: ArchetypeBand.metres(0.61, 0.66, BATON),
-      diameter: ArchetypeBand.metres(0.0318, 0.0318, BATON),
+      length: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 26 * ArchetypeUnits.INCH, BATON),
+      diameter: ArchetypeBand.metres(1.25 * ArchetypeUnits.INCH, 1.25 * ArchetypeUnits.INCH, BATON),
       mass: ArchetypeBand.of(
         "kg",
-        0.37,
-        0.612,
+        13 * ArchetypeUnits.OUNCE,
+        21.6 * ArchetypeUnits.OUNCE,
         "Monadnock 26 in wood baton, 13 oz, and MP26 polycarbonate baton, 21.6 oz, retailer listings",
         true,
       ),

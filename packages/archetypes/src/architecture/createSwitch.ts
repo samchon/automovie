@@ -11,7 +11,7 @@ import {
 
 /** The reach range for operable parts. */
 const REACH: string =
-  "2010 ADA Standards 308.2.1 and 309.3, operable parts 15 to 48 in above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+  "2010 ADA Standards 308.2.1 and 309.3, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
 
 /** The travel of a switch or a button, for which no specification was read. */
 const TRAVEL: string = "switch travel, not read at a source";

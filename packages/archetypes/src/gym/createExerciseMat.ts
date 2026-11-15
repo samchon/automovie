@@ -128,7 +128,7 @@ export namespace createExerciseMat {
       length: ArchetypeBand.metres(73.2 * ArchetypeUnits.INCH, 74 * ArchetypeUnits.INCH, THICK),
       width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24.3 * ArchetypeUnits.INCH, THICK),
       thickness: ArchetypeBand.metres(0.5 * ArchetypeUnits.INCH, 0.5 * ArchetypeUnits.INCH, THICK),
-      mass: ArchetypeBand.of("kg", 1, 1, THICK),
+      mass: ArchetypeBand.of("kg", 2.2 * ArchetypeUnits.POUND, 2.2 * ArchetypeUnits.POUND, THICK),
     },
   };
 }

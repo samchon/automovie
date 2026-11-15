@@ -97,8 +97,8 @@ export function test_archetype_props_aid_bands(): void {
     ),
     row(
       "walker mass",
-      7 * 0.4536,
-      7.5 * 0.4536,
+      7 * ArchetypeUnits.POUND,
+      7.5 * ArchetypeUnits.POUND,
       DRIVE,
       (seed: number): number =>
         createMobilityAid({ kind: "walker" }, seed).body.mass,

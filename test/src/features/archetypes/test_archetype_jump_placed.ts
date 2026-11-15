@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   createHighJump,
   createLandingMat,
   createVaultingPole,
@@ -60,8 +61,8 @@ export function test_archetype_jump_placed(): void {
     ...archetypeBandSweep([
       row(
         "vaulting pole length",
-        2.337,
-        5.207,
+        7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH,
+        17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH,
         "UCS Spirit poles, 7 ft 8 in to 17 ft 1 in",
         (seed: number): number =>
           archetypeExtent(createVaultingPole({}, seed), "y").size,

@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { createTap } from "./createTap";
 import type { createSanitary } from "./createSanitary";
 
@@ -77,11 +77,11 @@ export const SANITARY_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 30, 45, ArchetypeBand.TYPICAL_MASS, true),
   },
   bathtub: {
-    rim: ArchetypeBand.metres(0.356, 0.356, `${BATH}; ${PRINCETON}`),
-    length: ArchetypeBand.metres(1.524, 1.524, `${BATH}; ${PRINCETON}`),
+    rim: ArchetypeBand.metres(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, `${BATH}; ${PRINCETON}`),
+    length: ArchetypeBand.metres(60 * ArchetypeUnits.INCH, 60 * ArchetypeUnits.INCH, `${BATH}; ${PRINCETON}`),
     width: ArchetypeBand.metres(
-      0.762,
-      0.768,
+      30 * ArchetypeUnits.INCH,
+      (30 + 1 / 4) * ArchetypeUnits.INCH,
       `${PRINCETON} (30 in), to ${BATH} (30-1/4 in)`,
       true,
     ),
@@ -103,8 +103,8 @@ export const SANITARY_BANDS: Readonly<
       `${ADA} 608.2.1, a transfer shower 36 x 36 in (915 x 915 mm) inside`,
     ),
     wallHeight: ArchetypeBand.metres(
-      1.981,
-      2.043,
+      78 * ArchetypeUnits.INCH,
+      (80 + 7 / 16) * ArchetypeUnits.INCH,
       "one-piece 36 x 36 in transfer stalls, 78 in (Aqua Bath) to 80-7/16 in (Frank Webb) high, as search results give them; not read",
       true,
     ),

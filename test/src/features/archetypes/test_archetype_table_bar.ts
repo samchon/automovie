@@ -1,4 +1,4 @@
-import { createTable } from "@automovie/archetypes";
+import { ArchetypeUnits, createTable } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -75,10 +75,10 @@ export function test_archetype_table_bar(): void {
     { kind: "serviceCounter" },
     5,
   );
-  if (!(Math.abs(counter.affordance("top").frame.translation.y - 0.9144) <= MM))
-    findings.push("the service counter is not 36 in high");
-  if (!(Math.abs(archetypeExtent(counter, "z", ["top"]).size - 0.762) <= MM))
-    findings.push("the service counter is not 30 in deep");
+  if (!(Math.abs(counter.affordance("top").frame.translation.y - 0.91) <= MM))
+    findings.push("the service counter is not 36 in (91 cm) high");
+  if (!(Math.abs(archetypeExtent(counter, "z", ["top"]).size - 0.76) <= MM))
+    findings.push("the service counter is not 30 in (76 cm) deep");
   findings.push(
     ...archetypeBandSweep([
       {
@@ -87,8 +87,8 @@ export function test_archetype_table_bar(): void {
           archetypeExtent(createTable({ kind: "serviceCounter" }, seed), "x", [
             "top",
           ]).size,
-        minimum: 0.762,
-        maximum: 1.27,
+        minimum: 30 * ArchetypeUnits.INCH,
+        maximum: 50 * ArchetypeUnits.INCH,
         source: "Delfield SCS",
       },
     ]),

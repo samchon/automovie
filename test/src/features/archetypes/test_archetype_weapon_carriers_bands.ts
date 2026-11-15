@@ -66,7 +66,7 @@ export function test_archetype_weapon_carriers_bands(): void {
     row(
       "quiver mass",
       0.62,
-      0.68,
+      1.5 * ArchetypeUnits.POUND,
       "20 in back quivers",
       (seed: number): number => createHolster({ kind: "quiver" }, seed).body.mass,
     ),

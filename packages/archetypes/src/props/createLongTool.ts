@@ -252,33 +252,33 @@ export namespace createLongTool {
     },
     broom: {
       length: ArchetypeBand.metres(
-        1.524,
-        1.604,
+        60 * ArchetypeUnits.INCH,
+        60 * ArchetypeUnits.INCH + 0.08,
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, ArchetypeUnits.INCH, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     mop: {
       length: ArchetypeBand.metres(
-        1.372,
-        1.402,
+        54 * ArchetypeUnits.INCH,
+        54 * ArchetypeUnits.INCH + 0.03,
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(0.0238, ArchetypeUnits.INCH, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     shovel: {
-      length: ArchetypeBand.metres(1.054, 1.168, SHOVEL, true),
+      length: ArchetypeBand.metres(41.5 * ArchetypeUnits.INCH, 46 * ArchetypeUnits.INCH, SHOVEL, true),
       shaftDiameter: ArchetypeBand.metres(
         0.032,
         0.038,
         "no shovel shaft diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 2.04, 2.54, SHOVEL, true),
+      mass: ArchetypeBand.of("kg", 4.5 * ArchetypeUnits.POUND, 5.6 * ArchetypeUnits.POUND, SHOVEL, true),
     },
   };
 }

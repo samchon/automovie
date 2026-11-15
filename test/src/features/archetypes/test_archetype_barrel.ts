@@ -1,4 +1,4 @@
-import { createBarrel } from "@automovie/archetypes";
+import { ArchetypeUnits, createBarrel } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -45,12 +45,12 @@ export function test_archetype_barrel(): void {
   });
   findings.push(
     ...archetypeBandSweep([
-      sweep("steelDrum", "x", 0.5715, 0.5715, "Pipeline Packaging, 22.5 in"),
+      sweep("steelDrum", "x", 22.5 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, "Pipeline Packaging, 22.5 in"),
       sweep(
         "steelDrum",
         "y",
-        0.8827,
-        0.8954,
+        34.75 * ArchetypeUnits.INCH,
+        35.25 * ArchetypeUnits.INCH,
         "Pipeline Packaging, 34.75 and 35.25 in outside",
       ),
       sweep("keg", "x", 0.379, 0.383, "KegLand 50 L DIN, 381 +/- 2 mm"),

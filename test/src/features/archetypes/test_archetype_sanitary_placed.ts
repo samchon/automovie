@@ -1,4 +1,4 @@
-import { ArchetypeFrame, createSanitary } from "@automovie/archetypes";
+import { ArchetypeFrame, ArchetypeUnits, createSanitary } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -169,22 +169,22 @@ export function test_archetype_sanitary_placed(): void {
       ),
       row(
         "bath length",
-        1.524,
-        1.524,
+        60 * ArchetypeUnits.INCH,
+        60 * ArchetypeUnits.INCH,
         "Kohler K-837, 60 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "x").size,
       ),
       row(
         "bath apron",
-        0.356,
-        0.356,
+        14 * ArchetypeUnits.INCH,
+        14 * ArchetypeUnits.INCH,
         "Kohler K-837, 14 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "y").high,
       ),
       row(
         "bath width",
-        0.762,
-        0.768,
+        30 * ArchetypeUnits.INCH,
+        (30 + 1 / 4) * ArchetypeUnits.INCH,
         "American Standard Princeton 30 in to Kohler K-837 30-1/4 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "z").size,
       ),

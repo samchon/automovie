@@ -42,7 +42,7 @@ export const APPLIANCE_BANDS: Readonly<
     pullHeight: ArchetypeBand.metres(
       0.865,
       1.22,
-      "2010 ADA Standards 308.2.1 and 309.3, operable parts at most 48 in above the floor, from the 34 in a wardrobe's pulls share with door hardware (404.2.7) (https://www.access-board.gov/ada/)",
+      "2010 ADA Standards 308.2.1 and 309.3, operable parts at most 48 in (1220 mm) above the floor, from the 34 in (865 mm) a wardrobe's pulls share with door hardware (404.2.7) (https://www.access-board.gov/ada/)",
     ),
     mass: ArchetypeBand.of("kg", 62, 82, `${FRIDGE}; ${TALL}`, true),
   },

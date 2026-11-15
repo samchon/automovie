@@ -7,6 +7,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -158,9 +159,9 @@ export namespace createBox {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of("m", 0.416, 0.46, CARTON, true),
-    height: ArchetypeBand.of("m", 0.321, 0.61, CARTON, true),
-    depth: ArchetypeBand.of("m", 0.321, 0.457, CARTON, true),
+    width: ArchetypeBand.of("m", (16 + 3 / 8) * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, CARTON, true),
+    height: ArchetypeBand.of("m", (12 + 5 / 8) * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, CARTON, true),
+    depth: ArchetypeBand.of("m", (12 + 5 / 8) * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, CARTON, true),
     mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

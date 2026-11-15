@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createTool } from "./createTool";
 
 /** The handle diameters hands rated most comfortable in a power grip. */
@@ -52,7 +52,7 @@ export const TOOL_BANDS: Readonly<
   >
 > = {
     hammer: {
-      length: ArchetypeBand.metres(0.33, 0.33, HAMMER, true),
+      length: ArchetypeBand.metres(13 * ArchetypeUnits.INCH, 13 * ArchetypeUnits.INCH, HAMMER, true),
       gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       mass: ArchetypeBand.of(
         "kg",
@@ -69,10 +69,10 @@ export const TOOL_BANDS: Readonly<
       mass: ArchetypeBand.of("kg", 0.35, 0.5, ArchetypeBand.TYPICAL_MASS, true),
     },
     screwdriver: {
-      length: ArchetypeBand.metres(0.21, 0.21, SCREWDRIVER),
-      blade: ArchetypeBand.metres(0.102, 0.102, SCREWDRIVER),
+      length: ArchetypeBand.metres(8.25 * ArchetypeUnits.INCH, 8.25 * ArchetypeUnits.INCH, SCREWDRIVER),
+      blade: ArchetypeBand.metres(4 * ArchetypeUnits.INCH, 4 * ArchetypeUnits.INCH, SCREWDRIVER),
       gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 0.113, 0.113, SCREWDRIVER),
+      mass: ArchetypeBand.of("kg", 4 * ArchetypeUnits.OUNCE, 4 * ArchetypeUnits.OUNCE, SCREWDRIVER),
     },
     spoon: {
       length: ArchetypeBand.metres(0.13, 0.17, SPOON, true),

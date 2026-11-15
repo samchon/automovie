@@ -58,7 +58,7 @@ export function test_archetype_weapon_magazine(): void {
     ),
     row(
       "pistol magazine mass",
-      1.4 * 0.02835,
+      1.4 * ArchetypeUnits.OUNCE,
       0.078,
       "Strike Industries and GLOCK G17 Gen5",
       (seed: number): number =>
@@ -82,7 +82,7 @@ export function test_archetype_weapon_magazine(): void {
     ),
     row(
       "rifle magazine mass",
-      5 * 0.02835,
+      5 * ArchetypeUnits.OUNCE,
       0.146,
       "Magpul and T.REX Arms",
       (seed: number): number => createMagazine({ kind: "rifle" }, seed).body.mass,

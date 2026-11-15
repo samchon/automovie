@@ -50,8 +50,8 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "ball mass",
-      0.4536 / 14,
-      0.4536 / 14,
+      ArchetypeUnits.POUND / 14,
+      ArchetypeUnits.POUND / 14,
       (s: number): number => ball(s).body.mass,
     ),
     row(
@@ -103,8 +103,8 @@ export function test_archetype_weapon_projectile_bands(): void {
     ),
     row(
       "grenade mass",
-      14 * 0.02835,
-      14 * 0.02835,
+      14 * ArchetypeUnits.OUNCE,
+      14 * ArchetypeUnits.OUNCE,
       (s: number): number => createProjectile({ kind: "grenade" }, s).body.mass,
     ),
     row(
@@ -145,8 +145,8 @@ export function test_archetype_weapon_projectile_bands(): void {
       { kind: "roundShot", diameter: diameter * ArchetypeUnits.INCH },
       1,
     ).body.mass;
-    if (Math.abs(mass / 0.4536 - pounds) > 0.1)
-      findings.push(`a ${diameter} in shot weighs ${mass / 0.4536} lb`);
+    if (Math.abs(mass / ArchetypeUnits.POUND - pounds) > 0.1)
+      findings.push(`a ${diameter} in shot weighs ${mass / ArchetypeUnits.POUND} lb`);
   }
   TestValidator.equals("projectiles stay in their cited bands", findings, []);
 }

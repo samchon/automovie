@@ -5,6 +5,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
@@ -30,9 +31,9 @@ const CONE: Readonly<{ base: number; foot: number; top: number }> = {
 
 /** The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2 in hose nozzles; its 1 1/2 in operating nut. */
 const HYDRANT: Readonly<{ pumper: number; hose: number; nut: number }> = {
-  pumper: 0.1143,
-  hose: 0.0635,
-  nut: 0.0381,
+  pumper: 4.5 * ArchetypeUnits.INCH,
+  hose: 2.5 * ArchetypeUnits.INCH,
+  nut: 1.5 * ArchetypeUnits.INCH,
 };
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `plate`, a cone's base plate as a share of its height; `sign`, a sign blank's thickness. */

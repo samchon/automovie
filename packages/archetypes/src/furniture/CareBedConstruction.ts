@@ -79,10 +79,10 @@ export namespace CareBedConstruction {
   };
 
   /** A hospital bed's caster radius, metres: half the GoBed II sheet's 6 in (15.2 cm) casters. */
-  export const CASTER: number = 0.0762;
+  export const CASTER: number = 0.152 / 2;
 
   /** A stretcher's caster radius, metres: half the Prime spec sheet's "Caster diameter 8" (20 cm)" (https://www.stryker.com/content/dam/stryker/acute-care/products/primeseries/resources/Prime%20Series%20Spec%20Sheet%20Mkt%20Lit-369.pdf). */
-  export const PRIME_CASTER: number = 0.1016;
+  export const PRIME_CASTER: number = 0.2 / 2;
 
   /** Where a hospital bed's casters stand across it from the centre, as a share of its patient surface's width: a construction estimate no act reads. The GoBed II sheet gives its overall width only with the siderails up, which is not the base's. */
   export const CASTER_SPREAD: number = 1 / 3;

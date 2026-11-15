@@ -126,8 +126,8 @@ export function test_archetype_elevator(): void {
         name: "landing call button height",
         measure: (seed: number): number =>
           createElevator({}, seed).affordance("call").frame.translation.y,
-        minimum: 0.381,
-        maximum: 1.219,
+        minimum: 0.38,
+        maximum: 1.22,
         source: "ADA 407.2.1.1 and 308.2.1",
       },
     ]),

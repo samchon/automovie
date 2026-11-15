@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -142,7 +143,7 @@ export namespace createVaultingPole {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.337, 5.207, `${RULE}; ${POLES}`),
+    length: ArchetypeBand.metres(7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH, 17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH, `${RULE}; ${POLES}`),
     diameter: ArchetypeBand.metres(
       0.03,
       0.045,

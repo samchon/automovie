@@ -150,8 +150,8 @@ export function test_archetype_furniture_bands(): void {
       ),
       row(
         "bar stool seat height",
-        0.762,
-        0.813,
+        1.067 - 12 * ArchetypeUnits.INCH,
+        1.067 - 10 * ArchetypeUnits.INCH,
         "NKBA Guideline 9's 42 in bar counter less 10 to 12 in",
         (seed: number): number =>
           archetypeExtent(seat("barStool", seed), "y", ["seat"]).high,
@@ -225,7 +225,7 @@ export function test_archetype_furniture_bands(): void {
       row(
         "dining table height",
         0.71,
-        0.762,
+        30 * ArchetypeUnits.INCH,
         "ADA 902.3 and NKBA Guideline 9",
         (seed: number): number =>
           createTable({ kind: "dining" }, seed).affordance("top").frame

@@ -1,4 +1,4 @@
-import { createBed, createSki } from "@automovie/archetypes";
+import { ArchetypeUnits, createBed, createSki } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -62,19 +62,19 @@ export function test_archetype_ski_gurney(): void {
         measure: (seed: number): number =>
           createBed({ kind: "gurney" }, seed).affordance("surface").frame
             .translation.y,
-        minimum: 0.527 + 0.1397,
-        maximum: 0.864 + 0.1397,
+        minimum: 0.527 + 0.14,
+        maximum: 0.864 + 0.14,
         source: "Stryker Prime and ComfortGel SE",
       },
     ]),
   );
   const gurney: ReturnType<typeof createBed> = createBed({ kind: "gurney" }, 3);
-  near("the patient surface's width", gurney.affordance("surface").width!, 0.6604);
-  near("the patient surface's length", gurney.affordance("surface").depth!, 1.9114);
-  near("the frame's length", archetypeExtent(gurney, "z").size, 2.159);
-  near("a caster's outer side", archetypeExtent(gurney, "x", ["caster-1"]).high, 0.6604 / 2);
-  near("a caster's outer end", archetypeExtent(gurney, "z", ["caster-1"]).high, 2.159 / 2);
-  near("the casters' 8 in", archetypeExtent(gurney, "y", ["caster-1"]).size, 0.2032);
+  near("the patient surface's width", gurney.affordance("surface").width!, 26 * ArchetypeUnits.INCH);
+  near("the patient surface's length", gurney.affordance("surface").depth!, 75.25 * ArchetypeUnits.INCH);
+  near("the frame's length", archetypeExtent(gurney, "z").size, 85 * ArchetypeUnits.INCH);
+  near("a caster's outer side", archetypeExtent(gurney, "x", ["caster-1"]).high, 26 * ArchetypeUnits.INCH / 2);
+  near("a caster's outer end", archetypeExtent(gurney, "z", ["caster-1"]).high, 85 * ArchetypeUnits.INCH / 2);
+  near("the casters' 8 in (20 cm)", archetypeExtent(gurney, "y", ["caster-1"]).size, 0.2);
   TestValidator.equals(
     "a ski and a stretcher stand at their sources",
     findings,

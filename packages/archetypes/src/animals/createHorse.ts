@@ -418,7 +418,7 @@ export namespace createHorse {
   export const SEAT_WIDTH: number = 0.3;
 
   /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
-  export const LEAD: number = 0.0159;
+  export const LEAD: number = (5 / 8) * ArchetypeUnits.INCH;
 
   /** The horse's joints at rest, in the model's space. */
   export interface IRig {

@@ -157,17 +157,17 @@ export namespace createBar {
       height: ArchetypeBand.metres(
         0.84,
         0.915,
-        `${ADA} 609.4, top of the gripping surface 33 to 36 in above the floor`,
+        `${ADA} 609.4, top of the gripping surface 33 to 36 in (840 to 915 mm) above the floor`,
       ),
       diameter: ArchetypeBand.metres(
         0.032,
         0.051,
-        `${ADA} 609.2.1, circular section 1-1/4 to 2 in`,
+        `${ADA} 609.2.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
       length: ArchetypeBand.metres(
         0.915,
         1.065,
-        `${ADA} 604.5, rear wall bar at least 36 in and side wall bar at least 42 in long`,
+        `${ADA} 604.5, rear wall bar at least 36 in (915 mm) and side wall bar at least 42 in (1065 mm) long`,
       ),
       mass: ArchetypeBand.of("kg", 1.5, 4, ArchetypeBand.TYPICAL_MASS, true),
     },
@@ -175,12 +175,12 @@ export namespace createBar {
       height: ArchetypeBand.metres(
         0.865,
         0.965,
-        `${ADA} 505.4, top of the gripping surface 34 to 38 in above the walking surface`,
+        `${ADA} 505.4, top of the gripping surface 34 to 38 in (865 to 965 mm) above the walking surface`,
       ),
       diameter: ArchetypeBand.metres(
         0.032,
         0.051,
-        `${ADA} 505.7.1, circular section 1-1/4 to 2 in`,
+        `${ADA} 505.7.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
       ),
       length: ArchetypeBand.metres(
         1.2,

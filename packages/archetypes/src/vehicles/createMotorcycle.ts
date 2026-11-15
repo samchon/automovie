@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -290,9 +291,9 @@ export namespace createMotorcycle {
         true,
       ),
       gripDiameter: ArchetypeBand.metres(
-        0.0222,
-        0.0222,
-        "the 7/8 in (22.2 mm) handlebar, not read at a source",
+        (7 / 8) * ArchetypeUnits.INCH,
+        (7 / 8) * ArchetypeUnits.INCH,
+        "the 7/8 in handlebar, not read at a source",
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
@@ -313,9 +314,9 @@ export namespace createMotorcycle {
         true,
       ),
       gripDiameter: ArchetypeBand.metres(
-        0.0222,
-        0.0222,
-        "the 7/8 in (22.2 mm) handlebar, not read at a source",
+        (7 / 8) * ArchetypeUnits.INCH,
+        (7 / 8) * ArchetypeUnits.INCH,
+        "the 7/8 in handlebar, not read at a source",
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),

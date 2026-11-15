@@ -1,5 +1,6 @@
 import {
   ArchetypeFrame,
+  ArchetypeUnits,
   createBar,
   createDoor,
   createLadder,
@@ -144,7 +145,7 @@ export function test_archetype_architecture_bands(): void {
       row(
         "door clear width",
         0.815,
-        0.914,
+        3 * ArchetypeUnits.FOOT,
         `${ADA} 404.2.3`,
         (seed: number): number =>
           createDoor({}, seed).affordance("aperture").width!,
@@ -152,24 +153,24 @@ export function test_archetype_architecture_bands(): void {
       ),
       row(
         "door height",
-        2.032,
-        2.134,
+        6 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH,
+        7 * ArchetypeUnits.FOOT,
         "ANSI/SDI A250.8 Table 1",
         (seed: number): number =>
           createDoor({}, seed).affordance("aperture").height!,
       ),
       row(
         "push plate height",
-        1.143,
-        1.143,
+        45 * ArchetypeUnits.INCH,
+        45 * ArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("push").frame),
       ),
       row(
         "pull bar height",
-        1.067,
-        1.067,
+        42 * ArchetypeUnits.INCH,
+        42 * ArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("pull").frame),

@@ -1,5 +1,6 @@
 import {
   ArchetypeFrame,
+  ArchetypeUnits,
   createBoxingGlove,
   createHeavyBag,
 } from "@automovie/archetypes";
@@ -68,10 +69,10 @@ export function test_archetype_boxing_equipment(): void {
       row("glove weight", 0.227, 0.34, `${IBA}, rule 45.6`, (s: number): number =>
         createBoxingGlove({}, s).body.mass,
       ),
-      row("bag height", 1.168, 1.499, "listings", (s: number): number =>
+      row("bag height", 46 * ArchetypeUnits.INCH, 59 * ArchetypeUnits.INCH, "listings", (s: number): number =>
         archetypeExtent(createHeavyBag({}, s), "y", ["bag"]).size,
       ),
-      row("bag diameter", 0.33, 0.368, "listings", (s: number): number =>
+      row("bag diameter", 13 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, "listings", (s: number): number =>
         archetypeExtent(createHeavyBag({}, s), "x", ["bag"]).size,
       ),
     ]),

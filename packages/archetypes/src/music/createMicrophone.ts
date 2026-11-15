@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -237,7 +238,7 @@ export namespace createMicrophone {
     boomStand: {
       minHeight: ArchetypeBand.metres(0.914, 0.919, AURAY),
       maxHeight: ArchetypeBand.metres(1.6, 1.6, AURAY),
-      boom: ArchetypeBand.metres(0.787, 0.8, AURAY),
+      boom: ArchetypeBand.metres(31 * ArchetypeUnits.INCH, 0.8, AURAY),
       spread: ArchetypeBand.metres(0.65, 0.65, AURAY),
       mass: ArchetypeBand.of("kg", 2, 2, AURAY),
     },

@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -109,8 +110,8 @@ export namespace createHeavyBag {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(1.168, 1.499, EVERLAST, true),
-    diameter: ArchetypeBand.metres(0.33, 0.368, EVERLAST, true),
-    mass: ArchetypeBand.of("kg", 45.4, 45.4, `${EVERLAST}: 100 lb`, true),
+    height: ArchetypeBand.metres(46 * ArchetypeUnits.INCH, 59 * ArchetypeUnits.INCH, EVERLAST, true),
+    diameter: ArchetypeBand.metres(13 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, EVERLAST, true),
+    mass: ArchetypeBand.of("kg", 100 * ArchetypeUnits.POUND, 100 * ArchetypeUnits.POUND, `${EVERLAST}: 100 lb`, true),
   };
 }

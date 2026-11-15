@@ -2,6 +2,7 @@ import {
   type Archetype,
   ArchetypeBuilder,
   ArchetypeMass,
+  ArchetypeUnits,
   createClub,
 } from "@automovie/archetypes";
 import type { AutoMoviePrimitiveShape } from "@automovie/interface";
@@ -87,7 +88,7 @@ export function test_archetype_contract_mass(): void {
     mass: 0.97,
   });
   const swing: number = wood.moment(
-    { x: 0, y: 0.1524, z: 0 },
+    { x: 0, y: 6 * ArchetypeUnits.INCH, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
   TestValidator.predicate(

@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createDoor } from "./createDoor";
 
 /** The steel door standard's nominal sizes and hardware locations. */
@@ -16,18 +16,18 @@ const LOCK: string =
 /** The bands every door shares. */
 const LEAF: Readonly<Partial<Record<createDoor.Dimension, IArchetypeBand>>> = {
   width: ArchetypeBand.metres(
-    0.864,
-    0.914,
+    2 * ArchetypeUnits.FOOT + 10 * ArchetypeUnits.INCH,
+    3 * ArchetypeUnits.FOOT,
     `${SDI} Table 1, nominal widths 2 ft 10 in and 3 ft 0 in, the sizes whose clear opening meets the 32 in of ${ADA} 404.2.3`,
   ),
   height: ArchetypeBand.metres(
-    2.032,
-    2.134,
+    6 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH,
+    7 * ArchetypeUnits.FOOT,
     `${SDI} Table 1, nominal heights 6 ft 8 in and 7 ft 0 in`,
   ),
   thickness: ArchetypeBand.metres(
-    0.0349,
-    0.0445,
+    (1 + 3 / 8) * ArchetypeUnits.INCH,
+    (1 + 3 / 4) * ArchetypeUnits.INCH,
     `${SDI} section 1.4, 1-3/8 and 1-3/4 in doors`,
   ),
   force: ArchetypeBand.of(
@@ -64,21 +64,21 @@ export const DOOR_BANDS: Readonly<
     hardwareHeight: ArchetypeBand.metres(
       0.865,
       1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in above the floor`,
+      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
     ),
     backset: ArchetypeBand.metres(
-      0.06,
-      0.07,
+      (2 + 3 / 8) * ArchetypeUnits.INCH,
+      (2 + 3 / 4) * ArchetypeUnits.INCH,
       `${LOCK}: backset 2-3/8 or 2-3/4 in`,
     ),
     grip: ArchetypeBand.metres(
-      0.114,
-      0.129,
+      (4 + 1 / 2) * ArchetypeUnits.INCH,
+      (5 + 1 / 16) * ArchetypeUnits.INCH,
       `${LOCK}: lever length 4-1/2 to 5-1/16 in`,
     ),
     projection: ArchetypeBand.metres(
-      0.075,
-      0.084,
+      (2 + 15 / 16) * ArchetypeUnits.INCH,
+      (3 + 5 / 16) * ArchetypeUnits.INCH,
       `${LOCK}: lever projection 2-15/16 to 3-5/16 in`,
     ),
     latchTurn: ArchetypeBand.of(
@@ -94,16 +94,16 @@ export const DOOR_BANDS: Readonly<
     hardwareHeight: ArchetypeBand.metres(
       0.865,
       1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in above the floor`,
+      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
     ),
     backset: ArchetypeBand.metres(
-      0.06,
-      0.07,
+      (2 + 3 / 8) * ArchetypeUnits.INCH,
+      (2 + 3 / 4) * ArchetypeUnits.INCH,
       `${LOCK}: backset 2-3/8 or 2-3/4 in`,
     ),
     grip: ArchetypeBand.metres(
-      0.054,
-      0.057,
+      (2 + 1 / 8) * ArchetypeUnits.INCH,
+      (2 + 1 / 4) * ArchetypeUnits.INCH,
       "door knob diameters of 2-1/8 and 2-1/4 in, retailer listings seen only in search results",
       true,
     ),
@@ -136,11 +136,11 @@ export const DOOR_BANDS: Readonly<
     hardwareHeight: ArchetypeBand.metres(
       0.865,
       1.22,
-      `${ADA} 404.2.7, hardware 34 to 48 in above the floor`,
+      `${ADA} 404.2.7, hardware 34 to 48 in (865 to 1220 mm) above the floor`,
     ),
     backset: ArchetypeBand.metres(
-      0.06,
-      0.07,
+      (2 + 3 / 8) * ArchetypeUnits.INCH,
+      (2 + 3 / 4) * ArchetypeUnits.INCH,
       `${LOCK}: backset 2-3/8 or 2-3/4 in, applied to a sliding door's pull`,
       true,
     ),

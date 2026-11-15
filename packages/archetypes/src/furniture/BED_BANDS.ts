@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createBed } from "./createBed";
 
 /** UK bed sizes. */
@@ -84,39 +84,39 @@ export const BED_BANDS: Readonly<
       0.737,
       `${GOBED}: the litter top's range`,
     ),
-    thickness: ArchetypeBand.metres(0.152, 0.152, ISOFLEX, true),
+    thickness: ArchetypeBand.metres(0.15, 0.15, ISOFLEX, true),
     rail: ArchetypeBand.metres(0.22, 0.22, SIDERAIL),
     mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
   },
   gurney: {
-    width: ArchetypeBand.metres(0.6604, 0.6604, `${PRIME}: the patient surface`),
-    length: ArchetypeBand.metres(1.9114, 1.9114, `${PRIME}: the patient surface`),
-    overallLength: ArchetypeBand.metres(2.159, 2.159, PRIME),
-    overallWidth: ArchetypeBand.metres(0.6604, 0.6604, `${PRIME}: with the siderails down`),
+    width: ArchetypeBand.metres(26 * ArchetypeUnits.INCH, 26 * ArchetypeUnits.INCH, `${PRIME}: the patient surface`),
+    length: ArchetypeBand.metres(75.25 * ArchetypeUnits.INCH, 75.25 * ArchetypeUnits.INCH, `${PRIME}: the patient surface`),
+    overallLength: ArchetypeBand.metres(85 * ArchetypeUnits.INCH, 85 * ArchetypeUnits.INCH, PRIME),
+    overallWidth: ArchetypeBand.metres(26 * ArchetypeUnits.INCH, 26 * ArchetypeUnits.INCH, `${PRIME}: with the siderails down`),
     litter: ArchetypeBand.metres(0.527, 0.864, `${PRIME}: the height range`),
-    thickness: ArchetypeBand.metres(0.1397, 0.1397, PRIME),
+    thickness: ArchetypeBand.metres(0.14, 0.14, PRIME),
     mass: ArchetypeBand.of("kg", 80, 120, ArchetypeBand.TYPICAL_MASS, true),
   },
   crib: {
     width: ArchetypeBand.metres(
-      0.6942,
-      0.7258,
+      (28 - 5 / 8) * ArchetypeUnits.INCH,
+      (28 + 5 / 8) * ArchetypeUnits.INCH,
       `${CRIB}: the interior's width`,
     ),
     length: ArchetypeBand.metres(
-      1.3144,
-      1.346,
+      (52 + 3 / 8 - 5 / 8) * ArchetypeUnits.INCH,
+      (52 + 3 / 8 + 5 / 8) * ArchetypeUnits.INCH,
       `${CRIB}: the interior's length`,
     ),
     rail: ArchetypeBand.metres(
-      0.66,
-      0.66,
+      26 * ArchetypeUnits.INCH,
+      26 * ArchetypeUnits.INCH,
       `${CRIB}: the rail's top above the support at its lowest; the model takes the least`,
     ),
-    height: ArchetypeBand.metres(0.889, 0.889, CRIB_TOP),
+    height: ArchetypeBand.metres(35 * ArchetypeUnits.INCH, 35 * ArchetypeUnits.INCH, CRIB_TOP),
     thickness: ArchetypeBand.metres(
-      0.152,
-      0.152,
+      6 * ArchetypeUnits.INCH,
+      6 * ArchetypeUnits.INCH,
       `${CRIB}: the mattress's greatest thickness, which the model takes`,
     ),
     mass: ArchetypeBand.of("kg", 20, 35, ArchetypeBand.TYPICAL_MASS, true),

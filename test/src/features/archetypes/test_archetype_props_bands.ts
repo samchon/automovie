@@ -1,4 +1,5 @@
 import {
+  ArchetypeUnits,
   createBag,
   createBox,
   createDevice,
@@ -201,8 +202,8 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "screwdriver length",
-        0.21,
-        0.21,
+        8.25 * ArchetypeUnits.INCH,
+        8.25 * ArchetypeUnits.INCH,
         "Klein Tools 603-4",
         (seed: number): number =>
           createTool({ kind: "screwdriver" }, seed).affordance("face").frame
@@ -234,8 +235,8 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "box width between the hands",
-        0.416,
-        0.46,
+        (16 + 3 / 8) * ArchetypeUnits.INCH,
+        18 * ArchetypeUnits.INCH,
         "U-Haul cartons",
         (seed: number): number => {
           const box: ReturnType<typeof createBox> = createBox({}, seed);

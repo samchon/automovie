@@ -7,6 +7,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
 } from "../core";
 import { DOOR_BANDS } from "./DOOR_BANDS";
 
@@ -303,15 +304,15 @@ export namespace createDoor {
   export const HARDWARE: readonly Hardware[] = ["lever", "knob", "plate"];
 
   /** A pull bar's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline of grip at 42 in. */
-  export const PULL_HEIGHT: number = 1.067;
+  export const PULL_HEIGHT: number = 42 * ArchetypeUnits.INCH;
 
   /** A push plate's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline at 45 in. */
-  export const PLATE_HEIGHT: number = 1.143;
+  export const PLATE_HEIGHT: number = 45 * ArchetypeUnits.INCH;
 
   /** A push plate's width and height, metres: a 4 by 16 in plate, a common catalogue size, not read at a source. */
   export const PLATE: Readonly<{ width: number; height: number }> = {
-    width: 0.102,
-    height: 0.406,
+    width: 4 * ArchetypeUnits.INCH,
+    height: 16 * ArchetypeUnits.INCH,
   };
 
   /** A pull bar's grip length and its clearance from the leaf's face, metres: estimates, not read at a source. */

@@ -79,7 +79,7 @@ export function test_archetype_music_instruments(): void {
     { kind: "guitar" },
     5,
   );
-  const scale: number = 0.64516;
+  const scale: number = 25.4 * ArchetypeUnits.INCH;
   for (let k: number = 1; k <= 6; k++)
     if (Math.abs(guitar.affordance(`string${k}`).length! - scale) > 3e-4)
       findings.push(`guitar string${k} runs ${guitar.affordance(`string${k}`).length} m`);

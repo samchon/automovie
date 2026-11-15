@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -264,36 +265,36 @@ export namespace createLongGun {
   > = {
     carbine: {
       length: ArchetypeBand.metres(
-        0.7557,
-        0.7747,
+        29.75 * ArchetypeUnits.INCH,
+        30.5 * ArchetypeUnits.INCH,
         `${CARBINE}: 29.75 and 30.5 in with the stock retracted`,
       ),
-      barrel: ArchetypeBand.metres(0.3683, 0.3683, `${CARBINE}: 14.5 in`),
+      barrel: ArchetypeBand.metres(14.5 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, `${CARBINE}: 14.5 in`),
       lengthOfPull: ArchetypeBand.metres(
-        0.273,
+        10.75 * ArchetypeUnits.INCH,
         0.29,
         `a collapsed adjustable stock's 10.75 in pull, seen only in retailer listings; ${UNPUBLISHED} for this carbine`,
         true,
       ),
       travel: ArchetypeBand.metres(
-        0.0825,
-        0.0825,
+        (33.75 - 30.5) * ArchetypeUnits.INCH,
+        (33.75 - 30.5) * ArchetypeUnits.INCH,
         `${CARBINE}: 33.75 in extended less 30.5 in retracted (the manual's 33.0 less 29.75 in agrees)`,
       ),
       sightHeight: ArchetypeBand.metres(
-        0.066,
-        0.066,
+        2.6 * ArchetypeUnits.INCH,
+        2.6 * ArchetypeUnits.INCH,
         "a 2.6 in sight plane above the bore, seen only in search results",
         true,
       ),
       mass: ArchetypeBand.of("kg", 2.885, 3.13, CARBINE),
     },
     shotgun: {
-      length: ArchetypeBand.metres(1.0033, 1.0033, `${SHOTGUN}: 39.5 in`),
-      barrel: ArchetypeBand.metres(0.4699, 0.4699, `${SHOTGUN}: 18.5 in`),
+      length: ArchetypeBand.metres(39.5 * ArchetypeUnits.INCH, 39.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 39.5 in`),
+      barrel: ArchetypeBand.metres(18.5 * ArchetypeUnits.INCH, 18.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 18.5 in`),
       lengthOfPull: ArchetypeBand.metres(
-        0.3523,
-        0.3523,
+        13.87 * ArchetypeUnits.INCH,
+        13.87 * ArchetypeUnits.INCH,
         `${SHOTGUN}: 13.87 in`,
       ),
       travel: ArchetypeBand.metres(

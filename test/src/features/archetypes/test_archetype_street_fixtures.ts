@@ -1,4 +1,4 @@
-import { createStreetFixture } from "@automovie/archetypes";
+import { ArchetypeUnits, createStreetFixture } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,16 +43,16 @@ export function test_archetype_street_fixtures(): void {
         name: "cone height",
         measure: (seed: number): number =>
           archetypeExtent(make("trafficCone", seed), "y").size,
-        minimum: 0.4572,
-        maximum: 0.7112,
+        minimum: 18 * ArchetypeUnits.INCH,
+        maximum: 28 * ArchetypeUnits.INCH,
         source: "MUTCD 6F.64",
       },
       {
         name: "bollard diameter",
         measure: (seed: number): number =>
           archetypeExtent(make("bollard", seed), "x").size,
-        minimum: 0.1143,
-        maximum: 0.2731,
+        minimum: 4.5 * ArchetypeUnits.INCH,
+        maximum: 10.75 * ArchetypeUnits.INCH,
         source: "Reliance R-1007",
       },
     ]),
@@ -74,25 +74,25 @@ export function test_archetype_street_fixtures(): void {
 
   // 2. The bollard.
   const bollard: ReturnType<typeof createStreetFixture> = make("bollard", 3);
-  near("the bollard's height", archetypeExtent(bollard, "y").high, 0.9144);
-  near("the bollard's post", bollard.affordance("post").length!, 0.9144);
+  near("the bollard's height", archetypeExtent(bollard, "y").high, 36 * ArchetypeUnits.INCH);
+  near("the bollard's post", bollard.affordance("post").length!, 36 * ArchetypeUnits.INCH);
   near(
     "the bollard's top",
     bollard.affordance("top").frame.translation.y,
-    0.9144,
+    36 * ArchetypeUnits.INCH,
   );
 
   // 3. The hydrant.
   const hydrant: ReturnType<typeof createStreetFixture> = make("hydrant", 3);
-  near("the hydrant's height", archetypeExtent(hydrant, "y").high, 0.7747);
-  near("the pumper's face", hydrant.affordance("pumper").frame.translation.z, 0.2245);
-  near("the left hose face", hydrant.affordance("hoseLeft").frame.translation.x, 0.2154);
-  near("the right hose face", hydrant.affordance("hoseRight").frame.translation.x, -0.2154);
+  near("the hydrant's height", archetypeExtent(hydrant, "y").high, 30.5 * ArchetypeUnits.INCH);
+  near("the pumper's face", hydrant.affordance("pumper").frame.translation.z, 8.84 * ArchetypeUnits.INCH);
+  near("the left hose face", hydrant.affordance("hoseLeft").frame.translation.x, 8.48 * ArchetypeUnits.INCH);
+  near("the right hose face", hydrant.affordance("hoseRight").frame.translation.x, -8.48 * ArchetypeUnits.INCH);
   for (const part of ["pumper", "hose-left", "hose-right"]) {
     const y: { low: number; high: number } = archetypeExtent(hydrant, "y", [
       part,
     ]);
-    near(`the hydrant's ${part} centreline`, (y.low + y.high) / 2, 0.4572);
+    near(`the hydrant's ${part} centreline`, (y.low + y.high) / 2, 18 * ArchetypeUnits.INCH);
   }
   const barrel: number = archetypeExtent(hydrant, "x", ["barrel"]).high;
   if (!(archetypeExtent(hydrant, "z", ["pumper"]).high > barrel))
@@ -105,19 +105,19 @@ export function test_archetype_street_fixtures(): void {
   )
     findings.push("the hose nozzles do not face +X and -X");
   const nut: IAutoMovieAffordance = hydrant.affordance("nut");
-  near("the hydrant's nut", nut.frame.translation.y, 0.7747);
+  near("the hydrant's nut", nut.frame.translation.y, 30.5 * ArchetypeUnits.INCH);
 
   // 4. The lamp post.
   const lamp: ReturnType<typeof createStreetFixture> = make("lampPost", 3);
-  near("the lamp post's height", archetypeExtent(lamp, "y", ["shaft"]).high, 3.6576);
-  near("the luminaire's width", archetypeExtent(lamp, "x", ["luminaire"]).size, 0.5334);
-  near("the luminaire's height", archetypeExtent(lamp, "y", ["luminaire"]).size, 1.016);
-  near("the lamp post's base", archetypeExtent(lamp, "x", ["base"]).size, 0.235);
+  near("the lamp post's height", archetypeExtent(lamp, "y", ["shaft"]).high, 12 * ArchetypeUnits.FOOT);
+  near("the luminaire's width", archetypeExtent(lamp, "x", ["luminaire"]).size, 21 * ArchetypeUnits.INCH);
+  near("the luminaire's height", archetypeExtent(lamp, "y", ["luminaire"]).size, 40 * ArchetypeUnits.INCH);
+  near("the lamp post's base", archetypeExtent(lamp, "x", ["base"]).size, (9 + 1 / 4) * ArchetypeUnits.INCH);
   const post: IAutoMovieAffordance = lamp.affordance("post");
   near(
     "the lamp post's bar",
     post.length!,
-    3.6576 - archetypeExtent(lamp, "y", ["base"]).high,
+    12 * ArchetypeUnits.FOOT - archetypeExtent(lamp, "y", ["base"]).high,
   );
   // 5. The sign post.
   findings.push(
@@ -126,16 +126,16 @@ export function test_archetype_street_fixtures(): void {
         name: "STOP sign side",
         measure: (seed: number): number =>
           archetypeExtent(make("signPost", seed), "x", ["sign"]).size,
-        minimum: 0.762,
-        maximum: 0.9144,
+        minimum: 30 * ArchetypeUnits.INCH,
+        maximum: 36 * ArchetypeUnits.INCH,
         source: "MUTCD Table 2B-1",
       },
     ]),
   );
   const sign: ReturnType<typeof createStreetFixture> = make("signPost", 3);
-  near("the sign's bottom edge", archetypeExtent(sign, "y", ["sign"]).low, 2.1336);
-  near("the sign post's side", archetypeExtent(sign, "x", ["post"]).size, 0.0508);
-  near("the sign post's bar", sign.affordance("post").length!, 2.1336);
+  near("the sign's bottom edge", archetypeExtent(sign, "y", ["sign"]).low, 7 * ArchetypeUnits.FOOT);
+  near("the sign post's side", archetypeExtent(sign, "x", ["post"]).size, 2 * ArchetypeUnits.INCH);
+  near("the sign post's bar", sign.affordance("post").length!, 7 * ArchetypeUnits.FOOT);
   TestValidator.equals(
     "street fixtures stand at their sources",
     findings,

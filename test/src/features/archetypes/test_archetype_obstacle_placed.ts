@@ -1,4 +1,4 @@
-import { createObstacle } from "@automovie/archetypes";
+import { ArchetypeUnits, createObstacle } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -72,34 +72,34 @@ export function test_archetype_obstacle_placed(): void {
   const FOR108: string = "FOR-108";
   findings.push(
     ...archetypeBandSweep([
-      row("crosstie height", 0.152, 0.178, FOR108, (s: number): number =>
+      row("crosstie height", 6 * ArchetypeUnits.INCH, 7 * ArchetypeUnits.INCH, FOR108, (s: number): number =>
         archetypeExtent(make("crosstie", s), "y").high,
       ),
-      row("crosstie width", 0.203, 0.229, FOR108, (s: number): number =>
+      row("crosstie width", 8 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, FOR108, (s: number): number =>
         archetypeExtent(make("crosstie", s), "z").size,
       ),
-      row("crosstie length", 2.438, 2.743, FOR108, (s: number): number =>
+      row("crosstie length", 8 * ArchetypeUnits.FOOT, 9 * ArchetypeUnits.FOOT, FOR108, (s: number): number =>
         archetypeExtent(make("crosstie", s), "x").size,
       ),
-      row("sandbag height", 0.102, 0.102, "USACE", (s: number): number =>
+      row("sandbag height", ArchetypeUnits.FOOT / 3, ArchetypeUnits.FOOT / 3, "USACE", (s: number): number =>
         archetypeExtent(make("sandbag", s), "y").high,
       ),
-      row("sandbag length", 0.305, 0.305, "USACE", (s: number): number =>
+      row("sandbag length", ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, "USACE", (s: number): number =>
         archetypeExtent(make("sandbag", s), "x").size,
       ),
-      row("barrier height", 0.813, 0.813, "FHWA-RD-89-036", (s: number): number =>
+      row("barrier height", 32 * ArchetypeUnits.INCH, 32 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
         archetypeExtent(make("jerseyBarrier", s), "y").high,
       ),
-      row("barrier base", 0.61, 0.61, "FHWA-RD-89-036", (s: number): number =>
+      row("barrier base", 24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
         archetypeExtent(make("jerseyBarrier", s), "z").size,
       ),
-      row("barrier top", 0.152, 0.152, "FHWA-RD-89-036", (s: number): number =>
+      row("barrier top", 6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
         make("jerseyBarrier", s).affordance("top").depth!,
       ),
       row(
         "barrier mass per metre",
-        669.7,
-        818.5,
+        (450 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
+        (550 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
         "FHWA-RD-89-036, 450 to 550 lb/ft",
         (s: number): number => {
           const barrier: ReturnType<typeof createObstacle> = make(
@@ -109,13 +109,13 @@ export function test_archetype_obstacle_placed(): void {
           return barrier.body.mass / archetypeExtent(barrier, "x").size;
         },
       ),
-      row("crowd barrier rail top", 1.092, 1.092, "listings", (s: number): number =>
+      row("crowd barrier rail top", 43 * ArchetypeUnits.INCH, 43 * ArchetypeUnits.INCH, "listings", (s: number): number =>
         archetypeExtent(make("crowdBarrier", s), "y").high,
       ),
-      row("post top", 1.016, 1.016, "listings", (s: number): number =>
+      row("post top", 40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, "listings", (s: number): number =>
         archetypeExtent(make("ropeAndPosts", s), "y", ["leftPost-post"]).high,
       ),
-      row("post to post", 1.829, 1.829, "listings", (s: number): number => {
+      row("post to post", 6 * ArchetypeUnits.FOOT, 6 * ArchetypeUnits.FOOT, "listings", (s: number): number => {
         const posts: ReturnType<typeof createObstacle> = make("ropeAndPosts", s);
         return (
           posts.affordance("leftPost").frame.translation.x -

@@ -8,6 +8,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -195,7 +196,7 @@ export namespace createStairs {
   export const EXTENSION: number = 0.305;
 
   /** The greatest depth of the top landing along the flight, metres, 48 in: the landing is as deep as the flight is wide, up to this. An estimate, not read at a source. */
-  export const LANDING: number = 1.219;
+  export const LANDING: number = 48 * ArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -245,28 +246,28 @@ export namespace createStairs {
     riser: ArchetypeBand.metres(
       0.102,
       0.178,
-      `${IBC} 1011.5.2, risers 4 to 7 in; ${ADA} 504.2 agrees`,
+      `${IBC} 1011.5.2, risers 4 to 7 in (102 to 178 mm); ${ADA} 504.2 agrees`,
     ),
     tread: ArchetypeBand.metres(
       0.279,
-      0.33,
-      `${IBC} 1011.5.2, treads at least 11 in; the upper end, 13 in, is an estimate`,
+      13 * ArchetypeUnits.INCH,
+      `${IBC} 1011.5.2, treads at least 11 in (279 mm); the upper end, 13 in, is an estimate`,
       true,
     ),
     width: ArchetypeBand.metres(
       0.914,
       1.118,
-      `${IBC} 1011.2, 36 in under 50 occupants and 44 in otherwise`,
+      `${IBC} 1011.2, 36 in (914 mm) under 50 occupants and 44 in (1118 mm) otherwise`,
     ),
     railHeight: ArchetypeBand.metres(
       0.865,
       0.965,
-      `${ADA} 505.4, gripping surface 34 to 38 in above the nosings; ${IBC} 1014.2 agrees`,
+      `${ADA} 505.4, gripping surface 34 to 38 in (865 to 965 mm) above the nosings; ${IBC} 1014.2 agrees`,
     ),
     railDiameter: ArchetypeBand.metres(
       0.032,
       0.051,
-      `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in`,
+      `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in (32 to 51 mm)`,
     ),
     mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
   };

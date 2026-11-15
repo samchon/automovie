@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The UK furniture schedule. */
@@ -7,7 +7,7 @@ const ADM: string =
 
 /** The height band operable parts must lie in. */
 const REACH: string =
-  "2010 ADA Standards 308.2.1, operable parts 15 to 48 in above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+  "2010 ADA Standards 308.2.1, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
 
 /** The filing cabinet, from a search only. */
 const HON: string =
@@ -90,22 +90,22 @@ export const STORAGE_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 25, 50, ArchetypeBand.TYPICAL_MASS, true),
   },
   filingCabinet: {
-    width: ArchetypeBand.metres(0.381, 0.381, HON, true),
-    depth: ArchetypeBand.metres(0.635, 0.635, HON, true),
-    height: ArchetypeBand.metres(1.32, 1.321, HON, true),
+    width: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, HON, true),
+    depth: ArchetypeBand.metres(25 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, HON, true),
+    height: ArchetypeBand.metres(52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH, HON, true),
     travel: ArchetypeBand.metres(
-      0.597,
-      0.597,
+      (23 + 1 / 2) * ArchetypeUnits.INCH,
+      (23 + 1 / 2) * ArchetypeUnits.INCH,
       `${HON}: a full-suspension drawer drawn its whole filing length`,
       true,
     ),
     mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
   },
   locker: {
-    width: ArchetypeBand.metres(0.305, 0.457, LYON),
-    depth: ArchetypeBand.metres(0.305, 0.533, LYON),
-    height: ArchetypeBand.metres(1.829, 1.829, `${LYON}: the 72 in opening`),
-    legs: ArchetypeBand.metres(0.152, 0.152, `${LYON}: 6 in legs`),
+    width: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, LYON),
+    depth: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 21 * ArchetypeUnits.INCH, LYON),
+    height: ArchetypeBand.metres(72 * ArchetypeUnits.INCH, 72 * ArchetypeUnits.INCH, `${LYON}: the 72 in opening`),
+    legs: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, `${LYON}: 6 in legs`),
     mass: ArchetypeBand.of("kg", 25, 45, ArchetypeBand.TYPICAL_MASS, true),
   },
   bookcase: {

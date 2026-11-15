@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -164,9 +165,9 @@ export namespace createBarrel {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     steelDrum: {
-      diameter: ArchetypeBand.metres(0.5715, 0.5715, DRUM),
-      height: ArchetypeBand.metres(0.8827, 0.8954, DRUM),
-      mass: ArchetypeBand.of("kg", 17.42, 19.5, DRUM),
+      diameter: ArchetypeBand.metres(22.5 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, DRUM),
+      height: ArchetypeBand.metres(34.75 * ArchetypeUnits.INCH, 35.25 * ArchetypeUnits.INCH, DRUM),
+      mass: ArchetypeBand.of("kg", 38.4 * ArchetypeUnits.POUND, 43 * ArchetypeUnits.POUND, DRUM),
     },
     keg: {
       diameter: ArchetypeBand.metres(0.379, 0.383, KEG),

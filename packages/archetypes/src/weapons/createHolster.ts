@@ -322,7 +322,7 @@ export namespace createHolster {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     holster: {
-      ride: ArchetypeBand.of("m", -0.038, 0.038, RIDE),
+      ride: ArchetypeBand.of("m", -1.5 * ArchetypeUnits.INCH, 1.5 * ArchetypeUnits.INCH, RIDE),
       depth: ArchetypeBand.of(
         "m",
         0.12,
@@ -363,7 +363,7 @@ export namespace createHolster {
     quiver: {
       length: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, QUIVER, true),
       diameter: ArchetypeBand.metres(3.5 * ArchetypeUnits.INCH, 3.5 * ArchetypeUnits.INCH, QUIVER, true),
-      mass: ArchetypeBand.of("kg", 0.62, 0.68, QUIVER, true),
+      mass: ArchetypeBand.of("kg", 0.62, 1.5 * ArchetypeUnits.POUND, QUIVER, true),
     },
   };
 }

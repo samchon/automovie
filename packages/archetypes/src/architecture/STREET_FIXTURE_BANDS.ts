@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createStreetFixture } from "./createStreetFixture";
 
 /** The cone heights read. */
@@ -53,54 +53,54 @@ export const STREET_FIXTURE_BANDS: Readonly<
 > = {
   trafficCone: {
     height: ArchetypeBand.metres(
-      0.4572,
-      0.7112,
+      18 * ArchetypeUnits.INCH,
+      28 * ArchetypeUnits.INCH,
       `${MUTCD}; each cone drawn in the proportions of ${BRIMAR}`,
     ),
     mass: ArchetypeBand.of(
       "kg",
       1.5,
-      3.2,
-      `${ArchetypeBand.TYPICAL_MASS}; the Brimar 28 in cone weighs 7 lb (3.2 kg)`,
+      7 * ArchetypeUnits.POUND,
+      `${ArchetypeBand.TYPICAL_MASS}; the Brimar 28 in cone weighs 7 lb`,
       true,
     ),
   },
   bollard: {
-    height: ArchetypeBand.metres(0.9144, 0.9144, BOLLARD),
-    diameter: ArchetypeBand.metres(0.1143, 0.2731, BOLLARD),
-    mass: ArchetypeBand.of("kg", 34.5, 128.8, `${BOLLARD}: whole pipes`),
+    height: ArchetypeBand.metres(36 * ArchetypeUnits.INCH, 36 * ArchetypeUnits.INCH, BOLLARD),
+    diameter: ArchetypeBand.metres(4.5 * ArchetypeUnits.INCH, 10.75 * ArchetypeUnits.INCH, BOLLARD),
+    mass: ArchetypeBand.of("kg", 76 * ArchetypeUnits.POUND, 284 * ArchetypeUnits.POUND, `${BOLLARD}: whole pipes`),
   },
   hydrant: {
-    height: ArchetypeBand.metres(0.7747, 0.7747, DARLING),
-    nozzleHeight: ArchetypeBand.metres(0.4572, 0.4572, DARLING),
-    pumperReach: ArchetypeBand.metres(0.2245, 0.2245, DARLING),
-    hoseReach: ArchetypeBand.metres(0.2154, 0.2154, DARLING),
+    height: ArchetypeBand.metres(30.5 * ArchetypeUnits.INCH, 30.5 * ArchetypeUnits.INCH, DARLING),
+    nozzleHeight: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, DARLING),
+    pumperReach: ArchetypeBand.metres(8.84 * ArchetypeUnits.INCH, 8.84 * ArchetypeUnits.INCH, DARLING),
+    hoseReach: ArchetypeBand.metres(8.48 * ArchetypeUnits.INCH, 8.48 * ArchetypeUnits.INCH, DARLING),
     diameter: ArchetypeBand.metres(
-      0.22,
-      0.22,
+      8.66 * ArchetypeUnits.INCH,
+      8.66 * ArchetypeUnits.INCH,
       `${MUELLER}: the 8.66 in is unlabelled and taken as the barrel's`,
       true,
     ),
     mass: ArchetypeBand.of("kg", 90, 150, ArchetypeBand.TYPICAL_MASS, true),
   },
   lampPost: {
-    height: ArchetypeBand.metres(3.6576, 3.6576, WAVE),
-    diameter: ArchetypeBand.metres(0.0762, 0.0762, `${WAVE}: the butt`),
-    base: ArchetypeBand.metres(0.235, 0.235, WAVE),
+    height: ArchetypeBand.metres(12 * ArchetypeUnits.FOOT, 12 * ArchetypeUnits.FOOT, WAVE),
+    diameter: ArchetypeBand.metres(3 * ArchetypeUnits.INCH, 3 * ArchetypeUnits.INCH, `${WAVE}: the butt`),
+    base: ArchetypeBand.metres((9 + 1 / 4) * ArchetypeUnits.INCH, (9 + 1 / 4) * ArchetypeUnits.INCH, WAVE),
     baseHeight: ArchetypeBand.metres(
-      0.3016,
-      0.3016,
+      (11 + 7 / 8) * ArchetypeUnits.INCH,
+      (11 + 7 / 8) * ArchetypeUnits.INCH,
       `${WAVE}: the 11 7/8 in is unlabelled and taken as the base's`,
       true,
     ),
-    head: ArchetypeBand.metres(0.5334, 0.5334, STERNBERG),
-    headHeight: ArchetypeBand.metres(1.016, 1.016, STERNBERG),
+    head: ArchetypeBand.metres(21 * ArchetypeUnits.INCH, 21 * ArchetypeUnits.INCH, STERNBERG),
+    headHeight: ArchetypeBand.metres(40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, STERNBERG),
     mass: ArchetypeBand.of("kg", 20, 40, ArchetypeBand.TYPICAL_MASS, true),
   },
   signPost: {
-    height: ArchetypeBand.metres(2.1336, 2.1336, SIGN),
-    head: ArchetypeBand.metres(0.762, 0.9144, `${SIGN}: the STOP sign's side`),
-    diameter: ArchetypeBand.metres(0.0508, 0.0508, POST),
+    height: ArchetypeBand.metres(7 * ArchetypeUnits.FOOT, 7 * ArchetypeUnits.FOOT, SIGN),
+    head: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 36 * ArchetypeUnits.INCH, `${SIGN}: the STOP sign's side`),
+    diameter: ArchetypeBand.metres(2 * ArchetypeUnits.INCH, 2 * ArchetypeUnits.INCH, POST),
     mass: ArchetypeBand.of("kg", 8, 15, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

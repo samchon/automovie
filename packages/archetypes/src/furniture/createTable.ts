@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -231,8 +232,8 @@ export namespace createTable {
     dining: {
       height: ArchetypeBand.metres(
         0.71,
-        0.762,
-        `2010 ADA Standards 902.3, dining surface at least 28 in high (https://www.access-board.gov/ada/), up to the 30 in table of ${NKBA}`,
+        30 * ArchetypeUnits.INCH,
+        `2010 ADA Standards 902.3, dining surface at least 28 in (710 mm) high (https://www.access-board.gov/ada/), up to the 30 in table of ${NKBA}`,
       ),
       length: ArchetypeBand.metres(
         0.8,
@@ -249,8 +250,8 @@ export namespace createTable {
         `${EN527}: fixed height desk, 740 mm plus or minus 20`,
       ),
       length: ArchetypeBand.metres(
-        1.17,
-        1.52,
+        46 * ArchetypeUnits.INCH,
+        60 * ArchetypeUnits.INCH,
         "ANSI/HFES 100-2007, work surface at least 46 in wide and 60 in recommended, as quoted by the University of Washington furniture guide (https://facilities.uw.edu/files/media/uwf-ds-eh-and-s-office-ergonomics-furniture-design.pdf)",
         true,
       ),
@@ -315,9 +316,9 @@ export namespace createTable {
       mass: ArchetypeBand.of("kg", 50, 110, ArchetypeBand.TYPICAL_MASS, true),
     },
     serviceCounter: {
-      height: ArchetypeBand.metres(0.9144, 0.9144, SERVICE),
-      length: ArchetypeBand.metres(0.762, 1.27, `${SERVICE}: the three lengths`),
-      depth: ArchetypeBand.metres(0.762, 0.762, SERVICE),
+      height: ArchetypeBand.metres(0.91, 0.91, SERVICE),
+      length: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 50 * ArchetypeUnits.INCH, `${SERVICE}: the three lengths`),
+      depth: ArchetypeBand.metres(0.76, 0.76, SERVICE),
       mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
     },
   };

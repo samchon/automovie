@@ -255,7 +255,7 @@ export namespace createElevator {
       2.1,
       `${KONE}; the model stops at the least car height`,
     ),
-    callHeight: ArchetypeBand.metres(0.381, 1.219, CALL),
+    callHeight: ArchetypeBand.metres(0.38, 1.22, CALL),
     mass: ArchetypeBand.of("kg", 500, 1000, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

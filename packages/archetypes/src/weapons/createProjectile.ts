@@ -207,7 +207,7 @@ export namespace createProjectile {
   /** The 6-pdr. shot a round shot's mass scales from: 3.58 in and 6.1 lb, Roberts (1863). */
   export const SHOT: Readonly<{ diameter: number; mass: number }> = {
     diameter: 3.58 * ArchetypeUnits.INCH,
-    mass: 6.1 * 0.4536,
+    mass: 6.1 * ArchetypeUnits.POUND,
   };
 
   /**
@@ -247,8 +247,8 @@ export namespace createProjectile {
       diameter: ArchetypeBand.metres(0.66 * ArchetypeUnits.INCH, 0.72 * ArchetypeUnits.INCH, BALL, true),
       mass: ArchetypeBand.of(
         "kg",
-        0.4536 / 14,
-        0.4536 / 14,
+        ArchetypeUnits.POUND / 14,
+        ArchetypeUnits.POUND / 14,
         `${BALL}: a pound over fourteen`,
         true,
       ),
@@ -270,7 +270,7 @@ export namespace createProjectile {
     grenade: {
       diameter: ArchetypeBand.metres(2.5 * ArchetypeUnits.INCH, 2.5 * ArchetypeUnits.INCH, M67),
       length: ArchetypeBand.metres(3.53 * ArchetypeUnits.INCH, 3.53 * ArchetypeUnits.INCH, M67),
-      mass: ArchetypeBand.of("kg", 14 * 0.02835, 14 * 0.02835, M67),
+      mass: ArchetypeBand.of("kg", 14 * ArchetypeUnits.OUNCE, 14 * ArchetypeUnits.OUNCE, M67),
     },
   };
 }

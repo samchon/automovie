@@ -6,12 +6,13 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
 /** What a plyometric box commonly measures. */
 const BOX: string =
-  "the common three-height plyometric box, 20 by 24 by 30 in (0.508, 0.61 and 0.762 m), as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
+  "the common three-height plyometric box, 20 by 24 by 30 in, as gym equipment makers list it; no single maker's sheet was read, so the bands are marked provisional";
 
 /**
  * A plyometric box: a closed wooden box stepped or jumped onto.
@@ -120,9 +121,9 @@ export namespace createPlyoBox {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      width: ArchetypeBand.metres(0.508, 0.762, BOX, true),
-      depth: ArchetypeBand.metres(0.508, 0.762, BOX, true),
+      height: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      width: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      depth: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
       mass: ArchetypeBand.of(
         "kg",
         15,

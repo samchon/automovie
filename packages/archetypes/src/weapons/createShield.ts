@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -176,8 +177,8 @@ export namespace createShield {
     Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
   > = {
     buckler: {
-      diameter: ArchetypeBand.metres(0.445, 0.527, WALLACE),
-      mass: ArchetypeBand.of("kg", 1.56, 1.73, WALLACE),
+      diameter: ArchetypeBand.metres(17.5 * ArchetypeUnits.INCH, 20.75 * ArchetypeUnits.INCH, WALLACE),
+      mass: ArchetypeBand.of("kg", 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE, 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE, WALLACE),
     },
     round: {
       diameter: ArchetypeBand.metres(0.75, 0.9, ROUND, true),

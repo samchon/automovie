@@ -363,18 +363,18 @@ export namespace createBag {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     tote: {
-      width: ArchetypeBand.metres(0.241, 0.432, TOTE, true),
-      height: ArchetypeBand.metres(0.267, 0.381, TOTE, true),
-      depth: ArchetypeBand.metres(0.127, 0.191, TOTE, true),
-      handleDrop: ArchetypeBand.metres(0.127, 0.203, TOTE, true),
-      strapDrop: ArchetypeBand.metres(0.53, 0.64, STRAP, true),
+      width: ArchetypeBand.metres(9.5 * ArchetypeUnits.INCH, 17 * ArchetypeUnits.INCH, TOTE, true),
+      height: ArchetypeBand.metres(10.5 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, TOTE, true),
+      depth: ArchetypeBand.metres(5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, TOTE, true),
+      handleDrop: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 8 * ArchetypeUnits.INCH, TOTE, true),
+      strapDrop: ArchetypeBand.metres(21.75 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, STRAP, true),
       handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     backpack: {
-      width: ArchetypeBand.metres(0.27, 0.33, BACKPACK, true),
-      height: ArchetypeBand.metres(0.38, 0.42, BACKPACK, true),
-      depth: ArchetypeBand.metres(0.13, 0.21, BACKPACK, true),
+      width: ArchetypeBand.metres(0.27, 13 * ArchetypeUnits.INCH, BACKPACK, true),
+      height: ArchetypeBand.metres(0.38, 16.7 * ArchetypeUnits.INCH, BACKPACK, true),
+      depth: ArchetypeBand.metres(0.13, 8.5 * ArchetypeUnits.INCH, BACKPACK, true),
       handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
     },

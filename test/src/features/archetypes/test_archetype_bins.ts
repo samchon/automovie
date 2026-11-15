@@ -1,4 +1,4 @@
-import { createBin } from "@automovie/archetypes";
+import { ArchetypeUnits, createBin } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,8 +16,8 @@ const SULO: readonly (readonly [number, number, number, number, number, number])
 
 /** Wastequip's 2 and 3 yd containers: length, depth at the lid and at the base, metres. */
 const WASTEQUIP: readonly (readonly [number, number, number])[] = [
-  [2.0796, 1.0097, 0.8636],
-  [2.0939, 1.1875, 1.0668],
+  [(81 + 7 / 8) * ArchetypeUnits.INCH, (39 + 3 / 4) * ArchetypeUnits.INCH, 34 * ArchetypeUnits.INCH],
+  [(82 + 7 / 16) * ArchetypeUnits.INCH, (46 + 3 / 4) * ArchetypeUnits.INCH, 42 * ArchetypeUnits.INCH],
 ];
 
 /**

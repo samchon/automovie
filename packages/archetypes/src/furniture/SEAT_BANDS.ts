@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createSeat } from "./createSeat";
 
 /** A band in metres. */
@@ -28,7 +28,7 @@ const WIDTH: string =
 
 /** Back height between the office chair minimum and the bench back support. */
 const BACK: string =
-  "EN 1335-1:2020 Table 2, backrest at least 360 mm high (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf), up to the 18 in back support of 2010 ADA Standards 903.4 (https://www.access-board.gov/ada/)";
+  "EN 1335-1:2020 Table 2, backrest at least 360 mm high (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf), up to the 18 in (455 mm) back support of 2010 ADA Standards 903.4 (https://www.access-board.gov/ada/)";
 
 /** Fixed armrest height of an office chair, applied to upholstered arms. */
 const ARMS: string =
@@ -49,7 +49,7 @@ export const SEAT_BANDS: Readonly<
   dining: {
     seatHeight: band(0.43, 0.457, LOUNGE),
     seatDepth: band(0.38, 0.48, DEPTH),
-    seatWidth: band(0.409, 0.45, WIDTH),
+    seatWidth: band(0.409, 17.7 * ArchetypeUnits.INCH, WIDTH),
     backHeight: band(0.36, 0.455, BACK),
     mass: mass(4, 7),
   },
@@ -65,7 +65,7 @@ export const SEAT_BANDS: Readonly<
       "EN 1335-1:2020 Table 2, fixed seat depth of type B, 425 to 485 mm (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf)",
     ),
     seatWidth: band(
-      0.45,
+      17.7 * ArchetypeUnits.INCH,
       0.51,
       "ANSI/HFES 100-2007 p. 87, seat at least 17.7 in wide, as quoted by the UC task chair checklist (https://uhs.berkeley.edu/sites/default/files/uc_task_chair_requirements_1.pdf), up to EN 1335-1:2020 Table 2's 510 mm clear distance between armrests",
       true,
@@ -98,8 +98,8 @@ export const SEAT_BANDS: Readonly<
   },
   barStool: {
     seatHeight: band(
-      0.762,
-      0.813,
+      1.067 - 12 * ArchetypeUnits.INCH,
+      1.067 - 10 * ArchetypeUnits.INCH,
       "a seat 10 to 12 in below the 42 in (1067 mm) bar counter of NKBA Kitchen Planning Guideline 9 (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf); the gap is trade convention, not read at a source",
       true,
     ),
@@ -116,12 +116,12 @@ export const SEAT_BANDS: Readonly<
     seatHeight: band(
       0.43,
       0.485,
-      "2010 ADA Standards 903.5, bench seat 17 to 19 in above the floor (https://www.access-board.gov/ada/)",
+      "2010 ADA Standards 903.5, bench seat 17 to 19 in (430 to 485 mm) above the floor (https://www.access-board.gov/ada/)",
     ),
     seatDepth: band(
       0.51,
       0.61,
-      "2010 ADA Standards 903.3, bench seat 20 to 24 in deep (https://www.access-board.gov/ada/)",
+      "2010 ADA Standards 903.3, bench seat 20 to 24 in (510 to 610 mm) deep (https://www.access-board.gov/ada/)",
     ),
     seatWidth: band(
       0.61,
@@ -131,7 +131,7 @@ export const SEAT_BANDS: Readonly<
     backHeight: band(
       0.455,
       0.455,
-      "2010 ADA Standards 903.4, bench back support to 18 in above the seat (https://www.access-board.gov/ada/)",
+      "2010 ADA Standards 903.4, bench back support to 18 in (455 mm) above the seat (https://www.access-board.gov/ada/)",
     ),
     mass: mass(6, 12),
   },

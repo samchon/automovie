@@ -13,7 +13,7 @@ const HON: Readonly<{
   drawers: number;
   travel: number;
   height: readonly [number, number];
-}> = { drawers: 4, travel: 0.597, height: [1.32, 1.321] };
+}> = { drawers: 4, travel: (23 + 1 / 2) * ArchetypeUnits.INCH, height: [52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH] };
 
 /** Lyon's single-tier lockers: 12 to 18 in wide, 12 to 21 in deep, 72 in high on 6 in legs. */
 const LYON: Readonly<{
@@ -22,10 +22,10 @@ const LYON: Readonly<{
   height: number;
   legs: number;
 }> = {
-  width: [0.305, 0.457],
-  depth: [0.305, 0.533],
-  height: 1.829,
-  legs: 0.152,
+  width: [12 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH],
+  depth: [12 * ArchetypeUnits.INCH, 21 * ArchetypeUnits.INCH],
+  height: 72 * ArchetypeUnits.INCH,
+  legs: 6 * ArchetypeUnits.INCH,
 };
 
 /** IKEA BILLY: 80 x 28 x 202 cm, one fixed and four adjustable shelves. */

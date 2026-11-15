@@ -59,7 +59,7 @@ export const CART_BANDS: Readonly<
     length: ArchetypeBand.metres(1.15, 1.15, TROLLEY, true),
     width: ArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
     handleHeight: ArchetypeBand.metres(
-      0.89,
+      35 * ArchetypeUnits.INCH,
       1.03,
       `the 35 and 37 in middle push hand heights of the Liberty Mutual tables after Snook and Ciriello 1991 (https://www.gorbel.com/resources/blog/LibertyMutualTables manual materials handling guidelines.pdf) up to the trolley's 1030 mm height (${TROLLEY})`,
       true,

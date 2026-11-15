@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createHorse } from "./createHorse";
 
 /** Measured warmbloods. */
@@ -32,8 +32,8 @@ export const HORSE_BANDS: Readonly<
     `${JENSEN}: heart girth at the withers 204 cm, range 189 to 213`,
   ),
   seatSize: ArchetypeBand.metres(
-    0.406,
-    0.457,
+    16 * ArchetypeUnits.INCH,
+    18 * ArchetypeUnits.INCH,
     "Wintec saddle seat sizes, 16 to 18 in from the saddle nail to the middle of the cantle (https://wintec-saddles.com.au/pages/measuring-your-seat-size)",
   ),
   stirrupDrop: ArchetypeBand.metres(0.575, 0.775, LEATHERS, true),
@@ -44,8 +44,8 @@ export const HORSE_BANDS: Readonly<
     true,
   ),
   reinWidth: ArchetypeBand.metres(
-    0.0159,
-    0.0191,
+    (5 / 8) * ArchetypeUnits.INCH,
+    (3 / 4) * ArchetypeUnits.INCH,
     "Dover Saddlery, snaffle reins 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines)",
   ),
   tempo: ArchetypeBand.of(

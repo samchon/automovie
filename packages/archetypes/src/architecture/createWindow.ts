@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -19,7 +20,7 @@ const SILL: string =
 
 /** The reach range for operable parts. */
 const REACH: string =
-  "2010 ADA Standards 309.3 and 308.2.1, operable parts 15 to 48 in above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
+  "2010 ADA Standards 309.3 and 308.2.1, operable parts 15 to 48 in (380 to 1220 mm) above the floor (https://www.access-board.gov/ada/chapter/ch03/)";
 
 /**
  * A window in a piece of wall: a casement that swings out, or a sash that slides up or sideways.
@@ -237,7 +238,7 @@ export namespace createWindow {
   const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     width: ArchetypeBand.metres(0.6, 1.2, SIZE, true),
     height: ArchetypeBand.metres(0.9, 1.2, SIZE, true),
-    sillHeight: ArchetypeBand.metres(0.61, 0.914, SILL, true),
+    sillHeight: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 0.914, SILL, true),
     mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
   };
 

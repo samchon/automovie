@@ -289,8 +289,8 @@ export namespace createMobilityAid {
       diameter: ArchetypeBand.metres(0.75 * ArchetypeUnits.INCH, 0.75 * ArchetypeUnits.INCH, CANE),
       mass: ArchetypeBand.of(
         "kg",
-        0.85 * 0.4536,
-        0.85 * 0.4536,
+        0.85 * ArchetypeUnits.POUND,
+        0.85 * ArchetypeUnits.POUND,
         CANE_MASS,
         true,
       ),
@@ -300,7 +300,7 @@ export namespace createMobilityAid {
       width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, WALKER),
       depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, WALKER, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 7 * 0.4536, 7.5 * 0.4536, WALKER),
+      mass: ArchetypeBand.of("kg", 7 * ArchetypeUnits.POUND, 7.5 * ArchetypeUnits.POUND, WALKER),
     },
     infusionStand: {
       height: ArchetypeBand.metres(1.43, 2.26, PROVITA),
