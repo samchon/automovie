@@ -286,6 +286,15 @@ export namespace IHumanActionContext {
   /** A prop and its displayed frame. */
   export interface IProp {
     /** The prop as declared. */
+    prop: IHumanProp;
+
+    /**
+     * Its displayed world frame at a film second.
+     *
+     * @param seconds Film seconds.
+     * @returns The frame.
+     */
+    frame(seconds: number): IHumanProp.IFrame;
 
     /**
      * The travel of each of its articulations an act or its own track has
@@ -298,15 +307,6 @@ export namespace IHumanActionContext {
      * @returns Travel by articulation id.
      */
     state?(seconds: number): Readonly<Record<string, number>>;
-    prop: IHumanProp;
-
-    /**
-     * Its displayed world frame at a film second.
-     *
-     * @param seconds Film seconds.
-     * @returns The frame.
-     */
-    frame(seconds: number): IHumanProp.IFrame;
   }
 
   /** A stream shared by every repeat of an action, with one repeat's place in it. */
