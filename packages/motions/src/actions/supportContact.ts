@@ -25,8 +25,7 @@ import { stand } from "./stand";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The form, its builder and the pin reader, read by the support law alone.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The normals are the quiet stance's and the palm socket's own; no angle is typed.
  */
-export namespace supportContact {
-  /** A contact as the fit takes it: its target and the part that bears on the floor. */
+export namespace supportContact {  /** A contact as the fit takes it: its target and the part that bears on the floor. */
   export interface IForm {
     /** The fit's target. */
     target: HumanBodyFit.ITarget;

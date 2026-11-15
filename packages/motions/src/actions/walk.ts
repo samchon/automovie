@@ -7,6 +7,7 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -149,6 +150,15 @@ export namespace walk {
 
     /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
     elbows?: import("../law/HumanUnit").HumanUnit.Bounded<0, 30, 0, "degrees">;
+
+    /**
+     * How the walk is performed (`AutoMovieMotionManner`), a preset such as
+     * `weary` or `brisk` or a manner of its own: its step factor scales the
+     * step with `stride`, its swing factor the arm swing with `armSwing`, and
+     * its tempo slows the speed at that step, so the cadence falls with it.
+     * Neutral when absent.
+     */
+    manner?: AutoMovieMotionManner.IManner;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
@@ -205,14 +215,26 @@ export namespace walk {
     const m = body.measure;
     const l: number = m.hipHeight;
     const froude: number = gait.froude;
-    const speed: number = Math.sqrt(froude * AutoMovieGravity.STANDARD * l);
     const p = context.params;
-    const stride: number = p.stride ?? 1;
-    const arms: number = p.armSwing ?? 1;
+    // The manner's gait factors: its step and swing scale the authored step
+    // and arm swing, and its tempo divides the speed at that step, so a weary
+    // walk is slower in cadence as well as shorter in step.
+    const manner: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+      context,
+      p.manner,
+    );
+    const speed: number =
+      Math.sqrt(froude * AutoMovieGravity.STANDARD * l) / manner.tempo;
+    const authored: Record<"stride" | "arms", number> = {
+      stride: p.stride ?? 1,
+      arms: p.armSwing ?? 1,
+    };
     const elbows: number = p.elbows ?? 0;
-    HumanBound.within("stride", stride, 0.6, 1.3);
-    HumanBound.within("armSwing", arms, 0, 2);
+    HumanBound.within("stride", authored.stride, 0.6, 1.3);
+    HumanBound.within("armSwing", authored.arms, 0, 2);
     HumanBound.within("elbows", elbows, 0, 30, "degrees");
+    const stride: number = authored.stride * manner.step;
+    const arms: number = authored.arms * manner.swing;
     walkClear(context);
     const forward: number = stride * l * gait.step(froude);
     // A walk that does not face its way keeps the share of its speed and

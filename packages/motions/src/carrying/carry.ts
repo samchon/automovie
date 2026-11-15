@@ -96,8 +96,8 @@ export namespace carry {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The walk's destination and pace, the way of carrying, the side and the load's mass share.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `plan`.
+   * @evidence contracts/development/design.md#principled-representation The walk's destination, pace and manner, the way of carrying, the side and the load's mass share.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`; the manner's type is the walk's.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
    */
   export interface IParams {
@@ -115,6 +115,9 @@ export namespace carry {
 
     /** The walk's pace; `normal` when absent. */
     pace?: "slow" | "normal" | "fast";
+
+    /** How the walk is performed (`walk.IParams.manner`); neutral when absent. */
+    manner?: walk.IParams["manner"];
   }
 
   /** Trunk lean per unit of the load's mass share by way of carrying, degrees (provisional). */
@@ -207,7 +210,11 @@ export namespace carry {
     HumanBound.within("load", load, 0, 0.25, "of the body's mass");
     const base: IHumanActionPlan = walk.plan({
       ...context,
-      params: { to: p.to, ...(p.pace === undefined ? {} : { pace: p.pace }) },
+      params: {
+        to: p.to,
+        ...(p.pace === undefined ? {} : { pace: p.pace }),
+        ...(p.manner === undefined ? {} : { manner: p.manner }),
+      },
     });
     const duration: number = base.duration;
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(

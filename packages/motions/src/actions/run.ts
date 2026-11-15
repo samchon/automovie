@@ -87,6 +87,9 @@ export namespace run {
 
     /** Elbows held out, degrees in [0, 30]; 0 when absent. */
     elbows?: number;
+
+    /** How the run is performed, read as a walk reads it (`walk.IParams.manner`); neutral when absent. */
+    manner?: walk.IParams["manner"];
   }
 
   /** The heel's height over the ball at contact and through stance, degrees about the toes' joint (provisional). */

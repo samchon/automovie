@@ -89,13 +89,13 @@ export namespace approach {
 
   /**
    * Parameters of an approach: what to walk up to, the gap to stop at, the
-   * side to stop on, the pace, the movement quality and the people to walk
-   * round. Every field but the target is optional with the default its doc
+   * side to stop on, the pace, the movement quality, the manner and the people
+   * to walk round. Every field but the target is optional with the default its doc
    * names.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, frame and the default an absent value takes.
    * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union; the gap is a named proxemic band or metres; the side is a closed union in the person's own frame; invalid metres and a side on a non-person target are refused at plan time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace, manner and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names one scene or body; `side` and `avoid` combine freely, and the one meaningless combination, a side of a prop or point, is refused rather than encoded.
    */
   export interface IParams {
@@ -117,6 +117,9 @@ export namespace approach {
 
     /** Movement quality: steps, arm swing and elbow width of the walk. */
     effort?: HumanEffort.IEffort;
+
+    /** How the walk there is performed (`walk.IParams.manner`); neutral when absent. */
+    manner?: walk.IParams["manner"];
 
     /** People to walk round on the way, by subject id. */
     avoid?: string[];
@@ -379,6 +382,7 @@ export namespace approach {
           face: (Math.atan2(point.x - at.x, point.z - at.z) * 180) / Math.PI,
           ...(via.length === 0 ? {} : { via }),
           ...(p.pace === undefined ? {} : { pace: p.pace }),
+          ...(p.manner === undefined ? {} : { manner: p.manner }),
           ...(p.effort === undefined
             ? {}
             : {
