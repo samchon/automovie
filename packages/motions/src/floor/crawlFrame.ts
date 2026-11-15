@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -8,23 +11,58 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its
  * flat palm, the palms laid on their floor points, a body tilted forward by
- * a pitch with its pelvis turned about the spine's axis, and the root that
- * puts the hip joints' middle at a place.
+ * a pitch with its pelvis turned about the spine's axis, the root that
+ * puts the hip joints' middle at a place, the arms carried in joint space,
+ * the hips over two knees, and the search for the pitch that brings the
+ * shoulders to their place; the feet are `crawlFeet`'s.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the four pieces and what each gives.
- * @evidence contracts/development/design.md#principled-representation Pure functions of the body and a posture, shared by the crawl's kinds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The four functions and the one share they use.
+ * @evidence contracts/development/common.md#meaningful-documentation States the seven pieces and what each gives.
+ * @evidence contracts/development/design.md#principled-representation Pure functions of the body and a posture, shared by the crawl's kinds and its way down.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The seven functions, the one share they use and the pitch search's range.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is solved on the body; nothing is a length typed in metres.
  */
 export namespace crawlFrame {
   /** The chest's share of the turn that levels the shoulders over a hiked pelvis; the lumbar spine takes the rest (as `AutoMovieMotionHumanTrunk.CHEST`). */
   export const CHEST: number = 0.6;
+
+  /** The most a crawl's trunk is pitched in a search, degrees: past horizontal, beyond any body on its hands. */
+  export const PITCH: number = 120;
+
+  /** The halvings of a pitch search: `PITCH` to under a ten-thousandth of a degree. */
+  export const HALVINGS: number = 24;
+
+  /**
+   * The trunk's pitch at which a reading of the body stops holding, sought
+   * between upright and `PITCH`.
+   *
+   * @param short Whether the shoulders still fall short of their place at a pitch, degrees; true at upright and false past the place.
+   * @returns The pitch, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the search, its range and the reading's sense.
+   * @evidence contracts/development/implementation.md#principled-implementation Bisection needs only the reading's change of sense over the range, which a trunk pitched toward the floor gives.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range and the halvings are named.
+   * @evidence contracts/development/implementation.md#efficient-algorithms `HALVINGS` readings.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The crawl's pitch and the way down's lean are both found by it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function pitched(short: (degrees: number) => boolean): number {
+    let lo: number = 0;
+    let hi: number = PITCH;
+    for (let i: number = 0; i < HALVINGS; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (short(mid)) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
 
   /**
    * Each wrist over its flat palm on the floor, in the floor frame of the
@@ -115,6 +153,59 @@ export namespace crawlFrame {
   }
 
   /**
+   * A posture with both arms written by their joints, carried in joint space
+   * from held angles toward others by a share, each hand shaped flat with
+   * them (`HumanHand.shape`), and the arms' goals removed.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @param held Each arm's angles at share 0.
+   * @param toward Each arm's angles at share 1.
+   * @param share The share, in [0, 1].
+   * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is written and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the arm is blended between two sets of angles (`blendHumanJoint`), never re-solved toward a goal that moves.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three blended joints and the fingers per arm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers start from the held ones, or the posture's where the arm holds none.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function armed(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    held: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    toward: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles>,
+    share: number,
+  ): IHumanPosture {
+    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    for (const side of ["left", "right"] as const) {
+      const from: AutoMovieMotionHumanArm.IAngles = held[side];
+      const to: AutoMovieMotionHumanArm.IAngles = toward[side];
+      for (const [bone, key] of [
+        [`${side}UpperArm`, "upper"],
+        [`${side}LowerArm`, "lower"],
+        [`${side}Hand`, "hand"],
+      ] as const)
+        joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
+      for (const [bone, shaped] of Object.entries(
+        HumanHand.shape(side, "flat"),
+      ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+        const was: readonly [number, number, number] = from.fingers?.[bone] ??
+          posture.joints[bone] ?? [0, 0, 0];
+        joints[bone] = [
+          was[0] + (shaped[0] - was[0]) * share,
+          was[1] + (shaped[1] - was[1]) * share,
+          was[2] + (shaped[2] - was[2]) * share,
+        ];
+      }
+      delete limbs[`${side}Arm`];
+    }
+    return { ...posture, joints, limbs };
+  }
+  /**
    * The body tilted forward by a pitch at a share of the way down, its
    * pelvis turned about the spine's axis and the spine and the chest
    * turning it back.
@@ -157,6 +248,58 @@ export namespace crawlFrame {
     };
   }
 
+  /**
+   * The hips over two knees: each hip joint a thigh from its knee, at its
+   * place along the heading from a level point, so their middle is the
+   * pelvis's height and their difference its turn about the spine's axis.
+   *
+   * @param thigh The thigh's length, metres.
+   * @param level The hips' middle on the floor, world metres.
+   * @param forward The heading's unit vector.
+   * @param knees Each knee joint, world metres.
+   * @param ahead How far each hip joint lies before the level point, metres along the heading.
+   * @param separation The hip joints' distance, metres.
+   * @param pitch The trunk's pitch, degrees.
+   * @returns The hips' middle, world metres, and the pelvis's turn, degrees, positive lifting the left hip.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, each input, its unit and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation Each hip joint's height is the thigh's reach over its knee; a pelvis pitched by the trunk lifts one hip over the other by turning about the spine's axis.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One height per side and one turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An upright pelvis cannot lift a hip by that turn, so it turns none.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function over(
+    thigh: number,
+    level: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
+    knees: Record<"left" | "right", IAutoMovieVector3>,
+    ahead: Record<"left" | "right", number>,
+    separation: number,
+    pitch: number,
+  ): { point: IAutoMovieVector3; hike: number } {
+    const height = (side: "left" | "right"): number => {
+      const along: number =
+        Vector3.dot(Vector3.subtract(knees[side], level), forward) -
+        ahead[side];
+      return (
+        knees[side].y + Math.sqrt(Math.max(0, thigh * thigh - along * along))
+      );
+    };
+    const left: number = height("left");
+    const right: number = height("right");
+    const reach: number = separation * Math.sin((pitch * Math.PI) / 180);
+    return {
+      point: { ...level, y: (left + right) / 2 },
+      hike:
+        reach === 0
+          ? 0
+          : (Math.asin(Math.max(-1, Math.min(1, (left - right) / reach))) *
+              180) /
+            Math.PI,
+    };
+  }
   /**
    * The root that puts a tilted posture's hip joints' middle at a place.
    *
