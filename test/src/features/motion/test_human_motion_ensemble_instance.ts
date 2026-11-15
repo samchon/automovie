@@ -4,6 +4,7 @@ import {
   HumanChain,
   HumanEnsemble,
   HumanFormation,
+  HumanLimbFitFrame,
   HumanPerformance,
   HumanRefusal,
   type HumanSegment,
@@ -33,12 +34,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    member performed in full.
  * 4. An instance of a template that turns 90 degrees within its span is
  *    refused, naming the template and the turn.
+ * 5. Displaying an instanced member's pose at a film frame solves no limb fit
+ *    once its template's pose at the lagged frame has been displayed: the
+ *    fits are shared in the root's frame (`HumanLimbFitFrame.statistics`).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs a line with instanced members and reads their postures against their templates': a non-rigid move, a fractional or unbounded shift, a template disturbed by its instances, or a turning template accepted is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs a line with instanced members and reads their postures against their templates': a non-rigid move, a fractional or unbounded shift, a template disturbed by its instances, a turning template accepted, or an instance that solves its template's fits again is caught.
  * @evidence contracts/development/testing.md#independent-expectations Rigid motion is exact by construction of the law's contract (a translation and a turn of every world point); full against instanced front ranks is a metamorphic pair; the turn refusal is the contract's rigidity condition.
- * @evidence contracts/development/testing.md#distinguishing-cases Instanced and full members, the shift's bounds, the metamorphic pair and the turning template; the fit memory's sharing belongs to `test_human_motion_core_fit_frame`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Instanced and full members, the shift's bounds, the metamorphic pair, the turning template and the fits an instance shares; the fit memory's own invariance belongs to `test_human_motion_core_fit_frame`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on one prepared polygon-man body, discovered by its exported name; postures only, no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
 export function test_human_motion_ensemble_instance(): void {
   const findings: string[] = [];
@@ -163,6 +167,18 @@ export function test_human_motion_ensemble_instance(): void {
         );
         break;
       }
+
+  // 5. An instanced member's display reuses its template's fits.
+  for (const m of ensemble.members.filter((m: HumanEnsemble.IMember): boolean => m.detail === "instanced")) {
+    const segment: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
+    const params: { of: string; shift: number } = segment.params as { of: string; shift: number };
+    const t: number = 1 + params.shift / instance.RATE;
+    performance.pose(params.of, t - params.shift / instance.RATE);
+    const before: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+    performance.pose(m.subject, t);
+    const after: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+    if (after.misses !== before.misses) findings.push(`${m.subject}'s display at ${t.toFixed(3)} s solves ${after.misses - before.misses} fits its template already solved`);
+  }
 
   // 4. A turning template.
   try {
