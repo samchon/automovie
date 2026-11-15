@@ -168,7 +168,11 @@ function ladderProp(): IHumanProp {
     (_: unknown, i: number): IAutoMovieAffordance => ({
       id: `rung${i + 1}`,
       kind: "bar",
-      frame: { translation: { x: 0, y: 0.3 * (i + 1), z: 0 }, rotation: out },
+      frame: {
+        translation: { x: 0, y: 0.3 * (i + 1), z: 0 },
+        rotation: out,
+        scale: { x: 1, y: 1, z: 1 },
+      },
       extent: null,
       grip: "power",
       aperture: 0.03,
