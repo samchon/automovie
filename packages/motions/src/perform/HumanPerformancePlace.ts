@@ -152,7 +152,11 @@ export namespace HumanPerformancePlace {
           law.accepts,
           law.family,
         );
-    const entry = HumanSegment.entry(person, previous, start);
+
+    // The inertialization the cut into this action decays over, the
+    // tolerance its entry state is read to; none for an overlay.
+    const blend: number | undefined = over ? undefined : (row?.blend ?? 0.25);
+    const entry = HumanSegment.entry(person, previous, start, blend);
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
     ).length;
@@ -459,7 +463,7 @@ export namespace HumanPerformancePlace {
           ? undefined
           : {
               kind: row?.kind ?? "inertialize",
-              blend: row?.blend ?? 0.25,
+              blend: blend!,
               source: previous,
               cut: start,
             },

@@ -36,36 +36,30 @@ export namespace HumanSegmentEntry {
    * @param person The person.
    * @param previous Their previous action, if any.
    * @param seconds The entry second.
+   * @param blend The inertialization the cut into the action decays over, seconds; absent for an action entered over another.
    * @returns The entry state.
    */
   export function entry(
     person: HumanSegment.IPerson,
     previous: HumanSegment.ISegment | undefined,
     seconds: number,
+    blend?: number,
   ): IHumanEntryState {
     const body = person.performer.body;
     // The difference interval of every rate read here, seconds.
-    const step: number = 1e-3;
-    const poses: Map<number, IAutoMoviePose> = new Map();
-    const shown = (t: number): IAutoMoviePose => {
-      let pose: IAutoMoviePose | undefined = poses.get(t);
-      if (pose === undefined) {
-        pose =
-          previous === undefined
-            ? HumanSegmentPose.initial(person)
-            : HumanSegmentPose.of(person, previous, t);
-        poses.set(t, pose);
-      }
-      return pose;
-    };
+    const step: number = HumanSegmentPose.STEP;
+
     // What was displayed up to the entry: the motion it leaves ends here.
-    const state: samplePoseVelocity.IState = samplePoseVelocity(
-      shown,
-      seconds,
-      step,
-      "before",
-      humanRig(body),
-    );
+    // Its rates are read on the leaving action's fits continued from the
+    // entry's (`HumanSegmentPose.continued`), to the tolerance the cut's
+    // inertialization asks, the reading the cut's offset takes too; a body
+    // with no previous action, or one entered over it, reads its samples as
+    // shown.
+    const read: HumanSegmentPose.IContinued =
+      previous !== undefined && blend !== undefined
+        ? left(person, previous, seconds, blend)
+        : shown(person, previous, seconds, step);
+    const state: samplePoseVelocity.IState = read.state;
     const posture: IHumanPosture =
       previous === undefined
         ? person.initial
@@ -97,18 +91,21 @@ export namespace HumanSegmentEntry {
           u <= c.to + 1e-9,
       );
     };
-    // The same two earlier samples the pose velocity was read from, so a
-    // foot's rate is the one-sided difference of the motion that ends here.
-    const near: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      shown(seconds - step),
-    );
-    const far: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      shown(seconds - 2 * step),
-    );
+    // The same three samples the pose velocity was read from, so a foot's
+    // rate is the one-sided difference of the motion that ends here.
+    const [instant, near, far] = read.samples.map(
+      (
+        pose: IAutoMoviePose,
+      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+        poseBones(body, pose),
+    ) as [
+      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ];
     const foot = (side: "left" | "right"): IHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
       const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
       const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
       const rate = (x: number, y: number, z: number): number =>
@@ -116,7 +113,7 @@ export namespace HumanSegmentEntry {
       const bend = (x: number, y: number, z: number): number =>
         (x - 2 * y + z) / (step * step);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-        here.worldRotation,
+        from.worldRotation,
       );
       const turn = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
         samplePoseVelocity.rotationVector(
@@ -129,14 +126,14 @@ export namespace HumanSegmentEntry {
         rotation: here.worldRotation,
         planted: planted(`${side}Foot`),
         velocity: {
-          x: rate(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
-          y: rate(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
-          z: rate(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+          x: rate(from.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: rate(from.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: rate(from.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
         },
         acceleration: {
-          x: bend(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
-          y: bend(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
-          z: bend(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+          x: bend(from.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: bend(from.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: bend(from.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
         },
         spin: {
           x: rate(0, ar.x, br.x),
@@ -147,15 +144,10 @@ export namespace HumanSegmentEntry {
     };
     // The root's acceleration by the one-sided second difference of the same
     // three samples; a body with no previous action stands at rest.
-    const place = (t: number): IAutoMovieVector3 =>
-      shown(t).root?.translation ?? { x: 0, y: 0, z: 0 };
-    const p0: IAutoMovieVector3 = state.pose.root?.translation ?? {
-      x: 0,
-      y: 0,
-      z: 0,
-    };
-    const p1: IAutoMovieVector3 = place(seconds - step);
-    const p2: IAutoMovieVector3 = place(seconds - 2 * step);
+    const [p0, p1, p2] = read.samples.map(
+      (pose: IAutoMoviePose): IAutoMovieVector3 =>
+        pose.root?.translation ?? { x: 0, y: 0, z: 0 },
+    ) as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
     const second = (x: number, y: number, z: number): number =>
       (x - 2 * y + z) / (step * step);
     return {
@@ -254,5 +246,74 @@ export namespace HumanSegmentEntry {
           support: c.support,
         }),
       );
+  }
+
+  /**
+   * The state a body leaves at a second read from its poses as shown, each
+   * sample read once: the reading of a body with no previous action, which
+   * stands in its initial posture, or of one entered over its action.
+   *
+   * @param person The person.
+   * @param previous Their previous action, if any.
+   * @param seconds The second.
+   * @param step The difference interval, seconds.
+   * @returns The state and the samples it was read from.
+   */
+  function shown(
+    person: HumanSegment.IPerson,
+    previous: HumanSegment.ISegment | undefined,
+    seconds: number,
+    step: number,
+  ): HumanSegmentPose.IContinued {
+    const poses: Map<number, IAutoMoviePose> = new Map();
+    const read = (t: number): IAutoMoviePose => {
+      let pose: IAutoMoviePose | undefined = poses.get(t);
+      if (pose === undefined) {
+        pose =
+          previous === undefined
+            ? HumanSegmentPose.initial(person)
+            : HumanSegmentPose.of(person, previous, t);
+        poses.set(t, pose);
+      }
+      return pose;
+    };
+    const state: samplePoseVelocity.IState = samplePoseVelocity(
+      read,
+      seconds,
+      step,
+      "before",
+      humanRig(person.performer.body),
+    );
+    return {
+      state,
+      samples: [read(seconds), read(seconds - step), read(seconds - 2 * step)],
+    };
+  }
+
+  /**
+   * The state a body leaves an action in at a second, its rates read on the
+   * action's fits continued from the second's own (`HumanSegmentPose.continued`)
+   * to the tolerance an inertialization over `blend` asks.
+   *
+   * @param person The person.
+   * @param previous The action left.
+   * @param seconds The second.
+   * @param blend The inertialization the state feeds, seconds.
+   * @returns The state and the continued samples it was read from.
+   */
+  function left(
+    person: HumanSegment.IPerson,
+    previous: HumanSegment.ISegment,
+    seconds: number,
+    blend: number,
+  ): HumanSegmentPose.IContinued {
+    return HumanSegmentPose.continued(
+      (t: number, near?: HumanSegmentPose.INear): HumanSegmentPose.ISeeded =>
+        HumanSegmentPose.seeded(person, previous, t, near),
+      seconds,
+      "before",
+      humanRig(person.performer.body),
+      blend,
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  type IAutoMovieSeededChainFit,
+  type IAutoMovieSwivelNear,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
@@ -10,6 +14,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
  * A carrier's pose with its overlays written over it: which overlays run at
@@ -33,20 +38,28 @@ export namespace HumanSegmentOverlay {
    * the pose being built drives it, so the body without an overlay, which an
    * overlay fades from and back to, still carries what the hand holds.
    *
+   * Each limb fit made here is named by the overlays written over the leaf
+   * it is fitted in and whether it is the leaf's own fit or a carried
+   * hand's (`HumanSegmentPose.IFits`), and continues the fit `near` holds
+   * under that name.
+   *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
    * @param seconds Film seconds.
    * @param carried The holds the carrier carries at the second.
-   * @returns The pose.
+   * @param near The fits of a nearby second to continue, if any.
+   * @returns The pose and the seeds of its fits.
    */
   export function overlaid(
     person: HumanSegment.IPerson,
     posture: IHumanPosture,
     seconds: number,
     carried: readonly HumanSegment.IHeld[] = [],
-  ): IAutoMoviePose {
+    near?: HumanSegmentPose.INear,
+  ): HumanSegmentPose.ISeeded {
     const body = person.performer.body;
     const active: HumanSegment.IOverlay[] = running(person, seconds);
+    const seeds: HumanSegmentPose.IFits = new Map();
     const build = (
       k: number,
       under: IHumanPosture,
@@ -54,7 +67,31 @@ export namespace HumanSegmentOverlay {
     ): IAutoMoviePose => {
       const overlay: HumanSegment.IOverlay | undefined = active[k];
       if (overlay === undefined) {
-        let leaf: IAutoMoviePose = resolveHumanPosture(body, under);
+        // The leaf is named by the overlays written over it.
+        const tag: string = used
+          .map((o: HumanSegment.IOverlay): number => person.overlays.indexOf(o))
+          .join(",");
+        const fitted: resolveHumanPosture.ISeeded = resolveHumanPosture.seeded(
+          body,
+          under,
+          undefined,
+          Object.fromEntries(
+            resolveHumanPosture
+              .order(under.limbs)
+              .flatMap(
+                (
+                  limb: IHumanPosture.Limb,
+                ): [IHumanPosture.Limb, IAutoMovieSwivelNear][] => {
+                  const continued: IAutoMovieSwivelNear | undefined =
+                    HumanSegmentPose.nearby(near, `leaf:${tag}:${limb}`);
+                  return continued === undefined ? [] : [[limb, continued]];
+                },
+              ),
+          ),
+        );
+        for (const [limb, seed] of Object.entries(fitted.seeds))
+          seeds.set(`leaf:${tag}:${limb}`, seed ?? null);
+        let leaf: IAutoMoviePose = fitted.pose;
         for (const [limb, goal] of HumanSegmentCarry.carries(
           person,
           leaf,
@@ -64,8 +101,19 @@ export namespace HumanSegmentOverlay {
                 HumanSegment.drives(o.plan, h.side),
               ),
           ),
-        ))
-          leaf = resolveHumanPosture.limb(body, leaf, limb, goal);
+        )) {
+          const name: string = `carry:${tag}:${limb}`;
+          const carry: IAutoMovieSeededChainFit =
+            resolveHumanPosture.limbSeeded(
+              body,
+              leaf,
+              limb,
+              goal,
+              HumanSegmentPose.nearby(near, name),
+            );
+          seeds.set(name, carry.seed);
+          leaf = carry.pose;
+        }
         return leaf;
       }
       const written: IHumanPosture = AutoMovieMotionHumanChannel.merge(
@@ -122,7 +170,7 @@ export namespace HumanSegmentOverlay {
         ],
       };
     };
-    return build(0, posture, []);
+    return { pose: build(0, posture, []), seeds };
   }
 
   /**

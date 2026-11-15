@@ -306,14 +306,16 @@ export namespace HumanSegment {
    * @param person The person.
    * @param previous Their previous action, if any.
    * @param seconds The entry second.
+   * @param blend The inertialization the cut into the action decays over, seconds; absent for an action entered over another.
    * @returns The entry state.
    */
   export function entry(
     person: IPerson,
     previous: ISegment | undefined,
     seconds: number,
+    blend?: number,
   ): IHumanEntryState {
-    return HumanSegmentEntry.entry(person, previous, seconds);
+    return HumanSegmentEntry.entry(person, previous, seconds, blend);
   }
 
   /**

@@ -1,4 +1,11 @@
-import { Quaternion, Transform, clampPose } from "@automovie/engine";
+import {
+  type IAutoMovieSeededChainFit,
+  type IAutoMovieSwivelNear,
+  type IAutoMovieSwivelSeed,
+  Quaternion,
+  Transform,
+  clampPose,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -49,95 +56,9 @@ export function resolveHumanPosture(
   body: IHumanBody,
   posture: IHumanPosture,
   base?: IAutoMoviePose,
+  near?: resolveHumanPosture.INear,
 ): IAutoMoviePose {
-  const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-    (base?.joints ?? []).map(
-      (
-        j: IAutoMovieJointPose,
-      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
-    ),
-  );
-  const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
-    (b): IAutoMovieJointPose => {
-      const set: readonly [number, number, number] | undefined =
-        posture.joints[b.bone];
-      if (set !== undefined)
-        return {
-          bone: b.bone,
-          flexion: set[0],
-          abduction: set[1],
-          twist: set[2],
-        };
-      return (
-        kept.get(b.bone) ?? { bone: b.bone, flexion: 0, abduction: 0, twist: 0 }
-      );
-    },
-  );
-  // The set joints are clamped first and the limbs fitted last, so the clamp
-  // never moves a solved goal; the fit keeps the limb's own angles in range.
-  let pose: IAutoMoviePose = clampPose(
-    {
-      skeleton: body.skeleton.id,
-      root: Transform.of(posture.root, resolveHumanPosture.heading(posture)),
-      joints,
-    },
-    body.skeleton,
-  );
-  // An arm with no goal hangs or rests where its joints put it, so its own
-  // colliders keep its room from the first fit on.
-  const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
-    (side: "left" | "right"): boolean =>
-      posture.limbs[`${side}Arm`] === undefined,
-  );
-  // Two arms with goals, neither riding the other, are one coupled problem
-  // (`HumanLimbPair`), fitted when the first of them is reached.
-  const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
-    left: posture.limbs.leftArm,
-    right: posture.limbs.rightArm,
-  };
-  const riding = (
-    goal: IHumanPosture.IGoal | undefined,
-    other: "left" | "right",
-  ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
-  const paired: boolean =
-    arms.left !== undefined &&
-    arms.right !== undefined &&
-    !riding(arms.left, "right") &&
-    !riding(arms.right, "left");
-  for (const limb of resolveHumanPosture.order(posture.limbs)) {
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
-    if (goal === undefined) continue;
-    if (paired && (limb === "leftArm" || limb === "rightArm")) {
-      if (placed.length === 0)
-        pose = HumanLimbPair.fitted(body, pose, {
-          left: arms.left!,
-          right: arms.right!,
-        });
-      placed.push(limb === "leftArm" ? "left" : "right");
-      continue;
-    }
-    // The other arm's goal, while that arm is still to be fitted: where its
-    // wrist will be, for the room the clearance keeps it.
-    const other: IHumanPosture.Limb | undefined =
-      limb === "leftArm"
-        ? "rightArm"
-        : limb === "rightArm"
-          ? "leftArm"
-          : undefined;
-    const coming: IHumanPosture.IGoal | undefined =
-      other === undefined ||
-      placed.includes(other === "leftArm" ? "left" : "right")
-        ? undefined
-        : posture.limbs[other];
-    const rival: IAutoMovieVector3 | undefined =
-      coming === undefined || other === undefined
-        ? undefined
-        : resolveHumanPosture.world(body, pose, other, coming).point;
-    pose = HumanLimbFit.remembered(body, pose, limb, goal, placed, rival);
-    if (limb === "leftArm") placed.push("left");
-    if (limb === "rightArm") placed.push("right");
-  }
-  return pose;
+  return resolveHumanPosture.seeded(body, posture, base, near).pose;
 }
 
 /**
@@ -147,6 +68,153 @@ export function resolveHumanPosture(
  * @evidence contracts/development/implementation.md#principled-implementation Heading is yaw about +Y, then pitch about the turned +X, then roll about the turned +Z, the intrinsic order of a body turning, then leaning.
  */
 export namespace resolveHumanPosture {
+  /** Each limb's nearby fit to continue (`IAutoMovieSwivelNear`). */
+  export type INear = Readonly<
+    Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelNear>>
+  >;
+
+  /** A resolved pose with the seed each limb's fit was chosen at; null where a limb's fit has none. */
+  export interface ISeeded {
+    /** The canonical pose. */
+    pose: IAutoMoviePose;
+
+    /** Each fitted limb's seed. */
+    seeds: Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelSeed | null>>;
+  }
+
+  /**
+   * {@link resolveHumanPosture} with each limb's fit continued from a nearby
+   * one where `near` names it (`IAutoMovieSwivelNear`), reporting the seed
+   * each limb's fit was chosen at: the same pose, solved the same way, with
+   * what a fit of the same limb a moment away continues from.
+   *
+   * @param body The performer's body.
+   * @param posture The posture.
+   * @param base A pose whose joints replace clinical zero for unset bones.
+   * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
+   * @returns The canonical pose and each fitted limb's seed.
+   */
+  export function seeded(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    base?: IAutoMoviePose,
+    near: INear = {},
+  ): ISeeded {
+    const seeds: ISeeded["seeds"] = {};
+    const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
+      (base?.joints ?? []).map(
+        (
+          j: IAutoMovieJointPose,
+        ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+      ),
+    );
+    const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
+      (b): IAutoMovieJointPose => {
+        const set: readonly [number, number, number] | undefined =
+          posture.joints[b.bone];
+        if (set !== undefined)
+          return {
+            bone: b.bone,
+            flexion: set[0],
+            abduction: set[1],
+            twist: set[2],
+          };
+        return (
+          kept.get(b.bone) ?? {
+            bone: b.bone,
+            flexion: 0,
+            abduction: 0,
+            twist: 0,
+          }
+        );
+      },
+    );
+    // The set joints are clamped first and the limbs fitted last, so the clamp
+    // never moves a solved goal; the fit keeps the limb's own angles in range.
+    let pose: IAutoMoviePose = clampPose(
+      {
+        skeleton: body.skeleton.id,
+        root: Transform.of(posture.root, resolveHumanPosture.heading(posture)),
+        joints,
+      },
+      body.skeleton,
+    );
+    // An arm with no goal hangs or rests where its joints put it, so its own
+    // colliders keep its room from the first fit on.
+    const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
+      (side: "left" | "right"): boolean =>
+        posture.limbs[`${side}Arm`] === undefined,
+    );
+    // Two arms with goals, neither riding the other, are one coupled problem
+    // (`HumanLimbPair`), fitted when the first of them is reached.
+    const arms: Record<"left" | "right", IHumanPosture.IGoal | undefined> = {
+      left: posture.limbs.leftArm,
+      right: posture.limbs.rightArm,
+    };
+    const riding = (
+      goal: IHumanPosture.IGoal | undefined,
+      other: "left" | "right",
+    ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
+    const paired: boolean =
+      arms.left !== undefined &&
+      arms.right !== undefined &&
+      !riding(arms.left, "right") &&
+      !riding(arms.right, "left");
+    for (const limb of resolveHumanPosture.order(posture.limbs)) {
+      const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
+      if (goal === undefined) continue;
+      if (paired && (limb === "leftArm" || limb === "rightArm")) {
+        if (placed.length === 0) {
+          const pair: HumanLimbPair.IFitted = HumanLimbPair.fitted(
+            body,
+            pose,
+            { left: arms.left!, right: arms.right! },
+            {
+              ...(near.leftArm === undefined ? {} : { left: near.leftArm }),
+              ...(near.rightArm === undefined ? {} : { right: near.rightArm }),
+            },
+          );
+          pose = pair.pose;
+          seeds.leftArm = pair.seeds.left;
+          seeds.rightArm = pair.seeds.right;
+        }
+        placed.push(limb === "leftArm" ? "left" : "right");
+        continue;
+      }
+      // The other arm's goal, while that arm is still to be fitted: where its
+      // wrist will be, for the room the clearance keeps it.
+      const other: IHumanPosture.Limb | undefined =
+        limb === "leftArm"
+          ? "rightArm"
+          : limb === "rightArm"
+            ? "leftArm"
+            : undefined;
+      const coming: IHumanPosture.IGoal | undefined =
+        other === undefined ||
+        placed.includes(other === "leftArm" ? "left" : "right")
+          ? undefined
+          : posture.limbs[other];
+      const rival: IAutoMovieVector3 | undefined =
+        coming === undefined || other === undefined
+          ? undefined
+          : resolveHumanPosture.world(body, pose, other, coming).point;
+      const fitted: IAutoMovieSeededChainFit = HumanLimbFit.remembered(
+        body,
+        pose,
+        limb,
+        goal,
+        placed,
+        rival,
+        near[limb],
+      );
+      pose = fitted.pose;
+      seeds[limb] = fitted.seed;
+      if (limb === "leftArm") placed.push("left");
+      if (limb === "rightArm") placed.push("right");
+    }
+    return { pose, seeds };
+  }
+
   /**
    * Turn the memory of limb fits off or on again. Off, every fit is solved
    * afresh and nothing is kept, which is what a check of the memory against
@@ -302,6 +370,7 @@ export namespace resolveHumanPosture {
    * @param pose The pose.
    * @param limb The limb.
    * @param goal Its goal.
+   * @param near A nearby fit of the limb to continue; omitted, it is solved cold.
    * @returns The pose with the limb fitted.
    */
   export function limb(
@@ -309,8 +378,37 @@ export namespace resolveHumanPosture {
     pose: IAutoMoviePose,
     limb: IHumanPosture.Limb,
     goal: IHumanPosture.IGoal,
+    near?: IAutoMovieSwivelNear,
   ): IAutoMoviePose {
-    return HumanLimbFit.fit(body, pose, limb, goal, ["left", "right"]);
+    return limbSeeded(body, pose, limb, goal, near).pose;
+  }
+
+  /**
+   * {@link limb} with the seed its fit was chosen at.
+   *
+   * @param body The performer's body.
+   * @param pose The pose.
+   * @param limb The limb.
+   * @param goal Its goal.
+   * @param near A nearby fit of the limb to continue; omitted, it is solved cold.
+   * @returns The pose with the limb fitted, and its seed.
+   */
+  export function limbSeeded(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal,
+    near?: IAutoMovieSwivelNear,
+  ): IAutoMovieSeededChainFit {
+    return HumanLimbFit.fit(
+      body,
+      pose,
+      limb,
+      goal,
+      ["left", "right"],
+      undefined,
+      near,
+    );
   }
 
   /**
