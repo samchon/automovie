@@ -304,6 +304,8 @@ export * from "./lexicon/HumanGunDrill";
 export * from "./lexicon/HumanMusketDrill";
 export * from "./lexicon/HumanRevolver";
 export * from "./lexicon/HumanThrownWeapon";
+export * from "./lexicon/HumanStrike";
+export * from "./lexicon/HumanDefence";
 export * from "./lexicon/HumanSwordTiming";
 export * from "./lexicon/HumanSport";
 export * from "./reaction/give";
