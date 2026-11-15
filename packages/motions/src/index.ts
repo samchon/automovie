@@ -107,6 +107,7 @@ export * from "./throwing/release";
 export * from "./affordance/operate";
 export * from "./affordance/operateDrive";
 export * from "./affordance/operateInsert";
+export * from "./carrier/HumanSupportCarry";
 export * from "./carrier/HumanSupportFrame";
 export * from "./floor/crawl";
 export * from "./floor/lieDown";

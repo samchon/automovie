@@ -31,9 +31,9 @@ import { HumanRideHands } from "./HumanRideHands";
  * or stirrups) and then rides it: the seated posture is carried rigidly
  * with the support, turning, leaning and pitching as it does, the seat and
  * each foot that rested on it bearing on it, so nothing slides in the
- * support's frame. The arms, the hands and the head are yielded, so
- * steering, holding on, waving and looking are actions performed over the
- * ride. Register `HumanRide.ride` to use it.
+ * support's frame. The arms, the hands, the head and the trunk's turn are
+ * yielded, so steering, holding on, waving, looking and aiming from the
+ * saddle are actions performed over the ride. Register `HumanRide.ride` to use it.
  *
  * With `rising` the rider posts to a trot, by a stride time or on the
  * strides of a cue track; with `feet` each foot stays on a part that moves

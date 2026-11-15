@@ -1,17 +1,12 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  seededSmoothNoise,
-} from "@automovie/engine";
+import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -61,7 +56,7 @@ export namespace stand {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** What quiet standing lets an overlay take: the arms, the hands and the head. */
+  /** What quiet standing lets an overlay take: the arms, the hands, the head and the trunk's turn. */
   export const yields: IHumanActionLaw["yields"] = [
     "head",
     "leftHand",
@@ -103,34 +98,18 @@ export namespace stand {
 
     // The support the stance stands on: the ground, or a prop that moves.
     const on: IParams["on"] = context.params.on;
-    const first: IHumanProp.IFrame | undefined =
-      on === undefined ? undefined : context.prop(on.prop).frame(context.start);
-    const carried = (
-      seconds: number,
-    ): { point: (p: IAutoMovieVector3) => IAutoMovieVector3; yaw: number } => {
-      if (on === undefined || first === undefined)
-        return { point: (p: IAutoMovieVector3): IAutoMovieVector3 => p, yaw: 0 };
-      const now: IHumanProp.IFrame = context
-        .prop(on.prop)
-        .frame(context.start + seconds);
-      const turn: IAutoMovieQuaternion = Quaternion.multiply(
-        now.rotation,
-        Quaternion.inverse(first.rotation),
-      );
-      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-        x: 0,
-        y: 0,
-        z: 1,
-      });
-      return {
-        point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
-          Vector3.add(
-            now.position,
-            Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
-          ),
-        yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
-      };
-    };
+    const carried = (seconds: number): HumanSupportCarry.ICarry =>
+      on === undefined
+        ? {
+            point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
+            turn: { x: 0, y: 0, z: 0, w: 1 },
+            yaw: 0,
+          }
+        : HumanSupportCarry.of(
+            (t: number): IHumanProp.IFrame => context.prop(on.prop).frame(t),
+            context.start,
+            context.start + seconds,
+          );
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
@@ -170,7 +149,7 @@ export namespace stand {
         // On a moving support the stance planned at the entry is carried by
         // the support's rigid motion since then (#3491); its tilt is not
         // read yet, only its travel and its turn about the vertical.
-        const carry: { point: (p: IAutoMovieVector3) => IAutoMovieVector3; yaw: number } = carried(t);
+        const carry: HumanSupportCarry.ICarry = carried(t);
         const placed: IAutoMovieVector3 = carry.point(root);
         return {
           root: placed,

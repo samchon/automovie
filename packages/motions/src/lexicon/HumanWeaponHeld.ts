@@ -8,9 +8,11 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { HumanHand } from "../posture/HumanHand";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import type { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**
@@ -22,7 +24,7 @@ import type { HumanWeaponPresent } from "./HumanWeaponPresent";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the long-gun rule and the support hand's places.
  * @evidence contracts/development/design.md#principled-representation The held tool, the support hand's offset in the tool's frame and the arm's length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The setup, the support hand's hold for a pose and its reach share, read by `HumanWeaponPresent`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The setup, the support hand's hold for a pose and its reach share, and a presenting plan carried over a carrier, read by `HumanWeaponPresent`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No firearm kind is named: a long gun is a prop with a fore-end.
  */
 export namespace HumanWeaponHeld {
@@ -180,5 +182,28 @@ export namespace HumanWeaponHeld {
       reason: `the fore-end's nearest hold is ${far(s.slide).toFixed(3)} m from the ${other} shoulder, beyond the ${limit.toFixed(3)} m that arm holds at`,
       fix: "present a shorter weapon, or a handgun",
     });
+  };
+  /**
+   * A presenting plan over a carrier (#3491): carried by the support it is
+   * entered on (`HumanSupportCarry`), claiming the trunk's turn and the
+   * holding arms and hands, so it runs over a stand, a ride or a stance on a
+   * moving floor; a plan that carries the body itself is returned as made.
+   */
+  export const carried = (
+    context: IHumanActionContext<HumanWeaponPresent.IWield>,
+    s: ISetup,
+    plan: IHumanActionPlan,
+  ): IHumanActionPlan => {
+    if (context.carrier === undefined) return plan;
+    const side: HumanHand.Side = s.tool.side;
+    const other: HumanHand.Side = side === "left" ? "right" : "left";
+    return HumanSupportCarry.plan(context, plan, [
+      "trunkTurn",
+      `${side}Arm`,
+      `${side}Hand`,
+      ...(s.support === null
+        ? []
+        : ([`${other}Arm`, `${other}Hand`] as const)),
+    ]);
   };
 }

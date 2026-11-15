@@ -56,7 +56,10 @@ import { HumanWeaponTrack } from "./HumanWeaponTrack";
  * `trigger` articulation to its full travel by the break and back by the
  * end, `IHumanActionPlan.drives`), turns the muzzle up about the hand and
  * returns it onto the line. `HumanWeaponFirearm` keeps both under its
- * firearm names.
+ * firearm names. Both may be performed over a carrier, a stand, a ride or a
+ * stance on a moving floor: then they claim the trunk's turn and the holding
+ * arms and hands, and their plan, made in the world at their start, is
+ * carried by the support's motion (`HumanSupportCarry`, #3491).
  *
  * A handgun is held in both hands unless one is asked, the support hand
  * wrapped beside the shooting hand; a long gun (a prop that declares a
@@ -181,6 +184,7 @@ export namespace HumanWeaponPresent {
   export const present: IHumanActionLaw<IPresent> = {
     name: "presentWeapon",
     interrupts: from("stroke"),
+    overlay: true,
     plan: (context: IHumanActionContext<IPresent>): IHumanActionPlan => {
       const p: IPresent = context.params;
       const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(context);
@@ -298,7 +302,7 @@ export namespace HumanWeaponPresent {
         context.random("present"),
         HumanSkill.quantity(context.skill, "speed", PRESENT[0], PRESENT[1]),
       );
-      return StrikingBlade.plan(context, {
+      return HumanWeaponHeld.carried(context, s, StrikingBlade.plan(context, {
         tool: s.tool,
         clock: AutoMovieMotionManner.time(
           AutoMovieMotionClock.phrase({
@@ -322,7 +326,7 @@ export namespace HumanWeaponPresent {
         line,
         stay: true,
         stop: 1,
-      });
+      }));
     },
   };
 
@@ -340,6 +344,7 @@ export namespace HumanWeaponPresent {
   export const fire: IHumanActionLaw<IWield> = {
     name: "fireWeapon",
     interrupts: from("relax"),
+    overlay: true,
     plan: (context: IHumanActionContext<IWield>): IHumanActionPlan => {
       const s: HumanWeaponHeld.ISetup = HumanWeaponHeld.setup(context);
       const bones: ReturnType<typeof poseBones> = poseBones(
@@ -463,11 +468,12 @@ export namespace HumanWeaponPresent {
           attitude: { kind: "velocity" },
         });
       }
-      return {
+      return HumanWeaponHeld.carried(context, s, {
         ...shot,
         ...(drives.length === 0 ? {} : { drives }),
         ...(launches.length === 0 ? {} : { launches }),
-      };
+      });
     },
   };
+
 }
