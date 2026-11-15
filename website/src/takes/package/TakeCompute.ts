@@ -34,10 +34,8 @@ export namespace TakeCompute {
   export const PROP: string = "frame";
 
   /** Each body's rest bones and track order, read once per worker. */
-  const rests: Map<
-    string,
-    { bones: ITake.IFigure["bones"]; order: string[] }
-  > = new Map();
+  const rests: Map<string, { bones: ITake.IFigure["bones"]; order: string[] }> =
+    new Map();
 
   /** The performance built last, which a verdict request on the same composition reads without building it again. */
   let last: { key: string; performance: HumanPerformance } | null = null;
@@ -117,7 +115,10 @@ export namespace TakeCompute {
     // planned; both are the composition's refusal.
     try {
       built = PlaygroundPerformance.build(composition);
-      last = { key: JSON.stringify(composition), performance: built.performance };
+      last = {
+        key: JSON.stringify(composition),
+        performance: built.performance,
+      };
       const count: number = Math.floor(built.performance.duration * fps) + 1;
       for (let k: number = 0; k < count; k++) {
         const seconds: number = k / fps;
@@ -139,7 +140,11 @@ export namespace TakeCompute {
             return [
               {
                 bone: PROP,
-                position: [frame.position.x, frame.position.y, frame.position.z],
+                position: [
+                  frame.position.x,
+                  frame.position.y,
+                  frame.position.z,
+                ],
                 rotation: [
                   frame.rotation.x,
                   frame.rotation.y,
@@ -239,8 +244,9 @@ export namespace TakeCompute {
     bones: ITake.IFigure["bones"];
     order: string[];
   } {
-    const known: { bones: ITake.IFigure["bones"]; order: string[] } | undefined =
-      rests.get(figure.body);
+    const known:
+      | { bones: ITake.IFigure["bones"]; order: string[] }
+      | undefined = rests.get(figure.body);
     if (known !== undefined) return known;
     const display: ReturnType<typeof AutoMovieHumanCanonicalBody.display> =
       AutoMovieHumanCanonicalBody.display(figure.canonical);

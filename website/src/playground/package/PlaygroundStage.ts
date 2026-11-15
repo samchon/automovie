@@ -92,18 +92,18 @@ export namespace PlaygroundStage {
     const first: SceneTrack.IPlacement[][] = SceneTrack.sample(take.track, 0);
     const drawn: IDrawn[] = take.figures.map(
       (figure: ITake.IFigure, i: number): IDrawn => {
-      const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
-        bones: figure.bones,
-        posed: first[i]!,
-      });
-      const group: THREE.Group = new THREE.Group();
-      group.name = figure.subject;
-      group.matrixAutoUpdate = false;
-      group.matrix.copy(reflect);
-      group.add(drawing.object);
-      scene.add(group);
-      disposers.push((): void => drawing.dispose());
-      return { drawing, group };
+        const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
+          bones: figure.bones,
+          posed: first[i]!,
+        });
+        const group: THREE.Group = new THREE.Group();
+        group.name = figure.subject;
+        group.matrixAutoUpdate = false;
+        group.matrix.copy(reflect);
+        group.add(drawing.object);
+        scene.add(group);
+        disposers.push((): void => drawing.dispose());
+        return { drawing, group };
       },
     );
 
@@ -184,7 +184,7 @@ export namespace PlaygroundStage {
           seconds,
         );
         drawn.forEach((each: IDrawn, i: number): void => {
-            each.drawing.setPose({ posed: sampled[i]! });
+          each.drawing.setPose({ posed: sampled[i]! });
           each.group.updateMatrixWorld(true);
         });
       },

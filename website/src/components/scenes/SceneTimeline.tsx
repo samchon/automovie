@@ -27,7 +27,10 @@ export function SceneTimeline(props: {
               </span>
               <span className="am-scene-timeline-lane">
                 {track.spans.map(
-                  (span: IPlaygroundTimeline.ISpan, k: number): ReactElement => (
+                  (
+                    span: IPlaygroundTimeline.ISpan,
+                    k: number,
+                  ): ReactElement => (
                     <span
                       key={k}
                       className="am-scene-timeline-span"

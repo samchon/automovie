@@ -20,13 +20,13 @@ import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundTimeline } from "../playground/structures/IPlaygroundTimeline";
 import type { SceneClock } from "../scenes/SceneClock";
-import type { TakeClient } from "../takes/TakeClient";
 import { SceneFacts } from "../scenes/SceneFacts";
 import { computeSceneTake } from "../scenes/computeSceneTake";
 import { formatSceneChain } from "../scenes/formatSceneChain";
 import type { IScene } from "../scenes/structures/IScene";
 import type { ISceneChainNames } from "../scenes/structures/ISceneChainNames";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
+import type { TakeClient } from "../takes/TakeClient";
 
 /** The panels under the player. */
 type Panel = "variations" | "made";

@@ -48,9 +48,10 @@ export function test_website_take_compute(): void {
   );
   TestValidator.equals(
     "one figure per performer, in order, with its body",
-    made.figures.map(
-      (f: ITake.IFigure): [string, string] => [f.subject, f.body],
-    ),
+    made.figures.map((f: ITake.IFigure): [string, string] => [
+      f.subject,
+      f.body,
+    ]),
     composition.performers.map(
       (p: IPlaygroundComposition.IPerformer): [string, string] => [
         p.subject,
@@ -138,6 +139,8 @@ export function test_website_take_compute(): void {
   }).response;
   TestValidator.predicate(
     "an unknown body is an error with its id naming the bodies",
-    unknown.kind === "error" && unknown.id === 8 && unknown.message.includes("m1"),
+    unknown.kind === "error" &&
+      unknown.id === 8 &&
+      unknown.message.includes("m1"),
   );
 }

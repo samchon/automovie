@@ -129,7 +129,9 @@ const lazyCard: (page: Page, problems: string[]) => Promise<void> = async (
       { timeout: COMPUTE_LIMIT, polling: 100 },
     );
   } catch {
-    problems.push("the last card's take was not computed after it was scrolled into view");
+    problems.push(
+      "the last card's take was not computed after it was scrolled into view",
+    );
     return;
   }
   const after: string | null = await view.getAttribute("data-take");

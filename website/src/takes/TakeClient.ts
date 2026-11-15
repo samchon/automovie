@@ -105,7 +105,8 @@ export namespace TakeClient {
         job,
         result: response.then((answer: ITakeResponse): Result => {
           made.job = null;
-          if (answer.kind === "take") return { kind: "take", take: answer.take };
+          if (answer.kind === "take")
+            return { kind: "take", take: answer.take };
           if (answer.kind === "refusal")
             return { kind: "refusal", refusal: answer.refusal };
           throw new Error(
@@ -162,16 +163,17 @@ export namespace TakeClient {
   export function body(id: string): Promise<IHumanEntry> {
     let known: Promise<IHumanEntry> | undefined = bodies.get(id);
     if (known === undefined) {
-      known = enqueue({ kind: "body", id: next++, body: id }, null).response.then(
-        (answer: ITakeResponse): IHumanEntry => {
-          if (answer.kind === "body") return answer.body;
-          throw new Error(
-            answer.kind === "error"
-              ? answer.message
-              : `The take worker answered a body with ${answer.kind}`,
-          );
-        },
-      );
+      known = enqueue(
+        { kind: "body", id: next++, body: id },
+        null,
+      ).response.then((answer: ITakeResponse): IHumanEntry => {
+        if (answer.kind === "body") return answer.body;
+        throw new Error(
+          answer.kind === "error"
+            ? answer.message
+            : `The take worker answered a body with ${answer.kind}`,
+        );
+      });
       known.catch((): void => {
         bodies.delete(id);
       });

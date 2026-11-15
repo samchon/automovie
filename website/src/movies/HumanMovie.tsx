@@ -86,8 +86,7 @@ export default function HumanMovie(props: {
             {props.bodies
               .map((b: IPlaygroundVocabulary.IBody): string => b.label)
               .join("; ")}
-            .
-            Drag or use the arrow keys to turn, and double-click or press 0 to
+            . Drag or use the arrow keys to turn, and double-click or press 0 to
             frame again.
           </p>
         </section>

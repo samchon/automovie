@@ -28,14 +28,19 @@ export default function HumanPage(): ReactElement {
       lineup={SCENES.find((s: IScene): boolean => s.id === "lineup")!}
       bodies={Object.entries(PLAYGROUND_BODIES)
         .map(
-          ([id, body]: [string, PLAYGROUND_BODIES.IEntry]): IPlaygroundVocabulary.IBody => ({
+          ([id, body]: [
+            string,
+            PLAYGROUND_BODIES.IEntry,
+          ]): IPlaygroundVocabulary.IBody => ({
             id,
             label: body.label,
           }),
         )
         .sort(
-          (a: IPlaygroundVocabulary.IBody, b: IPlaygroundVocabulary.IBody): number =>
-            a.id.localeCompare(b.id),
+          (
+            a: IPlaygroundVocabulary.IBody,
+            b: IPlaygroundVocabulary.IBody,
+          ): number => a.id.localeCompare(b.id),
         )}
     />
   );

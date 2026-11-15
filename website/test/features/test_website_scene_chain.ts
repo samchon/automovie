@@ -31,7 +31,10 @@ export function test_website_scene_chain(): void {
   let checked: number = 0;
   const LAST: string = "const performance = new HumanPerformance(input);";
   for (const scene of SCENES) {
-    if (scene.composition === null || !SceneStatus.computes(SceneStatus.of(scene)))
+    if (
+      scene.composition === null ||
+      !SceneStatus.computes(SceneStatus.of(scene))
+    )
       continue;
     const composition: IPlaygroundComposition = scene.composition;
     const names: ISceneChainNames = SceneChainNames.read(composition);
