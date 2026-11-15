@@ -4,18 +4,23 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  curlChainUntilContact,
   fitDigitToTarget,
+  physicalShapeSegmentDistance,
   type resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieJointPose,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanGrip } from "../handling/HumanGrip";
+import { HumanColliders } from "./HumanColliders";
 import { IHumanPosture } from "./IHumanPosture";
 import { poseBones } from "./poseBones";
 
@@ -33,10 +38,11 @@ import { poseBones } from "./poseBones";
  * the other hand's thumb follows that thumb. A pad laid on a surface faces
  * against the surface's normal.
  *
- * A finger's distal joint follows its middle joint at two thirds as a
- * weighted prior (`COUPLING`); the thumb has none. A goal outside a digit's
- * workspace leaves the digit at the nearest point it reaches; the residual is
- * the audits' to report against the act's own bound.
+ * A finger's distal joint follows its middle joint at two thirds as the
+ * fit's second task, after the point (`COUPLING`); the thumb has none. A goal
+ * outside a digit's workspace leaves the digit at the nearest point it
+ * reaches; the residual is the audits' to report against the act's own bound.
+ * How deep a hand's digits lie in the rest of the body is `depth`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order, why it is not circular, the frames, the facing, the coupling and the out-of-reach behaviour.
  * @evidence contracts/development/design.md#principled-representation Functions of a body, a pose and the posture's digit goals, over the interface's poses.
@@ -50,7 +56,7 @@ export namespace HumanDigitFit {
    * @param body The performer's body.
    * @param pose The pose with its limbs fitted.
    * @param digits The posture's digit goals.
-   * @returns The pose; the same pose when there are none.
+   * @returns The pose with the goals fitted; the same pose when there are none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the order and the unchanged case.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's digit fit on the canonical forward kinematics (the same axes and rest frames as the display), after the limbs, as procedural animation runs finger IK on the placed hand.
@@ -120,6 +126,57 @@ export namespace HumanDigitFit {
   }
 
   /**
+   * How deep a hand's digits lie in the rest of the body: the most any
+   * phalanx (a capsule of the profile's radius, `HumanGrip.chain`) of that
+   * hand passes into a collider of the body other than its own hand and
+   * forearm, metres; zero or less when every digit is clear. The measure
+   * `stand.relaxed` hangs the arm by.
+   *
+   * @param body The body.
+   * @param bones Its posed bones, world frame.
+   * @param side The hand.
+   * @returns The depth, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the measure, its unit, its sign and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's exact segment-to-shape distance (`physicalShapeSegmentDistance`) from each phalanx's axis, less the phalanx's radius, against the body's own profile colliders.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The near colliders, then three segments per digit.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every digit and every near collider is read; none is skipped but those beyond a hand's length of the hand.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Colliders whose bounding sphere lies beyond a hand's length of the hand are skipped.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function depth(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+  ): number {
+    const near: curlChainUntilContact.ICollider[] = nearBody(
+      body,
+      bones,
+      HumanColliders.placed(body, bones),
+      side,
+    );
+    let deepest: number = -Infinity;
+    for (const digit of DIGIT_NAMES) {
+      const chain: curlChainUntilContact.IChain = HumanGrip.chain(
+        body,
+        side,
+        digit,
+      );
+      const points: IAutoMovieVector3[] = phalanges(bones, chain);
+      for (const c of near)
+        points.slice(1).forEach((b: IAutoMovieVector3, i: number): void => {
+          deepest = Math.max(
+            deepest,
+            chain.radius -
+              physicalShapeSegmentDistance(c.frame, c.shape, points[i]!, b),
+          );
+        });
+    }
+    return deepest;
+  }
+
+  /**
    * The joints of a digit, proximal to distal.
    *
    * @param side The hand.
@@ -156,6 +213,85 @@ export namespace HumanDigitFit {
  * Provisional until read at the source.
  */
 const COUPLING: number = 2 / 3;
+/** A hand's digits as the rig names them, thumb first. */
+const DIGIT_NAMES: readonly HumanGrip.Digit[] = [
+  "Thumb",
+  "Index",
+  "Middle",
+  "Ring",
+  "Little",
+];
+
+/** The bones of a side's own hand, after the side: the hand and its digits. */
+const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
+
+/** The body's colliders near a hand, in the world: every shape but its own hand's and forearm's whose bounding sphere lies within a hand's length of the hand. */
+const nearBody: (
+  body: IHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  placed: readonly HumanColliders.IPlaced[],
+  side: "left" | "right",
+) => curlChainUntilContact.ICollider[] = (
+  body: IHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  placed: readonly HumanColliders.IPlaced[],
+  side: "left" | "right",
+): curlChainUntilContact.ICollider[] => {
+  const hand: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
+  return placed
+    .filter(
+      (p: HumanColliders.IPlaced): boolean =>
+        !p.bone.startsWith(side) ||
+        !(OWN.test(p.bone.slice(side.length)) || p.bone === `${side}LowerArm`),
+    )
+    .flatMap(
+      (p: HumanColliders.IPlaced): curlChainUntilContact.ICollider[] =>
+        p.shapes
+          .filter((shape: IAutoMoviePhysicalProfile.IShape): boolean => {
+            const ball: HumanColliders.IBall = HumanColliders.bound(shape);
+            const centre: IAutoMovieVector3 = Vector3.add(
+              p.pose.position,
+              Quaternion.rotateVector(
+                p.pose.rotation,
+                Vector3.add(
+                  shape.transform.position,
+                  Quaternion.rotateVector(shape.transform.rotation, ball.centre),
+                ),
+              ),
+            );
+            return (
+              Vector3.length(Vector3.subtract(centre, hand)) <
+              ball.radius + body.measure.hand
+            );
+          })
+          .map(
+            (
+              shape: IAutoMoviePhysicalProfile.IShape,
+            ): curlChainUntilContact.ICollider => ({ shape, frame: p.pose }),
+          ),
+    );
+};
+
+/** A digit's phalanges as the points of its joints and its tip, world metres, on posed bones. */
+const phalanges: (
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  chain: curlChainUntilContact.IChain,
+) => IAutoMovieVector3[] = (
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  chain: curlChainUntilContact.IChain,
+): IAutoMovieVector3[] => {
+  const points: IAutoMovieVector3[] = chain.bones.map(
+    (b: AutoMovieHumanoidBone): IAutoMovieVector3 => bones.get(b)!.worldPosition,
+  );
+  const last: IAutoMovieResolvedBone = bones.get(chain.bones.at(-1)!)!;
+  points.push(
+    Vector3.add(
+      last.worldPosition,
+      Quaternion.rotateVector(last.worldRotation, chain.tip),
+    ),
+  );
+  return points;
+};
 
 /** A goal's point and normal carried from a bone's posed frame into the world. */
 const carried: (

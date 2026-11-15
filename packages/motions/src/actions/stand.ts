@@ -1,6 +1,15 @@
-import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  ROM_TOLERANCE,
+  getConstraint,
+  minimumJerk,
+  seededSmoothNoise,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
@@ -15,10 +24,13 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanProp } from "../perform/IHumanProp";
+import { HumanDigitFit } from "../posture/HumanDigitFit";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { standUpright } from "./standUpright";
 
@@ -34,8 +46,9 @@ import { standUpright } from "./standUpright";
  * a minimum-jerk profile and sits 5 mm below full extension so the knees are
  * not locked. Each foot turns out 7° from the heading, the mean adult foot
  * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
- * with 5° of shoulder abduction, 12° of elbow flexion and the hand in its
- * position of rest (`HumanHand.shape`, relaxed). Postural sway moves the root on two
+ * relaxed (`relaxed`): 12° of elbow flexion, the hand in its position of rest
+ * (`HumanHand.shape`, relaxed), and the least shoulder abduction that hangs
+ * the hand beside the thigh, its digits clear of the body. Postural sway moves the root on two
  * seeded smooth signals below 1 Hz, side to side and front to back in the
  * body's frame, with an RMS of 3 mm for an elite and 4.8
  * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
@@ -87,7 +100,7 @@ export namespace stand {
     );
     const upright: standUpright.IAlignment = standUpright.of(context.body);
     const middle: IAutoMovieVector3 = root(context.body, footing, yaw);
-    const joints = { ...RELAXED, ...upright.joints };
+    const joints = { ...relaxed(context.body), ...upright.joints };
     const settle: number = Math.min(0.5, duration);
     const from: IAutoMovieVector3 = context.entry.posture.root;
     const sway: number =
@@ -190,7 +203,105 @@ export namespace stand {
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
   export const TOE_OUT: number = 7;
 
-  /** Relaxed hanging arms and a neutral trunk, clinical degrees. */
+  /**
+   * A body's relaxed hanging arms, clinical degrees: 12 degrees of elbow
+   * flexion, each hand in its position of rest (`HumanHand.shape`, relaxed),
+   * and the least shoulder abduction at which those relaxed hands lie beside
+   * the thighs, every digit clear of the rest of the body
+   * (`HumanDigitFit.depth` no more than zero) in the quiet stance. The
+   * abduction is found once per body by bisection between none and the
+   * shoulder's range, the depth falling as the arm swings out, until the
+   * bracket is no wider than the resolution to which a solver resolves a
+   * joint's angle (`ROM_TOLERANCE`, the engine's range owner, as the limb
+   * fits resolve theirs), and kept: a wider build hangs its arms wider.
+   *
+   * @param body The body.
+   * @returns Angles for both arms and hands.
+   */
+  export function relaxed(
+    body: IHumanBody,
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+    const known:
+      | Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+      | undefined = HUNG.get(body);
+    if (known !== undefined) return known;
+    const hanging = (
+      abduction: number,
+    ): Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > => {
+      const out: Partial<
+        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+      > = {};
+      for (const side of ["left", "right"] as const) {
+        Object.assign(out, HumanHand.shape(side, "relaxed"));
+        out[`${side}UpperArm`] = [0, abduction, 0];
+        out[`${side}LowerArm`] = [12, 0, 0];
+      }
+      return out;
+    };
+    // Whether the relaxed digits sink into the body with the arms hung at an
+    // abduction: the digits read as the shape holds them, before any
+    // clearing lays them on the body.
+    const sinks = (abduction: number): boolean => {
+      const joints: Partial<
+        Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+      > = hanging(abduction);
+      const resolved: IAutoMoviePose = resolveHumanPosture(
+        body,
+        stance(body, { x: 0, y: 0, z: 0 }, 0, joints),
+      );
+      const shaped: IAutoMoviePose = {
+        ...resolved,
+        joints: resolved.joints.map(
+          (j: IAutoMovieJointPose): IAutoMovieJointPose => {
+            const a: readonly [number, number, number] | undefined =
+              joints[j.bone];
+            return a === undefined || !DIGIT.test(j.bone)
+              ? j
+              : { bone: j.bone, flexion: a[0], abduction: a[1], twist: a[2] };
+          },
+        ),
+      };
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, shaped);
+      return (
+        Math.max(
+          HumanDigitFit.depth(body, bones, "left"),
+          HumanDigitFit.depth(body, bones, "right"),
+        ) > 0
+      );
+    };
+    const range: IAutoMovieAngleRange | null | undefined = getConstraint(
+      "leftUpperArm",
+      body.skeleton.bones.find((b) => b.bone === "leftUpperArm")?.constraint ??
+        null,
+    )?.abduction;
+    if (range === null || range === undefined)
+      throw new Error("The shoulder has no abduction range to hang the arm in");
+    let lo: number = 0;
+    let hi: number = range.max;
+    if (sinks(lo))
+      while (hi - lo > ROM_TOLERANCE) {
+        const mid: number = (lo + hi) / 2;
+        if (sinks(mid)) lo = mid;
+        else hi = mid;
+      }
+    else hi = lo;
+    const out: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = hanging(hi);
+    HUNG.set(body, out);
+    return out;
+  }
+
+  /**
+   * Relaxed hanging arms with no body, clinical degrees: 5 degrees of
+   * shoulder abduction, 12 of elbow flexion and the hands at rest. Kept only
+   * for the laws whose key tables do not yet take the body; each is moving to
+   * `relaxed`, which hangs the arm clear of the body it belongs to, and this
+   * goes with the last of them.
+   */
   export const RELAXED: Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>
   > = (() => {
@@ -330,6 +441,26 @@ export namespace stand {
     at: IAutoMovieVector3,
     yaw: number,
   ): IHumanPosture {
+    return stance(body, at, yaw, relaxed(body));
+  }
+
+  /**
+   * The standing posture of a body with given arms, as `posture` stands it.
+   *
+   * @param body The body.
+   * @param at The floor point under the body, world metres.
+   * @param yaw The heading, degrees.
+   * @param arms The arms' and hands' angles, clinical degrees.
+   * @returns The posture.
+   */
+  export function stance(
+    body: IHumanBody,
+    at: IAutoMovieVector3,
+    yaw: number,
+    arms: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    >,
+  ): IHumanPosture {
     const frame: HumanFrame.IFrame = { origin: at, yaw };
     const feet = {} as Record<"left" | "right", IAutoMovieVector3>;
     for (const side of ["left", "right"] as const) {
@@ -346,11 +477,20 @@ export namespace stand {
       yaw,
       pitch: 0,
       roll: 0,
-      joints: { ...RELAXED, ...standUpright.of(body).joints },
+      joints: { ...arms, ...standUpright.of(body).joints },
       limbs: legs(body, placed, yaw, feet),
     };
   }
 }
+
+/** Each body's relaxed hanging arms, solved once (`stand.relaxed`). */
+const HUNG: WeakMap<
+  IHumanBody,
+  Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+> = new WeakMap();
+
+/** A digit's bone. */
+const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
 /** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
 function centre(body: IHumanBody, yaw: number): IAutoMovieVector3 {

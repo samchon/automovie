@@ -2,6 +2,7 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  physicalShapeSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -11,6 +12,11 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanChannel,
+  HumanChain,
+  HumanColliders,
+  HumanGrip,
+  HumanPerformance,
+  HumanVerdicts,
   type IHumanBody,
   type IHumanPosture,
   poseBones,
@@ -50,12 +56,16 @@ const at = (
  *    digit claim covers only its own, and a digit never covers its hand.
  * 5. Merge: a digit claim takes that digit's joints and goal from the written
  *    posture and leaves the hand's other digits as the base has them.
+ * 6. A right hand at rest in the pocket, on the hip and at the side lays its
+ *    digits on the body: no phalanx (a capsule of the profile's radius) lies
+ *    deeper in another part of the body than the verdicts' skin
+ *    (`HumanVerdicts.SKIN`), the tangle audit's give.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves postures with digit goals on a generated body and exercises the claim helpers and the merge.
  * @evidence contracts/development/testing.md#independent-expectations Goals are surface points of in-range poses, so reachable; the bound is the issue's; claims follow the hand-digit partition.
  * @evidence contracts/development/testing.md#distinguishing-cases Both sides, a world and a bone goal, empty goals, hand and digit claims.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the cast and the five scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the cast and the six scenarios.
  */
 export function test_human_motion_core_digits(): void {
   const complaints: string[] = [];
@@ -219,5 +229,68 @@ export function test_human_motion_core_digits(): void {
     merged.digits?.rightIndex !== undefined
   )
     complaints.push("a thumb claim did not take the thumb's goal alone");
+
+  // 6. A hand at rest on the body lays its digits on it: no phalanx of the
+  // resting hand lies deeper in another part of the body than the skin's
+  // give, for each place a hand rests against the thigh or hip.
+  for (const place of ["pocket", "hip", "side"] as const)
+    try {
+      const performance: HumanPerformance = new HumanPerformance({
+        seed: "digits",
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("a").rest({ right: place, seconds: 1 })
+          .node,
+      });
+      const bones = performance.bones("a", performance.duration - 0.05);
+      const others: readonly HumanColliders.IPlaced[] = HumanColliders.placed(
+        body,
+        bones,
+      ).filter(
+        (p: HumanColliders.IPlaced): boolean =>
+          !/^right(Hand|Thumb|Index|Middle|Ring|Little|LowerArm)/.test(p.bone),
+      );
+      for (const digit of ["Thumb", "Index", "Middle", "Ring", "Little"] as const) {
+        const chain = HumanGrip.chain(body, "right", digit);
+        const points: IAutoMovieVector3[] = chain.bones.map(
+          (b) => bones.get(b)!.worldPosition,
+        );
+        const last = bones.get(chain.bones.at(-1)!)!;
+        points.push(
+          Vector3.add(
+            last.worldPosition,
+            Quaternion.rotateVector(last.worldRotation, chain.tip),
+          ),
+        );
+        let deepest: number = 0;
+        let into: string = "";
+        for (const p of others)
+          for (const shape of p.shapes)
+            points.slice(1).forEach((b: IAutoMovieVector3, i: number): void => {
+              const depth: number =
+                chain.radius -
+                physicalShapeSegmentDistance(p.pose, shape, points[i]!, b);
+              if (depth > deepest) {
+                deepest = depth;
+                into = p.bone;
+              }
+            });
+        if (!(deepest <= HumanVerdicts.SKIN))
+          complaints.push(
+            `rest at ${place}: the right ${digit.toLowerCase()} lies ${(deepest * 1000).toFixed(1)} mm in ${into}, within the skin's ${HumanVerdicts.SKIN * 1000} mm expected`,
+          );
+      }
+    } catch (error) {
+      complaints.push(
+        `rest at ${place}: expected to plan, got ${(error as Error).message}`,
+      );
+    }
   TestValidator.equals("digit goals and digit claims", complaints, []);
 }

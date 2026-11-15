@@ -236,8 +236,8 @@ export namespace seated {
   }
 
   /**
-   * Goals that lay each palm on the front of the same thigh, fingers toward
-   * the knee, on a posture whose legs are solved first.
+   * Goals that lay each palm flat on the front of the same thigh, fingers
+   * toward the knee, on a posture whose legs are solved first.
    *
    * @param body The body.
    * @param posture The posture with its leg goals.
@@ -270,10 +270,12 @@ export namespace seated {
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      // The hand lies flat along the thigh, its palm on the surface: a
+      // relaxed curl would close the fingers into the thigh they lie on.
       requests.push({
         side,
         surface: "palm",
-        shape: "relaxed",
+        shape: "flat",
         point,
         rotation: HumanHand.rotation(side, {
           fingers: along,

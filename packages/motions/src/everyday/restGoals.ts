@@ -95,15 +95,18 @@ export function restGoals(
       case "elbowSupport":
         break;
       case "pocket": {
+        // A hand in a pocket lies flat along the thigh, its palm laid on the
+        // surface against its normal: a relaxed curl would close the
+        // fingers into the thigh they lie on.
         const pocket = region(`pocketFront${Side}`);
         out[side] = lay(
           side,
           place,
           "palm",
-          "relaxed",
+          "flat",
           pocket.point,
           dir(0, -1, 0.35),
-          dir(-sign, 0, -0.4),
+          Vector3.scale(pocket.normal, -1),
         );
         break;
       }
