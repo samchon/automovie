@@ -42,7 +42,9 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * turn buys at least as much accuracy; and the
  * hint's side is worth 2 degrees per unit of `1 - cos` (4 degrees for the
  * opposite side), enough to decide between otherwise equal swivels while
- * never outweighing a visible effector error.
+ * never outweighing a visible effector error. A request continuing a nearby
+ * fit (`near`) refines that fit's seed instead of sweeping, and the candidate
+ * carries the seed it was chosen at.
  *
  * @param props The fit request, with merged axes.
  * @param prepared The chain's preparation.
@@ -178,6 +180,9 @@ export function fitHingedChainCandidate(
       hinge: axes.flexion,
       target: props.target,
       ...(range === null ? {} : { range }),
+      // A fit of a nearby target continued from its seed refines that seed
+      // alone (`IAutoMovieSwivelNear`).
+      ...(props.near === undefined ? {} : { near: props.near }),
       // The root's box refuses swivels its overshoot can only score above
       // zero, so the sweep spares them (`boxExcludedSwivels`).
       excluded: (
@@ -271,6 +276,7 @@ export function fitHingedChainCandidate(
     upper,
     lower,
     shortfall: solved.shortfall,
+    seed: { swivel: solved.swivel, branch: solved.branch },
   };
 }
 

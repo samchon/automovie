@@ -8,6 +8,8 @@ export * from "./IAutoMoviePoseRig";
 export * from "./IAutoMovieResolvedBone";
 export * from "./IAutoMovieResolvedJointAngles";
 export * from "./IAutoMovieSkeletonTopology";
+export * from "./IAutoMovieSwivelNear";
+export * from "./IAutoMovieSwivelSeed";
 export * from "./IAutoMovieTwoBoneArticulation";
 export * from "./ITwoBoneIK";
 export * from "./aimRotation";

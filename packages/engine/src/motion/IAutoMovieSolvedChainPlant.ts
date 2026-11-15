@@ -3,6 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieSwivelSeed } from "../kinematics/IAutoMovieSwivelSeed";
+
 /**
  * Clinical articulation of a two-link target candidate before final clamping.
  * The caller evaluates its effective ROM and actual FK residual; this record
@@ -30,4 +32,11 @@ export interface IAutoMovieSolvedChainPlant {
    * when a legal hinge angle reaches the distance.
    */
   shortfall?: number;
+
+  /**
+   * The branch and swivel a hinged chain's candidate was chosen at, the seed
+   * a fit of a nearby target continues from (`IAutoMovieSwivelNear`); absent
+   * for a candidate of another chain.
+   */
+  seed?: IAutoMovieSwivelSeed;
 }
