@@ -2,8 +2,8 @@ import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { handshakeReach } from "./handshakeReach";
 
 /**
  * The arm a person offers for a handshake, and where two such arms meet.
@@ -32,7 +32,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#minimal-and-owned-surface What the handshake's plan and its standing gap read, owned in one place.
  * @evidence contracts/development/implementation.md#principled-implementation The engine's two-sphere mutual goal applied at the elbows, so the accommodation falls on the joints RULA scores lightest.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One elbow placement, one criterion for a straightened arm shared by the plane rule and the world rule, one call of the shared rule.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Partners beyond reach are refused with the gap they can close; nothing is clamped onto an arm.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Partners the arms cannot bring together are refused with the bound that failed, its measured value and the band of gaps that would plan; nothing is clamped onto an arm.
  * @evidence contracts/development/implementation.md#efficient-algorithms Closed form but for fixed-length bisections.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `resolveAutoMovieMutualGoal` and the hand's palm socket.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Pure functions that retain nothing.
@@ -53,6 +53,9 @@ export namespace handshakeOffer {
    * holds the palm a few millimetres nearer than the forearm's line does.
    */
   export const EXTENDED: number = 15;
+
+  /** The most both upper arms come back together for partners standing near, degrees: from the offering arm's to hanging; provisional. */
+  export const RETRACT: number = SHOULDER;
 
   /**
    * A forearm's length from the elbow to the palm socket with the wrist
@@ -191,16 +194,26 @@ export namespace handshakeOffer {
    * Elbows farther apart than the two forearms bring both upper arms forward
    * by one common angle, the least at which the forearms meet in line (by
    * bisection, the elbows' distance falling as the arms swing toward each
-   * other); partners beyond two level upper arms and two forearms in line,
-   * or with the pump's lowest point beyond the reach of either, are refused
-   * with the widest shoulder gap the pair can close.
+   * other). Elbows so near that the forearms meet steeper than the offering
+   * slope would straighten an arm past {@link EXTENDED} at the bottom of the
+   * pump: both upper arms then come back together, toward hanging and no
+   * farther, by the least common angle (at most {@link RETRACT}) at which both
+   * pump bottoms lie within reach, so the elbows bend more instead. Partners
+   * whose chests would touch, or so near that the elbows pass each other or
+   * the hands meet beyond a shoulder, have no meeting.
+   *
+   * Partners the rules cannot bring together are refused on `partner` with
+   * the bound that failed and its measured value (the elbows' distance
+   * against the two forearms, or the pump's lowest point against the reach of
+   * the partner who overreaches it most), and with the band of shoulder gaps
+   * at which this pair does shake hands as the feasible range.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
    * @param side The shaking hand of both.
    * @param pump How far the hands travel below the point after meeting, metres.
    * @returns The meeting; the point is the same for either order.
-   * @throws {HumanRefusal} When the partners stand beyond reach of each other.
+   * @throws {HumanRefusal} When the partners stand too near or too far for their arms to meet, naming the bound that failed and the gaps that would plan.
    */
   export function point(
     a: ISide,
@@ -208,16 +221,35 @@ export namespace handshakeOffer {
     side: HumanHand.Side,
     pump: number,
   ): IMeeting {
+    const tried: IMeeting | handshakeReach.IMiss = attempt(a, b, side, pump);
+    if (!("bound" in tried)) return tried;
+    throw handshakeReach.refusal(a, b, side, pump, tried, attempt);
+  }
+
+  /**
+   * The meeting, or the bound it missed: `point` without the refusal,
+   * which the refusal reads again to find the band of gaps that would plan.
+   *
+   * @param a One partner's body and acting shoulder joint in world metres.
+   * @param b The other's.
+   * @param side The shaking hand of both.
+   * @param pump How far the hands travel below the point after meeting, metres.
+   * @returns The meeting, or the bound it missed with its measured value.
+   */
+  export function attempt(
+    a: ISide,
+    b: ISide,
+    side: HumanHand.Side,
+    pump: number,
+  ): IMeeting | handshakeReach.IMiss {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const gap: number = Math.hypot(span.x, span.z);
-    if (!(gap > 1e-9))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "partner",
-        value: gap,
-        reason: "A handshake needs two shoulders at different places",
-        fix: "stand the partners apart, facing each other within reach",
-      });
+    if (!(gap > 1e-9)) return { bound: "apart", gap };
+    // The chests touch when the acting shoulders, each half its chest's
+    // depth behind it, stand the two half depths apart.
+    const chests: number =
+      (a.body.measure.chestDepth + b.body.measure.chestDepth) / 2;
+    if (gap < chests) return { bound: "chests", gap, chests };
     const lower: [number, number] = [
       forearm(a.body, side),
       forearm(b.body, side),
@@ -239,14 +271,14 @@ export namespace handshakeOffer {
     const forearms: number = lower[0] + lower[1];
     const apart = (elbows: [IAutoMovieVector3, IAutoMovieVector3]): number =>
       Vector3.length(Vector3.subtract(elbows[1], elbows[0]));
-    const refuse = (): Error =>
-      new Error(
-        `The hands cannot meet: the shoulders stand ${gap.toFixed(3)} m apart; bring them within about ${(
-          a.body.measure.upperArm +
-          b.body.measure.upperArm +
-          Math.sqrt(Math.max(0, forearms * forearms - span.y * span.y))
-        ).toFixed(3)} m of each other`,
-      );
+    const far = (
+      elbows: [IAutoMovieVector3, IAutoMovieVector3],
+    ): handshakeReach.IMiss => ({
+      bound: "far",
+      gap,
+      elbows: apart(elbows),
+      forearms,
+    });
     const meet = (
       elbows: [IAutoMovieVector3, IAutoMovieVector3],
     ): IAutoMovieVector3 =>
@@ -262,20 +294,53 @@ export namespace handshakeOffer {
           limit: lower[1] * (1 + 1e-9),
         },
       }).point;
-    // Whether the pump's lowest point lies within one partner's reach.
-    const within = (met: IAutoMovieVector3, i: number): boolean =>
-      Vector3.length(
+    // How far the pump's lowest point lies from one partner's shoulder, and
+    // how far that arm reaches with its elbow flexed EXTENDED.
+    const bottom = (
+      met: IAutoMovieVector3,
+      i: 0 | 1,
+    ): { distance: number; reach: number } => ({
+      distance: Vector3.length(
         Vector3.subtract(
           { ...met, y: met.y - pump },
           i === 0 ? a.shoulder : b.shoulder,
         ),
-      ) <= reach((i === 0 ? a : b).body.measure.upperArm, lower[i]!);
+      ),
+      reach: reach((i === 0 ? a : b).body.measure.upperArm, lower[i]),
+    });
+    const within = (met: IAutoMovieVector3, i: 0 | 1): boolean => {
+      const read: { distance: number; reach: number } = bottom(met, i);
+      return read.distance <= read.reach;
+    };
+    // The pump's miss of the partner who overreaches it most.
+    const deep = (
+      elbows: [IAutoMovieVector3, IAutoMovieVector3],
+    ): handshakeReach.IMiss => {
+      const met: IAutoMovieVector3 = meet(elbows);
+      const reads: [
+        { distance: number; reach: number },
+        { distance: number; reach: number },
+      ] = [bottom(met, 0), bottom(met, 1)];
+      const i: 0 | 1 =
+        reads[0].distance - reads[0].reach >= reads[1].distance - reads[1].reach
+          ? 0
+          : 1;
+      return {
+        bound: "pump",
+        gap,
+        partner: i,
+        flexed: EXTENDED,
+        ...reads[i],
+      };
+    };
 
     const offered: [IAutoMovieVector3, IAutoMovieVector3] = [
       elbow(a, 1, SHOULDER),
       elbow(b, -1, SHOULDER),
     ];
     let elbows: [IAutoMovieVector3, IAutoMovieVector3] = offered;
+    // Each upper arm's flexion from hanging, degrees, as the rules below set it.
+    let angles: [number, number] = [SHOULDER, SHOULDER];
     if (apart(offered) > forearms) {
       // Too far for the offering arms: both upper arms come forward.
       const raised = (
@@ -284,7 +349,7 @@ export namespace handshakeOffer {
         elbow(a, 1, degrees),
         elbow(b, -1, degrees),
       ];
-      if (apart(raised(90)) > forearms) throw refuse();
+      if (apart(raised(90)) > forearms) return far(raised(90));
       let low: number = SHOULDER;
       let high: number = 90;
       for (let i: number = 0; i < 40; i++) {
@@ -293,9 +358,10 @@ export namespace handshakeOffer {
         else high = middle;
       }
       elbows = raised(high);
+      angles = [high, high];
     } else {
       // The higher elbow's upper arm lowers while its palm would overreach.
-      const top: number = offered[0].y >= offered[1].y ? 0 : 1;
+      const top: 0 | 1 = offered[0].y >= offered[1].y ? 0 : 1;
       const lowered = (
         degrees: number,
       ): [IAutoMovieVector3, IAutoMovieVector3] =>
@@ -306,22 +372,76 @@ export namespace handshakeOffer {
         const tried: [IAutoMovieVector3, IAutoMovieVector3] = lowered(degrees);
         return apart(tried) <= forearms && !within(meet(tried), top);
       };
-      if (short(0)) {
+      // A height difference is the higher arm's to take. Elbows at one height
+      // have no higher arm: when both pump bottoms overreach there, the
+      // partners stand near and the near rule below brings both arms back
+      // together, so the meeting is the same for either order.
+      const other: 0 | 1 = top === 0 ? 1 : 0;
+      if (
+        short(0) &&
+        (offered[0].y !== offered[1].y || within(meet(offered), other))
+      ) {
+        // Lowered to hanging and still overreaching, the arm is left hanging
+        // and the near rule below brings both arms back together.
         let low: number = 0;
         let high: number = SHOULDER;
-        if (short(high)) throw refuse();
-        for (let i: number = 0; i < 40; i++) {
-          const middle: number = (low + high) / 2;
-          if (short(middle)) low = middle;
-          else high = middle;
-        }
+        if (!short(high))
+          for (let i: number = 0; i < 40; i++) {
+            const middle: number = (low + high) / 2;
+            if (short(middle)) low = middle;
+            else high = middle;
+          }
         elbows = lowered(high);
-        if (apart(elbows) > forearms) throw refuse();
+        angles =
+          top === 0 ? [SHOULDER - high, SHOULDER] : [SHOULDER, SHOULDER - high];
+        if (apart(elbows) > forearms) return far(elbows);
       }
     }
-    const met: IAutoMovieVector3 = meet(elbows);
-    if (!within(met, 0) || !within(met, 1)) throw refuse();
+    let met: IAutoMovieVector3 = meet(elbows);
+    if (!within(met, 0) || !within(met, 1)) {
+      // The elbows stand so near that the forearms meet steeper than the
+      // offering slope and straighten an arm past EXTENDED at the bottom of
+      // the pump: both upper arms come back together, by the least common
+      // angle at which both pump bottoms lie within reach.
+      const back = (
+        degrees: number,
+      ): [IAutoMovieVector3, IAutoMovieVector3] => [
+        elbow(a, 1, Math.max(0, angles[0] - degrees)),
+        elbow(b, -1, Math.max(0, angles[1] - degrees)),
+      ];
+      const holds = (degrees: number): boolean => {
+        const tried: [IAutoMovieVector3, IAutoMovieVector3] = back(degrees);
+        if (apart(tried) > forearms) return true;
+        const at: IAutoMovieVector3 = meet(tried);
+        return within(at, 0) && within(at, 1);
+      };
+      if (!holds(RETRACT)) return deep(back(RETRACT));
+      let low: number = 0;
+      let high: number = RETRACT;
+      for (let i: number = 0; i < 40; i++) {
+        const middle: number = (low + high) / 2;
+        if (holds(middle)) high = middle;
+        else low = middle;
+      }
+      elbows = back(high);
+      // Brought back until they part beyond the forearms before both pump
+      // bottoms reach: the pump is missed where the elbows still met.
+      if (apart(elbows) > forearms) return deep(back(low));
+      met = meet(elbows);
+      if (!within(met, 0) || !within(met, 1)) return deep(elbows);
+    }
 
+    // Partners so near that the arms pass each other have no meeting: each
+    // elbow stays on its own partner's side, and the hands meet between the
+    // two shoulders.
+    const ahead = (p: IAutoMovieVector3): number =>
+      ((p.x - a.shoulder.x) * span.x + (p.z - a.shoulder.z) * span.z) / gap;
+    if (
+      ahead(elbows[1]) <= ahead(elbows[0]) ||
+      ahead(met) <= 0 ||
+      ahead(met) >= gap
+    )
+      return { bound: "cross", gap };
     // The hands lie along the bisector of the two forearms: level between
     // equal partners, tilted down from the higher elbow's side otherwise.
     const slopes: [number, number] = [

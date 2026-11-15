@@ -7,13 +7,14 @@ import {
 
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
+import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
 import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;
 
-const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
+const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
 
 const DEFAULT_VELOCITY: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
@@ -61,7 +62,7 @@ export const detectFreeFall: (props: {
   falling: boolean;
   /** Allowed COM overhang past the support hull, meters. Defaults to `0.02`. */
   margin?: number;
-  /** Constant acceleration for the arc. Defaults to `{0,-9.81,0}`. */
+  /** Constant acceleration for the arc. Defaults to standard gravity along -Y (`AutoMovieGravity.DOWN`). */
   gravity?: IAutoMovieVector3;
   /** Inherited initial velocity for the arc. Defaults to rest. */
   velocity?: IAutoMovieVector3;

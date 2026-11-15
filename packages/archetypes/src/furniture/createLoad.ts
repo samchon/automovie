@@ -97,6 +97,7 @@ export function createLoad(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create((sign * length) / 2, hold, 0),
         Vector3.create(sign, 0, 0),

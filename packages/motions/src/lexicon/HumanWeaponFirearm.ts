@@ -26,6 +26,7 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { HumanFirearmReady } from "./HumanFirearmReady";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
 /**
@@ -335,7 +336,6 @@ export namespace HumanWeaponFirearm {
           reason: `the target lies ${off.toFixed(0)} degrees off the heading, beyond the ${TURN} degrees the arms present to`,
           fix: "turn to face the target first",
         });
-      const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const carriage: Carriage = p.carriage ?? "aim";
       const pose: StrikingHeld.IHandFrame = ((): StrikingHeld.IHandFrame => {
         if (carriage === "aim") {
@@ -358,23 +358,17 @@ export namespace HumanWeaponFirearm {
             bladed,
           );
         }
-        const low: boolean = carriage === "lowReady";
-        return StrikingHeld.hand(
-          s.tool,
-          s.tool.length,
-          Vector3.add(
-            chest,
-            Vector3.add(
-              Vector3.scale(line, 0.4 * s.arm),
-              Vector3.scale(up, (low ? -0.3 : 0) * s.arm),
-            ),
-          ),
-          Vector3.add(
-            Vector3.scale(line, low ? 0.7 : 0.5),
-            Vector3.scale(up, low ? -0.7 : 0.85),
-          ),
-          low ? line : Vector3.scale(line, -1),
-        );
+        // A ready position is a region the doctrine describes, and the arm
+        // holds the weapon where in it it can.
+        return HumanFirearmReady.pose(context, {
+          tool: s.tool,
+          arm: s.arm,
+          chest,
+          shoulder: bones.get(`${s.tool.side}UpperArm`)!.worldPosition,
+          line,
+          low: carriage === "lowReady",
+          posture: bladed,
+        });
       })();
       StrikingRoll.reachable(
         context,
@@ -418,7 +412,7 @@ export namespace HumanWeaponFirearm {
    * Fire one shot from where the weapon is held: the trigger breaks at `strokeStart` (the decisive instant), the recoil peaks at `stroke`, and the weapon is back where it was held at the end.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three instants and which is decisive.
-   * @evidence contracts/development/implementation.md#principled-implementation Recoil turns the weapon about the hand, muzzle up: the held frame is turned about the horizontal axis square to the bore by the rise, which grows from the trigger to the peak and decays over the recovery, the hand's grip point kept.
+   * @evidence contracts/development/implementation.md#principled-implementation Recoil turns the weapon about the hand, muzzle up: the held frame is turned about the horizontal axis square to the bore by the rise, which grows from the trigger to the peak and decays over the recovery, the hand's grip point kept, and the arm the hold showed kept with it (`StrikingBlade.IStroke.kept`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The held frame, the axis, then the shared stroke planner with a phrase of press, rise and recovery.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rise and the three times are provisional (no recoil study was read); the rise is scaled by recovery skill only.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
@@ -482,6 +476,7 @@ export namespace HumanWeaponFirearm {
         stay: false,
         stop: 1,
         decisive: "strokeStart",
+        kept: true,
       });
     },
   };

@@ -142,7 +142,7 @@ export namespace HumanMountRider {
    * @param body The body.
    * @param side The hand.
    * @param posture The rider's posture at the instant.
-   * @param grip The held point and its outward unit normal, world, the unit axis the grip runs along when it has one, and its radius, metres, when the object states one.
+   * @param grip The held point and its outward unit normal, world, the unit axis the grip runs along when it has one, its radius, metres, when the object states one, and the side of the axis the fingers lie on (the sign of the axis crossed with the normal) when a hold keeps the side it was taken from; the side the body faces when absent.
    * @param share 0 where the joints hold the hand to 1 holding.
    * @param closed The finger joints of the hand closed on the grip; none leaves the fingers as they are.
    * @returns The arm's goal and the hand's finger joints.
@@ -164,6 +164,7 @@ export namespace HumanMountRider {
       normal: IAutoMovieVector3;
       axis?: IAutoMovieVector3;
       radius?: number;
+      across?: 1 | -1;
     },
     share: number,
     closed: IHumanPosture["joints"],
@@ -182,7 +183,7 @@ export namespace HumanMountRider {
         ? forward
         : Vector3.scale(
             Vector3.normalize(across),
-            Vector3.dot(across, forward) < 0 ? -1 : 1,
+            grip.across ?? (Vector3.dot(across, forward) < 0 ? -1 : 1),
           );
     // The grip lies across the middle of the palm, `CENTRE` of the hand's length ahead of the wrist.
     const target: IAutoMovieVector3 = Vector3.add(

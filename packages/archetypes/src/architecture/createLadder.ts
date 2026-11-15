@@ -116,6 +116,7 @@ export function createLadder(
     builder.affordance({
       id: `${side}Rail`,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.add(foot, Vector3.scale(along, length / 2)),
         out,
@@ -139,6 +140,7 @@ export function createLadder(
     builder.affordance({
       id: `rung${k}`,
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(at, out, Vector3.create(1, 0, 0)),
       extent: null,
       grip: "power",

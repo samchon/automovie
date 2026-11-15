@@ -17,8 +17,9 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * grid's two neighbouring instants when a whole motion is measured, so the
  * reading resolves no pose the audit's other checks have not, and over `2 *
  * STEP` when one instant is asked for alone. The
- * margin is its distance inside the convex hull of both feet's heel, ball
- * and toe points. A person whose extrapolated centre leaves that hull must
+ * margin is its distance inside the base of support, the convex hull of the
+ * outlines of both feet where they bear on the floor (`HumanFoot.base`,
+ * Winter's definition). A person whose extrapolated centre leaves that hull must
  * step or fall, so a motion that keeps both feet planted while it lies
  * outside shows a body no one could hold. An instant where a hand grips, a
  * seat or a back bears, or a foot is not planted is not read: the feet are
@@ -67,7 +68,11 @@ export namespace AutoMovieMotionHumanAuditBalance {
       seconds: 0,
       where: "none",
     };
-    const hold: number = Math.sqrt((1.34 * body.measure.hipHeight) / 9.81);
+    const hold: number =
+      1 /
+      resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      );
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,
       motion.duration,
@@ -131,7 +136,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       resolveAutoMovieCenterOfMass.extrapolate(
         com(seconds),
         velocity,
-        1.34 * body.measure.hipHeight,
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       ),
       HumanFoot.base(body, motion.bones(subject, seconds)),
     );

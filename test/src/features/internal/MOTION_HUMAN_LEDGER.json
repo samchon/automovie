@@ -276,7 +276,43 @@
       "symbol": "AutoMovieMotionHumanArm.carried",
       "tests": [
         "test_motion_compose_placed",
-        "test_human_motion_compose_arm_carry_keyed"
+        "test_human_motion_touch_partner_reach"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.stated",
+      "tests": [
+        "test_human_motion_core_carry_continuity"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArm.together",
+      "tests": [
+        "test_human_motion_core_bimanual_rod",
+        "test_human_motion_core_bimanual_rod_undeclared"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmJacobian.read",
+      "tests": [
+        "test_human_motion_core_arm_jacobian"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanArmJacobian.columns",
+      "tests": [
+        "test_human_motion_core_arm_jacobian"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanArmFollow.follower",
+      "tests": [
+        "test_human_motion_compose_arm_follow"
       ]
     },
     {
@@ -382,7 +418,7 @@
         "test_human_motion_overlay_channels_continuity_8"
       ]
     },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.of", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grasped", "tests": ["test_human_motion_firearm_shot"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.point", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.grip", "tests": ["test_human_motion_core_held_frame"] }, { "layer": "compose", "symbol": "AutoMovieMotionHumanHeld.hold", "tests": ["test_human_motion_core_held_frame"] },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.ARM",
@@ -1408,8 +1444,6 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.STEP", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tilt", "tests": ["test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.solve", "tests": ["test_human_motion_compose_touch_laid", "test_human_motion_prop_held_use_f_small", "test_human_motion_prop_held_use_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.KEYS", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanArmKeyed.at", "tests": ["test_human_motion_compose_arm_carry_keyed"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.tip", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchUpright.facings", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouch.TIP", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
@@ -1417,10 +1451,16 @@
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.drinking", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.admitted", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchDrink.held", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.ELEVATION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
-    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.DROP", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.FLEXION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.ABDUCTION", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.measured", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.read", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.drinks", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.nearer", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.refused", "tests": ["test_human_motion_signature_hand_to_face_drink_m_average"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingSwivel.bounded", "tests": ["test_motion_compose_drinking_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.arm", "tests": ["test_motion_compose_drinking_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.bounded", "tests": ["test_motion_compose_drinking_swivel"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.carried", "tests": ["test_human_motion_prop_held_attitude_f_small", "test_human_motion_prop_held_attitude_m_average"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchLaid.lie", "tests": ["test_human_motion_compose_touch_laid"] },
     { "layer": "compose", "symbol": "AutoMovieMotionHumanTouchStance.RAISE", "tests": ["test_human_motion_hand_reach_up"] },
@@ -1447,6 +1487,22 @@
       "symbol": "AutoMovieMotionHumanTrunk.sunk",
       "tests": [
         "test_human_motion_compose_trunk_turn_m_average"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.footing",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
+      ]
+    },
+    {
+      "layer": "compose",
+      "symbol": "AutoMovieMotionHumanTrunk.planted",
+      "tests": [
+        "test_human_motion_compose_trunk_crouch_f_small",
+        "test_human_motion_crouch_planted_entry"
       ]
     },
     {
@@ -1850,6 +1906,21 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanColliders.prepare",
+      "tests": [
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanColliders.bound",
+      "tests": [
+        "test_human_motion_audit_tangle",
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanFoot.sockets",
       "tests": [
         "test_motion_posture_frames"
@@ -1858,6 +1929,20 @@
     {
       "layer": "posture",
       "symbol": "HumanFoot.base",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.BEARING",
+      "tests": [
+        "test_human_motion_audit_balance"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFoot.outline",
       "tests": [
         "test_human_motion_audit_balance"
       ]
@@ -1944,6 +2029,14 @@
       "symbol": "HumanFrame.heading",
       "tests": [
         "test_motion_compose_goal"
+      ]
+    },
+    {
+      "layer": "posture",
+      "symbol": "HumanFrame.forward",
+      "tests": [
+        "test_human_motion_floor_crawl_down",
+        "test_human_motion_travel_inchworm"
       ]
     },
     {
@@ -5855,6 +5948,59 @@
         {
           "row": "position=lateralRight",
           "tests": [],
+          "audit": [],
+          "sweep": "reduced"
+        }
+      ]
+    },
+    {
+      "law": "getUp",
+      "checks": [
+        "tangle",
+        "range",
+        "jump",
+        "reversal",
+        "speed",
+        "stall",
+        "digits",
+        "turn",
+        "floor",
+        "timing",
+        "determinism",
+        "variation",
+        "cuts",
+        "slip",
+        "lift",
+        "skate",
+        "loose",
+        "afloat",
+        "balance",
+        "contact",
+        "orientation",
+        "literature"
+      ],
+      "rows": [
+        {
+          "row": "default",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=symmetric",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
+          "audit": [],
+          "sweep": "reduced"
+        },
+        {
+          "row": "pattern=rotation",
+          "tests": [
+            "test_human_motion_floor_get_up"
+          ],
           "audit": [],
           "sweep": "reduced"
         }

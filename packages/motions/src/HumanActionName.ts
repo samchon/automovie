@@ -42,6 +42,7 @@
  * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
  * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
+ * - `getUp`: getting up from the floor to standing, from the back, the front or the hands and knees, symmetrically or by rolling over.
  * - `crawl`: getting down onto hands and knees and crawling in the diagonal pattern, the bear crawl on hands and feet, or the inchworm.
  * - `climbLadder`: climbing a fixed ladder in the four-beat pattern, three limbs always on it.
  * - `clinch`: taking and holding a clinch grip on a partner, the neck tie or collar and sleeve.
@@ -103,6 +104,7 @@ export type HumanActionName =
   | "catchObject"
   | "operate"
   | "lieDown"
+  | "getUp"
   | "crawl"
   | "climbLadder"
   | "clinch"

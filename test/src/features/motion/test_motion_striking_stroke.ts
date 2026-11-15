@@ -104,7 +104,7 @@ export function test_motion_striking_stroke(): void {
     origin,
     units: straight,
     contact: 1.3,
-    back,
+    back: (): IAutoMovieVector3 => back,
     recoil: 0.35,
     scan: { from: 1, to: 1.4, step: 1 / 96 },
   });
@@ -122,7 +122,7 @@ export function test_motion_striking_stroke(): void {
       origin,
       units: straight,
       contact: 1.3,
-      back,
+      back: (): IAutoMovieVector3 => back,
       recoil: 0.35,
       gap: (end: IAutoMovieVector3): number => wall - end.z,
       scan: { from: 1, to: 1.4, step: 1 / 96 },

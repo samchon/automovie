@@ -144,6 +144,7 @@ export function createHorse(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
       extent: null,
       grip: "power",
@@ -200,6 +201,7 @@ export function createHorse(
     builder.affordance({
       id: `${side}Rein`,
       kind: "rein",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         hand,
         v(0, 1, 0),
@@ -229,6 +231,7 @@ export function createHorse(
   builder.affordance({
     id: "lead",
     kind: "rein",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       held,
       v(1, 0, 0),

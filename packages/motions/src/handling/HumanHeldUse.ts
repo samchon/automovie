@@ -26,7 +26,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
@@ -133,7 +132,8 @@ export namespace HumanHeldUse {
    * The pose a held tool is used in at a region of the performer's own: the
    * use's presented key (`HumanGraspUse.presented`) with the region as the
    * use's place, from the hand as the entry holds it, turned about the
-   * line where the closed hand keeps out of the body.
+   * line as the grasp was judged (`HumanGraspUse.presented`'s chooser), the
+   * closed hand kept out of the body.
    *
    * @param context The action's context.
    * @param side The holding hand.
@@ -145,10 +145,10 @@ export namespace HumanHeldUse {
    * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the prop lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for; the hand's own rotation at a place is the arm's fit there with the hanging elbow, as `pickUp` reads it; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, so a roll that would put a finger in the face is not taken while another keeps it out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand and its digits, the clearance, the hand's own rotation, one delegation.
+   * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for, the roll the same chooser takes; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, whose depth in the face adds to a roll's miss.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand and its digits, the clearance, one delegation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`, the posture resolver and `AutoMovieMotionHumanBend.hang`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`.
    * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read and a few arm fits per act.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -235,12 +235,6 @@ export namespace HumanHeldUse {
         );
       return least;
     };
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      context.entry.posture,
-      side,
-    );
-    const limb: IHumanPosture.Limb = `${side}Arm`;
     return HumanGraspUse.presented({
       context,
       prop,
@@ -251,26 +245,17 @@ export namespace HumanHeldUse {
         rotation: hand?.worldRotation ?? Quaternion.identity(),
       },
       use: { tip: point, line: grasp.line, at: { region } },
-      natural: (at: IAutoMovieVector3): IAutoMovieQuaternion =>
-        poseBones(
-          body,
-          resolveHumanPosture(body, {
-            ...context.entry.posture,
-            limbs: {
-              ...context.entry.posture.limbs,
-              [limb]: { point: at, bend },
-            },
-          }),
-        ).get(`${side}Hand`)?.worldRotation ?? Quaternion.identity(),
       clear,
     });
   }
 
   /**
-   * The other hand on a held tool's other handle: carried in joint space
-   * from its entry angles, by the act's own weight, to the grasp of that
-   * handle where the holding hand's goal puts the tool at each second, so
-   * it meets the tool as the tool arrives and leaves it as it goes. The
+   * The other hand on a held tool's other handle: its reach, hold and
+   * return planned as one trajectory over the span the act's own weight
+   * states (`AutoMovieMotionHumanArm.stated`), from its entry angles to the
+   * grasp of that handle where the holding hand's goal puts the tool at
+   * each second, so it meets the tool as the tool arrives and leaves it as
+   * it goes. The
    * turn about the handle is chosen once, the one the arm reaches best with
    * the tool at its use (`HumanGrasp.reachable`), and the arm is held to
    * that solution.
@@ -353,6 +338,9 @@ export namespace HumanHeldUse {
         fallback: "hang",
       }),
     );
+    // The other hand's reach, hold and return, as its weight states them.
+    const span: AutoMovieMotionHumanArm.ISpan | undefined =
+      AutoMovieMotionHumanArm.stated(props.weight, 0, clock.duration);
     const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
       {
         body,
@@ -361,6 +349,7 @@ export namespace HumanHeldUse {
         to: clock.duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
         weight: props.weight,
+        ...(span === undefined ? {} : { span }),
         goal: (
           posture: IHumanPosture,
           seconds: number,

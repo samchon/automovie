@@ -294,8 +294,9 @@ export namespace gestureStroke {
     const e: number = input.extent;
     switch (kind) {
       case "wave": {
-        // The swing is the same way for either hand, so it is `out` for the
-        // left hand and `in` for the right.
+        // The swing is drawn in the waving hand's own frame, inward first
+        // for either hand, so a left wave is the mirror of a right one; the
+        // fingers lean with the hand the way it swings.
         const swing: number = 0.06 * e * wave;
         const tilt: number = Math.atan2(swing * L, m.forearm);
         return {
@@ -304,13 +305,13 @@ export namespace gestureStroke {
           point: put(
             {
               at: { height: "eye", lateral: "outside", distance: "near" },
-              nudge: { out: sign * swing },
+              nudge: { out: -swing },
             },
             1,
             { height: "eye", lateral: "outside", distance: "near" },
           ),
           rotation: HumanHand.rotation(side, {
-            fingers: dir(Math.sin(tilt), Math.cos(tilt), 0),
+            fingers: dir(-sign * Math.sin(tilt), Math.cos(tilt), 0),
             palm: HumanHand.direction(side, frame.yaw, "forward"),
           }),
           out: 0.3,

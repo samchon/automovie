@@ -27,7 +27,8 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  *
  * A window of any kind declared on a foot (a plant, a pivot, a strike)
  * declares its contact, so only steps wholly outside all of them are read
- * for `skate`.
+ * for `skate`: a step a window's edge falls inside, between two grid
+ * instants, is partly declared and is not read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gap it closes, how contact is inferred with each threshold's source, and what each reading means.
  * @evidence contracts/development/implementation.md#principled-implementation Kinematic contact inference by a height and a speed threshold on the sole's own sockets, compared with the declared windows.
@@ -39,18 +40,19 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  */
 export namespace AutoMovieMotionHumanAuditContact {
   /**
-   * The height under which a sole socket is on the floor, metres: under half
-   * the 12.9 mm mean minimum toe clearance of the swinging foot in normal
-   * walking (Winter 1992, Foot trajectory in human gait, Physical Therapy
+   * The height under which a sole socket is on the floor, metres: the
+   * foot's own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm
+   * mean minimum toe clearance of the swinging foot in normal walking
+   * (Winter 1992, Foot trajectory in human gait, Physical Therapy
    * 72(1):45-53), so a foot at the lowest point of a normal swing is not
    * read as on the floor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and why the bound sits where it does.
    * @evidence contracts/development/design.md#principled-representation One length compared with a socket's height.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides; the base of support reads the same height from its owner.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion, and held once by the foot.
    */
-  export const HEIGHT: number = 0.006;
+  export const HEIGHT: number = HumanFoot.BEARING;
 
   /**
    * The horizontal speed under which a socket on the floor is at rest,
@@ -167,7 +169,15 @@ export namespace AutoMovieMotionHumanAuditContact {
             before!.find(
               (s: HumanFoot.ISocket): boolean => s.socket === socket.socket,
             )!.point.y;
-          if (holding.length === 0)
+          // A step read for a skate lies wholly outside every window on the
+          // foot: one a window's end or start falls inside is partly
+          // declared, wherever the window falls between two instants.
+          if (
+            !declared.some(
+              (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+                w.from < t - 1e-9 && w.to > frames[i - 1]! + 1e-9,
+            )
+          )
             for (const socket of sole) {
               if (socket.point.y > HEIGHT || height(socket) > HEIGHT) continue;
               const v: number = speed(socket);

@@ -139,6 +139,7 @@ export function createMotorcycle(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(
         v(sign * (d.width / 2 - 0.06), bar.y, bar.z),
       ),

@@ -191,8 +191,20 @@ export namespace StrikingStroke {
     /** The planned contact, film seconds: the free recoil starts here when nothing is met. */
     contact: number;
 
-    /** Where the joint returns to. */
-    back: IAutoMovieVector3;
+    /**
+     * Where the joint returns to, read when the return starts (at the
+     * contact or the stop), so it may rest on what arrives before then (a
+     * step corrected over the delivery).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when it is read.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     */
+    back(): IAutoMovieVector3;
 
     /** The recoil's duration, seconds. */
     recoil: number;
@@ -319,7 +331,7 @@ export namespace StrikingStroke {
       input.rechamber === undefined
         ? [
             {
-              displacement: Vector3.subtract(input.back, from),
+              displacement: Vector3.subtract(input.back(), from),
               start: at,
               duration: input.recoil,
             },
@@ -331,7 +343,7 @@ export namespace StrikingStroke {
               duration: 0.45 * input.recoil,
             },
             {
-              displacement: Vector3.subtract(input.back, input.rechamber),
+              displacement: Vector3.subtract(input.back(), input.rechamber),
               start: at + 0.35 * input.recoil,
               duration: 0.65 * input.recoil,
             },

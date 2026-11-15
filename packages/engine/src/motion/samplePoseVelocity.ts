@@ -9,6 +9,7 @@ import type {
 import type { IAutoMoviePoseRig } from "../kinematics/IAutoMoviePoseRig";
 import { poseJointCodec } from "../kinematics/poseJointCodec";
 import { Quaternion } from "../math/Quaternion";
+import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 
 /**
  * A pose and its rate of change at one instant, read from the pure function
@@ -34,15 +35,26 @@ import { Quaternion } from "../math/Quaternion";
  * gimbal the angle rates of a smooth rotation are unbounded, while its angular
  * velocity is not.
  *
+ * A pose whose limbs are fitted to targets carries each fit's resolution
+ * into the difference, divided by `h`. With `continued`, the rate is read from
+ * the instant's own fits continued to its neighbours (each seeded with the
+ * instant's choice and refined to {@link samplePoseVelocity.tolerance},
+ * `IAutoMovieSwivelNear`), the instant's sample included, while the pose
+ * returned is still `sample`'s: the difference then sees the motion, not the
+ * fits' resolution, and a fit whose best basin changes inside the step is
+ * read on the branch the instant is on.
+ *
  * @param sample The pose as a pure function of seconds.
  * @param seconds The instant.
  * @param step The difference interval `h`, seconds; 1 ms by default.
  * @param side Which side of the instant the motion is read from: both by default.
  * @param rig The rig the joints' angles are read through for `spins`; the
  *   default basis with rest-relative angles when omitted.
+ * @param continued The pose as a pure function of seconds with every fit
+ *   continued from the instant's, the rate's samples; `sample` when omitted.
  * @returns The pose at the instant and its velocity.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States both estimators, when each applies, their error order, the absent-angle meaning and the units.
+ * @evidence contracts/development/common.md#meaningful-documentation States both estimators, when each applies, their error order, the absent-angle meaning, the continued samples and the units.
  * @evidence contracts/development/implementation.md#principled-implementation Second-order central and one-sided differences on the source function; angular velocity by the quaternion log map.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three samples, then one weighted difference per channel.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws; a one-sided motion is never sampled across its instant.
@@ -56,15 +68,20 @@ export function samplePoseVelocity(
   step: number = 1e-3,
   side: samplePoseVelocity.Side = "both",
   rig?: IAutoMoviePoseRig,
+  continued?: (seconds: number) => IAutoMoviePose,
 ): samplePoseVelocity.IState {
   if (!(step > 0)) throw new Error("A velocity step is positive");
   const pose: IAutoMoviePose = sample(seconds);
 
-  // Two samples beside the instant and the weights of the difference
+  // The rate's samples: the instant and two beside it, continued from the
+  // instant's fits when `continued` is given, and the weights of the difference
   // `(near * f(a) + far * f(b) + here * f(t)) / 2h`.
+  const read: (seconds: number) => IAutoMoviePose = continued ?? sample;
+  const instant: IAutoMoviePose =
+    continued === undefined ? pose : continued(seconds);
   const sign: number = side === "before" ? -1 : 1;
-  const a: IAutoMoviePose = sample(seconds + sign * step);
-  const b: IAutoMoviePose = sample(
+  const a: IAutoMoviePose = read(seconds + sign * step);
+  const b: IAutoMoviePose = read(
     side === "both" ? seconds - step : seconds + 2 * sign * step,
   );
   const near: number = side === "both" ? 1 : 4 * sign;
@@ -88,7 +105,8 @@ export function samplePoseVelocity(
     );
   const aa: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(a);
   const ba: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(b);
-  const pa: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(pose);
+  const pa: Map<AutoMovieHumanoidBone, [number, number, number]> =
+    angles(instant);
   const joints: Map<AutoMovieHumanoidBone, [number, number, number]> =
     new Map();
   for (const bone of new Set([...aa.keys(), ...ba.keys(), ...pa.keys()])) {
@@ -132,12 +150,12 @@ export function samplePoseVelocity(
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const at: IAutoMovieVector3 = a.root?.translation ?? zero;
   const bt: IAutoMovieVector3 = b.root?.translation ?? zero;
-  const pt: IAutoMovieVector3 = pose.root?.translation ?? zero;
+  const pt: IAutoMovieVector3 = instant.root?.translation ?? zero;
 
   // Rotation vectors are taken from the far sample when reading both sides,
   // where the near one's is the whole turn, and from the instant otherwise.
   const origin: IAutoMovieQuaternion = Quaternion.inverse(
-    (side === "both" ? b : pose).root?.rotation ?? Quaternion.identity(),
+    (side === "both" ? b : instant).root?.rotation ?? Quaternion.identity(),
   );
   const turn = (p: IAutoMoviePose): IAutoMovieVector3 =>
     samplePoseVelocity.rotationVector(
@@ -205,6 +223,38 @@ export namespace samplePoseVelocity {
 
     /** Its velocity. */
     velocity: IVelocity;
+  }
+
+  /**
+   * The swivel tolerance, degrees, a continued fit is refined to for the
+   * `continued` samples of a velocity read at `step` that an inertialization of
+   * `duration` decays.
+   *
+   * A continued fit lies within its tolerance `τ` of its bracket's best
+   * (`IAutoMovieSwivelNear`), and a swivel turns its chain's root about one
+   * axis, so the joint's turn is off by at most `τ`. The three-point
+   * difference weighs its samples `(3, 4, 1) / 2h`, so one read's rate is off
+   * by at most `4 τ / h`, and the offset an inertialization decays is the
+   * difference of two reads, the source's and the target's, off by at most
+   * `8 τ / h`. An offset velocity error `δv` moves the decayed offset by at
+   * most `256 / 3125 δv duration`, the peak of its quintic's signed lobe
+   * (`inertializeOffset`, linear in the velocity over a fixed duration). That
+   * is held to `ROM_TOLERANCE`, the resolution a solver need resolve a
+   * joint's angle to, so `τ = ROM_TOLERANCE h 3125 / (8 256 duration)`:
+   * 3.8e-5 degrees for a 1 ms step and a 0.4 s decay, where a fit's own
+   * resolution (`hingedArmSwivel.RESOLUTION`, 0.0062 degrees) bounds the
+   * displacement at 1.6 degrees.
+   *
+   * @param step The difference interval `h`, seconds; positive.
+   * @param duration The decay the read feeds, seconds; positive.
+   * @returns Degrees.
+   */
+  export function tolerance(step: number, duration: number): number {
+    if (!(step > 0) || !(duration > 0))
+      throw new Error(
+        "A continued fit's tolerance needs a positive step and decay",
+      );
+    return (ROM_TOLERANCE * step * 3125) / (8 * 256 * duration);
   }
 
   /**

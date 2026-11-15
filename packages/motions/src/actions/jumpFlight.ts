@@ -1,3 +1,4 @@
+import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
@@ -15,13 +16,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the flight's rule, its default apex and its source form.
  * @evidence contracts/development/design.md#principled-representation The flight as its apex, time and two velocities, apart from the postures flown.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Gravity, one record and its solver, read by the jump.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record and its solver, read by the jump; gravity is the engine's (`AutoMovieGravity`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The flight follows from the centre's two places and the apex; nothing is typed in seconds.
  */
 export namespace jumpFlight {
-  /** Gravity, m/s². */
-  export const G: number = 9.81;
-
   /**
    * The flight solved.
    *
@@ -93,9 +91,16 @@ export namespace jumpFlight {
         reason: `the landing lies ${rise.toFixed(3)} m up and the body's centre must rise ${climb.toFixed(3)} m to reach it, above the ${apex.toFixed(3)} m apex asked`,
         fix: "jump higher, or onto a lower surface",
       });
-    const vy: number = Math.sqrt(2 * G * apex);
+    const vy: number = Math.sqrt(2 * AutoMovieGravity.STANDARD * apex);
     const T: number =
-      (vy + Math.sqrt(Math.max(0, vy * vy - 2 * G * (comL.y - comT.y)))) / G;
+      (vy +
+        Math.sqrt(
+          Math.max(
+            0,
+            vy * vy - 2 * AutoMovieGravity.STANDARD * (comL.y - comT.y),
+          ),
+        )) /
+      AutoMovieGravity.STANDARD;
     const launch: IAutoMovieVector3 = {
       x: (comL.x - comT.x) / T,
       y: vy,
@@ -106,7 +111,7 @@ export namespace jumpFlight {
       vy,
       T,
       launch,
-      land: { x: launch.x, y: vy - G * T, z: launch.z },
+      land: { x: launch.x, y: vy - AutoMovieGravity.STANDARD * T, z: launch.z },
     };
   }
 }

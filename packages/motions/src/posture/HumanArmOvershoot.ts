@@ -45,8 +45,8 @@ export namespace HumanArmOvershoot {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounding-sphere test per hull, then the samples of the shapes that pass it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wrist end asks no more than the goal itself gives, so a palm laid on the trunk or on a partner is not refused; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hull whose bounding sphere the axis stays a radius from costs one point-to-segment distance; a shape that passes costs one point query per sample, where an exact segment query would cost the tens of point queries of its line search to decide what the samples decide anyway, and a sample or a wrist whose distance from the shape's bounding sphere already shows the query cannot raise the depth found (or lower the wrist's clearance) is not queried at all, which leaves the reading exactly as it is (`broad`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every distance is the engine's `physicalShapeSegmentDistance`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every distance is the engine's `physicalShapeSegmentDistance`; a shape's bounding sphere and hull frame are computed once per posed frame (`framing`), the same numbers every candidate of a swivel sweep would compute again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains each posed frame's shapes as `framing` reads them, in a weak map keyed by the frame, released with it.
    */
   export function of(
     body: IHumanBody,
@@ -115,10 +115,8 @@ export namespace HumanArmOvershoot {
       ...rests.map((s: HumanColliders.IPlaced) => [s, true, true] as const),
     ])
       for (const shape of segment.shapes) {
-        const bound: { centre: IAutoMovieVector3; radius: number } = bounding(
-          segment.pose,
-          shape,
-        );
+        const framed: IFramed = framing(segment.pose, shape);
+        const bound: { centre: IAutoMovieVector3; radius: number } = framed;
         // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
         if (shape.kind === "hull") {
           const gap: number = BROAD.on
@@ -143,25 +141,7 @@ export namespace HumanArmOvershoot {
           shape,
           free,
           rest,
-          ...bound,
-          ...(shape.kind === "hull"
-            ? {
-                faces: physicalHullFaces(shape.points).faces,
-                origin: Vector3.add(
-                  segment.pose.position,
-                  Quaternion.rotateVector(
-                    segment.pose.rotation,
-                    shape.transform.position,
-                  ),
-                ),
-                inverse: Quaternion.inverse(
-                  Quaternion.multiply(
-                    segment.pose.rotation,
-                    shape.transform.rotation,
-                  ),
-                ),
-              }
-            : {}),
+          ...framed,
         });
       }
     if (near.length === 0) return degrees(depth);
@@ -275,6 +255,58 @@ interface IShape {
 
   /** The rotation from the world into a hull's own frame. */
   inverse?: IAutoMovieQuaternion;
+}
+
+/** A placed shape's bounding sphere and, for a hull, its face planes and the frame they are read in. */
+type IFramed = Pick<
+  IShape,
+  "centre" | "radius" | "faces" | "origin" | "inverse"
+>;
+
+/** Each posed segment frame's shapes as `framing` reads them, kept while the frame lives. */
+const FRAMED: WeakMap<
+  HumanColliders.IPlaced["pose"],
+  Map<HumanColliders.IPlaced["shapes"][number], IFramed>
+> = new WeakMap();
+
+/**
+ * A placed shape's bounding sphere (`bounding`) and, for a hull, its face
+ * planes, the world point its frame is centred on and the rotation into
+ * that frame: the same numbers every call computes for the same posed
+ * frame and shape, so they are computed once per frame and shape, a swivel
+ * sweep reading one trunk's colliders at every candidate.
+ */
+function framing(
+  pose: HumanColliders.IPlaced["pose"],
+  shape: HumanColliders.IPlaced["shapes"][number],
+): IFramed {
+  let shapes:
+    | Map<HumanColliders.IPlaced["shapes"][number], IFramed>
+    | undefined = FRAMED.get(pose);
+  if (shapes === undefined) {
+    shapes = new Map();
+    FRAMED.set(pose, shapes);
+  }
+  let found: IFramed | undefined = shapes.get(shape);
+  if (found === undefined) {
+    found = {
+      ...bounding(pose, shape),
+      ...(shape.kind === "hull"
+        ? {
+            faces: physicalHullFaces(shape.points).faces,
+            origin: Vector3.add(
+              pose.position,
+              Quaternion.rotateVector(pose.rotation, shape.transform.position),
+            ),
+            inverse: Quaternion.inverse(
+              Quaternion.multiply(pose.rotation, shape.transform.rotation),
+            ),
+          }
+        : {}),
+    };
+    shapes.set(shape, found);
+  }
+  return found;
 }
 
 /**

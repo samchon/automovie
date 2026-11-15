@@ -82,6 +82,7 @@ export function createBox(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create((sign * width) / 2, height / 2, 0),
         Vector3.create(sign, 0, 0),

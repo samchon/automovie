@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   type IAutoMovieResolvedBone,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
@@ -127,9 +128,6 @@ export namespace jump {
 
   /** Rise to standing after the absorption, seconds (provisional). */
   export const RISE: number = 0.45;
-
-  /** Gravity, m/s² (jumpFlight.G). */
-  const G: number = jumpFlight.G;
 
   /**
    * Plan a jump.
@@ -318,7 +316,7 @@ export namespace jump {
         : { kind: "prop", subject: context.params.on };
     const events: IAutoMovieMotionEvent[] = [
       { name: "takeoff", share: P / duration },
-      { name: "apex", share: (P + vy / G) / duration },
+      { name: "apex", share: (P + vy / AutoMovieGravity.STANDARD) / duration },
       { name: "touchdown", share: touchdown / duration },
       { name: "settled", share: settled / duration },
     ];
@@ -361,7 +359,7 @@ export namespace jump {
         const u: number = t - P;
         const c: IAutoMovieVector3 = {
           x: comT.x + launch.x * u,
-          y: comT.y + launch.y * u - 0.5 * G * u * u,
+          y: comT.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,
           z: comT.z + launch.z * u,
         };
         const o: IAutoMovieVector3 = offset(flightPosture(rootT, u / T));

@@ -1,5 +1,8 @@
-import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -9,6 +12,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -18,7 +22,9 @@ import { handGoals } from "./handGoals";
 /**
  * Typing a text on a keyboard from the posture the performer is in (seated
  * at a desk, or standing at a counter), pressing each key with an index
- * fingertip.
+ * fingertip. The keyboard is the scene's prop: its `homeRow` contact places
+ * the keys, its `keys` field must span the letter rows, and the typist faces
+ * it from its `+Z` side (`createKeyboard`).
  *
  * Each key press is a goal: the index fingertip of the hand on that key's
  * side comes down onto the key's centre by the key's travel and lifts again,
@@ -64,15 +70,96 @@ export namespace typeText {
 
   /** Parameters. */
   export interface IParams {
-    /** The keyboard: the middle of its home row, world metres, and the heading its user faces. */
-    keyboard: { at: IAutoMovieVector3; yaw: number };
+    /** The keyboard's prop subject: its `homeRow` affordance is the home row's middle and its `keys` the key field, the typist on its `+Z` side (`createKeyboard`'s contacts). */
+    keyboard: string;
 
     /** The text, of keys the layout has (letters and spaces). */
     text: string;
   }
 
+  /** A keyboard as typing reads it: its home row's middle and the heading its typist faces. */
+  export interface IBoard {
+    /** The home row's middle, world metres. */
+    at: IAutoMovieVector3;
+
+    /** The heading the typist faces, degrees about +Y. */
+    yaw: number;
+  }
+
+  /**
+   * The keyboard a prop declares, where it stands at the action's start: its
+   * `homeRow` contact's place, and the heading that faces it from its `+Z`
+   * side, where `createKeyboard` puts the typist.
+   *
+   * @param context The action's context.
+   * @param subject The keyboard's prop subject.
+   * @returns The home row's middle and the typist's heading.
+   * @throws {HumanRefusal} When the prop declares no `homeRow` or `keys`, or its key field is narrower than the letter rows.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact's translation carried into the world by the prop's frame; the heading the prop's `-Z` on the floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A keyboard without a home row is refused with its contacts, never typed on at a guessed place.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's affordances.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function board(
+    context: Pick<IHumanActionContext, "prop" | "start">,
+    subject: string,
+  ): IBoard {
+    const read: IHumanActionContext.IProp = context.prop(subject);
+    const affordances: readonly IAutoMovieAffordance[] =
+      read.prop.affordances ?? [];
+    const declared = (id: string): IAutoMovieAffordance => {
+      const found: IAutoMovieAffordance | undefined = affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === id,
+      );
+      if (found === undefined)
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "keyboard",
+          value: subject,
+          feasible: {
+            kind: "alternatives",
+            values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+          },
+          reason: `${subject} declares no ${id}`,
+          fix: `give the keyboard a ${id} contact, as createKeyboard does`,
+        });
+      return found;
+    };
+    const found: IAutoMovieAffordance = declared("homeRow");
+    const keys: IAutoMovieAffordance = declared("keys");
+    if (!((keys.width ?? 0) >= WIDTH))
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "keyboard",
+        value: keys.width ?? null,
+        feasible: { kind: "range", minimum: WIDTH, maximum: null, unit: "m" },
+        reason: `${subject}'s key field is ${(keys.width ?? 0).toFixed(3)} m wide, narrower than the ${WIDTH.toFixed(3)} m its letter rows span`,
+        fix: "type on a keyboard whose key field spans the letter rows",
+      });
+    const frame: IHumanProp.IFrame = read.frame(context.start);
+    const away: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+      x: 0,
+      y: 0,
+      z: -1,
+    });
+    return {
+      at: Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, found.frame.translation),
+      ),
+      yaw: (Math.atan2(away.x, away.z) * 180) / Math.PI,
+    };
+  }
+
   /** Key pitch, metres (ISO/IEC 9995). */
   export const PITCH: number = 0.01905;
+
+  /** The width the letter rows span, metres: the top row's ten keys, staggered a quarter key left of the home row's middle, kept symmetric about it. */
+  export const WIDTH: number = 2 * 5.25 * 0.01905;
 
   /** Key travel, metres (provisional). */
   export const TRAVEL: number = 0.004;
@@ -132,7 +219,8 @@ export namespace typeText {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
-    const { keyboard, text } = context.params;
+    const { text } = context.params;
+    const keyboard: IBoard = board(context, context.params.keyboard);
     if (text.length === 0)
       throw new HumanRefusal({
         kind: "parameter",

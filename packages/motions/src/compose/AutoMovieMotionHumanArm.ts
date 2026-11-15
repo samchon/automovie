@@ -1,6 +1,8 @@
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmPhrase } from "./AutoMovieMotionHumanArmPhrase";
+import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
 /**
@@ -93,18 +95,18 @@ export namespace AutoMovieMotionHumanArm {
     AutoMovieMotionHumanArmTarget.goal;
 
   /**
-   * {@link AutoMovieMotionHumanArmCarry.IAngles}, re-exported so a caller of the arm facade imports one namespace.
+   * {@link AutoMovieMotionHumanArmAngles.IAngles}, re-exported so a caller of the arm facade imports one namespace.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmCarry`; the members are documented there.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmAngles`; the members are documented there.
    * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmCarry` owns `IAngles`; this alias only lets callers of AutoMovieMotionHumanArm name it without a second import.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmAngles` owns `IAngles`; this alias only lets callers of AutoMovieMotionHumanArm name it without a second import.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
    */
-  export type IAngles = AutoMovieMotionHumanArmCarry.IAngles;
+  export type IAngles = AutoMovieMotionHumanArmAngles.IAngles;
 
-  /** {@link AutoMovieMotionHumanArmCarry.angles}. */
-  export const angles: typeof AutoMovieMotionHumanArmCarry.angles =
-    AutoMovieMotionHumanArmCarry.angles;
+  /** {@link AutoMovieMotionHumanArmAngles.angles}. */
+  export const angles: typeof AutoMovieMotionHumanArmAngles.angles =
+    AutoMovieMotionHumanArmAngles.angles;
 
   /** {@link AutoMovieMotionHumanArmCarry.carry}. */
   export const carry: typeof AutoMovieMotionHumanArmCarry.carry =
@@ -123,6 +125,34 @@ export namespace AutoMovieMotionHumanArm {
   /** {@link AutoMovieMotionHumanArmCarry.carried}. */
   export const carried: typeof AutoMovieMotionHumanArmCarry.carried =
     AutoMovieMotionHumanArmCarry.carried;
+
+  /**
+   * {@link AutoMovieMotionHumanArmPlanned.ISpan}, re-exported so a caller of the arm facade imports one namespace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmPlanned`; the members are documented there.
+   * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmPlanned` owns `ISpan`; this alias lets a law name the span it states on `carried` without a second import.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
+   */
+  export type ISpan = AutoMovieMotionHumanArmPlanned.ISpan;
+
+  /** {@link AutoMovieMotionHumanArmPlanned.stated}. */
+  export const stated: typeof AutoMovieMotionHumanArmPlanned.stated =
+    AutoMovieMotionHumanArmPlanned.stated;
+
+  /**
+   * {@link AutoMovieMotionHumanArmPlanned.ITogether}, re-exported so a caller of the arm facade imports one namespace.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the type it re-exports and its owner `AutoMovieMotionHumanArmPlanned`; the members are documented there.
+   * @evidence contracts/development/design.md#principled-representation The alias is the owner's type itself, so the concept, its units and its invariants are the owner's and no second shape exists.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieMotionHumanArmPlanned` owns `ITogether`; this alias lets a law group the arms it plans as one problem (two hands on one object) without a second import.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias of the owner's declaration, not a parallel copy; no cast or widening.
+   */
+  export type ITogether = AutoMovieMotionHumanArmPlanned.ITogether;
+
+  /** {@link AutoMovieMotionHumanArmPlanned.together}. */
+  export const together: typeof AutoMovieMotionHumanArmPlanned.together =
+    AutoMovieMotionHumanArmPlanned.together;
 
   /** {@link AutoMovieMotionHumanArmMove.move}. */
   export const move: typeof AutoMovieMotionHumanArmMove.move =

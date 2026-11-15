@@ -33,13 +33,17 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * stand the arms' reach above the wrists; over the second the trunk swings
  * about the shoulders, which stay where they are, and the legs follow
  * straight until the body stands inverted with the hips over the shoulders
- * and the shoulders over the base of the hands. The
+ * and the shoulders over the base of the hands. The exit is the entry
+ * reversed: over its first half the legs swing back down about the
+ * shoulders while the hands still bear, until the feet stand where they
+ * left the floor, and over its second the trunk unfolds over the feet. The
  * entry and the exit take 1.5 s each (provisional) and the hold is the
  * author's. Balance in the hold is by the wrists first (Kerwin and
  * Trewartha 2001); no sway is drafted yet.
  *
  * Events: `handsDown` at the entry's middle, `inverted` (`ready`), `release`
- * (`relax`), with the phrase instants.
+ * at the exit's middle, when the feet bear again and the hands leave the
+ * floor, with the phrase instants.
  *
  * Other laws plan the floor rolls, the cartwheel (`cartwheel`), the salto
  * (`salto`), the round-off (`roundOff`), the handspring (`handspring`) and
@@ -123,13 +127,19 @@ export namespace gymnastics {
       }),
       modifiers,
     );
+    // The exit mirrors the entry: the legs swing down over the hands first,
+    // the feet landing at `release` half way through, and the trunk unfolds
+    // over the standing feet after it.
     const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
         { name: "handsDown", seconds: timed.at("ready") / 2 },
         { name: "inverted", seconds: timed.at("ready") },
-        { name: "release", seconds: timed.at("relax") },
+        {
+          name: "release",
+          seconds: (timed.at("relax") + timed.duration) / 2,
+        },
       ],
     );
     const entry: IHumanPosture = context.entry.posture;
@@ -188,11 +198,14 @@ export namespace gymnastics {
     );
     // The pitch that stands the hips straight above the shoulders.
     const inverted: number = AutoMovieMotionHumanPlaced.pitch(body, -Infinity);
-    // The share of the way into the inverted pose: the fold over the first half, the swing over the second.
+    // The share of the way into the inverted pose: the fold over the entry's
+    // first half and the swing over its second, then the swing undone over
+    // the exit's first half and the fold over its second, so at every
+    // instant the hands or the feet bear.
     const fold = (s: number): number =>
-      clock.envelope(["start", "handsDown"], ["relax", "end"], s);
+      clock.envelope(["start", "handsDown"], ["release", "end"], s);
     const swing = (s: number): number =>
-      clock.envelope(["handsDown", "inverted"], ["relax", "end"], s);
+      clock.envelope(["handsDown", "inverted"], ["relax", "release"], s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       {
         channels: ["root", "trunk"],
@@ -214,11 +227,12 @@ export namespace gymnastics {
           );
           const byShoulders: IAutoMovieVector3 =
             AutoMovieMotionHumanPlaced.root(pitched, girdle, shoulders);
-          const bearing: number =
-            s > clock.at("relax") ? swing(s) : swing(s) > 0 ? 1 : 0;
+          // The two places agree wherever the swing is nil and the fold full,
+          // at `handsDown` and at `release`, so the change of support is
+          // continuous.
           return {
             ...pitched,
-            root: Vector3.lerp(byHips, byShoulders, bearing),
+            root: swing(s) > 0 ? byShoulders : byHips,
           };
         },
       },

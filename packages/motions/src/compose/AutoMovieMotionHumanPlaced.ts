@@ -18,9 +18,10 @@ import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrim
 
 /**
  * An arm carried to a place of the air: the hand surface laid on a point
- * with a facing, the arm carried in joint space from the angles it held to
- * the goal's solution by a weight (`AutoMovieMotionHumanArm.carried`) and
- * the fingers shaped by the same weight. The exercise, stretching, dance and
+ * with a facing, the arm's reach, hold and return planned as one
+ * trajectory over the span the law states (`AutoMovieMotionHumanArm.carried`)
+ * and the fingers shaped by the weight; without a span, the deprecated
+ * joint-space carry by the weight. The exercise, stretching, dance and
  * sport laws place their arms this way, at named grid places of the body
  * (`AutoMovieMotionHumanTargetGrid.place`) moved by their own curves.
  *
@@ -69,6 +70,9 @@ export namespace AutoMovieMotionHumanPlaced {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     weight(seconds: number): number;
+
+    /** The action's instants the arm's whole action is planned over, the reach to the place, the hold on it and the return (`AutoMovieMotionHumanArm.carried`'s `span`), in the law's clock instants or as the weight states them (`AutoMovieMotionHumanArm.stated`); the deprecated joint-space carry when absent. */
+    span?: AutoMovieMotionHumanArm.ISpan;
 
     /**
      * The place at a second.
@@ -129,6 +133,7 @@ export namespace AutoMovieMotionHumanPlaced {
         to: props.to,
         rest: props.rest,
         weight: props.weight,
+        ...(props.span === undefined ? {} : { span: props.span }),
         goal: (
           posture: IHumanPosture,
           seconds: number,

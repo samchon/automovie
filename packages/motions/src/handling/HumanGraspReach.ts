@@ -54,7 +54,9 @@ export namespace HumanGraspReach {
    * still in the same grip at the top of the lift, a clasped hand at both
    * ends of the pump. `stroke` names those further key poses for a candidate
    * grip, and a candidate's error is the worst over the grasp and its keys,
-   * so the chosen grip is the one the arm keeps over the whole stroke. Each
+   * so the chosen grip is the one the arm keeps over the whole stroke; a key
+   * that judges what it places (`HumanGrasp.IKey.judge`) also reports that
+   * judgement, which `required` reads. Each
    * key is fitted with the grasp's own arm solution as its reference, the way
    * the law will show it. The returned `reference` is that solution, for the
    * law to pass on every goal of the stroke
@@ -68,7 +70,7 @@ export namespace HumanGraspReach {
    * @param tilts The tilts tried at each turn; only the authored one when absent.
    * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
    * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors (the grasp's, then each stroke key's) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
+   * @param required What a grip must hold before its cost counts: a measure of its per-key errors and judgements (the grasp's, then each stroke key's, `IKey.judge`) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
    * @param admits Whether the caller can take a candidate's grasp goal at all (a pick-up's wrist within the straight arm's reach, which it refuses beyond): a candidate it refuses is tried only when it refuses every one, so a cheaper fit never wins a grip the caller must then refuse. Every candidate when absent.
    * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
@@ -86,7 +88,7 @@ export namespace HumanGraspReach {
     turns: readonly number[] = HumanGrasp.TURNS,
     required?: {
       bound: number;
-      measure: (keys: readonly number[]) => number;
+      measure: (keys: readonly number[], judged: readonly number[]) => number;
     },
     admits?: (wrist: HumanHand.IWrist) => boolean,
   ): HumanGrasp.IReach {
@@ -101,6 +103,7 @@ export namespace HumanGraspReach {
       shown: HumanHand.IWrist;
       miss: number;
       departure: number;
+      judged: number;
     } => {
       const pose: IAutoMoviePose = resolveHumanPosture(body, {
         ...key.posture,
@@ -172,6 +175,7 @@ export namespace HumanGraspReach {
               Vector3.subtract(hand.worldPosition, key.wrist.point),
             ),
         departure,
+        judged: key.judge === undefined ? Number.NaN : key.judge(bones),
       };
     };
     let best: HumanGrasp.IReach | undefined;
@@ -233,9 +237,11 @@ export namespace HumanGraspReach {
       let departure: number = grasp.departure;
       let beaten: boolean = false;
       const keys: number[] = [grasp.miss];
+      const judged: number[] = [Number.NaN];
       for (const key of stroke?.(wrist, grasp.shown) ?? []) {
         const fitted = fit(key, reference);
         keys.push(fitted.miss);
+        judged.push(fitted.judged);
         miss = Math.max(miss, fitted.miss);
         departure = Math.max(departure, fitted.departure);
         if (held && miss + departure + preference >= least) {
@@ -246,7 +252,7 @@ export namespace HumanGraspReach {
       if (beaten) continue;
       const cost: number = miss + departure + preference;
       const measured: number =
-        required === undefined ? 0 : required.measure(keys);
+        required === undefined ? 0 : required.measure(keys, judged);
       const holds: boolean =
         required === undefined || measured <= required.bound;
       if (
@@ -266,6 +272,7 @@ export namespace HumanGraspReach {
           miss,
           departure,
           keys,
+          judged,
           pose: grasp.pose,
         };
       }

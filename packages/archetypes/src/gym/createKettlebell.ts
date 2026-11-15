@@ -86,6 +86,7 @@ export function createKettlebell(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "round",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, top, 0),
       Vector3.create(0, 1, 0),

@@ -1,9 +1,13 @@
-﻿import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/seated";
 import { HumanPerformance } from "../../perform/HumanPerformance";
+import type { IHumanProp } from "../../perform/IHumanProp";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -35,8 +39,10 @@ export function everydayPostureCases(
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
   const { figure, event } = everydayCaseKit;
-  const one = (chain: HumanChain): HumanPerformance =>
-    everydayCaseKit.one(c, chain);
+  const one = (
+    chain: HumanChain,
+    props: readonly IHumanProp[] = [],
+  ): HumanPerformance => everydayCaseKit.one(c, chain, props);
   if (wants("seat")) {
     const seat: seated.ISeat = {
       at: {
@@ -216,7 +222,8 @@ export function everydayPostureCases(
   if (wants("step")) {
     const box = { at: { x: 0, y: 0, z: 0.35 }, height: 0.3, depth: 0.25 };
     const performance: HumanPerformance = one(
-      HumanChain.subject("a").stepOver({ obstacle: box }),
+      HumanChain.subject("a").stepOver({ obstacle: "box" }),
+      [obstacle(box)],
     );
     const crossing = performance.segments("a")[0]!;
     const span: number = crossing.end - crossing.start;
@@ -250,4 +257,59 @@ export function everydayPostureCases(
     });
   }
   return out;
+}
+
+/**
+ * A box to step over as a prop: a kerb's `edge` along its near top and its
+ * `top` face's depth behind it, the contacts `createKerb` declares, turned so
+ * its near side faces a performer at the origin facing `+Z`.
+ *
+ * @param box The near side's middle on the floor, the height and the depth, metres.
+ * @returns The prop.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contacts and the turn.
+ * @evidence contracts/development/implementation.md#principled-implementation `createKerb`'s `edge` and `top` at its frames, the kerb half turned about `+Y`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
+ * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the box's contacts itself.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
+ */
+function obstacle(box: {
+  at: IAutoMovieVector3;
+  height: number;
+  depth: number;
+}): IHumanProp {
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  return {
+    subject: "box",
+    frame: {
+      position: { x: box.at.x, y: box.at.y, z: box.at.z + box.depth },
+      rotation: { x: 0, y: 1, z: 0, w: 0 },
+    },
+    points: {},
+    affordances: [
+      {
+        id: "edge",
+        kind: "ledge",
+        frame: {
+          translation: { x: 0, y: box.height, z: box.depth },
+          rotation: identity,
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        extent: null,
+      },
+      {
+        id: "top",
+        kind: "surface",
+        frame: {
+          translation: { x: 0, y: box.height, z: box.depth / 2 },
+          rotation: identity,
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        extent: null,
+        depth: box.depth,
+      },
+    ],
+  };
 }

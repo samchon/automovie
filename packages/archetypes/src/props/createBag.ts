@@ -125,6 +125,7 @@ export function createBag(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
       extent: null,
       grip: id === "strap" ? "hook" : "power",
@@ -155,6 +156,7 @@ export function createBag(
       builder.affordance({
         id: `${side}Strap`,
         kind: "handle",
+        symmetry: "none",
         frame: ArchetypeFrame.facing(
           Vector3.create(x, height * 0.55, z),
           Vector3.create(0, 0, -1),
@@ -204,6 +206,7 @@ export function createBag(
     builder.affordance({
       id: "pull",
       kind: "bar",
+      symmetry: "none",
       frame: ArchetypeFrame.upright(Vector3.create(0, height + 0.02, z)),
       extent: null,
       grip: "power",

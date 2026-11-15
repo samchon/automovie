@@ -84,6 +84,7 @@ export function createSmoking(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, radius, filter + 0.01),
         Vector3.create(0, 1, 0),
@@ -96,6 +97,7 @@ export function createSmoking(
     builder.affordance({
       id: "mouth",
       kind: "socket",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, radius, 0),
         Vector3.create(0, 0, -1),
@@ -105,6 +107,7 @@ export function createSmoking(
     builder.affordance({
       id: "flame",
       kind: "socket",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, radius, length),
         Vector3.create(0, 0, 1),
@@ -134,6 +137,7 @@ export function createSmoking(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(0, (height - 2 * wheel) / 2, 0),
       Vector3.create(0, 0, -1),
@@ -168,6 +172,7 @@ export function createSmoking(
   builder.affordance({
     id: "flame",
     kind: "socket",
+    direction: "along",
     frame: ArchetypeFrame.upright(
       Vector3.create(0, height + 0.015, depth * 0.3),
     ),

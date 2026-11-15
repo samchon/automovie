@@ -1,21 +1,14 @@
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
+  AutoMovieMotionHumanTouchEffector,
+  AutoMovieMotionHumanTouchForm,
   HumanChain,
   HumanPerformance,
   type HumanSegment,
   HumanSocial,
   type IHumanBody,
-  type IHumanPosture,
-  poseBones,
-  resolveHumanPosture,
+  touch,
   type touchSite,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +17,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A palm laid on a partner's chest reaches its place wherever on the region
- * the place lies: the arm's fit lands the palm where its goal puts it.
+ * the place lies.
  *
  * Two average men stand 0.6 m apart, face to face; one lays a comforting
  * palm (`HumanSocial.comfort`) on the other's sternum, with no site, with a
@@ -32,26 +25,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * median plane, the place seed "second" draws within 50 mm), and with a
  * site 40 mm up and 40 mm out.
  *
- * Scenario: at the middle of the hold the displayed palm, the hand's contact,
- * lands within 5 mm of where the arm's goal puts it (provisional: the limb
- * fit's own re-aim tolerance is finer, and the touch's contact bound is
- * 15 mm). The complaint gives the same fit with the segment the palm rests on
- * kept clear like the rest of the partner, which held a palm 61 mm short of a
- * place across the median plane, and without the laid reference, so a miss
- * names what held the hand back.
+ * The place is read here from the partner's displayed bones, as `touchSite`
+ * defines it: the sternum's point and normal on its displayed bone, moved
+ * `up` along the surface toward the head (the world's up laid into the
+ * surface) and `out` to the right of someone facing it. The palm is the
+ * displayed hand's effector, the palm's point the touch lays
+ * (`AutoMovieMotionHumanTouchEffector.point`, curled as a hold curls it).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds each performance through the public chain and fits the posture it shows; a palm held off a reachable place fails with the size and what held it.
- * @evidence contracts/development/testing.md#independent-expectations The place is the law's own goal, which the fit must meet; the bound is stated and provisional, not read from the fit.
+ * Scenario: at the middle of the hold the displayed palm lies within 5 mm of
+ * the place (provisional: the touch's contact bound is 15 mm).
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each performance through the public chain and reads both people's displayed bones at one instant; a palm held off a reachable place fails with the distance.
+ * @evidence contracts/development/testing.md#independent-expectations The place is computed from the partner's displayed bones by the site's documented definition, not read from the law's goal or plan; the bound is stated and provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases The region's own point, a place across the median plane and below, and a place up and out.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds three short two-person performances, each read at one instant; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, the three sites and the one scenario with its bound and status.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage, the three sites, how the place and the palm are read and the one scenario with its bound and status.
  */
 export function test_human_motion_touch_partner_reach(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
-  const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
-    Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
+  const effector: AutoMovieMotionHumanTouchEffector.IEffector =
+    AutoMovieMotionHumanTouchForm.curled(touch.EFFECTORS.palm, "hold");
   for (const [label, site] of [
     ["no site", undefined],
     [
@@ -98,49 +92,41 @@ export function test_human_motion_touch_partner_reach(): void {
       )?.share ?? NaN) *
         placed.plan.duration;
     const held: number = (instant("strokeEnd") + instant("relax")) / 2;
-    const posture: IHumanPosture = performance.posture("a", held);
-    const goal: IHumanPosture.IGoal | undefined = posture.limbs.rightArm;
-    if (goal === undefined) {
-      complaints.push(`${label}: the right arm holds no goal in the hold`);
-      continue;
-    }
-    // Where the hand's contact (the palm) lands against where the goal puts
-    // it: the fit re-aims the wrist so the contact stays put under the
-    // rotation the hand reaches, so the contact is what it must meet.
-    const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
-    const anchor: IAutoMovieVector3 = Vector3.add(
-      goal.point,
-      Quaternion.rotateVector(goal.rotation!, contact),
+
+    // The place on the partner's displayed sternum, by the site's definition.
+    const frame = body.surfaces.regions.sternum;
+    const region: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+      resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        performance.bones("b", held).get(frame.bone)!,
+      );
+    const lay = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(
+        v,
+        Vector3.scale(region.normal, Vector3.dot(v, region.normal)),
+      );
+    const up: IAutoMovieVector3 = Vector3.normalize(lay({ x: 0, y: 1, z: 0 }));
+    const out: IAutoMovieVector3 = Vector3.cross(up, region.normal);
+    const place: IAutoMovieVector3 = Vector3.add(
+      region.point,
+      Vector3.add(
+        Vector3.scale(up, site?.up ?? 0),
+        Vector3.scale(out, site?.out ?? 0),
+      ),
     );
-    const landed = (
-      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): number => {
-      const hand: IAutoMovieResolvedBone = bones.get("rightHand")!;
-      return gap(
-        Vector3.add(
-          hand.worldPosition,
-          Quaternion.rotateVector(hand.worldRotation, contact),
-        ),
-        anchor,
-      );
-    };
-    const refitted = (asked: IHumanPosture.IGoal): number =>
-      landed(
-        poseBones(
-          body,
-          resolveHumanPosture(body, {
-            ...posture,
-            limbs: { ...posture.limbs, rightArm: asked },
-          }),
-        ),
-      );
-    const shown: number = landed(performance.bones("a", held));
-    if (!(shown <= 0.005)) {
-      const { rests, reference: _reference, ...free } = goal;
+
+    // The displayed palm.
+    const palm: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(
+      body,
+      performance.bones("a", held),
+      "right",
+      effector,
+    );
+    const shown: number = Vector3.length(Vector3.subtract(palm, place));
+    if (!(shown <= 0.005))
       complaints.push(
-        `${label}: the palm lands ${mm(shown)} mm from where its goal puts it, within 5 mm expected (with the rested segment kept clear like the rest of the partner ${mm(refitted({ ...free, ...(goal.reference === undefined ? {} : { reference: goal.reference }), clear: [...(goal.clear ?? []), ...(rests ?? [])] }))} mm; without the laid reference ${mm(refitted({ ...free, ...(rests === undefined ? {} : { rests }) }))} mm)`,
+        `${label}: the palm lies ${(shown * 1000).toFixed(1)} mm from its place on the partner at ${held.toFixed(3)} s, within 5 mm expected`,
       );
-    }
   }
   TestValidator.equals(
     "the palm reaches its place on the partner",

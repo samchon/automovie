@@ -129,10 +129,7 @@ export namespace kneelKeys {
     floor: number,
   ): IFoot {
     const m = body.measure;
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
     const dorsiflexion: number =
       AutoMovieMotionHumanRange.limit(`${side}Foot`, "flexion") ?? 0;
     const extension: number =
@@ -313,10 +310,7 @@ export namespace kneelKeys {
     const f: "left" | "right" = k === "left" ? "right" : "left";
     const yaw: number = standing.yaw;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
 
     // Standing feet as toes' joints on the floor with their headings.
     const flat = (side: "left" | "right"): HumanFoot.IPlacement => {

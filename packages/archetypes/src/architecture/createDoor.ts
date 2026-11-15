@@ -161,6 +161,7 @@ export function createDoor(
       builder.affordance({
         id,
         kind: "handle",
+        symmetry: "none",
         frame:
           hardware === "lever"
             ? ArchetypeFrame.facing(
@@ -219,6 +220,7 @@ export function createDoor(
     builder.affordance({
       id,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(x, y, off),
         out,

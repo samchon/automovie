@@ -1,11 +1,14 @@
 import {
+  AutoMovieHumanoidSurfaceRays,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  convexHull2D,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -90,24 +93,130 @@ export namespace HumanFoot {
   }
 
   /**
-   * The base of support of displayed bones: the sole sockets of both feet,
-   * the points whose convex hull a margin of stability is measured to (Hof,
+   * The height above a foot's lowest sole point within which a part of the
+   * sole is on the floor, metres: under half the 12.9 mm mean minimum toe
+   * clearance of the swinging foot in normal walking (Winter 1992, Foot
+   * trajectory in human gait, Physical Therapy 72(1):45-53), so a foot at
+   * the lowest point of a normal swing is not read as on the floor.
+   */
+  export const BEARING: number = 0.006;
+
+  /**
+   * The base of support of displayed bones: the area within the outlines of
+   * the feet where they bear on the floor (Winter, Biomechanics and Motor
+   * Control of Human Movement, 4th ed., ch. 4: the base of support is the
+   * area bounded by the outline of the feet in contact with the ground), the
+   * points whose convex hull a margin of stability is measured to (Hof,
    * Gazendam and Sinke 2005).
+   *
+   * Each foot's outline is its sole sockets and the corners of the outline
+   * of its colliders seen from below (`outline`), placed on the displayed
+   * bones; of these, the points within `BEARING` of the foot's lowest one
+   * bear, so a heel lifted off the floor leaves the base to the forefoot.
    *
    * @param body The body.
    * @param bones The displayed bones.
-   * @returns The left foot's heel, ball and toe, then the right foot's, world metres.
+   * @returns The left foot's bearing points, then the right foot's, world metres.
    */
   export function base(
     body: IHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3[] {
     return (["left", "right"] as const).flatMap(
-      (side: "left" | "right"): IAutoMovieVector3[] =>
-        sockets(body, bones, side).map(
-          (s: ISocket): IAutoMovieVector3 => s.point,
-        ),
+      (side: "left" | "right"): IAutoMovieVector3[] => {
+        const points: IAutoMovieVector3[] = [
+          ...sockets(body, bones, side).map(
+            (s: ISocket): IAutoMovieVector3 => s.point,
+          ),
+          ...outline(body, side).map(
+            (
+              frame: resolveAutoMovieHumanoidSurfaces.IFrame,
+            ): IAutoMovieVector3 =>
+              resolveAutoMovieHumanoidSurfaces.place(
+                frame,
+                bones.get(frame.bone)!,
+              ).point,
+          ),
+        ];
+        let low: number = Infinity;
+        for (const p of points) low = Math.min(low, p.y);
+        return points.filter(
+          (p: IAutoMovieVector3): boolean => p.y <= low + BEARING,
+        );
+      },
     );
+  }
+
+  /**
+   * A foot's outline on its sole: the corners of the outline of the foot's
+   * colliders, and the toes' when the profile jointed them, seen from below
+   * at rest and laid on the sole's plane, each riding its bone. A foot
+   * flat on the floor stands on this outline; one turned about its heel or
+   * its ball lifts the part of it away from the pivot.
+   *
+   * At rest each collider gives its points: a hull its vertices, a box its
+   * corners, a sphere or a capsule the points of its horizontal circles
+   * every 22.5 degrees, all on the shape, so the outline never reaches past
+   * it. Each bone's points are dropped to the height of the sole sockets and
+   * reduced to the corners of their convex hull in the horizontal plane.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @returns The outline's corners as frames on the foot's bones.
+   */
+  export function outline(
+    body: IHumanBody,
+    side: "left" | "right",
+  ): readonly resolveAutoMovieHumanoidSurfaces.IFrame[] {
+    let found:
+      | Record<"left" | "right", resolveAutoMovieHumanoidSurfaces.IFrame[]>
+      | undefined = OUTLINES.get(body);
+    if (found === undefined) {
+      const tools = AutoMovieHumanoidSurfaceRays.tools(
+        body.skeleton,
+        body.profile,
+      );
+      const read = (
+        s: "left" | "right",
+      ): resolveAutoMovieHumanoidSurfaces.IFrame[] => {
+        const Side: "Left" | "Right" = s === "left" ? "Left" : "Right";
+        const heel: resolveAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.sockets[`heel${Side}`];
+        const floor: number = resolveAutoMovieHumanoidSurfaces.place(
+          heel,
+          tools.at(heel.bone),
+        ).point.y;
+        const out: resolveAutoMovieHumanoidSurfaces.IFrame[] = [];
+        for (const bone of [`${s}Foot`, `${s}Toes`] as const) {
+          const segment = body.profile.segments.find(
+            (x): boolean => x.bone === bone,
+          );
+          if (segment === undefined) continue;
+          const points: IAutoMovieVector3[] = segment.shapes.flatMap(
+            (shape): IAutoMovieVector3[] =>
+              shapePoints(segment.neutral, shape).map(
+                (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+                  ...p,
+                  y: floor,
+                }),
+              ),
+          );
+          for (const corner of convexHull2D(points))
+            out.push(
+              tools.local(
+                bone,
+                corner,
+                { x: 0, y: -1, z: 0 },
+                { x: 0, y: 0, z: 1 },
+              ),
+            );
+        }
+        return out;
+      };
+      found = { left: read("left"), right: read("right") };
+      OUTLINES.set(body, found);
+    }
+    return found[side];
   }
 
   /**
@@ -281,4 +390,66 @@ export namespace HumanFoot {
       Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)),
     );
   }
+}
+
+/** Each body's sole outlines, made once. */
+const OUTLINES: WeakMap<
+  IHumanBody,
+  Record<"left" | "right", resolveAutoMovieHumanoidSurfaces.IFrame[]>
+> = new WeakMap();
+
+/** The horizontal directions a round collider's outline is read along, every 22.5 degrees. */
+const ROUND: readonly IAutoMovieVector3[] = Array.from(
+  { length: 16 },
+  (_: unknown, k: number): IAutoMovieVector3 => ({
+    x: Math.cos((k * Math.PI) / 8),
+    y: 0,
+    z: Math.sin((k * Math.PI) / 8),
+  }),
+);
+
+/**
+ * Points on a collider placed by its segment's neutral pose, world metres: a
+ * hull's vertices, a box's corners, and the horizontal circles of a sphere or
+ * a capsule's two end spheres.
+ */
+function shapePoints(
+  pose: IAutoMoviePhysicalProfile.ITransform,
+  shape: IAutoMoviePhysicalProfile.IShape,
+): IAutoMovieVector3[] {
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    pose.rotation,
+    shape.transform.rotation,
+  );
+  const centre: IAutoMovieVector3 = Vector3.add(
+    pose.position,
+    Quaternion.rotateVector(pose.rotation, shape.transform.position),
+  );
+  const at = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+  const round = (
+    middle: IAutoMovieVector3,
+    radius: number,
+  ): IAutoMovieVector3[] =>
+    ROUND.map(
+      (d: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(middle, Vector3.scale(d, radius)),
+    );
+  if (shape.kind === "hull") return shape.points.map(at);
+  if (shape.kind === "box") {
+    const h: IAutoMovieVector3 = shape.halfExtents;
+    const out: IAutoMovieVector3[] = [];
+    for (const x of [-h.x, h.x])
+      for (const y of [-h.y, h.y])
+        for (const z of [-h.z, h.z]) out.push(at({ x, y, z }));
+    return out;
+  }
+  if (shape.kind === "sphere") return round(centre, shape.radius);
+  if (shape.kind === "capsule")
+    return [
+      ...round(at({ x: 0, y: shape.halfLength, z: 0 }), shape.radius),
+      ...round(at({ x: 0, y: -shape.halfLength, z: 0 }), shape.radius),
+    ];
+  shape satisfies never;
+  throw new Error("Unknown physical shape kind");
 }

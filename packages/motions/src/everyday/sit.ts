@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedRoot,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -9,7 +14,12 @@ import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -18,10 +28,13 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
+import { sitPlace } from "./sitPlace";
 
 /**
  * Sitting down on a chair, bench or stool from standing in front of it:
@@ -35,10 +48,16 @@ import { seated } from "./seated";
  * socket on its point on the seat ({@link seated}); the root follows from
  * that goal and the trunk's pitch, the planted legs and the hands are solved
  * by inverse kinematics. The socket moves back over the first 70 % of the
- * descent and down from 10 % to its end, so it reaches the seat from above;
+ * descent, no further than keeps the centre of mass where it stands over
+ * the feet until a pendulum's time constant before contact (Hof, Gazendam
+ * and Sinke 2005), over which the body comes down onto the seat, and down
+ * from 10 % to its end, so it reaches the seat from above;
  * the trunk pitches forward to its peak by 45 % of the descent and settles
- * after contact; the hands move from hanging to the thighs over the second
- * half.
+ * after contact; each hand is brought to its rest along the arm trajectory
+ * planner's path, onto its armrest as the seat takes the body, the two
+ * supports loaded together where the armrest lies nearest the shoulder, or,
+ * with none, onto its thigh from contact to seated, once the thighs no longer
+ * rise under it, the fingers straightening to lie flat.
  *
  * Peak trunk flexion `35 + 50 (1 - r)` degrees and descent time
  * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal height
@@ -117,22 +136,8 @@ export namespace sit {
   /** Seconds the left foot takes to cross over the right ankle once seated (provisional). */
   export const CROSS: number = 0.6;
 
-  /** Seated pitch and trunk angles of each back, degrees. */
-  export const BACKS: Readonly<
-    Record<
-      NonNullable<IParams["back"]>,
-      {
-        pitch: number;
-        joints: Partial<
-          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-        >;
-      }
-    >
-  > = {
-    upright: { pitch: 0, joints: {} },
-    lean: { pitch: -12, joints: {} },
-    slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
-  };
+  /** Shares of the descent before the fall onto the seat at which the balanced travel back is solved. */
+  export const SHARES: number = 8;
 
   /**
    * Plan a sit.
@@ -147,7 +152,7 @@ export namespace sit {
     const body: IHumanBody = context.body;
     const seat: seated.ISeat = context.params.seat;
     seated.check(body, seat);
-    const back = context.params.back ?? "upright";
+    const back: NonNullable<IParams["back"]> = context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
       throw new HumanRefusal({
         kind: "affordance",
@@ -157,7 +162,7 @@ export namespace sit {
         reason: `leaning back needs a seat with a backrest`,
         fix: "give the seat a back, or sit upright",
       });
-    const turn: number = angle(seat.yaw - context.entry.posture.yaw);
+    const turn: number = sitPlace.turn(seat.yaw - context.entry.posture.yaw);
     if (Math.abs(turn) > 20)
       throw new HumanRefusal({
         kind: "base",
@@ -168,14 +173,14 @@ export namespace sit {
         fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
       });
     if (seated.high(body, seat) || seat.astride === true)
-      return HumanMountOn.plan(context, seat, BACKS[back], turn);
+      return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       context.entry.posture.yaw,
     );
     const goal: IAutoMovieVector3 = seated.point(body, seat);
-    reach(body, seat, goal, feet, BACKS[back].pitch);
+    sitPlace.reach(body, seat, goal, feet, sitPlace.BACKS[back].pitch);
 
     const r: number = seated.ratio(body, seat);
     const descent: number =
@@ -189,8 +194,8 @@ export namespace sit {
     const duration: number = descent + hold;
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
-    const final = BACKS[back];
-    const upright = standUpright.of(body).joints;
+    const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
+    const upright: IHumanPosture["joints"] = standUpright.of(body).joints;
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
@@ -262,17 +267,19 @@ export namespace sit {
       },
     ];
 
-    // Each hand that has an armrest bears on it from 60 % of the descent, before the seat takes the body.
+    // Each hand that has an armrest bears on it from contact, with the seat.
     for (const side of ["left", "right"] as const)
       if (seat.armrests?.[side] !== undefined)
         contacts.push({
           part: `${side}Hand`,
           kind: "plant",
-          from: (0.6 * descent) / duration,
+          from: contact / duration,
           to: 1,
           support: { kind: "ground" },
         });
-    return {
+    // The body lowered over its feet and onto the seat, its arms hanging and
+    // its fingers straightening as each hand comes to rest.
+    const lowering: IHumanActionPlan = {
       duration,
       events: [
         { name: "commit", share: contact / duration },
@@ -284,149 +291,213 @@ export namespace sit {
       base: { kind: "seated", seat },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const across: number = minimumJerk(t / (0.7 * descent)).s;
-        const down: number = minimumJerk(
-          (t - 0.1 * descent) / (contact - 0.1 * descent),
-        ).s;
-        const socket: IAutoMovieVector3 = {
-          x: start.x + (goal.x - start.x) * across,
-          y: start.y + (goal.y - start.y) * down,
-          z: start.z + (goal.z - start.z) * across,
-        };
-        const settle: number = minimumJerk(
-          (t - 0.6 * descent) / (0.4 * descent),
-        ).s;
-        const pitch: number =
-          t < 0.6 * descent
-            ? peak * minimumJerk(t / (0.45 * descent)).s
-            : peak + (final.pitch - peak) * settle;
-        const yaw: number = yaw0 + turn * across;
-        const joints: IHumanPosture["joints"] = {
-          ...stand.RELAXED,
-          ...upright,
-        };
-        for (const [bone, a] of Object.entries(final.joints) as [
-          AutoMovieHumanoidBone,
-          readonly [number, number, number],
-        ][]) {
-          const was: readonly [number, number, number] = joints[bone] ?? [
-            0, 0, 0,
-          ];
-          joints[bone] = [
-            was[0] + a[0] * settle,
-            was[1] + a[1] * settle,
-            was[2] + a[2] * settle,
-          ];
-        }
-        const tilt = HumanTrunk.incline(
-          joints,
-          pitch,
-          HumanTrunk.pelvisLimit(
-            body,
-            seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
-            yaw,
-            feet,
-          ),
-        );
-        const root: IAutoMovieVector3 = seated.root(body, socket, {
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-        });
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, {
-          root,
-          yaw,
-          pitch: tilt.pitch,
-          roll: 0,
-          joints: tilt.joints,
-          limbs: legsAt(root, yaw, t),
-        });
-        // A hand goes to its armrest before the seat is reached and bears on it from then; a hand with none goes to its thigh.
-        if (seat.armrests !== undefined)
-          return seated.onArmrests(
-            body,
-            seated.arms(
-              body,
-              posture,
-              minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s,
-            ),
-            seat.armrests,
-            seat.yaw,
-            minimumJerk((t - 0.2 * descent) / (0.4 * descent)).s,
-          );
-        return seated.arms(
-          body,
-          posture,
-          minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s,
-        );
+        return shaped(lowered(t, travel(t)), t);
       },
     };
-  }
 
-  /**
-   * Refuse feet the legs cannot reach from the seated hips: each ankle must
-   * lie within 0.995 of the leg's length from its hip joint and beyond the
-   * distance a knee flexed to its 150 degree limit leaves.
-   *
-   * @param body The body.
-   * @param seat The seat.
-   * @param goal The socket's point on the seat.
-   * @param feet The planted ankles.
-   * @param pitch The seated pitch, degrees.
-   * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
-   */
-  export function reach(
-    body: IHumanBody,
-    seat: seated.ISeat,
-    goal: IAutoMovieVector3,
-    feet: Record<"left" | "right", IAutoMovieVector3>,
-    pitch: number,
-  ): void {
-    const m = body.measure;
-    const root: IAutoMovieVector3 = seated.root(body, goal, {
-      yaw: seat.yaw,
-      pitch,
-      roll: 0,
-    });
-    const longest: number = 0.995 * (m.thigh + m.shank);
-    const shortest: number = Math.sqrt(
-      m.thigh * m.thigh +
-        m.shank * m.shank -
-        2 * m.thigh * m.shank * Math.cos((30 * Math.PI) / 180),
-    );
-    for (const side of ["left", "right"] as const) {
-      const hipRest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-      const hip: IAutoMovieVector3 = Vector3.add(
-        root,
-        Quaternion.rotateVector(
-          resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }),
-          hipRest,
+    // Each hand is brought to its rest and the arm's path is the trajectory
+    // planner's (`AutoMovieMotionHumanArm.carried` over a span): a hand with
+    // an armrest is brought onto it as the seat takes the body, where the
+    // lowered shoulder is nearest it; a hand with none hangs while the thighs come up under it and
+    // is laid on its thigh from contact to seated.
+    const together: AutoMovieMotionHumanArmPlanned.ITogether =
+      AutoMovieMotionHumanArmPlanned.together();
+    const arm = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => {
+      const rest: IAutoMovieVector3 | undefined = seat.armrests?.[side];
+      return AutoMovieMotionHumanArm.carried({
+        body,
+        side,
+        from: 0,
+        to: duration,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        weight: (seconds: number): number => hand(side, seconds),
+        goal: (posture: IHumanPosture): IHumanPosture.IGoal =>
+          rest === undefined
+            ? seated.hands(body, posture)[`${side}Arm`]!
+            : seated.armrest(body, posture, side, rest, seat.yaw),
+        span: span(side),
+        together,
+      });
+    };
+
+    /** The body at a second with its seat socket a share of the way back to the seat, its arms hanging. */
+    function lowered(t: number, back: number): IHumanPosture {
+      const across: number = minimumJerk(t / (0.7 * descent)).s;
+      const down: number = minimumJerk(
+        (t - 0.1 * descent) / (contact - 0.1 * descent),
+      ).s;
+      const socket: IAutoMovieVector3 = {
+        x: start.x + (goal.x - start.x) * back,
+        y: start.y + (goal.y - start.y) * down,
+        z: start.z + (goal.z - start.z) * back,
+      };
+      const settle: number = minimumJerk(
+        (t - 0.6 * descent) / (0.4 * descent),
+      ).s;
+      const pitch: number =
+        t < 0.6 * descent
+          ? peak * minimumJerk(t / (0.45 * descent)).s
+          : peak + (final.pitch - peak) * settle;
+      const yaw: number = yaw0 + turn * across;
+      const joints: IHumanPosture["joints"] = {
+        ...stand.RELAXED,
+        ...upright,
+      };
+      for (const [bone, a] of Object.entries(final.joints) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][]) {
+        const was: readonly [number, number, number] = joints[bone] ?? [
+          0, 0, 0,
+        ];
+        joints[bone] = [
+          was[0] + a[0] * settle,
+          was[1] + a[1] * settle,
+          was[2] + a[2] * settle,
+        ];
+      }
+      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+        joints,
+        pitch,
+        HumanTrunk.pelvisLimit(
+          body,
+          seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
+          yaw,
+          feet,
         ),
       );
-      const d: number = Vector3.length(Vector3.subtract(feet[side], hip));
-      if (d > longest || d < shortest) {
-        const dy: number = hip.y - m.ankleHeight;
-        const near: number = Math.sqrt(
-          Math.max(0, shortest * shortest - dy * dy),
-        );
-        const far: number = Math.sqrt(Math.max(0, longest * longest - dy * dy));
-        const edge: number = Math.hypot(hip.x - seat.at.x, hip.z - seat.at.z);
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "seat",
-          value: d,
-          reason: `The ${side} ankle is ${d.toFixed(3)} m from its seated hip; stand with the ankles ${Math.max(0, near - edge).toFixed(3)} to ${(far - edge).toFixed(3)} m ahead of the seat's front edge`,
-          fix: `stand with the ankles ${Math.max(0, near - edge).toFixed(3)} to ${(far - edge).toFixed(3)} m ahead of the seat's front edge`,
-        });
-      }
+      const root: IAutoMovieVector3 = seated.root(body, socket, {
+        yaw,
+        pitch: tilt.pitch,
+        roll: 0,
+      });
+      return resolveHumanPosture.lower(body, {
+        root,
+        yaw,
+        pitch: tilt.pitch,
+        roll: 0,
+        joints: tilt.joints,
+        limbs: legsAt(root, yaw, t),
+      });
     }
-  }
-}
 
-/** An angle wrapped into (-180, 180]. */
-function angle(degrees: number): number {
-  let a: number = degrees % 360;
-  if (a > 180) a -= 360;
-  if (a <= -180) a += 360;
-  return a;
+    /** When a hand leaves its hanging rest and when it rests: on its armrest from 20 % of the descent to contact, on its thigh from contact to seated; it stays there. */
+    function span(
+      side: "left" | "right",
+    ): AutoMovieMotionHumanArmPlanned.ISpan {
+      return seat.armrests?.[side] === undefined
+        ? { start: contact, ready: descent, relax: duration, end: duration }
+        : {
+            start: 0.2 * descent,
+            ready: contact,
+            relax: duration,
+            end: duration,
+          };
+    }
+
+    /** How far a hand is from hanging to resting, at a second. */
+    function hand(side: "left" | "right", t: number): number {
+      const s: AutoMovieMotionHumanArmPlanned.ISpan = span(side);
+      return minimumJerk((t - s.start) / (s.ready - s.start)).s;
+    }
+
+    /** A posture whose fingers straighten from their own to lie flat as each hand comes to rest: the hand is shaped during its transport (Jeannerod 1984). Interim: a blend to a named shape, until the resting hand's fingers are solved onto the surface they rest on as part of its contact. */
+    function shaped(posture: IHumanPosture, t: number): IHumanPosture {
+      const joints: IHumanPosture["joints"] = { ...posture.joints };
+      for (const side of ["left", "right"] as const) {
+        const s: number = hand(side, t);
+        for (const [bone, flat] of Object.entries(
+          HumanHand.shape(side, "flat"),
+        ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+          const was: readonly [number, number, number] = posture.joints[
+            bone
+          ] ?? [0, 0, 0];
+          joints[bone] = [
+            was[0] + (flat[0] - was[0]) * s,
+            was[1] + (flat[1] - was[1]) * s,
+            was[2] + (flat[2] - was[2]) * s,
+          ];
+        }
+      }
+      return { ...posture, joints };
+    }
+
+    // The weight stays over the feet until the seat takes it (Kralj, Jaeger
+    // and Munih 1990): until a pendulum's time constant before contact
+    // (Hof, Gazendam and Sinke 2005, the time the body needs to fall onto
+    // the seat), the seat socket goes back only as far as keeps the centre
+    // of mass where it stands over the feet, read in the world along the
+    // heading so a change of the base under it does not move the mark,
+    // solved by bisection at shares of that time and read linearly between
+    // them; over the last of it the socket comes back onto the seat, which
+    // it reaches at contact.
+    const fall: number = Math.min(
+      contact,
+      1 /
+        resolveAutoMovieCenterOfMass.frequency(
+          resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+        ),
+    );
+    const held: number = contact - fall;
+    const heading: IAutoMovieVector3 = {
+      x: Math.sin((yaw0 * Math.PI) / 180),
+      y: 0,
+      z: Math.cos((yaw0 * Math.PI) / 180),
+    };
+    const ahead = (t: number, back: number): number =>
+      Vector3.dot(HumanBalance.support(body, lowered(t, back)).centre, heading);
+    const stood: number = ahead(0, 0);
+    // The share at which the centre comes back to where it stood is found on
+    // the bracket from no travel to the natural one by the engine's bracketed
+    // root (`bracketedRoot`), until the socket's travel is within the balance
+    // search's resolution (`HumanBalance.TOLERANCE`): the share times the way
+    // back to the seat.
+    const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
+    const balanced = (t: number): number => {
+      const across: number = minimumJerk(t / (0.7 * descent)).s;
+      const behind = (back: number): number => ahead(t, back) - stood;
+      const far: number = behind(across);
+      if (far >= 0) return across;
+      const near: number = behind(0);
+      if (near <= 0 || way <= 0) return 0;
+      return bracketedRoot(
+        (back: number): number =>
+          back === 0 ? near : back === across ? far : behind(back),
+        0,
+        across,
+        HumanBalance.TOLERANCE / way,
+      );
+    };
+    const reaches: number[] = Array.from(
+      { length: SHARES + 1 },
+      (_: unknown, k: number): number =>
+        k === 0 ? 0 : balanced((held * k) / SHARES),
+    );
+    function travel(t: number): number {
+      const across: number = minimumJerk(t / (0.7 * descent)).s;
+      if (t >= contact || held <= 0) return across;
+      const kept = (at: number): number => {
+        const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
+        const k: number = Math.min(SHARES - 1, Math.floor(x));
+        return reaches[k]! + (reaches[k + 1]! - reaches[k]!) * (x - k);
+      };
+      if (t <= held) return Math.min(across, kept(t));
+      const from: number = Math.min(
+        minimumJerk(held / (0.7 * descent)).s,
+        kept(held),
+      );
+      return from + (across - from) * minimumJerk((t - held) / fall).s;
+    }
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base: lowering,
+      clock: AutoMovieMotionClock.of(duration, [
+        { name: "commit", seconds: contact },
+        { name: "seatContact", seconds: contact },
+        { name: "seated", seconds: descent },
+      ]),
+      primitives: [arm("left"), arm("right")],
+      contact: "seatContact",
+    });
+    return { ...composed, base: lowering.base };
+  }
 }

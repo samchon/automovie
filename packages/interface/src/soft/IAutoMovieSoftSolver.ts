@@ -14,7 +14,7 @@ export interface IAutoMovieSoftSolver {
   fixedStepSeconds: number;
 
   /**
-   * Uniform body acceleration in m/s², normally `{ x: 0, y: -9.81, z: 0 }`. A vector rather than a magnitude so a panel can be solved in a tilted frame without rewriting its rest mesh.
+   * Uniform body acceleration in m/s², normally standard gravity, `{ x: 0, y: -9.80665, z: 0 }`. A vector rather than a magnitude so a panel can be solved in a tilted frame without rewriting its rest mesh.
    */
   gravity: IAutoMovieVector3;
 

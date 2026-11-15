@@ -1,5 +1,3 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanBase } from "../law/HumanBase";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
@@ -27,8 +25,8 @@ export interface WorkoutKind {
    */
   anchor: "stance" | "hips" | "bar";
 
-  /** The bones whose mean place is kept while the body works. */
-  pin: readonly AutoMovieHumanoidBone[];
+  /** The bones whose mean place is kept while the body works, or the grip sockets of hands closed on a bar, the bar in the fists. */
+  pin: readonly ExerciseKey.Pin[];
 
   /**
    * The height of what the first posture rests on (a bench, a seat, a
@@ -103,6 +101,27 @@ export interface WorkoutKind {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   rise?(body: IHumanBody): number;
+
+  /**
+   * The height of the bars a `bar` kind is supported on when the author
+   * names none: the places a support exercise's bars stand at, beside the
+   * place stood on, as the dip's law defines its parallel bars "on two bars
+   * at the hips' height", places unless the author names a prop
+   * (`WorkoutBodyweight`). A `bar` kind with neither these nor a support of
+   * its own (`rise`) hangs from a bar it must name.
+   *
+   * @param body The body.
+   * @returns Metres above the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit, where the bars stand and what a kind without it does.
+   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so the bars stand at the body's own height and no equipment size is fixed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a support exercise, whose bars stand within the standing body's reach, places them; a hanging kind still names its bar.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
+   */
+  bars?(body: IHumanBody): number;
 }
 /** Companion types of {@link WorkoutKind}. */
 export namespace WorkoutKind {

@@ -85,6 +85,7 @@ export function createBar(
   builder.affordance({
     id: "bar",
     kind: "bar",
+    symmetry: "round",
     frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
     extent: null,
     grip: "power",

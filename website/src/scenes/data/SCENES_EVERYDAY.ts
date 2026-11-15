@@ -92,7 +92,7 @@ const FALL: IPlaygroundComposition = {
         { name: "walk", params: { to: to(0, 1) } },
         { name: "stagger", params: { speed: 1.2 } },
         { name: "knockdown", params: { seconds: 1 } },
-        { name: "crawl", params: { cycles: 2 } },
+        { name: "getUp", params: {} },
       ],
     },
     {
@@ -172,7 +172,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "fall-and-rise",
     title: "A fall",
     summary:
-      "One person staggers, goes down and crawls away; another braces, crouches and kneels, then rises, rests a hand on her hip and wipes down an imagined counter.",
+      "One person staggers, goes down and gets back up; another braces, crouches and kneels, then rises, rests a hand on her hip and wipes down an imagined counter.",
     setting: "everyday",
     cast: [
       { subject: "dee", role: "the one who falls" },

@@ -1,4 +1,8 @@
-import { createPlyoBox, createPolearm } from "@automovie/archetypes";
+import {
+  createHighJump,
+  createPlyoBox,
+  createPolearm,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -41,12 +45,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * vault.
  *
  * Scenarios, for each of the two bodies:
- * 1. A flop over a 1.4 m bar onto the box's top 2.5 m ahead, out of
+ * 1. A flop over a high jump's 1.4 m crossbar (`createHighJump`, 1.25 m ahead) onto the box's top 2.5 m ahead, out of
  *    standing: halfway to `apex` the centre falls at 9.81 m/s²; at `apex`
  *    the centre is at 1.4 m within 10 mm, the hips face up (their forward
  *    axis rises 0.7 or more) and the head is level with the hips within a
  *    quarter of the stature; at `settled` the body lies on the box's top.
- * 2. The same flop over a 3 m bar is refused as a `parameter` refusal on
+ * 2. The same flop over a 3 m bar (the high jump at its 2.45 m on a platform) is refused as a `parameter` refusal on
  *    `bar`: from either body's take-off centre, about 1 m high, it needs a
  *    vertical speed near 6 m/s, past the world-class men's measured
  *    4.65 ± 0.20 m/s (Nicholson et al. 2022, Front. Sports Act. Living
@@ -79,6 +83,10 @@ export function test_human_motion_gymnastics_jumps(): void {
     headLength: 0.6,
   });
   const upright: IAutoMovieQuaternion = Quaternion.identity();
+  // A high jump whose 30 mm crossbar's axis is at a height, up to the
+  // archetype's 2.45 m top.
+  const jump = (bar: number): ReturnType<typeof createHighJump> =>
+    createHighJump({ height: Math.min(bar + 0.015, 2.45), diameter: 0.03 });
   const complaints: string[] = [];
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -100,13 +108,24 @@ export function test_human_motion_gymnastics_jumps(): void {
             position: { x: 0, y: 0, z: 2.5 },
             rotation: upright,
           }),
+          // The high jump, its crossbar along X between the take-off and
+          // the box; a bar past the archetype's 2.45 m stands on a
+          // platform under its uprights.
+          HumanObject.prop("bar", jump(bar), {
+            position: {
+              x: 0,
+              y: bar - jump(bar).affordance("bar").frame.translation.y,
+              z: 1.25,
+            },
+            rotation: upright,
+          }),
         ],
         composition: HumanChain.subject("a")
           .stand({ seconds: 0.3 })
           .registered("fosburyFlop", {
             to: { x: 0, y: top, z: 2.5 },
             on: "mat",
-            bar,
+            bar: "bar",
           }).node,
       });
     const vault = (run: boolean): HumanPerformance => {

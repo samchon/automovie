@@ -92,6 +92,7 @@ export function createStationery(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length - 0.03),
         Vector3.create(0, 1, 0),
@@ -104,6 +105,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "along",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length),
         Vector3.create(0, 0, 1),
@@ -123,6 +125,7 @@ export function createStationery(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, thick / 2, length / 2 - 0.02),
         Vector3.create(0, 1, 0),
@@ -136,6 +139,7 @@ export function createStationery(
     builder.affordance({
       id: "face",
       kind: "surface",
+      direction: "normal",
       frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
       extent: null,
       width,
@@ -174,6 +178,7 @@ export function createStationery(
   builder.affordance({
     id: "grip",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(-width / 2, thick / 2, 0),
       Vector3.create(0, 1, 0),
@@ -187,6 +192,7 @@ export function createStationery(
   builder.affordance({
     id: "face",
     kind: "surface",
+    direction: "normal",
     frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width,
@@ -196,6 +202,7 @@ export function createStationery(
   builder.affordance({
     id: "edge",
     kind: "handle",
+    symmetry: "none",
     frame: ArchetypeFrame.facing(
       Vector3.create(width / 2, (3 * thick) / 4, 0),
       Vector3.create(1, 0, 0),

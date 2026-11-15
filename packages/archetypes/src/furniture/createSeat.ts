@@ -197,6 +197,7 @@ export function createSeat(
       builder.affordance({
         id: "footrest",
         kind: "bar",
+        symmetry: "round",
         frame: ArchetypeFrame.upright(Vector3.create(0, rest, z)),
         extent: null,
         length: 2 * x,
@@ -229,6 +230,7 @@ export function createSeat(
     builder.affordance({
       id: "grip",
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, height + back - PANEL / 2, z),
         Vector3.create(0, 0, -1),

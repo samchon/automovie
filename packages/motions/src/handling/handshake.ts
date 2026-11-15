@@ -173,10 +173,12 @@ export namespace handshake {
     const shake: number = pumps / FREQUENCY;
     const back: number = reach;
     const duration: number = reach + shake + back;
-    const base: IHumanActionPlan = stand.plan({
-      ...context,
-      params: { seconds: duration },
-    });
+    // The body stands under the handshake, its sway signed in the shaking
+    // hand's frame, so a left handshake mirrors a right one (`stand.plan`).
+    const base: IHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: duration } },
+      side,
+    );
 
     // The hand's grasp frame: palm toward the partner's palm, fingers at the
     // partner along the line that halves the two forearms' angle, then both

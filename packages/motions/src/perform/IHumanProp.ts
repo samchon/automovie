@@ -12,7 +12,7 @@ import type {
  * striking surface, a pad's face or a cup's handle.
  *
  * The prop stays at its rest frame, or on the bone it is worn on, until a
- * hand grips it; while gripped it rides the hand, worn it rides its bone,
+ * hand grips it; while gripped it rides the hand, unless it is a fixture, worn it rides its bone,
  * and it stays where the last grip released it (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
  */
@@ -64,6 +64,15 @@ export interface IHumanProp {
    * absent.
    */
   worn?: IHumanProp.IWorn;
+
+  /**
+   * Whether the prop is a fixture: a thing set in the scene that bears on
+   * the floor or a wall and is never lifted, such as a ladder, a rail or a
+   * wall bar. A hand that grips a fixture bears on it, as a climber's hand
+   * on a rung, and never carries it, so it stays at its rest frame whatever
+   * grips it. Not a fixture when absent.
+   */
+  fixed?: boolean;
 
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];

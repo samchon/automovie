@@ -41,6 +41,9 @@ import type { IHumanProp } from "./IHumanProp";
  * deterministic on a fixed grid whose last sample is the action's end; a
  * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.
+ * An input equal to one the process resolved recently reads that resolution
+ * again (`HumanPerformanceState.of`): the resolution is a pure function of
+ * its input.
  *
  * Sampling a person at a second takes the active action's posture, resolves
  * it to a pose, adds the decaying inertialization offset of the transition
@@ -71,7 +74,7 @@ export class HumanPerformance {
    * @param input The chain seed, the performers, the props and the composition.
    */
   public constructor(input: HumanPerformance.IInput) {
-    this.state = new HumanPerformanceState(input);
+    this.state = HumanPerformanceState.of(input);
     this.schedule = this.state.schedule;
     this.duration = this.state.duration;
     this.performers = this.state.performers;

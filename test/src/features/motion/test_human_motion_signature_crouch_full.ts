@@ -17,8 +17,11 @@ import { motionCrouchSignature } from "../internal/motionCrouchSignature";
  *   above it when raised (provisional).
  * - Balance: a squat held still keeps the centre of mass over the feet,
  *   inside the base of support, or the body would topple (static
- *   equilibrium). Bound: the centre's margin inside the hull of both feet's
- *   soles is not negative at any held instant.
+ *   equilibrium), and it does so on the way down and up as well, the body
+ *   lowered and raised over its feet (static equilibrium at each instant of
+ *   a slow squat). Bound: the centre's margin inside the hull of both feet's
+ *   soles where they bear is not negative at any instant of the film, held
+ *   or moving, and flat heels stay within 20 mm of the floor all the way.
  * - Trunk: a squat inclines the trunk forward to bring the centre of mass
  *   over the feet as the hips go back, more the deeper it is (Hemmerich et
  *   al. 2006). Bound: mean inclination while held, measured from the body's

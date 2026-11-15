@@ -136,10 +136,15 @@ export namespace HumanPerformanceAim {
           | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
           | undefined = prop.point?.(target.point, seconds);
         if (moving !== undefined) return moving;
+        // A prop the performer carries is read on the performer's own body,
+        // as their own region is (`HumanPerformanceRead.prop`).
         const at: IHumanProp.IFrame = HumanPerformanceRead.prop(
           self,
           target.subject,
           seconds,
+          frame.subject === undefined
+            ? undefined
+            : { subject: frame.subject, bones: frame.bones },
         );
         return {
           point: Vector3.add(

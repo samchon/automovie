@@ -1,3 +1,4 @@
+import { AutoMovieGravity } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
@@ -134,7 +135,7 @@ export namespace salto {
                 whole: true,
               },
         reason: `${turns} turn(s) in a flight of ${flight.toFixed(2)} s is ${(turns / flight).toFixed(2)} turns a second, beyond ${RATE}`,
-        fix: `give an apex of at least ${((9.81 * needed * needed) / 8).toFixed(2)} m, or fewer turns`,
+        fix: `give an apex of at least ${((AutoMovieGravity.STANDARD * needed * needed) / 8).toFixed(2)} m, or fewer turns`,
       });
     }
     const total: number = (p.way === "backward" ? -1 : 1) * 360 * turns;

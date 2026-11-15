@@ -85,6 +85,7 @@ export function createParallelBars(
     builder.affordance({
       id: side === 1 ? "barLeft" : "barRight",
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         Vector3.create(x, height, 0),
         Vector3.create(0, 1, 0),

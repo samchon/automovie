@@ -3,6 +3,7 @@ import * as architecture from "./architecture";
 import * as furniture from "./furniture";
 import * as gym from "./gym";
 import * as props from "./props";
+import * as sport from "./sport";
 import * as vehicles from "./vehicles";
 import * as weapons from "./weapons";
 
@@ -17,6 +18,7 @@ export const ARCHETYPE_FAMILIES: Readonly<{
   animals: typeof animals;
   weapons: typeof weapons;
   gym: typeof gym;
+  sport: typeof sport;
 }> = {
   props,
   furniture,
@@ -25,4 +27,5 @@ export const ARCHETYPE_FAMILIES: Readonly<{
   animals,
   weapons,
   gym,
+  sport,
 };

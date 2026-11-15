@@ -1,6 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { AutoMovieGravity } from "./AutoMovieGravity";
 import { IAutoMovieBallisticSolution } from "./IAutoMovieBallisticSolution";
 
 const finiteVector: (v: IAutoMovieVector3) => boolean = (
@@ -51,7 +52,7 @@ export const solveBallisticLaunch: (
   origin: IAutoMovieVector3,
   target: IAutoMovieVector3,
   speed: number,
-  gravity: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 },
+  gravity: IAutoMovieVector3 = AutoMovieGravity.DOWN,
   arc: "direct" | "high" = "direct",
 ): IAutoMovieBallisticSolution | null => {
   if (!Number.isFinite(speed)) return null;

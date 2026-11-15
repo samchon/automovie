@@ -132,6 +132,7 @@ export function createStorage(
       builder.affordance({
         id: `${side}Pull`,
         kind: "handle",
+        symmetry: "none",
         frame: ArchetypeFrame.facing(
           Vector3.create(sign * 0.04, pull, face + PULL),
           Vector3.create(0, 0, 1),
@@ -185,6 +186,7 @@ export function createStorage(
     builder.affordance({
       id: `pull${index}`,
       kind: "handle",
+      symmetry: "none",
       frame: ArchetypeFrame.facing(
         Vector3.create(0, y, face + PULL),
         Vector3.create(0, 0, 1),

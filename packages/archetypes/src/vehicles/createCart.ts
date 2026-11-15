@@ -132,6 +132,7 @@ export function createCart(
     builder.affordance({
       id: "handle",
       kind: "bar",
+      symmetry: "round",
       frame: ArchetypeFrame.upright(v(0, d.handleHeight, bar)),
       extent: null,
       grip: "power",
@@ -198,6 +199,7 @@ export function createCart(
     builder.affordance({
       id: `${side}Handle`,
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         v(x, d.handleHeight, -d.length / 2 + createCart.GRIP / 2),
         v(0, 1, 0),

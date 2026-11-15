@@ -39,6 +39,9 @@ export namespace punchFootwork {
   /** Rear heel raise of a rear-hand punch's ball pivot at contact, degrees (provisional reading of the IBA cross drawing's released heel). */
   export const HEEL_RAISE: number = 15;
 
+  /** The least step along the line the feet take, metres: a launch plan's step no longer than this keeps both feet planted (provisional, a rounding-sized step). */
+  export const STEP: number = 0.02;
+
   /**
    * What the footwork is built from.
    *
@@ -57,8 +60,23 @@ export namespace punchFootwork {
     /** The horizontal unit line to the target. */
     line: IAutoMovieVector3;
 
-    /** The step along the line, metres: positive steps in, the lead foot first and the rear foot dragging after it; negative steps back, the rear foot first and the lead foot after it. */
-    advance: number;
+    /**
+     * The step along the line by a second since the start, metres: positive
+     * steps in, the lead foot first and the rear foot dragging after it;
+     * negative steps back, the rear foot first and the lead foot after it.
+     * The launch plan's step at the start, carried by the tracker's
+     * corrections as they arrive; whether to step, and which way, is decided
+     * by the launch plan's.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit, the sign and what decides the stepping.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     */
+    advance(seconds: number): number;
 
     /** The trunk turn at contact, degrees. */
     turn: number;
@@ -166,8 +184,10 @@ export namespace punchFootwork {
     const rear: "left" | "right" = StrikingStance.rear({ lead });
     // A step in or, before a target too close, a step back along the line,
     // led by the foot on the side it moves toward.
-    const stepping: boolean = Math.abs(advance) > 0.02;
-    const backing: boolean = stepping && advance < 0;
+    // Decided at the launch: a foot does not choose to step mid-delivery.
+    const launched: number = advance(0);
+    const stepping: boolean = Math.abs(launched) > STEP;
+    const backing: boolean = stepping && launched < 0;
     const first: "left" | "right" = backing ? rear : lead;
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
@@ -184,8 +204,9 @@ export namespace punchFootwork {
     // travel is arrested from the speed it had ({@link StrikingArrest}),
     // landing at the planned second, and the rear foot drags up to where the
     // lead foot came to rest, so the stance keeps its length.
-    let travel = (t: number): number => (stepping ? advance * out(t) : 0);
-    let follow = (t: number): number => (stepping ? advance * dragged(t) : 0);
+    let travel = (t: number): number => (stepping ? advance(t) * out(t) : 0);
+    let follow = (t: number): number =>
+      stepping ? advance(t) * dragged(t) : 0;
     // Only a step in can be arrested by a body it meets; a step back moves
     // away from it.
     if (
@@ -196,25 +217,39 @@ export namespace punchFootwork {
       fixed - t0 < shown
     ) {
       const s: number = Math.max(0, fixed - t0);
-      const from: number = advance * out(s);
-      const speed: number = (advance * minimumJerk(s / shown).ds) / shown;
-      const rest: number = StrikingArrest.rest(from, speed, shown - s);
-      travel = (t: number): number =>
-        t <= s
-          ? advance * out(t)
-          : StrikingArrest.settle(from, speed, rest, shown - s, t - s);
+      // Read once the stop is passed: the step by then is what the
+      // corrections arrived before the stop made it.
+      let arrested: { from: number; speed: number; rest: number } | undefined;
+      const arrest = (): { from: number; speed: number; rest: number } => {
+        if (arrested === undefined) {
+          const from: number = advance(s) * out(s);
+          const speed: number =
+            (advance(s) * minimumJerk(s / shown).ds) / shown;
+          arrested = {
+            from,
+            speed,
+            rest: StrikingArrest.rest(from, speed, shown - s),
+          };
+        }
+        return arrested;
+      };
+      travel = (t: number): number => {
+        if (t <= s) return advance(t) * out(t);
+        const { from, speed, rest } = arrest();
+        return StrikingArrest.settle(from, speed, rest, shown - s, t - s);
+      };
       follow =
         s <= dragFrom
-          ? (t: number): number => rest * dragged(t)
+          ? (t: number): number => (t <= s ? 0 : arrest().rest * dragged(t))
           : (t: number): number =>
               t <= s
-                ? advance * dragged(t)
+                ? advance(t) * dragged(t)
                 : StrikingArrest.settle(
-                    advance * dragged(s),
-                    (advance *
+                    advance(s) * dragged(s),
+                    (advance(s) *
                       minimumJerk((s - dragFrom) / (dragTo - dragFrom)).ds) /
                       (dragTo - dragFrom),
-                    rest,
+                    arrest().rest,
                     dragTo - s,
                     t - s,
                   );

@@ -8,6 +8,7 @@ import {
   HumanRefusal,
   type IHumanActionLaw,
   type IHumanBody,
+  type IHumanProp,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -32,8 +33,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    of them takes: refused on `partner`, listing what the row takes.
  * 4. Stairs climbed step over step, six treads, with no stairs given:
  *    planned on the flight the parameters state.
- * 5. Typing at a keyboard whose heading is not given, seated and standing:
- *    refused on `keyboard.yaw`, where the missing heading was read as NaN.
+ * 5. Typing at a keyboard that declares no home row, seated and standing:
+ *    refused on `keyboard`, where a missing member was read as NaN.
  * 6. A headlock with no partner: refused on `partner`, naming no
  *    `undefined`.
  * 7. A pole vault with no pole: refused on the missing parameter, naming no
@@ -175,9 +176,18 @@ export function test_human_motion_core_entry_scenes(): void {
       got === "planned" || got.startsWith("refused on "),
   );
 
-  // 5. Typing at a keyboard with no heading.
+  // 5. Typing at a keyboard with no home row.
+  const bare: IHumanProp = {
+    subject: "keyboard",
+    frame: {
+      position: { x: 0, y: 1, z: 0.4 },
+      rotation: { x: 0, y: 1, z: 0, w: 0 },
+    },
+    points: {},
+    affordances: [],
+  };
   expect(
-    "typing at a keyboard with no heading",
+    "typing at a keyboard with no home row",
     outcome(
       HumanChain.subject("a")
         .sit({
@@ -193,22 +203,26 @@ export function test_human_motion_core_entry_scenes(): void {
           seconds: 0.5,
         })
         .registered("typeText", {
-          keyboard: { at: { x: -1, y: 0.7, z: 0.35 } },
+          keyboard: "keyboard",
           text: "hello",
         }),
+      false,
+      [bare],
     ),
-    (got: string): boolean => got === "refused on keyboard.yaw",
+    (got: string): boolean => got === "refused on keyboard",
   );
 
   expect(
-    "typing standing at a keyboard with no heading",
+    "typing standing at a keyboard with no home row",
     outcome(
       HumanChain.subject("a").registered("typeText", {
-        keyboard: { at: { x: -1, y: 1.0, z: 0.4 } },
+        keyboard: "keyboard",
         text: "the scene opens",
       }),
+      false,
+      [bare],
     ),
-    (got: string): boolean => got === "refused on keyboard.yaw",
+    (got: string): boolean => got === "refused on keyboard",
   );
   // 6. A headlock with no partner.
   expect(
