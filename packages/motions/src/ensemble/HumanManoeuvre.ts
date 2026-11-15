@@ -30,7 +30,7 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a plan decides, the file-order rule, the crossing check and how latency joins.
  * @evidence contracts/development/design.md#principled-representation A plan is a list of parts over the vocabulary's travel.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `plan`, `append` and the drill interval.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `plan`, `append`, the drill interval `INTERVAL`, the arc's step `ARC`, and the steered re-form's `STEERED` and `SPAN`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No manoeuvre is an action law.
  */
 export namespace HumanManoeuvre {

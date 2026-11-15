@@ -162,7 +162,7 @@ import { walkPaced } from "./walkPaced";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit, and its source or that it is provisional.
  * @evidence contracts/development/design.md#principled-representation A cited rate, a dimensionless factor, intervals in seconds and counts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: esolve (the way), ests (its end) and point (the dressed slot), with IStationed, SPACING and DRESS_FREQUENCY.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {

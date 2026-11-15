@@ -38,7 +38,7 @@ import type { IHumanFormation } from "./IHumanFormation";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the pass gives, how each agent is built and from which sources, and the coupling.
  * @evidence contracts/development/design.md#principled-representation A request names goals, a gait, a cue and the obstacles; the result is a course frame per member, the data station keeping reads.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function; the law is the engine's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `steer`, a member's half breadth `half`, and the desired speeds' spread `SPREAD`; the law is the engine's.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is animated by the pass: its courses are frames, walked by the vocabulary.
  */
 export namespace HumanCrowd {

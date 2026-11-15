@@ -28,7 +28,7 @@ import { HumanSkill } from "../skill/HumanSkill";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the model, its terms and sources, the first strike, the lock and what follows the track.
  * @evidence contracts/development/design.md#principled-representation The beat track is the schedule's own cue list; the cadence is a track's name, the striking foot and a beat index.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function returning the strikes' seconds, and its parameter type.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface strikes, returning the strikes' seconds, its parameter type, and the track's eats and period the march also reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No strike is snapped onto its beat: each lands where the model puts it.
  */
 export namespace walkCadence {

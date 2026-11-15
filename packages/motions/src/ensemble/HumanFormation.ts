@@ -27,7 +27,7 @@ import type { IHumanFormation } from "./IHumanFormation";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how a slot is laid and placed and how members keep it.
  * @evidence contracts/development/design.md#principled-representation Reads of the data type `IHumanFormation`; layout geometry stays the engine's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `count`, `local`, `frame`, `slot`, `path`, `assign` and the frame's two defaults.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `capacity`, `count`, `local`, `frame` (fixed, guide, path and course frames), `end`, `slot`, `place`, `path`, `assign`, and the frame's defaults `ACCELERATION`, `TURN` and `SAMPLE`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No second layout formula: every point comes from `formationSlotPosition`.
  */
 export namespace HumanFormation {

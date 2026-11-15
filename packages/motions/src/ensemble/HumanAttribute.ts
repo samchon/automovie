@@ -22,7 +22,7 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each attribute measures, its range and direction, how a member's value is drawn and keyed, and who owns the effects.
  * @evidence contracts/development/design.md#principled-representation A closed union of names, a distribution as a mean and a standard deviation on [0, 1] with its shape, and a draw keyed by stable ids.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The names, the distribution and two draws: a member's attribute value and a member-keyed uniform for the ensemble's other choices.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The names, the distribution, a member's keyed stream (`stream`), its attribute draw (`draw`) and the reading of an effect (`effect`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No ordinal counter is consumed: each draw has its own key.
  */
 export namespace HumanAttribute {
