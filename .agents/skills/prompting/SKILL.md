@@ -43,7 +43,7 @@ Put judgments the agent makes in one reading into one checklist item, and split 
 
 ### Entry files
 
-[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, the task that calls for it, because an agent that does not scan `.agents/skills` finds a skill only through `AGENTS.md`. Lead each trigger with the words of that task. [`CLAUDE.md`](../../../CLAUDE.md) holds only `@AGENTS.md`, which imports that file.
+[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, the task that calls for it, because an agent that does not scan `.agents/skills` finds a skill only through `AGENTS.md`. Start each trigger with the task's verb, such as `Changing` or `Reviewing`. [`CLAUDE.md`](../../../CLAUDE.md) holds only `@AGENTS.md`, which imports that file.
 
 ### Skill files
 

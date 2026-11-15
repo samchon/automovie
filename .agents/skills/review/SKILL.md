@@ -11,7 +11,7 @@ Read the whole declared surface in the current checkout, without splitting it by
 
 Judge each finding before acting on it. Fix every defect the change introduces or worsens, and any pre-existing one inside the task's declared scope; report one outside it without fixing it; drop a preference no rule supports. A readability or flow finding that rests only on [Writing](../documentation/writing.md)'s definition of clear names the misreading it causes, or it is a preference.
 
-Code that Evidence covers with [contracts](../contracts/SKILL.md) checklists gets one complete pass, and its review is done, because the contracts already make CI fail a missing answer and a second pass, which costs hours, repeats what Evidence guards.
+Code that Evidence covers with [contracts](../contracts/SKILL.md) checklists gets one complete pass, and its review is done. Evidence already makes CI fail a missing answer, so a second pass, which costs hours, repeats what it guards.
 
 That pass checks that each checklist answer is true and complete for its declaration. Fix its findings by cause under [`AGENTS.md`](../../../AGENTS.md#fixing-by-cause); a passing test or renamed wrapper does not prove a cause was fixed.
 

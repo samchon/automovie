@@ -40,7 +40,7 @@ Shipped task skills and contracts follow prompting's [skills and contracts](../p
 
 ### Stills only
 
-The agent sees pictures only as still images and cannot hear. No shipped instruction asks it to watch playback, listen or read aloud; the production's [observation rule](../../../packages/template/scaffold/instructions/AGENTS.md#what-you-can-observe) says what it does instead.
+No shipped instruction asks the agent to watch playback, listen or read aloud; the production's [observation rule](../../../packages/template/scaffold/instructions/AGENTS.md#what-you-can-observe) says what it sees and does instead.
 
 ## Repository and scaffold
 

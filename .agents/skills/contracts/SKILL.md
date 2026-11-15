@@ -16,10 +16,14 @@ Each checklist H2 names one item, which every selected declaration answers in it
 
 ## Answering
 
+Answer each item in four steps:
+
 1. Before writing, read the declaration and everything its item asks about, such as its callees, callers, and tests.
 2. Answer every fact the item asks for, from what the code actually does; a partial, generic or untrue answer is a defect.
 3. If the code falls short of the item, fix the code, and state any gap that remains instead of claiming the requirement is met.
-4. Write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line, and `@evidenceExclude` the same way only for an item that does not apply, never for a whole file.
+4. Write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
+
+Use `@evidenceExclude` the same way only for an item that does not apply, never for a whole file.
 
 ## Selection
 
