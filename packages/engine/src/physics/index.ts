@@ -1,3 +1,4 @@
+export * from "./AutoMovieAir";
 export * from "./AutoMovieGravity";
 export * from "./AutoMovieImpactKind";
 export * from "./AutoMovieMotionAudit";
@@ -130,6 +131,9 @@ export * from "./projectPhysicalJointVelocity";
 export * from "./projectPhysicalSupportReach";
 export * from "./projectPhysicalTargets";
 export * from "./projectileAt";
+export * from "./projectileContinue";
+export * from "./projectileDragFlight";
+export * from "./projectileFirstContact";
 export * from "./projectileSphereHit";
 export * from "./projectileTrajectory";
 export * from "./readPhysicalFrame";

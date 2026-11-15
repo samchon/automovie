@@ -1,17 +1,23 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * The first contact found by projectileSphereHit's piecewise straight-chord approximation: seconds since launch and a world-metre contact point. It is not a unitless segment parameter.
+ * A projectile's first contact: seconds since launch and a world-metre contact point, and, from `projectileFirstContact`, the struck surface's outward normal and the collider met. It is not a unitless segment parameter.
  *
- * @evidence contracts/development/design.md#principled-representation The hit reader converts a chord's segmentSphere parameter to its actual projectile-window seconds before constructing this record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One time-and-point result is sufficient for the approximate first-hit consumer; chord stepping remains with the producer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This representation does not certify the exact curved trajectory's first hit or supply a contact normal; those are outside the sampled sphere test.
- * @evidence contracts/development/common.md#meaningful-documentation Members state launch-relative seconds and world metres, removing the former ambiguous time-or-parameter claim.
+ * @evidence contracts/development/design.md#principled-representation The hit reader converts a chord's segmentSphere parameter to its actual projectile-window seconds before constructing this record; the contact search reads the normal and the point off the collider's own nearest-point reading at the contact second.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One time-and-point result with the two optional facts a continuation and a hit record need; chord stepping and the sweep remain with the producers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `projectileSphereHit`'s sampled chords do not certify the exact curved trajectory's first hit and give no normal; the normal and the collider are absent from its records.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state launch-relative seconds, world metres, the normal's direction and who fills the optional members.
  */
 export interface IAutoMovieHit {
-  /** Seconds since launch at first detected chord contact. */
+  /** Seconds since launch at first detected contact. */
   time: number;
 
-  /** Detected chord-contact point in world metres. */
+  /** Contact point in world metres: on the struck surface where the producer reads one. */
   point: IAutoMovieVector3;
+
+  /** The struck surface's outward unit normal at `point`, world frame; absent from a sampled sphere hit. */
+  normal?: IAutoMovieVector3;
+
+  /** The id of the collider met; absent from a sampled sphere hit. */
+  collider?: string;
 }

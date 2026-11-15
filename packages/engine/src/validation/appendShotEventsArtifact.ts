@@ -127,5 +127,31 @@ export const appendShotEventsArtifact: (
         `shot event actionIndex must be null or an integer, but was ${String(event.actionIndex)}`,
         event.actionIndex,
       );
+
+    // The hit record's optional vectors and mass (#3480) are admitted when
+    // present, each finite, so a hit read by a force or a review never
+    // carries a NaN; an event without them is admitted as before.
+    for (const field of ["velocity", "normal", "impulse", "exit"] as const) {
+      const vector: unknown = event[field];
+      if (vector !== undefined)
+        validateVectorArtifact(
+          vector,
+          `${eventPath}.${field}`,
+          `shot event ${field}`,
+          violations,
+        );
+    }
+    const mass: unknown = event.mass;
+    if (
+      mass !== undefined &&
+      !(typeof mass === "number" && Number.isFinite(mass) && mass > 0)
+    )
+      pushViolation(
+        violations,
+        "range",
+        `${eventPath}.mass`,
+        `shot event mass must be finite and positive, but was ${String(mass)}`,
+        mass,
+      );
   }
 };
