@@ -11,6 +11,7 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
 
 /**
  * A manual wheelchair: a self-propelled chair on large rear wheels with handrims, or an attendant-propelled transport chair on small ones, each with its seat, back, armrests, footplates and push handles.
@@ -366,209 +367,10 @@ export namespace createWheelchair {
     id?: string;
   }
 
-  /** The sheet the models are read at. */
-  const SHEET: string =
-    "Karma Medical 2025 global manual wheelchair specification, pp. 66-67 (https://www.karmamedical.com/wp-content/uploads/2021/05/2025-Karma-Medical-Global-Manual-Wheelchair-Specification.pdf)";
-
-  /**
-   * One series' row of the sheet on one wheel size: the figures every seat width shares, millimetres and degrees, and by seat width its overall width and total mass; a 14-inch Ergo row is printed for 6-inch and 7-inch casters, its front-edge height, overall height and masses paired 6-inch first.
-   */
-  interface IRow {
-    series: string;
-    caster: number;
-    depth: number;
-    edge: number;
-    back: number;
-    angle: number;
-    arm: number;
-    foot: readonly [number, number];
-    length: readonly [number, number];
-    height: number;
-    widths: readonly (readonly [number, number, number])[];
-  }
-
-  /** The sheet's rows, pp. 66-67: seat width, overall width and total mass by width. The S-Ergo 125's wide rows (seats of 440 and 500 mm) are printed again under the S-Ergo 115 on p. 68, so the sheet contradicts itself on which model has them; they are left out and the conflict recorded. */
-  const ROWS: Readonly<Record<Kind, readonly IRow[]>> = {
-    selfPropelled: [
-      {
-        series: "ergo3",
-        caster: 7,
-        depth: 435,
-        edge: 485,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 935,
-        widths: [
-          [410, 595, 14.0],
-          [460, 645, 14.3],
-          [510, 695, 14.6],
-        ],
-      },
-      {
-        series: "ergo2",
-        caster: 7,
-        depth: 435,
-        edge: 485,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 935,
-        widths: [
-          [410, 595, 13.7],
-          [460, 645, 14.0],
-          [510, 695, 14.3],
-        ],
-      },
-      {
-        series: "sErgo125",
-        caster: 7,
-        depth: 430,
-        edge: 495,
-        back: 430,
-        angle: 12,
-        arm: 230,
-        foot: [335, 415],
-        length: [1000, 1000],
-        height: 910,
-        widths: [
-          [400, 580, 14.6],
-          [450, 630, 14.8],
-          [500, 680, 15.0],
-        ],
-      },
-      {
-        series: "sErgo115",
-        caster: 7,
-        depth: 420,
-        edge: 495,
-        back: 430,
-        angle: 12,
-        arm: 220,
-        foot: [355, 430],
-        length: [1000, 1000],
-        height: 910,
-        widths: [
-          [400, 580, 13.6],
-          [450, 630, 13.8],
-          [500, 680, 14.0],
-        ],
-      },
-    ],
-    transport: [
-      {
-        series: "ergo3",
-        caster: 6,
-        depth: 435,
-        edge: 435,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 885,
-        widths: [
-          [410, 575, 12.1],
-          [460, 625, 12.4],
-          [510, 675, 12.7],
-        ],
-      },
-      {
-        series: "ergo3",
-        caster: 7,
-        depth: 435,
-        edge: 485,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 935,
-        widths: [
-          [410, 575, 12.5],
-          [460, 625, 12.8],
-          [510, 675, 13.1],
-        ],
-      },
-      {
-        series: "ergo2",
-        caster: 6,
-        depth: 435,
-        edge: 435,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 885,
-        widths: [
-          [410, 575, 11.8],
-          [460, 625, 12.1],
-          [510, 675, 12.4],
-        ],
-      },
-      {
-        series: "ergo2",
-        caster: 7,
-        depth: 435,
-        edge: 485,
-        back: 435,
-        angle: 20,
-        arm: 220,
-        foot: [385, 460],
-        length: [1010, 1030],
-        height: 935,
-        widths: [
-          [410, 575, 12.2],
-          [460, 625, 12.5],
-          [510, 675, 12.8],
-        ],
-      },
-      {
-        series: "sErgo125",
-        caster: 7,
-        depth: 430,
-        edge: 500,
-        back: 430,
-        angle: 12,
-        arm: 230,
-        foot: [335, 415],
-        length: [1010, 1010],
-        height: 905,
-        widths: [
-          [400, 575, 12.9],
-          [450, 625, 13.1],
-          [500, 675, 13.3],
-        ],
-      },
-      {
-        series: "sErgo115",
-        caster: 7,
-        depth: 430,
-        edge: 500,
-        back: 430,
-        angle: 12,
-        arm: 220,
-        foot: [355, 430],
-        length: [1010, 1010],
-        height: 905,
-        widths: [
-          [400, 575, 11.9],
-          [450, 625, 12.1],
-          [500, 675, 12.3],
-        ],
-      },
-    ],
-  };
-
   /** A read model's name: its series, seat width in millimetres and, on 14-inch wheels, its caster in inches, such as `ergo3-460-7`. */
   export type Model = string;
 
-  /** Each kind's read models whole, from `ROWS`: every figure a row gives for one seat width, converted to metres. */
+  /** Each kind's read models whole, from `WHEELCHAIR_SHEET.ROWS`: every figure a row gives for one seat width, converted to metres. */
   export const MODELS: Readonly<
     Record<
       Kind,
@@ -592,7 +394,7 @@ export namespace createWheelchair {
   ): Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> {
     const mm: number = ArchetypeUnits.MILLIMETRE;
     const out: Record<Model, Partial<Record<Dimension, number>>> = {};
-    for (const r of ROWS[kind])
+    for (const r of WHEELCHAIR_SHEET.ROWS[kind])
       for (const [seat, width, mass] of r.widths)
         out[`${r.series}-${seat}-${r.caster}`] = {
           seatWidth: seat * mm,
@@ -622,8 +424,8 @@ export namespace createWheelchair {
     kind: Kind,
     model: Model,
   ): Readonly<Partial<Record<Dimension, IArchetypeBand>>> {
-    const r: IRow = ROWS[kind].find(
-      (row: IRow): boolean =>
+    const r: WHEELCHAIR_SHEET.IRow = WHEELCHAIR_SHEET.ROWS[kind].find(
+      (row: WHEELCHAIR_SHEET.IRow): boolean =>
         model.startsWith(`${row.series}-`) && model.endsWith(`-${row.caster}`),
     )!;
     const mm: number = ArchetypeUnits.MILLIMETRE;
@@ -631,7 +433,7 @@ export namespace createWheelchair {
       footDrop: ArchetypeBand.metres(
         r.foot[0] * mm,
         r.foot[1] * mm,
-        `${SHEET}: footrest to seat distance, ${model}`,
+        `${WHEELCHAIR_SHEET.SOURCE}: footrest to seat distance, ${model}`,
       ),
       ...(r.length[0] === r.length[1]
         ? {}
@@ -639,7 +441,7 @@ export namespace createWheelchair {
             length: ArchetypeBand.metres(
               r.length[0] * mm,
               r.length[1] * mm,
-              `${SHEET}: overall length with legrest, ${model}`,
+              `${WHEELCHAIR_SHEET.SOURCE}: overall length with legrest, ${model}`,
             ),
           }),
     };
