@@ -1,20 +1,25 @@
 import { HumanBlade } from "./HumanBlade";
 import { HumanCarried } from "./HumanCarried";
+import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
 import { HumanEmblem } from "./HumanEmblem";
 import { HumanFirearm } from "./HumanFirearm";
 import { HumanFloorFall } from "./HumanFloorFall";
 import { HumanFloorRoll } from "./HumanFloorRoll";
 import { HumanGait } from "./HumanGait";
+import { HumanGestureRows } from "./HumanGestureRows";
 import { HumanGymnastics } from "./HumanGymnastics";
 import { HumanHabit } from "./HumanHabit";
+import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanLabour } from "./HumanLabour";
 import { HumanManipulate } from "./HumanManipulate";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
 import { HumanPursuit } from "./HumanPursuit";
 import { HumanRegrasp } from "./HumanRegrasp";
+import { HumanRestRows } from "./HumanRestRows";
 import { HumanRide } from "./HumanRide";
+import { HumanSelfActionRows } from "./HumanSelfActionRows";
 import { HumanSocial } from "./HumanSocial";
 import { HumanSport } from "./HumanSport";
 import { HumanSportCarry } from "./HumanSportCarry";
@@ -29,9 +34,12 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
 import { HumanSwordThrust } from "./HumanSwordThrust";
+import { HumanToolRows } from "./HumanToolRows";
+import { HumanTouchRows } from "./HumanTouchRows";
 import { HumanTravelCar } from "./HumanTravelCar";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
+import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
 
@@ -76,4 +84,11 @@ export const HUMAN_LEXICON_FAMILIES = {
   weaponMelee: [HumanWeaponMelee],
   manipulate: [HumanManipulate],
   regrasp: [HumanRegrasp],
+  upperPhrase: [HumanUpperRows],
+  upperGesture: [HumanGestureRows],
+  upperRest: [HumanRestRows],
+  upperTouch: [HumanTouchRows, HumanSelfActionRows],
+  upperFace: [HumanHandToFaceRows],
+  upperDress: [HumanDressRows],
+  upperTool: [HumanToolRows],
 } as const;

@@ -1,0 +1,270 @@
+import { Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
+
+/**
+ * One arm phrase on a target: the hand visits a place, strokes along a path
+ * or oscillates about a pose, on the standard instants of a phrase (Kendon
+ * 1980's preparation, stroke, hold and retraction as BML's `ready`,
+ * `strokeStart`, `stroke`, `strokeEnd` and `relax`). It is the law the
+ * upper-body lexicon's rows are written over (#3361): a wave, a tap, a hand
+ * at rest on the hip, a wipe across a table are each this law with its
+ * phrase, its target and its hand fixed (`HumanUpperRows`), so they share one
+ * plan, one set of refusals and one timing.
+ *
+ * The phrase moves the hand from where the entry pose holds it (its surface's
+ * place in the performer's frame) to the target and back, by the vocabulary's
+ * own arm phrases (`AutoMovieMotionHumanArmPhrase`: `visit`, `stroke`,
+ * `oscillate`), and the composition keeps every other part as the carrier or
+ * the entry state has it (`AutoMovieMotionHumanBase.under`). The target is
+ * any `AutoMovieMotionTarget`, read where it is at the phrase's start: a
+ * region of one's own body or another's, a prop's point, a point in the
+ * performer's frame. An `offset` moves the target's point in the
+ * performer's frame (out, up, forward) by shares of the arm's length (upper
+ * arm, forearm and hand), so one row fits every body. The hand faces against
+ * the target's normal with its fingers up, unless `facing` names it.
+ *
+ * Timing: the preparation and the retraction are travels of the distance
+ * from the hand to the target (`AutoMovieMotionHumanTiming.transport`); a
+ * visit's stroke is instant and its hold the named `hold` pause (a beat when
+ * absent); a stroke takes one travel of its path's length; an oscillation
+ * takes `cycles` beats. The manner's tempo scales every phase and its extent
+ * and curvature reach the phrase (`AutoMovieMotionManner.of`). Events: the
+ * phrase's instants.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the three phrases, what is moved and kept, the target's frame and offset, the facing, every phase's timing and its owner, and the events.
+ * @evidence contracts/development/design.md#principled-representation A law record whose parameters name a phrase, a target and a hand, with a pure plan composed from the vocabulary's phrase primitives.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, the parameters and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm phrases, the clock, the timing, the base and the manner; it writes no movement of its own.
+ * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases on the phrase clock, each phase a minimum-jerk movement through the arm phrases, timed by the vocabulary's transport rule.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Origin, target frame, clock, one primitive, one composition.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; no constant of the phrase is set here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics at plan time; each posture is the primitives' constant work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
+ */
+export namespace armPhrase {
+  /** The law's name, as productions register it. */
+  export const name: string = "armPhrase";
+
+  /** Cancel table: a phrase may be left for anything once it retracts. */
+  export const interrupts: IHumanActionLaw["interrupts"] = {
+    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+  };
+
+  /** A phrase is performed over a carrier that yields its arm and hand. */
+  export const overlay: boolean = true;
+
+  /** The phrase. */
+  export type Phrase = (typeof PHRASES)[number];
+
+  /** The phrases of {@link Phrase}, as data. */
+  export const PHRASES = ["visit", "stroke", "oscillate"] as const;
+
+  /** A point offset in the performer's frame by shares of the arm's length. */
+  export interface IOffset {
+    /** Away from the midline on the acting side. */
+    out: number;
+
+    /** Upward. */
+    up: number;
+
+    /** Forward. */
+    forward: number;
+  }
+
+  /** Parameters. */
+  export interface IParams {
+    /** The phrase. */
+    phrase: Phrase;
+
+    /** Where the hand's surface goes: the visit's place, the stroke's end, the oscillation's pose. */
+    target: AutoMovieMotionTarget;
+
+    /** The target's point moved in the performer's frame by shares of the arm's length; none when absent. */
+    offset?: IOffset;
+
+    /** A stroke's start, by the same shares from the target's point; the target's point when absent. */
+    from?: IOffset;
+
+    /** An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent. */
+    swing?: IOffset;
+
+    /** The oscillation's cycles; 2 when absent. */
+    cycles?: number;
+
+    /** The hand; the right when absent. */
+    side?: HumanHand.Side;
+
+    /** The hand's surface brought to the target; the palm when absent. */
+    surface?: HumanHand.Surface;
+
+    /** The hand's shape; flat when absent. */
+    shape?: HumanHand.Shape;
+
+    /** How the hand is turned; against the target's normal with the fingers up when absent. */
+    facing?: HumanHand.IFacing;
+
+    /** A visit's hold on its place; a beat when absent. */
+    hold?: AutoMovieMotionHumanTiming.Pause;
+
+    /** The manner; neutral when absent. */
+    manner?: AutoMovieMotionManner.IManner;
+  }
+
+  /**
+   * Plan the phrase.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   */
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
+    const p: IParams = context.params;
+    const body: IHumanBody = context.body;
+    const side: HumanHand.Side = p.side ?? "right";
+    const surface: HumanHand.Surface = p.surface ?? "palm";
+    const shape: HumanHand.Shape = p.shape ?? "flat";
+    const hold: IHumanPosture = context.entry.posture;
+    const reach: number = body.measure.upperArm + body.measure.forearm + body.measure.hand;
+    const mods: AutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(context, p.manner);
+
+    // The hand's place before and after, from the entry pose.
+    const origin: AutoMovieMotionHumanArmTarget.IOrigin = AutoMovieMotionHumanArmTarget.origin(
+      body,
+      poseBones(body, context.entry.pose),
+      { origin: hold.root, yaw: hold.yaw },
+      side,
+      surface,
+    );
+
+    // The target where it is at the phrase's start, and a shared offset in
+    // the performer's frame by shares of the arm's length.
+    const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = context.aim(
+      p.target,
+      context.start,
+    );
+    const shift: (o: IOffset | undefined) => IAutoMovieVector3 = (
+      o: IOffset | undefined,
+    ): IAutoMovieVector3 =>
+      o === undefined
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.scale(
+            Vector3.add(
+              Vector3.add(
+                Vector3.scale(HumanHand.direction(side, hold.yaw, "out"), o.out),
+                Vector3.scale(HumanHand.direction(side, hold.yaw, "up"), o.up),
+              ),
+              Vector3.scale(HumanHand.direction(side, hold.yaw, "forward"), o.forward),
+            ),
+            reach,
+          );
+    const place: IAutoMovieVector3 = Vector3.add(aimed.point, shift(p.offset));
+    const rotation: IAutoMovieQuaternion =
+      p.facing !== undefined
+        ? HumanHand.facing(side, hold.yaw, p.facing)
+        : turned(side, aimed.normal);
+    const target: (point: IAutoMovieVector3) => AutoMovieMotionHumanArmTarget.ITarget = (
+      point: IAutoMovieVector3,
+    ): AutoMovieMotionHumanArmTarget.ITarget => ({
+      surface,
+      shape,
+      point,
+      rotation,
+      bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
+    });
+
+    // The phases: travels of the distance to the place, a beat-long stroke
+    // or hold, scaled by the manner's tempo.
+    const start: IAutoMovieVector3 = AutoMovieMotionHumanArmTarget.point(hold, origin);
+    const distance: number = Vector3.length(Vector3.subtract(place, start));
+    const travel: number = AutoMovieMotionHumanTiming.transport(distance);
+    const beat: number = AutoMovieMotionHumanTiming.seconds("beat");
+    const cycles: number = p.cycles ?? 2;
+    const path: number =
+      p.phrase === "stroke" && p.from !== undefined
+        ? Vector3.length(shift(p.from))
+        : 0;
+    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.phrase({
+      prepare: mods.tempo * travel,
+      attack:
+        p.phrase === "oscillate"
+          ? mods.tempo * cycles * beat
+          : p.phrase === "stroke"
+            ? mods.tempo * AutoMovieMotionHumanTiming.transport(path)
+            : 0,
+      hold: p.phrase === "visit" ? mods.tempo * AutoMovieMotionHumanTiming.seconds(p.hold ?? "beat") : 0,
+      retract: mods.tempo * travel,
+    });
+    const phrase: AutoMovieMotionHumanArmPhrase.IPhrase = {
+      body,
+      clock,
+      side,
+      origin,
+      manner: mods,
+    };
+    const primitive: IAutoMovieMotionHumanPrimitive =
+      p.phrase === "visit"
+        ? AutoMovieMotionHumanArmPhrase.visit({ ...phrase, target: () => target(place) })
+        : p.phrase === "stroke"
+          ? AutoMovieMotionHumanArmPhrase.stroke({
+              ...phrase,
+              path: (_posture: IHumanPosture, _seconds: number, progress: number) =>
+                target(Vector3.lerp(Vector3.add(place, shift(p.from)), place, progress)),
+            })
+          : AutoMovieMotionHumanArmPhrase.oscillate({
+              ...phrase,
+              cycles,
+              pose: (_posture: IHumanPosture, _seconds: number, swing: number) =>
+                target(
+                  Vector3.add(
+                    place,
+                    Vector3.scale(shift(p.swing ?? { out: SWING, up: 0, forward: 0 }), swing),
+                  ),
+                ),
+            });
+    return composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      clock,
+      primitives: [primitive],
+      contact: "stroke",
+    });
+  }
+}
+
+/** An oscillation's swing when none is given, a share of the arm's length to each side (provisional: a wave's sweep, read from no measured source). */
+const SWING: number = 0.1;
+
+/** The hand turned to face against a normal with its fingers as near upright as the normal allows. */
+const turned: (side: HumanHand.Side, normal: IAutoMovieVector3) => IAutoMovieQuaternion = (
+  side: HumanHand.Side,
+  normal: IAutoMovieVector3,
+): IAutoMovieQuaternion => {
+  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+  const across: IAutoMovieVector3 = Vector3.subtract(up, Vector3.scale(n, Vector3.dot(up, n)));
+  const fingers: IAutoMovieVector3 =
+    Vector3.length(across) > 1e-6 ? across : { x: 0, y: 0, z: 1 };
+  return HumanHand.rotation(side, { fingers, palm: Vector3.scale(n, -1) });
+};
