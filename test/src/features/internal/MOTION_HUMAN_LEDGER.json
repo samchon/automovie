@@ -1911,6 +1911,14 @@
     },
     {
       "layer": "posture",
+      "symbol": "HumanColliders.bound",
+      "tests": [
+        "test_human_motion_audit_tangle",
+        "test_human_motion_posture_arm_clearance"
+      ]
+    },
+    {
+      "layer": "posture",
       "symbol": "HumanFoot.sockets",
       "tests": [
         "test_motion_posture_frames"

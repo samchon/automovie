@@ -290,6 +290,56 @@ export namespace HumanColliders {
         if (shape.kind === "hull") physicalHullFaces(shape.points);
   }
 
+  /**
+   * A sphere containing a shape, in the shape's own frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
+   * @evidence contracts/development/design.md#principled-representation A centre and a radius, the bound a query tests before the shape itself.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IBall {
+    /** The sphere's centre, shape-local metres. */
+    centre: IAutoMovieVector3;
+
+    /** The sphere's radius, metres. */
+    radius: number;
+  }
+
+  /**
+   * The sphere about a shape's centre that contains it: a sphere's own
+   * radius, a capsule's half length plus radius, a box's half diagonal, a
+   * hull's vertex radius about its vertex mean. A point outside it is outside
+   * the shape, so a query may skip the shape there.
+   *
+   * @param shape The shape.
+   * @returns The sphere, in the shape's frame.
+   * @throws {Error} On an unknown shape kind.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each kind's sphere, its frame and what it allows.
+   * @evidence contracts/development/implementation.md#principled-implementation Each sphere contains its shape: a capsule's farthest point is its half length plus its radius from its centre, a box's its half diagonal, a hull's a vertex.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One case per kind.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown kind throws.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape; a hull reads its faces' cached centre and radius.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A hull's centre and radius come from `physicalHullFaces`, which keeps them by its points.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function bound(shape: P.IShape): IBall {
+    const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    if (shape.kind === "sphere")
+      return { centre: origin, radius: shape.radius };
+    if (shape.kind === "capsule")
+      return { centre: origin, radius: shape.halfLength + shape.radius };
+    if (shape.kind === "box")
+      return { centre: origin, radius: Vector3.length(shape.halfExtents) };
+    if (shape.kind === "hull") {
+      const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
+      return { centre: hull.centre, radius: hull.radius };
+    }
+    shape satisfies never;
+    throw new Error("Unknown physical shape kind");
+  }
+
   /** A profile segment as placed: its bone, its offset from the bone's rest joint, its turn and its shapes. */
   interface ISided {
     /** The bone. */ bone: string;
@@ -312,16 +362,26 @@ export namespace HumanColliders {
       const rest: IAutoMovieVector3 | undefined = rests.get(segment.bone);
       return rest === undefined
         ? null
-        : { bone: segment.bone, offset: Vector3.subtract(segment.neutral.position, rest), rotation: segment.neutral.rotation, shapes: segment.shapes };
+        : {
+            bone: segment.bone,
+            offset: Vector3.subtract(segment.neutral.position, rest),
+            rotation: segment.neutral.rotation,
+            shapes: segment.shapes,
+          };
     };
     const out: ISided[] = [];
     for (const segment of body.profile.segments) {
       const twin: P.ISegment | undefined = segment.bone.startsWith("left")
-        ? body.profile.segments.find((s: P.ISegment): boolean => s.bone === `right${segment.bone.slice(4)}`)
+        ? body.profile.segments.find(
+            (s: P.ISegment): boolean =>
+              s.bone === `right${segment.bone.slice(4)}`,
+          )
         : undefined;
       const read: ISided | null = own(twin ?? segment);
       if (read === null) continue;
-      out.push(twin === undefined ? read : { ...mirrored(read), bone: segment.bone });
+      out.push(
+        twin === undefined ? read : { ...mirrored(read), bone: segment.bone },
+      );
     }
     SIDED.set(body, out);
     return out;
@@ -329,18 +389,30 @@ export namespace HumanColliders {
 
   /** A segment's mirror image in the median plane: x negated in every point and offset, and every turn reflected. */
   function mirrored(segment: ISided): ISided {
-    const point = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -p.x, y: p.y, z: p.z });
-    const turn = (q: P.ITransform["rotation"]): P.ITransform["rotation"] => ({ x: q.x, y: -q.y, z: -q.z, w: q.w });
+    const point = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: -p.x,
+      y: p.y,
+      z: p.z,
+    });
+    const turn = (q: P.ITransform["rotation"]): P.ITransform["rotation"] => ({
+      x: q.x,
+      y: -q.y,
+      z: -q.z,
+      w: q.w,
+    });
     return {
       bone: segment.bone,
       offset: point(segment.offset),
       rotation: turn(segment.rotation),
-      shapes: segment.shapes.map(
-        (shape: P.IShape): P.IShape => {
-          const transform: P.ITransform = { position: point(shape.transform.position), rotation: turn(shape.transform.rotation) };
-          return shape.kind === "hull" ? { ...shape, transform, points: shape.points.map(point) } : { ...shape, transform };
-        },
-      ),
+      shapes: segment.shapes.map((shape: P.IShape): P.IShape => {
+        const transform: P.ITransform = {
+          position: point(shape.transform.position),
+          rotation: turn(shape.transform.rotation),
+        };
+        return shape.kind === "hull"
+          ? { ...shape, transform, points: shape.points.map(point) }
+          : { ...shape, transform };
+      }),
     };
   }
 }
@@ -353,28 +425,3 @@ const CAST_PROBE: number = 1e-4;
 
 /** The most steps a ray is traced for; a ray that needs more only grazes the body. */
 const CAST_STEPS: number = 64;
-
-/** A sphere containing a shape, in the shape's own frame. */
-interface IBall {
-  /** The sphere's centre, shape-local metres. */
-  centre: IAutoMovieVector3;
-
-  /** The sphere's radius, metres. */
-  radius: number;
-}
-
-/** The sphere about a shape's centre that contains it: a sphere's own radius, a capsule's half length plus radius, a box's half diagonal, a hull's vertex radius about its vertex mean. */
-const bound = (shape: P.IShape): IBall => {
-  const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  if (shape.kind === "sphere") return { centre: origin, radius: shape.radius };
-  if (shape.kind === "capsule")
-    return { centre: origin, radius: shape.halfLength + shape.radius };
-  if (shape.kind === "box")
-    return { centre: origin, radius: Vector3.length(shape.halfExtents) };
-  if (shape.kind === "hull") {
-    const hull: physicalHullFaces.IHull = physicalHullFaces(shape.points);
-    return { centre: hull.centre, radius: hull.radius };
-  }
-  shape satisfies never;
-  throw new Error("Unknown physical shape kind");
-};
