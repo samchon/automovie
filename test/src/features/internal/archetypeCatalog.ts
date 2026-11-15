@@ -31,6 +31,7 @@ import {
   createDeck,
   createDevice,
   createDiscus,
+  createDonkey,
   createDoor,
   createDrinkware,
   createDumbbell,
@@ -72,6 +73,7 @@ import {
   createMirror,
   createMobilityAid,
   createMotorcycle,
+  createMule,
   createObstacle,
   createParallelBars,
   createPell,
@@ -418,6 +420,8 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
   add("pony", (seed?: number | string): Archetype => createPony({}, seed));
+  add("donkey", (seed?: number | string): Archetype => createDonkey({}, seed));
+  add("mule", (seed?: number | string): Archetype => createMule({}, seed));
   for (const frame of createHandgun.FRAMES)
     add(
       `handgun-${frame}`,
