@@ -273,7 +273,7 @@ export function fitHingedChainCandidate(
         overshoot: number;
         deviation: number;
         exact?: () => number;
-        then?: () => number;
+        tiebreak?: () => number;
       } => {
         const { mid, lowerWorld, effort, overshoot, turned }: IReading =
           reading(upper, lower);
@@ -286,7 +286,7 @@ export function fitHingedChainCandidate(
               : { exact: (): number => turn(upper, lower) }),
             // A reference pose keeps its side through a stroke, so its turn
             // decides before the strain; without one the strain decides.
-            then: (): number =>
+            tiebreak: (): number =>
               props.referencePose === undefined
                 ? strain(upper, lower, lowerWorld)
                 : turned,

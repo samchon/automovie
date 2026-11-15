@@ -53,6 +53,6 @@ export interface IAutoMovieHingedArticulation extends IAutoMovieSwivelSeed {
   /** The chosen candidate's exact deviation, the scorer's tie-break after the overshoot. */
   deviation: number;
 
-  /** The chosen candidate's second key (the scorer's `then`), when the sweep has a `tie`. */
+  /** The chosen candidate's second key (the scorer's `tiebreak`), when the sweep has a `tie`. */
   second?: number;
 }

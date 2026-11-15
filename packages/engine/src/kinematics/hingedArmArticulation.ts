@@ -119,7 +119,7 @@ export const hingedArmArticulation: (props: {
     overshoot: number;
     deviation: number;
     exact?: () => number;
-    then?: () => number;
+    tiebreak?: () => number;
   };
   excluded?: (
     upper: (swivel: number) => IAutoMovieQuaternion,
@@ -161,8 +161,8 @@ export const hingedArmArticulation: (props: {
    * lower bound of the tie-break and `exact` gives it exactly: a caller
    * whose tie-break ends in a costly non-negative term passes the rest as
    * the bound, and the term is computed only for a comparison the bound
-   * cannot decide. With `tie`, `then` is a second key: two deviations
-   * within `tie` of each other are one, and the lesser `then` decides
+   * cannot decide. With `tie`, `tiebreak` is a second key: two deviations
+   * within `tie` of each other are one, and the lesser `tiebreak` decides
    * (task priority, Siciliano and Slotine 1991: the second objective only
    * among the first's optima).
    */
@@ -173,7 +173,7 @@ export const hingedArmArticulation: (props: {
     overshoot: number;
     deviation: number;
     exact?: () => number;
-    then?: () => number;
+    tiebreak?: () => number;
   };
 
   /**
@@ -197,8 +197,8 @@ export const hingedArmArticulation: (props: {
 
   /**
    * How far apart two deviations may lie and still be one, the unit of
-   * `deviation`, for a score with a second key (`then`); omitted, deviations
-   * are compared exactly and `then` is not read.
+   * `deviation`, for a score with a second key (`tiebreak`); omitted, deviations
+   * are compared exactly and `tiebreak` is not read.
    */
   tie?: number;
 }): IAutoMovieHingedArticulation | null => {
@@ -277,7 +277,7 @@ export const hingedArmArticulation: (props: {
     if (a.exact !== undefined && a.deviation > theirs + props.tie) return false;
     const mine: number = exactOf(a);
     if (Math.abs(mine - theirs) > props.tie) return mine < theirs;
-    return thenOf(a) < thenOf(b);
+    return tiebreakOf(a) < tiebreakOf(b);
   };
 
   // The sweep, with or without the steps `excluded` refuses: a step is
@@ -369,7 +369,7 @@ export const hingedArmArticulation: (props: {
       swivel: seeded.swivel,
       branch: seeded.branch,
       deviation: exactOf(seeded),
-      ...(props.tie === undefined ? {} : { second: thenOf(seeded) }),
+      ...(props.tie === undefined ? {} : { second: tiebreakOf(seeded) }),
     };
   }
 
@@ -392,7 +392,7 @@ export const hingedArmArticulation: (props: {
     swivel: chosen!.swivel,
     branch: chosen!.branch,
     deviation: exactOf(chosen!),
-    ...(props.tie === undefined ? {} : { second: thenOf(chosen!) }),
+    ...(props.tie === undefined ? {} : { second: tiebreakOf(chosen!) }),
   };
 };
 
@@ -414,7 +414,7 @@ interface IScored extends IAutoMovieHingedArticulation {
   known?: number;
 
   /** The second key, compared between deviations within the sweep's `tie` of each other. */
-  then?: () => number;
+  tiebreak?: () => number;
 
   /** The second key once read. */
   second?: number;
@@ -428,9 +428,9 @@ const exactOf = (scored: IScored): number => {
 };
 
 /** A candidate's second key, read once; 0 without one. */
-const thenOf = (scored: IScored): number => {
-  if (scored.then === undefined) return 0;
-  if (scored.second === undefined) scored.second = scored.then();
+const tiebreakOf = (scored: IScored): number => {
+  if (scored.tiebreak === undefined) return 0;
+  if (scored.second === undefined) scored.second = scored.tiebreak();
   return scored.second;
 };
 
