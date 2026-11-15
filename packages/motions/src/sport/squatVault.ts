@@ -37,10 +37,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * the palms are laid on the top at its near edge, then the body tucks over
  * the hands alone in the floor laws' squat (`getUp.POSES`). The flight is
  * ballistic in the root from the push-off under standard gravity
- * (`AutoMovieGravity.STANDARD`), the vertical speed nought there (a
- * horizontal push), its time the fall from the tucked root to the
- * landing's and its horizontal speed the distance over that time, the
- * joints blended from the tuck to the landing on minimum-jerk shares; the
+ * (`AutoMovieGravity.STANDARD`), on the least-speed arc from the tucked
+ * root to the landing's (the push that reaches it with the least effort),
+ * the joints blended from the tuck to the landing on minimum-jerk shares; the
  * flight is declared without turns, so the flight pass gives the whole
  * body's rotation from the angular momentum of none
  * (`IHumanActionPlan.IFlight`, `HumanPerformanceFlight`). The landing is
@@ -50,9 +49,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *
  * The box is the prop's own `surface` affordance: its point the top's
  * middle and its declared `depth` along the prop's own Z, the far edge the
- * end of that depth farther along the heading. A push-off no higher than
- * the landing's root is refused: a horizontal push cannot fly from it.
- * Events: `handsDown`, `tucked` (the push-off), `touchdown`.
+ * end of that depth farther along the heading. A landing that lies no
+ * farther ahead than the push-off is refused: no flight carries the body
+ * over the box to it. Events: `handsDown`, `tucked` (the push-off), `touchdown`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the phases with their owners, the flight's derivation, the box's reading, the refusal, the events and the provisional landing place.
  * @evidence contracts/development/design.md#principled-representation A law record composing the support planner's keys, a ballistic flight and the quiet stance, over the prop's own affordance.
@@ -89,12 +88,12 @@ export namespace squatVault {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop has no `surface`, the support planner refuses its stances, or the push-off is no higher than the landing.
+   * @throws {HumanRefusal} When the prop has no `surface`, the support planner refuses its stances, or the landing lies no farther ahead than the push-off.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The support planner's keys to the push-off, then a ballistic root under gravity from rest vertically, then the quiet stance beyond the far edge.
+   * @evidence contracts/development/implementation.md#principled-implementation The support planner's keys to the push-off, then a ballistic root under gravity on the least-speed arc to the landing, then the quiet stance beyond the far edge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The box's edges, the support plan, the landing, the flight, one posture function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A box too low to fly from is refused, never given a made-up vertical speed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The push's speed and angle follow from the heights and the run in closed form; a landing not ahead is refused, never given a made-up flight.
    * @evidence contracts/development/implementation.md#efficient-algorithms The support keys are solved once; a flight posture is one blend and a closed-form root.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the support planner, its key blend, the workout's support reading, the engine's gravity and the stand law's posture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the support plan and the landing.
@@ -190,22 +189,30 @@ export namespace squatVault {
       limbs: {},
     };
 
-    // The flight: a horizontal push, so the time is the fall from the
-    // tucked root to the landing's.
-    const drop: number = tucked.root.y - landing.root.y;
-    if (!(drop > 0))
+    // The flight: the least-speed ballistic arc from the tucked root to the
+    // landing's, the push that reaches it with the least effort. For a rise
+    // `h` over a run `d` its speed squared is `g (h + sqrt(h^2 + d^2))` and
+    // its angle's tangent `(h + sqrt(h^2 + d^2)) / d`.
+    const run: IAutoMovieVector3 = {
+      ...Vector3.subtract(landing.root, tucked.root),
+      y: 0,
+    };
+    const d: number = Vector3.length(run);
+    const h: number = landing.root.y - tucked.root.y;
+    if (!(d > 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "on",
         value: context.params.on,
-        reason: `the push-off's root stands ${(-drop).toFixed(3)} m below the landing's, so no horizontal push flies over ${context.params.on}`,
-        fix: "vault a box high enough to push off from",
+        reason: `the landing beyond ${context.params.on} lies ${d.toFixed(3)} m ahead of the push-off, so no flight carries the body over it`,
+        fix: "vault a box that lies ahead of the body",
       });
-    const flight: number = Math.sqrt((2 * drop) / g);
-    const speed: IAutoMovieVector3 = Vector3.scale(
-      { ...Vector3.subtract(landing.root, tucked.root), y: 0 },
-      1 / flight,
-    );
+    const lift: number = h + Math.sqrt(h * h + d * d);
+    const launch: number = Math.sqrt(g * lift);
+    const angle: number = Math.atan2(lift, d);
+    const flight: number = d / (launch * Math.cos(angle));
+    const rise: number = launch * Math.sin(angle);
+    const speed: IAutoMovieVector3 = Vector3.scale(run, 1 / flight);
     const hold: number = context.params.seconds ?? 0.5;
     const touchdown: number = push + flight;
     const duration: number = touchdown + hold;
@@ -260,7 +267,7 @@ export namespace squatVault {
           ...shaped,
           root: {
             x: tucked.root.x + speed.x * u,
-            y: tucked.root.y - 0.5 * g * u * u,
+            y: tucked.root.y + rise * u - 0.5 * g * u * u,
             z: tucked.root.z + speed.z * u,
           },
         };
