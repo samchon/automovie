@@ -21,6 +21,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
+import type { StrikingHeld } from "../striking/StrikingHeld";
+import { operateDrive } from "./operateDrive";
+import { operateInsert } from "./operateInsert";
 
 /**
  * Operating an articulated thing with one hand while standing: pressing a
@@ -56,6 +59,16 @@ import { poseBones } from "../posture/poseBones";
  * Events: the phrase's `ready` (contact or grip closed), `strokeStart`,
  * `stroke`, `strokeEnd` (bottom out, travel end, swing end) and `relax`
  * (release).
+ *
+ * On a prop that articulates (`IHumanProp.articulate`), the operated
+ * contact names the articulation it is or rides, the amount is that
+ * articulation's travel in its own unit and sign, the hand follows the
+ * contact of the prop posed at the travel the stroke has reached, and the
+ * plan drives the articulation by the same function (`operateDrive`,
+ * `IHumanActionPlan.drives`), so the door stays open after the hand lets go
+ * and the hand cannot drift off the handle. The `insert` mechanism moves a
+ * held prop's working point along a socket's axis instead
+ * (`operateInsert`).
  *
  * Not yet: the A8 affordance kinds (`hinge`, `slider`, `knob`, `button`) in
  * the interface, which the core owns, so the mechanism is stated here; the
@@ -124,7 +137,8 @@ export namespace operate {
         hinge: AutoMovieMotionTarget;
         /** How far the leaf swings, degrees; positive pulls it toward the hand. */
         swing: number;
-      };
+      }
+    | operateInsert.IMechanism;
 
   /**
    * Parameters.
@@ -169,6 +183,7 @@ export namespace operate {
     knob: 0.05,
     slider: 0.03,
     hinge: 0.03,
+    insert: 0.03,
   };
 
   /**
@@ -235,6 +250,15 @@ export namespace operate {
           roll: 0,
         };
       }
+      case "insert":
+        return {
+          point: Vector3.add(
+            place.point,
+            Vector3.scale(n, -operateInsert.depth(mechanism, progress)),
+          ),
+          normal: n,
+          roll: 0,
+        };
     }
   }
 
@@ -252,7 +276,9 @@ export namespace operate {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const place = context.aim(mechanism.at, context.start);
+    const at: AutoMovieMotionTarget =
+      mechanism.kind === "insert" ? mechanism.into : mechanism.at;
+    const place = context.aim(at, context.start);
     const hinge: IAutoMovieVector3 | undefined =
       mechanism.kind === "hinge"
         ? context.aim(mechanism.hinge, context.start).point
@@ -275,8 +301,22 @@ export namespace operate {
               )) /
             PACE.swing
           );
+        case "insert":
+          return operateInsert.travel(mechanism) / PACE.slide;
       }
     })();
+
+    // On a prop that articulates, the hand follows the part the prop poses
+    // and the operation drives that articulation; a held prop inserted into
+    // a socket is moved by the hand that holds it.
+    const part: operateDrive.IPart | undefined =
+      mechanism.kind === "insert"
+        ? undefined
+        : operateDrive.part(context, at, operateDrive.amount(mechanism));
+    const inserted: StrikingHeld.ITool | undefined =
+      mechanism.kind === "insert"
+        ? operateInsert.tool(context, mechanism, side)
+        : undefined;
     const origin: AutoMovieMotionHumanArm.IOrigin =
       AutoMovieMotionHumanArm.origin(
         body,
@@ -318,7 +358,22 @@ export namespace operate {
       posture: IHumanPosture,
       progress: number,
     ): AutoMovieMotionHumanArm.ITarget => {
-      const now = state(mechanism, place, hinge, progress);
+      if (mechanism.kind === "insert")
+        return operateInsert.target(
+          context,
+          mechanism,
+          inserted!,
+          place,
+          posture,
+          progress,
+        );
+      const now: { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } =
+        part === undefined
+          ? state(mechanism, place, hinge, progress)
+          : {
+              ...part.place(progress),
+              roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,
+            };
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const ahead: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -404,7 +459,7 @@ export namespace operate {
       });
     // Refuse at plan time a part whose movement leaves the reach.
     for (let k: number = 0; k <= 8; k++) lean.pitch(standing, k / 8);
-    return composeAutoMovieMotionHumanAction({
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "strokeEnd",
@@ -418,14 +473,19 @@ export namespace operate {
           contact: {
             kind: "grip",
             support:
-              mechanism.at.kind === "prop"
-                ? { kind: "prop", subject: mechanism.at.subject }
-                : { kind: "ground" },
+              mechanism.kind === "insert"
+                ? { kind: "prop", subject: mechanism.prop }
+                : at.kind === "prop"
+                  ? { kind: "prop", subject: at.subject }
+                  : { kind: "ground" },
           },
           path: (posture: IHumanPosture, _: number, progress: number) =>
             target(posture, progress),
         }),
       ],
     });
+    return part === undefined
+      ? composed
+      : { ...composed, drives: [operateDrive.drive(part, clock)] };
   }
 }

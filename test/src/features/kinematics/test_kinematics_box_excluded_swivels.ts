@@ -172,13 +172,15 @@ export function test_kinematics_box_excluded_swivels(): void {
     "leftUpperArm",
     DEFAULT_HUMANOID_ROM.leftUpperArm!,
   );
-  const elsewhere: (low: number, high: number) => boolean = boxExcludedSwivels({
-    basis: foreign.basis,
-    frame: foreign.frame,
-    constraint: foreign.constraint,
-    joint: swingTwistRange.of("leftUpperArm"),
-    rotation: turning(random),
-  });
+  const elsewhere: (low: number, high: number) => boolean = boxExcludedSwivels(
+    {
+      basis: foreign.basis,
+      frame: foreign.frame,
+      constraint: foreign.constraint,
+      joint: swingTwistRange.of("leftUpperArm"),
+      rotation: turning(random),
+    },
+  );
   TestValidator.equals(
     "a gate read on another basis refuses nothing",
     Array.from({ length: 360 }, (_: unknown, swivel: number): number => swivel)

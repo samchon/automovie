@@ -40,6 +40,7 @@
  * - `climbStairs`: climbing a flight of stairs up or down, step over step or step by step.
  * - `throwObject`: throwing a held object overarm, underarm or as a toss along a ballistic path to a target.
  * - `catchObject`: catching a thrown object where its path enters the reach, giving with it and holding it.
+ * - `release`: a hand opening on what it holds, the prop leaving with the hand's velocity.
  * - `operate`: pressing a button, turning a knob, sliding a drawer or swinging a door by its handle.
  * - `lieDown`: lying down on the floor from standing, supine, prone or on a side.
  * - `getUp`: getting up from the floor to standing, from the back, the front or the hands and knees, symmetrically or by rolling over.
@@ -102,6 +103,7 @@ export type HumanActionName =
   | "climbStairs"
   | "throwObject"
   | "catchObject"
+  | "release"
   | "operate"
   | "lieDown"
   | "getUp"

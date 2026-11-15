@@ -173,6 +173,22 @@ export namespace resolveAutoMovieSchedule {
     cues?: Readonly<Record<string, readonly ICue[]>>;
 
     /**
+     * The instants of a track the laws compute from what is placed so far,
+     * read when an `at` names neither an anchor nor a track of `cues`: the
+     * hits a struck person has received, known only once their strikers
+     * are placed. Undefined for a name the laws do not know, which the
+     * walk then refuses as a missing anchor. Pure in the entries given.
+     *
+     * @param of The track's name.
+     * @param entries Entries placed so far, in walk order.
+     * @returns The instants, or undefined.
+     */
+    instants?(
+      of: string,
+      entries: readonly IAutoMovieSchedule.IEntry[],
+    ): readonly ICue[] | undefined;
+
+    /**
      * The second an intent must start at for its named instant to fall on a
      * target second. It places nothing: the intent is timed again when it
      * is placed at the second returned.

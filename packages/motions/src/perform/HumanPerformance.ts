@@ -8,6 +8,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
+  IAutoMovieInteractionEvent,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,9 +17,13 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import type { HumanBlast } from "./HumanBlast";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPropFlight } from "./HumanPropFlight";
+import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
@@ -66,7 +71,7 @@ export class HumanPerformance {
   public readonly performers: readonly IHumanPerformer[];
 
   /** Everything the performance resolved, which its readers share. */
-  private readonly state: HumanPerformanceState;
+  private readonly resolved: HumanPerformanceState;
 
   /**
    * Resolve a performance.
@@ -74,10 +79,10 @@ export class HumanPerformance {
    * @param input The chain seed, the performers, the props and the composition.
    */
   public constructor(input: HumanPerformance.IInput) {
-    this.state = HumanPerformanceState.of(input);
-    this.schedule = this.state.schedule;
-    this.duration = this.state.duration;
-    this.performers = this.state.performers;
+    this.resolved = HumanPerformanceState.of(input);
+    this.schedule = this.resolved.schedule;
+    this.duration = this.resolved.duration;
+    this.performers = this.resolved.performers;
   }
 
   /**
@@ -88,7 +93,7 @@ export class HumanPerformance {
    * @returns The pose.
    */
   public pose(subject: string, seconds: number): IAutoMoviePose {
-    return HumanPerformanceRead.pose(this.state, subject, seconds);
+    return HumanPerformanceRead.pose(this.resolved, subject, seconds);
   }
 
   /**
@@ -100,7 +105,7 @@ export class HumanPerformance {
    * @returns The posture.
    */
   public posture(subject: string, seconds: number): IHumanPosture {
-    return HumanPerformanceRead.posture(this.state, subject, seconds);
+    return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
   /**
@@ -114,7 +119,7 @@ export class HumanPerformance {
     subject: string,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return HumanPerformanceRead.bones(this.state, subject, seconds);
+    return HumanPerformanceRead.bones(this.resolved, subject, seconds);
   }
 
   /**
@@ -137,7 +142,50 @@ export class HumanPerformance {
    * @returns Its frame.
    */
   public prop(subject: string, seconds: number): IHumanProp.IFrame {
-    return HumanPerformanceRead.prop(this.state, subject, seconds);
+    return HumanPerformanceRead.prop(this.resolved, subject, seconds);
+  }
+
+  /**
+   * The travel of every articulation of a prop that an act or the prop's own
+   * track has moved by a film second (`HumanPerformanceObject.state`): the
+   * latest drive or track begun sets it, and after it ends its last travel
+   * holds. An articulation absent from the record is at rest.
+   *
+   * @param subject The prop.
+   * @param seconds Film seconds.
+   * @returns Travel by articulation id, in each articulation's own unit.
+   */
+  public state(subject: string, seconds: number): Record<string, number> {
+    const prop: IHumanProp | undefined = this.resolved.props.get(subject);
+    if (prop === undefined)
+      throw HumanPerformanceRead.missing("prop", subject, [
+        ...this.resolved.props.keys(),
+      ]);
+    return HumanPerformanceObject.state(this.resolved, prop, seconds);
+  }
+
+  /**
+   * A prop's flights in film order (`HumanPropFlight`): each launch an
+   * action published, its engine flight and its first contact, for audits
+   * and the hit record.
+   *
+   * @param subject The prop.
+   * @returns The flights; none for a prop never launched.
+   */
+  public flights(subject: string): readonly HumanPropFlight.IFlight[] {
+    return HumanPropFlight.flights(this.resolved, subject);
+  }
+
+  /**
+   * Every hit of the performance in time order, or those on one person or
+   * prop (`HumanPerformanceHits`): melee stops, blasts and flights' first
+   * contacts, each as the one shared interaction record.
+   *
+   * @param subject The struck person or prop; every hit when absent.
+   * @returns The hits.
+   */
+  public hits(subject?: string): readonly IAutoMovieInteractionEvent[] {
+    return HumanPerformanceHits.hits(this.resolved, subject);
   }
 
   /**
@@ -149,7 +197,7 @@ export class HumanPerformance {
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
   public instant(at: IHumanLayer.Instant): number {
-    return HumanPerformanceLayers.instant(this.state, at);
+    return HumanPerformanceLayers.instant(this.resolved, at);
   }
 
   /**
@@ -159,7 +207,7 @@ export class HumanPerformance {
    * @returns The segments.
    */
   public segments(subject: string): readonly HumanSegment.ISegment[] {
-    return HumanPerformanceRead.segments(this.state, subject);
+    return HumanPerformanceRead.segments(this.resolved, subject);
   }
 
   /**
@@ -170,7 +218,7 @@ export class HumanPerformance {
    * @returns The overlays.
    */
   public overlays(subject: string): readonly HumanSegment.IOverlay[] {
-    return HumanPerformanceRead.overlays(this.state, subject);
+    return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 
   /**
@@ -193,7 +241,7 @@ export class HumanPerformance {
       bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
     },
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    return HumanPerformanceAim.aim(this.state, target, seconds, frame);
+    return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }
 }
 
@@ -264,5 +312,11 @@ export namespace HumanPerformance {
      * through a solid; none when absent, and then every path is free.
      */
     obstacles?: readonly HumanObstacle.IObstacle[];
+
+    /**
+     * Blasts in the scene: each gives a hit to every person within its
+     * radius at its instant (`HumanBlast`, `hits`). None when absent.
+     */
+    blasts?: readonly HumanBlast.IBlast[];
   }
 }

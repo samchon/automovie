@@ -1,7 +1,11 @@
-import type { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieProjectile,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -102,6 +106,23 @@ export interface IHumanActionPlan {
    * (`IHumanProp.worn`).
    */
   wears?: readonly IHumanActionPlan.IWear[];
+
+  /**
+   * Articulations of props this action moves: a door's hinge the hand
+   * swings, a trigger it presses, a slider it draws. Each writes the travel
+   * of one articulation over a window of the action; the performance poses
+   * the prop by them (`HumanPerformance.state`), and after a drive ends its
+   * last travel holds. A drive writes travel only, never the prop's frame.
+   */
+  drives?: readonly IHumanActionPlan.IDrive[];
+
+  /**
+   * Props this action sets flying: a thrown bottle at the hand's opening, an
+   * arrow at the loose, a ball at the trigger's break. From its second the
+   * prop leaves every grip and flies from the launch's point and velocity
+   * until its flight ends (`HumanPerformance.flights`).
+   */
+  launches?: readonly IHumanActionPlan.ILaunch[];
 
   /**
    * Hands this action drives with no contact window, such as a wave or a
@@ -228,6 +249,51 @@ export namespace IHumanActionPlan {
 
     /** Share of this action from which the prop is worn. */
     from: number;
+  }
+
+  /** An articulation of a prop driven by the action. */
+  export interface IDrive {
+    /** The prop's subject id. */
+    prop: string;
+
+    /** The articulation affordance driven. */
+    articulation: string;
+
+    /** Share of this action from which it drives. */
+    from: number;
+
+    /** Share of this action until which it drives. */
+    to: number;
+
+    /**
+     * The articulation's travel at a second of the action, in its own unit
+     * (degrees for a turning kind, metres otherwise). Pure.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns The travel.
+     */
+    travel(seconds: number): number;
+  }
+
+  /** A prop launched by the action. */
+  export interface ILaunch {
+    /** The prop that flies: a held prop the hand lets go, or one the action sets on its way. */
+    prop: string;
+
+    /** Seconds from the action's start. */
+    seconds: number;
+
+    /** World metres at launch: where the prop's own origin is. */
+    point: IAutoMovieVector3;
+
+    /** World metres per second at launch, any carrier's velocity included. */
+    velocity: IAutoMovieVector3;
+
+    /** The prop's rotation at launch, prop to world; its displayed rotation then when absent. */
+    rotation?: IAutoMovieQuaternion;
+
+    /** How it turns in flight (`IAutoMovieProjectile.attitude`); its launch rotation kept when absent. */
+    attitude?: IAutoMovieProjectile.Attitude;
   }
 
   /** A prop left held in one hand. */

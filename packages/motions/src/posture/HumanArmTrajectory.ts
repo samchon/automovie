@@ -212,11 +212,7 @@ export namespace HumanArmTrajectory {
     let most: number = 1;
     x.forEach((arm: readonly (readonly number[])[], a: number): void => {
       for (let k: number = 0; k + 1 < c.n; ++k) {
-        const now: G.IPlaced = G.placed(
-          c.setups[a]!,
-          c.frames[a]![k]!,
-          arm[k]!,
-        );
+        const now: G.IPlaced = G.placed(c.setups[a]!, c.frames[a]![k]!, arm[k]!);
         const next: G.IPlaced = G.placed(
           c.setups[a]!,
           c.frames[a]![k + 1]!,

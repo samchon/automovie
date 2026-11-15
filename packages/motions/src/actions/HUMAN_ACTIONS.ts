@@ -51,6 +51,7 @@ import { useTool } from "../tasks/useTool";
 import { wipe } from "../tasks/wipe";
 import { climbStairs } from "../terrain/climbStairs";
 import { catchObject } from "../throwing/catchObject";
+import { release } from "../throwing/release";
 import { throwObject } from "../throwing/throwObject";
 import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
@@ -106,6 +107,7 @@ export const HUMAN_ACTIONS: Readonly<
   climbStairs,
   throwObject,
   catchObject,
+  release,
   operate,
   lieDown,
   getUp,

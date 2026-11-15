@@ -1,6 +1,7 @@
 import {
   AutoMovieGravity,
   AutoMovieStationHermite,
+  type IAutoMovieProjectile,
   Quaternion,
   Vector3,
   minimumJerk,
@@ -13,6 +14,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -66,8 +68,11 @@ import { throwObjectRelease } from "./throwObjectRelease";
  * rotation for an overarm throw), `release`, `followThrough`, `recover`.
  *
  * The plan carries its launch (`of`), so a catcher can intercept the path.
- * Not yet: the stride, the two-hand chest pass and overhead throws, a held
- * prop riding the hand to release, the release-timing scatter of the
+ * A thrown `prop` rides the hand by a grip window to the release and is
+ * launched there (`IHumanActionPlan.launches`), so it flies the same path;
+ * `angle` replaces the style's release angle for a row with its own.
+ * Not yet: the stride, the two-hand chest pass and overhead throws, an
+ * implement that lengthens the arm, the release-timing scatter of the
  * endpoint-error model (Hore et al. 1995), and feints.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the launch law, the places, the hand's time course, the trunk's sequence, the events and what is missing, with sources and provisional values marked.
@@ -122,6 +127,19 @@ export namespace throwObject {
 
     /** The throwing hand; `right` when absent. */
     hand?: HumanHand.Side;
+
+    /**
+     * The held prop thrown: it rides the hand to the release, then flies
+     * from it (`IHumanActionPlan.launches`). The empty hand throws when
+     * absent, as before.
+     */
+    prop?: string;
+
+    /** The release angle above the horizontal, degrees; the style's when absent. */
+    angle?: number;
+
+    /** How the prop turns in flight (`IAutoMovieProjectile.attitude`): along its velocity for a javelin, a spin for a knife; its release rotation kept when absent. */
+    attitude?: IAutoMovieProjectile.Attitude;
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -218,14 +236,16 @@ export namespace throwObject {
     // The launch velocity by the range equation at the style's angle.
     const delta: IAutoMovieVector3 = Vector3.subtract(target, release);
     const d: number = Math.hypot(delta.x, delta.z);
-    const angle: number = (throwObjectForm.ANGLE[style] * Math.PI) / 180;
+    const degrees: number =
+      context.params.angle ?? throwObjectForm.ANGLE[style];
+    const angle: number = (degrees * Math.PI) / 180;
     const lift: number = d * Math.tan(angle) - delta.y;
     if (!(d > 1e-6 && lift > 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "at",
         value: d,
-        reason: `a ${style} throw at ${throwObjectForm.ANGLE[style]} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
+        reason: `a ${style} throw at ${degrees} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
         fix: "aim at a nearer or lower target, or choose a style with a steeper release",
       });
     const speed: number = Math.sqrt(
@@ -372,10 +392,14 @@ export namespace throwObject {
         rotation: Quaternion.slerp(finished, restTurn, u),
       };
     };
+    const prop: string | undefined = context.params.prop;
     const throwing: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
       to: duration,
+
+      // A thrown prop rides the hand until the release.
+      contacts: throwObjectLaunch.held(prop, side, clock.at("release") / duration),
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const g = grip(posture, seconds);
         const wrist: HumanHand.IWrist = HumanHand.place(
@@ -457,6 +481,16 @@ export namespace throwObject {
         seconds: clock.at("release"),
         target,
       },
+      // The prop leaves with the support's velocity added (#3491).
+      launches: throwObjectLaunch.launches(prop, context.params.attitude, {
+        point: release,
+        velocity: Vector3.add(
+          velocity,
+          HumanSupportFrame.at(context, context.start + clock.at("release")).velocity,
+        ),
+        seconds: clock.at("release"),
+        target,
+      }),
     };
   }
 }

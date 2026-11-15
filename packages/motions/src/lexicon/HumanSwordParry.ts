@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { tags } from "typia";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
@@ -305,12 +306,15 @@ export namespace HumanSwordParry {
       const recovery: number = StrikingSkill.recovery(context.skill);
       return StrikingBlade.plan(context, {
         tool: s.tool,
-        clock: AutoMovieMotionClock.phrase({
-          prepare: Math.max(0, lead - natural),
-          attack: lead >= 0.1 ? Math.min(lead, natural) : natural,
-          hold: HumanBound.least("hold", context.params.hold ?? 0.15, 0, "s"),
-          retract: 0.35 * recovery,
-        }),
+        clock: AutoMovieMotionManner.time(
+          AutoMovieMotionClock.phrase({
+            prepare: Math.max(0, lead - natural),
+            attack: lead >= 0.1 ? Math.min(lead, natural) : natural,
+            hold: HumanBound.least("hold", context.params.hold ?? 0.15, 0, "s"),
+            retract: 0.35 * recovery,
+          }),
+          AutoMovieMotionManner.of(context, context.params.manner),
+        ),
         path: (progress: number): StrikingHeld.IHandFrame => ({
           point: Vector3.lerp(held.point, closed.point, Math.min(1, progress)),
           rotation: Quaternion.slerp(

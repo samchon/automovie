@@ -151,7 +151,9 @@ export function swingTwistExcludedSwivels(props: {
   );
   if (
     greatest < 180 &&
-    refuse(fit(({ d }): number => Math.cos(greatest * Quaternion.DEG2RAD) - d))
+    refuse(
+      fit(({ d }): number => Math.cos(greatest * Quaternion.DEG2RAD) - d),
+    )
   )
     return (): boolean => true;
 

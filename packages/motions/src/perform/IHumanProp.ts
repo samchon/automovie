@@ -1,11 +1,14 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieBody,
   IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import type { IHumanLayer } from "../law/IHumanLayer";
 
 /**
  * A prop actions can aim at and hands can hold: a subject id, its world
@@ -91,6 +94,35 @@ export interface IHumanProp {
 
   /** Colliders in the prop's frame, for finger closure until contact and penetration audits. */
   shapes?: readonly IAutoMoviePhysicalProfile.IShape[];
+
+  /**
+   * The prop posed at stated travels of its articulations, for a prop whose
+   * parts an act moves (a door's leaf, a trigger, a bowstring): its contacts
+   * and colliders in its own frame with the parts moved. The performance
+   * reads it at the travels the drives and tracks give at a second
+   * (`HumanPerformance.state`), so a hand reaching a handle after the door
+   * was opened goes to where the handle is. Absent for a rigid prop.
+   *
+   * @param state Travel by articulation id, in each articulation's own unit; an articulation left out stays at rest.
+   * @returns The posed contacts and colliders.
+   * @throws {Error} When a travel lies outside its articulation's range.
+   */
+  articulate?(state: Readonly<Record<string, number>>): IHumanProp.IPosed;
+
+  /**
+   * The prop's own movements after a trigger, each an articulation's travel
+   * from a start instant: a trebuchet's arm swinging once its pin is pulled,
+   * a door swinging shut on its closer. They share one state with the
+   * performance's drives. None when absent.
+   */
+  tracks?: readonly IHumanProp.ITrack[];
+
+  /**
+   * The prop's physical data as its model declares it: its mass, which a
+   * hit it delivers in flight carries, and the contact data its flights read
+   * (`HumanPropFlight`). Absent when the model declares none.
+   */
+  body?: IAutoMovieBody;
 }
 /**
  * Companion types of {@link IHumanProp}.
@@ -111,6 +143,35 @@ export namespace IHumanProp {
 
     /** The prop's frame in the bone's posed frame, metres. */
     offset: IFrame;
+  }
+
+  /** A prop posed at travels of its articulations, in its own frame. */
+  export interface IPosed {
+    /** Its contacts, with the moved parts' contacts moved. */
+    affordances: readonly IAutoMovieAffordance[];
+
+    /** Its colliders, with the moved parts' colliders moved; absent when the prop declares none. */
+    shapes?: readonly IAutoMoviePhysicalProfile.IShape[];
+  }
+
+  /** An articulation's travel run by the prop itself from a start instant. */
+  export interface ITrack {
+    /** The articulation affordance it moves. */
+    articulation: string;
+
+    /** Film second it starts, or a named instant of an anchored action or a cue track it starts at, as a layer's window names one. */
+    start: IHumanLayer.Instant;
+
+    /**
+     * The travel at a second of the track, in the articulation's own unit. Pure.
+     *
+     * @param seconds Seconds since the track's start.
+     * @returns The travel.
+     */
+    travel(seconds: number): number;
+
+    /** Seconds the track lasts; its last travel holds after. Endless when absent. */
+    duration?: number;
   }
 
   /** A rigid world frame. */

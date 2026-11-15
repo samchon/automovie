@@ -77,12 +77,13 @@ export namespace HumanArmSeed {
       passes: readonly number[],
     ): number[][] => {
       const k: number = passes[passes.length - 1]!;
-      const shares: number[] = passes.map((j: number, i: number): number =>
-        i === 0
-          ? 0
-          : i === passes.length - 1
-            ? 1
-            : Math.min(1, Math.max(0, problem.share(times[j]!))),
+      const shares: number[] = passes.map(
+        (j: number, i: number): number =>
+          i === 0
+            ? 0
+            : i === passes.length - 1
+              ? 1
+              : Math.min(1, Math.max(0, problem.share(times[j]!))),
       );
       const dims: number = from.length * G.DIMENSIONS;
       const where: (s: number) => number = (s: number): number => {
@@ -120,10 +121,7 @@ export namespace HumanArmSeed {
       a: number,
       b: number,
     ): number[] =>
-      Array.from(
-        { length: b - a + 1 },
-        (_: unknown, i: number): number => a + i,
-      );
+      Array.from({ length: b - a + 1 }, (_: unknown, i: number): number => a + i);
     const reach: number[][] = path(context.rest, hold[0]!, span(0, first));
     // A hold that lasts to the end has no return to join.
     const back: number[][] = context.open
@@ -392,9 +390,8 @@ export namespace HumanArmSeed {
 
   /** The configuration of a path, without its share coordinate, where its share (its last coordinate, rising along it) reaches a value. */
   function at(path: readonly (readonly number[])[], share: number): number[] {
-    const s: (q: readonly number[]) => number = (
-      q: readonly number[],
-    ): number => q[q.length - 1]!;
+    const s: (q: readonly number[]) => number = (q: readonly number[]): number =>
+      q[q.length - 1]!;
     for (let i: number = 1; i < path.length; ++i)
       if (share <= s(path[i]!) || i === path.length - 1) {
         const piece: number = s(path[i]!) - s(path[i - 1]!);

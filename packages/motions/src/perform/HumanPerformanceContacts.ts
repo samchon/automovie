@@ -25,6 +25,9 @@ import { HumanSegment } from "./HumanSegment";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand that holds a prop and is driven elsewhere is refused.
  */
 export namespace HumanPerformanceContacts {
+  /** The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples. */
+  export const STEP: number = 1 / 120;
+
   /**
    * Settle what a newly planned action does to the props its performer
    * holds, whether it carries the body or rides a carrier: a grip window on
@@ -323,7 +326,7 @@ export namespace HumanPerformanceContacts {
         ),
         from,
         to,
-        step: 1 / 120,
+        step: HumanPerformanceContacts.STEP,
       });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
     const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
@@ -334,6 +337,17 @@ export namespace HumanPerformanceContacts {
       plans
         .get(owner.segment)!
         .push({ weapon: owner.id, against: e.against, seconds: e.seconds });
+
+      // Each stop is a hit on the person it met (`HumanPerformanceHits`).
+      self.strikes.push({
+        subject: owner.person.performer.subject,
+        segment: owner.segment,
+        weapon: owner.segment.plan.weapons!.find(
+          (w: IHumanActionPlan.IWeapon): boolean => w.id === owner.id,
+        )!,
+        against: e.against,
+        seconds: e.seconds,
+      });
     }
     for (const [segment, own] of plans) segment.plan.stop?.(own);
   }

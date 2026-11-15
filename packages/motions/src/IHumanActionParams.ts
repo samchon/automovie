@@ -53,6 +53,7 @@ import type { useTool } from "./tasks/useTool";
 import type { wipe } from "./tasks/wipe";
 import type { climbStairs } from "./terrain/climbStairs";
 import type { catchObject } from "./throwing/catchObject";
+import type { release } from "./throwing/release";
 import type { throwObject } from "./throwing/throwObject";
 import type { highFive } from "./touch/highFive";
 import type { kiss } from "./touch/kiss";
@@ -181,6 +182,9 @@ export interface IHumanActionParams {
 
   /** Catching an object. */
   catchObject: catchObject.IParams;
+
+  /** Letting go of a held prop. */
+  release: release.IParams;
 
   /** Operating a mechanism. */
   operate: operate.IParams;

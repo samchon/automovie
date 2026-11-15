@@ -14,18 +14,21 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import type { HumanBlast } from "./HumanBlast";
 import type { HumanObstacle } from "./HumanObstacle";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanSegment } from "./HumanSegment";
@@ -106,6 +109,12 @@ export class HumanPerformanceState {
   /** How many actions that carry the body the composition gives each person, overlays aside. */
   public readonly intended: Map<string, number> = new Map();
 
+  /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
+  public readonly blasts: readonly HumanBlast.IBlast[];
+
+  /** The resolved first contacts of every person's striking weapons, in time order, kept for the hit record (`HumanPerformanceHits`). */
+  public readonly strikes: HumanPerformanceState.IStrike[] = [];
+
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   public resolving: boolean = true;
 
@@ -124,6 +133,7 @@ export class HumanPerformanceState {
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
+    this.blasts = input.blasts ?? [];
     this.laws = new Map(Object.entries(HUMAN_ACTIONS));
     for (const law of input.laws ?? []) {
       // A registered name never changes what a vocabulary name means, and
@@ -319,6 +329,8 @@ export class HumanPerformanceState {
       if (segment !== undefined)
         segment.end = this.clipped.get(entry.index) ?? entry.end;
     }
+    // Every action ends where it is placed, so the props' drives are known.
+    HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
   }
 }
@@ -379,6 +391,24 @@ export namespace HumanPerformanceState {
 
   /** The kept resolutions by key, the least recently read first. */
   const KEPT: Map<string, HumanPerformanceState> = new Map();
+
+  /** One weapon's resolved first contact with another person. */
+  export interface IStrike {
+    /** The striker. */
+    subject: string;
+
+    /** The striker's action that carries the weapon. */
+    segment: HumanSegment.ISegment;
+
+    /** The weapon. */
+    weapon: IHumanActionPlan.IWeapon;
+
+    /** The person struck. */
+    against: string;
+
+    /** Film second of contact. */
+    seconds: number;
+  }
 
   /** One span in which a prop is held in a hand or worn on a bone. */
   export interface IGrip {

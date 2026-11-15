@@ -5,6 +5,7 @@ import type { pickUp } from "../handling/pickUp";
 import type { putDown } from "../handling/putDown";
 import type { receive } from "../handling/receive";
 import type { catchObject } from "../throwing/catchObject";
+import type { release } from "../throwing/release";
 import type { throwObject } from "../throwing/throwObject";
 import type { highFive } from "../touch/highFive";
 import type { kiss } from "../touch/kiss";
@@ -124,6 +125,18 @@ export class HumanChainMutual extends HumanChainStriking {
    */
   public catchObject(params: catchObject.IParams, anchor?: string): this {
     return this.act("catchObject", params, anchor);
+  }
+
+  /**
+   * Open a hand on what it holds: the prop leaves with the hand's velocity,
+   * or a prop on a launcher leaves at the launcher's speed.
+   *
+   * @param params The hand, the prop and a launcher's launch.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public release(params: release.IParams = {}, anchor?: string): this {
+    return this.act("release", params, anchor);
   }
 
   /**

@@ -16,6 +16,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import type { IHumanProp } from "./IHumanProp";
 
 /**
@@ -114,7 +115,11 @@ export namespace HumanPerformanceAim {
       }
       case "prop": {
         const prop: IHumanProp | undefined = self.props.get(target.subject);
-        const local = prop?.points[target.point];
+        // A part an act has moved is where the prop's state poses it.
+        const local =
+          prop === undefined
+            ? undefined
+            : HumanPerformanceObject.point(self, prop, target.point, seconds);
         if (prop === undefined)
           throw HumanPerformanceRead.missing("prop", target.subject, [
             ...self.props.keys(),

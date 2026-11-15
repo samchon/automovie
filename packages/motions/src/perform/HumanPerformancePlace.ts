@@ -20,6 +20,7 @@ import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -295,6 +296,8 @@ export namespace HumanPerformancePlace {
         return {
           prop,
           frame: (seconds: number): IHumanProp.IFrame =>
+          state: (seconds: number): Readonly<Record<string, number>> =>
+            HumanPerformanceObject.state(self, prop, seconds),
             HumanPerformanceRead.prop(self, subject, seconds),
         };
       },
