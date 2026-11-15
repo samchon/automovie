@@ -23,27 +23,30 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * A heavy load moved by its two handles (`pushPull`, #3351): pushed ahead,
  * pulled walking backward, dragged behind, or pressed and not moved.
  *
- * Each load is a prop on the floor with two handles 0.5 m apart, at the
- * performer's hip height or elbow height (the shoulder's height less the
- * upper arm), the two heights the issue's matrix names. A pushed or pulled
- * load stands 0.55 m ahead of the performer, a dragged one 0.55 m behind;
- * a push and a drag walk 3 m forward, a pull 2 m backward.
+ * Each load is a prop on the floor with two handles 0.5 m apart. A pushed
+ * or pulled load's handles stand 0.6 of the arm ahead of the performer (the
+ * carry law's pushed handle, Hoozemans et al. 1998), at its hip height or
+ * elbow height (the shoulder's height less the upper arm), the two heights
+ * the issue's matrix names. A dragged load's handles stand a third of the
+ * arm behind it at the hanging wrist's height (the shoulder's height less
+ * the arm), a staging choice within the arm's backward reach. A push and a
+ * drag walk 3 m forward, a pull 2 m backward.
  *
  * Scenarios, on the small woman and the average man, read every quarter of
  * a second after the hands have taken the handles (`gripped`):
- * 1. Every way at both handle heights plans, at the moderate load.
+ * 1. Every staging plans at every load.
  * 2. Each fist's grip socket lies within 10 mm of its handle (the issue's
  *    bound), and each handle keeps its place in its hand's frame within
  *    1 mm (the campaign's grip bound): the load is held rigidly.
- * 3. The load's displacement from the grip to the end equals the hands'
- *    (the fists' midpoint) within 10 mm, and goes the way walked, at least
- *    half the walk's length: the load moves as the hands move it.
+ * 3. Each handle's displacement from the grip to the end equals its fist's
+ *    within 10 mm, and the load goes the way walked, at least half the
+ *    walk's length: the load moves as the hands move it.
  * 4. The load never sinks more than 10 mm below where it stood (the issue's
  *    penetration bound).
  * 5. The trunk (the hips joint to the neck) leans forward of vertical in a
  *    push and a drag and back in a pull, on average over the haul; and a
  *    heavy load leans it further that way than a light one, by more than
- *    the joints' resolution (`ROM_TOLERANCE`), at both handle heights.
+ *    the joints' resolution (`ROM_TOLERANCE`), at each staging.
  * 6. A haul walks slower than a free walk over the same ground (a walk of
  *    the same length at the walk's own pace).
  * 7. A load that does not move (`moves: false`) stays within 1 mm of where
@@ -57,7 +60,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each haul through the public chain and reads the displayed joints, the fists' grip sockets and the prop's frame; a hand off its handle, a load left behind or moved when it should not, a lean the wrong way or a missing refusal fails with the body, the way and the height.
  * @evidence contracts/development/testing.md#independent-expectations The contact, displacement and penetration bounds are the issue's, the grip bound the campaign's, the lean's direction and growth the measured study's, the free walk the walk law's own; none is read from the haul.
- * @evidence contracts/development/testing.md#distinguishing-cases Three ways at two handle heights and two loads, the stuck load and three refusals, on two bodies.
+ * @evidence contracts/development/testing.md#distinguishing-cases A push and a pull at two handle heights and a drag, each at three loads, the stuck load at two heights and three refusals, on two bodies.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds about thirty short performances; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the staging, the 8 scenarios with their bounds and sources, and what is not covered.
  */
@@ -66,16 +69,36 @@ export function test_human_motion_haul_push_pull(): void {
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["f-small", "m-average"] as const) {
     const body: IHumanBody = motionHumanBody(name);
+    const arm: number = body.measure.upperArm + body.measure.forearm;
     const heights: Record<"hip" | "elbow", number> = {
       hip: body.measure.hipHeight,
       elbow: body.measure.shoulderHeight - body.measure.upperArm,
     };
-    for (const [label, height] of Object.entries(heights)) {
-      const leans: Partial<Record<string, number>> = {};
-      for (const way of ["push", "pull", "drag"] as const)
+    const stagings: {
+      way: pushPull.Way;
+      label: string;
+      height: number;
+      ahead: number;
+    }[] = [
+      ...(["push", "pull"] as const).flatMap((way: pushPull.Way) =>
+        Object.entries(heights).map(([label, height]) => ({
+          way,
+          label,
+          height,
+          ahead: 0.6 * arm,
+        })),
+      ),
+      {
+        way: "drag",
+        label: "hanging wrist",
+        height: body.measure.shoulderHeight - arm,
+        ahead: -arm / 3,
+      },
+    ];
+    const leans: Partial<Record<string, number>> = {};
+    for (const { way, label, height, ahead } of stagings) {
         for (const load of ["light", "moderate", "heavy"] as const) {
           const tag: string = `${name} ${way} at the ${label} ${load}`;
-          const ahead: number = way === "drag" ? -0.55 : 0.55;
           const to: IAutoMovieVector3 = {
             x: 0,
             y: 0,
@@ -105,12 +128,9 @@ export function test_human_motion_haul_push_pull(): void {
             complaints.push(
               `${tag}: a handle moves ${mm(read.slip)} mm in its hand, within 1 mm expected`,
             );
-          const apart: number = Vector3.length(
-            Vector3.subtract(read.moved, read.hands),
-          );
-          if (!(apart <= 0.01))
+          if (!(read.apart <= 0.01))
             complaints.push(
-              `${tag}: the load moves ${mm(apart)} mm apart from the hands, within 10 mm expected`,
+              `${tag}: a handle moves ${mm(read.apart)} mm apart from its fist, within 10 mm expected`,
             );
           const along: number = Math.sign(to.z) * read.moved.z;
           if (!(along >= Math.abs(to.z) / 2))
@@ -126,28 +146,30 @@ export function test_human_motion_haul_push_pull(): void {
             complaints.push(
               `${tag}: the trunk leans ${read.lean.toFixed(1)} degrees forward on average, ${way === "pull" ? "back" : "forward"} expected`,
             );
-          leans[`${way} ${load}`] = read.lean;
+          leans[`${way} ${label} ${load}`] = read.lean;
           const free: number = freeSpeed(body, to);
           if (!(read.speed < free))
             complaints.push(
               `${tag}: the haul walks ${read.speed.toFixed(2)} m/s, slower than the free walk's ${free.toFixed(2)} m/s expected`,
             );
         }
-      for (const way of ["push", "pull", "drag"] as const) {
-        const light: number | undefined = leans[`${way} light`];
-        const heavy: number | undefined = leans[`${way} heavy`];
-        if (light === undefined || heavy === undefined) continue;
+        const light: number | undefined = leans[`${way} ${label} light`];
+        const heavy: number | undefined = leans[`${way} ${label} heavy`];
         const sign: number = way === "pull" ? -1 : 1;
-        if (!(sign * (heavy - light) > ROM_TOLERANCE))
+        if (
+          light !== undefined &&
+          heavy !== undefined &&
+          !(sign * (heavy - light) > ROM_TOLERANCE)
+        )
           complaints.push(
             `${name} ${way} at the ${label}: a heavy load leans the trunk ${heavy.toFixed(2)} degrees against a light one's ${light.toFixed(2)}, further expected`,
           );
-      }
-
+    }
+    for (const [label, height] of Object.entries(heights)) {
       // A load that does not move.
       for (const way of ["push", "pull"] as const) {
         const tag: string = `${name} ${way} at the ${label} not moving`;
-        const prop: IHumanProp = crate(0.55, height);
+        const prop: IHumanProp = crate(0.6 * arm, height);
         const built: HumanPerformance | string | HumanRefusal = perform(
           body,
           prop,
@@ -184,7 +206,7 @@ export function test_human_motion_haul_push_pull(): void {
     ): void => {
       const built: HumanPerformance | string | HumanRefusal = perform(
         body,
-        crate(0.55, heights.elbow),
+        crate(0.6 * arm, heights.elbow),
         params,
         true,
       );
@@ -235,8 +257,8 @@ interface IRead {
   /** The load's displacement from the grip to the end, world metres. */
   moved: IAutoMovieVector3;
 
-  /** The fists' midpoint's displacement over the same span, world metres. */
-  hands: IAutoMovieVector3;
+  /** The farthest a handle's displacement from the grip to the end differs from its fist's, metres. */
+  apart: number;
 
   /** The lowest the load stands relative to where it stood, metres. */
   lowest: number;
@@ -316,20 +338,26 @@ function readHaul(
     body,
     0,
   );
-  const fists = (seconds: number): IAutoMovieVector3 => {
-    const bones: ReturnType<HumanPerformance["bones"]> = performance.bones(
-      "a",
-      seconds,
+  const fist = (seconds: number, side: "left" | "right"): IAutoMovieVector3 => {
+    const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
+      body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
+    return resolveAutoMovieHumanoidSurfaces.place(
+      socket,
+      performance.bones("a", seconds).get(socket.bone)!,
+    ).point;
+  };
+  const handle = (
+    seconds: number,
+    side: "left" | "right",
+  ): IAutoMovieVector3 => {
+    const frame: IHumanProp.IFrame = performance.prop("crate", seconds);
+    return Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(
+        frame.rotation,
+        prop.affordances!.find((a) => a.id === side)!.frame.translation,
+      ),
     );
-    const at = (side: "left" | "right"): IAutoMovieVector3 => {
-      const socket: IHumanBody["surfaces"]["sockets"]["gripLeft"] =
-        body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
-      return resolveAutoMovieHumanoidSurfaces.place(
-        socket,
-        bones.get(socket.bone)!,
-      ).point;
-    };
-    return Vector3.scale(Vector3.add(at("left"), at("right")), 0.5);
   };
   let off: number = 0;
   let slip: number = 0;
@@ -389,9 +417,16 @@ function readHaul(
     performance.prop("crate", placed.end).position,
     performance.prop("crate", start).position,
   );
-  const hands: IAutoMovieVector3 = Vector3.subtract(
-    fists(placed.end),
-    fists(start),
+  // Each handle's displacement less its fist's, over the same span.
+  const apart: number = Math.max(
+    ...(["left", "right"] as const).map((side: "left" | "right"): number =>
+      Vector3.length(
+        Vector3.subtract(
+          Vector3.subtract(handle(placed.end, side), handle(start, side)),
+          Vector3.subtract(fist(placed.end, side), fist(start, side)),
+        ),
+      ),
+    ),
   );
   const travelled: number = Vector3.length(
     Vector3.subtract(
@@ -403,7 +438,7 @@ function readHaul(
     off,
     slip,
     moved,
-    hands,
+    apart,
     lowest,
     lean: count === 0 ? NaN : lean / count,
     speed: travelled / (placed.end - placed.start),

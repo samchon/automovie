@@ -58,12 +58,12 @@ export function test_human_motion_core_site(): void {
   const counts: Record<string, number> = { a: 0, b: 0, c: 0 };
   const runs: number = 200;
   for (let i: number = 0; i < runs; i++) {
-    const random: IAutoMovieRandom = createAutoMovieRandom(`site-${i}`);
+    const random: IAutoMovieRandom = createAutoMovieRandom(i.toString(16).padStart(16, "0"));
     const id: string = AutoMovieMotionHumanSite.draw(sites, random, 0);
     if (counts[id] === undefined) complaints.push(`drew ${id}, not allowed`);
     else counts[id]! += 1;
     if (AutoMovieMotionHumanSite.draw(sites, random, 0) !== id)
-      complaints.push(`seed site-${i} drew two places`);
+      complaints.push(`seed ${i} drew two places`);
   }
   for (const site of sites) {
     const p: number = site.weight / 4;
@@ -79,12 +79,12 @@ export function test_human_motion_core_site(): void {
   if (
     AutoMovieMotionHumanSite.draw(
       [{ id: "only", weight: 3 }],
-      createAutoMovieRandom("one"),
+      createAutoMovieRandom("00000000000000c8"),
       0,
     ) !== "only"
   )
     complaints.push("a single place was not drawn");
-  const random: IAutoMovieRandom = createAutoMovieRandom("refuse");
+  const random: IAutoMovieRandom = createAutoMovieRandom("00000000000000c9");
   for (const [label, set] of [
     ["empty", []],
     ["zero", [{ id: "a", weight: 0 }]],
