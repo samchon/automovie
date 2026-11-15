@@ -163,7 +163,9 @@ export namespace HumanSupportCarry {
    *
    * With an aim, the line planned at the start is re-taken on its world
    * target at every second (`HumanSupportAim`), and a trunk twist out of
-   * range at a frame of the act is refused here.
+   * range at a frame of the act is refused here. The plan's launches (a
+   * shot) are carried to their seconds with it, so a shot leaves the muzzle
+   * where the displayed weapon is.
    *
    * @param context The action's context.
    * @param plan The plan made at the start.
@@ -199,6 +201,54 @@ export namespace HumanSupportCarry {
         : HumanSupportAim.posture(carry, made, aim);
     };
     if (aim !== undefined) HumanSupportAim.check(carried, plan.duration);
-    return { ...plan, channels, posture: carried };
+    return {
+      ...plan,
+      channels,
+      posture: carried,
+      ...(plan.launches === undefined
+        ? {}
+        : {
+            launches: plan.launches.map(
+              (l: IHumanActionPlan.ILaunch): IHumanActionPlan.ILaunch =>
+                launch(context, frame, l),
+            ),
+          }),
+    };
+  }
+
+  /**
+   * A launch planned at the start carried to its second: its point and
+   * rotation by the carry, its velocity relative to the support turned by
+   * the carry's turn, the support's own velocity there (which the act
+   * already added) kept.
+   */
+  function launch(
+    context: Pick<IHumanActionContext, "entry" | "prop" | "performer" | "start">,
+    frame: (seconds: number) => IHumanProp.IFrame,
+    l: IHumanActionPlan.ILaunch,
+  ): IHumanActionPlan.ILaunch {
+    const carry: ICarry = of(frame, context.start, context.start + l.seconds);
+    const support: IAutoMovieVector3 = HumanSupportFrame.at(
+      context,
+      context.start + l.seconds,
+    ).velocity;
+    return {
+      ...l,
+      point: carry.point(l.point),
+      velocity: Vector3.add(
+        Quaternion.rotateVector(
+          carry.turn,
+          Vector3.subtract(l.velocity, support),
+        ),
+        support,
+      ),
+      ...(l.rotation === undefined
+        ? {}
+        : {
+            rotation: Quaternion.normalize(
+              Quaternion.multiply(carry.turn, l.rotation),
+            ),
+          }),
+    };
   }
 }
