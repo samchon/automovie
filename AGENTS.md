@@ -16,7 +16,7 @@ Work by these rules:
 
 ## Fixing by cause
 
-Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time or a known one later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
+Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time, and never leaving a known finding for later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
 
 ## Viewers
 
@@ -56,4 +56,4 @@ Read the skill whose trigger applies.
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
 | [review](.agents/skills/review/SKILL.md) | Any review or self-review |
 | [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | A broad audit or repeated issue-to-pull-request work |
-| [pull-request](.agents/skills/pull-request/SKILL.md) | Only when asked to push, open, update, or merge, or under a delivery mandate |
+| [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating, or merging a pull request, only when asked or under a delivery mandate |

@@ -24,9 +24,9 @@ The product contract sets [coarse models and detailed motion](../project/SKILL.m
 
 ### Screenplay detail
 
-The screenplay decides every exchange, outcome and reaction, and a film's code calls installed package APIs to stage each one in screenplay order.
+The screenplay decides every exchange, outcome and reaction, and a film's code stages each one in screenplay order.
 
-### Installed capability
+### Reuse
 
 A production composes what its installed packages provide and writes only what they lack. It cannot repair an installed package, so a defect goes to the upstream tracker through the user.
 
