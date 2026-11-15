@@ -1,6 +1,6 @@
 # Generation
 
-Takes are generated after the [video skill](SKILL.md) has chosen the model, planned the requests and written the prompts. Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
+Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
 
 ## Prove one path first
 
@@ -18,11 +18,11 @@ Generate the takes per request that [project context](../production/project-cont
 
 Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), first the contacts and outcomes its beats decide. The user judges its sound and its continuous motion.
 
-Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut; a local flaw in an otherwise right take is repaired under [finishing](finishing.md#repair-part-of-a-take). A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt's words.
+Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut; a local flaw in an otherwise right take is repaired under [finishing](finishing.md#repair-part-of-a-take). A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt's words. When motion or camera drifts, regenerate with a stricter adherence or a shorter request rather than a longer prompt.
 
 ## Place takes in time
 
-Map a take's decoded timestamps and time base into the film; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations, and a shortest-stream option or silent padding must not hide lost material. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document them.
+Map a take's decoded timestamps and time base into the film; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations. Account for every frame a shortest-stream option or silent padding would drop. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document them.
 
 An extension returns its input joined to the new part, so place only the new part; an edit can return slightly shorter than its input, so measure it. A new take, trim or speed change requires rechecking its timing against its neighbors.
 

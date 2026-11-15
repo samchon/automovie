@@ -1,6 +1,6 @@
 # Requests
 
-A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt. Each take is the kept result of one job of it. Plan each scene's requests from its screenplay scene file and the rendered hint, after the [video skill](SKILL.md) has chosen the model and read its documentation.
+A request is one planned generation: an interval of the motion hint with its inputs, settings and prompt. Each take is the kept result of one job of it. Plan each scene's requests from its screenplay scene file and the rendered hint.
 
 ## Intervals
 
@@ -25,13 +25,13 @@ Adherence is how much of the hint a request keeps. This scale is a starting poin
 | Blocking, rhythm and camera | Crowds, background action and establishing shots |
 | The camera and the coarse plan | A shot whose action the prompt carries |
 
-At every level the prompt and the references give the faces and surfaces, so release a setting that holds the hint's faces. [Dense passes](../motion/control-channels.md#dense-passes) sets how closely a shape is held.
+Keeping positions and contacts copies the hint's timing, stiffness included. Repair stiff timing in the performance under [motion](../motion/SKILL.md) and render the hint again, because loosening the model loosens the contacts with it.
 
-Where the model sets adherence, record a default level for the film in [project context](../production/project-context.md) and give a request another level where the scale suits it better. Models set it by a setting, by wording that says what an input supplies, or by each control adapter's strength and mask, as [video models](diffusion/models.md) shows.
+At every level the prompt and the references give the faces and surfaces, so turn off any setting that keeps the hint's faceless heads. [Dense passes](../motion/control-channels.md#dense-passes) sets how closely a shape is held.
+
+Where the model sets adherence, record a default level for the film in [project context](../production/project-context.md) and give a request another level where the scale suits it better.
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames, tell the user, who may choose another model.
-
-Keeping positions and contacts copies the hint's timing, stiffness included. Repair stiff timing in the performance under [motion](../motion/SKILL.md) and render the hint again, because loosening the model loosens the contacts with it.
 
 ## Inputs
 
@@ -42,9 +42,7 @@ Give each input one role, and state it in the prompt as [input roles](diffusion/
 - a [shot frame](../image/SKILL.md#shot-frames), for appearance at the hint's pose;
 - the accepted previous take, where a request continues its motion, as [continuity](diffusion/continuity.md#chaining-requests) sets.
 
-[Hints](diffusion/hints.md) sets how each input reaches the model, and an open model takes the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
-
-Where speech carries a shot at the speech-and-reaction level, a model that takes the accepted dialogue audio, with a pose video where offered, can generate the shot from both, such as [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2).
+[Hints](diffusion/hints.md) sets how each input reaches the model.
 
 ## Record
 

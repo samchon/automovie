@@ -1,8 +1,6 @@
 # Sound effects
 
-Effects are built when the user asks for them with a requested voice preview, when a generated film's [film sound](film-sound.md) needs a bed or an effect its takes lack, or when a [soundtrack is commissioned](SKILL.md#commissioned-soundtrack). A generated film's own effects come first from the video model's prompt.
-
-Define each cue by its event, source material, action, intensity, distance and acoustic space. Choose a recording, self-recorded Foley or purpose-built generator that can express those qualities. Keep close effects separate from ambience and speech so their timing and perspective remain editable.
+Define each cue by its event, source material, action, intensity, distance and acoustic space. Choose a recording, self-recorded Foley or purpose-built generator that can express those qualities. Keep close effects separate from ambience and speech so their timing and perspective remain editable. Effects are built for a requested voice preview, for a bed or effect a generated film's [film sound](film-sound.md) needs beyond its takes, and for a [commissioned soundtrack](SKILL.md#commissioned-soundtrack); a generated film's own effects come first from its prompts.
 
 ## Acquire a sound
 
@@ -22,7 +20,7 @@ Select dry takes that match the depicted event; layer, trim and shape them to di
 
 Cap overlapping instances per sound and per source, and duck beds and effects under speech.
 
-For a film with sound, measure on the decoded mix that every spoken line rises over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, reaches the target the [delivery profile](../production/project-context.md) records, which may be dialogue-gated.
+Measure the mix's loudness as [film sound](film-sound.md#loudness) sets.
 
 At each listening the [audio skill](SKILL.md#commissioned-soundtrack) sets, the user hears the complete working passage with moving picture at normal speed, replays uncertain contacts and transitions, and reports synchronization, repetition, perspective and balance with speech and ambience together.
 

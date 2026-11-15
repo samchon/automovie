@@ -1,6 +1,6 @@
 # Hints
 
-The composed performance is the hint: its poses, timing, root path and contacts are authored and exact, and the model fills only what lies between and around them. Animation studios that use these models work the same way, keeping key poses by hand.
+Bring the composed performance to the model, choose a technique, then check the result.
 
 ## Bring the performance to the model
 
@@ -27,9 +27,8 @@ Plain imputation of keys at every step leaves jumps around each key, and loose g
 After retargeting back, measure on the polygon man:
 
 - the distance from each authored key and target;
-- foot sliding while a foot is planted, floating and penetration;
-- every authored contact and grip, solved again onto its support.
+- every authored contact and grip, checked under [retargeting](../retargeting.md#preserve-contacts-and-time).
 
-A take that misses a key or contact the beat decides is generated again or replaced by the composed motion, never accepted for its look.
+A clip that misses a key or contact the beat decides is generated again or replaced by the composed motion, never accepted for its look.
 
 Sources: [CondMDI](https://arxiv.org/html/2405.11126), [Kimodo constraints](https://research.nvidia.com/labs/sil/projects/kimodo/docs/user_guide/constraints.html), [Kimodo limitations](https://research.nvidia.com/labs/sil/projects/kimodo/docs/key_concepts/limitations.html), [OmniControl](https://arxiv.org/html/2310.08580), [GMD](https://arxiv.org/html/2305.12577), [MDM editing](https://github.com/GuyTevet/motion-diffusion-model), [MoMask](https://github.com/EricGuo5513/momask-codes), [HumanML3D representation](https://raw.githubusercontent.com/EricGuo5513/HumanML3D/main/motion_representation.ipynb), [PHC retargeting](https://github.com/ZhengyiLuo/PHC/blob/master/docs/retargeting.md), [Cascadeur inbetweening](https://cascadeur.com/help/category/278), [Cascadeur on control](https://digitalproduction.com/2026/02/18/cascadeur-on-physics-ai-and-control/), [Animaj in-betweening](https://www.animaj.com/post/inside-animajs-siggraph-2026-paper-anton-rael-on-ai-motion-in-betweening).

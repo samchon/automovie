@@ -1,6 +1,6 @@
 # Image hints
 
-An image gives the model far more than words, so prefer it whenever the subject's look is decided.
+An image gives the model far more than words, so prefer it whenever the subject's look is decided. These are requirements on the image; the project's own instructions say how the image is made.
 
 ## One image
 
@@ -12,7 +12,7 @@ An image gives the model far more than words, so prefer it whenever the subject'
 
 Glass, mirrors, hair and thin wires reconstruct poorly; give such a subject an opaque reference, or build its thin parts in code.
 
-Turn off any enhancement the 3D model offers that redraws the input, because it changes details. These are requirements on the image; the project's own instructions say how the image is made.
+Turn off any enhancement the 3D model offers that redraws the input, because it changes details.
 
 ## Several views
 

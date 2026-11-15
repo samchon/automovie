@@ -1,6 +1,6 @@
 # Audio acquisition
 
-Audio is acquired for a requested voice preview, for [speech the video model cannot make](SKILL.md#generated-sound), for the beds, score and separation a generated film's [film sound](film-sound.md) needs, and for a [commissioned soundtrack](SKILL.md#commissioned-soundtrack).
+Acquisition finds a source for audio the video model does not make, checks its rights and adopts the take: a requested voice preview, [speech the video model cannot make](SKILL.md#generated-sound), the beds, score and separation [film sound](film-sound.md) needs, and a [commissioned soundtrack](SKILL.md#commissioned-soundtrack).
 
 Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/source-layout.md).
 

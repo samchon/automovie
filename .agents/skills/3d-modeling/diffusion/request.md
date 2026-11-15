@@ -13,4 +13,4 @@ Generating again with a better request costs less than repairing a mesh, so ask 
 
 No request removes the rest: a size that is only the model's estimate, an arbitrary facing, melted thin parts, loose pieces, holes, inner surfaces, and a rig that is a first guess on the model's own skeleton.
 
-Most hosted models generate the bare mesh first and texture it in a second, cheaper stage. Accept the mesh before paying for texture, and regenerate with another seed or a cleaner hint rather than piling words onto the prompt. Record each accepted result as [Conditioning](../conditioning.md#freeze-the-source) sets, with its seed where the model takes one.
+Most hosted models generate the bare mesh first and texture it in a second, cheaper stage. Accept the mesh before paying for texture, and regenerate with another seed or a cleaner input rather than piling words onto the prompt. Record each accepted result as [Conditioning](../conditioning.md#freeze-the-source) sets, with its seed where the model takes one.

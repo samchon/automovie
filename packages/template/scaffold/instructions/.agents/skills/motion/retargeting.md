@@ -20,4 +20,4 @@ Keep an imported clip's interpolation, quaternions, scale and morph weights; whe
 
 ## Accept the actual performance
 
-Compare the source and retargeted progression from matched views and the actual scene cameras, under the [behaviors contract](../contracts/development/behaviors.md), across the whole sequence, with tolerances taken from the production's promise rather than a favorable solver result. Record the accepted motion, rig interpretation and diagnostics with their inputs; a new take or rig change invalidates the affected observations.
+Compare the source and retargeted progression from matched views and the actual scene cameras, under the [behaviors contract](../contracts/development/behaviors.md), across the whole sequence, with tolerances taken from the production's promise rather than a favorable solver result. Record the accepted motion, rig interpretation and diagnostics with their inputs; a new clip or rig change invalidates the affected observations.

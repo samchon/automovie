@@ -11,15 +11,17 @@ A request that continues an accepted take takes it as the model allows:
 
 Choose the chain frame before the take slows toward its end, not its literal last frame, because the end drifts most. Record the chosen frame in the request, and state in the new prompt the pose and state at the seam.
 
+Pass the take on in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
+
 An extend mode often takes no hint and keeps only the last frame or last seconds as context. It returns the input joined to the new part, so [place](../generation.md#place-takes-in-time) only the new part. Where the model cannot take the continuation beside the hint, end the request at a cut.
 
 ## Across the film
 
 Give every request the same canon references and the [shared description](prompts.md#shared-description) in identical words, because each request knows nothing of the last. Rely on those references for identity, never on a seed, as [media records](../../production/media-records.md#records) explains.
 
-Where the model offers an element or subject, bind a character's references into it, and its voice where the model takes one; some take only photoreal people. On an open model, train a character LoRA when the character recurs across many requests, on the frozen canon references and accepted shot frames or takes, never the gray hint.
+Where the model offers an element or subject, bind a character's references into it; some take only photoreal people. On an open model, train a character LoRA when the character recurs across many requests, on the frozen canon references and accepted shot frames or takes, never the gray hint.
 
-Pass a take on to a continuation in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness. A character's generated voice is kept under [audio](../../audio/SKILL.md#generated-sound).
+A character's generated voice is kept under [audio](../../audio/SKILL.md#generated-sound).
 
 ## Seams
 

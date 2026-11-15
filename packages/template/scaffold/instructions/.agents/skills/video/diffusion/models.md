@@ -14,6 +14,6 @@ These examples show how differently current models take a motion hint; they are 
 | LTX, open weights | The RGB hint through a gray-layout adapter with a first frame, or one depth, edge or pose pass | Adapter strength from 0 to 1, masked over frames and regions | No documented extension beside a control pass | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) |
 | Wan VACE, open weights | Depth, pose, scribble, flow, layout or mask passes | Each pass's strength and masks | Extension from the previous clip's first or last frames | [VACE](https://github.com/ali-vilab/VACE), [Wan2.1](https://github.com/Wan-Video/Wan2.1) |
 
-Proprietary models take the hint as RGB video at most and derive any structure from it themselves. Open models with control adapters take depth, edge or pose videos directly, so choose one when exact positions, contacts and camera outweigh its setup cost.
+Hosted models take the hint as RGB video at most; open models with control adapters also take depth, edge or pose videos.
 
 Read each model's terms before adopting it: territory limits, rejected reference content such as real human faces or minors, revenue thresholds and labeling duties for open weights, and price per second.

@@ -15,7 +15,7 @@ Trace only footage the production may use, and ask the user before tracing anyon
 - the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
 - the choreography, which can be protected once filmed as a selection and arrangement of movement, though single steps and social dances are not; a claim over a few counts has been allowed to proceed, and a change of body or medium does not clear it;
 - the performer's consent where the face, voice or recognizable likeness is kept;
-- the estimator's license, since several are research-only, and the body model's, since SMPL and SMPL-X forbid commercial use without a separate license.
+- the estimator's and the body model's licenses, as [clips](clips.md#licenses) sets.
 
 ## Footage
 
@@ -38,7 +38,7 @@ Examples: [GVHMR](https://github.com/zju3dv/GVHMR), research-only; [WHAM](https:
 ## Clean
 
 1. Remove outliers, then filter jitter with a speed-adaptive filter such as the [One Euro filter](https://gery.casiez.net/1euro/): tune its cutoff on slow motion, then its speed coefficient on fast motion.
-2. Detect each plant and grip and hold it on its support, as [clips](clips.md) sets, and set the ground plane.
+2. Set the ground plane, and detect each plant and grip for [retargeting](../retargeting.md#preserve-contacts-and-time) to hold.
 3. Where the motion floats, slides or penetrates beyond what cleanup fixes, replay it through a physics-tracking model such as [PHC](https://github.com/ZhengyiLuo/PHC).
 4. Retarget through a stated joint table onto the cast member's prepared body, and solve the contacts again there.
 
