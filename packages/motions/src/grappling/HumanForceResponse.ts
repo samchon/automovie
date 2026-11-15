@@ -170,7 +170,8 @@ export namespace HumanForceResponse {
       y: 0,
       z: Math.cos((entry.yaw * Math.PI) / 180),
     };
-    const right: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
+    // The body's right: +X is its left when it faces +Z.
+    const right: IAutoMovieVector3 = { x: -forward.z, y: 0, z: forward.x };
 
     // The whole body tipped about the ankles by an angle along a direction,
     // split into the posture's forward pitch and rightward roll.
