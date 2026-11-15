@@ -44,7 +44,8 @@ export function test_human_motion_support_carry(): void {
   const none = HumanSupportCarry.of(still, 0, 3);
   TestValidator.predicate(
     "a still support carries nothing",
-    close(none.point({ x: 3, y: 1, z: -2 }), { x: 3, y: 1, z: -2 }) && Math.abs(none.yaw) <= 1e-9,
+    close(none.point({ x: 3, y: 1, z: -2 }), { x: 3, y: 1, z: -2 }) &&
+      Math.abs(none.yaw) <= 1e-9,
   );
 
   // 2 and 3. A moving support.
@@ -53,14 +54,20 @@ export function test_human_motion_support_carry(): void {
     "the support's origin is carried with it",
     close(carry.point({ x: 0, y: 0, z: 0 }), { x: 0, y: 0, z: 2 }),
   );
-  TestValidator.predicate(`the heading turns with it (${carry.yaw})`, Math.abs(carry.yaw - 10) <= 1e-9);
+  TestValidator.predicate(
+    `the heading turns with it (${carry.yaw})`,
+    Math.abs(carry.yaw - 10) <= 1e-9,
+  );
   const side: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 10),
     { x: 1, y: 0, z: 0 },
   );
   TestValidator.predicate(
     "an off-origin point turns about the moved origin",
-    close(carry.point({ x: 1, y: 0, z: 0 }), Vector3.add({ x: 0, y: 0, z: 2 }, side)),
+    close(
+      carry.point({ x: 1, y: 0, z: 0 }),
+      Vector3.add({ x: 0, y: 0, z: 2 }, side),
+    ),
   );
 
   // 4. A posture.
@@ -86,14 +93,27 @@ export function test_human_motion_support_carry(): void {
   const carried: IHumanPosture = HumanSupportCarry.posture(carry, posture);
   TestValidator.predicate(
     "the root and the heading are carried",
-    close(carried.root, carry.point(posture.root)) && Math.abs(carried.yaw - 15) <= 1e-9,
+    close(carried.root, carry.point(posture.root)) &&
+      Math.abs(carried.yaw - 15) <= 1e-9,
   );
   TestValidator.predicate(
     "a free goal is carried, point, bend and rotation",
-    close(carried.limbs.rightArm!.point, carry.point(posture.limbs.rightArm!.point)) &&
-      close(carried.limbs.rightArm!.bend, carry.point(posture.limbs.rightArm!.bend)) &&
-      Math.abs(Quaternion.angle(carried.limbs.rightArm!.rotation!, carry.turn)) <= 1e-6,
+    close(
+      carried.limbs.rightArm!.point,
+      carry.point(posture.limbs.rightArm!.point),
+    ) &&
+      close(
+        carried.limbs.rightArm!.bend,
+        carry.point(posture.limbs.rightArm!.bend),
+      ) &&
+      Math.abs(
+        Quaternion.angle(carried.limbs.rightArm!.rotation!, carry.turn),
+      ) <= 1e-6,
   );
-  TestValidator.equals("a goal on a bone is left alone", carried.limbs.leftArm, posture.limbs.leftArm);
+  TestValidator.equals(
+    "a goal on a bone is left alone",
+    carried.limbs.leftArm,
+    posture.limbs.leftArm,
+  );
   TestValidator.equals("joint angles stay", carried.joints, posture.joints);
 }

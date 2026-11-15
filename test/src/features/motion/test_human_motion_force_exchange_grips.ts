@@ -53,7 +53,8 @@ export function test_human_motion_force_exchange_grips(): void {
     b: motionHumanBody("m-large"),
   };
   const model: resolveAutoMovieCenterOfMass.IModel =
-    resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);  const grips = clinch.regions("collarSleeve", "right");
+    resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
+  const grips = clinch.regions("collarSleeve", "right");
   let gripped: HumanPerformance | null = null;
   try {
     gripped = new HumanPerformance({
@@ -61,7 +62,11 @@ export function test_human_motion_force_exchange_grips(): void {
       performers: (["a", "b"] as const).map((subject) => ({
         subject,
         body: bodies[subject],
-        at: { x: 0, y: 0, z: subject === "a" ? bodies.b.measure.footLength : 0 },
+        at: {
+          x: 0,
+          y: 0,
+          z: subject === "a" ? bodies.b.measure.footLength : 0,
+        },
         yaw: 0,
         proficiency: { level: "trained" as const },
       })),

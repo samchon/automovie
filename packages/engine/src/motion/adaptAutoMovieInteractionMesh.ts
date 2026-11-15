@@ -54,14 +54,9 @@ export function adaptAutoMovieInteractionMesh(
   props: adaptAutoMovieInteractionMesh.IProps,
 ): adaptAutoMovieInteractionMesh.IResult {
   const n: number = props.reference.length;
-  if (n < 4)
-    throw new Error("An interaction mesh needs at least four points");
+  if (n < 4) throw new Error("An interaction mesh needs at least four points");
   for (const bone of props.bones)
-    if (
-      !(bone.length > 0) ||
-      !inside(bone.from, n) ||
-      !inside(bone.to, n)
-    )
+    if (!(bone.length > 0) || !inside(bone.from, n) || !inside(bone.to, n))
       throw new Error(
         `A bone ${bone.from}-${bone.to} needs two points and a positive length`,
       );
@@ -168,7 +163,6 @@ export namespace adaptAutoMovieInteractionMesh {
     /** The mesh it kept. */
     mesh: IMesh;
   }
-
 }
 /** Whether an index lies among n points. */
 function inside(index: number, n: number): boolean {
@@ -283,7 +277,9 @@ function solve(
   };
   const rhs: number[] = [
     ...delta.flatMap((d: IAutoMovieVector3): number[] => [d.x, d.y, d.z]),
-    ...bones.map((b: adaptAutoMovieInteractionMesh.IBone): number => weight * b.length),
+    ...bones.map(
+      (b: adaptAutoMovieInteractionMesh.IBone): number => weight * b.length,
+    ),
     ...contacts.flatMap(
       (c: adaptAutoMovieInteractionMesh.IContact): number[] => [
         weight * (c.offset?.x ?? 0),
@@ -300,7 +296,9 @@ function solve(
     p.z,
   ]);
   const ax: number[] = product(x);
-  const r: number[] = transpose(rhs.map((b: number, i: number): number => b - ax[i]!));
+  const r: number[] = transpose(
+    rhs.map((b: number, i: number): number => b - ax[i]!),
+  );
   let p: number[] = [...r];
   let rr: number = dot(r, r);
   const floor: number = rr * Number.EPSILON * Number.EPSILON;

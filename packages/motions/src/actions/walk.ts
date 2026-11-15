@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import type { IHumanBody } from "../body/IHumanBody";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -21,11 +21,11 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { IWalkGait } from "./IWalkGait";
+import type { IWalkParams } from "./IWalkParams";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkCarriage } from "./walkCarriage";
-import type { IWalkParams } from "./IWalkParams";
 import { walkClear } from "./walkClear";
 import { walkClock } from "./walkClock";
 import { walkCuts } from "./walkCuts";
@@ -150,10 +150,21 @@ export namespace walk {
   ): IHumanActionPlan {
     // On a moving support the walk planned on it as it stood at the start
     // is carried by its motion, the feet planted on it (#3491).
-    const planned: IHumanActionPlan = locomote(context, walking(FROUDE[context.params.pace ?? "normal"]));
+    const planned: IHumanActionPlan = locomote(
+      context,
+      walking(FROUDE[context.params.pace ?? "normal"]),
+    );
     const on: IParams["on"] = context.params.on;
     if (on === undefined) return planned;
-    HumanSupportFrame.board(context, on.prop, Math.sqrt(FROUDE[context.params.pace ?? "normal"] * AutoMovieGravity.STANDARD * context.body.measure.hipHeight));
+    HumanSupportFrame.board(
+      context,
+      on.prop,
+      Math.sqrt(
+        FROUDE[context.params.pace ?? "normal"] *
+          AutoMovieGravity.STANDARD *
+          context.body.measure.hipHeight,
+      ),
+    );
     return HumanSupportCarry.on(context, planned, on.prop);
   }
 

@@ -16,7 +16,8 @@ import type { walkFacing } from "./walkFacing";
  * @evidence contracts/development/design.md#minimal-and-owned-surface What `walk.locomote`, the styled gaits and the rows read, split from `walk` so the law's file holds its planning.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member names one gait: every walk-family law reads the same record.
  */
-export interface IWalkParams {  /** The floor point to stop at, world metres. */
+export interface IWalkParams {
+  /** The floor point to stop at, world metres. */
   to: IAutoMovieVector3;
 
   /** The pace; `normal` when absent. */

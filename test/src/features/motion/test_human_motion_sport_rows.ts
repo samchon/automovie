@@ -89,7 +89,10 @@ export function test_human_motion_sport_rows(): void {
     "bend",
   ]);
   TestValidator.predicate(
-    `every sport row is a row of a shipped sport law (${sport.filter((r) => !sportFamilies.has(r.family ?? "")).map((r) => r.name).join(", ")})`,
+    `every sport row is a row of a shipped sport law (${sport
+      .filter((r) => !sportFamilies.has(r.family ?? ""))
+      .map((r) => r.name)
+      .join(", ")})`,
     sport.every((r) => sportFamilies.has(r.family ?? "")),
   );
   TestValidator.predicate(
@@ -97,28 +100,64 @@ export function test_human_motion_sport_rows(): void {
     thrown.every((r) => r.family !== undefined),
   );
   const names: string[] = [...sport, ...thrown].map((r) => r.name);
-  TestValidator.equals("no row name repeats", new Set(names).size, names.length);
+  TestValidator.equals(
+    "no row name repeats",
+    new Set(names).size,
+    names.length,
+  );
 
   // 2. The shipped kinds.
   const kinds: [IHumanActionLaw<never>, string, string][] = [
     [HumanSport.sprintStart as IHumanActionLaw<never>, "athletics", ""],
     [HumanSport.handstand as IHumanActionLaw<never>, "gymnastics", ""],
-    [HumanSport.horseStance as IHumanActionLaw<never>, "martialArt", "horseStance"],
-    [HumanSport.karatePunches as IHumanActionLaw<never>, "martialArt", "chokuZuki"],
-    [HumanSport.taiChiPush as IHumanActionLaw<never>, "martialArt", "taiChiPush"],
+    [
+      HumanSport.horseStance as IHumanActionLaw<never>,
+      "martialArt",
+      "horseStance",
+    ],
+    [
+      HumanSport.karatePunches as IHumanActionLaw<never>,
+      "martialArt",
+      "chokuZuki",
+    ],
+    [
+      HumanSport.taiChiPush as IHumanActionLaw<never>,
+      "martialArt",
+      "taiChiPush",
+    ],
     [HumanSport.dribble as IHumanActionLaw<never>, "ballSport", "dribble"],
     [HumanSport.volleyDig as IHumanActionLaw<never>, "ballSport", "dig"],
     [HumanSport.volleySet as IHumanActionLaw<never>, "ballSport", "set"],
     [HumanSport.throwIn as IHumanActionLaw<never>, "ballSport", "throwIn"],
-    [HumanSport.catcherCrouch as IHumanActionLaw<never>, "baseball", "catcherCrouch"],
-    [HumanSport.fieldGrounder as IHumanActionLaw<never>, "baseball", "groundBall"],
-    [HumanSport.battingStance as IHumanActionLaw<never>, "baseball", "battingStance"],
-    [HumanSport.readyPosition as IHumanActionLaw<never>, "racket", "readyPosition"],
+    [
+      HumanSport.catcherCrouch as IHumanActionLaw<never>,
+      "baseball",
+      "catcherCrouch",
+    ],
+    [
+      HumanSport.fieldGrounder as IHumanActionLaw<never>,
+      "baseball",
+      "groundBall",
+    ],
+    [
+      HumanSport.battingStance as IHumanActionLaw<never>,
+      "baseball",
+      "battingStance",
+    ],
+    [
+      HumanSport.readyPosition as IHumanActionLaw<never>,
+      "racket",
+      "readyPosition",
+    ],
     [HumanSport.splitStep as IHumanActionLaw<never>, "racket", "splitStep"],
     [HumanSport.golfAddress as IHumanActionLaw<never>, "racket", "golfAddress"],
   ];
   for (const [law, family, kind] of kinds) {
-    TestValidator.equals(`${law.name} is a row of ${family}`, law.family, family);
+    TestValidator.equals(
+      `${law.name} is a row of ${family}`,
+      law.family,
+      family,
+    );
     if (kind !== "")
       TestValidator.equals(
         `${law.name} fixes the kind ${kind}`,
@@ -137,9 +176,20 @@ export function test_human_motion_sport_rows(): void {
         performance = new HumanPerformance({
           seed: "pitch",
           laws: [HumanSportThrow.pitch],
-          props: [HumanObject.prop("ball", ball, { at: { x: -0.25, y: 0.9, z: 0.35 }, yaw: 0 })],
+          props: [
+            HumanObject.prop("ball", ball, {
+              at: { x: -0.25, y: 0.9, z: 0.35 },
+              yaw: 0,
+            }),
+          ],
           performers: [
-            { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level } },
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level },
+            },
           ],
           composition: HumanChain.subject("a")
             .pickUp({ prop: "ball", handle: "grip" })
@@ -156,7 +206,10 @@ export function test_human_motion_sport_rows(): void {
         continue;
       }
       const flight = performance.flights("ball")[0];
-      TestValidator.predicate(`${name} ${level}: the ball is launched`, flight !== undefined);
+      TestValidator.predicate(
+        `${name} ${level}: the ball is launched`,
+        flight !== undefined,
+      );
       if (flight === undefined) continue;
       const gone: number = Vector3.length(
         Vector3.subtract(
@@ -226,7 +279,10 @@ export function test_human_motion_sport_rows(): void {
       (Math.acos(
         Math.max(
           -1,
-          Math.min(1, Vector3.dot(u, v) / (Vector3.length(u) * Vector3.length(v))),
+          Math.min(
+            1,
+            Vector3.dot(u, v) / (Vector3.length(u) * Vector3.length(v)),
+          ),
         ),
       ) *
         180) /
@@ -260,8 +316,12 @@ export function test_human_motion_sport_rows(): void {
       ["left", 90],
       ["right", 130],
     ] as const) {
-      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
-      const knee: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
+      const hip: IAutoMovieVector3 = bones.get(
+        `${side}UpperLeg`,
+      )!.worldPosition;
+      const knee: IAutoMovieVector3 = bones.get(
+        `${side}LowerLeg`,
+      )!.worldPosition;
       const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
       const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
       const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
@@ -358,15 +418,15 @@ export function test_human_motion_sport_rows(): void {
             `${name} throw-in: the path passes ${((height - target.y) * 1000).toFixed(1)} mm off the target, within 10 mm expected`,
           );
       }
-      const feet = (
-        seconds: number,
-      ): ReturnType<HumanPerformance["bones"]> => built.bones("a", seconds);
+      const feet = (seconds: number): ReturnType<HumanPerformance["bones"]> =>
+        built.bones("a", seconds);
       for (const side of ["left", "right"] as const) {
-        const from: IAutoMovieVector3 = feet(placed.start).get(`${side}Foot`)!
-          .worldPosition;
-        const to: IAutoMovieVector3 = feet(Number.isNaN(stroke) ? placed.end : stroke).get(
+        const from: IAutoMovieVector3 = feet(placed.start).get(
           `${side}Foot`,
         )!.worldPosition;
+        const to: IAutoMovieVector3 = feet(
+          Number.isNaN(stroke) ? placed.end : stroke,
+        ).get(`${side}Foot`)!.worldPosition;
         const slid: number = Vector3.length(Vector3.subtract(to, from));
         if (!(slid <= 0.005))
           complaints.push(

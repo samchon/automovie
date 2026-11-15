@@ -68,7 +68,11 @@ export const formationSlotPosition: (
       : blockPoint(formation, slot);
   const origin: ILocalPoint =
     blocked ??
-    localFormationPoint(formation, slot, reform?.fromLayout ?? formation.layout);
+    localFormationPoint(
+      formation,
+      slot,
+      reform?.fromLayout ?? formation.layout,
+    );
   const point: ILocalPoint =
     reform === null || blocked !== null
       ? origin
@@ -100,14 +104,16 @@ const blockPoint = (
   formation: IAutoMovieFormationPlacement,
   slot: number,
 ): ILocalPoint => {
-  const blocks: NonNullable<IAutoMovieFormationPlacement["blocks"]> = formation.blocks!;
+  const blocks: NonNullable<IAutoMovieFormationPlacement["blocks"]> =
+    formation.blocks!;
   let within: number = slot;
   let b: number = 0;
   while (b + 1 < blocks.length && within >= blocks[b]!.count) {
     within -= blocks[b]!.count;
     ++b;
   }
-  const block: NonNullable<IAutoMovieFormationPlacement["blocks"]>[number] = blocks[b]!;
+  const block: NonNullable<IAutoMovieFormationPlacement["blocks"]>[number] =
+    blocks[b]!;
   const own: ILocalPoint = localFormationPoint(
     { ...formation, count: block.count, seed: block.seed ?? formation.seed },
     within,

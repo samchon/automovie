@@ -42,7 +42,10 @@ export function lowerHumanPosture(
   );
   let drop: number = 0;
   for (const { side, goal } of legs)
-    drop = Math.max(drop, lowerHumanPosture.short(body, hips[side], goal, knee));
+    drop = Math.max(
+      drop,
+      lowerHumanPosture.short(body, hips[side], goal, knee),
+    );
   return drop === 0
     ? posture
     : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };

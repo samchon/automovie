@@ -83,7 +83,11 @@ export function test_human_motion_posture_entry_arms(): void {
     motionHumanLaw.film(
       new HumanPerformance({
         seed: "entry-arms",
-        laws: [HumanStance.handsOnHips, HumanEmblem.thumbsUp, HumanHabit.checkWatch],
+        laws: [
+          HumanStance.handsOnHips,
+          HumanEmblem.thumbsUp,
+          HumanHabit.checkWatch,
+        ],
         performers: people.map((p) => ({
           subject: p.subject,
           body: p.body,
@@ -176,12 +180,9 @@ export function test_human_motion_posture_entry_arms(): void {
         (t: number): Bones => M.bones(sit, t),
         M.times(sat, sit.film.duration, M.HELD),
       );
-    clear(
-      `sit ${name} end`,
-      sit.body,
-      (t: number): Bones => M.bones(sit, t),
-      [sit.film.duration],
-    );
+    clear(`sit ${name} end`, sit.body, (t: number): Bones => M.bones(sit, t), [
+      sit.film.duration,
+    ]);
 
     // 2. Shifting on the seat: the shift's span and its end.
     const shift: M.IStaged = M.stage("shift", "default", name);
@@ -236,12 +237,9 @@ export function test_human_motion_posture_entry_arms(): void {
       const down: Span | undefined = span(film, "sit");
       complaints.check(`${cell}: the sit is performed`, down !== undefined);
       if (down !== undefined)
-        clear(
-          `${cell} end`,
-          body,
-          (t: number): Bones => film.bones("a", t),
-          [down.start + down.plan.duration],
-        );
+        clear(`${cell} end`, body, (t: number): Bones => film.bones("a", t), [
+          down.start + down.plan.duration,
+        ]);
       complaints.check(
         `${cell}: the watch check after it is performed`,
         span(film, "checkWatch") !== undefined,

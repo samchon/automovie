@@ -197,8 +197,7 @@ export namespace HumanCrowd {
         kind: "participant",
         performer: leaders[contact.agent]!.subject,
         axis: "crowd",
-        value:
-          other,
+        value: other,
         reason: `${leaders[contact.agent]!.subject} and ${
           other
         } overlap by ${(contact.depth * 1000).toFixed(0)} mm from ${contact.seconds.toFixed(3)} s; the steering pass keeps people apart by anticipation and does not push them`,

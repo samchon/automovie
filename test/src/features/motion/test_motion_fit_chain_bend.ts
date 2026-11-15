@@ -203,19 +203,19 @@ export function test_motion_fit_chain_bend(): void {
         fitChainToTarget({
           skeleton: hinged,
           pose,
-        chain: {
-          upper: "leftUpperLeg",
-          lower: "leftLowerLeg",
-          effector: "leftFoot",
-        },
-        target,
-        topology,
-        jointAxes: {},
-        restFrames: {},
-        // The opposite side as `bend`, which serves only with no legal candidate.
-        bend: { x: 0.1 - sign, y: 0.75, z: 0.2 },
-        strain: (upper: IAutoMovieQuaternion): number =>
-          1 - sign * Quaternion.rotateVector(upper, { x: 0, y: -1, z: 0 }).x,
+          chain: {
+            upper: "leftUpperLeg",
+            lower: "leftLowerLeg",
+            effector: "leftFoot",
+          },
+          target,
+          topology,
+          jointAxes: {},
+          restFrames: {},
+          // The opposite side as `bend`, which serves only with no legal candidate.
+          bend: { x: 0.1 - sign, y: 0.75, z: 0.2 },
+          strain: (upper: IAutoMovieQuaternion): number =>
+            1 - sign * Quaternion.rotateVector(upper, { x: 0, y: -1, z: 0 }).x,
         }),
         hinged,
         {},

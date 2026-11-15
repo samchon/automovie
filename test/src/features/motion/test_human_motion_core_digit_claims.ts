@@ -62,8 +62,14 @@ export function test_human_motion_core_digit_claims(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const laws: IHumanActionLaw<never>[] = [
-    bend("thumbBend", ["rightThumb"], { rightThumbProximal: [40, 0, 0], rightThumbDistal: [40, 0, 0] }),
-    bend("indexBend", ["rightIndex"], { rightIndexProximal: [60, 0, 0], rightIndexIntermediate: [60, 0, 0] }),
+    bend("thumbBend", ["rightThumb"], {
+      rightThumbProximal: [40, 0, 0],
+      rightThumbDistal: [40, 0, 0],
+    }),
+    bend("indexBend", ["rightIndex"], {
+      rightIndexProximal: [60, 0, 0],
+      rightIndexIntermediate: [60, 0, 0],
+    }),
     bend("handBend", ["rightHand"], { rightMiddleProximal: [60, 0, 0] }),
     bend("leftThumbBend", ["leftThumb"], { leftThumbProximal: [40, 0, 0] }),
   ] as unknown as IHumanActionLaw<never>[];
@@ -71,14 +77,26 @@ export function test_human_motion_core_digit_claims(): void {
     new HumanPerformance({
       seed: "claims",
       laws,
-      performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-      composition: over
-        .reduce(
-          (chain: HumanChain, name: string): HumanChain => chain.over((o) => o.registered(name)),
-          HumanChain.subject("a").stand({ seconds: 3 }),
-        ).node,
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: over.reduce(
+        (chain: HumanChain, name: string): HumanChain =>
+          chain.over((o) => o.registered(name)),
+        HumanChain.subject("a").stand({ seconds: 3 }),
+      ).node,
     });
-  const flexion = (p: HumanPerformance, bone: string, seconds: number): number =>
+  const flexion = (
+    p: HumanPerformance,
+    bone: string,
+    seconds: number,
+  ): number =>
     p.pose("a", seconds).joints.find((j) => j.bone === bone)?.flexion ?? 0;
 
   // 1, 2. A lone digit, then two disjoint digits.
@@ -87,14 +105,23 @@ export function test_human_motion_core_digit_claims(): void {
       const p: HumanPerformance = perform(over);
       const mid: number = p.overlays("a")[0]!.start + 0.5;
       if (!(Math.abs(flexion(p, "rightThumbProximal", mid) - 40) <= 1e-6))
-        complaints.push(`${over.join(" + ")}: the thumb is not bent to 40 degrees mid-overlay`);
+        complaints.push(
+          `${over.join(" + ")}: the thumb is not bent to 40 degrees mid-overlay`,
+        );
       const index: number = flexion(p, "rightIndexProximal", mid);
-      if (over.length === 1 && Math.abs(index - flexion(p, "rightIndexProximal", 0)) > 1e-6)
+      if (
+        over.length === 1 &&
+        Math.abs(index - flexion(p, "rightIndexProximal", 0)) > 1e-6
+      )
         complaints.push("a thumb claim moved the forefinger");
       if (over.length === 2 && !(Math.abs(index - 60) <= 1e-6))
-        complaints.push("the forefinger overlay did not bend the forefinger beside the thumb's");
+        complaints.push(
+          "the forefinger overlay did not bend the forefinger beside the thumb's",
+        );
     } catch (error) {
-      complaints.push(`${over.join(" + ")}: expected to plan, got ${(error as Error).message}`);
+      complaints.push(
+        `${over.join(" + ")}: expected to plan, got ${(error as Error).message}`,
+      );
     }
 
   // 3, 4. Clashes.
@@ -106,15 +133,22 @@ export function test_human_motion_core_digit_claims(): void {
       perform(over);
       complaints.push(`${over.join(" + ")}: expected a refusal`);
     } catch (error) {
-      if (!(error instanceof HumanRefusal) || !(error as Error).message.includes(digit))
-        complaints.push(`${over.join(" + ")}: refused with "${(error as Error).message}", the clash on ${digit} expected`);
+      if (
+        !(error instanceof HumanRefusal) ||
+        !(error as Error).message.includes(digit)
+      )
+        complaints.push(
+          `${over.join(" + ")}: refused with "${(error as Error).message}", the clash on ${digit} expected`,
+        );
     }
 
   // 5. The other hand's digit.
   try {
     perform(["handBend", "leftThumbBend"]);
   } catch (error) {
-    complaints.push(`the right hand and the left thumb: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `the right hand and the left thumb: expected to plan, got ${(error as Error).message}`,
+    );
   }
   TestValidator.equals("overlays that claim single digits", complaints, []);
 }

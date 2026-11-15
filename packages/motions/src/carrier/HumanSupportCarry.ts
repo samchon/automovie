@@ -166,7 +166,10 @@ export namespace HumanSupportCarry {
    * @returns The carried plan.
    */
   export function plan(
-    context: Pick<IHumanActionContext, "entry" | "prop" | "performer" | "start">,
+    context: Pick<
+      IHumanActionContext,
+      "entry" | "prop" | "performer" | "start"
+    >,
     plan: IHumanActionPlan,
     channels: NonNullable<IHumanActionPlan["channels"]>,
   ): IHumanActionPlan {

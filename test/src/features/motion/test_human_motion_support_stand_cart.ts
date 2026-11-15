@@ -49,9 +49,18 @@ export function test_human_motion_support_stand_cart(): void {
         seed: "cart",
         props: [HumanObject.prop("cart", cart, motion(0), motion)],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
-        composition: HumanChain.subject("a").stand({ seconds: 4, on: { prop: "cart" } }).node,
+        composition: HumanChain.subject("a").stand({
+          seconds: 4,
+          on: { prop: "cart" },
+        }).node,
       });
     } catch (error) {
       TestValidator.predicate(
@@ -80,14 +89,18 @@ export function test_human_motion_support_stand_cart(): void {
       let worst: number = 0;
       for (let k: number = 0; k < 7; k++) {
         const t: number = 0.6 + (k * 3.3) / 6;
-        worst = Math.max(worst, Vector3.length(Vector3.subtract(local(side, t), start)));
+        worst = Math.max(
+          worst,
+          Vector3.length(Vector3.subtract(local(side, t), start)),
+        );
       }
       TestValidator.predicate(
         `${name}: the ${side} foot stays on its place on the cart (${(1000 * worst).toFixed(1)} mm)`,
         worst <= 0.01,
       );
     }
-    const turned: number = performance.posture("a", 4).yaw - performance.posture("a", 0).yaw;
+    const turned: number =
+      performance.posture("a", 4).yaw - performance.posture("a", 0).yaw;
     TestValidator.predicate(
       `${name}: the heading turns with the cart (${turned.toFixed(2)} degrees)`,
       Math.abs(turned - 40) <= 1,
@@ -98,7 +111,13 @@ export function test_human_motion_support_stand_cart(): void {
   const frame = HumanSupportFrame.at(
     {
       entry: {
-        supports: [{ part: "leftFoot", kind: "plant", support: { kind: "prop", subject: "cart" } }],
+        supports: [
+          {
+            part: "leftFoot",
+            kind: "plant",
+            support: { kind: "prop", subject: "cart" },
+          },
+        ],
       } as never,
       prop: () => ({
         prop: HumanObject.prop("cart", cart, motion(0), motion),

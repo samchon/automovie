@@ -88,7 +88,6 @@ export namespace HumanLimbFit {
         };
   }
 
-
   /**
    * Turn the memory of limb fits off or on again (`HumanLimbFitMemory.memory`).
    *

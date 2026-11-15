@@ -116,24 +116,32 @@ export namespace HumanMutual {
    * own flight. The join needs an anchor for that reason.
    */
   export const pass: IHumanMutual<
-    Omit<catchObject.IParams, "from"> & Pick<throwObject.IParams, "style" | "manner">,
+    Omit<catchObject.IParams, "from"> &
+      Pick<throwObject.IParams, "style" | "manner">,
     "thrower" | "catcher"
   > = {
     name: "pass",
     roles: ["thrower", "catcher"],
     act: (
       role: "thrower" | "catcher",
-      params: Omit<catchObject.IParams, "from"> & Pick<throwObject.IParams, "style" | "manner">,
+      params: Omit<catchObject.IParams, "from"> &
+        Pick<throwObject.IParams, "style" | "manner">,
       cast: Readonly<Record<"thrower" | "catcher", string>>,
       anchor?: string,
     ): IHumanMutual.IAct => {
       if (anchor === undefined)
-        throw new Error("a pass joins a catch to its throw by the anchor; give HumanChain.mutual an anchor");
+        throw new Error(
+          "a pass joins a catch to its throw by the anchor; give HumanChain.mutual an anchor",
+        );
       return role === "thrower"
         ? {
             name: "throwObject",
             params: {
-              at: { kind: "person", subject: cast.catcher, region: params.side === "left" ? "palmLeft" : "palmRight" },
+              at: {
+                kind: "person",
+                subject: cast.catcher,
+                region: params.side === "left" ? "palmLeft" : "palmRight",
+              },
               prop: params.ball,
               ...(params.style === undefined ? {} : { style: params.style }),
               ...(params.manner === undefined ? {} : { manner: params.manner }),

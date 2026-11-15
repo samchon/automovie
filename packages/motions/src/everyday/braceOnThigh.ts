@@ -77,10 +77,7 @@ export function braceOnThigh(
           side,
           {
             point,
-            normal: Quaternion.rotateVector(
-              thigh.worldRotation,
-              region.normal,
-            ),
+            normal: Quaternion.rotateVector(thigh.worldRotation, region.normal),
           },
           {
             surface: "palm",

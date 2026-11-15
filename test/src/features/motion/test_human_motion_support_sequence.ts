@@ -151,13 +151,21 @@ export function test_human_motion_support_sequence(): void {
     frame: "world",
   });
   const ahead: number = toes("left").z + body.measure.footLength;
-  const right = { part: "rightFoot", kind: "bear", target: on(toes("right").x, toes("right").z) };
+  const right = {
+    part: "rightFoot",
+    kind: "bear",
+    target: on(toes("right").x, toes("right").z),
+  };
   let stepped: HumanPerformance | null = null;
   try {
     stepped = perform([
       {
         contacts: [
-          { part: "leftFoot", kind: "bear", target: on(toes("left").x, toes("left").z) },
+          {
+            part: "leftFoot",
+            kind: "bear",
+            target: on(toes("left").x, toes("left").z),
+          },
           right,
         ],
       },
@@ -175,7 +183,9 @@ export function test_human_motion_support_sequence(): void {
     const step = stepped.segments("a")[0]!;
     const at = (name: string): number | undefined => {
       const e = step.plan.events.find((x): boolean => x.name === name);
-      return e === undefined ? undefined : step.start + e.share * step.plan.duration;
+      return e === undefined
+        ? undefined
+        : step.start + e.share * step.plan.duration;
     };
     const lift: number | undefined = at("lift1");
     const bear: number | undefined = at("bear1");
@@ -183,12 +193,20 @@ export function test_human_motion_support_sequence(): void {
     // 4. The step's keys come in order: lifted, set down, held.
     all.check(
       `lift1 ${lift?.toFixed(3)} s, bear1 ${bear?.toFixed(3)} s and stance1 ${held?.toFixed(3)} s in order`,
-      lift !== undefined && bear !== undefined && held !== undefined && lift < bear && bear < held,
+      lift !== undefined &&
+        bear !== undefined &&
+        held !== undefined &&
+        lift < bear &&
+        bear < held,
     );
     // 5. The left foot bears twice, its first window closing at the lift and
     // its second opening as it is set down; the right bears throughout.
-    const left = step.plan.contacts.filter((w: IHumanContactWindow): boolean => w.part === "leftFoot");
-    const rightWindows = step.plan.contacts.filter((w: IHumanContactWindow): boolean => w.part === "rightFoot");
+    const left = step.plan.contacts.filter(
+      (w: IHumanContactWindow): boolean => w.part === "leftFoot",
+    );
+    const rightWindows = step.plan.contacts.filter(
+      (w: IHumanContactWindow): boolean => w.part === "rightFoot",
+    );
     const share = (t: number | undefined): number =>
       t === undefined ? NaN : (t - step.start) / step.plan.duration;
     all.check(
@@ -200,7 +218,9 @@ export function test_human_motion_support_sequence(): void {
     );
     all.check(
       `the right foot bears throughout the step, read ${rightWindows.map((w) => `${w.from}-${w.to}`).join(", ")}`,
-      rightWindows.length === 1 && rightWindows[0]!.from === 0 && rightWindows[0]!.to === 1,
+      rightWindows.length === 1 &&
+        rightWindows[0]!.from === 0 &&
+        rightWindows[0]!.to === 1,
     );
     const joint = (t: number, side: "left" | "right") =>
       stepped!.bones("a", t).get(`${side}Toes`)!.worldPosition;
@@ -212,7 +232,9 @@ export function test_human_motion_support_sequence(): void {
       const miss: number = support.MISS / 1000;
       all.check(
         `the swing's top at ${(top.y * 1000).toFixed(1)} mm high and ${((top.z - middle) * 1000).toFixed(1)} mm from the step's middle, ${(crawl.LIFT * 1000).toFixed(0)} mm high and over it within ${support.MISS} mm`,
-        Math.abs(top.y - crawl.LIFT) <= miss && Math.abs(top.z - middle) <= miss && Math.abs(top.x - toes("left").x) <= miss,
+        Math.abs(top.y - crawl.LIFT) <= miss &&
+          Math.abs(top.z - middle) <= miss &&
+          Math.abs(top.x - toes("left").x) <= miss,
       );
       // 7. Set down, the left toe joint is on its new place across the floor.
       const down = joint(bear, "left");
@@ -222,9 +244,16 @@ export function test_human_motion_support_sequence(): void {
       );
       // 8. The bearing right foot does not slide over the step.
       let slide: number = 0;
-      for (let t: number = step.start; t <= step.start + step.plan.duration; t += 1 / 30) {
+      for (
+        let t: number = step.start;
+        t <= step.start + step.plan.duration;
+        t += 1 / 30
+      ) {
         const r = joint(t, "right");
-        slide = Math.max(slide, Math.hypot(r.x - toes("right").x, r.z - toes("right").z));
+        slide = Math.max(
+          slide,
+          Math.hypot(r.x - toes("right").x, r.z - toes("right").z),
+        );
       }
       all.check(
         `the right toe joint keeps its place within ${support.MISS} mm, read ${(slide * 1000).toFixed(1)} mm`,

@@ -37,24 +37,41 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios.
  */
 export function test_human_motion_firearm_shot_launch(): void {
-  const gun: ReturnType<typeof createHandgun> = createHandgun({ frame: "fullSize" });
-  const ball: ReturnType<typeof createProjectile> = createProjectile({ kind: "ball" });
+  const gun: ReturnType<typeof createHandgun> = createHandgun({
+    frame: "fullSize",
+  });
+  const ball: ReturnType<typeof createProjectile> = createProjectile({
+    kind: "ball",
+  });
   const body: IHumanBody = motionHumanBody("m-average");
   const perform = (shot: object | undefined): HumanPerformance =>
     new HumanPerformance({
       seed: "shot",
       laws: [HumanWeaponFirearm.present, HumanWeaponFirearm.fire],
       props: [
-        HumanObject.prop("gun", gun, { at: { x: 0.25, y: 0.9, z: 0.4 }, yaw: 0 }),
+        HumanObject.prop("gun", gun, {
+          at: { x: 0.25, y: 0.9, z: 0.4 },
+          yaw: 0,
+        }),
         HumanObject.prop("ball", ball, { at: { x: 5, y: 0, z: 5 }, yaw: 0 }),
       ],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: HumanChain.subject("a")
         .pickUp({ prop: "gun", handle: "grip" })
         .registered("presentFirearm", { gun: "gun", hands: 1 })
-        .registered("fireFirearm", { gun: "gun", hands: 1, ...(shot === undefined ? {} : { shot }) }).node,
+        .registered("fireFirearm", {
+          gun: "gun",
+          hands: 1,
+          ...(shot === undefined ? {} : { shot }),
+        }).node,
     });
   for (const lock of [0, 0.005]) {
     let performance: HumanPerformance;
@@ -69,7 +86,10 @@ export function test_human_motion_firearm_shot_launch(): void {
     }
     const shot = performance.segments("a").at(-1)!;
     const launches = shot.plan.launches ?? [];
-    TestValidator.predicate("one launch of the ball", launches.length === 1 && launches[0]!.prop === "ball");
+    TestValidator.predicate(
+      "one launch of the ball",
+      launches.length === 1 && launches[0]!.prop === "ball",
+    );
     const launch = launches[0];
     if (launch === undefined) continue;
     TestValidator.predicate(
@@ -83,15 +103,33 @@ export function test_human_motion_firearm_shot_launch(): void {
     const brk: number = shot.start + (shot.plan.contact ?? 0);
     const held = performance.prop("gun", brk);
     const along = (id: "muzzle" | "sight"): IAutoMovieVector3 =>
-      Vector3.add(held.position, Quaternion.rotateVector(held.rotation, gun.affordance(id).frame.translation));
-    const bore: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(along("muzzle"), along("sight")));
+      Vector3.add(
+        held.position,
+        Quaternion.rotateVector(
+          held.rotation,
+          gun.affordance(id).frame.translation,
+        ),
+      );
+    const bore: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(along("muzzle"), along("sight")),
+    );
     const off: number =
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(bore, Vector3.normalize(launch.velocity))))) * 180) / Math.PI;
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, Vector3.dot(bore, Vector3.normalize(launch.velocity))),
+        ),
+      ) *
+        180) /
+      Math.PI;
     TestValidator.predicate(
       `it leaves along the bore within the dispersion (${off.toFixed(3)} degrees)`,
       off <= HumanWeaponFirearm.DISPERSION + 1e-6,
     );
-    TestValidator.predicate("the ball flies", performance.flights("ball").length === 1);
+    TestValidator.predicate(
+      "the ball flies",
+      performance.flights("ball").length === 1,
+    );
   }
   let quiet: HumanPerformance | undefined;
   try {
@@ -101,6 +139,7 @@ export function test_human_motion_firearm_shot_launch(): void {
   }
   TestValidator.predicate(
     "a shot without a ball launches nothing",
-    quiet !== undefined && (quiet.segments("a").at(-1)!.plan.launches ?? []).length === 0,
+    quiet !== undefined &&
+      (quiet.segments("a").at(-1)!.plan.launches ?? []).length === 0,
   );
 }

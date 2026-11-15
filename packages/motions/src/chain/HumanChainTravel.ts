@@ -6,8 +6,8 @@ import type { carry } from "../carrying/carry";
 import type { climbLadder } from "../climbing/climbLadder";
 import type { approach } from "../everyday/approach";
 import type { stepOver } from "../everyday/stepOver";
-import type { pushPull } from "../handling/pushPull";
 import type { crawl } from "../floor/crawl";
+import type { pushPull } from "../handling/pushPull";
 import type { climbStairs } from "../terrain/climbStairs";
 import { HumanChainCore } from "./HumanChainCore";
 

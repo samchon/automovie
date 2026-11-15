@@ -1,5 +1,5 @@
-import { selfAction } from "../touch/selfAction";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { selfAction } from "../touch/selfAction";
 
 /**
  * The actions on one's own body as rows (#3361): each kind of `selfAction` under a name of its own, the side, the count and the manner open.
@@ -13,17 +13,29 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanSelfActionRows {
   /** `selfAction` of kind `stretch`. */
-  export const selfStretch = HumanActionRow.of("selfStretch", selfAction, { kind: "stretch" });
+  export const selfStretch = HumanActionRow.of("selfStretch", selfAction, {
+    kind: "stretch",
+  });
 
   /** `selfAction` of kind `victory`. */
-  export const selfVictory = HumanActionRow.of("selfVictory", selfAction, { kind: "victory" });
+  export const selfVictory = HumanActionRow.of("selfVictory", selfAction, {
+    kind: "victory",
+  });
 
   /** `selfAction` of kind `fistPump`. */
-  export const selfFistPump = HumanActionRow.of("selfFistPump", selfAction, { kind: "fistPump" });
+  export const selfFistPump = HumanActionRow.of("selfFistPump", selfAction, {
+    kind: "fistPump",
+  });
 
   /** `selfAction` of kind `neckRoll`. */
-  export const selfNeckRoll = HumanActionRow.of("selfNeckRoll", selfAction, { kind: "neckRoll" });
+  export const selfNeckRoll = HumanActionRow.of("selfNeckRoll", selfAction, {
+    kind: "neckRoll",
+  });
 
   /** `selfAction` of kind `shoulderRoll`. */
-  export const selfShoulderRoll = HumanActionRow.of("selfShoulderRoll", selfAction, { kind: "shoulderRoll" });
+  export const selfShoulderRoll = HumanActionRow.of(
+    "selfShoulderRoll",
+    selfAction,
+    { kind: "shoulderRoll" },
+  );
 }

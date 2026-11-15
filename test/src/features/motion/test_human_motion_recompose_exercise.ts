@@ -78,7 +78,12 @@ export function test_human_motion_recompose_exercise(): void {
       ]),
     );
   };
-  const kinds: IHumanActionParams["dance"]["kind"][] = ["bounce", "sway", "stepTouch", "boxStep"];
+  const kinds: IHumanActionParams["dance"]["kind"][] = [
+    "bounce",
+    "sway",
+    "stepTouch",
+    "boxStep",
+  ];
 
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -109,43 +114,61 @@ export function test_human_motion_recompose_exercise(): void {
             const at: number | undefined = locked.get(`beat${k}`);
             const cue: number = track[k - 1]!.seconds - START;
             if (at === undefined || Math.abs(at - cue) > 1 / 60) {
-              findings.push(`${label} locked: beat ${k} at ${at}, the cue at ${cue.toFixed(3)}`);
+              findings.push(
+                `${label} locked: beat ${k} at ${at}, the cue at ${cue.toFixed(3)}`,
+              );
               break;
             }
           }
         } catch (error) {
-          findings.push(`${label} locked: ${error instanceof Error ? error.message : String(error)}`);
+          findings.push(
+            `${label} locked: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
 
         // 2. Unlocked, on the tempo.
         try {
           const free: Map<string, number> = events(
-            perform(body, (c: HumanChain): HumanChain => c.dance({ kind, beats: 8, bpm })),
+            perform(
+              body,
+              (c: HumanChain): HumanChain => c.dance({ kind, beats: 8, bpm }),
+            ),
           );
           for (let k: number = 1; k <= 8; k++)
-            if (Math.abs((free.get(`beat${k}`) ?? Number.NaN) - k * period) > 1e-9) {
-              findings.push(`${label}: beat ${k} at ${free.get(`beat${k}`)}, the tempo's ${k * period}`);
+            if (
+              Math.abs((free.get(`beat${k}`) ?? Number.NaN) - k * period) > 1e-9
+            ) {
+              findings.push(
+                `${label}: beat ${k} at ${free.get(`beat${k}`)}, the tempo's ${k * period}`,
+              );
               break;
             }
         } catch (error) {
-          findings.push(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+          findings.push(
+            `${label}: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
       }
     }
 
     // 3. A lock to nothing.
-    TestValidator.error(`${name}: a lock to a track without beats is refused`, (): void => {
-      try {
-        perform(
-          body,
-          (c: HumanChain): HumanChain => c.dance({ kind: "bounce", lock: { of: "music" } }),
-          { music: [{ name: "beat", seconds: 0.1 }] },
-        );
-      } catch (error) {
-        if (error instanceof HumanRefusal && error.message.includes("lock")) throw error;
-        throw new Error(`not a lock refusal: ${String(error)}`);
-      }
-    });
+    TestValidator.error(
+      `${name}: a lock to a track without beats is refused`,
+      (): void => {
+        try {
+          perform(
+            body,
+            (c: HumanChain): HumanChain =>
+              c.dance({ kind: "bounce", lock: { of: "music" } }),
+            { music: [{ name: "beat", seconds: 0.1 }] },
+          );
+        } catch (error) {
+          if (error instanceof HumanRefusal && error.message.includes("lock"))
+            throw error;
+          throw new Error(`not a lock refusal: ${String(error)}`);
+        }
+      },
+    );
 
     // 4. The manner matrix.
     const preset: string = AutoMovieMotionManner.PRESET_NAMES[0]!;
@@ -158,11 +181,17 @@ export function test_human_motion_recompose_exercise(): void {
               c.dance({
                 kind,
                 beats: 4,
-                ...(manner === undefined ? {} : { manner: manner as IHumanActionParams["dance"]["manner"] }),
+                ...(manner === undefined
+                  ? {}
+                  : {
+                      manner: manner as IHumanActionParams["dance"]["manner"],
+                    }),
               }),
           );
         } catch (error) {
-          findings.push(`${name} ${kind} ${manner === undefined ? "neutral" : preset}: ${error instanceof Error ? error.message : String(error)}`);
+          findings.push(
+            `${name} ${kind} ${manner === undefined ? "neutral" : preset}: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
 
     // 5. Exact counts.
@@ -176,33 +205,52 @@ export function test_human_motion_recompose_exercise(): void {
                 c.exercise({ kind, reps } as IHumanActionParams["exercise"]),
             ),
           );
-          const bottoms: number = [...placed.keys()].filter((e: string): boolean =>
-            /^bottom\d+$/.test(e),
+          const bottoms: number = [...placed.keys()].filter(
+            (e: string): boolean => /^bottom\d+$/.test(e),
           ).length;
           if (bottoms !== reps)
-            findings.push(`${name} ${kind} of ${reps}: ${bottoms} bottoms placed`);
+            findings.push(
+              `${name} ${kind} of ${reps}: ${bottoms} bottoms placed`,
+            );
         } catch (error) {
-          findings.push(`${name} ${kind} of ${reps}: ${error instanceof Error ? error.message : String(error)}`);
+          findings.push(
+            `${name} ${kind} of ${reps}: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
 
     // 6. The stretch's hold.
-    for (const kind of ["neckSide", "crossBody", "overheadSide", "quadriceps", "tree"] as const)
+    for (const kind of [
+      "neckSide",
+      "crossBody",
+      "overheadSide",
+      "quadriceps",
+      "tree",
+    ] as const)
       try {
         const held: HumanPerformance = perform(
           body,
-          (c: HumanChain): HumanChain => c.stretch({ kind } as IHumanActionParams["stretch"]),
+          (c: HumanChain): HumanChain =>
+            c.stretch({ kind } as IHumanActionParams["stretch"]),
         );
         const short: HumanPerformance = perform(
           body,
-          (c: HumanChain): HumanChain => c.stretch({ kind, seconds: 5 } as IHumanActionParams["stretch"]),
+          (c: HumanChain): HumanChain =>
+            c.stretch({ kind, seconds: 5 } as IHumanActionParams["stretch"]),
         );
         const long: number = held.segments("a")[1]!.plan.duration;
         const brief: number = short.segments("a")[1]!.plan.duration;
-        if (!(long >= 30)) findings.push(`${name} ${kind}: the default hold lasts ${long.toFixed(2)} s`);
+        if (!(long >= 30))
+          findings.push(
+            `${name} ${kind}: the default hold lasts ${long.toFixed(2)} s`,
+          );
         if (Math.abs(long - brief - 25) > 1e-6)
-          findings.push(`${name} ${kind}: a 5 s hold is ${(long - brief).toFixed(3)} s shorter, not 25`);
+          findings.push(
+            `${name} ${kind}: a 5 s hold is ${(long - brief).toFixed(3)} s shorter, not 25`,
+          );
       } catch (error) {
-        findings.push(`${name} ${kind}: ${error instanceof Error ? error.message : String(error)}`);
+        findings.push(
+          `${name} ${kind}: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
   }
 
@@ -226,19 +274,29 @@ export function test_human_motion_recompose_exercise(): void {
     const placed: Map<string, number> = events(p);
     const s: HumanSegment.ISegment = p.segments("a")[1]!;
     const period: number =
-      (placed.get("entryRight2")! - placed.get("entryRight1")!) || s.plan.duration / 2;
+      placed.get("entryRight2")! - placed.get("entryRight1")! ||
+      s.plan.duration / 2;
     return (placed.get("entryLeft1")! - placed.get("entryRight1")!) / period;
   };
   try {
     const novice: number = crawl("novice");
     const trained: number = crawl("trained");
     const elite: number = crawl("elite");
-    if (Math.abs(novice - (0.465 + 0.0607)) > 1e-6 || Math.abs(elite - (0.465 + 0.0176)) > 1e-6)
-      findings.push(`the crawl's arm lag reads ${novice} for a novice and ${elite} for an elite, Chollet's ${0.465 + 0.0607} and ${0.465 + 0.0176}`);
+    if (
+      Math.abs(novice - (0.465 + 0.0607)) > 1e-6 ||
+      Math.abs(elite - (0.465 + 0.0176)) > 1e-6
+    )
+      findings.push(
+        `the crawl's arm lag reads ${novice} for a novice and ${elite} for an elite, Chollet's ${0.465 + 0.0607} and ${0.465 + 0.0176}`,
+      );
     if (!(novice >= trained && trained >= elite))
-      findings.push(`the crawl's arm lag is not monotone in skill: ${novice}, ${trained}, ${elite}`);
+      findings.push(
+        `the crawl's arm lag is not monotone in skill: ${novice}, ${trained}, ${elite}`,
+      );
   } catch (error) {
-    findings.push(`crawl: ${error instanceof Error ? error.message : String(error)}`);
+    findings.push(
+      `crawl: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   TestValidator.predicate(

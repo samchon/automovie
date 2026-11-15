@@ -1,5 +1,5 @@
-import { useTool } from "../tasks/useTool";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { useTool } from "../tasks/useTool";
 
 /**
  * The tool strokes as rows (#3361): each tool of `useTool` under a name of its own, the held prop, the work site, the hand, the cycles and the manner open.
@@ -13,14 +13,20 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanToolRows {
   /** `useTool` working with a `hammer`. */
-  export const toolHammer = HumanActionRow.of("toolHammer", useTool, { tool: "hammer" });
+  export const toolHammer = HumanActionRow.of("toolHammer", useTool, {
+    tool: "hammer",
+  });
 
   /** `useTool` working with a `saw`. */
   export const toolSaw = HumanActionRow.of("toolSaw", useTool, { tool: "saw" });
 
   /** `useTool` working with a `stir`. */
-  export const toolStir = HumanActionRow.of("toolStir", useTool, { tool: "stir" });
+  export const toolStir = HumanActionRow.of("toolStir", useTool, {
+    tool: "stir",
+  });
 
   /** `useTool` working with a `screwdriver`. */
-  export const toolScrewdriver = HumanActionRow.of("toolScrewdriver", useTool, { tool: "screwdriver" });
+  export const toolScrewdriver = HumanActionRow.of("toolScrewdriver", useTool, {
+    tool: "screwdriver",
+  });
 }

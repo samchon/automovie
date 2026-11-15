@@ -145,7 +145,12 @@ export function test_human_motion_force_exchange(): void {
       ],
       composition: HumanChain.subject("b").stand({ seconds: START }).node,
     });
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "b",
+      body,
+      0,
+    );
     return {
       centre: HumanSignature.centre(reader, START),
       base: HumanFoot.base(body, HumanSignature.bones(reader, START)),
@@ -187,7 +192,12 @@ export function test_human_motion_force_exchange(): void {
         direction,
         2 * declared,
       );
-      const reader: HumanSignature.IReader = HumanSignature.of(film, "b", body, 0);
+      const reader: HumanSignature.IReader = HumanSignature.of(
+        film,
+        "b",
+        body,
+        0,
+      );
       const along = (t: number): number =>
         Vector3.dot(
           Vector3.subtract(HumanSignature.centre(reader, t), still.centre),
@@ -239,12 +249,13 @@ export function test_human_motion_force_exchange(): void {
         still.base,
       );
       const grip: number =
-        SITES.map((s: AutoMovieHumanoidRegion): number =>
-          HumanSignature.region(
-            HumanSignature.of(film, "b", body, 0),
-            s,
-            START,
-          ).y,
+        SITES.map(
+          (s: AutoMovieHumanoidRegion): number =>
+            HumanSignature.region(
+              HumanSignature.of(film, "b", body, 0),
+              s,
+              START,
+            ).y,
         ).reduce((a: number, b: number): number => a + b, 0) / SITES.length;
       const limit: number =
         (model.mass * AutoMovieGravity.STANDARD * behind) / grip;
@@ -276,8 +287,13 @@ export function test_human_motion_force_exchange(): void {
       );
       let refusal: HumanRefusal | null = null;
       try {
-        perform({ a: body, b: body }, { outcome: "resist" }, 2 * limit, direction, 1)
-          .segments("b");
+        perform(
+          { a: body, b: body },
+          { outcome: "resist" },
+          2 * limit,
+          direction,
+          1,
+        ).segments("b");
       } catch (error) {
         if (error instanceof HumanRefusal) refusal = error;
         else throw error;
@@ -295,8 +311,13 @@ export function test_human_motion_force_exchange(): void {
       // 4. A pull that ends before the base breaks.
       refusal = null;
       try {
-        perform({ a: body, b: body }, { outcome: "yield" }, force, direction, declared / 2)
-          .segments("b");
+        perform(
+          { a: body, b: body },
+          { outcome: "yield" },
+          force,
+          direction,
+          declared / 2,
+        ).segments("b");
       } catch (error) {
         if (error instanceof HumanRefusal) refusal = error;
         else throw error;
@@ -387,11 +408,14 @@ export function test_human_motion_force_exchange(): void {
         "lowerBack",
         kuzushi,
       );
-      const distances: number[] = HumanSignature.times(kuzushi, release, 60).map(
-        (t: number): number =>
-          Vector3.length(
-            Vector3.subtract(HumanSignature.centre(partner, t), fulcrum),
-          ),
+      const distances: number[] = HumanSignature.times(
+        kuzushi,
+        release,
+        60,
+      ).map((t: number): number =>
+        Vector3.length(
+          Vector3.subtract(HumanSignature.centre(partner, t), fulcrum),
+        ),
       );
       const spread: number = Math.max(...distances) - Math.min(...distances);
       all.check(
@@ -413,7 +437,9 @@ export function test_human_motion_force_exchange(): void {
           thrown!.bones("b", t + 1e-3),
           2e-3,
         ).angular;
-      const first: IAutoMovieVector3 = momentum(release + 0.05 * (land - release));
+      const first: IAutoMovieVector3 = momentum(
+        release + 0.05 * (land - release),
+      );
       for (let k: number = 1; k <= 9; k++) {
         const t: number = release + ((land - release) * k) / 10;
         const drift: number =
@@ -448,5 +474,7 @@ export function test_human_motion_force_exchange(): void {
       missing.kind === "participant" &&
       missing.axis === "fulcrum",
   );
-  all.assert("a force exchanged through grips moves the partner as its outcome says");
+  all.assert(
+    "a force exchanged through grips moves the partner as its outcome says",
+  );
 }

@@ -169,15 +169,25 @@ export function test_human_motion_ensemble_instance(): void {
       }
 
   // 5. An instanced member's display reuses its template's fits.
-  for (const m of ensemble.members.filter((m: HumanEnsemble.IMember): boolean => m.detail === "instanced")) {
+  for (const m of ensemble.members.filter(
+    (m: HumanEnsemble.IMember): boolean => m.detail === "instanced",
+  )) {
     const segment: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
-    const params: { of: string; shift: number } = segment.params as { of: string; shift: number };
+    const params: { of: string; shift: number } = segment.params as {
+      of: string;
+      shift: number;
+    };
     const t: number = 1 + params.shift / instance.RATE;
     performance.pose(params.of, t - params.shift / instance.RATE);
-    const before: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
+    const before: HumanLimbFitFrame.IStatistics =
+      HumanLimbFitFrame.statistics(body);
     performance.pose(m.subject, t);
-    const after: HumanLimbFitFrame.IStatistics = HumanLimbFitFrame.statistics(body);
-    if (after.misses !== before.misses) findings.push(`${m.subject}'s display at ${t.toFixed(3)} s solves ${after.misses - before.misses} fits its template already solved`);
+    const after: HumanLimbFitFrame.IStatistics =
+      HumanLimbFitFrame.statistics(body);
+    if (after.misses !== before.misses)
+      findings.push(
+        `${m.subject}'s display at ${t.toFixed(3)} s solves ${after.misses - before.misses} fits its template already solved`,
+      );
   }
 
   // 4. A turning template.

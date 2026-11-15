@@ -66,9 +66,13 @@ export function test_human_motion_core_leg_chain(): void {
     for (const side of ["left", "right"] as const) {
       const goal: IHumanPosture.IGoal = posture.limbs[`${side}Leg`]!;
       const pelvis = bones.get("hips")!.worldRotation;
-      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const hip: IAutoMovieVector3 = bones.get(
+        `${side}UpperLeg`,
+      )!.worldPosition;
       const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
-      const shown: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
+      const shown: IAutoMovieVector3 = bones.get(
+        `${side}LowerLeg`,
+      )!.worldPosition;
       const knee = (swivel: HumanLegChain.ISwivel): IAutoMovieVector3 =>
         HumanLegChain.pose(body, side, pelvis, hip, ankle, swivel)!.knee;
       const read: HumanLegChain.ISwivel = HumanLegChain.read(body, side, bones);

@@ -37,23 +37,45 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_archery_draw(): void {
   const bow: ReturnType<typeof createBow> = createBow({ kind: "longbow" });
-  const arrow: ReturnType<typeof createProjectile> = createProjectile({ kind: "arrow" });
+  const arrow: ReturnType<typeof createProjectile> = createProjectile({
+    kind: "arrow",
+  });
   // The recurve's launch speed band's low end (KSL, 2012 Olympics: 54.7 to 62.2 m/s), standing in for the bow's launchSpeed (#3481).
   const SPEED: number = 54.7;
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
-    const target: IAutoMovieVector3 = { x: 0, y: body.measure.chestHeight, z: 18 };
+    const target: IAutoMovieVector3 = {
+      x: 0,
+      y: body.measure.chestHeight,
+      z: 18,
+    };
     let performance: HumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "archery",
-        laws: [HumanArchery.presentBow, HumanArchery.drawBow, HumanArchery.loose],
+        laws: [
+          HumanArchery.presentBow,
+          HumanArchery.drawBow,
+          HumanArchery.loose,
+        ],
         props: [
-          HumanObject.prop("bow", bow, { at: { x: 0.3, y: 0.9, z: 0.4 }, yaw: 0 }),
-          HumanObject.prop("arrow", arrow, { at: { x: -0.3, y: 0.9, z: 0.4 }, yaw: 0 }),
+          HumanObject.prop("bow", bow, {
+            at: { x: 0.3, y: 0.9, z: 0.4 },
+            yaw: 0,
+          }),
+          HumanObject.prop("arrow", arrow, {
+            at: { x: -0.3, y: 0.9, z: 0.4 },
+            yaw: 0,
+          }),
         ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "bow", handle: "grip", hand: "left" })
@@ -75,7 +97,12 @@ export function test_human_motion_archery_draw(): void {
               })
               .registered("loose", {
                 hand: "right",
-                launch: { prop: "arrow", from: "nock", to: "tip", speed: SPEED },
+                launch: {
+                  prop: "arrow",
+                  from: "nock",
+                  to: "tip",
+                  speed: SPEED,
+                },
               }),
           ).node,
       });
@@ -89,14 +116,19 @@ export function test_human_motion_archery_draw(): void {
     const overlays = performance.overlays("a");
     const draw = overlays[0];
     const loose = overlays[1];
-    TestValidator.predicate(`${name}: the draw and the loose are placed`, draw !== undefined && loose !== undefined);
+    TestValidator.predicate(
+      `${name}: the draw and the loose are placed`,
+      draw !== undefined && loose !== undefined,
+    );
     if (draw === undefined || loose === undefined) continue;
 
     // 2. The hand on the string through the draw.
     let off: number = 0;
     for (let k: number = 1; k <= 10; k++) {
       const t: number = draw.start + (draw.plan.duration * k) / 11;
-      const hand: IAutoMovieVector3 = performance.bones("a", t).get("rightHand")!.worldPosition;
+      const hand: IAutoMovieVector3 = performance
+        .bones("a", t)
+        .get("rightHand")!.worldPosition;
       const nock: IAutoMovieVector3 = performance.aim(
         { kind: "prop", subject: "bow", point: "nock" },
         t,
@@ -109,9 +141,15 @@ export function test_human_motion_archery_draw(): void {
           bones: () => performance.bones("a", t),
         },
       ).point;
-      off = Math.max(off, Vector3.length(Vector3.subtract(hand, nock)) - body.measure.hand / 2);
+      off = Math.max(
+        off,
+        Vector3.length(Vector3.subtract(hand, nock)) - body.measure.hand / 2,
+      );
     }
-    TestValidator.predicate(`${name}: the hand keeps the string (${(1000 * off).toFixed(1)} mm)`, off <= 5e-3);
+    TestValidator.predicate(
+      `${name}: the hand keeps the string (${(1000 * off).toFixed(1)} mm)`,
+      off <= 5e-3,
+    );
 
     // 3. The bow arm straight at full draw.
     const full: number =
@@ -134,16 +172,27 @@ export function test_human_motion_archery_draw(): void {
             ),
           ),
         ),
-      ) * 180) / Math.PI;
-    TestValidator.predicate(`${name}: the bow arm is straight (${bend.toFixed(1)} degrees)`, bend <= 10);
+      ) *
+        180) /
+      Math.PI;
+    TestValidator.predicate(
+      `${name}: the bow arm is straight (${bend.toFixed(1)} degrees)`,
+      bend <= 10,
+    );
 
     // 4 and 5. The loose and the flight.
     const launch = (loose.plan.launches ?? []).find((l) => l.prop === "arrow");
-    TestValidator.predicate(`${name}: the loose launches the arrow`, launch !== undefined);
+    TestValidator.predicate(
+      `${name}: the loose launches the arrow`,
+      launch !== undefined,
+    );
     const flight = performance.flights("arrow")[0];
     TestValidator.predicate(`${name}: the arrow flies`, flight !== undefined);
     if (flight === undefined) continue;
-    const rest: IAutoMovieVector3 = performance.prop("arrow", performance.duration).position;
+    const rest: IAutoMovieVector3 = performance.prop(
+      "arrow",
+      performance.duration,
+    ).position;
     TestValidator.predicate(
       `${name}: the arrow ends near the target (${Vector3.length(Vector3.subtract(rest, target)).toFixed(2)} m)`,
       Vector3.length(Vector3.subtract(rest, target)) <= 1,

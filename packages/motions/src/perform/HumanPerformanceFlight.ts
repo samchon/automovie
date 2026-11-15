@@ -141,10 +141,7 @@ export namespace HumanPerformanceFlight {
     const ceiling = (at: number): number => {
       const delta: number = integrateAirborneRotation.DELTA;
       const centre = (t: number): IAutoMovieVector3 =>
-        resolveAutoMovieCenterOfMass.place(
-          model,
-          poseBones(body, unturned(t)),
-        );
+        resolveAutoMovieCenterOfMass.place(model, poseBones(body, unturned(t)));
       const one: IAutoMovieVector3 = centre(at + delta);
       const two: IAutoMovieVector3 = centre(at + 2 * delta);
       const v0: IAutoMovieVector3 = {

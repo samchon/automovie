@@ -253,12 +253,7 @@ export namespace walkLeg {
       body.measure.thigh + body.measure.shank
     )
       return -Infinity;
-    return (
-      -lean(body, hip, ankle, heading) +
-      20 -
-      ANKLE -
-      pitch
-    );
+    return -lean(body, hip, ankle, heading) + 20 - ANKLE - pitch;
   }
 
   /**

@@ -243,10 +243,33 @@ export function test_human_motion_command_latency(): void {
       { label: "rightForeOn", seconds: 0.6 },
     ],
   };
-  const fore: { name: string; seconds: number }[] = HumanCue.instants(ride, ["rightForeOn"]);
-  if (JSON.stringify(fore) !== JSON.stringify([{ name: "rightForeOn", seconds: 0.6 }, { name: "rightForeOn", seconds: 1.2 }])) findings.push(`instants kept ${JSON.stringify(fore)}`);
-  if (HumanCue.instants(ride).map((c: { seconds: number }): number => c.seconds).join() !== "0.4,0.6,0.9,1.2") findings.push("instants are not in time order");
-  const words: { name: string; seconds: number }[] = HumanCue.orders([{ word: "fire", at: 3, caution: 1 }]);
-  if (JSON.stringify(words) !== JSON.stringify([{ name: "fireCaution", seconds: 2 }, { name: "fire", seconds: 3 }])) findings.push(`orders gave ${JSON.stringify(words)}`);
+  const fore: { name: string; seconds: number }[] = HumanCue.instants(ride, [
+    "rightForeOn",
+  ]);
+  if (
+    JSON.stringify(fore) !==
+    JSON.stringify([
+      { name: "rightForeOn", seconds: 0.6 },
+      { name: "rightForeOn", seconds: 1.2 },
+    ])
+  )
+    findings.push(`instants kept ${JSON.stringify(fore)}`);
+  if (
+    HumanCue.instants(ride)
+      .map((c: { seconds: number }): number => c.seconds)
+      .join() !== "0.4,0.6,0.9,1.2"
+  )
+    findings.push("instants are not in time order");
+  const words: { name: string; seconds: number }[] = HumanCue.orders([
+    { word: "fire", at: 3, caution: 1 },
+  ]);
+  if (
+    JSON.stringify(words) !==
+    JSON.stringify([
+      { name: "fireCaution", seconds: 2 },
+      { name: "fire", seconds: 3 },
+    ])
+  )
+    findings.push(`orders gave ${JSON.stringify(words)}`);
   TestValidator.equals("a command's latency", findings, []);
 }

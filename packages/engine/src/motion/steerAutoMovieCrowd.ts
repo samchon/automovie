@@ -57,7 +57,10 @@ export function steerAutoMovieCrowd(
       (a: number, b: number): number =>
         steerAutoMovieCrowdGeometry.compare(agents[a]!, agents[b]!) || a - b,
     );
-  const paths: steerAutoMovieCrowdGeometry.IPath[] = order.map((i: number): steerAutoMovieCrowdGeometry.IPath => steerAutoMovieCrowdGeometry.pathOf(agents[i]!));
+  const paths: steerAutoMovieCrowdGeometry.IPath[] = order.map(
+    (i: number): steerAutoMovieCrowdGeometry.IPath =>
+      steerAutoMovieCrowdGeometry.pathOf(agents[i]!),
+  );
 
   // The right-hand side over the stacked state [x, z, vx, vz] per agent in canonical order.
   const f = (
@@ -82,15 +85,16 @@ export function steerAutoMovieCrowd(
       const vz: number = x[4 * k + 3]!;
 
       // The desired velocity: along the goals, slowed on arrival, mixed with the neighbours' heading.
-      const want: { x: number; z: number; speed: number } = steerAutoMovieCrowdGeometry.follow(
-        paths[k]!,
-        px,
-        pz,
-        agent.speed,
-        tau,
-        steerAutoMovieCrowd.LOOKAHEAD,
-        steerAutoMovieCrowd.ARRIVAL,
-      );
+      const want: { x: number; z: number; speed: number } =
+        steerAutoMovieCrowdGeometry.follow(
+          paths[k]!,
+          px,
+          pz,
+          agent.speed,
+          tau,
+          steerAutoMovieCrowd.LOOKAHEAD,
+          steerAutoMovieCrowd.ARRIVAL,
+        );
       let ex: number = want.x;
       let ez: number = want.z;
       const p: number = agent.herding ?? 0;
@@ -229,7 +233,8 @@ export function steerAutoMovieCrowd(
       const a: number = slot[i]!;
       const ax: number = x[4 * a]!;
       const az: number = x[4 * a + 1]!;
-      const destination: IAutoMovieVector3 = steerAutoMovieCrowdGeometry.finalGoal(agents[i]!);
+      const destination: IAutoMovieVector3 =
+        steerAutoMovieCrowdGeometry.finalGoal(agents[i]!);
       if (
         arrival[i] === null &&
         Math.hypot(destination.x - ax, destination.z - az) <= agents[i]!.radius
@@ -241,13 +246,20 @@ export function steerAutoMovieCrowd(
           agents[i]!.radius +
           agents[j]!.radius -
           Math.hypot(x[4 * b]! - ax, x[4 * b + 1]! - az);
-        if (depth > 1e-9) touch(`a${i}:${j}`, depth, i, { kind: "agent", index: j });
+        if (depth > 1e-9)
+          touch(`a${i}:${j}`, depth, i, { kind: "agent", index: j });
       }
       obstacles.forEach(
         (o: IAutoMovieCrowdAgent.IObstacle, k: number): void => {
           const depth: number =
-            agents[i]!.radius - steerAutoMovieCrowdGeometry.signedDistance(ax, az, steerAutoMovieCrowdGeometry.footprintAt(o, seconds));
-          if (depth > 1e-9) touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
+            agents[i]!.radius -
+            steerAutoMovieCrowdGeometry.signedDistance(
+              ax,
+              az,
+              steerAutoMovieCrowdGeometry.footprintAt(o, seconds),
+            );
+          if (depth > 1e-9)
+            touch(`o${i}:${k}`, depth, i, { kind: "obstacle", index: k });
         },
       );
     }

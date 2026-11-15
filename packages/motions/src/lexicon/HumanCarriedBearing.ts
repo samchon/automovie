@@ -51,7 +51,9 @@ export namespace HumanCarriedBearing {
   export function plan(
     context: IHumanActionContext<HumanCarried.IBearing>,
   ): IHumanActionPlan {
-    const seconds: number = HumanCarriedBorne.lasting(context.params.seconds ?? 2);
+    const seconds: number = HumanCarriedBorne.lasting(
+      context.params.seconds ?? 2,
+    );
     const carry: HumanCarried.Carry = context.params.carry ?? "piggyback";
     const row: HumanCarried.IRow = HumanCarried.CARRIES[carry];
     const body: IHumanBody = context.body;
@@ -68,8 +70,11 @@ export namespace HumanCarriedBearing {
     const first: HumanCarried.Carry | undefined =
       beside === undefined
         ? undefined
-        : (Object.keys(HumanCarriedCoupling.PAIRED) as HumanCarried.Carry[]).find(
-            (c: HumanCarried.Carry): boolean => HumanCarriedCoupling.PAIRED[c] === carry,
+        : (
+            Object.keys(HumanCarriedCoupling.PAIRED) as HumanCarried.Carry[]
+          ).find(
+            (c: HumanCarried.Carry): boolean =>
+              HumanCarriedCoupling.PAIRED[c] === carry,
           );
     const role: string =
       first === undefined
@@ -146,23 +151,23 @@ export namespace HumanCarriedBearing {
                 };
               }
               return {
-              point: Vector3.add(
-                HumanCarriedBorne.placed(
-                  body,
-                  HumanTrunk.resolve(body, posture),
-                  hold.region,
-                  "carry",
+                point: Vector3.add(
+                  HumanCarriedBorne.placed(
+                    body,
+                    HumanTrunk.resolve(body, posture),
+                    hold.region,
+                    "carry",
+                  ),
+                  HumanFrame.point(
+                    { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+                    {
+                      x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
+                      y: hold.offset.up * arm,
+                      z: hold.offset.forward * arm,
+                    },
+                  ),
                 ),
-                HumanFrame.point(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                  {
-                    x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
-                    y: hold.offset.up * arm,
-                    z: hold.offset.forward * arm,
-                  },
-                ),
-              ),
-              bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+                bend: AutoMovieMotionHumanBend.hang(body, posture, side),
               };
             },
             weight: (at: number): number =>

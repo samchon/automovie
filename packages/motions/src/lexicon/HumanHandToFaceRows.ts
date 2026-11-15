@@ -13,32 +13,54 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanHandToFaceRows {
   /** `handToFace` doing `drink`. */
-  export const faceDrink = HumanActionRow.of("faceDrink", handToFace, { task: "drink" });
+  export const faceDrink = HumanActionRow.of("faceDrink", handToFace, {
+    task: "drink",
+  });
 
   /** `handToFace` doing `sip`. */
-  export const faceSip = HumanActionRow.of("faceSip", handToFace, { task: "sip" });
+  export const faceSip = HumanActionRow.of("faceSip", handToFace, {
+    task: "sip",
+  });
 
   /** `handToFace` doing `eat`. */
-  export const faceEat = HumanActionRow.of("faceEat", handToFace, { task: "eat" });
+  export const faceEat = HumanActionRow.of("faceEat", handToFace, {
+    task: "eat",
+  });
 
   /** `handToFace` doing `bite`. */
-  export const faceBite = HumanActionRow.of("faceBite", handToFace, { task: "bite" });
+  export const faceBite = HumanActionRow.of("faceBite", handToFace, {
+    task: "bite",
+  });
 
   /** `handToFace` doing `phone`. */
-  export const facePhone = HumanActionRow.of("facePhone", handToFace, { task: "phone" });
+  export const facePhone = HumanActionRow.of("facePhone", handToFace, {
+    task: "phone",
+  });
 
   /** `handToFace` doing `read`. */
-  export const faceRead = HumanActionRow.of("faceRead", handToFace, { task: "read" });
+  export const faceRead = HumanActionRow.of("faceRead", handToFace, {
+    task: "read",
+  });
 
   /** `handToFace` doing `brushTeeth`. */
-  export const faceBrushTeeth = HumanActionRow.of("faceBrushTeeth", handToFace, { task: "brushTeeth" });
+  export const faceBrushTeeth = HumanActionRow.of(
+    "faceBrushTeeth",
+    handToFace,
+    { task: "brushTeeth" },
+  );
 
   /** `handToFace` doing `comb`. */
-  export const faceComb = HumanActionRow.of("faceComb", handToFace, { task: "comb" });
+  export const faceComb = HumanActionRow.of("faceComb", handToFace, {
+    task: "comb",
+  });
 
   /** `handToFace` doing `washFace`. */
-  export const faceWashFace = HumanActionRow.of("faceWashFace", handToFace, { task: "washFace" });
+  export const faceWashFace = HumanActionRow.of("faceWashFace", handToFace, {
+    task: "washFace",
+  });
 
   /** `handToFace` doing `wipeMouth`. */
-  export const faceWipeMouth = HumanActionRow.of("faceWipeMouth", handToFace, { task: "wipeMouth" });
+  export const faceWipeMouth = HumanActionRow.of("faceWipeMouth", handToFace, {
+    task: "wipeMouth",
+  });
 }

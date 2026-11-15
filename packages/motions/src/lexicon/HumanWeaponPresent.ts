@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 import type { tags } from "typia";
 
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -28,7 +29,6 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
-import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFirearmReady } from "./HumanFirearmReady";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
@@ -302,31 +302,35 @@ export namespace HumanWeaponPresent {
         context.random("present"),
         HumanSkill.quantity(context.skill, "speed", PRESENT[0], PRESENT[1]),
       );
-      return HumanWeaponHeld.carried(context, s, StrikingBlade.plan(context, {
-        tool: s.tool,
-        clock: AutoMovieMotionManner.time(
-          AutoMovieMotionClock.phrase({
-            prepare: set,
-            attack: 0,
-            hold: seconds,
-            retract: 0,
-          }),
-          AutoMovieMotionManner.of(context, p.manner),
-        ),
-        path: HumanWeaponTrack.path(
-          context,
-          pose,
-          eye,
-          carriage === "aim" ? target : null,
-        ),
-        back: carriage === "aim" ? 0 : s.tool.length,
-        support: HumanWeaponHeld.supported(context, s, pose, bladed),
-        turn,
-        advance: "none",
-        line,
-        stay: true,
-        stop: 1,
-      }));
+      return HumanWeaponHeld.carried(
+        context,
+        s,
+        StrikingBlade.plan(context, {
+          tool: s.tool,
+          clock: AutoMovieMotionManner.time(
+            AutoMovieMotionClock.phrase({
+              prepare: set,
+              attack: 0,
+              hold: seconds,
+              retract: 0,
+            }),
+            AutoMovieMotionManner.of(context, p.manner),
+          ),
+          path: HumanWeaponTrack.path(
+            context,
+            pose,
+            eye,
+            carriage === "aim" ? target : null,
+          ),
+          back: carriage === "aim" ? 0 : s.tool.length,
+          support: HumanWeaponHeld.supported(context, s, pose, bladed),
+          turn,
+          advance: "none",
+          line,
+          stay: true,
+          stop: 1,
+        }),
+      );
     },
   };
 
@@ -475,5 +479,4 @@ export namespace HumanWeaponPresent {
       });
     },
   };
-
 }

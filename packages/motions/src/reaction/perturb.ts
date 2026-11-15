@@ -99,7 +99,14 @@ export namespace perturb {
    */
   export interface IParams {
     /** The outcome: decided by the impulse (`auto`), or fixed by the author and refused when the impulse cannot produce it; `auto` when absent. */
-    outcome?: "auto" | "absorb" | "step" | "fall" | "resist" | "yield" | "thrown";
+    outcome?:
+      | "auto"
+      | "absorb"
+      | "step"
+      | "fall"
+      | "resist"
+      | "yield"
+      | "thrown";
 
     /** The thrower's subject, for a `thrown` outcome (#3439). */
     by?: string;
@@ -141,14 +148,18 @@ export namespace perturb {
     // The impulses within one pendulum time constant before the start.
     const impulses: HumanForce.IImpulse[] = (
       context.forces?.(-1 / w0, 0) ?? []
-    ).filter((f: HumanForce.IForce): f is HumanForce.IImpulse => f.kind === "impulse");
+    ).filter(
+      (f: HumanForce.IForce): f is HumanForce.IImpulse => f.kind === "impulse",
+    );
     const impulse: IAutoMovieVector3 = impulses.reduce(
       (sum: IAutoMovieVector3, f: HumanForce.IImpulse): IAutoMovieVector3 =>
         Vector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, entry.pose);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      entry.pose,
+    );
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,
       bones,

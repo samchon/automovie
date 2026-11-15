@@ -133,8 +133,8 @@ export namespace HumanCarriedCouplingPose {
         target.push(frame(axis));
       }
     }
-    const fit: ReturnType<typeof fitRigidMeshTransform> =
-      fitRigidMeshTransform({
+    const fit: ReturnType<typeof fitRigidMeshTransform> = fitRigidMeshTransform(
+      {
         reference: reference.flatMap((p: IAutoMovieVector3): number[] => [
           p.x,
           p.y,
@@ -146,7 +146,8 @@ export namespace HumanCarriedCouplingPose {
           p.z,
         ]),
         vertices: reference.map((_: IAutoMovieVector3, i: number): number => i),
-      });
+      },
+    );
     const placed: IHumanPosture = {
       ...keyed,
       root: Vector3.subtract(fit.targetCenter, fit.referenceCenter),
@@ -333,4 +334,5 @@ export namespace HumanCarriedCouplingPose {
         fix: "carry on a body of the canonical humanoid rig",
       });
     return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
-  }}
+  }
+}

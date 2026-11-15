@@ -220,7 +220,9 @@ export namespace support {
       // contact is broken, then made: Escande, Kheddar and Miossec 2013).
       const moved: HumanSupport.IContact[] = added.filter(
         (c: HumanSupport.IContact): boolean =>
-          previous.some((p: HumanSupport.IContact): boolean => p.part === c.part),
+          previous.some(
+            (p: HumanSupport.IContact): boolean => p.part === c.part,
+          ),
       );
       const kept: HumanSupport.IContact[] = previous.filter(
         (p: HumanSupport.IContact): boolean =>
@@ -237,19 +239,21 @@ export namespace support {
             at,
             `lift${i}`,
             MISS,
-            moved.flatMap((m: HumanSupport.IContact): HumanBodyFit.ITarget[] => {
-              const was: HumanSupport.IContact = previous.find(
-                (p: HumanSupport.IContact): boolean => p.part === m.part,
-              )!;
-              const top: HumanBodyFit.ITarget | null = supportContact.swing(
-                body,
-                m,
-                at(was),
-                at(m),
-                crawl.LIFT,
-              );
-              return top === null ? [] : [top];
-            }),
+            moved.flatMap(
+              (m: HumanSupport.IContact): HumanBodyFit.ITarget[] => {
+                const was: HumanSupport.IContact = previous.find(
+                  (p: HumanSupport.IContact): boolean => p.part === m.part,
+                )!;
+                const top: HumanBodyFit.ITarget | null = supportContact.swing(
+                  body,
+                  m,
+                  at(was),
+                  at(m),
+                  crawl.LIFT,
+                );
+                return top === null ? [] : [top];
+              },
+            ),
           ),
           seconds,
           name: `lift${i}`,
@@ -406,7 +410,12 @@ export namespace support {
         // where the first key has it across the floor, and rests on the
         // floor by its own colliders at every instant (`knockdown.rest`), as
         // the floor laws carry a body between their keyed postures.
-        const shaped: IHumanPosture = supportKey.blended(body, a.posture, b.posture, w);
+        const shaped: IHumanPosture = supportKey.blended(
+          body,
+          a.posture,
+          b.posture,
+          w,
+        );
         const pin: HumanSupport.IContact | undefined = a.contacts.find(
           (p: HumanSupport.IContact): boolean =>
             b.contacts.some((q: HumanSupport.IContact): boolean => same(p, q)),

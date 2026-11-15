@@ -113,13 +113,17 @@ export namespace HumanUpperRows {
   });
 
   /** Wiping the mouth: the back of the hand draws across the lips. */
-  export const wipeMouthAcross = HumanActionRow.of("wipeMouthAcross", armPhrase, {
-    phrase: "stroke",
-    target: { kind: "self", region: "mouth" },
-    surface: "handBack",
-    shape: "relaxed",
-    from: { out: 0.08, up: 0, forward: 0 },
-  });
+  export const wipeMouthAcross = HumanActionRow.of(
+    "wipeMouthAcross",
+    armPhrase,
+    {
+      phrase: "stroke",
+      target: { kind: "self", region: "mouth" },
+      surface: "handBack",
+      shape: "relaxed",
+      from: { out: 0.08, up: 0, forward: 0 },
+    },
+  );
 
   /** Wiping a surface: the flat palm oscillates across the target. */
   export const wipeAcross = HumanActionRow.of("wipeAcross", armPhrase, {
@@ -272,12 +276,16 @@ export namespace HumanUpperRows {
   });
 
   /** Hands clasped in front: both palms meet before the abdomen and stay. */
-  export const handsTogetherFront = HumanActionRow.of("handsTogetherFront", armPhrase, {
-    phrase: "visit",
-    side: "both",
-    target: { kind: "self", region: "abdomen" },
-    offset: { out: 0, up: 0, forward: 0.15 },
-    facing: { fingers: "forward", palm: "in" },
-    hold: "long",
-  });
+  export const handsTogetherFront = HumanActionRow.of(
+    "handsTogetherFront",
+    armPhrase,
+    {
+      phrase: "visit",
+      side: "both",
+      target: { kind: "self", region: "abdomen" },
+      offset: { out: 0, up: 0, forward: 0.15 },
+      facing: { fingers: "forward", palm: "in" },
+      hold: "long",
+    },
+  );
 }

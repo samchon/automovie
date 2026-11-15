@@ -6,9 +6,9 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";

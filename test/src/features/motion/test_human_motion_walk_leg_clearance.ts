@@ -55,12 +55,20 @@ export function test_human_motion_walk_leg_clearance(): void {
     });
     let audited: number = 0;
     for (const pair of AutoMovieMotionHumanAuditTangle.pose(body, bones))
-      if (LEG.test(pair.a) && LEG.test(pair.b) && pair.a.slice(0, 4) !== pair.b.slice(0, 4))
+      if (
+        LEG.test(pair.a) &&
+        LEG.test(pair.b) &&
+        pair.a.slice(0, 4) !== pair.b.slice(0, 4)
+      )
         audited = Math.max(audited, pair.depth);
     return { left: leg("left"), right: leg("right"), audited };
   };
   const quietLegs = legs(quiet);
-  TestValidator.equals("the quiet stance reads none", walkLegClearance.excess(body, quietLegs.left, quietLegs.right), 0);
+  TestValidator.equals(
+    "the quiet stance reads none",
+    walkLegClearance.excess(body, quietLegs.left, quietLegs.right),
+    0,
+  );
   let binding: number = 0;
   for (const ahead of [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3]) {
     const ankle: IAutoMovieVector3 = {
@@ -80,7 +88,11 @@ export function test_human_motion_walk_leg_clearance(): void {
       },
     };
     const read = legs(crossed);
-    const reading: walkLegClearance.IReading = walkLegClearance.reading(body, read.left, read.right);
+    const reading: walkLegClearance.IReading = walkLegClearance.reading(
+      body,
+      read.left,
+      read.right,
+    );
     TestValidator.predicate(
       `the clearance is the audit's reading ${ahead} m ahead`,
       Math.abs(reading.excess - read.audited) <= 1e-9,
@@ -88,16 +100,25 @@ export function test_human_motion_walk_leg_clearance(): void {
     if (reading.excess <= 0) continue;
     binding++;
     const step: number = 1e-4;
-    const nudged = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, z: p.z + step });
+    const nudged = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+      ...p,
+      z: p.z + step,
+    });
     const moved: walkLegClearance.ILeg = {
       ...read.left,
       hip: nudged(read.left.hip),
       knee: nudged(read.left.knee),
       ankle: nudged(read.left.ankle),
     };
-    const exact: number = (walkLegClearance.excess(body, moved, read.right) - reading.excess) / step;
-    const piece: number = (reading.at(moved, read.right) - reading.excess) / step;
-    TestValidator.predicate(`the binding piece moves as the reading ${ahead} m ahead`, Math.abs(exact - piece) <= 1e-6);
+    const exact: number =
+      (walkLegClearance.excess(body, moved, read.right) - reading.excess) /
+      step;
+    const piece: number =
+      (reading.at(moved, read.right) - reading.excess) / step;
+    TestValidator.predicate(
+      `the binding piece moves as the reading ${ahead} m ahead`,
+      Math.abs(exact - piece) <= 1e-6,
+    );
   }
   TestValidator.predicate("some crossings pass into each other", binding > 0);
 }

@@ -64,11 +64,20 @@ export function test_human_motion_object_track(): void {
       ),
     ],
     performers: [
-      { subject: "a", body, at: { x: 0, y: 0, z: 2 }, yaw: 180, proficiency: { level: "trained" } },
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 2 },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
     ],
     composition: HumanChain.subject("a").stand({ seconds: 3 }).node,
   });
-  TestValidator.predicate("at rest before the track", performance.state("door", 0.5).hinge === undefined);
+  TestValidator.predicate(
+    "at rest before the track",
+    performance.state("door", 0.5).hinge === undefined,
+  );
   TestValidator.predicate(
     "halfway through the track",
     Math.abs((performance.state("door", 1.5).hinge ?? NaN) - 30) <= 1e-9,
@@ -90,7 +99,9 @@ export function test_human_motion_object_track(): void {
       bones: () => performance.bones("a", 2.5),
     },
   ).point;
-  const posed: IAutoMovieVector3 = door.articulate({ hinge: 60 }).placed("pull", placement).translation;
+  const posed: IAutoMovieVector3 = door
+    .articulate({ hinge: 60 })
+    .placed("pull", placement).translation;
   TestValidator.predicate(
     "the lever is where the swung door has it",
     Math.hypot(aimed.x - posed.x, aimed.y - posed.y, aimed.z - posed.z) <= 1e-3,

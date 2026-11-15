@@ -96,7 +96,11 @@ export namespace HumanGunCrew {
    * @returns The composition, every role's chain in one parallel group.
    */
   export function drill(roles: IRoles, scene: IScene): AutoMovieComposition {
-    const muzzle = { kind: "prop", subject: scene.gun, point: "muzzle" } as const;
+    const muzzle = {
+      kind: "prop",
+      subject: scene.gun,
+      point: "muzzle",
+    } as const;
     const vent = { kind: "prop", subject: scene.gun, point: "vent" } as const;
     return AutoMovieComposition.parallel(
       HumanChain.subject(roles.n3).registered(
@@ -188,7 +192,9 @@ export namespace HumanGunCrew {
       ...(["n1", "n2", "n3"] as const).map(
         (role) =>
           HumanChain.subject(roles[role])
-            .registered(HumanGunDrill.standClear.name, { to: scene.clear[role] })
+            .registered(HumanGunDrill.standClear.name, {
+              to: scene.clear[role],
+            })
             .sync({ of: "hookPrimer", event: "end" }).node,
       ),
       HumanChain.subject(roles.n4)

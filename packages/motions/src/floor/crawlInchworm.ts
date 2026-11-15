@@ -212,16 +212,19 @@ export namespace crawlInchworm {
       params: { stances },
     });
     const share = (name: string): number =>
-      planned.events.find(
-        (e: { name: string }): boolean => e.name === name,
-      )!.share;
+      planned.events.find((e: { name: string }): boolean => e.name === name)!
+        .share;
     const held = (i: number): string => stances[i]!.event ?? `stance${i}`;
     return {
       ...planned,
       events: [
         ...planned.events,
         ...steps.flatMap(
-          (s: { limb: Limb; n: number; at: number }): {
+          (s: {
+            limb: Limb;
+            n: number;
+            at: number;
+          }): {
             name: string;
             share: number;
           }[] => [

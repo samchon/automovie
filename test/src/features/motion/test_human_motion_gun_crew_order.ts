@@ -51,7 +51,11 @@ export function test_human_motion_gun_crew_order(): void {
     },
     command: { of: "orders", event: "fire" },
   });
-  TestValidator.equals("the drill is one parallel group", drill.kind, "parallel");
+  TestValidator.equals(
+    "the drill is one parallel group",
+    drill.kind,
+    "parallel",
+  );
   if (drill.kind !== "parallel") return;
   const parts: readonly AutoMovieComposition[] = drill.parts;
   TestValidator.equals("twelve duties", parts.length, 12);

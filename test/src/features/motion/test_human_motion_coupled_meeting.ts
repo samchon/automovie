@@ -269,7 +269,8 @@ export function test_human_motion_coupled_meeting(): void {
       all.check(
         `${cell}, walking: a joint lies ${(-deepest * 1000).toFixed(1)} mm inside the other body, ${CONTACT * 1000} mm at most expected`,
         deepest >= -CONTACT,
-      );      const length: number = resolveAutoMovieCenterOfMass.pendulum(
+      );
+      const length: number = resolveAutoMovieCenterOfMass.pendulum(
         walked.bodies.a.measure.hipHeight,
       );
       const pair = (t: number): IAutoMovieVector3 =>

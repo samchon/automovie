@@ -169,7 +169,10 @@ export namespace dance {
                 c.seconds >= context.start - 1e-9,
             )
             .slice(0, beats)
-            .map((c: resolveAutoMovieSchedule.ICue): number => c.seconds - context.start);
+            .map(
+              (c: resolveAutoMovieSchedule.ICue): number =>
+                c.seconds - context.start,
+            );
     if (locked !== null && locked.length < Math.min(2, beats))
       throw new HumanRefusal({
         kind: "parameter",

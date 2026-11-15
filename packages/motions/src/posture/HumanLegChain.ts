@@ -105,8 +105,15 @@ export namespace HumanLegChain {
     target: IAutoMovieVector3,
     held: ISwivel,
   ): IPosed | null {
-    const chain: hingedArmSwivel.IChain = chainOf(body, side, pelvis, hip, target);
-    const stops: hingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(chain);
+    const chain: hingedArmSwivel.IChain = chainOf(
+      body,
+      side,
+      pelvis,
+      hip,
+      target,
+    );
+    const stops: hingedArmSwivel.IStop[] | null =
+      hingedArmSwivel.branches(chain);
     if (stops === null) return null;
     const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
     const { upper, lower } = hingedArmSwivel.pose(chain, theta)(held.swivel);
@@ -166,7 +173,9 @@ export namespace HumanLegChain {
       thigh.worldRotation,
     );
     const lower: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.inverse(Quaternion.multiply(thigh.worldRotation, chain.midRest)),
+      Quaternion.inverse(
+        Quaternion.multiply(thigh.worldRotation, chain.midRest),
+      ),
       shank.worldRotation,
     );
     const hinge: IAutoMovieVector3 = Vector3.normalize(chain.hinge);
@@ -222,7 +231,10 @@ export namespace HumanLegChain {
     const hips: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: {
-        translation: Vector3.subtract(hip, Quaternion.rotateVector(pelvis, restHip)),
+        translation: Vector3.subtract(
+          hip,
+          Quaternion.rotateVector(pelvis, restHip),
+        ),
         rotation: pelvis,
         scale: { x: 1, y: 1, z: 1 },
       },

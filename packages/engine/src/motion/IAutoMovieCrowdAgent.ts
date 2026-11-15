@@ -90,7 +90,9 @@ export namespace IAutoMovieCrowdAgent {
     agent: number;
 
     /** What it overlapped: another agent, or an obstacle, by index. */
-    other: { kind: "agent"; index: number } | { kind: "obstacle"; index: number };
+    other:
+      | { kind: "agent"; index: number }
+      | { kind: "obstacle"; index: number };
 
     /** The film second the overlap began. */
     seconds: number;

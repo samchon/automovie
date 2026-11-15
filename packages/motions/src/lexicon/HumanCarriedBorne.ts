@@ -161,8 +161,7 @@ export namespace HumanCarriedBorne {
         if (carrier === undefined)
           return { ...entry, pitch: row.pitch, joints, limbs: {} };
         if (coupling !== undefined) {
-          const t: number =
-            context.start + Math.min(seconds, Math.max(0, at));
+          const t: number = context.start + Math.min(seconds, Math.max(0, at));
           return HumanCarriedCouplingPose.posture(body, coupling, row, {
             [HumanCarriedCoupling.BEARER]: {
               body: carrier.body,
@@ -184,9 +183,8 @@ export namespace HumanCarriedBorne {
         const turned: IHumanPosture = {
           root: { x: 0, y: 0, z: 0 },
           yaw:
-            (hips === undefined
-              ? 0
-              : HumanFrame.heading(hips.worldRotation)) + row.turn,
+            (hips === undefined ? 0 : HumanFrame.heading(hips.worldRotation)) +
+            row.turn,
           pitch: row.pitch,
           roll: 0,
           joints,
@@ -197,17 +195,13 @@ export namespace HumanCarriedBorne {
         const posture: IHumanPosture = {
           ...turned,
           root: Vector3.subtract(
-            Vector3.add(
-              placed(carrier.body, theirs, row.theirs, "carry"),
-              {
-                x: 0,
-                y:
-                  (row.rise ?? 0) *
-                  (carrier.body.measure.upperArm +
-                    carrier.body.measure.forearm),
-                z: 0,
-              },
-            ),
+            Vector3.add(placed(carrier.body, theirs, row.theirs, "carry"), {
+              x: 0,
+              y:
+                (row.rise ?? 0) *
+                (carrier.body.measure.upperArm + carrier.body.measure.forearm),
+              z: 0,
+            }),
             placed(body, HumanTrunk.resolve(body, turned), row.mine, "carry"),
           ),
         };

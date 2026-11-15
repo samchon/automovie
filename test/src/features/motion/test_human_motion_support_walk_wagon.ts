@@ -40,11 +40,18 @@ export function test_human_motion_support_walk_wagon(): void {
       seed: "wagon",
       props: [HumanObject.prop("cart", cart, motion(0), motion)],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: HumanChain.subject("a")
         .stand({ seconds: 0.5, on: { prop: "cart" } })
-        .walk({ to: { x: 0, y: 0, z: 3 + speed * 0.5 }, on: { prop: "cart" } }).node,
+        .walk({ to: { x: 0, y: 0, z: 3 + speed * 0.5 }, on: { prop: "cart" } })
+        .node,
     });
   };
   let moving: HumanPerformance;
@@ -66,11 +73,19 @@ export function test_human_motion_support_walk_wagon(): void {
       .plan.contacts.filter((c) => c.kind === "plant")
       .every((c) => c.support.kind === "prop"),
   );
-  const local = (p: HumanPerformance, speed: number, side: "left" | "right", t: number): IAutoMovieVector3 => {
+  const local = (
+    p: HumanPerformance,
+    speed: number,
+    side: "left" | "right",
+    t: number,
+  ): IAutoMovieVector3 => {
     const at = HumanObject.frame({ at: { x: 0, y: 0, z: speed * t }, yaw: 0 });
     return Quaternion.rotateVector(
       Quaternion.inverse(at.rotation),
-      Vector3.subtract(p.bones("a", t).get(`${side}Toes`)!.worldPosition, at.position),
+      Vector3.subtract(
+        p.bones("a", t).get(`${side}Toes`)!.worldPosition,
+        at.position,
+      ),
     );
   };
   const duration: number = Math.min(moving.duration, still.duration);
@@ -80,7 +95,9 @@ export function test_human_motion_support_walk_wagon(): void {
       const t: number = (duration * (k + 0.5)) / 7;
       worst = Math.max(
         worst,
-        Vector3.length(Vector3.subtract(local(moving, 2, side, t), local(still, 0, side, t))),
+        Vector3.length(
+          Vector3.subtract(local(moving, 2, side, t), local(still, 0, side, t)),
+        ),
       );
     }
     TestValidator.predicate(

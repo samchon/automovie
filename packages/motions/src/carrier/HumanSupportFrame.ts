@@ -88,7 +88,10 @@ export namespace HumanSupportFrame {
    * @throws {HumanRefusal} A `base` refusal on `on` with the speeds and the fix.
    */
   export function board(
-    context: Pick<IHumanActionContext, "entry" | "prop" | "performer" | "start">,
+    context: Pick<
+      IHumanActionContext,
+      "entry" | "prop" | "performer" | "start"
+    >,
     prop: string,
     speed: number,
   ): void {

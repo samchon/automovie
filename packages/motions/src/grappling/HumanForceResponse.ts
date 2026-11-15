@@ -148,8 +148,10 @@ export namespace HumanForceResponse {
 
     // The centre, the planted base and the pivot at the ankles.
     const entry: IHumanPosture = context.entry.posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      context.entry.pose,
+    );
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,
       bones,
@@ -218,7 +220,8 @@ export namespace HumanForceResponse {
             maximum: outcome.bounds.step,
             unit: "N s",
           },
-          reason: "an impulse at the start fells the body, which cannot then resist the pull",
+          reason:
+            "an impulse at the start fells the body, which cannot then resist the pull",
           fix: "give a smaller impulse, or let the body fall",
         });
       const back: IAutoMovieVector3 = Vector3.scale(direction, -1);
@@ -237,9 +240,7 @@ export namespace HumanForceResponse {
           feasible: {
             kind: "range",
             minimum: 0,
-            maximum:
-              (model.mass * AutoMovieGravity.STANDARD * behind) /
-              grip,
+            maximum: (model.mass * AutoMovieGravity.STANDARD * behind) / grip,
             unit: "N",
           },
           reason: `a pull of ${force.toFixed(0)} N at ${grip.toFixed(2)} m moves the centre of pressure past the base ${behind.toFixed(2)} m behind`,
@@ -311,7 +312,10 @@ export namespace HumanForceResponse {
         direction,
         drawnBy(Math.min(broken, seconds)),
       );
-    const plant = (part: "leftFoot" | "rightFoot", to: number): IHumanContactWindow => ({
+    const plant = (
+      part: "leftFoot" | "rightFoot",
+      to: number,
+    ): IHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

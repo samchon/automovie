@@ -40,9 +40,20 @@ export function test_human_motion_flight_unended(): void {
       });
     return new HumanPerformance({
       seed: "unended",
-      props: [HumanObject.prop("ball", ball, { at: { x: -0.25, y: 0.9, z: 0.35 }, yaw: 0 })],
+      props: [
+        HumanObject.prop("ball", ball, {
+          at: { x: -0.25, y: 0.9, z: 0.35 },
+          yaw: 0,
+        }),
+      ],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: (after > 0 ? chain.stand({ seconds: after }) : chain).node,
     });
@@ -58,7 +69,10 @@ export function test_human_motion_flight_unended(): void {
     return;
   }
   const flight = short.flights("ball")[0];
-  TestValidator.predicate("the flight is unended", flight !== undefined && flight.end === Infinity);
+  TestValidator.predicate(
+    "the flight is unended",
+    flight !== undefined && flight.end === Infinity,
+  );
   const report: HumanVerdicts.IReport = HumanVerdicts.of(short);
   TestValidator.predicate(
     `the verdicts report it apart (${(report.unended ?? []).join(", ")})`,

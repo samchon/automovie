@@ -235,8 +235,7 @@ export function fitHingedChainCandidate(
         known.overshoot +
         blocked,
       turned:
-        anchor *
-        (apart(Quaternion.normalize(upper), before[0]) + known.turned),
+        anchor * (apart(Quaternion.normalize(upper), before[0]) + known.turned),
     };
     if (key !== null) readings?.set(key, read);
     return read;
@@ -293,8 +292,7 @@ export function fitHingedChainCandidate(
       const offset: IAutoMovieVector3 = across(
         reading(eased.upper, eased.lower).mid,
       );
-      side =
-        Vector3.length(offset) < 1e-9 ? null : Vector3.normalize(offset);
+      side = Vector3.length(offset) < 1e-9 ? null : Vector3.normalize(offset);
     }
   }
   const solved: ReturnType<typeof hingedArmArticulation> =

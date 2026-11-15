@@ -14,7 +14,6 @@ import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotion
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
-import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -22,6 +21,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 
 /**

@@ -13,29 +13,57 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanRestRows {
   /** `rest` with both hands at `side`. */
-  export const restSide = HumanActionRow.of("restSide", rest, { left: "side", right: "side" });
+  export const restSide = HumanActionRow.of("restSide", rest, {
+    left: "side",
+    right: "side",
+  });
 
   /** `rest` with both hands at `pocket`. */
-  export const restPocket = HumanActionRow.of("restPocket", rest, { left: "pocket", right: "pocket" });
+  export const restPocket = HumanActionRow.of("restPocket", rest, {
+    left: "pocket",
+    right: "pocket",
+  });
 
   /** `rest` with both hands at `hip`. */
-  export const restHip = HumanActionRow.of("restHip", rest, { left: "hip", right: "hip" });
+  export const restHip = HumanActionRow.of("restHip", rest, {
+    left: "hip",
+    right: "hip",
+  });
 
   /** `rest` with both hands at `crossed`. */
-  export const restCrossed = HumanActionRow.of("restCrossed", rest, { left: "crossed", right: "crossed" });
+  export const restCrossed = HumanActionRow.of("restCrossed", rest, {
+    left: "crossed",
+    right: "crossed",
+  });
 
   /** `rest` with both hands at `claspedFront`. */
-  export const restClaspedFront = HumanActionRow.of("restClaspedFront", rest, { left: "claspedFront", right: "claspedFront" });
+  export const restClaspedFront = HumanActionRow.of("restClaspedFront", rest, {
+    left: "claspedFront",
+    right: "claspedFront",
+  });
 
   /** `rest` with both hands at `claspedBehind`. */
-  export const restClaspedBehind = HumanActionRow.of("restClaspedBehind", rest, { left: "claspedBehind", right: "claspedBehind" });
+  export const restClaspedBehind = HumanActionRow.of(
+    "restClaspedBehind",
+    rest,
+    { left: "claspedBehind", right: "claspedBehind" },
+  );
 
   /** `rest` with both hands at `behindHead`. */
-  export const restBehindHead = HumanActionRow.of("restBehindHead", rest, { left: "behindHead", right: "behindHead" });
+  export const restBehindHead = HumanActionRow.of("restBehindHead", rest, {
+    left: "behindHead",
+    right: "behindHead",
+  });
 
   /** `rest` with both hands at `chinRest`. */
-  export const restChinRest = HumanActionRow.of("restChinRest", rest, { left: "chinRest", right: "chinRest" });
+  export const restChinRest = HumanActionRow.of("restChinRest", rest, {
+    left: "chinRest",
+    right: "chinRest",
+  });
 
   /** `rest` with both hands at `elbowSupport`. */
-  export const restElbowSupport = HumanActionRow.of("restElbowSupport", rest, { left: "elbowSupport", right: "elbowSupport" });
+  export const restElbowSupport = HumanActionRow.of("restElbowSupport", rest, {
+    left: "elbowSupport",
+    right: "elbowSupport",
+  });
 }

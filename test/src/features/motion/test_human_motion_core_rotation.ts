@@ -257,12 +257,16 @@ export function test_human_motion_core_rotation(): void {
         bones.get(frame.bone)!,
       ).point.y;
       if (mouth - water < 0.02 - 0.001)
-        findings.push(`crawl: the mouth clears the plane by ${(1000 * (mouth - water)).toFixed(1)} mm at ${e.name}`);
-      const hips: IAutoMovieJointPose | undefined = p.pose("a", t).joints.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === "hips",
-      );
+        findings.push(
+          `crawl: the mouth clears the plane by ${(1000 * (mouth - water)).toFixed(1)} mm at ${e.name}`,
+        );
+      const hips: IAutoMovieJointPose | undefined = p
+        .pose("a", t)
+        .joints.find((j: IAutoMovieJointPose): boolean => j.bone === "hips");
       if (hips !== undefined && Math.abs(hips.twist ?? 0) > 1e-9)
-        findings.push(`crawl: the pelvis twists ${hips.twist} degrees at ${e.name}, not the stroke's own 0`);
+        findings.push(
+          `crawl: the pelvis twists ${hips.twist} degrees at ${e.name}, not the stroke's own 0`,
+        );
     }
   }
   TestValidator.predicate(

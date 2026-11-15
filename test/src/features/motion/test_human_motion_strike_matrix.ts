@@ -55,10 +55,28 @@ export function test_human_motion_strike_matrix(): void {
     new HumanPerformance({
       seed: "matrix",
       laws: [...rows, HumanDefence.parry as IHumanActionLaw<never>],
-      props: [HumanObject.prop("bag", bag, { at: { x: 1.2, y: 0, z: reach + 0.25 }, yaw: 180, fixed: true })],
+      props: [
+        HumanObject.prop("bag", bag, {
+          at: { x: 1.2, y: 0, z: reach + 0.25 },
+          yaw: 180,
+          fixed: true,
+        }),
+      ],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-        { subject: "b", body, at: { x: 0, y: 0, z: reach + 0.25 }, yaw: 180, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body,
+          at: { x: 0, y: 0, z: reach + 0.25 },
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
       ],
       composition,
     });
@@ -79,7 +97,10 @@ export function test_human_motion_strike_matrix(): void {
         planned = false;
         reason = error instanceof Error ? error.message : String(error);
       }
-      TestValidator.predicate(`${row.name} at a ${kind} plans ${reason}`, planned);
+      TestValidator.predicate(
+        `${row.name} at a ${kind} plans ${reason}`,
+        planned,
+      );
     }
 
   // 2. A jab and a parry by outcome.
@@ -89,20 +110,36 @@ export function test_human_motion_strike_matrix(): void {
     try {
       performance = perform(
         AutoMovieComposition.sequence(
-          HumanChain.subject("a").registered("jab", { at: targets[0]![1] }, "strike").node,
-          HumanChain.subject("b").registered("parry", { against: "strike", outcome }).node,
+          HumanChain.subject("a").registered(
+            "jab",
+            { at: targets[0]![1] },
+            "strike",
+          ).node,
+          HumanChain.subject("b").registered("parry", {
+            against: "strike",
+            outcome,
+          }).node,
         ),
       );
     } catch (error) {
       reason = error instanceof Error ? error.message : String(error);
     }
-    TestValidator.predicate(`a parry ${outcome} plans ${reason}`, performance !== undefined);
+    TestValidator.predicate(
+      `a parry ${outcome} plans ${reason}`,
+      performance !== undefined,
+    );
     if (performance === undefined) continue;
     const hits: number = performance.hits("b").length;
     if (outcome === "fail")
-      TestValidator.predicate(`a failed parry leaves a hit (${hits})`, hits >= 1);
+      TestValidator.predicate(
+        `a failed parry leaves a hit (${hits})`,
+        hits >= 1,
+      );
     if (outcome === "inTime")
-      TestValidator.predicate(`a parry in time leaves no hit (${hits})`, hits === 0);
+      TestValidator.predicate(
+        `a parry in time leaves no hit (${hits})`,
+        hits === 0,
+      );
   }
 
   // 3. An undefended cross lands.
@@ -110,7 +147,8 @@ export function test_human_motion_strike_matrix(): void {
   try {
     landed = perform(
       AutoMovieComposition.parallel(
-        HumanChain.subject("a").registered("cross", { at: targets[0]![1] }).node,
+        HumanChain.subject("a").registered("cross", { at: targets[0]![1] })
+          .node,
         HumanChain.subject("b").stand({ seconds: 2 }).node,
       ),
     );

@@ -66,7 +66,8 @@ export namespace HumanCarriedCouplingLoad {
       );
     const frame:
       | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
-      | undefined = role === coupling.bearer ? undefined : coupling.bearers?.[role];
+      | undefined =
+      role === coupling.bearer ? undefined : coupling.bearers?.[role];
     const centre: IAutoMovieVector3 =
       frame === undefined
         ? coupling.centre
@@ -137,7 +138,6 @@ export namespace HumanCarriedCouplingLoad {
     });
   }
 
-
   /**
    * The least-norm load shares of points whose weighted centre lies under a
    * centre: `w = A^T (A A^T)^-1 b` for the rows (1, x, z); equal shares when
@@ -183,12 +183,13 @@ export namespace HumanCarriedCouplingLoad {
     const scale: number = Math.max(...g.flat().map(Math.abs));
     if (!(Math.abs(d) > Number.EPSILON * scale * scale * scale)) return equal;
     const b: number[] = [1, centre.x, centre.z];
-    const lambda: number[] = [0, 1, 2].map((column: number): number =>
-      det(
-        g.map((r: number[], i: number): number[] =>
-          r.map((v: number, j: number): number => (j === column ? b[i]! : v)),
-        ),
-      ) / d,
+    const lambda: number[] = [0, 1, 2].map(
+      (column: number): number =>
+        det(
+          g.map((r: number[], i: number): number[] =>
+            r.map((v: number, j: number): number => (j === column ? b[i]! : v)),
+          ),
+        ) / d,
     );
     const raw: number[] = points.map(
       (_: IAutoMovieVector3, i: number): number =>

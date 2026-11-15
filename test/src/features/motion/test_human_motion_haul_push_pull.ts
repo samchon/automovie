@@ -82,12 +82,16 @@ export function test_human_motion_haul_push_pull(): void {
             z: way === "pull" ? -2 : 3,
           };
           const prop: IHumanProp = crate(ahead, height);
-          const built: HumanPerformance | string | HumanRefusal = perform(body, prop, {
-            prop: "crate",
-            way,
-            to,
-            load,
-          });
+          const built: HumanPerformance | string | HumanRefusal = perform(
+            body,
+            prop,
+            {
+              prop: "crate",
+              way,
+              to,
+              load,
+            },
+          );
           if (!(built instanceof HumanPerformance)) {
             complaints.push(`${tag}: expected to plan, got ${String(built)}`);
             continue;
@@ -144,13 +148,17 @@ export function test_human_motion_haul_push_pull(): void {
       for (const way of ["push", "pull"] as const) {
         const tag: string = `${name} ${way} at the ${label} not moving`;
         const prop: IHumanProp = crate(0.55, height);
-        const built: HumanPerformance | string | HumanRefusal = perform(body, prop, {
-          prop: "crate",
-          way,
-          moves: false,
-          seconds: 2,
-          load: "heavy",
-        });
+        const built: HumanPerformance | string | HumanRefusal = perform(
+          body,
+          prop,
+          {
+            prop: "crate",
+            way,
+            moves: false,
+            seconds: 2,
+            load: "heavy",
+          },
+        );
         if (!(built instanceof HumanPerformance)) {
           complaints.push(`${tag}: expected to plan, got ${String(built)}`);
           continue;
@@ -213,11 +221,7 @@ export function test_human_motion_haul_push_pull(): void {
       "seconds",
     );
   }
-  TestValidator.equals(
-    "a heavy load moved by its handles",
-    complaints,
-    [],
-  );
+  TestValidator.equals("a heavy load moved by its handles", complaints, []);
 }
 
 /** What a haul shows from the grip to its end. */
@@ -362,7 +366,10 @@ function readHaul(
         Vector3.subtract(handle, hand.worldPosition),
       );
       first[side] ??= local;
-      slip = Math.max(slip, Vector3.length(Vector3.subtract(local, first[side]!)));
+      slip = Math.max(
+        slip,
+        Vector3.length(Vector3.subtract(local, first[side]!)),
+      );
     }
     const hips: IAutoMovieVector3 = HumanSignature.joint(
       reader,

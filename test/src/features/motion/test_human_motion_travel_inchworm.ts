@@ -197,8 +197,7 @@ export function test_human_motion_travel_inchworm(): void {
         const off: number = event(`${limb}Liftoff${n}`);
         const on: number = event(`${limb}Touchdown${n}`);
         if (Number.isNaN(off) && Number.isNaN(on)) {
-          if (n === 1)
-            complaints.push(`${name}: the ${limb} never steps`);
+          if (n === 1) complaints.push(`${name}: the ${limb} never steps`);
           break;
         }
         if (

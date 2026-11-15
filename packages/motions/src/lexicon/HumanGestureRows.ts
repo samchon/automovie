@@ -13,65 +13,123 @@ import { HumanActionRow } from "../law/HumanActionRow";
  */
 export namespace HumanGestureRows {
   /** `gesture` of kind `wave`. */
-  export const gestureWave = HumanActionRow.of("gestureWave", gesture, { kind: "wave" });
+  export const gestureWave = HumanActionRow.of("gestureWave", gesture, {
+    kind: "wave",
+  });
 
   /** `gesture` of kind `raiseHand`. */
-  export const gestureRaiseHand = HumanActionRow.of("gestureRaiseHand", gesture, { kind: "raiseHand" });
+  export const gestureRaiseHand = HumanActionRow.of(
+    "gestureRaiseHand",
+    gesture,
+    { kind: "raiseHand" },
+  );
 
   /** `gesture` of kind `cheer`. */
-  export const gestureCheer = HumanActionRow.of("gestureCheer", gesture, { kind: "cheer" });
+  export const gestureCheer = HumanActionRow.of("gestureCheer", gesture, {
+    kind: "cheer",
+  });
 
   /** `gesture` of kind `stopPalm`. */
-  export const gestureStopPalm = HumanActionRow.of("gestureStopPalm", gesture, { kind: "stopPalm" });
+  export const gestureStopPalm = HumanActionRow.of("gestureStopPalm", gesture, {
+    kind: "stopPalm",
+  });
 
   /** `gesture` of kind `point`. */
-  export const gesturePoint = HumanActionRow.of("gesturePoint", gesture, { kind: "point" });
+  export const gesturePoint = HumanActionRow.of("gesturePoint", gesture, {
+    kind: "point",
+  });
 
   /** `gesture` of kind `palmsUp`. */
-  export const gesturePalmsUp = HumanActionRow.of("gesturePalmsUp", gesture, { kind: "palmsUp" });
+  export const gesturePalmsUp = HumanActionRow.of("gesturePalmsUp", gesture, {
+    kind: "palmsUp",
+  });
 
   /** `gesture` of kind `beckon`. */
-  export const gestureBeckon = HumanActionRow.of("gestureBeckon", gesture, { kind: "beckon" });
+  export const gestureBeckon = HumanActionRow.of("gestureBeckon", gesture, {
+    kind: "beckon",
+  });
 
   /** `gesture` of kind `clap`. */
-  export const gestureClap = HumanActionRow.of("gestureClap", gesture, { kind: "clap" });
+  export const gestureClap = HumanActionRow.of("gestureClap", gesture, {
+    kind: "clap",
+  });
 
   /** `gesture` of kind `rubHands`. */
-  export const gestureRubHands = HumanActionRow.of("gestureRubHands", gesture, { kind: "rubHands" });
+  export const gestureRubHands = HumanActionRow.of("gestureRubHands", gesture, {
+    kind: "rubHands",
+  });
 
   /** `gesture` of kind `palmsTogether`. */
-  export const gesturePalmsTogether = HumanActionRow.of("gesturePalmsTogether", gesture, { kind: "palmsTogether" });
+  export const gesturePalmsTogether = HumanActionRow.of(
+    "gesturePalmsTogether",
+    gesture,
+    { kind: "palmsTogether" },
+  );
 
   /** `gesture` of kind `thumbsDown`. */
-  export const gestureThumbsDown = HumanActionRow.of("gestureThumbsDown", gesture, { kind: "thumbsDown" });
+  export const gestureThumbsDown = HumanActionRow.of(
+    "gestureThumbsDown",
+    gesture,
+    { kind: "thumbsDown" },
+  );
 
   /** `gesture` of kind `touchFace`. */
-  export const gestureTouchFace = HumanActionRow.of("gestureTouchFace", gesture, { kind: "touchFace" });
+  export const gestureTouchFace = HumanActionRow.of(
+    "gestureTouchFace",
+    gesture,
+    { kind: "touchFace" },
+  );
 
   /** `gesture` of kind `pushGlasses`. */
-  export const gesturePushGlasses = HumanActionRow.of("gesturePushGlasses", gesture, { kind: "pushGlasses" });
+  export const gesturePushGlasses = HumanActionRow.of(
+    "gesturePushGlasses",
+    gesture,
+    { kind: "pushGlasses" },
+  );
 
   /** `gesture` of kind `scratchHead`. */
-  export const gestureScratchHead = HumanActionRow.of("gestureScratchHead", gesture, { kind: "scratchHead" });
+  export const gestureScratchHead = HumanActionRow.of(
+    "gestureScratchHead",
+    gesture,
+    { kind: "scratchHead" },
+  );
 
   /** `gesture` of kind `shrug`. */
-  export const gestureShrug = HumanActionRow.of("gestureShrug", gesture, { kind: "shrug" });
+  export const gestureShrug = HumanActionRow.of("gestureShrug", gesture, {
+    kind: "shrug",
+  });
 
   /** `gesture` of kind `nod`. */
-  export const gestureNod = HumanActionRow.of("gestureNod", gesture, { kind: "nod" });
+  export const gestureNod = HumanActionRow.of("gestureNod", gesture, {
+    kind: "nod",
+  });
 
   /** `gesture` of kind `shakeHead`. */
-  export const gestureShakeHead = HumanActionRow.of("gestureShakeHead", gesture, { kind: "shakeHead" });
+  export const gestureShakeHead = HumanActionRow.of(
+    "gestureShakeHead",
+    gesture,
+    { kind: "shakeHead" },
+  );
 
   /** `gesture` of kind `bow`. */
-  export const gestureBow = HumanActionRow.of("gestureBow", gesture, { kind: "bow" });
+  export const gestureBow = HumanActionRow.of("gestureBow", gesture, {
+    kind: "bow",
+  });
 
   /** `gesture` of kind `chinLift`. */
-  export const gestureChinLift = HumanActionRow.of("gestureChinLift", gesture, { kind: "chinLift" });
+  export const gestureChinLift = HumanActionRow.of("gestureChinLift", gesture, {
+    kind: "chinLift",
+  });
 
   /** `gesture` of kind `squareShoulders`. */
-  export const gestureSquareShoulders = HumanActionRow.of("gestureSquareShoulders", gesture, { kind: "squareShoulders" });
+  export const gestureSquareShoulders = HumanActionRow.of(
+    "gestureSquareShoulders",
+    gesture,
+    { kind: "squareShoulders" },
+  );
 
   /** `gesture` of kind `slump`. */
-  export const gestureSlump = HumanActionRow.of("gestureSlump", gesture, { kind: "slump" });
+  export const gestureSlump = HumanActionRow.of("gestureSlump", gesture, {
+    kind: "slump",
+  });
 }

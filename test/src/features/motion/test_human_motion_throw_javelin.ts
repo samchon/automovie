@@ -31,7 +31,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_human_motion_throw_javelin(): void {
-  const javelin: ReturnType<typeof createJavelin> = createJavelin({ kind: "men" });
+  const javelin: ReturnType<typeof createJavelin> = createJavelin({
+    kind: "men",
+  });
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     let performance: HumanPerformance;
@@ -39,9 +41,20 @@ export function test_human_motion_throw_javelin(): void {
       performance = new HumanPerformance({
         seed: "javelin",
         laws: [HumanThrownWeapon.throwJavelin],
-        props: [HumanObject.prop("javelin", javelin, { at: { x: -0.3, y: 0, z: 0.5 }, yaw: 0 })],
+        props: [
+          HumanObject.prop("javelin", javelin, {
+            at: { x: -0.3, y: 0, z: 0.5 },
+            yaw: 0,
+          }),
+        ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "javelin", handle: "grip" })
@@ -64,7 +77,8 @@ export function test_human_motion_throw_javelin(): void {
     );
     const v = launches[0]?.velocity;
     if (v === undefined) continue;
-    const angle: number = (Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180) / Math.PI;
+    const angle: number =
+      (Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180) / Math.PI;
     TestValidator.predicate(
       `${name}: released at the band's middle (${angle.toFixed(4)} degrees)`,
       Math.abs(angle - HumanThrownWeapon.JAVELIN) <= 1e-6,
@@ -80,15 +94,27 @@ export function test_human_motion_throw_javelin(): void {
       const t: number = flight.launch + ((end - flight.launch) * k) / 11;
       const frame = performance.prop("javelin", t);
       const ahead = Vector3.normalize(
-        Vector3.subtract(performance.prop("javelin", t + 1e-3).position, frame.position),
+        Vector3.subtract(
+          performance.prop("javelin", t + 1e-3).position,
+          frame.position,
+        ),
       );
-      const turned = Quaternion.rotateVector(frame.rotation, { x: 0, y: 0, z: 1 });
+      const turned = Quaternion.rotateVector(frame.rotation, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
       worst = Math.max(
         worst,
-        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(turned, ahead)))) * 180) / Math.PI,
+        (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(turned, ahead)))) *
+          180) /
+          Math.PI,
       );
     }
-    TestValidator.predicate(`${name}: the shaft follows the flight (${worst.toFixed(2)} degrees)`, worst <= 1);
+    TestValidator.predicate(
+      `${name}: the shaft follows the flight (${worst.toFixed(2)} degrees)`,
+      worst <= 1,
+    );
     TestValidator.predicate(
       `${name}: the flight ends on the floor`,
       flight.contact?.struck.kind === "ground",

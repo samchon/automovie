@@ -170,5 +170,4 @@ export namespace supportContact {
           : "hips";
     return bones.get(bone)!.worldPosition;
   }
-
 }

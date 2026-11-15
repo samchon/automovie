@@ -6,8 +6,8 @@ import type {
 import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
-import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanBound } from "../law/HumanBound";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";

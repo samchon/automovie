@@ -66,7 +66,10 @@ export namespace steerAutoMovieCrowdGeometry {
    * @evidenceExclude Constant work per comparison./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
    * @evidenceExclude Constant work per comparison./implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function compare(a: IAutoMovieCrowdAgent, b: IAutoMovieCrowdAgent): number {
+  export function compare(
+    a: IAutoMovieCrowdAgent,
+    b: IAutoMovieCrowdAgent,
+  ): number {
     const ga: IAutoMovieVector3 = finalGoal(a);
     const gb: IAutoMovieVector3 = finalGoal(b);
     return (
@@ -108,7 +111,9 @@ export namespace steerAutoMovieCrowdGeometry {
    * @evidenceExclude Constant work./implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to share.
    * @evidenceExclude Constant work./implementation.md#bound-retention-and-release-resources Returns the agent's own list or a new one-element list.
    */
-  export function goals(agent: IAutoMovieCrowdAgent): readonly IAutoMovieVector3[] {
+  export function goals(
+    agent: IAutoMovieCrowdAgent,
+  ): readonly IAutoMovieVector3[] {
     return "x" in agent.goal ? [agent.goal] : agent.goal;
   }
 
@@ -183,10 +188,7 @@ export namespace steerAutoMovieCrowdGeometry {
     }
     const remaining: number = total - along + offset;
     const end: IAutoMovieVector3 = points[points.length - 1]!;
-    const s: number = Math.min(
-      total,
-      along + speed * lookahead,
-    );
+    const s: number = Math.min(total, along + speed * lookahead);
     let k: number = 0;
     while (k + 2 < points.length && arcs[k + 1]! < s) ++k;
     const a: IAutoMovieVector3 = points[k]!;
@@ -201,9 +203,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return {
       x: tx / length,
       z: tz / length,
-      speed:
-        speed *
-        Math.min(1, remaining / (speed * tau * arrival)),
+      speed: speed * Math.min(1, remaining / (speed * tau * arrival)),
     };
   }
 
@@ -271,9 +271,11 @@ export namespace steerAutoMovieCrowdGeometry {
     };
     const m: number = corners.length;
     const cx: number =
-      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
+      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) /
+      m;
     const cz: number =
-      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
+      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) /
+      m;
     for (let e: number = 0; e < m; ++e) {
       const a: IAutoMovieVector3 = corners[e]!;
       const b: IAutoMovieVector3 = corners[(e + 1) % m]!;
@@ -322,9 +324,11 @@ export namespace steerAutoMovieCrowdGeometry {
   ): number {
     const m: number = corners.length;
     const cx: number =
-      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
+      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) /
+      m;
     const cz: number =
-      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
+      corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) /
+      m;
     let outside: number = -Infinity;
     let nearest: number = Infinity;
     for (let e: number = 0; e < m; ++e) {

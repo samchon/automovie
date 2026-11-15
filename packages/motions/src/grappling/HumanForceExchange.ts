@@ -133,8 +133,7 @@ export namespace HumanForceExchange {
         "A pull breaks a base of positive extent at a positive instant",
       );
     return (
-      (edge * mass * frequency * frequency) /
-      Math.expm1(frequency * seconds)
+      (edge * mass * frequency * frequency) / Math.expm1(frequency * seconds)
     );
   }
 
@@ -167,7 +166,9 @@ export namespace HumanForceExchange {
   }): number {
     const { mass, frequency, edge, force } = props;
     if (!(force > 0)) return Number.POSITIVE_INFINITY;
-    return Math.log1p((edge * mass * frequency * frequency) / force) / frequency;
+    return (
+      Math.log1p((edge * mass * frequency * frequency) / force) / frequency
+    );
   }
 
   /**
@@ -239,8 +240,7 @@ export namespace HumanForceExchange {
     },
     gravity: number = AutoMovieGravity.STANDARD,
   ): number | null {
-    const shift: number =
-      (props.force * props.height) / (props.mass * gravity);
+    const shift: number = (props.force * props.height) / (props.mass * gravity);
     return shift <= props.edge ? shift : null;
   }
 
@@ -336,7 +336,8 @@ export namespace HumanForceExchange {
       );
       return spans[index]!.at(seconds).x;
     };
-    const last: integrateMotionTrajectory.ITrajectory = spans[spans.length - 1]!;
+    const last: integrateMotionTrajectory.ITrajectory =
+      spans[spans.length - 1]!;
     const release: number = bracketedBisection(
       (seconds: number): boolean => at(seconds)[0]! < Math.PI / 2,
       last.t0,

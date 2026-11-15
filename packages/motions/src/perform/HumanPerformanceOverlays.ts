@@ -112,9 +112,8 @@ export namespace HumanPerformanceOverlays {
       const shared: AutoMovieMotionHumanChannel.Claim[] = channels.filter(
         (c: AutoMovieMotionHumanChannel.Claim): boolean =>
           AutoMovieMotionHumanChannel.claims(other.channels, c) ||
-          other.channels.some(
-            (o: AutoMovieMotionHumanChannel.Claim): boolean =>
-              AutoMovieMotionHumanChannel.claims([c], o),
+          other.channels.some((o: AutoMovieMotionHumanChannel.Claim): boolean =>
+            AutoMovieMotionHumanChannel.claims([c], o),
           ),
       );
       if (shared.length !== 0)

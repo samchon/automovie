@@ -72,17 +72,28 @@ export function test_human_motion_channel_trunk_turn(): void {
     written,
     claims,
   );
-  TestValidator.equals("the spine and the chest come from the act", [merged.joints.spine, merged.joints.chest], [
-    [20, 0, 0],
-    [30, 0, 0],
-  ]);
-  TestValidator.equals("the hips and the shoulder stay the carrier's", [merged.joints.hips, merged.joints.leftShoulder], [
-    [1, 0, 0],
-    [4, 0, 0],
-  ]);
+  TestValidator.equals(
+    "the spine and the chest come from the act",
+    [merged.joints.spine, merged.joints.chest],
+    [
+      [20, 0, 0],
+      [30, 0, 0],
+    ],
+  );
+  TestValidator.equals(
+    "the hips and the shoulder stay the carrier's",
+    [merged.joints.hips, merged.joints.leftShoulder],
+    [
+      [1, 0, 0],
+      [4, 0, 0],
+    ],
+  );
   TestValidator.predicate(
     "the root, pitch and roll stay the carrier's",
-    merged.root.x === 0 && merged.yaw === 0 && merged.pitch === 1 && merged.roll === 2,
+    merged.root.x === 0 &&
+      merged.yaw === 0 &&
+      merged.pitch === 1 &&
+      merged.roll === 2,
   );
 
   // 3. The carriers.

@@ -61,7 +61,9 @@ export namespace jumpAirborne {
     takeoff: "left" | "right";
 
     /** The upright trunk's joints. */
-    joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>;
+    joints: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    >;
 
     /** Each foot's body-frame place at take-off, metres. */
     start: Record<"left" | "right", IAutoMovieVector3>;

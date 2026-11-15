@@ -28,15 +28,24 @@ export function test_human_motion_recompose_upper_verdicts(): void {
   const complaints: string[] = [];
   let rows: number = 0;
   for (const family of ["emblem", "habit"])
-    for (const law of HUMAN_LEXICON[family] ?? ([] as readonly IHumanActionLaw<never>[])) {
+    for (const law of HUMAN_LEXICON[family] ??
+      ([] as readonly IHumanActionLaw<never>[])) {
       if (LexiconRowNet.given(law.name) !== undefined) continue;
       ++rows;
       for (const name of motionHumanBody.EXTREMES)
         for (const half of [1, 2] as const) {
           const report: string = motionRowVerdicts(law.name, name, half);
-          if (report !== "clean") complaints.push(`${family} ${law.name} on ${name}, half ${half}: ${report}`);
+          if (report !== "clean")
+            complaints.push(
+              `${family} ${law.name} on ${name}, half ${half}: ${report}`,
+            );
         }
     }
-  if (rows === 0) complaints.push("no upper-body row needing no parameter was found");
-  TestValidator.equals("every shipped verdict holds for the upper-body rows", complaints, []);
+  if (rows === 0)
+    complaints.push("no upper-body row needing no parameter was found");
+  TestValidator.equals(
+    "every shipped verdict holds for the upper-body rows",
+    complaints,
+    [],
+  );
 }

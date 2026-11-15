@@ -60,7 +60,10 @@ export function tetrahedralizeAutoMovieDelaunay(
     const bad: [number, number, number, number][] = [];
     const kept: [number, number, number, number][] = [];
     for (const t of tetrahedra)
-      (tetrahedralizeAutoMovieDelaunay.circumscribes(all, t, p) ? bad : kept).push(t);
+      (tetrahedralizeAutoMovieDelaunay.circumscribes(all, t, p)
+        ? bad
+        : kept
+      ).push(t);
     const faces: Map<string, [number, number, number]> = new Map();
     const counts: Map<string, number> = new Map();
     for (const t of bad)
@@ -79,7 +82,12 @@ export function tetrahedralizeAutoMovieDelaunay(
     for (const [key, face] of faces)
       if (counts.get(key) === 1)
         kept.push(
-          tetrahedralizeAutoMovieDelaunay.oriented(all, [face[0], face[1], face[2], i]),
+          tetrahedralizeAutoMovieDelaunay.oriented(all, [
+            face[0],
+            face[1],
+            face[2],
+            i,
+          ]),
         );
     tetrahedra = kept;
   }
@@ -185,8 +193,11 @@ export namespace tetrahedralizeAutoMovieDelaunay {
       (i: number): number =>
         Vector3.dot(points[i]!, points[i]!) - Vector3.dot(a, a),
     );
-    const det = (u: IAutoMovieVector3, v: IAutoMovieVector3, w: IAutoMovieVector3): number =>
-      Vector3.dot(u, Vector3.cross(v, w));
+    const det = (
+      u: IAutoMovieVector3,
+      v: IAutoMovieVector3,
+      w: IAutoMovieVector3,
+    ): number => Vector3.dot(u, Vector3.cross(v, w));
     const column = (k: number): IAutoMovieVector3[] =>
       rows.map(
         (r: IAutoMovieVector3, i: number): IAutoMovieVector3 =>

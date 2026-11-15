@@ -449,5 +449,4 @@ export namespace crouch {
       base: { kind: "standing" },
     };
   }
-
 }

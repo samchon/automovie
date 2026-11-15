@@ -39,9 +39,18 @@ export function test_human_motion_support_board_refusal(): void {
         seed: "board",
         props: [HumanObject.prop("cart", cart, motion(0), motion)],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
-        composition: HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 3 }, on: { prop: "cart" } }).node,
+        composition: HumanChain.subject("a").walk({
+          to: { x: 0, y: 0, z: 3 },
+          on: { prop: "cart" },
+        }).node,
       });
     } catch (error) {
       return error;
@@ -56,5 +65,8 @@ export function test_human_motion_support_board_refusal(): void {
       fast.feasible?.kind === "range" &&
       (fast.feasible.maximum ?? Infinity) < 6,
   );
-  TestValidator.predicate("a slow cart is boarded", board(0.5) instanceof HumanPerformance);
+  TestValidator.predicate(
+    "a slow cart is boarded",
+    board(0.5) instanceof HumanPerformance,
+  );
 }

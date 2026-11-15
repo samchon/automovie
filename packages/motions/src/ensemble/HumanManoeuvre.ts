@@ -412,17 +412,29 @@ function steered(
 ): IAutoMovieVector3[][] {
   const longest: number = Math.max(
     1e-3,
-    ...starts.map((s: IAutoMovieVector3, i: number): number => Math.hypot(ends[i]!.at.x - s.x, ends[i]!.at.z - s.z)),
+    ...starts.map((s: IAutoMovieVector3, i: number): number =>
+      Math.hypot(ends[i]!.at.x - s.x, ends[i]!.at.z - s.z),
+    ),
   );
   const slowest: number = Math.min(
     ...ensemble.members.map((m: HumanEnsemble.IMember): number =>
-      Math.sqrt(walk.FROUDE.normal * AutoMovieGravity.STANDARD * m.body.measure.hipHeight),
+      Math.sqrt(
+        walk.FROUDE.normal *
+          AutoMovieGravity.STANDARD *
+          m.body.measure.hipHeight,
+      ),
     ),
   );
-  const until: number = manoeuvre.at + (HumanManoeuvre.SPAN * longest) / slowest;
+  const until: number =
+    manoeuvre.at + (HumanManoeuvre.SPAN * longest) / slowest;
   const placed: HumanEnsemble.IEnsemble = {
     ...ensemble,
-    members: ensemble.members.map((m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({ ...m, place: { at: starts[i]!, yaw: m.place.yaw } })),
+    members: ensemble.members.map(
+      (m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({
+        ...m,
+        place: { at: starts[i]!, yaw: m.place.yaw },
+      }),
+    ),
   };
   const result: HumanCrowd.IResult = HumanCrowd.steer(placed, {
     goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ends[m.index]!.at,
@@ -430,10 +442,21 @@ function steered(
     start: manoeuvre.at,
     until,
   });
-  return result.frames.map((frame: IHumanFormation.ICourse, i: number): IAutoMovieVector3[] => {
-    const way: IAutoMovieVector3[] = frame.samples
-      .filter((_: IHumanFormation.ISample, k: number): boolean => k % Math.max(1, Math.round(HumanManoeuvre.STEERED * 24)) === 0)
-      .map((s: IHumanFormation.ISample): IAutoMovieVector3 => ({ x: s.x, y: 0, z: s.z }));
-    return [...way, ends[i]!.at];
-  });
+  return result.frames.map(
+    (frame: IHumanFormation.ICourse, i: number): IAutoMovieVector3[] => {
+      const way: IAutoMovieVector3[] = frame.samples
+        .filter(
+          (_: IHumanFormation.ISample, k: number): boolean =>
+            k % Math.max(1, Math.round(HumanManoeuvre.STEERED * 24)) === 0,
+        )
+        .map(
+          (s: IHumanFormation.ISample): IAutoMovieVector3 => ({
+            x: s.x,
+            y: 0,
+            z: s.z,
+          }),
+        );
+      return [...way, ends[i]!.at];
+    },
+  );
 }

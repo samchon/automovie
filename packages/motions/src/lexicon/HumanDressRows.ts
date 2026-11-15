@@ -16,5 +16,7 @@ export namespace HumanDressRows {
   export const dressHat = HumanActionRow.of("dressHat", dress, { item: "hat" });
 
   /** `dress` putting on a `glasses`. */
-  export const dressGlasses = HumanActionRow.of("dressGlasses", dress, { item: "glasses" });
+  export const dressGlasses = HumanActionRow.of("dressGlasses", dress, {
+    item: "glasses",
+  });
 }

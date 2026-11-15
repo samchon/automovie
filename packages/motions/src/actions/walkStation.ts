@@ -162,7 +162,9 @@ import { walkPaced } from "./walkPaced";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit, and its source or that it is provisional.
  * @evidence contracts/development/design.md#principled-representation A cited rate, a dimensionless factor, intervals in seconds and counts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: esolve (the way), ests (its end) and point (the dressed slot), with IStationed, SPACING and DRESS_FREQUENCY.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: 
+esolve (the way), 
+ests (its end) and point (the dressed slot), with IStationed, SPACING and DRESS_FREQUENCY.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {
@@ -227,7 +229,9 @@ export namespace walkStation {
     const at: (seconds: number) => IAutoMovieVector3 = point(context, station);
     const samples: IHumanFormation.ISample[] = [];
     const count: number =
-      until > from ? Math.ceil((until - from) / HumanFormation.SAMPLE - 1e-9) : 0;
+      until > from
+        ? Math.ceil((until - from) / HumanFormation.SAMPLE - 1e-9)
+        : 0;
     for (let k: number = 0; k <= count; ++k) {
       const seconds: number =
         k === count ? Math.max(from, until) : from + k * HumanFormation.SAMPLE;

@@ -122,29 +122,25 @@ export namespace HumanFoot {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     sides: readonly ("left" | "right")[] = ["left", "right"],
   ): IAutoMovieVector3[] {
-    return sides.flatMap(
-      (side: "left" | "right"): IAutoMovieVector3[] => {
-        const points: IAutoMovieVector3[] = [
-          ...sockets(body, bones, side).map(
-            (s: ISocket): IAutoMovieVector3 => s.point,
-          ),
-          ...outline(body, side).map(
-            (
-              frame: resolveAutoMovieHumanoidSurfaces.IFrame,
-            ): IAutoMovieVector3 =>
-              resolveAutoMovieHumanoidSurfaces.place(
-                frame,
-                bones.get(frame.bone)!,
-              ).point,
-          ),
-        ];
-        let low: number = Infinity;
-        for (const p of points) low = Math.min(low, p.y);
-        return points.filter(
-          (p: IAutoMovieVector3): boolean => p.y <= low + BEARING,
-        );
-      },
-    );
+    return sides.flatMap((side: "left" | "right"): IAutoMovieVector3[] => {
+      const points: IAutoMovieVector3[] = [
+        ...sockets(body, bones, side).map(
+          (s: ISocket): IAutoMovieVector3 => s.point,
+        ),
+        ...outline(body, side).map(
+          (frame: resolveAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+            resolveAutoMovieHumanoidSurfaces.place(
+              frame,
+              bones.get(frame.bone)!,
+            ).point,
+        ),
+      ];
+      let low: number = Infinity;
+      for (const p of points) low = Math.min(low, p.y);
+      return points.filter(
+        (p: IAutoMovieVector3): boolean => p.y <= low + BEARING,
+      );
+    });
   }
 
   /**

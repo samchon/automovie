@@ -4,15 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
-import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import type { HumanWeaponPresent } from "./HumanWeaponPresent";
 
 /**
@@ -201,9 +201,7 @@ export namespace HumanWeaponHeld {
       "trunkTurn",
       `${side}Arm`,
       `${side}Hand`,
-      ...(s.support === null
-        ? []
-        : ([`${other}Arm`, `${other}Hand`] as const)),
+      ...(s.support === null ? [] : ([`${other}Arm`, `${other}Hand`] as const)),
     ]);
   };
 }

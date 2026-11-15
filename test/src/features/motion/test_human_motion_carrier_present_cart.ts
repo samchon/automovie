@@ -37,7 +37,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_carrier_present_cart(): void {
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  const gun: ReturnType<typeof createHandgun> = createHandgun({ frame: "fullSize" });
+  const gun: ReturnType<typeof createHandgun> = createHandgun({
+    frame: "fullSize",
+  });
   const motion = (seconds: number): HumanObject.Placement => ({
     at: { x: 0, y: 0, z: seconds },
     yaw: 0,
@@ -50,10 +52,19 @@ export function test_human_motion_carrier_present_cart(): void {
       laws: [HumanWeaponFirearm.present],
       props: [
         HumanObject.prop("cart", cart, motion(0), motion),
-        HumanObject.prop("gun", gun, { at: { x: 0.25, y: 0.9, z: 0.4 }, yaw: 0 }),
+        HumanObject.prop("gun", gun, {
+          at: { x: 0.25, y: 0.9, z: 0.4 },
+          yaw: 0,
+        }),
       ],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: HumanChain.subject("a")
         .pickUp({ prop: "gun", handle: "grip" })
@@ -62,7 +73,11 @@ export function test_human_motion_carrier_present_cart(): void {
           u.registered("presentFirearm", {
             gun: "gun",
             hands: 1,
-            target: { kind: "point", frame: "world", at: { x: 0, y: body.measure.chestHeight, z: 3 } },
+            target: {
+              kind: "point",
+              frame: "world",
+              at: { x: 0, y: body.measure.chestHeight, z: 3 },
+            },
             seconds: 2,
           }),
         ).node,
@@ -84,12 +99,21 @@ export function test_human_motion_carrier_present_cart(): void {
   if (overlay === undefined) return;
   const local = (p: IAutoMovieVector3, t: number): IAutoMovieVector3 => {
     const at = HumanObject.frame(motion(t));
-    return Quaternion.rotateVector(Quaternion.inverse(at.rotation), Vector3.subtract(p, at.position));
+    return Quaternion.rotateVector(
+      Quaternion.inverse(at.rotation),
+      Vector3.subtract(p, at.position),
+    );
   };
   const muzzle = (t: number): IAutoMovieVector3 => {
     const held = performance.prop("gun", t);
     return local(
-      Vector3.add(held.position, Quaternion.rotateVector(held.rotation, gun.affordance("muzzle").frame.translation)),
+      Vector3.add(
+        held.position,
+        Quaternion.rotateVector(
+          held.rotation,
+          gun.affordance("muzzle").frame.translation,
+        ),
+      ),
       t,
     );
   };
@@ -98,7 +122,12 @@ export function test_human_motion_carrier_present_cart(): void {
   const first: IAutoMovieVector3 = muzzle(from);
   let drift: number = 0;
   for (let k: number = 1; k < 7; k++)
-    drift = Math.max(drift, Vector3.length(Vector3.subtract(muzzle(from + ((to - from) * k) / 6), first)));
+    drift = Math.max(
+      drift,
+      Vector3.length(
+        Vector3.subtract(muzzle(from + ((to - from) * k) / 6), first),
+      ),
+    );
   TestValidator.predicate(
     `the presented muzzle rides the cart (${(1000 * drift).toFixed(1)} mm)`,
     drift <= 0.01,
@@ -109,7 +138,12 @@ export function test_human_motion_carrier_present_cart(): void {
     const start: IAutoMovieVector3 = toe(from);
     let slip: number = 0;
     for (let k: number = 1; k < 7; k++)
-      slip = Math.max(slip, Vector3.length(Vector3.subtract(toe(from + ((to - from) * k) / 6), start)));
+      slip = Math.max(
+        slip,
+        Vector3.length(
+          Vector3.subtract(toe(from + ((to - from) * k) / 6), start),
+        ),
+      );
     TestValidator.predicate(
       `the ${side} foot stays on the cart (${(1000 * slip).toFixed(1)} mm)`,
       slip <= 0.01,

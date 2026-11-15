@@ -219,7 +219,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     const strained: (
       u: IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
-    ) => number = AutoMovieMotionHumanBendStrain.of(chain, body, side, rotation, neutral, lowerAxes);
+    ) => number = AutoMovieMotionHumanBendStrain.of(
+      chain,
+      body,
+      side,
+      rotation,
+      neutral,
+      lowerAxes,
+    );
     return (
       upper: IAutoMovieQuaternion,
       _lower: IAutoMovieQuaternion,
@@ -271,7 +278,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     const strained: (
       u: IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
-    ) => number = AutoMovieMotionHumanBendStrain.of(chain, body, side, rotation, neutral, lowerAxes);
+    ) => number = AutoMovieMotionHumanBendStrain.of(
+      chain,
+      body,
+      side,
+      rotation,
+      neutral,
+      lowerAxes,
+    );
     // A branch's candidates share one lower rotation, the same record, and
     // differ only in the swivel of the upper arm, so the lower joint's
     // overshoot is read once per record: the same value, read once.

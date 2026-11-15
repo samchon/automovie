@@ -476,4 +476,3 @@ interface ILinear {
   idx: number[];
   coef: number[];
 }
-

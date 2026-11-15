@@ -82,10 +82,8 @@ export namespace HumanPopulation {
             : "the ensemble has no population member",
         fix: "give the ensemble a formation and declare its background members `population`",
       });
-    const origin: { at: IAutoMovieVector3; heading: number } = HumanFormation.frame(
-      formation,
-      props.seconds ?? 0,
-    );
+    const origin: { at: IAutoMovieVector3; heading: number } =
+      HumanFormation.frame(formation, props.seconds ?? 0);
     return {
       id: props.id,
       model: props.model,
@@ -105,7 +103,9 @@ export namespace HumanPopulation {
       seed: formation.blocks[0]!.seed ?? 0,
       capabilities: [],
       heroOverrides: ensemble.members
-        .filter((m: HumanEnsemble.IMember): boolean => m.detail !== "population")
+        .filter(
+          (m: HumanEnsemble.IMember): boolean => m.detail !== "population",
+        )
         .map((m: HumanEnsemble.IMember): { slot: number; actor: string } => ({
           slot: m.index,
           actor: m.subject,

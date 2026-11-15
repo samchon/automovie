@@ -123,8 +123,9 @@ export namespace HumanForceThrow {
     const fulcrum: AutoMovieHumanoidRegion | undefined = context.params.fulcrum;
     const thrower: IHumanActionContext.IPerformer | undefined =
       by === undefined ? undefined : context.performer(by);
-    const placed: IHumanPosture | undefined =
-      thrower?.posture?.(context.start + broken);
+    const placed: IHumanPosture | undefined = thrower?.posture?.(
+      context.start + broken,
+    );
     if (
       by === undefined ||
       fulcrum === undefined ||
@@ -160,7 +161,10 @@ export namespace HumanForceThrow {
       Vector3.dot(r, direction),
       Vector3.dot(r, up),
     );
-    const start: number = Math.atan2(Vector3.dot(r, direction), Vector3.dot(r, up));
+    const start: number = Math.atan2(
+      Vector3.dot(r, direction),
+      Vector3.dot(r, up),
+    );
     const tangent: IAutoMovieVector3 = Vector3.add(
       Vector3.scale(direction, Math.cos(start)),
       Vector3.scale(up, -Math.sin(start)),
@@ -221,23 +225,34 @@ export namespace HumanForceThrow {
       z: from.z + velocity.z * tau,
     });
     const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
-    const own: IHumanPosture = { ...frozen, root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0 };
+    const own: IHumanPosture = {
+      ...frozen,
+      root: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+    };
     const local: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, own);
     const momentum: IAutoMovieVector3 = Vector3.scale(
       Quaternion.rotateVector(turned, apply(tensor, axis)),
       rate,
     );
-    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation({
-      history: integrateAirborneRotation.history(model, () => local),
-      t0: 0,
-      t1: Math.max(fall, integrateMotionTrajectory.STEP),
-      q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
-      momentum,
-    });
+    const flight: integrateAirborneRotation.IFlight = integrateAirborneRotation(
+      {
+        history: integrateAirborneRotation.history(model, () => local),
+        t0: 0,
+        t1: Math.max(fall, integrateMotionTrajectory.STEP),
+        q0: Quaternion.normalize(Quaternion.multiply(turned, heading)),
+        momentum,
+      },
+    );
     const turnIn = (tau: number): IAutoMovieQuaternion =>
       Quaternion.normalize(
-        Quaternion.multiply(flight.orientation(tau), Quaternion.inverse(heading)),
+        Quaternion.multiply(
+          flight.orientation(tau),
+          Quaternion.inverse(heading),
+        ),
       );
 
     // The landing: the first step at which the lowest joint reaches the floor.
@@ -249,12 +264,19 @@ export namespace HumanForceThrow {
         low = Math.min(
           low,
           c.y +
-            Quaternion.rotateVector(q, Vector3.subtract(bone.worldPosition, centre)).y,
+            Quaternion.rotateVector(
+              q,
+              Vector3.subtract(bone.worldPosition, centre),
+            ).y,
         );
       return low;
     };
     let land: number = fall;
-    for (let tau: number = 0; tau <= fall; tau += integrateMotionTrajectory.STEP)
+    for (
+      let tau: number = 0;
+      tau <= fall;
+      tau += integrateMotionTrajectory.STEP
+    )
       if (lowest(tau) <= 0) {
         land = tau;
         break;
@@ -314,7 +336,8 @@ export namespace HumanForceThrow {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two branches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: a missing bone is the caller's canonical rig's defect.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work esolveAutoMovieHumanoidSurfaces.place.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work 
+esolveAutoMovieHumanoidSurfaces.place.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function site(

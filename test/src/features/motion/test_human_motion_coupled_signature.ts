@@ -267,9 +267,16 @@ export function test_human_motion_coupled_signature(): void {
     const response = segments[segments.length - 1]!;
     const event = (name: string): number | null => {
       const e = response.plan.events.find((x) => x.name === name);
-      return e === undefined ? null : response.start + e.share * response.plan.duration;
+      return e === undefined
+        ? null
+        : response.start + e.share * response.plan.duration;
     };
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "b", bodies.b, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "b",
+      bodies.b,
+      0,
+    );
     const margins: number[] = HumanSignature.times(
       START,
       response.start + response.plan.duration,

@@ -1,4 +1,9 @@
-import { Quaternion, Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
@@ -7,8 +12,8 @@ import {
   HumanChain,
   HumanHand,
   HumanPerformance,
-  HumanUpperRows,
   type HumanSegment,
+  HumanUpperRows,
   type IHumanActionLaw,
   type IHumanBody,
   type IHumanProp,
@@ -48,7 +53,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_recompose_upper_phrase(): void {
   const complaints: string[] = [];
   const rows: IHumanActionLaw<never>[] = Object.values(HumanUpperRows).filter(
-    (v: unknown): v is IHumanActionLaw<never> => typeof v === "object" && v !== null && "plan" in v,
+    (v: unknown): v is IHumanActionLaw<never> =>
+      typeof v === "object" && v !== null && "plan" in v,
   );
   const open: Record<string, AutoMovieHumanoidRegion> = {
     pointAt: "kneeRight",
@@ -62,15 +68,25 @@ export function test_human_motion_recompose_upper_phrase(): void {
     stirStrokes: "thighFrontRight",
   };
   // The rows that move a held prop: the performer first picks up a stick.
-  const held: readonly string[] = ["hammerStrokes", "sawStrokes", "stirStrokes", "hatOnHead", "phoneToEar", "teethBrushing", "hairCombing"];
-  const touches: Record<string, [AutoMovieHumanoidRegion, HumanHand.Surface]> = {
-    handOnHip: ["hipRight", "palm"],
-    chinOnFist: ["chin", "fist"],
-    pressOn: ["chestRight", "palm"],
-  };
+  const held: readonly string[] = [
+    "hammerStrokes",
+    "sawStrokes",
+    "stirStrokes",
+    "hatOnHead",
+    "phoneToEar",
+    "teethBrushing",
+    "hairCombing",
+  ];
+  const touches: Record<string, [AutoMovieHumanoidRegion, HumanHand.Surface]> =
+    {
+      handOnHip: ["hipRight", "palm"],
+      chinOnFist: ["chin", "fist"],
+      pressOn: ["chestRight", "palm"],
+    };
   for (const name of motionHumanBody.EXTREMES) {
     const body: IHumanBody = motionHumanBody(name);
-    const reach: number = body.measure.upperArm + body.measure.forearm + body.measure.hand;
+    const reach: number =
+      body.measure.upperArm + body.measure.forearm + body.measure.hand;
     for (const row of rows) {
       const given: object =
         open[row.name] === undefined
@@ -78,22 +94,51 @@ export function test_human_motion_recompose_upper_phrase(): void {
             ? { phrase: "visit", target: { kind: "self", region: "hipRight" } }
             : {}
           : { target: { kind: "self", region: open[row.name] } };
-      const params: object = held.includes(row.name) ? { ...given, held: "stick" } : given;
+      const params: object = held.includes(row.name)
+        ? { ...given, held: "stick" }
+        : given;
       const m: IHumanBody["measure"] = body.measure;
       const stick: IHumanProp = {
         subject: "stick",
-        frame: { position: { x: -m.shoulderHalfWidth, y: m.waistHeight, z: 0.6 * (m.upperArm + m.forearm) }, rotation: Quaternion.identity() },
+        frame: {
+          position: {
+            x: -m.shoulderHalfWidth,
+            y: m.waistHeight,
+            z: 0.6 * (m.upperArm + m.forearm),
+          },
+          rotation: Quaternion.identity(),
+        },
         points: {},
-        affordances: [{ id: "handle", kind: "handle", frame: Transform.identity(), extent: null, radius: 0.015 }],
+        affordances: [
+          {
+            id: "handle",
+            kind: "handle",
+            frame: Transform.identity(),
+            extent: null,
+            radius: 0.015,
+          },
+        ],
       };
       try {
         const p: HumanPerformance = new HumanPerformance({
           seed: "upper",
           laws: rows,
-          performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
           props: [stick],
           composition: (held.includes(row.name)
-            ? HumanChain.subject("a").pickUp({ prop: "stick", handle: "handle", hand: "right" })
+            ? HumanChain.subject("a").pickUp({
+                prop: "stick",
+                handle: "handle",
+                hand: "right",
+              })
             : HumanChain.subject("a").stand({ seconds: 0.3 })
           ).registered(row.name, params).node,
         });
@@ -103,49 +148,116 @@ export function test_human_motion_recompose_upper_phrase(): void {
           continue;
         }
         const at = (event: string): number =>
-          s.start + (s.plan.events.find((e) => e.name === event)?.share ?? NaN) * s.plan.duration;
-        const instants: number[] = ["ready", "strokeStart", "stroke", "strokeEnd", "relax"].map(at);
-        if (!instants.every((t: number, i: number): boolean => Number.isFinite(t) && (i === 0 || t >= instants[i - 1]!)))
-          complaints.push(`${name} ${row.name}: the phrase's instants are missing or out of order`);
-        const touch: [AutoMovieHumanoidRegion, HumanHand.Surface] | undefined = touches[row.name];
+          s.start +
+          (s.plan.events.find((e) => e.name === event)?.share ?? NaN) *
+            s.plan.duration;
+        const instants: number[] = [
+          "ready",
+          "strokeStart",
+          "stroke",
+          "strokeEnd",
+          "relax",
+        ].map(at);
+        if (
+          !instants.every(
+            (t: number, i: number): boolean =>
+              Number.isFinite(t) && (i === 0 || t >= instants[i - 1]!),
+          )
+        )
+          complaints.push(
+            `${name} ${row.name}: the phrase's instants are missing or out of order`,
+          );
+        const touch: [AutoMovieHumanoidRegion, HumanHand.Surface] | undefined =
+          touches[row.name];
         if (touch !== undefined) {
           const t: number = at("stroke");
           const bones = p.bones("a", t);
-          const region: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[touch[0]];
-          const goal: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!).point;
-          const hand: IAutoMovieVector3 = HumanHand.frame(body, bones, "right", touch[1], touch[1] === "fist" ? "fist" : "flat").point;
+          const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+            body.surfaces.regions[touch[0]];
+          const goal: IAutoMovieVector3 =
+            resolveAutoMovieHumanoidSurfaces.place(
+              region,
+              bones.get(region.bone)!,
+            ).point;
+          const hand: IAutoMovieVector3 = HumanHand.frame(
+            body,
+            bones,
+            "right",
+            touch[1],
+            touch[1] === "fist" ? "fist" : "flat",
+          ).point;
           const miss: number = Vector3.length(Vector3.subtract(hand, goal));
           if (!(miss <= 0.01))
-            complaints.push(`${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within 10 mm expected`);
+            complaints.push(
+              `${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within 10 mm expected`,
+            );
         }
         if (row.name === "clapHands" || row.name === "handsTogetherFront") {
-          const t: number = row.name === "clapHands" ? at("strokeStart") : at("stroke");
+          const t: number =
+            row.name === "clapHands" ? at("strokeStart") : at("stroke");
           const bones = p.bones("a", t);
-          const left: IAutoMovieVector3 = HumanHand.frame(body, bones, "left", "palm", "flat").point;
-          const right: IAutoMovieVector3 = HumanHand.frame(body, bones, "right", "palm", "flat").point;
+          const left: IAutoMovieVector3 = HumanHand.frame(
+            body,
+            bones,
+            "left",
+            "palm",
+            "flat",
+          ).point;
+          const right: IAutoMovieVector3 = HumanHand.frame(
+            body,
+            bones,
+            "right",
+            "palm",
+            "flat",
+          ).point;
           const apart: number = Vector3.length(Vector3.subtract(left, right));
           if (!(apart <= 0.01))
-            complaints.push(`${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within 10 mm expected`);
+            complaints.push(
+              `${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within 10 mm expected`,
+            );
         }
         if (row.name === "waveHand") {
-          const shoulder: number = p.bones("a", at("stroke")).get("rightShoulder")!.worldPosition.y;
+          const shoulder: number = p
+            .bones("a", at("stroke"))
+            .get("rightShoulder")!.worldPosition.y;
           let low: number = Infinity;
           let minX: number = Infinity;
           let maxX: number = -Infinity;
-          for (let t: number = at("strokeStart"); t <= at("strokeEnd"); t += 1 / 24) {
-            const palm: IAutoMovieVector3 = HumanHand.frame(body, p.bones("a", t), "right", "palm", "flat").point;
+          for (
+            let t: number = at("strokeStart");
+            t <= at("strokeEnd");
+            t += 1 / 24
+          ) {
+            const palm: IAutoMovieVector3 = HumanHand.frame(
+              body,
+              p.bones("a", t),
+              "right",
+              "palm",
+              "flat",
+            ).point;
             low = Math.min(low, palm.y);
             minX = Math.min(minX, palm.x);
             maxX = Math.max(maxX, palm.x);
           }
-          if (!(low > shoulder)) complaints.push(`${name} waveHand: the palm drops ${((shoulder - low) * 1000).toFixed(1)} mm below the shoulder`);
+          if (!(low > shoulder))
+            complaints.push(
+              `${name} waveHand: the palm drops ${((shoulder - low) * 1000).toFixed(1)} mm below the shoulder`,
+            );
           if (!(maxX - minX > reach / 20))
-            complaints.push(`${name} waveHand: the palm sweeps ${((maxX - minX) * 1000).toFixed(1)} mm, more than ${((reach / 20) * 1000).toFixed(1)} mm expected`);
+            complaints.push(
+              `${name} waveHand: the palm sweeps ${((maxX - minX) * 1000).toFixed(1)} mm, more than ${((reach / 20) * 1000).toFixed(1)} mm expected`,
+            );
         }
       } catch (error) {
-        complaints.push(`${name} ${row.name}: expected to plan, got ${(error as Error).message}`);
+        complaints.push(
+          `${name} ${row.name}: expected to plan, got ${(error as Error).message}`,
+        );
       }
     }
   }
-  TestValidator.equals("the upper-body acts as rows over the arm's phrases", complaints, []);
+  TestValidator.equals(
+    "the upper-body acts as rows over the arm's phrases",
+    complaints,
+    [],
+  );
 }

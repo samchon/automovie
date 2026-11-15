@@ -56,12 +56,32 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_scene_squadron(): void {
   const findings: string[] = [];
   const WAIT: number = 3;
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("m-tall")];
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("m-tall"),
+  ];
   const formation: IHumanFormation = HumanFormation.of({
-    blocks: [{ layout: { kind: "line", ranks: 2, files: 3, spacing: { lateral: 1.1, depth: 3.2 } }, count: 6 }],
+    blocks: [
+      {
+        layout: {
+          kind: "line",
+          ranks: 2,
+          files: 3,
+          spacing: { lateral: 1.1, depth: 3.2 },
+        },
+        count: 6,
+      },
+    ],
     frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
   });
-  const squadron: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "sq", seed: "squadron", count: 6, bodies: pool, preset: "line", formation });
+  const squadron: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "sq",
+    seed: "squadron",
+    count: 6,
+    bodies: pool,
+    preset: "line",
+    formation,
+  });
   const course = (at: IAutoMovieVector3): ArchetypeCourse.ICourse => ({
     start: { x: at.x, z: at.z, heading: 0 },
     legs: [
@@ -75,62 +95,122 @@ export function test_human_motion_scene_squadron(): void {
     deceleration: 1.5,
     at: WAIT,
   });
-  const build = (): { rides: ReturnType<typeof rideHorse>[]; performance: HumanPerformance } => {
-    const rides: ReturnType<typeof rideHorse>[] = squadron.members.map((m: HumanEnsemble.IMember) =>
-      rideHorse(createHorse({}, HumanEnsemble.seed(squadron, m.index, "horse")), course(HumanFormation.slot(formation, m.index, 0).at)),
+  const build = (): {
+    rides: ReturnType<typeof rideHorse>[];
+    performance: HumanPerformance;
+  } => {
+    const rides: ReturnType<typeof rideHorse>[] = squadron.members.map(
+      (m: HumanEnsemble.IMember) =>
+        rideHorse(
+          createHorse({}, HumanEnsemble.seed(squadron, m.index, "horse")),
+          course(HumanFormation.slot(formation, m.index, 0).at),
+        ),
     );
-    const props: IHumanProp[] = squadron.members.map((m: HumanEnsemble.IMember, i: number): IHumanProp => {
-      const placed = (seconds: number): IHumanProp.IFrame => {
-        const sample: ReturnType<ReturnType<typeof rideHorse>["at"]> = rides[i]!.at(seconds);
-        return { position: sample.placement.translation, rotation: sample.placement.rotation };
-      };
-      return HumanObject.prop(m.prop("horse"), rides[i]!.at(0).archetype, placed(0), placed);
-    });
-    const cues: Record<string, ReturnType<typeof HumanCue.instants>> = Object.fromEntries(
-      squadron.members.map((m: HumanEnsemble.IMember, i: number): [string, ReturnType<typeof HumanCue.instants>] => [
-        `${m.prop("horse")}.diagonal`,
-        HumanCue.instants(rides[i]!, ["rightForeOn"]),
-      ]),
+    const props: IHumanProp[] = squadron.members.map(
+      (m: HumanEnsemble.IMember, i: number): IHumanProp => {
+        const placed = (seconds: number): IHumanProp.IFrame => {
+          const sample: ReturnType<ReturnType<typeof rideHorse>["at"]> =
+            rides[i]!.at(seconds);
+          return {
+            position: sample.placement.translation,
+            rotation: sample.placement.rotation,
+          };
+        };
+        return HumanObject.prop(
+          m.prop("horse"),
+          rides[i]!.at(0).archetype,
+          placed(0),
+          placed,
+        );
+      },
+    );
+    const cues: Record<
+      string,
+      ReturnType<typeof HumanCue.instants>
+    > = Object.fromEntries(
+      squadron.members.map(
+        (
+          m: HumanEnsemble.IMember,
+          i: number,
+        ): [string, ReturnType<typeof HumanCue.instants>] => [
+          `${m.prop("horse")}.diagonal`,
+          HumanCue.instants(rides[i]!, ["rightForeOn"]),
+        ],
+      ),
     );
     const performance: HumanPerformance = new HumanPerformance({
       seed: "squadron",
       laws: [HumanRide.ride],
       props,
       cues,
-      performers: HumanEnsemble.performers(squadron).map((p: IHumanPerformer, i: number): IHumanPerformer => {
-        const seat: seated.ISeat = HumanObject.seat(rides[i]!.at(0).archetype, props[i]!.frame, "seat");
-        const radians: number = (seat.yaw * Math.PI) / 180;
-        return { ...p, at: { x: seat.at.x + 0.6 * Math.cos(radians), y: 0, z: seat.at.z - 0.6 * Math.sin(radians) }, yaw: seat.yaw };
-      }),
-      composition: HumanEnsemble.chains(squadron, (m: HumanEnsemble.IMember, chain: HumanChain) => {
-        const horse: string = m.prop("horse");
-        const seat: seated.ISeat = HumanObject.seat(rides[m.index]!.at(0).archetype, props[m.index]!.frame, "seat");
-        return chain.sit({ seat }).registered("ride", {
-          on: horse,
-          seconds: rides[m.index]!.duration,
-          rising: { cue: `${horse}.diagonal` },
-          feet: { left: "leftStirrup", right: "rightStirrup" },
-          hands: { left: "leftRein", right: "rightRein" },
-        });
-      }),
+      performers: HumanEnsemble.performers(squadron).map(
+        (p: IHumanPerformer, i: number): IHumanPerformer => {
+          const seat: seated.ISeat = HumanObject.seat(
+            rides[i]!.at(0).archetype,
+            props[i]!.frame,
+            "seat",
+          );
+          const radians: number = (seat.yaw * Math.PI) / 180;
+          return {
+            ...p,
+            at: {
+              x: seat.at.x + 0.6 * Math.cos(radians),
+              y: 0,
+              z: seat.at.z - 0.6 * Math.sin(radians),
+            },
+            yaw: seat.yaw,
+          };
+        },
+      ),
+      composition: HumanEnsemble.chains(
+        squadron,
+        (m: HumanEnsemble.IMember, chain: HumanChain) => {
+          const horse: string = m.prop("horse");
+          const seat: seated.ISeat = HumanObject.seat(
+            rides[m.index]!.at(0).archetype,
+            props[m.index]!.frame,
+            "seat",
+          );
+          return chain.sit({ seat }).registered("ride", {
+            on: horse,
+            seconds: rides[m.index]!.duration,
+            rising: { cue: `${horse}.diagonal` },
+            feet: { left: "leftStirrup", right: "rightStirrup" },
+            hands: { left: "leftRein", right: "rightRein" },
+          });
+        },
+      ),
     });
     return { rides, performance };
   };
   const { rides, performance } = build();
   // A ride's seconds are film seconds; its course starts at `WAIT`.
-  const end: number = WAIT + Math.max(...rides.map((r: ReturnType<typeof rideHorse>): number => r.duration));
+  const end: number =
+    WAIT +
+    Math.max(
+      ...rides.map((r: ReturnType<typeof rideHorse>): number => r.duration),
+    );
 
   // 1 and 2. Rigid rides on the slots, apart.
   for (let t: number = 0; t <= end; t += 1 / 24) {
-    const at: IAutoMovieVector3[] = rides.map((r: ReturnType<typeof rideHorse>): IAutoMovieVector3 => r.at(t).placement.translation);
+    const at: IAutoMovieVector3[] = rides.map(
+      (r: ReturnType<typeof rideHorse>): IAutoMovieVector3 =>
+        r.at(t).placement.translation,
+    );
     let bad: boolean = false;
     for (const m of squadron.members) {
-      const slot: IAutoMovieVector3 = HumanFormation.slot(formation, m.index, 0).at;
+      const slot: IAutoMovieVector3 = HumanFormation.slot(
+        formation,
+        m.index,
+        0,
+      ).at;
       const lead: IAutoMovieVector3 = HumanFormation.slot(formation, 0, 0).at;
       const dx: number = at[m.index]!.x - at[0]!.x - (slot.x - lead.x);
       const dz: number = at[m.index]!.z - at[0]!.z - (slot.z - lead.z);
       if (Math.hypot(dx, dz) > 1e-6) {
-        findings.push(`horse ${m.index} leaves its offset by ${Math.hypot(dx, dz).toExponential(2)} m at ${t.toFixed(2)} s`);
+        findings.push(
+          `horse ${m.index} leaves its offset by ${Math.hypot(dx, dz).toExponential(2)} m at ${t.toFixed(2)} s`,
+        );
         bad = true;
         break;
       }
@@ -138,7 +218,9 @@ export function test_human_motion_scene_squadron(): void {
     for (let i: number = 0; i < at.length && !bad; ++i)
       for (let j: number = i + 1; j < at.length; ++j)
         if (Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z) < 1.1 - 1e-6) {
-          findings.push(`horses ${i} and ${j} close to ${Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z).toFixed(3)} m at ${t.toFixed(2)} s`);
+          findings.push(
+            `horses ${i} and ${j} close to ${Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z).toFixed(3)} m at ${t.toFixed(2)} s`,
+          );
           bad = true;
           break;
         }
@@ -146,20 +228,36 @@ export function test_human_motion_scene_squadron(): void {
   }
 
   // 3. Gait changes along one course.
-  const changes: number[] = rides.map((r: ReturnType<typeof rideHorse>, i: number): number => {
-    const change: { label: string; seconds: number } | undefined = r.instants.find((x: { label: string }): boolean => x.label.startsWith("gait:"));
-    if (change === undefined) findings.push(`horse ${i} never changes gait`);
-    return change?.seconds ?? NaN;
-  });
-  const strides: number[] = rides.map((r: ReturnType<typeof rideHorse>): number => {
-    const on: number[] = r.instants.filter((x: { label: string }): boolean => x.label === "leftForeOn").map((x: { seconds: number }): number => x.seconds);
-    return on.length < 2 ? Infinity : (on[on.length - 1]! - on[0]!) / (on.length - 1);
-  });
-  if (Math.max(...changes) - Math.min(...changes) > Math.max(...strides)) findings.push(`the gait changes spread ${(Math.max(...changes) - Math.min(...changes)).toFixed(2)} s, beyond a stride`);
+  const changes: number[] = rides.map(
+    (r: ReturnType<typeof rideHorse>, i: number): number => {
+      const change: { label: string; seconds: number } | undefined =
+        r.instants.find((x: { label: string }): boolean =>
+          x.label.startsWith("gait:"),
+        );
+      if (change === undefined) findings.push(`horse ${i} never changes gait`);
+      return change?.seconds ?? NaN;
+    },
+  );
+  const strides: number[] = rides.map(
+    (r: ReturnType<typeof rideHorse>): number => {
+      const on: number[] = r.instants
+        .filter((x: { label: string }): boolean => x.label === "leftForeOn")
+        .map((x: { seconds: number }): number => x.seconds);
+      return on.length < 2
+        ? Infinity
+        : (on[on.length - 1]! - on[0]!) / (on.length - 1);
+    },
+  );
+  if (Math.max(...changes) - Math.min(...changes) > Math.max(...strides))
+    findings.push(
+      `the gait changes spread ${(Math.max(...changes) - Math.min(...changes)).toFixed(2)} s, beyond a stride`,
+    );
 
   // 4. Posting at the trot: on the saddle at each of the horse's diagonal footfalls.
   for (const m of squadron.members) {
-    const ride: HumanSegment.ISegment | undefined = performance.segments(m.subject).find((s: HumanSegment.ISegment): boolean => s.name === "ride");
+    const ride: HumanSegment.ISegment | undefined = performance
+      .segments(m.subject)
+      .find((s: HumanSegment.ISegment): boolean => s.name === "ride");
     if (ride === undefined) {
       findings.push(`${m.subject} does not ride`);
       continue;
@@ -167,25 +265,54 @@ export function test_human_motion_scene_squadron(): void {
     for (const cue of HumanCue.instants(rides[m.index]!, ["rightForeOn"])) {
       const seconds: number = cue.seconds;
       if (seconds < changes[m.index]! || seconds > ride.end) continue;
-      const seat: seated.ISeat = HumanObject.seat(rides[m.index]!.at(0).archetype, performance.prop(m.prop("horse"), seconds), "seat");
-      const hips: IAutoMovieVector3 = performance.bones(m.subject, seconds).get("hips")!.worldPosition;
+      const seat: seated.ISeat = HumanObject.seat(
+        rides[m.index]!.at(0).archetype,
+        performance.prop(m.prop("horse"), seconds),
+        "seat",
+      );
+      const hips: IAutoMovieVector3 = performance
+        .bones(m.subject, seconds)
+        .get("hips")!.worldPosition;
       if (Math.hypot(hips.x - seat.at.x, hips.z - seat.at.z) > 0.15) {
-        findings.push(`${m.subject} is off its saddle at the footfall at ${seconds.toFixed(2)} s`);
+        findings.push(
+          `${m.subject} is off its saddle at the footfall at ${seconds.toFixed(2)} s`,
+        );
         break;
       }
     }
   }
 
   // 5. Seeds.
-  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "sq", seed: "squadron", count: 7, bodies: pool, preset: "line", places: (i: number) => ({ at: { x: i, y: 0, z: 0 }, yaw: 0 }) });
+  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "sq",
+    seed: "squadron",
+    count: 7,
+    bodies: pool,
+    preset: "line",
+    places: (i: number) => ({ at: { x: i, y: 0, z: 0 }, yaw: 0 }),
+  });
   for (const m of squadron.members)
-    if (HumanEnsemble.seed(grown, m.index, "horse") !== HumanEnsemble.seed(squadron, m.index, "horse")) findings.push(`adding a member moves ${m.subject}'s horse seed`);
-  if (JSON.stringify(rides[0]!.at(0).archetype) === JSON.stringify(rides[1]!.at(0).archetype)) findings.push("two members ride the same horse");
+    if (
+      HumanEnsemble.seed(grown, m.index, "horse") !==
+      HumanEnsemble.seed(squadron, m.index, "horse")
+    )
+      findings.push(`adding a member moves ${m.subject}'s horse seed`);
+  if (
+    JSON.stringify(rides[0]!.at(0).archetype) ===
+    JSON.stringify(rides[1]!.at(0).archetype)
+  )
+    findings.push("two members ride the same horse");
 
   // 6. Replay.
-  const again: { rides: ReturnType<typeof rideHorse>[]; performance: HumanPerformance } = build();
+  const again: {
+    rides: ReturnType<typeof rideHorse>[];
+    performance: HumanPerformance;
+  } = build();
   for (let t: number = WAIT; t <= end; t += 1)
-    if (JSON.stringify(again.performance.pose("sq.3", t)) !== JSON.stringify(performance.pose("sq.3", t))) {
+    if (
+      JSON.stringify(again.performance.pose("sq.3", t)) !==
+      JSON.stringify(performance.pose("sq.3", t))
+    ) {
       findings.push(`sq.3 does not replay at ${t} s`);
       break;
     }

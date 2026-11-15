@@ -120,11 +120,9 @@ export function test_human_motion_ensemble_population(): void {
     composition: HumanEnsemble.chains(
       e,
       (m: HumanEnsemble.IMember, chain: HumanChain) =>
-        chain
-          .stand({ seconds: 0.5 })
-          .registered("march", {
-            to: { x: m.place.at.x, y: 0, z: m.place.at.z + 6 },
-          }),
+        chain.stand({ seconds: 0.5 }).registered("march", {
+          to: { x: m.place.at.x, y: 0, z: m.place.at.z + 6 },
+        }),
     ),
   });
   const segment: HumanSegment.ISegment = performance.segments("p.0")[1]!;
@@ -193,8 +191,30 @@ export function test_human_motion_ensemble_population(): void {
   const twoBlocks: IHumanFormation = {
     ...formation(37),
     blocks: [
-      { ...formation(37).blocks[0]!, count: 6, layout: { kind: "line", ranks: 1, files: 6, spacing: { lateral: 0.6, depth: 0.9 } } },
-      { ...formation(37).blocks[0]!, count: 6, seed: 5, facing: 180, offset: { lateral: 0.5, depth: 3 }, layout: { kind: "line", ranks: 1, files: 6, spacing: { lateral: 0.6, depth: 0.9 }, dressing: { lateral: 0.02, depth: 0.02 } } },
+      {
+        ...formation(37).blocks[0]!,
+        count: 6,
+        layout: {
+          kind: "line",
+          ranks: 1,
+          files: 6,
+          spacing: { lateral: 0.6, depth: 0.9 },
+        },
+      },
+      {
+        ...formation(37).blocks[0]!,
+        count: 6,
+        seed: 5,
+        facing: 180,
+        offset: { lateral: 0.5, depth: 3 },
+        layout: {
+          kind: "line",
+          ranks: 1,
+          files: 6,
+          spacing: { lateral: 0.6, depth: 0.9 },
+          dressing: { lateral: 0.02, depth: 0.02 },
+        },
+      },
     ],
   };
   const split: HumanEnsemble.IEnsemble = HumanEnsemble.of({
@@ -203,16 +223,29 @@ export function test_human_motion_ensemble_population(): void {
     count: 12,
     bodies: [body],
     formation: twoBlocks,
-    detail: (m: { index: number }): "population" | "full" => (m.index % 2 === 0 ? "population" : "full"),
+    detail: (m: { index: number }): "population" | "full" =>
+      m.index % 2 === 0 ? "population" : "full",
   });
-  const blocked: IAutoMovieFormationDesign = HumanPopulation.design(split, { id: "x", model: "soldier" });
+  const blocked: IAutoMovieFormationDesign = HumanPopulation.design(split, {
+    id: "x",
+    model: "soldier",
+  });
   for (const m of split.members) {
     const engine: IAutoMovieVector3 = formationSlotPosition(blocked, m.index);
-    const own: IAutoMovieVector3 = HumanFormation.slot(twoBlocks, m.index, 0).at;
+    const own: IAutoMovieVector3 = HumanFormation.slot(
+      twoBlocks,
+      m.index,
+      0,
+    ).at;
     if (Math.hypot(engine.x - own.x, engine.z - own.z) > 1e-9)
-      findings.push(`two blocks: ${m.subject}'s designed slot lies ${Math.hypot(engine.x - own.x, engine.z - own.z).toExponential(2)} m off`);
+      findings.push(
+        `two blocks: ${m.subject}'s designed slot lies ${Math.hypot(engine.x - own.x, engine.z - own.z).toExponential(2)} m off`,
+      );
   }
-  if (blocked.heroOverrides.length !== 6) findings.push(`two blocks: ${blocked.heroOverrides.length} heroes, 6 expected`);
+  if (blocked.heroOverrides.length !== 6)
+    findings.push(
+      `two blocks: ${blocked.heroOverrides.length} heroes, 6 expected`,
+    );
   // 5. Population members are not performed.
   const performed: string[] = HumanEnsemble.performers(e).map(
     (p: { subject: string }): string => p.subject,

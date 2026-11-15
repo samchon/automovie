@@ -1,3 +1,4 @@
+import { createLongGun } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
@@ -21,7 +22,6 @@ import {
   type IHumanManoeuvre,
   type IHumanProp,
 } from "@automovie/motions";
-import { createLongGun } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -94,7 +94,9 @@ export function test_human_motion_scene_line_infantry(): void {
     { word: "fire", at: 12, caution: 1.5 },
   ]);
   // The musket's stand-in, a long gun with a butt, a grip, a fore-end and a muzzle. Phase 2 swaps it for the musket archetype with a cock (#3483, PR #3560) and adds makeReady before present.
-  const musket: ReturnType<typeof createLongGun> = createLongGun({ kind: "carbine" });
+  const musket: ReturnType<typeof createLongGun> = createLongGun({
+    kind: "carbine",
+  });
   const battalion = (
     preset: IHumanEnsemble["preset"],
     count: number = 24,
@@ -133,13 +135,21 @@ export function test_human_motion_scene_line_infantry(): void {
     );
     const performance: HumanPerformance = new HumanPerformance({
       seed: "infantry",
-      laws: [...HUMAN_LEXICON.gait!, ...(Object.values(HumanMusketDrill) as IHumanActionLaw<never>[])],
+      laws: [
+        ...HUMAN_LEXICON.gait!,
+        ...(Object.values(HumanMusketDrill) as IHumanActionLaw<never>[]),
+      ],
       performers: HumanEnsemble.performers(ensemble),
-      props: ensemble.members.map((m: HumanEnsemble.IMember): IHumanProp =>
-        HumanObject.prop(m.prop("musket"), musket, {
-          at: { x: m.place.at.x - m.body.measure.shoulderHalfWidth, y: m.body.measure.waistHeight, z: m.place.at.z + 0.35 },
-          yaw: 0,
-        }),
+      props: ensemble.members.map(
+        (m: HumanEnsemble.IMember): IHumanProp =>
+          HumanObject.prop(m.prop("musket"), musket, {
+            at: {
+              x: m.place.at.x - m.body.measure.shoulderHalfWidth,
+              y: m.body.measure.waistHeight,
+              z: m.place.at.z + 0.35,
+            },
+            yaw: 0,
+          }),
       ),
       cues: { drum: HumanCue.beats({ bpm: 76, count: 30, from: 1 }), orders },
       composition: HumanEnsemble.chains(
@@ -157,11 +167,20 @@ export function test_human_motion_scene_line_infantry(): void {
             .registered("stand", { seconds: 1 })
             .sync({ of: "orders", event: "halt", latency: "reaction" });
           const presented: HumanChain = marched
-            .registered("presentMusket", { gun, target: { kind: "point", frame: "performer", at: { x: 0, y: 1.4, z: 60 } } })
+            .registered("presentMusket", {
+              gun,
+              target: {
+                kind: "point",
+                frame: "performer",
+                at: { x: 0, y: 1.4, z: 60 },
+              },
+            })
             .sync({ of: "orders", event: "present", latency: "reaction" });
           return misfires.includes(m.index)
             ? presented
-            : presented.registered("fireMusket", { gun }).sync({ of: "orders", event: "fire", latency: "reaction" });
+            : presented
+                .registered("fireMusket", { gun })
+                .sync({ of: "orders", event: "fire", latency: "reaction" });
         },
       ),
     });
@@ -256,10 +275,14 @@ export function test_human_motion_scene_line_infantry(): void {
     for (const m of scene.ensemble.members) {
       const segments: readonly HumanSegment.ISegment[] =
         scene.performance.segments(m.subject);
-      const halted: HumanSegment.ISegment = segments.find((s: HumanSegment.ISegment): boolean => s.name === "stand")!;
+      const halted: HumanSegment.ISegment = segments.find(
+        (s: HumanSegment.ISegment): boolean => s.name === "stand",
+      )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
-      const fired: HumanSegment.ISegment | undefined = segments.find((s: HumanSegment.ISegment): boolean => s.name === "fireMusket");
+      const fired: HumanSegment.ISegment | undefined = segments.find(
+        (s: HumanSegment.ISegment): boolean => s.name === "fireMusket",
+      );
       if (scene.misfires.includes(m.index)) {
         if (fired !== undefined)
           findings.push(`${m.subject} was picked to misfire and fires`);
@@ -328,10 +351,25 @@ export function test_human_motion_scene_line_infantry(): void {
     findings.push("the deployed line lost a slot");
 
   // 7. A rout: the least steady break first and flee by steering.
-  const routed: number[] = HumanEnsemble.pick(militia.ensemble, 8, "rout", undefined, "morale");
-  const breakers: HumanEnsemble.IEnsemble = { ...militia.ensemble, members: routed.map((i: number): HumanEnsemble.IMember => militia.ensemble.members[i]!) };
+  const routed: number[] = HumanEnsemble.pick(
+    militia.ensemble,
+    8,
+    "rout",
+    undefined,
+    "morale",
+  );
+  const breakers: HumanEnsemble.IEnsemble = {
+    ...militia.ensemble,
+    members: routed.map(
+      (i: number): HumanEnsemble.IMember => militia.ensemble.members[i]!,
+    ),
+  };
   const flight: HumanCrowd.IResult = HumanCrowd.steer(breakers, {
-    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({ x: m.place.at.x, y: 0, z: m.place.at.z - 25 }),
+    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
+      x: m.place.at.x,
+      y: 0,
+      z: m.place.at.z - 25,
+    }),
     gait: "run",
     start: 13,
     until: 30,
@@ -339,16 +377,24 @@ export function test_human_motion_scene_line_infantry(): void {
     flight: true,
   });
   flight.arrivals.forEach((a: number | null, k: number): void => {
-    if (a === null) findings.push(`rout: ${breakers.members[k]!.subject} never gets away`);
+    if (a === null)
+      findings.push(`rout: ${breakers.members[k]!.subject} never gets away`);
   });
   for (let t: number = 13; t <= 30; t += 1 / 24) {
-    const at: IAutoMovieVector3[] = flight.frames.map((f: IHumanFormation.ICourse): IAutoMovieVector3 => HumanFormation.frame({ blocks: [], frame: f }, t).at);
+    const at: IAutoMovieVector3[] = flight.frames.map(
+      (f: IHumanFormation.ICourse): IAutoMovieVector3 =>
+        HumanFormation.frame({ blocks: [], frame: f }, t).at,
+    );
     let crossed: boolean = false;
     for (let a: number = 0; a < at.length && !crossed; ++a)
       for (let b: number = a + 1; b < at.length; ++b) {
-        const sum: number = HumanCrowd.half(breakers.members[a]!) + HumanCrowd.half(breakers.members[b]!);
+        const sum: number =
+          HumanCrowd.half(breakers.members[a]!) +
+          HumanCrowd.half(breakers.members[b]!);
         if (Math.hypot(at[a]!.x - at[b]!.x, at[a]!.z - at[b]!.z) < sum - 1e-6) {
-          findings.push(`rout: ${breakers.members[a]!.subject} and ${breakers.members[b]!.subject} pass through each other at ${t.toFixed(2)} s`);
+          findings.push(
+            `rout: ${breakers.members[a]!.subject} and ${breakers.members[b]!.subject} pass through each other at ${t.toFixed(2)} s`,
+          );
           crossed = true;
           break;
         }
@@ -356,8 +402,15 @@ export function test_human_motion_scene_line_infantry(): void {
     if (crossed) break;
   }
   const mean = (members: readonly HumanEnsemble.IMember[]): number =>
-    members.reduce((s: number, m: HumanEnsemble.IMember): number => s + (m.attributes.morale ?? 0.5), 0) / members.length;
-  if (!(mean(breakers.members) < mean(militia.ensemble.members))) findings.push(`rout: the breakers' morale ${mean(breakers.members).toFixed(3)} is not below the line's ${mean(militia.ensemble.members).toFixed(3)}`);
+    members.reduce(
+      (s: number, m: HumanEnsemble.IMember): number =>
+        s + (m.attributes.morale ?? 0.5),
+      0,
+    ) / members.length;
+  if (!(mean(breakers.members) < mean(militia.ensemble.members)))
+    findings.push(
+      `rout: the breakers' morale ${mean(breakers.members).toFixed(3)} is not below the line's ${mean(militia.ensemble.members).toFixed(3)}`,
+    );
 
   // 6. Determinism.
   const again: IScene = battalion("elite");

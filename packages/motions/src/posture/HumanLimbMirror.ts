@@ -14,7 +14,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, read by the fit and its memory.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanArmMirror` for every reflected part.
  */
-export namespace HumanLimbMirror {  /** A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its own inverse. */
+export namespace HumanLimbMirror {
+  /** A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its own inverse. */
   export function pose(pose: IAutoMoviePose): IAutoMoviePose {
     return HumanArmMirror.mirrored({ pose, others: [] }).pose;
   }

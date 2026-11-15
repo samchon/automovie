@@ -232,7 +232,11 @@ export namespace HumanCarriedCoupling {
         y: (row.rise ?? 0) * (bearer.measure.upperArm + bearer.measure.forearm),
         z: 0,
       }),
-      HumanCarriedCouplingPose.region(borne, HumanTrunk.resolve(borne, keyed), row.mine),
+      HumanCarriedCouplingPose.region(
+        borne,
+        HumanTrunk.resolve(borne, keyed),
+        row.mine,
+      ),
     );
     const key: IHumanPosture = { ...keyed, root };
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -313,7 +317,8 @@ export namespace HumanCarriedCoupling {
         (b: {
           region: AutoMovieHumanoidRegion;
           on: AutoMovieHumanoidRegion;
-        }): IAutoMovieVector3 => HumanCarriedCouplingPose.region(borne, mine, b.region),
+        }): IAutoMovieVector3 =>
+          HumanCarriedCouplingPose.region(borne, mine, b.region),
       ),
       centre,
     );

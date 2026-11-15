@@ -82,8 +82,7 @@ export namespace pushPullLean {
       1,
       Math.max(0, (height - waist) / (shoulder - waist)),
     );
-    const angle: number =
-      table.waist + (table.shoulder - table.waist) * share;
+    const angle: number = table.waist + (table.shoulder - table.waist) * share;
     return way === "pull" ? -angle : angle;
   }
 }
