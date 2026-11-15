@@ -8,7 +8,9 @@ import type {
 
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
@@ -43,7 +45,7 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @evidence contracts/development/implementation.md#principled-implementation The effector's local rotation is the mid bone's world rotation and the effector's rest undone from the request, read back as clinical angles; a clamped joint is projected onto its range by minimising the geodesic angle to the request (Baerlocher and Boulic 2001), and a distal twist share is moved first by splitDistalTwist.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward kinematics, one decomposition and one clamp after the twist split, with the refinement only when the clamp moves the joint.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable rotation is brought to its nearest reachable rotation inside the range, never reported as reached.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two forward kinematics passes, linear in bones; a refinement adds a fixed 4 sweeps of 40 golden-section steps per mobile axis on quaternions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two forward kinematics passes, linear in bones; a refinement adds a fixed 4 sweeps of 40 golden-section steps per mobile axis on quaternions, every clamp through the effector's one resolved clamp (`clampJointToSkeleton.of`) and every probe on its basis admitted once.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -92,7 +94,11 @@ export function orientChainEffector(
     abduction: angles.abduction,
     twist: angles.twist,
   };
-  let effector: IAutoMovieJointPose = clampJointToSkeleton(raw, props.skeleton);
+  // The effector's clamp, its lookup resolved once for the decomposition's
+  // clamp and every probe of the refinement (`clampJointToSkeleton.of`).
+  const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    clampJointToSkeleton.of(props.chain.effector, props.skeleton);
+  let effector: IAutoMovieJointPose = clamp(raw);
 
   // The clamp moved the joint: refine its mobile axes to the nearest
   // reachable rotation.
@@ -101,9 +107,15 @@ export function orientChainEffector(
       Math.abs((effector[k] ?? 0) - (raw[k] ?? 0)) > 1e-9,
   );
   if (moved) {
+    // The effector's basis, admitted once for every probe, as
+    // `jointToQuaternion` admits it.
+    const basis: IAutoMovieJointAxes = normalizeJointAxes(
+      effectorAxes ?? DEFAULT_JOINT_AXES,
+      "jointToQuaternion axes",
+    );
     const error = (joint: IAutoMovieJointPose): number => {
       const q: IAutoMovieQuaternion = Quaternion.normalize(
-        jointToQuaternion(joint, effectorAxes, frame),
+        jointToQuaternionOnBasis(joint, basis, frame),
       );
       return (
         1 -
@@ -113,14 +125,8 @@ export function orientChainEffector(
     const span = (
       k: "flexion" | "abduction" | "twist",
     ): [number, number] | null => {
-      const low: number | null = clampJointToSkeleton(
-        { ...effector, [k]: -1e6 },
-        props.skeleton,
-      )[k];
-      const high: number | null = clampJointToSkeleton(
-        { ...effector, [k]: 1e6 },
-        props.skeleton,
-      )[k];
+      const low: number | null = clamp({ ...effector, [k]: -1e6 })[k];
+      const high: number | null = clamp({ ...effector, [k]: 1e6 })[k];
       if (low === null || high === null || !(high - low > 1e-9)) return null;
       return [Math.max(low, -180), Math.min(high, 180)];
     };
@@ -130,7 +136,7 @@ export function orientChainEffector(
         const range: [number, number] | null = span(k);
         if (range === null) continue;
         const at = (v: number): IAutoMovieJointPose =>
-          clampJointToSkeleton({ ...effector, [k]: v }, props.skeleton);
+          clamp({ ...effector, [k]: v });
         let [lo, hi] = range;
         let c: number = hi - ratio * (hi - lo);
         let d: number = lo + ratio * (hi - lo);
