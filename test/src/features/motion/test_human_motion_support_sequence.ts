@@ -86,7 +86,9 @@ export function test_human_motion_support_sequence(): void {
   all.check(
     `each foot bears throughout, read ${feetWindows.map((w) => `${w.part} ${w.from}-${w.to}`).join(", ")}`,
     feetWindows.length === 2 &&
-      feetWindows.every((w: IHumanContactWindow): boolean => w.from === 0 && w.to === 1),
+      feetWindows.every(
+        (w: IHumanContactWindow): boolean => w.from === 0 && w.to === 1,
+      ),
   );
 
   // 3. A palm past the arm's span is refused, naming the hand.
@@ -101,7 +103,11 @@ export function test_human_motion_support_sequence(): void {
           {
             part: "leftHand",
             kind: "bear",
-            target: { kind: "point", at: { x: 0, y: 0, z: span * 2 + 0.5 }, frame: "world" },
+            target: {
+              kind: "point",
+              at: { x: 0, y: 0, z: span * 2 + 0.5 },
+              frame: "world",
+            },
           },
         ],
       },
@@ -117,5 +123,7 @@ export function test_human_motion_support_sequence(): void {
       refusal.axis === "stances" &&
       refusal.message.includes("leftHand"),
   );
-  all.assert("the support planner places new supports before it releases old ones");
+  all.assert(
+    "the support planner places new supports before it releases old ones",
+  );
 }

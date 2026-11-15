@@ -68,7 +68,11 @@ export function test_physics_projectile_contact(): void {
 
   // 2. The ball on the ground.
   const drop: IAutoMovieHit | null = projectileFirstContact(
-    { origin: { x: 0, y: 1, z: 0 }, velocity: zero, gravity: { x: 0, y: -9.80665, z: 0 } },
+    {
+      origin: { x: 0, y: 1, z: 0 },
+      velocity: zero,
+      gravity: { x: 0, y: -9.80665, z: 0 },
+    },
     [projectileFirstContact.plane("ground", zero, { x: 0, y: 1, z: 0 })],
     { from: 0, to: 2 },
     { radius: 0, thickness: 0.05 },
@@ -92,5 +96,8 @@ export function test_physics_projectile_contact(): void {
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
   );
-  TestValidator.predicate("a flight between two posts meets nothing", miss === null);
+  TestValidator.predicate(
+    "a flight between two posts meets nothing",
+    miss === null,
+  );
 }

@@ -181,5 +181,4 @@ export namespace HumanHitTrack {
     }
     return out;
   }
-
 }

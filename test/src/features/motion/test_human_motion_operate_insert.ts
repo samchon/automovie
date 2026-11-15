@@ -34,8 +34,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_human_motion_operate_insert(): void {
-  const gun: ReturnType<typeof createHandgun> = createHandgun({ frame: "fullSize" });
-  const holster: ReturnType<typeof createHolster> = createHolster({ kind: "holster" });
+  const gun: ReturnType<typeof createHandgun> = createHandgun({
+    frame: "fullSize",
+  });
+  const holster: ReturnType<typeof createHolster> = createHolster({
+    kind: "holster",
+  });
   const DEPTH: number = 0.1;
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -45,11 +49,20 @@ export function test_human_motion_operate_insert(): void {
       performance = new HumanPerformance({
         seed: "insert",
         props: [
-          HumanObject.prop("gun", gun, { at: { x: -0.2, y: 0.9, z: 0.4 }, yaw: 0 }),
+          HumanObject.prop("gun", gun, {
+            at: { x: -0.2, y: 0.9, z: 0.4 },
+            yaw: 0,
+          }),
           HumanObject.prop("holster", holster, stand),
         ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "gun", handle: "grip" })
@@ -89,28 +102,42 @@ export function test_human_motion_operate_insert(): void {
       const at = performance.prop("gun", t);
       return Vector3.add(
         at.position,
-        Quaternion.rotateVector(at.rotation, gun.affordance("muzzle").frame.translation),
+        Quaternion.rotateVector(
+          at.rotation,
+          gun.affordance("muzzle").frame.translation,
+        ),
       );
     };
     const { strokeStart, strokeEnd } = Object.fromEntries(
-      segment.plan.events.map((e) => [e.name, segment.start + e.share * segment.plan.duration]),
+      segment.plan.events.map((e) => [
+        e.name,
+        segment.start + e.share * segment.plan.duration,
+      ]),
     ) as Record<string, number>;
     let off: number = 0;
     for (let k: number = 0; k <= 10; k++) {
       const t: number = strokeStart! + ((strokeEnd! - strokeStart!) * k) / 10;
       const d: IAutoMovieVector3 = Vector3.subtract(muzzle(t), mouth);
       const along: number = Vector3.dot(d, inward);
-      off = Math.max(off, Vector3.length(Vector3.subtract(d, Vector3.scale(inward, along))));
+      off = Math.max(
+        off,
+        Vector3.length(Vector3.subtract(d, Vector3.scale(inward, along))),
+      );
     }
-    TestValidator.predicate(`${name}: the muzzle keeps to the socket's axis (${(1000 * off).toFixed(1)} mm)`, off <= 5e-3);
-    const depth = (t: number): number => Vector3.dot(Vector3.subtract(muzzle(t), mouth), inward);
+    TestValidator.predicate(
+      `${name}: the muzzle keeps to the socket's axis (${(1000 * off).toFixed(1)} mm)`,
+      off <= 5e-3,
+    );
+    const depth = (t: number): number =>
+      Vector3.dot(Vector3.subtract(muzzle(t), mouth), inward);
     TestValidator.predicate(
       `${name}: the muzzle goes the depth in at the middle (${depth((strokeStart! + strokeEnd!) / 2).toFixed(3)} m)`,
       Math.abs(depth((strokeStart! + strokeEnd!) / 2) - DEPTH) <= 5e-3,
     );
     TestValidator.predicate(
       `${name}: the muzzle is at the mouth at the stroke's ends`,
-      Math.abs(depth(strokeStart!)) <= 5e-3 && Math.abs(depth(strokeEnd!)) <= 5e-3,
+      Math.abs(depth(strokeStart!)) <= 5e-3 &&
+        Math.abs(depth(strokeEnd!)) <= 5e-3,
     );
   }
 

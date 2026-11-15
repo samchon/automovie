@@ -47,15 +47,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_scene_civil_crowds(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("f-small"), motionHumanBody("m-tall")];
-  const scatter = (id: string, preset: IHumanEnsemble["preset"], count: number, seed: string = "crowds"): HumanEnsemble.IEnsemble =>
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("f-small"),
+    motionHumanBody("m-tall"),
+  ];
+  const scatter = (
+    id: string,
+    preset: IHumanEnsemble["preset"],
+    count: number,
+    seed: string = "crowds",
+  ): HumanEnsemble.IEnsemble =>
     HumanEnsemble.of({
       id,
       seed,
       count,
       bodies: pool,
       ...(preset === undefined ? {} : { preset }),
-      places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({ at: { x: 1.2 * (i % 6) - 3, y: 0, z: 1.2 * Math.floor(i / 6) }, yaw: 0 }),
+      places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({
+        at: { x: 1.2 * (i % 6) - 3, y: 0, z: 1.2 * Math.floor(i / 6) },
+        yaw: 0,
+      }),
     });
 
   // 1. A shot.
@@ -65,21 +77,41 @@ export function test_human_motion_scene_civil_crowds(): void {
     seed: "crowds",
     performers: HumanEnsemble.performers(bystanders),
     cues: { shot: [{ name: "report", seconds: shot }] },
-    composition: HumanEnsemble.chains(bystanders, (_: HumanEnsemble.IMember, chain: HumanChain) =>
-      chain.look({ target: { kind: "point", at: { x: 10, y: 1.6, z: 3 }, frame: "world" }, seconds: 1.5 }).sync({ of: "shot", event: "report", latency: "reaction" }),
+    composition: HumanEnsemble.chains(
+      bystanders,
+      (_: HumanEnsemble.IMember, chain: HumanChain) =>
+        chain
+          .look({
+            target: {
+              kind: "point",
+              at: { x: 10, y: 1.6, z: 3 },
+              frame: "world",
+            },
+            seconds: 1.5,
+          })
+          .sync({ of: "shot", event: "report", latency: "reaction" }),
     ),
   });
-  const onsets: number[] = bystanders.members.map((m: HumanEnsemble.IMember): number => {
-    const s: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
-    return s.entryTime - shot;
-  });
-  for (const [i, o] of onsets.entries()) if (o < HumanResponse.FLOOR - 1e-9) findings.push(`s.${i} turns ${o.toFixed(3)} s after the shot`);
-  if (new Set(onsets).size < onsets.length / 2) findings.push("the bystanders turn nearly as one");
+  const onsets: number[] = bystanders.members.map(
+    (m: HumanEnsemble.IMember): number => {
+      const s: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
+      return s.entryTime - shot;
+    },
+  );
+  for (const [i, o] of onsets.entries())
+    if (o < HumanResponse.FLOOR - 1e-9)
+      findings.push(`s.${i} turns ${o.toFixed(3)} s after the shot`);
+  if (new Set(onsets).size < onsets.length / 2)
+    findings.push("the bystanders turn nearly as one");
 
   // 2. A mob.
   const flee = (e: HumanEnsemble.IEnsemble): HumanCrowd.IResult =>
     HumanCrowd.steer(e, {
-      goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({ x: m.place.at.x, y: 0, z: m.place.at.z + 30 }),
+      goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
+        x: m.place.at.x,
+        y: 0,
+        z: m.place.at.z + 30,
+      }),
       gait: "run",
       start: 0,
       until: 30,
@@ -90,16 +122,30 @@ export function test_human_motion_scene_civil_crowds(): void {
   const civilians: HumanEnsemble.IEnsemble = scatter("c", "civilians", 30);
   const mob: HumanCrowd.IResult = flee(rabble);
   const calm: HumanCrowd.IResult = flee(civilians);
-  const apart = (label: string, e: HumanEnsemble.IEnsemble, r: HumanCrowd.IResult, until: number): void => {
+  const apart = (
+    label: string,
+    e: HumanEnsemble.IEnsemble,
+    r: HumanCrowd.IResult,
+    until: number,
+  ): void => {
     for (let t: number = 0; t <= until; t += 1 / 24) {
-      const at: IAutoMovieVector3[] = r.frames.map((f: IHumanFormation.ICourse): IAutoMovieVector3 => HumanFormation.frame({ blocks: [], frame: f }, t).at);
+      const at: IAutoMovieVector3[] = r.frames.map(
+        (f: IHumanFormation.ICourse): IAutoMovieVector3 =>
+          HumanFormation.frame({ blocks: [], frame: f }, t).at,
+      );
       for (let i: number = 0; i < at.length; ++i)
         for (let j: number = i + 1; j < at.length; ++j) {
           if (r.frames[i] === r.frames[j]) continue;
-          const d: number = Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z);
-          const sum: number = HumanCrowd.half(e.members[i]!) + HumanCrowd.half(e.members[j]!);
+          const d: number = Math.hypot(
+            at[i]!.x - at[j]!.x,
+            at[i]!.z - at[j]!.z,
+          );
+          const sum: number =
+            HumanCrowd.half(e.members[i]!) + HumanCrowd.half(e.members[j]!);
           if (d < sum - 1e-6) {
-            findings.push(`${label}: ${e.members[i]!.subject} and ${e.members[j]!.subject} ${d.toFixed(3)} m apart at ${t.toFixed(2)} s`);
+            findings.push(
+              `${label}: ${e.members[i]!.subject} and ${e.members[j]!.subject} ${d.toFixed(3)} m apart at ${t.toFixed(2)} s`,
+            );
             return;
           }
         }
@@ -108,16 +154,25 @@ export function test_human_motion_scene_civil_crowds(): void {
   apart("mob", rabble, mob, 30);
   apart("calm", civilians, calm, 30);
   const spread = (r: HumanCrowd.IResult, label: string): number => {
-    const a: number[] = r.arrivals.map((x: number | null, i: number): number => {
-      if (x === null) findings.push(`${label}: member ${i} never arrives`);
-      return x ?? 30;
-    });
-    const m: number = a.reduce((p: number, q: number): number => p + q, 0) / a.length;
-    return Math.sqrt(a.reduce((p: number, q: number): number => p + (q - m) ** 2, 0) / (a.length - 1));
+    const a: number[] = r.arrivals.map(
+      (x: number | null, i: number): number => {
+        if (x === null) findings.push(`${label}: member ${i} never arrives`);
+        return x ?? 30;
+      },
+    );
+    const m: number =
+      a.reduce((p: number, q: number): number => p + q, 0) / a.length;
+    return Math.sqrt(
+      a.reduce((p: number, q: number): number => p + (q - m) ** 2, 0) /
+        (a.length - 1),
+    );
   };
   const rabbleSpread: number = spread(mob, "mob");
   const calmSpread: number = spread(calm, "calm");
-  if (!(rabbleSpread > calmSpread)) findings.push(`the rabble's arrivals spread ${rabbleSpread.toFixed(3)} s, the civilians' ${calmSpread.toFixed(3)} s`);
+  if (!(rabbleSpread > calmSpread))
+    findings.push(
+      `the rabble's arrivals spread ${rabbleSpread.toFixed(3)} s, the civilians' ${calmSpread.toFixed(3)} s`,
+    );
 
   // 3. A street with groups.
   const street: HumanEnsemble.IEnsemble = HumanEnsemble.of({
@@ -126,33 +181,61 @@ export function test_human_motion_scene_civil_crowds(): void {
     count: 24,
     bodies: pool,
     preset: "civilians",
-    places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({ at: { x: 2 * (i % 4) - 3, y: 0, z: 2.5 * Math.floor(i / 4) }, yaw: 0 }),
+    places: (i: number): { at: IAutoMovieVector3; yaw: number } => ({
+      at: { x: 2 * (i % 4) - 3, y: 0, z: 2.5 * Math.floor(i / 4) },
+      yaw: 0,
+    }),
   });
-  const groups: HumanEnsemble.IGroup[] = HumanEnsemble.groups(street, { share: 2 / 3, sizes: [2, 3] });
+  const groups: HumanEnsemble.IGroup[] = HumanEnsemble.groups(street, {
+    share: 2 / 3,
+    sizes: [2, 3],
+  });
   const walked: HumanCrowd.IResult = HumanCrowd.steer(street, {
-    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({ x: m.place.at.x, y: 0, z: m.place.at.z + 25 }),
+    goals: (m: HumanEnsemble.IMember): IAutoMovieVector3 => ({
+      x: m.place.at.x,
+      y: 0,
+      z: m.place.at.z + 25,
+    }),
     gait: "walk",
     start: 0,
     until: 40,
     groups,
   });
   for (const g of groups)
-    for (const i of g.members) if (walked.frames[i] !== walked.frames[g.members[0]!]) findings.push(`member ${i} leaves its group's course`);
+    for (const i of g.members)
+      if (walked.frames[i] !== walked.frames[g.members[0]!])
+        findings.push(`member ${i} leaves its group's course`);
   walked.arrivals.forEach((a: number | null, i: number): void => {
     if (a === null) findings.push(`street member ${i} never arrives`);
   });
 
   // 4. Anti-clone across the lone walkers.
-  const lone: number[] = street.members.map((m: HumanEnsemble.IMember): number => m.index).filter((i: number): boolean => !groups.some((g: HumanEnsemble.IGroup): boolean => g.members.includes(i)));
+  const lone: number[] = street.members
+    .map((m: HumanEnsemble.IMember): number => m.index)
+    .filter(
+      (i: number): boolean =>
+        !groups.some((g: HumanEnsemble.IGroup): boolean =>
+          g.members.includes(i),
+        ),
+    );
   for (let a: number = 0; a < lone.length; ++a)
     for (let b: number = a + 1; b < lone.length; ++b) {
       let most: number = 0;
       for (let t: number = 0; t <= 40; t += 1) {
-        const p: IAutoMovieVector3 = HumanFormation.frame({ blocks: [], frame: walked.frames[lone[a]!]! }, t).at;
-        const q: IAutoMovieVector3 = HumanFormation.frame({ blocks: [], frame: walked.frames[lone[b]!]! }, t).at;
+        const p: IAutoMovieVector3 = HumanFormation.frame(
+          { blocks: [], frame: walked.frames[lone[a]!]! },
+          t,
+        ).at;
+        const q: IAutoMovieVector3 = HumanFormation.frame(
+          { blocks: [], frame: walked.frames[lone[b]!]! },
+          t,
+        ).at;
         most = Math.max(most, Math.hypot(p.x - q.x, p.z - q.z));
       }
-      if (!(most > 0.1)) findings.push(`street members ${lone[a]} and ${lone[b]} walk as clones`);
+      if (!(most > 0.1))
+        findings.push(
+          `street members ${lone[a]} and ${lone[b]} walk as clones`,
+        );
     }
 
   // 5. Determinism.
@@ -161,10 +244,20 @@ export function test_human_motion_scene_civil_crowds(): void {
   let moved: boolean = false;
   for (let i: number = 0; i < 30; ++i)
     for (let t: number = 0; t <= 30; t += 3) {
-      const a: IAutoMovieVector3 = HumanFormation.frame({ blocks: [], frame: mob.frames[i]! }, t).at;
-      const b: IAutoMovieVector3 = HumanFormation.frame({ blocks: [], frame: again.frames[i]! }, t).at;
-      const c: IAutoMovieVector3 = HumanFormation.frame({ blocks: [], frame: other.frames[i]! }, t).at;
-      if (a.x !== b.x || a.z !== b.z) findings.push(`mob member ${i} does not replay at ${t} s`);
+      const a: IAutoMovieVector3 = HumanFormation.frame(
+        { blocks: [], frame: mob.frames[i]! },
+        t,
+      ).at;
+      const b: IAutoMovieVector3 = HumanFormation.frame(
+        { blocks: [], frame: again.frames[i]! },
+        t,
+      ).at;
+      const c: IAutoMovieVector3 = HumanFormation.frame(
+        { blocks: [], frame: other.frames[i]! },
+        t,
+      ).at;
+      if (a.x !== b.x || a.z !== b.z)
+        findings.push(`mob member ${i} does not replay at ${t} s`);
       if (a.x !== c.x || a.z !== c.z) moved = true;
     }
   if (!moved) findings.push("another seed steers the mob the same way");

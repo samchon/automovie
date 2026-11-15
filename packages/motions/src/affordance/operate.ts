@@ -367,7 +367,11 @@ export namespace operate {
           posture,
           progress,
         );
-      const now: { point: IAutoMovieVector3; normal: IAutoMovieVector3; roll: number } =
+      const now: {
+        point: IAutoMovieVector3;
+        normal: IAutoMovieVector3;
+        roll: number;
+      } =
         part === undefined
           ? state(mechanism, place, hinge, progress)
           : {

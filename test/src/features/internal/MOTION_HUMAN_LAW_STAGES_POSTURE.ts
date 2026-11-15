@@ -184,7 +184,12 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
       a,
       S.chain().act("support", {
         stances: [
-          { contacts: [{ part: "leftFoot", kind: "bear" }, { part: "rightFoot", kind: "bear" }] },
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+            ],
+          },
           {
             contacts: [
               { part: "leftFoot", kind: "bear" },
@@ -193,7 +198,12 @@ export const MOTION_HUMAN_LAW_STAGES_POSTURE: Readonly<
               { part: "rightHand", kind: "bear" },
             ],
           },
-          { contacts: [{ part: "leftFoot", kind: "bear" }, { part: "rightFoot", kind: "bear" }] },
+          {
+            contacts: [
+              { part: "leftFoot", kind: "bear" },
+              { part: "rightFoot", kind: "bear" },
+            ],
+          },
         ],
       }),
     ),

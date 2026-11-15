@@ -11,10 +11,10 @@ import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHuman
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { HumanBase } from "../law/HumanBase";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanSupport } from "../law/HumanSupport";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { HumanSupport } from "../law/HumanSupport";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
@@ -142,12 +142,22 @@ export namespace getUp {
    * kneel (`lead`, the leading foot; `trail`, the trailing knee).
    */
   export const BEARS: Readonly<
-    Record<keyof typeof POSES, readonly (HumanSupport.Part | "lead" | "trail")[]>
+    Record<
+      keyof typeof POSES,
+      readonly (HumanSupport.Part | "lead" | "trail")[]
+    >
   > = {
     sit: ["seat", "leftFoot", "rightFoot", "leftHand", "rightHand"],
     squat: ["leftFoot", "rightFoot"],
     prone: ["front"],
-    quadruped: ["leftHand", "rightHand", "leftKnee", "rightKnee", "leftFoot", "rightFoot"],
+    quadruped: [
+      "leftHand",
+      "rightHand",
+      "leftKnee",
+      "rightKnee",
+      "leftFoot",
+      "rightFoot",
+    ],
     halfKneel: ["trail", "leftFoot", "rightFoot"],
     stood: ["leftFoot", "rightFoot"],
   };
@@ -244,7 +254,9 @@ export namespace getUp {
     const stances: HumanSupport.IStance[] = route.map(
       ([key, event]): HumanSupport.IStance => ({
         contacts: BEARS[key].map(
-          (part: HumanSupport.Part | "lead" | "trail"): HumanSupport.IContact => ({
+          (
+            part: HumanSupport.Part | "lead" | "trail",
+          ): HumanSupport.IContact => ({
             part:
               part === "lead"
                 ? `${lead}Foot`

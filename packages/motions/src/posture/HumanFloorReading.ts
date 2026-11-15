@@ -82,7 +82,10 @@ export namespace HumanFloorReading {
     body: IHumanBody,
     posture: IHumanPosture,
     bearing: readonly RegExp[],
-    targets: readonly { bone: AutoMovieHumanoidBone; point?: IAutoMovieVector3 }[],
+    targets: readonly {
+      bone: AutoMovieHumanoidBone;
+      point?: IAutoMovieVector3;
+    }[],
   ): IReading {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
@@ -167,10 +170,12 @@ export namespace HumanFloorReading {
       Vector3.add(centre, Quaternion.rotateVector(rotation, local));
     if (shape.kind === "sphere") return [{ point: centre, lift: shape.radius }];
     if (shape.kind === "capsule")
-      return [-1, 1].map((end: number): { point: IAutoMovieVector3; lift: number } => ({
-        point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
-        lift: shape.radius,
-      }));
+      return [-1, 1].map(
+        (end: number): { point: IAutoMovieVector3; lift: number } => ({
+          point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
+          lift: shape.radius,
+        }),
+      );
     if (shape.kind === "box") {
       const out: { point: IAutoMovieVector3; lift: number }[] = [];
       for (const x of [-1, 1])
@@ -187,7 +192,9 @@ export namespace HumanFloorReading {
       return out;
     }
     return shape.points.map(
-      (point: IAutoMovieVector3): { point: IAutoMovieVector3; lift: number } => ({
+      (
+        point: IAutoMovieVector3,
+      ): { point: IAutoMovieVector3; lift: number } => ({
         point: at(point),
         lift: 0,
       }),

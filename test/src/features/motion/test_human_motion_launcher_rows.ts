@@ -76,7 +76,10 @@ export function test_human_motion_launcher_rows(): void {
 
   // 1. Families and names.
   TestValidator.predicate(
-    `every row is a row of a shipped law (${rows.filter((r) => !shipped.has(r.family ?? "")).map((r) => r.name).join(", ")})`,
+    `every row is a row of a shipped law (${rows
+      .filter((r) => !shipped.has(r.family ?? ""))
+      .map((r) => r.name)
+      .join(", ")})`,
     rows.every((r) => r.family !== undefined && shipped.has(r.family)),
   );
   TestValidator.equals(
@@ -98,19 +101,28 @@ export function test_human_motion_launcher_rows(): void {
   );
 
   // 3. The javelin's release.
-  for (const row of [HumanThrownWeapon.throwJavelin, HumanThrownWeapon.throwSpear])
+  for (const row of [
+    HumanThrownWeapon.throwJavelin,
+    HumanThrownWeapon.throwSpear,
+  ])
     TestValidator.equals(
       `${row.name} fixes the overarm style, the velocity attitude and the band's middle`,
       row.resolve!({}),
-      { style: "overarm", angle: (27.7 + 40.1) / 2, attitude: { kind: "velocity" } },
+      {
+        style: "overarm",
+        angle: (27.7 + 40.1) / 2,
+        attitude: { kind: "velocity" },
+      },
     );
 
   // 4. Families of named rows.
-  const family = (law: IHumanActionLaw<never>): string | undefined => law.family;
+  const family = (law: IHumanActionLaw<never>): string | undefined =>
+    law.family;
   TestValidator.predicate(
     "loose and dropMagazine are releases",
     family(HumanArchery.loose as IHumanActionLaw<never>) === release.name &&
-      family(HumanBoltAction.dropMagazine as IHumanActionLaw<never>) === release.name,
+      family(HumanBoltAction.dropMagazine as IHumanActionLaw<never>) ===
+        release.name,
   );
   TestValidator.predicate(
     "the drawing, spanning, ramming, cocking, bolt and lanyard rows operate",
@@ -125,7 +137,8 @@ export function test_human_motion_launcher_rows(): void {
   );
   TestValidator.predicate(
     "hurlBottle throws",
-    family(HumanThrownWeapon.hurlBottle as IHumanActionLaw<never>) === throwObject.name,
+    family(HumanThrownWeapon.hurlBottle as IHumanActionLaw<never>) ===
+      throwObject.name,
   );
 
   // 5. The firearm's names over the launcher's plans.
@@ -140,7 +153,8 @@ export function test_human_motion_launcher_rows(): void {
   // 6. A fixed parameter is not overridden.
   TestValidator.equals(
     "a given anchor does not override the bow's face",
-    (HumanArchery.presentBow.resolve!({ anchor: "eye" }) as { anchor: string }).anchor,
+    (HumanArchery.presentBow.resolve!({ anchor: "eye" }) as { anchor: string })
+      .anchor,
     "face",
   );
 }

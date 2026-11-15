@@ -7,8 +7,8 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanBodyFit } from "./HumanBodyFit";
 import { HumanFitBalance } from "./HumanFitBalance";
-import { HumanFoot } from "./HumanFoot";
 import type { HumanFloorReading } from "./HumanFloorReading";
+import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 import type { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 
@@ -80,7 +80,9 @@ export namespace HumanBodyFitRows {
    */
   export function of(step: IStep): IRead[] {
     const { at, motions, targets } = step;
-    const all: number[] = motions.map((_: HumanJacobian.IMotion, i: number): number => i);
+    const all: number[] = motions.map(
+      (_: HumanJacobian.IMotion, i: number): number => i,
+    );
     const rows: IRead[] = [];
     const equal = (
       key: string,
@@ -91,7 +93,14 @@ export namespace HumanBodyFitRows {
     ): void => {
       const miss: number = (goal - f(at)) * MM;
       rows.push({
-        row: { key, index: all, coef, l: miss - BAND * MM, u: miss + BAND * MM, weight },
+        row: {
+          key,
+          index: all,
+          coef,
+          l: miss - BAND * MM,
+          u: miss + BAND * MM,
+          weight,
+        },
         f,
       });
     };
@@ -99,15 +108,23 @@ export namespace HumanBodyFitRows {
     // each a smooth row of its own, so a planted sole bears where it touches
     // and no row follows a least that turns from one point to another.
     for (const c of step.touching)
-      equal(`touch:${c}`, (r: IReading): number => r.heights[c]!, 0, low(step, c), step.price);
+      equal(
+        `touch:${c}`,
+        (r: IReading): number => r.heights[c]!,
+        0,
+        low(step, c),
+        step.price,
+      );
     targets.forEach((t: HumanBodyFit.ITarget, k: number): void => {
       for (const a of t.axes ?? (["x", "y", "z"] as const))
         equal(
           `${a}:${k}`,
           (r: IReading): number => r.points[k]![a],
           t.goal[a],
-          scaled(step, (m: HumanJacobian.IMotion): number =>
-            HumanJacobian.velocity(m, t.bone, at.points[k]!)[a],
+          scaled(
+            step,
+            (m: HumanJacobian.IMotion): number =>
+              HumanJacobian.velocity(m, t.bone, at.points[k]!)[a],
           ),
           t.price ?? step.price,
         );
@@ -119,8 +136,10 @@ export namespace HumanBodyFitRows {
             `r${a}:${k}`,
             (r: IReading): number => -turn(t.rotation!, r.turns[k]!)[a],
             0,
-            scaled(step, (m: HumanJacobian.IMotion): number =>
-              HumanJacobian.twist(m, t.bone, at.points[k]!).angular[a],
+            scaled(
+              step,
+              (m: HumanJacobian.IMotion): number =>
+                HumanJacobian.twist(m, t.bone, at.points[k]!).angular[a],
             ),
             t.price ?? step.price,
           );
@@ -132,16 +151,20 @@ export namespace HumanBodyFitRows {
       // Escande, Kheddar and Miossec 2013). The turn is an angle, so a normal
       // facing away is a half turn off, never a second solution.
       if (t.normal !== undefined)
-        across(t.normal.world).forEach((axis: IAutoMovieVector3, j: number): void =>
-          equal(
-            `n${j}:${k}`,
-            (r: IReading): number => Vector3.dot(tilt(t, r.turns[k]!), axis),
-            0,
-            scaled(step, (m: HumanJacobian.IMotion): number =>
-              Vector3.dot(HumanJacobian.twist(m, t.bone, at.points[k]!).angular, axis),
+        across(t.normal.world).forEach(
+          (axis: IAutoMovieVector3, j: number): void =>
+            equal(
+              `n${j}:${k}`,
+              (r: IReading): number => Vector3.dot(tilt(t, r.turns[k]!), axis),
+              0,
+              scaled(step, (m: HumanJacobian.IMotion): number =>
+                Vector3.dot(
+                  HumanJacobian.twist(m, t.bone, at.points[k]!).angular,
+                  axis,
+                ),
+              ),
+              t.price ?? step.price,
             ),
-            t.price ?? step.price,
-          ),
         );
     });
     // The centre of mass inside each edge of the base of support, the edges
@@ -156,7 +179,9 @@ export namespace HumanBodyFitRows {
             row: {
               key: `balance:${e}`,
               index: all,
-              coef: slope.map((v: number, i: number): number => v * step.units[i]! * MM),
+              coef: slope.map(
+                (v: number, i: number): number => v * step.units[i]! * MM,
+              ),
               l: (-inside(at) - BAND) * MM,
               u: Infinity,
               weight: step.price,
@@ -178,18 +203,22 @@ export namespace HumanBodyFitRows {
    * @returns One row per candidate.
    */
   export function floor(step: IStep, rowed: ReadonlySet<number>): IRead[] {
-    const all: number[] = step.motions.map((_: HumanJacobian.IMotion, i: number): number => i);
-    return [...rowed].map((s: number): IRead => ({
-      row: {
-        key: `low:${s}`,
-        index: all,
-        coef: low(step, s),
-        l: (-step.at.heights[s]! - BAND) * MM,
-        u: Infinity,
-        weight: step.price,
-      },
-      f: (r: IReading): number => r.heights[s]!,
-    }));
+    const all: number[] = step.motions.map(
+      (_: HumanJacobian.IMotion, i: number): number => i,
+    );
+    return [...rowed].map(
+      (s: number): IRead => ({
+        row: {
+          key: `low:${s}`,
+          index: all,
+          coef: low(step, s),
+          l: (-step.at.heights[s]! - BAND) * MM,
+          u: Infinity,
+          weight: step.price,
+        },
+        f: (r: IReading): number => r.heights[s]!,
+      }),
+    );
   }
 
   /**
@@ -203,9 +232,16 @@ export namespace HumanBodyFitRows {
     goal: IAutoMovieQuaternion,
     current: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
-    const q: IAutoMovieQuaternion = Quaternion.multiply(goal, Quaternion.inverse(current));
+    const q: IAutoMovieQuaternion = Quaternion.multiply(
+      goal,
+      Quaternion.inverse(current),
+    );
     const sign: number = q.w < 0 ? -1 : 1;
-    const v: IAutoMovieVector3 = { x: q.x * sign, y: q.y * sign, z: q.z * sign };
+    const v: IAutoMovieVector3 = {
+      x: q.x * sign,
+      y: q.y * sign,
+      z: q.z * sign,
+    };
     const sine: number = Vector3.length(v);
     if (sine < 1e-12) return { x: 0, y: 0, z: 0 };
     return Vector3.scale(v, (2 * Math.atan2(sine, Math.abs(q.w))) / sine);
@@ -226,7 +262,9 @@ export namespace HumanBodyFitRows {
     turn: IAutoMovieQuaternion,
   ): IAutoMovieVector3 {
     const w: IAutoMovieVector3 = Vector3.normalize(target.normal!.world);
-    const n: IAutoMovieVector3 = Vector3.normalize(Quaternion.rotateVector(turn, target.normal!.local));
+    const n: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(turn, target.normal!.local),
+    );
     const axis: IAutoMovieVector3 = Vector3.cross(w, n);
     const sine: number = Vector3.length(axis);
     const angle: number = Math.atan2(sine, Vector3.dot(w, n));
@@ -242,13 +280,19 @@ export namespace HumanBodyFitRows {
    * @param normal The world normal.
    * @returns The two directions.
    */
-  export function across(normal: IAutoMovieVector3): [IAutoMovieVector3, IAutoMovieVector3] {
+  export function across(
+    normal: IAutoMovieVector3,
+  ): [IAutoMovieVector3, IAutoMovieVector3] {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
     const ax: number = Math.abs(n.x);
     const ay: number = Math.abs(n.y);
     const az: number = Math.abs(n.z);
     const least: IAutoMovieVector3 =
-      ax <= ay && ax <= az ? { x: 1, y: 0, z: 0 } : ay <= az ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 };
+      ax <= ay && ax <= az
+        ? { x: 1, y: 0, z: 0 }
+        : ay <= az
+          ? { x: 0, y: 1, z: 0 }
+          : { x: 0, y: 0, z: 1 };
     const u: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(n, least));
     return [u, Vector3.cross(n, u)];
   }
@@ -266,7 +310,8 @@ export namespace HumanBodyFitRows {
         const mine: Set<number> = new Set(shapes);
         let best: number = -1;
         r.heights.forEach((h: number, c: number): void => {
-          if (mine.has(r.of[c]!) && (best < 0 || h < r.heights[best]!)) best = c;
+          if (mine.has(r.of[c]!) && (best < 0 || h < r.heights[best]!))
+            best = c;
         });
         return best;
       })
@@ -298,7 +343,8 @@ export namespace HumanBodyFitRows {
     }
     if (target.normal !== undefined) {
       const e: IAutoMovieVector3 = tilt(target, r.turns[k]!);
-      for (const axis of across(target.normal.world)) out.push(Vector3.dot(e, axis));
+      for (const axis of across(target.normal.world))
+        out.push(Vector3.dot(e, axis));
     }
     return out;
   }
@@ -318,7 +364,8 @@ export namespace HumanBodyFitRows {
     r: IReading,
     k: number,
   ): { point: number; turn: number } {
-    const deg = (v: IAutoMovieVector3): number => (Vector3.length(v) * 180) / Math.PI;
+    const deg = (v: IAutoMovieVector3): number =>
+      (Vector3.length(v) * 180) / Math.PI;
     return {
       point:
         Math.hypot(
@@ -336,16 +383,26 @@ export namespace HumanBodyFitRows {
   }
 
   /** A slope in millimetres per solved unit from a reading's rate per a variable's own unit. */
-  function scaled(step: IStep, rate: (m: HumanJacobian.IMotion) => number): number[] {
+  function scaled(
+    step: IStep,
+    rate: (m: HumanJacobian.IMotion) => number,
+  ): number[] {
     return step.motions.map(
-      (m: HumanJacobian.IMotion, i: number): number => rate(m) * step.units[i]! * MM,
+      (m: HumanJacobian.IMotion, i: number): number =>
+        rate(m) * step.units[i]! * MM,
     );
   }
 
   /** A support candidate's height's slope: its point's, riding its collider's bone. */
   function low(step: IStep, c: number): number[] {
-    return scaled(step, (m: HumanJacobian.IMotion): number =>
-      HumanJacobian.velocity(m, step.at.owners[step.at.of[c]!]!, step.at.spots[c]!).y,
+    return scaled(
+      step,
+      (m: HumanJacobian.IMotion): number =>
+        HumanJacobian.velocity(
+          m,
+          step.at.owners[step.at.of[c]!]!,
+          step.at.spots[c]!,
+        ).y,
     );
   }
 }

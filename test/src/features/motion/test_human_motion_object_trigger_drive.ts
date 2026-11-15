@@ -31,7 +31,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios.
  */
 export function test_human_motion_object_trigger_drive(): void {
-  const gun: ReturnType<typeof createHandgun> = createHandgun({ frame: "fullSize" });
+  const gun: ReturnType<typeof createHandgun> = createHandgun({
+    frame: "fullSize",
+  });
   const travel: number = gun.affordance("trigger").travel!;
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -41,10 +43,19 @@ export function test_human_motion_object_trigger_drive(): void {
         seed: "trigger",
         laws: [HumanWeaponFirearm.present, HumanWeaponFirearm.fire],
         props: [
-          HumanObject.prop("gun", gun, { at: { x: 0.25, y: 0.9, z: 0.4 }, yaw: 0 }),
+          HumanObject.prop("gun", gun, {
+            at: { x: 0.25, y: 0.9, z: 0.4 },
+            yaw: 0,
+          }),
         ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "gun", handle: "grip" })
@@ -62,21 +73,31 @@ export function test_human_motion_object_trigger_drive(): void {
     const drives = shot.plan.drives ?? [];
     TestValidator.predicate(
       `${name}: the shot drives the gun's trigger`,
-      drives.length === 1 && drives[0]!.prop === "gun" && drives[0]!.articulation === "trigger",
+      drives.length === 1 &&
+        drives[0]!.prop === "gun" &&
+        drives[0]!.articulation === "trigger",
     );
     const at = (t: number): number => performance.state("gun", t).trigger ?? 0;
     const start: number = shot.start;
     const brk: number = shot.start + (shot.plan.contact ?? 0);
     const end: number = shot.start + shot.plan.duration;
-    TestValidator.predicate(`${name}: at rest at the start`, Math.abs(at(start)) <= 1e-9);
+    TestValidator.predicate(
+      `${name}: at rest at the start`,
+      Math.abs(at(start)) <= 1e-9,
+    );
     TestValidator.predicate(
       `${name}: full travel at the break (${at(brk)} of ${travel})`,
       Math.abs(at(brk) - travel) <= 1e-9,
     );
-    TestValidator.predicate(`${name}: back at rest at the end`, Math.abs(at(end)) <= 1e-9);
+    TestValidator.predicate(
+      `${name}: back at rest at the end`,
+      Math.abs(at(end)) <= 1e-9,
+    );
     let rising: boolean = true;
     for (let k: number = 1; k <= 10; k++)
-      rising &&= at(start + ((brk - start) * k) / 10) >= at(start + ((brk - start) * (k - 1)) / 10);
+      rising &&=
+        at(start + ((brk - start) * k) / 10) >=
+        at(start + ((brk - start) * (k - 1)) / 10);
     TestValidator.predicate(`${name}: the press rises monotonically`, rising);
   }
 }

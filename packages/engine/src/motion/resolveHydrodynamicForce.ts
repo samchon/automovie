@@ -128,14 +128,14 @@ export namespace resolveHydrodynamicForce {
   export function volume(segment: IAutoMoviePhysicalProfile.ISegment): number {
     let sum: number = 0;
     for (const shape of segment.shapes) {
-      if (shape.kind === "sphere")
-        sum += (4 / 3) * Math.PI * shape.radius ** 3;
+      if (shape.kind === "sphere") sum += (4 / 3) * Math.PI * shape.radius ** 3;
       else if (shape.kind === "capsule")
         sum +=
           Math.PI * shape.radius ** 2 * 2 * shape.halfLength +
           (4 / 3) * Math.PI * shape.radius ** 3;
       else if (shape.kind === "box")
-        sum += 8 * shape.halfExtents.x * shape.halfExtents.y * shape.halfExtents.z;
+        sum +=
+          8 * shape.halfExtents.x * shape.halfExtents.y * shape.halfExtents.z;
       else sum += physicalHullMass(shape.points).volume;
     }
     return sum;

@@ -30,7 +30,8 @@ export namespace HumanReaction {
   ): number {
     return (
       shot.seconds +
-      Vector3.length(Vector3.subtract(listener, shot.point)) / AutoMovieAir.SOUND
+      Vector3.length(Vector3.subtract(listener, shot.point)) /
+        AutoMovieAir.SOUND
     );
   }
 }

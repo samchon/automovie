@@ -181,5 +181,4 @@ export namespace HumanWeaponHeld {
       fix: "present a shorter weapon, or a handgun",
     });
   };
-
 }

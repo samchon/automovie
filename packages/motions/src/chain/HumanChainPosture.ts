@@ -1,3 +1,4 @@
+import type { support } from "../actions/support";
 import type { bend } from "../everyday/bend";
 import type { crouch } from "../everyday/crouch";
 import type { kneel } from "../everyday/kneel";
@@ -5,7 +6,6 @@ import type { rise } from "../everyday/rise";
 import type { shift } from "../everyday/shift";
 import type { sit } from "../everyday/sit";
 import type { getUp } from "../floor/getUp";
-import type { support } from "../actions/support";
 import type { lieDown } from "../floor/lieDown";
 import { HumanChainTravel } from "./HumanChainTravel";
 

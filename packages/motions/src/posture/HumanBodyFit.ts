@@ -11,9 +11,9 @@ import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
 import { HumanJacobian } from "./HumanJacobian";
-import type { IHumanPosture } from "./IHumanPosture";
 import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
+import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * A whole-body fit: the static posture nearest a preferred one in which
@@ -215,7 +215,8 @@ export namespace HumanBodyFit {
     const least: number = Math.min(
       ...variables.map(
         (v: HumanJacobian.IVariable): number =>
-          (HumanFitVariables.resolution(v) * SETTLED) / HumanFitVariables.reach(v),
+          (HumanFitVariables.resolution(v) * SETTLED) /
+          HumanFitVariables.reach(v),
       ),
     );
     const read = (x: Float64Array): IReading => {
@@ -278,7 +279,9 @@ export namespace HumanBodyFit {
       let pull: number = 0;
       for (let i: number = 0; i < n; i++)
         pull +=
-          0.5 * HumanFitVariables.weight(variables[i]!) * (x[i]! - key[i]!) ** 2;
+          0.5 *
+          HumanFitVariables.weight(variables[i]!) *
+          (x[i]! - key[i]!) ** 2;
       let violation: number = 0;
       for (const d of [...m.floor, ...m.balance, ...m.pairs])
         violation += beyond(d);
@@ -306,7 +309,11 @@ export namespace HumanBodyFit {
     // convexification from its multipliers by row key, the constraints the
     // rows linearise being the same (warm-started SQP, Nocedal and Wright
     // 2006, section 18.7).
-    let previous: { qp: HumanQuadraticProgram.IProblem; state: HumanQuadraticProgram.IState; rows: IRead[] } | null = null;
+    let previous: {
+      qp: HumanQuadraticProgram.IProblem;
+      state: HumanQuadraticProgram.IState;
+      rows: IRead[];
+    } | null = null;
     const problem: HumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
       evaluate,
       feasible: (e: IEvaluation): boolean => holds(e.misses),
@@ -326,13 +333,18 @@ export namespace HumanBodyFit {
             return { ...r.row, l: r.row.l - miss, u: r.row.u - miss };
           },
         );
-        const state: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve({
-          n,
-          band: n - 1,
-          p: l.p,
-          q: l.q,
-          rows: [...shifted, ...HumanFitVariables.bounds(variables, x, l.radius)],
-        });
+        const state: HumanQuadraticProgram.IState = HumanQuadraticProgram.solve(
+          {
+            n,
+            band: n - 1,
+            p: l.p,
+            q: l.q,
+            rows: [
+              ...shifted,
+              ...HumanFitVariables.bounds(variables, x, l.radius),
+            ],
+          },
+        );
         return moved(x, state.x);
       },
       convexify: (
@@ -374,8 +386,9 @@ export namespace HumanBodyFit {
               (pair: HumanFitPairs.IPair): boolean =>
                 HumanFitPairs.gap(at.bones, pair).distance <= NEAR,
             )
-            .map((pair: HumanFitPairs.IPair): IRead =>
-              HumanFitPairs.row(step, pair, BAND, MM),
+            .map(
+              (pair: HumanFitPairs.IPair): IRead =>
+                HumanFitPairs.row(step, pair, BAND, MM),
             ),
         ];
 
@@ -393,7 +406,9 @@ export namespace HumanBodyFit {
             q[i] = w * units[i]! * (x[i]! - key[i]!);
           }
         return {
-          solve: (radius: number): HumanSequentialConvex.IStep<Float64Array> => {
+          solve: (
+            radius: number,
+          ): HumanSequentialConvex.IStep<Float64Array> => {
             const qp: HumanQuadraticProgram.IProblem = {
               n,
               band: n - 1,
@@ -412,7 +427,10 @@ export namespace HumanBodyFit {
                     undefined,
                     previous === null
                       ? undefined
-                      : HumanQuadraticProgram.multipliers(previous.qp, previous.state),
+                      : HumanQuadraticProgram.multipliers(
+                          previous.qp,
+                          previous.state,
+                        ),
                   );
             previous = { qp, state, rows };
             const solved: Float64Array = state.x;
@@ -433,8 +451,11 @@ export namespace HumanBodyFit {
                 HumanQuadraticProgram.value(qp, new Float64Array(n)) -
                 HumanQuadraticProgram.value(qp, solved),
               length: Math.max(
-                ...Array.from(solved, (s: number, i: number): number =>
-                  Math.abs(s * units[i]!) / HumanFitVariables.reach(variables[i]!),
+                ...Array.from(
+                  solved,
+                  (s: number, i: number): number =>
+                    Math.abs(s * units[i]!) /
+                    HumanFitVariables.reach(variables[i]!),
                 ),
               ),
               full: HumanFitVariables.edge(variables, solved, radius),
@@ -444,14 +465,18 @@ export namespace HumanBodyFit {
               // The subproblem's relative accuracy on the merit's unpenalised
               // scale, the objective at the iterate, never on the penalised
               // value a steered penalty inflates.
-              accuracy: HumanQuadraticProgram.TOLERANCE * Math.max(1, e.objective),
+              accuracy:
+                HumanQuadraticProgram.TOLERANCE * Math.max(1, e.objective),
             };
           },
         };
       },
     };
     const moved = (x: Float64Array, s: Float64Array): Float64Array =>
-      Float64Array.from(x, (v: number, i: number): number => v + s[i]! * units[i]!);
+      Float64Array.from(
+        x,
+        (v: number, i: number): number => v + s[i]! * units[i]!,
+      );
 
     const solved: HumanSequentialConvex.IResult<Float64Array, IEvaluation> =
       HumanSequentialConvex.minimise(
@@ -484,8 +509,10 @@ export namespace HumanBodyFit {
           HumanBodyFitRows.residual(t, r, k),
       ),
       balance:
-        Math.max(0, ...(r.balance?.inside ?? []).map((d: number): number => -d)) *
-        MM,
+        Math.max(
+          0,
+          ...(r.balance?.inside ?? []).map((d: number): number => -d),
+        ) * MM,
       converged: solved.settled && holds(solved.evaluation.misses),
       reason: solved.reason,
     };

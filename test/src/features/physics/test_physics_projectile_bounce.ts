@@ -40,10 +40,15 @@ export function test_physics_projectile_bounce(): void {
     gravity: AutoMovieGravity.DOWN,
   };
   const first = (p: IAutoMovieProjectile): IAutoMovieHit =>
-    projectileFirstContact(p, [ground], { from: 1e-6, to: 5 }, {
-      radius: 0,
-      thickness: 0.05,
-    })!;
+    projectileFirstContact(
+      p,
+      [ground],
+      { from: 1e-6, to: 5 },
+      {
+        radius: 0,
+        thickness: 0.05,
+      },
+    )!;
 
   // 1. Half the speed, a quarter of the height.
   const hit: IAutoMovieHit = first(drop);
@@ -85,8 +90,16 @@ export function test_physics_projectile_bounce(): void {
 
   // 3. A roll stops at v²/(2cg).
   const rolling: projectileContinue.Segment = projectileContinue(
-    { ...drop, origin: { x: 0, y: 0.0001, z: 0 }, velocity: { x: 2, y: -0.01, z: 0 } },
-    first({ ...drop, origin: { x: 0, y: 0.0001, z: 0 }, velocity: { x: 2, y: -0.01, z: 0 } }),
+    {
+      ...drop,
+      origin: { x: 0, y: 0.0001, z: 0 },
+      velocity: { x: 2, y: -0.01, z: 0 },
+    },
+    first({
+      ...drop,
+      origin: { x: 0, y: 0.0001, z: 0 },
+      velocity: { x: 2, y: -0.01, z: 0 },
+    }),
     { kind: "roll", resistance: 0.1 },
   );
   const stop: number = (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);

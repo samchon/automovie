@@ -1,6 +1,6 @@
 import { createStorage } from "@automovie/archetypes";
-import type { IAutoMovieTransform } from "@automovie/interface";
 import { AutoMovieComposition } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
@@ -31,7 +31,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the two numbered scenarios.
  */
 export function test_human_motion_object_drive_overlap(): void {
-  const chest: ReturnType<typeof createStorage> = createStorage({ kind: "chest" });
+  const chest: ReturnType<typeof createStorage> = createStorage({
+    kind: "chest",
+  });
   const placement: IAutoMovieTransform = {
     translation: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -59,11 +61,27 @@ export function test_human_motion_object_drive_overlap(): void {
   const input = (composition: AutoMovieComposition) => ({
     seed: "overlap",
     props: [
-      HumanObject.prop("chest", chest, { at: { x: 0, y: 0, z: 0 }, yaw: 0, fixed: true }),
+      HumanObject.prop("chest", chest, {
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        fixed: true,
+      }),
     ],
     performers: [
-      { subject: "a", body, at: { x: at.x - 0.15, y: 0, z: at.z + 0.45 }, yaw: 180, proficiency: { level: "trained" as const } },
-      { subject: "b", body, at: { x: at.x + 0.15, y: 0, z: at.z + 0.45 }, yaw: 180, proficiency: { level: "trained" as const } },
+      {
+        subject: "a",
+        body,
+        at: { x: at.x - 0.15, y: 0, z: at.z + 0.45 },
+        yaw: 180,
+        proficiency: { level: "trained" as const },
+      },
+      {
+        subject: "b",
+        body,
+        at: { x: at.x + 0.15, y: 0, z: at.z + 0.45 },
+        yaw: 180,
+        proficiency: { level: "trained" as const },
+      },
     ],
     composition,
   });
@@ -100,10 +118,15 @@ export function test_human_motion_object_drive_overlap(): void {
   } catch {
     resolved = undefined;
   }
-  TestValidator.predicate("drives one after the other resolve", resolved !== undefined);
+  TestValidator.predicate(
+    "drives one after the other resolve",
+    resolved !== undefined,
+  );
   if (resolved !== undefined)
     TestValidator.predicate(
       "the drawer holds both pulls' travels",
-      Math.abs((resolved.state("chest", resolved.duration)[drawer.id] ?? 0) - 0.2) <= 1e-9,
+      Math.abs(
+        (resolved.state("chest", resolved.duration)[drawer.id] ?? 0) - 0.2,
+      ) <= 1e-9,
     );
 }

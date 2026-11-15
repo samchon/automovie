@@ -33,7 +33,9 @@ export namespace HumanFitVariables {
     ["neck", 1],
     ["head", 0],
     ...(["left", "right"] as const).flatMap(
-      (side: "left" | "right"): (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] => [
+      (
+        side: "left" | "right",
+      ): (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] => [
         [`${side}UpperLeg`, 0],
         [`${side}UpperLeg`, 1],
         [`${side}UpperLeg`, 2],
@@ -59,7 +61,10 @@ export namespace HumanFitVariables {
     { kind: "heading", axis: "pitch" },
     { kind: "heading", axis: "roll" },
     ...ANGLES.map(
-      ([bone, axis]: readonly [AutoMovieHumanoidBone, 0 | 1 | 2]): HumanJacobian.IVariable => ({
+      ([bone, axis]: readonly [
+        AutoMovieHumanoidBone,
+        0 | 1 | 2,
+      ]): HumanJacobian.IVariable => ({
         kind: "angle",
         bone,
         axis,
@@ -90,14 +95,12 @@ export namespace HumanFitVariables {
     variables: readonly HumanJacobian.IVariable[],
     posture: IHumanPosture,
   ): Float64Array {
-    return Float64Array.from(
-      variables,
-      (v: HumanJacobian.IVariable): number =>
-        v.kind === "place"
-          ? posture.root[v.axis]
-          : v.kind === "heading"
-            ? posture[v.axis]
-            : (posture.joints[v.bone]?.[v.axis] ?? 0),
+    return Float64Array.from(variables, (v: HumanJacobian.IVariable): number =>
+      v.kind === "place"
+        ? posture.root[v.axis]
+        : v.kind === "heading"
+          ? posture[v.axis]
+          : (posture.joints[v.bone]?.[v.axis] ?? 0),
     );
   }
 
@@ -125,7 +128,9 @@ export namespace HumanFitVariables {
       if (v.kind === "place") root[v.axis] = x[i]!;
       else if (v.kind === "heading") heading[v.axis] = x[i]!;
       else {
-        const was: readonly [number, number, number] = joints[v.bone] ?? [0, 0, 0];
+        const was: readonly [number, number, number] = joints[v.bone] ?? [
+          0, 0, 0,
+        ];
         const set: [number, number, number] = [was[0], was[1], was[2]];
         set[v.axis] = x[i]!;
         joints[v.bone] = set;
@@ -212,8 +217,7 @@ export namespace HumanFitVariables {
   ): boolean {
     return variables.some(
       (v: HumanJacobian.IVariable, i: number): boolean =>
-        Math.abs(moved[i]! * unit(v)) >=
-        0.99 * reach(v) * radius,
+        Math.abs(moved[i]! * unit(v)) >= 0.99 * reach(v) * radius,
     );
   }
 

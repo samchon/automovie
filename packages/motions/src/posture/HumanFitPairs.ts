@@ -82,10 +82,21 @@ export namespace HumanFitPairs {
     const out: IPair[] = [];
     for (const s of sides)
       for (const o of sides) {
-        const thigh: ICapsule = capsule(`${o}UpperLeg`, `${o}LowerLeg`, m.thighRadius);
-        const forearm: ICapsule = capsule(`${s}LowerArm`, `${s}Hand`, m.forearmRadius);
+        const thigh: ICapsule = capsule(
+          `${o}UpperLeg`,
+          `${o}LowerLeg`,
+          m.thighRadius,
+        );
+        const forearm: ICapsule = capsule(
+          `${s}LowerArm`,
+          `${s}Hand`,
+          m.forearmRadius,
+        );
         out.push(
-          { a: capsule(`${s}UpperArm`, `${s}LowerArm`, m.upperArmRadius), b: thigh },
+          {
+            a: capsule(`${s}UpperArm`, `${s}LowerArm`, m.upperArmRadius),
+            b: thigh,
+          },
           { a: forearm, b: thigh },
           { a: forearm, b: capsule(`${o}LowerLeg`, `${o}Foot`, m.shankRadius) },
         );
@@ -143,11 +154,15 @@ export namespace HumanFitPairs {
     mm: number,
   ): HumanBodyFitRows.IRead {
     const g: IGap = gap(step.at.bones, pair);
-    const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(g.a, g.b));
+    const normal: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(g.a, g.b),
+    );
     return {
       row: {
         key: `pair:${pair.a.bone}:${pair.b.bone}`,
-        index: step.motions.map((_: HumanJacobian.IMotion, i: number): number => i),
+        index: step.motions.map(
+          (_: HumanJacobian.IMotion, i: number): number => i,
+        ),
         coef: step.motions.map(
           (motion: HumanJacobian.IMotion, i: number): number =>
             Vector3.dot(

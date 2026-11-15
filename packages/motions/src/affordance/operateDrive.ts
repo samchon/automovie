@@ -35,9 +35,17 @@ import type { operate } from "./operate";
  */
 export namespace operateDrive {
   /** The articulation kinds whose travel moves a part. */
-  export const ARTICULATIONS: ReadonlySet<AutoMovieAffordanceKind> = new Set<
-    AutoMovieAffordanceKind
-  >(["hinge", "slider", "knob", "button", "trigger", "crank", "wheel", "pedal"]);
+  export const ARTICULATIONS: ReadonlySet<AutoMovieAffordanceKind> =
+    new Set<AutoMovieAffordanceKind>([
+      "hinge",
+      "slider",
+      "knob",
+      "button",
+      "trigger",
+      "crank",
+      "wheel",
+      "pedal",
+    ]);
 
   /** A contact's world point and outward unit normal. */
   export interface IPlace {

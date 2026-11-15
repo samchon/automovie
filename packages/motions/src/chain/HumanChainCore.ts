@@ -155,7 +155,10 @@ export class HumanChainCore extends AutoMovieChain {
             },
           }
         : node.kind === "parallel"
-          ? { kind: "parallel", parts: [latency(node.parts[0]!), ...node.parts.slice(1)] }
+          ? {
+              kind: "parallel",
+              parts: [latency(node.parts[0]!), ...node.parts.slice(1)],
+            }
           : node;
     const align: string | undefined =
       sync.align ?? (sync.latency === undefined ? undefined : "start");
@@ -163,7 +166,8 @@ export class HumanChainCore extends AutoMovieChain {
     // A hit is an instant of the struck subject's hit track.
     const of: string | undefined =
       sync.hit === undefined ? sync.of : HumanHitTrack.name(sync.hit);
-    if (of === undefined) throw new Error("sync names an instant: give `of` or `hit`");
+    if (of === undefined)
+      throw new Error("sync names an instant: give `of` or `hit`");
     const event: string | undefined =
       sync.hit === undefined ? sync.event : HumanHitTrack.EVENT;
     const index: number | undefined =

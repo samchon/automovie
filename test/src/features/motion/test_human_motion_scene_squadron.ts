@@ -42,76 +42,146 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_scene_squadron(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("m-tall")];
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("m-tall"),
+  ];
   const formation: IHumanFormation = HumanFormation.of({
-    blocks: [{ layout: { kind: "line", ranks: 2, files: 6, spacing: { lateral: 1.1, depth: 3.2 } }, count: 12 }],
+    blocks: [
+      {
+        layout: {
+          kind: "line",
+          ranks: 2,
+          files: 6,
+          spacing: { lateral: 1.1, depth: 3.2 },
+        },
+        count: 12,
+      },
+    ],
     frame: {
       kind: "path",
-      via: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 40 }],
-      speed: { marks: [{ at: 0.5, speed: 1.8 }, { at: 6, speed: 3.5 }] },
+      via: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 40 },
+      ],
+      speed: {
+        marks: [
+          { at: 0.5, speed: 1.8 },
+          { at: 6, speed: 3.5 },
+        ],
+      },
     },
   });
-  const squadron: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "sq", seed: "squadron", count: 12, bodies: pool, preset: "line", formation });
+  const squadron: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "sq",
+    seed: "squadron",
+    count: 12,
+    bodies: pool,
+    preset: "line",
+    formation,
+  });
   const end: number = HumanFormation.end(formation)!;
   const rides: ArchetypeCourse.IPlan[] = [];
   const ways: ReturnType<typeof HumanFormation.path>[] = [];
   for (const m of squadron.members) {
-    const way: ReturnType<typeof HumanFormation.path> = HumanFormation.path(formation, m.index, 0, end);
+    const way: ReturnType<typeof HumanFormation.path> = HumanFormation.path(
+      formation,
+      m.index,
+      0,
+      end,
+    );
     ways.push(way);
     rides.push(ArchetypeCourse.timed(`horse ${m.index}`, way));
   }
 
   // 1. Courses on their slots.
-  ways.forEach((way: ReturnType<typeof HumanFormation.path>, i: number): void => {
-    const course: ArchetypeCourse.IPlan = ArchetypeCourse.timed("horse", way);
-    for (const s of way) {
-      const at: IAutoMovieVector3 = course.at(s.seconds).placement.translation;
-      if (Math.hypot(at.x - s.x, at.z - s.z) > 1e-6) {
-        findings.push(`horse ${i}'s course leaves its slot at ${s.seconds.toFixed(2)} s`);
-        break;
+  ways.forEach(
+    (way: ReturnType<typeof HumanFormation.path>, i: number): void => {
+      const course: ArchetypeCourse.IPlan = ArchetypeCourse.timed("horse", way);
+      for (const s of way) {
+        const at: IAutoMovieVector3 = course.at(s.seconds).placement
+          .translation;
+        if (Math.hypot(at.x - s.x, at.z - s.z) > 1e-6) {
+          findings.push(
+            `horse ${i}'s course leaves its slot at ${s.seconds.toFixed(2)} s`,
+          );
+          break;
+        }
       }
-    }
-  });
+    },
+  );
 
   // 2. Spacing and file order.
   for (let t: number = 0; t <= end; t += 1 / 24) {
-    const at: IAutoMovieVector3[] = rides.map((r: ArchetypeCourse.IPlan): IAutoMovieVector3 => r.at(t).placement.translation);
+    const at: IAutoMovieVector3[] = rides.map(
+      (r: ArchetypeCourse.IPlan): IAutoMovieVector3 =>
+        r.at(t).placement.translation,
+    );
     let bad: boolean = false;
     for (let i: number = 0; i < at.length && !bad; ++i)
       for (let j: number = i + 1; j < at.length; ++j)
         if (Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z) < 1.1 - 1e-6) {
-          findings.push(`horses ${i} and ${j} close to ${Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z).toFixed(3)} m at ${t.toFixed(2)} s`);
+          findings.push(
+            `horses ${i} and ${j} close to ${Math.hypot(at[i]!.x - at[j]!.x, at[i]!.z - at[j]!.z).toFixed(3)} m at ${t.toFixed(2)} s`,
+          );
           bad = true;
           break;
         }
     for (const rank of [0, 1])
       for (let f: number = 1; f < 6; ++f)
         if (!(at[rank * 6 + f]!.x < at[rank * 6 + f - 1]!.x)) {
-          findings.push(`rank ${rank} files ${f - 1} and ${f} swap at ${t.toFixed(2)} s`);
+          findings.push(
+            `rank ${rank} files ${f - 1} and ${f} swap at ${t.toFixed(2)} s`,
+          );
           bad = true;
         }
     if (bad) break;
   }
 
   // 3. Seeds: each member's horse is drawn from its own, and two horses of two seeds differ.
-  const first: ReturnType<typeof createHorse> = createHorse({}, HumanEnsemble.seed(squadron, 0, "horse"));
-  const second: ReturnType<typeof createHorse> = createHorse({}, HumanEnsemble.seed(squadron, 1, "horse"));
-  if (JSON.stringify(first) === JSON.stringify(second)) findings.push("two members' horses are the same horse");
-  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({ id: "sq", seed: "squadron", count: 13, bodies: pool, preset: "line", places: (i: number) => ({ at: { x: i, y: 0, z: 0 }, yaw: 0 }) });
+  const first: ReturnType<typeof createHorse> = createHorse(
+    {},
+    HumanEnsemble.seed(squadron, 0, "horse"),
+  );
+  const second: ReturnType<typeof createHorse> = createHorse(
+    {},
+    HumanEnsemble.seed(squadron, 1, "horse"),
+  );
+  if (JSON.stringify(first) === JSON.stringify(second))
+    findings.push("two members' horses are the same horse");
+  const grown: HumanEnsemble.IEnsemble = HumanEnsemble.of({
+    id: "sq",
+    seed: "squadron",
+    count: 13,
+    bodies: pool,
+    preset: "line",
+    places: (i: number) => ({ at: { x: i, y: 0, z: 0 }, yaw: 0 }),
+  });
   const seeds: Set<number> = new Set();
   for (const m of squadron.members) {
     const seed: number = HumanEnsemble.seed(squadron, m.index, "horse");
     if (seeds.has(seed)) findings.push(`${m.subject} shares a horse seed`);
     seeds.add(seed);
-    if (HumanEnsemble.seed(grown, m.index, "horse") !== seed) findings.push(`adding a member moves ${m.subject}'s horse seed`);
+    if (HumanEnsemble.seed(grown, m.index, "horse") !== seed)
+      findings.push(`adding a member moves ${m.subject}'s horse seed`);
   }
 
   // 4. Replay.
-  const again: ArchetypeCourse.IPlan = ArchetypeCourse.timed("horse 3", HumanFormation.path(formation, 3, 0, end));
+  const again: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
+    "horse 3",
+    HumanFormation.path(formation, 3, 0, end),
+  );
   for (let t: number = 0; t <= end; t += 0.5)
-    if (JSON.stringify(again.at(t).placement) !== JSON.stringify(rides[3]!.at(t).placement)) {
+    if (
+      JSON.stringify(again.at(t).placement) !==
+      JSON.stringify(rides[3]!.at(t).placement)
+    ) {
       findings.push(`horse 3 does not replay at ${t} s`);
       break;
     }
-  TestValidator.equals("a cavalry squadron's horses on their slots", findings, []);
+  TestValidator.equals(
+    "a cavalry squadron's horses on their slots",
+    findings,
+    [],
+  );
 }

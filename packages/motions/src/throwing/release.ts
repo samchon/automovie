@@ -100,7 +100,9 @@ export namespace release {
    * @returns The plan.
    * @throws {HumanRefusal} When the hand holds nothing and no prop is launched.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body = context.body;
     const side: HumanHand.Side = context.params.hand ?? "right";
     const held: string | undefined =
@@ -131,7 +133,10 @@ export namespace release {
       clock.duration,
     );
     const carried = (posture: IHumanPosture): IHumanProp.IFrame =>
-      HumanPropFrame.compose(HumanPropFrame.bone(HumanTrunk.resolve(body, posture).get("chest")!), kept);
+      HumanPropFrame.compose(
+        HumanPropFrame.bone(HumanTrunk.resolve(body, posture).get("chest")!),
+        kept,
+      );
     const hand: IAutoMovieMotionHumanPrimitive = {
       channels: [`${side}Arm`, `${side}Hand`],
       from: 0,
@@ -151,7 +156,8 @@ export namespace release {
           }),
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const at: IHumanProp.IFrame = carried(posture);
-        const shape: HumanHand.Shape = seconds < clock.at("open") ? "fist" : "flat";
+        const shape: HumanHand.Shape =
+          seconds < clock.at("open") ? "fist" : "flat";
         const wrist: HumanHand.IWrist = HumanHand.place(
           body,
           side,
@@ -217,7 +223,10 @@ export namespace release {
             kind: "affordance",
             axis: "launch",
             value: `${launch.prop}.${id}`,
-            feasible: { kind: "alternatives", values: Object.keys(prop.prop.points) },
+            feasible: {
+              kind: "alternatives",
+              values: Object.keys(prop.prop.points),
+            },
             reason: `${launch.prop} has no point named ${id}`,
             fix: "name points the launched prop declares",
           });
@@ -239,5 +248,4 @@ export namespace release {
     }
     return { ...composed, launches };
   }
-
 }

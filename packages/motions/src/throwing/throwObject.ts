@@ -14,8 +14,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -399,7 +399,11 @@ export namespace throwObject {
       to: duration,
 
       // A thrown prop rides the hand until the release.
-      contacts: throwObjectLaunch.held(prop, side, clock.at("release") / duration),
+      contacts: throwObjectLaunch.held(
+        prop,
+        side,
+        clock.at("release") / duration,
+      ),
       write: (posture: IHumanPosture, seconds: number): IHumanPosture => {
         const g = grip(posture, seconds);
         const wrist: HumanHand.IWrist = HumanHand.place(
@@ -486,7 +490,8 @@ export namespace throwObject {
         point: release,
         velocity: Vector3.add(
           velocity,
-          HumanSupportFrame.at(context, context.start + clock.at("release")).velocity,
+          HumanSupportFrame.at(context, context.start + clock.at("release"))
+            .velocity,
         ),
         seconds: clock.at("release"),
         target,

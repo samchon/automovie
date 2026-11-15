@@ -34,22 +34,34 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_human_motion_prop_drop(): void {
-  const mug: ReturnType<typeof createDrinkware> = createDrinkware({ kind: "mug" });
+  const mug: ReturnType<typeof createDrinkware> = createDrinkware({
+    kind: "mug",
+  });
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
     let performance: HumanPerformance;
     try {
       performance = new HumanPerformance({
         seed: "drop",
-        props: [HumanObject.prop("mug", mug, { at: { x: -0.25, y: 0.9, z: 0.35 }, yaw: 0 })],
+        props: [
+          HumanObject.prop("mug", mug, {
+            at: { x: -0.25, y: 0.9, z: 0.35 },
+            yaw: 0,
+          }),
+        ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "mug", handle: "handle" })
           .stand({ seconds: 3 })
-          .over((u) => u.release({ hand: "right" }))
-          .node,
+          .over((u) => u.release({ hand: "right" })).node,
       });
     } catch (error) {
       TestValidator.predicate(
@@ -80,7 +92,8 @@ export function test_human_motion_prop_drop(): void {
     );
     TestValidator.predicate(
       `${name}: it rests on the floor`,
-      Math.abs(performance.prop("mug", performance.duration).position.y) <= 1e-3,
+      Math.abs(performance.prop("mug", performance.duration).position.y) <=
+        1e-3,
     );
   }
 
@@ -90,18 +103,25 @@ export function test_human_motion_prop_drop(): void {
     new HumanPerformance({
       seed: "drop",
       performers: [
-        { subject: "a", body: motionHumanBody("m-average"), at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body: motionHumanBody("m-average"),
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: HumanChain.subject("a")
         .stand({ seconds: 1 })
-        .over((u) => u.release({ hand: "left" }))
-        .node,
+        .over((u) => u.release({ hand: "left" })).node,
     });
   } catch (error) {
     refusal = error;
   }
   TestValidator.predicate(
     "an empty hand's release is refused on hand",
-    refusal instanceof HumanRefusal && refusal.kind === "affordance" && refusal.axis === "hand",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "affordance" &&
+      refusal.axis === "hand",
   );
 }

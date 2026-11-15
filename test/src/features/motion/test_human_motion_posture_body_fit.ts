@@ -1,7 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
-
 import {
   HumanBodyFit,
   HumanChain,
@@ -11,6 +9,8 @@ import {
   resolveHumanPosture,
   stand,
 } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -56,8 +56,19 @@ export function test_human_motion_posture_body_fit(): void {
     // The crouch's full squat at its lowest, by its joint angles.
     const perf: HumanPerformance = new HumanPerformance({
       seed: "fit",
-      performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-      composition: HumanChain.subject("a").act("crouch", { depth: "full", hold: 1 }).node,
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").act("crouch", {
+        depth: "full",
+        hold: 1,
+      }).node,
     });
     const segment = perf.segments("a")[0]!;
     const lowest: number = segment.start + segment.plan.duration / 2;
@@ -67,7 +78,12 @@ export function test_human_motion_posture_body_fit(): void {
     const squat = {
       root: root.translation,
       ...resolveHumanPosture.angles(root.rotation),
-      joints: Object.fromEntries(pose.joints.map((j) => [j.bone, [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0] as const])),
+      joints: Object.fromEntries(
+        pose.joints.map((j) => [
+          j.bone,
+          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0] as const,
+        ]),
+      ),
       limbs: {},
     };
     const targets: HumanBodyFit.ITarget[] = [];
@@ -76,34 +92,87 @@ export function test_human_motion_posture_body_fit(): void {
         bone: `${side}Toes`,
         goal: bones.get(`${side}Toes`)!.worldPosition,
         axes: ["x", "z"],
-        normal: { local: Quaternion.rotateVector(Quaternion.inverse(bones.get(`${side}Toes`)!.worldRotation), DOWN), world: DOWN },
+        normal: {
+          local: Quaternion.rotateVector(
+            Quaternion.inverse(bones.get(`${side}Toes`)!.worldRotation),
+            DOWN,
+          ),
+          world: DOWN,
+        },
       });
       targets.push({
         bone: `${side}Hand`,
         goal: bones.get(`${side}UpperArm`)!.worldPosition,
         axes: ["x"],
-        normal: { local: HumanHand.offset(body, side, "palm").normal, world: DOWN },
+        normal: {
+          local: HumanHand.offset(body, side, "palm").normal,
+          world: DOWN,
+        },
       });
     }
-    const bearing: RegExp[] = [/^left(Foot|Toes)$/, /^right(Foot|Toes)$/, /^left(Hand|Thumb|Index|Middle|Ring|Little)/, /^right(Hand|Thumb|Index|Middle|Ring|Little)/];
+    const bearing: RegExp[] = [
+      /^left(Foot|Toes)$/,
+      /^right(Foot|Toes)$/,
+      /^left(Hand|Thumb|Index|Middle|Ring|Little)/,
+      /^right(Hand|Thumb|Index|Middle|Ring|Little)/,
+    ];
 
     // 1. The palms land.
-    const result: HumanBodyFit.IResult = HumanBodyFit.fit({ body, posture: squat, targets, bearing, balance: true });
-    all.check(`${name}: the fit converged (${result.reason})`, result.converged);
-    result.residuals.forEach((r: { point: number; turn: number }, k: number): void => {
-      all.check(`${name}: target ${k} misses ${r.point.toFixed(1)} mm, within ${SKIN}`, r.point <= SKIN);
-      all.check(`${name}: target ${k} normal ${r.turn.toFixed(2)} degrees off the floor's, within 1`, r.turn <= 1);
+    const result: HumanBodyFit.IResult = HumanBodyFit.fit({
+      body,
+      posture: squat,
+      targets,
+      bearing,
+      balance: true,
     });
-    all.check(`${name}: the centre of mass ${result.balance.toFixed(1)} mm outside the feet, within ${SKIN}`, result.balance <= SKIN);
+    all.check(
+      `${name}: the fit converged (${result.reason})`,
+      result.converged,
+    );
+    result.residuals.forEach(
+      (r: { point: number; turn: number }, k: number): void => {
+        all.check(
+          `${name}: target ${k} misses ${r.point.toFixed(1)} mm, within ${SKIN}`,
+          r.point <= SKIN,
+        );
+        all.check(
+          `${name}: target ${k} normal ${r.turn.toFixed(2)} degrees off the floor's, within 1`,
+          r.turn <= 1,
+        );
+      },
+    );
+    all.check(
+      `${name}: the centre of mass ${result.balance.toFixed(1)} mm outside the feet, within ${SKIN}`,
+      result.balance <= SKIN,
+    );
 
     // 2. A palm a metre past reach is reported, never claimed met.
     if (name === "m-average") {
-      const far: HumanBodyFit.ITarget[] = targets.map((t: HumanBodyFit.ITarget, k: number): HumanBodyFit.ITarget =>
-        k === 1 ? { ...t, goal: Vector3.add(t.goal, { x: 0, y: 1, z: 1 }), axes: ["x", "y", "z"] } : t,
+      const far: HumanBodyFit.ITarget[] = targets.map(
+        (t: HumanBodyFit.ITarget, k: number): HumanBodyFit.ITarget =>
+          k === 1
+            ? {
+                ...t,
+                goal: Vector3.add(t.goal, { x: 0, y: 1, z: 1 }),
+                axes: ["x", "y", "z"],
+              }
+            : t,
       );
-      const missed: HumanBodyFit.IResult = HumanBodyFit.fit({ body, posture: squat, targets: far, bearing, balance: true });
-      all.check(`${name}: an unreachable palm is not converged`, missed.converged === false);
-      all.check(`${name}: the unreachable palm's residual ${missed.residuals[1]!.point.toFixed(1)} mm is over the skin`, missed.residuals[1]!.point > SKIN);
+      const missed: HumanBodyFit.IResult = HumanBodyFit.fit({
+        body,
+        posture: squat,
+        targets: far,
+        bearing,
+        balance: true,
+      });
+      all.check(
+        `${name}: an unreachable palm is not converged`,
+        missed.converged === false,
+      );
+      all.check(
+        `${name}: the unreachable palm's residual ${missed.residuals[1]!.point.toFixed(1)} mm is over the skin`,
+        missed.residuals[1]!.point > SKIN,
+      );
     }
   }
   all.assert("the whole-body fit lands the palms and reports a miss");

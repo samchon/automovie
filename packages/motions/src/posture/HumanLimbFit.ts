@@ -445,11 +445,18 @@ export namespace HumanLimbFit {
     // Keyed and solved in the root's floor frame (`HumanLimbFitFrame`), so
     // one body doing the same thing elsewhere or facing elsewhere shares the
     // fit; handed back with the caller's root and the seed as it is.
-    const frame: HumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(pose, goal);
-    const own: IAutoMoviePose = frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
-    const aim: IHumanPosture.IGoal = frame === null ? goal : HumanLimbFitFrame.goal(frame, goal);
+    const frame: HumanLimbFitFrame.IFrame | null = HumanLimbFitFrame.of(
+      pose,
+      goal,
+    );
+    const own: IAutoMoviePose =
+      frame === null ? pose : HumanLimbFitFrame.pose(frame, pose);
+    const aim: IHumanPosture.IGoal =
+      frame === null ? goal : HumanLimbFitFrame.goal(frame, goal);
     const away: IAutoMovieVector3 | undefined =
-      frame === null || rival === undefined ? rival : HumanLimbFitFrame.point(frame, rival);
+      frame === null || rival === undefined
+        ? rival
+        : HumanLimbFitFrame.point(frame, rival);
     const key: string = JSON.stringify([
       limb,
       placed,
@@ -470,7 +477,9 @@ export namespace HumanLimbFit {
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);
-    return frame === null ? out : { pose: { ...out.pose, root: pose.root }, seed: out.seed };
+    return frame === null
+      ? out
+      : { pose: { ...out.pose, root: pose.root }, seed: out.seed };
   }
 
   /** How far a re-aimed end joint may still move between two fits of a limb with a contact, metres (provisional: a fiftieth of a millimetre, far inside every contact verdict). */

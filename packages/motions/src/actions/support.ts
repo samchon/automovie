@@ -16,12 +16,12 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
 import { HumanColliders } from "../posture/HumanColliders";
-import { knockdown } from "../reaction/knockdown";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { knockdown } from "../reaction/knockdown";
 import { supportContact } from "./supportContact";
 
 /**
@@ -155,7 +155,11 @@ export namespace support {
 
       // A part on the surface on its own side: a hand out by the shoulder's
       // half width, a foot or a knee by the hip's, the trunk at its middle.
-      const sign: number = c.part.startsWith("left") ? 1 : c.part.startsWith("right") ? -1 : 0;
+      const sign: number = c.part.startsWith("left")
+        ? 1
+        : c.part.startsWith("right")
+          ? -1
+          : 0;
       const half: number = c.part.endsWith("Hand")
         ? body.measure.shoulderHalfWidth
         : body.measure.hipHalfWidth;
@@ -168,7 +172,10 @@ export namespace support {
     // A stance's preferred posture: its own key over the key before it,
     // rested on the floor by its lowest collider as a seed the fit then
     // places by what bears, or the entry's.
-    const preference = (stance: HumanSupport.IStance, from: IHumanPosture): IHumanPosture => {
+    const preference = (
+      stance: HumanSupport.IStance,
+      from: IHumanPosture,
+    ): IHumanPosture => {
       if (stance.prefer === undefined) return preferred;
       const keyed: IHumanPosture = {
         root: from.root,
@@ -203,7 +210,14 @@ export namespace support {
         const union: HumanSupport.IContact[] = [...previous, ...added];
         seconds += move / 2;
         keys.push({
-          posture: solved(body, preference(stance, before), before, union, at, `bear${i}`),
+          posture: solved(
+            body,
+            preference(stance, before),
+            before,
+            union,
+            at,
+            `bear${i}`,
+          ),
           seconds,
           name: `bear${i}`,
           contacts: union,
@@ -232,8 +246,13 @@ export namespace support {
     const contacts: IHumanContactWindow[] = [];
     const opened: Map<string, number> = new Map();
     const kinds: Map<string, HumanSupport.IContact["kind"]> = new Map(
-      stances.flatMap((st: HumanSupport.IStance): [string, HumanSupport.IContact["kind"]][] =>
-        st.contacts.map((c: HumanSupport.IContact): [string, HumanSupport.IContact["kind"]] => [id(c), c.kind]),
+      stances.flatMap(
+        (st: HumanSupport.IStance): [string, HumanSupport.IContact["kind"]][] =>
+          st.contacts.map(
+            (
+              c: HumanSupport.IContact,
+            ): [string, HumanSupport.IContact["kind"]] => [id(c), c.kind],
+          ),
       ),
     );
     const close = (key: string, until: number): void => {
@@ -271,19 +290,19 @@ export namespace support {
       if (next === undefined) return;
       const released: number = (keyAt(`bear${i + 1}`) ?? held).seconds;
       for (const c of stance.contacts)
-        if (!next.contacts.some((n: HumanSupport.IContact): boolean => same(n, c)))
+        if (
+          !next.contacts.some((n: HumanSupport.IContact): boolean => same(n, c))
+        )
           close(id(c), released);
     });
     for (const key of [...opened.keys()]) close(key, duration);
 
     return {
       duration,
-      events: keys
-        .slice(1)
-        .map((k: IKey): { name: string; share: number } => ({
-          name: k.name,
-          share: k.seconds / duration,
-        })),
+      events: keys.slice(1).map((k: IKey): { name: string; share: number } => ({
+        name: k.name,
+        share: k.seconds / duration,
+      })),
       contacts,
       posture: (t: number): IHumanPosture => {
         const s: number = Math.min(duration, Math.max(0, t));
@@ -305,8 +324,16 @@ export namespace support {
             b.contacts.some((q: HumanSupport.IContact): boolean => same(p, q)),
         );
         if (pin === undefined) return shaped;
-        const held: IAutoMovieVector3 = supportContact.pinned(body, a.posture, pin.part);
-        const now: IAutoMovieVector3 = supportContact.pinned(body, shaped, pin.part);
+        const held: IAutoMovieVector3 = supportContact.pinned(
+          body,
+          a.posture,
+          pin.part,
+        );
+        const now: IAutoMovieVector3 = supportContact.pinned(
+          body,
+          shaped,
+          pin.part,
+        );
         const moved: IHumanPosture = {
           ...shaped,
           root: {
@@ -315,7 +342,10 @@ export namespace support {
             z: shaped.root.z + held.z - now.z,
           },
         };
-        return { ...moved, root: { ...moved.root, y: knockdown.rest(body, moved) } };
+        return {
+          ...moved,
+          root: { ...moved.root, y: knockdown.rest(body, moved) },
+        };
       },
     };
   }
@@ -368,14 +398,17 @@ export namespace support {
       (c: HumanSupport.IContact): supportContact.IForm =>
         supportContact.form(body, c, at(c)),
     );
-    const bearing: RegExp[] = forms.flatMap((f: supportContact.IForm): RegExp[] =>
-      f.bearing === undefined ? [] : [f.bearing],
+    const bearing: RegExp[] = forms.flatMap(
+      (f: supportContact.IForm): RegExp[] =>
+        f.bearing === undefined ? [] : [f.bearing],
     );
     const result: HumanBodyFit.IResult = HumanBodyFit.fit({
       body,
       posture: preferred,
       start: from,
-      targets: forms.map((f: supportContact.IForm): HumanBodyFit.ITarget => f.target),
+      targets: forms.map(
+        (f: supportContact.IForm): HumanBodyFit.ITarget => f.target,
+      ),
       bearing,
       balance: { parts: bearing },
     });
@@ -417,7 +450,7 @@ export namespace support {
     return {
       root: Vector3.lerp(a.root, b.root, w),
       // The heading on its shorter arc, so a turn across south is not a spin.
-      yaw: a.yaw + ((((b.yaw - a.yaw + 540) % 360) - 180) * w),
+      yaw: a.yaw + (((b.yaw - a.yaw + 540) % 360) - 180) * w,
       pitch: a.pitch + (b.pitch - a.pitch) * w,
       roll: a.roll + (b.roll - a.roll) * w,
       joints,

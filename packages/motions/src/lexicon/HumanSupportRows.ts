@@ -40,7 +40,10 @@ export namespace HumanSupportRows {
     stances: [
       { contacts: FEET },
       { contacts: [...FEET, on("leftHand"), on("rightHand")] },
-      { contacts: [on("leftHand"), on("rightHand")], prefer: getUp.POSES.squat },
+      {
+        contacts: [on("leftHand"), on("rightHand")],
+        prefer: getUp.POSES.squat,
+      },
       { contacts: FEET, prefer: getUp.POSES.stood },
     ],
   });
@@ -49,9 +52,21 @@ export namespace HumanSupportRows {
   export const scramble = HumanActionRow.of("scramble", support, {
     stances: [
       { contacts: [...FEET, on("leftHand"), on("rightHand")] },
-      { contacts: [FEET[0]!, on("leftHand"), on("rightHand"), on("rightKnee")] },
-      { contacts: [on("leftHand"), on("rightHand"), on("rightKnee"), on("leftFoot")] },
-      { contacts: [on("leftFoot"), on("rightFoot")], prefer: getUp.POSES.stood },
+      {
+        contacts: [FEET[0]!, on("leftHand"), on("rightHand"), on("rightKnee")],
+      },
+      {
+        contacts: [
+          on("leftHand"),
+          on("rightHand"),
+          on("rightKnee"),
+          on("leftFoot"),
+        ],
+      },
+      {
+        contacts: [on("leftFoot"), on("rightFoot")],
+        prefer: getUp.POSES.stood,
+      },
     ],
   });
 

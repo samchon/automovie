@@ -72,7 +72,9 @@ export namespace HumanPerformanceSchedule {
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
         // A struck subject's hits are a track computed from what is placed.
-        instants: (of: string): readonly resolveAutoMovieSchedule.ICue[] | undefined =>
+        instants: (
+          of: string,
+        ): readonly resolveAutoMovieSchedule.ICue[] | undefined =>
           HumanHitTrack.instants(self, of),
         cues: {
           ...self.cues,
@@ -100,7 +102,8 @@ export namespace HumanPerformanceSchedule {
               self,
               intent,
               instant,
-              target + HumanPerformanceSchedule.latency(self, intent, context, where),
+              target +
+                HumanPerformanceSchedule.latency(self, intent, context, where),
               context,
               where,
             );
@@ -247,19 +250,34 @@ export namespace HumanPerformanceSchedule {
     const kind: HumanResponse.Latency | undefined =
       raw === "reaction"
         ? "reaction"
-        : typeof raw === "object" && raw !== null && "mean" in raw && "spread" in raw
+        : typeof raw === "object" &&
+            raw !== null &&
+            "mean" in raw &&
+            "spread" in raw
           ? { mean: Number(raw.mean), spread: Number(raw.spread) }
           : undefined;
     if (kind === undefined) return 0;
-    const person: HumanSegment.IPerson = HumanPerformanceRead.person(self, intent.subject);
+    const person: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      intent.subject,
+    );
     const event: string | undefined = context.anchor.event;
     const index: number = context.anchor.index ?? 0;
     const warned: boolean =
       event !== undefined &&
-      context.anchor.instants.filter((cue: resolveAutoMovieSchedule.ICue): boolean => cue.name === `${event}Caution`).length > index;
+      context.anchor.instants.filter(
+        (cue: resolveAutoMovieSchedule.ICue): boolean =>
+          cue.name === `${event}Caution`,
+      ).length > index;
     return HumanResponse.latency(
       person.skill,
-      HumanSkill.stream(person.skill, intent.subject, intent.anchor ?? intent.capability, where.instance, "latency"),
+      HumanSkill.stream(
+        person.skill,
+        intent.subject,
+        intent.anchor ?? intent.capability,
+        where.instance,
+        "latency",
+      ),
       kind,
       warned,
       person.performer.attributes,

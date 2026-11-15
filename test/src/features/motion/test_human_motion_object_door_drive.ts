@@ -59,7 +59,11 @@ export function test_human_motion_object_door_drive(): void {
       performance = new HumanPerformance({
         seed: "door-drive",
         props: [
-          HumanObject.prop("door", door, { at: { x: 0, y: 0, z: 0 }, yaw: 0, fixed: true }),
+          HumanObject.prop("door", door, {
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            fixed: true,
+          }),
         ],
         performers: [
           {
@@ -137,8 +141,10 @@ export function test_human_motion_object_door_drive(): void {
     }
 
     // 5. Partway open halfway.
-    const half: number | undefined = performance.state("door", (from + to) / 2)
-      .hinge;
+    const half: number | undefined = performance.state(
+      "door",
+      (from + to) / 2,
+    ).hinge;
     TestValidator.predicate(
       `${name}: halfway through the stroke the door is partway open (${half})`,
       half !== undefined && half > 0 && half < SWING,

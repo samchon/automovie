@@ -14,10 +14,10 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanBlast } from "./HumanBlast";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPropFlight } from "./HumanPropFlight";
 import type { HumanSegment } from "./HumanSegment";
 
 /**
@@ -59,18 +59,24 @@ export namespace HumanPerformanceHits {
     self: HumanPerformanceState,
     subject?: string,
   ): readonly IAutoMovieInteractionEvent[] {
-    let all: readonly IAutoMovieInteractionEvent[] | undefined =
-      self.resolving ? undefined : KEPT.get(self);
+    let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
+      ? undefined
+      : KEPT.get(self);
     if (all === undefined) {
       all = [...melee(self), ...blasts(self), ...flights(self)].sort(
-        (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
+        (
+          a: IAutoMovieInteractionEvent,
+          b: IAutoMovieInteractionEvent,
+        ): number =>
           a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
       );
       if (!self.resolving) KEPT.set(self, all);
     }
     return subject === undefined
       ? all
-      : all.filter((h: IAutoMovieInteractionEvent): boolean => h.target === subject);
+      : all.filter(
+          (h: IAutoMovieInteractionEvent): boolean => h.target === subject,
+        );
   }
 
   /** The melee stops. */
@@ -92,7 +98,9 @@ export namespace HumanPerformanceHits {
           self,
           strike.subject,
         ).performer.body;
-        const side: string = strike.weapon.limb.startsWith("left") ? "left" : "right";
+        const side: string = strike.weapon.limb.startsWith("left")
+          ? "left"
+          : "right";
         const distal: string = strike.weapon.limb.endsWith("Arm")
           ? `${side}LowerArm`
           : `${side}LowerLeg`;
@@ -131,7 +139,10 @@ export namespace HumanPerformanceHits {
         const subject: string = p.performer.subject;
         const struck = person(self, subject, t, blast.point, blast.point);
         if (struck.distance > blast.radius) continue;
-        const away: IAutoMovieVector3 = Vector3.subtract(struck.point, blast.point);
+        const away: IAutoMovieVector3 = Vector3.subtract(
+          struck.point,
+          blast.point,
+        );
         const reach: number = Vector3.length(away);
         const along: IAutoMovieVector3 =
           reach > 0 ? Vector3.scale(away, 1 / reach) : struck.normal;
@@ -166,7 +177,8 @@ export namespace HumanPerformanceHits {
         const region: AutoMovieHumanoidRegion | undefined =
           c.struck.kind === "person"
             ? nearestRegion(
-                HumanPerformanceRead.person(self, c.struck.subject).performer.body,
+                HumanPerformanceRead.person(self, c.struck.subject).performer
+                  .body,
                 HumanPerformanceRead.bones(self, c.struck.subject, f.end),
                 c.point,
               )
@@ -208,7 +220,10 @@ export namespace HumanPerformanceHits {
     normal: IAutoMovieVector3;
     region?: AutoMovieHumanoidRegion;
   } {
-    const who: HumanSegment.IPerson = HumanPerformanceRead.person(self, subject);
+    const who: HumanSegment.IPerson = HumanPerformanceRead.person(
+      self,
+      subject,
+    );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanPerformanceRead.bones(self, subject, seconds);
     const near = HumanColliders.nearest(who.performer.body, bones, a, b);
@@ -233,14 +248,20 @@ export namespace HumanPerformanceHits {
     ][]) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
+      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        bone,
+      ).point;
       const distance: number = Vector3.length(Vector3.subtract(at, point));
-      if (best === undefined || distance < best.distance) best = { region, distance };
+      if (best === undefined || distance < best.distance)
+        best = { region, distance };
     }
     return best?.region;
   }
 
   /** The hits kept per placed performance. */
-  const KEPT: WeakMap<HumanPerformanceState, readonly IAutoMovieInteractionEvent[]> =
-    new WeakMap();
+  const KEPT: WeakMap<
+    HumanPerformanceState,
+    readonly IAutoMovieInteractionEvent[]
+  > = new WeakMap();
 }

@@ -129,7 +129,10 @@ export namespace operateInsert {
       context,
       tool,
       tool.length,
-      Vector3.add(socket.point, Vector3.scale(inward, depth(mechanism, progress))),
+      Vector3.add(
+        socket.point,
+        Vector3.scale(inward, depth(mechanism, progress)),
+      ),
       inward,
       0,
       posture,

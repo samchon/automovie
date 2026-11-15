@@ -412,7 +412,11 @@ export namespace HumanWeaponPresent {
             to: 1,
             travel: (seconds: number): number =>
               full *
-              clock.envelope(["start", "strokeStart"], ["strokeEnd", "end"], seconds),
+              clock.envelope(
+                ["start", "strokeStart"],
+                ["strokeEnd", "end"],
+                seconds,
+              ),
           },
         ],
       };

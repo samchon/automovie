@@ -1,3 +1,4 @@
+import { AutoMovieAir, AutoMovieComposition } from "@automovie/engine";
 import type { IAutoMovieInteractionEvent } from "@automovie/interface";
 import {
   HumanBlast,
@@ -6,7 +7,6 @@ import {
   HumanReaction,
   type IHumanBody,
 } from "@automovie/motions";
-import { AutoMovieAir, AutoMovieComposition } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -56,7 +56,9 @@ export function test_human_motion_hit_record(): void {
         proficiency: { level: "trained" as const },
       })),
       composition: AutoMovieComposition.parallel(
-        ...[0, 1, 2].map((k: number) => HumanChain.subject(`p${k}`).stand({ seconds: 2 }).node),
+        ...[0, 1, 2].map(
+          (k: number) => HumanChain.subject(`p${k}`).stand({ seconds: 2 }).node,
+        ),
       ),
     });
   const performance: HumanPerformance = make();
@@ -66,7 +68,12 @@ export function test_human_motion_hit_record(): void {
   TestValidator.predicate(
     `two people inside the radius are hit (${hits.map((h) => h.target).join(", ")})`,
     hits.length === 2 &&
-      hits.every((h) => h.kind === "hit" && h.source === "impactOutput" && Math.abs(h.time - 1) <= 1e-12) &&
+      hits.every(
+        (h) =>
+          h.kind === "hit" &&
+          h.source === "impactOutput" &&
+          Math.abs(h.time - 1) <= 1e-12,
+      ) &&
       hits.some((h) => h.target === "p0") &&
       hits.some((h) => h.target === "p1"),
   );
@@ -108,7 +115,8 @@ export function test_human_motion_hit_record(): void {
   // 4. The falloff.
   let falling: boolean = true;
   for (let d: number = 1; d < 6; d += 0.5)
-    falling &&= HumanBlast.impulse(blast, d + 0.5) < HumanBlast.impulse(blast, d);
+    falling &&=
+      HumanBlast.impulse(blast, d + 0.5) < HumanBlast.impulse(blast, d);
   TestValidator.predicate(
     "the impulse falls with distance and is the reference within a metre",
     falling && HumanBlast.impulse(blast, 0.5) === blast.impulse,

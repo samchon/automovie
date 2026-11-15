@@ -157,8 +157,7 @@ export namespace HumanPropFlight {
       map.delete(subject);
     }
     if (!self.resolving) {
-      const done: Map<string, readonly IFlight[]> =
-        KEPT.get(self) ?? new Map();
+      const done: Map<string, readonly IFlight[]> = KEPT.get(self) ?? new Map();
       done.set(subject, out);
       KEPT.set(self, done);
     }
@@ -457,10 +456,14 @@ export namespace HumanPropFlight {
   const FINGER: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
   /** The flights found, per placed performance and prop. */
-  const KEPT: WeakMap<HumanPerformanceState, Map<string, readonly IFlight[]>> =
-    new WeakMap();
+  const KEPT: WeakMap<
+    HumanPerformanceState,
+    Map<string, readonly IFlight[]>
+  > = new WeakMap();
 
   /** The flights being found, so a launch reading its prop sees the flights before it. */
-  const BUILDING: WeakMap<HumanPerformanceState, Map<string, IFlight[]>> =
-    new WeakMap();
+  const BUILDING: WeakMap<
+    HumanPerformanceState,
+    Map<string, IFlight[]>
+  > = new WeakMap();
 }

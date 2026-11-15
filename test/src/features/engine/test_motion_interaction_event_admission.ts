@@ -48,20 +48,30 @@ export function test_motion_interaction_event_admission(): void {
     region: "sternum",
     outcome: "stick",
   };
-  const check = (event: IAutoMovieInteractionEvent): IAutoMovieConstraintViolation[] => {
+  const check = (
+    event: IAutoMovieInteractionEvent,
+  ): IAutoMovieConstraintViolation[] => {
     const violations: IAutoMovieConstraintViolation[] = [];
     appendShotEventsArtifact([event], "events", 2, violations);
     return violations;
   };
   TestValidator.equals("a plain record is admitted", check(plain).length, 0);
-  TestValidator.equals("a full finite record is admitted", check(full).length, 0);
+  TestValidator.equals(
+    "a full finite record is admitted",
+    check(full).length,
+    0,
+  );
   TestValidator.predicate(
     "a non-finite velocity is refused",
-    check({ ...full, velocity: { x: NaN, y: 0, z: 0 } }).some((v) => v.path.includes(".velocity")),
+    check({ ...full, velocity: { x: NaN, y: 0, z: 0 } }).some((v) =>
+      v.path.includes(".velocity"),
+    ),
   );
   TestValidator.predicate(
     "a non-finite exit is refused",
-    check({ ...full, exit: { x: 0, y: Infinity, z: 0 } }).some((v) => v.path.includes(".exit")),
+    check({ ...full, exit: { x: 0, y: Infinity, z: 0 } }).some((v) =>
+      v.path.includes(".exit"),
+    ),
   );
   TestValidator.predicate(
     "a zero mass is refused",

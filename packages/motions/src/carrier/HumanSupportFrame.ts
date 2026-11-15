@@ -96,7 +96,8 @@ export namespace HumanSupportFrame {
         acceleration: { x: 0, y: 0, z: 0 },
       };
     const frame = (t: number): IHumanProp.IFrame => {
-      if (support.kind === "prop") return context.prop(support.subject).frame(t);
+      if (support.kind === "prop")
+        return context.prop(support.subject).frame(t);
       const other: IHumanActionContext.IPerformer = context.performer(
         support.subject,
       );

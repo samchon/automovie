@@ -129,10 +129,14 @@ export namespace HumanFitBalance {
         return Vector3.scale(sum, 1 / m.mass);
       },
     );
-    return reading.outline.map((_: { x: number; z: number }, k: number): number[] => {
-      const n: { x: number; z: number } = inward(reading.outline, k);
-      return centre.map((v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z);
-    });
+    return reading.outline.map(
+      (_: { x: number; z: number }, k: number): number[] => {
+        const n: { x: number; z: number } = inward(reading.outline, k);
+        return centre.map(
+          (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
+        );
+      },
+    );
   }
 
   /** The unit inward normal of an outline's edge from corner `k` to the next. */
@@ -158,7 +162,9 @@ export namespace HumanFitBalance {
   }
 
   /** The convex hull of points on the floor, its corners in order round it (Andrew's monotone chain). */
-  function hull(points: readonly { x: number; z: number }[]): { x: number; z: number }[] {
+  function hull(
+    points: readonly { x: number; z: number }[],
+  ): { x: number; z: number }[] {
     const sorted: { x: number; z: number }[] = [...points].sort(
       (a: { x: number; z: number }, b: { x: number; z: number }): number =>
         a.x - b.x || a.z - b.z,
@@ -169,10 +175,15 @@ export namespace HumanFitBalance {
       a: { x: number; z: number },
       b: { x: number; z: number },
     ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain = (list: readonly { x: number; z: number }[]): { x: number; z: number }[] => {
+    const chain = (
+      list: readonly { x: number; z: number }[],
+    ): { x: number; z: number }[] => {
       const out: { x: number; z: number }[] = [];
       for (const p of list) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0)
+        while (
+          out.length >= 2 &&
+          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+        )
           out.pop();
         out.push(p);
       }
@@ -183,7 +194,8 @@ export namespace HumanFitBalance {
   }
 
   /** The mass models made, by body. */
-  const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> = new WeakMap();
+  const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
+    new WeakMap();
 
   /** A body's mass model, made once. */
   function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {

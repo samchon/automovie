@@ -13,10 +13,10 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanSegment } from "./HumanSegment";
-import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import type { IHumanProp } from "./IHumanProp";
 
 /**

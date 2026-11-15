@@ -1,9 +1,5 @@
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  AutoMovieGravity,
-  Vector3,
-  projectileAt,
-} from "@automovie/engine";
+import { AutoMovieGravity, Vector3, projectileAt } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
@@ -46,7 +42,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios with their bounds.
  */
 export function test_human_motion_prop_throw_flight(): void {
-  const mug: ReturnType<typeof createDrinkware> = createDrinkware({ kind: "mug" });
+  const mug: ReturnType<typeof createDrinkware> = createDrinkware({
+    kind: "mug",
+  });
   const aim: IAutoMovieVector3 = { x: 0, y: 0, z: 6 };
   for (const name of ["m-average", "f-small"] as const) {
     const body: IHumanBody = motionHumanBody(name);
@@ -54,13 +52,27 @@ export function test_human_motion_prop_throw_flight(): void {
     try {
       performance = new HumanPerformance({
         seed: "throw",
-        props: [HumanObject.prop("mug", mug, { at: { x: -0.25, y: 0.9, z: 0.35 }, yaw: 0 })],
+        props: [
+          HumanObject.prop("mug", mug, {
+            at: { x: -0.25, y: 0.9, z: 0.35 },
+            yaw: 0,
+          }),
+        ],
         performers: [
-          { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
         ],
         composition: HumanChain.subject("a")
           .pickUp({ prop: "mug", handle: "handle" })
-          .throwObject({ at: { kind: "point", frame: "world", at: aim }, prop: "mug" })
+          .throwObject({
+            at: { kind: "point", frame: "world", at: aim },
+            prop: "mug",
+          })
           .stand({ seconds: 3 }).node,
       });
     } catch (error) {
@@ -80,7 +92,10 @@ export function test_human_motion_prop_throw_flight(): void {
         Math.abs(launches[0]!.seconds - launch.seconds) <= 1e-12,
     );
     const flights = performance.flights("mug");
-    TestValidator.predicate(`${name}: the mug has one flight`, flights.length === 1);
+    TestValidator.predicate(
+      `${name}: the mug has one flight`,
+      flights.length === 1,
+    );
     if (flights.length !== 1) continue;
     const flight = flights[0]!;
 
@@ -98,7 +113,10 @@ export function test_human_motion_prop_throw_flight(): void {
     for (let k: number = 1; k <= 10; k++)
       drift = Math.max(
         drift,
-        Math.abs(grip(segment.start + ((release - segment.start) * k) / 10 - 1e-4) - first),
+        Math.abs(
+          grip(segment.start + ((release - segment.start) * k) / 10 - 1e-4) -
+            first,
+        ),
       );
     TestValidator.predicate(
       `${name}: the mug rides the hand to the release (${(1000 * drift).toFixed(2)} mm)`,
@@ -120,17 +138,27 @@ export function test_human_motion_prop_throw_flight(): void {
         ),
       );
     }
-    TestValidator.predicate(`${name}: the mug flies its flight (${off.toExponential(2)} m)`, off <= 1e-6);
+    TestValidator.predicate(
+      `${name}: the mug flies its flight (${off.toExponential(2)} m)`,
+      off <= 1e-6,
+    );
 
     // 4. The throw's velocity.
     TestValidator.predicate(
       `${name}: the flight leaves with the throw's velocity`,
-      Vector3.length(Vector3.subtract(flight.projectile.velocity, launch.velocity)) <= 1e-9 &&
-        Vector3.length(Vector3.subtract(flight.projectile.gravity, AutoMovieGravity.DOWN)) === 0,
+      Vector3.length(
+        Vector3.subtract(flight.projectile.velocity, launch.velocity),
+      ) <= 1e-9 &&
+        Vector3.length(
+          Vector3.subtract(flight.projectile.gravity, AutoMovieGravity.DOWN),
+        ) === 0,
     );
 
     // 5 and 6. At rest on the floor near the aim.
-    const rest: IAutoMovieVector3 = performance.prop("mug", performance.duration).position;
+    const rest: IAutoMovieVector3 = performance.prop(
+      "mug",
+      performance.duration,
+    ).position;
     TestValidator.predicate(
       `${name}: the flight ends on the floor`,
       flight.contact?.struck.kind === "ground" && Math.abs(rest.y) <= 1e-3,

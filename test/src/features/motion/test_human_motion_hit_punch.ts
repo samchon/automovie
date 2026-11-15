@@ -42,11 +42,27 @@ export function test_human_motion_hit_punch(): void {
       seed: "hit-punch",
       laws: [HumanStrike.cross],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
-        { subject: "b", body, at: { x: 0, y: 0, z: reach + 0.25 }, yaw: 180, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body,
+          at: { x: 0, y: 0, z: reach + 0.25 },
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: AutoMovieComposition.sequence(
-        HumanChain.subject("a").registered("cross", { at: { kind: "person", subject: "b", region: "chin" } }, "strike").node,
+        HumanChain.subject("a").registered(
+          "cross",
+          { at: { kind: "person", subject: "b", region: "chin" } },
+          "strike",
+        ).node,
         HumanChain.subject("b")
           .stand({ seconds: 0.2 })
           .flinch({})
@@ -76,7 +92,16 @@ export function test_human_motion_hit_punch(): void {
     `the hit names b's bone and a head region (${hit.bone}, ${hit.region})`,
     hit.bone !== undefined &&
       hit.region !== undefined &&
-      ["chin", "mouth", "jawLeft", "jawRight", "nose", "face", "cheekLeft", "cheekRight"].includes(hit.region),
+      [
+        "chin",
+        "mouth",
+        "jawLeft",
+        "jawRight",
+        "nose",
+        "face",
+        "cheekLeft",
+        "cheekRight",
+      ].includes(hit.region),
   );
   TestValidator.predicate(
     "the fist's velocity points at b",
@@ -87,7 +112,9 @@ export function test_human_motion_hit_punch(): void {
   )?.mass;
   TestValidator.predicate(
     `the hit carries the striking forearm's mass (${hit.mass})`,
-    hit.mass !== undefined && forearm !== undefined && Math.abs(hit.mass - forearm) <= 1e-9,
+    hit.mass !== undefined &&
+      forearm !== undefined &&
+      Math.abs(hit.mass - forearm) <= 1e-9,
   );
   const flinch = performance.segments("b").at(-1)!;
   TestValidator.predicate(
@@ -97,6 +124,7 @@ export function test_human_motion_hit_punch(): void {
   TestValidator.predicate(
     "the cross is the rear hand's straight punch",
     HumanStrike.cross.family === "punch" &&
-      JSON.stringify(HumanStrike.cross.resolve!({})) === JSON.stringify({ technique: "straight", hand: "rear" }),
+      JSON.stringify(HumanStrike.cross.resolve!({})) ===
+        JSON.stringify({ technique: "straight", hand: "rear" }),
   );
 }
