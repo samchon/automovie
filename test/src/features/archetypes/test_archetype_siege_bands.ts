@@ -5,8 +5,7 @@ import {
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
-/** How many seeds are swept: the 200 of the archetype campaign's acceptance law (#3365). */
-const SEEDS: number = 200;
+import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 
 /** The contacts every siege engine offers. */
 const CONTACTS: readonly createSiegeEngine.Affordance[] = [
@@ -21,9 +20,9 @@ const CONTACTS: readonly createSiegeEngine.Affordance[] = [
  * Every siege engine stays in its bands for every seed, reaches both ends of each, derives its arm's reach, and offers its contacts.
  *
  * Scenarios, over 200 seeds of each kind:
- * 1. Every drawn dimension lies inside the band the archetype records it was drawn in, and a band with both ends apart is reached near both.
+ * 1. Every drawn dimension lies inside the band the archetype records it was drawn in, and the values of a band with both ends apart span at least `archetypeBandSweep.COVERAGE` of it, #3368's acceptance floor.
  * 2. The arm's reach is derived, not drawn: through its rest straight up and as far again, 180 degrees plus its cocked travel.
- * 3. Each has an arm, a pouch, a pin, a winch and a frame, and a trebuchet a counterweight; a mangonel has none.
+ * 3. Each has an arm, a pouch, a pin, a winch and a frame, and a trebuchet a counterweight; a mangonel has none. The winch is a windlass: a crank that states no travel, its drum turning without a stop, following the arm by its ratio the other way.
  * 4. A throw from every seed launches: its release second lies after the pin's.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each kind for 200 seeds and reads its dimensions, contacts and throw; a value outside its band, an unreached band end, a drawn reach, a missing contact or a throw that never launches is caught.
@@ -36,7 +35,7 @@ export function test_archetype_siege_bands(): void {
   const findings: string[] = [];
   for (const kind of createSiegeEngine.KINDS) {
     const reached: Map<string, { low: number; high: number }> = new Map();
-    for (let seed: number = 0; seed < SEEDS; seed++) {
+    for (let seed: number = 0; seed < archetypeBandSweep.SEEDS; seed++) {
       const engine: Archetype<
         createSiegeEngine.Affordance,
         createSiegeEngine.Dimension
@@ -71,6 +70,19 @@ export function test_archetype_siege_bands(): void {
         if (!ids.includes(id)) findings.push(`${kind}@${seed}: no ${id}`);
       if (ids.includes("counterweight") !== (kind === "trebuchet"))
         findings.push(`${kind}@${seed}: its counterweight is wrong`);
+      const winch: ReturnType<typeof engine.affordance> =
+        engine.affordance("winch");
+      if (
+        winch.kind !== "crank" ||
+        winch.travel !== undefined ||
+        winch.follows === undefined ||
+        winch.follows.id !== "arm" ||
+        winch.follows.ratio === undefined ||
+        Math.abs(winch.follows.ratio + d.winchRatio!) > 1e-12
+      )
+        findings.push(
+          `${kind}@${seed}: the winch is not a windlass following the arm by its ratio`,
+        );
       if (seed % 50 === 0 && !(createSiegeEngine.throwAt(engine, 0).second > 0))
         findings.push(
           `${kind}@${seed}: the throw does not launch after the pin`,
@@ -84,10 +96,7 @@ export function test_archetype_siege_bands(): void {
       if (
         seen !== undefined &&
         span > 0 &&
-        !(
-          seen.low < band.minimum + span / 4 &&
-          seen.high > band.maximum - span / 4
-        )
+        !(seen.high - seen.low >= archetypeBandSweep.COVERAGE * span)
       )
         findings.push(
           `${kind}: ${name} reached only ${seen.low} to ${seen.high}`,

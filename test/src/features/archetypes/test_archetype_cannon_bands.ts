@@ -5,8 +5,7 @@ import {
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
-/** How many seeds are swept: the 200 of the archetype campaign's acceptance law (#3365). */
-const SEEDS: number = 200;
+import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 
 /** The contacts every kind of cannon offers: a muzzle and a vent, both sockets. */
 const SOCKETS: readonly createCannon.Affordance[] = ["muzzle", "vent"];
@@ -15,7 +14,7 @@ const SOCKETS: readonly createCannon.Affordance[] = ["muzzle", "vent"];
  * Every kind of cannon stays inside its bands for every seed, marks its unread bands provisional, and offers its muzzle and vent as sockets.
  *
  * Scenarios, over 200 seeds of each kind:
- * 1. Every drawn dimension lies inside the band the archetype records it was drawn in, and a band with both ends apart is reached near both ends.
+ * 1. Every drawn dimension lies inside the band the archetype records it was drawn in, and the values of a band with both ends apart span at least `archetypeBandSweep.COVERAGE` of it, #3368's acceptance floor.
  * 2. Every band a kind declares whose source says it is borrowed or an estimate is marked provisional.
  * 3. Each kind's `muzzle` and `vent` are sockets.
  *
@@ -29,7 +28,7 @@ export function test_archetype_cannon_bands(): void {
   const findings: string[] = [];
   for (const kind of createCannon.KINDS) {
     const reached: Map<string, { low: number; high: number }> = new Map();
-    for (let seed: number = 0; seed < SEEDS; seed++) {
+    for (let seed: number = 0; seed < archetypeBandSweep.SEEDS; seed++) {
       const gun: Archetype<createCannon.Affordance, createCannon.Dimension> =
         createCannon({ kind }, seed);
       for (const [name, band] of Object.entries(gun.provenance.bands) as [
@@ -67,10 +66,7 @@ export function test_archetype_cannon_bands(): void {
       if (
         seen !== undefined &&
         span > 0 &&
-        !(
-          seen.low < band.minimum + span / 4 &&
-          seen.high > band.maximum - span / 4
-        )
+        !(seen.high - seen.low >= archetypeBandSweep.COVERAGE * span)
       )
         findings.push(
           `${kind}: ${name} reached only ${seen.low} to ${seen.high}`,
