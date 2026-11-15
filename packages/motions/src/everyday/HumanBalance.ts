@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  bracketedRoot,
   convexHull2D,
   pointInHull,
   resolveAutoMovieCenterOfMass,
@@ -39,9 +40,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; one gap remains: `margin` is read only by the balance test, a member only a test reads.
  */
 export namespace HumanBalance {
-  /** Grid steps of the balance search over shifts from 0 to `RANGE` hip heights. */
-  export const STEPS: number = 16;
-
   /** How far back the balance search looks unless told otherwise, hip heights: the shift of a trunk pitched over hips that stand over the feet. */
   export const RANGE: number = 0.4;
 
@@ -70,15 +68,15 @@ export namespace HumanBalance {
    * inside, it stands on the forefoot, and the hips and trunk bring the
    * centre over the middle of the forefoot, back when it is ahead and
    * forward when it is outside behind, as a deep squat with its heels up
-   * does. The shifts from
-   * 0 to `range` hip heights the needed way are scanned on a grid, of the
-   * same step whatever the range, for the first one at which the centre reaches the target, or
-   * the base, and the crossing is refined by bisection to 0.5 mm. The scan
-   * is needed because the centre stops following the hips once the planted
-   * legs reach the limit of their range, where an iteration on the slope
-   * diverges, and because the base changes as a heel lifts. When no shift in
-   * the range balances the body, the one that comes nearest is returned,
-   * and the law's margin-of-stability verdict reports the remainder.
+   * does. Each search's bracket is its start and the end of the range,
+   * `range` hip heights the needed way; the crossing in it is refined to
+   * `TOLERANCE` by the engine's bracketed root for the centre's place (the
+   * Illinois false position, `bracketedRoot`), whose bracket keeps it safe
+   * where the centre stops following the hips
+   * once the planted legs reach the limit of their range, and by bisection
+   * for whether the heels are down. When no shift in the range balances the
+   * body, the end that comes nearer is returned, and the law's
+   * margin-of-stability verdict reports the remainder.
    *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
@@ -86,11 +84,11 @@ export namespace HumanBalance {
    * @param target How far ahead of the base's middle the centre is put, metres; 0, the middle itself, when absent.
    * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the flat feet sought before the forefoot, the cases on each, the search range in hip heights, the 0.5 mm tolerance, why a scan precedes the bisection, and the nearest-shift result when none balances.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found by a grid scan for the first sign change and bisection; bisection needs only a bracket, so it holds where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), one scan-and-bisection over a sign; the balance measures live in one place.
+   * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the flat feet sought before the forefoot, the cases on each, the search range in hip heights, the tolerance, the bracket and its refinement, and the nearer end when none balances.
+   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found on one bracket per search, by the engine's bracketed root (`bracketedRoot`, the Illinois false position) for the centre's continuous place and bisection for the heels' yes-or-no; both need only a bracket, so they hold where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), each shift read once per call, and one bracketed search per case; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most three scans of `STEPS` + 1 posture solves over `RANGE` (in proportion more over a wider range) plus about log2(range / 0.5 mm), near 10, for the bisection, each a forward-kinematics pass with limb fits read once for both measures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each search reads its bracket's two ends, then the bracketed root converges superlinearly where the centre's place is smooth, and bisection takes log2(range / tolerance), near 10, posture solves; each solve is one forward-kinematics pass with limb fits, read once for both measures and once per shift in the call.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call balances its own builder.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
    */
@@ -100,45 +98,46 @@ export namespace HumanBalance {
     range: number = RANGE,
     target: number = 0,
   ): number {
-    const at = (back: number): IReading => read(body, build(back));
+    // Each shift is read once within a call: the searches below revisit
+    // their brackets' ends.
+    const read0: Map<number, IReading> = new Map();
+    const at = (back: number): IReading => {
+      let r: IReading | undefined = read0.get(back);
+      if (r === undefined) {
+        r = read(body, build(back));
+        read0.set(back, r);
+      }
+      return r;
+    };
     const start: IReading = at(0);
-    // One grid step is `RANGE / STEPS` hip heights whatever the range, so a
-    // wider search finds the same first crossing a narrower one does.
-    const step: number = (RANGE * body.measure.hipHeight) / STEPS;
-    const steps: number = Math.ceil((STEPS * range) / RANGE - 1e-9);
-    // The first shift from `from` the given way at which `error` is no
-    // longer positive, refined by bisection, or the one that came nearest
-    // when none is within the range.
+    const span: number = range * body.measure.hipHeight;
+    // The shift from `from` the given way, within the range, at which
+    // `error` is no longer positive: the bracket is the range's two ends,
+    // and the crossing in it is refined to the tolerance, by the engine's
+    // bracketed root for a continuous error (`bracketedRoot`, the Illinois
+    // false position of Dowell and Jarratt 1971, superlinear and never
+    // leaving the bracket, so a stretch where the error stops responding,
+    // the planted legs at their range, costs steps and no divergence) and by
+    // bisection for a yes-or-no one. With no crossing in the range, the end
+    // that comes nearer is returned.
     const first = (
       from: number,
       sign: number,
       error: (r: IReading) => number,
+      smooth: boolean,
     ): { found: boolean; back: number } => {
-      let previous: number = from;
-      let best: { back: number; error: number } = {
-        back: from,
-        error: error(at(from)),
+      const near: number = error(at(from));
+      if (near <= 0) return { found: true, back: from };
+      const end: number = from + sign * span;
+      const far: number = error(at(end));
+      if (far > 0) return { found: false, back: far < near ? end : from };
+      return {
+        found: true,
+        back: smooth
+          ? bracketedRoot((b: number): number => error(at(b)), from, end, TOLERANCE)
+          : bisect(from, end, (b: number): boolean => error(at(b)) > 0),
       };
-      if (best.error <= 0) return { found: true, back: from };
-      for (let k: number = 1; k <= steps; k++) {
-        const back: number = from + sign * step * k;
-        const e: number = error(at(back));
-        if (e <= 0) {
-          let lo: number = previous;
-          let hi: number = back;
-          while (Math.abs(hi - lo) > TOLERANCE) {
-            const mid: number = (lo + hi) / 2;
-            if (error(at(mid)) > 0) lo = mid;
-            else hi = mid;
-          }
-          return { found: true, back: hi };
-        }
-        if (e < best.error) best = { back, error: e };
-        previous = back;
-      }
-      return { found: false, back: best.back };
-    };
-    const ahead = (r: IReading): number => r.offset - target;
+    };    const ahead = (r: IReading): number => r.offset - target;
     // Flat feet first: a heel the planted leg lifted is brought down by
     // moving the hips back; on flat feet a centre ahead of the target is
     // brought back to it, and one behind it is left while it lies inside.
@@ -146,17 +145,36 @@ export namespace HumanBalance {
       0,
       1,
       (r: IReading): number => (r.flat ? 0 : 1),
+      false,
     );
     if (down.found) {
       const landed: IReading = at(down.back);
-      if (ahead(landed) > 0) return first(down.back, 1, ahead).back;
+      if (ahead(landed) > 0) return first(down.back, 1, ahead, true).back;
       if (landed.margin > 0) return down.back;
     }
     // Otherwise the forefoot: the centre brought over its middle, back when
     // ahead of it, forward when outside behind it.
-    if (ahead(start) > 0) return first(0, 1, ahead).back;
+    if (ahead(start) > 0) return first(0, 1, ahead, true).back;
     if (start.margin > 0) return 0;
-    return first(0, -1, (r: IReading): number => -ahead(r)).back;
+    return first(0, -1, (r: IReading): number => -ahead(r), true).back;
+  }
+
+  /**
+   * The boundary of a yes-or-no condition in a bracket by bisection, to
+   * `TOLERANCE`.
+   *
+   * @param lo The end where the condition holds.
+   * @param hi The end where it does not.
+   * @param holds The condition.
+   * @returns The end of the final bracket where it does not hold.
+   */
+  function bisect(lo: number, hi: number, holds: (x: number) => boolean): number {
+    while (Math.abs(hi - lo) > TOLERANCE) {
+      const mid: number = (lo + hi) / 2;
+      if (holds(mid)) lo = mid;
+      else hi = mid;
+    }
+    return hi;
   }
   /**
    * The static margin of stability of a posture: the horizontal distance
