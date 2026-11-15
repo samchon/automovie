@@ -26,6 +26,8 @@ import type { HumanObstacle } from "./HumanObstacle";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import type { HumanForce } from "./HumanForce";
+import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -92,6 +94,9 @@ export class HumanPerformanceState {
   /** What stands in the performers' way. */
   public readonly obstacles: readonly HumanObstacle.IObstacle[];
 
+  /** The forces on the performers (`HumanPerformance.IInput.forces`). */
+  public readonly forces: readonly HumanForce.IForce[];
+
   /** The cue tracks, by name. */
   public readonly cues: Readonly<
     Record<string, readonly resolveAutoMovieSchedule.ICue[]>
@@ -133,6 +138,7 @@ export class HumanPerformanceState {
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
+    this.forces = input.forces ?? [];
     this.blasts = input.blasts ?? [];
     this.laws = new Map(Object.entries(HUMAN_ACTIONS));
     for (const law of input.laws ?? []) {
@@ -316,6 +322,12 @@ export class HumanPerformanceState {
     // forgets everyone whenever the applied stops change.
     for (const person of this.people.values()) HumanSegment.settle(person);
     HumanPerformanceContacts.contacts(this);
+    for (const person of this.people.values()) HumanSegment.settle(person);
+
+    // Every flight turns by the composed body's shape once the contacts are
+    // resolved; the turned plans then show their rotation, so the displayed
+    // poses read for it are forgotten.
+    HumanPerformanceFlight.flights(this, this.people.values());
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {

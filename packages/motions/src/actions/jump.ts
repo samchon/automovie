@@ -1,6 +1,7 @@
 import {
   AutoMovieGravity,
   type IAutoMovieResolvedBone,
+  Quaternion,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
@@ -118,6 +119,30 @@ export namespace jump {
 
     /** Apex height of the flight above take-off, metres; positive. */
     apex?: number & tags.ExclusiveMinimum<0> & HumanUnit<"m">;
+
+    /**
+     * Turns the body makes in flight (#3428): somersaults about the axis
+     * across the heading (`forward` or `backward`) or about the axis along it
+     * (`left` or `right`, a side salto), and twists about the body's long
+     * axis, signed by the right-hand rule about up. The flight turns by the
+     * angular momentum that lands these turns on the composed body's shape
+     * (`HumanPerformanceFlight`), so a tuck laid over the flight turns it
+     * faster. No turn when absent.
+     */
+    rotation?: IParams.IRotation;
+  }
+  export namespace IParams {
+    /** A flight's requested turns. */
+    export interface IRotation {
+      /** Somersault turns, whole or half; 0 when absent. */
+      somersault?: number & tags.Minimum<0> & HumanUnit<"">;
+
+      /** Twist turns, signed; 0 when absent. */
+      twist?: number & HumanUnit<"">;
+
+      /** Which way the somersault turns; `forward` when absent. */
+      way?: "forward" | "backward" | "left" | "right";
+    }
   }
 
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
@@ -443,10 +468,54 @@ export namespace jump {
       return { root, yaw: heading, pitch: 0, roll: 0, joints, limbs };
     }
 
+    // The flight's turns, declared for the performance's flight pass, which
+    // hands the rotation back once the composed shape is known.
+    const turns: IParams.IRotation | undefined = context.params.rotation;
+    const somersault: number =
+      (turns?.somersault ?? 0) * (turns?.way === "backward" ? -1 : 1);
+    const twist: number = turns?.twist ?? 0;
+    const sideways: boolean =
+      turns?.way === "left" || turns?.way === "right";
+    let rotated: ((seconds: number) => IHumanPosture.IRotation) | null = null;
+    const flying: IHumanActionPlan.IFlight | undefined =
+      somersault === 0 && twist === 0
+        ? undefined
+        : {
+            from: P / duration,
+            to: touchdown / duration,
+            momentum: {
+              kind: "turns",
+              somersault,
+              twist,
+              ...(sideways
+                ? {
+                    frame: Quaternion.fromAxisAngle(
+                      { x: 0, y: 1, z: 0 },
+                      turns?.way === "left" ? 90 : -90,
+                    ),
+                  }
+                : {}),
+            },
+          };
+    const turned = (posture: IHumanPosture, t: number): IHumanPosture =>
+      rotated === null || t <= P || t >= touchdown
+        ? posture
+        : { ...posture, rotation: rotated(t) };
+
     return {
       duration,
       events,
       contacts,
+      ...(flying === undefined
+        ? {}
+        : {
+            flight: flying,
+            airborne: (
+              rotation: (seconds: number) => IHumanPosture.IRotation,
+            ): void => {
+              rotated = rotation;
+            },
+          }),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
@@ -473,7 +542,8 @@ export namespace jump {
         };
         const limbs: IHumanPosture["limbs"] = {};
         if (t <= P) push.write(t, root, joints, limbs);
-        else if (t <= touchdown) return airborne(root, (t - P) / T);
+        else if (t <= touchdown)
+          return turned(airborne(root, (t - P) / T), t);
         else
           for (const side of ["left", "right"] as const)
             limbs[`${side}Leg`] = {

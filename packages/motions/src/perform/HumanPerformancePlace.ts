@@ -17,6 +17,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
+import { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
@@ -213,6 +214,8 @@ export namespace HumanPerformancePlace {
           bones: () => poseBones(body, entry.pose),
           subject: intent.subject,
         }),
+      forces: (from: number, to: number): readonly HumanForce.IForce[] =>
+        HumanForce.within(self.forces, intent.subject, start + from, start + to),
       random: (channel: string) =>
         HumanSkill.stream(
           person.skill,

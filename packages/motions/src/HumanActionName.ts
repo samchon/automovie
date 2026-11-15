@@ -84,6 +84,7 @@ export type HumanActionName =
   | "flinch"
   | "stagger"
   | "knockdown"
+  | "perturb"
   | "knee"
   | "sit"
   | "rise"

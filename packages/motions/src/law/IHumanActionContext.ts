@@ -13,6 +13,7 @@ import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import type { HumanAttribute } from "../ensemble/HumanAttribute";
+import type { HumanForce } from "../perform/HumanForce";
 import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -171,6 +172,19 @@ export interface IHumanActionContext<P = object> {
    * @returns The obstacles; none when the performance was given none.
    */
   obstacles(): readonly HumanObstacle.IObstacle[];
+
+  /**
+   * The forces on this performer in a span of this action
+   * (`HumanPerformance.IInput.forces`, #3429): impulses and sustained
+   * forces, known before the action plans because they are inputs. A
+   * reaction reads them to size its response; none acts by itself. Absent on
+   * a context built outside a performance.
+   *
+   * @param from Seconds since the action's start.
+   * @param to Seconds since the action's start, at least `from`.
+   * @returns The forces, in the order the performance was given them.
+   */
+  forces?(from: number, to: number): readonly HumanForce.IForce[];
 
   /**
    * This instance's draw stream for one channel.

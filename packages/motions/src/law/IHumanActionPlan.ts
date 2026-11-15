@@ -158,6 +158,27 @@ export interface IHumanActionPlan {
    * Absent, the strike is aimed at the region's own point.
    */
   aimed?: resolveAutoMovieHumanoidSurfaces.ITangent;
+
+  /**
+   * The span in which the body flies, touching nothing, and the angular
+   * momentum it flies with (#3427). The performance turns the composed body
+   * through it after placement (`HumanPerformanceFlight`): the shape the
+   * carrier, its overlays and its layers give, integrated by conserved
+   * angular momentum, handed back through `airborne`. Absent for an action
+   * with no flight, or one whose flight does not turn.
+   */
+  flight?: IHumanActionPlan.IFlight;
+
+  /**
+   * Receive the flight's whole-body rotation, once, after placement and the
+   * contacts and before any pose is shown, like `stop`: between take-off and
+   * touchdown the plan then returns its posture with that `rotation`
+   * (`IHumanPosture.rotation`). It changes the pose only, never the
+   * duration, the events or the decisive instant.
+   *
+   * @param rotation The rotation at a second of this action, seconds since its start.
+   */
+  airborne?(rotation: (seconds: number) => IHumanPosture.IRotation): void;
 }
 /**
  * Companion types of {@link IHumanActionPlan}.
@@ -168,6 +189,49 @@ export interface IHumanActionPlan {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses clinical joint triples.
  */
 export namespace IHumanActionPlan {
+  /** A flight: its span and the angular momentum it turns by. */
+  export interface IFlight {
+    /** Take-off, a share of the action's duration. */
+    from: number;
+
+    /** Touchdown, a share of the action's duration, after `from`. */
+    to: number;
+
+    /**
+     * The whole-body angular momentum about the centre of mass: given, world
+     * kg m²/s, or solved from the turns the flight must make
+     * (`solveAirborneTakeoff`).
+     */
+    momentum: IFlightMomentum | IFlightTurns;
+  }
+
+  /** A flight's momentum given outright. */
+  export interface IFlightMomentum {
+    /** The discriminator. */
+    kind: "momentum";
+
+    /** World kg m²/s about the centre of mass. */
+    momentum: IAutoMovieVector3;
+  }
+
+  /** A flight's momentum solved from the turns it must make. */
+  export interface IFlightTurns {
+    /** The discriminator. */
+    kind: "turns";
+
+    /** Somersault turns about the somersault axis, signed (positive tips the head forward). */
+    somersault: number;
+
+    /** Twist turns about the long axis, signed by the right-hand rule about the body's up. */
+    twist: number;
+
+    /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
+    frame?: IAutoMovieQuaternion;
+
+    /** The largest momentum the take-off can give, kg m²/s; unbounded when absent. */
+    maximum?: number;
+  }
+
   /** A striking surface on its free path. */
   export interface IWeapon {
     /** Id, unique within the plan. */

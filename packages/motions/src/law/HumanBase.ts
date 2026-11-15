@@ -31,7 +31,8 @@ export namespace HumanBase {
    * The base kinds, as data: the list a page, a test generator and a
    * refusal's alternatives read, from which {@link Kind} is derived.
    * `airborne` is the base between a take-off and a touchdown, which a
-   * shape laid over a flight requires (#3427).
+   * shape laid over a flight requires (#3427); `immersed` is a body the water
+   * carries, its root moved by the water's forces (#3432).
    */
   export const KINDS = [
     "standing",
@@ -42,6 +43,7 @@ export namespace HumanBase {
     "leaning",
     "hanging",
     "airborne",
+    "immersed",
   ] as const;
 
   /** One base kind. */

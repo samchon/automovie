@@ -2,6 +2,7 @@ import type { brace } from "../everyday/brace";
 import type { clinch } from "../grappling/clinch";
 import type { flinch } from "../reaction/flinch";
 import type { knockdown } from "../reaction/knockdown";
+import type { perturb } from "../reaction/perturb";
 import type { stagger } from "../reaction/stagger";
 import type { defend } from "../striking/defend";
 import type { guard } from "../striking/guard";
@@ -144,5 +145,17 @@ export class HumanChainStriking extends HumanChainManual {
    */
   public knockdown(params: knockdown.IParams = {}, anchor?: string): this {
     return this.act("knockdown", params, anchor);
+  }
+
+  /**
+   * Respond to the impulses on the body: absorb, step or fall as the
+   * impulse decides, or as the author fixes (#3430).
+   *
+   * @param params The outcome; decided by the impulse when absent.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public perturb(params: perturb.IParams = {}, anchor?: string): this {
+    return this.act("perturb", params, anchor);
   }
 }

@@ -36,6 +36,7 @@ import type { putDown } from "./handling/putDown";
 import type { receive } from "./handling/receive";
 import type { flinch } from "./reaction/flinch";
 import type { knockdown } from "./reaction/knockdown";
+import type { perturb } from "./reaction/perturb";
 import type { stagger } from "./reaction/stagger";
 import type { athletics } from "./sport/athletics";
 import type { ballSport } from "./sport/ballSport";
@@ -123,6 +124,9 @@ export interface IHumanActionParams {
 
   /** Going down to lie supine. */
   knockdown: knockdown.IParams;
+
+  /** Respond to the impulses on the body by their outcome (#3430). */
+  perturb: perturb.IParams;
 
   /** A knee strike. */
   knee: knee.IParams;

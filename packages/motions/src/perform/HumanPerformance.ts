@@ -18,6 +18,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanBlast } from "./HumanBlast";
+import type { HumanForce } from "./HumanForce";
 import type { HumanObstacle } from "./HumanObstacle";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -304,6 +305,14 @@ export namespace HumanPerformance {
      * an anchor, so no action may be anchored under it.
      */
     cues?: Readonly<Record<string, readonly resolveAutoMovieSchedule.ICue[]>>;
+
+    /**
+     * Forces on the performers (#3429): impulses at an instant and forces
+     * sustained over a span, read by the reactions the composition places
+     * (`IHumanActionContext.forces`). A force starts no action. None when
+     * absent.
+     */
+    forces?: readonly HumanForce.IForce[];
 
     /**
      * What stands in the performers' way: the scene's walls and solid

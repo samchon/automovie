@@ -1,4 +1,5 @@
 import type { IHumanLayer } from "../law/IHumanLayer";
+import { HumanLoad } from "../perform/HumanLoad";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 
@@ -51,6 +52,7 @@ export namespace HumanCarriedLean {
    * The lean of a carry as a layer.
    *
    * @param carry The carry.
+   * @param load The carrier's and the load's masses and the load's distance ahead, when known: the lean is then the moment balance's (`HumanLoad.lean`), and the table's angle otherwise or when no lean balances it.
    * @returns The layer, named `carryLean`; schedule it over the carry, with the take-up as its fade.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the layer's name and how it is used.
@@ -61,8 +63,15 @@ export namespace HumanCarriedLean {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer closes over one angle.
    */
-  export function layer(carry: HumanCarried.Carry): IHumanLayer {
-    const half: number = LEANS[carry] / 2;
+  export function layer(
+    carry: HumanCarried.Carry,
+    load?: Parameters<typeof HumanLoad.lean>[0],
+  ): IHumanLayer {
+    // A known load leans the body by its moment (#3431); the table's
+    // provisional angle stands only when no mass is known.
+    const balanced: number | null =
+      load === undefined ? null : HumanLoad.lean(load);
+    const half: number = (balanced ?? LEANS[carry]) / 2;
     return {
       name: "carryLean",
       channels: ["trunk"],

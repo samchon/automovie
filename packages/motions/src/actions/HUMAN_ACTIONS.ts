@@ -34,6 +34,7 @@ import { receive } from "../handling/receive";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
+import { perturb } from "../reaction/perturb";
 import { stagger } from "../reaction/stagger";
 import { athletics } from "../sport/athletics";
 import { ballSport } from "../sport/ballSport";
@@ -88,6 +89,7 @@ export const HUMAN_ACTIONS: Readonly<
   flinch,
   stagger,
   knockdown,
+  perturb,
   knee,
   sit,
   rise,
