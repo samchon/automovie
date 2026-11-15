@@ -14,10 +14,8 @@ After detailed repairs, read the complete result to check that the goal and the 
 
 Trace a proposed instruction through the production's actual handoff: the brief or parent layers it starts from, the author's decision, the contract respondent, the repair owner, and the stage that consumes the result. The production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery-review.md) set those boundaries.
 
-A changed instruction must not break the motion hint's path from coded performance through camera staging and the complete edit to the observed output. Identities, contacts, timing and requested controls stay on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
+A changed instruction must not break the motion hint's path from coded performance through camera staging and the complete edit to the observed output. Identities, contacts, timing and requested controls stay on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets. Only installed APIs and actual execution provide those controls; research or an instruction alone cannot.
 
 Judge audiovisual expression as a plan at screenplay time and as the captured and encoded result at delivery, where the user hears its sound; neither observation establishes the other.
 
 A repair stays inside the work's route and adopted form. It never makes a new gesture, close-up, cut, narration or realism compulsory to escape a wording defect, because a silent hint, documentary, abstract short or asset may keep its form.
-
-Only installed APIs and actual execution provide controls; research or an instruction alone cannot.

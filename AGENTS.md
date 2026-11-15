@@ -38,18 +38,20 @@ Stop only when nothing can move without the user, a protected target blocks you,
 
 Read the skill whose trigger applies.
 
-- [project](.agents/skills/project/SKILL.md): judging product scope, choosing a package owner, or choosing a command.
-- [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing maintained source or tests, for their `@evidence` checklists, or changing Evidence selection.
-- [development](.agents/skills/development/SKILL.md): changing code, tests, or workflows.
-- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, materials, or lighting.
-- [visual-debugging](.agents/skills/visual-debugging/SKILL.md): judging a form, a motion, a guide pass, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior.
-- [motion](.agents/skills/motion/SKILL.md): authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
-- [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do.
-- [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
-- [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
-- [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained authoring campaigns with writers and reviewers launched as CLI processes, observation of a single production's runs, and production comparisons.
-- [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
-- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
-- [review](.agents/skills/review/SKILL.md): any review or self-review.
-- [issue-campaign](.agents/skills/issue-campaign/SKILL.md): a broad audit or repeated issue-to-pull-request work.
-- [pull-request](.agents/skills/pull-request/SKILL.md): only when asked to push, open, update, or merge, or under a delivery mandate.
+| Skill | Use when |
+| --- | --- |
+| [project](.agents/skills/project/SKILL.md) | Judging product scope, choosing a package owner, or choosing a command |
+| [contracts](.agents/skills/contracts/SKILL.md) | Writing or reviewing maintained source or tests, for their `@evidence` checklists, or changing Evidence selection |
+| [development](.agents/skills/development/SKILL.md) | Changing code, tests, or workflows |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Changing geometry, rigs, assets, materials, or lighting |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging a form, a motion, a guide pass, a generated image or a film on screen, before claiming a visual change works, and changing viewer or capture behavior |
+| [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict |
+| [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure, or the Human viewer, or supervising workers who do |
+| [scaffold](.agents/skills/scaffold/SKILL.md) | Editing `packages/template`, or reading, authoring, or reviewing production content anywhere |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Designing or revising the production skills, contracts and routers shipped by the scaffold |
+| [production-campaign](.agents/skills/production-campaign/SKILL.md) | Sustained authoring campaigns with writers and reviewers launched as CLI processes, observation of a single production's runs, and production comparisons |
+| [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md`, or a skill |
+| [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
+| [review](.agents/skills/review/SKILL.md) | Any review or self-review |
+| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | A broad audit or repeated issue-to-pull-request work |
+| [pull-request](.agents/skills/pull-request/SKILL.md) | Only when asked to push, open, update, or merge, or under a delivery mandate |

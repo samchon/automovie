@@ -47,7 +47,7 @@ Put judgments the agent can make together into one checklist item, and split the
 
 ### Skill files
 
-A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory, in lowercase letters, digits and hyphens within 64 characters, and a third-person `description` within 1024 characters that says what it does and when to use it. A job with its own trigger gets its own skill.
+A top-level skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory, in lowercase letters, digits and hyphens within 64 characters, and a third-person `description` within 1024 characters that says what it does and when to use it. A job with its own trigger gets its own skill.
 
 ### Splitting a skill
 

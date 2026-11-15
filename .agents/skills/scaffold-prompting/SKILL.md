@@ -16,7 +16,7 @@ Scaffold prompting designs what productions receive. It builds on [prompting](..
 
 ## Product principles
 
-Every shipped skill serves these six principles, and a shipped sentence that works against one is a defect. The [project contract](../project/SKILL.md) fixes the product's purpose and scope; each principle here says what that means for a shipped instruction.
+Every shipped skill serves these six principles, and a shipped sentence that works against one is a defect. The [product contract](../project/SKILL.md#product-contract) fixes the product's purpose and scope; each principle here says what that means for a shipped instruction.
 
 ### Coarse models, detailed motion
 
@@ -38,7 +38,7 @@ The product contract sets the [two routes](../project/SKILL.md#commissions): a s
 
 ### Skills and contracts
 
-Prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule holds for every shipped skill, and shipped contracts stay few, as [contract design](contract-design.md#items-and-statements) defines.
+A shipped task skill gives direction and its contracts ask the detailed questions, under prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule.
 
 ### Stills only
 
@@ -52,9 +52,7 @@ Keep the scaffold production-neutral and usable without repository operating ski
 
 ## The commissioned result
 
-Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that result.
-
-When an existing item already covers the loss, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
+Design task guidance and its contract items around the same commissioned result, starting from the user's goal and the failure case prompting's [verification](../prompting/SKILL.md#verification) keeps. Decide whether the agent missed a rule or the current rules permit that result. When an existing item already covers the loss, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
 
 Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
 
@@ -64,4 +62,4 @@ Use the production [task router](../../../packages/template/scaffold/instruction
 
 Workflows borrowed from serial-novel writing can inform ownership and review, but their prose interiority, mobile reading, serial rewards and publishing commands do not apply to film production.
 
-Hand the change to [scaffold](../scaffold/SKILL.md) for distribution and project ownership checks, and implementation to [development](../development/SKILL.md). This skill adds no creative pass, graph stage, publication authority or automatic migration of existing productions.
+Hand the change to [scaffold](../scaffold/SKILL.md) for distribution and project ownership checks, and implementation to [development](../development/SKILL.md). This skill adds no creative pass, graph stage or publication authority.
