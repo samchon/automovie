@@ -1,6 +1,7 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 
 import { walk } from "../actions/walk";
+import { walkFoot } from "../actions/walkFoot";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 
@@ -97,8 +98,8 @@ export namespace staggerBounds {
   /** The band below the fastest caught push over which every speed of the `RESOLUTION` grid is verified caught, m/s: a local solve at the edge of what the legs hold can flicker, and the limit a refusal names is one every slower push on this grid is caught at. */
   export const VERIFIED: number = 0.02;
 
-  /** The least toe clearance of walking, metres (Winter 1992, Phys Ther 72:45): a swinging foot rises this far before it travels. */
-  export const CLEARANCE: number = 0.0129;
+  /** The least toe clearance of walking, metres (`walkFoot.CLEARANCE`): a swinging foot rises this far before it travels. */
+  export const CLEARANCE: number = walkFoot.CLEARANCE;
 
   /** A swing's lift at mid-swing, hip heights: a walking foot's (`walk.walking`). */
   export const LIFT: number = walk.walking(0).lift;

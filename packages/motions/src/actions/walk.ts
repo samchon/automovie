@@ -266,22 +266,11 @@ export namespace walk {
     ): walkFoot.IFoot => {
       const from: walkFoot.IEnd = at(side, swing.off);
       const before: walkFoot.IEnd = at(side, swing.off - TICK);
-      const earlier: walkFoot.IEnd = at(side, swing.off - 2 * TICK);
       return walkFoot.swing(body, side, {
         from,
         velocity: Vector3.scale(
           Vector3.subtract(from.ankle, before.ankle),
           1 / TICK,
-        ),
-        // The ankle's acceleration at toe-off, the backward second difference
-        // of the same samples, so the swing leaves the stance with its
-        // position, rate and acceleration (`walkFoot.swing`).
-        acceleration: Vector3.scale(
-          Vector3.add(
-            Vector3.subtract(from.ankle, Vector3.scale(before.ankle, 2)),
-            earlier.ankle,
-          ),
-          1 / (TICK * TICK),
         ),
         rates: {
           pitch:

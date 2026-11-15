@@ -100,8 +100,8 @@ import { staggerRecover } from "./staggerRecover";
  * 1986, J Neurophysiol 55:1369), because the ranges ask for it rather than
  * by a rule. A stance whose leg leans further to its side than the ankle's
  * 25 degrees rolls onto its edge; a stepping foot first rises clear of the
- * floor by the 12.9 mm minimum toe clearance of walking (Winter 1992, Phys
- * Ther 72:45), over the share of its swing a walking foot takes to set down
+ * floor by the minimum toe clearance of walking (`walkFoot.CLEARANCE`,
+ * Killeen et al. 2017), over the share of its swing a walking foot takes to set down
  * from that height, then swings as a walking foot swings (`walkFoot.swing`)
  * to the stance it lands in, held inside its leg's ranges and as high over
  * the floor as its swing carries it (`walkReach.swing`), so it leaves and

@@ -162,7 +162,9 @@ export namespace walkStanceSolve {
       // again within the same region, so the step lands where the rows'
       // second-order miss is met. A row's error is read from the rows
       // linearised at the trial, which list the same constraints in the same
-      // order: there its bounds are L - g(trial), U - g(trial).
+      // order: there its bounds are L - g(trial), U - g(trial), so
+      // g(trial) - g(x) is the difference of whichever bound is finite; a
+      // row bounded on neither side has no error to correct.
       correct: (
         x: Float64Array,
         step: SCO.IStep<Float64Array>,
@@ -182,7 +184,14 @@ export namespace walkStanceSolve {
             let predicted: number = 0;
             for (let r: number = 0; r < row.index.length; r++)
               predicted += row.coef[r]! * d[row.index[r]!]!;
-            const error: number = row.l - there.rows[i]!.l - predicted;
+            const linearised: Q.IRow = there.rows[i]!;
+            const moved: number | null = Number.isFinite(row.l)
+              ? row.l - linearised.l
+              : Number.isFinite(row.u)
+                ? row.u - linearised.u
+                : null;
+            if (moved === null) return row;
+            const error: number = moved - predicted;
             return { ...row, l: row.l - error, u: row.u - error };
           },
         );

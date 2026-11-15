@@ -1,9 +1,4 @@
-import {
-  carriedAcceleration,
-  carriedRate,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { carriedRate, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -23,16 +18,15 @@ import { HumanFoot } from "../posture/HumanFoot";
  * toes extending at the ball by the same angle so they stay flat on the floor.
  * The forefoot rocker starts at rest and ends still turning (`LEAVE`), the
  * rate the swing then carries on from.
- * In swing the ankle leaves the placement, the velocity and the acceleration
- * its stance ended with and arrives at rest on the placement its next stance
- * begins with, on the quintic through those states (the minimum-jerk profile
- * of Flash and Hogan 1985 plus the engine's `carriedRate` and
- * `carriedAcceleration` terms for the initial rate and acceleration), lifted at
+ * In swing the ankle leaves the placement and the velocity its stance ended
+ * with and arrives at rest on the placement its next stance begins with, on a
+ * quintic Hermite curve (the minimum-jerk profile of Flash and Hogan 1985 plus
+ * the engine's `carriedRate` term for the initial velocity), lifted at
  * mid-swing on a raised-cosine bump, `sin²(π u)`, whose slope is zero at both
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within 12.9 mm of the floor. The
+ * further wherever the toe or heel would come within `CLEARANCE` of the floor. The
  * travel, the turn and the descent of the placements end early, at the share
  * of the swing where the lift has fallen to the contact height of the floor
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
@@ -218,10 +212,7 @@ export namespace walkFoot {
    *
    * @param body The body.
    * @param side The foot.
-   * @param props The two ends, the ankle's velocity (m/s) and acceleration
-   *   (m/s^2, carried by the engine's `carriedAcceleration`, so the swing
-   *   leaves its stance with no step in acceleration; none when absent) at
-   *   the first, the
+   * @param props The two ends, the ankle's velocity at the first (m/s), the
    *   rates its pitch and its toes leave the first with (degrees per second,
    *   carried over the first half of the swing by the engine's `carriedRate`;
    *   none when absent), the share of the swing, its duration in seconds and
@@ -237,7 +228,6 @@ export namespace walkFoot {
     props: {
       from: IEnd;
       velocity: IAutoMovieVector3;
-      acceleration?: IAutoMovieVector3;
       rates?: { pitch: number; toes: number };
       to: IEnd;
       u: number;
@@ -268,10 +258,6 @@ export namespace walkFoot {
       (1 - settle) * props.seconds,
       travel * (1 - settle) * props.seconds,
     );
-    const pushed: number = carriedAcceleration(
-      (1 - settle) * props.seconds,
-      travel * (1 - settle) * props.seconds,
-    );
     const bump: number = Math.sin(Math.PI * u) ** 2;
 
     // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
@@ -279,21 +265,16 @@ export namespace walkFoot {
     const rising: number = stiff
       ? carriedRate(LEVEL * props.seconds, u * props.seconds)
       : carried;
-    const lifted: number = stiff
-      ? carriedAcceleration(LEVEL * props.seconds, u * props.seconds)
-      : pushed;
-    const kept: IAutoMovieVector3 = props.acceleration ?? { x: 0, y: 0, z: 0 };
     const a: IAutoMovieVector3 = props.from.ankle;
     const b: IAutoMovieVector3 = props.to.ankle;
     const ankle: IAutoMovieVector3 = {
-      x: a.x + (b.x - a.x) * s + props.velocity.x * carried + kept.x * pushed,
+      x: a.x + (b.x - a.x) * s + props.velocity.x * carried,
       y:
         a.y +
         (b.y - a.y) * level +
         props.velocity.y * rising +
-        kept.y * lifted +
         (stiff ? STIFF : 1) * props.lift * body.measure.hipHeight * bump,
-      z: a.z + (b.z - a.z) * s + props.velocity.z * carried + kept.z * pushed,
+      z: a.z + (b.z - a.z) * s + props.velocity.z * carried,
     };
     const leaving: number = HumanFoot.heading(props.from.rotation);
     const heading: number =
@@ -350,6 +331,14 @@ export namespace walkFoot {
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;
 
-  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres, provisional: Winter 1992 (Phys Ther 72:45-53) gives a minimum toe clearance of 1.29 cm with about 4 mm of variability over 10 trials of 11 young adults, read from its abstract only; the full text's statistic and table were not reachable (the publisher's PDF and two repositories searched, 2026-11-16). */
-  const CLEARANCE: number = 0.0129;
+  /**
+   * The least clearance of a swinging foot's toe and heel at mid-swing,
+   * metres: the mean minimum toe clearance of level walking, 15.0 mm (SD
+   * 4.0 mm, 121 adults of 20 to 79 years on a treadmill; 15.1 +- 0.5 mm SEM
+   * for the 41 aged 20 to 39), the second metatarsal head's lowest height in
+   * swing over its height in stance (Killeen et al. 2017, Sci Rep 7:1922,
+   * read in its PMC full text, PMC5432520). Winter 1992's 1.29 cm (Phys
+   * Ther 72:45) agrees; only its abstract was reachable.
+   */
+  export const CLEARANCE: number = 0.015;
 }

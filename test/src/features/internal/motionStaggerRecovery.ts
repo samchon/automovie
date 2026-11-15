@@ -14,10 +14,10 @@ import { motionHumanBody } from "./motionHumanBody";
  * moment, then is pushed, and recovers by stepping or is refused as a fall.
  *
  * Scenes:
- * - pushed backward (the blow from ahead) at 0.5 m/s, inside every body's
- *   capture region: it plans with a clean verdict report;
- * - pushed to the right (the blow from a point on its left) at 0.5 m/s: it
- *   plans with a clean verdict report;
+ * - pushed at 0.5 m/s, inside every body's capture region, in each of the
+ *   four directions: backward (the blow from ahead), forward (from behind),
+ *   to the right (from a point on its left) and to the left (from a point
+ *   on its right); each plans with a clean verdict report;
  * - pushed backward at 1.5 m/s, past what four recovery steps catch: it is
  *   refused as a `HumanRefusal` on `parameter`/`speed`, its value the speed
  *   and its range from none to the fastest push the body catches that way,
@@ -26,11 +26,11 @@ import { motionHumanBody } from "./motionHumanBody";
  * @param name The body.
  * @returns What went wrong; empty when every scene reads as stated.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the staging, the three scenes and what each must show.
+ * @evidence contracts/development/common.md#meaningful-documentation States the staging, the scenes and what each must show.
  * @evidence contracts/development/implementation.md#principled-implementation Builds each stagger through the public chain and reads the shipped verdict report and the refusal's axis, value and range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One staging, three scenes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One staging, four caught pushes and one refused.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal of a caught push, any broken bound, or a fall refused on another axis is a complaint with what was read.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two short films and one refused plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four short films and one refused plan.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the stagger recovery specs, one per body.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -71,11 +71,23 @@ export function motionStaggerRecovery(name: motionHumanBody.Name): string[] {
     }
   };
 
-  // 1. and 2. Pushes inside the capture region are caught, cleanly.
+  // 1. Pushes inside the capture region, in each of the four directions,
+  // are caught, cleanly: the blow from ahead, from behind, from the
+  // performer's left (+X) and from its right.
   caught("pushed backward", 0.5);
+  caught("pushed forward", 0.5, {
+    kind: "point",
+    at: { x: 0, y: 1.3, z: -1 },
+    frame: "world",
+  });
   caught("pushed to the right", 0.5, {
     kind: "point",
     at: { x: 1, y: 1.3, z: 0 },
+    frame: "world",
+  });
+  caught("pushed to the left", 0.5, {
+    kind: "point",
+    at: { x: -1, y: 1.3, z: 0 },
     frame: "world",
   });
 
