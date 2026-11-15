@@ -124,6 +124,38 @@ export namespace HumanSupportCarry {
   }
 
   /**
+   * A plan made on a named prop carried by that prop's motion: a walk along
+   * a wagon's bed planned on the bed as it stood at the walk's start, each
+   * foot planted on the prop.
+   *
+   * @param context The action's context.
+   * @param plan The plan made in the world at the start.
+   * @param prop The prop the body stands or walks on.
+   * @returns The carried plan, its plants on the prop.
+   */
+  export function on(
+    context: Pick<IHumanActionContext, "prop" | "start">,
+    plan: IHumanActionPlan,
+    prop: string,
+  ): IHumanActionPlan {
+    const frame = (seconds: number): IHumanProp.IFrame =>
+      context.prop(prop).frame(seconds);
+    return {
+      ...plan,
+      contacts: plan.contacts.map((c) =>
+        c.kind === "plant" && c.support.kind === "ground"
+          ? { ...c, support: { kind: "prop" as const, subject: prop } }
+          : c,
+      ),
+      posture: (seconds: number): IHumanPosture =>
+        posture(
+          of(frame, context.start, context.start + seconds),
+          plan.posture(seconds),
+        ),
+    };
+  }
+
+  /**
    * A plan carried by the support its action is entered on
    * (`HumanSupportFrame`), claiming the channels it writes over its carrier:
    * the plan an act made in the world at its start, kept on the support.

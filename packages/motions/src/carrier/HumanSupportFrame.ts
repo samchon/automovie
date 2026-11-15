@@ -10,6 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
@@ -76,17 +77,51 @@ export namespace HumanSupportFrame {
   }
 
   /**
+   * Refuse stepping from the ground onto a moving prop faster than the gait
+   * can match (#3491): getting on is a step at a matched speed, so a support
+   * that moves faster at the action's start than the gait's own speed cannot
+   * be boarded. A body already on that prop is not boarding.
+   *
+   * @param context The action's context.
+   * @param prop The prop stepped onto.
+   * @param speed The gait's speed, m/s.
+   * @throws {HumanRefusal} A `base` refusal on `on` with the speeds and the fix.
+   */
+  export function board(
+    context: Pick<IHumanActionContext, "entry" | "prop" | "performer" | "start">,
+    prop: string,
+    speed: number,
+  ): void {
+    const current: IHumanContactWindow.Support = of(context);
+    if (current.kind === "prop" && current.subject === prop) return;
+    const moving: number = Vector3.length(
+      at(context, context.start, { kind: "prop", subject: prop }).velocity,
+    );
+    if (moving > speed)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "on",
+        value: moving,
+        feasible: { kind: "range", minimum: 0, maximum: speed, unit: "m/s" },
+        reason: `${prop} moves at ${moving.toFixed(2)} m/s, faster than the gait's ${speed.toFixed(2)} m/s, so it cannot be stepped onto`,
+        fix: `slow ${prop} to the gait's speed before boarding it, or board it at a faster pace`,
+      });
+  }
+
+  /**
    * The support's frame, velocity and acceleration at a film second.
    *
    * @param context The action's context.
    * @param seconds Film seconds.
+   * @param named A support named outright, such as the prop a walk is to step onto; the one the action is entered on when absent.
    * @returns The frame.
    */
   export function at(
     context: Pick<IHumanActionContext, "entry" | "prop" | "performer">,
     seconds: number,
+    named?: IHumanContactWindow.Support,
   ): IFrame {
-    const support: IHumanContactWindow.Support = of(context);
+    const support: IHumanContactWindow.Support = named ?? of(context);
     if (support.kind === "ground")
       return {
         support,

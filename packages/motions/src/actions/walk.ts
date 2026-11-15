@@ -5,18 +5,16 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
-import { HumanAttribute } from "../ensemble/HumanAttribute";
-import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -26,9 +24,11 @@ import type { IWalkGait } from "./IWalkGait";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
-import { walkCadence } from "./walkCadence";
 import { walkCarriage } from "./walkCarriage";
+import type { IWalkParams } from "./IWalkParams";
 import { walkClear } from "./walkClear";
+import { walkClock } from "./walkClock";
+import { walkCuts } from "./walkCuts";
 import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
@@ -36,16 +36,10 @@ import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
 import { walkSteps } from "./walkSteps";
-import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
 
 /** Seconds before a toe-off over which the ankle's velocity there is read. */
 const TICK: number = 1e-3;
-
-/** The cut a standing action makes into a walk: only once both feet are down. */
-const SETTLED: readonly IHumanInterruptRow[] = [
-  { window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 },
-];
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
@@ -104,22 +98,8 @@ export namespace walk {
   /** The action's name. */
   export const name: HumanActionName = "walk";
 
-  /**
-   * Cancel table. Another walk, an approach, a jump or a stop may cut any
-   * step: a stance foot is always planted, and each plans from the entry feet. A standing action (looking, gesturing, resting,
-   * sitting) may cut only after the last footfall, once both feet are down.
-   */
-  export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
-    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    approach: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    look: SETTLED,
-    gesture: SETTLED,
-    rest: SETTLED,
-    sit: SETTLED,
-  };
+  /** Cancel table (`walkCuts`). */
+  export const interrupts: IHumanActionLaw["interrupts"] = walkCuts;
 
   /** What a gait lets an overlay take: the arms it would swing, the hands and the head. */
   export const yields: IHumanActionLaw["yields"] = [
@@ -130,57 +110,8 @@ export namespace walk {
     "rightArm",
   ];
 
-  /** Parameters. */
-  export interface IParams {
-    /** The floor point to stop at, world metres. */
-    to: IAutoMovieVector3;
-
-    /** The pace; `normal` when absent. */
-    pace?: "slow" | "normal" | "fast";
-
-    /** Floor points passed in order before `to`, world metres. */
-    via?: IAutoMovieVector3[];
-
-    /** The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent. */
-    face?: number;
-
-    /** Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent. */
-    facing?: walkFacing.IFacing;
-
-    /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
-    stride?: import("../law/HumanUnit").HumanUnit.Bounded<0.6, 1.3, 1, "">;
-
-    /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. */
-    armSwing?: import("../law/HumanUnit").HumanUnit.Bounded<0, 2, 1, "">;
-
-    /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
-    elbows?: import("../law/HumanUnit").HumanUnit.Bounded<0, 30, 0, "degrees">;
-
-    /**
-     * How the walk is performed (`AutoMovieMotionManner`), a preset such as
-     * `weary` or `brisk` or a manner of its own: its step factor scales the
-     * step with `stride`, its swing factor the arm swing with `armSwing`, and
-     * its tempo slows the speed at that step, so the cadence falls with it.
-     * Neutral when absent.
-     */
-    manner?: AutoMovieMotionManner.IManner;
-
-    /**
-     * A formation slot to keep (`walkStation.resolve`): the walk goes along
-     * the slot's way from its start until the station ends, `to` and `via`
-     * read from it, and a gait that draws its own tempo keeps station by
-     * speed matching (`walkStation`) while a cadenced one lets its step give.
-     * No station when absent.
-     */
-    station?: IHumanFormation.IStation;
-
-    /**
-     * A beat track to keep step to (`walkCadence`): each heel strike answers
-     * a beat, by the walker's drawn asynchrony and phase correction, when the
-     * walker locks to it; no beat when absent.
-     */
-    cadence?: walkCadence.ICadence;
-  }
+  /** Parameters (`IWalkParams`). */
+  export type IParams = IWalkParams;
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
   export const FROUDE: Readonly<Record<NonNullable<IParams["pace"]>, number>> =
@@ -217,7 +148,13 @@ export namespace walk {
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    return locomote(context, walking(FROUDE[context.params.pace ?? "normal"]));
+    // On a moving support the walk planned on it as it stood at the start
+    // is carried by its motion, the feet planted on it (#3491).
+    const planned: IHumanActionPlan = locomote(context, walking(FROUDE[context.params.pace ?? "normal"]));
+    const on: IParams["on"] = context.params.on;
+    if (on === undefined) return planned;
+    HumanSupportFrame.board(context, on.prop, Math.sqrt(FROUDE[context.params.pace ?? "normal"] * AutoMovieGravity.STANDARD * context.body.measure.hipHeight));
+    return HumanSupportCarry.on(context, planned, on.prop);
   }
 
   /**
@@ -268,15 +205,8 @@ export namespace walk {
         ? 1
         : walkFacing.share(body, context.entry, p, p.facing, forward);
     const longest: number = forward * share;
-    // A tired member walks slower (`HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace`, fresh when absent); a cadenced gait keeps its count, so only a gait that draws its own tempo slows.
-    const weary: number =
-      gait.called === true
-        ? 1
-        : HumanAttribute.effect(
-            HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace,
-            context.attributes?.fatigue,
-            0,
-          );
+    // A tired member walks slower; a cadenced gait keeps its count (`walkClock.weary`).
+    const weary: number = walkClock.weary(context, gait);
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
@@ -547,42 +477,7 @@ export namespace walk {
         ),
     };
 
-    // The steps are taken a little unevenly in time: a stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3 % of healthy adults, Hausdorff; the mapping onto skill is provisional), which each step's own draw carries as the square root of two times that, two independent steps making a stride.
-    // On a beat track, a walker who locks lands each strike by its phase correction toward its beat.
-    const entrained: number[] | null =
-      context.params.cadence === undefined
-        ? null
-        : walkCadence.strikes(
-            context,
-            context.params.cadence,
-            walkTempo.strikes(planned),
-          );
-    const tempo: IHumanActionPlan =
-      entrained !== null
-        ? walkTempo.entrained(
-            planned,
-            entrained.map((s: number): number => s - context.start),
-          )
-        : walkTempo(
-            planned,
-            (index: number): number =>
-              Math.SQRT2 *
-              HumanSkill.quantity(context.skill, "timing", 0.03, 0.01) *
-              (gait.unevenness ?? 1) *
-              HumanSkill.normal(context.random("stride"), 2 * index),
-            gait.limp,
-          );
-
-    // A gait that draws its own tempo keeps its station by matching the slot's speed; a cadenced one keeps its count.
-    const station: IHumanFormation.IStation | undefined =
-      context.params.station;
-    return station === undefined || gait.called === true
-      ? tempo
-      : walkStation(
-          tempo,
-          walkStation.point(context, station),
-          context.start,
-          walkStation.rests(context, station),
-        );
+    // The steps' timing: uneven, entrained to a beat, or kept on a station (`walkClock`).
+    return walkClock(context, planned, gait);
   }
 }
