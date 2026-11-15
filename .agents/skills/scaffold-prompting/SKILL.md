@@ -24,7 +24,7 @@ The product contract sets [coarse models and detailed motion](../project/SKILL.m
 
 ### Screenplay detail
 
-A shipped instruction leaves every exchange, outcome and reaction to the [screenplay](../../../packages/template/scaffold/instructions/.agents/skills/story/layers/screenplay.md) and never lets code or a prompt choose one.
+A shipped instruction leaves every exchange, outcome and reaction to the [screenplay](../../../packages/template/scaffold/instructions/.agents/skills/story/layers/screenplay.md) and never lets code or a generation model's prompt choose one.
 
 ### Reuse
 
@@ -44,7 +44,7 @@ The agent sees pictures only as still images and cannot hear. No shipped instruc
 
 ## Repository and scaffold
 
-A rule that holds in every project lives in a repository skill and ships through an empty `$` placeholder in the scaffold, as [shared items](../scaffold/SKILL.md#shared-items) defines. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops. [What a production owns](../scaffold/SKILL.md#what-a-production-owns) stays out of the scaffold.
+A rule that holds in every project lives in a repository skill and ships through an empty `$` placeholder in the scaffold, as [shared items](../scaffold/SKILL.md#shared-items) defines. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops. Keep the scaffold production-neutral and usable without repository operating skills; a work's genre, language, voice and delivery decisions belong to [what a production owns](../scaffold/SKILL.md#what-a-production-owns).
 
 ## The commissioned output
 

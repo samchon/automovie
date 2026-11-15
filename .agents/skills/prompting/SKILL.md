@@ -37,7 +37,7 @@ An agent does not reliably follow long, detailed or conditional prose. A rule th
 
 A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, not only in prose, because prose can be missed.
 
-Put judgments the agent makes in one reading into one checklist item, and split them into separate items when their task, respondent, proof or repair owner, the one who fixes a failure, differs. Ask about the overall achievement in its own item, separate from the items that check its parts, because passing every part does not prove the whole works.
+Put judgments the agent makes in one reading into one checklist item, and split them into separate items when their task, respondent, proof or repair owner (whoever fixes a failure) differs. Ask about the overall achievement in its own item, separate from the items that check its parts, because passing every part does not prove the whole works.
 
 ## Layout
 

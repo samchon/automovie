@@ -11,7 +11,7 @@ A production's own `AGENTS.md`, `README.md`, and source own its meaning; read th
 
 ## What the scaffold owns
 
-The scaffold owns its production skills, directly linked resources and contracts, apart from the shared repository items below. Its own skills describe making a production, not developing this repository.
+The scaffold owns its shipped skills, directly linked resources and contracts, apart from the shared repository items below. Its own skills describe making a production, not developing this repository.
 
 Read its [production skill](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md) for the commissioned outputs, project context and handoff, and [story](../../../packages/template/scaffold/instructions/.agents/skills/story/SKILL.md) before changing narrative authoring. The production's [motion skill](../../../packages/template/scaffold/instructions/.agents/skills/motion/SKILL.md) owns programmatic choreography, constraints, scene time and engine feedback, and 3D modeling owns its asset representations.
 
@@ -23,9 +23,7 @@ The production's [source layout](../../../packages/template/scaffold/instruction
 
 ## Outputs and routes
 
-The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes.
-
-Keep the production's [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md#commissioned-outputs) distinct.
+The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes. Keep the production's [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md#commissioned-outputs) distinct.
 
 The long route keeps its four story layers with construction, evidence, current independent review and whole-work completion. Compact items within those responsibilities rather than removing the architecture.
 

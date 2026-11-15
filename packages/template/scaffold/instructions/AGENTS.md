@@ -21,7 +21,6 @@ Work by these rules:
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
 - Finish each inspection round, then repair all its findings together by cause, with their owners and affected consumers.
-- Do not copy an installed package's API into instructions.
 - Keep external generation outside deterministic playback, and retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stage-caches.md).
 

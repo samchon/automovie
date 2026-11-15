@@ -1,6 +1,6 @@
 # Verification
 
-Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This page adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
+Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This resource adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
 
 ## Distribution and consumers
 
@@ -12,7 +12,7 @@ Installed files are project-owned, so an update to an existing production and a 
 
 Take the cases prompting's verification asks for from the tasks the change affects, rather than a universal suite every project runs. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a whole motion hint, and a commissioned generated film.
 
-For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the item's own question catches what the production's [independent classification](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/inspection.md#independent-classification) alone misses.
+For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the question of the item holding the changed criterion catches what the production's [independent classification](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/inspection.md#independent-classification) alone misses.
 
 When a separate agent session performs the task under prompting's verification, also withhold the author's argument for the change and any earlier review verdict, and observe which resources it reads. A review round's reviewer is the exception, because [review](../review/SKILL.md#review-rules) gives it the settled decisions.
 

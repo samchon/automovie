@@ -26,7 +26,7 @@ The first seven rows follow a film from authored data to encoded video, and [how
 
 ### Reading a package
 
-A package's README says what it owns, and its public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
+A package's public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
 ### A defect or a gap
 
