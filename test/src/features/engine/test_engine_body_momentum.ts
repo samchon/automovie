@@ -173,7 +173,9 @@ export function test_engine_body_momentum(): void {
         ),
       );
       if (!(drift <= 1e-12 * scale))
-        findings.push(`${name} ${pose}: a translation changes the tensor by ${drift}`);
+        findings.push(
+          `${name} ${pose}: a translation changes the tensor by ${drift}`,
+        );
       const r: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         Vector3.normalize({ x: 1, y: -2, z: 0.7 }),
         73,
@@ -205,16 +207,19 @@ export function test_engine_body_momentum(): void {
         worst = Math.max(worst, Vector3.length(Vector3.subtract(want, got)));
       }
       if (!(worst <= 1e-9 * scale))
-        findings.push(`${name} ${pose}: a turned body's tensor misses R I Rᵀ by ${worst}`);
+        findings.push(
+          `${name} ${pose}: a turned body's tensor misses R I Rᵀ by ${worst}`,
+        );
 
       // 5. A uniform translation: p = m v and no angular momentum.
       const v: IAutoMovieVector3 = { x: 0.4, y: -0.3, z: 1.2 };
-      const glide: resolveAutoMovieMomentum.IMomentum = resolveAutoMovieMomentum(
-        model,
-        bones,
-        moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
-        0.01,
-      );
+      const glide: resolveAutoMovieMomentum.IMomentum =
+        resolveAutoMovieMomentum(
+          model,
+          bones,
+          moved(bones, ZERO, STILL, Vector3.scale(v, 0.01)),
+          0.01,
+        );
       const p: IAutoMovieVector3 = Vector3.scale(v, body.profile.mass);
       if (
         !(
@@ -222,7 +227,9 @@ export function test_engine_body_momentum(): void {
           1e-9 * Vector3.length(p)
         )
       )
-        findings.push(`${name} ${pose}: linear momentum ${JSON.stringify(glide.linear)} for m v ${JSON.stringify(p)}`);
+        findings.push(
+          `${name} ${pose}: linear momentum ${JSON.stringify(glide.linear)} for m v ${JSON.stringify(p)}`,
+        );
       if (!(Vector3.length(glide.angular) <= 1e-9))
         findings.push(
           `${name} ${pose}: a translation reads angular momentum ${Vector3.length(glide.angular)}`,
@@ -238,7 +245,9 @@ export function test_engine_body_momentum(): void {
       const xy: number = rest[0]![1]!;
       const xz: number = rest[0]![2]!;
       if (!(Math.abs(xy) <= 1e-6 && Math.abs(xz) <= 1e-6))
-        findings.push(`${name} rest: products across the sagittal plane I_xy ${xy}, I_xz ${xz}`);
+        findings.push(
+          `${name} rest: products across the sagittal plane I_xy ${xy}, I_xz ${xz}`,
+        );
     }
   }
 
@@ -292,7 +301,9 @@ export function test_engine_body_momentum(): void {
   for (let i: number = 0; i < 3; i++)
     for (let j: number = 0; j < 3; j++)
       if (!(Math.abs(twoTensor[i]![j]! - closed[i]![j]!) <= 1e-12))
-        findings.push(`two boxes: entry ${i}${j} is ${twoTensor[i]![j]}, closed form ${closed[i]![j]}`);
+        findings.push(
+          `two boxes: entry ${i}${j} is ${twoTensor[i]![j]}, closed form ${closed[i]![j]}`,
+        );
 
   // 6. A non-positive interval is refused.
   TestValidator.error("a zero interval is refused", (): void => {
