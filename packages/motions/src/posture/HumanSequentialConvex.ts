@@ -73,9 +73,10 @@ export namespace HumanSequentialConvex {
      * @param evaluation Its reading.
      * @param penalty The penalty's weight.
      * @param radius The region the model is next solved within, the widest of the round.
+     * @param objective Whether the model holds the objective; false while the loop restores feasibility (`IOptions.restore`), when it is the penalised violation's alone.
      * @returns The model.
      */
-    convexify(x: X, evaluation: E, penalty: number, radius: number): IModel<X>;
+    convexify(x: X, evaluation: E, penalty: number, radius: number, objective: boolean): IModel<X>;
 
     /**
      * Whether a reading meets the constraints, to the caller's tolerance.
@@ -151,6 +152,24 @@ export namespace HumanSequentialConvex {
 
     /** The region's first half-width, a solve following another of the same kind (`IResult.radius`); `ISchedule.trust` when absent. */
     radius?: number;
+
+    /**
+     * Whether an infeasible start first has its feasibility restored: the
+     * violation alone minimised (the objective out of the merit and the
+     * model, at the first penalty, which then only scales the merit and does
+     * not move its minimiser) until the constraints are met or the solve
+     * settles, and only then the whole merit minimised from there over the
+     * penalties, keeping the feasible point should that end infeasible: the
+     * feasibility restoration phase of filter SQP (Fletcher and Leyffer
+     * 2002, "Nonlinear programming without a penalty function", Math
+     * Program 91:239) and SNOPT's feasible point first (Gill, Murray and
+     * Saunders 2005, "SNOPT: an SQP algorithm for large-scale constrained
+     * optimization", SIAM Review 47:99). A start the penalty cannot pull to
+     * the constraints is then not driven up the whole ladder, and one that
+     * cannot be made feasible is known as such after the restoration alone.
+     * False when absent.
+     */
+    restore?: boolean;
   }
 
   /** A solve's result. */
@@ -176,13 +195,25 @@ export namespace HumanSequentialConvex {
    *
    * @param problem The problem.
    * @param start The first iterate.
-   * @param options The schedule, the penalties, the rounds, and a continued solve's penalty and region.
-   * @returns The last iterate taken, its reading, its penalty and region, and whether the last convexification collapsed; the caller refuses an infeasible one by its own reading.
+   * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, and whether feasibility is restored first.
+   * @returns The last iterate taken, its reading, its penalty and region, and whether the last convexification collapsed (with a restoration, the feasible point it reached when the whole merit's solve ends infeasible); the caller refuses an infeasible one by its own reading.
    */
   export function minimise<X, E extends IEvaluation>(problem: IProblem<X, E>, start: X, options: IOptions): IResult<X, E> {
+    const first: E = problem.evaluate(start);
+    if (options.restore !== true) return descend(problem, start, first, options, true);
+    const known: IResult<X, E> = problem.feasible(first)
+      ? { x: start, evaluation: first, penalty: options.penalties[0]!, radius: options.radius ?? options.schedule.trust, collapsed: false }
+      : descend(problem, start, first, { schedule: options.schedule, penalties: [options.penalties[0]!], rounds: options.rounds }, false);
+    if (!problem.feasible(known.evaluation)) return known;
+    const solved: IResult<X, E> = descend(problem, known.x, known.evaluation, options, true);
+    return problem.feasible(solved.evaluation) ? solved : known;
+  }
+
+  /** The loop from an iterate already read, over the penalties, the objective in the merit and the model or out of both. */
+  function descend<X, E extends IEvaluation>(problem: IProblem<X, E>, start: X, first: E, options: IOptions, objective: boolean): IResult<X, E> {
     const s: ISchedule = options.schedule;
     let x: X = start;
-    let current: E = problem.evaluate(x);
+    let current: E = first;
     let radius: number = options.radius ?? s.trust;
     let penalty: number = options.penalties[0]!;
     let collapsed: boolean = false;
@@ -191,8 +222,8 @@ export namespace HumanSequentialConvex {
       if (options.from !== undefined && mu < options.from) continue;
       penalty = mu;
       for (let round: number = 0; round < options.rounds; ++round) {
-        const model: IModel<X> = problem.convexify(x, current, mu, radius);
-        const merit: number = current.objective + mu * current.violation;
+        const model: IModel<X> = problem.convexify(x, current, mu, radius, objective);
+        const merit: number = (objective ? current.objective : 0) + mu * current.violation;
         let taken: boolean = false;
         let settled: boolean = false;
         let told: boolean = false;
@@ -210,7 +241,7 @@ export namespace HumanSequentialConvex {
             break;
           }
           const next: E = problem.evaluate(step.trial);
-          const ratio: number = step.predicted > 0 ? (merit - (next.objective + mu * next.violation)) / step.predicted : -Infinity;
+          const ratio: number = step.predicted > 0 ? (merit - ((objective ? next.objective : 0) + mu * next.violation)) / step.predicted : -Infinity;
           if (ratio > s.eta) {
             model.taken?.();
             x = step.trial;
