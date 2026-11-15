@@ -13,7 +13,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 Trace only footage the production may use, and ask the user before tracing anyone else's:
 
 - the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
-- the choreography, which can be protected once filmed as a selection and arrangement of movement, though single steps and social dances are not; a claim over a few counts has been allowed to proceed, and a change of body or medium does not clear it;
+- the choreography, which copyright can protect once filmed, though single steps and social dances are not;
 - the performer's consent where the face, voice or recognizable likeness is kept;
 - the estimator's and the body model's licenses, as [clips](clips.md#licenses) sets.
 
@@ -24,16 +24,14 @@ Estimators and capture services agree on the footage they need:
 - a fixed camera at chest height, no zoom, no cuts, no wide or fisheye lens, square to the performer;
 - the whole body from head to feet in frame for the whole take, unobstructed, in snug clothing of a color apart from the background, under bright, even light;
 - one performer, or performers who never cross or touch, because most estimators lose a person behind another and refuse contact between them;
-- at least 1080p and as high a frame rate as the camera gives, 60 fps or more for fast motion such as dance, because accuracy drops below 60;
+- at least 1080p and as high a frame rate as the camera gives, because fast motion such as dance blurs and skips poses between frames;
 - floor work shot from a three-quarter angle, and hands large in frame where fingers matter.
 
 Several cameras around the performer, calibrated together, recover what one camera hides, such as spins and floor work.
 
 ## Estimate
 
-Estimate the body and its world path with a model that grounds the motion, stating whether the camera was static or moving and its focal length where known, because a wrong assumption bends the root path. Resample the footage to the frame rate the estimator expects, because some time their output by a fixed rate. Estimate fingers separately where the shot shows them.
-
-Examples: [GVHMR](https://github.com/zju3dv/GVHMR), research-only; [WHAM](https://github.com/yohanshin/WHAM), MIT code over SMPL; [GEM-X](https://github.com/NVlabs/GEM-X), on the SOMA body; [SAM 3D Body](https://github.com/facebookresearch/sam-3d-body) with [MHR](https://github.com/facebookresearch/MHR), per image; [HaMeR](https://github.com/geopavlakos/hamer) for hands.
+Estimate the body and its world path with a model that grounds the motion, stating whether the camera was static or moving and its focal length where known, because a wrong assumption bends the root path. Resample the footage to the frame rate the estimator expects, because some time their output by a fixed rate. Estimate fingers separately where the shot shows them. [Motion models](models.md#pose-estimators) shows current estimators.
 
 ## Clean
 

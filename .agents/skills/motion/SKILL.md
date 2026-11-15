@@ -14,7 +14,7 @@ Motion starts from interaction: the body acting on the floor, a prop, a partner 
 | Rule | Covers |
 | --- | --- |
 | [Effector goals](laws/authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
-| [Laws](laws/declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
+| [Law design](laws/declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
 | [Variation](laws/variation.md) | Parameters, skill and seed, and draws that replay |
 | [Transitions](laws/transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
 | [Contacts](laws/contacts.md) | Support frames, feet, held objects and contact between performers |
@@ -44,7 +44,7 @@ Work in this order, because each step fixes what the next one builds on.
 
    The study gives the key poses, the phases with their timing, and the measured values at novice and expert level. An action written before its study invents the practice.
 
-2. Declare the law's surface under [laws](laws/declaration.md).
+2. Declare the law's surface under [law design](laws/declaration.md).
 
    The surface is the law's parameters and targets, its events and decisive instant, its outcomes and its [out-of-reach rule](laws/authoring.md#out-of-reach).
 

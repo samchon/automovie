@@ -1,6 +1,6 @@
 # 3D models
 
-These examples show how differently current text- and image-to-3D models take a hint; they are not a complete or required list. Their documentation, read when choosing, owns every value, and their terms decide whether the output may be used.
+Text- and image-to-3D models differ in how many views they take, whether they accept a shape, and what they deliver beyond the mesh. The table samples current ones for comparison; read the chosen model's documentation for every value, and its terms for whether the output may be used.
 
 | Model | Runs as | Takes | Beyond the mesh | Documentation |
 | --- | --- | --- | --- | --- |

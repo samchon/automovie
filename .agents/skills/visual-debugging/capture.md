@@ -51,7 +51,7 @@ A reviewer who sees a moving picture only as stills says so, and claims nothing 
 
 ## Stills and sheets
 
-Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. Lay sheets out for their reader: a vision model downsizes an image whose longest edge or token count exceeds a limit and reads detail unreliably below a smallest edge, which the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision) states as 1568 px and 1,568 tokens (2576 px and 4,784 tokens from Claude 4.7) and 200 px. Keep every sheet within both limits and every cell at least the smallest, and spread the cells over more sheets rather than shrink them. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
+Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. Lay sheets out for their reader: a vision model downsizes an image whose longest edge or token count exceeds a limit and reads detail unreliably below a smallest edge, which the reading model's documentation states, such as the [Claude vision guide](https://platform.claude.com/docs/en/build-with-claude/vision)'s 1568 px, 1,568 tokens and 200 px. Keep every sheet within both limits and every cell at least the smallest, and spread the cells over more sheets rather than shrink them. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
 
 A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence.
 

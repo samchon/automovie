@@ -9,17 +9,17 @@ A request that continues an accepted take takes it as the model allows:
 - its ending as a second video, where the model takes several videos with separate roles, counted against the request's total input length;
 - a chain frame as its first frame, otherwise.
 
-Choose the chain frame before the take slows toward its end, not its literal last frame, because the end drifts most. Record the chosen frame in the request, and state in the new prompt the pose and state at the seam.
+Choose the chain frame before the take slows toward its [drifting end](../requests.md#intervals), not its literal last frame. Record the chosen frame in the request, and state in the new prompt the pose and state at the seam.
 
 Pass the take on in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
 
-An extend mode often takes no hint and keeps only the last frame or last seconds as context. It returns the input joined to the new part, so [place](../generation.md#place-takes-in-time) only the new part. Where the model cannot take the continuation beside the hint, end the request at a cut.
+An extend mode often takes no hint and keeps only the last frame or last seconds as context, and its result is [placed](../generation.md#place-takes-in-time) by what it adds. Where the model cannot take the continuation beside the hint, end the request at a cut.
 
 ## Across the film
 
-Give every request the same canon references and the [shared description](prompts.md#shared-description) in identical words, because each request knows nothing of the last. Rely on those references for identity, never on a seed, as [media records](../../production/media-records.md#records) explains.
+Give every request the same canon references and the [shared description](prompts.md#shared-description), because each request knows nothing of the last. Rely on those references for identity, never on a seed, as [media records](../../production/media-records.md#records) explains.
 
-Where the model offers an element or subject, bind a character's references into it; some take only photoreal people. On an open model, train a character LoRA when the character recurs across many requests, on the frozen canon references and accepted shot frames or takes, never the gray hint.
+Where the model offers an element or subject, bind a character's references into it; some take only photoreal people. An open model can also take a character LoRA for a character that recurs across many requests, trained on the frozen canon references and accepted shot frames or takes, never the gray hint.
 
 A character's generated voice is kept under [audio](../../audio/SKILL.md#generated-sound).
 

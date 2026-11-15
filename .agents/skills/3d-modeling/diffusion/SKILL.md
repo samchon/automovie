@@ -9,7 +9,7 @@ A diffusion model turns a prompt, images or a shape into a mesh. Steer it with t
 
 | The project has | Read |
 | --- | --- |
-| A shape to keep, such as a proxy, a crafted form or a body | [Shape hints](shape-hints.md) |
+| A shape to keep, such as a coarse form, a crafted form or a body | [Shape hints](shape-hints.md) |
 | An image of the subject, or views of it | [Image hints](image-hints.md) |
 | Only a description | [Text prompts](prompts.md) |
 

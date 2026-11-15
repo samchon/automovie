@@ -1,6 +1,6 @@
 # Method references
 
-These references inform a law written under [extend](SKILL.md), and the retargeting and control-channel checks; for what the installed motion vocabulary performs, it has already made these choices.
+These references inform a law written under [vocabulary extension](SKILL.md), and the retargeting and control-channel checks; for what the installed motion vocabulary performs, it has already made these choices.
 
 Take movement evidence from the [performance study](../../story/planning/research.md#performance-study) and its retained references; the sources below inform implementation methods and failure checks only. Those sources' experiments, embodiments and hardware neither validate this production nor supply an installed solver, so check an adopted principle through the current host and commissioned output. Read the installed engine's README before adopting a method, because it may already provide one.
 

@@ -10,7 +10,7 @@ Write the prompt in plain prose, in this order: the inputs' roles, the shared de
 
 The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing").
 
-Name the gray forms as what each one becomes, never as their appearance, such as clay or 3D.
+Name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D.
 
 ## From the story
 
@@ -18,7 +18,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them. Where the model's guide asks, leave out what a first frame already shows.
+Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md). Keep them in one file that every request cites, where [media records](../../production/media-records.md#files) puts generation requests, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them. Where the model's guide asks, leave out what a first frame already shows.
 
 ### Request paragraph
 

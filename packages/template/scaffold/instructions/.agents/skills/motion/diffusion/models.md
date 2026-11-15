@@ -1,6 +1,8 @@
 # Motion models
 
-These examples show how differently current motion models take a hint; they are not a complete or required list. Their documentation owns every value, and [clips](clips.md#licenses) sets how to read their licenses.
+Motion models differ in what they take, which skeleton and frame rate they return, and whose rights they carry. The user can choose one outside these tables; its documentation owns every value, and [clips](clips.md#licenses) sets how to read its license.
+
+## Generators
 
 | Model | Takes | Gives | Note |
 | --- | --- | --- | --- |
@@ -10,3 +12,13 @@ These examples show how differently current motion models take a hint; they are 
 | [OmniControl](https://github.com/neu-vi/OmniControl) | Text with any joint's position at any frame | 22 joint positions | MIT code over SMPL-family data |
 | [EDGE](https://github.com/Stanford-TML/EDGE) | Music, with joints or frames to keep | Dance, exported to FBX | MIT |
 | [HY-Motion](https://github.com/Tencent-Hunyuan/HY-Motion-1.0) | Text | SMPL-H rotations at 30 fps | No objects or partners; territory limits |
+
+## Pose estimators
+
+| Estimator | Takes | Note |
+| --- | --- | --- |
+| [GVHMR](https://github.com/zju3dv/GVHMR) | Video, static or moving camera | World-grounded body; research-only |
+| [WHAM](https://github.com/yohanshin/WHAM) | Video | World-grounded body; MIT code over SMPL |
+| [GEM-X](https://github.com/NVlabs/GEM-X) | Video | On the SOMA body |
+| [SAM 3D Body](https://github.com/facebookresearch/sam-3d-body) | One image at a time | On the [MHR](https://github.com/facebookresearch/MHR) body |
+| [HaMeR](https://github.com/geopavlakos/hamer) | Images | Hands only |

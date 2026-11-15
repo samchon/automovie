@@ -12,7 +12,7 @@ Record Foley when the required material or movement is missing. Capture isolated
 
 When generating, describe the source, action and recording character, have the user audition a short result, then select variations before expanding.
 
-[Stable Audio](https://github.com/Stability-AI/stable-audio-3) is one purpose-built option; its current model documentation owns setup, controls and output rights. Evaluate those rights separately from the inference code's license.
+[Stable Audio](https://github.com/Stability-AI/stable-audio-3) is one purpose-built option; its current model documentation owns setup, controls and output rights.
 
 ## Edit with picture
 

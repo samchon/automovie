@@ -1,6 +1,6 @@
 # Shape hints
 
-A shape the project already has, such as a rough proxy of primitives, a crafted form or a body, can steer generation more exactly than any picture. Choose the technique by what must hold:
+A shape the project already has, such as a coarse form of a few primitives, a crafted form or a body, can steer generation more exactly than any picture. Choose the technique by what must hold:
 
 | What must hold | Technique | How closely it holds |
 | --- | --- | --- |
@@ -12,13 +12,13 @@ A shape the project already has, such as a rough proxy of primitives, a crafted 
 
 ## Geometry condition
 
-A model that takes a mesh, voxels, a point cloud or a bounding box as a condition generates a new detailed mesh whose layout follows it, usually beside an image or prompt for appearance. It is not a stretch of the proxy: a longer box may gain parts, such as a sofa's extra legs. A model that partly noises the condition before denoising trades faithfulness against realism through that strength.
+A model that takes a mesh, voxels, a point cloud or a bounding box as a condition generates a new detailed mesh whose layout follows it, usually beside an image or prompt for appearance. It is not a stretch of the coarse form: a longer box may gain parts, such as a sofa's extra legs. A model that partly noises the condition before denoising trades faithfulness against realism through that strength.
 
 Examples: [Hunyuan3D-Omni](https://github.com/Tencent-Hunyuan/Hunyuan3D-Omni), which takes point, voxel, box or pose conditions; [SpaceControl](https://github.com/spacecontrol3d/spacecontrol), over TRELLIS; [TRELLIS variants](https://github.com/microsoft/TRELLIS), from a mesh and a prompt.
 
 ## Texture on the given mesh
 
-A texturing model paints the given mesh from a prompt or a reference image and keeps its geometry. Use it when the shape is final; on a bare proxy it only paints the primitives.
+A texturing model paints the given mesh from a prompt or a reference image and keeps its geometry. Use it when the shape is final; on a coarse form it only paints the primitives.
 
 Examples: [Hunyuan3D-Paint](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1), [TRELLIS.2 texturing](https://github.com/microsoft/TRELLIS.2), [MV-Adapter](https://github.com/huanngzh/MV-Adapter); hosted retexturing of an uploaded mesh, such as [Meshy](https://docs.meshy.ai/en/api/retexture) or [Tripo](https://developers.tripo3d.com/en/docs/models-texture).
 

@@ -3,7 +3,7 @@ name: motion-laws
 description: Extends the installed motion vocabulary when composing cannot stage a beat, by a lexicon row, a row of the production's own or a registered law, and holds the shared rules for designing and verifying a law. Use when a beat needs an action or a moving body the installed packages lack.
 ---
 
-# Extend the vocabulary
+# Vocabulary extension
 
 What to do when a beat needs an action or a moving body the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production.
 
@@ -40,7 +40,7 @@ A row takes only its study's values. A law is designed under these shared motion
 | Rule | Read when |
 | --- | --- |
 | [Effector goals](authoring.md) | Always: a law states movement as goals on targets, never as tuned joint angles |
-| [Laws](declaration.md) | Designing its plan, entry state, events, outcome and time scale |
+| [Law design](declaration.md) | Designing its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | It differs by parameters, skill or seed |
 | [Transitions](transitions.md) | It is cut, or changes target mid-motion |
 | [Contacts](contacts.md) | It plants, grips or touches |

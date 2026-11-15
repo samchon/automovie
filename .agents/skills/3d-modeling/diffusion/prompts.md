@@ -2,7 +2,7 @@
 
 A text prompt is the weakest hint, so use it alone only when no image or shape describes the subject, and beside them only as far as the model's guide asks; some guides say to omit it for image-to-3D.
 
-Describe the subject, then its materials, then its style, then any technical constraint, with the most important detail first. Name shape, material and scale concretely; a vague prompt such as "a box" fails, and more words do not help. Avoid contradictory or mood words and too many materials.
+Describe the subject, then its materials, then its style, then any technical constraint, with the most important detail first, unless the model's guide orders them otherwise. Name shape, material and scale concretely; a vague prompt such as "a box" fails, and more words do not help. Avoid contradictory or mood words and too many materials.
 
 Write exclusions where the model has a negative field, and otherwise as plain statements such as "no text or labels". A model that turns text into an image first gains from a prompt written for that image.
 

@@ -11,7 +11,7 @@ Realize the screenplay's performance through code. Read [project context](../pro
 
 Whatever a person does is composed from the installed motion vocabulary, on the objects [entity work](../development/entities.md#objects) takes from the installed archetypes. The vocabulary fits each action to the performer's own body, refuses what that body cannot do and reports its own physical bounds, and motion code written for a person in the production has none of the three.
 
-The production writes code that moves a body only under [extend](laws/SKILL.md), for an action the vocabulary lacks or a subject that is not a person. Motion the commission supplies as a clip is [retargeted](retargeting.md) instead, and motion a model generates from the composed performance follows [motion diffusion](diffusion/SKILL.md).
+The production writes code that moves a body only to [extend the vocabulary](laws/SKILL.md), for an action the vocabulary lacks or a subject that is not a person. Motion the commission supplies as a clip is [retargeted](retargeting.md) instead, and motion a model generates from the composed performance follows [motion diffusion](diffusion/SKILL.md).
 
 ## Order
 

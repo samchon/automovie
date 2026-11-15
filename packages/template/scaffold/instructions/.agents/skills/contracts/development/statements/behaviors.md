@@ -11,7 +11,7 @@ Contract: [behaviors.md](../behaviors.md).
 5. It performs no action the study does not record.
 6. Durations and speeds scale with the body, under [time scale](../../../motion/laws/declaration.md#scale-time-with-the-body).
 7. The action is not one the installed motion vocabulary performs, alone or joined with others. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
-8. A person's row or law is registered with the vocabulary under [extend](../../../motion/laws/SKILL.md), so the vocabulary performs it.
+8. A person's row or law is registered with the vocabulary under [vocabulary extension](../../../motion/laws/SKILL.md), so the vocabulary performs it.
 9. A deliberately stylized departure states its factor and reason.
 
 ## Relational goals

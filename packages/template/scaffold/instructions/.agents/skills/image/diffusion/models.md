@@ -1,6 +1,6 @@
 # Image generators
 
-These examples show the routes to an image generator; they are not a complete or required list. Read the chosen generator's current documentation for sizes, input-image count, seed, license and price.
+An image generator's route decides whose key it runs under, where its files land and whether a seed repeats an image; any route the user prefers can serve. Read the chosen generator's current documentation for sizes, input-image count, seed, license and price.
 
 | Generator | Reached through | Note |
 | --- | --- | --- |

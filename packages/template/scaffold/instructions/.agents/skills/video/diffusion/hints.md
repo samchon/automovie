@@ -6,10 +6,10 @@ A video model takes the motion hint in one of a few ways, and the chosen model d
 | --- | --- | --- | --- |
 | Editing or restyling the hint video | Positions, timing and camera closely, while the model repaints the surfaces | The film must follow the hint closely | An edit can recompose the frame, zooming or recentering it; say that the framing holds, and check by overlay |
 | The hint as a reference video | Motion and camera loosely, in a new generation | The look matters more than exact positions | The wording decides whether a video is edited or referenced; a reference supplies only what the prompt says it supplies |
-| A gray-layout adapter | The camera path and the placement of each form, while it replaces the forms | The hint's forms are plain blockout | Shapes still drift, and some need a first frame made from the hint |
+| A gray-layout adapter | The camera path and the placement of each form, while it replaces the forms | The coarse forms must give way to detailed ones while camera and placement hold | Shapes still drift, and some need a first frame made from the hint |
 | Control passes through adapters | Each pass at its own strength, optionally masked over frames and regions | Contacts and positions must hold exactly | A dense pass keeps the coarse shape, as [dense passes](../../motion/control-channels.md#dense-passes) sets; some adapters take one pass per run, so combine passes only where the model's documentation allows |
 | Still frames | Only the pose and camera of the frames given | The model takes no video | The motion between frames is the model's, so [still frames](prompts.md#still-frames) sets how to prompt it |
-| Motion transfer onto a character image | One figure's body motion | A single performer | It follows only the most prominent figure, and a cut or camera move in the motion video can cut the take short |
+| Motion transfer onto a character image | One figure's body motion | A single performer | Only one figure transfers, and [video models](models.md) shows what else a model drops |
 | Dialogue audio with a pose video | Lip sync and gesture from the accepted speech, and the pose where the model takes one | Speech carries the shot, at the speech-and-reaction level | Few models take both; [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2) does |
 
 Keep the hint bare, because surface detail in it competes with the references: plain forms, no textures, no lettering, and no [inspection overlays](../../motion/control-channels.md#render-what-the-receiver-takes).
