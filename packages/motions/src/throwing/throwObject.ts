@@ -1,5 +1,4 @@
 import {
-  AutoMovieGravity,
   AutoMovieStationHermite,
   type IAutoMovieProjectile,
   Quaternion,
@@ -238,9 +237,12 @@ export namespace throwObject {
     const d: number = Math.hypot(delta.x, delta.z);
     const degrees: number =
       context.params.angle ?? throwObjectForm.ANGLE[style];
-    const angle: number = (degrees * Math.PI) / 180;
-    const lift: number = d * Math.tan(angle) - delta.y;
-    if (!(d > 1e-6 && lift > 0))
+    const aimed: IAutoMovieVector3 | undefined = throwObjectLaunch.aimed(
+      release,
+      target,
+      degrees,
+    );
+    if (aimed === undefined)
       throw new HumanRefusal({
         kind: "reach",
         axis: "at",
@@ -248,14 +250,8 @@ export namespace throwObject {
         reason: `a ${style} throw at ${degrees} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
         fix: "aim at a nearer or lower target, or choose a style with a steeper release",
       });
-    const speed: number = Math.sqrt(
-      (AutoMovieGravity.STANDARD * d * d) / (2 * Math.cos(angle) ** 2 * lift),
-    );
-    const velocity: IAutoMovieVector3 = {
-      x: (delta.x / d) * speed * Math.cos(angle),
-      y: speed * Math.sin(angle),
-      z: (delta.z / d) * speed * Math.cos(angle),
-    };
+    const velocity: IAutoMovieVector3 = aimed;
+    const speed: number = Vector3.length(velocity);
 
     // The clock: windup, acceleration from rest to the launch, follow-through
     // to rest, a short hold and the return.

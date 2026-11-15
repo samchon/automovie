@@ -1,9 +1,11 @@
 import { createBall } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieGravity, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   HumanSport,
   HumanSportThrow,
   type IHumanActionLaw,
@@ -33,12 +35,31 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    was released.
  * 4. Over two rows of the same kind at novice and elite proficiency, the
  *    pitch plans at both.
+ * 5. The composition matrix: every row of the six sport families above
+ *    plans alone on the smallest and the largest body (`f-small`,
+ *    `m-large`) at novice and at elite proficiency.
+ * 6. The sprint start's set (Harland and Steele 1997), on `f-small`,
+ *    `m-average` and `m-large` at elite proficiency: at the `set` event
+ *    the front (left) knee's included angle is 90 degrees and the rear
+ *    knee's 130, each within the angle a 1 mm miss of its hip-to-ankle
+ *    distance turns the knee by through the law of cosines, 1 mm the limb
+ *    fit's convergence scale (`KickForm.TOLERANCE`).
+ * 7. A throw-in of a football held from a `pickUp`, at a point on the floor
+ *    15 m ahead, on the same two bodies: the ball is launched at the
+ *    throw-in's `stroke`, rising at the distance-best release angle, 30
+ *    degrees (Linthorne and Everett 2006), within the joints' resolution
+ *    (`ROM_TOLERANCE`); its drag-free path from the launch passes the target
+ *    within 10 mm (the issue's flight bound); and each foot stays within
+ *    5 mm of where it stood (both feet on the ground, the Laws of the Game,
+ *    with the issue's slip bound).
+ * 8. A throw-in given a ball and no target is refused, a `parameter`
+ *    refusal on `at`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the rows' records and performs a pitch with a real ball archetype; a row of the wrong law, a renamed skill, a ball left at the release or a proficiency that does not plan fails.
- * @evidence contracts/development/testing.md#independent-expectations The names and families are the shipped table's; the 2 m is a flight that left the hand, a bound well under the 10 m aimed at.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row family; two bodies; novice and elite.
- * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds four performances in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios.
+ * @evidence contracts/development/testing.md#independent-expectations The names and families are the shipped table's; the 2 m is a flight that left the hand, a bound well under the 10 m aimed at; the knee angles are Harland and Steele's, bounded by the limb fit's convergence scale, the release angle Linthorne and Everett's within the joints' resolution, and the flight and slip bounds the issue's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every row family; three bodies; novice and elite; a throw-in with and without a ball.
+ * @evidence contracts/development/testing.md#execution-ownership Reads the law records and builds about seventy short performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule and the eight numbered scenarios with their bounds and sources.
  */
 export function test_human_motion_sport_rows(): void {
   const rows = (lexicon: object): IHumanActionLaw<never>[] =>
@@ -148,4 +169,223 @@ export function test_human_motion_sport_rows(): void {
         gone > 2,
       );
     }
+
+  const complaints: string[] = [];
+  const solo = (
+    body: IHumanBody,
+    level: "novice" | "elite",
+    law: IHumanActionLaw<never>,
+    params: object,
+  ): HumanPerformance | string => {
+    try {
+      return new HumanPerformance({
+        seed: "sport",
+        laws: [law],
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level },
+          },
+        ],
+        composition: HumanChain.subject("a").registered(
+          law.name,
+          params as never,
+        ).node,
+      });
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    }
+  };
+
+  // 5. The composition matrix.
+  for (const name of ["f-small", "m-large"] as const)
+    for (const level of ["novice", "elite"] as const)
+      for (const [law] of kinds) {
+        const built: HumanPerformance | string = solo(
+          motionHumanBody(name),
+          level,
+          law,
+          {},
+        );
+        if (typeof built === "string")
+          complaints.push(`${name} ${level} ${law.name}: ${built}`);
+      }
+
+  // 6. The sprint start's set.
+  const included = (
+    a: IAutoMovieVector3,
+    knee: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => {
+    const u: IAutoMovieVector3 = Vector3.subtract(a, knee);
+    const v: IAutoMovieVector3 = Vector3.subtract(b, knee);
+    return (
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(1, Vector3.dot(u, v) / (Vector3.length(u) * Vector3.length(v))),
+        ),
+      ) *
+        180) /
+      Math.PI
+    );
+  };
+  for (const name of ["f-small", "m-average", "m-large"] as const) {
+    const body: IHumanBody = motionHumanBody(name);
+    const built: HumanPerformance | string = solo(
+      body,
+      "elite",
+      HumanSport.sprintStart as IHumanActionLaw<never>,
+      {},
+    );
+    if (typeof built === "string") {
+      complaints.push(`${name} sprint start: ${built}`);
+      continue;
+    }
+    const placed = built.segments("a")[0]!;
+    const set: number =
+      placed.start +
+      (placed.plan.events.find((e): boolean => e.name === "set")?.share ??
+        NaN) *
+        placed.plan.duration;
+    if (Number.isNaN(set)) {
+      complaints.push(`${name} sprint start: no set event`);
+      continue;
+    }
+    const bones: ReturnType<HumanPerformance["bones"]> = built.bones("a", set);
+    for (const [side, asked] of [
+      ["left", 90],
+      ["right", 130],
+    ] as const) {
+      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const knee: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
+      const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
+      const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
+      const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
+      // dd = (a b sin(theta) / d) dtheta: the angle a 1 mm miss of the
+      // hip-to-ankle distance d turns the knee by.
+      const d: number = Vector3.length(Vector3.subtract(ankle, hip));
+      const bound: number =
+        ((0.001 * d) / (thigh * shank * Math.sin((asked * Math.PI) / 180))) *
+        (180 / Math.PI);
+      const got: number = included(hip, knee, ankle);
+      if (!(Math.abs(got - asked) <= bound))
+        complaints.push(
+          `${name} sprint start: the ${side} knee is ${got.toFixed(2)} degrees at the set, ${asked} within ${bound.toFixed(2)} expected`,
+        );
+    }
+  }
+
+  // 7 and 8. A throw-in of a football.
+  const football = createBall({ kind: "football" });
+  for (const name of ["f-small", "m-large"] as const) {
+    const body: IHumanBody = motionHumanBody(name);
+    const target: IAutoMovieVector3 = { x: 0, y: 0, z: 15 };
+    const throwIn = (
+      at: IAutoMovieVector3 | undefined,
+    ): HumanPerformance | string | HumanRefusal => {
+      try {
+        return new HumanPerformance({
+          seed: "throwIn",
+          laws: [HumanSport.throwIn],
+          props: [
+            HumanObject.prop("ball", football, {
+              at: { x: 0, y: 0.9, z: 0.3 },
+              yaw: 0,
+            }),
+          ],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .pickUp({ prop: "ball", handle: "grip" })
+            .registered("throwIn", {
+              prop: "ball",
+              ...(at === undefined ? {} : { at }),
+            }).node,
+        });
+      } catch (error) {
+        if (error instanceof HumanRefusal) return error;
+        return error instanceof Error ? error.message : String(error);
+      }
+    };
+    const built: HumanPerformance | string | HumanRefusal = throwIn(target);
+    if (!(built instanceof HumanPerformance))
+      complaints.push(
+        `${name} throw-in: expected to plan, got ${built instanceof HumanRefusal ? built.message : built}`,
+      );
+    else {
+      const all = built.segments("a");
+      const placed = all[all.length - 1]!;
+      const stroke: number =
+        placed.start +
+        (placed.plan.events.find((e): boolean => e.name === "stroke")?.share ??
+          NaN) *
+          placed.plan.duration;
+      const flight = built.flights("ball")[0];
+      if (flight === undefined)
+        complaints.push(`${name} throw-in: the ball is not launched`);
+      else {
+        // The same second, to floating-point rounding.
+        if (!(Math.abs(flight.launch - stroke) <= 1e-9))
+          complaints.push(
+            `${name} throw-in: the ball is launched at ${flight.launch.toFixed(3)} s, at the stroke ${stroke.toFixed(3)} s expected`,
+          );
+        const v: IAutoMovieVector3 = flight.published.velocity;
+        const rise: number =
+          (Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180) / Math.PI;
+        if (!(Math.abs(rise - 30) <= ROM_TOLERANCE))
+          complaints.push(
+            `${name} throw-in: the ball rises at ${rise.toFixed(3)} degrees, 30 expected`,
+          );
+        // The drag-free path where it is level with the target's distance.
+        const o: IAutoMovieVector3 = flight.published.point;
+        const t: number =
+          Math.hypot(target.x - o.x, target.z - o.z) / Math.hypot(v.x, v.z);
+        const height: number =
+          o.y + v.y * t - 0.5 * AutoMovieGravity.STANDARD * t * t;
+        if (!(Math.abs(height - target.y) <= 0.01))
+          complaints.push(
+            `${name} throw-in: the path passes ${((height - target.y) * 1000).toFixed(1)} mm off the target, within 10 mm expected`,
+          );
+      }
+      const feet = (
+        seconds: number,
+      ): ReturnType<HumanPerformance["bones"]> => built.bones("a", seconds);
+      for (const side of ["left", "right"] as const) {
+        const from: IAutoMovieVector3 = feet(placed.start).get(`${side}Foot`)!
+          .worldPosition;
+        const to: IAutoMovieVector3 = feet(Number.isNaN(stroke) ? placed.end : stroke).get(
+          `${side}Foot`,
+        )!.worldPosition;
+        const slid: number = Vector3.length(Vector3.subtract(to, from));
+        if (!(slid <= 0.005))
+          complaints.push(
+            `${name} throw-in: the ${side} foot moves ${(slid * 1000).toFixed(1)} mm before the release, within 5 mm expected`,
+          );
+      }
+    }
+    const refused: HumanPerformance | string | HumanRefusal =
+      throwIn(undefined);
+    if (
+      !(
+        refused instanceof HumanRefusal &&
+        refused.kind === "parameter" &&
+        refused.axis === "at"
+      )
+    )
+      complaints.push(
+        `${name} throw-in with no target: expected a parameter refusal on at, got ${refused instanceof HumanRefusal ? `${refused.kind} on ${refused.axis}` : typeof refused === "string" ? refused : "a plan"}`,
+      );
+  }
+  TestValidator.equals("the sport rows on the grammar", complaints, []);
 }

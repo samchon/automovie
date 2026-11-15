@@ -14,7 +14,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, its writer and its readers.
  * @evidence contracts/development/design.md#principled-representation The initial state of a ballistic path and the path as its closed form.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record, its path, and the held prop's grip window and published launch; gravity is the engine's (`AutoMovieGravity`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record, its path, the aimed velocity, and the held prop's grip window and published launch; gravity is the engine's (`AutoMovieGravity`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain vectors and seconds; no object or hand is named.
  * @evidence contracts/development/implementation.md#principled-implementation Constant gravity along -Y without drag, the model the throw solves its release velocity in, read from the engine's one flight (`projectileAt`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation to the engine's flight.
@@ -99,6 +99,46 @@ export namespace throwObjectLaunch {
             ...(attitude === undefined ? {} : { attitude }),
           },
         ];
+  }
+
+  /**
+   * The launch velocity whose drag-free path from a release passes through a
+   * target, rising at a given angle: the range equation solved for the speed,
+   * `v^2 = g d^2 / (2 cos^2(a) (d tan(a) - h))` over the horizontal distance
+   * `d` and the target's height `h` above the release.
+   *
+   * @param release The release point, world metres.
+   * @param target The target point, world metres.
+   * @param degrees The release's rise above the horizontal, degrees.
+   * @returns The velocity, world metres per second, or undefined when no path at that angle reaches the target (it lies straight above, or above the line the angle rises along).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the equation, its terms and when it has no solution.
+   * @evidence contracts/development/implementation.md#principled-implementation The range equation under the engine's standard gravity, the model the flight then follows (`projectileAt`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The distance, the lift, the speed and its components.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable target returns undefined for the caller's refusal, never a clamped speed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one aimed launch the throw and the throw-in solve (`throwObject`, `ballSport`).
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function aimed(
+    release: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    degrees: number,
+  ): IAutoMovieVector3 | undefined {
+    const dx: number = target.x - release.x;
+    const dz: number = target.z - release.z;
+    const d: number = Math.hypot(dx, dz);
+    const angle: number = (degrees * Math.PI) / 180;
+    const lift: number = d * Math.tan(angle) - (target.y - release.y);
+    if (!(d > 1e-6 && lift > 0)) return undefined;
+    const speed: number = Math.sqrt(
+      (AutoMovieGravity.STANDARD * d * d) / (2 * Math.cos(angle) ** 2 * lift),
+    );
+    return {
+      x: (dx / d) * speed * Math.cos(angle),
+      y: speed * Math.sin(angle),
+      z: (dz / d) * speed * Math.cos(angle),
+    };
   }
 
   /**
