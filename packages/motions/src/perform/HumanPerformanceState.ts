@@ -23,6 +23,7 @@ import type { HumanObstacle } from "./HumanObstacle";
 import type { HumanPerformance } from "./HumanPerformance";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
@@ -326,6 +327,46 @@ export class HumanPerformanceState {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A worn span names its bone; a held span leaves it absent, so one list orders both.
  */
 export namespace HumanPerformanceState {
+  /** How many resolved performances a process keeps, the most recently read: a memory bound no act reads, sized to the most takes one consumer interleaves (the rows of a law that a test process reads in turn, the cards a page shows at once), and few enough that each one's pose caches stay in memory. */
+  export const KEEP: number = 8;
+
+  /**
+   * The resolved performance of an input: the one resolved before from an
+   * equal input (`HumanPerformanceKey`) when the process keeps it, the input
+   * resolved afresh otherwise. A resolution is a pure function of its input,
+   * so an equal input reads the same plans, schedule and contacts; what its
+   * readers add later is caches of the same pure functions. A refusal is not
+   * kept, so it is thrown afresh each time.
+   *
+   * @param input The chain seed, the performers, the props and the composition.
+   * @returns The resolved performance.
+   * @throws {HumanRefusal} When the input does not resolve.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read again, why it may be and what is not kept.
+   * @evidence contracts/development/implementation.md#principled-implementation Memoisation of a pure function by its argument's structural key, the least recently read dropped first.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key, one look-up, one resolution where it misses.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key is the input's content and identities, never a shared reference to a caller's object, so a changed input misses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key walk per call; a hit skips the whole resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every performance of an equal input in the process reads one resolution, a website session's reread take as much as a test's.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most `KEEP` resolutions are kept; the least recently read is released first.
+   */
+  export function of(input: HumanPerformance.IInput): HumanPerformanceState {
+    const key: string = HumanPerformanceKey.of(input);
+    const kept: HumanPerformanceState | undefined = KEPT.get(key);
+    if (kept !== undefined) {
+      KEPT.delete(key);
+      KEPT.set(key, kept);
+      return kept;
+    }
+    const state: HumanPerformanceState = new HumanPerformanceState(input);
+    KEPT.set(key, state);
+    if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
+    return state;
+  }
+
+  /** The kept resolutions by key, the least recently read first. */
+  const KEPT: Map<string, HumanPerformanceState> = new Map();
+
   /** One span in which a prop is held in a hand or worn on a bone. */
   export interface IGrip {
     /** The person who holds or wears it. */
