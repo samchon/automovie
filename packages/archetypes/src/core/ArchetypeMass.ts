@@ -163,6 +163,53 @@ export namespace ArchetypeMass {
   }
 
   /**
+   * Each part's own mass under a total mass, by the same weights `of` shares it by.
+   *
+   * @param parts The model's parts at rest.
+   * @param mass The total mass, kilograms.
+   * @param density Relative densities by part id; 1 for a part not listed.
+   * @param shares Weights by part id that replace volume times density, as `of` takes them.
+   * @returns Each part's mass by id, kilograms; a part without volume or share weighs nothing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the zero.
+   * @evidence contracts/development/implementation.md#principled-implementation Each part's weight is its share or its volume times its density, as in `of`, and its mass the total's share of the weights.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the weights, one for the masses.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s volume rule.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function parts(
+    parts: readonly IAutoMovieModelPart[],
+    mass: number,
+    density: Readonly<Record<string, number>> = {},
+    shares: Readonly<Record<string, number>> = {},
+  ): Record<string, number> {
+    const weights: [string, number][] = parts.map(
+      (part: IAutoMovieModelPart): [string, number] => {
+        const solid: ILocal | null =
+          part.geometry.type === "primitive" ? local(part.geometry.shape) : null;
+        return [
+          part.id,
+          solid === null
+            ? 0
+            : (shares[part.id] ?? solid.volume * (density[part.id] ?? 1)),
+        ];
+      },
+    );
+    const total: number = weights.reduce(
+      (sum: number, [, w]: [string, number]): number => sum + w,
+      0,
+    );
+    return Object.fromEntries(
+      weights.map(([id, w]: [string, number]): [string, number] => [
+        id,
+        total > 0 ? (mass * w) / total : 0,
+      ]),
+    );
+  }
+
+  /**
    * A rigid body's mass properties placed in a common space.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.

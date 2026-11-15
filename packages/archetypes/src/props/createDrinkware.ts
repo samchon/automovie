@@ -308,7 +308,15 @@ export function createDrinkware(
     frame: ArchetypeFrame.upright(Vector3.create(0, height, rim)),
     extent: null,
   });
-  return builder.build(d.mass! + fill * CAPACITY[kind]);
+  // A beer bottle breaks at the energies a drop tower measured on half-litre beer bottles: its body leaves as shards and its neck stays in the hand.
+  const breaking: number | undefined =
+    kind === "beerBottle" ? createDrinkware.BREAKING[fill] : undefined;
+  if (breaking !== undefined)
+    builder.fracture([{ id: "shards", parts: ["body"] }]);
+  return builder.build(
+    d.mass! + fill * CAPACITY[kind],
+    breaking === undefined ? undefined : { outcome: { fracture: breaking } },
+  );
 }
 
 /**
@@ -320,6 +328,9 @@ export function createDrinkware(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A kind without a part has no band for it, so a glass cannot be given a handle.
  */
 export namespace createDrinkware {
+  /** A beer bottle's breaking energy, joules, by its fill: "Full bottles broke at 30J impact energy, empty bottles at 40J", standard half-litre beer bottles in a drop tower (Bolliger et al., Are full or empty beer bottles sturdier and does their fracture-threshold suffice to break the human skull?, J. Forensic Leg. Med. 16(3):138-142, 2009, abstract, https://britglass.org.uk/knowledge-base/digital-library-and-information-services/are-full-or-empty-beer-bottles-sturdier-and). A part-filled bottle's, which no source read gives, is absent, so it does not break. */
+  export const BREAKING: Readonly<Record<number, number>> = { 0: 40, 1: 30 };
+
   /** The kinds of vessel. */
   export type Kind =
     | "mug"

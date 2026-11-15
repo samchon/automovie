@@ -16,6 +16,7 @@ import type {
 
 import { Archetype } from "./Archetype";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import type { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -58,6 +59,9 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
 
   /** Surface materials declared so far, by part id. */
   readonly #surfaces: Record<string, ArchetypeFriction.Material> = {};
+
+  /** The fragment sets declared so far. */
+  readonly #fractures: ArchetypeFracture.ISet[] = [];
 
   /** The producer's identity and its draws. */
   readonly #props: ArchetypeBuilder.IProps<Dimension>;
@@ -247,6 +251,37 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   }
 
   /**
+   * Declare the sets of parts a hit breaks off, each a fragment; the threshold is the body's `contact.fracture`, given to `build` as `outcome`.
+   *
+   * @param sets The fragment sets, each an id and the parts it carries away.
+   * @returns This builder.
+   * @throws {Error} When a set names a part not yet recorded, or a part another set already names, a producer's defect.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's parts must exist and belong to no other set, so every part is in at most one fragment and the remainder is the rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown or shared part throws rather than being dropped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
+   */
+  public fracture(sets: readonly ArchetypeFracture.ISet[]): this {
+    const named: Set<string> = new Set(
+      this.#fractures.flatMap((s: ArchetypeFracture.ISet): readonly string[] => s.parts),
+    );
+    for (const set of sets)
+      for (const part of set.parts) {
+        if (!this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part))
+          throw new Error(`fracture set ${set.id} names the unrecorded part ${part}`);
+        if (named.has(part))
+          throw new Error(`fracture set ${set.id} names ${part}, which another set already carries`);
+        named.add(part);
+      }
+    this.#fractures.push(...sets);
+    return this;
+  }
+
+  /**
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
@@ -303,6 +338,13 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       restitution: contact?.restitution ?? 0.2,
       drag: contact?.drag ?? null,
       contact: contact?.outcome ?? null,
+      fractures: this.#fractures,
+      masses: ArchetypeMass.parts(
+        this.#parts,
+        mass,
+        this.#density,
+        this.#shares,
+      ),
       dimensions: this.#props.draw.values,
       provenance: this.#props.draw.provenance,
       spans: this.#spans,

@@ -1,3 +1,4 @@
+export * from "./createArmour";
 export * from "./createBow";
 export * from "./createCannon";
 export * from "./createClub";

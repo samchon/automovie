@@ -13,6 +13,7 @@ import type {
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
 import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -439,6 +440,42 @@ export class Archetype<
   ): number {
     return ArchetypeMass.about(this.#rest.properties, through, direction);
   }
+
+  /**
+   * What a hit leaves of this archetype at rest: its remainder and its fragments, each an archetype, or null when it does not break.
+   *
+   * @param hit The hit's energy and momentum.
+   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when the archetype declares no fracture or the hit's energy is below its body's `contact.fracture`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
+   * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One split, then one construction per record.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `split`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFracture.split`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public broken(hit: ArchetypeFracture.IHit): {
+    remainder: Archetype<Id, Dimension> | null;
+    fragments: { id: string; archetype: Archetype<never, Dimension>; velocity: IAutoMovieVector3 }[];
+  } | null {
+    const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
+      ArchetypeFracture.split(this.#rest, hit);
+    if (split === null) return null;
+    return {
+      remainder:
+        split.remainder === null
+          ? null
+          : new Archetype<Id, Dimension>(split.remainder),
+      fragments: split.fragments.map(
+        (f: { id: string; props: Archetype.IProps<never, Dimension>; velocity: IAutoMovieVector3 }) => ({
+          id: f.id,
+          archetype: new Archetype<never, Dimension>(f.props),
+          velocity: f.velocity,
+        }),
+      ),
+    };
+  }
 }
 
 /**
@@ -492,6 +529,12 @@ export namespace Archetype {
 
     /** How the body ends a flight against what it strikes; null when it declares none. */
     contact: IAutoMovieBodyContact | null;
+
+    /** The sets of parts a hit breaks off, each a fragment; empty for an archetype that does not break. */
+    fractures: readonly ArchetypeFracture.ISet[];
+
+    /** Each part's own mass, kilograms, by part id, the shares its mass properties were built from. */
+    masses: Readonly<Record<string, number>>;
 
     /** The value of each free dimension the variant has. */
     dimensions: Readonly<Partial<Record<Dimension, number>>>;

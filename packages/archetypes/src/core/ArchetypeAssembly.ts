@@ -214,6 +214,9 @@ export class ArchetypeAssembly<
         // An assembly is no launched body: no member's flight data speaks for the whole.
         drag: null,
         contact: null,
+        // An assembly does not break as one: a member that breaks is broken on its own.
+        fractures: [],
+        masses: {},
         dimensions: {},
         provenance: { bands: {}, models: {}, figures: {}, units: {} },
         spans,
