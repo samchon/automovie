@@ -438,12 +438,17 @@ export namespace crouch {
         share,
       );
 
-    return composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "lowest",
-      primitives: [sink, rest("left"), rest("right")],
-    });
+    // The crouch rises again at its end, so it leaves the body standing
+    // (#3363: a base transition declares the base it ends in).
+    return {
+      ...composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "lowest",
+        primitives: [sink, rest("left"), rest("right")],
+      }),
+      base: { kind: "standing" },
+    };
   }
 
   /**

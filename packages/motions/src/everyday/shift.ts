@@ -127,6 +127,12 @@ export namespace shift {
     const set: number = 0.85 * slide;
     return {
       duration,
+      // A shift slides along the seat it was entered on and stays seated on
+      // it (#3363: a base transition declares the base it ends in).
+      base:
+        context.entry.base.kind === "seated"
+          ? context.entry.base
+          : { kind: "seated" },
       events: [
         { name: "seatOff", share: lift / duration },
         { name: "seatContact", share: set / duration },

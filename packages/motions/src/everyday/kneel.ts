@@ -469,12 +469,18 @@ export namespace kneel {
       { ...context, params: { seconds: duration } },
       k,
     );
-    return composeAutoMovieMotionHumanAction({
-      base: { ...base, contacts },
-      clock,
-      contact: marks[0]!,
-      primitives: [kneelBody, hand("left"), hand("right")],
-    });
+    // A kneel that rises leaves the body standing; one that stays down
+    // leaves it kneeling (#3363: a base transition declares the base it
+    // ends in).
+    return {
+      ...composeAutoMovieMotionHumanAction({
+        base: { ...base, contacts },
+        clock,
+        contact: marks[0]!,
+        primitives: [kneelBody, hand("left"), hand("right")],
+      }),
+      base: { kind: rise ? "standing" : "kneeling" },
+    };
   }
 
   /** A phase between two key states. */

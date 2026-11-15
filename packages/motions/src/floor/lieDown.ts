@@ -390,7 +390,12 @@ export namespace lieDown {
       contact: "settled",
       primitives: [lying],
     });
-    return sitting ? { ...planned, base: { kind: "seated" } } : planned;
+    // Down on the floor the body lies; a lie that stops sitting up is seated
+    // (#3363: a base transition declares the base it ends in).
+    return {
+      ...planned,
+      base: sitting ? { kind: "seated" } : { kind: "lying" },
+    };
   }
 
   /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
