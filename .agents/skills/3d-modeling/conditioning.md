@@ -25,11 +25,11 @@ Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce
 | Carries crafted parts, such as a generated figure holding a crafted prop | Define each [connection](modularization.md#frames-and-connections) once for both sides |
 | Varies by a parameter | [Variation](#variation) |
 
-Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them, and after any remesh, which replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
+Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
 
 ## Normalize
 
-Convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Finish every service step, such as a remesh, segmentation or rig, on the service's own output before this step, facing as that service requires, because a service can return a wrongly oriented result that still reports success. Check the result against a known real dimension, such as a figure's height or a door's width.
+Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, facing as that service requires, because a service can return a wrongly oriented result that still reports success. Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width.
 
 Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
 

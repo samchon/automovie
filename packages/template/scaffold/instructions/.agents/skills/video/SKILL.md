@@ -7,9 +7,7 @@ description: Chooses the video generation model for a production, plans each sce
 
 Video is generated only when the commission calls for it; a motion hint or a direct 3D film never silently requires a generator.
 
-A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, some turn a gray layout into the shot, open models take pose, depth or outline passes at a strength the request sets, and others accept only still frames.
-
-Its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
+A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared, and its limits on length, frame rate, references and prompt size decide how scenes become requests, so choose the model before planning requests or writing prompts:
 
 1. Choose the model with the user and read its documentation under [video diffusion](diffusion/SKILL.md).
 2. Write the [shared description](diffusion/prompts.md#shared-description), then prepare the canon references under [image](../image/SKILL.md).

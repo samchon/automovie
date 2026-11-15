@@ -6,7 +6,7 @@ A capture is the stills, contact sheets and record that one plan produces. This 
 
 The instrument, the inspection and capture core with the inspector page and the capture host that drive it, is one tool. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
 
-Repair a missing capability at the owner of that capability, or report it to an owner the project cannot change, and after its repair reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
+Repair a missing capability at its owner, or report it where the project cannot change that owner; once it is repaired, reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
 
 ## Plan
 

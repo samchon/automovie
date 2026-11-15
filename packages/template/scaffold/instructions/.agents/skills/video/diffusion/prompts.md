@@ -2,7 +2,7 @@
 
 A video prompt tells a model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
-Follow the selected model's own prompting guide, linked in [diffusion models](SKILL.md). The rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
+Follow the selected model's own prompting guide, as [video models](models.md) links them. The rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
 
 ## Sources
 
@@ -10,7 +10,7 @@ A prompt is put together from what the story already decided, so no request inve
 
 ### Shared description
 
-Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them. Leave out the description of what a first frame already shows where the model's guide asks it, as image-to-video guides often do.
+Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them. Where the model's guide asks, leave out what a first frame already shows.
 
 ### Request paragraph
 
@@ -32,7 +32,7 @@ Write the prompt in plain prose, in this order: the inputs' roles, the shared de
 
 ### What to show
 
-Describe what to show, not what to avoid, because a negated word still primes its concept. Use a negative field, or exclusion wording, only as the model's guide describes it, such as a model that adds music or subtitles unless the prompt excludes them.
+Describe what to show, not what to avoid, because a negated word still primes its concept. Use a negative field or exclusion wording only as the model's guide describes, as for a model that adds music or subtitles unless told not to.
 
 ### Settings stay out of prose
 
@@ -50,7 +50,7 @@ Name the gray forms as what each one becomes, never as their appearance, such as
 
 ## Sound
 
-Write the request's sound, decided under [audio](../../audio/SKILL.md), in the syntax of the model's guide, which differs between models: attribute each line to its speaker as the visual description names them, and keep effects, ambience and music apart from speech. Where the guide's examples disagree, as quotation marks can render a line as on-screen text in one model, take the form the selected model's current guide gives for dialogue. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../../audio/SKILL.md), in the dialogue form the selected model's current guide gives, because forms differ and quotation marks render a line as on-screen text in one model. Attribute each line to its speaker as the visual description names them, and keep effects, ambience and music apart from speech. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 

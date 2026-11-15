@@ -4,16 +4,16 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 
 | Use | What is taken from the trace |
 | --- | --- |
-| A clip the user chose to trace, including a generated video, which is never a study's evidence | The whole motion, cleaned, then [retargeted](../retargeting.md) onto the cast member |
+| A clip the user chose to trace, from footage or a generated video | The whole motion, cleaned, then [retargeted](../retargeting.md) onto the cast member |
 | Keys for the composed performance | Poses at chosen instants, which the vocabulary [composes](../compose/SKILL.md) between or a model in-betweens under [hints](hints.md) |
-| A [performance study](../../story/planning/research.md#performance-study) | Timing, ranges and paths, recorded as estimates with their method |
+| A [performance study](../../story/planning/research.md#performance-study), from real footage only | Timing, ranges and paths, recorded as estimates with their method |
 
 ## Rights first
 
 Trace only footage the production may use, and ask the user before tracing anyone else's:
 
 - the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
-- the choreography, which can be protected once filmed as a selection and arrangement of movement, while single steps and social dances are not; courts have let claims over a few counts proceed, and a change of body or medium does not clear them;
+- the choreography, which can be protected once filmed as a selection and arrangement of movement, though single steps and social dances are not; a claim over a few counts has been allowed to proceed, and a change of body or medium does not clear it;
 - the performer's consent where the face, voice or recognizable likeness is kept;
 - the estimator's license, since several are research-only, and the body model's, since SMPL and SMPL-X forbid commercial use without a separate license.
 

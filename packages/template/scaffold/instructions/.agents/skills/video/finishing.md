@@ -9,11 +9,13 @@ A take that is right except for a local flaw, such as a hand, a face, a stray ob
 - regenerate a time range and keep the rest;
 - regenerate a masked region over its frames;
 - edit by instruction, saying what changes and that everything else stays;
-- re-sync a face to the accepted dialogue audio with a dubbing model, which regenerates the head and body around the mouth and follows the take's camera only approximately, often at a lower resolution, so recheck identity and contacts after it. Examples: [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) for several speakers, each bound to its own audio track.
+- re-sync a face to the accepted dialogue audio with a dubbing model.
+
+A dubbing model regenerates the head and body around the mouth, follows the take's camera only approximately and often returns a lower resolution, so recheck identity and contacts after it. Examples: [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), and [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) for several speakers, each bound to its own audio track.
 
 Compare the frames outside the repair with the original at matched times, and check the boundary frames one by one, because the kept frames are re-encoded too. A take that lost action, identity or causality is not repaired here; it returns to [generation](generation.md#inspect-and-choose).
 
-Legible text, signs and logos come from the hint's clean render or from post, not from regeneration, because models garble lettering.
+Legible text, signs and logos come from the hint's clean render or from post, because models garble lettering.
 
 ## Upscale
 
@@ -31,9 +33,9 @@ Generate at the model's frame rate and conform each take to the delivery profile
 
 ## Match the takes
 
-Read each take's color tags, such as with ffprobe, because providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop the tags. Choose one working color space for the film and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
+Providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop a take's color tags. Read each take's tags, such as with ffprobe, choose one working color space for the film, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
 
-Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness. The takes' sound is finished across them under [film sound](../audio/film-sound.md).
+Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness. Their sound is finished under [film sound](../audio/film-sound.md).
 
 ## Provenance and disclosure
 

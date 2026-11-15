@@ -1,6 +1,6 @@
 # Hints
 
-The composed performance is the hint: its poses, timing, root path and contacts are authored and exact, and the model fills only what lies between and around them, as animation studios keep key poses by hand and let models fill the in-betweens.
+The composed performance is the hint: its poses, timing, root path and contacts are authored and exact, and the model fills only what lies between and around them. Animation studios that use these models work the same way, keeping key poses by hand.
 
 ## Bring the performance to the model
 

@@ -4,7 +4,7 @@ A generated film's takes each bring their own sound, so the film's sound is fini
 
 ## Separate before changing
 
-A take's sound is one mix of speech, effects, ambience and any music. Before re-voicing a line or replacing a bed, separate the speech from the rest, change the part that needs it, and mix it back. Choose the separation tool by these, because few are proven on film mixes:
+A take's sound is one mix of speech, effects, ambience and any music. Before re-voicing a line or replacing a bed, separate the speech from the rest, change the part that needs it, and mix it back. Few separation tools are proven on film mixes, so choose one by these:
 
 - separate dialogue, music and effects stems, since a voice-only tool discards the bed;
 - results on real film mixes rather than synthetic ones, where effects are the hardest stem;

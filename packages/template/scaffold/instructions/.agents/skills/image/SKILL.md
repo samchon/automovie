@@ -7,7 +7,7 @@ description: Generates the still images that carry the appearance of a productio
 
 A generated image carries what polygon men and coarse forms cannot: the appearance of a person, place or object. A video request takes it for identity and appearance, and, for a requested detail option, an image-to-3D model generates a form from it, while every shot's pose and camera come from the motion hint. One accepted image then travels through settings or brief records, video references and shot frames.
 
-Many hosted image models expose no seed or do not honor one exactly, so a prompt cannot reproduce an image: keep each accepted file as generated, with any content credentials it carries, and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
+Many hosted image models expose no seed or do not honor one exactly, so a prompt cannot reproduce an image. Keep each accepted file as generated, with its content credentials, and its record under [media records](../production/media-records.md#records), and reuse it rather than regenerate it.
 
 Choose the generator and write each image prompt under [image diffusion](diffusion/SKILL.md).
 
@@ -23,9 +23,11 @@ Give each subject the number and form of references the video model's guide sets
 
 Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity.
 
-A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place one canon plate without people for each light state its scenes use, such as day and night, and each prop a plain-background view. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
+A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
 
-Name each garment and its color in every prompt, because references carry a face more surely than clothes. Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both.
+Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
+
+Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both. Name each garment and its color every time, because references carry a face more surely than clothes.
 
 ## Control images
 
@@ -35,7 +37,9 @@ A canon reference or a plate needs only a prompt, because it carries only appear
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the first frame of the request's hint at the video model's exact output size and aspect, cropping when the image model's sizes differ and upscaling only in a mode that keeps detail rather than inventing it, then overlaying again. Crop the canon references given beside it to the same aspect, because a reference's aspect can override the frame's. Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a proprietary model as an input labeled "pose and camera reference only", and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move.
+Render the first frame of the request's hint at the video model's exact output size and aspect, cropping when the image model's sizes differ, and crop the canon references given beside it to the same aspect, because a reference's aspect can override the frame's.
+
+Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a proprietary model as an input labeled "pose and camera reference only", and to an open model as the control images [dense passes](../motion/control-channels.md#dense-passes) sets. Then [overlay](../visual-debugging/comparison.md#read-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move. Upscale a frame only in a mode that keeps detail rather than inventing it, and overlay it again.
 
 Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
 
@@ -43,7 +47,7 @@ Make a last frame or a keyframe the same way, from the hint's frame there, where
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-This is the production's one recipe for an image-to-3D input. Pose the subject's coarse form as the model's [request](../3d-modeling/diffusion/request.md) sets, render it from fixed cameras at one framing and even light in the views and order [image hints](../3d-modeling/diffusion/image-hints.md) sets, and restyle each view from the frozen canon references as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+Make every image-to-3D input this way. Pose the subject's coarse form as the model's [request](../3d-modeling/diffusion/request.md) sets, render it from fixed cameras at one framing and even light in the views and order [image hints](../3d-modeling/diffusion/image-hints.md) sets, and restyle each view from the frozen canon references as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 
