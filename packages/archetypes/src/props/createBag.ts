@@ -55,15 +55,28 @@ const DUFFEL: string =
 const TOOLBOX: string =
   "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
 
+/** HSE's guideline load for a load held close to the body below the elbow by a woman, kilograms (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by hand or on the back. */
+const HSE_CLOSE_LOAD: number = 16;
+
+/** The NIOSH optimal handle's diameters, metres, applied to a cased or carried bag's handle bar. */
+const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(0.019, 0.038, NIOSH, true);
+
+/** The same diameters applied to a strap's webbing. */
+const NIOSH_WEBBING: IArchetypeBand = ArchetypeBand.metres(
+  NIOSH_HANDLE.minimum,
+  NIOSH_HANDLE.maximum,
+  WEBBING,
+  true,
+);
 /** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg. */
 const LOADS: Readonly<Record<createBag.Kind, number>> = {
-  tote: 16,
-  backpack: 16,
+  tote: HSE_CLOSE_LOAD,
+  backpack: HSE_CLOSE_LOAD,
   suitcase: 32 - 4.3,
-  briefcase: 16,
-  toolbox: 16,
-  handbag: 16,
-  duffel: 16,
+  briefcase: HSE_CLOSE_LOAD,
+  toolbox: HSE_CLOSE_LOAD,
+  handbag: HSE_CLOSE_LOAD,
+  duffel: HSE_CLOSE_LOAD,
 };
 
 /**
@@ -355,14 +368,14 @@ export namespace createBag {
       depth: ArchetypeBand.metres(0.127, 0.191, TOTE, true),
       handleDrop: ArchetypeBand.metres(0.127, 0.203, TOTE, true),
       strapDrop: ArchetypeBand.metres(0.53, 0.64, STRAP, true),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, WEBBING, true),
+      handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     backpack: {
       width: ArchetypeBand.metres(0.27, 0.33, BACKPACK, true),
       height: ArchetypeBand.metres(0.38, 0.42, BACKPACK, true),
       depth: ArchetypeBand.metres(0.13, 0.21, BACKPACK, true),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, WEBBING, true),
+      handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
     },
     suitcase: {
@@ -370,7 +383,7 @@ export namespace createBag {
       height: ArchetypeBand.metres(0.55, 0.56, CABIN),
       depth: ArchetypeBand.metres(0.23, 0.25, CABIN),
       pullHeight: ArchetypeBand.metres(1, 1.1, PULL),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of(
         "kg",
         3.2,
@@ -383,14 +396,14 @@ export namespace createBag {
       width: ArchetypeBand.metres(0.415, 0.452, ATTACHE, true),
       height: ArchetypeBand.metres(0.35, 0.394, ATTACHE, true),
       depth: ArchetypeBand.metres(0.085, 0.147, ATTACHE, true),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of("kg", 2.3, 2.95, ATTACHE, true),
     },
     toolbox: {
       width: ArchetypeBand.metres(0.482, 0.482, TOOLBOX),
       height: ArchetypeBand.metres(0.25, 0.25, TOOLBOX),
       depth: ArchetypeBand.metres(0.254, 0.254, TOOLBOX),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
     },
     handbag: {
@@ -398,7 +411,7 @@ export namespace createBag {
       height: ArchetypeBand.metres(0.28, 0.28, HANDBAG),
       depth: ArchetypeBand.metres(0.2, 0.2, HANDBAG),
       handleDrop: ArchetypeBand.metres(0.11, 0.12, HANDBAG, true),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of("kg", 0.24, 0.24, HANDBAG, true),
     },
     duffel: {
@@ -420,7 +433,7 @@ export namespace createBag {
         DUFFEL,
         true,
       ),
-      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of("kg", 1.62, 1.62, DUFFEL, true),
     },
   };
