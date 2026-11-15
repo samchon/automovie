@@ -2,6 +2,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
@@ -41,6 +42,13 @@ export function createStorage(
   params: createStorage.IParams,
   seed?: number | string,
 ): Archetype<createStorage.Affordance, createStorage.Dimension> {
+  const draw: ArchetypeDrawSession<createStorage.Dimension> =
+    new ArchetypeDrawSession<createStorage.Dimension>(
+      "storage",
+      createStorage.UNITS,
+      seed,
+      params,
+    );
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",
     "kind",
@@ -48,32 +56,22 @@ export function createStorage(
     createStorage.KINDS,
   );
   const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
-    ArchetypeDraw.model<createStorage.Model, createStorage.Dimension>(
-      "storage",
+    draw.model<createStorage.Model>(
       "model",
       params.model,
       STORAGE_MODELS[kind],
-      seed,
-      params,
     ).figures;
   const d: Partial<Record<createStorage.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "storage",
-      createStorage.BANDS[kind],
-      seed,
-      params,
-      createStorage.BANDS,
-    ),
+    ...draw.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
     ...model,
   };
   const builder: ArchetypeBuilder<
     createStorage.Affordance,
     createStorage.Dimension
   > = new ArchetypeBuilder({
-    archetype: "storage",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   if (kind === "chest" || kind === "filingCabinet")
     StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
@@ -150,6 +148,18 @@ export namespace createStorage {
     | "travel"
     | "legs"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    pullHeight: "m",
+    swing: "degrees",
+    travel: "m",
+    legs: "m",
+    mass: "kg",
+  };
 
   /** The read models: Blum's CLIP top hinges, Accuride's 3832E slides and Lyon's 72 in single tier lockers by width by depth. */
   export type Model =

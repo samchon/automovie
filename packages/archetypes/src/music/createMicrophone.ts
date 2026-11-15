@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -42,6 +43,13 @@ export function createMicrophone(
   params: createMicrophone.IParams,
   seed?: number | string,
 ): Archetype<createMicrophone.Affordance, createMicrophone.Dimension> {
+  const draw: ArchetypeDrawSession<createMicrophone.Dimension> =
+    new ArchetypeDrawSession<createMicrophone.Dimension>(
+      "microphone",
+      createMicrophone.UNITS,
+      seed,
+      params,
+    );
   const kind: createMicrophone.Kind = ArchetypeDraw.choice(
     "microphone",
     "kind",
@@ -49,21 +57,14 @@ export function createMicrophone(
     createMicrophone.KINDS,
   );
   const d: Partial<Record<createMicrophone.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "microphone",
-      createMicrophone.BANDS[kind],
-      seed,
-      params,
-      createMicrophone.BANDS,
-    );
+    draw.dimensions(createMicrophone.BANDS[kind], createMicrophone.BANDS);
   const builder: ArchetypeBuilder<
     createMicrophone.Affordance,
     createMicrophone.Dimension
   > = new ArchetypeBuilder({
-    archetype: "microphone",
     id: params.id,
     name: kind === "handheld" ? "microphone" : "microphone stand",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof createMicrophone.ESTIMATES = createMicrophone.ESTIMATES;
@@ -215,6 +216,18 @@ export namespace createMicrophone {
     | "boom"
     | "spread"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    head: "m",
+    tail: "m",
+    minHeight: "m",
+    maxHeight: "m",
+    boom: "m",
+    spread: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

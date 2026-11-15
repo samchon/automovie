@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -34,29 +35,31 @@ export function createTray(
   params: createTray.IParams,
   seed?: number | string,
 ): Archetype<createTray.Affordance, createTray.Dimension> {
+  const draw: ArchetypeDrawSession<createTray.Dimension> =
+    new ArchetypeDrawSession<createTray.Dimension>(
+      "tray",
+      createTray.UNITS,
+      seed,
+      params,
+    );
   const kind: createTray.Kind = ArchetypeDraw.choice(
     "tray",
     "kind",
     params.kind,
     createTray.KINDS,
   );
-  const drawn: Partial<Record<createTray.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-    "tray",
+  const drawn: Partial<Record<createTray.Dimension, number>> = draw.dimensions(
     createTray.BANDS[kind],
-    seed,
-    params,
   );
   // A tray or a basket is one of IKEA's read models whole.
-  const model: { name: createTray.Model | undefined; figures: createTray.Figures } =
-    ArchetypeDraw.model<createTray.Model, createTray.Dimension>(
-      "tray",
-      "model",
-      params.model,
-      createTray.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createTray.Model | undefined;
+    figures: createTray.Figures;
+  } = draw.model<createTray.Model>(
+    "model",
+    params.model,
+    createTray.MODELS[kind],
+  );
   const read: Partial<Record<createTray.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -69,10 +72,9 @@ export function createTray(
   };
   const builder: ArchetypeBuilder<createTray.Affordance, createTray.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tray",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const wall: number = createTray.WALL;
@@ -196,6 +198,14 @@ export namespace createTray {
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier. */
@@ -212,10 +222,17 @@ export namespace createTray {
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /** The models read: IKEA's SMÖRLING, GRILLTIDER and SMULA trays and its two RISATORP baskets. GOKVÄLLÅ is not built: its page gives no height. */
-  export type Model = "smorling" | "grilltider" | "smula" | "risatorp25" | "risatorp42";
+  export type Model =
+    | "smorling"
+    | "grilltider"
+    | "smula"
+    | "risatorp25"
+    | "risatorp42";
 
   /** Each kind's models whole, the default first, width x depth x height: SMÖRLING 36 x 20 x 3, GRILLTIDER 40 x 30 x 2 and SMULA 52 x 35 x 3 cm (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/, https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/, https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/); RISATORP 25 x 26 x 18 and 42 x 27 x 23 cm (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/, https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/). */
-  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Model, Figures>>>>
+  > = {
     tray: {
       smorling: { width: 0.36, depth: 0.2, height: 0.03 },
       grilltider: { width: 0.4, depth: 0.3, height: 0.02 },

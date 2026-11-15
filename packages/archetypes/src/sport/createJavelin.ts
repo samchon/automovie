@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,26 +36,29 @@ export function createJavelin(
   params: createJavelin.IParams,
   seed?: number | string,
 ): Archetype<createJavelin.Affordance, createJavelin.Dimension> {
+  const draw: ArchetypeDrawSession<createJavelin.Dimension> =
+    new ArchetypeDrawSession<createJavelin.Dimension>(
+      "javelin",
+      createJavelin.UNITS,
+      seed,
+      params,
+    );
   const kind: createJavelin.Kind = ArchetypeDraw.choice(
     "javelin",
     "kind",
     params.kind,
     createJavelin.KINDS,
   );
-  const d: Record<createJavelin.Dimension, number> = ArchetypeDraw.dimensions(
-    "javelin",
+  const d: Record<createJavelin.Dimension, number> = draw.dimensions(
     createJavelin.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createJavelin.Affordance,
     createJavelin.Dimension
   > = new ArchetypeBuilder({
-    archetype: "javelin",
     id: params.id,
     name: `${kind}'s javelin`,
-    dimensions: d,
+    draw,
   });
   const cord: number = d.diameter + 2 * createJavelin.CORD;
   const width: number = createJavelin.CORD_WIDTH[kind];
@@ -141,6 +145,14 @@ export namespace createJavelin {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "balance" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    balance: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the category, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -39,28 +40,30 @@ export function createPlyoBox(
   params: createPlyoBox.IParams,
   seed?: number | string,
 ): Archetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
+  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> =
+    new ArchetypeDrawSession<createPlyoBox.Dimension>(
+      "plyoBox",
+      createPlyoBox.UNITS,
+      seed,
+      params,
+    );
   const kind: createPlyoBox.Kind = ArchetypeDraw.choice(
     "plyoBox",
     "kind",
     params.kind ?? "wood",
     createPlyoBox.KINDS,
   );
-  const d: Partial<Record<createPlyoBox.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "plyoBox",
-      createPlyoBox.BANDS[kind],
-      seed,
-      params,
-      createPlyoBox.BANDS,
-    );
+  const d: Partial<Record<createPlyoBox.Dimension, number>> = draw.dimensions(
+    createPlyoBox.BANDS[kind],
+    createPlyoBox.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
   > = new ArchetypeBuilder({
-    archetype: "plyoBox",
     id: params.id,
     name: "plyometric box",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "box",
@@ -107,6 +110,14 @@ export namespace createPlyoBox {
    */
   export type Dimension = "height" | "width" | "depth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which box; `wood` when absent. */
@@ -121,9 +132,24 @@ export namespace createPlyoBox {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
-      width: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
-      depth: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      height: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      width: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         15,

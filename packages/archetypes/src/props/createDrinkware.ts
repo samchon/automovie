@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -113,6 +114,13 @@ export function createDrinkware(
   params: createDrinkware.IParams,
   seed?: number | string,
 ): Archetype<createDrinkware.Affordance, createDrinkware.Dimension> {
+  const draw: ArchetypeDrawSession<createDrinkware.Dimension> =
+    new ArchetypeDrawSession<createDrinkware.Dimension>(
+      "drinkware",
+      createDrinkware.UNITS,
+      seed,
+      params,
+    );
   const kind: createDrinkware.Kind = ArchetypeDraw.choice(
     "drinkware",
     "kind",
@@ -131,23 +139,16 @@ export function createDrinkware(
       fix: "give a fill from 0 to 1",
     });
   const drawn: Partial<Record<createDrinkware.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "drinkware",
-      createDrinkware.BANDS[kind],
-      seed,
-      params,
-      createDrinkware.BANDS,
-    );
+    draw.dimensions(createDrinkware.BANDS[kind], createDrinkware.BANDS);
   // A beer bottle is one of the longnecks read, whole.
-  const model: { name: createDrinkware.Model | undefined; figures: createDrinkware.Figures } =
-    ArchetypeDraw.model<createDrinkware.Model, createDrinkware.Dimension>(
-      "drinkware",
-      "model",
-      params.model,
-      createDrinkware.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createDrinkware.Model | undefined;
+    figures: createDrinkware.Figures;
+  } = draw.model<createDrinkware.Model>(
+    "model",
+    params.model,
+    createDrinkware.MODELS[kind],
+  );
   const d: Partial<Record<createDrinkware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -158,10 +159,9 @@ export function createDrinkware(
     createDrinkware.Affordance,
     createDrinkware.Dimension
   > = new ArchetypeBuilder({
-    archetype: "drinkware",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const bottle: boolean =
     kind === "beerBottle" || kind === "waterBottle" || kind === "wineBottle";
@@ -385,6 +385,20 @@ export namespace createDrinkware {
     | "neckDiameter"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    handleDiameter: "m",
+    handleOpening: "m",
+    handleLoop: "m",
+    stemLength: "m",
+    stemDiameter: "m",
+    baseDiameter: "m",
+    neckDiameter: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, the fill, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which vessel. */
@@ -440,7 +454,9 @@ export namespace createDrinkware {
   export type Model = "oi30416" | "oi30242" | "oi30001" | "berlinSE330";
 
   /** Each kind's models whole, the default first, height, body diameter and mass: O-I's 30416 222.9 x 60.9 mm and 205 g, 30242 222.4 x 60.4 mm and 285 g, 30001 209 x 61.3 mm and 210 g (O-I Beer and Cider Bottle Selection 2017, pp. 5-6, https://brewersguild.org.nz/wp-content/uploads/2024/04/2017-O-I-Glass-Guide-Beer-Cider-Bottle-Selection.pdf), and Berlin's 226.5 x 60.4 mm and 220 g (https://berlinpackaging.eu/en-international/products/long-neck-se-330ml-cr-26-flint). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     beerBottle: {
       oi30416: { height: 0.2229, diameter: 0.0609, mass: 0.205 },
       oi30242: { height: 0.2224, diameter: 0.0604, mass: 0.285 },
@@ -454,8 +470,16 @@ export namespace createDrinkware {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     mug: {
-      height: ArchetypeBand.metres(3.88 * ArchetypeUnits.INCH, 3.88 * ArchetypeUnits.INCH, MUG),
-      diameter: ArchetypeBand.metres(3.5 * ArchetypeUnits.INCH, 3.5 * ArchetypeUnits.INCH, MUG),
+      height: ArchetypeBand.metres(
+        3.88 * ArchetypeUnits.INCH,
+        3.88 * ArchetypeUnits.INCH,
+        MUG,
+      ),
+      diameter: ArchetypeBand.metres(
+        3.5 * ArchetypeUnits.INCH,
+        3.5 * ArchetypeUnits.INCH,
+        MUG,
+      ),
       ...createDrinkware.LOOP,
       mass: kg(
         0.25,

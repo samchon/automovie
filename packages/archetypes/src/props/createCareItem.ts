@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -66,49 +67,49 @@ export function createCareItem(
   params: createCareItem.IParams,
   seed?: number | string,
 ): Archetype<createCareItem.Affordance, createCareItem.Dimension> {
+  const draw: ArchetypeDrawSession<createCareItem.Dimension> =
+    new ArchetypeDrawSession<createCareItem.Dimension>(
+      "careItem",
+      createCareItem.UNITS,
+      seed,
+      params,
+    );
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
     "kind",
     params.kind,
     createCareItem.KINDS,
   );
-  const drawn: Partial<Record<createCareItem.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "careItem",
-      createCareItem.BANDS[kind],
-      seed,
-      kind === "tube" ? { ...params, length: undefined } : params,
-      createCareItem.BANDS,
-    );
   // A tube is one of Alltub's diameters, its length drawn in that diameter's own range; a razor one of the two razors read, whole.
-  const model: { name: createCareItem.Model | undefined; figures: createCareItem.Figures } =
-    ArchetypeDraw.model<createCareItem.Model, createCareItem.Dimension>(
-      "careItem",
-      "model",
-      params.model,
-      createCareItem.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createCareItem.Model | undefined;
+    figures: createCareItem.Figures;
+  } = draw.model<createCareItem.Model>(
+    "model",
+    params.model,
+    createCareItem.MODELS[kind],
+  );
+  // The model's own range bands its length, so the author's length is checked in it.
   const range: IArchetypeBand | undefined =
-    model.name === undefined ? undefined : createCareItem.TUBE_LENGTHS[model.name];
-  const own: Partial<Record<createCareItem.Dimension, number>> =
-    range === undefined
-      ? {}
-      : ArchetypeDraw.dimensions("careItem", { length: range }, seed, params);
+    model.name === undefined
+      ? undefined
+      : createCareItem.TUBE_LENGTHS[model.name];
   const d: Partial<Record<createCareItem.Dimension, number>> = {
-    ...drawn,
+    ...draw.dimensions(
+      range === undefined
+        ? createCareItem.BANDS[kind]
+        : { ...createCareItem.BANDS[kind], length: range },
+      createCareItem.BANDS,
+    ),
     ...model.figures,
-    ...own,
   };
   const builder: ArchetypeBuilder<
     createCareItem.Affordance,
     createCareItem.Dimension
   > = new ArchetypeBuilder({
-    archetype: "careItem",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const length: number = d.length!;
   const width: number = d.width!;
@@ -388,6 +389,14 @@ export namespace createCareItem {
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    thickness: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which item. */
@@ -419,7 +428,9 @@ export namespace createCareItem {
     | "gilletteMach3";
 
   /** Each kind's models whole, the default first. A tube's diameter (`width`) is one of Alltub's ten (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf), its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's length and mass: Edwin Jagger's Mach3, 129 mm and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and Gillette's Mach3, 5.4 in and 35 g (https://www.toolsofmen.com/?p=46812). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
+  > = {
     tube: {
       alltub13_5: { width: 0.0135 },
       alltub19: { width: 0.019 },
@@ -439,18 +450,59 @@ export namespace createCareItem {
   };
 
   /** Each Alltub tube diameter's own range of lengths, metres, from the data sheet. */
-  export const TUBE_LENGTHS: Readonly<Partial<Record<Model, IArchetypeBand>>> = {
-    alltub13_5: ArchetypeBand.metres(0.045, 0.16, `${ALLTUB}: the 13.5 mm tube's lengths`),
-    alltub19: ArchetypeBand.metres(0.045, 0.16, `${ALLTUB}: the 19 mm tube's lengths`),
-    alltub22: ArchetypeBand.metres(0.075, 0.125, `${ALLTUB}: the 22 mm tube's lengths`),
-    alltub25: ArchetypeBand.metres(0.075, 0.16, `${ALLTUB}: the 25 mm tube's lengths`),
-    alltub28: ArchetypeBand.metres(0.075, 0.19, `${ALLTUB}: the 28 mm tube's lengths`),
-    alltub30: ArchetypeBand.metres(0.075, 0.19, `${ALLTUB}: the 30 mm tube's lengths`),
-    alltub35: ArchetypeBand.metres(0.075, 0.181, `${ALLTUB}: the 35 mm tube's lengths`),
-    alltub38: ArchetypeBand.metres(0.075, 0.205, `${ALLTUB}: the 38 mm tube's lengths`),
-    alltub40: ArchetypeBand.metres(0.06, 0.2, `${ALLTUB}: the 40 mm tube's lengths`),
-    alltub50: ArchetypeBand.metres(0.06, 0.2, `${ALLTUB}: the 50 mm tube's lengths`),
-  };
+  export const TUBE_LENGTHS: Readonly<Partial<Record<Model, IArchetypeBand>>> =
+    {
+      alltub13_5: ArchetypeBand.metres(
+        0.045,
+        0.16,
+        `${ALLTUB}: the 13.5 mm tube's lengths`,
+      ),
+      alltub19: ArchetypeBand.metres(
+        0.045,
+        0.16,
+        `${ALLTUB}: the 19 mm tube's lengths`,
+      ),
+      alltub22: ArchetypeBand.metres(
+        0.075,
+        0.125,
+        `${ALLTUB}: the 22 mm tube's lengths`,
+      ),
+      alltub25: ArchetypeBand.metres(
+        0.075,
+        0.16,
+        `${ALLTUB}: the 25 mm tube's lengths`,
+      ),
+      alltub28: ArchetypeBand.metres(
+        0.075,
+        0.19,
+        `${ALLTUB}: the 28 mm tube's lengths`,
+      ),
+      alltub30: ArchetypeBand.metres(
+        0.075,
+        0.19,
+        `${ALLTUB}: the 30 mm tube's lengths`,
+      ),
+      alltub35: ArchetypeBand.metres(
+        0.075,
+        0.181,
+        `${ALLTUB}: the 35 mm tube's lengths`,
+      ),
+      alltub38: ArchetypeBand.metres(
+        0.075,
+        0.205,
+        `${ALLTUB}: the 38 mm tube's lengths`,
+      ),
+      alltub40: ArchetypeBand.metres(
+        0.06,
+        0.2,
+        `${ALLTUB}: the 40 mm tube's lengths`,
+      ),
+      alltub50: ArchetypeBand.metres(
+        0.06,
+        0.2,
+        `${ALLTUB}: the 50 mm tube's lengths`,
+      ),
+    };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<

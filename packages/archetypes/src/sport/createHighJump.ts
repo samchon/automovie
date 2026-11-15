@@ -2,12 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -46,28 +47,30 @@ export function createHighJump(
   params: createHighJump.IParams = {},
   seed?: number | string,
 ): Archetype<createHighJump.Affordance, createHighJump.Dimension> {
+  const draw: ArchetypeDrawSession<createHighJump.Dimension> =
+    new ArchetypeDrawSession<createHighJump.Dimension>(
+      "highJump",
+      createHighJump.UNITS,
+      seed,
+      params,
+    );
   const kind: createHighJump.Kind = ArchetypeDraw.choice(
     "highJump",
     "kind",
     params.kind ?? "highJump",
     createHighJump.KINDS,
   );
-  const d: Partial<Record<createHighJump.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "highJump",
-      createHighJump.BANDS[kind],
-      seed,
-      params,
-      createHighJump.BANDS,
-    );
+  const d: Partial<Record<createHighJump.Dimension, number>> = draw.dimensions(
+    createHighJump.BANDS[kind],
+    createHighJump.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createHighJump.Affordance,
     createHighJump.Dimension
   > = new ArchetypeBuilder({
-    archetype: "highJump",
     id: params.id,
     name: kind === "highJump" ? "high jump" : "pole vault",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.diameter! / 2;
@@ -77,9 +80,7 @@ export function createHighJump(
 
   // The high jump's uprights carry the bar's ends; a pole vault's standards stand clear of its ends and reach in with arms to the pegs.
   const standing: number =
-    kind === "highJump"
-      ? d.span! / 2
-      : length / 2 + createHighJump.UPRIGHT;
+    kind === "highJump" ? d.span! / 2 : length / 2 + createHighJump.UPRIGHT;
   for (const [side, sign] of [
     ["left", 1],
     ["right", -1],
@@ -95,8 +96,16 @@ export function createHighJump(
       builder.rod(
         `arm-${side}`,
         createHighJump.UPRIGHT / 4,
-        v(sign * standing, d.height! - d.diameter! - createHighJump.UPRIGHT / 4, at),
-        v((sign * d.span!) / 2, d.height! - d.diameter! - createHighJump.UPRIGHT / 4, at),
+        v(
+          sign * standing,
+          d.height! - d.diameter! - createHighJump.UPRIGHT / 4,
+          at,
+        ),
+        v(
+          (sign * d.span!) / 2,
+          d.height! - d.diameter! - createHighJump.UPRIGHT / 4,
+          at,
+        ),
         { color: "#d8d2c4" },
       );
   }
@@ -176,6 +185,21 @@ export namespace createHighJump {
     | "boxWidth"
     | "boxEnd"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    diameter: "m",
+    span: "m",
+    setback: "m",
+    boxLength: "m",
+    boxFloor: "m",
+    boxDepth: "m",
+    boxWidth: "m",
+    boxEnd: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -259,7 +283,10 @@ export namespace createHighJump {
  * @param d The drawn dimensions.
  */
 function box(
-  builder: ArchetypeBuilder<createHighJump.Affordance, createHighJump.Dimension>,
+  builder: ArchetypeBuilder<
+    createHighJump.Affordance,
+    createHighJump.Dimension
+  >,
   d: Partial<Record<createHighJump.Dimension, number>>,
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -283,7 +310,10 @@ function box(
     builder.box(
       id,
       v(width, t, Vector3.length(span)),
-      Vector3.add(Vector3.scale(Vector3.add(from, to), 0.5), Vector3.scale(behind, t / 2)),
+      Vector3.add(
+        Vector3.scale(Vector3.add(from, to), 0.5),
+        Vector3.scale(behind, t / 2),
+      ),
       {
         color: "#4a4d52",
         rotation: Quaternion.fromAxisAngle(v(1, 0, 0), tilt),

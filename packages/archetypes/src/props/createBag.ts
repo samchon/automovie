@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -25,7 +26,7 @@ const BACKPACK: string =
 
 /** The optimal handle of the Revised NIOSH Lifting Equation, applied to a carried container's handle whose own size no maker gives. */
 const NIOSH: string =
-  "Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: \"An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape\" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle";
+  'Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: "An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle';
 
 /** The NIOSH optimal handle's diameters applied to a tote's handles and strap and a backpack's straps, flat webbing in a hook grip whose width no maker read gives. */
 const WEBBING: string =
@@ -51,7 +52,12 @@ const TOOLBOX: string =
 const HSE_CLOSE_LOAD: number = 16;
 
 /** The NIOSH optimal handle's diameters, metres, applied to a cased or carried bag's handle bar. */
-const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(0.019, 0.038, NIOSH, true);
+const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(
+  0.019,
+  0.038,
+  NIOSH,
+  true,
+);
 
 /** The same diameters applied to a strap's webbing. */
 const NIOSH_WEBBING: IArchetypeBand = ArchetypeBand.metres(
@@ -93,6 +99,13 @@ export function createBag(
   params: createBag.IParams,
   seed?: number | string,
 ): Archetype<createBag.Affordance, createBag.Dimension> {
+  const draw: ArchetypeDrawSession<createBag.Dimension> =
+    new ArchetypeDrawSession<createBag.Dimension>(
+      "bag",
+      createBag.UNITS,
+      seed,
+      params,
+    );
   const kind: createBag.Kind = ArchetypeDraw.choice(
     "bag",
     "kind",
@@ -110,33 +123,21 @@ export function createBag(
       reason: `a ${kind} carries up to ${LOADS[kind]} kg`,
       fix: "give a load the bag carries",
     });
-  const drawn: Partial<Record<createBag.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "bag",
-      createBag.BANDS[kind],
-      seed,
-      params,
-      createBag.BANDS,
-    );
+  const drawn: Partial<Record<createBag.Dimension, number>> = draw.dimensions(
+    createBag.BANDS[kind],
+    createBag.BANDS,
+  );
   // A suitcase is one of the two cabin limits read whole, its pull handle one of the two heights the study tested.
-  const model: { name: createBag.Model | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Model, createBag.Dimension>(
-      "bag",
-      "model",
-      params.model,
-      createBag.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createBag.Model | undefined;
+    figures: createBag.Figures;
+  } = draw.model<createBag.Model>(
+    "model",
+    params.model,
+    createBag.MODELS[kind],
+  );
   const pull: { name: createBag.Pull | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Pull, createBag.Dimension>(
-      "bag",
-      "pull",
-      params.pull,
-      createBag.PULLS[kind],
-      seed,
-      params,
-    );
+    draw.model<createBag.Pull>("pull", params.pull, createBag.PULLS[kind]);
   const d: Partial<Record<createBag.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -147,10 +148,9 @@ export function createBag(
   const depth: number = d.depth!;
   const builder: ArchetypeBuilder<createBag.Affordance, createBag.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bag",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   builder.box(
     "body",
@@ -362,6 +362,18 @@ export namespace createBag {
     | "handleDiameter"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    handleDrop: "m",
+    strapDrop: "m",
+    pullHeight: "m",
+    handleDiameter: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, the load, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bag. */
@@ -387,7 +399,9 @@ export namespace createBag {
   export type Model = "lufthansa" | "iata";
 
   /** Each kind's models whole, the default first: a suitcase's height x width x depth, Lufthansa's carry-on limit 55 x 40 x 23 cm (https://www.lufthansa.com/us/en/carry-on-baggage) and IATA's 56 x 45 x 25 cm guide (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     suitcase: {
       lufthansa: { height: 0.55, width: 0.4, depth: 0.23 },
       iata: { height: 0.56, width: 0.45, depth: 0.25 },
@@ -398,7 +412,9 @@ export namespace createBag {
   export type Pull = "pull100" | "pull110";
 
   /** Each kind's pull heights, the default first: 100 and 110 cm, tested in Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article). */
-  export const PULLS: Readonly<Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>> = {
+  export const PULLS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>
+  > = {
     suitcase: {
       pull100: { pullHeight: 1 },
       pull110: { pullHeight: 1.1 },
@@ -410,18 +426,58 @@ export namespace createBag {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     tote: {
-      width: ArchetypeBand.metres(9.5 * ArchetypeUnits.INCH, 17 * ArchetypeUnits.INCH, TOTE, true),
-      height: ArchetypeBand.metres(10.5 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, TOTE, true),
-      depth: ArchetypeBand.metres(5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, TOTE, true),
-      handleDrop: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 8 * ArchetypeUnits.INCH, TOTE, true),
-      strapDrop: ArchetypeBand.metres(21.75 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, STRAP, true),
+      width: ArchetypeBand.metres(
+        9.5 * ArchetypeUnits.INCH,
+        17 * ArchetypeUnits.INCH,
+        TOTE,
+        true,
+      ),
+      height: ArchetypeBand.metres(
+        10.5 * ArchetypeUnits.INCH,
+        15 * ArchetypeUnits.INCH,
+        TOTE,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        5 * ArchetypeUnits.INCH,
+        7.5 * ArchetypeUnits.INCH,
+        TOTE,
+        true,
+      ),
+      handleDrop: ArchetypeBand.metres(
+        6 * ArchetypeUnits.INCH,
+        8 * ArchetypeUnits.INCH,
+        TOTE,
+        true,
+      ),
+      strapDrop: ArchetypeBand.metres(
+        21.75 * ArchetypeUnits.INCH,
+        25 * ArchetypeUnits.INCH,
+        STRAP,
+        true,
+      ),
       handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     backpack: {
-      width: ArchetypeBand.metres(0.27, 13 * ArchetypeUnits.INCH, BACKPACK, true),
-      height: ArchetypeBand.metres(0.38, 16.7 * ArchetypeUnits.INCH, BACKPACK, true),
-      depth: ArchetypeBand.metres(0.13, 8.5 * ArchetypeUnits.INCH, BACKPACK, true),
+      width: ArchetypeBand.metres(
+        0.27,
+        13 * ArchetypeUnits.INCH,
+        BACKPACK,
+        true,
+      ),
+      height: ArchetypeBand.metres(
+        0.38,
+        16.7 * ArchetypeUnits.INCH,
+        BACKPACK,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        0.13,
+        8.5 * ArchetypeUnits.INCH,
+        BACKPACK,
+        true,
+      ),
       handleDiameter: NIOSH_WEBBING,
       mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
     },

@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -55,21 +55,25 @@ export function createElevator(
   params: createElevator.IParams = {},
   seed?: number | string,
 ): Archetype<createElevator.Affordance, createElevator.Dimension> {
+  const draw: ArchetypeDrawSession<createElevator.Dimension> =
+    new ArchetypeDrawSession<createElevator.Dimension>(
+      "elevator",
+      createElevator.UNITS,
+      seed,
+      params,
+    );
   type Picked = {
     name: createElevator.Height | undefined;
     figures: Readonly<Partial<Record<createElevator.Dimension, number>>>;
   };
-  const car: Picked = ArchetypeDraw.model<
-    createElevator.Height,
-    createElevator.Dimension
-  >("elevator", "car", params.car, createElevator.CARS, seed, params);
+  const car: Picked = draw.model<createElevator.Height>(
+    "car",
+    params.car,
+    createElevator.CARS,
+  );
   const height: number = car.figures.height!;
   // A door is picked only among the heights below the car's, so it never reaches the roof.
-  const door: Picked = ArchetypeDraw.model<
-    createElevator.Height,
-    createElevator.Dimension
-  >(
-    "elevator",
+  const door: Picked = draw.model<createElevator.Height>(
     "doorway",
     params.doorway,
     Object.fromEntries(
@@ -83,22 +87,19 @@ export function createElevator(
         ]): boolean => figures!.doorHeight! < height,
       ),
     ),
-    seed,
-    params,
   );
   const doorHeight: number = door.figures.doorHeight!;
   const d: Record<
     Exclude<createElevator.Dimension, "height" | "doorHeight">,
     number
-  > = ArchetypeDraw.dimensions("elevator", createElevator.BANDS, seed, params);
+  > = draw.dimensions(createElevator.BANDS);
   const builder: ArchetypeBuilder<
     createElevator.Affordance,
     createElevator.Dimension
   > = new ArchetypeBuilder({
-    archetype: "elevator",
     id: params.id,
     name: `lift car ${car.name} mm, door ${door.name} mm`,
-    dimensions: { ...d, ...car.figures, ...door.figures },
+    draw,
   });
   const E: typeof ESTIMATES = ESTIMATES;
   const v: typeof Vector3.create = Vector3.create;
@@ -260,6 +261,18 @@ export namespace createElevator {
     | "doorHeight"
     | "callHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    returnDepth: "m",
+    door: "m",
+    height: "m",
+    doorHeight: "m",
+    callHeight: "m",
+    mass: "kg",
+  };
 
   /** The car and door heights the KONE guide lists, millimetres: KONE MonoSpace 4 DX Core and Pro / 300 and 500 DX planning guide: p. 2, car heights 2 100 and 2 200 mm (Core) and 2 100, 2 200, 2 300 and 2 400 mm (Pro); p. 9, door heights 2 000, 2 100, 2 200 and 2 300 mm; centre-opening doors (https://www.kone.co.uk/Images/KONE-MonoSpace-4-DX-Core-and-Pro-Planning-Guide-GBIR_tcm45-139450.pdf). */
   export type Height = "2000" | "2100" | "2200" | "2300" | "2400";

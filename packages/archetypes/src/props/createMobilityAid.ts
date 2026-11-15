@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -65,49 +66,49 @@ export function createMobilityAid(
   params: createMobilityAid.IParams,
   seed?: number | string,
 ): Archetype<createMobilityAid.Affordance, createMobilityAid.Dimension> {
+  const draw: ArchetypeDrawSession<createMobilityAid.Dimension> =
+    new ArchetypeDrawSession<createMobilityAid.Dimension>(
+      "mobilityAid",
+      createMobilityAid.UNITS,
+      seed,
+      params,
+    );
   const kind: createMobilityAid.Kind = ArchetypeDraw.choice(
     "mobilityAid",
     "kind",
     params.kind,
     createMobilityAid.KINDS,
   );
-  const drawn: Partial<Record<createMobilityAid.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "mobilityAid",
-      createMobilityAid.BANDS[kind],
-      seed,
-      kind === "walker" ? { ...params, height: undefined } : params,
-      createMobilityAid.BANDS,
-    );
   // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
-  const model: { name: createMobilityAid.Model | undefined; figures: createMobilityAid.Figures } =
-    ArchetypeDraw.model<createMobilityAid.Model, createMobilityAid.Dimension>(
-      "mobilityAid",
-      "model",
-      params.model,
-      createMobilityAid.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createMobilityAid.Model | undefined;
+    figures: createMobilityAid.Figures;
+  } = draw.model<createMobilityAid.Model>(
+    "model",
+    params.model,
+    createMobilityAid.MODELS[kind],
+  );
+  // The model's own range bands its height, so the author's height is checked in it.
   const range: IArchetypeBand | undefined =
-    model.name === undefined ? undefined : createMobilityAid.HANDLE_HEIGHTS[model.name];
-  const own: Partial<Record<createMobilityAid.Dimension, number>> =
-    range === undefined
-      ? {}
-      : ArchetypeDraw.dimensions("mobilityAid", { height: range }, seed, params);
+    model.name === undefined
+      ? undefined
+      : createMobilityAid.HANDLE_HEIGHTS[model.name];
   const d: Partial<Record<createMobilityAid.Dimension, number>> = {
-    ...drawn,
+    ...draw.dimensions(
+      range === undefined
+        ? createMobilityAid.BANDS[kind]
+        : { ...createMobilityAid.BANDS[kind], height: range },
+      createMobilityAid.BANDS,
+    ),
     ...model.figures,
-    ...own,
   };
   const builder: ArchetypeBuilder<
     createMobilityAid.Affordance,
     createMobilityAid.Dimension
   > = new ArchetypeBuilder({
-    archetype: "mobilityAid",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -292,6 +293,15 @@ export namespace createMobilityAid {
    */
   export type Dimension = "height" | "diameter" | "width" | "depth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    width: "m",
+    depth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which aid. */
@@ -311,7 +321,9 @@ export namespace createMobilityAid {
   export type Model = "adult" | "junior";
 
   /** Each kind's models whole, the default first: the adult walker 7.5 lb and the junior 7 lb, the sheet's weights in the order of its item rows (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     walker: {
       adult: { mass: 7.5 * ArchetypeUnits.POUND },
       junior: { mass: 7 * ArchetypeUnits.POUND },
@@ -319,9 +331,19 @@ export namespace createMobilityAid {
   };
 
   /** Each walker model's own handle height range, metres: the sheet's 32 to 39 in for the adult and 25 to 32.25 in for the junior. */
-  export const HANDLE_HEIGHTS: Readonly<Partial<Record<Model, IArchetypeBand>>> = {
-    adult: ArchetypeBand.metres(32 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, `${WALKER}: the adult handle heights`),
-    junior: ArchetypeBand.metres(25 * ArchetypeUnits.INCH, 32.25 * ArchetypeUnits.INCH, `${WALKER}: the junior handle heights`),
+  export const HANDLE_HEIGHTS: Readonly<
+    Partial<Record<Model, IArchetypeBand>>
+  > = {
+    adult: ArchetypeBand.metres(
+      32 * ArchetypeUnits.INCH,
+      39 * ArchetypeUnits.INCH,
+      `${WALKER}: the adult handle heights`,
+    ),
+    junior: ArchetypeBand.metres(
+      25 * ArchetypeUnits.INCH,
+      32.25 * ArchetypeUnits.INCH,
+      `${WALKER}: the junior handle heights`,
+    ),
   };
 
   /** The band of each free dimension, by kind. */
@@ -329,8 +351,16 @@ export namespace createMobilityAid {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     cane: {
-      height: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, CANE),
-      diameter: ArchetypeBand.metres(0.75 * ArchetypeUnits.INCH, 0.75 * ArchetypeUnits.INCH, CANE),
+      height: ArchetypeBand.metres(
+        30 * ArchetypeUnits.INCH,
+        39 * ArchetypeUnits.INCH,
+        CANE,
+      ),
+      diameter: ArchetypeBand.metres(
+        0.75 * ArchetypeUnits.INCH,
+        0.75 * ArchetypeUnits.INCH,
+        CANE,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         0.85 * ArchetypeUnits.POUND,
@@ -340,8 +370,17 @@ export namespace createMobilityAid {
       ),
     },
     walker: {
-      width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, WALKER),
-      depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, WALKER, true),
+      width: ArchetypeBand.metres(
+        24 * ArchetypeUnits.INCH,
+        24 * ArchetypeUnits.INCH,
+        WALKER,
+      ),
+      depth: ArchetypeBand.metres(
+        18 * ArchetypeUnits.INCH,
+        18 * ArchetypeUnits.INCH,
+        WALKER,
+        true,
+      ),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
     },
     infusionStand: {

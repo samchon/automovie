@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -71,6 +72,13 @@ export function createHandgun(
   params: createHandgun.IParams,
   seed?: number | string,
 ): Archetype<createHandgun.Affordance, createHandgun.Dimension> {
+  const draw: ArchetypeDrawSession<createHandgun.Dimension> =
+    new ArchetypeDrawSession<createHandgun.Dimension>(
+      "handgun",
+      createHandgun.UNITS,
+      seed,
+      params,
+    );
   const frame: createHandgun.Frame = ArchetypeDraw.choice(
     "handgun",
     "frame",
@@ -78,19 +86,23 @@ export function createHandgun(
     createHandgun.FRAMES,
   );
   // One of the frame's two read pistols whole, and a GLOCK's sights, which set its sight radius.
-  const model: { name: createHandgun.Model | undefined; figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Model, createHandgun.Dimension>("handgun", "model", params.model, createHandgun.MODELS[frame], seed, params);
-  const sights: { figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Sights, createHandgun.Dimension>(
-      "handgun",
-      "sights",
-      params.sights,
-      model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
-      seed,
-      params,
-    );
+  const model: {
+    name: createHandgun.Model | undefined;
+    figures: Readonly<Partial<Record<createHandgun.Dimension, number>>>;
+  } = draw.model<createHandgun.Model>(
+    "model",
+    params.model,
+    createHandgun.MODELS[frame],
+  );
+  const sights: {
+    figures: Readonly<Partial<Record<createHandgun.Dimension, number>>>;
+  } = draw.model<createHandgun.Sights>(
+    "sights",
+    params.sights,
+    model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
+  );
   const d: Partial<Record<createHandgun.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("handgun", createHandgun.BANDS[frame], seed, params, createHandgun.BANDS),
+    ...draw.dimensions(createHandgun.BANDS[frame], createHandgun.BANDS),
     ...model.figures,
     ...sights.figures,
   };
@@ -98,10 +110,9 @@ export function createHandgun(
     createHandgun.Affordance,
     createHandgun.Dimension
   > = new ArchetypeBuilder({
-    archetype: "handgun",
     id: params.id,
     name: `${frame === "fullSize" ? "full-size" : "compact"} handgun`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const slide: number = 0.028;
@@ -269,6 +280,18 @@ export namespace createHandgun {
     | "gripDepth"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    width: "m",
+    sightRadius: "m",
+    triggerReach: "m",
+    triggerTravel: "m",
+    gripDepth: "m",
+    mass: "kg",
+  };
+
   /** The read pistols: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact. */
   export type Model = "g17" | "p320m17" | "g19" | "p320m18";
 
@@ -283,19 +306,50 @@ export namespace createHandgun {
    * - G19 Gen5: 185 mm long, 128 mm high, slide 25.5 mm wide, trigger distance 70 mm, 670 g with an empty magazine (https://eu.glock.com/en/products/pistols/g19-gen5).
    * - P320-M18: 7.2 in (183 mm) long, 5.5 in (140 mm) high, 5.8 in (147 mm) sight radius, 28.1 oz (797 g), the magazine state not stated (https://www.sigsauer.com/p320-m18.html).
    */
-  export const MODELS: Readonly<Record<Frame, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Record<
+      Frame,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     fullSize: {
-      g17: { length: 0.202, height: 0.139, width: 0.0255, triggerReach: 0.07, mass: 0.708 },
-      p320m17: { length: 0.216, height: 0.139, sightRadius: 0.168, mass: 0.8391 },
+      g17: {
+        length: 0.202,
+        height: 0.139,
+        width: 0.0255,
+        triggerReach: 0.07,
+        mass: 0.708,
+      },
+      p320m17: {
+        length: 0.216,
+        height: 0.139,
+        sightRadius: 0.168,
+        mass: 0.8391,
+      },
     },
     compact: {
-      g19: { length: 0.185, height: 0.128, width: 0.0255, triggerReach: 0.07, mass: 0.67 },
+      g19: {
+        length: 0.185,
+        height: 0.128,
+        width: 0.0255,
+        triggerReach: 0.07,
+        mass: 0.67,
+      },
       p320m18: { length: 0.183, height: 0.14, sightRadius: 0.147, mass: 0.797 },
     },
   };
 
   /** A GLOCK's sight radius by its sights, the maker's tables: G17 Gen5 165, 164 and 163 mm, G19 Gen5 153, 152 and 151 mm for polymer, steel and GNS. A SIG SAUER's is its model's. */
-  export const SIGHTS: Readonly<Partial<Record<Model, Readonly<Record<Sights, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const SIGHTS: Readonly<
+    Partial<
+      Record<
+        Model,
+        Readonly<Record<Sights, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     g17: {
       polymer: { sightRadius: 0.165 },
       steel: { sightRadius: 0.164 },

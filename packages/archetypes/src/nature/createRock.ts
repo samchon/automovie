@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -39,24 +40,27 @@ export function createRock(
   params: createRock.IParams,
   seed?: number | string,
 ): Archetype<createRock.Affordance, createRock.Dimension> {
+  const draw: ArchetypeDrawSession<createRock.Dimension> =
+    new ArchetypeDrawSession<createRock.Dimension>(
+      "rock",
+      createRock.UNITS,
+      seed,
+      params,
+    );
   const kind: createRock.Kind = ArchetypeDraw.choice(
     "rock",
     "kind",
     params.kind,
     createRock.KINDS,
   );
-  const d: Record<createRock.Dimension, number> = ArchetypeDraw.dimensions(
-    "rock",
+  const d: Record<createRock.Dimension, number> = draw.dimensions(
     createRock.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<createRock.Affordance, createRock.Dimension> =
     new ArchetypeBuilder({
-      archetype: "rock",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
@@ -123,6 +127,12 @@ export namespace createRock {
    * - `gravity`: specific gravity, its density over water's.
    */
   export type Dimension = "diameter" | "gravity";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    gravity: "",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

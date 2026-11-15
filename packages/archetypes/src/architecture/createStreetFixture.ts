@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -76,6 +77,13 @@ export function createStreetFixture(
   params: createStreetFixture.IParams,
   seed?: number | string,
 ): Archetype<createStreetFixture.Affordance, createStreetFixture.Dimension> {
+  const draw: ArchetypeDrawSession<createStreetFixture.Dimension> =
+    new ArchetypeDrawSession<createStreetFixture.Dimension>(
+      "streetFixture",
+      createStreetFixture.UNITS,
+      seed,
+      params,
+    );
   const kind: createStreetFixture.Kind = ArchetypeDraw.choice(
     "streetFixture",
     "kind",
@@ -85,33 +93,23 @@ export function createStreetFixture(
   const model: {
     name: createStreetFixture.Model | undefined;
     figures: Readonly<Partial<Record<createStreetFixture.Dimension, number>>>;
-  } = ArchetypeDraw.model<
-    createStreetFixture.Model,
-    createStreetFixture.Dimension
-  >(
-    "streetFixture",
+  } = draw.model<createStreetFixture.Model>(
     "model",
     params.model,
     createStreetFixture.MODELS[kind],
-    seed,
-    params,
   );
   const d: Drawn = {
-    ...ArchetypeDraw.dimensions(
-      "streetFixture",
+    ...draw.dimensions(
       createStreetFixture.BANDS[kind],
-      seed,
-      params,
       createStreetFixture.BANDS,
     ),
     ...model.figures,
   };
   const builder: Builder = new ArchetypeBuilder({
-    archetype: "streetFixture",
     id: params.id,
     name:
       model.name === undefined ? NAMES[kind] : `${NAMES[kind]} ${model.name}`,
-    dimensions: d,
+    draw,
   });
   if (kind === "trafficCone") cone(builder, d);
   else if (kind === "bollard" || kind === "lampPost") post(builder, d, kind);
@@ -369,6 +367,20 @@ export namespace createStreetFixture {
     | "head"
     | "headHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    nozzleHeight: "m",
+    pumperReach: "m",
+    hoseReach: "m",
+    base: "m",
+    baseHeight: "m",
+    head: "m",
+    headHeight: "m",
+    mass: "kg",
+  };
 
   /** The read models: the MUTCD's 18 and 28 in cones, Reliance's R-1007 bollards and the MUTCD's 30 and 36 in STOP signs. */
   export type Model =

@@ -2,11 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
@@ -39,7 +40,16 @@ export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  return createHorse.equid(createHorse.PROFILE, params, seed);
+  return createHorse.equid(
+    createHorse.PROFILE,
+    params,
+    new ArchetypeDrawSession<createHorse.Dimension>(
+      createHorse.PROFILE.archetype,
+      createHorse.UNITS,
+      seed,
+      params,
+    ),
+  );
 }
 
 /**
@@ -108,8 +118,24 @@ export namespace createHorse {
     | "tempo"
     | "breechingDrop";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    withersHeight: "m",
+    mass: "kg",
+    girth: "m",
+    seatSize: "m",
+    stirrupDrop: "m",
+    stirrupWidth: "m",
+    reinWidth: "m",
+    tempo: "",
+    breechingDrop: "m",
+  };
+
   /** The dimensions drawn from a band: the others follow from these (`girth`, `mass`) or are a read model's (`seatSize`, `reinWidth`). */
-  export type Free = Exclude<Dimension, "girth" | "mass" | "seatSize" | "reinWidth">;
+  export type Free = Exclude<
+    Dimension,
+    "girth" | "mass" | "seatSize" | "reinWidth"
+  >;
 
   /** The parameters: the tack, the saddle's seat and the reins by their read sizes, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Free, number>> {
@@ -252,15 +278,15 @@ export namespace createHorse {
    *
    * @param profile The equid's name, bands and body.
    * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
-   * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
+   * @param draw The equid's draw session, opened with its name, the seed and the dimensions the author fixed; a pony's has already picked its breed.
    * @returns The equid.
    * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
    *
    */
   export function equid(
     profile: IProfile,
-    params: IParams = {},
-    seed?: number | string,
+    params: IParams,
+    draw: ArchetypeDrawSession<Dimension>,
   ): Archetype<Affordance, Dimension> {
     const tack: createHorse.Tack = ArchetypeDraw.choice(
       profile.archetype,
@@ -269,39 +295,31 @@ export namespace createHorse {
       createHorse.TACKS,
     );
     const free: Record<createHorse.Free, number> = {
-      ...ArchetypeDraw.dimensions(profile.archetype, profile.bands, seed, params),
+      ...draw.dimensions(profile.bands),
       ...profile.figures,
     } as Record<createHorse.Free, number>;
-    const girth: number = profile.girth(free.withersHeight);
+    const girth: number = draw.derive(
+      "girth",
+      profile.girth(free.withersHeight),
+    );
     const d: Record<createHorse.Dimension, number> = {
       ...free,
       girth,
-      mass: profile.mass ?? mass(free.withersHeight, girth),
-      seatSize: ArchetypeDraw.model<Seat, Dimension>(
-        profile.archetype,
-        "seat",
-        params.seat,
-        SEATS,
-        seed,
-        params,
-      ).figures.seatSize!,
-      reinWidth: ArchetypeDraw.model<Rein, Dimension>(
-        profile.archetype,
-        "rein",
-        params.rein,
-        REINS,
-        seed,
-        params,
-      ).figures.reinWidth!,
+      mass: draw.derive(
+        "mass",
+        profile.mass ?? mass(free.withersHeight, girth),
+      ),
+      seatSize: draw.model<Seat>("seat", params.seat, SEATS).figures.seatSize!,
+      reinWidth: draw.model<Rein>("rein", params.rein, REINS).figures
+        .reinWidth!,
     };
     const builder: ArchetypeBuilder<
       createHorse.Affordance,
       createHorse.Dimension
     > = new ArchetypeBuilder({
-      archetype: profile.archetype,
       id: params.id,
       name: profile.names[tack],
-      dimensions: d,
+      draw,
     });
     const v: typeof Vector3.create = Vector3.create;
     const h: number = d.withersHeight;
@@ -330,7 +348,7 @@ export namespace createHorse {
         depth: d.seatSize,
         width: createHorse.SEAT_WIDTH,
         astride: true,
-  
+
         // A horse is mounted from its near side, the left.
         mount: "left",
       });
@@ -338,10 +356,16 @@ export namespace createHorse {
         ["pommel", centre + d.seatSize / 2],
         ["cantle", centre - d.seatSize / 2],
       ] as const) {
-        builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-          color: "#4a3324",
-          share: 0.01,
-        });
+        builder.rod(
+          id,
+          0.015,
+          v(-0.06, top + 0.03, z),
+          v(0.06, top + 0.03, z),
+          {
+            color: "#4a3324",
+            share: 0.01,
+          },
+        );
         builder.affordance({
           id,
           kind: "handle",
@@ -358,7 +382,11 @@ export namespace createHorse {
         ["right", -1],
       ] as const) {
         const x: number = sign * (barrel + 0.03);
-        const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
+        const tread: IAutoMovieVector3 = v(
+          x,
+          top - d.stirrupDrop,
+          centre + 0.05,
+        );
         builder.rod(
           `leather-${side}`,
           0.008,
@@ -380,10 +408,14 @@ export namespace createHorse {
           width: d.stirrupWidth,
           length: d.stirrupDrop,
         });
-  
+
         // A rein from the corner of the mouth back to where the hand holds it, above the withers.
         const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
-        const bit: IAutoMovieVector3 = v(sign * 0.05 * h, rig.mouth.y, rig.mouth.z);
+        const bit: IAutoMovieVector3 = v(
+          sign * 0.05 * h,
+          rig.mouth.y,
+          rig.mouth.z,
+        );
         // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
         const run: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(bit, hand),
@@ -473,7 +505,11 @@ export namespace createHorse {
   /**
    * The measured warmbloods every equid's size is anchored on, means: withers 172 cm, heart girth 204 cm and body weight 640 kg, weighed on a scale (Jensen et al. 2019, Acta Vet Scand 61, Table 2, 38 adult warmbloods, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). The paper reports no relation between the measures, so the relation is `mass`'s law.
    */
-  export const JENSEN: Readonly<{ withers: number; girth: number; mass: number }> = {
+  export const JENSEN: Readonly<{
+    withers: number;
+    girth: number;
+    mass: number;
+  }> = {
     withers: 1.72,
     girth: 2.04,
     mass: 640,
@@ -490,14 +526,18 @@ export namespace createHorse {
    *
    */
   export function mass(withers: number, girth: number): number {
-    return JENSEN.mass * (girth / JENSEN.girth) ** 2 * (withers / JENSEN.withers);
+    return (
+      JENSEN.mass * (girth / JENSEN.girth) ** 2 * (withers / JENSEN.withers)
+    );
   }
 
   /** The seat sizes, inches: Wintec's 16, 16.5, 17, 17.5 and 18 in seats, measured from the saddle nail to the middle of the cantle (https://wintec-saddles.com.au/pages/measuring-your-seat-size). */
   export type Seat = "16in" | "16.5in" | "17in" | "17.5in" | "18in";
 
   /** Each seat size's seat, metres. */
-  export const SEATS: Readonly<Record<Seat, Readonly<Partial<Record<Dimension, number>>>>> = {
+  export const SEATS: Readonly<
+    Record<Seat, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
     "16in": { seatSize: 16 * ArchetypeUnits.INCH },
     "16.5in": { seatSize: 16.5 * ArchetypeUnits.INCH },
     "17in": { seatSize: 17 * ArchetypeUnits.INCH },
@@ -509,7 +549,9 @@ export namespace createHorse {
   export type Rein = "5/8in" | "3/4in";
 
   /** Each rein's width, metres. */
-  export const REINS: Readonly<Record<Rein, Readonly<Partial<Record<Dimension, number>>>>> = {
+  export const REINS: Readonly<
+    Record<Rein, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
     "5/8in": { reinWidth: (5 / 8) * ArchetypeUnits.INCH },
     "3/4in": { reinWidth: (3 / 4) * ArchetypeUnits.INCH },
   };
@@ -522,7 +564,8 @@ export namespace createHorse {
     archetype: "horse",
     names: { saddle: "saddle horse", harness: "driving horse" },
     bands: BANDS,
-    girth: (withers: number): number => (withers * JENSEN.girth) / JENSEN.withers,
+    girth: (withers: number): number =>
+      (withers * JENSEN.girth) / JENSEN.withers,
     body: BODY,
   };
 }

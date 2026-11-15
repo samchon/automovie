@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,27 +36,30 @@ export function createHurdle(
   params: createHurdle.IParams,
   seed?: number | string,
 ): Archetype<createHurdle.Affordance, createHurdle.Dimension> {
+  const draw: ArchetypeDrawSession<createHurdle.Dimension> =
+    new ArchetypeDrawSession<createHurdle.Dimension>(
+      "hurdle",
+      createHurdle.UNITS,
+      seed,
+      params,
+    );
   const kind: createHurdle.Kind = ArchetypeDraw.choice(
     "hurdle",
     "kind",
     params.kind,
     createHurdle.KINDS,
   );
-  const d: Record<createHurdle.Dimension, number> = ArchetypeDraw.dimensions(
-    "hurdle",
+  const d: Record<createHurdle.Dimension, number> = draw.dimensions(
     createHurdle.BANDS[kind],
-    seed,
-    params,
     createHurdle.BANDS,
   );
   const builder: ArchetypeBuilder<
     createHurdle.Affordance,
     createHurdle.Dimension
   > = new ArchetypeBuilder({
-    archetype: "hurdle",
     id: params.id,
     name: "hurdle",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const bar: number = createHurdle.BAR;
@@ -159,6 +163,13 @@ export namespace createHurdle {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "width" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the race, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

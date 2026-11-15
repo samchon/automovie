@@ -1,6 +1,7 @@
 import {
   type Archetype,
   ArchetypeBuilder,
+  ArchetypeDrawSession,
   ArchetypeMass,
   ArchetypeUnits,
   createClub,
@@ -13,9 +14,8 @@ import { nclose, vclose } from "../internal/predicates";
 /** An empty builder for a made-up solid. */
 function builder(): ArchetypeBuilder<never, never> {
   return new ArchetypeBuilder<never, never>({
-    archetype: "solid",
     name: "solid",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("solid", {}, undefined),
   });
 }
 
@@ -82,7 +82,8 @@ export function test_archetype_contract_mass(): void {
   );
 
   // An ounce inch squared in kilogram metres squared.
-  const OZ_IN2: number = ArchetypeUnits.OUNCE * ArchetypeUnits.INCH * ArchetypeUnits.INCH;
+  const OZ_IN2: number =
+    ArchetypeUnits.OUNCE * ArchetypeUnits.INCH * ArchetypeUnits.INCH;
   for (const [model, measured] of [
     ["s154", 13354],
     ["s155", 13302],
@@ -98,7 +99,10 @@ export function test_archetype_contract_mass(): void {
       Math.abs(swing - measured * OZ_IN2) <= 0.1 * measured * OZ_IN2,
     );
   }
-  const bat: ReturnType<typeof createClub> = createClub({ kind: "bat", model: "s154" });
+  const bat: ReturnType<typeof createClub> = createClub({
+    kind: "bat",
+    model: "s154",
+  });
   const balance: number = bat.properties.centerOfMass.y;
 
   // One wood throughout, so each bar weighs as its volume, radius squared times length, and the bat balances at the bars' volume-weighted mean height.

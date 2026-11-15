@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -80,28 +81,27 @@ export function createTable(
   params: createTable.IParams,
   seed?: number | string,
 ): Archetype<createTable.Affordance, createTable.Dimension> {
+  const draw: ArchetypeDrawSession<createTable.Dimension> =
+    new ArchetypeDrawSession<createTable.Dimension>(
+      "table",
+      createTable.UNITS,
+      seed,
+      params,
+    );
   const kind: createTable.Kind = ArchetypeDraw.choice(
     "table",
     "kind",
     params.kind,
     createTable.KINDS,
   );
-  const d: Partial<Record<createTable.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "table",
-      createTable.BANDS[kind],
-      seed,
-      params,
-      createTable.BANDS,
-    );
-  // A service counter's length and a pupil desk's height are one of the sizes their sheets list, never a value between two.
-  const size: { figures: Readonly<Partial<Record<createTable.Dimension, number>>> } = ArchetypeDraw.model(
-    "table",
-    "size",
-    params.size,
-    createTable.SIZES[kind],
-    seed,
+  const d: Partial<Record<createTable.Dimension, number>> = draw.dimensions(
+    createTable.BANDS[kind],
+    createTable.BANDS,
   );
+  // A service counter's length and a pupil desk's height are one of the sizes their sheets list, never a value between two.
+  const size: {
+    figures: Readonly<Partial<Record<createTable.Dimension, number>>>;
+  } = draw.model("size", params.size, createTable.SIZES[kind]);
   const sized: Partial<Record<createTable.Dimension, number>> = {
     ...d,
     ...size.figures,
@@ -113,13 +113,11 @@ export function createTable(
     createTable.Affordance,
     createTable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "table",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
-  const slab: number =
-    kind === "pupilDesk" ? createTable.PUPIL_TOP : 0.04;
+  const slab: number = kind === "pupilDesk" ? createTable.PUPIL_TOP : 0.04;
   builder.box(
     "top",
     Vector3.create(length, slab, depth),
@@ -137,11 +135,20 @@ export function createTable(
       builder.box(
         name,
         Vector3.create(wide, height - slab, deep),
-        Vector3.create(sx * (length / 2 - createTable.LEG_INSET - wide / 2), (height - slab) / 2, 0),
+        Vector3.create(
+          sx * (length / 2 - createTable.LEG_INSET - wide / 2),
+          (height - slab) / 2,
+          0,
+        ),
         { color: "#a9825a" },
       );
-  } else if (kind === "counter" || kind === "bar" || kind === "serviceCounter") {
-    const overhang: number = kind === "bar" ? KNEE : createTable.COUNTER_OVERHANG;
+  } else if (
+    kind === "counter" ||
+    kind === "bar" ||
+    kind === "serviceCounter"
+  ) {
+    const overhang: number =
+      kind === "bar" ? KNEE : createTable.COUNTER_OVERHANG;
     builder.box(
       "base",
       Vector3.create(length, height - slab, depth - overhang),
@@ -158,7 +165,11 @@ export function createTable(
       builder.rod(
         name,
         createTable.LEG_RADIUS,
-        Vector3.create(sx * (length / 2 - createTable.LEG_INSET), 0, sz * (depth / 2 - createTable.LEG_INSET)),
+        Vector3.create(
+          sx * (length / 2 - createTable.LEG_INSET),
+          0,
+          sz * (depth / 2 - createTable.LEG_INSET),
+        ),
         Vector3.create(
           sx * (length / 2 - createTable.LEG_INSET),
           height - slab,
@@ -263,7 +274,14 @@ export namespace createTable {
 
   /** Each kind's listed sizes, the default first, each with the dimension it fixes, metres; a kind not listed has none. */
   export const SIZES: Readonly<
-    Partial<Record<Kind, Readonly<Partial<Record<Size, Readonly<Partial<Record<Dimension, number>>>>>>>>
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Size, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
   > = {
     serviceCounter: {
       length30: { length: 30 * ArchetypeUnits.INCH },
@@ -330,6 +348,14 @@ export namespace createTable {
    */
   export type Dimension = "height" | "length" | "depth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    depth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which table. */
@@ -348,7 +374,9 @@ export namespace createTable {
       Exclude<Kind, "serviceCounter" | "pupilDesk">,
       Readonly<Record<Dimension, IArchetypeBand>>
     > & {
-      serviceCounter: Readonly<Record<Exclude<Dimension, "length">, IArchetypeBand>>;
+      serviceCounter: Readonly<
+        Record<Exclude<Dimension, "length">, IArchetypeBand>
+      >;
       pupilDesk: Readonly<Record<Exclude<Dimension, "height">, IArchetypeBand>>;
     }
   > = {
@@ -449,19 +477,58 @@ export namespace createTable {
         94 * ArchetypeUnits.CENTIMETRE,
         `${RIMFORSA}: its adjustable height`,
       ),
-      length: ArchetypeBand.metres(120 * ArchetypeUnits.CENTIMETRE, 120 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
-      depth: ArchetypeBand.metres(63.5 * ArchetypeUnits.CENTIMETRE, 63.5 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
-      mass: ArchetypeBand.of("kg", 40, 64, `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`, true),
+      length: ArchetypeBand.metres(
+        120 * ArchetypeUnits.CENTIMETRE,
+        120 * ArchetypeUnits.CENTIMETRE,
+        RIMFORSA,
+      ),
+      depth: ArchetypeBand.metres(
+        63.5 * ArchetypeUnits.CENTIMETRE,
+        63.5 * ArchetypeUnits.CENTIMETRE,
+        RIMFORSA,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        40,
+        64,
+        `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`,
+        true,
+      ),
     },
     pupilDesk: {
-      length: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, SILHOUETTE),
-      depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, SILHOUETTE),
-      mass: ArchetypeBand.of("kg", 33 * ArchetypeUnits.POUND, 33 * ArchetypeUnits.POUND, SILHOUETTE),
+      length: ArchetypeBand.metres(
+        24 * ArchetypeUnits.INCH,
+        24 * ArchetypeUnits.INCH,
+        SILHOUETTE,
+      ),
+      depth: ArchetypeBand.metres(
+        18 * ArchetypeUnits.INCH,
+        18 * ArchetypeUnits.INCH,
+        SILHOUETTE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        33 * ArchetypeUnits.POUND,
+        33 * ArchetypeUnits.POUND,
+        SILHOUETTE,
+      ),
     },
     altar: {
-      height: ArchetypeBand.metres(40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, WOERNER),
-      length: ArchetypeBand.metres(72 * ArchetypeUnits.INCH, 72 * ArchetypeUnits.INCH, WOERNER),
-      depth: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, WOERNER),
+      height: ArchetypeBand.metres(
+        40 * ArchetypeUnits.INCH,
+        40 * ArchetypeUnits.INCH,
+        WOERNER,
+      ),
+      length: ArchetypeBand.metres(
+        72 * ArchetypeUnits.INCH,
+        72 * ArchetypeUnits.INCH,
+        WOERNER,
+      ),
+      depth: ArchetypeBand.metres(
+        30 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        WOERNER,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         275 * ArchetypeUnits.POUND,

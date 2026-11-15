@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,19 +35,22 @@ export function createRamp(
   params: createRamp.IParams = {},
   seed?: number | string,
 ): Archetype<createRamp.Affordance, createRamp.Dimension> {
-  const d: Record<createRamp.Dimension, number> = ArchetypeDraw.dimensions(
-    "ramp",
+  const draw: ArchetypeDrawSession<createRamp.Dimension> =
+    new ArchetypeDrawSession<createRamp.Dimension>(
+      "ramp",
+      createRamp.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createRamp.Dimension, number> = draw.dimensions(
     createRamp.BANDS,
-    seed,
-    params,
   );
   const run: number = d.rise / d.slope;
   const builder: ArchetypeBuilder<createRamp.Affordance, createRamp.Dimension> =
     new ArchetypeBuilder({
-      archetype: "ramp",
       id: params.id,
       name: "ramp",
-      dimensions: d,
+      draw,
     });
 
   // The incline: a thin slab whose upper face lies in the slope, which runs from the floor at z = 0 to the rise at z = run.
@@ -159,6 +162,14 @@ export namespace createRamp {
    * - `mass`: kilograms.
    */
   export type Dimension = "slope" | "rise" | "width" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    slope: "",
+    rise: "m",
+    width: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

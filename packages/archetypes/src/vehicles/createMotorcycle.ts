@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -39,6 +40,13 @@ export function createMotorcycle(
   params: createMotorcycle.IParams,
   seed?: number | string,
 ): Archetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
+  const draw: ArchetypeDrawSession<createMotorcycle.Dimension> =
+    new ArchetypeDrawSession<createMotorcycle.Dimension>(
+      "motorcycle",
+      createMotorcycle.UNITS,
+      seed,
+      params,
+    );
   const kind: createMotorcycle.Kind = ArchetypeDraw.choice(
     "motorcycle",
     "kind",
@@ -46,33 +54,24 @@ export function createMotorcycle(
     createMotorcycle.KINDS,
   );
   // One read machine of the kind, its figures laid over the dimensions no maker states.
-  const model: { figures: Readonly<Partial<Record<createMotorcycle.Dimension, number>>> } =
-    ArchetypeDraw.model<createMotorcycle.Model, createMotorcycle.Dimension>(
-      "motorcycle",
-      "model",
-      params.model,
-      createMotorcycle.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    figures: Readonly<Partial<Record<createMotorcycle.Dimension, number>>>;
+  } = draw.model<createMotorcycle.Model>(
+    "model",
+    params.model,
+    createMotorcycle.MODELS[kind],
+  );
   const d: Record<createMotorcycle.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "motorcycle",
-      createMotorcycle.BANDS[kind],
-      seed,
-      params,
-      createMotorcycle.BANDS,
-    ),
+    ...draw.dimensions(createMotorcycle.BANDS[kind], createMotorcycle.BANDS),
     ...model.figures,
   } as Record<createMotorcycle.Dimension, number>;
   const builder: ArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
   > = new ArchetypeBuilder({
-    archetype: "motorcycle",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.wheelDiameter / 2;
@@ -268,6 +267,18 @@ export namespace createMotorcycle {
     | "footrestHeight"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatHeight: "m",
+    wheelbase: "m",
+    width: "m",
+    wheelDiameter: "m",
+    frontWheelDiameter: "m",
+    gripDiameter: "m",
+    footrestHeight: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which machine. */
@@ -287,7 +298,12 @@ export namespace createMotorcycle {
    * Each kind's read machines, each whole: its seat height, wheelbase, overall width (taken as the handlebar's), tyres' outer diameters (`ArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410, 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg; https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html); the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400, 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg; https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf); the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg; https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
    */
   export const MODELS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>
+    Record<
+      Kind,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
   > = {
     motorcycle: {
       cb500Hornet: {

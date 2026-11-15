@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -21,7 +22,6 @@ const BOLT: string =
 /** War arrows, read in a bowyers' study that draws on the Mary Rose Trust's records, their shafts' thickness at its upper end seen only in search results. */
 const ARROW: string =
   "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: Mary Rose arrows mostly 715 to 854 mm long, of aspen or poplar; the Westminster Abbey arrow 11 mm across at the shoulder and 50 g, Mary Rose arrow AZ472/19 62.5 g (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 27-29); Mary Rose shafts 12 to 13 mm at their thickest, seen only in search results";
-
 
 /** The M67 grenade, read in its Army data sheet. */
 const M67: string =
@@ -58,6 +58,13 @@ export function createProjectile(
   params: createProjectile.IParams,
   seed?: number | string,
 ): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+  const draw: ArchetypeDrawSession<createProjectile.Dimension> =
+    new ArchetypeDrawSession<createProjectile.Dimension>(
+      "projectile",
+      createProjectile.UNITS,
+      seed,
+      params,
+    );
   const kind: createProjectile.Kind = ArchetypeDraw.choice(
     "projectile",
     "kind",
@@ -65,27 +72,24 @@ export function createProjectile(
     createProjectile.KINDS,
   );
   // An arrow, a bolt and a round shot are each one read object whole; a band is drawn only for a figure its object does not give.
-  const model: { figures: Readonly<Partial<Record<createProjectile.Dimension, number>>> } =
-    ArchetypeDraw.model<createProjectile.Model, createProjectile.Dimension>(
-      "projectile",
-      "model",
-      params.model,
-      createProjectile.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    figures: Readonly<Partial<Record<createProjectile.Dimension, number>>>;
+  } = draw.model<createProjectile.Model>(
+    "model",
+    params.model,
+    createProjectile.MODELS[kind],
+  );
   const d: Partial<Record<createProjectile.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("projectile", createProjectile.BANDS[kind], seed, params, createProjectile.BANDS),
+    ...draw.dimensions(createProjectile.BANDS[kind], createProjectile.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createProjectile.Affordance,
     createProjectile.Dimension
   > = new ArchetypeBuilder({
-    archetype: "projectile",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -166,7 +170,10 @@ export function createProjectile(
     aperture: d.diameter!,
   });
 
-  return builder.build(d.mass!, kind === "ball" ? undefined : { rests: "steel" });
+  return builder.build(
+    d.mass!,
+    kind === "ball" ? undefined : { rests: "steel" },
+  );
 }
 
 /**
@@ -203,7 +210,13 @@ export namespace createProjectile {
   export const STEEL_OVER_ASH: number = STEEL / ASH;
 
   /** The read objects: the Westminster Abbey arrow and Mary Rose arrow AZ472/19; the bolts NMM 11461 and Met 33754; the 6-pdr. and 12-pdr. field guns' shot. */
-  export type Model = "westminster" | "az472" | "nmm11461" | "met33754" | "sixPounder" | "twelvePounder";
+  export type Model =
+    | "westminster"
+    | "az472"
+    | "nmm11461"
+    | "met33754"
+    | "sixPounder"
+    | "twelvePounder";
 
   /**
    * Each kind's read objects whole, the default first:
@@ -212,7 +225,16 @@ export namespace createProjectile {
    * - bolts: NMM 11461, 360 mm, its head 77 mm and its shaft 13.6 mm across (https://collectie.nmm.nl/nl/collectie/detail/227252/), its head as wide as the shaft its socket takes and its mass derived as the projectile's documentation states; Met 33754, 43.7 cm, its head 6.6 by 1.9 cm, 74 g (https://collectionapi.metmuseum.org/public/collection/v1/objects/33754).
    * - round shot, "a solid sphere of cast-iron" (Roberts, Hand-book of Artillery, 1863, https://gutenberg.org/cache/epub/71575/pg71575.txt): the 6-pdr.'s 3.58 in and 6.1 lb, the 12-pdr.'s 4.52 in and 12.3 lb.
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
+  > = {
     arrow: {
       westminster: { diameter: 0.011, mass: 0.05 },
       az472: { mass: 0.0625 },
@@ -223,13 +245,21 @@ export namespace createProjectile {
         head: 0.077,
         diameter: 0.0136,
         headWidth: 0.0136,
-        mass: Math.PI * (0.0136 / 2) ** 2 * (0.36 - 0.077) * ASH + ((0.0136 ** 2 * 0.077) / 3) * STEEL,
+        mass:
+          Math.PI * (0.0136 / 2) ** 2 * (0.36 - 0.077) * ASH +
+          ((0.0136 ** 2 * 0.077) / 3) * STEEL,
       },
       met33754: { length: 0.437, head: 0.066, headWidth: 0.019, mass: 0.074 },
     },
     roundShot: {
-      sixPounder: { diameter: 3.58 * ArchetypeUnits.INCH, mass: 6.1 * ArchetypeUnits.POUND },
-      twelvePounder: { diameter: 4.52 * ArchetypeUnits.INCH, mass: 12.3 * ArchetypeUnits.POUND },
+      sixPounder: {
+        diameter: 3.58 * ArchetypeUnits.INCH,
+        mass: 6.1 * ArchetypeUnits.POUND,
+      },
+      twelvePounder: {
+        diameter: 4.52 * ArchetypeUnits.INCH,
+        mass: 12.3 * ArchetypeUnits.POUND,
+      },
     },
   };
 
@@ -254,6 +284,15 @@ export namespace createProjectile {
    */
   export type Dimension = "diameter" | "length" | "head" | "headWidth" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    head: "m",
+    headWidth: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, the read object, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which projectile. */
@@ -271,7 +310,12 @@ export namespace createProjectile {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     ball: {
-      diameter: ArchetypeBand.metres(0.66 * ArchetypeUnits.INCH, 0.72 * ArchetypeUnits.INCH, BALL, true),
+      diameter: ArchetypeBand.metres(
+        0.66 * ArchetypeUnits.INCH,
+        0.72 * ArchetypeUnits.INCH,
+        BALL,
+        true,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         ArchetypeUnits.POUND / 14,
@@ -282,16 +326,39 @@ export namespace createProjectile {
     },
     arrow: {
       length: ArchetypeBand.metres(0.715, 0.854, ARROW),
-      diameter: ArchetypeBand.metres(0.011, 0.013, `${ARROW}: AZ472/19's own not stated`, true),
+      diameter: ArchetypeBand.metres(
+        0.011,
+        0.013,
+        `${ARROW}: AZ472/19's own not stated`,
+        true,
+      ),
     },
     bolt: {
-      diameter: ArchetypeBand.metres(0.0136, 0.0136, `${BOLT}: Met 33754's shaft not stated; NMM 11461's, the one read`, true),
+      diameter: ArchetypeBand.metres(
+        0.0136,
+        0.0136,
+        `${BOLT}: Met 33754's shaft not stated; NMM 11461's, the one read`,
+        true,
+      ),
     },
     roundShot: {},
     grenade: {
-      diameter: ArchetypeBand.metres(2.5 * ArchetypeUnits.INCH, 2.5 * ArchetypeUnits.INCH, M67),
-      length: ArchetypeBand.metres(3.53 * ArchetypeUnits.INCH, 3.53 * ArchetypeUnits.INCH, M67),
-      mass: ArchetypeBand.of("kg", 14 * ArchetypeUnits.OUNCE, 14 * ArchetypeUnits.OUNCE, M67),
+      diameter: ArchetypeBand.metres(
+        2.5 * ArchetypeUnits.INCH,
+        2.5 * ArchetypeUnits.INCH,
+        M67,
+      ),
+      length: ArchetypeBand.metres(
+        3.53 * ArchetypeUnits.INCH,
+        3.53 * ArchetypeUnits.INCH,
+        M67,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        14 * ArchetypeUnits.OUNCE,
+        14 * ArchetypeUnits.OUNCE,
+        M67,
+      ),
     },
   };
 }

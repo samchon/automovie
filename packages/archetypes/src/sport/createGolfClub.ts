@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -32,26 +33,29 @@ export function createGolfClub(
   params: createGolfClub.IParams,
   seed?: number | string,
 ): Archetype<createGolfClub.Affordance, createGolfClub.Dimension> {
+  const draw: ArchetypeDrawSession<createGolfClub.Dimension> =
+    new ArchetypeDrawSession<createGolfClub.Dimension>(
+      "golfClub",
+      createGolfClub.UNITS,
+      seed,
+      params,
+    );
   const kind: createGolfClub.Kind = ArchetypeDraw.choice(
     "golfClub",
     "kind",
     params.kind,
     createGolfClub.KINDS,
   );
-  const d: Record<createGolfClub.Dimension, number> = ArchetypeDraw.dimensions(
-    "golfClub",
+  const d: Record<createGolfClub.Dimension, number> = draw.dimensions(
     createGolfClub.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createGolfClub.Affordance,
     createGolfClub.Dimension
   > = new ArchetypeBuilder({
-    archetype: "golfClub",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const high: number = createGolfClub.HEAD_HEIGHT[kind];
@@ -169,6 +173,15 @@ export namespace createGolfClub {
     | "gripDiameter"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    headWidth: "m",
+    headDepth: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which club. */
@@ -243,7 +256,11 @@ export namespace createGolfClub {
       ),
     },
     iron: {
-      length: m(37 * ArchetypeUnits.INCH, 37 * ArchetypeUnits.INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
+      length: m(
+        37 * ArchetypeUnits.INCH,
+        37 * ArchetypeUnits.INCH,
+        "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
+      ),
       headWidth: m(0.075, 0.085, UNREAD, true),
       headDepth: m(0.02, 0.03, UNREAD, true),
       gripDiameter: GRIP,

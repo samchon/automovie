@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -38,30 +39,32 @@ export function createPullUpBar(
   params: createPullUpBar.IParams,
   seed?: number | string,
 ): Archetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
+  const draw: ArchetypeDrawSession<createPullUpBar.Dimension> =
+    new ArchetypeDrawSession<createPullUpBar.Dimension>(
+      "pullUpBar",
+      createPullUpBar.UNITS,
+      seed,
+      params,
+    );
   const kind: createPullUpBar.Kind = ArchetypeDraw.choice(
     "pullUpBar",
     "kind",
     params.kind,
     createPullUpBar.KINDS,
   );
-  const d: Partial<Record<createPullUpBar.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "pullUpBar",
-      createPullUpBar.BANDS[kind],
-      seed,
-      params,
-      createPullUpBar.BANDS,
-    );
+  const d: Partial<Record<createPullUpBar.Dimension, number>> = draw.dimensions(
+    createPullUpBar.BANDS[kind],
+    createPullUpBar.BANDS,
+  );
   const half: number = d.length! / 2;
   const height: number = d.height!;
   const builder: ArchetypeBuilder<
     createPullUpBar.Affordance,
     createPullUpBar.Dimension
   > = new ArchetypeBuilder({
-    archetype: "pullUpBar",
     id: params.id,
     name: kind === "gym" ? "pull-up bar" : "horizontal bar",
-    dimensions: d,
+    draw,
   });
   builder.rod(
     "bar",
@@ -120,6 +123,14 @@ export namespace createPullUpBar {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "length" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

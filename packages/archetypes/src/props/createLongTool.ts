@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
@@ -51,6 +52,13 @@ export function createLongTool(
   params: createLongTool.IParams,
   seed?: number | string,
 ): Archetype<createLongTool.Affordance, createLongTool.Dimension> {
+  const draw: ArchetypeDrawSession<createLongTool.Dimension> =
+    new ArchetypeDrawSession<createLongTool.Dimension>(
+      "longTool",
+      createLongTool.UNITS,
+      seed,
+      params,
+    );
   const kind: createLongTool.Kind = ArchetypeDraw.choice(
     "longTool",
     "kind",
@@ -58,23 +66,16 @@ export function createLongTool(
     createLongTool.KINDS,
   );
   const drawn: Partial<Record<createLongTool.Dimension, number>> =
-    ArchetypeDraw.dimensions<createLongTool.Dimension>(
-      "longTool",
-      createLongTool.BANDS[kind],
-      seed,
-      params,
-      createLongTool.BANDS,
-    );
+    draw.dimensions(createLongTool.BANDS[kind], createLongTool.BANDS);
   // A fishing rod is one of Daiwa's Ninja X spinning rods whole.
-  const model: { name: createLongTool.Model | undefined; figures: createLongTool.Figures } =
-    ArchetypeDraw.model<createLongTool.Model, createLongTool.Dimension>(
-      "longTool",
-      "model",
-      params.model,
-      createLongTool.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createLongTool.Model | undefined;
+    figures: createLongTool.Figures;
+  } = draw.model<createLongTool.Model>(
+    "model",
+    params.model,
+    createLongTool.MODELS[kind],
+  );
   const d: Partial<Record<createLongTool.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -84,10 +85,9 @@ export function createLongTool(
     createLongTool.Affordance,
     createLongTool.Dimension
   > = new ArchetypeBuilder({
-    archetype: "longTool",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
 
   if (kind === "forestAxe") {
@@ -149,9 +149,15 @@ export function createLongTool(
   if (kind === "fishingRod") {
     // A rod on its butt: the grip a hand takes and the tip it casts with.
     const grip: number = createLongTool.ROD_GRIP;
-    builder.rod("rod", radius, Vector3.create(0, 0, 0), Vector3.create(0, length, 0), {
-      color: "#2c2f33",
-    });
+    builder.rod(
+      "rod",
+      radius,
+      Vector3.create(0, 0, 0),
+      Vector3.create(0, length, 0),
+      {
+        color: "#2c2f33",
+      },
+    );
     builder.affordance({
       id: "grip",
       kind: "handle",
@@ -335,6 +341,16 @@ export namespace createLongTool {
     | "headMass"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    shaftDiameter: "m",
+    edge: "m",
+    headLength: "m",
+    headMass: "kg",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tool. */
@@ -361,7 +377,9 @@ export namespace createLongTool {
     | "NJX902MLFS";
 
   /** Each kind's models whole, the default first, length and mass: 183 cm and 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g, and 274 cm and 178 g (Daiwa Ninja X Spin specifications, https://www.daiwa.com/scandinavia/product/n753a5g). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     fishingRod: {
       NJX602MLFS: { length: 1.83, mass: 0.106 },
       NJX702MLFS: { length: 2.13, mass: 0.131 },
@@ -449,7 +467,12 @@ export namespace createLongTool {
         2 * ArchetypeUnits.POUND,
         `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
       ),
-      mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
+      mass: ArchetypeBand.of(
+        "kg",
+        1.2,
+        1.2,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
     },
     fishingRod: {
       shaftDiameter: ArchetypeBand.metres(
@@ -466,7 +489,12 @@ export namespace createLongTool {
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres(
+        (15 / 16) * ArchetypeUnits.INCH,
+        ArchetypeUnits.INCH,
+        HANDLES,
+        true,
+      ),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     mop: {
@@ -476,18 +504,34 @@ export namespace createLongTool {
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres((15 / 16) * ArchetypeUnits.INCH, ArchetypeUnits.INCH, HANDLES, true),
+      shaftDiameter: ArchetypeBand.metres(
+        (15 / 16) * ArchetypeUnits.INCH,
+        ArchetypeUnits.INCH,
+        HANDLES,
+        true,
+      ),
       mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     shovel: {
-      length: ArchetypeBand.metres(41.5 * ArchetypeUnits.INCH, 46 * ArchetypeUnits.INCH, SHOVEL, true),
+      length: ArchetypeBand.metres(
+        41.5 * ArchetypeUnits.INCH,
+        46 * ArchetypeUnits.INCH,
+        SHOVEL,
+        true,
+      ),
       shaftDiameter: ArchetypeBand.metres(
         0.032,
         0.038,
         "no shovel shaft diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 4.5 * ArchetypeUnits.POUND, 5.6 * ArchetypeUnits.POUND, SHOVEL, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        4.5 * ArchetypeUnits.POUND,
+        5.6 * ArchetypeUnits.POUND,
+        SHOVEL,
+        true,
+      ),
     },
   };
 }

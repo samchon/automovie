@@ -1,12 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -41,28 +42,30 @@ export function createPoolEdge(
   params: createPoolEdge.IParams,
   seed?: number | string,
 ): Archetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
+  const draw: ArchetypeDrawSession<createPoolEdge.Dimension> =
+    new ArchetypeDrawSession<createPoolEdge.Dimension>(
+      "poolEdge",
+      createPoolEdge.UNITS,
+      seed,
+      params,
+    );
   const kind: createPoolEdge.Kind = ArchetypeDraw.choice(
     "poolEdge",
     "kind",
     params.kind,
     createPoolEdge.KINDS,
   );
-  const d: Partial<Record<createPoolEdge.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "poolEdge",
-      createPoolEdge.BANDS[kind],
-      seed,
-      params,
-      createPoolEdge.BANDS,
-    );
+  const d: Partial<Record<createPoolEdge.Dimension, number>> = draw.dimensions(
+    createPoolEdge.BANDS[kind],
+    createPoolEdge.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createPoolEdge.Affordance,
     createPoolEdge.Dimension
   > = new ArchetypeBuilder({
-    archetype: "poolEdge",
     id: params.id,
     name: kind === "deckEdge" ? "pool edge" : "starting platform",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof createPoolEdge.ESTIMATES = createPoolEdge.ESTIMATES;
@@ -105,7 +108,11 @@ export function createPoolEdge(
   builder.affordance({
     id: "restLedge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, ledge, d.ledgeWidth!), v(0, 1, 0), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, ledge, d.ledgeWidth!),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     length: width,
   });
@@ -152,7 +159,11 @@ export function createPoolEdge(
     id: "backstrokeGrip",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, grip, -E.grip / 2), v(0, 0, 1), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, grip, -E.grip / 2),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     length: size,
@@ -161,7 +172,11 @@ export function createPoolEdge(
     id: "front",
     kind: "ledge",
     frame: ArchetypeFrame.facing(
-      v(0, top - (size / 2) * Math.sin(slope), -(size / 2) * (1 - Math.cos(slope))),
+      v(
+        0,
+        top - (size / 2) * Math.sin(slope),
+        -(size / 2) * (1 - Math.cos(slope)),
+      ),
       normal,
       v(1, 0, 0),
     ),
@@ -225,6 +240,20 @@ export namespace createPoolEdge {
     | "gripHeight"
     | "slope"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    freeboard: "m",
+    poolDepth: "m",
+    ledgeDepth: "m",
+    ledgeWidth: "m",
+    platformHeight: "m",
+    platformSize: "m",
+    gripHeight: "m",
+    slope: "degrees",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

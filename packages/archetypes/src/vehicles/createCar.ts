@@ -1,8 +1,9 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { CAR_BANDS } from "./CAR_BANDS";
@@ -33,6 +34,13 @@ export function createCar(
   params: createCar.IParams,
   seed?: number | string,
 ): Archetype<createCar.Affordance, createCar.Dimension> {
+  const draw: ArchetypeDrawSession<createCar.Dimension> =
+    new ArchetypeDrawSession<createCar.Dimension>(
+      "car",
+      createCar.UNITS,
+      seed,
+      params,
+    );
   const kind: createCar.Kind = ArchetypeDraw.choice(
     "car",
     "kind",
@@ -47,32 +55,25 @@ export function createCar(
       ? 1
       : -1;
   // One read model of the class, then one of the tyres it is offered on; its own ranges join the class's bands, and its figures are laid over the draw.
-  const model: { name: createCar.Model | undefined; figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
-    ArchetypeDraw.model<createCar.Model, createCar.Dimension>(
-      "car",
-      "model",
-      params.model,
-      CAR_MODELS.figures[kind],
-      seed,
-      params,
-    );
-  const fitted: { figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
-    ArchetypeDraw.model<createCar.Tyre, createCar.Dimension>(
-      "car",
-      "tyre",
-      params.tyre,
-      CAR_MODELS.tyres[model.name!],
-      seed,
-      params,
-    );
-  const drawn: Partial<Record<createCar.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "car",
-      { ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] },
-      seed,
-      params,
-      createCar.BANDS,
-    );
+  const model: {
+    name: createCar.Model | undefined;
+    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
+  } = draw.model<createCar.Model>(
+    "model",
+    params.model,
+    CAR_MODELS.figures[kind],
+  );
+  const fitted: {
+    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
+  } = draw.model<createCar.Tyre>(
+    "tyre",
+    params.tyre,
+    CAR_MODELS.tyres[model.name!],
+  );
+  const drawn: Partial<Record<createCar.Dimension, number>> = draw.dimensions(
+    { ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] },
+    createCar.BANDS,
+  );
   const d: Partial<Record<createCar.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -80,10 +81,9 @@ export function createCar(
   };
   const builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension> =
     new ArchetypeBuilder({
-      archetype: "car",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
   CarBody.shell(builder, layout);
@@ -322,6 +322,36 @@ export namespace createCar {
     | "bedFloor"
     | "frontOverhang"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    height: "m",
+    wheelbase: "m",
+    wheelDiameter: "m",
+    seatHeight: "m",
+    steeringDiameter: "m",
+    steeringAngle: "degrees",
+    steeringRatio: "",
+    lockTurns: "",
+    doorSwing: "degrees",
+    pedalTravel: "m",
+    bonnetSwing: "degrees",
+    recline: "degrees",
+    bootSwing: "degrees",
+    sideDoorWidth: "m",
+    sideDoorHeight: "m",
+    sideStep: "m",
+    cargoFloor: "m",
+    loadLength: "m",
+    bedLength: "m",
+    bedWidth: "m",
+    bedDepth: "m",
+    bedFloor: "m",
+    frontOverhang: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the class, the driving side, and any free dimension the class has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

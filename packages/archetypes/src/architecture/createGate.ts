@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -47,6 +48,13 @@ export function createGate(
   params: createGate.IParams,
   seed?: number | string,
 ): Archetype<createGate.Affordance, createGate.Dimension> {
+  const draw: ArchetypeDrawSession<createGate.Dimension> =
+    new ArchetypeDrawSession<createGate.Dimension>(
+      "gate",
+      createGate.UNITS,
+      seed,
+      params,
+    );
   const kind: createGate.Kind = ArchetypeDraw.choice(
     "gate",
     "kind",
@@ -56,30 +64,20 @@ export function createGate(
   const model: {
     name: createGate.Passage | undefined;
     figures: Readonly<Partial<Record<createGate.Dimension, number>>>;
-  } = ArchetypeDraw.model<createGate.Passage, createGate.Dimension>(
-    "gate",
+  } = draw.model<createGate.Passage>(
     "lane",
     params.lane,
     createGate.PASSAGES[kind],
-    seed,
-    params,
   );
   const d: Partial<Record<createGate.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "gate",
-      createGate.BANDS[kind],
-      seed,
-      params,
-      createGate.BANDS,
-    ),
+    ...draw.dimensions(createGate.BANDS[kind], createGate.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<createGate.Affordance, createGate.Dimension> =
     new ArchetypeBuilder({
-      archetype: "gate",
       id: params.id,
       name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const lane: number = d.passage!;
@@ -199,6 +197,18 @@ export namespace createGate {
     | "reach"
     | "arm"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    passage: "m",
+    width: "m",
+    height: "m",
+    length: "m",
+    barrier: "m",
+    reach: "m",
+    arm: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<

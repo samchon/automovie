@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -57,6 +58,13 @@ export function createDevice(
   params: createDevice.IParams,
   seed?: number | string,
 ): Archetype<createDevice.Affordance, createDevice.Dimension> {
+  const draw: ArchetypeDrawSession<createDevice.Dimension> =
+    new ArchetypeDrawSession<createDevice.Dimension>(
+      "device",
+      createDevice.UNITS,
+      seed,
+      params,
+    );
   const kind: createDevice.Kind = ArchetypeDraw.choice(
     "device",
     "kind",
@@ -64,23 +72,16 @@ export function createDevice(
     createDevice.KINDS,
   );
   const drawn: Partial<Record<createDevice.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "device",
-      createDevice.BANDS[kind],
-      seed,
-      params,
-      createDevice.BANDS,
-    );
+    draw.dimensions(createDevice.BANDS[kind], createDevice.BANDS);
   // A camera, a tablet and a walkie-talkie are each one of their makers' read models whole.
-  const model: { name: createDevice.Model | undefined; figures: createDevice.Figures } =
-    ArchetypeDraw.model<createDevice.Model, createDevice.Dimension>(
-      "device",
-      "model",
-      params.model,
-      createDevice.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createDevice.Model | undefined;
+    figures: createDevice.Figures;
+  } = draw.model<createDevice.Model>(
+    "model",
+    params.model,
+    createDevice.MODELS[kind],
+  );
   const d: Partial<Record<createDevice.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -92,10 +93,9 @@ export function createDevice(
     createDevice.Affordance,
     createDevice.Dimension
   > = new ArchetypeBuilder({
-    archetype: "device",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const front: (y: number) => ReturnType<typeof ArchetypeFrame.facing> = (
     y: number,
@@ -348,6 +348,14 @@ export namespace createDevice {
    */
   export type Dimension = "width" | "height" | "thickness" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    thickness: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which device. */
@@ -381,20 +389,47 @@ export namespace createDevice {
    * - tablet: the iPad (10th generation), 179.5 x 248.6 x 7 mm, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840).
    * - walkieTalkie: the MOTOTRBO CP200d, 61.5 x 127.7 mm and, with its NiMH 1400, slim Li-Ion 1600, high-capacity Li-Ion 2250 and ultra-high-capacity Li-Ion 2900 mAh batteries, 42.0, 39.0, 44.0 and 44.0 mm deep and 406, 341, 346 and 348 g (data sheet 06-2020, p. 3, https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf).
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
+  > = {
     camera: {
       grIII: { width: 0.1094, height: 0.0619, thickness: 0.0332, mass: 0.257 },
       x100vi: { width: 0.128, height: 0.0748, thickness: 0.0553, mass: 0.471 },
     },
     tablet: {
       wifi: { width: 0.1795, height: 0.2486, thickness: 0.007, mass: 0.477 },
-      cellular: { width: 0.1795, height: 0.2486, thickness: 0.007, mass: 0.481 },
+      cellular: {
+        width: 0.1795,
+        height: 0.2486,
+        thickness: 0.007,
+        mass: 0.481,
+      },
     },
     walkieTalkie: {
-      nimh1400: { width: 0.0615, height: 0.1277, thickness: 0.042, mass: 0.406 },
-      liIon1600: { width: 0.0615, height: 0.1277, thickness: 0.039, mass: 0.341 },
-      liIon2250: { width: 0.0615, height: 0.1277, thickness: 0.044, mass: 0.346 },
-      liIon2900: { width: 0.0615, height: 0.1277, thickness: 0.044, mass: 0.348 },
+      nimh1400: {
+        width: 0.0615,
+        height: 0.1277,
+        thickness: 0.042,
+        mass: 0.406,
+      },
+      liIon1600: {
+        width: 0.0615,
+        height: 0.1277,
+        thickness: 0.039,
+        mass: 0.341,
+      },
+      liIon2250: {
+        width: 0.0615,
+        height: 0.1277,
+        thickness: 0.044,
+        mass: 0.346,
+      },
+      liIon2900: {
+        width: 0.0615,
+        height: 0.1277,
+        thickness: 0.044,
+        mass: 0.348,
+      },
     },
   };
 

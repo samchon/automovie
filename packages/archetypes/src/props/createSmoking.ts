@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,13 @@ export function createSmoking(
   params: createSmoking.IParams,
   seed?: number | string,
 ): Archetype<createSmoking.Affordance, createSmoking.Dimension> {
+  const draw: ArchetypeDrawSession<createSmoking.Dimension> =
+    new ArchetypeDrawSession<createSmoking.Dimension>(
+      "smoking",
+      createSmoking.UNITS,
+      seed,
+      params,
+    );
   const kind: createSmoking.Kind = ArchetypeDraw.choice(
     "smoking",
     "kind",
@@ -42,32 +50,27 @@ export function createSmoking(
     createSmoking.KINDS,
   );
   const drawn: Partial<Record<createSmoking.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "smoking",
-      createSmoking.BANDS[kind],
-      seed,
-      params,
-      createSmoking.BANDS,
-    );
+    draw.dimensions(createSmoking.BANDS[kind], createSmoking.BANDS);
   // A lighter is one of BIC's two models whole.
-  const model: { name: createSmoking.Model | undefined; figures: createSmoking.Figures } =
-    ArchetypeDraw.model<createSmoking.Model, createSmoking.Dimension>(
-      "smoking",
-      "model",
-      params.model,
-      createSmoking.MODELS[kind],
-      seed,
-      params,
-    );
-  const d: Partial<Record<createSmoking.Dimension, number>> = { ...drawn, ...model.figures };
+  const model: {
+    name: createSmoking.Model | undefined;
+    figures: createSmoking.Figures;
+  } = draw.model<createSmoking.Model>(
+    "model",
+    params.model,
+    createSmoking.MODELS[kind],
+  );
+  const d: Partial<Record<createSmoking.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createSmoking.Affordance,
     createSmoking.Dimension
   > = new ArchetypeBuilder({
-    archetype: "smoking",
     id: params.id,
     name: model.name === undefined ? kind : ` ${model.name}`,
-    dimensions: d,
+    draw,
   });
 
   if (kind === "cigarette") {
@@ -225,6 +228,15 @@ export namespace createSmoking {
    */
   export type Dimension = "length" | "diameter" | "width" | "filter" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    width: "m",
+    filter: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -244,7 +256,9 @@ export namespace createSmoking {
   export type Model = "J26" | "J25";
 
   /** Each kind's models whole, the default first: a lighter's height (length), thickness (diameter), width and mass, 8.2 x 1.5 x 2.5 cm and 24.667 g for the J26 and 6.2 x 1.1 x 2.2 cm and 13 g for the J25 (https://bicgraphic.com/gb/bic-j26-lighter-3460002320.html, https://www.bicgraphic.com/fi/bic-j25-lighter-3460002360.html). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     lighter: {
       J26: { length: 0.082, diameter: 0.015, width: 0.025, mass: 0.024667 },
       J25: { length: 0.062, diameter: 0.011, width: 0.022, mass: 0.013 },

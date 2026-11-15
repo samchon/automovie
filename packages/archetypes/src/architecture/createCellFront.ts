@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeUnits,
@@ -13,11 +13,11 @@ import {
 
 /** The bar grille read. */
 const GRILLE: string =
-  "American Jail Products, security doors and wall systems: grate walls of \"7/8 inch diameter double ribbed round bars spaced 4 inches on center\" with \"horizontal intermediate interlocking flat bars spaced 12 inches on center\" (http://www.americanjailproducts.com/security-doors---wall-systems.html); within 20 Ill. Adm. Code 720.160(b)(3)(B), bars no less than 7/8 inch with at most 5 inches clear between them (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160)";
+  'American Jail Products, security doors and wall systems: grate walls of "7/8 inch diameter double ribbed round bars spaced 4 inches on center" with "horizontal intermediate interlocking flat bars spaced 12 inches on center" (http://www.americanjailproducts.com/security-doors---wall-systems.html); within 20 Ill. Adm. Code 720.160(b)(3)(B), bars no less than 7/8 inch with at most 5 inches clear between them (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160)';
 
 /** The cell's height read. */
 const CEILING: string =
-  "6VAC15-81-660: cells with \"a ceiling height no less than eight feet\" (https://law.lis.virginia.gov/admincode/title6/agency15/chapter81/section660/); the model takes the least, the grille floor to ceiling";
+  '6VAC15-81-660: cells with "a ceiling height no less than eight feet" (https://law.lis.virginia.gov/admincode/title6/agency15/chapter81/section660/); the model takes the least, the grille floor to ceiling';
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `flat`, a horizontal flat bar's width across the grille; the grip contacts are the round bars only. */
 const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
@@ -46,11 +46,15 @@ export function createCellFront(
   params: createCellFront.IParams,
   seed?: number | string,
 ): Archetype<createCellFront.Affordance, createCellFront.Dimension> {
-  const d: Record<createCellFront.Dimension, number> = ArchetypeDraw.dimensions(
-    "cellFront",
+  const draw: ArchetypeDrawSession<createCellFront.Dimension> =
+    new ArchetypeDrawSession<createCellFront.Dimension>(
+      "cellFront",
+      createCellFront.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createCellFront.Dimension, number> = draw.dimensions(
     createCellFront.BANDS,
-    seed,
-    params,
   );
   // As many bars as fit inside the width at the drawn centres: the first bar's
   // round section and then one centre per further bar.
@@ -71,10 +75,9 @@ export function createCellFront(
     createCellFront.Affordance,
     createCellFront.Dimension
   > = new ArchetypeBuilder({
-    archetype: "cellFront",
     id: params.id,
     name: "cell front",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const span: number = (bars - 1) * d.spacing;
@@ -88,7 +91,11 @@ export function createCellFront(
       id: `bar${k + 1}`,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, d.height / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+      frame: ArchetypeFrame.facing(
+        v(x, d.height / 2, 0),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: d.diameter,
@@ -135,6 +142,16 @@ export namespace createCellFront {
     | "flat"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    spacing: "m",
+    brace: "m",
+    flat: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the cell's width, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The cell's width the front closes, metres, a site dimension: the bars are as many as fit inside it. */
@@ -174,7 +191,7 @@ export namespace createCellFront {
     flat: ArchetypeBand.metres(
       (3 / 16) * ArchetypeUnits.INCH,
       (3 / 16) * ArchetypeUnits.INCH,
-      "Minnesota Rule 2900.0600 subp. 13: grillage bars with \"lateral bar supports 3/16 inch thick\" (https://www.revisor.mn.gov/rules/2900.0600/)",
+      'Minnesota Rule 2900.0600 subp. 13: grillage bars with "lateral bar supports 3/16 inch thick" (https://www.revisor.mn.gov/rules/2900.0600/)',
     ),
     mass: ArchetypeBand.of("kg", 6, 9, ArchetypeBand.TYPICAL_MASS, true),
   };

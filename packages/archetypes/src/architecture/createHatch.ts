@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -53,20 +53,23 @@ export function createHatch(
   params: createHatch.IParams = {},
   seed?: number | string,
 ): Archetype<createHatch.Affordance, createHatch.Dimension> {
-  const d: Record<createHatch.Dimension, number> = ArchetypeDraw.dimensions(
-    "hatch",
+  const draw: ArchetypeDrawSession<createHatch.Dimension> =
+    new ArchetypeDrawSession<createHatch.Dimension>(
+      "hatch",
+      createHatch.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createHatch.Dimension, number> = draw.dimensions(
     createHatch.BANDS,
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createHatch.Affordance,
     createHatch.Dimension
   > = new ArchetypeBuilder({
-    archetype: "hatch",
     id: params.id,
     name: "roof hatch",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const { width, length, curb, wall, cover } = HATCH;
@@ -144,6 +147,11 @@ export namespace createHatch {
 
   /** The free dimension: `mass`, kilograms. */
   export type Dimension = "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

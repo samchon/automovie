@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -43,6 +44,13 @@ export function createLongGun(
   params: createLongGun.IParams,
   seed?: number | string,
 ): Archetype<createLongGun.Affordance, createLongGun.Dimension> {
+  const draw: ArchetypeDrawSession<createLongGun.Dimension> =
+    new ArchetypeDrawSession<createLongGun.Dimension>(
+      "longGun",
+      createLongGun.UNITS,
+      seed,
+      params,
+    );
   const kind: createLongGun.Kind = ArchetypeDraw.choice(
     "longGun",
     "kind",
@@ -50,20 +58,24 @@ export function createLongGun(
     createLongGun.KINDS,
   );
   // A carbine is one of Colt's three, each weighed whole; a shotgun has one read model, its bands.
-  const model: { figures: Readonly<Partial<Record<createLongGun.Dimension, number>>> } =
-    ArchetypeDraw.model<createLongGun.Model, createLongGun.Dimension>("longGun", "model", params.model, createLongGun.MODELS[kind], seed, params);
+  const model: {
+    figures: Readonly<Partial<Record<createLongGun.Dimension, number>>>;
+  } = draw.model<createLongGun.Model>(
+    "model",
+    params.model,
+    createLongGun.MODELS[kind],
+  );
   const d: Partial<Record<createLongGun.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("longGun", createLongGun.BANDS[kind], seed, params, createLongGun.BANDS),
+    ...draw.dimensions(createLongGun.BANDS[kind], createLongGun.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createLongGun.Affordance,
     createLongGun.Dimension
   > = new ArchetypeBuilder({
-    archetype: "longGun",
     id: params.id,
     name: kind === "carbine" ? "carbine" : "pump shotgun",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const steel: string = "#2c2f33";
@@ -250,11 +262,28 @@ export namespace createLongGun {
     | "sightHeight"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    barrel: "m",
+    lengthOfPull: "m",
+    travel: "m",
+    sightHeight: "m",
+    mass: "kg",
+  };
+
   /** The read carbines: Colt's R0977HB heavy barrel, R0979 and CR6921. */
   export type Model = "r0977hb" | "r0979" | "cr6921";
 
   /** Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); a shotgun has none. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     carbine: {
       r0977hb: { mass: 3.13 },
       r0979: { mass: 2.95 },
@@ -284,7 +313,11 @@ export namespace createLongGun {
         30.5 * ArchetypeUnits.INCH,
         `${CARBINE}: 30.5 in with the stock retracted, all three`,
       ),
-      barrel: ArchetypeBand.metres(14.5 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, `${CARBINE}: 14.5 in`),
+      barrel: ArchetypeBand.metres(
+        14.5 * ArchetypeUnits.INCH,
+        14.5 * ArchetypeUnits.INCH,
+        `${CARBINE}: 14.5 in`,
+      ),
       lengthOfPull: ArchetypeBand.metres(
         10.75 * ArchetypeUnits.INCH,
         0.29,
@@ -304,8 +337,16 @@ export namespace createLongGun {
       ),
     },
     shotgun: {
-      length: ArchetypeBand.metres(39.5 * ArchetypeUnits.INCH, 39.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 39.5 in`),
-      barrel: ArchetypeBand.metres(18.5 * ArchetypeUnits.INCH, 18.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 18.5 in`),
+      length: ArchetypeBand.metres(
+        39.5 * ArchetypeUnits.INCH,
+        39.5 * ArchetypeUnits.INCH,
+        `${SHOTGUN}: 39.5 in`,
+      ),
+      barrel: ArchetypeBand.metres(
+        18.5 * ArchetypeUnits.INCH,
+        18.5 * ArchetypeUnits.INCH,
+        `${SHOTGUN}: 18.5 in`,
+      ),
       lengthOfPull: ArchetypeBand.metres(
         13.87 * ArchetypeUnits.INCH,
         13.87 * ArchetypeUnits.INCH,

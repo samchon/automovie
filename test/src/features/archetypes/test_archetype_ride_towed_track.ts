@@ -1,11 +1,12 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
 } from "@automovie/archetypes";
 import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -22,9 +23,17 @@ const REACH: number = 2;
  * @returns The fixture.
  */
 function hooked<Id extends string>(id: Id, z: number): Archetype<Id, never> {
-  return new ArchetypeBuilder<Id, never>({ archetype: "fixture", name: id, dimensions: {} })
+  return new ArchetypeBuilder<Id, never>({
+    name: id,
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+  })
     .box("body", Vector3.create(1, 0.5, 1), Vector3.create(0, 0.25, 0))
-    .affordance({ id, kind: "hook", frame: ArchetypeFrame.upright(Vector3.create(0, 0.5, z)), extent: null })
+    .affordance({
+      id,
+      kind: "hook",
+      frame: ArchetypeFrame.upright(Vector3.create(0, 0.5, z)),
+      extent: null,
+    })
     .build(100);
 }
 
@@ -57,10 +66,20 @@ export function test_archetype_ride_towed_track(): void {
     acceleration: 1,
     deceleration: 1,
   };
-  const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(hooked("hitch", -1.5), course);
+  const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
+    hooked("hitch", -1.5),
+    course,
+  );
   const trailer: Archetype<"coupling", never> = hooked("coupling", REACH);
-  const towed: ArchetypeRide.IRide<"coupling", never> = ArchetypeRide.towed(leader, "hitch", trailer, "coupling");
-  const headingOf = (frame: Parameters<typeof ArchetypeFrame.axis>[0]): number => {
+  const towed: ArchetypeRide.IRide<"coupling", never> = ArchetypeRide.towed(
+    leader,
+    "hitch",
+    trailer,
+    "coupling",
+  );
+  const headingOf = (
+    frame: Parameters<typeof ArchetypeFrame.axis>[0],
+  ): number => {
     const z: IAutoMovieVector3 = ArchetypeFrame.axis(frame, "z");
     return Math.atan2(z.x, z.z) / ArchetypeUnits.DEGREE;
   };
@@ -73,21 +92,35 @@ export function test_archetype_ride_towed_track(): void {
     const coupling: IAutoMovieVector3 = towed.frame("coupling", t).translation;
 
     // 1. On the hitch.
-    if (Vector3.length(Vector3.subtract(hitch, coupling)) > 1e-6) findings.push(`off the hitch at ${t} s`);
+    if (Vector3.length(Vector3.subtract(hitch, coupling)) > 1e-6)
+      findings.push(`off the hitch at ${t} s`);
 
     // 2. Off-tracking inward through the turn's second half.
     const axle: IAutoMovieVector3 = towed.at(t).placement.translation;
-    const flat = (p: IAutoMovieVector3): number => Math.hypot(p.x - centre.x, p.z - centre.z);
-    if (t > (turnStart + turnEnd) / 2 && t < turnEnd && !(flat(axle) < flat(hitch)))
+    const flat = (p: IAutoMovieVector3): number =>
+      Math.hypot(p.x - centre.x, p.z - centre.z);
+    if (
+      t > (turnStart + turnEnd) / 2 &&
+      t < turnEnd &&
+      !(flat(axle) < flat(hitch))
+    )
       findings.push(`the axle swings outside the hitch at ${t} s`);
 
     // 3. Aligned before the turn, straightened after it.
     const lead: number = headingOf(leader.at(t).placement);
     const trail: number = headingOf(towed.at(t).placement);
-    if (t < turnStart - integrateMotionTrajectory.STEP && Math.abs(trail - lead) > 1e-6)
+    if (
+      t < turnStart - integrateMotionTrajectory.STEP &&
+      Math.abs(trail - lead) > 1e-6
+    )
       findings.push(`misaligned before the turn at ${t} s`);
-    if (leader.at(t).course.distance > 20 + 5 * Math.PI + 1.5 + 3 * REACH && Math.abs(trail - lead) > 1)
-      findings.push(`still ${trail - lead} degrees off after the turn at ${t} s`);
+    if (
+      leader.at(t).course.distance > 20 + 5 * Math.PI + 1.5 + 3 * REACH &&
+      Math.abs(trail - lead) > 1
+    )
+      findings.push(
+        `still ${trail - lead} degrees off after the turn at ${t} s`,
+      );
   }
 
   // 4. Frame-rate invariance.

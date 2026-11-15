@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -51,6 +52,13 @@ export function createVessel(
   params: createVessel.IParams,
   seed?: number | string,
 ): Archetype<createVessel.Affordance, createVessel.Dimension> {
+  const draw: ArchetypeDrawSession<createVessel.Dimension> =
+    new ArchetypeDrawSession<createVessel.Dimension>(
+      "vessel",
+      createVessel.UNITS,
+      seed,
+      params,
+    );
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
     "kind",
@@ -58,22 +66,16 @@ export function createVessel(
     createVessel.KINDS,
   );
   const drawn: Partial<Record<createVessel.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-    "vessel",
-    createVessel.BANDS[kind],
-    seed,
-    params,
-  );
+    draw.dimensions(createVessel.BANDS[kind]);
   // An ashtray is one of the two glass ashtrays read, whole.
-  const model: { name: createVessel.Model | undefined; figures: createVessel.Figures } =
-    ArchetypeDraw.model<createVessel.Model, createVessel.Dimension>(
-      "vessel",
-      "model",
-      params.model,
-      createVessel.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createVessel.Model | undefined;
+    figures: createVessel.Figures;
+  } = draw.model<createVessel.Model>(
+    "model",
+    params.model,
+    createVessel.MODELS[kind],
+  );
   const read: Partial<Record<createVessel.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -87,10 +89,9 @@ export function createVessel(
     createVessel.Affordance,
     createVessel.Dimension
   > = new ArchetypeBuilder({
-    archetype: "vessel",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const wall: number = createVessel.WALL;
@@ -284,6 +285,13 @@ export namespace createVessel {
    */
   export type Dimension = "diameter" | "height" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    height: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which vessel. */
@@ -303,7 +311,9 @@ export namespace createVessel {
   export type Model = "nachtmann" | "harris";
 
   /** Each kind's models whole, the default first: the ashtrays' 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     ashtray: {
       nachtmann: { diameter: 0.1, height: 0.03, mass: 0.258 },
       harris: { diameter: 0.168, height: 0.035, mass: 1.7 },
@@ -332,8 +342,16 @@ export namespace createVessel {
       mass: ArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
     },
     stockpot: {
-      diameter: ArchetypeBand.metres(9 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, POT),
-      height: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, POT),
+      diameter: ArchetypeBand.metres(
+        9 * ArchetypeUnits.INCH,
+        9 * ArchetypeUnits.INCH,
+        POT,
+      ),
+      height: ArchetypeBand.metres(
+        6 * ArchetypeUnits.INCH,
+        6 * ArchetypeUnits.INCH,
+        POT,
+      ),
       mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {

@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,6 +36,13 @@ export function createBed(
   params: createBed.IParams,
   seed?: number | string,
 ): Archetype<createBed.Affordance, createBed.Dimension> {
+  const draw: ArchetypeDrawSession<createBed.Dimension> =
+    new ArchetypeDrawSession<createBed.Dimension>(
+      "bed",
+      createBed.UNITS,
+      seed,
+      params,
+    );
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",
     "kind",
@@ -42,27 +50,17 @@ export function createBed(
     createBed.KINDS,
   );
   const size: Readonly<Partial<Record<createBed.Dimension, number>>> =
-    ArchetypeDraw.model<createBed.Mattress, createBed.Dimension>(
-      "bed",
+    draw.model<createBed.Mattress>(
       "size",
       params.size,
       MATTRESS_SIZES[kind],
-      seed,
-      params,
     ).figures;
   const d: Partial<Record<createBed.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "bed",
-      createBed.BANDS[kind],
-      seed,
-      params,
-      createBed.BANDS,
-    ),
+    ...draw.dimensions(createBed.BANDS[kind], createBed.BANDS),
     ...size,
   };
   const builder: ArchetypeBuilder<createBed.Affordance, createBed.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bed",
       id: params.id,
       name:
         kind === "mattress"
@@ -70,7 +68,7 @@ export function createBed(
           : kind === "gurney"
             ? "stretcher"
             : `${kind} bed`,
-      dimensions: d,
+      draw,
     });
   if (
     kind === "hospital" ||
@@ -204,6 +202,21 @@ export namespace createBed {
     | "gap"
     | "clearance"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    height: "m",
+    thickness: "m",
+    overallLength: "m",
+    overallWidth: "m",
+    litter: "m",
+    rail: "m",
+    gap: "m",
+    clearance: "m",
+    mass: "kg",
+  };
 
   /** The UK sizes a loose mattress is made in. */
   export type Mattress = "single" | "double";

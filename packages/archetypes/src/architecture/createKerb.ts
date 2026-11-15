@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -31,24 +32,27 @@ export function createKerb(
   params: createKerb.IParams,
   seed?: number | string,
 ): Archetype<createKerb.Affordance, createKerb.Dimension> {
+  const draw: ArchetypeDrawSession<createKerb.Dimension> =
+    new ArchetypeDrawSession<createKerb.Dimension>(
+      "kerb",
+      createKerb.UNITS,
+      seed,
+      params,
+    );
   const kind: createKerb.Kind = ArchetypeDraw.choice(
     "kerb",
     "kind",
     params.kind,
     createKerb.KINDS,
   );
-  const d: Record<createKerb.Dimension, number> = ArchetypeDraw.dimensions(
-    "kerb",
+  const d: Record<createKerb.Dimension, number> = draw.dimensions(
     createKerb.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<createKerb.Affordance, createKerb.Dimension> =
     new ArchetypeBuilder({
-      archetype: "kerb",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   builder.box(
     kind,
@@ -110,6 +114,14 @@ export namespace createKerb {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "depth" | "length" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    depth: "m",
+    length: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

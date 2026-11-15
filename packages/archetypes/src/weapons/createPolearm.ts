@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -63,6 +64,13 @@ export function createPolearm(
   params: createPolearm.IParams,
   seed?: number | string,
 ): Archetype<createPolearm.Affordance, createPolearm.Dimension> {
+  const draw: ArchetypeDrawSession<createPolearm.Dimension> =
+    new ArchetypeDrawSession<createPolearm.Dimension>(
+      "polearm",
+      createPolearm.UNITS,
+      seed,
+      params,
+    );
   const kind: createPolearm.Kind = ArchetypeDraw.choice(
     "polearm",
     "kind",
@@ -70,22 +78,28 @@ export function createPolearm(
     createPolearm.KINDS,
   );
   // A spear's head is one catalogued spearhead whole; a lance's shaft is the read lance's overall length less its head.
-  const model: { figures: Readonly<Partial<Record<createPolearm.Dimension, number>>> } =
-    ArchetypeDraw.model<createPolearm.Model, createPolearm.Dimension>("polearm", "model", params.model, createPolearm.MODELS[kind], seed, params);
+  const model: {
+    figures: Readonly<Partial<Record<createPolearm.Dimension, number>>>;
+  } = draw.model<createPolearm.Model>(
+    "model",
+    params.model,
+    createPolearm.MODELS[kind],
+  );
   const drawn: Partial<Record<createPolearm.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("polearm", createPolearm.BANDS[kind], seed, params, createPolearm.BANDS),
+    ...draw.dimensions(createPolearm.BANDS[kind], createPolearm.BANDS),
     ...model.figures,
   };
   const d: Partial<Record<createPolearm.Dimension, number>> =
-    kind === "lance" ? { ...drawn, length: createPolearm.LANCE_LENGTH - drawn.headLength! } : drawn;
+    kind === "lance"
+      ? { ...drawn, length: createPolearm.LANCE_LENGTH - drawn.headLength! }
+      : drawn;
   const builder: ArchetypeBuilder<
     createPolearm.Affordance,
     createPolearm.Dimension
   > = new ArchetypeBuilder({
-    archetype: "polearm",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
@@ -165,7 +179,6 @@ export namespace createPolearm {
   /** The read lance's overall length, metres: the Pattern 1894's 2.76 m (Royal Armouries). */
   export const LANCE_LENGTH: number = 2.76;
 
-
   /** The catalogued spearheads that state their weight: Met 1989.220 and Museum Wales' medieval iron head. */
   export type Model = "met1989" | "walesIron";
 
@@ -177,7 +190,16 @@ export namespace createPolearm {
    *
    * The head's mass places the spear's balance, so a head whose record states no weight is not a model: Museum Wales' socketed medieval head, its Segontium and its Loughor Roman heads. No volume model of a head derives it: a lozenge blade with its section's thickness a quarter of its width gives the Met head's blade 287 g against the whole head's read 444 g and the Wales head 131 g against its 141.7 g, and no weighed record gives the socket that would close the gap.
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
+  > = {
     spear: {
       met1989: { headLength: 0.54, headWidth: 0.048, headMass: 0.444 },
       walesIron: { headLength: 0.362, headWidth: 0.0333, headMass: 0.1417 },
@@ -211,6 +233,16 @@ export namespace createPolearm {
     | "headMass"
     | "diameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    headLength: "m",
+    headWidth: "m",
+    headMass: "kg",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, a spear's head, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -251,8 +283,19 @@ export namespace createPolearm {
     },
     lance: {
       headLength: ArchetypeBand.metres(0.207, 0.277, LANCE_HEADS, true),
-      headWidth: ArchetypeBand.metres(0.015, 0.015, `${LANCE_HEAD}, applied to the Pattern 1894`, true),
-      headMass: ArchetypeBand.of("kg", 0.18, 0.18, `${LANCE_HEAD}, applied to the Pattern 1894`, true),
+      headWidth: ArchetypeBand.metres(
+        0.015,
+        0.015,
+        `${LANCE_HEAD}, applied to the Pattern 1894`,
+        true,
+      ),
+      headMass: ArchetypeBand.of(
+        "kg",
+        0.18,
+        0.18,
+        `${LANCE_HEAD}, applied to the Pattern 1894`,
+        true,
+      ),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       mass: ArchetypeBand.of("kg", 2.19, 2.19, LANCE),
     },

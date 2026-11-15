@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -36,6 +37,13 @@ export function createTableware(
   params: createTableware.IParams,
   seed?: number | string,
 ): Archetype<createTableware.Affordance, createTableware.Dimension> {
+  const draw: ArchetypeDrawSession<createTableware.Dimension> =
+    new ArchetypeDrawSession<createTableware.Dimension>(
+      "tableware",
+      createTableware.UNITS,
+      seed,
+      params,
+    );
   const kind: createTableware.Kind = ArchetypeDraw.choice(
     "tableware",
     "kind",
@@ -43,23 +51,16 @@ export function createTableware(
     createTableware.KINDS,
   );
   const drawn: Partial<Record<createTableware.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "tableware",
-      createTableware.BANDS[kind],
-      seed,
-      params,
-      createTableware.BANDS,
-    );
+    draw.dimensions(createTableware.BANDS[kind], createTableware.BANDS);
   // A round plate or a platter is one of IKEA's read models whole.
-  const model: { name: createTableware.Model | undefined; figures: createTableware.Figures } =
-    ArchetypeDraw.model<createTableware.Model, createTableware.Dimension>(
-      "tableware",
-      "model",
-      params.model,
-      createTableware.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createTableware.Model | undefined;
+    figures: createTableware.Figures;
+  } = draw.model<createTableware.Model>(
+    "model",
+    params.model,
+    createTableware.MODELS[kind],
+  );
   const d: Partial<Record<createTableware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -68,10 +69,9 @@ export function createTableware(
     createTableware.Affordance,
     createTableware.Dimension
   > = new ArchetypeBuilder({
-    archetype: "tableware",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -178,6 +178,15 @@ export namespace createTableware {
    */
   export type Dimension = "diameter" | "length" | "width" | "height" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which plate. */
@@ -201,7 +210,9 @@ export namespace createTableware {
    *
    * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and 0.52 kg, which the plate alone is lighter than by an amount no page gives.
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
+  > = {
     plate: {
       sidePlate: { diameter: 0.2, height: 0.02, mass: 0.41 },
       dinnerPlate: { diameter: 0.27, height: 0.03, mass: 0.77 },

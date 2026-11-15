@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -65,28 +66,30 @@ export function createLight(
   params: createLight.IParams,
   seed?: number | string,
 ): Archetype<createLight.Affordance, createLight.Dimension> {
+  const draw: ArchetypeDrawSession<createLight.Dimension> =
+    new ArchetypeDrawSession<createLight.Dimension>(
+      "light",
+      createLight.UNITS,
+      seed,
+      params,
+    );
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",
     "kind",
     params.kind,
     createLight.KINDS,
   );
-  const d: Partial<Record<createLight.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "light",
-      createLight.BANDS[kind],
-      seed,
-      params,
-      createLight.BANDS,
-    );
+  const d: Partial<Record<createLight.Dimension, number>> = draw.dimensions(
+    createLight.BANDS[kind],
+    createLight.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createLight.Affordance,
     createLight.Dimension
   > = new ArchetypeBuilder({
-    archetype: "light",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -284,6 +287,20 @@ export namespace createLight {
     | "base"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    headDiameter: "m",
+    height: "m",
+    shade: "m",
+    cord: "m",
+    overall: "m",
+    stem: "m",
+    base: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which light. */
@@ -303,14 +320,27 @@ export namespace createLight {
       mass: ArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),
     },
     fireTorch: {
-      length: ArchetypeBand.metres(16 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, TORCH, true),
+      length: ArchetypeBand.metres(
+        16 * ArchetypeUnits.INCH,
+        24 * ArchetypeUnits.INCH,
+        TORCH,
+        true,
+      ),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       headDiameter: ArchetypeBand.metres(0.065, 0.065, TORCH, true),
       mass: ArchetypeBand.of("kg", 0.205, 0.265, TORCH, true),
     },
     pendant: {
-      height: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11 * ArchetypeUnits.INCH, PENDANT),
-      shade: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, PENDANT),
+      height: ArchetypeBand.metres(
+        11 * ArchetypeUnits.INCH,
+        11 * ArchetypeUnits.INCH,
+        PENDANT,
+      ),
+      shade: ArchetypeBand.metres(
+        15 * ArchetypeUnits.INCH,
+        15 * ArchetypeUnits.INCH,
+        PENDANT,
+      ),
       cord: ArchetypeBand.metres(
         4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
         4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,

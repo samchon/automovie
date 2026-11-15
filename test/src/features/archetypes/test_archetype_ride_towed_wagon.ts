@@ -1,11 +1,12 @@
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   type ArchetypeCourse,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
+  ArchetypeUnits,
   createCart,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -63,10 +64,16 @@ export function test_archetype_ride_towed_wagon(): void {
       `the wagon's pivot is ${pivot.z / ArchetypeUnits.INCH} in ahead of the hind axle`,
     );
   const tip: IAutoMovieVector3 = at(wagon, "coupling");
-  if (!close(tip.y, 24 * ArchetypeUnits.INCH) || !close(gap(tip, pivot), 128 * ArchetypeUnits.INCH))
+  if (
+    !close(tip.y, 24 * ArchetypeUnits.INCH) ||
+    !close(gap(tip, pivot), 128 * ArchetypeUnits.INCH)
+  )
     findings.push("the wagon's tongue is not 10 ft 8 in hanging to 2 ft");
   const bed: IAutoMovieAffordance = wagon.affordance("bed");
-  if (!close(bed.depth!, 120 * ArchetypeUnits.INCH) || !close(bed.width!, 42 * ArchetypeUnits.INCH))
+  if (
+    !close(bed.depth!, 120 * ArchetypeUnits.INCH) ||
+    !close(bed.width!, 42 * ArchetypeUnits.INCH)
+  )
     findings.push("the wagon's bed is not the body's inside");
 
   // The carriage.
@@ -209,9 +216,8 @@ export function test_archetype_ride_towed_wagon(): void {
  */
 function hitched(): Archetype<"hitch", never> {
   return new ArchetypeBuilder<"hitch", never>({
-    archetype: "fixture",
     name: "leader",
-    dimensions: {},
+    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .affordance({

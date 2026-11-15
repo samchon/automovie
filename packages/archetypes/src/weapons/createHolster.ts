@@ -5,27 +5,33 @@ import type {
 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { createSword } from "./createSword";
-
 
 /** A scabbard maker's rule of fit, read. */
 const WULFLUND: string =
   "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
 
 /** How much longer and wider than its blade a scabbard or a sheath is made, metres: Wulflund's 1.5 and 2 cm. */
-const FIT: Readonly<{ length: number; width: number }> = { length: 0.015, width: 0.02 };
+const FIT: Readonly<{ length: number; width: number }> = {
+  length: 0.015,
+  width: 0.02,
+};
 
 /** A scabbard's or a sheath's length and width made to one of `createSword`'s read swords, whole. */
-const madeTo = (name: string, sword: Readonly<Partial<Record<createSword.Dimension, number>>>): createHolster.Fitted => ({
+const madeTo = (
+  name: string,
+  sword: Readonly<Partial<Record<createSword.Dimension, number>>>,
+): createHolster.Fitted => ({
   length: ArchetypeBand.metres(
     sword.bladeLength! + FIT.length,
     sword.bladeLength! + FIT.length,
@@ -40,12 +46,24 @@ const madeTo = (name: string, sword: Readonly<Partial<Record<createSword.Dimensi
 
 /** A scabbard's or a sheath's length and width made to a blade of one of `createSword`'s kinds, its bands moved out by the fit, provisional where the blade's are. */
 const madeFor = (kind: createSword.Kind): createHolster.Fitted => {
-  const blade: Readonly<Partial<Record<createSword.Dimension, IArchetypeBand>>> = createSword.BANDS[kind];
+  const blade: Readonly<
+    Partial<Record<createSword.Dimension, IArchetypeBand>>
+  > = createSword.BANDS[kind];
   const length: IArchetypeBand = blade.bladeLength!;
   const width: IArchetypeBand = blade.bladeWidth!;
   return {
-    length: ArchetypeBand.metres(length.minimum + FIT.length, length.maximum + FIT.length, `${WULFLUND}, on ${length.source}`, length.provisional),
-    width: ArchetypeBand.metres(width.minimum + FIT.width, width.maximum + FIT.width, `${WULFLUND}, on ${width.source}`, width.provisional),
+    length: ArchetypeBand.metres(
+      length.minimum + FIT.length,
+      length.maximum + FIT.length,
+      `${WULFLUND}, on ${length.source}`,
+      length.provisional,
+    ),
+    width: ArchetypeBand.metres(
+      width.minimum + FIT.width,
+      width.maximum + FIT.width,
+      `${WULFLUND}, on ${width.source}`,
+      width.provisional,
+    ),
   };
 };
 
@@ -91,6 +109,13 @@ export function createHolster(
   params: createHolster.IParams = {},
   seed?: number | string,
 ): Archetype<createHolster.Affordance, createHolster.Dimension> {
+  const draw: ArchetypeDrawSession<createHolster.Dimension> =
+    new ArchetypeDrawSession<createHolster.Dimension>(
+      "holster",
+      createHolster.UNITS,
+      seed,
+      params,
+    );
   const kind: createHolster.Kind = ArchetypeDraw.choice(
     "holster",
     "kind",
@@ -129,32 +154,63 @@ export function createHolster(
           : "give a whole number of slots",
     });
   // A holster rides at one of the maker's three heights; a scabbard or a sheath is made to one blade, its length and width that blade's with the maker's fit.
-  const ride: { figures: Readonly<Partial<Record<createHolster.Dimension, number>>> } =
-    ArchetypeDraw.model<createHolster.Ride, createHolster.Dimension>("holster", "model", params.model, createHolster.MODELS[kind], seed, params);
-  const blades: Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>> | undefined =
-    kind === "scabbard" ? createHolster.BLADES.scabbard : kind === "sheath" ? createHolster.BLADES.sheath : undefined;
-  if (blades === undefined && params.blade !== undefined)
-    ArchetypeDraw.choice("holster", "blade", params.blade, [] as readonly createHolster.Blade[]);
-  const fitted: Readonly<Partial<Record<createHolster.Dimension, IArchetypeBand>>> =
-    blades === undefined
-      ? {}
-      : blades[ArchetypeDraw.pick("holster", "blade", params.blade, Object.keys(blades) as createHolster.Blade[], seed)]!;
+  const ride: {
+    figures: Readonly<Partial<Record<createHolster.Dimension, number>>>;
+  } = draw.model<createHolster.Ride>(
+    "model",
+    params.model,
+    createHolster.MODELS[kind],
+  );
+  const blades:
+    | Readonly<Partial<Record<createHolster.Blade, createHolster.Fitted>>>
+    | undefined =
+    kind === "scabbard"
+      ? createHolster.BLADES.scabbard
+      : kind === "sheath"
+        ? createHolster.BLADES.sheath
+        : undefined;
+  // The blade is picked by name; its fitted bands are what it gives, so it carries no figures.
+  const blade: createHolster.Blade | undefined =
+    draw.model<createHolster.Blade>(
+      "blade",
+      params.blade,
+      blades === undefined
+        ? undefined
+        : (Object.fromEntries(
+            Object.keys(blades).map(
+              (name: string): [string, Readonly<Record<never, number>>] => [
+                name,
+                {},
+              ],
+            ),
+          ) as Readonly<
+            Record<
+              createHolster.Blade,
+              Readonly<Partial<Record<createHolster.Dimension, number>>>
+            >
+          >),
+    ).name;
+  const fitted: Readonly<
+    Partial<Record<createHolster.Dimension, IArchetypeBand>>
+  > = blade === undefined || blades === undefined ? {} : blades[blade]!;
   const d: Partial<Record<createHolster.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("holster", { ...createHolster.BANDS[kind], ...fitted }, seed, params, {
-      ...createHolster.BANDS,
-      ...createHolster.BLADES.scabbard,
-      ...createHolster.BLADES.sheath,
-    }),
+    ...draw.dimensions(
+      { ...createHolster.BANDS[kind], ...fitted },
+      {
+        ...createHolster.BANDS,
+        ...createHolster.BLADES.scabbard,
+        ...createHolster.BLADES.sheath,
+      },
+    ),
     ...ride.figures,
   };
   const builder: ArchetypeBuilder<
     createHolster.Affordance,
     createHolster.Dimension
   > = new ArchetypeBuilder({
-    archetype: "holster",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const facingWearer = (at: IAutoMovieVector3): IAutoMovieTransform =>
@@ -217,46 +273,42 @@ export function createHolster(
   }
 
   // A quiver: a tube standing on its bottom, open at the top.
-    const length: number = d.length!;
-    const r: number = d.diameter! / 2;
-    builder.rod("tube", r, v(0, 0, 0), v(0, length, 0), { color: "#6b4a2b" });
-    builder.affordance({
-      id: "socket",
-      kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
-      extent: null,
-    });
+  const length: number = d.length!;
+  const r: number = d.diameter! / 2;
+  builder.rod("tube", r, v(0, 0, 0), v(0, length, 0), { color: "#6b4a2b" });
+  builder.affordance({
+    id: "socket",
+    kind: "socket",
+    frame: ArchetypeFrame.upright(v(0, length, 0)),
+    extent: null,
+  });
 
-    // The arrows' places on Vogel's spiral: the k-th at radius r sqrt((k + 1/2) / n) and k golden angles round, so they spread evenly over the mouth.
-    const golden: number = Math.PI * (3 - Math.sqrt(5));
-    for (let k: number = 0; k < slots; k++) {
-      const radius: number = r * Math.sqrt((k + 0.5) / slots);
-      builder.affordance({
-        id: `slot${k + 1}`,
-        kind: "socket",
-        frame: ArchetypeFrame.upright(
-          v(
-            radius * Math.cos(golden * k),
-            length,
-            radius * Math.sin(golden * k),
-          ),
-        ),
-        extent: null,
-      });
-    }
+  // The arrows' places on Vogel's spiral: the k-th at radius r sqrt((k + 1/2) / n) and k golden angles round, so they spread evenly over the mouth.
+  const golden: number = Math.PI * (3 - Math.sqrt(5));
+  for (let k: number = 0; k < slots; k++) {
+    const radius: number = r * Math.sqrt((k + 0.5) / slots);
     builder.affordance({
-      id: "belt",
-      kind: "hook",
-      frame: facingWearer(v(-r, length, 0)),
+      id: `slot${k + 1}`,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(
+        v(radius * Math.cos(golden * k), length, radius * Math.sin(golden * k)),
+      ),
       extent: null,
     });
-    builder.affordance({
-      id: "strap",
-      kind: "hook",
-      frame: facingWearer(v(-r, length / 2, 0)),
-      extent: null,
-    });
-    return builder.build(d.mass!);
+  }
+  builder.affordance({
+    id: "belt",
+    kind: "hook",
+    frame: facingWearer(v(-r, length, 0)),
+    extent: null,
+  });
+  builder.affordance({
+    id: "strap",
+    kind: "hook",
+    frame: facingWearer(v(-r, length / 2, 0)),
+    extent: null,
+  });
+  return builder.build(d.mass!);
 }
 
 /**
@@ -337,11 +389,29 @@ export namespace createHolster {
     | "diameter"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    ride: "m",
+    depth: "m",
+    length: "m",
+    width: "m",
+    thickness: "m",
+    diameter: "m",
+    mass: "kg",
+  };
+
   /** A holster's ride heights: Safariland's low, mid and high ride. */
   export type Ride = "midRide" | "lowRide" | "highRide";
 
   /** Each kind's rides whole, the default first: mid-ride puts the pistol's butt level with the belt, low and high ride about 1.5 in lower and higher (Safariland, Holster Ride Options, https://inside.safariland.com/education/holster-ride-options/). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Ride, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Ride, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     holster: {
       midRide: { ride: 0 },
       lowRide: { ride: -1.5 * ArchetypeUnits.INCH },
@@ -350,7 +420,14 @@ export namespace createHolster {
   };
 
   /** The blades a scabbard is made to: `createSword`'s read longswords and arming swords, and a sabre, a katana and a rapier. */
-  export type ScabbardBlade = "crecy" | "regent" | "knight" | "poitiers" | "sabre" | "katana" | "rapier";
+  export type ScabbardBlade =
+    | "crecy"
+    | "regent"
+    | "knight"
+    | "poitiers"
+    | "sabre"
+    | "katana"
+    | "rapier";
 
   /** The blades a sheath is made to: `createSword`'s dagger and knife. */
   export type SheathBlade = "dagger" | "knife";
@@ -422,9 +499,25 @@ export namespace createHolster {
       mass: ArchetypeBand.of("kg", 0.05, 0.15, UNREAD, true),
     },
     quiver: {
-      length: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, QUIVER, true),
-      diameter: ArchetypeBand.metres(3.5 * ArchetypeUnits.INCH, 3.5 * ArchetypeUnits.INCH, QUIVER, true),
-      mass: ArchetypeBand.of("kg", 0.62, 1.5 * ArchetypeUnits.POUND, QUIVER, true),
+      length: ArchetypeBand.metres(
+        18 * ArchetypeUnits.INCH,
+        22.5 * ArchetypeUnits.INCH,
+        QUIVER,
+        true,
+      ),
+      diameter: ArchetypeBand.metres(
+        3.5 * ArchetypeUnits.INCH,
+        3.5 * ArchetypeUnits.INCH,
+        QUIVER,
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.62,
+        1.5 * ArchetypeUnits.POUND,
+        QUIVER,
+        true,
+      ),
     },
   };
 }

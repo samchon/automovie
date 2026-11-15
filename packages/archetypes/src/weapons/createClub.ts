@@ -5,11 +5,11 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
 
 /** The professional rule on a bat's size. */
 const RULE: string =
@@ -41,6 +41,13 @@ export function createClub(
   params: createClub.IParams,
   seed?: number | string,
 ): Archetype<createClub.Affordance, createClub.Dimension> {
+  const draw: ArchetypeDrawSession<createClub.Dimension> =
+    new ArchetypeDrawSession<createClub.Dimension>(
+      "club",
+      createClub.UNITS,
+      seed,
+      params,
+    );
   const kind: createClub.Kind = ArchetypeDraw.choice(
     "club",
     "kind",
@@ -48,20 +55,24 @@ export function createClub(
     createClub.KINDS,
   );
   // A bat is one of the four measured maple bats, a baton one of the maker's two lengths, each whole.
-  const model: { figures: Readonly<Partial<Record<createClub.Dimension, number>>> } =
-    ArchetypeDraw.model<createClub.Model, createClub.Dimension>("club", "model", params.model, createClub.MODELS[kind], seed, params);
+  const model: {
+    figures: Readonly<Partial<Record<createClub.Dimension, number>>>;
+  } = draw.model<createClub.Model>(
+    "model",
+    params.model,
+    createClub.MODELS[kind],
+  );
   const d: Partial<Record<createClub.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("club", createClub.BANDS[kind], seed, params, createClub.BANDS),
+    ...draw.dimensions(createClub.BANDS[kind], createClub.BANDS),
     ...model.figures,
   };
   const length: number = d.length!;
   const thick: number = d.diameter! / 2;
   const builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension> =
     new ArchetypeBuilder({
-      archetype: "club",
       id: params.id,
       name: kind === "bat" ? "baseball bat" : "baton",
-      dimensions: d,
+      draw,
     });
   const wood: string = kind === "bat" ? "#c9a36b" : "#2c2f33";
   const rod = (id: string, radius: number, from: number, to: number): void => {
@@ -178,16 +189,43 @@ export namespace createClub {
    */
   export type Dimension = "length" | "diameter" | "handleDiameter" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    handleDiameter: "m",
+    mass: "kg",
+  };
+
   /** The read models: the four maple bats S154, S155, T153 and T156, and the Monadnock MP24 and MP26 batons. */
   export type Model = "s154" | "s155" | "t153" | "t156" | "mp24" | "mp26";
 
   /** Each kind's models whole, the default first: the bats' length and weight in Nathan, Smith and Russell, Studies of the Torpedo Bat, ISEA 2026, Table 1 (https://baseball.physics.illinois.edu/ISEA2026-Torpedo-v7.pdf), and the batons' lengths (https://www.defense-technology.com/?p=2138). */
-  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Record<
+      Kind,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     bat: {
-      s154: { length: 35.2 * ArchetypeUnits.INCH, mass: 33.9 * ArchetypeUnits.OUNCE },
-      s155: { length: 35.1 * ArchetypeUnits.INCH, mass: 34 * ArchetypeUnits.OUNCE },
-      t153: { length: 35.2 * ArchetypeUnits.INCH, mass: 34 * ArchetypeUnits.OUNCE },
-      t156: { length: 35.1 * ArchetypeUnits.INCH, mass: 34.5 * ArchetypeUnits.OUNCE },
+      s154: {
+        length: 35.2 * ArchetypeUnits.INCH,
+        mass: 33.9 * ArchetypeUnits.OUNCE,
+      },
+      s155: {
+        length: 35.1 * ArchetypeUnits.INCH,
+        mass: 34 * ArchetypeUnits.OUNCE,
+      },
+      t153: {
+        length: 35.2 * ArchetypeUnits.INCH,
+        mass: 34 * ArchetypeUnits.OUNCE,
+      },
+      t156: {
+        length: 35.1 * ArchetypeUnits.INCH,
+        mass: 34.5 * ArchetypeUnits.OUNCE,
+      },
     },
     baton: {
       mp24: { length: 24 * ArchetypeUnits.INCH },
@@ -226,7 +264,11 @@ export namespace createClub {
       ),
     },
     baton: {
-      diameter: ArchetypeBand.metres(1.25 * ArchetypeUnits.INCH, 1.25 * ArchetypeUnits.INCH, BATON),
+      diameter: ArchetypeBand.metres(
+        1.25 * ArchetypeUnits.INCH,
+        1.25 * ArchetypeUnits.INCH,
+        BATON,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         13 * ArchetypeUnits.OUNCE,

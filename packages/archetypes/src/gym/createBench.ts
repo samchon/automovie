@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -40,20 +41,23 @@ export function createBench(
   params: createBench.IParams,
   seed?: number | string,
 ): Archetype<createBench.Affordance, createBench.Dimension> {
+  const draw: ArchetypeDrawSession<createBench.Dimension> =
+    new ArchetypeDrawSession<createBench.Dimension>(
+      "bench",
+      createBench.UNITS,
+      seed,
+      params,
+    );
   const kind: createBench.Kind = ArchetypeDraw.choice(
     "bench",
     "kind",
     params.kind ?? "flat",
     createBench.KINDS,
   );
-  const d: Partial<Record<createBench.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "bench",
-      createBench.BANDS[kind],
-      seed,
-      params,
-      createBench.BANDS,
-    );
+  const d: Partial<Record<createBench.Dimension, number>> = draw.dimensions(
+    createBench.BANDS[kind],
+    createBench.BANDS,
+  );
   const length: number = d.length!;
   const width: number = d.width!;
   const height: number = d.height!;
@@ -61,10 +65,9 @@ export function createBench(
     createBench.Affordance,
     createBench.Dimension
   > = new ArchetypeBuilder({
-    archetype: "bench",
     id: params.id,
     name: "weight bench",
-    dimensions: d,
+    draw,
   });
   builder.box(
     "pad",
@@ -162,6 +165,14 @@ export namespace createBench {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "height" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
