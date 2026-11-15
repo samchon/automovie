@@ -18,6 +18,7 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
+import { HumanPropOutcome } from "./HumanPropOutcome";
 import type { HumanSegment } from "./HumanSegment";
 
 /**
@@ -167,13 +168,14 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** The flights' first contacts. */
+  /** The flights' first contacts, with what each did and the velocity it left with. */
   function flights(self: HumanPerformanceState): IAutoMovieInteractionEvent[] {
     const out: IAutoMovieInteractionEvent[] = [];
     for (const prop of self.props.values())
       for (const f of HumanPropFlight.flights(self, prop.subject)) {
         const c: HumanPropFlight.IContact | undefined = f.contact;
         if (c === undefined) continue;
+        const next: HumanPropOutcome.ILeg | undefined = f.legs?.[0];
         const region: AutoMovieHumanoidRegion | undefined =
           c.struck.kind === "person"
             ? nearestRegion(
@@ -199,8 +201,13 @@ export namespace HumanPerformanceHits {
           velocity: c.velocity,
           normal: c.normal,
           ...(prop.body === undefined ? {} : { mass: prop.body.mass }),
-          outcome: "stick",
-          exit: { x: 0, y: 0, z: 0 },
+          // What the contact did and the velocity it left with: the next
+          // leg's at its start, at rest where it stays.
+          outcome: c.outcome,
+          exit:
+            next === undefined
+              ? { x: 0, y: 0, z: 0 }
+              : HumanPropOutcome.at(next, next.from).velocity,
         });
       }
     return out;

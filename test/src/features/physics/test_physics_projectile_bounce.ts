@@ -18,8 +18,9 @@ import { TestValidator } from "@nestia/e2e";
  *    quarter).
  * 2. Its bounces, each read off the previous one's contact, converge to a
  *    roll once a rebound rises less than its radius.
- * 3. A ball rolling at 2 m/s on level ground with a rolling resistance of
- *    0.1 stops where `v^2 / (2 c g)` puts it, within 1 mm.
+ * 3. A ball touching down at 2 m/s along level ground with a rolling
+ *    resistance of 0.1 stops `v^2 / (2 c g)` beyond where it touched down,
+ *    to the float resolution of the closed form, and at rest.
  * 4. A stick rests the point `depth` on along the velocity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bounces, rolls and sticks read back through the continuation's own reader; a wrong restitution, a roll that never stops or a stick off the line fails.
@@ -102,11 +103,17 @@ export function test_physics_projectile_bounce(): void {
     }),
     { kind: "roll", resistance: 0.1 },
   );
-  const stop: number = (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);
+  // The roll starts where the ball touched down, with its speed along the
+  // ground there (2 m/s, gravity having no horizontal part).
+  const start: number = rolling.kind === "roll" ? rolling.origin.x : NaN;
+  const stop: number =
+    start + (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);
   const rest = projectileContinue.at(rolling, 100);
+  // The closed form's few operations at float resolution.
+  const resolution: number = Number.EPSILON * stop * 2 ** 4;
   TestValidator.predicate(
-    `the roll stops where v²/(2cg) puts it (${rest.position.x.toFixed(4)} m)`,
-    Math.abs(rest.position.x - stop) <= 1e-3 &&
+    `the roll stops where v²/(2cg) from its start puts it (${rest.position.x.toFixed(6)} of ${stop.toFixed(6)} m)`,
+    Math.abs(rest.position.x - stop) <= resolution &&
       Vector3.length(rest.velocity) === 0,
   );
 
