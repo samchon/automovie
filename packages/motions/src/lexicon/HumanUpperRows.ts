@@ -329,7 +329,7 @@ export namespace HumanUpperRows {
     target: { kind: "self", region: "solarPlexus" },
     offset: { out: -0.25, up: 0.05, forward: 0.12 },
     shape: "relaxed",
-    facing: { fingers: "out", palm: "in" },
+    facing: { fingers: "in", palm: "back" },
     hold: "long",
   });
 
@@ -390,7 +390,6 @@ export namespace HumanUpperRows {
     surface: "grip",
     shape: "fist",
     point: "lip",
-    facing: { fingers: "forward", palm: "in" },
     hold: "long",
   });
 
@@ -400,7 +399,6 @@ export namespace HumanUpperRows {
     target: { kind: "self", region: "mouth" },
     surface: "grip",
     shape: "fist",
-    facing: { fingers: "forward", palm: "in" },
     hold: "beat",
   });
 

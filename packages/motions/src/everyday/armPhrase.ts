@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -53,7 +54,9 @@ import { poseBones } from "../posture/poseBones";
  * name one of the held prop's own points as its working `point` (a cup's
  * lip, a fork's face): that point, not the hand's surface, is brought to the
  * target, the hand's surface placed short of it by the point's lever from
- * the surface in the hand's frame, which the grip keeps fixed. Both hands may
+ * the surface in the hand's frame, which the grip keeps fixed, and the hand
+ * turned so the point faces into the target, unless `facing` names the
+ * turn. Both hands may
  * perform one phrase on one clock (a clap, palms rubbed together), each
  * hand's offset mirrored by its side, so two hands sent to one median target
  * meet there; such a phrase holds no prop.
@@ -270,25 +273,49 @@ export namespace armPhrase {
       const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
         aim(side);
       const place: IAutoMovieVector3 = Vector3.add(aimed.point, shift(p.offset));
+      // A held prop's working point, from the grip socket in the hand's rest
+      // axes, with the direction it faces out of the prop.
+      const named: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } | null =
+        p.point === undefined || p.held === undefined
+          ? null
+          : AutoMovieMotionHumanHeld.point(
+              AutoMovieMotionHumanHeld.of(context, side, p.held),
+              p.point,
+            );
+      // The hand's turn: as named; else, for a working point, the point
+      // facing into the target (against its normal) with the fingers as near
+      // upright as that allows, as `HumanHeld` lays a held point on a region;
+      // else the hand's surface against the normal, the fingers up.
       const rotation: IAutoMovieQuaternion =
         p.facing !== undefined
           ? HumanHand.facing(side, hold.yaw, p.facing)
-          : turned(side, aimed.normal);
+          : named !== null
+            ? HumanHand.align(
+                {
+                  normal: named.direction,
+                  forward: AutoMovieMotionHumanTouchEffector.axis(
+                    side,
+                    "fingers",
+                  ),
+                },
+                {
+                  normal: Vector3.scale(aimed.normal, -1),
+                  forward: { x: 0, y: 1, z: 0 },
+                },
+              )
+            : turned(side, aimed.normal);
       // The working point's lever from the surface, world metres at the
       // hand's asked rotation: both offsets are from the wrist joint in the
       // hand's rest axes, the prop's read from the grip socket it rides.
       const lever: IAutoMovieVector3 =
-        p.point === undefined || p.held === undefined
+        named === null
           ? { x: 0, y: 0, z: 0 }
           : Quaternion.rotateVector(
               rotation,
               Vector3.subtract(
                 Vector3.add(
                   HumanHand.offset(body, side, "grip").point,
-                  AutoMovieMotionHumanHeld.point(
-                    AutoMovieMotionHumanHeld.of(context, side, p.held),
-                    p.point,
-                  ).point,
+                  named.point,
                 ),
                 HumanHand.offset(body, side, surface, shape).point,
               ),
