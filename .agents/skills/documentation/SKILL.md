@@ -5,9 +5,7 @@ description: Owns how any document is written, with its sentences, terms, paragr
 
 # Documentation
 
-Good writing is the same for every reader: deliver the core point concisely and clearly. Only the reader, and so what the reader needs, differs by document.
-
-Every document follows [Writing](writing.md). A README adds the rules below.
+Every document follows [Writing](writing.md), whoever reads it; only the reader, and so what the reader needs, differs by document. A README adds the rules below.
 
 ## READMEs
 

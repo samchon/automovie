@@ -36,7 +36,7 @@ The product contract sets the [two routes](../project/SKILL.md#commissions): a s
 
 ### Strategy in skills, tactics in contracts
 
-A task skill gives direction, and contracts ask the detailed questions. Contracts stay few, with one broad item per theme and the detail in statements, as [contract design](contract-design.md#items-and-statements) defines.
+Prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule holds for every shipped skill. Shipped contracts also stay few, with one broad item per theme and the detail in its statements, as [contract design](contract-design.md#items-and-statements) defines.
 
 ### Stills only
 
@@ -44,15 +44,15 @@ The agent sees pictures only as still images and cannot hear. No shipped instruc
 
 ## Root and scaffold
 
-A rule that holds in every project lives in a root skill and ships through a `$` placeholder, at file or folder level, under the [shared skill](../prompting/SKILL.md#shared-skills) rule. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops.
+A rule that holds in every project lives in a root skill and ships through an empty `$` placeholder in the scaffold, as [shared items](../scaffold/SKILL.md#shared-items) defines. Such a skill follows prompting's [shared skill](../prompting/SKILL.md#shared-skills) rule. The scaffold keeps text of its own only where a production's stance differs from this repository's, for example because a production installs a package this repository develops.
 
 Keep the scaffold production-neutral and usable without repository operating skills. Work-specific genre, language, voice and delivery decisions belong to the production's own instructions, project context or work contracts.
 
-## Design from the commissioned result
+## The commissioned result
 
-Design task guidance and its contract items around the same commissioned result. Start with the user's goal and the actual authoring or production failure, and distinguish a rule the agent missed from a result the current rules permit.
+Design task guidance and its contract items around the same commissioned result. Start from the user's goal and the failure the change answers, kept as prompting's [verification](../prompting/SKILL.md#verification) sets, and decide whether the agent missed a rule or the current rules permit that result.
 
-Repair application and evidence when an existing item already covers the loss, and change the design when the needed judgment is absent or contradictory.
+When an existing item already covers the loss, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
 
 Compliant records cannot substitute for a usable film, so connect each observed failure back to the author or production owner that can repair it.
 
@@ -60,6 +60,6 @@ Compliant records cannot substitute for a usable film, so connect each observed 
 
 Use the production [task router](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md) and [story router](../../../packages/template/scaffold/instructions/.agents/skills/story/SKILL.md) to find actual owners rather than copy their layer definitions here.
 
-Upstream novel workflows can inform ownership and review, but prose interiority, mobile reading, serial rewards and their distribution commands do not define film production.
+Workflows borrowed from serial-novel writing can inform ownership and review, but their prose interiority, mobile reading, serial rewards and publishing commands do not apply to film production.
 
 Hand the change to [scaffold](../scaffold/SKILL.md) for distribution and project ownership checks, and implementation to [development](../development/SKILL.md). This skill adds no creative pass, graph stage, publication authority or automatic migration of existing productions.

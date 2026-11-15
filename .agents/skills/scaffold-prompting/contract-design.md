@@ -12,7 +12,7 @@ Judge sufficient and excessive detail in the same achievement. More explanation,
 
 An individual function, compliance elsewhere or a paraphrase of intended meaning cannot excuse a different failure in the actual expression. Protection must answer that same alleged failure; preserve useful execution notation, deliberate stillness and adopted stylization where they work.
 
-Keep an overall achievement independently answerable when detailed negatives cannot establish it. Reuse an item that already covers the loss before adding another. Split only when the evidence, scope or repair responsibility differs; a new sentence pattern does not need a new contract family, the folder of contracts one owner keeps.
+Keep an overall achievement independently answerable when detailed negatives cannot establish it. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) test calls for it; a new sentence pattern does not need a new contract family, the folder of contracts one owner keeps.
 
 ## Items and statements
 
@@ -30,7 +30,7 @@ Keep stable family paths and H2 titles where Evidence addresses them, because a 
 
 Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
-Keep the reason for a failure in its item and each protection with its statement, both of which the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming `createAutoMovieScaffold`, the template function that turns the scaffold into a project's files, strips comments or provides a novel-style migration tool.
+Keep the reason for a failure in its item and each protection with its statement, both of which the respondent reads. Keep verified source support and its limits in a source record or a comment, knowing that comments ship to productions with the text and that no tool migrates an existing production.
 
 Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 

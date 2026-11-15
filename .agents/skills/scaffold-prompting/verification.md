@@ -2,19 +2,19 @@
 
 Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This page adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
 
-## Inspect the actual inputs
+## Distribution and consumers
 
 Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff.
 
 A Markdown-only change needs these checks and its affected-consumer review; it does not justify inventing a test or generating a disposable production.
 
-Inspect the file map `createAutoMovieScaffold` returns when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
+Inspect the file map the template package's scaffold function returns, as its README shows, when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
 
 Installed files are project-owned: an existing production update follows [scaffold](../scaffold/SKILL.md), not an assumed upstream sync. Changed installation or program behavior requires development's actual consumer checks.
 
-## Compare decisions before claiming effects
+## Case comparison
 
-Use actual tasks and retained failures with their strongest legitimate counterexamples. Select cases affected by the change rather than requiring every project to run a universal suite. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
+Take the cases prompting's verification asks for from the tasks the change affects, rather than a universal suite every project runs. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
 
 For a changed expression criterion, compare preserved meaning with the experience made by actual language, image, sound and timing. Check an informative but ineffective passage and a deliberate restrained form; a function list cannot acquit the first and a style label cannot condemn the second. Confirm that the existing overall item can judge what sentence classification alone misses.
 
