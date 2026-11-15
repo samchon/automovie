@@ -1,4 +1,4 @@
-import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieNaturalSpline, type AutoMovieViewAxis, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, type AutoMovieConstructionRealization, type AutoMovieLoftFrame, AutoMovieMeshExtract, AutoMovieNaturalSpline, type AutoMovieViewAxis, type AutoMovieViewLoft, type IAutoMovieViewPart, realizeAutoMovieConstruction } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionFill, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
@@ -517,42 +517,38 @@ export namespace AutoMovieHumanF1 {
   const LAYER_MM: number = 4;
 
   /**
-   * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
-   * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
-   * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
-   * the shoulder.
+   * The armscye plane's tilt about the thorax's anterior-posterior axis, degrees: its normal is the thorax's lateral axis turned toward the
+   * thorax's up by this much, negative leaning its top out over the shoulder. With `ARMSCYE_OFFSET_MM` it is the least-error plane over the
+   * armscye's definition (ASTM D5219: the armscye runs through the shoulder point, the front and back break points and the armpit): its cut of the trunk's own wall passes f1's acromion and its anterior and posterior axillary fold points at
+   * 7.85, 4.03 and 6.55 mm, root-mean-square 6.35 mm, within the reading uncertainty of soft-tissue landmarks, as one closed loop
+   * star-shaped in the trunk's chart (`FamilyConicArmscyeRule seam`; fitted by its `tiltfit` command, run 2026-11-15T03-44-18; a plane held
+   * through the shoulder joint missed the acromion by 51 to 76 mm). A law of the person to be learnt across people; the landmarks only
+   * check it.
    */
-  const ARMSCYE_MARGIN_MM: number = 6;
+  const ARMSCYE_TILT_DEG: number = -13.594;
+
+  /** The armscye plane's offset from the shoulder joint centre GH along its normal, mm, out toward the arm: the second number of `ARMSCYE_TILT_DEG`'s fit. */
+  const ARMSCYE_OFFSET_MM: number = 30;
 
   /**
-   * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
-   * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
-   * web across the hollow.
+   * The trunk's wall the armscye plane cuts: its loft over these stations, mm, which hold the plane's cut round the shoulder (stations about
+   * 470 to 650), sampled `step` mm apart at `phases` phases, the sampling the plane was fitted and checked at (`FamilyConicArmscyeRule`'s
+   * `trunkMesh`); the mesh is private to this reading and no render setting touches it.
    */
-  const ARMPIT_DROP_MM: number = -6;
-
-  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
-  const ARMPIT_ROUND_MM: number = 12;
+  const ARMSCYE_WALL: { stations: [number, number]; step: number; phases: number } = { stations: [380, 760], step: 1, phases: 720 };
 
   /**
-   * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 24`, joined by the periodic cubic. Behind
-   * the armpit's crease the trunk's side and the arm's inner side meet in a slit, its top at 1,272 to 1,274 mm 25 to 35 mm behind the
-   * crease's datum, and the arm's side falls 2 to 4 mm for each millimetre outward from it (`vault`, a scratch survey of the skin in planes
-   * x = const); the ring 10 mm in hangs 22 mm below the slit's top at the arm's phases 96 to 136 degrees, and the band there left the
-   * trunk upward and folded back over it (108 to 139 degrees, a speck on `shoulder.high-oblique`; `FamilyConicArmscye.ts --table`: host
-   * cosines down to -0.82 over 24 columns). There, from 75 to 135 degrees, the rail comes up to 1.5 mm, to the first section's foot at
-   * 1,263 mm, and the loop follows the ring under the slit (`ARMPIT_SINK_MM`): the band crosses the slit near its foot and the slit above
-   * it is closed. Read by `FamilyConicArmscye.ts --table`, 3 columns point back, at -0.17 at worst, where the dip meets the front fold.
+   * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 48`, joined by the periodic cubic. The
+   * port's margin is read from the loop along the skin (construction.md, Ports): at each of the arm's phases, the station where the arm's
+   * wall crosses the armscye plane (`armscye`) along its course, then the band's margin, 10 mm (`RAIL_MM.arm`), along the skin; from 96 to
+   * 121 degrees, where the wall's first section already stands lateral of the plane, from the first knot. The crossing lies 0 to 16.7 mm
+   * past the first knot, deepest at the top of the arm (260 to 280 degrees), where the arm's own wall carries the shoulder's cap from inside
+   * the trunk out to the loop. The values are the least that keep the engine's cubic through them at or above that rule at all 384 of its
+   * columns (8 to a value, `AutoMovieConstructionPortRealize`): each starts at the rule at its own phase and is raised by the shortfall at its
+   * nearest column, in 0.1 mm steps, until none falls short; the cubic's least margin over the rule is 0.004 mm, at 209 degrees, its
+   * greatest 0.22 mm (`FamilyConicArmscyeRule seamrails`, 2026-11-15).
    */
-  const ARM_RAILS_MM: number[] = [10, 10, 10, 10, 8, 3, 1.5, 1.5, 1.5, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-
-  /**
-   * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
-   * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
-   * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
-   * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
-   */
-  const ARMPIT_SINK_MM: number = 23;
+  const ARM_RAILS_MM: number[] = [16.9, 16.3, 15.6, 14.9, 14.1, 13.4, 12.5, 11.7, 10.8, 9.8, 8.7, 7.4, 6.3, 5.7, 5.7, 5.8, 6, 7, 8.6, 10.5, 12.3, 14, 15.3, 16.3, 17.1, 17.8, 18.4, 18.9, 19.3, 19.8, 20.1, 20.5, 20.7, 20.9, 21, 21.2, 21.3, 21.1, 20.9, 20.6, 20.4, 20.1, 19.8, 19.3, 18.6, 17.9, 17.9, 17.7];
 
   /** `ARM_RAILS_MM` for one side: the twin's chart runs the other way round, so its phase `psi` is the +Z arm's `-psi`. */
   export function armRails(side: 1 | -1): number[] {
@@ -560,8 +556,9 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's first station is 2 mm
-   * past the armscye's plane and its course is nearly square to that plane for its first 25 mm, so its ring 10 mm on lies beside the plane. The nose's band lands on a curve (`NOSE_RAILS_MM`).
+   * Where each limb's band lands on it, mm from the limb's first station: the limb keeps its stations beyond. The arm's band lands on a curve
+   * (`ARM_RAILS_MM`), this margin along the skin past the arm wall's crossing of the armscye plane; the nose's lands on a curve as well
+   * (`NOSE_RAILS_MM`).
    */
   export const RAIL_MM: { arm: number; leg: number; breast: number } = { arm: 10, leg: 6, breast: 1 };
 
@@ -810,46 +807,108 @@ export namespace AutoMovieHumanF1 {
    */
   const BREAST_FAN_FILL_MM: number = 4;
 
+  /** Each pose's armscye ring (`armscyeRing`), read once for both sides. */
+  const armscyeRings: WeakMap<IAssembly, F.V3[]> = new WeakMap();
+
   /**
-   * The armscye's port on the trunk's chart.
+   * The armscye's ring at a pose, the +Z side's: the trunk's own wall (its loft over `ARMSCYE_WALL`) cut by the armscye plane, the cut's
+   * largest closed loop, mm. The plane is fixed in the thorax's frame: its normal the thorax's lateral axis turned toward the thorax's up by
+   * `ARMSCYE_TILT_DEG`, its point the shoulder joint centre at the reference pose moved `ARMSCYE_OFFSET_MM` along the normal and carried
+   * with the thorax to the pose, so the loop follows the trunk and not the arm.
+   */
+  function armscyeRing(placed: IAssembly): F.V3[] {
+    const known: F.V3[] | undefined = armscyeRings.get(placed);
+    if (known !== undefined) return known;
+    const tilt: number = (ARMSCYE_TILT_DEG * Math.PI) / 180;
+    const normalOf = (thorax: F.IFrame): F.V3 => F.unit(F.add(F.scale(thorax.axes[2], Math.cos(tilt)), F.scale(thorax.axes[1], Math.sin(tilt))));
+    const reference: F.IFrame = AutoMovieHumanF1Placement.frame("thorax");
+    const thorax: F.IFrame = AutoMovieHumanF1Placement.frame("thorax", placed.frames);
+    const normal: F.V3 = normalOf(thorax);
+    const point: F.V3 = F.toWorld(thorax, F.toLocal(reference, F.add(AutoMovieHumanF1Placement.frame("humerus").origin, F.scale(normalOf(reference), ARMSCYE_OFFSET_MM))));
+    const u: F.V3 = F.unit(F.sub(thorax.axes[1], F.scale(normal, F.dot(thorax.axes[1], normal))));
+    const v: F.V3 = F.cross(normal, u);
+
+    // The wall as a mesh: one ring of `phases` points every `step` mm.
+    const { stations: [from, to], step, phases } = ARMSCYE_WALL;
+    const stations: number[] = Array.from({ length: Math.round((to - from) / step) + 1 }, (_: unknown, i: number): number => from + step * i);
+    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(placed.body.trunk, stations);
+    if (loft.chain === null) throw new Error("the trunk does not loft round the shoulder");
+    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const positions: number[] = [];
+    const indices: number[] = [];
+    for (const s of stations) {
+      const read = AutoMovieLoftChain.sampler(chain, s);
+      for (let j: number = 0; j < phases; ++j) positions.push(...read((2 * Math.PI * j) / phases));
+    }
+    for (let i: number = 0; i + 1 < stations.length; ++i)
+      for (let j: number = 0; j < phases; ++j) {
+        const a: number = i * phases + j;
+        const b: number = i * phases + ((j + 1) % phases);
+        indices.push(a, a + phases, b, b, a + phases, b + phases);
+      }
+    const area = (points: readonly (readonly number[])[]): number => Math.abs(points.reduce((t: number, p: readonly number[], i: number): number => t + p[0]! * points[(i + 1) % points.length]![1]! - points[(i + 1) % points.length]![0]! * p[1]!, 0)) / 2;
+    const loop: AutoMovieMeshExtract.ILoop | undefined = AutoMovieMeshExtract.outline({ positions, indices }, { origin: point, axes: [F.cross(v, u), u, v] }, [0], 0, 0.5, 0)[0]!
+      .loops.filter((l: AutoMovieMeshExtract.ILoop): boolean => l.closed)
+      .sort((a: AutoMovieMeshExtract.ILoop, b: AutoMovieMeshExtract.ILoop): number => area(b.points) - area(a.points))[0];
+    if (loop === undefined) throw new Error("the armscye plane cuts no closed loop of the trunk's wall");
+    const ring: F.V3[] = loop.points.map((p: readonly number[]): F.V3 => F.add(point, F.add(F.scale(u, p[0]!), F.scale(v, p[1]!))));
+    armscyeRings.set(placed, ring);
+    return ring;
+  }
+
+  /**
+   * The armscye's port on the trunk's chart, by rule (#3151).
    *
-   * The armscye is the armpit's sagittal plane: the trunk owns the skin medial of it and the arm the skin lateral of it, the shoulder's cap
-   * included. The arm's course leaves the trunk square to that plane, so the ring the band lands on lies beside the plane. The port is that
-   * ring's own outline as the trunk's chart sees it, each point's height above the axis's foot and its phase about the axis, pushed out from
-   * the outline's centre by the margin so the loop stands on the trunk's own skin round the ring. The loop is written as the ellipse on the
-   * outline's half extents with a share per column. An ellipse alone stood up to 29 mm from the ring under the armpit, where the ring's
-   * lower edge runs aslant, and the band there reached the arm against the arm's own direction.
+   * The armscye is the trunk's opening the shoulder girdle bounds, through the shoulder point, the front and back break points and the
+   * armpit (ASTM D5219), so its loop is generated as the trunk's own skin cut by a plane fixed in the thorax's frame (construction.md,
+   * Ports; `armscyeRing`, `ARMSCYE_TILT_DEG`), and the landmarks only check it. The trunk keeps its skin outside the loop and the arm, the
+   * shoulder's cap included, takes the skin inside it; the arm's wall crosses the plane at the loop and its band lands past that crossing
+   * (`ARM_RAILS_MM`).
    *
-   * The ring, the armpit's crease and the axis's foot are read in the trunk's chart at the pose (`trunkChart`), heights as stations along
-   * the trunk's course, so the loop follows a posed arm.
+   * The loop is the ring read in the trunk's chart at the pose (`trunkChart`), each point's station and its phase read as millimetres at the
+   * armpit's side distance, as the ring's star envelope about its own centre there, its area centroid: on each of four rays to a band
+   * column the outermost crossing. On f1 the ring is one closed loop, star-shaped in the chart, so the envelope is the ring itself
+   * (`FamilyConicArmscyeRule seam`). It is written as `around` writes a port loop, with no margin: the port lies on the landmark loop, and
+   * the band's margin is the arm's. The twin's loop is the +Z side's reflected.
    *
    * @param side +1 for the +Z side, -1 for its twin.
    * @param placed The figure's families at a pose; absent, the reference pose.
    */
   export function armscye(side: 1 | -1, placed: IAssembly = assemble()): IAutoMovieConstructionPort.ILoop {
-    const family: AutoMovieHumanConicLoft.IFamily = side > 0 ? placed.body.arm : AutoMovieHumanConicLoft.mirror(placed.body.arm, placed.body.arm.name + ".mirror");
-    // Stations past the arm's first knot as the stored arm dates them, carried to the pose: the first sections lie in the shoulder's turn.
-    const past = (mm: number): number => placed.station(BODY.arm.name, BODY.arm.knots[0]! + mm);
     const chart: (p: readonly number[]) => IChart = trunkChart(placed);
     const armpit: IChart = chart(placed.point("armpit"));
-
-    // The arm's ring at its rail curve (`armRails`), read from a loft of its first stations alone.
-    const along: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map(past));
-    const loft: AutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create({ ...family, tips: undefined, reliefs: undefined }, [past(0), past(Math.min(...ARM_RAILS_MM) / 2), past(RAIL_MM.arm), past(2 * RAIL_MM.arm), past(4 * RAIL_MM.arm)]);
-    if (loft.chain === null) throw new Error("the arm's first stations do not loft");
-    const chain: NonNullable<AutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const behind: (psi: number) => number = AutoMovieNaturalSpline.periodic(armRails(side).map((mm: number): number => (RAIL_MM.arm - mm) / (RAIL_MM.arm - Math.min(...ARM_RAILS_MM))));
-    const outline: [number, number][] = Array.from({ length: 4 * SHOULDER_COLUMNS }, (_: unknown, j: number): [number, number] => {
-      const psi: number = (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS);
-      const p: IChart = chart(AutoMovieLoftChain.point(chain, along(psi), psi));
-      // The floor under the crease, met by a smooth maximum: held by a plain one, the loop ran level along the floor and turned up at a
-      // corner at each end, and the band stood a box-shaped notch at the back of the armpit. Behind the crease, where the rail comes up to
-      // the arm's first section, the floor sinks by the same share, so the loop follows the ring there.
-      const floor: number = armpit.station - ARMPIT_DROP_MM - ARMPIT_SINK_MM * Math.max(0, Math.min(1, behind(psi)));
-      return [(p.station + floor + Math.hypot(p.station - floor, ARMPIT_ROUND_MM)) / 2, Math.atan2(p.v, p.u)];
+    const cut: [number, number][] = armscyeRing(placed).map((p: F.V3): [number, number] => {
+      const c: IChart = chart(side > 0 ? p : [p[0], p[1], -p[2]]);
+      return [c.station, armpit.v * Math.atan2(c.v, c.u)];
     });
-    // The margin's phase is taken at the armpit's side distance from the trunk's course.
-    return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, armpit.v, side);
+    let [twice, cx, cy]: number[] = [0, 0, 0];
+    cut.forEach((p: [number, number], i: number): void => {
+      const q: [number, number] = cut[(i + 1) % cut.length]!;
+      const w: number = p[0] * q[1] - q[0] * p[1];
+      twice = twice! + w;
+      cx = cx! + (p[0] + q[0]) * w;
+      cy = cy! + (p[1] + q[1]) * w;
+    });
+    const centre: [number, number] = [cx! / (3 * twice!), cy! / (3 * twice!)];
+    const rays: number = 4 * SHOULDER_COLUMNS;
+    const outline: [number, number][] = [];
+    for (let j: number = 0; j < rays; ++j) {
+      const d: [number, number] = [Math.cos((2 * Math.PI * j) / rays), Math.sin((2 * Math.PI * j) / rays)];
+      let best: number = NaN;
+      cut.forEach((p: [number, number], i: number): void => {
+        const a: [number, number] = [p[0] - centre[0], p[1] - centre[1]];
+        const q: [number, number] = cut[(i + 1) % cut.length]!;
+        const e: [number, number] = [q[0] - p[0], q[1] - p[1]];
+        const den: number = d[0] * e[1] - d[1] * e[0];
+        if (den === 0) return;
+        const t: number = (a[0] * e[1] - a[1] * e[0]) / den;
+        const w: number = (a[0] * d[1] - a[1] * d[0]) / den;
+        if (w >= 0 && w < 1 && t > 0 && !(t <= best)) best = t;
+      });
+      // The outline's phase back in radians, as `around` reads it.
+      if (Number.isFinite(best)) outline.push([centre[0] + best * d[0], (centre[1] + best * d[1]) / armpit.v]);
+    }
+    return around(outline, SHOULDER_COLUMNS, 0, armpit.v, side);
   }
 
   /**
@@ -1344,7 +1403,11 @@ export namespace AutoMovieHumanF1 {
     };
     for (const side of [1, -1] as const) {
       const arm: { node: AutoMovieConstructionNode; face: string } = limb("arm", side);
-      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side, placed), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: placed.station(BODY.arm.name, BODY.arm.knots[0]!, Math.min(...ARM_RAILS_MM)) / 1000, rails: armRails(side).map((mm: number): number => placed.station(BODY.arm.name, BODY.arm.knots[0]!, mm) / 1000), ribbons: "column", count: SHOULDER_COLUMNS, rows: ARMSCYE_ROWS };
+      // The band's columns are matched to the arm's rail by the share of length round each (`correspondence: "length"`): the loop's lower
+      // arc rises into the axilla (`armscye`), so the loop is not star-shaped about the arm ring's centroid and its angle there steps back
+      // at columns 113 to 118, by 0.14 to 1.47 degrees (`FamilyConicArmscyeRule seamangle`); that is the loop's defined shape, and the
+      // port's `length` correspondence is the one for a curve not star-shaped about the centroid, as the nose's port takes it.
+      root = { type: "port", name: "armscye." + arm.face, host: root, hostFace: trunk, loop: armscye(side, placed), band: "band." + arm.face, part: arm.node, partFace: arm.face, partEnd: "bottom", rail: placed.station(BODY.arm.name, BODY.arm.knots[0]!, Math.min(...ARM_RAILS_MM)) / 1000, rails: armRails(side).map((mm: number): number => placed.station(BODY.arm.name, BODY.arm.knots[0]!, mm) / 1000), correspondence: "length", ribbons: "column", count: SHOULDER_COLUMNS, rows: ARMSCYE_ROWS };
       // The armpit's slit, cut after the arm's port: no wall is star-shaped about the slit (the conic audit), and the arm's band closes it
       // 12 to 17 mm under its apex. The cutter's sections are the slit's air from 3 mm under that band up to its apex, drawn in from the
       // walls, its arm-side flank concave under the apex (`AutoMovieHumanF1Axilla`). It is seeded on its bottom, phase pi, whose station line
