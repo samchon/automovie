@@ -1,9 +1,14 @@
+import { HorseHarness } from "../animals/HorseHarness";
+import { createHorse } from "../animals/createHorse";
 import {
   ArchetypeUnits,
   type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
   type ArchetypeFriction,
+  ArchetypeRefusal,
+  type ArchetypeRide,
+  type ArchetypeSpan,
   type IArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
@@ -14,7 +19,7 @@ import { CartPushed } from "./CartPushed";
 /**
  * A wheeled load carrier, pushed by hand or drawn: a shopping trolley, a wheelbarrow, a horse's two-wheeled cart, a runner's rickshaw, a pair's chariot, an artillery limber, a four-wheeled wagon or a closed carriage.
  *
- * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered.
+ * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered. A cart drawn by a horse in harness takes its traces and driving lines from `lines`, which the towing ride lays between the two at every second.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -137,6 +142,22 @@ export namespace createCart {
   /** A cart's single tree ahead of its axle, metres, a provisional value: not read at a source. It sets how far the coupling stands ahead of the axle, so it is read by a towing ride. The source to read is a carriage builder's draft of a gig or a road cart (The Hub, the Carriage Journal's drafts). */
   export const SINGLE_TREE: number = 0.9;
 
+  /**
+   * The rest geometry of a cart's driving lines, metres: `elbow`, the height above the seat of the point each line's held run is laid toward, the middle of the women's and men's means of ANSUR II's elbow rest height (232.4 and 245.0 mm), computed from the 1,986 women's and 4,082 men's public records (https://www.openlab.psu.edu/ansur2/). It shapes the lines at rest only; a driver's hands choose where along the held runs they hold.
+   */
+  export const REST: Readonly<{ elbow: number }> = {
+    elbow: (0.2324 + 0.245) / 2,
+  };
+
+  /** A single horse's driving lines' length from the bit, metres: IVC Carriage's stock horse lines of 14 ft, "measure the distance from the horse's mouth to your hands, and then add at least an extra two feet" (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
+  export const LINES: number = 14 * ArchetypeUnits.FOOT;
+
+  /** A single horse's driving line's width, metres: the 3/4 in leather reins IVC Carriage finds most hands, and a larger horse, prefer (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/Reins.pdf). */
+  export const LINE: number = (3 / 4) * ArchetypeUnits.INCH;
+
+  /** A trace's radius, metres: a construction estimate no act reads, the strap's width unread. */
+  export const TRACE: number = 0.012;
+
   /** A rickshaw's seat above the ground, metres, a provisional value: not read at a source. The source to read is a museum record or a period rule that gives the seat's height (the Hong Kong rules of 1882 give its width and its distance to the footboard only). */
   export const RICKSHAW_SEAT: number = 0.9;
 
@@ -232,6 +253,7 @@ export namespace createCart {
    * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: a four-wheeled kind's road wheels' roll, the front pair riding `frontAxle`.
    * - `bed`: a wagon body's floor, inside.
    * - `box`: a carriage driver's seat on the box at its front, facing forward.
+   * - `leftLine`, `rightLine`: a cart's driving lines' held runs, each line's length behind its terret, each frame at the run's middle, the run pointing forward to the horse's terret; the driver's hands hold anywhere along it.
    * - `leftDoor`, `rightDoor`: a carriage's doors' hinges at their front edges; a positive travel swings a door outward. `leftAperture`, `rightAperture`: the openings behind them, passed through into the carriage.
    */
   export type Affordance =
@@ -260,7 +282,9 @@ export namespace createCart {
     | "leftDoor"
     | "rightDoor"
     | "leftAperture"
-    | "rightAperture";
+    | "rightAperture"
+    | "leftLine"
+    | "rightLine";
 
   /**
    * The free dimensions, metres unless stated; a kind lacks those of the parts it does not have:
@@ -320,4 +344,66 @@ export namespace createCart {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = CART_BANDS;
+
+  /**
+   * The traces and the driving lines between a cart and the horse in harness that draws it, for `ArchetypeRide.towed`'s `lines`: a trace from each point of draft at the breast collar's end to its end of the cart's single tree, and a driving line from each bit ring through the neck strap's ring and the saddle's terret to the driver's held run (Harness Stuff: the reins pass from the bit through the rings on the breastplate's neck strap, then the saddle's terrets, to the driver).
+   *
+   * @param cart A `cart` kind, built for the horse that draws it.
+   * @returns The four lines, the traces first, left before right.
+   * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each line joins, the order and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Every point is an end the two models declare: the horse's harness balls (`HorseHarness.ENDS`) and the cart's single tree's ends, half its length either side of its middle, and its held runs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the cart, then one trace and one line per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A kind without a single tree is refused, never given lines to nowhere.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the single tree's spread from `createHorse.rig`, the owner of the points of draft.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function lines(cart: Archetype<Affordance, Dimension>): ArchetypeRide.ILine[] {
+    if (!cart.affordances.some((a: { id: string }): boolean => a.id === "leftLine"))
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "cart",
+        axis: "kind",
+        value: cart.name,
+        feasible: { kind: "alternatives", values: ["cart"] },
+        reason: `the ${cart.name} has no single tree and no driving lines`,
+        fix: "draw a cart kind built for a horse in harness",
+      });
+    const spread: number = createHorse.rig(cart.dimensions).draft.x;
+    const ball = (part: string): ArchetypeSpan.End => ({
+      part,
+      at: { x: 0, y: 0, z: 0 },
+    });
+    const traces: ArchetypeRide.ILine[] = SIDES.map(
+      ([side, sign]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
+        id: `trace-${side}`,
+        radius: TRACE,
+        points: [
+          { leader: ball(HorseHarness.ENDS.draft[side]) },
+          { trailer: { part: "single-tree", at: { x: 0, y: sign * spread, z: 0 } } },
+        ],
+      }),
+    );
+    const driving: ArchetypeRide.ILine[] = SIDES.map(
+      ([side]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
+        id: `line-${side}`,
+        radius: LINE / 2,
+        points: [
+          { leader: ball(HorseHarness.ENDS.bit[side]) },
+          { leader: ball(HorseHarness.ENDS.ring[side]) },
+          { leader: ball(HorseHarness.ENDS.terret[side]) },
+          { trailer: { affordance: `${side}Line` } },
+        ],
+      }),
+    );
+    return [...traces, ...driving];
+  }
 }
+
+/** The two sides, `+X` first. */
+const SIDES: readonly (readonly ["left" | "right", number])[] = [
+  ["left", 1],
+  ["right", -1],
+];

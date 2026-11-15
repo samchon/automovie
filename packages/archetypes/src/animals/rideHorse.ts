@@ -14,6 +14,7 @@ import {
 } from "../core";
 import { HorseChange } from "./HorseChange";
 import { HorseGait } from "./HorseGait";
+import { HorseHarness } from "./HorseHarness";
 import { HorseLimb } from "./HorseLimb";
 import { HorseMotion } from "./HorseMotion";
 import { createHorse } from "./createHorse";
@@ -21,7 +22,7 @@ import { createHorse } from "./createHorse";
 /**
  * A horse going along a course: its root on the path, its trunk rising and falling and its head nodding with the stride, its four limbs stepping in the gait's order, and its gait and lead changing with the speed or as the course's legs name them.
  *
- * The stride's timing is `HorseGait`'s at the course's speed for the horse's height at the withers, shifted by the horse's `tempo`; scaled from the measured horses by dynamic similarity, it is provisional, as `HorseGait.scale` states. Each hoof lands at its phase of the stride, stays planted for the duty factor's share of it while the body passes over, then swings forward, lifted clear of the ground, with its carpus or hock folded. A planted hoof stays where it landed on a straight leg at any speed, steady or changing, and across a change of gait; on a turn it is carried along the model's own fore-and-aft line, so it slides sideways by the turn's sagitta over one stance. The ride adds an instant for every landing, `leftForeOn`, `rightHindOn` and so on, which a rider's rising trot or a walker's step beside the horse locks to. The saddle, the stirrups and the reins ride the trunk, so `frame("seat", seconds)` is the moving support a rider sits on.
+ * The stride's timing is `HorseGait`'s at the course's speed for the horse's height at the withers, shifted by the horse's `tempo`; scaled from the measured horses by dynamic similarity, it is provisional, as `HorseGait.scale` states. Each hoof lands at its phase of the stride, stays planted for the duty factor's share of it while the body passes over, then swings forward, lifted clear of the ground, with its carpus or hock folded. A planted hoof stays where it landed on a straight leg at any speed, steady or changing, and across a change of gait; on a turn it is carried along the model's own fore-and-aft line, so it slides sideways by the turn's sagitta over one stance. The ride adds an instant for every landing, `leftForeOn`, `rightHindOn` and so on, which a rider's rising trot or a walker's step beside the horse locks to. The saddle, the stirrups and the reins, or a harness, ride the trunk, so `frame("seat", seconds)` is the moving support a rider sits on and `frame("hitch", seconds)` the one a cart is drawn from; a bridle turns with the head.
  *
  * The gait of each stride is the one a course leg names, else the one `gait` names, else the one the speed calls for at the change points `HorseChange` derives (walk to trot at the measured Froude number, trot to canter at the measured trot-gallop speed for the horse's mass, canter to gallop at the middle of the two gaits' measured ranges, provisional), going up above a change point by `HorseChange.HYSTERESIS` and coming down below it by as much, so a speed hovering at the boundary does not flip the gait every stride. A change is decided at the left fore's landing, the stride's start, and takes the next stride: each hoof's landing moves from the old gait's phase to the new one's, so a planted hoof stays planted, and the ride names `gait:<from>-<to>` there. A leg may name a `lead` for the canter and the gallop, whose right lead mirrors the left; a change of lead at a canter is a flying change, taken the same way and named `lead:<from>-<to>`.
  *
@@ -281,7 +282,7 @@ export function rideHorse(
         );
       }
 
-      // The neck and head pitch about the neck's root, timed to the footfalls as measured.
+      // The neck and the head, with the bridle a harness puts on it, pitch about the neck's root, timed to the footfalls as measured.
       const nod: number =
         going *
         HorseMotion.nod(
@@ -292,7 +293,7 @@ export function rideHorse(
       const turn: IAutoMovieQuaternion =
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, nod);
       for (const part of horse.parts)
-        if (part.id === "neck" || part.id === "head")
+        if (part.id === "neck" || HorseHarness.HEAD.includes(part.id))
           moved.set(part.id, {
             translation: Vector3.add(
               neck,

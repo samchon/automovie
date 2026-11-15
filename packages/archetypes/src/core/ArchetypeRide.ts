@@ -4,6 +4,8 @@ import {
   integrateMotionTrajectory,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
+  IAutoMovieModelPart,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -12,6 +14,7 @@ import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeSpan } from "./ArchetypeSpan";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
@@ -39,6 +42,52 @@ export namespace ArchetypeRide {
   > extends IPose<Id, Dimension> {
     /** Where the support is on its course. */
     course: ArchetypeCourse.IState;
+
+    /** The lines a towing ride lays between the leader and this support at that second, in the world; absent when it lays none. */
+    lines?: readonly ILineState[];
+  }
+
+  /**
+   * A line between two independently moving supports, such as a trace from a horse's collar to a cart's single tree, or a driving line from the bit through the terrets to the driver's hands: a round strap through its points in order, each a point of the leader or of the towed support.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a line is and what its points name.
+   * @evidence contracts/development/design.md#principled-representation An id, a radius in metres and an ordered list of attachment points, each an end of either model in the form a span's end takes.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here, beside the coupling that moves both models; read by `towed`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point names its model by its one key, so it cannot name both.
+   */
+  export interface ILine {
+    /** The line's id, unique among a ride's lines. */
+    id: string;
+
+    /** The strap's radius, metres. */
+    radius: number;
+
+    /** The points the line runs through, in order; at least two. */
+    points: readonly ILinePoint[];
+  }
+
+  /** One point of a line: an end on the leader's posed model, or one on the towed support's. */
+  export type ILinePoint =
+    | { leader: ArchetypeSpan.End; trailer?: never }
+    | { trailer: ArchetypeSpan.End; leader?: never };
+
+  /**
+   * A line at one second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and space.
+   * @evidence contracts/development/design.md#principled-representation The line's id, its radius in metres and its points in the world, in order.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; carried by a towed ride's samples.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ILineState {
+    /** The line's id. */
+    id: string;
+
+    /** The strap's radius, metres. */
+    radius: number;
+
+    /** Its points in the world, metres, in order. */
+    points: readonly IAutoMovieVector3[];
   }
 
   /**
@@ -158,19 +207,19 @@ export namespace ArchetypeRide {
   /**
    * A trailer towed by a leader: the trailer's coupling held on the leader's hitch at every second, and its axle following as a single-axle trailer does, its heading lagging into the turns.
    *
-   * The trailer is drawn by any ride, a car's, a horse's or a cart's along a course. Its axle line, the trailer's own `X` axis through `axle`, never slides sideways, so its heading turns toward the hitch at the hitch's sideways speed over the coupling's distance ahead of the axle; the heading is integrated from the leader's start, the trailer then aligned behind the hitch, by the engine's integrator (`integrateMotionTrajectory`), so the trailer's path depends only on the leader's and its own start. A four-wheeled wagon is two such links: its pole and front axle turn about the front axle's pivot, trailing the hitch, and its body trails the pivot on its rear axle, the front axle's articulation set to the two links' difference. The ride publishes the leader's plan and instants, and at each second the leader's course state with the trailer's placement.
+   * The trailer is drawn by any ride, a car's, a horse's or a cart's along a course. Its axle line, the trailer's own `X` axis through `axle`, never slides sideways, so its heading turns toward the hitch at the hitch's sideways speed over the coupling's distance ahead of the axle; the heading is integrated from the leader's start, the trailer then aligned behind the hitch, by the engine's integrator (`integrateMotionTrajectory`), so the trailer's path depends only on the leader's and its own start. A four-wheeled wagon is two such links: its pole and front axle turn about the front axle's pivot, trailing the hitch, and its body trails the pivot on its rear axle, the front axle's articulation set to the two links' difference. The ride publishes the leader's plan and instants, and at each second the leader's course state with the trailer's placement. The lines given in `lines` run between the two: at every second each of their points is found on the leader's model as the leader's ride poses and places it, or on the trailer's as this ride does, so a trace or a driving line stays on both at once, whatever either does.
    *
    * @param leader The leader's ride.
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
    * @param coupling The trailer's contact that is held on the hitch, ahead of its axle along `+Z`.
-   * @param options `axle`, the point of the trailer's (rear) axle line under its root, `+Z` forward, metres, the origin when absent; `pose`, what moves on the trailer at a course state, such as its wheels' spin, the trailer as given when absent; `front`, a turning front axle: `pivot`, the point it turns about, on the trailer's centre line between the coupling and the axle, and `turn`, the `wheel` articulation that turns it, positive to the left, which the coupling rides.
+   * @param options `axle`, the point of the trailer's (rear) axle line under its root, `+Z` forward, metres, the origin when absent; `pose`, what moves on the trailer at a course state, such as its wheels' spin, the trailer as given when absent; `front`, a turning front axle: `pivot`, the point it turns about, on the trailer's centre line between the coupling and the axle, and `turn`, the `wheel` articulation that turns it, positive to the left, which the coupling rides; `lines`, the lines laid between the leader and the trailer, none when absent.
    * @returns The trailer's ride.
-   * @throws {ArchetypeRefusal} When the coupling does not lie ahead of the axle, or of the front axle's pivot, or the pivot ahead of the axle; when either id is no contact of its archetype; or when the leader's path turns the front axle past its lock at any step of the integration, giving the most it needed.
+   * @throws {ArchetypeRefusal} When the coupling does not lie ahead of the axle, or of the front axle's pivot, or the pivot ahead of the axle; when either id is no contact of its archetype; when a line has fewer than two points or names a part or contact its model lacks; or when the leader's path turns the front axle past its lock at any step of the integration, giving the most it needed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is held, the trailer model, the integration, determinism and what is published.
    * @evidence contracts/development/implementation.md#principled-implementation The kinematic single-axle trailer: with the coupling a distance L ahead of the axle and the axle's velocity along the trailer's heading, the heading's rate is the hitch velocity's component along the trailer's left over L. The hitch's velocity is the central difference of the leader's hitch frame over a millisecond, the leader's state being closed form; the heading is integrated by RK4 at the integrator's default step and read by Hermite interpolation, so playback and seeking read one motion. With a front axle the pivot's velocity is the hitch's less the first link's turn times its reach, and the body's heading turns toward the pivot at the pivot's sideways speed over the body's length: the standard model of a car with a pivoted trailer, here a pole with a dolly and its body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the coupling, integrate the heading over the leader's running time, then one sampler placing the axle behind the hitch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure the coupling, integrate the heading over the leader's running time, then one sampler placing the axle behind the hitch and laying the lines on the two posed models.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The trailer stands at the hitch's height less the coupling's, so a grade is followed only through the hitch; a tyre's sideways slip is left out, which holds at the walking-to-trotting speeds of drawn vehicles.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four right-hand-side evaluations per sixtieth of a second, each two reads of the leader, once per ride; a sample is one Hermite read and one leader read.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The integrated heading serves every sample.
@@ -190,6 +239,7 @@ export namespace ArchetypeRide {
       axle?: IAutoMovieVector3;
       pose?: (state: ArchetypeCourse.IState) => Archetype<Id, Dimension>;
       front?: { pivot: IAutoMovieVector3; turn: Id };
+      lines?: readonly ILine[];
     } = {},
   ): IRide<Id, Dimension> {
     const axle: IAutoMovieVector3 = options.axle ?? { x: 0, y: 0, z: 0 };
@@ -276,6 +326,58 @@ export namespace ArchetypeRide {
           fix: "lead the trailer on wider turns",
         });
     }
+    for (const line of options.lines ?? [])
+      if (line.points.length < 2)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: trailer.archetype,
+          axis: line.id,
+          value: line.points.length,
+          feasible: { kind: "range", minimum: 2, maximum: null, unit: "" },
+          reason: `the line ${line.id} has ${line.points.length} points`,
+          fix: "give the line its two ends at least",
+        });
+
+    // The lines at a second: each point on its own model, posed and placed as the leader's ride and this one have it.
+    const lay = (
+      lead: ISample<LeaderId, LeaderDimension>,
+      posed: Archetype<Id, Dimension>,
+      placement: IAutoMovieTransform,
+    ): { lines?: readonly ILineState[] } => {
+      if (options.lines === undefined) return {};
+      const world = (
+        model: Readonly<{
+          archetype: string;
+          parts: readonly IAutoMovieModelPart[];
+          affordances: readonly IAutoMovieAffordance[];
+        }>,
+        where: IAutoMovieTransform,
+        end: ArchetypeSpan.End,
+      ): IAutoMovieVector3 =>
+        ArchetypeFrame.point(
+          where,
+          ArchetypeSpan.locate(
+            model.archetype,
+            end,
+            model.parts,
+            model.affordances,
+          ),
+        );
+      return {
+        lines: options.lines.map(
+          (line: ILine): ILineState => ({
+            id: line.id,
+            radius: line.radius,
+            points: line.points.map(
+              (point: ILinePoint): IAutoMovieVector3 =>
+                point.leader !== undefined
+                  ? world(lead.archetype, lead.placement, point.leader)
+                  : world(posed, placement, point.trailer),
+            ),
+          }),
+        ),
+      };
+    };
     const at = (seconds: number): ISample<Id, Dimension> => {
       const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
@@ -302,6 +404,7 @@ export namespace ArchetypeRide {
           archetype: posed,
           placement,
           course: { ...sample.course, placement },
+          ...lay(sample, posed, placement),
         };
       }
 
@@ -322,10 +425,15 @@ export namespace ArchetypeRide {
       };
       const steer: Partial<Record<Id, number>> = {};
       steer[options.front.turn] = (theta - phi) / ArchetypeUnits.DEGREE;
+      const steered: Archetype<Id, Dimension> = posed.articulate({
+        ...posed.state,
+        ...steer,
+      });
       return {
-        archetype: posed.articulate({ ...posed.state, ...steer }),
+        archetype: steered,
         placement,
         course: { ...sample.course, placement },
+        ...lay(sample, steered, placement),
       };
     };
     return {

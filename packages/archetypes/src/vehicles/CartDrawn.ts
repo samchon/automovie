@@ -1,5 +1,7 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { HorseHarness } from "../animals/HorseHarness";
 import { createHorse } from "../animals/createHorse";
 import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { CartWheel } from "./CartWheel";
@@ -15,15 +17,15 @@ import { createCart } from "./createCart";
  */
 export namespace CartDrawn {
   /**
-   * A horse's two-wheeled cart: a body on the axle, a seat over it, and two shafts reaching forward level at the horse's tugs.
+   * A horse's two-wheeled cart: a body on the axle, a seat over it, two shafts reaching forward level at the horse's tugs, a single tree the traces pull, and the driving lines' held runs behind the terrets.
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, which stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`.
+   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, which stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`. The single tree stands across the front at the points of draft's height and spread (`createHorse.rig`'s `draft`), so the traces run straight back from the collar; it hangs from a bar between the shafts. The driving lines' held runs, `leftLine` and `rightLine`, are each line's length behind its terret: `createCart.LINES`, IVC Carriage's 14 ft stock single-horse lines, less the line's run from the bit ring through the neck strap's ring to the terret (`HorseHarness.passes`), laid from the terret on the horse's saddle at the coupling toward the line's rest point, `createCart.REST`'s elbow height over the seat. Where along a run the hands hold is the driving act's choice, as a grasp chooses within its bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The horse's places, then the body, the shafts and the wheels.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SINGLE_TREE` is a named provisional value and the seat's height a band seen only in search results; the body's own boards, a construction no act reads, are sized from the track and the seat.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SINGLE_TREE` is a named provisional value and the seat's height a band seen only in search results; the body's own boards, a construction no act reads, are sized from the track and the seat. The single tree's height, level with the points of draft so the traces run level, is a provisional value: the fitting guides read give the trace's angle to the hame, not the single tree's height; the lines' rest point over the seat is their rest geometry only, never where a hand is put.
    * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -45,6 +47,8 @@ export namespace CartDrawn {
     const coupling: number = tip - createHorse.SADDLE;
     const seat: number = d.seatHeight!;
     const half: number = d.track! / 2 - 0.08;
+    const middle: number = -0.05;
+    const edge: number = 0.15;
 
     // The body: a floor on the axle from behind it to the single tree, a dash at its front, and the seat over the axle.
     builder.box(
@@ -61,7 +65,7 @@ export namespace CartDrawn {
     builder.box(
       "seat-box",
       v(2 * half, seat - 0.05 - radius, 0.4),
-      v(0, (seat - 0.05 + radius) / 2, -0.05),
+      v(0, (seat - 0.05 + radius) / 2, middle),
       {
         color: BODY,
       },
@@ -69,13 +73,13 @@ export namespace CartDrawn {
     builder.box(
       "cushion",
       v(2 * half - 0.1, 0.05, 0.4),
-      v(0, seat - 0.025, -0.05),
+      v(0, seat - 0.025, middle),
       { color: CLOTH, density: 0.2 },
     );
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, 0.15)),
+      frame: ArchetypeFrame.upright(v(0, seat, edge)),
       extent: null,
       depth: 0.4,
       width: 2 * half - 0.1,
@@ -112,6 +116,66 @@ export namespace CartDrawn {
       frame: ArchetypeFrame.upright(v(0, tug, coupling)),
       extent: null,
     });
+
+    // The single tree across the front at the points of draft's height and spread, hung from a bar between the shafts, so the traces run straight back from the collar.
+    const draft: IAutoMovieVector3 = horse.draft;
+    builder.rod(
+      "bar",
+      SHAFT,
+      v(-(barrel + SHAFT), tug, tree),
+      v(barrel + SHAFT, tug, tree),
+      { color: WOOD },
+    );
+    builder.rod("stay", SHAFT / 2, v(0, tug, tree), v(0, draft.y, tree), {
+      color: METAL,
+    });
+    builder.rod(
+      "single-tree",
+      SHAFT,
+      v(-draft.x, draft.y, tree),
+      v(draft.x, draft.y, tree),
+      { color: WOOD },
+    );
+
+    // The driving lines' held runs: each line's length behind its terret, IVC's 14 ft single-horse lines less their run from the bit through the ring to the terret, laid from the terret toward the line's rest point over the seat. The driving act's hands choose where along it they hold.
+    const pass: ReturnType<typeof HorseHarness.passes> = HorseHarness.passes(
+      horse,
+      { withersHeight: d.withersHeight!, girth: d.girth! },
+    );
+    const ahead: number = coupling - horse.hitch.z;
+    const used: number =
+      Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
+      Vector3.length(Vector3.subtract(pass.terret, pass.ring));
+    const run: number = createCart.LINES - used;
+    const rest: IAutoMovieVector3 = v(0, seat + createCart.REST.elbow, edge);
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      const terret: IAutoMovieVector3 = v(
+        sign * pass.terret.x,
+        pass.terret.y,
+        pass.terret.z + ahead,
+      );
+      const along: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(rest, terret),
+      );
+      builder.affordance({
+        id: `${side}Line`,
+        kind: "rein",
+        symmetry: "round",
+        // `+X` runs forward along the run to the terret, `+Y` up, square to it.
+        frame: ArchetypeFrame.facing(
+          Vector3.add(terret, Vector3.scale(along, run / 2)),
+          Vector3.subtract(v(0, 1, 0), Vector3.scale(along, along.y)),
+          Vector3.scale(along, -1),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: createCart.LINE,
+        length: run,
+      });
+    }
     CartWheel.pair(builder, {
       track: d.track!,
       radius,

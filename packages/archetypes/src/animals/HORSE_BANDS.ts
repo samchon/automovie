@@ -48,6 +48,12 @@ export const HORSE_BANDS: Readonly<
     (3 / 4) * ArchetypeUnits.INCH,
     "Dover Saddlery, snaffle reins 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines)",
   ),
+  breechingDrop: ArchetypeBand.metres(
+    2 * ArchetypeUnits.INCH,
+    4 * ArchetypeUnits.INCH,
+    "D. Hammill, Ask a Teamster: Positioning of the Breeching, Small Farmers Journal (https://smallfarmersjournal.com/ask-a-teamster-positioning-of-the-breeching/): \"A relatively flat area can be felt from a couple to a few inches below the POB\"; 2 to 4 in is this model's reading of \"a couple to a few inches\", not the author's figure",
+    true,
+  ),
   tempo: ArchetypeBand.of(
     "",
     -1,

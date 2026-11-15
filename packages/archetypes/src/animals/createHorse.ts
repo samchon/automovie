@@ -9,24 +9,25 @@ import {
   ArchetypeFrame,
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
+import { HorseHarness } from "./HorseHarness";
 
 /**
- * A saddle horse with its tack: a coarse body of one bar per bone, a saddle with stirrups, reins and a lead rope.
+ * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, or in a driving harness.
  *
- * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its parts are its bones, named by `createHorse.Bone`, a vocabulary of its own: a trunk, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one.
+ * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its parts are its bones, named by `createHorse.Bone`, a vocabulary of its own: a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * The rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`).
  *
- * @param params Any dimension the author fixes.
+ * @param params The tack and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The horse.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `TACKS`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are its bones under its own vocabulary, how it is posed and where the rider's contacts are.
- * @evidence contracts/development/implementation.md#principled-implementation Limb bones laid from the shoulder and hip joints down at standing angles that put every hoof on the ground; segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are its bones under its own vocabulary, how it is posed, where the body ends and where each tack's contacts are.
+ * @evidence contracts/development/implementation.md#principled-implementation Limb bones laid from the shoulder and hip joints down at standing angles that put every hoof on the ground; segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution. Kubo's torso share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in Kubo's Table 5.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, take the rest joints from `rig`, lay a bar per bone, then the tack and its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula and the pelvis are part of the trunk, as Kubo's trunk includes them; ears, mane and hooves are not modelled.
- * @evidence contracts/development/implementation.md#efficient-algorithms Twenty bones, the withers and ten tack parts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula is part of the trunk and the pelvis of the trunk and the hindquarters, as Kubo's torso includes them; ears, mane and hooves are not modelled.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -34,6 +35,12 @@ export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
+  const tack: createHorse.Tack = ArchetypeDraw.choice(
+    "horse",
+    "tack",
+    params.tack ?? "saddle",
+    createHorse.TACKS,
+  );
   const d: Record<createHorse.Dimension, number> = ArchetypeDraw.dimensions(
     "horse",
     createHorse.BANDS,
@@ -46,7 +53,7 @@ export function createHorse(
   > = new ArchetypeBuilder({
     archetype: "horse",
     id: params.id,
-    name: "saddle horse",
+    name: tack === "saddle" ? "saddle horse" : "driving horse",
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -56,22 +63,37 @@ export function createHorse(
   const coat: string = "#8a5a3a";
   const share: typeof createHorse.MASS = createHorse.MASS;
 
-  // The trunk, neck, head and tail.
+  // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, Kubo's torso shared between them by volume.
   const back: number = rig.back;
   const half: number = rig.trunk / 2;
-  builder.rod(
-    "trunk",
-    barrel,
-    v(0, back - barrel, -half),
-    v(0, back - barrel, half),
-    { color: coat, round: true, share: share.trunk },
+  const rear: IAutoMovieVector3 = v(0, back - barrel, -half);
+  const quarters: IAutoMovieVector3 = v(
+    0,
+    rig.buttock.y,
+    rig.buttock.z + barrel,
   );
+  const capsule = (length: number): number =>
+    Math.PI * barrel * barrel * length + (4 / 3) * Math.PI * barrel ** 3;
+  const trunkVolume: number = capsule(2 * half);
+  const quartersVolume: number = capsule(
+    Vector3.length(Vector3.subtract(quarters, rear)),
+  );
+  builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
+    color: coat,
+    round: true,
+    share: (share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
+  });
+  builder.rod("hindquarters", barrel, rear, quarters, {
+    color: coat,
+    round: true,
+    share: (share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
+  });
   builder.ball("withers", 0.05 * h, v(0, 0.95 * h, half - 0.05 * h), {
     color: coat,
     share: 0.01,
   });
-  const poll: IAutoMovieVector3 = v(0, back + 0.27 * h, half + 0.27 * h);
-  const nose: IAutoMovieVector3 = v(0, poll.y - 0.31 * h, poll.z + 0.18 * h);
+  const poll: IAutoMovieVector3 = rig.poll;
+  const nose: IAutoMovieVector3 = rig.nose;
   builder.rod("neck", 0.08 * h, v(0, back - 0.06 * h, half), poll, {
     color: coat,
     share: share.neck,
@@ -81,12 +103,7 @@ export function createHorse(
     round: true,
     share: share.head,
   });
-  // The tail hangs from the croup: its root sits just inside the trunk's rounded rear end, up and back from that end's centre.
-  const dock: IAutoMovieVector3 = v(
-    0,
-    back - barrel + 0.65 * barrel,
-    -half - 0.65 * barrel,
-  );
+  const dock: IAutoMovieVector3 = rig.dock;
   builder.rod(
     "tail",
     0.02 * h,
@@ -118,136 +135,138 @@ export function createHorse(
     );
   }
 
-  // The saddle on the back behind the withers, and what the rider holds and stands in.
-  const top: number = back + 0.04;
-  const centre: number = half - createHorse.SADDLE;
-  builder.box(
-    "saddle",
-    v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
-    v(0, top - 0.02, centre),
-    { color: "#4a3324", share: 1 },
-  );
-  builder.affordance({
-    id: "seat",
-    kind: "seat",
-    frame: ArchetypeFrame.upright(v(0, top, centre + d.seatSize / 2)),
-    extent: null,
-    depth: d.seatSize,
-    width: createHorse.SEAT_WIDTH,
-    astride: true,
-
-    // A horse is mounted from its near side, the left.
-    mount: "left",
-  });
-  for (const [id, z] of [
-    ["pommel", centre + d.seatSize / 2],
-    ["cantle", centre - d.seatSize / 2],
-  ] as const) {
-    builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-      color: "#4a3324",
-      share: 0.01,
-    });
-    builder.affordance({
-      id,
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
-      extent: null,
-      grip: "power",
-      aperture: 0.03,
-      length: 0.12,
-    });
-  }
-  for (const [side, sign] of [
-    ["left", 1],
-    ["right", -1],
-  ] as const) {
-    const x: number = sign * (barrel + 0.03);
-    const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
-    builder.rod(
-      `leather-${side}`,
-      0.008,
-      v(x, top - 0.02, centre + 0.05),
-      v(x, tread.y + 0.01, tread.z),
-      { color: "#4a3324", share: 0.01 },
-    );
+  if (tack === "saddle") {
+    // The saddle on the back behind the withers, and what the rider holds and stands in.
+    const top: number = back + 0.04;
+    const centre: number = half - createHorse.SADDLE;
     builder.box(
-      `stirrup-${side}`,
-      v(d.stirrupWidth, 0.01, 0.05),
-      v(x, tread.y - 0.005, tread.z),
-      { color: "#b9bcc0", share: 0.01 },
+      "saddle",
+      v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
+      v(0, top - 0.02, centre),
+      { color: "#4a3324", share: 1 },
     );
     builder.affordance({
-      id: `${side}Stirrup`,
-      kind: "stirrup",
-      frame: ArchetypeFrame.upright(tread),
+      id: "seat",
+      kind: "seat",
+      frame: ArchetypeFrame.upright(v(0, top, centre + d.seatSize / 2)),
       extent: null,
-      width: d.stirrupWidth,
-      length: d.stirrupDrop,
-    });
+      depth: d.seatSize,
+      width: createHorse.SEAT_WIDTH,
+      astride: true,
 
-    // A rein from the corner of the mouth back to where the hand holds it, above the withers.
-    const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
-    const bit: IAutoMovieVector3 = v(
-      sign * 0.05 * h,
-      nose.y + 0.03 * h,
-      nose.z - 0.03 * h,
-    );
-    // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
-    const run: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(bit, hand),
-    );
+      // A horse is mounted from its near side, the left.
+      mount: "left",
+    });
+    for (const [id, z] of [
+      ["pommel", centre + d.seatSize / 2],
+      ["cantle", centre - d.seatSize / 2],
+    ] as const) {
+      builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
+        color: "#4a3324",
+        share: 0.01,
+      });
+      builder.affordance({
+        id,
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
+        extent: null,
+        grip: "power",
+        aperture: 0.03,
+        length: 0.12,
+      });
+    }
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      const x: number = sign * (barrel + 0.03);
+      const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
+      builder.rod(
+        `leather-${side}`,
+        0.008,
+        v(x, top - 0.02, centre + 0.05),
+        v(x, tread.y + 0.01, tread.z),
+        { color: "#4a3324", share: 0.01 },
+      );
+      builder.box(
+        `stirrup-${side}`,
+        v(d.stirrupWidth, 0.01, 0.05),
+        v(x, tread.y - 0.005, tread.z),
+        { color: "#b9bcc0", share: 0.01 },
+      );
+      builder.affordance({
+        id: `${side}Stirrup`,
+        kind: "stirrup",
+        frame: ArchetypeFrame.upright(tread),
+        extent: null,
+        width: d.stirrupWidth,
+        length: d.stirrupDrop,
+      });
+
+      // A rein from the corner of the mouth back to where the hand holds it, above the withers.
+      const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
+      const bit: IAutoMovieVector3 = v(
+        sign * 0.05 * h,
+        nose.y + 0.03 * h,
+        nose.z - 0.03 * h,
+      );
+      // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
+      const run: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(bit, hand),
+      );
+      builder.rod(
+        `rein-${side}`,
+        d.reinWidth / 2,
+        Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
+        bit,
+        { color: "#4a3324", share: 0.01 },
+      );
+      builder.affordance({
+        id: `${side}Rein`,
+        kind: "rein",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          hand,
+          v(0, 1, 0),
+          Vector3.subtract(bit, hand),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: d.reinWidth,
+        length: createHorse.HELD.rein,
+      });
+    }
+    const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
+    const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
     builder.rod(
-      `rein-${side}`,
-      d.reinWidth / 2,
-      Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
-      bit,
-      { color: "#4a3324", share: 0.01 },
+      "lead",
+      createHorse.LEAD / 2,
+      Vector3.subtract(
+        held,
+        Vector3.scale(
+          Vector3.normalize(Vector3.subtract(halter, held)),
+          createHorse.HELD.lead / 2,
+        ),
+      ),
+      halter,
+      { color: "#d8d2c4", share: 0.01 },
     );
     builder.affordance({
-      id: `${side}Rein`,
+      id: "lead",
       kind: "rein",
       symmetry: "round",
       frame: ArchetypeFrame.facing(
-        hand,
-        v(0, 1, 0),
-        Vector3.subtract(bit, hand),
+        held,
+        v(1, 0, 0),
+        Vector3.subtract(halter, held),
       ),
       extent: null,
       grip: "power",
-      aperture: d.reinWidth,
-      length: createHorse.HELD.rein,
+      aperture: createHorse.LEAD,
+      length: createHorse.HELD.lead,
     });
-  }
-  const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
-  const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
-  builder.rod(
-    "lead",
-    createHorse.LEAD / 2,
-    Vector3.subtract(
-      held,
-      Vector3.scale(
-        Vector3.normalize(Vector3.subtract(halter, held)),
-        createHorse.HELD.lead / 2,
-      ),
-    ),
-    halter,
-    { color: "#d8d2c4", share: 0.01 },
-  );
-  builder.affordance({
-    id: "lead",
-    kind: "rein",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      held,
-      v(1, 0, 0),
-      Vector3.subtract(halter, held),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: createHorse.LEAD,
-    length: createHorse.HELD.lead,
-  });
+  } else HorseHarness.lay(builder, d, rig);
   return builder.build(d.mass, { rests: "hoof" });
 }
 
@@ -260,6 +279,12 @@ export function createHorse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
+  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, or a driving harness. */
+  export type Tack = "saddle" | "harness";
+
+  /** Every tack, for a caller that reads one at run time. */
+  export const TACKS: readonly Tack[] = ["saddle", "harness"];
+
   /** The four limbs. */
   export type Limb = "leftFore" | "rightFore" | "leftHind" | "rightHind";
 
@@ -272,10 +297,11 @@ export namespace createHorse {
   ];
 
   /**
-   * The horse's bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof); down a hind limb the femur, the tibia, the cannon and the pastern. Every limb bone hangs from the one above it and the uppermost from the trunk.
+   * The horse's bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof); down a hind limb the femur, the tibia, the cannon and the pastern. Every limb bone hangs from the one above it and the uppermost from the trunk.
    */
   export type Bone =
     | "trunk"
+    | "hindquarters"
     | "neck"
     | "head"
     | "tail"
@@ -326,6 +352,7 @@ export namespace createHorse {
    * - `leftStirrup`, `rightStirrup`: the stirrups' treads on `+X` and `-X`, each hanging its drop below the saddle.
    * - `leftRein`, `rightRein`: the reins where the hands hold them above the withers, each frame at the middle of the held run, which runs forward to the mouth.
    * - `lead`: the middle of the lead rope's held run beside the head on the horse's left, running up to the halter.
+   * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from; the other ids belong to the riding saddle and a harnessed horse lacks them.
    */
   export type Affordance =
     | "seat"
@@ -335,7 +362,8 @@ export namespace createHorse {
     | "rightStirrup"
     | "leftRein"
     | "rightRein"
-    | "lead";
+    | "lead"
+    | "hitch";
 
   /**
    * The free dimensions, metres unless stated:
@@ -348,6 +376,7 @@ export namespace createHorse {
    * - `stirrupWidth`: the tread's width.
    * - `reinWidth`: a rein's width.
    * - `tempo`: how far this horse's stride time lies from the mean, in standard deviations.
+   * - `breechingDrop`: in harness, the breeching's seat below the point of buttock.
    */
   export type Dimension =
     | "withersHeight"
@@ -357,10 +386,14 @@ export namespace createHorse {
     | "stirrupDrop"
     | "stirrupWidth"
     | "reinWidth"
-    | "tempo";
+    | "tempo"
+    | "breechingDrop";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /** The parameters: the tack, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
+    /** What the horse wears; `saddle` when absent. */
+    tack?: Tack;
+
     /** The model's id, unique in a scene; `horse` when absent. */
     id?: string;
   }
@@ -420,7 +453,12 @@ export namespace createHorse {
   /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
   export const LEAD: number = (5 / 8) * ArchetypeUnits.INCH;
 
-  /** The horse's joints at rest, in the model's space. */
+  /**
+   * The point of buttock behind the point of shoulder, as a fraction of the height at the withers: Jensen et al. 2019, Acta Vet Scand 61, Methods and Table 2, L1, the horizontal length "from the tuber ischium (point of the buttocks) to greater tubercle (point of the shoulder)", 185 cm on warmbloods of 172 cm mean height at the withers (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). The point of shoulder is taken at the shoulder joint.
+   */
+  export const BUTTOCK: number = 185 / 172;
+
+  /** The horse's joints and landmarks at rest, in the model's space. */
   export interface IRig {
     /** The back's height above the ground, metres. */
     back: number;
@@ -430,10 +468,31 @@ export namespace createHorse {
 
     /** Each limb's five joints from the top down: the shoulder or hip joint, the elbow or stifle, the carpus or hock, the fetlock, and the hoof on the ground. */
     limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
+
+    /** The point of buttock, the rear of the hindquarters: `BUTTOCK` behind the shoulder joints, at the hip joints' height. No source read gives its height, so the hip joint's is a provisional value; the searches are in the sources record. */
+    buttock: IAutoMovieVector3;
+
+    /** The poll, where the head meets the neck. */
+    poll: IAutoMovieVector3;
+
+    /** The nose, the head's front end. */
+    nose: IAutoMovieVector3;
+
+    /** The mouth's corners' middle, where a bit lies across the head. */
+    mouth: IAutoMovieVector3;
+
+    /** The tail's root, just inside the hindquarters' rounded rear end, up and back from that end's centre. */
+    dock: IAutoMovieVector3;
+
+    /** The point of draft on the `+X` side: where the breast collar meets the barrel's side at the point of shoulder's height, just behind the elbow, as the IVC Carriage measuring chart takes the breast collar from the centre of the chest to just behind the elbow; the `-X` side's is its mirror. */
+    draft: IAutoMovieVector3;
+
+    /** The middle between the tugs, on the trunk's axis under the saddle's middle: a harness's `hitch`, where a cart's shafts are held. */
+    hitch: IAutoMovieVector3;
   }
 
   /**
-   * The horse's joints at rest.
+   * The horse's joints and landmarks at rest.
    *
    * @param dimensions The horse's dimensions, as `Archetype.dimensions` gives them.
    * @returns The rest rig.
@@ -444,6 +503,8 @@ export namespace createHorse {
     const h: number = dimensions.withersHeight!;
     const barrel: number = dimensions.girth! / (2 * Math.PI);
     const trunk: number = LENGTHS.trunk * h;
+    const back: number = BACK * h;
+    const axis: number = back - barrel;
     const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
     for (const limb of LIMBS) {
       const fore: boolean = limb.endsWith("Fore");
@@ -469,10 +530,44 @@ export namespace createHorse {
             Vector3.create(p.x, p.y, p.z + top),
         );
     }
+    const joints: Record<Limb, IAutoMovieVector3[]> = limbs as Record<
+      Limb,
+      IAutoMovieVector3[]
+    >;
+    const shoulder: IAutoMovieVector3 = joints.leftFore[0]!;
+    const hip: IAutoMovieVector3 = joints.leftHind[0]!;
+    const buttock: IAutoMovieVector3 = Vector3.create(
+      0,
+      hip.y,
+      shoulder.z - BUTTOCK * h,
+    );
+    const poll: IAutoMovieVector3 = Vector3.create(
+      0,
+      back + 0.27 * h,
+      trunk / 2 + 0.27 * h,
+    );
+    const nose: IAutoMovieVector3 = Vector3.create(
+      0,
+      poll.y - 0.31 * h,
+      poll.z + 0.18 * h,
+    );
+
+    // The hindquarters' rear end is a ball of the barrel's radius whose rearmost point is the point of buttock.
+    const quarters: number = buttock.z + barrel;
+    const side: number = Math.sqrt(
+      Math.max(0, barrel * barrel - (axis - shoulder.y) ** 2),
+    );
     return {
-      back: BACK * h,
+      back,
       trunk,
-      limbs: limbs as Record<Limb, IAutoMovieVector3[]>,
+      limbs: joints,
+      buttock,
+      poll,
+      nose,
+      mouth: Vector3.create(0, nose.y + 0.03 * h, nose.z - 0.03 * h),
+      dock: Vector3.create(0, buttock.y + 0.65 * barrel, quarters - 0.65 * barrel),
+      draft: Vector3.create(side, shoulder.y, joints.leftFore[1]!.z),
+      hitch: Vector3.create(0, axis, trunk / 2 - SADDLE),
     };
   }
 
