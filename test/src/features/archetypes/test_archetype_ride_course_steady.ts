@@ -15,6 +15,7 @@ const STEADY: ArchetypeCourse.ICourse = {
  *
  * Scenarios:
  * 1. A straight entered and left at its cruise, with no rates, is at 10 m/s at every second read, has gone 10 m a second, and runs 20 s; its states are bit for bit those of the same course given both rates, which it never reads.
+ * 1b. Two 100 m legs, each marked at the 10 m/s cruise and entered at it, plan without rates: 20 s, and 130 m at 13 s.
  * 2. The same straight left at rest needs only its braking: given a deceleration of 2 m/s squared it runs the cruise and then brakes over the last 25 m, `v^2 / (2 b)`, and without one it is refused at `course.deceleration`.
  * 3. The same straight entered from rest without an acceleration is refused at `course.acceleration`.
  *
@@ -47,6 +48,20 @@ export function test_archetype_ride_course_steady(): void {
     if (other.distance !== state.distance || other.speed !== state.speed)
       findings.push(`at ${t} s the rates a steady course never reads changed it`);
   }
+
+  // 1b. Two legs marked at the cruise, entered at it: steady with marks, no rate read.
+  const marked: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
+    start: { x: 0, z: 0, heading: 0 },
+    legs: [
+      { kind: "straight", length: 100 },
+      { kind: "straight", length: 100 },
+    ],
+    cruise: 10,
+    startSpeed: 10,
+    speeds: [10, 10],
+  });
+  if (Math.abs(marked.duration - 20) > 1e-9 || Math.abs(marked.at(13).distance - 130) > 1e-9)
+    findings.push(`the marked steady course runs ${marked.duration} s and is at ${marked.at(13).distance} m at 13 s`);
 
   // 2. Slowing to a stop needs only the braking.
   const stopping: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
