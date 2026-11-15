@@ -10,6 +10,7 @@ import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointInHull } from "../math/pointInHull";
+import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 
@@ -114,11 +115,40 @@ export namespace resolveAutoMovieCenterOfMass {
     point: IAutoMovieVector3;
   }
 
-  /** Gravity's acceleration, metres per second squared: 9.81, the rounded value the motion laws use today (standard gravity is 9.80665, ISO 80000-3). */
-  export const GRAVITY: number = 9.81;
-
-  /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `extrapolate` takes its length from. */
+  /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `pendulum` takes its length from. */
   export const PENDULUM: number = 1.34;
+
+  /**
+   * The inverted pendulum's length of a body: Hof's leg length, `PENDULUM`
+   * hip heights.
+   *
+   * @param hipHeight The body's hip height, metres.
+   * @returns The pendulum's length, metres.
+   */
+  export function pendulum(hipHeight: number): number {
+    return PENDULUM * hipHeight;
+  }
+
+  /**
+   * The inverted pendulum's eigenfrequency, `ω0 = sqrt(g / l)` (Hof,
+   * Gazendam and Sinke 2005): its reciprocal is the time a centre of mass
+   * takes to cover its own velocity's extrapolation.
+   *
+   * @param length The pendulum's length, metres; positive.
+   * @param gravity Gravitational acceleration, m/s²; standard gravity (`AutoMovieGravity.STANDARD`) when absent.
+   * @returns Radians per second.
+   * @throws {Error} When the length or gravity is not positive.
+   */
+  export function frequency(
+    length: number,
+    gravity: number = AutoMovieGravity.STANDARD,
+  ): number {
+    if (!(length > 0) || !(gravity > 0))
+      throw new Error(
+        `The inverted pendulum needs a positive length and gravity, got ${length} and ${gravity}`,
+      );
+    return Math.sqrt(gravity / length);
+  }
 
   /**
    * The whole-body centre of mass of a posed body.
@@ -154,13 +184,13 @@ export namespace resolveAutoMovieCenterOfMass {
    * The extrapolated centre of mass (XCoM) of Hof, Gazendam and Sinke (2005,
    * "The condition for dynamic stability", J. Biomech. 38): the centre of
    * mass plus its velocity over the inverted pendulum's eigenfrequency,
-   * `x + v / ω0` with `ω0 = sqrt(g / l)`, where `l` is the pendulum length
-   * (Hof takes the leg length, about 1.34 times the trochanteric height).
+   * `x + v / ω0` with `ω0 = sqrt(g / l)` (`frequency`), where `l` is the
+   * pendulum length (Hof takes the leg length, `pendulum`).
    *
    * @param com The centre of mass, world metres.
    * @param velocity Its velocity, metres per second.
    * @param length The pendulum length, metres; positive.
-   * @param gravity Gravitational acceleration, m/s²; `GRAVITY` when absent.
+   * @param gravity Gravitational acceleration, m/s²; standard gravity (`AutoMovieGravity.STANDARD`) when absent.
    * @returns The extrapolated centre of mass, world metres.
    * @throws {Error} When the length or gravity is not positive.
    */
@@ -168,15 +198,11 @@ export namespace resolveAutoMovieCenterOfMass {
     com: IAutoMovieVector3,
     velocity: IAutoMovieVector3,
     length: number,
-    gravity: number = GRAVITY,
+    gravity: number = AutoMovieGravity.STANDARD,
   ): IAutoMovieVector3 {
-    if (!(length > 0) || !(gravity > 0))
-      throw new Error(
-        `The extrapolated centre needs a positive length and gravity, got ${length} and ${gravity}`,
-      );
     return Vector3.add(
       com,
-      Vector3.scale(velocity, 1 / Math.sqrt(gravity / length)),
+      Vector3.scale(velocity, 1 / frequency(length, gravity)),
     );
   }
 

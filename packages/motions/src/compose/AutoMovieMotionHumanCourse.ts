@@ -116,9 +116,8 @@ export namespace AutoMovieMotionHumanCourse {
         HumanBalance.support(props.body, props.posture(seconds, along)).centre,
         forward,
       );
-    const omega: number = Math.sqrt(
-      resolveAutoMovieCenterOfMass.GRAVITY /
-        (resolveAutoMovieCenterOfMass.PENDULUM * props.body.measure.hipHeight),
+    const omega: number = resolveAutoMovieCenterOfMass.frequency(
+      resolveAutoMovieCenterOfMass.pendulum(props.body.measure.hipHeight),
     );
     const count: number = Math.max(
       1,

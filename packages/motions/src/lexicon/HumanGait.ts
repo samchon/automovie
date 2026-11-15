@@ -1,3 +1,4 @@
+import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { run } from "../actions/run";
@@ -137,7 +138,7 @@ export namespace HumanGait {
         (1.02 * way) / Math.max(2, Math.round(way / (MARCH.step * l)));
       const speed: number = (step * MARCH.cadence) / 60;
       return {
-        ...walk.walking((speed * speed) / (9.81 * l)),
+        ...walk.walking((speed * speed) / (AutoMovieGravity.STANDARD * l)),
         step: (): number => step / l,
         arms: MARCH.arms,
         unevenness: MARCH.unevenness,
@@ -171,7 +172,7 @@ export namespace HumanGait {
       const speed: number = (step * DOUBLE.cadence) / 60;
       return {
         ...run.GAITS.jog,
-        froude: (speed * speed) / (9.81 * l),
+        froude: (speed * speed) / (AutoMovieGravity.STANDARD * l),
         step: (): number => step / l,
         unevenness: MARCH.unevenness,
         called: true,

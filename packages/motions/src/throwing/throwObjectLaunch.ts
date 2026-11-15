@@ -1,3 +1,4 @@
+import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -6,7 +7,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, its writer and its readers.
  * @evidence contracts/development/design.md#principled-representation The initial state of a ballistic path and the path as its closed form.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record, one constant and one function.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record and one function; gravity is the engine's (`AutoMovieGravity`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Plain vectors and seconds; no object or hand is named.
  * @evidence contracts/development/implementation.md#principled-implementation Constant gravity along -Y without drag, the model the throw solves its release velocity in.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed-form expression.
@@ -38,9 +39,6 @@ export namespace throwObjectLaunch {
     target: IAutoMovieVector3;
   }
 
-  /** Gravity, metres per second squared along -Y. */
-  export const GRAVITY: number = 9.81;
-
   /**
    * A point of a launch's drag-free path.
    *
@@ -54,7 +52,7 @@ export namespace throwObjectLaunch {
       y:
         launch.point.y +
         launch.velocity.y * seconds -
-        0.5 * GRAVITY * seconds * seconds,
+        0.5 * AutoMovieGravity.STANDARD * seconds * seconds,
       z: launch.point.z + launch.velocity.z * seconds,
     };
   }

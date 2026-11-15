@@ -195,7 +195,7 @@ export namespace HumanBalance {
    * @evidence contracts/development/common.md#meaningful-documentation States the extrapolation, the difference step, the pendulum length convention, the support and the sign.
    * @evidence contracts/development/implementation.md#principled-implementation Hof, Gazendam and Sinke 2005 extrapolated centre of mass: position plus velocity over sqrt(g / l) with l = 1.34 hip heights (Hof's leg length), velocity by a central difference over 1/240 s of the movement's own postures, measured to the hull of the feet's bearing outlines.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the centre at three instants and hands extrapolation and margin to the engine; the base's gathering repeats `margin`'s reading on the bones already solved for the instant.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1/240 s step is a numerical choice finer than the 24 Hz film and the 1.34 factor is Hof's; the difference amplifies any discontinuity in the caller's posture function, which callers must keep smooth.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1/240 s step is a numerical choice finer than the 24 Hz film and the length is Hof's (`resolveAutoMovieCenterOfMass.pendulum`); the difference amplifies any discontinuity in the caller's posture function, which callers must keep smooth.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three posture solves per call.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call evaluates its own instant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
@@ -221,7 +221,7 @@ export namespace HumanBalance {
     const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
       resolveAutoMovieCenterOfMass.place(model(body), bones),
       velocity,
-      1.34 * body.measure.hipHeight,
+      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );
     return resolveAutoMovieCenterOfMass.margin(
       xcom,

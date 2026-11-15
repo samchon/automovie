@@ -68,10 +68,8 @@ export namespace AutoMovieMotionHumanAuditBalance {
       seconds: 0,
       where: "none",
     };
-    const hold: number = Math.sqrt(
-      (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight) /
-        resolveAutoMovieCenterOfMass.GRAVITY,
-    );
+    const hold: number =
+      1 / resolveAutoMovieCenterOfMass.frequency(resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight));
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,
       motion.duration,
@@ -135,7 +133,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       resolveAutoMovieCenterOfMass.extrapolate(
         com(seconds),
         velocity,
-        resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight,
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       ),
       HumanFoot.base(body, motion.bones(subject, seconds)),
     );

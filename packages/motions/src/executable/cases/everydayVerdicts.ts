@@ -187,7 +187,7 @@ export namespace everydayVerdicts {
     const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
       com(seconds),
       velocity,
-      1.34 * body.measure.hipHeight,
+      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
     );
     return resolveAutoMovieCenterOfMass.margin(
       xcom,

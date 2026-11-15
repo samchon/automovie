@@ -432,10 +432,7 @@ export namespace sit {
     // it reaches at contact.
     const fall: number = Math.min(
       contact,
-      Math.sqrt(
-        (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight) /
-          resolveAutoMovieCenterOfMass.GRAVITY,
-      ),
+      1 / resolveAutoMovieCenterOfMass.frequency(resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight)),
     );
     const held: number = contact - fall;
     const heading: IAutoMovieVector3 = {

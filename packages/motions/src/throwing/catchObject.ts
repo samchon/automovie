@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -203,7 +208,7 @@ export namespace catchObject {
     const contact: number = released + flight;
     const speed: IAutoMovieVector3 = {
       x: launch.velocity.x,
-      y: launch.velocity.y - throwObject.GRAVITY * flight,
+      y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
       z: launch.velocity.z,
     };
     const along: IAutoMovieVector3 = Vector3.normalize(speed);

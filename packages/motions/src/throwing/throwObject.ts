@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   AutoMovieStationHermite,
   Quaternion,
   Vector3,
@@ -129,9 +130,6 @@ export namespace throwObject {
   /** A launch (`throwObjectLaunch.ILaunch`). */
   export type ILaunch = throwObjectLaunch.ILaunch;
 
-  /** Gravity, metres per second squared along -Y. */
-  export const GRAVITY: number = throwObjectLaunch.GRAVITY;
-
   /** A point of a launch's drag-free path (`throwObjectLaunch.path`). */
   export const path = throwObjectLaunch.path;
 
@@ -231,7 +229,7 @@ export namespace throwObject {
         fix: "aim at a nearer or lower target, or choose a style with a steeper release",
       });
     const speed: number = Math.sqrt(
-      (GRAVITY * d * d) / (2 * Math.cos(angle) ** 2 * lift),
+      (AutoMovieGravity.STANDARD * d * d) / (2 * Math.cos(angle) ** 2 * lift),
     );
     const velocity: IAutoMovieVector3 = {
       x: (delta.x / d) * speed * Math.cos(angle),

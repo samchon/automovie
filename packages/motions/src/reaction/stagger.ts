@@ -133,7 +133,7 @@ export namespace stagger {
    * @returns Metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the formula and every unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass for an inverted pendulum, `g` the engine's gravity (`resolveAutoMovieCenterOfMass.GRAVITY`).
+   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass for an inverted pendulum, its eigenfrequency the engine's (`resolveAutoMovieCenterOfMass.frequency`, standard gravity).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
@@ -146,7 +146,7 @@ export namespace stagger {
     margin: number,
   ): number {
     return (
-      speed / Math.sqrt(resolveAutoMovieCenterOfMass.GRAVITY / height) + margin
+      speed / resolveAutoMovieCenterOfMass.frequency(height) + margin
     );
   }
 

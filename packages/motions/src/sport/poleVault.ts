@@ -1,8 +1,9 @@
 import {
-  type IAutoMovieResolvedBone,
+  AutoMovieGravity,
   Quaternion,
   Vector3,
   minimumJerk,
+  type IAutoMovieResolvedBone,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -142,7 +143,6 @@ export namespace poleVault {
     const body: IHumanBody = context.body;
     const p: IParams = context.params;
     const model: GymnasticsFlight.Model = GymnasticsFlight.model(body);
-    const g: number = GymnasticsFlight.G;
 
     // The pole in the hand that holds it.
     const side: "left" | "right" =
@@ -343,12 +343,12 @@ export namespace poleVault {
     const upright: number = -pole0;
     const rate2 = (alpha: number): number =>
       omega0 * omega0 +
-      ((2 * g) / r) * (Math.cos(beta0) - Math.cos(beta0 + alpha));
+      ((2 * AutoMovieGravity.STANDARD) / r) * (Math.cos(beta0) - Math.cos(beta0 + alpha));
     let needed: number = 0;
     for (let i: number = 0; i <= STEPS; i++)
       needed = Math.max(
         needed,
-        ((2 * g) / r) *
+        ((2 * AutoMovieGravity.STANDARD) / r) *
           (Math.cos(beta0 + (upright * i) / STEPS) - Math.cos(beta0)),
       );
     if (!(omega0 > 0) || omega0 * omega0 <= needed)
@@ -431,7 +431,7 @@ export namespace poleVault {
       body,
       model,
       from: flying(down),
-      velocity: { ...velocity, y: velocity.y - g * down },
+      velocity: { ...velocity, y: velocity.y - AutoMovieGravity.STANDARD * down },
       height: surface,
     });
 
