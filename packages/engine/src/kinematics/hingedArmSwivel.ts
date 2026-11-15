@@ -2,6 +2,7 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { aimRotation } from "./aimRotation";
 
@@ -38,13 +39,18 @@ export namespace hingedArmSwivel {
 
   /**
    * Golden-section passes refining the swivel inside the two-step bracket
-   * around each local minimum of the sweep: 40 passes shrink the 2 degree bracket by
-   * `GOLDEN ** 40`, to under 1e-8 degree.
+   * around each local minimum of the sweep: the fewest that shrink the
+   * bracket, `2 STEP`, by `GOLDEN` a pass to within the joint's tolerance
+   * (`ROM_TOLERANCE`), since a swivel turns the chain root's joint by itself
+   * and a solver need resolve a joint's angle no finer.
    */
-  export const REFINEMENTS: number = 40;
+  export const REFINEMENTS: number = Math.ceil(
+    Math.log(ROM_TOLERANCE / (2 * STEP)) / Math.log(GOLDEN),
+  );
 
-  /** The width the refinement leaves of a swivel's bracket, degrees: the two-step bracket shrunk by `GOLDEN` per pass, the swivel's resolution. */
+  /** The width the refinement leaves of a swivel's bracket, degrees: the two-step bracket shrunk by `GOLDEN` per pass, the swivel's resolution, within `ROM_TOLERANCE`. */
   export const RESOLUTION: number = 2 * STEP * GOLDEN ** REFINEMENTS;
+
   /**
    * A hinged chain toward a target.
    *

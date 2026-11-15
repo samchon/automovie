@@ -1,3 +1,5 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
+
 import { HumanBound } from "../law/HumanBound";
 import type { HumanPerformance } from "../perform/HumanPerformance";
 import type { IHumanPerformer } from "../perform/IHumanPerformer";
@@ -40,7 +42,8 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  *   of mass stays over them.
  * - `skate`, `loose`, `afloat`: a foot the motion shows on the floor does
  *   not skate, and a declared plant is neither loose nor afloat.
- * - `range`: every joint stays within its range of motion, within 0.01.
+ * - `range`: every joint stays within its range of motion, within
+ *   `ROM_TOLERANCE` (0.01 degrees).
  * - `turn`: no bone spins more than 5 turns a second between frames.
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
@@ -219,7 +222,7 @@ export namespace HumanVerdicts {
         who,
         "range",
         AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
-        0.01,
+        ROM_TOLERANCE,
       );
       measured(
         who,
