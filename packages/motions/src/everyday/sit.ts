@@ -1,4 +1,8 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -428,7 +432,10 @@ export namespace sit {
     // it reaches at contact.
     const fall: number = Math.min(
       contact,
-      Math.sqrt((1.34 * body.measure.hipHeight) / 9.81),
+      Math.sqrt(
+        (resolveAutoMovieCenterOfMass.PENDULUM * body.measure.hipHeight) /
+          resolveAutoMovieCenterOfMass.GRAVITY,
+      ),
     );
     const held: number = contact - fall;
     const heading: IAutoMovieVector3 = {
