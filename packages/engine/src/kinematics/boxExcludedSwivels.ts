@@ -11,6 +11,7 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieAxisFrame } from "../rom/IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
+import { swivelArcs } from "./swivelArcs";
 
 /**
  * The swivels a joint's three-angle box provably refuses: for a joint whose
@@ -56,7 +57,7 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The entries are fitted once, each reading's axes give their bound sinusoids, the sinusoids their arcs, the arcs one merged list per reading, and the test reads the lists.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sound by construction, never by sampling: an arc is refused only from its sinusoid's roots with the joints' tolerance to spare, and a case the analysis does not cover refuses nothing rather than guessing.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations and nine dot products each fit the entries, a few arcs per reading are merged once, and each test is a scan of a handful of merged arcs.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The arcs are built once per rotation and read by every test of its sweep.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fit, the arcs, their union and its test are `swivelArcs`'s, shared with a point's bounds; the arcs are built once per rotation and read by every test of its sweep.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the two merged arc lists in the returned test only.
  */
 export function boxExcludedSwivels(props: {
@@ -104,12 +105,11 @@ export function boxExcludedSwivels(props: {
       );
     },
   );
-  const entry = (i: number, j: number): ISinusoid => {
+  const entry = (i: number, j: number): swivelArcs.ISinusoid => {
     const [zero, quarter, half] = sampled.map(
       (m: number[][]): number => m[i]![j]!,
     ) as [number, number, number];
-    const a: number = (zero + half) / 2;
-    return { a, b: (zero - half) / 2, c: quarter - a };
+    return swivelArcs.fitted(zero, quarter, half);
   };
 
   // How each clinical axis is read from the entries (as
@@ -119,20 +119,20 @@ export function boxExcludedSwivels(props: {
   const reading: Record<Axis, IRead> =
     basis.twistPlacement === "distal"
       ? {
-          flexion: { sine: scaled(entry(1, 2), -1) },
+          flexion: { sine: swivelArcs.scaled(entry(1, 2), -1) },
           abduction: { y: entry(0, 2), x: entry(2, 2), turn: 1 },
           twist: { y: entry(1, 0), x: entry(1, 1), turn: handed },
         }
       : {
           flexion: { y: entry(2, 1), x: entry(2, 2), turn: 1 },
-          abduction: { sine: scaled(entry(2, 0), -1) },
+          abduction: { sine: swivelArcs.scaled(entry(2, 0), -1) },
           twist: { y: entry(1, 0), x: entry(0, 0), turn: handed },
         };
 
   // Each chart's refused swivels: the union of its axes' arcs.
-  const charts: (IArc[] | "all")[] = [false, true].map(
-    (alternate: boolean): IArc[] | "all" => {
-      const arcs: IArc[] = [];
+  const charts: (swivelArcs.IArc[] | "all")[] = [false, true].map(
+    (alternate: boolean): swivelArcs.IArc[] | "all" => {
+      const arcs: swivelArcs.IArc[] = [];
       for (const axis of AXES) {
         const range: IAutoMovieAngleRange | null = constraint[axis];
         if (range === null) continue;
@@ -142,23 +142,21 @@ export function boxExcludedSwivels(props: {
           rig(range, props.frame?.[axis]),
           alternate,
         )) {
-          const arc: IArc | "all" | null = arcOf(bound);
+          const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
+            bound,
+            MARGIN,
+          );
           if (arc === "all") return "all";
           if (arc !== null) arcs.push(arc);
         }
       }
-      return merged(arcs);
+      return swivelArcs.union(arcs);
     },
   );
   return (low: number, high: number): boolean =>
-    charts.every((chart: IArc[] | "all"): boolean => {
-      if (chart === "all") return true;
-      const turns: number = 360 * Math.floor(low / 360);
-      return chart.some(
-        (arc: IArc): boolean =>
-          arc.from <= low - turns && arc.to >= high - turns,
-      );
-    });
+    charts.every((chart: swivelArcs.IArc[] | "all"): boolean =>
+      swivelArcs.covers(chart, low, high),
+    );
 }
 
 /**
@@ -174,31 +172,10 @@ const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
 /** A clinical axis. */
 type Axis = "flexion" | "abduction" | "twist";
 
-/** `a + b cos ψ + c sin ψ`. */
-interface ISinusoid {
-  a: number;
-  b: number;
-  c: number;
-}
-
 /** How an axis is read: the middle angle's sine, or an outer angle's vector and the sign its rest-relative angle takes. */
-type IRead = { sine: ISinusoid } | { y: ISinusoid; x: ISinusoid; turn: 1 | -1 };
-
-/** A refused interval of swivels, degrees. */
-interface IArc {
-  from: number;
-  to: number;
-}
-
-/** A sinusoid times a number. */
-function scaled(f: ISinusoid, by: number): ISinusoid {
-  return { a: f.a * by, b: f.b * by, c: f.c * by };
-}
-
-/** `u·f + v·g`. */
-function combined(f: ISinusoid, u: number, g: ISinusoid, v: number): ISinusoid {
-  return { a: u * f.a + v * g.a, b: u * f.b + v * g.b, c: u * f.c + v * g.c };
-}
+type IRead =
+  | { sine: swivelArcs.ISinusoid }
+  | { y: swivelArcs.ISinusoid; x: swivelArcs.ISinusoid; turn: 1 | -1 };
 
 /** A clinical interval as rest-relative degrees, ordered (the inverse of `toClinicalAngle`). */
 function rig(
@@ -223,7 +200,7 @@ function bounds(
   read: IRead,
   [lo, hi]: [number, number],
   alternate: boolean,
-): ISinusoid[] {
+): swivelArcs.ISinusoid[] {
   if (hi - lo >= 360) return [];
   if ("sine" in read) {
     // The middle angle is asin(s), or in the alternate chart 180 - asin(s),
@@ -235,11 +212,11 @@ function bounds(
     if (last > first) return [];
     const p: number = Math.max(from + 360 * first, -90);
     const q: number = Math.min(to + 360 * first, 90);
-    const out: ISinusoid[] = [];
-    if (q < 90) out.push({ ...read.sine, a: read.sine.a - Math.sin(q * RAD) });
+    const out: swivelArcs.ISinusoid[] = [];
+    if (q < 90) out.push({ ...read.sine, a: read.sine.a - Math.sin(q * Quaternion.DEG2RAD) });
     if (p > -90)
       out.push(
-        scaled({ ...read.sine, a: read.sine.a - Math.sin(p * RAD) }, -1),
+        swivelArcs.scaled({ ...read.sine, a: read.sine.a - Math.sin(p * Quaternion.DEG2RAD) }, -1),
       );
     return out;
   }
@@ -247,52 +224,18 @@ function bounds(
   // the alternate chart, where the vector is negated.
   if (hi - lo > 180) return [];
   const ends: number[] = [lo * read.turn, hi * read.turn];
-  const alpha: number = Math.min(...ends) * RAD;
-  const beta: number = Math.max(...ends) * RAD;
+  const alpha: number = Math.min(...ends) * Quaternion.DEG2RAD;
+  const beta: number = Math.max(...ends) * Quaternion.DEG2RAD;
   const sign: number = alternate ? -1 : 1;
   return [
-    scaled(combined(read.y, Math.cos(beta), read.x, -Math.sin(beta)), sign),
-    scaled(combined(read.x, Math.sin(alpha), read.y, -Math.cos(alpha)), sign),
+    swivelArcs.scaled(
+      swivelArcs.combined(read.y, Math.cos(beta), read.x, -Math.sin(beta)),
+      sign,
+    ),
+    swivelArcs.scaled(
+      swivelArcs.combined(read.x, Math.sin(alpha), read.y, -Math.cos(alpha)),
+      sign,
+    ),
   ];
 }
 
-/** The swivels where a sinusoid exceeds `MARGIN`, degrees: an arc between its roots, every swivel, or none. */
-function arcOf(f: ISinusoid): IArc | "all" | null {
-  const radius: number = Math.hypot(f.b, f.c);
-  if (f.a - radius > MARGIN) return "all";
-  if (f.a + radius <= MARGIN) return null;
-  const centre: number = Math.atan2(f.c, f.b) / RAD;
-  const half: number = Math.acos((MARGIN - f.a) / radius) / RAD;
-  return { from: centre - half, to: centre + half };
-}
-
-/**
- * Arcs merged into disjoint intervals covering one full turn from 0 and the
- * one after it, so an interval starting in [0, 360) is refused exactly when
- * one merged interval holds it; every swivel when they cover a turn.
- */
-function merged(arcs: IArc[]): IArc[] | "all" {
-  const pieces: IArc[] = [];
-  for (const arc of arcs) {
-    const from: number = arc.from - 360 * Math.floor(arc.from / 360);
-    for (const turn of [-360, 0, 360])
-      pieces.push({
-        from: from + turn,
-        to: from + (arc.to - arc.from) + turn,
-      });
-  }
-  pieces.sort((x: IArc, y: IArc): number => x.from - y.from);
-  const out: IArc[] = [];
-  for (const piece of pieces) {
-    const last: IArc | undefined = out[out.length - 1];
-    if (last !== undefined && piece.from <= last.to)
-      last.to = Math.max(last.to, piece.to);
-    else out.push({ ...piece });
-  }
-  if (out.some((arc: IArc): boolean => arc.from <= 0 && arc.to >= 360))
-    return "all";
-  return out;
-}
-
-/** Radians per degree. */
-const RAD: number = Math.PI / 180;

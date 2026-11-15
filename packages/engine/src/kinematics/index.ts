@@ -46,6 +46,7 @@ export * from "./solveTwoBoneIK";
 export * from "./swingTwistBasis";
 export * from "./swingTwistRange";
 export * from "./swingTwistRegion";
+export * from "./swivelArcs";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
 export * from "./markAutoMovieBalance";
