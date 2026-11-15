@@ -32,7 +32,7 @@ A shipped instruction sends a production to its installed packages first and var
 
 ### Two story routes
 
-The product contract sets the [two routes](../project/SKILL.md#commissions), and the production's [route choice](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md#choosing-the-route) decides which a work takes.
+A shipped instruction works on both [routes](../project/SKILL.md#commissions) the product contract sets, short and long, and leaves the choice between them to the production's [route choice](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/SKILL.md#choosing-the-route).
 
 ### Skills and contracts
 
@@ -52,8 +52,4 @@ Design task guidance and its contract items around the same commissioned output,
 
 ## Boundaries
 
-Use the production [task router](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md) and [story router](../../../packages/template/scaffold/instructions/.agents/skills/story/SKILL.md) to find actual owners rather than copy their layer definitions here.
-
-Workflows borrowed from serial-novel writing can inform ownership and review, but their prose interiority, mobile reading, serial rewards and publishing commands do not apply to film production.
-
-This skill adds no authoring step, no Evidence graph stage and no permission to publish.
+This skill adds no authoring step, no Evidence graph stage and no permission to publish. It finds actual owners through the production's [task router](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md) and [story router](../../../packages/template/scaffold/instructions/.agents/skills/story/SKILL.md) rather than copying their layer definitions. Workflows borrowed from serial-novel writing can inform ownership and review, but their prose interiority, mobile reading, serial rewards and publishing commands do not apply to film production.
