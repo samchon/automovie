@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -38,7 +39,7 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, the admission and its source, and who reads them.
  * @evidence contracts/development/design.md#principled-representation A drinking arm is four readings of one fit: the vessel's tilt, the shoulder's flexion and abduction as the source measures them, and the forearm's twist room.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two bounds, the reading, the fit, the admission and the attitude on the way; split from the search so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two bounds, the reading, the fit, the admission, the nearest arm and its refusal, and the attitude on the way; split from the search so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every reading is of the resolver's own fit on its displayed bones; no arm is assumed.
  */
 export namespace AutoMovieMotionHumanDrinkingArm {
@@ -353,6 +354,83 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       arm.abduction <= ABDUCTION &&
       arm.room >= AutoMovieMotionHumanTouchLaid.MARGIN
     );
+  }
+
+  /**
+   * The arm a search tried that lies least past the drinking range, for its
+   * refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
+   * @evidence contracts/development/design.md#principled-representation The readings and where they were tried, what a refusal reports.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `refused`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readings are a fitted arm's, never a goal's.
+   */
+  export interface INearest {
+    /** Its fitted arm. */
+    arm: IArm;
+
+    /** Where it was tried, in words. */
+    at: string;
+  }
+
+  /**
+   * The nearer of an arm tried and the nearest so far: the one lying less
+   * past the drinking range: the flexion's or the abduction's excess over its
+   * bound, the greater.
+   *
+   * @param nearest The nearest so far; none before the first.
+   * @param arm The arm tried.
+   * @param at Where it was tried, in words.
+   * @returns The nearer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the comparison and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The range bounds each angle on its own, so an arm lies past it by the greater excess.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tie keeps the earlier arm.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by both drinking searches.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function nearer(
+    nearest: INearest | undefined,
+    arm: IArm,
+    at: string,
+  ): INearest {
+    const past = (of: IArm): number =>
+      Math.max(of.flexion - FLEXION, of.abduction - ABDUCTION);
+    return nearest === undefined || past(arm) < past(nearest.arm)
+      ? { arm, at }
+      : nearest;
+  }
+
+  /**
+   * The refusal of a vessel no candidate lets the arm drink with.
+   *
+   * @param side The arm.
+   * @param sought What was sought, in words: the leans and turns tried.
+   * @param closest The arm tried that lay least past the range (`nearer`).
+   * @returns The refusal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the refusal reports.
+   * @evidence contracts/development/implementation.md#principled-implementation Reports the range's bounds and the nearest arm's readings in the source's measure.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bounds are the named ones.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Thrown by both drinking searches.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function refused(
+    side: HumanHand.Side,
+    sought: string,
+    closest: INearest,
+  ): HumanRefusal {
+    return new HumanRefusal({
+      kind: "reach",
+      axis: "facing",
+      value: side,
+      reason: `no lean of the held vessel toward the face ${sought} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${FLEXION.toFixed(1)} and abducted at most ${ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(1)} and abducted ${closest.arm.abduction.toFixed(1)} degrees and the forearm's twist ${closest.arm.room.toFixed(0)} degrees inside its range)`,
+      fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
+    });
   }
 }
 
