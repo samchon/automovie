@@ -22,6 +22,7 @@ import { HumanSportThrow } from "./HumanSportThrow";
 import { HumanSportWorkout } from "./HumanSportWorkout";
 import { HumanStageFight } from "./HumanStageFight";
 import { HumanStance } from "./HumanStance";
+import { HumanSupportRows } from "./HumanSupportRows";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
@@ -63,6 +64,7 @@ export const HUMAN_LEXICON_FAMILIES = {
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
   floorFall: [HumanFloorFall],
+  support: [HumanSupportRows],
   sportSwing: [HumanSportSwing],
   sportThrow: [HumanSportThrow],
   sportWorkout: [HumanSportWorkout],

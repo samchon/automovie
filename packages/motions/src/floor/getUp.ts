@@ -1,14 +1,12 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
-import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { support } from "../actions/support";
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { HumanBase } from "../law/HumanBase";
@@ -16,11 +14,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { HumanSupport } from "../law/HumanSupport";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { knockdown } from "../reaction/knockdown";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
 
@@ -41,16 +37,15 @@ import { lieDown } from "./lieDown";
  * from the front and from the hands and knees, whose first postures it has
  * already passed.
  *
- * Each posture of the route is a set of joint angles and a heading
- * (`POSES`, provisional angles, with `lieDown`'s own floor postures where
- * they are the same), passed through in joint space while the heading turns
- * on the sphere, so a roll from the back to the front turns about the
- * body's long axis. In each phase the body pivots about what bears on the
- * floor (`PINS`: the pelvis while it sits up or rolls, the knees on the
- * hands and knees, the feet or the leading foot once they stand), and at
- * every instant it rests on the floor with no collider under it
- * (`knockdown.rest`). The first phase leaves from the posture the entry
- * displays, so the rise continues from where the body lies.
+ * The rise is a support sequence (`support`): each posture of the route is
+ * a stance resting on what that posture bears on (`BEARS`), its key solved
+ * by the whole-body fit nearest the route's posture (`POSES`, provisional
+ * angles, with `lieDown`'s own floor postures where they are the same) with
+ * those parts on the floor and the centre of mass over them, a new support
+ * placed before an old one lets go, the body carried between keys about a
+ * support both hold and resting on the floor by its colliders at every
+ * instant. The first stance leaves from the posture the entry displays, so
+ * the rise continues from where the body lies.
  *
  * Young adults rise from supine to standing in 2.6 s on average at their
  * own pace (Ulbrich et al. 2000, J Am Geriatr Soc 48:1626); the route's
@@ -58,13 +53,12 @@ import { lieDown } from "./lieDown";
  * manner's tempo. Events: one per posture reached, then `standing`.
  *
  * Not yet: a partial rotation (one hand pushing from the side) and the
- * half kneel out of the symmetric squat, VanSant's other adult variants; a
- * hand bearing on the floor is shown by its angles, not solved onto it.
+ * half kneel out of the symmetric squat, VanSant's other adult variants.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement's regions and patterns with their source, the method, the timing with its source and what is missing, with provisional values marked.
- * @evidence contracts/development/design.md#principled-representation A law record of one whole-body route of keyed floor postures on one clock, chosen by the entry's base and a closed pattern.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters, the postures, the routes, the pins and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The floor height is read from the body's own colliders; the route starts from the displayed entry.
+ * @evidence contracts/development/design.md#principled-representation A law record whose plan is a support sequence of the route's stances, chosen by the entry's base and a closed pattern.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters, the postures, what each bears on, the routes and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The keys, the course and the windows are the support planner's; the route starts from the displayed entry.
  */
 export namespace getUp {
   /** The action's name. */
@@ -140,18 +134,23 @@ export namespace getUp {
     stood: { pitch: 0, roll: 0, joints: stand.RELAXED },
   };
 
-  /** What the body pivots about in a phase that ends at a posture: what bears on the floor through it. */
-  export const PINS: Readonly<
-    Record<keyof typeof POSES, "hips" | "knees" | "feet" | "lead">
+  /**
+   * What each posture of the routes bears on (VanSant 1988's regions): the
+   * seat, the heels and both hands pushing while sitting up, the feet in the
+   * squat and standing, the front lying prone, the hands, knees and toes on
+   * the hands and knees, and the trailing knee with both feet in the half
+   * kneel (`lead`, the leading foot; `trail`, the trailing knee).
+   */
+  export const BEARS: Readonly<
+    Record<keyof typeof POSES, readonly (HumanSupport.Part | "lead" | "trail")[]>
   > = {
-    sit: "hips",
-    prone: "hips",
-    squat: "feet",
-    quadruped: "knees",
-    halfKneel: "knees",
-    stood: "feet",
+    sit: ["seat", "leftFoot", "rightFoot", "leftHand", "rightHand"],
+    squat: ["leftFoot", "rightFoot"],
+    prone: ["front"],
+    quadruped: ["leftHand", "rightHand", "leftKnee", "rightKnee", "leftFoot", "rightFoot"],
+    halfKneel: ["trail", "leftFoot", "rightFoot"],
+    stood: ["leftFoot", "rightFoot"],
   };
-
   /** The routes, each a list of postures with the event of its arrival. */
   export const ROUTES: Readonly<
     Record<Pattern, readonly (readonly [keyof typeof POSES, string])[]>
@@ -170,24 +169,26 @@ export namespace getUp {
   };
 
   /**
-   * Plan a rise from the floor.
+   * Plan a rise from the floor: the route's postures as stances of the
+   * support planner (`support`), each resting on the parts its posture bears
+   * on (`BEARS`), keyed by its posture (`POSES`) and lasting its share of the
+   * rise.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} `base` when the body already stands, sits on a seat or hangs.
+   * @throws {HumanRefusal} `base` when the body already stands, sits on a seat or hangs, and what the support planner refuses.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The route is the pattern's from the lying side the entry displays, cut to the postures after the entry's own; each phase blends joints linearly and the heading on the sphere, pivots about its pin and rests on the floor by the body's colliders, so the rise starts at the displayed entry and stands where its feet are.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The route, the phase starts solved once, one posture function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles and the time split are named provisional; the floor height is the body's own.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two forward kinematics per evaluated second, one for the pin and one for the floor; the phase starts are solved once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; the phase starts are kept for the plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its route and the phase starts.
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The route is the pattern's from the lying side the entry displays, cut to the postures after the entry's own; each is a stance of the support planner, which solves its key posture on what bears, places a stance's new supports before it releases the old and carries the body between keys about a held support, resting on the floor by its colliders.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The route, then one support plan of its stances.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles and the time split are named provisional; no posture is placed by this law.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The support planner's keys, two fits per stance after the first.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The support planner owns the keys, the course and the windows.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan is the support planner's.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
   ): IHumanActionPlan {
-    const body: IHumanBody = context.body;
     const kind: HumanBase.Kind = context.entry.base.kind;
     if (
       kind === "standing" ||
@@ -218,6 +219,7 @@ export namespace getUp {
     const pattern: Pattern = supine
       ? (context.params.pattern ?? "symmetric")
       : "rotation";
+
     // From the back the whole route; from the front it starts past the roll,
     // and from the hands and knees past the hands and knees as well.
     const route: readonly (readonly [keyof typeof POSES, string])[] =
@@ -227,162 +229,46 @@ export namespace getUp {
           ? ROUTES[pattern]
           : ROUTES.rotation.slice(1);
     const lead: "left" | "right" = context.params.lead ?? "right";
-    const keyOf = (key: keyof typeof POSES): IPose =>
-      key === "halfKneel" && lead === "left"
-        ? mirrored(POSES.halfKneel)
-        : POSES[key];
+    const trail: "left" | "right" = lead === "right" ? "left" : "right";
 
-    // The heading the body rises on: the entry's, or turned half about the
-    // vertical after a roll from the back, so the head stays where it lay.
-    const yaw: number =
-      supine && pattern === "rotation" ? entered.yaw + 180 : entered.yaw;
-
-    // The clock: each phase takes its share of a whole rise from lying.
+    // Each phase takes its share of a whole rise from lying.
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const phase: number =
       (SECONDS / ROUTES[supine ? pattern : "rotation"].length) *
       modifiers.tempo;
-    const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence([
-      { name: "getUp", seconds: phase },
-      ...route
-        .slice(0, -1)
-        .map(([, event]) => ({ name: event, seconds: phase })),
-      { name: "standing", seconds: 0 },
-    ]);
-    const duration: number = clock.duration;
 
-    // The posture of a phase at a share of it, before it is placed: joints
-    // blended, the heading turned on the sphere, the root at the origin.
-    const shapes: IHumanPosture[] = [
-      { ...entered, root: { x: 0, y: 0, z: 0 } },
-      ...route.map(
-        ([key]): IHumanPosture => ({
-          root: { x: 0, y: 0, z: 0 },
-          yaw,
-          pitch: keyOf(key).pitch,
-          roll: keyOf(key).roll,
-          joints: keyOf(key).joints,
-          limbs: {},
-        }),
-      ),
-    ];
-    const between = (i: number, u: number): IHumanPosture => {
-      const a: IHumanPosture = shapes[i]!;
-      const b: IHumanPosture = shapes[i + 1]!;
-      const joints: IHumanPosture["joints"] = {};
-      for (const bone of new Set([
-        ...Object.keys(a.joints),
-        ...Object.keys(b.joints),
-      ]) as Set<AutoMovieHumanoidBone>) {
-        const p: readonly [number, number, number] = a.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        const q: readonly [number, number, number] = b.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          p[0] + (q[0] - p[0]) * u,
-          p[1] + (q[1] - p[1]) * u,
-          p[2] + (q[2] - p[2]) * u,
-        ];
-      }
-      return {
-        root: { x: 0, y: 0, z: 0 },
-        ...resolveHumanPosture.angles(
-          Quaternion.slerp(
-            resolveHumanPosture.heading(a),
-            resolveHumanPosture.heading(b),
-            u,
-          ),
+    // The stances: each posture of the route on what it bears on, turned half
+    // about the vertical after a roll from the back, so the head stays where
+    // it lay.
+    const stances: HumanSupport.IStance[] = route.map(
+      ([key, event]): HumanSupport.IStance => ({
+        contacts: BEARS[key].map(
+          (part: HumanSupport.Part | "lead" | "trail"): HumanSupport.IContact => ({
+            part:
+              part === "lead"
+                ? `${lead}Foot`
+                : part === "trail"
+                  ? `${trail}Knee`
+                  : part,
+            kind: "bear",
+          }),
         ),
-        joints,
-        limbs: {},
-      };
-    };
-
-    // The pin's floor place at the start of each phase, solved in order: the
-    // first is where the entry has it, each next one where the phase before
-    // left it.
-    // Out of a half kneel the body stands up over its leading foot, the
-    // trailing one coming up beside it.
-    const pins: ("hips" | "knees" | "feet" | "lead")[] = route.map(
-      ([key], i: number): "hips" | "knees" | "feet" | "lead" =>
-        key === "stood" && route[i - 1]?.[0] === "halfKneel"
-          ? "lead"
-          : PINS[key],
-    );
-    const pinOf = (posture: IHumanPosture, i: number): IAutoMovieVector3 =>
-      pin(body, posture, pins[i]!, lead);
-    const starts: IAutoMovieVector3[] = [];
-    const placed = (i: number, u: number): IHumanPosture => {
-      const shaped: IHumanPosture = between(i, u);
-      const at: IAutoMovieVector3 = Vector3.subtract(
-        starts[i]!,
-        pinOf(shaped, i),
-      );
-      return {
-        ...shaped,
-        root: { x: at.x, y: knockdown.rest(body, shaped), z: at.z },
-      };
-    };
-    for (let i: number = 0; i < route.length; i++)
-      starts.push(i === 0 ? pinOf(entered, 0) : pinOf(placed(i - 1, 1), i));
-
-    const posture = (seconds: number): IHumanPosture => {
-      let index: number = 0;
-      for (let i: number = 0; i < route.length; i++)
-        if (seconds >= clock.at(i === 0 ? "getUp" : route[i - 1]![1]))
-          index = i;
-      const from: number = clock.at(
-        index === 0 ? "getUp" : route[index - 1]![1],
-      );
-      const u: number = clock.progress(
-        index === 0 ? "getUp" : route[index - 1]![1],
-        route[index]![1],
-        Math.max(from, seconds),
-      );
-      return placed(index, u);
-    };
-
-    // The feet bear from the phase that pivots on them, or the leading foot
-    // alone out of a half kneel, the other only arriving as the body
-    // stands; the plan ends standing.
-    const feet: number = pins.findIndex(
-      (p): boolean => p === "feet" || p === "lead",
-    );
-    const standing: number =
-      clock.at(feet <= 0 ? "getUp" : route[feet - 1]![1]) / duration;
-    const contacts: IHumanContactWindow[] = (
-      pins[feet] === "lead"
-        ? ([`${lead}Foot`] as const)
-        : (["leftFoot", "rightFoot"] as const)
-    ).map(
-      (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
-        part,
-        kind: "plant",
-        from: standing,
-        to: 1,
-        support: { kind: "ground" },
+        seconds: phase,
+        prefer:
+          key === "halfKneel" && lead === "left"
+            ? mirrored(POSES.halfKneel)
+            : POSES[key],
+        turn: supine && pattern === "rotation" ? 180 : 0,
+        event,
       }),
     );
-    if (kind === "lying")
-      contacts.push({
-        part: "back",
-        kind: "lie",
-        from: 0,
-        to: clock.at(route[0]![1]) / duration,
-        support: { kind: "ground" },
-      });
-    return {
-      duration,
-      events: clock.events(),
-      contacts,
-      base: { kind: "standing" },
-      posture,
-    };
+    const planned: IHumanActionPlan = support.plan({
+      ...context,
+      params: { stances },
+    });
+    return { ...planned, base: { kind: "standing" } };
   }
-
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(
     pitch: number,
@@ -412,28 +298,5 @@ export namespace getUp {
           : bone.replace(/^right/, "left")) as AutoMovieHumanoidBone
       ] = angles;
     return { ...pose, joints };
-  }
-
-  /** Where a posture's pin is on the floor: the hip joints', the knees', the ankles' middle or the leading ankle, height dropped. */
-  function pin(
-    body: IHumanBody,
-    posture: IHumanPosture,
-    kind: "hips" | "knees" | "feet" | "lead",
-    lead: "left" | "right",
-  ): IAutoMovieVector3 {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-      bones.get(bone)!.worldPosition;
-    const point: IAutoMovieVector3 =
-      kind === "hips"
-        ? at("hips")
-        : kind === "lead"
-          ? at(`${lead}Foot`)
-          : Vector3.lerp(
-              at(kind === "knees" ? "leftLowerLeg" : "leftFoot"),
-              at(kind === "knees" ? "rightLowerLeg" : "rightFoot"),
-              0.5,
-            );
-    return { x: point.x, y: 0, z: point.z };
   }
 }
