@@ -14,7 +14,7 @@ The kind follows what changes. A change to a different action [inertializes](#ch
 
 A cut also names what it carries unchanged: the stance foot's plant, a guard, a grip. The action cut into plans from that state as its entry.
 
-Where the project's motion vocabulary runs the transitions below, a law only declares its cuts; blending again inside the law applies the offset twice.
+Where the project's motion vocabulary runs the transitions below, a law only declares its cuts; blending again inside the law applies the transition twice.
 
 ## Changing action
 

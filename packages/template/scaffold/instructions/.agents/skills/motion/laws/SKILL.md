@@ -5,7 +5,7 @@ description: Extends the installed motion vocabulary when composing cannot stage
 
 # Vocabulary extension
 
-What to do when a beat needs an action or a moving body the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production.
+What to do when a beat needs an action or a moving body the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production. Generated or traced motion the user chooses follows [motion diffusion](../diffusion/SKILL.md) instead.
 
 ## Compose again
 
