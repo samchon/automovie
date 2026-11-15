@@ -47,7 +47,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  deploy:
+  website:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -80,7 +80,8 @@ jobs:
         run: pnpm --filter @automovie/website build
 
       # The built pages are opened in a headless browser, because only the
-      # browser bundle shows a package source the bundler compiled wrongly.
+      # browser bundle shows a package source the bundler compiled wrongly,
+      # and only the browser computes a scene's take.
       - name: Install the headless browser
         run: pnpm --filter @automovie/website exec playwright-core install --with-deps chromium-headless-shell
 

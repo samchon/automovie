@@ -78,7 +78,6 @@ export namespace GalleryArchetype {
       archetype,
       view: {
         name: archetype.name ?? request.subject,
-        measures: [],
         dimensions: Object.entries(drawn).flatMap(
           ([name, value]): IGalleryView.IDimension[] => {
             const band: IArchetypeBand | undefined = bands[name];

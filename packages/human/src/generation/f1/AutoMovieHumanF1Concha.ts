@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's concha tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -44,7 +45,7 @@ export const AutoMovieHumanF1Concha: AutoMovieHumanConicLoft.IFamily = {
   name: "concha",
   centres: [AutoMovieHumanF1Joints.conchaRoot, AutoMovieHumanF1Joints.conchaTip],
   halves: [],
-  up: [0, 1, 0],
+  up: AutoMovieHumanF1Placement.direction("concha.up"),
   layout: AutoMovieHumanConicSection.limb(0),
   knots: [3, 9, 15],
   values: [

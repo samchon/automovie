@@ -3,6 +3,7 @@ import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
+import { PlaygroundObjects } from "./PlaygroundObjects";
 
 /**
  * Turns the playground's composition data into the composition
@@ -34,6 +35,12 @@ export namespace PlaygroundChain {
 
     /** Perform other actions over the last one. */
     over?(build: (overlay: ILoose) => ILoose): ILoose;
+
+    /** Run other parts at the same instant. */
+    with(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
+
+    /** Follow with other parts. */
+    next(...parts: (ILoose | AutoMovieComposition)[]): ILoose;
   }
 
   /** A law record of the lexicon: anything with a name and a plan. */
@@ -49,6 +56,13 @@ export namespace PlaygroundChain {
 
     /** The roles it casts. */
     roles: readonly string[];
+
+    /** The action one role performs, for the shared parameters and the cast. */
+    act(
+      role: string,
+      params: object,
+      cast: Readonly<Record<string, string>>,
+    ): { name: string };
   }
 
   /** The package's exports by name, for the tables only some releases have. */
@@ -91,23 +105,50 @@ export namespace PlaygroundChain {
   }
 
   /**
-   * The mutual actions, from the package's `HumanMutual`.
+   * The laws the package exports by name at its top level, beside the
+   * lexicon's rows: a law a mutual action names but no family lists.
    *
-   * @returns Each record by name; empty when the package has none or its chain cannot join them.
+   * @returns Each law by its name.
+   */
+  export function exported(): Map<string, ILaw> {
+    const found: Map<string, ILaw> = new Map();
+    for (const value of Object.values(EXPORTS))
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        typeof (value as ILaw).name === "string" &&
+        typeof (value as { plan?: unknown }).plan === "function"
+      )
+        found.set((value as ILaw).name, value as ILaw);
+    return found;
+  }
+
+  /**
+   * The mutual actions: every record the package exports, in any namespace
+   * (`HumanMutual`, and the lexicon's social and partner families), that
+   * names itself and casts roles.
+   *
+   * @returns Each record by its name; empty when the package has none or its chain cannot join them.
    */
   export function mutuals(): Record<string, IMutual> {
-    const space: unknown = EXPORTS["HumanMutual"];
     const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ];
-    if (typeof space !== "object" || space === null) return {};
     if (typeof join !== "function") return {};
-    return Object.fromEntries(
-      Object.entries(space as Record<string, unknown>).filter(
-        ([, value]: [string, unknown]): boolean =>
-          typeof value === "object" && value !== null && "roles" in value,
-      ),
-    ) as Record<string, IMutual>;
+    const found: Record<string, IMutual> = {};
+    for (const space of Object.values(EXPORTS)) {
+      if (typeof space !== "object" || space === null) continue;
+      for (const value of Object.values(space as Record<string, unknown>))
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          typeof (value as IMutual).name === "string" &&
+          Array.isArray((value as IMutual).roles) &&
+          typeof (value as IMutual).act === "function"
+        )
+          found[(value as IMutual).name] = value as IMutual;
+    }
+    return found;
   }
 
   /**
@@ -124,11 +165,21 @@ export namespace PlaygroundChain {
         .map((law: ILaw): [string, ILaw] => [law.name, law]),
     );
     const laws: Map<string, ILaw> = new Map();
+    const objects: readonly IPlaygroundComposition.IObject[] =
+      data.objects ?? [];
 
     const append = (
       chain: ILoose,
-      action: IPlaygroundComposition.IAction,
+      written: IPlaygroundComposition.IAction,
     ): ILoose => {
+      // A seat named by its object becomes that object's seat.
+      const action: IPlaygroundComposition.IAction =
+        objects.length === 0
+          ? written
+          : {
+              ...written,
+              params: PlaygroundObjects.resolve(written.params, objects),
+            };
       // A lexicon row is registered with the performance and appended by its
       // name. Any other name goes to `act`, so a name the vocabulary lacks is
       // refused by the package in its own words.
@@ -186,10 +237,10 @@ export namespace PlaygroundChain {
           mutual: IMutual,
           cast: Record<string, ILoose>,
           params: object,
-        ) => { node: AutoMovieComposition })
+        ) => ILoose)
       | undefined;
-    const joined: AutoMovieComposition[] = data.mutuals.map(
-      (mutual: IPlaygroundComposition.IMutual): AutoMovieComposition => {
+    const joined: ILoose[] = data.mutuals.map(
+      (mutual: IPlaygroundComposition.IMutual): ILoose => {
         const record: IMutual | undefined = known[mutual.name];
         if (record === undefined || join === undefined)
           throw new Error(
@@ -202,6 +253,23 @@ export namespace PlaygroundChain {
           throw new Error(
             `The mutual action ${mutual.name} has no performer cast as ${uncast.join(", ")}; choose one for each role`,
           );
+
+        // A seat or an opening named by its object becomes that object's,
+        // as in a person's own action.
+        const params: Record<string, unknown> =
+          objects.length === 0
+            ? mutual.params
+            : PlaygroundObjects.resolve(mutual.params, objects);
+
+        // Each role's action is a vocabulary name, a lexicon row or a law
+        // the package exports; a row or a law is registered with the
+        // performance, as the mutual's own documentation asks.
+        for (const role of record.roles) {
+          const name: string = record.act(role, params, mutual.cast).name;
+          if (name in HUMAN_ACTIONS) continue;
+          const law: ILaw | undefined = rows.get(name) ?? exported().get(name);
+          if (law !== undefined) laws.set(law.name, law);
+        }
         return join(
           record,
           Object.fromEntries(
@@ -210,24 +278,25 @@ export namespace PlaygroundChain {
               empty(mutual.cast[role]!),
             ]),
           ),
-          mutual.params,
-        ).node;
+          params,
+        );
       },
     );
 
+    // The people's chains run at once and each mutual action follows them,
+    // joined with the chain's own `with` and `next`, as an agent's code
+    // joins them.
+    const people: ILoose | undefined =
+      chains.length <= 1 ? chains[0] : chains[0]!.with(...chains.slice(1));
+    const head: ILoose | undefined = people ?? joined[0];
+    const rest: ILoose[] = people === undefined ? joined.slice(1) : joined;
+    if (head === undefined)
+      throw new Error("The composition has no action; add one to a performer");
+    const scene: AutoMovieComposition = (
+      rest.length === 0 ? head : head.next(...rest)
+    ).node;
     return {
-      composition: {
-        kind: "sequence",
-        parts: [
-          {
-            kind: "parallel",
-            parts: chains.map(
-              (chain: ILoose): AutoMovieComposition => chain.node,
-            ),
-          },
-          ...joined,
-        ],
-      },
+      composition: scene,
       laws: [...laws.values()],
     };
   }

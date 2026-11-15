@@ -1,0 +1,365 @@
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import {
+  type HumanPerformance,
+  HumanRefusal,
+  type HumanSegment,
+  HumanVerdicts,
+  type IHumanProp,
+} from "@automovie/motions";
+
+import type { IHumanEntry } from "../../human/structures/IHumanEntry";
+import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
+import { PlaygroundBodies } from "../../playground/package/PlaygroundBodies";
+import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
+import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
+import type { IPlaygroundRefusal } from "../../playground/structures/IPlaygroundRefusal";
+import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
+import type { IPlaygroundVerdicts } from "../../playground/structures/IPlaygroundVerdicts";
+import { SceneTrack } from "../../scenes/SceneTrack";
+import type { ITake } from "../structures/ITake";
+import type { ITakeRequest } from "../structures/ITakeRequest";
+import type { ITakeResponse } from "../structures/ITakeResponse";
+
+/**
+ * What the take worker computes with the packages: a composition's take, its
+ * verdicts and a body's measures. The scene views and the playground both
+ * reach the packages only through here, so a scene shows the performance the
+ * playground shows for the same composition.
+ *
+ * Nothing here touches the page or the worker's scope, so a Node test calls
+ * it directly.
+ */
+export namespace TakeCompute {
+  /** The entry name of a prop's frame in a track. */
+  export const PROP: string = "frame";
+
+  /** Each body's rest bones and track order, read once per worker. */
+  const rests: Map<string, { bones: ITake.IFigure["bones"]; order: string[] }> =
+    new Map();
+
+  /** The performance built last, which a verdict request on the same composition reads without building it again. */
+  let last: { key: string; performance: HumanPerformance } | null = null;
+
+  /**
+   * Answer one request.
+   *
+   * @param request The request.
+   * @returns The answer, and the buffers to transfer with it.
+   */
+  export function answer(request: ITakeRequest): {
+    response: ITakeResponse;
+    transfer: ArrayBuffer[];
+  } {
+    try {
+      if (request.kind === "body")
+        return {
+          response: { kind: "body", id: request.id, body: body(request.body) },
+          transfer: [],
+        };
+      if (request.kind === "verdicts")
+        return {
+          response: {
+            kind: "verdicts",
+            id: request.id,
+            verdicts: verdicts(request.composition),
+          },
+          transfer: [],
+        };
+      const made: ITake | IPlaygroundRefusal = take(
+        request.composition,
+        request.fps,
+      );
+      return "track" in made
+        ? {
+            response: { kind: "take", id: request.id, take: made },
+            transfer: [made.track.values.buffer as ArrayBuffer],
+          }
+        : {
+            response: { kind: "refusal", id: request.id, refusal: made },
+            transfer: [],
+          };
+    } catch (error) {
+      return {
+        response: {
+          kind: "error",
+          id: request.id,
+          message: error instanceof Error ? error.message : String(error),
+        },
+        transfer: [],
+      };
+    }
+  }
+
+  /**
+   * Compute a composition's take: plan it, then pose every figure and place
+   * every prop at each frame of the rate.
+   *
+   * Planning costs seconds and each pose tens of milliseconds, which is why
+   * this runs in a worker and the rate is a parameter.
+   *
+   * @param composition The composition.
+   * @param fps Frames a second of the track.
+   * @returns The take, or the refusal the packages gave while planning it or posing a frame.
+   */
+  export function take(
+    composition: IPlaygroundComposition,
+    fps: number,
+  ): ITake | IPlaygroundRefusal {
+    let built: PlaygroundPerformance.IBuilt;
+    const frames: SceneTrack.IPlacement[][][] = [];
+    const props: string[] = (composition.objects ?? []).map(
+      (o: IPlaygroundComposition.IObject): string => o.subject,
+    );
+
+    // A law may refuse while a frame is posed as well as while the chain is
+    // planned; both are the composition's refusal.
+    try {
+      built = PlaygroundPerformance.build(composition);
+      last = {
+        key: JSON.stringify(composition),
+        performance: built.performance,
+      };
+      const count: number = Math.floor(built.performance.duration * fps) + 1;
+      for (let k: number = 0; k < count; k++) {
+        const seconds: number = k / fps;
+        frames.push([
+          ...built.figures.map(
+            (figure: PlaygroundPerformance.IFigure): SceneTrack.IPlacement[] =>
+              AutoMovieHumanCanonicalBody.display(
+                figure.canonical,
+                built.performance.pose(figure.subject, seconds),
+              ).posed,
+          ),
+
+          // A prop is one entry: the frame it is carried, rests or moves in.
+          ...props.map((subject: string): SceneTrack.IPlacement[] => {
+            const frame: IHumanProp.IFrame = built.performance.prop(
+              subject,
+              seconds,
+            );
+            return [
+              {
+                bone: PROP,
+                position: [
+                  frame.position.x,
+                  frame.position.y,
+                  frame.position.z,
+                ],
+                rotation: [
+                  frame.rotation.x,
+                  frame.rotation.y,
+                  frame.rotation.z,
+                  frame.rotation.w,
+                ],
+              },
+            ];
+          }),
+        ]);
+      }
+    } catch (error) {
+      return refusal(error);
+    }
+
+    const figures: ITake.IFigure[] = built.figures.map(
+      (figure: PlaygroundPerformance.IFigure): ITake.IFigure => ({
+        subject: figure.subject,
+        body: figure.body,
+        bones: rest(figure).bones,
+      }),
+    );
+    const orders: string[][] = [
+      ...built.figures.map(
+        (figure: PlaygroundPerformance.IFigure): string[] => rest(figure).order,
+      ),
+      ...props.map((): string[] => [PROP]),
+    ];
+    return {
+      duration: built.performance.duration,
+      track: {
+        fps,
+        frames: frames.length,
+        orders,
+        values: SceneTrack.encode(frames, orders),
+      },
+      reflection: [...AutoMovieHumanCanonicalBody.REFLECTION],
+      figures,
+      props,
+      timeline: timeline(built.performance, composition),
+    };
+  }
+
+  /**
+   * Read every physical bound on a composition's performance. This samples
+   * the whole film and can take from seconds to minutes.
+   *
+   * @param composition The composition, built again unless it was built last.
+   * @returns The report.
+   * @throws {HumanRefusal} When the packages refuse the composition.
+   */
+  export function verdicts(
+    composition: IPlaygroundComposition,
+  ): IPlaygroundVerdicts {
+    const key: string = JSON.stringify(composition);
+    const performance: HumanPerformance =
+      last !== null && last.key === key
+        ? last.performance
+        : PlaygroundPerformance.build(composition).performance;
+    last = { key, performance };
+    const report: HumanVerdicts.IReport = HumanVerdicts.of(performance);
+    return {
+      clean: report.clean,
+      text: HumanVerdicts.describe(report),
+      findings: report.findings.map(
+        (finding: HumanVerdicts.IFinding): IPlaygroundVerdicts.IFinding => ({
+          ...finding,
+        }),
+      ),
+    };
+  }
+
+  /**
+   * One of the site's bodies with its measures. Preparing a body takes about
+   * two seconds the first time in a worker.
+   *
+   * @param id A key of `PLAYGROUND_BODIES`.
+   * @returns Its id, label and every numeric measure.
+   * @throws {Error} When no body has that id.
+   */
+  export function body(id: string): IHumanEntry {
+    const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(id);
+    return {
+      id,
+      label: PLAYGROUND_BODIES[id]!.label,
+      measures: Object.fromEntries(
+        Object.entries(prepared.body.measure).filter(
+          (entry: [string, unknown]): entry is [string, number] =>
+            typeof entry[1] === "number",
+        ),
+      ),
+    };
+  }
+
+  /** A figure's rest bones and the order its placements come in. */
+  function rest(figure: PlaygroundPerformance.IFigure): {
+    bones: ITake.IFigure["bones"];
+    order: string[];
+  } {
+    const known:
+      | { bones: ITake.IFigure["bones"]; order: string[] }
+      | undefined = rests.get(figure.body);
+    if (known !== undefined) return known;
+    const display: ReturnType<typeof AutoMovieHumanCanonicalBody.display> =
+      AutoMovieHumanCanonicalBody.display(figure.canonical);
+    const made: { bones: ITake.IFigure["bones"]; order: string[] } = {
+      bones: display.bones,
+      order: display.posed.map((p: { bone: string }): string => p.bone),
+    };
+    rests.set(figure.body, made);
+    return made;
+  }
+
+  /** A thrown value as the playground's refusal: a `HumanRefusal` field for field, anything else as an error with its message. */
+  function refusal(error: unknown): IPlaygroundRefusal {
+    if (error instanceof HumanRefusal)
+      return {
+        kind: error.kind,
+        message: error.message,
+        performer: error.performer,
+        act: error.act,
+        instance: error.instance,
+        axis: error.axis,
+        value: error.value,
+        feasible:
+          error.feasible === null
+            ? null
+            : HumanRefusal.describe(error.feasible),
+        alternatives:
+          error.feasible !== null && error.feasible.kind === "alternatives"
+            ? [...error.feasible.values]
+            : [],
+        fix: error.fix,
+      };
+    return {
+      kind: "error",
+      message: error instanceof Error ? error.message : String(error),
+      performer: "",
+      act: "",
+      instance: 0,
+      axis: "",
+      value: undefined,
+      feasible: null,
+      alternatives: [],
+      fix: "",
+    };
+  }
+
+  /** The placed actions of every performer, with each action's named instants inside its span. */
+  function timeline(
+    performance: HumanPerformance,
+    composition: IPlaygroundComposition,
+  ): IPlaygroundTimeline {
+    const span: (
+      segment: HumanSegment.ISegment,
+      overlay: boolean,
+    ) => IPlaygroundTimeline.ISpan = (
+      segment: HumanSegment.ISegment,
+      overlay: boolean,
+    ): IPlaygroundTimeline.ISpan => ({
+      name: segment.name,
+      id: segment.id,
+      from: segment.entryTime,
+      to: segment.end,
+      overlay,
+      events: segment.plan.events
+        .map(
+          (event: {
+            name: string;
+            share: number;
+          }): IPlaygroundTimeline.IEvent => ({
+            name: event.name,
+            seconds: segment.start + event.share * segment.plan.duration,
+          }),
+        )
+        .filter(
+          (event: IPlaygroundTimeline.IEvent): boolean =>
+            event.seconds >= segment.entryTime - 1e-9 &&
+            event.seconds <= segment.end + 1e-9,
+        ),
+    });
+
+    // `overlays` exists only on releases whose chain has `over`.
+    const overlays:
+      | ((subject: string) => readonly HumanSegment.ISegment[])
+      | undefined = (
+      performance as unknown as {
+        overlays?: (subject: string) => readonly HumanSegment.ISegment[];
+      }
+    ).overlays;
+    return {
+      duration: performance.duration,
+      tracks: composition.performers.map(
+        (
+          performer: IPlaygroundComposition.IPerformer,
+        ): IPlaygroundTimeline.ITrack => ({
+          subject: performer.subject,
+          spans: [
+            ...performance
+              .segments(performer.subject)
+              .map(
+                (s: HumanSegment.ISegment): IPlaygroundTimeline.ISpan =>
+                  span(s, false),
+              ),
+            ...(overlays === undefined
+              ? []
+              : overlays
+                  .call(performance, performer.subject)
+                  .map(
+                    (s: HumanSegment.ISegment): IPlaygroundTimeline.ISpan =>
+                      span(s, true),
+                  )),
+          ],
+        }),
+      ),
+    };
+  }
+}

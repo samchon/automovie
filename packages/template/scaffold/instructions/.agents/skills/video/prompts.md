@@ -1,51 +1,57 @@
 # Video prompts
 
-A video prompt tells a model what the motion hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
+A video prompt tells a model what the motion hint cannot show: who each figure is, how they look and act, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
-Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are what those guides share.
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md). The rules here are the defaults most of those guides share, and where the selected guide asks otherwise, it wins.
+
+## Sources
+
+A prompt is put together from what the story already decided, so no request invents an appearance or a performance. A decision the prompt needs and no record holds is made under [repair](../story/correction/repair.md), never in the prompt.
+
+### Shared description
+
+Write each person, place and prop once per wardrobe, makeup or wound state, from the record that owns it, and the film's look once, from [project context](../production/project-context.md). Keep them in one file under `docs/prompts/` that every request cites, and reuse the identical words wherever a prompt describes them, because a reworded description is a different character to the model. Turn off any prompt rewriting the model offers, since it rewords them.
+
+### Request paragraph
+
+Write what happens in the request's interval from the [beat records](../story/layers/notation.md#records) of its beats:
+
+| From the beats | The paragraph says |
+| --- | --- |
+| Cast | Which polygon man becomes which person, by the reference token or element name when the model binds references, and by screen position |
+| Reaction | Each reaction the hint cannot show, such as a facial expression, in the order the hint performs the beats |
+| Camera | The depth of field and focus the screenplay decides; the hint carries framing, moves and lens |
+
+Leave out what the request keeps from the hint, such as positions, actions, timing and camera moves. Write the action and the camera, from the same beat records, only where the hint does not carry them.
 
 ## Content
 
 ### Plain prose
 
-Describe the finished shot in plain prose, in this order: camera and framing, each figure, the single action, the setting, light and palette, style, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
-
-### One move, one action
-
-Give each shot one camera move and one subject action, written as countable beats ("takes three steps and stops at the rail"). Several moves or actions in one request blur, morph or drop. Split the shot instead, or use the model's own timestamp or multi-shot syntax when it has one.
-
-### One description per subject
-
-Name each figure as the person or thing it becomes, by its reference token or element name when the model binds references ("the woman from Image 1, in a navy wool coat"). Reuse the identical description, palette words and light logic in every shot of the same subject, because a reworded description is a different character to the model.
+Write the prompt in plain prose, in this order: the inputs' roles, the shared description, the request paragraph, then sound. Natural sentences steer better than keyword lists, and pasted tag-style prompts from another model lose meaning.
 
 ### What to show
 
-Describe what to show, not what to avoid, because a negated word still primes its concept. Where the model has a negative field, list plain nouns there ("mannequin, clay, plastic, untextured render") without "no" or "don't".
+Describe what to show, not what to avoid, because a negated word still primes its concept. Use a negative field only as the model's guide describes it.
 
 ### Settings stay out of prose
 
 Keep duration, size, frame rate and seed in the request's settings. Prose such as "make it longer" changes nothing.
 
-## Polygon men and controls
+### Still frames
 
-The hint's figures are gray and coarse. Strength is the setting for how far a model may depart from its input video: at low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
+A model that takes only still frames gets no motion from the hint. Write one camera move per request and its actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
 
-### Structural control
+## Input roles
 
-With a pose, depth, edge or layout control, describe appearance, material, light and style only. The control carries the motion, and words about motion or structure fight it.
+The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](requests.md#adherence) keeps ("the input video supplies only camera, positions and timing").
 
-### Raw hint video
-
-State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each polygon man to its reference. Never describe the gray look positively: words such as "3D", "render", "clay", "gray" or "model" in the positive prompt pull the result toward the polygon man.
-
-### First frame or keyframe
-
-When the model accepts one, give appearance there: an image made from the hint's own first frame under [image](../image/SKILL.md), so the generated shot starts in the hint's pose and camera.
+Name the gray forms as what each one becomes, never as their appearance, such as clay or 3D.
 
 ## Sound
 
-Write the shot's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: usually each line in quotes after a named speaker whose name matches the visual description, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../audio/SKILL.md), in the model's syntax: each line after a named speaker whose name matches the visual description, then separate effect and ambience lines. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Check before submitting
 
-Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit. Regenerate with a stronger control or a shorter shot rather than a longer prompt when motion or camera drifts.
+Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit. When motion or camera drifts, regenerate with a stricter adherence or a shorter request rather than a longer prompt, and repair framing under [generation](generation.md#inspect-and-choose).

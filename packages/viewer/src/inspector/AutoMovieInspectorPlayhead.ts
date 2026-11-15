@@ -1,7 +1,7 @@
 /**
  * The inspector's playhead: the second shown, the subject's duration, whether it plays and how fast, kept outside React.
  *
- * The render loop advances it and reads it directly every frame, and the time readout reads it through `useSyncExternalStore` with `subscribe` and `getSnapshot`, so playback re-renders the readout alone and no panel. A snapshot is replaced, never changed, so its identity tells a reader whether anything moved. Seconds stay within `[0, durationSeconds]`.
+ * The render loop advances it and reads it directly every frame. The time readout reads its snapshot through `useSyncExternalStore` with `subscribe` and `getSnapshot`, and the time panel only whether it plays, so a playing frame re-renders the readout alone and a start or stop also the panel's play button. A snapshot is replaced, never changed, so its identity tells a reader whether anything moved. Seconds stay within `[0, durationSeconds]`.
  *
  * The rate scales how fast the preview plays and is not part of the request: it changes no picture, and the capture grammar's `rate` key, stills per second, is a different quantity.
  *
@@ -10,9 +10,9 @@
  * ```
  *
  * @evidence contracts/development/design.md#principled-representation Seconds and duration are subject seconds, the rate is a positive multiplier of wall time and playing is a boolean; the snapshot is one immutable record so the external-store contract's identity comparison is exact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the inspector, one per mounted component; the scene mount calls `setDuration`, `seek` and `advance`, the time panel `play`, `pause`, `seek` and `setRate`, and the readout `subscribe` and `getSnapshot`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the inspector, one per mounted component; the scene mount calls `setDuration`, `seek` and `advance`, the time panel `play`, `pause` and `setRate` and subscribes to the playing flag, the readout `seek`, `subscribe` and `getSnapshot`, and the inspector's keys, through `handleAutoMovieInspectorKey`, `play`, `pause`, `seek` and `getSnapshot`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts `subscribe` and `getSnapshot` are bound properties, so React keeps one subscription across renders instead of resubscribing to a new function each time.
- * @evidence contracts/development/common.md#meaningful-documentation States who moves and who reads the playhead, why it lives outside React, the snapshot's identity rule, the range and why the rate is not a request member.
+ * @evidence contracts/development/common.md#meaningful-documentation States who moves and who reads the playhead and what each reader re-renders on, why it lives outside React, the snapshot's identity rule, the range and why the rate is not a request member.
  */
 export class AutoMovieInspectorPlayhead {
   private snapshot_: AutoMovieInspectorPlayhead.ISnapshot = {
@@ -32,7 +32,7 @@ export class AutoMovieInspectorPlayhead {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same listener given twice is held once, as a set holds it.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time to add and to remove.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A registration computes nothing.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the listener until its unsubscribe runs; the set grows by one per live subscription, which React keeps at one per mounted readout.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the listener until its unsubscribe runs; the set grows by one per live subscription, which React keeps at two per mounted inspector, the time panel's and the readout's.
    */
   public readonly subscribe: (listener: () => void) => () => void = (
     listener: () => void,

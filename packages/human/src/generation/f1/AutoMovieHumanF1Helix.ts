@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's helix on the +Z side, the rolled rim of the ear, merged onto the ear's plate (`AutoMovieHumanF1Plate`) and the head once the plate is
@@ -24,7 +25,7 @@ export const AutoMovieHumanF1Helix: AutoMovieHumanConicLoft.IFamily = {
   name: "helix",
   centres: AutoMovieHumanF1Joints.helix,
   halves: [3, 3, 3, 3, 3, 3, 3, 3, 3],
-  up: [0, 0, 1],
+  up: AutoMovieHumanF1Placement.direction("helix.up"),
   layout: AutoMovieHumanConicSection.limb(0),
   // Each knot past the front limb stands where it stood on the course before the front limb was carried down into the head and the top
   // moved onto the plate (`AutoMovieHumanF1Joints.helix`), which made the course 8.62 mm longer from the top on (9.3 at the front limb);

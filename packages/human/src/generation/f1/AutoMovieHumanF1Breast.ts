@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's breast tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,7 +23,7 @@ export const AutoMovieHumanF1Breast: AutoMovieHumanConicLoft.IFamily = {
   name: "breast",
   centres: [AutoMovieHumanF1Joints.breastRoot, AutoMovieHumanF1Joints.breastTip],
   halves: [],
-  up: [0, 1, 0],
+  up: AutoMovieHumanF1Placement.direction("breast.up"),
   layout: AutoMovieHumanConicSection.limb(1),
   knots: [11, 15, 19.5, 23, 28],
   values: [

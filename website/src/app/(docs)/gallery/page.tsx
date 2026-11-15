@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import GalleryMovie from "../../../movies/GalleryMovie";
+import GalleryRedirect from "../../../movies/GalleryRedirect";
 
 export const metadata: Metadata = {
-  title: "Gallery",
+  title: "Objects",
+  robots: { index: false },
 };
 
 /**
- * The gallery's route.
+ * The gallery's old address. The objects moved to `/objects/`, and the
+ * polygon man to `/human/`; a link to this page arrives at the same subject
+ * there.
  *
  * @returns The page.
  */
 export default function GalleryPage(): ReactElement {
-  return <GalleryMovie />;
+  return <GalleryRedirect />;
 }
