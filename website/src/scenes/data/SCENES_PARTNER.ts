@@ -232,11 +232,11 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "into-a-car",
       title: "Into a car",
       summary:
-        "Two people open the car's front doors and get in, ducking under the frame.",
+        "Two people open the car's front doors, step in beside the seats with their backs to them and get in, ducking under the frame.",
       setting: "ride",
       roles: { drv: "driver", pas: "passenger" },
       needs: [],
-      refusedUntil: 3520,
+      refusedUntil: 3545,
     },
     "into-a-car",
     [
@@ -246,6 +246,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
           handle: "driverDoorHandle",
           seconds: 0.9,
         }),
+        act("walk", { to: to(0.75, -0.2), face: 90 }),
         act("getIn", {
           seat: seat("car", "driverSeat"),
           through: { $aperture: "car", id: "driverAperture" },
@@ -257,6 +258,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
           handle: "passengerDoorHandle",
           seconds: 0.9,
         }),
+        act("walk", { to: to(-0.75, -0.2), face: 270 }),
         act("getIn", {
           seat: seat("car", "passengerSeat"),
           through: { $aperture: "car", id: "passengerAperture" },
