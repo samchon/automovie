@@ -7,6 +7,7 @@ import {
   simulateSoftBodyWithBoundaries,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -18,6 +19,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHandleShapes } from "../internal/motionHandleShapes";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Standard gravity, m/s^2 (CGPM 1901). */
@@ -83,11 +85,16 @@ const towel = (
     extent: null,
     radius: 0.005,
   });
+  const corners: IAutoMovieAffordance[] = [
+    corner("cornerA", 0, 0),
+    corner("cornerB", n - 1, 0),
+  ];
   return {
     subject: "towel",
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
     points: {},
-    affordances: [corner("cornerA", 0, 0), corner("cornerB", n - 1, 0)],
+    affordances: corners,
+    shapes: motionHandleShapes(corners),
     soft: domain,
   };
 };

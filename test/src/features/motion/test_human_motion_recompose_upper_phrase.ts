@@ -1,6 +1,5 @@
 import {
   Quaternion,
-  Transform,
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
@@ -9,12 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanChain,
   HumanHand,
-  HumanPerformance,
-  HumanRefusal,
+  type HumanPerformance,
   type HumanSegment,
-  HumanUpperRows,
   HumanVerdicts,
   type IHumanActionLaw,
   type IHumanBody,
@@ -23,6 +19,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionUpperPhrase } from "../internal/motionUpperPhrase";
 
 /**
  * The upper-body acts as rows over the arm's phrases (#3361).
@@ -54,108 +51,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 7. The rows that bring a held prop's point (`drinkFrom`'s lip, `eatWith`
  *    named the face) lay the stick's end within 10 mm of the mouth at
  *    `stroke`, on every body.
- * 8. A working point with no held prop, a held prop named by both hands and
- *    a point the held prop lacks are each refused with a `HumanRefusal`.
+ *
+ * The refusals and the left hand are
+ * `test_human_motion_recompose_upper_phrase_cases`'s.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each row through the public chain on generated bodies and measures the displayed hand surfaces at the phrase's instants.
  * @evidence contracts/development/testing.md#independent-expectations The issue's 10 mm self-touch bound, read as the verdicts' skin (`HumanVerdicts.SKIN`), the wave's raised and moving hand as the act describes it, and the phrase's standard instants (BML 1.0).
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, every row, visits, strokes and oscillations, self and open targets.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing polygon men; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the sweep and the eight scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the sweep and the seven scenarios with their bounds.
  */
 export function test_human_motion_recompose_upper_phrase(): void {
   const complaints: string[] = [];
-  const rows: IHumanActionLaw<never>[] = Object.values(HumanUpperRows).filter(
-    (v: unknown): v is IHumanActionLaw<never> =>
-      typeof v === "object" && v !== null && "plan" in v,
-  );
-  const open: Record<string, AutoMovieHumanoidRegion> = {
-    pointAt: "kneeRight",
-    tapOn: "thighFrontRight",
-    pressOn: "chestRight",
-    rubOn: "thighFrontRight",
-    strokeDown: "upperArmLeft",
-    wipeAcross: "thighFrontRight",
-    hammerStrokes: "thighFrontRight",
-    sawStrokes: "thighFrontRight",
-    stirStrokes: "thighFrontRight",
-    patOn: "thighFrontRight",
-    squeezeOn: "upperArmLeft",
-    holdOn: "upperArmLeft",
-    scratchOn: "thighFrontRight",
-  };
-  // The rows that move a held prop: the performer first picks up a stick.
-  const held: readonly string[] = [
-    "hammerStrokes",
-    "sawStrokes",
-    "stirStrokes",
-    "hatOnHead",
-    "phoneToEar",
-    "teethBrushing",
-    "hairCombing",
-    "drinkFrom",
-    "eatWith",
-  ];
-  // The stick's end, 12 cm along its +Y from the handle, as both a vessel's
-  // lip and a utensil's face for the rows that bring a held point.
-  const end: IAutoMovieVector3 = { x: 0, y: 0.12, z: 0 };
-  const perform = (
-    body: IHumanBody,
-    law: string,
-    params: object,
-    pick: boolean,
-  ): HumanPerformance => {
-    const m: IHumanBody["measure"] = body.measure;
-    const stick: IHumanProp = {
-      subject: "stick",
-      frame: {
-        position: {
-          x: -m.shoulderHalfWidth,
-          y: m.waistHeight,
-          z: 0.6 * (m.upperArm + m.forearm),
-        },
-        rotation: Quaternion.identity(),
-      },
-      points: {},
-      affordances: [
-        {
-          id: "handle",
-          kind: "handle",
-          frame: Transform.identity(),
-          extent: null,
-          radius: 0.015,
-        },
-        ...(["lip", "face"] as const).map((id: string) => ({
-          id,
-          kind: "surface" as const,
-          frame: { ...Transform.identity(), translation: end },
-          extent: null,
-        })),
-      ],
-    };
-    return new HumanPerformance({
-      seed: "upper",
-      laws: rows,
-      performers: [
-        {
-          subject: "a",
-          body,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      props: [stick],
-      composition: (pick
-        ? HumanChain.subject("a").pickUp({
-            prop: "stick",
-            handle: "handle",
-            hand: "right",
-          })
-        : HumanChain.subject("a").stand({ seconds: 0.3 })
-      ).registered(law, params).node,
-    });
-  };
+  const rows: IHumanActionLaw<never>[] = motionUpperPhrase.ROWS;
+  const open: Record<string, AutoMovieHumanoidRegion> = motionUpperPhrase.OPEN;
+  const held: readonly string[] = motionUpperPhrase.HELD;
+  const end: IAutoMovieVector3 = motionUpperPhrase.END;
+  const perform: typeof motionUpperPhrase.perform = motionUpperPhrase.perform;
   const touches: Record<string, [AutoMovieHumanoidRegion, HumanHand.Surface]> =
     {
       handOnHip: ["hipRight", "palm"],
@@ -359,48 +271,6 @@ export function test_human_motion_recompose_upper_phrase(): void {
           `${name} ${row.name}: expected to plan, got ${(error as Error).message}`,
         );
       }
-    }
-  }
-  // The refusals, on the first body: a working point with no held prop, a
-  // held prop named by both hands, and a point the held prop lacks.
-  const first: IHumanBody = motionHumanBody(motionHumanBody.EXTREMES[0]!);
-  for (const [label, law, params, pick] of [
-    [
-      "a point with no held prop",
-      "armPhrase",
-      {
-        phrase: "visit",
-        target: { kind: "self", region: "mouth" },
-        point: "lip",
-      },
-      false,
-    ],
-    [
-      "a held prop named by both hands",
-      "armPhrase",
-      {
-        phrase: "visit",
-        side: "both",
-        target: { kind: "self", region: "sternum" },
-        held: "stick",
-      },
-      true,
-    ],
-    [
-      "a point the held prop lacks",
-      "eatWith",
-      { held: "stick", point: "spout" },
-      true,
-    ],
-  ] as const) {
-    try {
-      perform(first, law, params, pick).segments("a");
-      complaints.push(`${label}: expected a refusal, got a plan`);
-    } catch (error) {
-      if (!(error instanceof HumanRefusal))
-        complaints.push(
-          `${label}: expected a refusal, got ${(error as Error).message}`,
-        );
     }
   }
   TestValidator.equals(

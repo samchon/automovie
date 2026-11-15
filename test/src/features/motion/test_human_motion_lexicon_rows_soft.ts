@@ -1,5 +1,6 @@
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieSoftBodyDomain,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,6 +12,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHandleShapes } from "../internal/motionHandleShapes";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Standard gravity, m/s^2 (CGPM 1901). */
@@ -48,17 +50,21 @@ const lattice = (props: {
       rest.push(p.x, p.y, p.z);
     }
   const dt: number = 1 / 240;
-  return {
-    subject: props.subject,
-    frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
-    points: {},
-    affordances: Object.entries(props.handles).map(([id, [c, r]]) => ({
+  const handles: IAutoMovieAffordance[] = Object.entries(props.handles).map(
+    ([id, [c, r]]) => ({
       id,
       kind: "handle" as const,
       frame: { ...Transform.identity(), translation: at(c, r) },
       extent: null,
       radius: 0.01,
-    })),
+    }),
+  );
+  return {
+    subject: props.subject,
+    frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
+    points: {},
+    affordances: handles,
+    shapes: motionHandleShapes(handles),
     soft: {
       version: 1,
       id: props.subject,
@@ -187,19 +193,21 @@ export function test_human_motion_lexicon_rows_soft(): void {
       y: m.waistHeight,
       z: reach,
     };
+    const grip: IAutoMovieAffordance[] = [
+      {
+        id: "grip",
+        kind: "handle",
+        frame: Transform.identity(),
+        extent: null,
+        radius: 0.015,
+      },
+    ];
     const pole: IHumanProp = {
       subject: "pole",
       frame: { position: poleAt, rotation: Quaternion.identity() },
       points: {},
-      affordances: [
-        {
-          id: "grip",
-          kind: "handle",
-          frame: Transform.identity(),
-          extent: null,
-          radius: 0.015,
-        },
-      ],
+      affordances: grip,
+      shapes: motionHandleShapes(grip),
     };
     const flag: IHumanProp = lattice({
       subject: "flag",
