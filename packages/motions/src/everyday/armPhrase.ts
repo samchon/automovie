@@ -16,6 +16,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { handToFace } from "../daily/handToFace";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -126,6 +127,14 @@ export namespace armPhrase {
     /** The oscillation's cycles; 2 when absent (provisional: no measured count read). */
     cycles?: number;
 
+    /**
+     * `true` when the target is written for the right hand, as a row writes
+     * it: a self region of a side (`hipRight`) is read on the acting arm's
+     * own side (`hipLeft` for the left hand, `handToFace.mirrored`), and a
+     * midline region is its own mirror. The target as named when absent.
+     */
+    mirror?: boolean;
+
     /** The hand, or both hands on one clock with their offsets mirrored (a clap, palms rubbed together); the right when absent. */
     side?: HumanHand.Side | "both";
 
@@ -214,9 +223,18 @@ export namespace armPhrase {
         fix: "name the prop the hand holds as `held`, or drop `point` to bring the hand's surface",
       });
 
-    // The target where it is at the phrase's start.
-    const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-      context.aim(p.target, context.start);
+    // The target where it is at the phrase's start, for one arm: a target
+    // written for the right hand reads a self region of a side on the arm's
+    // own side.
+    const aim = (
+      side: HumanHand.Side,
+    ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
+      context.aim(
+        p.mirror === true && p.target.kind === "self"
+          ? { ...p.target, region: handToFace.mirrored(p.target.region, side) }
+          : p.target,
+        context.start,
+      );
 
     // Each arm's geometry: its hand's place before and after, an offset in
     // the performer's frame by shares of the arm's length (`out` mirrored by
@@ -249,6 +267,8 @@ export namespace armPhrase {
               ),
               reach,
             );
+      const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+        aim(side);
       const place: IAutoMovieVector3 = Vector3.add(aimed.point, shift(p.offset));
       const rotation: IAutoMovieQuaternion =
         p.facing !== undefined

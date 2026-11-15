@@ -11,6 +11,10 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * until these rows pass their verdicts; the target a touch or a wipe needs,
  * and the prop a tool row holds (`held`), are left open.
  *
+ * A row is written for the right hand: the region of a side it fixes
+ * (`hipRight`) is read on the acting hand's own side (`mirror`), so the same
+ * row puts the left hand on the left hip.
+ *
  * Every offset is a share of the arm's length (upper arm, forearm and hand)
  * in the performer's frame, so a row fits any body; the shares are
  * provisional, set from each act's description with no measured source
@@ -29,6 +33,7 @@ export namespace HumanUpperRows {
   export const waveHand = HumanActionRow.of("waveHand", armPhrase, {
     phrase: "oscillate",
     target: { kind: "self", region: "shoulderRight" },
+    mirror: true,
     offset: { out: 0.25, up: 0.55, forward: 0.15 },
     swing: { out: 0.1, up: 0, forward: 0 },
     cycles: 3,
@@ -39,6 +44,7 @@ export namespace HumanUpperRows {
   export const raiseHandHigh = HumanActionRow.of("raiseHandHigh", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "shoulderRight" },
+    mirror: true,
     offset: { out: 0.1, up: 0.9, forward: 0.1 },
     facing: { fingers: "up", palm: "forward" },
     hold: "long",
@@ -48,6 +54,7 @@ export namespace HumanUpperRows {
   export const stopHand = HumanActionRow.of("stopHand", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "shoulderRight" },
+    mirror: true,
     offset: { out: 0, up: 0, forward: 0.8 },
     facing: { fingers: "up", palm: "forward" },
     hold: "long",
@@ -98,6 +105,7 @@ export namespace HumanUpperRows {
   export const handOnHip = HumanActionRow.of("handOnHip", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "hipRight" },
+    mirror: true,
     surface: "palm",
     shape: "flat",
     hold: "long",
@@ -174,6 +182,7 @@ export namespace HumanUpperRows {
   export const palmUp = HumanActionRow.of("palmUp", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "hipRight" },
+    mirror: true,
     offset: { out: 0, up: 0.1, forward: 0.4 },
     facing: { fingers: "forward", palm: "up" },
     hold: "beat",
@@ -202,6 +211,7 @@ export namespace HumanUpperRows {
   export const cheekInHand = HumanActionRow.of("cheekInHand", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "cheekRight" },
+    mirror: true,
     surface: "palm",
     shape: "relaxed",
     hold: "long",
@@ -211,6 +221,7 @@ export namespace HumanUpperRows {
   export const handInPocket = HumanActionRow.of("handInPocket", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "pocketFrontRight" },
+    mirror: true,
     surface: "indexTip",
     shape: "relaxed",
     hold: "long",
@@ -229,6 +240,7 @@ export namespace HumanUpperRows {
   export const phoneToEar = HumanActionRow.of("phoneToEar", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "earRight" },
+    mirror: true,
     surface: "grip",
     shape: "fist",
     hold: "long",
@@ -303,6 +315,7 @@ export namespace HumanUpperRows {
   export const beckonHand = HumanActionRow.of("beckonHand", armPhrase, {
     phrase: "oscillate",
     target: { kind: "self", region: "shoulderRight" },
+    mirror: true,
     offset: { out: 0, up: -0.2, forward: 0.5 },
     swing: { out: 0, up: 0, forward: 0.08 },
     cycles: 3,
@@ -338,6 +351,7 @@ export namespace HumanUpperRows {
   export const armAtSide = HumanActionRow.of("armAtSide", armPhrase, {
     phrase: "visit",
     target: { kind: "self", region: "hipRight" },
+    mirror: true,
     offset: { out: 0.12, up: -0.1, forward: 0 },
     shape: "relaxed",
     facing: { fingers: "down", palm: "in" },
