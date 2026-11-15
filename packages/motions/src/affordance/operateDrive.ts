@@ -296,7 +296,10 @@ export namespace operateDrive {
    * @param point The point.
    * @returns The foot, world metres.
    */
-  export function foot(line: IHinge, point: IAutoMovieVector3): IAutoMovieVector3 {
+  export function foot(
+    line: IHinge,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     if (line.axis === undefined) return { ...line.point, y: point.y };
     return Vector3.add(
       line.point,

@@ -85,8 +85,7 @@ export function test_human_motion_operate_hinge_axis(): void {
   );
   TestValidator.predicate(
     "a pull turns the handle toward its normal",
-    Vector3.dot(Vector3.subtract(swung.point, handle.point), handle.normal) >
-      0,
+    Vector3.dot(Vector3.subtract(swung.point, handle.point), handle.normal) > 0,
   );
 
   // 3. A door's line given by a point keeps the vertical turn.
