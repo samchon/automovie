@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieHandAnthropometry, Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
@@ -7,6 +7,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -43,7 +44,7 @@ const MUG: string =
 const CUP: string =
   "BHS tabletop SMART cup 0.18 l: diameter 90 mm, height 55 mm, 180 g (https://www.bhs-tabletop.com/en-en/product/smart-cup-000675528511000000-sku-000675526811000000/)";
 
-/** The fingers a cup's or a mug's handle loop admits, read in a hand anthropometry study. */
+/** The fingers a cup's or a mug's handle loop admits: the population hand table `@automovie/engine`'s `AutoMovieHandAnthropometry` holds. */
 const FINGER_SOURCE: string =
   "Rastgoo Balov, Allahyari, Jafari and Hajaghazadeh 2026, Hand anthropometry, grip strength, and manual dexterity, SAGE Open Med, doi 10.1177/20503121261428206 (PMC13039577), Tables 1 and 2: index and middle fingers' breadth and girth at their second joint from the tip, women's and men's means";
 
@@ -382,31 +383,21 @@ export namespace createDrinkware {
     fill?: number;
   }
 
-  /**
-   * The index and middle fingers' breadth and girth at their second joint from the tip, metres (the paper's millimetres), women's then men's means (Rastgoo Balov et al. 2026, Tables 1 and 2).
-   */
-  export const FINGERS: Readonly<
-    Record<"women" | "men", Readonly<Record<"index" | "middle", { breadth: number; girth: number }>>>
-  > = {
-    women: {
-      index: { breadth: 0.01648, girth: 0.05832 },
-      middle: { breadth: 0.0161, girth: 0.05928 },
-    },
-    men: {
-      index: { breadth: 0.01798, girth: 0.06406 },
-      middle: { breadth: 0.01793, girth: 0.06445 },
-    },
-  };
-
-  /** A finger's depth through the loop, metres: the larger of the two bounds its girth and breadth set on a joint's depth, the square root of the girth squared over four less the breadth squared, as the human model's digit box takes it, so the loop admits the finger. */
-  const depth = (finger: { breadth: number; girth: number }): number =>
+  /** A finger's depth through the loop, millimetres: the larger of the two bounds its girth and breadth set on a joint's depth, the square root of the girth squared over four less the breadth squared, as the human figure's digit box takes it, so the loop admits the finger. */
+  const depth = (finger: AutoMovieHandAnthropometry.IJoint): number =>
     Math.sqrt(finger.girth ** 2 / 4 - finger.breadth ** 2);
 
-  /** A hand's loop: the two fingers' breadths side by side, and the thicker finger's depth, metres. */
-  const loop = (hand: "women" | "men"): { tall: number; deep: number } => ({
-    tall: FINGERS[hand].index.breadth + FINGERS[hand].middle.breadth,
-    deep: Math.max(depth(FINGERS[hand].index), depth(FINGERS[hand].middle)),
-  });
+  /** A hand's loop, metres: the index's and the middle finger's breadths at their second joint from the tip side by side, and the thicker one's depth; women's means, then men's. */
+  const loop = (k: 0 | 1): { tall: number; deep: number } => {
+    const index: AutoMovieHandAnthropometry.IJoint =
+      AutoMovieHandAnthropometry.JOINTS[k][1]![1];
+    const middle: AutoMovieHandAnthropometry.IJoint =
+      AutoMovieHandAnthropometry.JOINTS[k][2]![1];
+    return {
+      tall: (index.breadth + middle.breadth) * ArchetypeUnits.MILLIMETRE,
+      deep: Math.max(depth(index), depth(middle)) * ArchetypeUnits.MILLIMETRE,
+    };
+  };
 
   /** A mug's and a cup's handle bands: the loop admitting the women's to the men's two fingers, and the industrial-handle analogue bar. */
   export const LOOP: Readonly<
@@ -414,13 +405,13 @@ export namespace createDrinkware {
   > = {
     handleDiameter: ArchetypeBand.metres(0.008, 0.016, BAR, true),
     handleOpening: ArchetypeBand.metres(
-      loop("women").deep,
-      loop("men").deep,
+      loop(0).deep,
+      loop(1).deep,
       `${FINGER_SOURCE}: the thicker finger's depth, the square root of its girth squared over four less its breadth squared`,
     ),
     handleLoop: ArchetypeBand.metres(
-      loop("women").tall,
-      loop("men").tall,
+      loop(0).tall,
+      loop(1).tall,
       `${FINGER_SOURCE}: the two fingers' breadths side by side`,
     ),
   };

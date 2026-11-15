@@ -18,6 +18,9 @@ export namespace ArchetypeUnits {
   /** One ounce, kilograms: a 16th of the international pound. */
   export const OUNCE: number = POUND / 16;
 
+  /** One millimetre, metres: 0.001 exactly, the SI prefix milli. */
+  export const MILLIMETRE: number = 0.001;
+
   /** One degree, radians. */
   export const DEGREE: number = Math.PI / 180;
 }
