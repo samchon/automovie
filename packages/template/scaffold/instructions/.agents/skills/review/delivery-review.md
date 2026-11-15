@@ -37,7 +37,7 @@ The default spacing skips frames, so around every contact, cut and join add the 
 
 Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review, and measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
 
-A capture replaces its previous run unless the run names a round, so keep an accepted delivery's contact sheets and measures under the film's [media records](../production/media-records.md) folder by its delivered revision.
+A capture replaces its previous run unless the run names a round, so keep an accepted delivery's contact sheets and measures in the film's `frames/accepted/<revision>/` folder under [media records](../production/media-records.md#files).
 
 Every delivery claim after the first sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md), as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
 
