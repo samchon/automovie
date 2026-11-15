@@ -21,7 +21,7 @@ Leave the method to the agent unless a known failure requires a particular order
 
 Give each rule one owner, as [Writing](../documentation/writing.md) requires, and link to it from every other place that needs it, so a task receives one consistent requirement. When moving a rule, update every link to it.
 
-Resolve two conflicting instructions inside the prompts by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
+Resolve two conflicting instructions that one project owns by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
 
 ## Packages
 
