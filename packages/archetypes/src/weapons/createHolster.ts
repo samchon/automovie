@@ -75,22 +75,28 @@ const UNREAD: string =
 const QUIVER: string =
   "back quivers 18 to 22.5 in deep (Bear Archery, Martin Flint, Vista Honcho) and 3.5 in across (Dark Knight Armoury), capacities to 50 arrows (TOPARCHERY), and 20 in quivers weighing 0.62 kg (MAYARMS) and 1.5 lb (CH Narchery), seen only in search results";
 
+/** The US infantry cartridge box of 1841, read at the Ordnance Manual's page images. */
+const BOX: string =
+  "the 1841 Ordnance Manual, the infantry cartridge box: 7.7 in long, 1.6 in wide, 5.8 in deep at the front, its flap 8.5 in wide at the bottom; two tins, each with a lower part 3 x 3.3 in for a bundle of 10 cartridges and two upper parts 2.7 in deep, 2 x 1.35 in for 6 and 1.35 in square for 4, 40 rounds in all, p. 140 (https://archive.org/details/vol1841ordnancem00unit)";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createHolster.Kind, string>> = {
   holster: "belt holster",
   scabbard: "scabbard",
   sheath: "sheath",
   quiver: "quiver",
+  pouch: "cartridge box",
 };
 
 /**
- * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, or an archer's quiver. A cartridge pouch waits for a source of its weight.
+ * A container worn on the body that a weapon or its ammunition is drawn from and returned to: a belt holster for a handgun, a sword's scabbard, a knife's or a dagger's sheath, an archer's quiver, or a soldier's cartridge box.
  *
  * Each hangs with the wearer's body on its `-X` side and its front toward `+Z`; `belt` is the loop or hanger it hangs by, facing the wearer. The item in it is a separate prop: the container declares where that item sits, and the act takes it. How each kind stands:
  *
  * - a holster hangs with the middle of its belt loop at the origin. Its `socket` is the mouth the pistol is drawn from and returned to, facing up, lowered or raised from the belt line by the `ride` dimension. It marks where the pistol's butt leaves the mouth; a holstered pistol lies muzzle down in the pouch, which the holstering act places, and no frame of `createHandgun` seats coincident on the socket to give that.
  * - a scabbard and a sheath stand on their tip (the chape) at the origin, the mouth straight up along `+Y` at the drawn length, the blade's flats toward `X`. `mouth` is the opening, facing up: a sheathed blade stands point down in it with its shoulder (`createSword`'s origin) on the mouth. `belt` is the hanger on the metal throat below the mouth. A throat held while the blade is drawn waits for a source of the throat's size. Its hanging angle is not modelled: it hangs straight, since no source read gives the angle a hanger sets.
  * - a quiver stands on its bottom at the origin, a tube open upward. `socket` is the mouth, facing up, and `slot1` to `slot<slots>` the places the arrows stand in it, each facing up on the mouth's plane; `belt` hangs it at a hip from its rim, and `strap` slings it across the back at its middle.
+ * - a cartridge box stands on its bottom at the origin, its back against the wearer at `x = 0`, its length along `Z`. Its two tins' upper parts hold the loose cartridges standing: `slot1` to `slot<slots>` are their places, facing up at the box's top, the 2 x 1.35 in part's 6 in three rows of two and the 1.35 in square part's 4 in two of two. The `lid`, its flap, turns up and outward on a hinge along the box's back top edge; `strap` is the shoulder belt's loops at its back, and `belt` the same loops on a waist belt.
  *
  * @param params The kind, a holster's ride, the blade a scabbard or a sheath is made to, the number of slots of a quiver, and any dimension the author fixes.
  * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
@@ -272,6 +278,53 @@ export function createHolster(
     return builder.build(d.mass!);
   }
 
+  if (kind === "pouch") {
+    // A cartridge box: the box on its bottom, its back to the wearer, the flap on a hinge along its back top edge.
+    const length: number = d.length!;
+    const deep: number = d.depth!;
+    const thick: number = d.thickness!;
+    builder.box("box", v(thick, deep, length), v(thick / 2, deep / 2, 0), { color: "#1f1a17" });
+    builder.box("lid", v(thick, createHolster.FLAP.thickness, d.width!), v(thick / 2, deep + createHolster.FLAP.thickness / 2, 0), { color: "#1f1a17" });
+    builder.affordance({
+      id: "lid",
+      kind: "hinge",
+      frame: ArchetypeFrame.facing(v(0, deep, 0), v(0, 0, 1), v(1, 0, 0)),
+      extent: null,
+      travel: createHolster.FLAP.open,
+      parts: ["lid"],
+    });
+    // The cartridges' places: each tin's upper parts side by side along the box, the two tins with the box's spare length shared at both ends, each part's cells filled in rows along the box and columns across it.
+    const tin: number = createHolster.TINS.parts.reduce((sum: number, part: { length: number }): number => sum + part.length, 0);
+    const spare: number = (length - createHolster.TINS.count * tin) / 2;
+    const places: IAutoMovieVector3[] = [];
+    for (let t: number = 0; t < createHolster.TINS.count; t++) {
+      let start: number = -length / 2 + spare + t * tin;
+      for (const part of createHolster.TINS.parts) {
+        for (let row: number = 0; row < part.rows; row++)
+          for (let column: number = 0; column < part.columns; column++)
+            places.push(
+              v(
+                (thick - part.across) / 2 + ((column + 0.5) * part.across) / part.columns,
+                deep,
+                start + ((row + 0.5) * part.length) / part.rows,
+              ),
+            );
+        start += part.length;
+      }
+    }
+    places.slice(0, slots).forEach((at: IAutoMovieVector3, k: number): void => {
+      builder.affordance({
+        id: `slot${k + 1}`,
+        kind: "socket",
+        frame: ArchetypeFrame.upright(at),
+        extent: null,
+      });
+    });
+    builder.affordance({ id: "strap", kind: "hook", frame: facingWearer(v(0, deep / 2, 0)), extent: null });
+    builder.affordance({ id: "belt", kind: "hook", frame: facingWearer(v(0, deep / 2, 0)), extent: null });
+    return builder.build(d.mass!);
+  }
+
   // A quiver: a tube standing on its bottom, open at the top.
   const length: number = d.length!;
   const r: number = d.diameter! / 2;
@@ -321,7 +374,7 @@ export function createHolster(
  */
 export namespace createHolster {
   /** The kinds: a handgun's belt holster, a sword's scabbard, a knife's or a dagger's sheath, and an archer's quiver. */
-  export type Kind = "holster" | "scabbard" | "sheath" | "quiver";
+  export type Kind = "holster" | "scabbard" | "sheath" | "quiver" | "pouch";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -329,7 +382,25 @@ export namespace createHolster {
     "scabbard",
     "sheath",
     "quiver",
+    "pouch",
   ];
+
+  /**
+   * A cartridge box's tins' upper parts, read at the 1841 Ordnance Manual: each tin has two, 2.7 in deep, one 2 x 1.35 in for 6 cartridges and one 1.35 in square for 4, and the box holds two tins. `cells` gives each part's cartridges as rows along the box's length by columns across it, the arrangement that fills each part's read size with its read count.
+   */
+  export const TINS: Readonly<{
+    count: number;
+    parts: readonly Readonly<{ length: number; across: number; rows: number; columns: number }>[];
+  }> = {
+    count: 2,
+    parts: [
+      { length: 2 * ArchetypeUnits.INCH, across: 1.35 * ArchetypeUnits.INCH, rows: 3, columns: 2 },
+      { length: 1.35 * ArchetypeUnits.INCH, across: 1.35 * ArchetypeUnits.INCH, rows: 2, columns: 2 },
+    ],
+  };
+
+  /** A cartridge box's flap's opening, degrees, and its thickness, metres: estimates, the manual giving the flap's width only (searched: the 1841 and 1850 Ordnance Manuals; records-cartridge-pouch.md). */
+  export const FLAP: Readonly<{ open: number; thickness: number }> = { open: 150, thickness: 0.004 };
 
   /** A scabbard's metal throat at the mouth, its length along the scabbard, metres: an estimate. */
   export const THROAT: number = 0.05;
@@ -351,6 +422,7 @@ export namespace createHolster {
   /** The slots of the kinds that have them: a quiver at most the 50 arrows the largest capacity seen claims, a dozen when none are asked, as #3485 places. */
   export const SLOTS: Readonly<Partial<Record<Kind, ISlots>>> = {
     quiver: { capacity: 50, slots: 12 },
+    pouch: { capacity: 20, slots: 20 },
   };
 
   /**
@@ -360,13 +432,15 @@ export namespace createHolster {
    * - `mouth`: a scabbard's or a sheath's opening, facing up.
    * - `belt`: the hanger, facing the wearer on `-X`.
    * - `strap`: a quiver's sling, facing the wearer.
-   * - `slot1` to `slot<slots>`: where each arrow stands, facing up.
+   * - `slot1` to `slot<slots>`: where each arrow stands in a quiver, or each loose cartridge in a cartridge box, facing up.
+   * - `lid`: a cartridge box's flap, a hinge along its back top edge; a positive travel lifts it up and outward.
    */
   export type Affordance =
     | "socket"
     | "mouth"
     | "belt"
     | "strap"
+    | "lid"
     | `slot${number}`;
 
   /**
@@ -516,6 +590,19 @@ export namespace createHolster {
         0.62,
         1.5 * ArchetypeUnits.POUND,
         QUIVER,
+        true,
+      ),
+    },
+    pouch: {
+      length: ArchetypeBand.metres(7.7 * ArchetypeUnits.INCH, 7.7 * ArchetypeUnits.INCH, BOX),
+      thickness: ArchetypeBand.metres(1.6 * ArchetypeUnits.INCH, 1.6 * ArchetypeUnits.INCH, BOX),
+      depth: ArchetypeBand.metres(5.8 * ArchetypeUnits.INCH, 5.8 * ArchetypeUnits.INCH, BOX),
+      width: ArchetypeBand.metres(8.5 * ArchetypeUnits.INCH, 8.5 * ArchetypeUnits.INCH, `${BOX}: the flap's width at its bottom`),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.3,
+        0.6,
+        `${ArchetypeBand.TYPICAL_MASS}: an empty leather box with its two tins, an estimate; no empty weight is given (searched: the 1841, 1850 and 1861 Ordnance Manuals, Colonial Williamsburg; records-cartridge-pouch.md)`,
         true,
       ),
     },
