@@ -116,13 +116,15 @@ export namespace HumanFoot {
    *
    * @param body The body.
    * @param bones The displayed bones.
+   * @param sides The feet that bear; both when absent.
    * @returns The left foot's bearing points, then the right foot's, world metres.
    */
   export function base(
     body: IHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    sides: readonly ("left" | "right")[] = ["left", "right"],
   ): IAutoMovieVector3[] {
-    return (["left", "right"] as const).flatMap(
+    return sides.flatMap(
       (side: "left" | "right"): IAutoMovieVector3[] => {
         const points: IAutoMovieVector3[] = [
           ...sockets(body, bones, side).map(

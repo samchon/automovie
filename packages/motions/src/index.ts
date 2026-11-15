@@ -189,6 +189,7 @@ export * from "./audit/AutoMovieMotionHumanAuditRange";
 export * from "./audit/AutoMovieMotionHumanAuditStroke";
 export * from "./audit/AutoMovieMotionHumanAuditReturn";
 export * from "./audit/AutoMovieMotionHumanAuditSpin";
+export * from "./audit/AutoMovieMotionHumanAuditStatics";
 export * from "./audit/AutoMovieMotionHumanAuditTiming";
 export * from "./audit/AutoMovieMotionHumanAuditReach";
 export * from "./audit/AutoMovieMotionHumanAuditPartner";

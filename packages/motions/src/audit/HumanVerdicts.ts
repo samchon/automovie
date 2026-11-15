@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanAuditContact } from "./AutoMovieMotionHumanAuditCon
 import { AutoMovieMotionHumanAuditPartner } from "./AutoMovieMotionHumanAuditPartner";
 import { AutoMovieMotionHumanAuditRange } from "./AutoMovieMotionHumanAuditRange";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
+import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
 import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
@@ -42,6 +43,9 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  *   of mass stays over them.
  * - `skate`, `loose`, `afloat`: a foot the motion shows on the floor does
  *   not skate, and a declared plant is neither loose nor afloat.
+ * - `statics`: while a held body's bearing contacts all declare their load,
+ *   the load-weighted contact centre lies under the centre of mass within
+ *   2 % of stature (`AutoMovieMotionHumanAuditStatics`).
  * - `range`: every joint stays within its range of motion, within
  *   `ROM_TOLERANCE` (0.01 degrees).
  * - `turn`: no bone spins more than 5 turns a second between frames.
@@ -216,6 +220,18 @@ export namespace HumanVerdicts {
               ? AutoMovieMotionHumanAuditContact.HEIGHT
               : AutoMovieMotionHumanAuditContact.SPEED,
           );
+        measured(
+          who,
+          who,
+          "statics",
+          AutoMovieMotionHumanAuditStatics.measure(
+            motion,
+            who,
+            person.body,
+            rate,
+          ),
+          AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
+        );
       }
       measured(
         who,

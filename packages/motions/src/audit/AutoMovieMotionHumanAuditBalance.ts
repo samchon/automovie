@@ -1,8 +1,15 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanAuditMeasure";
 import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMotion";
 
@@ -21,7 +28,11 @@ import { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAuditMo
  * outlines of both feet where they bear on the floor (`HumanFoot.base`,
  * Winter's definition). A person whose extrapolated centre leaves that hull must
  * step or fall, so a motion that keeps both feet planted while it lies
- * outside shows a body no one could hold. An instant where a hand grips, a
+ * outside shows a body no one could hold. While a part other than a foot
+ * bears on the ground (a `bear` window: a knee, a shin, a palm), the base is
+ * the planted feet's outlines and those parts' contact points
+ * (`AutoMovieMotionHumanAuditStatics.point`), and the instant is read when
+ * every open window bears on the ground through the hold (#3425). An instant where a hand grips, a
  * seat or a back bears, or a foot is not planted is not read: the feet are
  * not the only support there. Nor is an instant within the pendulum's own
  * time constant (the square root of its length over gravity, about a third
@@ -121,6 +132,39 @@ export namespace AutoMovieMotionHumanAuditBalance {
   ): number {
     const com = (t: number): IAutoMovieVector3 =>
       resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
+
+    // The base of support: the planted feet's outlines and the contact point
+    // of every other part bearing on the ground (a knee, a palm), or both
+    // feet when no window says otherwise.
+    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] =
+      IAutoMovieMotionHumanAuditMotion.windows(motion, subject).filter(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          seconds >= w.from &&
+          seconds <= w.to &&
+          w.contact.support.kind === "ground",
+      );
+    const borne: IAutoMovieMotionHumanAuditMotion.IWindow[] = open.filter(
+      (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+        w.contact.kind === "bear",
+    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      motion.bones(subject, seconds);
+    const feet: ("left" | "right")[] =
+      borne.length === 0
+        ? ["left", "right"]
+        : (["left", "right"] as const).filter((side: "left" | "right"): boolean =>
+            open.some(
+              (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+                w.contact.part === `${side}Foot` && w.contact.kind === "plant",
+            ),
+          );
+    const support: IAutoMovieVector3[] = [
+      ...HumanFoot.base(body, bones, feet),
+      ...borne.map(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): IAutoMovieVector3 =>
+          AutoMovieMotionHumanAuditStatics.point(body, bones, w.contact),
+      ),
+    ];
     const a: IAutoMovieVector3 = com(before);
     const b: IAutoMovieVector3 = com(after);
     const span: number = after - before;
@@ -138,7 +182,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
         velocity,
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       ),
-      HumanFoot.base(body, motion.bones(subject, seconds)),
+      support,
     );
   }
 
@@ -156,6 +200,25 @@ export namespace AutoMovieMotionHumanAuditBalance {
     seconds: number,
     until: number = seconds,
   ): boolean {
+    // A part bearing on the ground besides the feet (a knee, a palm): the
+    // body is read while every open window bears on the ground and one of
+    // them is such a part, its base those contacts and the planted feet.
+    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] = windows.filter(
+      (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+        seconds >= w.from && seconds <= w.to,
+    );
+    if (
+      open.some(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          w.contact.kind === "bear",
+      )
+    )
+      return open.every(
+        (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
+          w.contact.support.kind === "ground" &&
+          (w.contact.kind === "bear" || w.contact.kind === "plant") &&
+          (until <= seconds || w.to >= until - 1e-9),
+      );
     if (until > seconds) {
       // Another support about to take the body (a seat it is being lowered
       // onto) is the same case as a step being taken: the feet will not be
