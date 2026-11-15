@@ -106,7 +106,9 @@ const segments = (p: readonly number[], i: number, j: number): number => {
  * Scenarios:
  *
  * 1. An inextensible cord of 1 m hung between two anchors 0.8 m apart
- *    settles to the catenary's sag within 2 % (closed form).
+ *    settles to the catenary's sag within 2 % (closed form), solved at a
+ *    quarter of the cord's step so the residual stretch of its fixed sweeps
+ *    (quadratic in the step) stays a small part of the bound.
  * 2. An elastic cord's settled sag is the same at 4 and at 16 sweeps within
  *    2 %, XPBD's independence of the iteration count (Macklin, Müller and
  *    Chentanez 2016, section 4).
@@ -130,13 +132,25 @@ export function test_soft_cord_xpbd(): void {
   const check = (label: string, ok: boolean): void => {
     if (!ok) complaints.push(label);
   };
-  // 1. The catenary.
+  // 1. The catenary. A zero-compliance chain swept a fixed number of times
+  // per step keeps a residual stretch that falls with the square of the
+  // step (Macklin et al. 2019, "Small steps in physics simulation", SCA):
+  // at 1/240 s the 40 links stretched about 1 %, which lengthens the sag by
+  // about 2 %, so the step is quartered (a sixteenth of the stretch) and the
+  // steps quadrupled to settle over the same 10 s.
   const links: number = 40;
+  const base: IAutoMovieSoftBodyDomain = cord(links, 1, {});
+  const quarter: number = 4;
   const hung: IAutoMovieSoftBodyDomain = cord(links, 1, {
     anchors: [
       { id: "a", particle: 0, position: { x: -0.4, y: 1, z: 0 } },
       { id: "b", particle: links, position: { x: 0.4, y: 1, z: 0 } },
     ],
+    solver: {
+      ...base.solver,
+      fixedStepSeconds: base.solver.fixedStepSeconds / quarter,
+      maxSteps: base.solver.maxSteps * quarter,
+    },
   });
   const settled: IAutoMovieSoftBodyState = simulateSoftBodyCore(
     hung,
