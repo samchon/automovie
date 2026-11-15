@@ -33,6 +33,7 @@ export function test_archetype_contract_direction(): void {
     longTool: { face: normal },
     handgun: { muzzle: along },
     longGun: { muzzle: along },
+    cannon: { muzzle: along, vent: along },
     club: { strike: normal },
     sword: { edge: normal, falseEdge: normal, flat: normal, point: along },
     shield: { face: normal, boss: normal, rim: normal },

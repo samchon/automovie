@@ -17,6 +17,7 @@ import {
   createBow,
   createBox,
   createBoxingGlove,
+  createCannon,
   createCar,
   createCareItem,
   createCart,
@@ -431,6 +432,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `bow-${kind}`,
       (seed?: number | string): Archetype => createBow({ kind }, seed),
+    );
+  for (const kind of createCannon.KINDS)
+    add(
+      `cannon-${kind}`,
+      (seed?: number | string): Archetype => createCannon({ kind }, seed),
+      Object.values(createCannon.BANDS[kind]).every(
+        (band: IArchetypeBand): boolean => band.minimum === band.maximum,
+      ),
     );
   for (const kind of createLongGun.KINDS)
     add(
