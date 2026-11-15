@@ -136,8 +136,9 @@ export class HumanPerformance {
    * captured at the grip's start instead of authored. When grips overlap (a
    * handover), the one that closed last carries the prop. A hold an action
    * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
-   * takes that hand over. Released props stay where the last grip to end
-   * released them; falling is the physics layer's.
+   * takes that hand over. A released prop stays where the last grip to end
+   * released it, unless an action launched it: then it flies from the launch
+   * and rests where it struck (`HumanPropFlight`) until a later grip takes it.
    *
    * @param subject The prop.
    * @param seconds Film seconds.

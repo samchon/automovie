@@ -10,6 +10,7 @@ import type {
 
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPerformanceState } from "./HumanPerformanceState";
+import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropHold } from "./HumanPropHold";
 import type { IHumanProp } from "./IHumanProp";
 
@@ -90,6 +91,22 @@ export namespace HumanPerformanceHold {
         } else steady = g;
       } else if (released === undefined || g.to >= released.to) released = g;
     }
+
+    // A launch after the latest grip's start sets the prop flying, and it
+    // flies until a later grip takes it (#3479: a grip, then a worn bone,
+    // then a flight or its rest).
+    const since: number = grips.reduce(
+      (latest: number, g: HumanPerformanceState.IGrip): number =>
+        g.from < seconds ? Math.max(latest, g.from) : latest,
+      -Infinity,
+    );
+    const flown: IHumanProp.IFrame | undefined = HumanPropFlight.frame(
+      self,
+      subject,
+      seconds,
+      since,
+    );
+    if (flown !== undefined) return flown;
     const window: HumanPerformanceState.IGrip | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);

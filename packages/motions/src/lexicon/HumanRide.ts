@@ -115,7 +115,14 @@ export namespace HumanRide {
     interrupts: {
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     },
-    yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
+    yields: [
+      "head",
+      "leftHand",
+      "rightHand",
+      "leftArm",
+      "rightArm",
+      "trunkTurn",
+    ],
     plan: (context: IHumanActionContext<IParams>): IHumanActionPlan => {
       const { on, seconds }: IParams = context.params;
       if (!(seconds > 0))

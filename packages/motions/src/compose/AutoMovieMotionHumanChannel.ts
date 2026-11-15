@@ -83,8 +83,20 @@ export namespace AutoMovieMotionHumanChannel {
    */
   export type Digit = IHumanPosture.Digit;
 
-  /** What a plan claims or a carrier yields: a channel, or one digit of a hand. */
-  export type Claim = AutoMovieMotionHumanChannel | Digit;
+  /**
+   * What a plan claims or a carrier yields: a channel, one digit of a hand,
+   * or `trunkTurn`, the spine and the chest turned about the pelvis held on
+   * its support (#3491): a carrier that keeps the trunk on a saddle or a
+   * moving floor yields its turn to an act that aims from it.
+   */
+  export type Claim = AutoMovieMotionHumanChannel | Digit | "trunkTurn";
+
+  /** The bones `trunkTurn` covers: the spine and the chest above the pelvis, not the shoulder girdles. */
+  export const TURN: readonly AutoMovieHumanoidBone[] = [
+    "spine",
+    "chest",
+    "upperChest",
+  ];
 
   /**
    * The digit that owns a bone's joint, for a finger or thumb bone.
@@ -151,6 +163,7 @@ export namespace AutoMovieMotionHumanChannel {
     bone: AutoMovieHumanoidBone,
   ): boolean {
     if (claims.includes(of(bone))) return true;
+    if (claims.includes("trunkTurn") && TURN.includes(bone)) return true;
     const own: Digit | undefined = digit(bone);
     return own !== undefined && claims.includes(own);
   }

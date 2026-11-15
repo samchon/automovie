@@ -103,6 +103,14 @@ export namespace HumanVerdicts {
 
     /** The bounds that do not hold, performer by performer in the order they were given. */
     findings: IFinding[];
+
+    /**
+     * The flights still in the air at the film's end (#3479), each as
+     * `prop@launch-second`: allowed, since a shot into the distance is
+     * legitimate, and so reported apart from the findings. `of` always
+     * fills it; absent from a report built by hand.
+     */
+    unended?: string[];
   }
 
   /**
@@ -262,7 +270,17 @@ export namespace HumanVerdicts {
           ).worst,
           SKIN,
         );
-    return { clean: findings.length === 0, findings };
+
+    // Every launched prop's flights, those still airborne at the end apart.
+    const launched: Set<string> = new Set();
+    for (const person of people)
+      for (const s of performance.segments(person.subject))
+        for (const l of s.plan.launches ?? []) launched.add(l.prop);
+    const unended: string[] = [];
+    for (const prop of launched)
+      for (const f of performance.flights(prop))
+        if (f.end === Infinity) unended.push(`${prop}@${f.launch.toFixed(3)}`);
+    return { clean: findings.length === 0, findings, unended };
   }
 
   /**

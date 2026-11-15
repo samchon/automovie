@@ -17,7 +17,7 @@ import type { IHumanLayer } from "../law/IHumanLayer";
  *
  * The prop stays at its rest frame, or on the bone it is worn on, until a
  * hand grips it; while gripped it rides the hand, unless it is a fixture, worn it rides its bone,
- * and it stays where the last grip released it (see `HumanPerformance.prop`). A point's normal points out of the prop's
+ * and it stays where the last grip released it, or flies from a launch and rests where it struck (see `HumanPerformance.prop`). A point's normal points out of the prop's
  * surface.
  */
 export interface IHumanProp {
