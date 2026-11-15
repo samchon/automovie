@@ -1,4 +1,7 @@
-import type { IAutoMovieResolvedBone } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  bracketedBisection,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -6,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
@@ -37,15 +41,48 @@ export namespace HumanArmSwing {
   /** The phases of a stride at which a take's carriage is read, a stride being periodic in them (provisional: a twelfth of a stride, a few hundredths of a second). */
   export const PHASES: number = 12;
 
-  /** The precision of a swing's added abduction, degrees: below the continuity audits' half degree, so frames cannot differ by it. */
-  export const PRECISION: number = 0.01;
+  /**
+   * The precision of a swing's added abduction for a body, degrees, derived
+   * from the motion audit's continuity limit.
+   *
+   * - The tolerance is the audit's jump (`AutoMovieMotionHumanAudit.LIMITS.jump`),
+   *   5 mm, in metres: the largest displacement of a joint centre between
+   *   two readings that the audit does not call a jump.
+   * - The lever is the arm from the shoulder to the fingertips, the upper
+   *   arm, forearm and hand (`IHumanBody.measure`), in metres: the farthest
+   *   any point of the arm lies from the joint the abduction turns.
+   * - A turn of the shoulder by an angle in radians moves a point at that
+   *   lever along an arc of lever times angle, and its chord is no longer, so
+   *   the precision is the jump over the lever, radians, times 180 / pi.
+   *
+   * An abduction found to it therefore moves no point of the arm by more than
+   * the audit's jump, and two carriages that differ by it cannot read as one:
+   * about 0.38 degrees on the average man, where the search from `SPAN` takes
+   * seven halvings.
+   *
+   * @param body The body.
+   * @returns Degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the tolerance and its owner, its unit, the lever and its source, the conversion and the resulting precision on one body.
+   * @evidence contracts/development/implementation.md#principled-implementation A turn of the shoulder by an angle moves a point at a lever along an arc of the lever times the angle, which bounds its chord.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The length is the audit's own limit and the lever the body's own measure.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the audit's limit and the body's measure.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function precision(body: IHumanBody): number {
+    const lever: number =
+      body.measure.upperArm + body.measure.forearm + body.measure.hand;
+    return (AutoMovieMotionHumanAudit.LIMITS.jump / lever) * (180 / Math.PI);
+  }
 
   /**
    * A posture whose arms, written by joint angles with no hand goal (a
    * gait's swing), are kept clear of the body: a swinging arm passing the
    * thigh is let out at the shoulder, so each named arm takes the least added
    * abduction, up to `SPAN`, at which each reading of its room is within that
-   * reading in the quiet stance, found by bisection; an arm that swings no
+   * reading in the quiet stance, found by bisection to the body's precision (`precision`); an arm that swings no
    * deeper than it hangs is left as written.
    *
    * @param body The body.
@@ -57,7 +94,7 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#principled-implementation A hanging arm's fingers lie against the thigh in the quiet stance, which the tangle audit takes as its baseline; the swing may come that near and no nearer, the same rule the audit reads.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve, then one bisection per arm in the pose the arms before it were written into; the least abduction is continuous in time where the room is, so the swing has no jump a local search between frames would leave.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal is the fit's to clear and is left alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per call, one room reading for an arm already clear and about twelve for one that is not; the stance's room is solved once per body and arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per call, one room reading for an arm already clear and two more and a bisection to the body's precision for one that is not, about seven readings where a hundredth of a degree took twelve; the stance's room is solved once per body and arm.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmClearance.room` and `posed`.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The stance rooms are kept per live body in a `WeakMap`.
    */
@@ -94,19 +131,17 @@ export namespace HumanArmSwing {
       });
       const lacking = (a: number): number =>
         HumanArmClearance.room(body, pose, side, out(a), [], baseline);
-      let added: number = 0;
-      if (lacking(0) > TOLERANCE) {
-        let lo: number = 0;
-        let hi: number = SPAN;
-        if (lacking(hi) > TOLERANCE) lo = hi;
-        else
-          while (hi - lo > PRECISION) {
-            const mid: number = (lo + hi) / 2;
-            if (lacking(mid) > TOLERANCE) lo = mid;
-            else hi = mid;
-          }
-        added = hi;
-      }
+      // The least added abduction that clears the arm, by the engine's
+      // bisection to the body's precision: the room is not smooth (a forearm
+      // leaves one shape as it meets another), so only whether a turn clears
+      // is read, which bisection needs and an interpolating search would
+      // misread.
+      const short = (a: number): boolean => lacking(a) > TOLERANCE;
+      const added: number = !short(0)
+        ? 0
+        : short(SPAN)
+          ? SPAN
+          : bracketedBisection(short, 0, SPAN, precision(body));
       const clear: HumanArmClearance.IArm = out(added);
       joints[`${side}UpperArm`] = clear.upper;
       pose = HumanArmClearance.posed(pose, side, clear);
@@ -139,7 +174,7 @@ export namespace HumanArmSwing {
    * @evidence contracts/development/implementation.md#principled-implementation Each sample's least clearing abduction is `of`'s own; the carriage is the greatest of them, so every sample is clear by the same measure and the take's arms move only as the gait writes them.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection per sample and arm that is not already clear, one maximum.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arm with a hand goal in a sample is the fit's and adds nothing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture, one resolve and one room reading per phase and arm, and about twelve more where an arm is not clear; once per take.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture, one resolve and one room reading per phase and arm, and a bisection's few more where an arm is not clear; once per take.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `of`'s bisection and the stance rooms.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing per call.
    */
