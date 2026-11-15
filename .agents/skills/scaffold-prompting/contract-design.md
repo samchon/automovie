@@ -10,13 +10,11 @@ Write an intelligible item, an observable failure and the legitimate neighboring
 
 Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
 
-An exception limits only the statement it belongs to. Use one to keep useful execution notation, deliberate stillness or adopted stylization that the statement would otherwise flag.
-
 ## Items and statements
 
 Shipped contracts take two levels. An item is one broad question with its reason and the loss it prevents, and it stays short enough to hold in mind while answering. Its H2 names the theme in a few words, such as `Beat decisions`, and the question opens the text under it. Its statements are single checkable assertions with their exceptions, in a `statements` document at the same path beside the contract, one section per item under the same H2.
 
-Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Write a statement so one reading of the work can find it met or failed, and attach each exception to the statement it limits. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
+Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Write a statement so one reading of the work can find it met or failed, and attach each exception to the statement it limits, such as one that keeps useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
 
 Statement documents are not evidence targets: place them where no selector of `@automovie/evidence` reaches, and confirm that against the package's selector documentation when adding a family. An item that is already one short question needs no statements.
 

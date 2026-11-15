@@ -2,11 +2,13 @@
 
 How the text of any document is put together, from its sentences up to its lists.
 
-Text is concise and clear when its reader understands it on the first reading, without rereading or hunting for where a point lives. Length, paragraph count and bullet count do not measure it. Completeness means covering what the reader needs, never longer phrasing. Test a document by reading it top to bottom as its reader would, and fix whatever makes that reader slow down.
+Text is concise when every sentence carries something its reader needs, and clear when that reader understands it on the first reading, without rereading or hunting for where a point lives. Neither is measured by counting, because fewer paragraphs or bullets bought by gluing or fragmenting make text worse. Completeness means covering what the reader needs, never longer phrasing. Test a document by reading it top to bottom as its reader would, and fix whatever makes that reader slow down.
 
 A set of documents says each thing in one place, and no two places disagree, because a reader who meets a point twice cannot tell which one holds.
 
 ## Content and sentences
+
+These rules govern what a document says and how each sentence says it:
 
 - Write only what the reader needs and would not otherwise know.
 - Say simply what can be said simply.

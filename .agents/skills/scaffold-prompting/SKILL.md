@@ -24,7 +24,7 @@ The product contract sets [coarse models and detailed motion](../project/SKILL.m
 
 ### Screenplay detail
 
-The screenplay decides every exchange, outcome and reaction, and a film composes APIs along it.
+The screenplay decides every exchange, outcome and reaction, and a film's code calls installed package APIs to stage each one in screenplay order.
 
 ### Installed capability
 
@@ -36,7 +36,7 @@ Every object and motion a production writes is a reusable module varied by param
 
 The product contract sets the [two routes](../project/SKILL.md#commissions): a short film, and long-form work for a series or a very long film. The evidence graph and the story workflow route each to its own instructions.
 
-### Strategy in skills, tactics in contracts
+### Skills and contracts
 
 Prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule holds for every shipped skill, and shipped contracts stay few, as [contract design](contract-design.md#items-and-statements) defines.
 

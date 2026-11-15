@@ -6,9 +6,9 @@ Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaff
 
 Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff.
 
-A Markdown-only change needs only this tracing and a review of its affected consumers, not a new test or a disposable generated production.
-
 Inspect the file map the template function returns, as [scaffold](../scaffold/SKILL.md) names it, when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
+
+A Markdown-only change needs these checks and a review of its affected consumers, not a new test or a disposable generated production.
 
 Installed files are project-owned: an existing production update follows [scaffold](../scaffold/SKILL.md), not an assumed upstream sync. Changed installation behavior takes the generated-project checks in [scaffold](../scaffold/SKILL.md#updating-productions), and changed program behavior takes development's consumer checks.
 

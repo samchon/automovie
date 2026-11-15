@@ -19,7 +19,7 @@ Writing asks for a reason when it is not obvious. For a consequential instructio
 
 Leave the method to the agent unless a known failure requires a particular order or boundary. Where a skill does name methods, it gives one default and says when to leave it.
 
-Give an example only where the rule alone leaves the pattern unclear, and keep examples few and varied, because an agent copies an example's surface.
+Keep examples few and varied, because an agent copies an example's surface.
 
 ## One owner
 
