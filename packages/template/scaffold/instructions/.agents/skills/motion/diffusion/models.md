@@ -1,6 +1,6 @@
 # Motion models
 
-Motion models differ in what they take, which skeleton and frame rate they return, and whose rights they carry. The user can choose one outside these tables; its documentation owns every value, and [clips](clips.md#licenses) sets how to read its license.
+The generators table shows what each model takes and which skeleton and frame rate it returns, and the estimators table what each traces from. Neither is a required list; a model's own documentation holds every value, and [clips](clips.md#licenses) sets how to read its license.
 
 ## Generators
 

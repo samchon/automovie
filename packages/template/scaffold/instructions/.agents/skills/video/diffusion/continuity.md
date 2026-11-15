@@ -13,7 +13,7 @@ Choose the chain frame before the take slows toward its [drifting end](../reques
 
 Pass the take on in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
 
-An extend mode often takes no hint and keeps only the last frame or last seconds as context, and its result is [placed](../generation.md#place-takes-in-time) by what it adds. Where the model cannot take the continuation beside the hint, end the request at a cut.
+An extend mode often takes no hint and keeps only the last frame or last seconds as context, and its result is [placed](../generation.md#place-takes-in-time) by what it adds. Where the model cannot take the continuation beside the hint, end the request at a cut; a continuous shot longer than one request then needs another model, so tell the user.
 
 ## Across the film
 

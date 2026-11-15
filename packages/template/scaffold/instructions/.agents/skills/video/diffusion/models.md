@@ -1,6 +1,6 @@
 # Video models
 
-Video models differ most in how they take the motion hint, how they set adherence and how they continue a take. The rows are current examples, and the user may choose any other; each model's documentation, read when planning, owns every value, as [read the model](SKILL.md#read-the-model) sets.
+Each row shows how a current model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its documentation, as [read the model](SKILL.md#read-the-model) sets.
 
 | Model | Takes the hint as | Sets [adherence](../requests.md#adherence) by | Continues a take by | Documentation |
 | --- | --- | --- | --- | --- |

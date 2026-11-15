@@ -9,7 +9,7 @@ Give each action isolated cases. Each case's checks test the action's own goal a
 - balance, as the extrapolated center of mass against the support (Hof 2005);
 - continuity of every displayed channel and of its velocity at every cut.
 
-A case that only shows the action establishes nothing. Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md).
+A case that only shows the action establishes nothing. answer the [testing contract](../../contracts/development/testing.md).
 
 ## Checks that can fail
 

@@ -5,6 +5,8 @@ description: Chooses the image generator and writes image prompts. Use when choo
 
 # Image diffusion
 
+Image diffusion chooses the generator and writes the prompt for each image the [image](../SKILL.md) skill defines.
+
 ## Choose a generator
 
 Choose the generator with the user from [image generators](models.md) or another they prefer, read its current documentation, and record the choice in [project context](../../production/project-context.md).

@@ -47,7 +47,7 @@ Make a place's view at each camera angle a scene uses the same way: render the s
 
 ## Turnaround views
 
-Views of a subject for an image-to-3D model or a modeler are made under [turnaround views](turnaround-views.md), only for a commissioned detail option.
+Views of a subject for an image-to-3D model or a modeler follow [turnaround views](turnaround-views.md).
 
 ## Inspect
 

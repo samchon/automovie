@@ -1,6 +1,6 @@
 # 3D models
 
-Text- and image-to-3D models differ in how many views they take, whether they accept a shape, and what they deliver beyond the mesh. The tables sample current ones for comparison; read the chosen model's documentation for every value, and its terms for whether the output may be used.
+The generators table compares the inputs a current text- or image-to-3D model takes and what it delivers beyond the mesh, and the shape table names examples of each [shape hint](shape-hints.md). Take every value from the chosen model's documentation, and whether its output may be used from its terms.
 
 ## Generators
 
