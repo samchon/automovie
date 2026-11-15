@@ -18,7 +18,7 @@ Entry, middle and ending:
 7. The middle accumulates costs, narrowed possibilities, changed relationships or expectations and does not reset.
 8. Parallel progressions have consequential order, intersections or contrasts, not alternating summaries.
 9. Events convey emotional movement and tone instead of leaving a mood for scripts to invent, and opposing agents act from their own priorities where present.
-10. The ending follows established choices and costs, shows what closes and what remains open with its aftermath or changed state, and decides the actual last delivered event and stopping reason. Exception: an open ending needs grounds, not total explanation or a compulsory epilogue.
+10. The ending shows what closes and what remains open, with its aftermath or changed state.
 11. Chance may begin a crisis, while outside resolution needs an owned work premise.
 
 ## Material and handoff

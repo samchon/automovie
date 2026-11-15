@@ -65,7 +65,7 @@ What each beat decides:
 3. The beat names who and what acts by their settings facts; on a short, by brief decisions, or by the standing state for a person or object only this scene shows.
 4. Each participant has an intent.
 5. The beat states its outcome and each body's reaction or consequence.
-6. Position, camera and sound appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
+6. Space, camera and sound entries appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
 7. The beats cover the whole running time with the continuous response of everyone present. No stretch is summarized, as in "they dance".
 
 What the modules can perform:

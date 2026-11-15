@@ -1,6 +1,6 @@
 # Captions
 
-Captions put a film's speech and sound into text for a viewer who reads rather than hears. They are separate from the screen text the screenplay decides, such as a sign, a title or a subtitle that translates a line, which the film draws into the picture as the screenplay places it; captions are tracks delivered beside the picture unless the release asks for them burned in.
+Captions put a film's speech and sound into text for a viewer who reads rather than hears. They are separate from the screen text the screenplay decides, such as a sign, a title or a subtitle that translates a line, which the film draws into the picture as the screenplay places it.
 
 ## Text and timing
 

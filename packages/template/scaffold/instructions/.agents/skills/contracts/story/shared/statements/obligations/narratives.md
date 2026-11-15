@@ -27,7 +27,7 @@ Promises:
 1. Read without prior settings knowledge, the opening gives a reason to continue and timely understanding of people, relationships, pressure, time and space.
 2. The answer traces actual introductions and returns, the declared engine and rewards, every payoff's setup, risk or cost, and the longest gaps without promised satisfaction.
 3. The answer reports spans where the engine fails, rewards are unearned or worn out, or an eventual return cannot support the delay.
-4. The ending follows from the established choices and costs, and the answer names what the last event decides and why the work stops there.
+4. The ending follows from the established choices and costs, and the answer names what the last event decides and why the work stops there. Exception: an open ending needs grounds, not total explanation or a compulsory epilogue.
 
 Time and variation:
 

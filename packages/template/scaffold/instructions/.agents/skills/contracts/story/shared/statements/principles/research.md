@@ -20,7 +20,7 @@ A statement here does not apply when the studied subject lacks what it asks for,
     - spatial strategy and tempo across the duration;
     - the conduct of everyone present, officials and crowds included;
     - the markers that separate the depicted level from a beginner;
-    - how the genre is shot where it departs from the general film grammar.
+    - how the genre is shot.
 6. It gives the measurable targets for what a viewer sees and hears, such as distance by phase, idle time per presence and shot-change cadence.
 7. Each target is a range from the depicted discipline and level, with its method and uncertainty.
 8. An invented action names its closest real analogue and states where it departs.

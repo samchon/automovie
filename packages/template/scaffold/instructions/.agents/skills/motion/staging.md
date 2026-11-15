@@ -32,9 +32,7 @@ Inspect every shot at the delivered aspect and scale through the whole action, i
 - nothing clips or hides a contact or a reaction, and no detail competes with it;
 - screen direction, eyelines and light hold across each cut, apart from a discontinuity the screenplay decided.
 
-A pan that crosses the frame too fast for the frame rate judders, the more so without motion blur, and stills cannot show it. Measure each camera move's speed in frame widths per second from the resolved camera path, read what motion blur the renderer draws, and ask the user to watch the fast moves.
-
-A framing failure is repaired in the camera's placement within the beat's camera entry, or at that entry or the space entry in the screenplay, never by moving the performance. A light that jumps goes to its light entity, and a wrong gaze, contact or clipping body to the module that performs it.
+A framing failure is repaired in the camera's placement within the beat's camera entry, or at that entry or the space entry in the screenplay, never by moving the performance. A light that jumps goes to its light entity, and a wrong gaze, a wrong contact or a body passing through another to the module that performs it.
 
 ## Segments and handoff
 

@@ -31,7 +31,7 @@ Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md
 
 The installed renderer draws the film through the README's render command. Read in its README which effects it draws, such as depth of field, motion blur and antialiasing, and at what cost. An effect the commission needs and the renderer lacks follows a defect or a gap, and [delivery review](../review/delivery-review.md) discloses it.
 
-A renderer outside the installed packages, such as an offline path tracer or a 3D suite, can draw the film only through a scene export the packages document. Where their types record scene export as excluded, tell the user it is a limit rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
+A renderer outside the installed packages, such as an offline path tracer or a 3D suite, can draw the film only through a scene export the packages document. Where they document none, tell the user it is a limit of the film rather than write an exporter in the production. A model that renders photoreal frames from the film's channels makes a generated film under [video](../video/SKILL.md).
 
 ## What to look for
 
@@ -43,3 +43,5 @@ A renderer outside the installed packages, such as an offline path tracer or a 3
 - consecutive frames show no aliasing, shimmering, flicker or popping;
 - no surfaces pass through each other, wardrobe through body included, and none flicker where they meet;
 - faces and mouths show what the screenplay decided, with sync left to the user.
+
+A pan or fast move judders when it crosses the frame faster than the frame rate and the renderer's motion blur carry, and stills cannot show it. Measure each camera move's speed in frame widths per second from the resolved camera path against a rule of thumb such as [RED's](https://www.reddigitalcinema.com/red-101/camera-panning-speed), about one frame width in seven seconds at 24 fps with a 180-degree shutter. Ask the user to watch the moves above it, and repair a judder at the screenplay's camera entry with a slower move or a cut, or with the renderer's motion blur.
