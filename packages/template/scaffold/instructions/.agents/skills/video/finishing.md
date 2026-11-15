@@ -8,7 +8,8 @@ A take that is right except for a local flaw, such as a hand, a face, a stray ob
 
 - regenerate a time range and keep the rest;
 - regenerate a masked region over its frames;
-- edit by instruction, saying what changes and that everything else stays.
+- edit by instruction, saying what changes and that everything else stays;
+- re-sync a face to the accepted dialogue audio with a dubbing model, which regenerates the head and body around the mouth and follows the take's camera only approximately, often at a lower resolution, so recheck identity and contacts after it. Examples: [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), [MultiTalk](https://github.com/MeiGen-AI/MultiTalk) for several speakers, each bound to its own audio track.
 
 Compare the frames outside the repair with the original at matched times, and check the boundary frames one by one, because the kept frames are re-encoded too. A take that lost action, identity or causality is not repaired here; it returns to [generation](generation.md#inspect-and-choose).
 

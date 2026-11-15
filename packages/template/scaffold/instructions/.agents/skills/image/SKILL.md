@@ -23,7 +23,7 @@ Give each subject the number and form of references the video model's guide sets
 
 Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity.
 
-A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place one canon plate without people, and each prop a plain-background view. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
+A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place one canon plate without people for each light state its scenes use, such as day and night, and each prop a plain-background view. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
 
 Name each garment and its color in every prompt, because references carry a face more surely than clothes. Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both.
 

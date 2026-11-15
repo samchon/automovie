@@ -1,10 +1,18 @@
 # Film sound
 
-A generated film's takes each bring their own sound, so the film's sound is finished across them after the takes are accepted, under the user's listening. This page owns that work.
+A generated film's takes each bring their own sound, so the film's sound is finished across them once the takes are [finished](../video/finishing.md), under the user's listening. This page owns that work; its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
 
 ## Separate before changing
 
-A take's sound is one mix of speech, effects, ambience and any music. Before re-voicing a line or replacing a bed, separate the speech from the rest with a dialogue, music and effects separation model, change the part that needs it, and mix it back. Check the separation model's license, since some are trained on non-commercial data.
+A take's sound is one mix of speech, effects, ambience and any music. Before re-voicing a line or replacing a bed, separate the speech from the rest, change the part that needs it, and mix it back. Choose the separation tool by these, because few are proven on film mixes:
+
+- separate dialogue, music and effects stems, since a voice-only tool discards the bed;
+- results on real film mixes rather than synthetic ones, where effects are the hardest stem;
+- stems that sum back to the original mix at its level;
+- a license for commercial use covering the weights, not only the code;
+- the film's sample rate and channels.
+
+Test it on the production's own takes, shouts and breaths included, and have the user listen to the separated speech. Examples: [iZotope RX Scene Rebalance](https://www.izotope.com/en/learn/scene-rebalance) and [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) give dialogue, music and effects stems; among open models, check each checkpoint's license, as some are non-commercial.
 
 ## One bed and one score per scene
 
@@ -12,14 +20,10 @@ Ambience generated per request jumps at every cut, and music generated per reque
 
 ## Faces and dialogue
 
-The polygon man has no face, so a face's performance comes from the take. Where a take's lips miss the accepted dialogue, re-sync the face of the accepted take from the dialogue audio with a dubbing model, which keeps the hint's blocking, rather than regenerate it. Where speech carries a shot and the request's [adherence](../video/requests.md#adherence) is speech and reaction, a model that takes the dialogue audio, and a pose video where offered, can generate the shot from it.
-
-Lip sync holds best on a visible, mostly frontal face. With several speakers, use a model that binds one audio track to each person.
-
-Examples: [InfiniteTalk](https://github.com/MeiGen-AI/InfiniteTalk), which dubs an existing video; [MultiTalk](https://github.com/MeiGen-AI/MultiTalk), for several speakers; [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2), which takes an image, audio and a pose video together.
+The polygon man has no face, so a face's performance comes from the take. A take whose lips miss the accepted dialogue is re-synced to it as a picture repair under [finishing](../video/finishing.md#repair-part-of-a-take). Where speech carries a shot and the request's [adherence](../video/requests.md#adherence) is speech and reaction, a model that takes the dialogue audio, and a pose video where offered, can generate the shot from it.
 
 ## Loudness
 
 Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for the release's, such as -27 LKFS dialogue-gated for Netflix or -23 LUFS under EBU R128 for broadcast, and measure the mix as [sound effects](sound-effects.md#edit-with-picture) sets.
 
-Sources: [MERL cocktail-fork separation](https://github.com/merlresearch/cocktail-fork-separation), [Stable Audio 3](https://github.com/Stability-AI/stable-audio-3), [Netflix sound mix specification](https://backlothelp.netflix.com/hc/en-us/articles/360001794307-Netflix-Sound-Mix-Specifications-Best-Practices-v1-5), [EBU R128](https://tech.ebu.ch/publications/r128), [Kling lip sync](https://kling.ai/document-api/api/video/lip-sync.md).
+Sources: [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4), [MERL cocktail-fork separation](https://github.com/merlresearch/cocktail-fork-separation), [Stable Audio 3](https://github.com/Stability-AI/stable-audio-3), [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2), [Netflix sound mix specification](https://backlothelp.netflix.com/hc/en-us/articles/360001794307-Netflix-Sound-Mix-Specifications-Best-Practices-v1-5), [EBU R128](https://tech.ebu.ch/publications/r128).

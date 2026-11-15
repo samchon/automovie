@@ -23,7 +23,7 @@ An extend mode often takes no hint and keeps only the last frame or last seconds
 
 Give every request the same canon references and the [shared description](prompts.md#shared-description) in identical words, because each request knows nothing of the last.
 
-Rely on references for identity, never on a seed, which repeats a take only approximately as [media records](../../production/media-records.md#records) says. Bind a character's references, and its voice where the model takes one, into the model's element or subject where it offers one; some take only photoreal people. On an open model, train a character LoRA on the frozen canon references and renders when the character recurs across many requests.
+Rely on references for identity, never on a seed, which repeats a take only approximately as [media records](../../production/media-records.md#records) says. Bind a character's references, and its voice where the model takes one, into the model's element or subject where it offers one; some take only photoreal people. On an open model, train a character LoRA on the frozen canon references and accepted shot frames or takes, never the gray hint, when the character recurs across many requests.
 
 Pass a take on to a continuation in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
 

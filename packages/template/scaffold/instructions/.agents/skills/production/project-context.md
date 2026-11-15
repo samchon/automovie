@@ -13,7 +13,7 @@ Record only what this project needs; an instance-only request needs no story, an
 | Representation | That people are polygon men and other subjects coarse forms, and which delivery, if any, selects which [detail option](../development/entities.md#detail) |
 | Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and, for a film with sound, its audio tracks, the loudness target and any stems or music-and-effects mix the release requires |
 | Look | For a commissioned generated film, the film's look, as settings [cinematography](../story/layers/settings.md#records) lists its facets, or on long work a link to the settings record that owns it |
-| Adopted approach | The story route, required control channels, how the video model takes the hint and its default [adherence](../video/requests.md#adherence), engine feedback and sound, with the reasons and limits that affect later choices |
+| Adopted approach | The story route, required control channels, how the video model takes the hint and its default [adherence](../video/requests.md#adherence), the handle length at cuts, engine feedback and sound, with the reasons and limits that affect later choices |
 | Tools and operating constraints | Chosen providers or local tools, the video, image and 3D generation models, the takes per video request, runtime, hardware, time, cost and rights limits, and approved setup |
 | Authority and unresolved choices | What the user fixed, what the agent decided within delegation and why, and what remains open |
 

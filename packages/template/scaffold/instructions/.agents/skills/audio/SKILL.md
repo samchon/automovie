@@ -1,11 +1,11 @@
 ---
 name: audio
-description: Decides what each shot sounds like for the video model to generate, makes a voice preview when the user wants to hear voices before video generation, and builds a soundtrack only when the commission asks for one, always for the user to accept by ear. Use when writing a shot's sound into a generation prompt, when the user requests a voice preview, or when a soundtrack is commissioned.
+description: Decides what each shot sounds like for the video model to generate, finishes a generated film's sound across its accepted takes, makes a voice preview when the user wants to hear voices before video generation, and builds a soundtrack only when the commission asks for one, always for the user to accept by ear. Use when writing a shot's sound into a generation prompt, finishing a generated film's sound, when the user requests a voice preview, or when a soundtrack is commissioned.
 ---
 
 # Audio
 
-Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. Audio work has three cases. Source changes follow [development](../development/SKILL.md).
+Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. Audio work has four cases. Source changes follow [development](../development/SKILL.md).
 
 ## Generated sound
 
@@ -33,6 +33,6 @@ Make a preview only when the user wants to hear the voices before video generati
 
 A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
 
-When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), asking the user for the target where the release sets one, such as EBU R128's -23 LUFS for broadcast or a platform's own specification, acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
+When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), asking for the target as [film sound](film-sound.md#loudness) does, acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
 
 Record which takes and passages the user heard, because a measurement cannot stand for a listening.

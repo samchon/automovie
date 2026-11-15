@@ -10,7 +10,7 @@ Before a batch, prove one representative request end to end on a case with the i
 
 Bind each request to its exact input bytes and source revision and record it under [media records](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
 
-Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors; some bill a refused job, and repeated refusals can suspend the account. Read the provider's usage policy before submitting a fight or a stunt, write its action as movement and impact as the screenplay does, and report a beat that is still refused to the user, who may choose another provider or an open model.
+Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors; some bill a refused job, and repeated refusals can suspend the account, as [Runway's moderation](https://docs.dev.runwayml.com/api-details/moderation/) states. Read the provider's usage policy before submitting a fight or a stunt, write its action as movement and impact as the screenplay does, and report a beat that is still refused to the user, who may choose another provider or an open model.
 
 ## Inspect and choose
 
