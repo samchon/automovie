@@ -9,17 +9,18 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 const MM: number = 1e-3;
 
 /**
- * A vending machine stands at Crane's sizes, and a gate valve is NIBCO's 4 in at one end of its size and 6 in at the other.
+ * A vending machine stands at Crane's sizes, a pay station at Flowbird's StradaPAL's, and a gate valve is NIBCO's 4 in at one end of its size and 6 in at the other.
  *
  * Scenarios:
  * 1. A vending machine is 1830 mm high, 813 mm deep and 895 to 1180 mm wide, its `front` on its `+Z` face.
+ * 3. A pay station's body is the StradaPAL's 290 x 1488 x 328 mm under its 90 mm spacer and its 475 x 226 x 379 mm head, 1804 mm in all.
  * 2. A valve at size 0 has a 10 in handwheel 24 in above its pipe's axis, at size 1 a 12 in handwheel 31.06 in above it; its handwheel states no turns.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a cabinet or a handwheel off the maker's figures is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is Crane's or NIBCO's restated here.
  * @evidence contracts/development/testing.md#distinguishing-cases A ranging width over seeds; both ends of the valve's size.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
  */
 export function test_archetype_machine_valve(): void {
   const findings: string[] = [];
@@ -54,6 +55,15 @@ export function test_archetype_machine_valve(): void {
     archetypeExtent(machine, "z").high,
   );
 
+  // 3. The pay station.
+  const station: ReturnType<typeof createMachine> = createMachine(
+    { kind: "payStation" },
+    5,
+  );
+  near("the pay station's body width", archetypeExtent(station, "x", ["cabinet"]).size, 0.29);
+  near("the pay station's body depth", archetypeExtent(station, "z", ["cabinet"]).size, 0.328);
+  near("the pay station's head width", archetypeExtent(station, "x", ["head"]).size, 0.475);
+  near("the pay station's height", archetypeExtent(station, "y").high, 1.488 + 0.09 + 0.226);
   // 2. The valve.
   for (const [size, wheel, height] of [
     [0, 0.254, 0.61],

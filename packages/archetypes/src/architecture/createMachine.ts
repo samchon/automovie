@@ -13,10 +13,22 @@ import {
 const MERCHANT: string =
   "Crane Merchant brochure: Merchant 4 1830 mm high, 813 mm deep, 895 mm wide; Merchant 6 1830 mm high, 813 mm deep, 1180 mm wide (https://vendtrade.co.uk/wp-content/uploads/2024/08/Crane_Merchant_Brochure.pdf)";
 
+/** The pay station read. */
+const STRADA: string =
+  "Parkeon/Flowbird StradaPAL installation manual, p. 11: body 290 mm wide, 328 mm deep, 1488 mm high, on it a 90 mm spacer and a 226 mm top 475 mm wide and 379 mm deep (https://us.support.flowbird.group/hc/en-us/article_attachments/13368519985939)";
+
+/** A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and its 475 x 226 x 379 mm top. */
+const HEAD: Readonly<{
+  spacer: number;
+  width: number;
+  height: number;
+  depth: number;
+}> = { spacer: 0.09, width: 0.475, height: 0.226, depth: 0.379 };
+
 /**
- * A public machine standing against a wall: a snack vending machine.
+ * A public machine standing against a wall: a snack vending machine or a parking pay station.
  *
- * The cabinet stands on the floor at the origin with its glass front toward `+Z`. `front` is the front, the face a person stands at, looks through, leans on or rocks; `side` is the `+X` side face, where it is pushed. Its keypad, coin slot and delivery bin are not declared, since no source read places them on the front; keying a selection is a keyed sequence with no motion law yet (#3446).
+ * The cabinet stands on the floor at the origin with its front toward `+Z`; a pay station's body carries its spacer and its wider head on top. `front` is the front, the face a person stands at, looks through, leans on or rocks; `side` is the `+X` side face, where it is pushed. Its keypad, coin slot and delivery bin are not declared, since no source read places them on the front; keying a selection is a keyed sequence with no motion law yet (#3446). A pay station's screen and payment slot are not declared either: the manual gives their heights, 1336 and 1210 mm to their tops, but not their sizes or places across the front.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -54,15 +66,29 @@ export function createMachine(
   > = new ArchetypeBuilder({
     archetype: "machine",
     id: params.id,
-    name: "vending machine",
+    name: kind === "payStation" ? "pay station" : "vending machine",
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
   const { width, height, depth }: Record<createMachine.Dimension, number> = d;
   builder.box("cabinet", v(width, height, depth), v(0, height / 2, 0), {
-    color: "#b3202a",
+    color: kind === "payStation" ? "#2b5797" : "#b3202a",
     density: 0.4,
   });
+  if (kind === "payStation") {
+    builder.box(
+      "spacer",
+      v(width, HEAD.spacer, depth),
+      v(0, height + HEAD.spacer / 2, 0),
+      { color: "#2b5797" },
+    );
+    builder.box(
+      "head",
+      v(HEAD.width, HEAD.height, HEAD.depth),
+      v(0, height + HEAD.spacer + HEAD.height / 2, 0),
+      { color: "#2b5797" },
+    );
+  }
   builder.affordance({
     id: "front",
     kind: "surface",
@@ -100,10 +126,10 @@ export function createMachine(
  */
 export namespace createMachine {
   /** The kinds of machine. */
-  export type Kind = "vendingMachine";
+  export type Kind = "vendingMachine" | "payStation";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["vendingMachine"];
+  export const KINDS: readonly Kind[] = ["vendingMachine", "payStation"];
 
   /**
    * The affordance ids:
@@ -116,7 +142,7 @@ export namespace createMachine {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`, `height`, `depth`: the cabinet along `X`, `Y` and `Z`.
+   * - `width`, `height`, `depth`: the cabinet along `X`, `Y` and `Z`; a pay station's body, under its spacer and head.
    * - `mass`: the empty machine, kilograms.
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
@@ -139,6 +165,12 @@ export namespace createMachine {
       height: ArchetypeBand.metres(1.83, 1.83, MERCHANT),
       depth: ArchetypeBand.metres(0.813, 0.813, MERCHANT),
       mass: ArchetypeBand.of("kg", 250, 350, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    payStation: {
+      width: ArchetypeBand.metres(0.29, 0.29, `${STRADA}: the body`),
+      height: ArchetypeBand.metres(1.488, 1.488, `${STRADA}: the body`),
+      depth: ArchetypeBand.metres(0.328, 0.328, `${STRADA}: the body`),
+      mass: ArchetypeBand.of("kg", 60, 90, ArchetypeBand.TYPICAL_MASS, true),
     },
   };
 }
