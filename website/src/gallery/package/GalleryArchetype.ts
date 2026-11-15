@@ -39,8 +39,12 @@ export namespace GalleryArchetype {
       throw new Error(`No archetype producer is named ${request.subject}`);
 
     const key: string = GalleryCatalogue.variants(producer).key;
-    const params: Record<string, unknown> =
-      key === "" ? {} : { [key]: request.variant };
+    // A producer that needs a site parameter beyond its variant carries the
+    // stated reference instance for it, which the gallery builds from.
+    const params: Record<string, unknown> = {
+      ...producer.REFERENCE,
+      ...(key === "" ? {} : { [key]: request.variant }),
+    };
     const rest: Archetype<string, string> = producer(
       params,
       request.seed === "" ? undefined : request.seed,
@@ -98,7 +102,8 @@ export namespace GalleryArchetype {
         ),
 
         // The rest archetype states each articulation's range; the posed one
-        // carries the same travel.
+        // carries the same travel. A follower is set by its leader, so it
+        // offers no travel of its own.
         affordances: rest.affordances.map(
           (affordance): IGalleryView.IAffordance => {
             const range: { minimum: number | null; maximum: number | null } =
@@ -115,6 +120,7 @@ export namespace GalleryArchetype {
               color: color(affordance.kind),
               travel:
                 ArchetypeArticulation.KINDS.has(affordance.kind) &&
+                affordance.follows === undefined &&
                 range.minimum !== null &&
                 range.maximum !== null &&
                 range.maximum > range.minimum

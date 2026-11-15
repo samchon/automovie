@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -246,8 +247,8 @@ export namespace createRacket {
       ),
       handleLength: m(0.17, 0.2, UNREAD, true),
       gripDiameter: m(
-        (4 * 0.0254) / Math.PI,
-        (4.5 * 0.0254) / Math.PI,
+        (4 * ArchetypeUnits.INCH) / Math.PI,
+        (4.5 * ArchetypeUnits.INCH) / Math.PI,
         "grip sizes 4 to 4 1/2 in round, Babolat Pure Drive Lite (https://tennisracquets.com/products/babolat-pure-drive-lite-tennis-racquet), as a diameter",
       ),
       mass: kg(0.293, 0.307, BABOLAT),

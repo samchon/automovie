@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -128,8 +129,8 @@ export function createPram(
 export namespace createPram {
   /** The wheels' radii, metres: the Bugaboo Fox 5's 8.5 in front and 12 in rear wheels. */
   export const WHEEL: Readonly<{ front: number; rear: number }> = {
-    front: (8.5 * 0.0254) / 2,
-    rear: (12 * 0.0254) / 2,
+    front: (8.5 * ArchetypeUnits.INCH) / 2,
+    rear: (12 * ArchetypeUnits.INCH) / 2,
   };
 
   /** The bassinet's underside above the wheels' tops, metres: an estimate. */
@@ -173,13 +174,13 @@ export namespace createPram {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(36.6 * 0.0254, 36.6 * 0.0254, BUGABOO),
-    width: ArchetypeBand.metres(23.6 * 0.0254, 23.6 * 0.0254, BUGABOO),
+    length: ArchetypeBand.metres(36.6 * ArchetypeUnits.INCH, 36.6 * ArchetypeUnits.INCH, BUGABOO),
+    width: ArchetypeBand.metres(23.6 * ArchetypeUnits.INCH, 23.6 * ArchetypeUnits.INCH, BUGABOO),
     handleHeight: ArchetypeBand.metres(
-      41.3 * 0.0254,
-      41.3 * 0.0254,
+      41.3 * ArchetypeUnits.INCH,
+      41.3 * ArchetypeUnits.INCH,
       `${BUGABOO}: its height open, the push bar's`,
     ),
-    mass: ArchetypeBand.of("kg", 22.9 * 0.45359237, 27.8 * 0.45359237, BUGABOO),
+    mass: ArchetypeBand.of("kg", 22.9 * ArchetypeUnits.POUND, 27.8 * ArchetypeUnits.POUND, BUGABOO),
   };
 }

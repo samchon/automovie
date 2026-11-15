@@ -15,6 +15,7 @@ const DIMENSIONS: readonly (
   | "height"
   | "radius"
   | "travel"
+  | "reverse"
 )[] = [
   "aperture",
   "depth",
@@ -24,6 +25,7 @@ const DIMENSIONS: readonly (
   "height",
   "radius",
   "travel",
+  "reverse",
 ];
 
 /**

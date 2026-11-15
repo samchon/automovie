@@ -8,6 +8,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -24,14 +25,14 @@ const ADA: string =
  *
  * The flight rises along `+Z` from the floor at the origin: the first riser stands at `z = 0`, and each of the `steps` risers lifts by the same `riser` onto a tread of the same `tread` depth, the last onto the landing. Every nosing is a `ledge` named `step1` upward, facing down the flight, so a foot is placed from the nosing by the tread's depth. A handrail is a `bar` along the flight's slope at the rail height above the line of the nosings, on the climber's left (`+X`) or right.
  *
- * @param params The number of risers, the rails and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The number of risers, the rails, the occupant class and any dimension the author fixes.
+ * @param seed The seed that draws the occupant class when it is not given and every dimension left free inside its band; absent, the first class and the middle of each band.
  * @returns The flight.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of risers that is not a whole number from 2 to 20.
+ * @throws {ArchetypeRefusal} For an occupant class the code does not list, a fixed dimension outside its band, or a number of risers that is not a whole number from 2 to 20.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the flight's direction and origin, how steps are named and where a rail runs.
  * @evidence contracts/development/implementation.md#principled-implementation Every step is the same drawn riser and tread, so the flight is uniform exactly, inside the 9.5 mm of IBC 1011.5.4; the rail's height is the top of its gripping surface measured vertically above the nosing line, as IBC 1014.2 and ADA 505.4 measure it, and it runs one tread beyond the bottom riser on the slope and 305 mm level beyond the top one, the extensions of ADA 505.10.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, draw the dimensions, stack the steps and the landing, then each rail.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, pick the occupant class's width, draw the dimensions, stack the steps and the landing, then each rail.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Twenty risers at the tallest riser stay under the 3658 mm a flight may rise between landings (IBC 1011.8), so the count's limit is the code's, not a convenience.
  * @evidence contracts/development/implementation.md#efficient-algorithms One box per riser and four rods per rail.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -63,12 +64,21 @@ export function createStairs(
     params.rail ?? "both",
     createStairs.RAILS,
   );
-  const d: Record<createStairs.Dimension, number> = ArchetypeDraw.dimensions(
+  const occupancy: {
+    name: createStairs.Occupancy | undefined;
+    figures: Readonly<Partial<Record<createStairs.Dimension, number>>>;
+  } = ArchetypeDraw.model<createStairs.Occupancy, createStairs.Dimension>(
     "stairs",
-    createStairs.BANDS,
+    "occupancy",
+    params.occupancy,
+    createStairs.OCCUPANCIES,
     seed,
     params,
   );
+  const d: Record<createStairs.Dimension, number> = {
+    ...ArchetypeDraw.dimensions("stairs", createStairs.BANDS, seed, params),
+    width: occupancy.figures.width!,
+  };
   const { riser, tread, width }: Record<createStairs.Dimension, number> = d;
   const builder: ArchetypeBuilder<
     createStairs.Affordance,
@@ -195,7 +205,7 @@ export namespace createStairs {
   export const EXTENSION: number = 0.305;
 
   /** The greatest depth of the top landing along the flight, metres, 48 in: the landing is as deep as the flight is wide, up to this. An estimate, not read at a source. */
-  export const LANDING: number = 1.219;
+  export const LANDING: number = 48 * ArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -215,7 +225,7 @@ export namespace createStairs {
    *
    * - `riser`: the rise of every step.
    * - `tread`: the going of every step, nosing to nosing.
-   * - `width`: the flight's width.
+   * - `width`: the flight's least width, its occupant class's.
    * - `railHeight`: the top of a rail's gripping surface above the line of the nosings, measured vertically.
    * - `railDiameter`: a rail's round section.
    * - `mass`: kilograms per riser.
@@ -228,8 +238,24 @@ export namespace createStairs {
     | "railDiameter"
     | "mass";
 
-  /** The parameters: the count, the rails, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The code's occupant classes for a stair's width: under 50 occupants, and 50 or more. */
+  export type Occupancy = "under50" | "over50";
+
+  /** Each class's least width, metres, the default first: IBC 2021 1011.2, "36 in (914 mm)" under 50 occupants and "44 in (1118 mm)" otherwise. */
+  export const OCCUPANCIES: Readonly<
+    Record<Occupancy, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    under50: { width: 0.914 },
+    over50: { width: 1.118 },
+  };
+
+  /** The parameters: the count, the rails, the occupant class, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "width">, number>
+  > {
+    /** The occupant class the flight's width serves; drawn from the seed when absent. */
+    occupancy?: Occupancy;
+
     /** How many risers the flight has, 2 to 20; 12 when absent. */
     steps?: number;
 
@@ -241,32 +267,29 @@ export namespace createStairs {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "width">, IArchetypeBand>
+  > = {
     riser: ArchetypeBand.metres(
       0.102,
       0.178,
-      `${IBC} 1011.5.2, risers 4 to 7 in; ${ADA} 504.2 agrees`,
+      `${IBC} 1011.5.2, risers 4 to 7 in (102 to 178 mm); ${ADA} 504.2 agrees`,
     ),
     tread: ArchetypeBand.metres(
       0.279,
-      0.33,
-      `${IBC} 1011.5.2, treads at least 11 in; the upper end, 13 in, is an estimate`,
+      13 * ArchetypeUnits.INCH,
+      `${IBC} 1011.5.2, treads at least 11 in (279 mm); the upper end, 13 in, is an estimate`,
       true,
-    ),
-    width: ArchetypeBand.metres(
-      0.914,
-      1.118,
-      `${IBC} 1011.2, 36 in under 50 occupants and 44 in otherwise`,
     ),
     railHeight: ArchetypeBand.metres(
       0.865,
       0.965,
-      `${ADA} 505.4, gripping surface 34 to 38 in above the nosings; ${IBC} 1014.2 agrees`,
+      `${ADA} 505.4, gripping surface 34 to 38 in (865 to 965 mm) above the nosings; ${IBC} 1014.2 agrees`,
     ),
     railDiameter: ArchetypeBand.metres(
       0.032,
       0.051,
-      `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in`,
+      `${ADA} 505.7.1, circular gripping surface 1-1/4 to 2 in (32 to 51 mm)`,
     ),
     mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
   };

@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -242,34 +243,23 @@ export namespace createWearable {
   > = {
     watch: {
       width: ArchetypeBand.metres(0.0352, 0.0382, CASIO),
-      depth: ArchetypeBand.metres(
-        0.2,
-        0.24,
-        `the strap's length: ${UNREAD}`,
-        true,
-      ),
+      depth: ArchetypeBand.metres(0.2, 0.24, `the strap's length: ${UNREAD}`, true),
       height: ArchetypeBand.metres(0.0085, 0.0085, CASIO),
       mass: ArchetypeBand.of("kg", 0.021, 0.021, CASIO),
     },
     hat: {
       width: ArchetypeBand.metres(
-        (20.25 * 0.0254) / Math.PI + 2 * 2 * 0.0254,
-        (22.25 * 0.0254) / Math.PI + 2 * 4.125 * 0.0254,
+        (20.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 2 * ArchetypeUnits.INCH,
+        (22.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 4.125 * ArchetypeUnits.INCH,
         `${STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
       depth: ArchetypeBand.metres(
-        (20.25 * 0.0254) / Math.PI,
-        (22.25 * 0.0254) / Math.PI,
+        (20.25 * ArchetypeUnits.INCH) / Math.PI,
+        (22.25 * ArchetypeUnits.INCH) / Math.PI,
         `${STETSON}: the head's round as a circle's across`,
       ),
-      height: ArchetypeBand.metres(3.75 * 0.0254, 4.5 * 0.0254, STETSON),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.08,
-        0.2,
-        `the hat's weight: ${UNREAD}`,
-        true,
-      ),
+      height: ArchetypeBand.metres(3.75 * ArchetypeUnits.INCH, 4.5 * ArchetypeUnits.INCH, STETSON),
+      mass: ArchetypeBand.of("kg", 0.08, 0.2, `the hat's weight: ${UNREAD}`, true),
     },
     spectacles: {
       width: ArchetypeBand.metres(
@@ -279,13 +269,7 @@ export namespace createWearable {
       ),
       depth: ArchetypeBand.metres(0.15, 0.15, RAYBAN),
       height: ArchetypeBand.metres(0.041, 0.041, RAYBAN),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.02,
-        0.04,
-        `the frame's weight: ${UNREAD}`,
-        true,
-      ),
+      mass: ArchetypeBand.of("kg", 0.02, 0.04, `the frame's weight: ${UNREAD}`, true),
     },
   };
 }

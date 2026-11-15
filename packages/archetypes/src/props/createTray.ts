@@ -9,14 +9,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** IKEA's trays, read. */
-const TRAYS: string =
-  "IKEA serving trays: SMÖRLING 36 x 20 x 3 cm, GRILLTIDER 40 x 30 x 2 cm, SMULA 52 x 35 x 3 cm, GOKVÄLLÅ 56 x 37 cm (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/, https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/, https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/, https://www.ikea.com/gb/en/p/gokvaella-serving-tray-gold-colour-70615651/)";
-
-/** IKEA's handled baskets, read. */
-const BASKETS: string =
-  "IKEA RISATORP baskets with a wooden handle, 25 x 26 x 18 cm and 42 x 27 x 23 cm (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/, https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/)";
-
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 
@@ -25,10 +17,10 @@ const UNREAD: string = "the IKEA pages read give no weight of the item alone";
  *
  * It stands on its floor centred over the origin, its long side along `X`. Its walls rise round the floor to the drawn height: a tray's a low rim, a basket's deep sides. `inside` is the floor inside, facing up, where things are set; a tray is carried by `leftHandle` and `rightHandle`, its two short ends' rims, taken from outside; a basket by `handle`, a bar arched over its middle along `Z`.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The carrier.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands and where each kind is set into and carried.
  * @evidence contracts/development/implementation.md#principled-implementation A floor box and four wall boxes round it to the drawn height, and a basket's handle a rod across the top at a hand's clearance above the rim on two short posts.
@@ -48,12 +40,33 @@ export function createTray(
     params.kind,
     createTray.KINDS,
   );
-  const d: Record<createTray.Dimension, number> = ArchetypeDraw.dimensions(
+  const drawn: Partial<Record<createTray.Dimension, number>> =
+    ArchetypeDraw.dimensions(
     "tray",
     createTray.BANDS[kind],
     seed,
     params,
   );
+  // A tray or a basket is one of IKEA's read models whole.
+  const model: { name: createTray.Model | undefined; figures: createTray.Figures } =
+    ArchetypeDraw.model<createTray.Model, createTray.Dimension>(
+      "tray",
+      "model",
+      params.model,
+      createTray.MODELS[kind],
+      seed,
+      params,
+    );
+  const read: Partial<Record<createTray.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
+  const d: Record<createTray.Dimension, number> = {
+    width: read.width!,
+    depth: read.depth!,
+    height: read.height!,
+    mass: read.mass!,
+  };
   const builder: ArchetypeBuilder<createTray.Affordance, createTray.Dimension> =
     new ArchetypeBuilder({
       archetype: "tray",
@@ -188,24 +201,40 @@ export namespace createTray {
     /** Which carrier. */
     kind: Kind;
 
+    /** The kind's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `tray` when absent. */
     id?: string;
   }
 
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The models read: IKEA's SMÖRLING, GRILLTIDER and SMULA trays and its two RISATORP baskets. GOKVÄLLÅ is not built: its page gives no height. */
+  export type Model = "smorling" | "grilltider" | "smula" | "risatorp25" | "risatorp42";
+
+  /** Each kind's models whole, the default first, width x depth x height: SMÖRLING 36 x 20 x 3, GRILLTIDER 40 x 30 x 2 and SMULA 52 x 35 x 3 cm (https://www.ikea.com/gb/en/p/smoerling-serving-tray-set-of-2-beech-10570660/, https://www.ikea.com/gb/en/p/grilltider-serving-tray-stainless-steel-40615153/, https://www.ikea.com/gb/en/p/smula-tray-transparent-40041131/); RISATORP 25 x 26 x 18 and 42 x 27 x 23 cm (https://www.ikea.com/au/en/p/risatorp-basket-white-60480544/, https://www.ikea.com/gb/en/p/risatorp-basket-white-20527633/). */
+  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>> = {
+    tray: {
+      smorling: { width: 0.36, depth: 0.2, height: 0.03 },
+      grilltider: { width: 0.4, depth: 0.3, height: 0.02 },
+      smula: { width: 0.52, depth: 0.35, height: 0.03 },
+    },
+    basket: {
+      risatorp25: { width: 0.25, depth: 0.26, height: 0.18 },
+      risatorp42: { width: 0.42, depth: 0.27, height: 0.23 },
+    },
+  };
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     tray: {
-      width: ArchetypeBand.metres(0.36, 0.56, TRAYS),
-      depth: ArchetypeBand.metres(0.2, 0.37, TRAYS),
-      height: ArchetypeBand.metres(0.02, 0.03, TRAYS),
       mass: ArchetypeBand.of("kg", 0.4, 1, UNREAD, true),
     },
     basket: {
-      width: ArchetypeBand.metres(0.25, 0.42, BASKETS),
-      depth: ArchetypeBand.metres(0.26, 0.27, BASKETS),
-      height: ArchetypeBand.metres(0.18, 0.23, BASKETS),
       mass: ArchetypeBand.of("kg", 0.3, 0.8, UNREAD, true),
     },
   };

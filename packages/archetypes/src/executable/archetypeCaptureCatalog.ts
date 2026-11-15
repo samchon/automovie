@@ -2,50 +2,99 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
+  createAppliance,
   createBar,
+  createBeerTap,
+  createBin,
+  createBoard,
+  createCellFront,
+  createControl,
   createDoor,
+  createElevator,
+  createGate,
+  createHandhold,
+  createHatch,
   createLadder,
+  createMachine,
+  createMirror,
+  createObstacle,
   createRamp,
+  createSaloonDoor,
+  createSanitary,
   createStairs,
+  createStreetFixture,
   createSwitch,
+  createValve,
   createWall,
   createWindow,
 } from "../architecture";
 import { type Archetype, type ArchetypeCourse, ArchetypeRide } from "../core";
 import {
+  createBarrel,
   createBed,
+  createConsole,
+  createHighChair,
+  createLectern,
   createLoad,
+  createSafe,
   createSeat,
+  createShowcase,
   createStorage,
   createTable,
 } from "../furniture";
+import { createBoxingGlove, createHeavyBag } from "../gym";
+import { createInstrument, createMicrophone } from "../music";
+import { createFireRing, createRock, createTent, createTree } from "../nature";
 import {
   createBag,
   createBox,
   createCareItem,
   createDevice,
   createDrinkware,
+  createFood,
+  createLight,
   createLongTool,
   createSmoking,
   createStationery,
+  createTableware,
+  createMobilityAid,
   createTool,
+  createUmbrella,
+  createVessel,
 } from "../props";
 import {
+  createCue,
+  createCueTable,
+  createGoal,
+  createHighJump,
+  createPoolEdge,
+  createSkateboard,
+  createSki,
+  createStick,
+  createSurfboard,
+} from "../sport";
+import {
   createBicycle,
+  createBoat,
   createCar,
   createCart,
   createMotorcycle,
+  createWheelchair,
   driveCar,
   rideBicycle,
   rideMotorcycle,
 } from "../vehicles";
 import {
+  createBow,
+  createCannon,
   createClub,
   createHandgun,
   createHolster,
   createLongGun,
+  createMagazine,
   createPell,
   createPolearm,
+  createProjectile,
   createShield,
   createSword,
 } from "../weapons";
@@ -204,6 +253,36 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createLongTool.Kind): Archetype => createLongTool({ kind }),
       ),
     }),
+    tableware: still({
+      ...kinds(
+        "tableware",
+        createTableware.KINDS,
+        (kind: createTableware.Kind): Archetype => createTableware({ kind }),
+      ),
+      ...kinds(
+        "food",
+        createFood.KINDS,
+        (kind: createFood.Kind): Archetype => createFood({ kind }),
+      ),
+      ...kinds(
+        "light",
+        createLight.KINDS,
+        (kind: createLight.Kind): Archetype => createLight({ kind }),
+      ),
+      umbrella: createUmbrella(),
+      "umbrella-open": createUmbrella({ open: true }),
+      ...kinds(
+        "mobilityAid",
+        createMobilityAid.KINDS,
+        (kind: createMobilityAid.Kind): Archetype =>
+          createMobilityAid({ kind }),
+      ),
+      ...kinds(
+        "vessel",
+        createVessel.KINDS,
+        (kind: createVessel.Kind): Archetype => createVessel({ kind }),
+      ),
+    }),
     seats: still(
       kinds(
         "seat",
@@ -232,6 +311,16 @@ export function archetypeCaptureCatalog(): Readonly<
         createLoad.KINDS,
         (kind: createLoad.Kind): Archetype => createLoad({ kind }),
       ),
+      ...kinds(
+        "barrel",
+        createBarrel.KINDS,
+        (kind: createBarrel.Kind): Archetype => createBarrel({ kind }),
+      ),
+      highChair: createHighChair(),
+      lectern: createLectern(),
+      console: createConsole(),
+      safe: createSafe(),
+      showcase: createShowcase(),
     }),
     doors: still({
       "door-lever-right": door,
@@ -248,6 +337,13 @@ export function archetypeCaptureCatalog(): Readonly<
         createSwitch.KINDS,
         (kind: createSwitch.Kind): Archetype => createSwitch({ kind }),
       ),
+      ...kinds(
+        "control",
+        createControl.KINDS,
+        (kind: createControl.Kind): Archetype => createControl({ kind }),
+      ),
+      hatch: createHatch(),
+      beerTap: createBeerTap(),
     }),
     climbing: still({
       stairs: createStairs({ steps: 8 }),
@@ -269,6 +365,67 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createWall.Kind): Archetype => createWall({ kind }),
       ),
     }),
+    fixtures: still({
+      ...kinds(
+        "sanitary",
+        createSanitary.KINDS,
+        (kind: createSanitary.Kind): Archetype => createSanitary({ kind }),
+      ),
+      ...kinds(
+        "appliance",
+        createAppliance.KINDS,
+        (kind: createAppliance.Kind): Archetype => createAppliance({ kind }),
+      ),
+    }),
+    obstacles: still(
+      kinds(
+        "obstacle",
+        createObstacle.KINDS,
+        (kind: createObstacle.Kind): Archetype => createObstacle({ kind }),
+      ),
+    ),
+    street: still({
+      ...kinds(
+        "streetFixture",
+        createStreetFixture.KINDS,
+        (kind: createStreetFixture.Kind): Archetype =>
+          createStreetFixture({ kind }),
+      ),
+      ...kinds(
+        "bin",
+        createBin.KINDS,
+        (kind: createBin.Kind): Archetype => createBin({ kind }),
+      ),
+      ...kinds(
+        "gate",
+        createGate.KINDS,
+        (kind: createGate.Kind): Archetype => createGate({ kind }),
+      ),
+      ...kinds(
+        "machine",
+        createMachine.KINDS,
+        (kind: createMachine.Kind): Archetype => createMachine({ kind }),
+      ),
+      valve: createValve(),
+      elevator: createElevator(),
+      ...kinds(
+        "handhold",
+        createHandhold.KINDS,
+        (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
+      ),
+      cellFront: createCellFront(createCellFront.REFERENCE),
+      saloonDoor: createSaloonDoor(),
+      ...kinds(
+        "mirror",
+        createMirror.KINDS,
+        (kind: createMirror.Kind): Archetype => createMirror({ kind }),
+      ),
+      ...kinds(
+        "board",
+        createBoard.KINDS,
+        (kind: createBoard.Kind): Archetype => createBoard({ kind }),
+      ),
+    }),
     vehicles: still({
       ...kinds(
         "car",
@@ -286,15 +443,71 @@ export function archetypeCaptureCatalog(): Readonly<
         createCart.KINDS,
         (kind: createCart.Kind): Archetype => createCart({ kind }),
       ),
+      ...kinds(
+        "wheelchair",
+        createWheelchair.KINDS,
+        (kind: createWheelchair.Kind): Archetype => createWheelchair({ kind }),
+      ),
+      ...kinds(
+        "boat",
+        createBoat.KINDS,
+        (kind: createBoat.Kind): Archetype => createBoat({ kind }),
+      ),
     }),
     horse: still({ horse }),
+    nature: still({
+      ...kinds(
+        "rock",
+        createRock.KINDS,
+        (kind: createRock.Kind): Archetype => createRock({ kind }),
+      ),
+      ...kinds(
+        "fireRing",
+        createFireRing.KINDS,
+        (kind: createFireRing.Kind): Archetype => createFireRing({ kind }),
+      ),
+      ...kinds(
+        "tent",
+        createTent.KINDS,
+        (kind: createTent.Kind): Archetype => createTent({ kind }),
+      ),
+      ...kinds(
+        "tree",
+        createTree.KINDS,
+        (kind: createTree.Kind): Archetype => createTree({ kind }),
+      ),
+    }),
     weapons: still({
       ...kinds(
         "handgun",
         createHandgun.FRAMES,
         (frame: createHandgun.Frame): Archetype => createHandgun({ frame }),
       ),
-      holster: createHolster(),
+      ...kinds(
+        "holster",
+        createHolster.KINDS,
+        (kind: createHolster.Kind): Archetype => createHolster({ kind }),
+      ),
+      ...kinds(
+        "magazine",
+        createMagazine.KINDS,
+        (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
+      ),
+      ...kinds(
+        "projectile",
+        createProjectile.KINDS,
+        (kind: createProjectile.Kind): Archetype => createProjectile({ kind }),
+      ),
+      ...kinds(
+        "bow",
+        createBow.KINDS,
+        (kind: createBow.Kind): Archetype => createBow({ kind }),
+      ),
+      ...kinds(
+        "cannon",
+        createCannon.KINDS,
+        (kind: createCannon.Kind): Archetype => createCannon({ kind }),
+      ),
       ...kinds(
         "longGun",
         createLongGun.KINDS,
@@ -346,9 +559,52 @@ export function archetypeCaptureCatalog(): Readonly<
         wheel: 90,
       }),
       "bicycle-quarter": bicycle.articulate({ crank: 90 }),
+      "toilet-lid-down": createSanitary({ kind: "toilet" }).articulate({
+        lid: createSanitary.LIFT,
+      }),
+      "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
+        fridgeDoor: 90,
+      }),
       "carbine-extended": carbine.articulate({
         stock: carbine.affordance("stock").travel!,
       }),
+    }),
+    "sport-venues": still({
+      "pole-vault": createHighJump({ kind: "poleVault" }),
+      ...kinds(
+        "poolEdge",
+        createPoolEdge.KINDS,
+        (kind: createPoolEdge.Kind): Archetype => createPoolEdge({ kind }),
+      ),
+      boxingGlove: createBoxingGlove(),
+      heavyBag: createHeavyBag(),
+      ...kinds(
+        "goal",
+        createGoal.KINDS,
+        (kind: createGoal.Kind): Archetype => createGoal({ kind }),
+      ),
+      ...kinds(
+        "stick",
+        createStick.KINDS,
+        (kind: createStick.Kind): Archetype => createStick({ kind }),
+      ),
+      cue: createCue(),
+      cueTable: createCueTable(),
+      skateboard: createSkateboard(),
+      ski: createSki(),
+      surfboard: createSurfboard(),
+    }),
+    music: still({
+      ...kinds(
+        "instrument",
+        createInstrument.KINDS,
+        (kind: createInstrument.Kind): Archetype => createInstrument({ kind }),
+      ),
+      ...kinds(
+        "microphone",
+        createMicrophone.KINDS,
+        (kind: createMicrophone.Kind): Archetype => createMicrophone({ kind }),
+      ),
     }),
     "ride-car": moving("car", driveCar(car, COURSE)),
     "ride-bicycle": moving("bicycle", rideBicycle(bicycle, COURSE)),

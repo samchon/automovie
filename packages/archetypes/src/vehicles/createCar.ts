@@ -1,31 +1,30 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import {
-  Archetype,
+  ArchetypeUnits,
+  type Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeFrame,
+  type IArchetypeBand,
 } from "../core";
 import { CAR_BANDS } from "./CAR_BANDS";
+import { CarBody } from "./CarBody";
+import { CarCabin } from "./CarCabin";
+import { CarRear } from "./CarRear";
 
 /**
- * A passenger car: a sedan or a hatchback, with front doors that open, seats, a steering wheel, two pedals and a gear lever.
+ * A car: a sedan, a hatchback, a panel van or a crew-cab pickup, with doors, windows, a bonnet and a boot, tailgate or sliding door that open, reclining seats, the driver's controls, and road wheels that steer and spin.
  *
- * The car stands on its wheels with the middle of its wheelbase over the origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet, a boot, a roof on four pillars and low door panels) so the seats and the controls show through it. The driver sits on the side `drive` names; `left` is `+X`. Everything a driver's and a passenger's act reads is an affordance: the door hinges with their handles and the openings behind them, the seats, the steering wheel, the pedals and the gear lever, the driver's belt and the mirror.
- *
- * `driveCar` moves it along a course.
+ * The car stands on its wheels with the middle of its wheelbase over the origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet, a roof on pillars and low door panels) so the seats and the controls show through it. The driver sits on the side `drive` names; `left` is `+X`. Everything a driver's and a passenger's act reads is an affordance: the doors' hinges with their handles and the openings behind them, the windows that slide down and the openings above them, the seats and their reclining backs, the steering wheel, the accelerator, the bonnet, and what the class carries behind the cabin: a boot's lid and `load` floor, a van's sliding door and `cargo` floor, a pickup's tailgate and `bed`. The front road wheels steer as the steering wheel turns, and every road wheel spins on a `knob` that `driveCar` turns by the distance covered. Getting in by a front door is `HumanTravelCar.getIn`; getting out, and in by a rear door, a sliding door or over a tailgate, has no motion law yet, so those openings serve static staging until one is written (#3498).
  *
  * @param params The class, the driving side and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The car.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the class lacks.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on and what the affordances cover.
- * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods placed from the drawn length, width, height, wheelbase and seat height. The interior is laid out from the driver's seating reference point: `REFERENCE` behind the front axle, `seatHeight` above the cabin floor, with the wheel, the pedals and the lever at stated offsets from it. Each door's hinge axis points so a positive travel swings it outward.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the body, then the doors, the seats and the controls, each with its affordances.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets of the controls from the seating reference point are named constants marked as unsourced; road wheels neither steer nor spin, since no person's act reads them.
- * @evidence contracts/development/implementation.md#efficient-algorithms About thirty parts.
+ * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the rear and the cabin are their own modules, each building from the one layout.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The accelerator and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17. The overhangs, belt line, windows, doors, firewall and both rows' seating reference points along the car are the 2018 and 2023 Honda Accords' NCAP measurements. Four values remain named provisional ones, each stating the source to read: the cabin floor's height (`FLOOR`, bounded below by the read rocker edge and above by the derived belt line), the H-point's height over the cushion (`HIP`), the rear seat's height and the door handles' place (`HANDLE`). The brake, the gear lever, the mirror and the driver's belt grip are not built until a source places them. Bands read at search results only are marked provisional.
+ * @evidence contracts/development/implementation.md#efficient-algorithms About sixty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -46,13 +45,14 @@ export function createCar(
     ]) === "left"
       ? 1
       : -1;
-  const d: Record<createCar.Dimension, number> = ArchetypeDraw.dimensions(
-    "car",
-    createCar.BANDS[kind],
-    seed,
-    params,
-    createCar.BANDS,
-  );
+  const d: Partial<Record<createCar.Dimension, number>> =
+    ArchetypeDraw.dimensions(
+      "car",
+      createCar.BANDS[kind],
+      seed,
+      params,
+      createCar.BANDS,
+    );
   const builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension> =
     new ArchetypeBuilder({
       archetype: "car",
@@ -60,374 +60,198 @@ export function createCar(
       name: kind,
       dimensions: d,
     });
-  const v: typeof Vector3.create = Vector3.create;
-  const half: number = d.width / 2;
-  const front: number = d.wheelbase / 2 + (d.length - d.wheelbase) * 0.45;
-  const rear: number = front - d.length;
-  const floor: number = createCar.FLOOR;
-  const belt: number = floor + 0.55;
-  const firewall: number =
-    d.wheelbase / 2 - createCar.REFERENCE + createCar.HEEL + createCar.FOOTWELL;
-  const back: number = -d.wheelbase / 2 + 0.1;
-  const body: string = "#3f6c8f";
-
-  // The body: floor, bonnet, boot, roof on its pillars, and the wheels, which stand out to the doors' outer faces so the body's sides do not hide them.
-  builder.box(
-    "floor",
-    v(d.width, 0.12, d.length),
-    v(0, floor - 0.06, (front + rear) / 2),
-    { color: body },
-  );
-  builder.box(
-    "bonnet",
-    v(d.width, belt - floor, front - firewall),
-    v(0, (belt + floor) / 2, (front + firewall) / 2),
-    { color: body },
-  );
-  builder.box(
-    "boot",
-    v(d.width, (kind === "sedan" ? belt : d.height) - floor, back - rear),
-    v(0, ((kind === "sedan" ? belt : d.height) + floor) / 2, (back + rear) / 2),
-    { color: body },
-  );
-  builder.box(
-    "roof",
-    v(d.width, 0.04, firewall - 0.35 - back),
-    v(0, d.height - 0.02, (firewall - 0.35 + back) / 2),
-    { color: body },
-  );
-  for (const [name, x, z0, z1] of [
-    ["pillar-front-left", half - 0.03, firewall, firewall - 0.35],
-    ["pillar-front-right", -half + 0.03, firewall, firewall - 0.35],
-    ["pillar-rear-left", half - 0.03, back, back],
-    ["pillar-rear-right", -half + 0.03, back, back],
-  ] as const)
-    builder.rod(name, 0.03, v(x, belt, z0), v(x, d.height - 0.04, z1), {
-      color: body,
-    });
-  for (const [name, x, z] of [
-    ["wheel-front-left", 1, d.wheelbase / 2],
-    ["wheel-front-right", -1, d.wheelbase / 2],
-    ["wheel-rear-left", 1, -d.wheelbase / 2],
-    ["wheel-rear-right", -1, -d.wheelbase / 2],
-  ] as const)
-    builder.rod(
-      name,
-      d.wheelDiameter / 2,
-      v(x * (half - 0.18), d.wheelDiameter / 2, z),
-      v(x * (half + 0.02), d.wheelDiameter / 2, z),
-      { color: "#22262b" },
-    );
-
-  // The driver's seating reference point, from which the cabin is laid out.
-  const sz: number = d.wheelbase / 2 - createCar.REFERENCE;
-  const sy: number = floor + d.seatHeight;
-  const sx: number = half * 0.5;
-  const surface: number = sy - createCar.HIP;
-
-  // The front doors, the openings behind them and the front seats.
-  const pillar: number = sz - 0.25;
-  for (const [role, sign] of [
-    ["driver", side],
-    ["passenger", -side],
-  ] as const) {
-    const x: number = sign * half;
-    builder.box(
-      `door-${role}`,
-      v(0.04, belt - floor, firewall - pillar),
-      v(x, (belt + floor) / 2, (firewall + pillar) / 2),
-      { color: "#355c7a" },
-    );
-    builder.rod(
-      `door-handle-${role}`,
-      0.01,
-      v(x + sign * 0.03, belt - 0.08, pillar + 0.18),
-      v(x + sign * 0.03, belt - 0.08, pillar + 0.06),
-      { color: "#c9ccd1" },
-    );
-    builder.rod(
-      `pillar-mid-${role}`,
-      0.03,
-      v(sign * (half - 0.03), belt, pillar),
-      v(sign * (half - 0.03), d.height - 0.04, pillar),
-      { color: body },
-    );
-    builder.affordance({
-      id: `${role}Door`,
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(
-        v(x, (belt + floor) / 2, firewall),
-        v(0, -sign, 0),
-        v(0, 0, -1),
-      ),
-      extent: null,
-      travel: d.doorSwing,
-      parts: [`door-${role}`, `door-handle-${role}`],
-    });
-    builder.affordance({
-      id: `${role}DoorHandle`,
-      kind: "handle",
-      symmetry: "none",
-      frame: ArchetypeFrame.facing(
-        v(x + sign * 0.03, belt - 0.08, pillar + 0.12),
-        v(sign, 0, 0),
-        v(0, 0, 1),
-      ),
-      extent: null,
-      grip: "hook",
-      aperture: 0.02,
-      length: 0.12,
-      rides: `${role}Door`,
-    });
-    builder.affordance({
-      id: `${role}Aperture`,
-      kind: "aperture",
-      frame: ArchetypeFrame.facing(
-        v(x, floor, (firewall + pillar) / 2),
-        v(0, 1, 0),
-        v(0, 0, sign),
-      ),
-      extent: null,
-      width: firewall - pillar,
-      height: d.height - 0.04 - floor,
-    });
-    seat(builder, `${role}Seat`, role, v(sign * sx, surface, sz), 0.5);
-  }
-  seat(builder, "rearSeat", "rear", v(0, surface, sz - 0.8), d.width - 0.3);
-
-  // The steering wheel: a rim on its column's axis, tilted back from upright, turning lock to lock, with one spoke across it so a turn shows.
-  const tilt: number = (d.steeringAngle * Math.PI) / 180;
-  const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
-  const hub: IAutoMovieVector3 = v(
-    side * sx,
-    sy + createCar.WHEEL.up,
-    sz + createCar.WHEEL.ahead,
-  );
-  builder.rod(
-    "steering-rim",
-    d.steeringDiameter / 2,
-    Vector3.subtract(hub, Vector3.scale(axis, 0.015)),
-    Vector3.add(hub, Vector3.scale(axis, 0.015)),
-    { color: "#22262b" },
-  );
-  builder.rod(
-    "steering-column",
-    0.02,
-    Vector3.subtract(hub, Vector3.scale(axis, 0.3)),
-    hub,
-    { color: "#55595f" },
-  );
-  builder.rod(
-    "steering-spoke",
-    0.008,
-    Vector3.add(
-      hub,
-      Vector3.add(Vector3.scale(axis, 0.02), v(-d.steeringDiameter / 2, 0, 0)),
-    ),
-    Vector3.add(
-      hub,
-      Vector3.add(Vector3.scale(axis, 0.02), v(d.steeringDiameter / 2, 0, 0)),
-    ),
-    { color: "#c9ccd1" },
-  );
-  builder.affordance({
-    id: "wheel",
-    kind: "wheel",
-    frame: ArchetypeFrame.facing(hub, axis, v(1, 0, 0)),
-    extent: null,
-    grip: "power",
-    aperture: 0.03,
-    radius: d.steeringDiameter / 2,
-    travel: d.lockTurns * 180,
-    parts: ["steering-rim", "steering-spoke"],
-  });
-
-  // The pedals in the footwell behind the bulkhead, the accelerator under the right foot and the brake beside it.
-  const heel: number = sz + createCar.HEEL;
-  const sole: IAutoMovieVector3 = v(0, 0.5, -0.866);
-  for (const [id, offset, width] of [
-    ["accelerator", -0.1, 0.05],
-    ["brake", 0.02, 0.1],
-  ] as const) {
-    const at: IAutoMovieVector3 = v(
-      side * sx + offset,
-      floor + 0.15,
-      heel + 0.1,
-    );
-    builder.box(`pedal-${id}`, v(width, 0.01, 0.08), at, {
-      color: "#22262b",
-      rotation: ArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
-    });
-    builder.affordance({
-      id,
-      kind: "pedal",
-      frame: ArchetypeFrame.facing(
-        Vector3.add(at, Vector3.scale(sole, 0.005)),
-        sole,
-        v(1, 0, 0),
-      ),
-      extent: null,
-      width,
-      depth: 0.08,
-      travel: d.pedalTravel,
-      parts: [`pedal-${id}`],
-    });
-  }
-
-  // The gear lever between the seats, its knob slid fore and aft.
-  const knob: IAutoMovieVector3 = v(0, surface + 0.15, sz + 0.25);
-  builder.rod("gear-lever", 0.012, v(0, floor, sz + 0.25), knob, {
-    color: "#55595f",
-  });
-  builder.ball("gear-knob", 0.025, knob, { color: "#22262b" });
-  builder.affordance({
-    id: "gear",
-    kind: "slider",
-    frame: ArchetypeFrame.facing(knob, v(0, 1, 0), v(0, 0, -1)),
-    extent: null,
-    travel: 0.08,
-    parts: ["gear-lever", "gear-knob"],
-  });
-  builder.affordance({
-    id: "gearKnob",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(knob, v(0, 1, 0), v(0, 0, 1)),
-    extent: null,
-    grip: "power",
-    aperture: 0.05,
-    rides: "gear",
-  });
-  builder.affordance({
-    id: "driverBelt",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      v(side * (half - 0.05), sy + 0.5, pillar),
-      v(-side, 0, 0),
-      v(0, 1, 0),
-    ),
-    extent: null,
-    grip: "precision",
-  });
-  builder.affordance({
-    id: "mirror",
-    kind: "surface",
-    frame: ArchetypeFrame.facing(
-      v(0, d.height - 0.12, firewall - 0.4),
-      v(0, 0, -1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-  });
-  return builder.build(d.mass);
-}
-
-/** Add one seat: a cushion and a backrest, and its `seat` affordance on the cushion's front edge facing forward. */
-function seat(
-  builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
-  id: "driverSeat" | "passengerSeat" | "rearSeat",
-  name: string,
-  reference: IAutoMovieVector3,
-  width: number,
-): void {
-  // The cushion's surface passes under the reference point, which lies 0.1 m ahead of the backrest.
-  const depth: number = 0.48;
-  const rear: number = reference.z - 0.1;
-  builder.box(
-    `cushion-${name}`,
-    Vector3.create(width, 0.12, depth),
-    Vector3.create(reference.x, reference.y - 0.06, rear + depth / 2),
-    { color: "#6f7f93", density: 0.2 },
-  );
-  builder.box(
-    `backrest-${name}`,
-    Vector3.create(width, 0.6, 0.1),
-    Vector3.create(reference.x, reference.y + 0.3, rear - 0.05),
-    { color: "#6f7f93", density: 0.2 },
-  );
-  builder.affordance({
-    id,
-    kind: "seat",
-    frame: ArchetypeFrame.upright(
-      Vector3.create(reference.x, reference.y, rear + depth),
-    ),
-    extent: null,
-    depth,
-    width,
-    back: 0.6,
-  });
+  const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
+  CarBody.shell(builder, layout);
+  CarRear.build(builder, layout);
+  CarBody.wheels(builder, layout);
+  CarCabin.doors(builder, layout);
+  CarCabin.seats(builder, layout);
+  CarCabin.controls(builder, layout);
+  return builder.build(d.mass!, { rests: "rubber", ground: "asphalt" });
 }
 
 /**
- * Companion types and bands of {@link createCar}.
+ * Companion types, constants and bands of {@link createCar}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and layout constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per class, and the interior laid out from the seating reference point as SAE J1100 does.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions an entering and a driving act read (#3372): seat height, the wheel's place, size and turn, the door's swing, the pedals' travel.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Layout offsets no source gave are exported constants that say so, not numbers buried in the builder.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions an entering, driving and loading act reads (#3372, #3498): seat height, the wheel's place, size and turn, the doors' swing, the pedals' travel, the openings and the load floors.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Layout offsets no source gave are exported constants that say so, not numbers buried in the builders.
  */
 export namespace createCar {
   /** The classes of car. */
-  export type Kind = "sedan" | "hatchback";
+  export type Kind = "sedan" | "hatchback" | "van" | "pickup";
 
   /** Every class, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["sedan", "hatchback"];
+  export const KINDS: readonly Kind[] = ["sedan", "hatchback", "van", "pickup"];
 
-  /** The cabin floor (the heel's rest) above the ground, metres: a typical floor over the 128 to 146 mm ground clearance of the two Honda hatchbacks; not read at a source. */
+  /** The cabin floor (the heel's rest) above the ground of a sedan, a hatchback and a pickup, metres, a provisional value: 0.30 m, a typical floor, not read at a source. It fixes only the interior's height above the ground: the seat height (SAE J1100's H30), SAE J1516, L6 and H17 fix everything above it, and the doors' openings start at it. What is read bounds it: it lies above the rocker's lower edge (`ROCKER`, 176 mm) and so above the 128 to 146 mm ground clearance of the two Honda hatchbacks (Honda Jazz Hybrid and Civic Hybrid specifications), and below the belt line (`ROCKER` plus `BELT`, 921 mm). The source to read is J1100's H5 of a named sedan less its H30 (SAE 2021-36-0030; the Ergonomics 2012 vehicle ingress and egress study, https://doi.org/10.1080/00140139.2012.722694; UMTRI's ingress, egress and seating studies). A van's floor is its measured side step. */
   export const FLOOR: number = 0.3;
 
-  /** The driver's seating reference point behind the front axle, metres: a typical package, not read at a source. */
-  export const REFERENCE: number = 1.25;
+  /** The rocker panel's lower edge above the ground at the middle pillar, metres: 176 mm, the 2018 Honda Accord 1.5T LX's sill height at the B-pillar, measured from the ground to the body's lower edge (NHTSA side impact report M20185302, data sheet 10, p. 21, https://nrd-static.nhtsa.dot.gov/reports/vehdb/v10000/v10100/v10193R001.pdf). */
+  export const ROCKER: number = 0.176;
 
-  /** The seating reference point above the cushion's surface, metres: the 97.5 mm of the SAE J826 H-point machine, recalled and not read at a source. */
+  /** The belt line, the doors' top edge and the side windows' bottom, above the rocker's lower edge at the middle pillar, metres: 745 mm, the same report's sill height to window bottom sill (data sheet 10). A pickup's belt line is its bed's rail. */
+  export const BELT: number = 0.745;
+
+  /** The side windows' opening above the belt line, metres: 413 mm, the same report's front window opening (data sheet 10). */
+  export const WINDOW: number = 0.413;
+
+  /** The front overhang's share of the length beyond the wheelbase: 0.457, the same report's front axle to the front of the car (941 mm) over its length (4889 mm) less its wheelbase (2830 mm) (data sheet 10). */
+  export const OVERHANG: number = 0.457;
+
+  /** The front door's lower leading edge behind the front axle, metres: 578.6 mm. The 2023 Honda Accord LX's front axle lies 3992.1 mm ahead of its rear bumper: its 2835 mm wheelbase plus the rear overhang that `OVERHANG` leaves of its 4966 mm length. Its doors' lower leading edges average 3413.5 mm ahead of the same bumper (NHTSA NCAP report NCAP-MGA-23-030, data sheets 1 and 12, pp. 6 and 21, https://nrd-static.nhtsa.dot.gov/reports/vehdb/v10000/v15000/v15005R001.pdf). */
+  export const DOOR_AXLE: number = 0.5786;
+
+  /** The front door's lower leading edge aft of the firewall, metres: 390.5 mm, the 2023 report's firewall (3804) less the mean of its doors' lower leading edges (3409 and 3418) (data sheet 12). */
+  export const DOOR_LEAD: number = 0.3905;
+
+  /** The front door's length at its foot, metres: 1155 mm, the same report's mean lower leading edge (3413.5) less its mean lower trailing edge (2258.5) (data sheet 12). */
+  export const DOOR_SPAN: number = 1.155;
+
+  /** The driver's seating reference point ahead of the middle pillar, metres: 262 mm. This is the 2018 Accord's driver H-point to B-post striker along the car (M20185302, data sheet 3, p. 13), with the striker taken at the front door's trailing edge, where the door latches to it. SAE J1516 and the sedan package's L6 and H17 place the steering wheel from it. */
+  export const PILLAR_SGRP: number = 0.262;
+
+  /** The rear doors' trailing edge behind the front doors' leading edge, metres: 2059 mm, the 2018 Accord's front door leading edge (849 mm) and rear door trailing edge (1210 mm) on either side of the side impact's centreline (M20185302, data sheet 10). */
+  export const REAR_DOOR: number = 2.059;
+
+  /** The rear seat's H-point ahead of the rear doors' trailing edge, metres: 203 mm, the 2018 Accord's rear passenger H-point to C-post striker along the car (M20185302, data sheet 3), the striker taken at the rear door's trailing edge, where the door latches to it. */
+  export const REAR_SGRP: number = 0.203;
+
+  /** The seating reference point above the cushion's surface, metres, a provisional value: 97.5 mm, recalled as the height of the H-point machine's (HPM-II's) H-point above its seat pan and not read at a source. The public sample of ISO 20176:2020 ends before its Annex A (the machine's description) and Annex B (its specification and tolerances), which are the source to read, as is SAE J4002. The rear seat's cushion lies at the front seats' height, also a provisional value: the source to read is SAE J1100's H5 or H30 of a named sedan's second row. */
   export const HIP: number = 0.0975;
 
-  /** The heel point ahead of the seating reference point, metres: SAE J1100's L53, which the standard defines without a value; a typical sedan's, not read at a source. */
-  export const HEEL: number = 0.85;
+  /** The outside door handles' place, metres, a provisional value read by the act that opens a door: each handle's middle `drop` below the belt line and `aft` ahead of the door's rear edge, `length` long. The source to read is a side NCAP report that locates the handle against the striker, or a maker's body dimensions. */
+  export const HANDLE: Readonly<{ drop: number; aft: number; length: number }> =
+    { drop: 0.08, aft: 0.12, length: 0.12 };
+  /** The driver's occupant centreline outboard of the car's centreline, metres: 381 mm (SAE J826, 1995, 5.3.4), mirrored for the front passenger. */
+  export const OCCUPANT: number = 0.381;
 
-  /** The bulkhead ahead of the heel point, metres: the pedal pads stand 0.1 m ahead of the heel and travel on from there; an estimate, not read at a source. */
-  export const FOOTWELL: number = 0.16;
+  /** The right foot's offset to the right of the occupant's centreline, metres: half the 254 mm between a seated occupant's feet, centre to centre (ISO 6549:1999, 5.7.2.1 and 5.7.1.1.1); the accelerator lies under it. */
+  export const FOOT: number = 0.127;
 
-  /** The steering wheel's centre from the seating reference point, metres ahead and up: SAE J1100's L11 and H17 are measured from the heel point and given no value; a typical package, not read at a source. */
-  export const WHEEL: Readonly<{ ahead: number; up: number }> = {
-    ahead: 0.42,
-    up: 0.33,
-  };
+  /** The ball of foot's distance from the accelerator heel point along the pedal plane, metres: 203 mm (SAE J1516, reaffirmed 1990, 3.3.4; ISO 20176:2020 p. vii, consistent with ISO 6549 and SAE J1100, where it replaced an earlier 200 mm). */
+  export const BALL: number = 0.203;
+
+  /** The steering wheel's centre aft of the ball of foot, metres: SAE J1100's L6 of a typical mid-size sedan, 550 mm (Park, Jones, Ebert, Reed and Hallman 2018, Traffic Injury Prevention 19:825, p. 827). */
+  export const WHEEL_AFT: number = 0.55;
+
+  /** The steering wheel's centre above the accelerator heel point, metres: SAE J1100's H17 of the same sedan, 646 mm (Park et al. 2018, p. 827). */
+  export const WHEEL_HEIGHT: number = 0.646;
 
   /**
-   * The affordance ids:
+   * The pedal plane's angle from the floor at a seat height: SAE J1516's equation 2.
    *
-   * - `driverDoor`, `passengerDoor`: the front doors' hinges at their front edges; a positive travel swings the door outward.
-   * - `driverDoorHandle`, `passengerDoorHandle`: the outside handles, each riding its door.
-   * - `driverAperture`, `passengerAperture`: the door openings, passed through into the car.
-   * - `driverSeat`, `passengerSeat`, `rearSeat`: the seats, facing forward.
+   * @param seatHeight The seating reference point above the accelerator heel point, SAE J1100's H30, metres.
+   * @returns The angle, degrees, rising forward from the heel.
+   *
+   */
+  export function pedalPlane(seatHeight: number): number {
+    const z: number = seatHeight * 100;
+    return 78.96 - 0.15 * z - 0.0173 * z * z;
+  }
+
+  /**
+   * How far the seating reference point lies aft of the ball of foot at a seat height: SAE J1516's class A tool reference line.
+   *
+   * @param seatHeight SAE J1100's H30, metres.
+   * @returns The distance aft, metres.
+   *
+   */
+  export function seatAft(seatHeight: number): number {
+    const z: number = seatHeight * 1000;
+    return (793.7 + 0.903387 * z - 0.00225518 * z * z) / 1000;
+  }
+  /** A pickup's tailgate opening, degrees: it drops to level, held by its stays, a quarter turn from shut by the geometry of a gate hinged at its foot. */
+  export const TAILGATE: number = 90;
+
+  /** The spacing of the road wheels' steering table, degrees of the mean road wheel angle per row: linear interpolation between rows this close stays within a hundredth of a degree of the Ackermann angle, the curve's second derivative being under a radian per radian squared over a car's lock. */
+  export const STEER_STEP: number = 1;
+
+  /**
+   * The angle a front road wheel steers to so that its axle line meets the rear axle's at the turn's centre: Ackermann steering geometry.
+   *
+   * @param centre The equivalent single wheel's angle at the middle of the front axle, degrees, positive to the left: the steering wheel's turn over the steering ratio, the angle `driveCar` turns the car's path by.
+   * @param wheelbase The wheelbase, metres.
+   * @param side The wheel's offset from the car's centre line, metres, positive to the left (`+X`): half the track.
+   * @returns The wheel's steering angle, degrees, positive to the left; the inner wheel of a turn steers more than the outer.
+   *
+   */
+  export function ackermann(
+    centre: number,
+    wheelbase: number,
+    side: number,
+  ): number {
+    const tangent: number = Math.tan(centre * ArchetypeUnits.DEGREE);
+    return (
+      (Math.atan2(wheelbase * tangent, wheelbase - side * tangent) * 180) /
+      Math.PI
+    );
+  }
+
+  /**
+   * The affordance ids; a class lacks the ids of the parts it does not have:
+   *
+   * - `driverDoor`, `passengerDoor`, and on a sedan, a hatchback and a pickup `rearLeftDoor`, `rearRightDoor`: the side doors' hinges at their front edges; a positive travel swings a door outward.
+   * - `driverDoorHandle`, `passengerDoorHandle`, `rearLeftDoorHandle`, `rearRightDoorHandle`: the outside handles, each riding its door.
+   * - `driverAperture`, `passengerAperture`, `rearLeftAperture`, `rearRightAperture`: the door openings, passed through into the car.
+   * - `driverWindow`, `passengerWindow`, `rearLeftWindow`, `rearRightWindow`: each door's glass, sliding down into it, riding the door; and `driverWindowOpening` and the rest, the opening above the glass, its threshold riding the glass's top edge, clear to `height` with the glass fully down.
+   * - `driverSeat`, `passengerSeat`, and except in a van `rearSeat`: the seats, facing forward; `driverSeatBack` and the rest, each back's reclining hinge, a positive travel tipping it back.
    * - `wheel`: the steering wheel, its axis toward the driver; its travel is half the lock-to-lock turn to either side, positive to the left.
-   * - `accelerator`, `brake`: the pedals.
-   * - `gear`: the gear lever's fore-and-aft slide, and `gearKnob` the knob a hand holds, riding it.
-   * - `driverBelt`: where the driver's hand takes the belt on the pillar behind the door.
-   * - `mirror`: the rear-view mirror's face.
+   * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each about the upright through its centre, positive to the left, following `wheel` by its Ackermann angle (`ackermann`), so the inner wheel of a turn steers more than the outer; a `wheel` articulation because a road wheel steers to either side of straight, which a `knob`'s range from 0 does not allow.
+   * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each road wheel's roll about its axle, a positive travel rolling it forward, the front pair riding their steering.
+   * - `accelerator`: the accelerator pedal under the driver's right foot.
+   * - `bonnet`: the bonnet's hinge at its rear edge; a positive travel lifts its front.
+   * - `boot`, `load`: a sedan's boot lid or a hatchback's tailgate, a positive travel lifting it, and the boot's floor.
+   * - `slidingDoor`, `slidingAperture`, `cargo`: a van's sliding side door on the kerb side, running back along `+X` of its frame, the opening it clears, and the cargo floor.
+   * - `tailgate`, `bed`: a pickup's tailgate, a positive travel lowering it, and the bed's floor.
    */
   export type Affordance =
     | "driverDoor"
     | "passengerDoor"
+    | "rearLeftDoor"
+    | "rearRightDoor"
     | "driverDoorHandle"
     | "passengerDoorHandle"
+    | "rearLeftDoorHandle"
+    | "rearRightDoorHandle"
     | "driverAperture"
     | "passengerAperture"
+    | "rearLeftAperture"
+    | "rearRightAperture"
+    | "driverWindow"
+    | "passengerWindow"
+    | "rearLeftWindow"
+    | "rearRightWindow"
+    | "driverWindowOpening"
+    | "passengerWindowOpening"
+    | "rearLeftWindowOpening"
+    | "rearRightWindowOpening"
     | "driverSeat"
     | "passengerSeat"
     | "rearSeat"
+    | "driverSeatBack"
+    | "passengerSeatBack"
+    | "rearSeatBack"
     | "wheel"
+    | "frontLeftWheel"
+    | "frontRightWheel"
+    | "frontLeftSpin"
+    | "frontRightSpin"
+    | "rearLeftSpin"
+    | "rearRightSpin"
     | "accelerator"
-    | "brake"
-    | "gear"
-    | "gearKnob"
-    | "driverBelt"
-    | "mirror";
+    | "bonnet"
+    | "boot"
+    | "load"
+    | "slidingDoor"
+    | "slidingAperture"
+    | "cargo"
+    | "tailgate"
+    | "bed";
 
   /**
-   * The free dimensions, metres unless stated:
+   * The free dimensions, metres unless stated; a class lacks those of the parts it does not have:
    *
    * - `length`, `width`, `height`, `wheelbase`: the car's overall sizes.
    * - `wheelDiameter`: a road wheel with its tyre.
@@ -436,8 +260,13 @@ export namespace createCar {
    * - `steeringAngle`: the steering wheel's plane from upright, degrees.
    * - `steeringRatio`: steering wheel turn over road wheel turn, a ratio.
    * - `lockTurns`: steering wheel turns from lock to lock, a count.
-   * - `doorSwing`: a front door's widest opening, degrees.
+   * - `doorSwing`: a side door's widest opening, degrees.
    * - `pedalTravel`: how far a pedal is pressed.
+   * - `bonnetSwing`: the bonnet's widest opening, degrees.
+   * - `recline`: how far a seat back reclines from its upright setting, degrees.
+   * - `bootSwing`: a boot lid's or tailgate's widest opening, degrees; a sedan and a hatchback.
+   * - `sideDoorWidth`, `sideDoorHeight`: a van's sliding door opening; `sideStep`: the step at it, the van's cabin floor; `cargoFloor`: the cargo floor's height; `loadLength`: the cargo floor's length to the bulkhead.
+   * - `bedLength`, `bedWidth`, `bedDepth`, `bedFloor`: a pickup bed's floor length, inside width and depth, and its floor's height; its rail, at the floor's height plus its depth, is the pickup's belt line.
    * - `mass`: kerb mass, kilograms.
    */
   export type Dimension =
@@ -453,9 +282,21 @@ export namespace createCar {
     | "lockTurns"
     | "doorSwing"
     | "pedalTravel"
+    | "bonnetSwing"
+    | "recline"
+    | "bootSwing"
+    | "sideDoorWidth"
+    | "sideDoorHeight"
+    | "sideStep"
+    | "cargoFloor"
+    | "loadLength"
+    | "bedLength"
+    | "bedWidth"
+    | "bedDepth"
+    | "bedFloor"
     | "mass";
 
-  /** The parameters: the class, the driving side, and any free dimension fixed to a value inside its band. */
+  /** The parameters: the class, the driving side, and any free dimension the class has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which class. */
     kind: Kind;
@@ -468,5 +309,7 @@ export namespace createCar {
   }
 
   /** The band of each free dimension, by class. */
-  export const BANDS: typeof CAR_BANDS = CAR_BANDS;
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = CAR_BANDS;
 }

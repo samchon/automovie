@@ -9,31 +9,38 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** Two full-size service pistols' published tables. */
-const FULL: string =
-  "GLOCK G17 Gen5 technical data (https://eu.glock.com/en/products/pistols/g17-gen5) and SIG SAUER P320-M17 specifications (https://www.sigsauer.com/p320-m17.html)";
-
-/** Two compact service pistols' published tables. */
-const COMPACT: string =
-  "GLOCK G19 Gen5 technical data (https://eu.glock.com/en/products/pistols/g19-gen5) and SIG SAUER P320-M18 specifications (https://www.sigsauer.com/p320-m18.html)";
-
-/** The maker's guide that gives the trigger's reach and travel. */
+/** The maker's guide that gives the trigger's reach by backstrap and its travel. */
 const TRIGGER: string =
-  "GLOCK Gen4 Buyer's Guide, trigger distance 70 to 74 mm by backstrap and trigger travel about 12.5 mm (https://www.krale.shop/media/blfa_files/Glock_Generation_4_Models_manual_exploded_view_EN-min_2.pdf)";
+  "GLOCK Gen4 Buyer's Guide, p. 4, trigger distance 70, 72 and 74 mm without, with the medium and with the large backstrap, and trigger travel about 12.5 mm (https://www.krale.shop/media/blfa_files/Glock_Generation_4_Models_manual_exploded_view_EN-min_2.pdf)";
 
 /** Dimensions no maker publishes. */
 const UNPUBLISHED: string = "not published by either maker; an estimate";
 
-/** The bands both frames share. */
+/** The bands of the dimensions a model leaves, the same for both frames: each drawn only for a model that does not give it. */
 const SHARED: Readonly<
   Record<
     "width" | "triggerReach" | "triggerTravel" | "gripDepth",
     IArchetypeBand
   >
 > = {
-  width: ArchetypeBand.metres(0.0255, 0.0255, `${FULL}: slide width 25.5 mm`),
-  triggerReach: ArchetypeBand.metres(0.07, 0.074, TRIGGER),
-  triggerTravel: ArchetypeBand.metres(0.0125, 0.0125, TRIGGER),
+  width: ArchetypeBand.metres(
+    0.0255,
+    0.0255,
+    "slide width: SIG SAUER publishes only the overall width; the one slide width read, GLOCK's 25.5 mm on the G17 and G19 Gen5 (https://eu.glock.com/en/products/pistols/g17-gen5), applied",
+    true,
+  ),
+  triggerReach: ArchetypeBand.metres(
+    0.07,
+    0.074,
+    `${TRIGGER}: SIG SAUER publishes no trigger distance; the GLOCKs' read range applied`,
+    true,
+  ),
+  triggerTravel: ArchetypeBand.metres(
+    0.0125,
+    0.0125,
+    `${TRIGGER}: no Gen5 or SIG SAUER figure is published; the Gen4 figure applied`,
+    true,
+  ),
   gripDepth: ArchetypeBand.metres(
     0.048,
     0.055,
@@ -47,14 +54,14 @@ const SHARED: Readonly<
  *
  * The pistol stands on the base of its grip at the origin with its muzzle toward `+Z` and its backstrap at `z = 0`. The shooting hand takes the `grip` from behind; the `trigger` is a part on its articulation, its face `triggerReach` ahead of the backstrap, as makers measure it; the `slide` runs back on its slider. `sight` and `frontSight` give the line of aim, `muzzle` the end of the barrel and `magazine` the well under the grip.
  *
- * @param params The frame size, whether it is loaded and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The frame size, the model and a GLOCK's sights, whether it is loaded and any dimension the author fixes.
+ * @param seed The seed that picks the model and the sights left free and draws every dimension left free inside its band; absent, the first model, the first sights and the middle of each band.
  * @returns The handgun.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model not of the frame, sights on a pistol without them, a fixed dimension outside its band, or one the model or the sights give.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the pistol stands and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the makers' published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the grip, the slide and the trigger, then the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the picked pistol's published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model and the sights, draw the other dimensions, build the grip, the slide and the trigger, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip is upright, without its rake, and there is no trigger guard; neither changes where a hand or a finger goes.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -70,13 +77,23 @@ export function createHandgun(
     params.frame,
     createHandgun.FRAMES,
   );
-  const d: Record<createHandgun.Dimension, number> = ArchetypeDraw.dimensions(
-    "handgun",
-    createHandgun.BANDS[frame],
-    seed,
-    params,
-    createHandgun.BANDS,
-  );
+  // One of the frame's two read pistols whole, and a GLOCK's sights, which set its sight radius.
+  const model: { name: createHandgun.Model | undefined; figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
+    ArchetypeDraw.model<createHandgun.Model, createHandgun.Dimension>("handgun", "model", params.model, createHandgun.MODELS[frame], seed, params);
+  const sights: { figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
+    ArchetypeDraw.model<createHandgun.Sights, createHandgun.Dimension>(
+      "handgun",
+      "sights",
+      params.sights,
+      model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createHandgun.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("handgun", createHandgun.BANDS[frame], seed, params, createHandgun.BANDS),
+    ...model.figures,
+    ...sights.figures,
+  };
   const builder: ArchetypeBuilder<
     createHandgun.Affordance,
     createHandgun.Dimension
@@ -88,27 +105,27 @@ export function createHandgun(
   });
   const v: typeof Vector3.create = Vector3.create;
   const slide: number = 0.028;
-  const top: number = d.height;
+  const top: number = d.height!;
   const under: number = top - slide;
   const rear: number = -0.02;
-  const muzzle: number = rear + d.length;
+  const muzzle: number = rear + d.length!;
   const steel: string = "#2c2f33";
   builder.box(
     "grip",
-    v(0.03, under, d.gripDepth),
-    v(0, under / 2, d.gripDepth / 2),
+    v(0.03, under, d.gripDepth!),
+    v(0, under / 2, d.gripDepth! / 2),
     { color: steel, density: 0.5 },
   );
   builder.box(
     "slide",
-    v(d.width, slide, d.length),
+    v(d.width!, slide, d.length!),
     v(0, top - slide / 2, (rear + muzzle) / 2),
     { color: steel },
   );
   builder.box(
     "trigger",
     v(0.008, 0.02, 0.006),
-    v(0, under - 0.02, d.triggerReach - 0.003),
+    v(0, under - 0.02, d.triggerReach! - 0.003),
     { color: "#55595f" },
   );
 
@@ -117,25 +134,25 @@ export function createHandgun(
     kind: "handle",
     symmetry: "none",
     frame: ArchetypeFrame.facing(
-      v(0, under / 2, d.gripDepth / 2),
+      v(0, under / 2, d.gripDepth! / 2),
       v(0, 0, -1),
       v(0, 1, 0),
     ),
     extent: null,
     grip: "power",
-    aperture: d.gripDepth,
+    aperture: d.gripDepth!,
     length: under,
   });
   builder.affordance({
     id: "trigger",
     kind: "trigger",
     frame: ArchetypeFrame.facing(
-      v(0, under - 0.02, d.triggerReach),
+      v(0, under - 0.02, d.triggerReach!),
       v(0, 0, 1),
       v(1, 0, 0),
     ),
     extent: null,
-    travel: d.triggerTravel,
+    travel: d.triggerTravel!,
     parts: ["trigger"],
   });
   builder.affordance({
@@ -148,13 +165,13 @@ export function createHandgun(
     ),
     extent: null,
     grip: "power",
-    aperture: d.width,
+    aperture: d.width!,
     travel: createHandgun.RACK,
     parts: ["slide"],
   });
   for (const [id, z] of [
     ["sight", rear + 0.01],
-    ["frontSight", rear + 0.01 + d.sightRadius],
+    ["frontSight", rear + 0.01 + d.sightRadius!],
   ] as const)
     builder.affordance({
       id,
@@ -178,14 +195,14 @@ export function createHandgun(
     id: "magazine",
     kind: "socket",
     frame: ArchetypeFrame.facing(
-      v(0, 0, d.gripDepth / 2),
+      v(0, 0, d.gripDepth! / 2),
       v(0, -1, 0),
       v(1, 0, 0),
     ),
     extent: null,
   });
   return builder.build(
-    d.mass + (params.loaded === true ? createHandgun.AMMUNITION[frame] : 0),
+    d.mass! + (params.loaded === true ? createHandgun.AMMUNITION[frame] : 0),
   );
 }
 
@@ -193,9 +210,9 @@ export function createHandgun(
  * Companion types and bands of {@link createHandgun}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each frame, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per frame, read from makers' published tables.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of frames, read pistols and sights, each pistol whole from its own maker's table, and one band per dimension a pistol leaves, provisional where it applies another maker's figure.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The outside sizes, the trigger's reach and travel and the sight line an aiming and holding act read (#3374).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Loading is a parameter that adds a published mass, not a second set of bands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Loading is a parameter that adds a published mass, not a second set of bands; nothing between two pistols or two sights is drawn, and no maker's figure stands in another maker's pistol.
  */
 export namespace createHandgun {
   /** The frame sizes. */
@@ -252,10 +269,55 @@ export namespace createHandgun {
     | "gripDepth"
     | "mass";
 
-  /** The parameters: the frame, whether it is loaded, and any free dimension fixed to a value inside its band. */
+  /** The read pistols: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact. */
+  export type Model = "g17" | "p320m17" | "g19" | "p320m18";
+
+  /** A GLOCK's sights, which set its sight radius: polymer, steel or GNS. */
+  export type Sights = "polymer" | "steel" | "gns";
+
+  /**
+   * Each frame's pistols whole, the default first, each from its own maker's table:
+   *
+   * - G17 Gen5: 202 mm long, 139 mm high with magazine, slide 25.5 mm wide, trigger distance 70 mm, 708 g with an empty magazine (https://eu.glock.com/en/products/pistols/g17-gen5).
+   * - P320-M17: 8.5 in (216 mm) long, 5.5 in (139 mm) high, 6.6 in (168 mm) sight radius, 29.6 oz (839.1 g), the magazine state not stated (https://www.sigsauer.com/p320-m17.html; the 216 mm of the two 10-round SKUs, the first SKU's 6.6 in overall length repeating its sight radius).
+   * - G19 Gen5: 185 mm long, 128 mm high, slide 25.5 mm wide, trigger distance 70 mm, 670 g with an empty magazine (https://eu.glock.com/en/products/pistols/g19-gen5).
+   * - P320-M18: 7.2 in (183 mm) long, 5.5 in (140 mm) high, 5.8 in (147 mm) sight radius, 28.1 oz (797 g), the magazine state not stated (https://www.sigsauer.com/p320-m18.html).
+   */
+  export const MODELS: Readonly<Record<Frame, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    fullSize: {
+      g17: { length: 0.202, height: 0.139, width: 0.0255, triggerReach: 0.07, mass: 0.708 },
+      p320m17: { length: 0.216, height: 0.139, sightRadius: 0.168, mass: 0.8391 },
+    },
+    compact: {
+      g19: { length: 0.185, height: 0.128, width: 0.0255, triggerReach: 0.07, mass: 0.67 },
+      p320m18: { length: 0.183, height: 0.14, sightRadius: 0.147, mass: 0.797 },
+    },
+  };
+
+  /** A GLOCK's sight radius by its sights, the maker's tables: G17 Gen5 165, 164 and 163 mm, G19 Gen5 153, 152 and 151 mm for polymer, steel and GNS. A SIG SAUER's is its model's. */
+  export const SIGHTS: Readonly<Partial<Record<Model, Readonly<Record<Sights, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+    g17: {
+      polymer: { sightRadius: 0.165 },
+      steel: { sightRadius: 0.164 },
+      gns: { sightRadius: 0.163 },
+    },
+    g19: {
+      polymer: { sightRadius: 0.153 },
+      steel: { sightRadius: 0.152 },
+      gns: { sightRadius: 0.151 },
+    },
+  };
+
+  /** The parameters: the frame, the model and its sights, whether it is loaded, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which frame size. */
     frame: Frame;
+
+    /** Which of the frame's read pistols; picked from the seed when absent. */
+    model?: Model;
+
+    /** A GLOCK's sights; picked from the seed when absent. A SIG SAUER has none to choose. */
+    sights?: Sights;
 
     /** Whether the magazine is full, which adds its published mass; empty when absent. */
     loaded?: boolean;
@@ -264,33 +326,11 @@ export namespace createHandgun {
     id?: string;
   }
 
-  /** The band of each free dimension, by frame. */
+  /** The band of each free dimension a model leaves, by frame. */
   export const BANDS: Readonly<
-    Record<Frame, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Frame, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
-    fullSize: {
-      ...SHARED,
-      length: ArchetypeBand.metres(0.202, 0.216, FULL),
-      height: ArchetypeBand.metres(0.139, 0.139, FULL),
-      sightRadius: ArchetypeBand.metres(0.163, 0.168, FULL),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.708,
-        0.839,
-        `${FULL}; the SIG figure's magazine state is not stated`,
-      ),
-    },
-    compact: {
-      ...SHARED,
-      length: ArchetypeBand.metres(0.183, 0.185, COMPACT),
-      height: ArchetypeBand.metres(0.128, 0.14, COMPACT),
-      sightRadius: ArchetypeBand.metres(0.147, 0.153, COMPACT),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.67,
-        0.797,
-        `${COMPACT}; the SIG figure's magazine state is not stated`,
-      ),
-    },
+    fullSize: SHARED,
+    compact: SHARED,
   };
 }

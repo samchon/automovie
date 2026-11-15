@@ -14,7 +14,9 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  * which names each subpath it exports with that subpath's module. A producer
  * is every function a family exports whose name starts with `create`. Its
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
- * and its bands are its `BANDS`. Nothing here names a producer or a kind, so
+ * its bands are its `BANDS`, and the parameters it needs beyond its variant
+ * are its `REFERENCE`, the stated instance it carries for a caller without
+ * a site. Nothing here names a producer or a kind, so
  * one a package adds, in a family it already has or a new one, appears
  * without a change to the site.
  */
@@ -35,6 +37,9 @@ export namespace GalleryCatalogue {
 
     /** The band of each free dimension, by variant where the producer has variants. */
     BANDS?: Readonly<Record<string, unknown>>;
+
+    /** The parameters a producer needs beyond its variant, as the stated reference instance it carries, such as a cell front's narrowest width. */
+    REFERENCE?: Readonly<Record<string, unknown>>;
   }
 
   /** The archetype families, by subpath, in the package's order. */

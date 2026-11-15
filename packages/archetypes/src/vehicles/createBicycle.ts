@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
+  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
@@ -71,7 +72,7 @@ export function createBicycle(
     -Math.sqrt(stay * stay - (radius - d.bottomBracket) ** 2),
   );
   const fore: IAutoMovieVector3 = v(0, radius, rear.z + d.wheelbase);
-  const angle: number = (d.seatAngle * Math.PI) / 180;
+  const angle: number = d.seatAngle * ArchetypeUnits.DEGREE;
   const saddle: IAutoMovieVector3 = v(
     0,
     d.bottomBracket + d.saddleHeight * Math.sin(angle),
@@ -87,6 +88,7 @@ export function createBicycle(
     builder.rod(name, radius, v(-0.012, at.y, at.z), v(0.012, at.y, at.z), {
       color: "#22262b",
       density: 0.2,
+      surface: "rubber",
     });
   for (const [name, from, to] of [
     ["seat-tube", bracket, v(0, saddle.y - 0.03, saddle.z)],
@@ -192,7 +194,7 @@ export function createBicycle(
       rides: "crank",
     });
   }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
 /**

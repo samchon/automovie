@@ -39,8 +39,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * lying trunk's half depth with room, an estimate) and the head level with
  * them within a quarter of the stature. The landing box is a 0.762 m
  * plyometric box standing in for a mat: only its top's height is read, and
- * whether the body lies within its extent is not. The pole is a 3 m spear,
- * the longest shaft the archetypes make, taken up standing on its butt and
+ * whether the body lies within its extent is not. The pole is a 3 m spear
+ * carrying the longest catalogued head, Met 1989.220's 54 cm, the longest
+ * shaft the archetypes make, taken up standing on its butt and
  * planted by its butt, so it reaches 1.5 m from the hand: a short pole's
  * vault.
  *
@@ -79,8 +80,8 @@ export function test_human_motion_gymnastics_jumps(): void {
   const top: number = 0.762;
   const spear: ReturnType<typeof createPolearm> = createPolearm({
     kind: "spear",
+    model: "met1989",
     length: 3,
-    headLength: 0.6,
   });
   const upright: IAutoMovieQuaternion = Quaternion.identity();
   // A high jump whose 30 mm crossbar's axis is at a height, up to the

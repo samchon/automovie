@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -78,6 +79,7 @@ export function createMotorcycle(
   ] as const)
     builder.rod(name, radius, v(-0.05, radius, z), v(0.05, radius, z), {
       color: "#22262b",
+      surface: "rubber",
     });
 
   // The seat is behind the middle, and a scooter's floorboard ahead of it.
@@ -200,7 +202,7 @@ export function createMotorcycle(
         depth: 0.03,
       });
     }
-  return builder.build(d.mass);
+  return builder.build(d.mass, { rests: "rubber", ground: "asphalt" });
 }
 
 /**
@@ -289,9 +291,9 @@ export namespace createMotorcycle {
         true,
       ),
       gripDiameter: ArchetypeBand.metres(
-        0.0222,
-        0.0222,
-        "the 7/8 in (22.2 mm) handlebar, not read at a source",
+        (7 / 8) * ArchetypeUnits.INCH,
+        (7 / 8) * ArchetypeUnits.INCH,
+        "the 7/8 in handlebar, not read at a source",
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
@@ -312,9 +314,9 @@ export namespace createMotorcycle {
         true,
       ),
       gripDiameter: ArchetypeBand.metres(
-        0.0222,
-        0.0222,
-        "the 7/8 in (22.2 mm) handlebar, not read at a source",
+        (7 / 8) * ArchetypeUnits.INCH,
+        (7 / 8) * ArchetypeUnits.INCH,
+        "the 7/8 in handlebar, not read at a source",
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),

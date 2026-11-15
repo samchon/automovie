@@ -1,0 +1,415 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import {
+  ArchetypeUnits,
+  type Archetype,
+  ArchetypeBuilder,
+  ArchetypeDraw,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+import { BOAT_BANDS } from "./BOAT_BANDS";
+import { BoatOars } from "./BoatOars";
+
+/**
+ * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy pulling boat for a landing party.
+ *
+ * The boat floats with its root on still water under the middle of its length, its bow toward `+Z`: its bottom `draft` below the water and its gunwale `depth` above the bottom. People sit on its `thwart<k>` seats, a rowboat's and a launch's facing aft as rowers do, a canoe's facing forward as paddlers do, and a rowboat's `sternSeat` facing forward; they stand on its `floor`, take its `gunwale` boarding, and step over its `bow` and `stern`. A rowboat's two oars each turn in an oarlock about the upright (`leftOarlock`, `rightOarlock`), lift about the oarlock's pin riding that (`leftOar`, `rightOar`), and are held by their `leftHandle` and `rightHandle`; `rowBoat` rows it along a course. A racing shell's sliding seat is out of scope: on a fixed thwart the trunk and arms make the stroke.
+ *
+ * @param params The kind and any dimension the author fixes.
+ * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @returns The boat.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
+ * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, then the hull's bottom and two sides to each end, the kind's seats at their sourced places, and a rowboat's oars (`BoatOars`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Hull, seats, contacts, oars.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull is flat panels to a stem and a transom, its curves not modelled; the unread places are named provisional constants here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+export function createBoat(
+  params: createBoat.IParams,
+  seed?: number | string,
+): Archetype<createBoat.Affordance, createBoat.Dimension> {
+  const kind: createBoat.Kind = ArchetypeDraw.choice(
+    "boat",
+    "kind",
+    params.kind,
+    createBoat.KINDS,
+  );
+  const d: Partial<Record<createBoat.Dimension, number>> =
+    ArchetypeDraw.dimensions(
+      "boat",
+      createBoat.BANDS[kind],
+      seed,
+      params,
+      createBoat.BANDS,
+    );
+  const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
+    new ArchetypeBuilder({
+      archetype: "boat",
+      id: params.id,
+      name: kind === "launch" ? "pulling boat" : kind,
+      dimensions: d,
+    });
+  const v: typeof Vector3.create = Vector3.create;
+  const length: number = d.length!;
+  const beam: number = d.beam!;
+  const draft: number = d.draft ?? createBoat.DRAFT[kind];
+  const bottom: number = -draft;
+  const gunwale: number = d.depth! - draft;
+  const stern: number = kind === "canoe" ? 0 : (createBoat.TRANSOM * beam) / 2;
+  const ends: number = kind === "canoe" ? bottom + d.endHeight! : gunwale;
+
+  // The hull: a bottom, and each side in two flat panels, aft from the transom's corner (a canoe's stern post) to the widest beam amidships, and forward to the stem.
+  builder.box(
+    "bottom",
+    v(beam * 0.6, 0.03, length * 0.85),
+    v(0, bottom + 0.015, 0),
+    { color: HULL, surface: "wood" },
+  );
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
+    panel(
+      builder,
+      `side-${side}-aft`,
+      v(sign * stern, 0, -length / 2),
+      v((sign * beam) / 2, 0, 0),
+      bottom,
+      gunwale,
+    );
+    panel(
+      builder,
+      `side-${side}-fore`,
+      v((sign * beam) / 2, 0, 0),
+      v(0, 0, length / 2),
+      bottom,
+      gunwale,
+    );
+  }
+  builder.box(
+    "stem",
+    v(0.04, ends - bottom, 0.04),
+    v(0, (ends + bottom) / 2, length / 2),
+    { color: HULL },
+  );
+  if (stern === 0)
+    builder.box(
+      "sternpost",
+      v(0.04, ends - bottom, 0.04),
+      v(0, (ends + bottom) / 2, -length / 2),
+      { color: HULL },
+    );
+  if (stern > 0)
+    builder.box(
+      "transom",
+      v(2 * stern, gunwale - bottom, 0.03),
+      v(0, (gunwale + bottom) / 2, -length / 2),
+      { color: HULL },
+    );
+  builder.box(
+    "floor",
+    v(beam * 0.5, 0.02, length * 0.6),
+    v(0, bottom + 0.04, 0),
+    { color: WOOD, surface: "wood" },
+  );
+  builder.affordance({
+    id: "floor",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, bottom + 0.05, 0)),
+    extent: null,
+    width: beam * 0.5,
+    depth: length * 0.6,
+  });
+  builder.rod(
+    "gunwale",
+    createBoat.RAIL / 2,
+    v(beam / 2, gunwale, -length / 8),
+    v(beam / 2, gunwale, length / 8),
+    { color: WOOD, surface: "wood" },
+  );
+  builder.affordance({
+    id: "gunwale",
+    kind: "bar",
+    symmetry: "round",
+    frame: ArchetypeFrame.facing(
+      v(beam / 2, gunwale, 0),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
+    extent: null,
+    grip: "power",
+    aperture: createBoat.RAIL,
+    length: length / 4,
+  });
+  builder.affordance({
+    id: "bow",
+    kind: "ledge",
+    frame: ArchetypeFrame.upright(v(0, ends, length / 2 - 0.05)),
+    extent: null,
+    length: 0.1,
+  });
+  builder.affordance({
+    id: "stern",
+    kind: "ledge",
+    frame: ArchetypeFrame.upright(v(0, ends, -length / 2 + 0.05)),
+    extent: null,
+    length: Math.max(2 * stern, 0.1),
+  });
+
+  // The seats.
+  if (kind === "rowboat") {
+    const span: number = beam;
+    const pivot: number = gunwale + createBoat.LOCK;
+    const seat: number = pivot - BoatOars.HEIGHT * span;
+    const aft: number = BoatOars.AFT * span;
+    thwart(builder, "thwart0", seat, aft, beam * 0.95, -1);
+    thwart(
+      builder,
+      "thwart1",
+      seat,
+      aft + createBoat.ROWBOAT.forward,
+      beam * 0.8,
+      -1,
+    );
+    thwart(
+      builder,
+      "sternSeat",
+      seat,
+      -length / 2 + createBoat.ROWBOAT.stern,
+      2 * stern,
+      1,
+    );
+    BoatOars.build(builder, d);
+  } else if (kind === "canoe") {
+    const seat: number = bottom + d.seatHeight!;
+    thwart(builder, "thwart0", seat, createBoat.CANOE.bow, beam * 0.6, 1);
+    thwart(builder, "thwart1", seat, -createBoat.CANOE.stern, beam * 0.7, 1);
+  } else {
+    const seat: number = gunwale - createBoat.LAUNCH.below;
+    for (let k: number = 0; k < createBoat.LAUNCH.thwarts; k++)
+      thwart(
+        builder,
+        `thwart${k}` as createBoat.Affordance,
+        seat,
+        (k - (createBoat.LAUNCH.thwarts - 1) / 2) * createBoat.LAUNCH.room -
+          createBoat.THWART / 2,
+        beam * 0.9,
+        -1,
+      );
+  }
+  return builder.build(d.mass!);
+}
+
+/**
+ * Companion types, constants and bands of {@link createBoat}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and its source, or that none was read and which to read.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per kind, and the seats' places as named constants.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What sitting, standing, boarding and rowing read (#3497): the thwarts, the floor, the gunwale, the ends, the oars.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The launch is one measured boat, so its bands are single figures.
+ */
+export namespace createBoat {
+  /** The kinds of boat. */
+  export type Kind = "rowboat" | "canoe" | "launch";
+
+  /** Every kind, for a caller that reads one at run time. */
+  export const KINDS: readonly Kind[] = ["rowboat", "canoe", "launch"];
+
+  /** The gunwale's rail where a boarding hand takes it, metres across: a construction estimate, read by the grasp as the bar's width. */
+  export const RAIL: number = 0.04;
+
+  /** A thwart's depth fore and aft, metres: a construction estimate. */
+  export const THWART: number = 0.23;
+
+  /** A transom's width as a share of the beam: a construction estimate no act reads beyond the stern seat's width. */
+  export const TRANSOM: number = 0.6;
+
+  /** The oar's pivot above the gunwale, metres, a provisional value: the oarlock's own height, not read; WoodenBoat's oar geometry table measures the freeboard to the lock's bottom only. */
+  export const LOCK: number = 0.05;
+
+  /** A canoe's and a launch's draft, metres, a provisional value each: no source read gives a canoe's; the launch takes the Royal Navy 32 ft cutter's 18 in (https://bmpt.org.uk/pnbpt_historic_boats/32-Ft-Naval-Cutter/index.htm), a boat of its size, since the Peake boat's is not given. A rowboat draws its own band. */
+  export const DRAFT: Readonly<Record<Kind, number>> = {
+    rowboat: 0.15,
+    canoe: 0.1,
+    launch: 18 * ArchetypeUnits.INCH,
+  };
+
+  /** A rowboat's places no source read gives, each provisional: the forward thwart's distance ahead of the rowing thwart, taken as the 32 in a single-banked Navy boat's thwarts stand apart (USNI Proceedings, June 1890), and the stern seat's front edge ahead of the transom. The oarlocks stand amidships. The source to read is a rowboat's plan sheet. */
+  export const ROWBOAT: Readonly<{ forward: number; stern: number }> = {
+    forward: 32 * ArchetypeUnits.INCH,
+    stern: 0.6,
+  };
+
+  /** A canoe's seats' front edges from its middle, metres, each provisional: the bow seat's 40 in ahead and the stern seat's 50 in astern, the middle of 48 to 52 in, as a builder quotes a 16 ft Chestnut Prospector's plans (https://forums.wcha.org/threads/chestnut-prospector-stripper-seats.2027); the source to read is the plans. */
+  export const CANOE: Readonly<{ bow: number; stern: number }> = {
+    bow: 40 * ArchetypeUnits.INCH,
+    stern: 50 * ArchetypeUnits.INCH,
+  };
+
+  /** The launch's thwarts: five, 28 in apart and 7 in below the gunwale, the Peake boat's (USNI Proceedings, June 1890). */
+  export const LAUNCH: Readonly<{
+    thwarts: number;
+    room: number;
+    below: number;
+  }> = {
+    thwarts: 5,
+    room: 28 * ArchetypeUnits.INCH,
+    below: 7 * ArchetypeUnits.INCH,
+  };
+
+  /**
+   * The affordance ids; a kind lacks the ids of the parts it does not have:
+   *
+   * - `thwart0` to `thwart4`: the seats across the boat, a rowboat's rowing thwart first.
+   * - `sternSeat`: a rowboat's seat at its stern, facing forward.
+   * - `floor`: the floorboards, where people stand.
+   * - `gunwale`: the left gunwale amidships, taken while boarding.
+   * - `bow`, `stern`: the stem's and the stern's top edges, a canoe's at its `endHeight`.
+   * - `leftOarlock`, `rightOarlock`: a rowboat's oars' turn about the upright through the oarlock, a positive travel swinging the blade toward the bow.
+   * - `leftOar`, `rightOar`: each oar's lift about the oarlock's pin, riding its oarlock; a positive travel raises the blade out of the water from its working depth.
+   * - `leftHandle`, `rightHandle`: each oar's handle, riding its oar.
+   */
+  export type Affordance =
+    | "thwart0"
+    | "thwart1"
+    | "thwart2"
+    | "thwart3"
+    | "thwart4"
+    | "sternSeat"
+    | "floor"
+    | "gunwale"
+    | "bow"
+    | "stern"
+    | "leftOarlock"
+    | "rightOarlock"
+    | "leftOar"
+    | "rightOar"
+    | "leftHandle"
+    | "rightHandle";
+
+  /**
+   * The free dimensions, metres unless stated; a kind lacks those of the parts it does not have:
+   *
+   * - `length`, `beam`: overall.
+   * - `depth`: the hull amidships, bottom to gunwale.
+   * - `draft`: a rowboat's bottom below the water.
+   * - `endHeight`: a canoe's bow and stern above its bottom.
+   * - `seatHeight`: a canoe's seats above its bottom.
+   * - `bladeLength`, `bladeWidth`: a rowboat's oar blades.
+   * - `mass`: the empty hull, kilograms.
+   */
+  export type Dimension =
+    | "length"
+    | "beam"
+    | "depth"
+    | "draft"
+    | "endHeight"
+    | "seatHeight"
+    | "bladeLength"
+    | "bladeWidth"
+    | "mass";
+
+  /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which boat. */
+    kind: Kind;
+
+    /** The model's id, unique in a scene; `boat` when absent. */
+    id?: string;
+  }
+
+  /** The band of each free dimension, by kind. */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = BOAT_BANDS;
+}
+
+/** The hull's paint. */
+const HULL: string = "#2f5d50";
+
+/** Bare wood. */
+const WOOD: string = "#a07a4a";
+
+/**
+ * Add one flat side panel from one end's foot to another's, the gunwale's height above the bottom.
+ *
+ * @param builder The boat under construction.
+ * @param id The panel's part id.
+ * @param from One end of its foot, `Y` ignored.
+ * @param to The other end.
+ * @param bottom The bottom's height.
+ * @param gunwale The gunwale's height.
+ */
+function panel(
+  builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+  id: string,
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  bottom: number,
+  gunwale: number,
+): void {
+  const run: number = Math.hypot(to.x - from.x, to.z - from.z);
+  const yaw: number =
+    Math.atan2(to.x - from.x, to.z - from.z) / ArchetypeUnits.DEGREE;
+  builder.box(
+    id,
+    Vector3.create(0.025, gunwale - bottom, run),
+    Vector3.create(
+      (from.x + to.x) / 2,
+      (gunwale + bottom) / 2,
+      (from.z + to.z) / 2,
+    ),
+    {
+      color: HULL,
+      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    },
+  );
+}
+
+/**
+ * Add one thwart and its seat: a board across the boat, its `seat` on its front edge, the edge the sitter faces from.
+ *
+ * @param builder The boat under construction.
+ * @param id The seat's affordance id.
+ * @param height The board's top.
+ * @param edge The station of its front edge, the sitter's knees' side.
+ * @param width Its width across.
+ * @param facing 1 for a sitter facing the bow, -1 for one facing the stern.
+ */
+function thwart(
+  builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+  id: createBoat.Affordance,
+  height: number,
+  edge: number,
+  width: number,
+  facing: number,
+): void {
+  const depth: number = createBoat.THWART;
+  builder.box(
+    `seat-${id}`,
+    Vector3.create(width, 0.03, depth),
+    Vector3.create(0, height - 0.015, edge - (facing * depth) / 2),
+    {
+      color: WOOD,
+      surface: "wood",
+    },
+  );
+  builder.affordance({
+    id,
+    kind: "seat",
+    frame: ArchetypeFrame.facing(
+      Vector3.create(0, height, edge),
+      Vector3.create(0, 1, 0),
+      Vector3.create(facing, 0, 0),
+    ),
+    extent: null,
+    depth,
+    width,
+  });
+}

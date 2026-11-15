@@ -6,16 +6,13 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
 /** The rule that leaves the pole's size free. */
 const RULE: string =
   "World Athletics Competition Rules, Book C2.1, Rule 28.8 (pole vault): the pole may be of any material or combination of materials and of any length or diameter, the basic surface smooth (https://worldathletics.org/about-iaaf/documents/book-of-rules)";
-
-/** A maker's range of vaulting poles, read. */
-const POLES: string =
-  "UCS Spirit vaulting poles, from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series) (https://ucsspirit.com/products/ucs-spirit-vaulting-poles)";
 
 /**
  * A vaulting pole: a long, smooth tube a vaulter runs with, plants in the box and swings on (#3529).
@@ -24,14 +21,14 @@ const POLES: string =
  *
  * The pole is rigid here: its bend under the vaulter is the vaulting act's to model, and its stiffness is not drawn.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The pole's series and any dimension the author fixes.
+ * @param seed The seed that draws the series when it is not given and every dimension left free inside its band; absent, the first series and the middle of each band.
  * @returns The pole.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
+ * @throws {ArchetypeRefusal} For a series UCS Spirit does not list with a length, or a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the pole stands, each contact and what is not modelled.
- * @evidence contracts/development/implementation.md#principled-implementation One rod of the drawn length and diameter; the grip bands are measured down from the top by the drawn hold and spacing, each a handle along the rod with the rod's diameter as its aperture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one rod, then the plant end, the two grips and the shaft.
+ * @evidence contracts/development/implementation.md#principled-implementation One rod of one UCS Spirit series' length and the drawn diameter; the grip bands are measured down from the top by the drawn hold and spacing, each a handle along the rod with the rod's diameter as its aperture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the series, draw the dimensions, one rod, then the plant end, the two grips and the shaft.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pole does not bend; the bend is the act's. The grip bands' places are a vaulter's habit, marked provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -41,20 +38,36 @@ export function createVaultingPole(
   params: createVaultingPole.IParams = {},
   seed?: number | string,
 ): Archetype<createVaultingPole.Affordance, createVaultingPole.Dimension> {
-  const d: Record<createVaultingPole.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const series: {
+    name: createVaultingPole.Series | undefined;
+    figures: Readonly<Partial<Record<createVaultingPole.Dimension, number>>>;
+  } = ArchetypeDraw.model<
+    createVaultingPole.Series,
+    createVaultingPole.Dimension
+  >(
+    "vaultingPole",
+    "series",
+    params.series,
+    createVaultingPole.SERIES,
+    seed,
+    params,
+  );
+  const d: Record<createVaultingPole.Dimension, number> = {
+    ...ArchetypeDraw.dimensions(
       "vaultingPole",
       createVaultingPole.BANDS,
       seed,
       params,
-    );
+    ),
+    length: series.figures.length!,
+  };
   const builder: ArchetypeBuilder<
     createVaultingPole.Affordance,
     createVaultingPole.Dimension
   > = new ArchetypeBuilder({
     archetype: "vaultingPole",
     id: params.id,
-    name: "vaulting pole",
+    name: `vaulting pole, ${series.name} series`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -105,7 +118,7 @@ export function createVaultingPole(
  * Companion types and bands of {@link createVaultingPole}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and how sure its source is.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one band per dimension; the size is free under the rules, so the bands are the commercial range, marked provisional.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, a maker's series picked whole, and one band per remaining dimension; the size is free under the rules, so the length is a maker's and the other bands are estimates, marked provisional.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The plant end and the hands' bands a vault reads (#3529), and the length that sets the swing's radius.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No stiffness is declared: the pole is rigid in this model.
  */
@@ -134,15 +147,33 @@ export namespace createVaultingPole {
    */
   export type Dimension = "length" | "diameter" | "hold" | "spacing" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** UCS Spirit's series read with a length. */
+  export type Series = "235" | "305" | "520";
+
+  /** Each series' length, metres, the default first: UCS Spirit's poles run "from 7 ft 8 in (the 235 series) to 17 ft 1 in (the 520 series)" (https://ucsspirit.com/products/ucs-spirit-vaulting-poles), and its 305 series pole is 10 ft (https://spiritpoles.com/305-40-10-90lb). The full series list was not readable, so only these three are built. */
+  export const SERIES: Readonly<
+    Record<Series, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "235": { length: 7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH },
+    "305": { length: 10 * ArchetypeUnits.FOOT },
+    "520": { length: 17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH },
+  };
+
+  /** The parameters: the series, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "length">, number>
+  > {
+    /** UCS Spirit's series; drawn from the seed when absent. */
+    series?: Series;
+
     /** The model's id, unique in a scene; `vaultingPole` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.337, 5.207, `${RULE}; ${POLES}`),
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "length">, IArchetypeBand>
+  > = {
     diameter: ArchetypeBand.metres(
       0.03,
       0.045,

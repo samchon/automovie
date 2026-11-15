@@ -4,6 +4,8 @@ export * from "./architecture";
 export * from "./core";
 export * from "./furniture";
 export * from "./gym";
+export * from "./music";
+export * from "./nature";
 export * from "./props";
 export * from "./sport";
 export * from "./vehicles";

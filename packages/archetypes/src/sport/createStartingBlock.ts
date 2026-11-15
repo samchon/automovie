@@ -10,12 +10,9 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** The makers' blocks read. */
-const POLANIK: string =
-  "Polanik competition blocks: the steel PBS-01 with an 85 x 7.5 cm centre bar and 19 x 11.5 cm footplates, 7.7 kg, the aluminium PBS15-02-W with a 90.8 x 8 cm bar and 24.5 x 13 cm plates, 5.4 kg (https://www.athleticsdirect.co.uk/product/polanik-competition-steel-starting-blocks, https://www.athleticsdirect.co.uk/product/polanik-competition-aluminium-starting-block), and the Polanik TEAM block of 8.1 kg (https://www.galaxus.be/en/s3/product/polanik-team-starting-block-standard-version-8100-g-athletics-34534450)";
 
 /** What no source read gives. */
 const UNREAD: string =
@@ -26,15 +23,15 @@ const UNREAD: string =
  *
  * The rail runs back along `-Z` from its front end at the origin, the runner facing `+Z`. The front plate stands `setback` behind the front end and the rear plate `spacing` behind that, each tilted back by `angle` from upright and set a little to its own side of the rail. `front` and `rear` are the plates the soles press, each `+Y` out of its plate toward the sole and `+X` across the foot; which foot goes forward is the runner's.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The block's model and any setting the author fixes.
+ * @param seed The seed that draws the model when it is not given and every setting left free inside its band; absent, the first model and the middle of each band.
  * @returns The starting block.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model Polanik does not list with its sizes, or a fixed setting outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the block lies, where each plate stands and how it is tilted, and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A rail box, and two plate boxes each turned about `X` by the drawn angle so its face looks forward and up, its lowest edge on the rail's top.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the rail, then each plate with its contact.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No spikes, ratchets or pedal faces; the rail's and plates' sizes are named estimates.
+ * @evidence contracts/development/implementation.md#principled-implementation A rail box of one Polanik block's bar width, and two plate boxes of its footplates' size, each turned about `X` by the drawn angle so its face looks forward and up, its lowest edge on the rail's top.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the block, draw the settings, the rail, then each plate with its contact.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No spikes, ratchets or pedal faces; the rail's height and the plates' thickness are named estimates; the rail runs only as far back as the rear plate, not the bar's full length.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -43,31 +40,53 @@ export function createStartingBlock(
   params: createStartingBlock.IParams = {},
   seed?: number | string,
 ): Archetype<createStartingBlock.Affordance, createStartingBlock.Dimension> {
-  const d: Record<createStartingBlock.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const model: {
+    name: createStartingBlock.Model | undefined;
+    figures: Readonly<Partial<Record<createStartingBlock.Dimension, number>>>;
+  } = ArchetypeDraw.model<
+    createStartingBlock.Model,
+    createStartingBlock.Dimension
+  >(
+    "startingBlock",
+    "model",
+    params.model,
+    createStartingBlock.MODELS,
+    seed,
+    params,
+  );
+  const d: Record<createStartingBlock.Dimension, number> = {
+    ...ArchetypeDraw.dimensions(
       "startingBlock",
       createStartingBlock.BANDS,
       seed,
       params,
-    );
+    ),
+    rail: model.figures.rail!,
+    plateWidth: model.figures.plateWidth!,
+    plateHeight: model.figures.plateHeight!,
+    mass: model.figures.mass!,
+  };
   const builder: ArchetypeBuilder<
     createStartingBlock.Affordance,
     createStartingBlock.Dimension
   > = new ArchetypeBuilder({
     archetype: "startingBlock",
     id: params.id,
-    name: "starting block",
+    name: `starting block ${model.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const rail: number = createStartingBlock.RAIL;
-  const plate: Readonly<{ width: number; height: number; thick: number }> =
-    createStartingBlock.PLATE;
+  const rail: number = d.rail;
+  const plate: Readonly<{ width: number; height: number; thick: number }> = {
+    width: d.plateWidth,
+    height: d.plateHeight,
+    thick: createStartingBlock.PLATE_THICKNESS,
+  };
   const length: number = d.setback + d.spacing + plate.height;
   builder.box("rail", v(rail, rail / 2, length), v(0, rail / 4, -length / 2), {
     color: "#8a8d91",
   });
-  const tilt: number = (d.angle * Math.PI) / 180;
+  const tilt: number = d.angle * ArchetypeUnits.DEGREE;
   // Turned about -X, the plate's top leans back toward -Z and its face
   // (+Z) looks forward and up.
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -119,23 +138,30 @@ export function createStartingBlock(
  * Companion types, constants and bands of {@link createStartingBlock}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension, the setting a sprinter adjusts: how far back the plates stand, how far apart and how steep.
+ * @evidence contracts/development/design.md#principled-representation Polanik's blocks picked whole, their bar, plates and mass together; one band per setting a sprinter adjusts: how far back the plates stand, how far apart and how steep.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two plates a crouch start presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the plates' and rail's sizes are a maker's as read; the rule and the makers set no setback, spacing or angle, so those bands are provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass and the plates' and rail's sizes are one Polanik block's as read, never mixed, and the TEAM block, whose sizes were not read, is not built; the rule and the makers set no setback, spacing or angle, so those bands are provisional.
  */
 export namespace createStartingBlock {
-  /** The rail's width, metres: the Polanik steel block's 7.5 cm centre bar; its height, half of it, is an estimate. */
-  export const RAIL: number = 0.075;
+  /** Each plate's thickness, metres: an estimate. */
+  export const PLATE_THICKNESS: number = 0.02;
 
-  /** Each plate's width across the foot and height along its face, metres: the Polanik steel block's 19 x 11.5 cm footplates; the thickness is an estimate. */
-  export const PLATE: Readonly<{
-    width: number;
-    height: number;
-    thick: number;
-  }> = {
-    width: 0.115,
-    height: 0.19,
-    thick: 0.02,
+  /** Polanik's competition blocks. */
+  export type Model = "PBS-01" | "PBS15-02-W";
+
+  /**
+   * Each block's figures, metres and kilograms, the default first: the steel PBS-01 "with an 85 x 7.5 cm centre bar and 19 x 11.5 cm footplates, 7.7 kg" (https://www.athleticsdirect.co.uk/product/polanik-competition-steel-starting-blocks); the aluminium PBS15-02-W "with a 90.8 x 8 cm bar and 24.5 x 13 cm plates, 5.4 kg" (https://www.athleticsdirect.co.uk/product/polanik-competition-aluminium-starting-block). A plate's larger figure is its height along the face, its smaller its width across the foot.
+   */
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "PBS-01": { rail: 0.075, plateWidth: 0.115, plateHeight: 0.19, mass: 7.7 },
+    "PBS15-02-W": {
+      rail: 0.08,
+      plateWidth: 0.13,
+      plateHeight: 0.245,
+      mass: 5.4,
+    },
   };
 
   /**
@@ -152,21 +178,35 @@ export namespace createStartingBlock {
    * - `setback`: the front plate behind the rail's front end.
    * - `spacing`: the rear plate behind the front plate.
    * - `angle`: each plate tilted back from upright, degrees.
+   * - `rail`: the bar's width; its height is half of it, an estimate.
+   * - `plateWidth`, `plateHeight`: each plate across the foot and along its face.
    * - `mass`: kilograms.
    */
-  export type Dimension = "setback" | "spacing" | "angle" | "mass";
+  export type Dimension =
+    | "setback"
+    | "spacing"
+    | "angle"
+    | "rail"
+    | "plateWidth"
+    | "plateHeight"
+    | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The settings a sprinter adjusts. */
+  export type Setting = "setback" | "spacing" | "angle";
+
+  /** The parameters: the block, and any setting fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<Setting, number>> {
+    /** Polanik's block; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `startingBlock` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  /** The band of each setting. */
+  export const BANDS: Readonly<Record<Setting, IArchetypeBand>> = {
     setback: ArchetypeBand.metres(0.1, 0.25, UNREAD, true),
     spacing: ArchetypeBand.metres(0.25, 0.45, UNREAD, true),
     angle: ArchetypeBand.of("degrees", 25, 50, UNREAD, true),
-    mass: ArchetypeBand.of("kg", 5.4, 8.1, POLANIK),
   };
 }

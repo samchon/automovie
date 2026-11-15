@@ -18,7 +18,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * A vaulting pole serves the pole vault (#3529): a performer takes the pole up by its shaft, runs, plants its `tip` and swings on it, and the vault reads the pole's own plant end and length, not a stand-in.
  *
- * The pole is the shortest commercial one, 3.05 m (a beginner's 10 ft pole), standing on its tip beside the performer, so the shaft's middle is in reach of a standing hand; the landing mat is the pole vault's, placed ahead.
+ * The pole is UCS Spirit's 305 series, a beginner's 10 ft (3.05 m), standing on its tip beside the performer, so the shaft's middle is in reach of a standing hand; the landing mat is the pole vault's, placed ahead.
  *
  * Scenarios, on the average man and the small woman:
  * 1. Taking the pole up by `shaft`, running and vaulting with `vaultOnPole` (its `tip` the planted end by default) plans.
@@ -34,7 +34,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_archetype_jump_pole(): void {
   const pole: ReturnType<typeof createVaultingPole> = createVaultingPole({
-    length: 3.05,
+    series: "305",
   });
   const mat: ReturnType<typeof createLandingMat> = createLandingMat({
     kind: "poleVault",
