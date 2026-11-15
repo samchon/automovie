@@ -18,24 +18,32 @@ Contract: [principles/narratives.md](../../principles/narratives.md).
 
 ## Parent differentiation
 
+Copying:
+
 1. Every downstream paragraph has its actual parent passages identified, with yes or no tests recorded for:
     - copied wording or imagery;
     - explanatory labels;
     - narrator or design statements;
     - a borrowed opening or execution sequence.
-2. Inherited event order alone is not copied realization.
-3. Each inherited name, form of address, quantity, time, place and consequential state is tested against its actual parent.
-4. An unresolved copying judgment stays a candidate to repair on the initial text.
-5. A paragraph rewritten to repair a previous yes fails again only when copying is clear.
-6. Changed vocabulary or a few search matches do not establish the comparison.
-7. Needed inherited values are carried without an inert inventory, and already complete short artifacts are preserved without ornamental variation.
-8. Copied realization is judged apart from defective parent design.
-9. A parent goes to this layer's upstream item ([treatments](../../upstream/treatments.md#settings-repair), [scripts](../../upstream/scripts.md#script-upstream-repair) or [screenplay](../../upstream/screenplay.md#screenplay-upstream-repair)), where the repair covers that owner and its affected descendants, when it has one of these defects:
+2. Changed vocabulary or a few search matches do not establish the comparison.
+3. Inherited event order alone is not copied realization.
+4. A concise connection of shared facts or basic action is not copying when it imports neither the parent's wording or imagery nor its execution sequence.
+5. A claim of necessary connection or creativity in neighboring paragraphs does not excuse transcribed directions or action sequences.
+6. No new decision, sensation or inward beat is demanded in every paragraph.
+
+Inherited values:
+
+7. Each inherited name, form of address, quantity, time, place and consequential state is tested against its actual parent.
+8. Needed inherited values are carried without an inert inventory, and already complete short artifacts are preserved without ornamental variation.
+
+Judgment and repair:
+
+9. An unresolved copying judgment stays a candidate to repair on the initial text.
+10. A paragraph rewritten to repair a previous yes fails again only when copying is clear.
+11. Where copying fails, the passage is recreated from the parent decisions, not polished.
+12. Copied realization is judged apart from defective parent design.
+13. A parent goes to this layer's upstream item ([treatments](../../upstream/treatments.md#settings-repair), [scripts](../../upstream/scripts.md#script-upstream-repair) or [screenplay](../../upstream/screenplay.md#screenplay-upstream-repair)), where the repair covers that owner and its affected descendants, when it has one of these defects:
     - it consumed the next layer's work;
     - it forced a defined failure;
     - it blocked an adopted promise;
     - it left essential decisions absent.
-10. A concise connection of shared facts or basic action is not copying when it imports neither the parent's wording or imagery nor its execution sequence.
-11. No new decision, sensation or inward beat is demanded in every paragraph.
-12. A claim of necessary connection or creativity in neighboring paragraphs does not excuse transcribed directions or action sequences.
-13. Where copying fails, the passage is recreated from the parent decisions, not polished.

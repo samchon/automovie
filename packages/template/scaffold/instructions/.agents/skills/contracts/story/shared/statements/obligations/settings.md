@@ -40,7 +40,7 @@ Coherence:
 Records:
 
 21. Each record gives its definition, settled content, conditions and open matters in a consistent order for its kind.
-22. Each independently used subject has one file with its inseparable attributes together, each concept one term and each fact one owner, and a shared fact links to its owner.
+22. Each independently used subject has one file with its inseparable attributes together, one term per concept and one owner per fact, and a shared fact links to its owner.
 23. Records state facts in prose for readers and never describe code. Rendering and generation controls belong to the production's source.
 24. Records establish world facts, baseline states and change conditions, and leave chosen events, causal progression, choices, results, setups, payoffs and reveal order to treatments.
 25. Where a fixed historical result or time-specific status constrains treatments, no record prewrites how the film reaches or reveals it.

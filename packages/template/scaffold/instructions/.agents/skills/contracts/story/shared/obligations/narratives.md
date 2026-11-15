@@ -1,6 +1,6 @@
 # Narrative population obligations
 
-Each completed treatment, script and final screenplay population answers once per question across all units and boundaries. Major treatment spans follow supplied closing turns; scripts and screenplay use their actual partition.
+Each completed treatment, script and final screenplay population answers once per question across all units and boundaries. A treatment, which has no partition, is read in major spans, each ending at a turn that changes the story's direction; scripts and the screenplay use their actual partition.
 
 Statements: [statements/obligations/narratives.md](../statements/obligations/narratives.md).
 

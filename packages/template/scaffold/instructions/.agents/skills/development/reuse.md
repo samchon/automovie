@@ -1,6 +1,6 @@
 # Reuse
 
-Look for a capability before writing it. This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance.
+This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
 
 ## Installed packages
 
@@ -20,7 +20,7 @@ The skills name installed packages by role. This table is the one place that say
 | Ingest package | `@automovie/ingest` | Decode external models, motion, audio and images |
 | Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh so parameters can drive it |
 | Evidence package | `@automovie/evidence` | Configure the check that code and writing answer their contracts |
-| Command-line tool | `automovie` | Create and add productions |
+| Command-line tool | `automovie` | Create and add productions, and run the capture, render and review commands |
 
 The first seven rows follow a film from authored data to encoded video, and [how the parts work together](source-layout.md#how-the-parts-work-together) says how the production's modules carry them.
 
@@ -41,7 +41,7 @@ When a package misbehaves or lacks something the work needs:
 
 A workspace's own `packages/<name>` is the exception: the workspace owns that code and repairs it in place.
 
-A row or a law registered with the motion vocabulary under [extend](../motion/extend.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
+A row or a law registered with the motion vocabulary under [vocabulary extension](../motion/laws/SKILL.md) is not such a substitute. Registration is the vocabulary's own way to take an action it lacks, so it needs no mark and stays.
 
 ## One module
 

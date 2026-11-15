@@ -1,6 +1,6 @@
 # Narrative unit principles
 
-Each treatment, script, and final screenplay H2 answers for its own progression. Treatments decide it in an event document; scripts and screenplay realize it in their respective forms. Settings does not answer these questions.
+Each treatment, script, and final screenplay H2 answers for its own progression. Treatments decide it in an event document; scripts and screenplay realize it. Settings does not answer these questions.
 
 Statements: [statements/principles/narratives.md](../statements/principles/narratives.md).
 

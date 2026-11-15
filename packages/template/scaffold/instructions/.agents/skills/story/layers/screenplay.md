@@ -16,9 +16,9 @@ On either route, write only what the adopted representation and frame can show, 
 
 ## Beats
 
-Before writing beats, plan the whole film's performance: how densely each section's action comes against its study's density and distribution targets, where the practice has one, where pressure rises, and where a recurring motif returns and what varies around it. Beats written first and counted afterward come out as sparse turns of one shape. Keep the plan as working notes in ignored `.cache/`, never as a section or file of the screenplay, because every screenplay heading owes realization, answers and review.
-
 A beat is one exchange, ending when an intent or the initiative changes. Its action lines name every action it chains, in order, and its record decides the exchange once, because a record per single action buries the performance under bookkeeping and splits a combination into turns.
+
+Before writing beats, plan the whole film's performance: how densely each section's action comes against its study's density and distribution targets, where the practice has one, where pressure rises, and where a recurring motif returns and what varies around it. Beats written first and counted afterward come out as sparse turns of one shape. Keep the plan as working notes in ignored `.cache/`, never as a section or file of the screenplay, because every screenplay heading owes realization, answers and review.
 
 The screenplay is the last place a decision can be made: motion, sound, generation and assembly realize it, and a film [only composes](../../contracts/development/composition.md#composition-only). So write every beat in terms the modules can perform, from the decisions about the people, objects and places in it, with each action named as one the installed motion vocabulary performs, alone or joined with others, or as the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
 

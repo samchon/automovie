@@ -1,4 +1,4 @@
-# Realized exchange expression principles
+# Realized speech expression principles
 
 Each script construction H2 answers from actual exchanges with their neighboring action. A settings voice description or treatment plan cannot answer for speech realization.
 

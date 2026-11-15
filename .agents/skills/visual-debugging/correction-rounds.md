@@ -16,7 +16,7 @@ Trace causes through generation and display, including shared boundaries and der
 
 ## Fix in one change
 
-Fix all identified causes in one combined change at their sources, and judge it on the assembled subject. A cause that crosses an ownership boundary is changed by both owners in the same round.
+Fix all identified causes in one combined change at their sources, and judge it on the assembled subject. A cause that crosses an ownership boundary is changed by both owners in the same round, or reported to an owner the project cannot change.
 
 This procedure replaces these whack-a-mole patterns, however cheap a capture is:
 

@@ -5,9 +5,7 @@ description: Holds the checklists Evidence asks, in two families: development fo
 
 # Contracts
 
-This tree holds the questions Evidence asks. Read only the family and contracts the calling task selects. This file is not an evidence target.
-
-A respondent is whoever answers an item: a declaration, a document or a record.
+This tree holds the questions Evidence asks. A respondent is whoever answers a question: a declaration, a document or a record. Read only the family and contracts the calling task selects; this file is not an evidence target.
 
 | Family | Respondents | Where they answer |
 | --- | --- | --- |
@@ -18,17 +16,15 @@ A respondent is whoever answers an item: a declaration, a document or a record.
 
 Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item, because every item costs every respondent an answer.
 
-The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract.
+The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract. Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
 
-Statements are how you question your own compliance:
+A respondent uses the statements to question its own compliance:
 
 1. Check the work against every statement before answering.
 2. Repair what fails.
 3. Write an answer that is true against all of them and names each statement that does not apply, with its reason. The answer does not recite the list.
 
 A source reviewer audits the answer against the same list; a story answer's truth belongs to its [evidence answerer](../story/evidence/answer-writing.md). Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
-
-Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
 
 An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent.
 

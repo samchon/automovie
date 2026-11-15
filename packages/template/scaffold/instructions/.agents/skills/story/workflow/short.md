@@ -20,7 +20,7 @@ A short has no settings, treatments, scripts or outline. Wherever a skill or con
 
 4. Film draft.
 
-    For a commission with a film, build the entities, the scene composition and the film from the screenplay. Judge the film on stills under [visual debugging](../../visual-debugging/SKILL.md) and ask the user to watch playback for continuous motion and sound. Repair each cause where it lies, in the screenplay, the brief, the code or an [extension](../../motion/extend.md) of the motion vocabulary, until the film reads as intended. A screenplay-only commission skips this step.
+    For a commission with a film, build the entities, the scene composition and the film from the screenplay. Judge the film on stills under [visual debugging](../../visual-debugging/SKILL.md) and ask the user to watch playback for continuous motion and sound. Repair each cause where it lies, in the screenplay, the brief, the code or an [extension](../../motion/laws/SKILL.md) of the motion vocabulary, until the film reads as intended. A screenplay-only commission skips this step.
 
 5. Evidence.
 

@@ -1,6 +1,6 @@
 # Conditioning
 
-Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. It applies alike to a mesh from [Sources](sources.md) and from [Diffusion](diffusion.md).
+Conditioning turns a found or generated mesh into the form its consumer expects: the project's unit and axes, the triangle count its views need, and the parts or rest pose its motion needs. It applies alike to a mesh from [Sources](sources.md) and from [Diffusion](diffusion/SKILL.md).
 
 Do only what the asset's use needs. Each step makes a derivative to keep and verify, and work no view shows buys nothing.
 
@@ -10,7 +10,7 @@ Do only what the asset's use needs. Each step makes a derivative to keep and ver
 
    The frozen file is the reproducible source. A URL, a model name or a seed does not identify it, and a service's download link can expire within minutes.
 
-2. Record its origin and usage terms beside it, and for a generated mesh the model, version, seed, prompt, inputs and settings.
+2. Record its origin and usage terms beside it, and for a generated mesh the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
 3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each derivative consumes.
 4. Make each derivative by a saved script with its settings, never by hand in an interactive tool, so it can be made again from the frozen source.
 
@@ -25,11 +25,11 @@ Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce
 | Carries crafted parts, such as a generated figure holding a crafted prop | Define each [connection](modularization.md#frames-and-connections) once for both sides |
 | Varies by a parameter | [Variation](#variation) |
 
-Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them.
+Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
 
 ## Normalize
 
-Convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width.
+Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success. Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width.
 
 Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
 
@@ -39,8 +39,8 @@ Remove a defect at the first of these places that can remove it, listed from lea
 
 | Place | Removes | Examples |
 | --- | --- | --- |
-| The request, generated again | What [Diffusion](diffusion.md#request) says to ask for | |
-| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion.md#models) that remesh, convert or segment |
+| The request, generated again | What [Diffusion](diffusion/request.md) says to ask for | |
+| The generation service | Excess triangles, a wrong format or size and fused parts, in its own or an uploaded mesh | The [models](diffusion/models.md) that remesh, convert or segment |
 | A script over a mesh library in the project's own language | Duplicate vertices, pieces too small to see, excess triangles and unused data | [glTF Transform](https://gltf-transform.dev/functions) with [meshoptimizer](https://github.com/zeux/meshoptimizer) |
 | A mesh repair tool, or a digital content creation tool run from the command line | Holes, inner surfaces and irregular triangles | [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab), [Blender](https://docs.blender.org/manual/en/latest/advanced/command_line/index.html) |
 
@@ -50,7 +50,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the actu
 
 ## Reduce
 
-Reduce to the triangle count the asset's closest required view needs, at one of the places [Clean](#clean) lists. Merge duplicate vertices first, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
+Reduce to the triangle count the asset's closest required view needs, at one of the places [Clean](#clean) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
@@ -72,7 +72,7 @@ What the parameter changes decides whether the mesh can stay:
 | The size or placement of the whole or of one part | Transform that part |
 | The proportions of a rigged body | Change the bone lengths, let the skin follow, and hand the change to [motion](../motion/SKILL.md) |
 | Bulk or bend, smoothly | Deform the mesh through a coarse lattice the parameter drives |
-| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting.md) or by [Recovery](recovery.md) with the mesh as its source |
+| A count, the structure, or one dimension while the others hold | Give the form a generating definition, by [Crafting](crafting/SKILL.md) or by [mesh recovery](crafting/recovery.md) with the mesh as its source |
 | A person's build | Use the parametric figure the installed packages provide |
 
 A few fixed variants need no parameter. Generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.

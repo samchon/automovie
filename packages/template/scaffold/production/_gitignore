@@ -5,6 +5,7 @@ dist/
 /docs/prompts/**/payloads/
 /references/private/
 /media/automovie/
+/media/capture/
 /media/*/audios/
 /media/*/videos/
 *.log

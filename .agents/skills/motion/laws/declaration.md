@@ -1,4 +1,4 @@
-# Design an action as a law
+# Law design
 
 A law takes a body, its parameters, the performer's skill, the state it is entered from and its targets. Give every law the parts below, because cuts, partners, sound and checks all rely on them.
 

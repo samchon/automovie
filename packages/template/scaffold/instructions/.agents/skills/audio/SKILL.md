@@ -1,11 +1,11 @@
 ---
 name: audio
-description: Decides what each shot sounds like for the video model to generate, makes a voice preview when the user wants to hear voices before video generation, and builds a soundtrack only when the commission asks for one, always for the user to accept by ear. Use when writing a shot's sound into a generation prompt, when the user requests a voice preview, or when a soundtrack is commissioned.
+description: Decides what each shot sounds like for the video model to generate, finishes a generated film's sound across its accepted takes, makes a voice preview when the user wants to hear voices before video generation, and builds a soundtrack only when the commission asks for one, always for the user to accept by ear. Use when writing a shot's sound into a generation prompt, finishing a generated film's sound, when the user requests a voice preview, or when a soundtrack is commissioned.
 ---
 
 # Audio
 
-Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. Audio work has three cases. Source changes follow [development](../development/SKILL.md).
+Audio work has four cases: a generated film's sound, its finishing across takes, a voice preview and a commissioned soundtrack. Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. Source changes follow [development](../development/SKILL.md).
 
 ## Generated sound
 
@@ -13,7 +13,19 @@ A generated film's voices, effects and ambience come from the video model, which
 
 The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, about one or two short exchanges per four seconds.
 
-When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, and follow their choice.
+A character's generated voice can change between requests even with the same description and seed. Describe each voice once in the [shared description](../video/diffusion/prompts.md#shared-description), and where the model binds reference audio to a character, give it the voice the user accepted, such as a [voice preview](#voice-preview). Ask the user to listen across takes for a voice that drifts. Re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take, after separating the speech as [film sound](film-sound.md) sets.
+
+When the selected model or mode generates no sound, report it to the user with these choices, and record theirs in [project context](../production/project-context.md):
+
+- a sound-generating model or mode;
+- a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;
+- separate speech under [acquisition](acquisition.md), synced onto the take's faces under [finishing](../video/finishing.md#repair-part-of-a-take).
+
+Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#choose-a-source) checks any asset, because several are non-commercial or exclude regions.
+
+## Film sound
+
+Once the takes are finished, finish the film's sound across them under [film sound](film-sound.md): separation, beds, score and loudness.
 
 ## Voice preview
 
@@ -23,6 +35,4 @@ Make a preview only when the user wants to hear the voices before video generati
 
 A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
 
-When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
-
-Record which takes and passages the user heard, because a measurement cannot stand for a listening.
+When one is commissioned, record its tracks in the [delivery profile](../production/project-context.md) with the loudness target [film sound](film-sound.md#loudness) asks for, acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file. Record which takes and passages the user heard, because a measurement cannot stand for a listening.

@@ -41,11 +41,9 @@ A mesh without a generating definition has no construction, so these passes take
 | Which way each face points | Front and back faces in different colors |
 | Shading breaks | Normals shown as color |
 
-Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbor groups and each defect's close-up alike.
+Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbor groups and each defect's close-up alike. Hiding a joining surface can create a false defect.
 
 Keep the reference in the comparison passes and distinguish original 2D definitions, the algorithm's 3D curves, unconnected studies, raw operands and realized joins. Confirm the selected paths and the observation stage from the capture's record.
-
-Hiding a joining surface can create a false defect.
 
 ## Light and material
 

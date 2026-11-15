@@ -29,7 +29,7 @@ Production coverage:
     - a behavior, camera or staging choice no research supports;
     - a failure no contract asks about;
     - a skill, folder or instruction the work needed but lacked.
-11. Each gap that inspection found was answered in one of three ways:
+11. Each gap found was answered in one of three ways:
     - by adopting a work-specific contract or folder;
     - by recording a scaffold candidate with its motivating evidence, which stays local until other productions show the same need;
     - by recording its absence with the inspected scope.

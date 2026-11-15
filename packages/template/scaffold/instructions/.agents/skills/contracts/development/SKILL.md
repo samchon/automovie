@@ -13,10 +13,10 @@ Every respondent here answers in its own doc comment, citing an item as `contrac
 | [Design](design.md) | Each exported type, interface, type alias and class | |
 | [Implementation](implementation.md) | Each exported function and class method | |
 | [Testing](testing.md) | Each exported test function | |
-| [Entities](entities.md) | Each exported declaration under `src/entities/`, which also names the settings or brief facts it realizes and the research its measurements follow | [Entity statements](statements/entities.md) |
-| [Behaviors](behaviors.md) | Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/`, which also cites the research it follows | [Behavior statements](statements/behaviors.md) |
-| [Composition](composition.md) | Each exported function and method under `src/composition/`, which also cites the screenplay scene files, sections or beats it realizes | [Composition statements](statements/composition.md) |
+| [Entities](entities.md) | Each exported declaration under `src/entities/` | [Entity statements](statements/entities.md) |
+| [Behaviors](behaviors.md) | Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/` | [Behavior statements](statements/behaviors.md) |
+| [Composition](composition.md) | Each exported function and method under `src/composition/` | [Composition statements](statements/composition.md) |
 
-Common, design, implementation and testing are AutoMovie's shared engineering checklists, and each of their items ends by saying what its answer states. Entities, behaviors and composition belong to productions and follow the chain [source layout](../../development/source-layout.md) draws from settings or brief and research through the screenplay to code. Each of their items is one broad question, and its [statements](../SKILL.md#items-and-statements) carry the detail.
+Common, design, implementation and testing are AutoMovie's shared engineering checklists, and each of their items ends by saying what its answer states. Entities, behaviors and composition belong to productions, follow the chain [source layout](../../development/source-layout.md) draws from settings or brief and research through the screenplay to code, and keep their detail in [statements](../SKILL.md#items-and-statements); each contract also says what its respondents cite.
 
 An `@evidence` tag resolves only to a contract item or to the research or screenplay its contract cites; name any other document a declaration follows by its path and anchor in an answer's prose, because Evidence rejects a tag whose target its claim does not select.
