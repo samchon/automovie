@@ -192,20 +192,21 @@ export namespace ArchetypeDraw {
   /**
    * One read model on a named axis, given or picked whole, with its read figures: the step every producer that holds whole catalogue models takes, once per independent axis.
    *
-   * The model is one of `models`' names, checked or picked as {@link pick} checks and picks them, on the axis's own keyed stream, so a producer that picks on several axes (a door's size and its lever, a rope's cable and its handles) never moves one axis's draws by adding another. The figures are the picked model's, by dimension, for the producer to lay over its drawn dimensions; the typing lets a model fill only the producer's own dimensions. A variant with no models on the axis has none: the name is undefined, the figures empty, and a model given is refused. A dependent axis, such as a door that must stay below the car it serves, passes only the models an earlier pick admits.
+   * The model is one of `models`' names, checked or picked as {@link pick} checks and picks them, on the axis's own keyed stream, so a producer that picks on several axes (a door's size and its lever, a rope's cable and its handles) never moves one axis's draws by adding another. The figures are the picked model's, by dimension, for the producer to lay over its drawn dimensions; the typing lets a model fill only the producer's own dimensions. A variant with no models on the axis has none: the name is undefined, the figures empty, and a model given is refused. A dependent axis, such as a door that must stay below the car it serves, passes only the models an earlier pick admits. A figure is the model's own, so an author who fixes that dimension is refused, never overridden in silence: the author names the model instead. A dimension the model lacks stays the producer's to draw from its band.
    *
    * @param archetype The producer's name, which keys the stream and names refusals.
    * @param axis The axis's name, which keys the stream and names refusals: `model` for a producer with one axis.
    * @param value The model given, or undefined to pick one.
    * @param models The variant's models on the axis by name, each with its read figures, the default first; absent or empty when it has none.
    * @param seed The seed; absent, the first model.
+   * @param fixed Dimensions the author fixed, as given to {@link dimensions}; absent, none.
    * @returns The model's name, undefined when the variant has none on the axis, and its figures.
-   * @throws {ArchetypeRefusal} When a given model is not one of the variant's, or the variant has none.
+   * @throws {ArchetypeRefusal} When a given model is not one of the variant's, or the variant has none, or a fixed dimension is one of the model's figures.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the axis's stream, what the figures are for, the variant without models and the dependent axis.
+   * @evidence contracts/development/common.md#meaningful-documentation States the axis's stream, what the figures are for, the variant without models, the dependent axis and the fixed figure.
    * @evidence contracts/development/implementation.md#principled-implementation `pick` over the models' names, in their stated order, and the shared `admit` for a variant without models; no second validator.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure No models, then picked, then its figures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing between two models is produced; a model not listed is refused, never replaced by a default.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure No models, then picked, then its fixed figures refused, then its figures.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing between two models is produced; a model not listed is refused, never replaced by a default, and a fixed figure is refused, never dropped.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pick and one lookup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The step every model-holding producer shares, written once.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -218,6 +219,7 @@ export namespace ArchetypeDraw {
       | Readonly<Partial<Record<Name, Readonly<Partial<Record<Dimension, number>>>>>>
       | undefined,
     seed: number | string | undefined,
+    fixed: NoInfer<Partial<Record<Dimension, number | undefined>>> = {},
   ): { name: Name | undefined; figures: Readonly<Partial<Record<Dimension, number>>> } {
     const names: Name[] = models === undefined ? [] : (Object.keys(models) as Name[]);
     if (names.length === 0) {
@@ -226,7 +228,19 @@ export namespace ArchetypeDraw {
       return { name: undefined, figures: {} as Readonly<Partial<Record<Dimension, number>>> };
     }
     const name: Name = pick(archetype, axis, value, names, seed);
-    return { name, figures: models![name]! };
+    const figures: Readonly<Partial<Record<Dimension, number>>> = models![name]!;
+    for (const dimension of Object.keys(figures) as Dimension[])
+      if (fixed[dimension] !== undefined)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype,
+          axis: dimension,
+          value: fixed[dimension],
+          feasible: { kind: "alternatives", values: names },
+          reason: `${dimension} is the ${axis} ${name}'s own figure, ${figures[dimension]}`,
+          fix: `leave ${dimension} out, and give the ${axis} whose ${dimension} you want`,
+        });
+    return { name, figures };
   }
 
   /**

@@ -25,12 +25,13 @@ const HEIGHTS: Readonly<Record<"low" | "mid" | "high", Readonly<Partial<Record<D
  * 2. Two axes of one producer pick on their own streams: over 200 seeds the first axis's picks are the same whether or not a second axis is picked too, and the two axes do not always agree.
  * 3. A dependent axis filtered by the first pick (heights no greater than a size's length) only ever picks an admitted model, and over 200 seeds picks each admitted model.
  * 4. A variant without models, absent or empty, gives no name and no figures; a model given to it, and an unlisted model given to a variant with models, are refused with kind `parameter` on the axis.
+ * 5. A fixed dimension the picked model supplies (its length) is refused with kind `parameter` on that dimension, given or picked; a fixed dimension it lacks (a height) is left to the producer's band, and the model is still picked.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models or accepts a stray model is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models, accepts a stray model, or drops a fixed figure in silence is caught.
  * @evidence contracts/development/testing.md#independent-expectations Made-up figures written here; a uniform draw of two or three over 200 seeds draws each with certainty for any practical purpose, and two independent axes agree on far fewer than 200 seeds.
- * @evidence contracts/development/testing.md#distinguishing-cases Given, seedless and picked; one axis and two; a filtered list; absent, empty and stray models.
+ * @evidence contracts/development/testing.md#distinguishing-cases Given, seedless and picked; one axis and two; a filtered list; absent, empty and stray models; a fixed figure the model has and one it lacks.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over a pure function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
  */
 export function test_archetype_draw_model(): void {
   const findings: string[] = [];
@@ -114,6 +115,28 @@ export function test_archetype_draw_model(): void {
         findings.push(`${label} was not refused on its axis`);
     }
   }
+
+  // 5. A fixed figure the model supplies, and one it lacks.
+  for (const [label, value] of [
+    ["a given model", "large"],
+    ["a picked model", undefined],
+  ] as const)
+    try {
+      ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", value, SIZES, 2, { length: 0.25 });
+      findings.push(`${label}'s fixed length was accepted`);
+    } catch (error) {
+      if (
+        !(error instanceof ArchetypeRefusal) ||
+        error.kind !== "parameter" ||
+        error.axis !== "length"
+      )
+        findings.push(`${label}'s fixed length was not refused on its dimension`);
+    }
+  if (
+    ArchetypeDraw.model<"small" | "large", Dimension>("thing", "size", "small", SIZES, 2, { height: 0.15 }).name !==
+    "small"
+  )
+    findings.push("a fixed dimension the model lacks stopped the pick");
 
   TestValidator.equals(
     "a model is one read model whole on its own axis",
