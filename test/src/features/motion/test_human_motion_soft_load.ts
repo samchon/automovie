@@ -25,13 +25,17 @@ const LENGTH: number = 0.5;
 /** The cord's links: the cast's cord. */
 const LINKS: number = 20;
 
-/** A cord of `links` segments, `length` metres and `mass` kilograms hung from the right hand's grip socket of performer "a". */
+/** The cord's step, seconds: the soft props' 240 a second. */
+const STEP: number = 1 / 240;
+
+/** A cord of `links` segments, `length` metres and `mass` kilograms hung from the right hand's grip socket of performer "a", solved at steps of `dt` seconds. */
 const hung = (
   body: IHumanBody,
   links: number,
   length: number,
   mass: number,
   seconds: number,
+  dt: number,
 ): IHumanProp => {
   const socket: IAutoMovieVector3 = body.surfaces.sockets.gripRight.point;
   const top: IAutoMovieVector3 = Vector3.add(
@@ -41,7 +45,6 @@ const hung = (
   const rest: number[] = [];
   for (let k: number = 0; k <= links; k++)
     rest.push(top.x + 0.001 * k, top.y - (k * length) / links, top.z + 0.2);
-  const dt: number = 1 / 240;
   const domain: IAutoMovieSoftBodyDomain = {
     version: 1,
     id: "cord",
@@ -94,9 +97,13 @@ const hung = (
  *
  * Scenarios:
  *
- * 1. Once settled, the force on the hand points down and equals the weight of
- *    the cord below the hand (every particle but the anchored one) within 2 %
- *    (statics), for a light and a heavy cord.
+ * 1. Once settled, the force on the hand, solved at the cord's step and at
+ *    half of it and extrapolated by Richardson to the converged solver (the
+ *    fixed sweeps' residual falls with the step squared), points down and
+ *    equals the weight of the cord below the hand (every particle but the
+ *    anchored one) within 2 % (statics), for a light and a heavy cord; its
+ *    error against the weight falls from the step to its half and again to
+ *    the extrapolation.
  * 2. A heavier cord pulls harder: the force grows with the mass at the same
  *    length (metamorphic).
  * 3. The force read at a second is the step's before it: reads at 24 and 60
@@ -105,7 +112,7 @@ const hung = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds performances with a hung soft prop and reads `HumanPerformance.softLoad`.
  * @evidence contracts/development/testing.md#independent-expectations Statics of a hanging chain (the anchor bears the weight below it, within #3451's 2 %), monotonicity in mass, the purity of a read, and an empty hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Two masses, two frame rates, the holding and the free hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two masses, a step and its half, two frame rates, the holding and the free hand.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
  */
@@ -113,10 +120,10 @@ export function test_human_motion_soft_load(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const pulls: number[] = [];
-  for (const mass of [0.05, 0.5]) {
-    const performance: HumanPerformance = new HumanPerformance({
+  const stand = (mass: number, dt: number): HumanPerformance =>
+    new HumanPerformance({
       seed: "load",
-      props: [hung(body, LINKS, LENGTH, mass, 4)],
+      props: [hung(body, LINKS, LENGTH, mass, 4, dt)],
       performers: [
         {
           subject: "a",
@@ -128,15 +135,40 @@ export function test_human_motion_soft_load(): void {
       ],
       composition: HumanChain.subject("a").stand({ seconds: 4 }).node,
     });
+  for (const mass of [0.05, 0.5]) {
+    // The cord at its step and at half of it: the fixed sweeps leave the
+    // anchor's multiplier short by a residual that falls with the step
+    // squared, so Richardson's extrapolation of the two is the converged
+    // solver's force (as the cord's catenary is, test_soft_cord_xpbd).
+    const performance: HumanPerformance = stand(mass, STEP);
     const end: number = performance.duration;
-    const f: IAutoMovieVector3 = performance.softLoad(
+    const coarse: IAutoMovieVector3 = performance.softLoad(
       "cord",
       "a",
       "right",
       end,
     );
+    const fine: IAutoMovieVector3 = stand(mass, STEP / 2).softLoad(
+      "cord",
+      "a",
+      "right",
+      end,
+    );
+    const f: IAutoMovieVector3 = Vector3.scale(
+      Vector3.subtract(Vector3.scale(fine, 4), coarse),
+      1 / 3,
+    );
     const weight: number = ((mass * LINKS) / (LINKS + 1)) * G;
     pulls.push(-f.y);
+    if (
+      !(
+        Math.abs(-f.y - weight) < Math.abs(-fine.y - weight) &&
+        Math.abs(-fine.y - weight) < Math.abs(-coarse.y - weight)
+      )
+    )
+      complaints.push(
+        `${mass} kg: the force nears the weight ${weight.toFixed(4)} N as the step falls, as its square: ${(-coarse.y).toFixed(4)} N at the step, ${(-fine.y).toFixed(4)} N at half of it, ${(-f.y).toFixed(4)} N extrapolated`,
+      );
     if (
       !(
         Math.abs(-f.y - weight) <= STATICS * weight &&

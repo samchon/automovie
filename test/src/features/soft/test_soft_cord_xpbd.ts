@@ -161,7 +161,10 @@ const segments = (p: readonly number[], i: number, j: number): number => {
  *    bound, at any step.
  * 4. A cord over a fixed round bar with unequal end masses holds while the
  *    ratio stays under the capstan bound exp(mu theta) (theta = pi) and
- *    slides above it.
+ *    slides above it: its slip over the bar (half the difference of the two
+ *    ends' drops, since a slip lowers one end as far as it raises the other
+ *    while settling lowers both) stays under the cord's thickness below the
+ *    bound and passes ten thicknesses above it.
  * 5. The observer's every step is the state an absolute seek to that step
  *    gives, to the bit, and the budget counts the cord's segment pairs.
  *
@@ -334,14 +337,21 @@ export function test_soft_cord_xpbd(): void {
       null,
       null,
     );
-    return drape[1]! - end.positions[1]!;
+    // A slip carries the heavy end down and the light end up by the same
+    // length, while the cord's settling and stretch lower both: half the
+    // difference of the two ends' drops is the slip alone.
+    const last: number = 2 * half * 3 + 1;
+    return (
+      (drape[1]! - end.positions[1]! - (drape[last]! - end.positions[last]!)) /
+      2
+    );
   };
   const mu: number = 0.3;
   const bound: number = Math.exp(mu * Math.PI);
   const held: number = slid(0.8 * bound, mu);
   const slipped: number = slid(1.5 * bound, mu);
   check(
-    `under the capstan bound ${bound.toFixed(3)} the heavy end moves ${held.toFixed(4)} m, above it ${slipped.toFixed(4)} m`,
+    `under the capstan bound ${bound.toFixed(3)} the cord slips ${held.toFixed(4)} m over the bar, above it ${slipped.toFixed(4)} m`,
     held < radius && slipped > 10 * radius,
   );
 

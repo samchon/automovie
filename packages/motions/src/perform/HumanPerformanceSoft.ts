@@ -1,6 +1,7 @@
 import {
   type IAutoMovieSoftBodyBoundarySample,
   type IAutoMovieSoftBodyObserver,
+  Vector3,
   simulateSoftBodyWithBoundaries,
 } from "@automovie/engine";
 import type {
@@ -57,8 +58,51 @@ export namespace HumanPerformanceSoft {
     /** Every step's particle positions, step 0 the rest as boundaried, world metres row-major. */
     steps: Float64Array[];
 
-    /** Every step's force on each gripping hand, by `subject:side`, newtons, world frame; empty at a step with no compliant multipliers. */
+    /** Every step's force on each hand that grips the prop or that the domain anchors it to, by `subject:side`, the forces of the particles one hand bears added, newtons, world frame; empty at a step with no compliant multipliers. */
     loads: Map<string, IAutoMovieVector3>[];
+  }
+
+  /** A particle the domain itself anchors to a person's hand bone. */
+  export interface IHandAnchor {
+    /** The particle. */
+    particle: number;
+
+    /** The person whose hand holds it. */
+    person: string;
+
+    /** The hand. */
+    side: "left" | "right";
+  }
+
+  /**
+   * The particles a soft domain anchors to a hand bone (`actor-bone` on
+   * `leftHand` or `rightHand`): a lanyard or a cord the hand holds from the
+   * start, whose pull is that hand's load as a grip's is.
+   *
+   * @param domain The domain, with any grips' anchors already swapped in.
+   * @returns The hand anchors, in the domain's order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which anchors count and why.
+   * @evidence contracts/development/implementation.md#principled-implementation An anchor bound to a hand bone is that hand's hold, by the binding the domain declares.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter over the anchors.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the hand bones count; an anchor on another bone is worn, not held.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read with nothing to reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records.
+   */
+  export function held(domain: IAutoMovieSoftBodyDomain): IHandAnchor[] {
+    return domain.anchors.flatMap((a: IAutoMovieSoftAnchor): IHandAnchor[] =>
+      a.binding?.kind === "actor-bone" &&
+      (a.binding.bone === "leftHand" || a.binding.bone === "rightHand")
+        ? [
+            {
+              particle: a.particle,
+              person: a.binding.actor,
+              side: a.binding.bone === "leftHand" ? "left" : "right",
+            },
+          ]
+        : [],
+    );
   }
 
   /**
@@ -134,7 +178,8 @@ export namespace HumanPerformanceSoft {
    * Every soft prop's pull on the hands that grip it, as sustained forces
    * for the display-time load and balance (#3431, #3451): one record per grip
    * window on a soft prop, on the gripping person's palm of that side, over
-   * the window, its force the compliant solver's anchor force at the step
+   * the window, and one per hand the domain itself anchors to (`held`), over
+   * the whole performance, its force the compliant solver's anchor force at the step
    * before each second (`load`). The coupling is one-way per solve: the cloth
    * is solved from the displayed body, and the body's lean is then read from
    * these forces, never fed back into the solve or into a law's plan.
@@ -156,9 +201,33 @@ export namespace HumanPerformanceSoft {
     const out: HumanForce.ISustained[] = [];
     for (const prop of state.props.values()) {
       if (prop.soft === undefined) continue;
+      // A hand the domain itself anchors to bears the prop over the whole
+      // performance; its record reads every particle that hand bears, so a
+      // grip of the same hand adds no record of its own.
+      const subject: string = prop.subject;
+      const anchored: Map<string, HumanPerformanceSoft.IHandAnchor> = new Map(
+        HumanPerformanceSoft.held(prop.soft).map(
+          (
+            h: HumanPerformanceSoft.IHandAnchor,
+          ): [string, HumanPerformanceSoft.IHandAnchor] => [
+            `${h.person}:${h.side}`,
+            h,
+          ],
+        ),
+      );
+      for (const h of anchored.values())
+        out.push({
+          kind: "sustained",
+          subject: h.person,
+          at: h.side === "left" ? "palmLeft" : "palmRight",
+          from: 0,
+          to: state.duration,
+          force: (seconds: number): IAutoMovieVector3 =>
+            HumanPerformanceSoft.load(state, subject, h.person, h.side, seconds),
+        });
       for (const g of HumanPerformanceRead.grips(state, prop.subject)) {
-        if (g.bone !== undefined) continue;
-        const subject: string = prop.subject;
+        if (g.bone !== undefined || anchored.has(`${g.subject}:${g.side}`))
+          continue;
         out.push({
           kind: "sustained",
           subject: g.subject,
@@ -282,15 +351,25 @@ export namespace HumanPerformanceSoft {
           if (!record) return;
           const hands: Map<string, IAutoMovieVector3> = new Map();
           const seconds: number = index * dt;
+          // One hand may bear several particles: their forces add.
+          const bear = (key: string, particle: number): void => {
+            const f: IAutoMovieVector3 | undefined = held.get(particle);
+            if (f === undefined) return;
+            const was: IAutoMovieVector3 | undefined = hands.get(key);
+            hands.set(key, was === undefined ? f : Vector3.add(was, f));
+          };
           for (const g of grips)
             if (
               seconds >= g.from &&
               seconds <= g.to &&
               HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) === g
-            ) {
-              const f: IAutoMovieVector3 | undefined = held.get(g.particle);
-              if (f !== undefined) hands.set(`${g.person}:${g.side}`, f);
-            }
+            )
+              bear(`${g.person}:${g.side}`, g.particle);
+          // The domain's own anchors on a hand bone: the hand holds them
+          // throughout (a grip that takes a particle over replaces its
+          // anchor in `anchored`).
+          for (const h of HumanPerformanceSoft.held(anchored))
+            bear(`${h.person}:${h.side}`, h.particle);
           loads.push(hands);
         },
       };
