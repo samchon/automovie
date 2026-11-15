@@ -20,10 +20,12 @@ import { QuadrupedBody } from "./QuadrupedBody";
  *
  * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`).
  *
- * @param params The tack and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * Its height at the withers is drawn from the warmbloods' range; its heart girth and its mass follow that height, the girth in their mean proportion and the mass by the girth-squared-times-length law anchored on their means (`mass`), so a horse's three measures agree. The seat and the reins are each one of their read sizes.
+ *
+ * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
+ * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
  * @returns The horse.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `TACKS`.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
  * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
@@ -83,15 +85,15 @@ export namespace createHorse {
     | "hitch";
 
   /**
-   * The free dimensions, metres unless stated:
+   * The dimensions, metres unless stated:
    *
    * - `withersHeight`: the withers above the ground, which scales every bone.
-   * - `mass`: body mass, kilograms.
-   * - `girth`: the heart girth's circumference, which sizes the barrel the rider's legs lie round.
-   * - `seatSize`: the saddle's seat from the pommel's nail to the cantle.
+   * - `mass`: body mass, kilograms: the read mass of a model weighed whole, else `mass` of the height and the girth.
+   * - `girth`: the heart girth's circumference, which sizes the barrel the rider's legs lie round: the profile's, following the height (`IProfile.girth`).
+   * - `seatSize`: the saddle's seat from the pommel's nail to the cantle, one of `SEATS`.
    * - `stirrupDrop`: a stirrup's tread below the saddle's seat.
    * - `stirrupWidth`: the tread's width.
-   * - `reinWidth`: a rein's width.
+   * - `reinWidth`: a rein's width, one of `REINS`.
    * - `tempo`: how far this horse's stride time lies from the mean, in standard deviations.
    * - `breechingDrop`: in harness, the breeching's seat below the point of buttock.
    */
@@ -106,8 +108,17 @@ export namespace createHorse {
     | "tempo"
     | "breechingDrop";
 
-  /** The parameters: the tack, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The dimensions drawn from a band: the others follow from these (`girth`, `mass`) or are a read model's (`seatSize`, `reinWidth`). */
+  export type Free = Exclude<Dimension, "girth" | "mass" | "seatSize" | "reinWidth">;
+
+  /** The parameters: the tack, the saddle's seat and the reins by their read sizes, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<Free, number>> {
+    /** The saddle's seat size; drawn from the seed when absent. */
+    seat?: Seat;
+
+    /** The reins' width; drawn from the seed when absent. */
+    rein?: Rein;
+
     /** What the horse wears; `saddle` when absent. */
     tack?: Tack;
 
@@ -251,14 +262,14 @@ export namespace createHorse {
    * An equid of the horse's build and tack, the producer behind `createHorse` and `createPony`: the shared quadruped body from the profile's proportions, under a riding saddle with stirrups, reins and a lead rope, or in a driving harness, as `createHorse` describes them.
    *
    * @param profile The equid's name, bands and body.
-   * @param params The tack and any dimension the author fixes.
-   * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+   * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
+   * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
    * @returns The equid.
-   * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `TACKS`.
+   * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it builds, from what, and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared body (`QuadrupedBody.lay`) from the profile's proportions, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, take the rest joints from `rig`, lay the body, then the tack and its contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation The height drawn from its band, the girth the profile's at that height, and the mass a model's read one or `mass`'s law on the two, so the three measures of one animal agree; the seat and the reins each one read size, picked whole; then the shared body (`QuadrupedBody.lay`) from the profile's proportions, stated per part so the mass properties follow the measured distribution, and the tack placed on the rig's landmarks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the free dimensions, derive the girth and the mass, pick the seat and the reins, take the rest joints from `rig`, lay the body, then the tack and its contacts.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s, stated there; every tack size no source gives is a named estimate.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The body is the shared quadruped's, the tack the horse's; each call builds one independent model.
@@ -275,12 +286,32 @@ export namespace createHorse {
       params.tack ?? "saddle",
       createHorse.TACKS,
     );
-    const d: Record<createHorse.Dimension, number> = ArchetypeDraw.dimensions(
+    const free: Record<createHorse.Free, number> = ArchetypeDraw.dimensions(
       profile.archetype,
       profile.bands,
       seed,
       params,
     );
+    const girth: number = profile.girth(free.withersHeight);
+    const d: Record<createHorse.Dimension, number> = {
+      ...free,
+      girth,
+      mass: profile.mass ?? mass(free.withersHeight, girth),
+      seatSize: ArchetypeDraw.model<Seat, Dimension>(
+        profile.archetype,
+        "seat",
+        params.seat,
+        SEATS,
+        seed,
+      ).figures.seatSize!,
+      reinWidth: ArchetypeDraw.model<Rein, Dimension>(
+        profile.archetype,
+        "rein",
+        params.rein,
+        REINS,
+        seed,
+      ).figures.reinWidth!,
+    };
     const builder: ArchetypeBuilder<
       createHorse.Affordance,
       createHorse.Dimension
@@ -298,7 +329,7 @@ export namespace createHorse {
     const half: number = rig.trunk / 2;
     const nose: IAutoMovieVector3 = rig.nose;
     QuadrupedBody.lay(profile.body, builder, h, rig);
-  
+
     if (tack === "saddle") {
       // The saddle on the back behind the withers, and what the rider holds and stands in.
       const top: number = back + 0.04;
@@ -446,19 +477,78 @@ export namespace createHorse {
     names: Readonly<Record<Tack, string>>;
 
     /** The band of each free dimension. */
-    bands: Readonly<Record<Dimension, IArchetypeBand>>;
+    bands: Readonly<Record<Free, IArchetypeBand>>;
+
+    /** The heart girth at a height at the withers, metres. */
+    girth: (withers: number) => number;
+
+    /** The read mass of a model weighed whole, kilograms; absent, the mass follows the height and the girth by `mass`. */
+    mass?: number;
 
     /** The body's proportions. */
     body: QuadrupedBody.IBody;
   }
+
+  /**
+   * The measured warmbloods every equid's size is anchored on, means: withers 172 cm, heart girth 204 cm and body weight 640 kg, weighed on a scale (Jensen et al. 2019, Acta Vet Scand 61, Table 2, 38 adult warmbloods, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). The paper reports no relation between the measures, so the relation is `mass`'s law.
+   */
+  export const JENSEN: Readonly<{ withers: number; girth: number; mass: number }> = {
+    withers: 1.72,
+    girth: 2.04,
+    mass: 640,
+  };
+
+  /**
+   * An equid's mass from its height at the withers and its heart girth, where no mass was read with its size: the warmbloods' mean mass scaled by the girth's ratio squared times the height's.
+   *
+   * The girth-based equine weight formulas take mass as proportional to the heart girth squared times the body's length (Carroll and Huntington 1988, Equine Vet J 20:41), the volume of a barrel; the length is taken as proportional to the height at the withers, as isometric similarity scales every length together. Anchored on `JENSEN`'s means, a horse whose girth is in the warmbloods' proportion to its height has the mass the cube of its height gives. A model weighed whole carries its own read mass instead (`IProfile.mass`), a read value beating this derivation.
+   *
+   * @param withers The height at the withers, metres.
+   * @param girth The heart girth, metres.
+   * @returns The mass, kilograms.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its anchor and when a read mass replaces it.
+   * @evidence contracts/development/implementation.md#principled-implementation The girth-squared-times-length volume form with length proportional to height, anchored on one weighed sample's means.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No factor is fitted; a breed far from the warmbloods' mass for its girth is reported where its checks are recorded, not tuned.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function mass(withers: number, girth: number): number {
+    return JENSEN.mass * (girth / JENSEN.girth) ** 2 * (withers / JENSEN.withers);
+  }
+
+  /** The seat sizes, inches: Wintec's 16, 16.5, 17, 17.5 and 18 in seats, measured from the saddle nail to the middle of the cantle (https://wintec-saddles.com.au/pages/measuring-your-seat-size). */
+  export type Seat = "16in" | "16.5in" | "17in" | "17.5in" | "18in";
+
+  /** Each seat size's seat, metres. */
+  export const SEATS: Readonly<Record<Seat, Readonly<Partial<Record<Dimension, number>>>>> = {
+    "16in": { seatSize: 16 * ArchetypeUnits.INCH },
+    "16.5in": { seatSize: 16.5 * ArchetypeUnits.INCH },
+    "17in": { seatSize: 17 * ArchetypeUnits.INCH },
+    "17.5in": { seatSize: 17.5 * ArchetypeUnits.INCH },
+    "18in": { seatSize: 18 * ArchetypeUnits.INCH },
+  };
+
+  /** The rein widths: Dover Saddlery's snaffle reins, 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines). */
+  export type Rein = "5/8in" | "3/4in";
+
+  /** Each rein's width, metres. */
+  export const REINS: Readonly<Record<Rein, Readonly<Partial<Record<Dimension, number>>>>> = {
+    "5/8in": { reinWidth: (5 / 8) * ArchetypeUnits.INCH },
+    "3/4in": { reinWidth: (3 / 4) * ArchetypeUnits.INCH },
+  };
+
   /** The band of each free dimension. */
   export const BANDS: typeof HORSE_BANDS = HORSE_BANDS;
 
-  /** The horse's profile. */
+  /** The horse's profile: its girth in the warmbloods' proportion to its height, so its mass is their mean mass times the cube of its height's ratio. */
   export const PROFILE: IProfile = {
     archetype: "horse",
     names: { saddle: "saddle horse", harness: "driving horse" },
     bands: BANDS,
+    girth: (withers: number): number => (withers * JENSEN.girth) / JENSEN.withers,
     body: BODY,
   };
 }

@@ -47,7 +47,7 @@ const WRIST: string =
   "the wrist centre's height above the floor, ANSUR II stylion height less 1.5 mm: women's mean 793 mm, men's 846 mm (packages/human/docs/anatomy/skeleton.md, after the ANSUR II working databases)";
 
 /**
- * The band of each free dimension of a cart, by kind, with the source it was read at; `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the horse's withers height and girth from the saddle horse's own bands, so the cart fits the horse `createHorse` builds.
+ * The band of each free dimension of a cart, by kind, with the source it was read at; `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the horse's withers height from the saddle horse's own band, and a cart takes the girth that height gives the horse (`createCart`), so the cart fits the horse `createHorse` builds.
  */
 export const CART_BANDS: Readonly<
   Record<
@@ -121,7 +121,6 @@ export const CART_BANDS: Readonly<
       true,
     ),
     withersHeight: HORSE_BANDS.withersHeight,
-    girth: HORSE_BANDS.girth,
     mass: ArchetypeBand.of("kg", 110, 110, INTRO),
   },
   rickshaw: {

@@ -10,31 +10,15 @@ const LEATHERS: string =
   "half of the 1.15 to 1.55 m stirrup leathers Kingdom Equestrian lists by rider height (https://www.kingdomequestrian.co.uk/blogs/help-advice/stirrup-leather-buying-guide); how a leather's length becomes the tread's drop is an estimate";
 
 /**
- * The band of each free dimension of a saddle horse, with the source it was read at; `createHorse.BANDS` is this table.
+ * The band of each free dimension of a saddle horse, with the source it was read at; `createHorse.BANDS` is this table. The girth and the mass follow the height (`createHorse.PROFILE.girth`, `createHorse.mass`), and the seat and the reins are read sizes (`createHorse.SEATS`, `createHorse.REINS`), so none of them is a band.
  */
 export const HORSE_BANDS: Readonly<
-  Record<createHorse.Dimension, IArchetypeBand>
+  Record<createHorse.Free, IArchetypeBand>
 > = {
   withersHeight: ArchetypeBand.metres(
     1.58,
     1.8,
     `${JENSEN}: height at withers 172 cm, range 158 to 180`,
-  ),
-  mass: ArchetypeBand.of(
-    "kg",
-    478,
-    718,
-    `${JENSEN}: body mass 640 kg, range 478 to 718`,
-  ),
-  girth: ArchetypeBand.metres(
-    1.89,
-    2.13,
-    `${JENSEN}: heart girth at the withers 204 cm, range 189 to 213`,
-  ),
-  seatSize: ArchetypeBand.metres(
-    16 * ArchetypeUnits.INCH,
-    18 * ArchetypeUnits.INCH,
-    "Wintec saddle seat sizes, 16 to 18 in from the saddle nail to the middle of the cantle (https://wintec-saddles.com.au/pages/measuring-your-seat-size)",
   ),
   stirrupDrop: ArchetypeBand.metres(0.575, 0.775, LEATHERS, true),
   stirrupWidth: ArchetypeBand.metres(
@@ -42,11 +26,6 @@ export const HORSE_BANDS: Readonly<
     0.13,
     "stirrup tread widths of 110 to 130 mm by boot size, a Kingdom Equestrian chart seen only in search results",
     true,
-  ),
-  reinWidth: ArchetypeBand.metres(
-    (5 / 8) * ArchetypeUnits.INCH,
-    (3 / 4) * ArchetypeUnits.INCH,
-    "Dover Saddlery, snaffle reins 5/8 and 3/4 in wide (https://www.doversaddlery.com/pages/reins-for-english-riding-disciplines)",
   ),
   breechingDrop: ArchetypeBand.metres(
     2 * ArchetypeUnits.INCH,

@@ -97,7 +97,6 @@ export function test_archetype_harness(): void {
     {
       kind: "cart",
       withersHeight: horse.dimensions.withersHeight!,
-      girth: horse.dimensions.girth!,
     },
     4,
   );

@@ -44,7 +44,7 @@ export function createCart(
     params.kind,
     createCart.KINDS,
   );
-  const d: Partial<Record<createCart.Dimension, number>> =
+  const drawn: Partial<Record<createCart.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "cart",
       createCart.BANDS[kind],
@@ -52,6 +52,11 @@ export function createCart(
       params,
       createCart.BANDS,
     );
+  // A horse's cart fits the horse of its withers height, whose girth follows that height.
+  const d: Partial<Record<createCart.Dimension, number>> =
+    kind === "cart"
+      ? { ...drawn, girth: createHorse.PROFILE.girth(drawn.withersHeight!) }
+      : drawn;
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
       archetype: "cart",
@@ -76,7 +81,7 @@ export function createCart(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is; each band and constant its source, or that none was read and which to read.
  * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per kind, a kind lacking the dimensions of the parts it does not have.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a pushing, driving, riding or towing act reads (#3372, #3351, #3495): the handles, the seats, the floors, the shafts, the pole's end and the wheels' turn.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height and girth from `createHorse`'s bands, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height from `createHorse`'s band, and a cart takes the girth that height gives the horse, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
  */
 export namespace createCart {
   /** The kinds of carrier. */
@@ -305,7 +310,7 @@ export namespace createCart {
    * - `floorWidth`, `floorDepth`: a chariot floor's width across and depth along it.
    * - `railHeight`: a chariot's siding above its floor.
    * - `poleLength`: a chariot's pole from the axle to the yoke; a limber's pole beyond its frame; a wagon's tongue.
-   * - `withersHeight`, `girth`: the height at the withers and the heart girth of the horse a cart or a chariot is sized for, as `createHorse` draws them.
+   * - `withersHeight`, `girth`: the height at the withers of the horse a cart or a chariot is sized for, as `createHorse` draws it, and that horse's heart girth (`createHorse.PROFILE.girth`).
    * - `mass`: the empty carrier, kilograms.
    */
   export type Dimension =

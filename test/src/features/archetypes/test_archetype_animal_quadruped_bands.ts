@@ -17,6 +17,9 @@ const PONIES: Readonly<Record<string, readonly [number, number, number]>> = {
 /** The Thoroughbreds of the same rows: withers height and fore cannon, centimetres. */
 const THOROUGHBRED: readonly [number, number] = [161.4, 32.9];
 
+/** The weighed warmbloods of Jensen et al. 2019, Table 2, means: withers height and heart girth, centimetres, and body weight, kilograms. */
+const JENSEN: readonly [number, number, number] = [172, 204, 640];
+
 /** Kubo et al. 1992's thoroughbred metacarpus over its 1.62 m withers height. */
 const KUBO: number = 0.28 / 1.62;
 
@@ -25,11 +28,11 @@ const KUBO: number = 0.28 / 1.62;
  *
  * Scenarios, over 200 seeds:
  * 1. A pony's withers stand at one pony breed's mean height of Brooks et al. 2010, its barrel's round is that same breed's mean heart girth, and its fore cannon over its height is Kubo's thoroughbred fraction scaled by that breed's cannon over its height against the Thoroughbred's in the same rows, each to a millimetre or a twentieth of a percent of the height; every breed appears.
- * 2. A pony's mass lies within van den Bogert's ponies' 165 to 240 kg and spans at least 80 % of it.
+ * 2. A pony's mass is the girth-squared-times-length law's on its breed's girth and height, anchored on Jensen et al. 2019's weighed warmbloods' means: 640 kg times the girth's ratio to 204 cm squared times the height's to 172 cm, to a millionth.
  * 3. Each kind under each of its tacks offers the contacts the horse offers under that tack, by id and kind.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each kind for 200 seeds and measures the withers' top, the barrel's width, a bone's length and the body's mass, and lists the contacts; a pony blended between breeds, a size or a bone out of its breed's proportion, a mass outside its sample or a tack missing a contact is caught.
- * @evidence contracts/development/testing.md#independent-expectations The breeds' figures and the cannon's fraction are worked here from the source figures written above: Brooks et al.'s breed means as averaged from the published rows, Nauwelaerts et al.'s report of van den Bogert's ponies, and Kubo's 0.280 m at 1.62 m.
+ * @evidence contracts/development/testing.md#independent-expectations The breeds' figures, the cannon's fraction and the mass are worked here from the source figures written above: Brooks et al.'s breed means as averaged from the published rows, Kubo's 0.280 m at 1.62 m and Jensen et al.'s means, by Carroll and Huntington's girth-squared-times-length form.
  * @evidence contracts/development/testing.md#distinguishing-cases Every breed, height, girth and mass, one derived bone, and both tacks.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
@@ -56,20 +59,12 @@ export function test_archetype_animal_quadruped_bands(): void {
       findings.push(`seed ${seed}: a ${breed}'s barrel is ${round} m round, not ${girth / 100}`);
     if (Math.abs(fraction - expected) > 0.0005)
       findings.push(`seed ${seed}: a ${breed}'s fore cannon is ${fraction} of its height, not ${expected}`);
+    const weight: number = JENSEN[2] * (girth / JENSEN[1]) ** 2 * (height / JENSEN[0]);
+    if (Math.abs(pony.body.mass - weight) > 1e-6 * weight)
+      findings.push(`seed ${seed}: a ${breed} weighs ${pony.body.mass} kg, not the ${weight} kg its girth and height give`);
   }
   if (seen.size !== Object.keys(PONIES).length)
     findings.push(`only ${[...seen].join(", ")} appear over ${archetypeBandSweep.SEEDS} seeds`);
-  findings.push(
-    ...archetypeBandSweep([
-      {
-        name: "pony mass",
-        minimum: 165,
-        maximum: 240,
-        source: "van den Bogert 1989, as Nauwelaerts et al. 2011 report",
-        measure: (seed: number): number => createQuadruped({ kind: "pony" }, seed).body.mass,
-      },
-    ]),
-  );
 
   // 3. The tack's contacts.
   const contacts = (affordances: readonly IAutoMovieAffordance[]): string =>
