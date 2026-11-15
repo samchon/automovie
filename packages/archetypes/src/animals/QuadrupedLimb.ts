@@ -45,8 +45,8 @@ export namespace QuadrupedLimb {
       Vector3.length(Vector3.subtract(rest[k + 1]!, rest[k]!));
     const [a, b, c, e]: number[] = [length(0), length(1), length(2), length(3)];
     const stance: readonly number[] = fore
-      ? species.body.stance.fore
-      : species.body.stance.hind;
+      ? species.stance.fore
+      : species.stance.hind;
     // A direction in the plane by its angle from straight down toward the front, as [z, y].
     const along = (angle: number): [number, number] => [
       Math.sin(angle),

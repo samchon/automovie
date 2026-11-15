@@ -1,5 +1,5 @@
 import { ArchetypeCourse } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedGait } from "./QuadrupedGait";
 import type { createQuadruped } from "./createQuadruped";
 
@@ -31,7 +31,8 @@ export namespace QuadrupedChange {
    * @param species The species.
    * @param low The slower gait.
    * @param high The faster gait, the next in the species' order.
-   * @param dimensions The animal's dimensions: its withers height, girth and mass are read.
+   * @param dimensions The animal's dimensions: its withers height and mass are read.
+   * @param hip The animal's hip joint's height above the ground at rest, metres, the leg's length a Froude number is taken on.
    * @returns The change point, metres per second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -39,7 +40,7 @@ export namespace QuadrupedChange {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rule.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedBody.rig` and `QuadrupedGait.range`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedGait.range`; the hip's height is the caller's, read off the animal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
@@ -47,15 +48,12 @@ export namespace QuadrupedChange {
     low: QuadrupedGait.Gait,
     high: QuadrupedGait.Gait,
     dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>,
+    hip: number,
   ): number {
     // Every gait but the slowest states how it is changed into.
     const rule: Rule = QuadrupedGait.of(species, high).change!;
     if (rule.kind === "froude")
-      return Math.sqrt(
-        rule.froude *
-          ArchetypeCourse.GRAVITY *
-          QuadrupedBody.rig(species.body, dimensions).limbs.leftHind[0]!.y,
-      );
+      return Math.sqrt(rule.froude * ArchetypeCourse.GRAVITY * hip);
     if (rule.kind === "mass")
       return rule.speed * (dimensions.mass! / rule.mass) ** rule.exponent;
     const a: { minimum: number; maximum: number } = QuadrupedGait.range(
@@ -78,6 +76,7 @@ export namespace QuadrupedChange {
    * @param speed The speed, metres per second.
    * @param from The gait the animal is in.
    * @param dimensions The animal's dimensions.
+   * @param hip The animal's hip joint's height at rest, metres.
    * @returns The gait.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the rule.
@@ -93,6 +92,7 @@ export namespace QuadrupedChange {
     speed: number,
     from: QuadrupedGait.Gait,
     dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>>,
+    hip: number,
   ): QuadrupedGait.Gait {
     const order: readonly QuadrupedGait.Gait[] = species.table.order;
     const gap: number =
@@ -101,12 +101,12 @@ export namespace QuadrupedChange {
     let k: number = order.indexOf(from);
     while (
       k < order.length - 1 &&
-      speed > point(species, order[k]!, order[k + 1]!, dimensions) + gap
+      speed > point(species, order[k]!, order[k + 1]!, dimensions, hip) + gap
     )
       k++;
     while (
       k > 0 &&
-      speed < point(species, order[k - 1]!, order[k]!, dimensions) - gap
+      speed < point(species, order[k - 1]!, order[k]!, dimensions, hip) - gap
     )
       k--;
     return order[k]!;

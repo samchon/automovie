@@ -94,7 +94,7 @@ export namespace QuadrupedGait {
     /** How the gait is changed into from the one below it in `ITable.order`; absent for the slowest. */
     change?: QuadrupedChange.Rule;
 
-    /** How far the trunk rises and falls in a stride, metres. */
+    /** How far the trunk rises and falls in a stride, as a fraction of the height at the withers. */
     bob: number;
 
     /** The head's pitch range in a stride, degrees, and when in the stride it is nose-down: `support`, the nose highest as each fore lifts off; `bob`, nose-down as the trunk sinks; `lead`, lowest at the leading fore's landing. */

@@ -98,12 +98,15 @@ export namespace HorseGait {
     gallop: 10,
   };
 
-  /** How far the trunk rises and falls in a stride, metres: the withers' vertical range of warmbloods, 33.4 mm at walk and 92.2 mm at trot (Rhodin et al. 2022, Animals 12:3053, Tables 2 and 3, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9657284/fullTextXML). The canter and the gallop reuse the trot's; no measured value was found. */
+  /** The withers' height of the warmbloods whose trunk's rise and fall `BOB` reads, metres: "Nineteen Warmblood riding horses (11 mares, 8 geldings, age 10 ± 4.2 years, withers height 165.5 ± 7.0 cm)" (Rhodin et al. 2022, Animals 12:3053, Section 2.1, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9657284/fullTextXML). */
+  export const WARMBLOOD: number = 1.655;
+
+  /** How far the trunk rises and falls in a stride, as a fraction of the height at the withers: the withers' vertical range of warmbloods, 33.4 mm at walk and 92.2 mm at trot (Rhodin et al. 2022, Tables 2 and 3, the same paper), over their `WARMBLOOD` height, so an animal of another height rises and falls in proportion, as dynamic similarity scales every length: a derivation. The same paper's Icelandic horses rise 46.8 mm at trot at 1.41 m, less than the warmbloods' share, so the share is the warmbloods' and not every breed's. The canter and the gallop reuse the trot's; no measured value was found. */
   export const BOB: Readonly<Record<QuadrupedGait.Gait, number>> = {
-    walk: 0.0334,
-    trot: 0.0922,
-    canter: 0.0922,
-    gallop: 0.0922,
+    walk: 0.0334 / WARMBLOOD,
+    trot: 0.0922 / WARMBLOOD,
+    canter: 0.0922 / WARMBLOOD,
+    gallop: 0.0922 / WARMBLOOD,
   };
 
   /** The peak fold of the carpus and of the hock in the swing, degrees, at the walk and at the trot: the joints' ranges in Back, Schamhardt and Barneveld 1996, Vet Q 18:79, Tables 1 and 2 (https://www.tandfonline.com/doi/pdf/10.1080/01652176.1996.9694699). The canter and the gallop reuse the trot's. */

@@ -77,6 +77,7 @@ import {
   createPlyoBox,
   createPolearm,
   createPoolEdge,
+  createPony,
   createPram,
   createProjectile,
   createPullUpBar,
@@ -409,6 +410,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       kind === "launch",
     );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
+  add("pony", (seed?: number | string): Archetype => createPony({}, seed));
   for (const frame of createHandgun.FRAMES)
     add(
       `handgun-${frame}`,

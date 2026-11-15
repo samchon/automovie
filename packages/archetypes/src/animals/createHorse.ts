@@ -7,6 +7,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  type IArchetypeBand,
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { HorseHarness } from "./HorseHarness";
@@ -25,176 +26,18 @@ import { QuadrupedBody } from "./QuadrupedBody";
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `TACKS`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
- * @evidence contracts/development/implementation.md#principled-implementation The shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, take the rest joints from `rig`, lay the body, then the tack and its contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s, stated there; every tack size no source gives is a named estimate.
+ * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `equid` on `PROFILE`.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `equid`'s, stated there.
  * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The body is the shared quadruped's; each call builds one independent model.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `equid`, which the pony shares; each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  const tack: createHorse.Tack = ArchetypeDraw.choice(
-    "horse",
-    "tack",
-    params.tack ?? "saddle",
-    createHorse.TACKS,
-  );
-  const d: Record<createHorse.Dimension, number> = ArchetypeDraw.dimensions(
-    "horse",
-    createHorse.BANDS,
-    seed,
-    params,
-  );
-  const builder: ArchetypeBuilder<
-    createHorse.Affordance,
-    createHorse.Dimension
-  > = new ArchetypeBuilder({
-    archetype: "horse",
-    id: params.id,
-    name: tack === "saddle" ? "saddle horse" : "driving horse",
-    dimensions: d,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const h: number = d.withersHeight;
-  const rig: createHorse.IRig = createHorse.rig(d);
-  const barrel: number = rig.barrel;
-  const back: number = rig.back;
-  const half: number = rig.trunk / 2;
-  const nose: IAutoMovieVector3 = rig.nose;
-  QuadrupedBody.lay(createHorse.BODY, builder, h, rig);
-
-  if (tack === "saddle") {
-    // The saddle on the back behind the withers, and what the rider holds and stands in.
-    const top: number = back + 0.04;
-    const centre: number = half - createHorse.SADDLE;
-    builder.box(
-      "saddle",
-      v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
-      v(0, top - 0.02, centre),
-      { color: "#4a3324", share: 1 },
-    );
-    builder.affordance({
-      id: "seat",
-      kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, top, centre + d.seatSize / 2)),
-      extent: null,
-      depth: d.seatSize,
-      width: createHorse.SEAT_WIDTH,
-      astride: true,
-
-      // A horse is mounted from its near side, the left.
-      mount: "left",
-    });
-    for (const [id, z] of [
-      ["pommel", centre + d.seatSize / 2],
-      ["cantle", centre - d.seatSize / 2],
-    ] as const) {
-      builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-        color: "#4a3324",
-        share: 0.01,
-      });
-      builder.affordance({
-        id,
-        kind: "handle",
-        symmetry: "none",
-        frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
-        extent: null,
-        grip: "power",
-        aperture: 0.03,
-        length: 0.12,
-      });
-    }
-    for (const [side, sign] of [
-      ["left", 1],
-      ["right", -1],
-    ] as const) {
-      const x: number = sign * (barrel + 0.03);
-      const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
-      builder.rod(
-        `leather-${side}`,
-        0.008,
-        v(x, top - 0.02, centre + 0.05),
-        v(x, tread.y + 0.01, tread.z),
-        { color: "#4a3324", share: 0.01 },
-      );
-      builder.box(
-        `stirrup-${side}`,
-        v(d.stirrupWidth, 0.01, 0.05),
-        v(x, tread.y - 0.005, tread.z),
-        { color: "#b9bcc0", share: 0.01 },
-      );
-      builder.affordance({
-        id: `${side}Stirrup`,
-        kind: "stirrup",
-        frame: ArchetypeFrame.upright(tread),
-        extent: null,
-        width: d.stirrupWidth,
-        length: d.stirrupDrop,
-      });
-
-      // A rein from the corner of the mouth back to where the hand holds it, above the withers.
-      const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
-      const bit: IAutoMovieVector3 = v(sign * 0.05 * h, rig.mouth.y, rig.mouth.z);
-      // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
-      const run: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(bit, hand),
-      );
-      builder.rod(
-        `rein-${side}`,
-        d.reinWidth / 2,
-        Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
-        bit,
-        { color: "#4a3324", share: 0.01 },
-      );
-      builder.affordance({
-        id: `${side}Rein`,
-        kind: "rein",
-        symmetry: "round",
-        frame: ArchetypeFrame.facing(
-          hand,
-          v(0, 1, 0),
-          Vector3.subtract(bit, hand),
-        ),
-        extent: null,
-        grip: "power",
-        aperture: d.reinWidth,
-        length: createHorse.HELD.rein,
-      });
-    }
-    const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
-    const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
-    builder.rod(
-      "lead",
-      createHorse.LEAD / 2,
-      Vector3.subtract(
-        held,
-        Vector3.scale(
-          Vector3.normalize(Vector3.subtract(halter, held)),
-          createHorse.HELD.lead / 2,
-        ),
-      ),
-      halter,
-      { color: "#d8d2c4", share: 0.01 },
-    );
-    builder.affordance({
-      id: "lead",
-      kind: "rein",
-      symmetry: "round",
-      frame: ArchetypeFrame.facing(
-        held,
-        v(1, 0, 0),
-        Vector3.subtract(halter, held),
-      ),
-      extent: null,
-      grip: "power",
-      aperture: createHorse.LEAD,
-      length: createHorse.HELD.lead,
-    });
-  } else HorseHarness.lay(builder, d, rig);
-  return builder.build(d.mass, { rests: createHorse.BODY.foot });
+  return createHorse.equid(createHorse.PROFILE, params, seed);
 }
 
 /**
@@ -376,10 +219,11 @@ export namespace createHorse {
    * The horse's joints and landmarks at rest.
    *
    * @param dimensions The horse's dimensions, as `Archetype.dimensions` gives them.
+   * @param body The body's proportions; the horse's `BODY` when absent, another equid's for that equid.
    * @returns The rest rig.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared quadruped's rig from `BODY`, then the point of draft on the barrel's surface at the shoulder joint's height beside the elbow, and the hitch on the trunk's axis `SADDLE` behind the shoulder joints.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared quadruped's rig from the body's proportions, then the point of draft on the barrel's surface at the shoulder joint's height beside the elbow, and the hitch on the trunk's axis `SADDLE` behind the shoulder joints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared rig, then two points.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; the bands admit the dimensions.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the shared rig's.
@@ -388,20 +232,233 @@ export namespace createHorse {
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
+    body: QuadrupedBody.IBody = BODY,
   ): IRig {
-    const body: QuadrupedBody.IRig = QuadrupedBody.rig(BODY, dimensions);
-    const shoulder: IAutoMovieVector3 = body.limbs.leftFore[0]!;
-    const axis: number = body.back - body.barrel;
+    const rest: QuadrupedBody.IRig = QuadrupedBody.rig(body, dimensions);
+    const shoulder: IAutoMovieVector3 = rest.limbs.leftFore[0]!;
+    const axis: number = rest.back - rest.barrel;
     const side: number = Math.sqrt(
-      Math.max(0, body.barrel * body.barrel - (axis - shoulder.y) ** 2),
+      Math.max(0, rest.barrel * rest.barrel - (axis - shoulder.y) ** 2),
     );
     return {
-      ...body,
-      draft: Vector3.create(side, shoulder.y, body.limbs.leftFore[1]!.z),
-      hitch: Vector3.create(0, axis, body.trunk / 2 - SADDLE),
+      ...rest,
+      draft: Vector3.create(side, shoulder.y, rest.limbs.leftFore[1]!.z),
+      hitch: Vector3.create(0, axis, rest.trunk / 2 - SADDLE),
     };
   }
 
+  /**
+   * An equid of the horse's build and tack, the producer behind `createHorse` and `createPony`: the shared quadruped body from the profile's proportions, under a riding saddle with stirrups, reins and a lead rope, or in a driving harness, as `createHorse` describes them.
+   *
+   * @param profile The equid's name, bands and body.
+   * @param params The tack and any dimension the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+   * @returns The equid.
+   * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a tack that is not one of `TACKS`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it builds, from what, and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared body (`QuadrupedBody.lay`) from the profile's proportions, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, take the rest joints from `rig`, lay the body, then the tack and its contacts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s, stated there; every tack size no source gives is a named estimate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body is the shared quadruped's, the tack the horse's; each call builds one independent model.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function equid(
+    profile: IProfile,
+    params: IParams = {},
+    seed?: number | string,
+  ): Archetype<Affordance, Dimension> {
+    const tack: createHorse.Tack = ArchetypeDraw.choice(
+      profile.archetype,
+      "tack",
+      params.tack ?? "saddle",
+      createHorse.TACKS,
+    );
+    const d: Record<createHorse.Dimension, number> = ArchetypeDraw.dimensions(
+      profile.archetype,
+      profile.bands,
+      seed,
+      params,
+    );
+    const builder: ArchetypeBuilder<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = new ArchetypeBuilder({
+      archetype: profile.archetype,
+      id: params.id,
+      name: profile.names[tack],
+      dimensions: d,
+    });
+    const v: typeof Vector3.create = Vector3.create;
+    const h: number = d.withersHeight;
+    const rig: createHorse.IRig = createHorse.rig(d, profile.body);
+    const barrel: number = rig.barrel;
+    const back: number = rig.back;
+    const half: number = rig.trunk / 2;
+    const nose: IAutoMovieVector3 = rig.nose;
+    QuadrupedBody.lay(profile.body, builder, h, rig);
+  
+    if (tack === "saddle") {
+      // The saddle on the back behind the withers, and what the rider holds and stands in.
+      const top: number = back + 0.04;
+      const centre: number = half - createHorse.SADDLE;
+      builder.box(
+        "saddle",
+        v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
+        v(0, top - 0.02, centre),
+        { color: "#4a3324", share: 1 },
+      );
+      builder.affordance({
+        id: "seat",
+        kind: "seat",
+        frame: ArchetypeFrame.upright(v(0, top, centre + d.seatSize / 2)),
+        extent: null,
+        depth: d.seatSize,
+        width: createHorse.SEAT_WIDTH,
+        astride: true,
+  
+        // A horse is mounted from its near side, the left.
+        mount: "left",
+      });
+      for (const [id, z] of [
+        ["pommel", centre + d.seatSize / 2],
+        ["cantle", centre - d.seatSize / 2],
+      ] as const) {
+        builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
+          color: "#4a3324",
+          share: 0.01,
+        });
+        builder.affordance({
+          id,
+          kind: "handle",
+          symmetry: "none",
+          frame: ArchetypeFrame.upright(v(0, top + 0.03, z)),
+          extent: null,
+          grip: "power",
+          aperture: 0.03,
+          length: 0.12,
+        });
+      }
+      for (const [side, sign] of [
+        ["left", 1],
+        ["right", -1],
+      ] as const) {
+        const x: number = sign * (barrel + 0.03);
+        const tread: IAutoMovieVector3 = v(x, top - d.stirrupDrop, centre + 0.05);
+        builder.rod(
+          `leather-${side}`,
+          0.008,
+          v(x, top - 0.02, centre + 0.05),
+          v(x, tread.y + 0.01, tread.z),
+          { color: "#4a3324", share: 0.01 },
+        );
+        builder.box(
+          `stirrup-${side}`,
+          v(d.stirrupWidth, 0.01, 0.05),
+          v(x, tread.y - 0.005, tread.z),
+          { color: "#b9bcc0", share: 0.01 },
+        );
+        builder.affordance({
+          id: `${side}Stirrup`,
+          kind: "stirrup",
+          frame: ArchetypeFrame.upright(tread),
+          extent: null,
+          width: d.stirrupWidth,
+          length: d.stirrupDrop,
+        });
+  
+        // A rein from the corner of the mouth back to where the hand holds it, above the withers.
+        const hand: IAutoMovieVector3 = v(sign * 0.08, back + 0.15, half - 0.1);
+        const bit: IAutoMovieVector3 = v(sign * 0.05 * h, rig.mouth.y, rig.mouth.z);
+        // The strap runs on behind the hand by half the held run, so the run the hand closes on is all strap.
+        const run: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(bit, hand),
+        );
+        builder.rod(
+          `rein-${side}`,
+          d.reinWidth / 2,
+          Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
+          bit,
+          { color: "#4a3324", share: 0.01 },
+        );
+        builder.affordance({
+          id: `${side}Rein`,
+          kind: "rein",
+          symmetry: "round",
+          frame: ArchetypeFrame.facing(
+            hand,
+            v(0, 1, 0),
+            Vector3.subtract(bit, hand),
+          ),
+          extent: null,
+          grip: "power",
+          aperture: d.reinWidth,
+          length: createHorse.HELD.rein,
+        });
+      }
+      const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
+      const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
+      builder.rod(
+        "lead",
+        createHorse.LEAD / 2,
+        Vector3.subtract(
+          held,
+          Vector3.scale(
+            Vector3.normalize(Vector3.subtract(halter, held)),
+            createHorse.HELD.lead / 2,
+          ),
+        ),
+        halter,
+        { color: "#d8d2c4", share: 0.01 },
+      );
+      builder.affordance({
+        id: "lead",
+        kind: "rein",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          held,
+          v(1, 0, 0),
+          Vector3.subtract(halter, held),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: createHorse.LEAD,
+        length: createHorse.HELD.lead,
+      });
+    } else HorseHarness.lay(builder, d, rig);
+    return builder.build(d.mass, { rests: profile.body.foot });
+  }
+
+  /**
+   * An equid of the horse's build: what `equid` builds one from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation The producer's name, the model's name by tack, the bands and the body's proportions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the horse's is `PROFILE`, a pony breed's `createPony.profile`'s.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IProfile {
+    /** The producer's name, which refusals carry and the ride finds the species by. */
+    archetype: string;
+
+    /** The model's name under each tack. */
+    names: Readonly<Record<Tack, string>>;
+
+    /** The band of each free dimension. */
+    bands: Readonly<Record<Dimension, IArchetypeBand>>;
+
+    /** The body's proportions. */
+    body: QuadrupedBody.IBody;
+  }
   /** The band of each free dimension. */
   export const BANDS: typeof HORSE_BANDS = HORSE_BANDS;
+
+  /** The horse's profile. */
+  export const PROFILE: IProfile = {
+    archetype: "horse",
+    names: { saddle: "saddle horse", harness: "driving horse" },
+    bands: BANDS,
+    body: BODY,
+  };
 }
