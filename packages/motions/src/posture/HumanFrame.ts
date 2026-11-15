@@ -68,6 +68,16 @@ export namespace HumanFrame {
   }
 
   /**
+   * The unit vector a heading faces along the floor, world.
+   *
+   * @param yaw Degrees about +Y.
+   * @returns `(sin yaw, 0, cos yaw)`.
+   */
+  export function forward(yaw: number): IAutoMovieVector3 {
+    return point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 });
+  }
+
+  /**
    * The rotation of a heading about +Y.
    *
    * @param yaw Degrees.

@@ -127,10 +127,7 @@ export namespace crawlInchworm {
       origin: { ...standing.root, y: 0 },
       yaw,
     };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
     const sides = ["left", "right"] as const;
     const DEG: number = 180 / Math.PI;
     const chain: crawlChain.IChain = crawlChain.of(
@@ -363,7 +360,10 @@ export namespace crawlInchworm {
             out,
             {
               left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-              right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+              right: AutoMovieMotionHumanArm.angles(
+                context.entry.pose,
+                "right",
+              ),
             },
             w,
           );

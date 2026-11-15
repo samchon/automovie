@@ -138,10 +138,7 @@ export namespace crawlFeet {
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
   ): { frame: HumanFrame.IFrame; tucks: Record<"left" | "right", ITuck> } {
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: measured.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {
       const goal: IHumanPosture.IGoal = standing.limbs[`${side}Leg`]!;

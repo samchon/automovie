@@ -185,10 +185,7 @@ export namespace crawl {
       origin: { ...standing.root, y: 0 },
       yaw,
     };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
 
     // Each wrist over its flat palm on the floor, floor frame from the palm;
     // the body tilted by a pitch, and the root under its hip joints.

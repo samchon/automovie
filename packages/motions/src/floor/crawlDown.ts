@@ -17,6 +17,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
+import { floorEntry } from "./floorEntry";
 
 /**
  * The way down from standing onto the hands and the knees, or onto the hands
@@ -147,10 +148,7 @@ export namespace crawlDown {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
     };
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: S.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    const forward: IAutoMovieVector3 = HumanFrame.forward(S.yaw);
     const along = (p: IAutoMovieVector3): number => Vector3.dot(p, forward);
     const middle = (pair: Record<"left" | "right", IAutoMovieVector3>) =>
       Vector3.lerp(pair.left, pair.right, 0.5);
@@ -384,19 +382,10 @@ export namespace crawlDown {
       u: number,
     ): IHumanPosture => {
       const lerp = (a: number, b: number): number => a + (b - a) * u;
-      const joints: IHumanPosture["joints"] = { ...base.joints };
-      for (const bone of new Set([
-        ...Object.keys(S.joints),
-        ...Object.keys(to.joints),
-      ]) as Set<AutoMovieHumanoidBone>) {
-        const a: readonly [number, number, number] = S.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        const b: readonly [number, number, number] = to.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2])];
-      }
+      const joints: IHumanPosture["joints"] = {
+        ...base.joints,
+        ...floorEntry.blended(S.joints, to.joints, u),
+      };
       const tilted: IHumanPosture = {
         ...to,
         pitch: lerp(S.pitch, to.pitch),

@@ -14,6 +14,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { floorEntry } from "./floorEntry";
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its
@@ -190,17 +191,14 @@ export namespace crawlFrame {
         [`${side}Hand`, "hand"],
       ] as const)
         joints[bone] = blendHumanJoint(body, bone, from[key], to[key], share);
-      for (const [bone, shaped] of Object.entries(
-        HumanHand.shape(side, "flat"),
-      ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-        const was: readonly [number, number, number] = from.fingers?.[bone] ??
-          posture.joints[bone] ?? [0, 0, 0];
-        joints[bone] = [
-          was[0] + (shaped[0] - was[0]) * share,
-          was[1] + (shaped[1] - was[1]) * share,
-          was[2] + (shaped[2] - was[2]) * share,
-        ];
+      const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
+      const was: IHumanPosture["joints"] = {};
+      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
+        const held: readonly [number, number, number] | undefined =
+          from.fingers?.[bone] ?? posture.joints[bone];
+        if (held !== undefined) was[bone] = held;
       }
+      Object.assign(joints, floorEntry.blended(was, flat, share));
       delete limbs[`${side}Arm`];
     }
     return { ...posture, joints, limbs };
