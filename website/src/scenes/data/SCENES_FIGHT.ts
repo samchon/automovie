@@ -102,6 +102,7 @@ export const SCENES_FIGHT: readonly IScene[] = [
       setting: "combat",
       roles: { joe: "brawler", mac: "brawler", ned: "bystander" },
       needs: [],
+      refusedUntil: 3551,
     },
     "bar-fight",
     [

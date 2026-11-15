@@ -177,5 +177,6 @@ export const SCENES_COMBAT: readonly IScene[] = [
     takes: SceneTakes.of(DOJO, "elite"),
     camera: { view: "three-quarter" },
     needs: [],
+    refusedUntil: 3552,
   },
 ];

@@ -128,6 +128,7 @@ export namespace PlaygroundAddress {
             ).offset.position[k] === "number",
         ) &&
         quaternion(value.worn.offset.rotation))) &&
+    (value.fixed === undefined || typeof value.fixed === "boolean") &&
     typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */
