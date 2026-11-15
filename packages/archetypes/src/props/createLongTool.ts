@@ -11,6 +11,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
+import { Throwers } from "./Throwers";
 
 /** Broom and mop handles from a maker's listings seen in search results. */
 const HANDLES: string =
@@ -141,6 +142,11 @@ export function createLongTool(
     return builder.build(d.mass!);
   }
 
+  if (kind === "sling" || kind === "atlatl") {
+    if (kind === "sling") Throwers.sling(builder, d);
+    else Throwers.atlatl(builder, d);
+    return builder.build(d.mass!);
+  }
   const radius: number = d.shaftDiameter! / 2;
   if (kind === "spongeRammer" || kind === "worm" || kind === "trailHandspike") {
     FIELD_IMPLEMENTS.build(builder, kind, length, radius, d.mass!);
@@ -281,7 +287,9 @@ export namespace createLongTool {
     | "fishingRod"
     | "spongeRammer"
     | "worm"
-    | "trailHandspike";
+    | "trailHandspike"
+    | "sling"
+    | "atlatl";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -293,6 +301,8 @@ export namespace createLongTool {
     "spongeRammer",
     "worm",
     "trailHandspike",
+    "sling",
+    "atlatl",
   ];
 
   /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
@@ -320,8 +330,11 @@ export namespace createLongTool {
    * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
    * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge; a rammer head's or a handspike's lower end, facing down; a worm's point, `+Y` down along the tool.
    * - `tip`: a fishing rod's end, or a sponge's, `+Y` along it.
+   * - `release`: a sling's release knot, held between the thumb and the first finger and let go to throw (`Throwers.sling`); its `grip` is the finger loop.
+   * - `pouch`: a sling's pouch a stone sits in, facing up.
+   * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back along the shaft (`Throwers.atlatl`); its `grip` is the handle at the butt.
    */
-  export type Affordance = "shaft" | "grip" | "face" | "tip";
+  export type Affordance = "shaft" | "grip" | "face" | "tip" | "release" | "pouch" | "spur";
 
   /**
    * The free dimensions, metres unless stated:
@@ -331,6 +344,10 @@ export namespace createLongTool {
    * - `edge`: an axe's cutting edge, along `+Y`, which is the head's height.
    * - `headLength`: an axe head from its poll to its edge, along `+Z`.
    * - `headMass`: an axe head's mass, kilograms, its share of the whole placing the balance.
+   * - `pouchLength`, `pouchWidth`: a sling's pouch.
+   * - `width`: an atlatl's width at its spur end.
+   * - `spurSetback`: an atlatl's spur from its far end; `gripSetback`: where its handle proper begins from the butt.
+   * - `launchSpeed`: a thrower's measured projectile speed, metres per second.
    * - `mass`: kilograms.
    */
   export type Dimension =
@@ -339,6 +356,12 @@ export namespace createLongTool {
     | "edge"
     | "headLength"
     | "headMass"
+    | "pouchLength"
+    | "pouchWidth"
+    | "width"
+    | "spurSetback"
+    | "gripSetback"
+    | "launchSpeed"
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
@@ -348,6 +371,12 @@ export namespace createLongTool {
     edge: "m",
     headLength: "m",
     headMass: "kg",
+    pouchLength: "m",
+    pouchWidth: "m",
+    width: "m",
+    spurSetback: "m",
+    gripSetback: "m",
+    launchSpeed: "m/s",
     mass: "kg",
   };
 
@@ -395,6 +424,8 @@ export namespace createLongTool {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
+    sling: Throwers.BANDS.sling,
+    atlatl: Throwers.BANDS.atlatl,
     spongeRammer: {
       length: ArchetypeBand.metres(
         FIELD_IMPLEMENTS.SPONGE_RAMMER.length,
