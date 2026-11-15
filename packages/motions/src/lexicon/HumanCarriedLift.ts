@@ -22,7 +22,9 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
  * go with it, and the carry's own posture keeps following the carrier
  * meanwhile, so the body arrives on a carrier who walks. The carried body's
  * contact with the carrier is declared only between the two, while it
- * rests there.
+ * rests there, and the feet plant on the floor through the lift and from
+ * the set-down's start, so the floor bears the body until the carrier does
+ * and again before the carrier lets go (#3437).
  *
  * First pass: the body is carried through the blend by nothing that is
  * shown (the carrier's hands arrive by `bearing`'s own take-up, and no hand
@@ -57,7 +59,7 @@ export namespace HumanCarriedLift {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The posture at a second is the carry's own, blended from the entry posture while the lift lasts and toward a stand under the carried root while the set-down lasts; phases longer than the carry are scaled to fill it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two weights, one blend, the contact windows cut to the hold and the feet's floor windows around it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading is blended the short way round; a limb goal is blended as the joint angles its solve gives, so no limb jumps when the blend starts or ends.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolution of the carry and one blend over the joints per evaluated second of a phase; the entry is resolved once.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached.
@@ -127,13 +129,45 @@ export namespace HumanCarriedLift {
         { name: "lifted", share: lift / plan.duration },
         { name: "setDown", share: 1 - setDown / plan.duration },
       ],
-      contacts: plan.contacts.map(
-        (window: IHumanContactWindow): IHumanContactWindow => ({
-          ...window,
-          from: Math.max(window.from, lift / plan.duration),
-          to: Math.min(window.to, 1 - setDown / plan.duration),
-        }),
-      ),
+      contacts: [
+        ...plan.contacts.map(
+          (window: IHumanContactWindow): IHumanContactWindow => ({
+            ...window,
+            from: Math.max(window.from, lift / plan.duration),
+            to: Math.min(window.to, 1 - setDown / plan.duration),
+          }),
+        ),
+
+        // The floor bears the feet until the carrier bears the body, and
+        // again from the set-down's start: each support is released only as
+        // the next one takes the weight (#3437, a support sequence of #3435).
+        ...(["leftFoot", "rightFoot"] as const).flatMap(
+          (part: "leftFoot" | "rightFoot"): IHumanContactWindow[] => [
+            ...(lift > 0
+              ? [
+                  {
+                    part,
+                    kind: "plant" as const,
+                    from: 0,
+                    to: lift / plan.duration,
+                    support: { kind: "ground" as const },
+                  },
+                ]
+              : []),
+            ...(setDown > 0
+              ? [
+                  {
+                    part,
+                    kind: "plant" as const,
+                    from: 1 - setDown / plan.duration,
+                    to: 1,
+                    support: { kind: "ground" as const },
+                  },
+                ]
+              : []),
+          ],
+        ),
+      ],
       posture: (at: number): IHumanPosture => {
         const held: IHumanPosture = plan.posture(at);
         if (lift > 0 && at < lift) {

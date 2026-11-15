@@ -282,6 +282,7 @@ export * from "./lexicon/HumanMountRider";
 export * from "./lexicon/HumanBlade";
 export * from "./audit/HumanVariation";
 export * from "./lexicon/HumanCarried";
+export * from "./lexicon/HumanCarriedCoupling";
 export * from "./lexicon/HumanFirearm";
 export * from "./lexicon/HumanPose";
 export * from "./posture/carryHumanPosture";

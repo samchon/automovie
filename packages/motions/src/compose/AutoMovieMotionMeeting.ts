@@ -1,11 +1,14 @@
 import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
@@ -25,7 +28,7 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a meeting holds, when it is computed, why the order of asking does not matter and what a missing role means.
  * @evidence contracts/development/design.md#principled-representation A mutual action has one geometry and one timing that both performers obey, the scene with named roles of contextual animation and the shared synchronisation points of BML; the record is that scene, so neither law derives the other's side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five records and three functions. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Seven records and three functions; the coupling records (#3437) are present only for a kind in which one role bears another. The performance computes the meeting and the action context carries it; the mutual laws read it with #3286. Default places and their resolution stay `AutoMovieMotionHumanTarget`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing role is a shorter role list and a meeting that is not solid, not a partner made up to fill it.
  */
 export namespace AutoMovieMotionMeeting {
@@ -130,6 +133,88 @@ export namespace AutoMovieMotionMeeting {
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     place?(roles: readonly IRole[]): Record<string, IAutoMovieVector3>;
+
+    /**
+     * The coupling of a kind in which one role bears another (#3437): the
+     * borne role's contacts on the bearer with their load shares, and the
+     * mass the bearer carries with its centre. Computed once with the
+     * meeting, from the ordered roles, and only when every role is present.
+     *
+     * @param roles The roles, in the meeting's order.
+     * @param instants The meeting's shared instants, film seconds.
+     * @returns The coupling.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the coupling holds, when it is computed and from what.
+     * @evidence contracts/development/implementation.md#principled-implementation A coupled system is stated once for both bodies, as Liu, Hertzmann and Popović 2006 state multi-character constraints once in one problem, so neither role derives the other's side of a contact.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional member of a kind, called at most once by `of`.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts When a role is missing `of` does not call it, so no coupling is made up against an absent bearer.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
+     */
+    couple?(roles: readonly IRole[], instants: ITiming): ICoupling;
+  }
+
+  /**
+   * How one role of a meeting bears another (#3437): the borne role's
+   * contacts on the bearer's regions, each with the share of the borne
+   * weight it carries, and the borne mass with its centre, which the
+   * bearer's balance takes in.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is; each member gives its meaning, frame and unit.
+   * @evidence contracts/development/design.md#principled-representation A coupled contact is a part of one body on a region of the other with a load share, the support model of #3425 between two people; the carried mass and its centre are what the bearer's moment balance (#3431) reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two role names, the contacts, the borne mass and centre, and the borne body's key frame on the bearer.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The frames are the bearer's hips frame, so the record is plain data that survives a move of the pair and keeps no body.
+   */
+  export interface ICoupling {
+    /** The bearing role's name. */
+    bearer: string;
+
+    /** The borne role's name. */
+    borne: string;
+
+    /** The borne role's contacts on the bearer. */
+    contacts: readonly ICoupledContact[];
+
+    /** The borne mass the bearer carries, kilograms. */
+    mass: number;
+
+    /** The borne centre of mass in the bearer's hips frame, metres. */
+    centre: IAutoMovieVector3;
+
+    /** The borne body's root frame in the bearer's hips frame at the coupling's key pose. */
+    key: {
+      /** Metres. */
+      position: IAutoMovieVector3;
+
+      /** Unit quaternion. */
+      rotation: IAutoMovieQuaternion;
+    };
+  }
+
+  /**
+   * One contact of a borne body on its bearer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation A part and its region on one body, the other body's role and region it lies on, how it bears and its load share: a contact window between two people.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, the ones a borne law turns into its windows and a bearer into its holds.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The part and the kind are the contact window's own unions.
+   */
+  export interface ICoupledContact {
+    /** The borne body's part. */
+    part: IHumanContactWindow["part"];
+
+    /** The borne body's region that touches. */
+    region: AutoMovieHumanoidRegion;
+
+    /** The bearer's role and region it lies on. */
+    on: { role: string; region: AutoMovieHumanoidRegion };
+
+    /** How it bears: on the bearer (`bear`), or a hold of the borne hand (`grip`). */
+    kind: "bear" | "grip";
+
+    /** The share of the borne weight it carries, in [0, 1]; a grip carries none. */
+    load: number;
   }
 
   /**
@@ -183,6 +268,9 @@ export namespace AutoMovieMotionMeeting {
 
     /** Whether every role is present, so the contacts can be touched. */
     solid: boolean;
+
+    /** How one role bears another, for a kind that couples them and when the meeting is solid. */
+    coupling?: ICoupling;
   }
 
   /**
@@ -314,6 +402,18 @@ export namespace AutoMovieMotionMeeting {
         reason: `the ${kind.name} cannot make its contact before ${stroke.toFixed(2)} s, so a window that ends at ${window.to.toFixed(2)} s holds nothing`,
         fix: "end the window later, or start the action earlier",
       });
+    const instants: ITiming = {
+      ready: latest("ready") + shift,
+      stroke,
+      relax: window?.to ?? latest("relax") + shift,
+    };
+
+    // A coupling is the kind's, from the ordered roles, and only when every
+    // role is present (#3437).
+    const coupling: ICoupling | undefined =
+      solid && kind.couple !== undefined
+        ? kind.couple(ordered, instants)
+        : undefined;
     return {
       kind: kind.name,
       frame,
@@ -325,11 +425,7 @@ export namespace AutoMovieMotionMeeting {
           ] => [name, HumanFrame.local(frame, point)],
         ),
       ),
-      instants: {
-        ready: latest("ready") + shift,
-        stroke,
-        relax: window?.to ?? latest("relax") + shift,
-      },
+      instants,
       roles: ordered.map(
         (r: IRole): Pick<IRole, "name" | "subject"> => ({
           name: r.name,
@@ -337,6 +433,7 @@ export namespace AutoMovieMotionMeeting {
         }),
       ),
       solid,
+      ...(coupling === undefined ? {} : { coupling }),
     };
   }
 
