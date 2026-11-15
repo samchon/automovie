@@ -98,6 +98,7 @@ import {
   createTable,
   createTableware,
   createTap,
+  createTent,
   createTool,
   createTorch,
   createTray,
@@ -538,6 +539,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       Object.values(createFireRing.BANDS[kind]).every(
         (band: IArchetypeBand): boolean => band.minimum === band.maximum,
       ),
+    );
+  for (const kind of createTent.KINDS)
+    add(
+      `tent-${kind}`,
+      (seed?: number | string): Archetype => createTent({ kind }, seed),
     );
   for (const kind of createTree.KINDS)
     add(
