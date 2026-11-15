@@ -55,7 +55,8 @@ import { walkPaced } from "./walkPaced";
  * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` postures of the plan, once per plan; each tick of the clock costs one search of the way.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the readings and the clock built once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
- */ export function walkStation(
+ */
+export function walkStation(
   plan: IHumanActionPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
@@ -162,9 +163,7 @@ import { walkPaced } from "./walkPaced";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each constant states its unit, and its source or that it is provisional.
  * @evidence contracts/development/design.md#principled-representation A cited rate, a dimensionless factor, intervals in seconds and counts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: 
-esolve (the way), 
-ests (its end) and point (the dressed slot), with IStationed, SPACING and DRESS_FREQUENCY.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The numbers the function reads, and the station's readers the walk family calls: `resolve` (the way), `rests` (its end) and `point` (the dressed slot), with `IStationed`, `SPACING` and `DRESS_FREQUENCY`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkStation {
