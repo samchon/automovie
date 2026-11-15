@@ -56,8 +56,7 @@ export namespace CartWheel {
    *
    * @param builder The carrier under construction.
    * @param pair Where the pair stands and what it is called.
-   * @returns The ids of the parts that turn with the axle and no knob binds: the axle itself; the wheels follow on their knobs, which ride 
-ides.
+   * @returns The ids of the parts that turn with the axle and no knob binds: the axle itself; the wheels follow on their knobs, which ride `rides`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and the spin's sense.
    * @evidence contracts/development/implementation.md#principled-implementation A knob's `+Y` is the carrier's `+X`, so a positive turn rolls the wheel's top toward `+Z`, as rolling forward does. The spokes' count is read for the chariot's six and the wagon's twelve and fourteen; for the others it is a construction no act reads.

@@ -450,7 +450,7 @@ export namespace createDoor {
     /** The leaf's nominal height, which sets its height; drawn from the seed when absent. */
     nominalHeight?: Height;
 
-    /** The leaf's nominal thickness, which sets its 	hickness; drawn from the seed when absent. */
+    /** The leaf's nominal thickness, which sets its `thickness`; drawn from the seed when absent. */
     nominalThickness?: Thickness;
 
     /** A lever's or knob's backset, or a sliding door's pull's, the same lock's; drawn from the seed when absent. */
