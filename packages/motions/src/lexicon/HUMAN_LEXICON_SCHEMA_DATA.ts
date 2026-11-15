@@ -118,7 +118,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o5"
     },
     "boxJump": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o3"
+      "$ref": "#/components/schemas/OmitIParamsnever-o4"
     },
     "boxStep": {
       "$ref": "#/components/schemas/OmitIParamskind-o5"
@@ -391,13 +391,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsdirection"
     },
     "fosburyFlop": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o4"
+      "$ref": "#/components/schemas/OmitIParamsnever-o5"
     },
     "frontCrawl": {
       "$ref": "#/components/schemas/OmitIParamskind-o6"
     },
     "frontHandspring": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o5"
+      "$ref": "#/components/schemas/OmitIParamsnever-o6"
     },
     "frontKick": {
       "$ref": "#/components/schemas/OmitIParamslegtechnique"
@@ -475,7 +475,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamsleftright"
     },
     "handspringVault": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o6"
+      "$ref": "#/components/schemas/OmitIParamsnever-o7"
     },
     "handstand": {
       "$ref": "#/components/schemas/OmitIParamsnever"
@@ -505,7 +505,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
     },
     "holsterFirearm": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o8"
+      "$ref": "#/components/schemas/OmitIParamsnever-o9"
     },
     "hook": {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
@@ -589,7 +589,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamspartway"
     },
     "leap": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o3"
+      "$ref": "#/components/schemas/OmitIParamsnever-o4"
     },
     "legSwings": {
       "$ref": "#/components/schemas/OmitIParamskind-o13"
@@ -853,7 +853,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitICutfrom"
     },
     "sledPush": {
-      "$ref": "#/components/schemas/OmitIParamslean"
+      "$ref": "#/components/schemas/OmitIParamsnever-o3"
     },
     "slidingTackle": {
       "$ref": "#/components/schemas/OmitIParamskind-o14"
@@ -1045,7 +1045,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       "$ref": "#/components/schemas/OmitIParamshandtechnique"
     },
     "vaultOnPole": {
-      "$ref": "#/components/schemas/OmitIParamsnever-o7"
+      "$ref": "#/components/schemas/OmitIParamsnever-o8"
     },
     "victory": {
       "$ref": "#/components/schemas/OmitIParamskind-o1"
@@ -1166,6 +1166,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
     "gesture": {
       "$ref": "#/components/schemas/gesture.IParams",
       "description": "A communicative gesture."
+    },
+    "getUp": {
+      "$ref": "#/components/schemas/getUp.IParams",
+      "description": "Getting up from the floor."
     },
     "guard": {
       "$ref": "#/components/schemas/guard.IParams",
@@ -2182,6 +2186,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "square"
+              },
+              {
+                "const": "worn"
               }
             ],
             "description": "The line its use names (`HumanGraspUse.IUse.line`)."
@@ -5038,6 +5045,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
           "stride": {
             "$ref": "#/components/schemas/HumanUnit.Bounded",
             "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
@@ -6516,6 +6555,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
@@ -6668,6 +6739,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
             "description": "Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent."
@@ -6731,6 +6834,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "face": {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
           },
           "elbows": {
             "$ref": "#/components/schemas/HumanUnit.Bounded-o2",
@@ -6840,6 +6975,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "face": {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
           },
           "stride": {
             "$ref": "#/components/schemas/HumanUnit.Bounded",
@@ -12366,6 +12533,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
+          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -12485,7 +12653,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           }
         },
         "required": [
-          "prop",
           "on"
         ],
         "additionalProperties": false
@@ -13534,7 +13701,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsarmSwingpace"
           },
           "sledPush": {
-            "$ref": "#/components/schemas/OmitIParamslean"
+            "$ref": "#/components/schemas/OmitIParamsnever-o3"
           }
         },
         "required": [
@@ -13582,6 +13749,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
           },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
+          },
           "stride": {
             "$ref": "#/components/schemas/HumanUnit.Bounded",
             "description": "Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent."
@@ -13596,7 +13795,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamslean": {
+      "OmitIParamsnever-o3": {
         "type": "object",
         "properties": {
           "sled": {
@@ -13614,6 +13813,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "right": {
             "type": "string",
             "description": "The handle the right hand takes, an affordance id; `right` when absent."
+          },
+          "lean": {
+            "type": "number",
+            "description": "How far the trunk leans into the load at least, degrees from the vertical in [0, `pushSledStance.RANGE`]; absent, the trunk leans as measured pushers do at the handles' height (`pushSledStance.INCLINES`), which a lean beyond it overrides."
           }
         },
         "required": [
@@ -14175,7 +14378,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsway"
           },
           "boxJump": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o3"
+            "$ref": "#/components/schemas/OmitIParamsnever-o4"
           },
           "cartwheelLeft": {
             "$ref": "#/components/schemas/OmitIParamsto"
@@ -14199,7 +14402,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamsfoot"
           },
           "leap": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o3"
+            "$ref": "#/components/schemas/OmitIParamsnever-o4"
           },
           "pitch": {
             "$ref": "#/components/schemas/OmitIParamsstyle"
@@ -14256,7 +14459,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o3": {
+      "OmitIParamsnever-o4": {
         "type": "object",
         "properties": {
           "to": {
@@ -14695,7 +14898,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
       },
       "OmitIParamsseconds": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "sway": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.",
+            "x-unit": "m"
+          }
+        },
         "required": [],
         "additionalProperties": false
       },
@@ -14703,13 +14913,13 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "type": "object",
         "properties": {
           "fosburyFlop": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o4"
-          },
-          "frontHandspring": {
             "$ref": "#/components/schemas/OmitIParamsnever-o5"
           },
-          "handspringVault": {
+          "frontHandspring": {
             "$ref": "#/components/schemas/OmitIParamsnever-o6"
+          },
+          "handspringVault": {
+            "$ref": "#/components/schemas/OmitIParamsnever-o7"
           },
           "roundOffLeft": {
             "$ref": "#/components/schemas/OmitIParamslead"
@@ -14718,7 +14928,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/OmitIParamslead"
           },
           "vaultOnPole": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o7"
+            "$ref": "#/components/schemas/OmitIParamsnever-o8"
           }
         },
         "required": [
@@ -14732,7 +14942,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "A union of records merged into one record of every key of each, as one mapped type rather than an intersection, which schema generators read as one object."
       },
-      "OmitIParamsnever-o4": {
+      "OmitIParamsnever-o5": {
         "type": "object",
         "properties": {
           "to": {
@@ -14754,7 +14964,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         ],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o5": {
+      "OmitIParamsnever-o6": {
         "type": "object",
         "properties": {
           "lead": {
@@ -14772,7 +14982,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o6": {
+      "OmitIParamsnever-o7": {
         "type": "object",
         "properties": {
           "lead": {
@@ -14809,7 +15019,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "required": [],
         "additionalProperties": false
       },
-      "OmitIParamsnever-o7": {
+      "OmitIParamsnever-o8": {
         "type": "object",
         "properties": {
           "pole": {
@@ -15453,7 +15663,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/HumanWeaponFirearm.IWield"
           },
           "holster": {
-            "$ref": "#/components/schemas/OmitIParamsnever-o8"
+            "$ref": "#/components/schemas/OmitIParamsnever-o9"
           },
           "present": {
             "$ref": "#/components/schemas/HumanWeaponFirearm.IPresent"
@@ -15526,7 +15736,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
         "additionalProperties": false,
         "description": "What every firearm action takes."
       },
-      "OmitIParamsnever-o8": {
+      "OmitIParamsnever-o9": {
         "type": "object",
         "properties": {
           "prop": {
@@ -16476,6 +16686,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "$ref": "#/components/schemas/lieDown.IParams",
             "description": "Lying down."
           },
+          "getUp": {
+            "$ref": "#/components/schemas/getUp.IParams",
+            "description": "Getting up from the floor."
+          },
           "crawl": {
             "$ref": "#/components/schemas/crawl.IParams",
             "description": "Crawling."
@@ -16600,6 +16814,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "catchObject",
           "operate",
           "lieDown",
+          "getUp",
           "crawl",
           "climbLadder",
           "clinch",
@@ -16633,6 +16848,12 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "exclusiveMinimum": 0,
             "description": "How long to stand, seconds; 1.5 when absent.",
             "x-unit": "s"
+          },
+          "sway": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The postural sway's RMS on each floor axis, metres; the performer's own\nwhen absent (3 mm times the skill's sway factor, 1.0 to 1.6), and 0 for\na stance that keeps exactly still, such as a reference scene a mirror\nor a difference is read against.",
+            "x-unit": "m"
           }
         },
         "required": [],
@@ -16670,6 +16891,38 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           "face": {
             "type": "number",
             "description": "The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent."
+          },
+          "facing": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "yaw": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "yaw"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "toward": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3"
+                  },
+                  "turn": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "toward"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Which way the body faces while it walks, apart from the way it goes: a fixed heading, or toward a floor point (turned by `turn` degrees), so it walks backward, sideways or round while it faces it; along the way when absent."
           },
           "stride": {
             "$ref": "#/components/schemas/HumanUnit.Bounded",
@@ -18418,9 +18671,16 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               },
               {
                 "const": "square"
+              },
+              {
+                "const": "worn"
               }
             ],
-            "description": "How the tool's line lies to the forearm when it is presented: `forearm`\ncontinues it, as a pistol's bore and a thrusting point do; `oblique`\nrises 45 degrees from it, a sabre grip across the palm; `square`\nstands upright on it, a hammer grip; `across` runs level across the\nbody toward the other hand, as a camera or a bar held in both hands\nlies, whatever the place; `along` lays the tool along the surface of\nits place with the working point's own face on it, as a razor lies on\nthe jaw or a comb on the scalp, its way along the surface the hand's\nown (a place on the body only)."
+            "description": "How the tool's line lies to the forearm when it is presented: `forearm`\ncontinues it, as a pistol's bore and a thrusting point do; `oblique`\nrises 45 degrees from it, a sabre grip across the palm; `square`\nstands upright on it, a hammer grip; `across` runs level across the\nbody toward the other hand, as a camera or a bar held in both hands\nlies, whatever the place; `along` lays the tool along the surface of\nits place with the working point's own face on it, as a razor lies on\nthe jaw or a comb on the scalp, its way along the surface the hand's\nown (a place on the body only); `worn` puts the thing on that place\nas it is worn (`HumanWorn.frame`), the whole frame of its `wear`\nsocket on the region, as a hat goes on the crown or spectacles on the\nnose (a region only)."
+          },
+          "round": {
+            "type": "boolean",
+            "description": "For a thing `worn` round about the region's normal, as a hat about the crown, that its turn about it is free: the grasp holds at whichever turn suits it; spectacles are not, and stay facing the body's way. False when absent."
           },
           "at": {
             "oneOf": [
@@ -20368,6 +20628,40 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "description": "Seconds held lying; 2 when absent.",
             "default": 2,
             "x-unit": "s"
+          },
+          "manner": {
+            "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
+            "description": "How it is performed."
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "description": "Parameters."
+      },
+      "getUp.IParams": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "oneOf": [
+              {
+                "const": "rotation"
+              },
+              {
+                "const": "symmetric"
+              }
+            ],
+            "description": "The pattern; `symmetric` from the back when absent, and always `rotation` from the front or the hands and knees."
+          },
+          "lead": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The foot set forward in the half kneel of the rotation; `right` when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
