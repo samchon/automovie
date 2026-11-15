@@ -8,11 +8,13 @@ Before a batch, prove one representative request end to end on a case with the i
 
 ## Submit
 
-Bind each request to its exact input bytes and source revision and record it under [media records](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take, and a seed repeats a take only approximately: keep the downloaded original apart from its derivatives.
+Bind each request to its exact input bytes and source revision and record it under [media records](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
+
+Hosted models screen prompts and inputs for violence, weapons, blood, real people and minors; some bill a refused job, and repeated refusals can suspend the account. Read the provider's usage policy before submitting a fight or a stunt, write its action as movement and impact as the screenplay does, and report a beat that is still refused to the user, who may choose another provider or an open model.
 
 ## Inspect and choose
 
-Generate the takes per request that [project context](../production/project-context.md) records, and choose among them before rewriting a prompt, because takes of one request differ and a choice costs less than another round of wording. Where the model offers a draft tier or several outputs per job, choose among cheap drafts first, then generate the final from the chosen draft's seed and inputs.
+Generate the takes per request that [project context](../production/project-context.md) records, and choose among them before rewriting a prompt, because takes of one request differ and a choice costs less than another round of wording. Where the model offers a draft tier or several outputs per job, choose among cheap drafts first, then make the final from the chosen draft by the model's documented draft-to-final path.
 
 Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), first the contacts and outcomes its beats decide. The user judges its sound and its continuous motion.
 

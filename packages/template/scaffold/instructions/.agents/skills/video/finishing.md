@@ -16,7 +16,7 @@ Legible text, signs and logos come from the hint's clean render or from post, no
 
 ## Upscale
 
-Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md); a 4096 × 2304 output is not UHD.
+Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md).
 
 ## Conform the frame rate
 
@@ -30,7 +30,9 @@ Generate at the model's frame rate and conform each take to the delivery profile
 
 ## Match the takes
 
-Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness. Cross-fade generated sound across a join only where the screenplay has no cut in it.
+Read each take's color tags, such as with ffprobe, because providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop the tags. Choose one working color space for the film and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
+
+Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness. The takes' sound is finished across them under [film sound](../audio/film-sound.md).
 
 ## Provenance and disclosure
 

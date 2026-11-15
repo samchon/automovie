@@ -23,7 +23,7 @@ Give each subject the number and form of references the video model's guide sets
 
 Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity.
 
-A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place a plate without people in the shot's light, and each prop a plain-background view.
+A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references. Give each place one canon plate without people, and each prop a plain-background view. For each camera angle a scene uses, render the set's coarse form from that shot's camera and restyle it against the canon plate, as [shot frames](#shot-frames) are made, so every angle keeps one layout.
 
 Name each garment and its color in every prompt, because references carry a face more surely than clothes. Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both.
 
@@ -43,7 +43,7 @@ Make a last frame or a keyframe the same way, from the hint's frame there, where
 
 Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
-When the hint already has the form, pose it as the model's image-to-3D [request](../3d-modeling/diffusion/request.md) sets, render its turnaround from fixed cameras at one framing and light, and restyle each view as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
+This is the production's one recipe for an image-to-3D input. Pose the subject's coarse form as the model's [request](../3d-modeling/diffusion/request.md) sets, render it from fixed cameras at one framing and even light in the views and order [image hints](../3d-modeling/diffusion/image-hints.md) sets, and restyle each view from the frozen canon references as [shot frames](#shot-frames) are; then check that the views agree. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 
 ## Inspect
 

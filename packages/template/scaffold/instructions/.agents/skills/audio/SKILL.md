@@ -13,15 +13,17 @@ A generated film's voices, effects and ambience come from the video model, which
 
 The model times and lip-syncs speech inside the clip it generates, so keep each request's lines speakable at a natural pace within that request's length, one speaker at a time.
 
-A character's generated voice can change between requests even with the same description and seed. Describe each voice once in the [shared description](../video/diffusion/prompts.md#shared-description), and where the model binds reference audio to a character, give it the voice the user accepted, such as a [voice preview](#voice-preview). Ask the user to listen across takes for a voice that drifts, and re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take.
+A character's generated voice can change between requests even with the same description and seed. Describe each voice once in the [shared description](../video/diffusion/prompts.md#shared-description), and where the model binds reference audio to a character, give it the voice the user accepted, such as a [voice preview](#voice-preview). Ask the user to listen across takes for a voice that drifts, and re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take, separating the speech first as [film sound](film-sound.md) sets.
 
 When the selected model or mode generates no sound, report it to the user with these choices and follow theirs:
 
 - a sound-generating model or mode;
 - a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;
-- separate speech under [acquisition](acquisition.md), lip-synced onto the take, which works only on a visible, mostly frontal face with one speaker at a time.
+- separate speech under [acquisition](acquisition.md), synced onto the take's faces as [film sound](film-sound.md#faces-and-dialogue) sets.
 
 Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#choose-a-source) checks any asset, because several are non-commercial or exclude regions.
+
+Once the takes are accepted, finish the film's sound across them under [film sound](film-sound.md): beds, score, re-synced faces and loudness.
 
 ## Voice preview
 

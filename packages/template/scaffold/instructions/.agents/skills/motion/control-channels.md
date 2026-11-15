@@ -20,7 +20,7 @@ An adapter trained on gray layouts is the exception: it takes the whole hint vid
 
 Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and keep them [matched as passes](../visual-debugging/passes.md#keep-passes-matched) of one evaluated performance and view. A matching frame count does not prove matching poses or events.
 
-Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays.
+Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. An adapter was trained on its own annotator's convention, such as depth stretched per frame or a pose skeleton with face and hand points, so compare one frame of each rendered pass with that annotator's output on the same hint frame, and report a mismatch under [installed packages](../development/reuse.md#installed-packages). A structural pass keeps its values free of exposure, tone mapping or overlays.
 
 ## Hand off
 

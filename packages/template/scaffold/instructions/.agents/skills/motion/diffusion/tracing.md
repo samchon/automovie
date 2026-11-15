@@ -4,7 +4,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 
 | Use | What is taken from the trace |
 | --- | --- |
-| A clip the user chose to trace | The whole motion, cleaned, then [retargeted](../retargeting.md) onto the cast member |
+| A clip the user chose to trace, including a generated video, which is never a study's evidence | The whole motion, cleaned, then [retargeted](../retargeting.md) onto the cast member |
 | Keys for the composed performance | Poses at chosen instants, which the vocabulary [composes](../compose/SKILL.md) between or a model in-betweens under [hints](hints.md) |
 | A [performance study](../../story/planning/research.md#performance-study) | Timing, ranges and paths, recorded as estimates with their method |
 
@@ -13,7 +13,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 Trace only footage the production may use, and ask the user before tracing anyone else's:
 
 - the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
-- the choreography, which is protected once filmed as a selection and arrangement of movement, even in a few counts; a change of body or medium does not clear it;
+- the choreography, which can be protected once filmed as a selection and arrangement of movement, while single steps and social dances are not; courts have let claims over a few counts proceed, and a change of body or medium does not clear them;
 - the performer's consent where the face, voice or recognizable likeness is kept;
 - the estimator's license, since several are research-only, and the body model's, since SMPL and SMPL-X forbid commercial use without a separate license.
 
@@ -39,11 +39,11 @@ Examples: [GVHMR](https://github.com/zju3dv/GVHMR), research-only; [WHAM](https:
 
 1. Remove outliers, then filter jitter with a speed-adaptive filter such as the [One Euro filter](https://gery.casiez.net/1euro/): tune its cutoff on slow motion, then its speed coefficient on fast motion.
 2. Detect each plant and grip and hold it on its support, as [clips](clips.md) sets, and set the ground plane.
-3. Where the motion floats, slides or penetrates beyond what cleanup fixes, replay it through a physics-tracking model.
+3. Where the motion floats, slides or penetrates beyond what cleanup fixes, replay it through a physics-tracking model such as [PHC](https://github.com/ZhengyiLuo/PHC).
 4. Retarget through a stated joint table onto the cast member's prepared body, and solve the contacts again there.
 
 ## Verify
 
 Overlay the reprojected skeleton on the source footage and compare them on consecutive frames under [comparison](../../visual-debugging/comparison.md), first at fast moves, spins and contacts. Measure foot sliding on frames where a foot is planted, and for dance the offset of each accented move from the music's beat. A trace that the footage contradicts is cleaned again or re-shot, never accepted for its look.
 
-Sources: [Rokoko capture](https://support.rokoko.com/hc/en-us/articles/48823622640785-Best-Practices-for-Video-Capture-Rokoko-Vision-3-0), [DeepMotion capture](https://deepmotion.com/article/single-person-capture-guidelines-for-animate-3d), [Plask](https://plask.ai/docs/44), [Pose2Sim](https://github.com/perfanalytics/pose2sim), [GVHMR paper](https://arxiv.org/html/2409.06662), [Cascadeur dance cleanup](https://cascadeur.com/tutor/kpopdancemocapcleanup), [Copyright Office Circular 52](https://www.copyright.gov/circs/circ52.pdf), [YouTube terms](https://www.youtube.com/t/terms), [TikTok terms](https://www.tiktok.com/legal/page/us/terms-of-service/en), [SMPL license](https://smpl.is.tue.mpg.de/modellicense.html), [EDGE](https://github.com/Stanford-TML/EDGE).
+Sources: [Rokoko capture](https://support.rokoko.com/hc/en-us/articles/48823622640785-Best-Practices-for-Video-Capture-Rokoko-Vision-3-0), [DeepMotion capture](https://deepmotion.com/article/single-person-capture-guidelines-for-animate-3d), [Plask](https://plask.ai/docs/44), [Pose2Sim](https://github.com/perfanalytics/pose2sim), [Hanagami v. Epic](https://news.bloomberglaw.com/ip-law/epic-games-resolves-choreographer-suit-over-fortnite-dance-move), [GVHMR paper](https://arxiv.org/html/2409.06662), [Cascadeur dance cleanup](https://cascadeur.com/tutor/kpopdancemocapcleanup), [Copyright Office Circular 52](https://www.copyright.gov/circs/circ52.pdf), [YouTube terms](https://www.youtube.com/t/terms), [TikTok terms](https://www.tiktok.com/legal/page/us/terms-of-service/en), [SMPL license](https://smpl.is.tue.mpg.de/modellicense.html), [EDGE](https://github.com/Stanford-TML/EDGE).

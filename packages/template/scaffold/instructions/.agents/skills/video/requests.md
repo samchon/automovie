@@ -10,6 +10,8 @@ Keep each request's lines speakable within its length, as [generated sound](../a
 
 Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
 
+Render and generate each request a little past its cuts, as an editor's handle, and cut inside it, because a take eases toward stillness at its end and a transition needs overlapping frames. The handle's length is a production convention recorded in [project context](../production/project-context.md).
+
 Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
 
 ## Adherence

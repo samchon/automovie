@@ -23,7 +23,7 @@ An extend mode often takes no hint and keeps only the last frame or last seconds
 
 Give every request the same canon references and the [shared description](prompts.md#shared-description) in identical words, because each request knows nothing of the last.
 
-A seed is not a save file: the same seed and inputs give a similar take, not the same one, and a model update changes it. Record the seed with the model and version for tracing, and rely on references for identity.
+Rely on references for identity, never on a seed, which repeats a take only approximately as [media records](../../production/media-records.md#records) says. Bind a character's references, and its voice where the model takes one, into the model's element or subject where it offers one; some take only photoreal people. On an open model, train a character LoRA on the frozen canon references and renders when the character recurs across many requests.
 
 Pass a take on to a continuation in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
 
@@ -33,4 +33,4 @@ A character's generated voice can change between requests; [audio](../../audio/S
 
 Check every seam on the consecutive frames of both takes under [comparison](../../visual-debugging/comparison.md). Repair a failed seam by regenerating its time range under [finishing](../finishing.md#repair-part-of-a-take) before regenerating either whole request.
 
-Sources: [Vertex extend](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/video/extend-a-veo-video), [Kling guide](https://kling.ai/quickstart/kling-4-model-user-guide), [Seedance model](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md), [VACE](https://github.com/ali-vilab/VACE/blob/main/UserGuide.md), [chaining clips](https://hackernoon.com/how-to-chain-ai-video-clips-into-one-shot-without-the-hidden-stutter-at-every-cut), [seeds](https://hackernoon.com/why-locking-the-seed-still-wont-get-you-the-same-ai-video-shot-twice), [Runway API](https://docs.dev.runwayml.com/api.md).
+Sources: [Vertex extend](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/video/extend-a-veo-video), [Kling guide](https://kling.ai/quickstart/kling-4-model-user-guide), [Seedance model](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md), [VACE](https://github.com/ali-vilab/VACE/blob/main/UserGuide.md), [chaining clips](https://hackernoon.com/how-to-chain-ai-video-clips-into-one-shot-without-the-hidden-stutter-at-every-cut), [Kling elements](https://kling.ai/document-api/api/video/4-0/elements.md), [LTX character LoRA](https://ltx.io/blog/how-to-train-a-character-lora), [Kling limitations](https://kling.ai/blog/limitations-of-current-ai-video-generation-technology), [Runway API](https://docs.dev.runwayml.com/api.md).
