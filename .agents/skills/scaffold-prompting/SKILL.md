@@ -28,7 +28,7 @@ A shipped instruction leaves every exchange, outcome and reaction to the [screen
 
 ### Reuse
 
-A shipped instruction sends a production to its installed packages first and varies a module rather than copying it, as the production's [reuse](../../../packages/template/scaffold/instructions/.agents/skills/development/reuse.md) skill sets.
+A shipped instruction sends a production to its installed packages first and varies a module rather than copying it, as the production's [reuse](../../../packages/template/scaffold/instructions/.agents/skills/development/reuse.md) rules set.
 
 ### Two story routes
 

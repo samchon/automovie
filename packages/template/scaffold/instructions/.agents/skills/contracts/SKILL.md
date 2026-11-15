@@ -14,7 +14,7 @@ This tree holds the questions Evidence asks. A respondent is whoever answers a q
 
 ## Items and statements
 
-Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item unless its respondent, proof or repair owner differs, because every item costs every respondent an answer.
+Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item unless prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule splits it, because every item costs every respondent an answer.
 
 The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract. Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
 

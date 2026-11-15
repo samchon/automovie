@@ -50,7 +50,7 @@ Gluing several topics into one long paragraph to keep the count low is a failure
 
 A list is for parallel items short enough to take in at a glance, one rendered line of about 120 characters at most, and for steps whose order changes the result. Introduce it with a sentence that says what its items are, write every item in the same grammatical form, and give it at least two items. Fragment items end in semicolons and the last in a period; full-sentence items end in periods. Mark a sublist differently from its parent, such as `-` items under a numbered list.
 
-A checklist whose heading names its items, such as a statements document, is the exception: it needs no introducing sentence, and each item holds one checkable assertion with its exceptions.
+A checklist of assertions under a heading that names what they check is the exception: it needs no introducing sentence, and each item may run as long as one checkable assertion with its exceptions needs.
 
 An item that runs long, or whose reasoning needs more than a short clause, is not a list item. Breaking an explanation into bullets does not make it concise, because the bullets hide how its points connect. Give such content the form of what it is:
 

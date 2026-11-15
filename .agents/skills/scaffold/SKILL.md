@@ -27,7 +27,7 @@ The [product contract](../project/SKILL.md#commissions) defines the commissions 
 
 Keep the production's [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md#commissioned-outputs) distinct.
 
-The long route keeps its four story layers with construction, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
+The long route keeps its four story layers with construction, evidence, current independent review and whole-work completion. Compact items within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 

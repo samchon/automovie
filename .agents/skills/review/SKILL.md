@@ -15,7 +15,7 @@ Code that Evidence covers with [contracts](../contracts/SKILL.md) checklists get
 
 That pass checks that each checklist answer is true and complete for its declaration. Fix its findings by cause under [`AGENTS.md`](../../../AGENTS.md#fixing-by-cause); a passing test or renamed wrapper does not prove a cause was fixed.
 
-Everything Evidence does not cover goes in rounds: skills, `AGENTS.md`, documents, READMEs and the website. Run fresh complete rounds, each fixed by cause, until one finds no defect the change introduced or worsened, because these have no checklist to show that a fix left nothing behind. Give each round's reviewer the decisions earlier rounds settled, so a fresh reader does not reopen them.
+Everything Evidence does not cover goes in rounds: skills, `AGENTS.md`, documents, READMEs and the website. Run fresh complete rounds, each fixed by cause, until one finds no defect to fix, because these have no checklist to show that a fix left nothing behind. Give each round's reviewer the decisions earlier rounds settled, so a fresh reader does not reopen them.
 
 When rounds keep returning findings, look for the change's own design error and simplify or revert, rather than adding a rule or mechanism for each finding. Answering every finding with more text made one small skill change run twelve rounds and grow verbose.
 

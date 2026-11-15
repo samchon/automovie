@@ -5,7 +5,7 @@ description: Owns what makes an instruction for an agent work, namely what to st
 
 # Prompting
 
-A prompt is any instruction an agent reads: `AGENTS.md`, `CLAUDE.md`, a skill or one of its resources. Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, read top to bottom as someone new to the project would read it, because wording that serves that person serves the agent too. The rules below are what makes a prompt work for an agent.
+A prompt is any instruction an agent reads: `AGENTS.md`, `CLAUDE.md`, a skill or one of its resources. Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, with someone new to the project as the reader, because wording that serves that person serves the agent too. The rules below are what makes a prompt work for an agent.
 
 Before editing a prompt, fetch and read in full the current prompting guide for the model that will read it, rather than recalling it, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
 
@@ -47,11 +47,11 @@ Put judgments the agent makes in one reading into one checklist item, and split 
 
 ### Skill files
 
-A job with its own trigger gets its own skill at `.agents/skills/<name>/SKILL.md`. Its `name` equals the directory and uses lowercase letters, digits and hyphens, within 64 characters. Its third-person `description`, within 1024 characters, says what the skill does and when to use it.
+A job with its own trigger gets its own top-level skill at `.agents/skills/<name>/SKILL.md`. Its `name` equals the directory and uses lowercase letters, digits and hyphens, within 64 characters. Its third-person `description`, within 1024 characters, says what the skill does and when to use it.
 
 ### Splitting a skill
 
-`SKILL.md` stays a short router, far under 500 lines: what the skill is for, when to read it, and which resource file beside it each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
+`SKILL.md` stays short, far under 500 lines: what the skill is for, when to read it, and, once it has resources, which resource each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
 
 Split when any of these shows:
 
@@ -77,6 +77,6 @@ A skill shared with other projects, such as one a project template ships, holds 
 
 ## Verification
 
-Start a change from the actual failure it must fix, kept as a case. Check the changed instructions against that case, against the strongest similar legitimate case they must leave unchanged, and against a real task they govern together with the files that use its result. When a separate agent session is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
+Start a change from the actual failure it must fix, kept as a case. Check the changed instructions against that case, against the strongest similar legitimate case they must leave unchanged, and against a real task they govern, including the files that use that task's result. When a separate agent session is available and authorized, give it the task and raw inputs without the intended answer and observe its choices.
 
 Check statically that links resolve, triggers reach their resources and each rule has one owner. Report static inspection, behavioral observation and unavailable checks separately, because explaining a rule does not prove another session follows it.
