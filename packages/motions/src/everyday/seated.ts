@@ -13,6 +13,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -39,8 +40,10 @@ import { handGoals } from "./handGoals";
  * than the buttock-to-popliteal length); a shallower seat moves the socket
  * forward to 2 cm inside its depth.
  *
- * A seat is sat on with both feet on the floor when its height lies within
- * 0.8 to 1.2 of the popliteal height, the ratio the campaign sets: a lower
+ * A seat is sat on with both feet on the floor when its height above the
+ * floor under the feet (the ground, or the floor of a prop they stand on,
+ * as a boat's) lies within 0.8 to 1.2 of the popliteal height, the ratio
+ * the campaign sets (#3363): a lower
  * seat needs more trunk flexion and a longer rise (Janssen, Bussmann and
  * Stam 2002, Phys Ther 82:866) and is refused. A higher one is a high seat:
  * a bar stool, a saddle, a wall. The feet leave the floor for its rests or
@@ -103,6 +106,7 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @returns Whether the seat is above the band.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what a high seat is and what follows from it for the feet.
@@ -113,19 +117,58 @@ export namespace seated {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function high(body: IHumanBody, seat: ISeat): boolean {
-    return ratio(body, seat) > RATIO[1];
+  export function high(
+    body: IHumanBody,
+    seat: ISeat,
+    under: number = 0,
+  ): boolean {
+    return ratio(body, seat, under) > RATIO[1];
   }
 
   /**
-   * The seat height's share of the popliteal height.
+   * The seat height's share of the popliteal height, the height measured
+   * from the floor the feet stand on ({@link floor}).
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @returns The ratio.
    */
-  export function ratio(body: IHumanBody, seat: ISeat): number {
-    return seat.at.y / popliteal(body);
+  export function ratio(
+    body: IHumanBody,
+    seat: ISeat,
+    under: number = 0,
+  ): number {
+    return (seat.at.y - under) / popliteal(body);
+  }
+
+  /**
+   * The height of the floor the feet stand on at an entry, world metres: a
+   * seat's height is measured from it, since the legs reach from the seat
+   * down to it. On the ground it is the ground's 0; a foot planted on a
+   * prop (a boat's floor, a stage, a deck) stands on that prop's floor,
+   * which lies under the foot's sole, the ankle's height below its ankle.
+   * The lowest such sole is the floor, as the lower foot reaches farthest.
+   *
+   * @param body The body.
+   * @param entry The entry state.
+   * @returns The floor's height, world metres.
+   */
+  export function floor(body: IHumanBody, entry: IHumanEntryState): number {
+    const soles: number[] = (["left", "right"] as const)
+      .filter(
+        (side: "left" | "right"): boolean =>
+          entry.feet[side].planted &&
+          entry.supports.some(
+            (s: IHumanEntryState.ISupport): boolean =>
+              s.part === `${side}Foot` && s.support.kind === "prop",
+          ),
+      )
+      .map(
+        (side: "left" | "right"): number =>
+          entry.feet[side].ankle.y - body.measure.ankleHeight,
+      );
+    return soles.length === 0 ? 0 : Math.min(...soles);
   }
 
   /**
@@ -134,10 +177,16 @@ export namespace seated {
    *
    * @param body The body.
    * @param seat The seat.
+   * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
    * @throws {HumanRefusal} When the seat height lies below the band.
    */
-  export function check(body: IHumanBody, seat: ISeat): void {
-    const r: number = ratio(body, seat);
+  export function check(
+    body: IHumanBody,
+    seat: ISeat,
+    under: number = 0,
+  ): void {
+    const r: number = ratio(body, seat, under);
+    const least: number = under + RATIO[0] * popliteal(body);
     if (r < RATIO[0])
       throw new HumanRefusal({
         kind: "reach",
@@ -145,11 +194,11 @@ export namespace seated {
         value: seat.at.y,
         feasible: {
           kind: "range",
-          minimum: RATIO[0] * popliteal(body),
+          minimum: least,
           maximum: null,
           unit: "m",
         },
-        reason: `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
+        reason: `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
         fix: "use a seat whose height suits this body",
       });
   }

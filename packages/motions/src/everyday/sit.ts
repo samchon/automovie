@@ -151,7 +151,10 @@ export namespace sit {
   ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const seat: seated.ISeat = context.params.seat;
-    seated.check(body, seat);
+    // The seat's height is measured from the floor the feet stand on, a
+    // boat's or a stage's as well as the ground.
+    const under: number = seated.floor(body, context.entry);
+    seated.check(body, seat, under);
     const back: NonNullable<IParams["back"]> = context.params.back ?? "upright";
     if (back === "lean" && seat.back === undefined)
       throw new HumanRefusal({
@@ -172,17 +175,22 @@ export namespace sit {
         reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
         fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
       });
-    if (seated.high(body, seat) || seat.astride === true)
+    if (seated.high(body, seat, under) || seat.astride === true)
       return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+    // The feet stand on that floor.
+    const footing: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       context.entry.posture.yaw,
     );
+    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+      left: { ...footing.left, y: footing.left.y + under },
+      right: { ...footing.right, y: footing.right.y + under },
+    };
     const goal: IAutoMovieVector3 = seated.point(body, seat);
     sitPlace.reach(body, seat, goal, feet, sitPlace.BACKS[back].pitch);
 
-    const r: number = seated.ratio(body, seat);
+    const r: number = seated.ratio(body, seat, under);
     const descent: number =
       2 *
       (1 + 0.6 * (1 - r)) *
