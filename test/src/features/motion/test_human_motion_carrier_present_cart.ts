@@ -19,9 +19,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the cart.
  *
  * Scenarios, the average man standing 4 s on a cart running at 1 m/s along
- * +Z, presenting a handgun held in one hand at a point 3 m ahead of where he
- * stands at the start, at chest height, over the stance (the first pass
- * carries the aim with the cart; re-aiming at each second is phase 2's):
+ * +Z, presenting a handgun held in one hand at the low ready toward a point
+ * 3 m ahead of where he stands at the start, at chest height, over the
+ * stance (a ready weapon rides the cart; an aimed one keeps its line on the
+ * target, `test_human_motion_support_aim`):
  * 1. The presentation plans as an overlay and claims `trunkTurn` and the
  *    right arm and hand.
  * 2. Over its hold, at seven instants, the muzzle's place in the cart's
@@ -73,6 +74,7 @@ export function test_human_motion_carrier_present_cart(): void {
           u.registered("presentFirearm", {
             gun: "gun",
             hands: 1,
+            carriage: "lowReady",
             target: {
               kind: "point",
               frame: "world",

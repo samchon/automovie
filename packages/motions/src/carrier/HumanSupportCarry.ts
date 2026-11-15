@@ -8,6 +8,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
 /**
@@ -28,7 +29,7 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is carried, by which transform, what is left alone and why the plan stays pure.
  * @evidence contracts/development/design.md#principled-representation A rigid transform of SE(3) between the support's frame at the start and at a second, applied to a posture's world quantities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The carry by a frame function, a posture carried, and a plan carried with the channels it claims.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The carry by a frame function, a posture carried, and a plan carried with the channels it claims and the aim it keeps (`HumanSupportAim`).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's frame is read through its one reader (`HumanSupportFrame`) or the prop's own frame; nothing is extrapolated.
  */
 export namespace HumanSupportCarry {
@@ -160,10 +161,16 @@ export namespace HumanSupportCarry {
    * (`HumanSupportFrame`), claiming the channels it writes over its carrier:
    * the plan an act made in the world at its start, kept on the support.
    *
+   * With an aim, the line planned at the start is re-taken on its world
+   * target at every second (`HumanSupportAim`), and a trunk twist out of
+   * range at a frame of the act is refused here.
+   *
    * @param context The action's context.
    * @param plan The plan made at the start.
    * @param channels The channels the plan claims over its carrier.
+   * @param aim The line kept on a world target; none when absent.
    * @returns The carried plan.
+   * @throws {HumanRefusal} When keeping the aim twists the trunk out of its range (`HumanSupportAim.check`).
    */
   export function plan(
     context: Pick<
@@ -172,6 +179,7 @@ export namespace HumanSupportCarry {
     >,
     plan: IHumanActionPlan,
     channels: NonNullable<IHumanActionPlan["channels"]>,
+    aim?: HumanSupportAim.IAim,
   ): IHumanActionPlan {
     // On the ground there is nothing to carry: the plan is kept as made.
     if (HumanSupportFrame.of(context).kind === "ground")
@@ -183,14 +191,14 @@ export namespace HumanSupportCarry {
       );
       return { position: at.position, rotation: at.rotation };
     };
-    return {
-      ...plan,
-      channels,
-      posture: (seconds: number): IHumanPosture =>
-        posture(
-          of(frame, context.start, context.start + seconds),
-          plan.posture(seconds),
-        ),
+    const carried = (seconds: number): IHumanPosture => {
+      const carry: ICarry = of(frame, context.start, context.start + seconds);
+      const made: IHumanPosture = posture(carry, plan.posture(seconds));
+      return aim === undefined
+        ? made
+        : HumanSupportAim.posture(carry, made, aim);
     };
+    if (aim !== undefined) HumanSupportAim.check(carried, plan.duration);
+    return { ...plan, channels, posture: carried };
   }
 }

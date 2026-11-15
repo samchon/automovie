@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { HumanSupportAim } from "../carrier/HumanSupportAim";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -188,20 +189,30 @@ export namespace HumanWeaponHeld {
    * entered on (`HumanSupportCarry`), claiming the trunk's turn and the
    * holding arms and hands, so it runs over a stand, a ride or a stance on a
    * moving floor; a plan that carries the body itself is returned as made.
+   * An aimed weapon keeps its line on the target at every second
+   * (`HumanSupportAim`).
    */
   export const carried = (
     context: IHumanActionContext<HumanWeaponPresent.IWield>,
     s: ISetup,
     plan: IHumanActionPlan,
+    aim?: HumanSupportAim.IAim,
   ): IHumanActionPlan => {
     if (context.carrier === undefined) return plan;
     const side: HumanHand.Side = s.tool.side;
     const other: HumanHand.Side = side === "left" ? "right" : "left";
-    return HumanSupportCarry.plan(context, plan, [
-      "trunkTurn",
-      `${side}Arm`,
-      `${side}Hand`,
-      ...(s.support === null ? [] : ([`${other}Arm`, `${other}Hand`] as const)),
-    ]);
+    return HumanSupportCarry.plan(
+      context,
+      plan,
+      [
+        "trunkTurn",
+        `${side}Arm`,
+        `${side}Hand`,
+        ...(s.support === null
+          ? []
+          : ([`${other}Arm`, `${other}Hand`] as const)),
+      ],
+      aim,
+    );
   };
 }

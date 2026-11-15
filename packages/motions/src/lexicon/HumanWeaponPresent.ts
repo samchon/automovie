@@ -330,6 +330,8 @@ export namespace HumanWeaponPresent {
           stay: true,
           stop: 1,
         }),
+        // An aimed weapon keeps its line on the target from a moving support.
+        carriage === "aim" ? { target, pivot: eye } : undefined,
       );
     },
   };
