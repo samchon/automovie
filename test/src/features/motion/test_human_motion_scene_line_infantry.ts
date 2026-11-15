@@ -44,8 +44,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. Halt: every member stands still within one step's time after the word
  *    "halt" plus its reaction latency.
  * 4. Volley: each member shoulders its flintlock musket (`HumanMusketDrill`
- *    on #3483's musket), makes ready on "ready" (the thumb on the cock's
- *    spur draws it to full cock, its hinge's own travel), presents on
+ *    on #3483's musket), makes ready on "ready" (the firelock to the recover,
+ *    and over it the thumb on the cock's spur drawing it to full cock, its
+ *    hinge's own travel), presents on
  *    "present" and fires on "fire", each synced with a
  *    reaction latency; the fire instants spread less for the elite than for
  *    the militia, none comes before the word plus the reaction floor, and the
@@ -173,13 +174,23 @@ export function test_human_motion_scene_line_infantry(): void {
             .registered("stand", { seconds: 1 })
             .sync({ of: "orders", event: "halt", latency: "reaction" });
           const presented: HumanChain = marched
-            .registered("makeReady", {
-              mechanism: {
-                kind: "hinge",
-                at: { kind: "prop", subject: gun, point: "spur" },
-                swing: COCK,
+            .registered("recover", {
+              gun,
+              target: {
+                kind: "point",
+                frame: "performer",
+                at: { x: 0, y: 1.4, z: 60 },
               },
             })
+            .over((u: HumanChain) =>
+              u.registered("makeReady", {
+                mechanism: {
+                  kind: "hinge",
+                  at: { kind: "prop", subject: gun, point: "spur" },
+                  swing: COCK,
+                },
+              }),
+            )
             .sync({ of: "orders", event: "ready", latency: "reaction" })
             .registered("presentMusket", {
               gun,
@@ -294,8 +305,9 @@ export function test_human_motion_scene_line_infantry(): void {
       )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
+      // Make ready rides its recover as an overlay; the recover carries the body and answers the word.
       const ready: HumanSegment.ISegment | undefined = segments.find(
-        (s: HumanSegment.ISegment): boolean => s.name === "makeReady",
+        (s: HumanSegment.ISegment): boolean => s.name === "recover",
       );
       const presenting: HumanSegment.ISegment | undefined = segments.find(
         (s: HumanSegment.ISegment): boolean => s.name === "presentMusket",
