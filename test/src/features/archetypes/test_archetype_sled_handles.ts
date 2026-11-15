@@ -1,5 +1,8 @@
 import { createSled } from "@automovie/archetypes";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../internal/nclose";
 
 /**
  * A push sled's `left` and `right` handles are the pusher's left and right
@@ -21,19 +24,23 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_sled_handles(): void {
   const complaints: string[] = [];
-  for (const seed of [undefined, ...Array.from({ length: 20 }, (_, i) => i)]) {
+  const seeds: (number | undefined)[] = [
+    undefined,
+    ...Array.from({ length: 20 }, (_: unknown, i: number): number => i),
+  ];
+  for (const seed of seeds) {
     const sled: ReturnType<typeof createSled> = createSled({}, seed);
-    const left = sled.affordance("left").frame.translation;
-    const right = sled.affordance("right").frame.translation;
+    const left: IAutoMovieVector3 = sled.affordance("left").frame.translation;
+    const right: IAutoMovieVector3 = sled.affordance("right").frame.translation;
     if (!(left.x > 0 && right.x < 0))
       complaints.push(
         `seed ${seed}: the left handle at x ${left.x.toFixed(3)} and the right at x ${right.x.toFixed(3)}, the left at +x expected`,
       );
     if (
       !(
-        Math.abs(left.x + right.x) <= 1e-6 &&
-        Math.abs(left.y - right.y) <= 1e-6 &&
-        Math.abs(left.z - right.z) <= 1e-6
+        nclose(left.x, -right.x) &&
+        nclose(left.y, right.y) &&
+        nclose(left.z, right.z)
       )
     )
       complaints.push(`seed ${seed}: the handles are not mirrored across x`);
