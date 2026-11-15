@@ -9,6 +9,7 @@ import {
 } from "../core";
 import { BED_BANDS } from "./BED_BANDS";
 import { CareBedConstruction } from "./CareBedConstruction";
+import { MATTRESS_SIZES } from "./MATTRESS_SIZES";
 
 /**
  * A bed: a single or a double bed, a mattress on the floor, a hospital bed, a hospital stretcher, a crib or a bunk bed.
@@ -17,14 +18,14 @@ import { CareBedConstruction } from "./CareBedConstruction";
  *
  * A bunk bed rests on its pine posts: wood on concrete (`ArchetypeFriction`).
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a loose mattress's size and any dimension the author fixes.
+ * @param seed The seed that draws a loose mattress's size when it is not given and every dimension left free inside its band; absent, the single size and the middle of each band.
  * @returns The bed.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a size named for a bed that has none, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the head is, that the sides are seats, and where the care and children's beds are described.
  * @evidence contracts/development/implementation.md#principled-implementation Two boxes and a headboard from the drawn width, length and surface height; the side seats follow the `seat` convention with their front edge on the mattress's long edge; the other kinds are their construction's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the plain bed here or the kind's construction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a loose mattress's size, draw the dimensions with its width and length over them, then the plain bed here or the kind's construction.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pillow or bedding: the head end is a coordinate of the surface.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts for a plain bed, about sixty for a crib's slats.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -40,14 +41,24 @@ export function createBed(
     params.kind,
     createBed.KINDS,
   );
-  const d: Partial<Record<createBed.Dimension, number>> =
-    ArchetypeDraw.dimensions(
+  const size: Readonly<Partial<Record<createBed.Dimension, number>>> =
+    ArchetypeDraw.model<createBed.Mattress, createBed.Dimension>(
+      "bed",
+      "size",
+      params.size,
+      MATTRESS_SIZES[kind],
+      seed,
+    ).figures;
+  const d: Partial<Record<createBed.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "bed",
       createBed.BANDS[kind],
       seed,
       params,
       createBed.BANDS,
-    );
+    ),
+    ...size,
+  };
   const builder: ArchetypeBuilder<createBed.Affordance, createBed.Dimension> =
     new ArchetypeBuilder({
       archetype: "bed",
@@ -193,10 +204,16 @@ export namespace createBed {
     | "clearance"
     | "mass";
 
+  /** The UK sizes a loose mattress is made in. */
+  export type Mattress = "single" | "double";
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bed. */
     kind: Kind;
+
+    /** A loose mattress's UK size; drawn from the seed when absent. Other beds have none. */
+    size?: Mattress;
 
     /** The model's id, unique in a scene; `bed` when absent. */
     id?: string;

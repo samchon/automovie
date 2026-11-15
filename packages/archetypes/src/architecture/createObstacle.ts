@@ -1,28 +1,29 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
+import { TIE_SIZES } from "./TIE_SIZES";
 
 /**
  * A low obstacle or a barrier on the ground: a railway crosstie, a filled sandbag, a portable concrete barrier, a steel crowd barrier, or two stanchions with a rope between them.
  *
  * Each stands centred on `X` with its back at the origin's `Z` and its front toward `+Z`, the side it is approached from, as `createKerb` stands. A crosstie, a sandbag and a concrete barrier declare `top`, the top face, and `edge`, the top's front edge along `+X` with `+Y` up and `+Z` out of the face below: the near side and depth a stepping-over act reads (`stepOver`), so a crosstie and a sandbag are stepped over and a concrete barrier, 0.81 m high, is refused as cover too high to step. A sandbag also declares `leftEnd` and `rightEnd`, handles on its two ends' tops where it is lifted. A crowd barrier declares `rail`, its top rail, a bar a body leans on or grips. The stanchions declare `rope`, the rope between their tops, and `leftPost` and `rightPost`, the posts gripped to move them, each a bar.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a crosstie's section and length, and any dimension the author fixes.
+ * @param seed The seed that draws a crosstie's section and length when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The obstacle.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a section or length FOR-108 does not list or one named for another kind, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, which side is approached, its contacts and which ones a stepping act crosses or refuses.
- * @evidence contracts/development/implementation.md#principled-implementation A crosstie and a sandbag are one box each at their cited section; the concrete barrier is its FHWA profile in three stacked boxes, the lower band as wide as the profile at its mid-height and the upper as wide as the top, the faces' runs worked from their cited angles; the crowd barrier is its end posts, rails, pickets at the cited spacing and two feet; the stanchions are two posts on round bases with a straight rope between their tops.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one builder function per kind.
+ * @evidence contracts/development/implementation.md#principled-implementation A crosstie is one box at one of FOR-108's sections and lengths, each picked whole; a sandbag one box at its cited section; the concrete barrier is its FHWA profile in three stacked boxes, the lower band as wide as the profile at its mid-height and the upper as wide as the top, the faces' runs worked from their cited angles; the crowd barrier is its end posts, rails, pickets at the cited spacing and two feet; the stanchions are two posts on round bases with a straight rope between their tops.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, a crosstie's picked section and length over them, then one builder function per kind.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The barrier's sloped faces are stepped, a sandbag is square, a rope does not sag; the crowd barrier's feet and bottom rail and a stanchion's base thickness are named construction estimates (`createObstacle.ESTIMATES`), none placing a contact.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part per piece; a crowd barrier's pickets are its length over their spacing, about twenty.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -38,14 +39,33 @@ export function createObstacle(
     params.kind,
     createObstacle.KINDS,
   );
-  const d: Partial<Record<createObstacle.Dimension, number>> =
-    ArchetypeDraw.dimensions(
+  const section: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
+    ArchetypeDraw.model<createObstacle.Section, createObstacle.Dimension>(
+      "obstacle",
+      "section",
+      params.section,
+      TIE_SIZES.section[kind],
+      seed,
+    ).figures;
+  const length: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
+    ArchetypeDraw.model<createObstacle.TieLength, createObstacle.Dimension>(
+      "obstacle",
+      "tieLength",
+      params.tieLength,
+      TIE_SIZES.length[kind],
+      seed,
+    ).figures;
+  const d: Partial<Record<createObstacle.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "obstacle",
       createObstacle.BANDS[kind],
       seed,
       params,
       createObstacle.BANDS,
-    );
+    ),
+    ...section,
+    ...length,
+  };
   const builder: Builder = new ArchetypeBuilder({
     archetype: "obstacle",
     id: params.id,
@@ -69,7 +89,7 @@ export function createObstacle(
  * Companion types, constants and bands of {@link createObstacle}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and estimate states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; a concrete barrier's mass is a cited mass per metre times its drawn length.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, a crosstie's read sections and lengths among them, and one cited band per remaining dimension per kind; a concrete barrier's mass is a cited mass per metre times its drawn length.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The edge, height and depth `stepOver` reads, the rails leaned on and the ends a bag is lifted by (#3468 F3: it replaces the 0.3 m box the step-over stage builds by hand).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts `top` and `edge` keep `createKerb`'s meaning, so one stepping act reads every low obstacle the same way.
  */
@@ -136,9 +156,21 @@ export namespace createObstacle {
     | "massPerMetre";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** A crosstie's sections read, depth by face in inches: FOR-108's most common 7 x 9 and its 6 x 8 and 7 x 8. */
+  export type Section = "7x9in" | "6x8in" | "7x8in";
+
+  /** A crosstie's lengths read: FOR-108's most common 8 ft 6 in, its standard 8 ft and its 9 ft. */
+  export type TieLength = "8ft6in" | "8ft" | "9ft";
+
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which obstacle. */
     kind: Kind;
+
+    /** A crosstie's section, depth by face; drawn from the seed when absent. */
+    section?: Section;
+
+    /** A crosstie's length; drawn from the seed when absent. */
+    tieLength?: TieLength;
 
     /** The model's id, unique in a scene; `obstacle` when absent. */
     id?: string;
@@ -222,7 +254,11 @@ function crossing(
   builder.affordance({
     id: "edge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, height, centre + depth / 2), v(0, 1, 0), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, height, centre + depth / 2),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     length,
   });
@@ -281,17 +317,28 @@ function jersey(builder: Builder, d: Drawn): void {
   const upper: number = d.height! - curb - lower;
   const top: number = d.top!;
   const middle: number =
-    base - (2 * lower) / Math.tan(createObstacle.LOWER_FACE * ArchetypeUnits.DEGREE);
+    base -
+    (2 * lower) / Math.tan(createObstacle.LOWER_FACE * ArchetypeUnits.DEGREE);
   const centre: number = base / 2;
   builder.box("curb", v(length, curb, base), v(0, curb / 2, centre), {
     color: "#b5b2aa",
   });
-  builder.box("lower", v(length, lower, (base + middle) / 2), v(0, curb + lower / 2, centre), {
-    color: "#b5b2aa",
-  });
-  builder.box("upper", v(length, upper, top), v(0, curb + lower + upper / 2, centre), {
-    color: "#b5b2aa",
-  });
+  builder.box(
+    "lower",
+    v(length, lower, (base + middle) / 2),
+    v(0, curb + lower / 2, centre),
+    {
+      color: "#b5b2aa",
+    },
+  );
+  builder.box(
+    "upper",
+    v(length, upper, top),
+    v(0, curb + lower + upper / 2, centre),
+    {
+      color: "#b5b2aa",
+    },
+  );
   crossing(builder, d.height!, length, top, centre);
 }
 
@@ -311,13 +358,23 @@ function crowd(builder: Builder, d: Drawn): void {
     ["left", 1],
     ["right", -1],
   ] as const) {
-    const x: number = (sign * (length / 2 - r));
-    builder.rod(`foot-${side}`, r, v(x, r, 0), v(x, r, E.foot), { color: "#a7abb0" });
-    builder.rod(`post-${side}`, r, v(x, 2 * r, z), v(x, rail, z), { color: "#a7abb0" });
+    const x: number = sign * (length / 2 - r);
+    builder.rod(`foot-${side}`, r, v(x, r, 0), v(x, r, E.foot), {
+      color: "#a7abb0",
+    });
+    builder.rod(`post-${side}`, r, v(x, 2 * r, z), v(x, rail, z), {
+      color: "#a7abb0",
+    });
   }
-  builder.rod("rail-top", r, v(-length / 2 + r, rail, z), v(length / 2 - r, rail, z), {
-    color: "#a7abb0",
-  });
+  builder.rod(
+    "rail-top",
+    r,
+    v(-length / 2 + r, rail, z),
+    v(length / 2 - r, rail, z),
+    {
+      color: "#a7abb0",
+    },
+  );
   builder.rod(
     "rail-bottom",
     r,
@@ -329,9 +386,15 @@ function crowd(builder: Builder, d: Drawn): void {
   const count: number = Math.floor(span / d.spacing!) - 1;
   for (let k: number = 1; k <= count; k++) {
     const x: number = -span / 2 + (span * k) / (count + 1);
-    builder.rod(`picket-${k}`, E.picket / 2, v(x, E.bottomRail, z), v(x, rail, z), {
-      color: "#a7abb0",
-    });
+    builder.rod(
+      `picket-${k}`,
+      E.picket / 2,
+      v(x, E.bottomRail, z),
+      v(x, rail, z),
+      {
+        color: "#a7abb0",
+      },
+    );
   }
   builder.affordance({
     id: "rail",
@@ -379,9 +442,15 @@ function stanchions(builder: Builder, d: Drawn): void {
       length: height,
     });
   }
-  builder.rod("rope", d.ropeDiameter! / 2, v(-length / 2 + r, hang, z), v(length / 2 - r, hang, z), {
-    color: "#8a1c2b",
-  });
+  builder.rod(
+    "rope",
+    d.ropeDiameter! / 2,
+    v(-length / 2 + r, hang, z),
+    v(length / 2 - r, hang, z),
+    {
+      color: "#8a1c2b",
+    },
+  );
   builder.affordance({
     id: "rope",
     kind: "bar",

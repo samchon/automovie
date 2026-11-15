@@ -30,7 +30,7 @@ const SIDERAIL: string =
 
 /** The crib's rail height read. */
 const CRIB_TOP: string =
-  "DaVinci Kalani 4-in-1 convertible crib: \"Front Rail to Floor Height: 35\"\", interior 52 x 28 in (https://davincibaby.com/products/kalani-4-in-1-convertible-crib)";
+  'DaVinci Kalani 4-in-1 convertible crib: "Front Rail to Floor Height: 35"", interior 52 x 28 in (https://davincibaby.com/products/kalani-4-in-1-convertible-crib)';
 
 /** The stretcher read. */
 const PRIME: string =
@@ -69,8 +69,6 @@ export const BED_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 45, 75, ArchetypeBand.TYPICAL_MASS, true),
   },
   mattress: {
-    width: ArchetypeBand.metres(0.9, 1.35, SIZES),
-    length: ArchetypeBand.metres(1.9, 1.9, SIZES),
     thickness: ArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
     mass: ArchetypeBand.of("kg", 10, 30, ArchetypeBand.TYPICAL_MASS, true),
   },
@@ -89,10 +87,26 @@ export const BED_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
   },
   gurney: {
-    width: ArchetypeBand.metres(26 * ArchetypeUnits.INCH, 26 * ArchetypeUnits.INCH, `${PRIME}: the patient surface`),
-    length: ArchetypeBand.metres(75.25 * ArchetypeUnits.INCH, 75.25 * ArchetypeUnits.INCH, `${PRIME}: the patient surface`),
-    overallLength: ArchetypeBand.metres(85 * ArchetypeUnits.INCH, 85 * ArchetypeUnits.INCH, PRIME),
-    overallWidth: ArchetypeBand.metres(26 * ArchetypeUnits.INCH, 26 * ArchetypeUnits.INCH, `${PRIME}: with the siderails down`),
+    width: ArchetypeBand.metres(
+      26 * ArchetypeUnits.INCH,
+      26 * ArchetypeUnits.INCH,
+      `${PRIME}: the patient surface`,
+    ),
+    length: ArchetypeBand.metres(
+      75.25 * ArchetypeUnits.INCH,
+      75.25 * ArchetypeUnits.INCH,
+      `${PRIME}: the patient surface`,
+    ),
+    overallLength: ArchetypeBand.metres(
+      85 * ArchetypeUnits.INCH,
+      85 * ArchetypeUnits.INCH,
+      PRIME,
+    ),
+    overallWidth: ArchetypeBand.metres(
+      26 * ArchetypeUnits.INCH,
+      26 * ArchetypeUnits.INCH,
+      `${PRIME}: with the siderails down`,
+    ),
     litter: ArchetypeBand.metres(0.527, 0.864, `${PRIME}: the height range`),
     thickness: ArchetypeBand.metres(0.14, 0.14, PRIME),
     mass: ArchetypeBand.of("kg", 80, 120, ArchetypeBand.TYPICAL_MASS, true),
@@ -113,7 +127,11 @@ export const BED_BANDS: Readonly<
       26 * ArchetypeUnits.INCH,
       `${CRIB}: the rail's top above the support at its lowest; the model takes the least`,
     ),
-    height: ArchetypeBand.metres(35 * ArchetypeUnits.INCH, 35 * ArchetypeUnits.INCH, CRIB_TOP),
+    height: ArchetypeBand.metres(
+      35 * ArchetypeUnits.INCH,
+      35 * ArchetypeUnits.INCH,
+      CRIB_TOP,
+    ),
     thickness: ArchetypeBand.metres(
       6 * ArchetypeUnits.INCH,
       6 * ArchetypeUnits.INCH,

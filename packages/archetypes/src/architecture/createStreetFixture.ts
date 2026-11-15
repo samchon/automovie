@@ -9,6 +9,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
+import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
 
 /** The builder every construction fills. */
 type Builder = ArchetypeBuilder<
@@ -58,14 +59,14 @@ const NAMES: Readonly<Record<createStreetFixture.Kind, string>> = {
  *
  * A bollard rests on its steel pipe: steel on concrete (`ArchetypeFriction`).
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, its read model where it has several, and any dimension the author fixes.
+ * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the kind's first model and the middle of each band.
  * @returns The fixture.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a model the kind does not list, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, its contacts, and what is left out for want of a source.
- * @evidence contracts/development/implementation.md#principled-implementation Each kind's parts at the drawn sizes: the cone scaled from the Brimar sheet's proportions, the bollard at Reliance's height and diameters, the hydrant at AMERICAN-Darling's heights and nozzle faces with Mueller's nozzle bores and nut, the lamp post at Wave's height, shaft and base under Sternberg's luminaire, the sign at the MUTCD's height and sizes on Atkore's post.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then one branch per kind, each its parts then its contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Each kind's parts at the drawn sizes: the cone one of the MUTCD's two height classes in the Brimar sheet's proportions, the bollard at Reliance's height as one of its four R-1007 pipes whole with its mass, the hydrant at AMERICAN-Darling's heights and nozzle faces with Mueller's nozzle bores and nut, the lamp post at Wave's height, shaft and base under Sternberg's luminaire, the sign at the MUTCD's height and one of its two STOP sizes on Atkore's post.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the dimensions with the model's figures over them, then one branch per kind, each its parts then its contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cone is three stacked rods, a bonnet and nozzles are rods; the cone's plate is a construction estimate, and the barrel's diameter Mueller's unlabelled top.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most six parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -81,17 +82,34 @@ export function createStreetFixture(
     params.kind,
     createStreetFixture.KINDS,
   );
-  const d: Drawn = ArchetypeDraw.dimensions(
+  const model: {
+    name: createStreetFixture.Model | undefined;
+    figures: Readonly<Partial<Record<createStreetFixture.Dimension, number>>>;
+  } = ArchetypeDraw.model<
+    createStreetFixture.Model,
+    createStreetFixture.Dimension
+  >(
     "streetFixture",
-    createStreetFixture.BANDS[kind],
+    "model",
+    params.model,
+    createStreetFixture.MODELS[kind],
     seed,
-    params,
-    createStreetFixture.BANDS,
   );
+  const d: Drawn = {
+    ...ArchetypeDraw.dimensions(
+      "streetFixture",
+      createStreetFixture.BANDS[kind],
+      seed,
+      params,
+      createStreetFixture.BANDS,
+    ),
+    ...model.figures,
+  };
   const builder: Builder = new ArchetypeBuilder({
     archetype: "streetFixture",
     id: params.id,
-    name: NAMES[kind],
+    name:
+      model.name === undefined ? NAMES[kind] : `${NAMES[kind]} ${model.name}`,
     dimensions: d,
   });
   if (kind === "trafficCone") cone(builder, d);
@@ -156,9 +174,15 @@ function post(builder: Builder, d: Drawn, kind: "bollard" | "lampPost"): void {
     ...(kind === "bollard" ? { surface: "steel" as const } : {}),
   });
   if (kind === "lampPost")
-    builder.rod("luminaire", d.head! / 2, v(0, height, 0), v(0, height + d.headHeight!, 0), {
-      color: "#f4f1e0",
-    });
+    builder.rod(
+      "luminaire",
+      d.head! / 2,
+      v(0, height, 0),
+      v(0, height + d.headHeight!, 0),
+      {
+        color: "#f4f1e0",
+      },
+    );
   builder.affordance({
     id: "post",
     kind: "bar",
@@ -194,9 +218,14 @@ function sign(builder: Builder, d: Drawn): void {
   const bottom: number = d.height!;
   const size: number = d.head!;
   const side: number = d.diameter!;
-  builder.box("post", v(side, bottom + size, side), v(0, (bottom + size) / 2, 0), {
-    color: "#9aa1a8",
-  });
+  builder.box(
+    "post",
+    v(side, bottom + size, side),
+    v(0, (bottom + size) / 2, 0),
+    {
+      color: "#9aa1a8",
+    },
+  );
   builder.box(
     "sign",
     v(size, size, ESTIMATES.sign),
@@ -261,7 +290,11 @@ function hydrant(builder: Builder, d: Drawn): void {
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(sign * hose, y, 0), v(sign, 0, 0), v(0, 0, 1)),
+      frame: ArchetypeFrame.facing(
+        v(sign * hose, y, 0),
+        v(sign, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
   builder.affordance({
@@ -276,7 +309,7 @@ function hydrant(builder: Builder, d: Drawn): void {
  * Companion types and bands of {@link createStreetFixture}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read models among them, and one cited band per remaining dimension per kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The posts a hand leans on or swings round, the top a cone is lifted by, the nut a hydrant is opened at and the nozzles a hose couples to (#3468 N2).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A contact no source places is left out rather than placed by guess.
  */
@@ -336,10 +369,27 @@ export namespace createStreetFixture {
     | "headHeight"
     | "mass";
 
+  /** The read models: the MUTCD's 18 and 28 in cones, Reliance's R-1007 bollards and the MUTCD's 30 and 36 in STOP signs. */
+  export type Model =
+    | "cone 18 in"
+    | "cone 28 in"
+    | "R-1007-04"
+    | "R-1007-06"
+    | "R-1007-08"
+    | "R-1007-10"
+    | "STOP 30 in"
+    | "STOP 36 in";
+
+  /** Each kind's models with the figures each fixes, its default first; none for a kind with one read model. */
+  export const MODELS: typeof STREET_FIXTURE_MODELS = STREET_FIXTURE_MODELS;
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which fixture. */
     kind: Kind;
+
+    /** A cone's, a bollard's or a sign's read model; drawn from the seed when absent. A hydrant and a lamp post have one model. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `streetFixture` when absent. */
     id?: string;

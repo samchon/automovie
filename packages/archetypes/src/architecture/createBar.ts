@@ -21,14 +21,14 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
  *
  * The bar runs along `+X`, centred above the origin on the floor, and is gripped from above. A grab bar stands off a wall behind it by the clearance the standard fixes; the wall is not part of the model.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a grab bar's wall and any dimension the author fixes.
+ * @param seed The seed that draws a grab bar's wall when it is not given and every dimension left free inside its band; absent, the rear wall and the middle of each band.
  * @returns The bar.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a wall named for a bar that has none, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bar's direction, how it is gripped and what is left out.
  * @evidence contracts/development/implementation.md#principled-implementation One rod at the drawn height with two supports; the `bar` frame lies on the rod's axis with the rod's diameter as its `aperture`, and a rail's or a grab bar's height is the top of its gripping surface, as the standard measures it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the bar, its two supports, one contact.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a grab bar's wall, draw the dimensions with its length over them, then the bar, its two supports, one contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bracket, flange or footing detail.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -44,17 +44,28 @@ export function createBar(
     params.kind,
     createBar.KINDS,
   );
-  const d: Record<createBar.Dimension, number> = ArchetypeDraw.dimensions(
-    "bar",
-    createBar.BANDS[kind],
-    seed,
-    params,
-    createBar.BANDS,
-  );
-  const radius: number = d.diameter / 2;
+  const wall: Readonly<Partial<Record<createBar.Dimension, number>>> =
+    ArchetypeDraw.model<createBar.Wall, createBar.Dimension>(
+      "bar",
+      "wall",
+      params.wall,
+      createBar.WALLS[kind],
+      seed,
+    ).figures;
+  const d: Partial<Record<createBar.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
+      "bar",
+      createBar.BANDS[kind],
+      seed,
+      params,
+      createBar.BANDS,
+    ),
+    ...wall,
+  };
+  const radius: number = d.diameter! / 2;
 
   // A high bar's height is its upper edge by the norm; the others' is the top of the gripping surface.
-  const y: number = d.height - radius;
+  const y: number = d.height! - radius;
   const builder: ArchetypeBuilder<createBar.Affordance, createBar.Dimension> =
     new ArchetypeBuilder({
       archetype: "bar",
@@ -66,12 +77,12 @@ export function createBar(
   builder.rod(
     "bar",
     radius,
-    Vector3.create(-d.length / 2, y, 0),
-    Vector3.create(d.length / 2, y, 0),
+    Vector3.create(-d.length! / 2, y, 0),
+    Vector3.create(d.length! / 2, y, 0),
     { color: "#8a8d91" },
   );
   for (const side of [1, -1] as const) {
-    const x: number = (side * d.length) / 2;
+    const x: number = (side * d.length!) / 2;
     builder.rod(
       side === 1 ? "support-left" : "support-right",
       kind === "grab" ? radius : 0.025,
@@ -89,10 +100,10 @@ export function createBar(
     frame: ArchetypeFrame.upright(Vector3.create(0, y, 0)),
     extent: null,
     grip: "power",
-    aperture: d.diameter,
-    length: d.length,
+    aperture: d.diameter!,
+    length: d.length!,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
@@ -126,10 +137,28 @@ export namespace createBar {
    */
   export type Dimension = "height" | "diameter" | "length" | "mass";
 
+  /** The walls a grab bar is on: the rear wall and the side wall. */
+  export type Wall = "rear" | "side";
+
+  /** Each kind's walls with the least length each takes, metres, the default first: 2010 ADA Standards 604.5, the rear wall bar "at least 36 in (915 mm)" and the side wall bar "at least 42 in (1065 mm)" long; the other bars have none. */
+  export const WALLS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Wall, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
+    grab: { rear: { length: 0.915 }, side: { length: 1.065 } },
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bar. */
     kind: Kind;
+
+    /** The wall a grab bar is on, whose least length it takes; drawn from the seed when absent. Other bars have none. */
+    wall?: Wall;
 
     /** The model's id, unique in a scene; `bar` when absent. */
     id?: string;
@@ -137,7 +166,7 @@ export namespace createBar {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     high: {
       height: ArchetypeBand.metres(
@@ -163,11 +192,6 @@ export namespace createBar {
         0.032,
         0.051,
         `${ADA} 609.2.1, circular section 1-1/4 to 2 in (32 to 51 mm)`,
-      ),
-      length: ArchetypeBand.metres(
-        0.915,
-        1.065,
-        `${ADA} 604.5, rear wall bar at least 36 in (915 mm) and side wall bar at least 42 in (1065 mm) long`,
       ),
       mass: ArchetypeBand.of("kg", 1.5, 4, ArchetypeBand.TYPICAL_MASS, true),
     },

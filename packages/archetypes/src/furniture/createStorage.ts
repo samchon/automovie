@@ -5,6 +5,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
+import { STORAGE_MODELS } from "./STORAGE_MODELS";
 import { StorageConstruction } from "./StorageConstruction";
 
 /** The name each kind's model carries. */
@@ -23,14 +24,14 @@ const NAMES: Readonly<Record<createStorage.Kind, string>> = {
  *
  * A locker rests on its steel legs: steel on concrete (`ArchetypeFriction`).
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, its read model where it has several, and any dimension the author fixes.
+ * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the kind's first model and the middle of each band.
  * @returns The cabinet.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a model the kind does not list, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, what moves, where the cabinet is pushed and where each kind is described.
  * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's bands and hands the dimensions to its construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's construction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the dimensions with its figures over them, then the kind's construction.
  * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The constructions own every shape.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the construction's.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -46,14 +47,24 @@ export function createStorage(
     params.kind,
     createStorage.KINDS,
   );
-  const d: Partial<Record<createStorage.Dimension, number>> =
-    ArchetypeDraw.dimensions(
+  const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
+    ArchetypeDraw.model<createStorage.Model, createStorage.Dimension>(
+      "storage",
+      "model",
+      params.model,
+      STORAGE_MODELS[kind],
+      seed,
+    ).figures;
+  const d: Partial<Record<createStorage.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "storage",
       createStorage.BANDS[kind],
       seed,
       params,
       createStorage.BANDS,
-    );
+    ),
+    ...model,
+  };
   const builder: ArchetypeBuilder<
     createStorage.Affordance,
     createStorage.Dimension
@@ -73,7 +84,7 @@ export function createStorage(
  * Companion types and bands of {@link createStorage}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind; drawers, pulls and shelves are numbered from the bottom.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read models among them, and one cited band per remaining dimension per kind; drawers, pulls and shelves are numbered from the bottom.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The pulls' heights and the travel an opening act reads, the face a push meets, and the shelves things are set on (#3370, #3371, #3468 N16).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
  */
@@ -139,10 +150,29 @@ export namespace createStorage {
     | "legs"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The read models: Blum's CLIP top hinges, Accuride's 3832E slides and Lyon's 72 in single tier lockers by width by depth. */
+  export type Model =
+    | "CLIP top 95"
+    | "CLIP top 110"
+    | "3832-E12"
+    | "3832-E14"
+    | "3832-E16"
+    | "12x12"
+    | "12x15"
+    | "12x18"
+    | "15x18"
+    | "18x18"
+    | "18x21";
+
+  /** The parameters: the kind, the model, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "swing">, number>
+  > {
     /** Which cabinet. */
     kind: Kind;
+
+    /** A wardrobe's hinge, a chest's drawer slide or a locker's size; drawn from the seed when absent. The other kinds have one read model. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `storage` when absent. */
     id?: string;

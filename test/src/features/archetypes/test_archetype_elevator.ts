@@ -4,6 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -16,24 +17,24 @@ const ADA: Readonly<{
   depth: number;
 }> = { door: [1.049, 1.065], width: 2.03, returns: 1.295, depth: 1.37 };
 
-/** KONE MonoSpace: car 2 100 to 2 400 mm high, door 2 000 mm high at the least. */
-const KONE: Readonly<{ car: readonly [number, number]; door: number }> = {
-  car: [2.1, 2.4],
-  door: 2.0,
+/** KONE MonoSpace: car heights 2 100, 2 200, 2 300 and 2 400 mm; door heights 2 000, 2 100, 2 200 and 2 300 mm, a door below its car. */
+const KONE: Readonly<{ car: readonly number[]; door: readonly number[] }> = {
+  car: [2.1, 2.2, 2.3, 2.4],
+  door: [2.0, 2.1, 2.2, 2.3],
 };
 
 /**
  * A lift car is the ADA's accessible centred-door car at the KONE guide's heights, and its two leaves clear the entrance by sliding apart.
  *
  * Scenarios:
- * 1. The inside is 80 in wide and 54 in from the back wall to the door, the front returns 51 in from it, the clear width inside the regulation's tolerance and the inside height inside KONE's range.
- * 2. The entrance's width and height are the clear opening, its height at least KONE's least door height and below the roof.
+ * 1. The inside is 80 in wide and 54 in from the back wall to the door, the front returns 51 in from it, the clear width inside the regulation's tolerance; over 200 seeds the inside height and the door's height are exactly one of KONE's car heights and one of its door heights below it, every such pair drawn.
+ * 2. The entrance's width and height are the clear opening, below the roof.
  * 3. At rest the leaves fill the opening, meeting at the middle; at full travel each has slid out by half the clear width, leaving the opening free.
  * 4. The landing call button lies within ADA 308's 15 to 48 in reach, on the `+X` front return beside the opening, facing the landing.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the leaves; a car of the wrong size, an entrance off its opening or a leaf that slides into the opening is caught with the numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the leaves; a car of the wrong size, a height between KONE's or a door at or above its car, an entrance off its opening or a leaf that slides into the opening is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The sizes are ADA Table 407.4.1's and KONE's figures restated here; the open leaves' places follow from half the clear width.
- * @evidence contracts/development/testing.md#distinguishing-cases Closed and open leaves on both sides, a fixed and a ranging size.
+ * @evidence contracts/development/testing.md#distinguishing-cases Closed and open leaves on both sides, a ranging width and the guide's height pairs.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
@@ -55,12 +56,25 @@ export function test_archetype_elevator(): void {
         maximum: ADA.door[1],
         source: "ADA Table 407.4.1",
       },
+    ]),
+    ...archetypeModelSweep([
       {
-        name: "lift car inside height",
-        measure: (seed: number): number =>
-          archetypeExtent(createElevator({}, seed), "y", ["roof"]).low,
-        minimum: KONE.car[0],
-        maximum: KONE.car[1],
+        name: "lift car and door heights",
+        measure: (seed: number): readonly number[] => {
+          const car: ReturnType<typeof createElevator> = createElevator(
+            {},
+            seed,
+          );
+          return [
+            archetypeExtent(car, "y", ["roof"]).low,
+            car.affordance("entrance").height!,
+          ];
+        },
+        models: KONE.car.flatMap((car: number): number[][] =>
+          KONE.door
+            .filter((door: number): boolean => door < car)
+            .map((door: number): number[] => [car, door]),
+        ),
         source: "KONE MonoSpace planning guide",
       },
     ]),
@@ -86,7 +100,7 @@ export function test_archetype_elevator(): void {
     // 2. The entrance.
     const entrance: IAutoMovieAffordance = car.affordance("entrance");
     const roof: number = archetypeExtent(car, "y", ["roof"]).low;
-    if (!(entrance.height! >= KONE.door - 1e-9 && entrance.height! <= roof))
+    if (!(entrance.height! >= KONE.door[0]! - 1e-9 && entrance.height! <= roof))
       findings.push(
         `car ${seed}: the entrance is ${entrance.height} high under a ${roof} roof`,
       );
@@ -137,11 +151,16 @@ export function test_archetype_elevator(): void {
   if (
     !(
       call.frame.translation.x > lift.affordance("entrance").width! / 2 &&
-      call.frame.translation.x < archetypeExtent(lift, "x", ["return-left"]).high &&
-      call.frame.translation.z > archetypeExtent(lift, "z", ["return-left"]).high - 1e-9
+      call.frame.translation.x <
+        archetypeExtent(lift, "x", ["return-left"]).high &&
+      call.frame.translation.z >
+        archetypeExtent(lift, "z", ["return-left"]).high - 1e-9
     )
   )
-    findings.push("the call button is not on the +X front return's landing face");  TestValidator.equals(
+    findings.push(
+      "the call button is not on the +X front return's landing face",
+    );
+  TestValidator.equals(
     "a lift car is the accessible car and its leaves clear the entrance",
     findings,
     [],

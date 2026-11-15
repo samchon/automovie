@@ -39,14 +39,14 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
  *
  * Both barrels rest on their steel chimes: steel on concrete (`ArchetypeFriction`).
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a drum's model and any dimension the author fixes.
+ * @param seed The seed that draws a drum's model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The barrel, empty.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the drum maker does not list or one named for a keg, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the barrel stands and where it is held.
  * @evidence contracts/development/implementation.md#principled-implementation One cylinder of the drawn diameter and height; the hands' places are the top rim's two ends of the `X` diameter, and the top's outline a polygon inscribed in the rim.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part and its three contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a drum's model, draw the dimensions with its height and mass over them, then one part and its three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rolling hoops, bungs, spear or handholes: the rim stands for the gripped chime or skirt.
  * @evidence contracts/development/implementation.md#efficient-algorithms One part.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -62,15 +62,26 @@ export function createBarrel(
     params.kind,
     createBarrel.KINDS,
   );
-  const d: Record<createBarrel.Dimension, number> = ArchetypeDraw.dimensions(
-    "barrel",
-    createBarrel.BANDS[kind],
-    seed,
-    params,
-    createBarrel.BANDS,
-  );
-  const radius: number = d.diameter / 2;
-  const height: number = d.height;
+  const drum: Readonly<Partial<Record<createBarrel.Dimension, number>>> =
+    ArchetypeDraw.model<createBarrel.Drum, createBarrel.Dimension>(
+      "barrel",
+      "model",
+      params.model,
+      createBarrel.DRUMS[kind],
+      seed,
+    ).figures;
+  const d: Partial<Record<createBarrel.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
+      "barrel",
+      createBarrel.BANDS[kind],
+      seed,
+      params,
+      createBarrel.BANDS,
+    ),
+    ...drum,
+  };
+  const radius: number = d.diameter! / 2;
+  const height: number = d.height!;
   const builder: ArchetypeBuilder<
     createBarrel.Affordance,
     createBarrel.Dimension
@@ -116,7 +127,7 @@ export function createBarrel(
     frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: outline,
   });
-  return builder.build(d.mass, { rests: "steel" });
+  return builder.build(d.mass!, { rests: "steel" });
 }
 
 /**
@@ -151,10 +162,37 @@ export namespace createBarrel {
    */
   export type Dimension = "diameter" | "height" | "mass";
 
+  /** The steel drums read: Pipeline Packaging's DWG20459 tight head and DWG20443 open head. */
+  export type Drum = "DWG20459" | "DWG20443";
+
+  /** Each kind's models with their read height and mass, the default first: Pipeline Packaging's DWG20459, 34.75 in high and 38.4 lb, and DWG20443, 35 1/4 in high and 43 lb; a keg has one read model. */
+  export const DRUMS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Drum, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
+    steelDrum: {
+      DWG20459: {
+        height: 34.75 * ArchetypeUnits.INCH,
+        mass: 38.4 * ArchetypeUnits.POUND,
+      },
+      DWG20443: {
+        height: 35.25 * ArchetypeUnits.INCH,
+        mass: 43 * ArchetypeUnits.POUND,
+      },
+    },
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which barrel. */
     kind: Kind;
+
+    /** A steel drum's model; drawn from the seed when absent. A keg has one read model. */
+    model?: Drum;
 
     /** The model's id, unique in a scene; `barrel` when absent. */
     id?: string;
@@ -162,12 +200,14 @@ export namespace createBarrel {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     steelDrum: {
-      diameter: ArchetypeBand.metres(22.5 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, DRUM),
-      height: ArchetypeBand.metres(34.75 * ArchetypeUnits.INCH, 35.25 * ArchetypeUnits.INCH, DRUM),
-      mass: ArchetypeBand.of("kg", 38.4 * ArchetypeUnits.POUND, 43 * ArchetypeUnits.POUND, DRUM),
+      diameter: ArchetypeBand.metres(
+        22.5 * ArchetypeUnits.INCH,
+        22.5 * ArchetypeUnits.INCH,
+        DRUM,
+      ),
     },
     keg: {
       diameter: ArchetypeBand.metres(0.379, 0.383, KEG),

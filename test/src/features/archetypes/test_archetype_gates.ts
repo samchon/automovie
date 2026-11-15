@@ -1,21 +1,21 @@
 import { createGate } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
 
 /**
- * A tripod turnstile and a swing speed gate stand at Boon Edam's sizes, their lane the maker's passage.
+ * A tripod turnstile and a swing speed gate stand at Boon Edam's sizes, their lane one of the maker's passages.
  *
  * Scenarios:
- * 1. A turnstile's lane is 457 to 559 mm wide, centred on the origin beside its cabinet's face, its cabinet 965 mm high, and its arm at 838 mm reaching 416 mm into the lane from the cabinet's face.
- * 2. A speed gate's lane is 615 to 915 mm between its two cabinets' faces, the cabinets 1035 mm high, the wings from 200 to 940 mm and meeting at the lane's middle.
+ * 1. Over 200 seeds a turnstile's lane is exactly one of the Trilock's 457, 508 and 559 mm, each drawn, centred on the origin beside its cabinet's face, its cabinet 965 mm high, and its arm at 838 mm reaching 416 mm into the lane from the cabinet's face.
+ * 2. Over 200 seeds a speed gate's lane is exactly the Speedlane's 615 or 915 mm between its two cabinets' faces, each drawn, the cabinets 1035 mm high, the wings from 200 to 940 mm and meeting at the lane's middle.
  * 3. On both, `passage` is the lane's width and the cabinets' height, and `top` lies on the `-X` cabinet's top.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a lane, arm or wing off the maker's figures is caught with the numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a lane between two of the maker's passages, a passage never drawn, or an arm or wing off the maker's figures is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is Boon Edam's restated here.
  * @evidence contracts/development/testing.md#distinguishing-cases One cabinet with an arm against two cabinets with wings.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -30,29 +30,28 @@ export function test_archetype_gates(): void {
 
   // 1. and 2. The lanes.
   findings.push(
-    ...archetypeBandSweep([
+    ...archetypeModelSweep([
       {
         name: "turnstile passage",
-        measure: (seed: number): number =>
+        measure: (seed: number): readonly number[] => [
           createGate({ kind: "turnstile" }, seed).affordance("passage").width!,
-        minimum: 0.457,
-        maximum: 0.559,
+        ],
+        models: [[0.457], [0.508], [0.559]],
         source: "Boon Edam Trilock 60",
       },
       {
         name: "speed gate passage",
-        measure: (seed: number): number => {
+        measure: (seed: number): readonly number[] => {
           const gate: ReturnType<typeof createGate> = createGate(
             { kind: "speedGate" },
             seed,
           );
-          return (
+          return [
             archetypeExtent(gate, "x", ["cabinet-left"]).low -
-            archetypeExtent(gate, "x", ["cabinet-right"]).high
-          );
+              archetypeExtent(gate, "x", ["cabinet-right"]).high,
+          ];
         },
-        minimum: 0.615,
-        maximum: 0.915,
+        models: [[0.615], [0.915]],
         source: "Boon Edam Speedlane Swing",
       },
     ]),
@@ -62,19 +61,27 @@ export function test_archetype_gates(): void {
       { kind: "turnstile" },
       seed,
     );
-    const face: number = archetypeExtent(turnstile, "x", ["cabinet-right"]).high;
+    const face: number = archetypeExtent(turnstile, "x", [
+      "cabinet-right",
+    ]).high;
     near(
       `turnstile ${seed}: the lane's half`,
       -face,
       turnstile.affordance("passage").width! / 2,
     );
-    near(`turnstile ${seed}: the cabinet`, archetypeExtent(turnstile, "y").high, 0.965);
-    const arm: { low: number; high: number } = archetypeExtent(
-      turnstile,
-      "y",
-      ["arm"],
+    near(
+      `turnstile ${seed}: the cabinet`,
+      archetypeExtent(turnstile, "y").high,
+      0.965,
     );
-    near(`turnstile ${seed}: the arm's height`, (arm.low + arm.high) / 2, 0.838);
+    const arm: { low: number; high: number } = archetypeExtent(turnstile, "y", [
+      "arm",
+    ]);
+    near(
+      `turnstile ${seed}: the arm's height`,
+      (arm.low + arm.high) / 2,
+      0.838,
+    );
     near(
       `turnstile ${seed}: the arm's reach`,
       archetypeExtent(turnstile, "x", ["arm"]).high - face,
@@ -85,7 +92,11 @@ export function test_archetype_gates(): void {
       { kind: "speedGate" },
       seed,
     );
-    near(`speed gate ${seed}: the cabinets`, archetypeExtent(gate, "y").high, 1.035);
+    near(
+      `speed gate ${seed}: the cabinets`,
+      archetypeExtent(gate, "y").high,
+      1.035,
+    );
     near(
       `speed gate ${seed}: the wings`,
       archetypeExtent(gate, "y", ["wing-left", "wing-right"]).high,

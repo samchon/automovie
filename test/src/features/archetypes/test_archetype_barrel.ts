@@ -8,6 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -16,7 +17,7 @@ const MM: number = 1e-3;
  * A steel drum and a keg stand at their sources' sizes, taken by two hands at the top rim's ends and stacked on along their tops.
  *
  * Scenarios:
- * 1. The steel drum is Pipeline Packaging's 22.5 in across and 34.75 to 35.25 in high; the keg KegLand's 50 L DIN keg, 381 +/- 2 mm across and 600 +/- 3 mm high.
+ * 1. The steel drum is Pipeline Packaging's 22.5 in across and, over 200 seeds, exactly its DWG20459, 34.75 in high and 38.4 lb, or its DWG20443, 35 1/4 in high and 43 lb, height and mass together, each drawn; the keg KegLand's 50 L DIN keg, 381 +/- 2 mm across and 600 +/- 3 mm high.
  * 2. Each barrel's `left` and `right` lie on the top rim at the `+X` and `-X` ends of its diameter, `+Y` pointing out, and its `top` outline lies inside the rim at the top.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider and contact frames over the seeds; a barrel off its source's size or a hand off its rim is caught with the numbers.
@@ -45,16 +46,32 @@ export function test_archetype_barrel(): void {
   });
   findings.push(
     ...archetypeBandSweep([
-      sweep("steelDrum", "x", 22.5 * ArchetypeUnits.INCH, 22.5 * ArchetypeUnits.INCH, "Pipeline Packaging, 22.5 in"),
       sweep(
         "steelDrum",
-        "y",
-        34.75 * ArchetypeUnits.INCH,
-        35.25 * ArchetypeUnits.INCH,
-        "Pipeline Packaging, 34.75 and 35.25 in outside",
+        "x",
+        22.5 * ArchetypeUnits.INCH,
+        22.5 * ArchetypeUnits.INCH,
+        "Pipeline Packaging, 22.5 in",
       ),
       sweep("keg", "x", 0.379, 0.383, "KegLand 50 L DIN, 381 +/- 2 mm"),
       sweep("keg", "y", 0.597, 0.603, "KegLand 50 L DIN, 600 +/- 3 mm"),
+    ]),
+    ...archetypeModelSweep([
+      {
+        name: "steel drum height and mass",
+        measure: (seed: number): readonly number[] => {
+          const drum: ReturnType<typeof createBarrel> = createBarrel(
+            { kind: "steelDrum" },
+            seed,
+          );
+          return [archetypeExtent(drum, "y").size, drum.properties.mass];
+        },
+        models: [
+          [34.75 * ArchetypeUnits.INCH, 38.4 * ArchetypeUnits.POUND],
+          [35.25 * ArchetypeUnits.INCH, 43 * ArchetypeUnits.POUND],
+        ],
+        source: "Pipeline Packaging DWG20459 and DWG20443",
+      },
     ]),
   );
 

@@ -26,18 +26,18 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
 /**
  * A pedestrian gate a person passes through: a tripod turnstile or a swing speed gate.
  *
- * The lane runs along `Z` through the origin, `passage` wide between its cabinets, and is walked toward `-Z`. A turnstile has one cabinet on the lane's `-X` side with its barrier arm reaching across the lane at the maker's barrier height; a speed gate has a cabinet on each side, each with a wing closing half the lane at the maker's wing height. `passage` is the lane's opening, an aperture as high as the cabinets; `top` is the `-X` cabinet's top, leaned on or vaulted.
+ * The lane runs along `Z` through the origin, one of its maker's read passage widths between its cabinets, given or drawn from the seed, and is walked toward `-Z`. A turnstile has one cabinet on the lane's `-X` side with its barrier arm reaching across the lane at the maker's barrier height; a speed gate has a cabinet on each side, each with a wing closing half the lane at the maker's wing height. `passage` is the lane's opening, an aperture as high as the cabinets; `top` is the `-X` cabinet's top, leaned on or vaulted.
  *
  * The arm and the wings are drawn at their cabinet's middle and declared as no contact, since no source read places them along the cabinet; turning an arm or swinging a wing has no motion law yet (#3468 N7), so the gate is built for static use.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The gate.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
+ * @throws {ArchetypeRefusal} For a passage the kind's maker does not list, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes, passage widths and barrier and wing heights; the arm's reach and section from the Trilock drawing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cabinets, the barrier, then the two contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The makers' cabinet sizes and barrier and wing heights, and one of each maker's read passage widths whole; the arm's reach and section from the Trilock drawing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the passage, draw the dimensions, then the cabinets, the barrier, then the two contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One arm stands for the tripod's three; a wing is a slab from the elevation's 200 mm up to its height; their place along the cabinet and the wing's thickness are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most four parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -53,19 +53,31 @@ export function createGate(
     params.kind,
     createGate.KINDS,
   );
-  const d: Partial<Record<createGate.Dimension, number>> =
-    ArchetypeDraw.dimensions(
+  const model: {
+    name: createGate.Passage | undefined;
+    figures: Readonly<Partial<Record<createGate.Dimension, number>>>;
+  } = ArchetypeDraw.model<createGate.Passage, createGate.Dimension>(
+    "gate",
+    "passage",
+    params.passage,
+    createGate.PASSAGES[kind],
+    seed,
+  );
+  const d: Partial<Record<createGate.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "gate",
       createGate.BANDS[kind],
       seed,
-      params,
+      { ...params, passage: undefined },
       createGate.BANDS,
-    );
+    ),
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<createGate.Affordance, createGate.Dimension> =
     new ArchetypeBuilder({
       archetype: "gate",
       id: params.id,
-      name: kind === "turnstile" ? "turnstile" : "speed gate",
+      name: `${kind === "turnstile" ? "turnstile" : "speed gate"} ${model.name} mm`,
       dimensions: d,
     });
   const v: typeof Vector3.create = Vector3.create;
@@ -129,7 +141,7 @@ export function createGate(
  * Companion types and bands of {@link createGate}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read passages among them, and one cited band per dimension per kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The lane a person passes and the cabinet top a hand meets (#3468 N7).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A barrier no source places along its cabinet is drawn but not declared.
  */
@@ -139,6 +151,26 @@ export namespace createGate {
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["turnstile", "speedGate"];
+
+  /** The passage widths read, millimetres: the Trilock 60's 457, 508 and 559 mm and the Speedlane Swing's 615 and 915 mm. */
+  export type Passage = "457" | "508" | "559" | "615" | "915";
+
+  /** Each kind's passages with the clear width each gives, metres, its default first. */
+  export const PASSAGES: Readonly<
+    Record<
+      Kind,
+      Readonly<
+        Partial<Record<Passage, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
+    turnstile: {
+      "457": { passage: 0.457 },
+      "508": { passage: 0.508 },
+      "559": { passage: 0.559 },
+    },
+    speedGate: { "615": { passage: 0.615 }, "915": { passage: 0.915 } },
+  };
 
   /**
    * The affordance ids:
@@ -151,7 +183,7 @@ export namespace createGate {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `passage`: the lane's clear width.
+   * - `passage`: the lane's clear width, its model's.
    * - `width`, `height`, `length`: a cabinet across the lane, high and along it.
    * - `barrier`: a turnstile arm's height or a wing's height.
    * - `reach`, `arm`: a turnstile arm's reach into the lane and its diameter.
@@ -168,9 +200,14 @@ export namespace createGate {
     | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "passage">, number>
+  > {
     /** Which gate. */
     kind: Kind;
+
+    /** The lane's clear width, one the kind's maker lists; drawn from the seed when absent. */
+    passage?: Passage;
 
     /** The model's id, unique in a scene; `gate` when absent. */
     id?: string;
@@ -181,7 +218,6 @@ export namespace createGate {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     turnstile: {
-      passage: ArchetypeBand.metres(0.457, 0.559, TRILOCK),
       width: ArchetypeBand.metres(0.178, 0.178, TRILOCK),
       height: ArchetypeBand.metres(0.965, 0.965, TRILOCK),
       length: ArchetypeBand.metres(0.686, 0.686, TRILOCK),
@@ -191,7 +227,6 @@ export namespace createGate {
       mass: ArchetypeBand.of("kg", 60, 100, ArchetypeBand.TYPICAL_MASS, true),
     },
     speedGate: {
-      passage: ArchetypeBand.metres(0.615, 0.915, SPEEDLANE),
       width: ArchetypeBand.metres(0.106, 0.106, SPEEDLANE),
       height: ArchetypeBand.metres(1.035, 1.035, SPEEDLANE),
       length: ArchetypeBand.metres(1.776, 1.776, SPEEDLANE),

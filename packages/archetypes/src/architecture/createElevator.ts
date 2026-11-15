@@ -14,10 +14,6 @@ import { ADA_RANGES } from "./ADA_RANGES";
 const ADA: string =
   "2010 ADA Standards 407.4.1 and Table 407.4.1, centered door: door clear width 42 in (1065 mm), inside car 80 in (2030 mm) side to side, 51 in (1295 mm) back wall to front return, 54 in (1370 mm) back wall to inside face of door; a tolerance of minus 5/8 in (16 mm) on the door (https://www.access-board.gov/ada/chapter/ch04/)";
 
-/** The maker's heights read. */
-const KONE: string =
-  "KONE MonoSpace 4 DX Core and Pro / 300 and 500 DX planning guide: car height 2 100 to 2 400 mm, door height 2 000 to 2 300 mm, centre-opening doors (https://www.kone.co.uk/Images/KONE-MonoSpace-4-DX-Core-and-Pro-Planning-Guide-GBIR_tcm45-139450.pdf)";
-
 /** The call button's height read. */
 const CALL: string = `2010 ADA Standards 407.2.1.1, call buttons "located within one of the reach ranges specified in 308", measured to the centreline of the highest operable part (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`;
 
@@ -42,14 +38,14 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
  *
  * A landing call station, KONE's faceplate, stands on the `+X` front return's landing face at the drawn call height; `call` is its button. Its place across the return is a construction estimate, since no source read places it. The car is built for static use: riding it between floors is standing on a moving support, which no motion law covers yet (#3491). The car's own buttons are not declared, since no source read places them.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The car's and the door's heights and any dimension the author fixes.
+ * @param seed The seed that draws each height not given and every dimension left free inside its band; absent, the least heights and the middle of each band.
  * @returns The lift car.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a car height the guide does not list, a door height it does not list or one not below the car's, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the doors open, the static use with its missing law, and why no button is declared.
- * @evidence contracts/development/implementation.md#principled-implementation The inside sizes of ADA Table 407.4.1's centred row, the heights of the KONE guide; each leaf half the clear width, sliding that far.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the car's shell, the front returns, the two leaves, then the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The inside sizes of ADA Table 407.4.1's centred row, one of the KONE guide's car heights and one of its door heights below it; each leaf half the clear width, sliding that far.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the car's and the door's heights, draw the dimensions, then the car's shell, the front returns, the two leaves, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hoistway, landing wall, sill or buttons; the walls' and leaves' thickness are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -59,25 +55,53 @@ export function createElevator(
   params: createElevator.IParams = {},
   seed?: number | string,
 ): Archetype<createElevator.Affordance, createElevator.Dimension> {
-  const d: Record<createElevator.Dimension, number> = ArchetypeDraw.dimensions(
+  type Picked = {
+    name: createElevator.Height | undefined;
+    figures: Readonly<Partial<Record<createElevator.Dimension, number>>>;
+  };
+  const car: Picked = ArchetypeDraw.model<
+    createElevator.Height,
+    createElevator.Dimension
+  >("elevator", "car", params.car, createElevator.CARS, seed);
+  const height: number = car.figures.height!;
+  // A door is picked only among the heights below the car's, so it never reaches the roof.
+  const door: Picked = ArchetypeDraw.model<
+    createElevator.Height,
+    createElevator.Dimension
+  >(
     "elevator",
-    createElevator.BANDS,
+    "doorway",
+    params.doorway,
+    Object.fromEntries(
+      Object.entries(createElevator.DOORS).filter(
+        ([, figures]: [
+          string,
+          (
+            | Readonly<Partial<Record<createElevator.Dimension, number>>>
+            | undefined
+          ),
+        ]): boolean => figures!.doorHeight! < height,
+      ),
+    ),
     seed,
-    params,
   );
+  const doorHeight: number = door.figures.doorHeight!;
+  const d: Record<
+    Exclude<createElevator.Dimension, "height" | "doorHeight">,
+    number
+  > = ArchetypeDraw.dimensions("elevator", createElevator.BANDS, seed, params);
   const builder: ArchetypeBuilder<
     createElevator.Affordance,
     createElevator.Dimension
   > = new ArchetypeBuilder({
     archetype: "elevator",
     id: params.id,
-    name: "lift car",
-    dimensions: d,
+    name: `lift car ${car.name} mm, door ${door.name} mm`,
+    dimensions: { ...d, ...car.figures, ...door.figures },
   });
   const E: typeof ESTIMATES = ESTIMATES;
   const v: typeof Vector3.create = Vector3.create;
   const width: number = d.width;
-  const height: number = d.height;
   const back: number = -d.depth;
   const returns: number = back + d.returnDepth;
   const clear: number = d.door;
@@ -125,8 +149,8 @@ export function createElevator(
     );
   builder.box(
     "header",
-    v(clear, height - d.doorHeight, E.wall),
-    v(0, (height + d.doorHeight) / 2, returns + E.wall / 2),
+    v(clear, height - doorHeight, E.wall),
+    v(0, (height + doorHeight) / 2, returns + E.wall / 2),
     { color: grey },
   );
   for (const [id, sign] of [
@@ -137,15 +161,15 @@ export function createElevator(
     const x: number = (sign * half) / 2;
     builder.box(
       part,
-      v(half, d.doorHeight, E.leaf),
-      v(x, d.doorHeight / 2, E.leaf / 2),
+      v(half, doorHeight, E.leaf),
+      v(x, doorHeight / 2, E.leaf / 2),
       { color: "#c3c8cd" },
     );
     builder.affordance({
       id,
       kind: "slider",
       frame: ArchetypeFrame.facing(
-        v(x, d.doorHeight / 2, E.leaf),
+        v(x, doorHeight / 2, E.leaf),
         v(0, 0, 1),
         v(sign, 0, 0),
       ),
@@ -178,7 +202,7 @@ export function createElevator(
     frame: ArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: clear,
-    height: d.doorHeight,
+    height: doorHeight,
   });
   builder.affordance({
     id: "floor",
@@ -195,9 +219,9 @@ export function createElevator(
  * Companion types and bands of {@link createElevator}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension.
+ * @evidence contracts/development/design.md#principled-representation The guide's car and door heights as closed lists; one cited band per dimension.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The entrance a person passes through, the leaves that clear it, the floor they stand on and the button that calls the car (#3468 N7).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The door's height band stops at the least car height, so no draw puts the door above the roof.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A door height is picked only among those below the car's, so no draw puts the door above the roof.
  */
 export namespace createElevator {
   /**
@@ -222,8 +246,7 @@ export namespace createElevator {
    * - `depth`: from the back wall to the door's inside face.
    * - `returnDepth`: from the back wall to the front return.
    * - `door`: the door's clear width.
-   * - `height`: inside the car.
-   * - `doorHeight`: the door's clear height.
+   * - `height`: inside the car, its model's; `doorHeight`: the door's clear height, its model's.
    * - `callHeight`: the landing call button's centre above the floor.
    * - `mass`: the car, kilograms.
    */
@@ -237,24 +260,51 @@ export namespace createElevator {
     | "callHeight"
     | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The car and door heights the KONE guide lists, millimetres: KONE MonoSpace 4 DX Core and Pro / 300 and 500 DX planning guide: p. 2, car heights 2 100 and 2 200 mm (Core) and 2 100, 2 200, 2 300 and 2 400 mm (Pro); p. 9, door heights 2 000, 2 100, 2 200 and 2 300 mm; centre-opening doors (https://www.kone.co.uk/Images/KONE-MonoSpace-4-DX-Core-and-Pro-Planning-Guide-GBIR_tcm45-139450.pdf). */
+  export type Height = "2000" | "2100" | "2200" | "2300" | "2400";
+
+  /** The car heights inside the car, the MonoSpace 4 DX Pro's, metres, the least first. */
+  export const CARS: Readonly<
+    Partial<Record<Height, Readonly<Partial<Record<Dimension, number>>>>>
+  > = {
+    "2100": { height: 2.1 },
+    "2200": { height: 2.2 },
+    "2300": { height: 2.3 },
+    "2400": { height: 2.4 },
+  };
+
+  /** The door's clear heights, metres, the least first. */
+  export const DOORS: Readonly<
+    Partial<Record<Height, Readonly<Partial<Record<Dimension, number>>>>>
+  > = {
+    "2000": { doorHeight: 2.0 },
+    "2100": { doorHeight: 2.1 },
+    "2200": { doorHeight: 2.2 },
+    "2300": { doorHeight: 2.3 },
+  };
+
+  /** The parameters: the heights, and any free dimension fixed to a value inside its band. */
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "height" | "doorHeight">, number>
+  > {
+    /** The car's height inside; drawn from the seed when absent. */
+    car?: Height;
+
+    /** The door's clear height, below the car's; drawn from the seed when absent. */
+    doorway?: Height;
+
     /** The model's id, unique in a scene; `elevator` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "height" | "doorHeight">, IArchetypeBand>
+  > = {
     width: ArchetypeBand.metres(2.03, 2.03, ADA),
     depth: ArchetypeBand.metres(1.37, 1.37, ADA),
     returnDepth: ArchetypeBand.metres(1.295, 1.295, ADA),
     door: ArchetypeBand.metres(1.049, 1.065, ADA),
-    height: ArchetypeBand.metres(2.1, 2.4, KONE),
-    doorHeight: ArchetypeBand.metres(
-      2.0,
-      2.1,
-      `${KONE}; the model stops at the least car height`,
-    ),
     callHeight: ArchetypeBand.metres(
       ADA_RANGES.reach.low,
       ADA_RANGES.reach.high,

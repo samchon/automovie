@@ -2,35 +2,12 @@ import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { createDoor } from "./createDoor";
 
-/** The steel door standard's nominal sizes and hardware locations. */
-const SDI: string =
-  "ANSI/SDI A250.8-2017 (https://steeldoor.org/wp-content/uploads/2020/02/A250_8-1.pdf)";
-
 /** The accessibility standard's door clauses. */
 const ADA: string =
   "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
 
-/** A cylindrical lock maker's data and cut sheets. */
-const LOCK: string =
-  "Schlage ND Series data sheet (https://allegion.ca/content/dam/allegion-us-2/web-files/schlage/information-documents/Schlage_ND_Series_Data_Sheet_106486.pdf) and cut sheet (https://cdn.shopify.com/s/files/1/0610/8813/7372/files/Schlage_ND_Series_Cut_Sheet.pdf?v=1717757895)";
-
 /** The bands every door shares. */
 const LEAF: Readonly<Partial<Record<createDoor.Dimension, IArchetypeBand>>> = {
-  width: ArchetypeBand.metres(
-    2 * ArchetypeUnits.FOOT + 10 * ArchetypeUnits.INCH,
-    3 * ArchetypeUnits.FOOT,
-    `${SDI} Table 1, nominal widths 2 ft 10 in and 3 ft 0 in, the sizes whose clear opening meets the 32 in of ${ADA} 404.2.3`,
-  ),
-  height: ArchetypeBand.metres(
-    6 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH,
-    7 * ArchetypeUnits.FOOT,
-    `${SDI} Table 1, nominal heights 6 ft 8 in and 7 ft 0 in`,
-  ),
-  thickness: ArchetypeBand.metres(
-    (1 + 3 / 8) * ArchetypeUnits.INCH,
-    (1 + 3 / 4) * ArchetypeUnits.INCH,
-    `${SDI} section 1.4, 1-3/8 and 1-3/4 in doors`,
-  ),
   force: ArchetypeBand.of(
     "N",
     11,
@@ -67,21 +44,6 @@ export const DOOR_BANDS: Readonly<
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,
     ),
-    backset: ArchetypeBand.metres(
-      (2 + 3 / 8) * ArchetypeUnits.INCH,
-      (2 + 3 / 4) * ArchetypeUnits.INCH,
-      `${LOCK}: backset 2-3/8 or 2-3/4 in`,
-    ),
-    grip: ArchetypeBand.metres(
-      (4 + 1 / 2) * ArchetypeUnits.INCH,
-      (5 + 1 / 16) * ArchetypeUnits.INCH,
-      `${LOCK}: lever length 4-1/2 to 5-1/16 in`,
-    ),
-    projection: ArchetypeBand.metres(
-      (2 + 15 / 16) * ArchetypeUnits.INCH,
-      (3 + 5 / 16) * ArchetypeUnits.INCH,
-      `${LOCK}: lever projection 2-15/16 to 3-5/16 in`,
-    ),
     latchTurn: ArchetypeBand.of(
       "degrees",
       45,
@@ -96,11 +58,6 @@ export const DOOR_BANDS: Readonly<
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,
-    ),
-    backset: ArchetypeBand.metres(
-      (2 + 3 / 8) * ArchetypeUnits.INCH,
-      (2 + 3 / 4) * ArchetypeUnits.INCH,
-      `${LOCK}: backset 2-3/8 or 2-3/4 in`,
     ),
     grip: ArchetypeBand.metres(
       (2 + 1 / 8) * ArchetypeUnits.INCH,
@@ -138,12 +95,6 @@ export const DOOR_BANDS: Readonly<
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       ADA_RANGES.hardware.source,
-    ),
-    backset: ArchetypeBand.metres(
-      (2 + 3 / 8) * ArchetypeUnits.INCH,
-      (2 + 3 / 4) * ArchetypeUnits.INCH,
-      `${LOCK}: backset 2-3/8 or 2-3/4 in, applied to a sliding door's pull`,
-      true,
     ),
   },
 };

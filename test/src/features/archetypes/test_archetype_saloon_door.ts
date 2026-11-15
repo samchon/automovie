@@ -3,6 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -11,7 +12,7 @@ const MM: number = 1e-3;
  * Saloon doors hang at the maker's leaf and opening sizes, each leaf half the opening, and swing out on their gravity hinges.
  *
  * Scenarios:
- * 1. The opening is the maker's 30 to 36 in, each leaf half of it, 40 in high and 3/4 in thick, its foot 18 to 24 in up (the unbranded sheet, provisional).
+ * 1. Over 200 seeds the opening is exactly one of the maker's 30, 32 and 36 in, each drawn, each leaf half of it, 40 in high and 3/4 in thick, its foot 18 to 24 in up (the unbranded sheet, provisional).
  * 2. Each hinge opens the standard hinge's 125 degrees each way; at a quarter turn a leaf stands out toward `+Z` by its own width from its hinge axis at mid-thickness, its push face with it, and at a quarter turn back toward `-Z` as far, less the thickness its hinge stands in front of.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds and articulates the leaves; a leaf off its size or swinging the wrong way is caught with the numbers.
@@ -28,15 +29,17 @@ export function test_archetype_saloon_door(): void {
   };
   const inch: number = ArchetypeUnits.INCH;
   findings.push(
-    ...archetypeBandSweep([
+    ...archetypeModelSweep([
       {
         name: "saloon door opening",
-        measure: (seed: number): number =>
+        measure: (seed: number): readonly number[] => [
           createSaloonDoor({}, seed).affordance("passage").width!,
-        minimum: 30 * inch,
-        maximum: 36 * inch,
+        ],
+        models: [[30 * inch], [32 * inch], [36 * inch]],
         source: "Swinging Cafe Doors",
       },
+    ]),
+    ...archetypeBandSweep([
       {
         name: "saloon door floor gap",
         measure: (seed: number): number =>

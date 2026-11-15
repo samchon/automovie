@@ -4,6 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 import { archetypePlaced } from "../internal/archetypePlaced";
 
 /**
@@ -12,7 +13,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  * Scenarios:
  * 1. A crosstie, a sandbag, a concrete barrier, a crowd barrier and the rope and posts placed on a line through the public chain, each turned a different way: each rests at its placement on the floor within a millimetre, and every contact is a named point of the prop.
  * 2. Each kind declares exactly its contacts: `top` and `edge` on the crosstie, the sandbag and the concrete barrier, with the sandbag's `leftEnd` and `rightEnd` handles; the crowd barrier's `rail`; the rope and its two posts.
- * 3. Over 200 seeds: the crosstie 152 to 178 mm high, 203 to 229 mm wide and 2.438 to 2.743 m long (FOR-108); the laid sandbag 102 mm high and 305 mm long (USACE); the concrete barrier 813 mm high on a 610 mm base, its top 152 mm deep, its mass 669.7 to 818.5 kg per metre of its length (FHWA-RD-89-036); the crowd barrier's rail top 1.092 m (provisional listings); the posts' tops 1.016 m and the rope 1.829 m from post to post (provisional listings).
+ * 3. Over 200 seeds: the crosstie exactly one of FOR-108's sections, 7 x 9, 6 x 8 or 7 x 8 in, and one of its lengths, 8 ft, 8 ft 6 in or 9 ft, every combination drawn; the laid sandbag 102 mm high and 305 mm long (USACE); the concrete barrier 813 mm high on a 610 mm base, its top 152 mm deep, its mass 669.7 to 818.5 kg per metre of its length (FHWA-RD-89-036); the crowd barrier's rail top 1.092 m (provisional listings); the posts' tops 1.016 m and the rope 1.829 m from post to post (provisional listings).
  * 4. Every `edge` lies on the front face of the top it bounds: at the top's height and at its `+Z` side.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Places every kind through the public chain and reads the displayed prop frames, measures colliders, contacts and mass on the produced obstacles; a floating obstacle, a missing edge, an edge off its top, or a size off its source fails with the numbers.
@@ -71,30 +72,73 @@ export function test_archetype_obstacle_placed(): void {
   ): ReturnType<typeof createObstacle> => createObstacle({ kind }, seed);
   const FOR108: string = "FOR-108";
   findings.push(
+    ...archetypeModelSweep([
+      {
+        name: "crosstie section and length",
+        measure: (s: number): readonly number[] => {
+          const tie: ReturnType<typeof createObstacle> = make("crosstie", s);
+          return [
+            archetypeExtent(tie, "y").high,
+            archetypeExtent(tie, "z").size,
+            archetypeExtent(tie, "x").size,
+          ];
+        },
+        models: [
+          [7, 9],
+          [6, 8],
+          [7, 8],
+        ].flatMap(([depth, face]: number[]): number[][] =>
+          [
+            8 * ArchetypeUnits.FOOT,
+            8.5 * ArchetypeUnits.FOOT,
+            9 * ArchetypeUnits.FOOT,
+          ].map((length: number): number[] => [
+            depth! * ArchetypeUnits.INCH,
+            face! * ArchetypeUnits.INCH,
+            length,
+          ]),
+        ),
+        source: FOR108,
+      },
+    ]),
     ...archetypeBandSweep([
-      row("crosstie height", 6 * ArchetypeUnits.INCH, 7 * ArchetypeUnits.INCH, FOR108, (s: number): number =>
-        archetypeExtent(make("crosstie", s), "y").high,
+      row(
+        "sandbag height",
+        ArchetypeUnits.FOOT / 3,
+        ArchetypeUnits.FOOT / 3,
+        "USACE",
+        (s: number): number => archetypeExtent(make("sandbag", s), "y").high,
       ),
-      row("crosstie width", 8 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, FOR108, (s: number): number =>
-        archetypeExtent(make("crosstie", s), "z").size,
+      row(
+        "sandbag length",
+        ArchetypeUnits.FOOT,
+        ArchetypeUnits.FOOT,
+        "USACE",
+        (s: number): number => archetypeExtent(make("sandbag", s), "x").size,
       ),
-      row("crosstie length", 8 * ArchetypeUnits.FOOT, 9 * ArchetypeUnits.FOOT, FOR108, (s: number): number =>
-        archetypeExtent(make("crosstie", s), "x").size,
+      row(
+        "barrier height",
+        32 * ArchetypeUnits.INCH,
+        32 * ArchetypeUnits.INCH,
+        "FHWA-RD-89-036",
+        (s: number): number =>
+          archetypeExtent(make("jerseyBarrier", s), "y").high,
       ),
-      row("sandbag height", ArchetypeUnits.FOOT / 3, ArchetypeUnits.FOOT / 3, "USACE", (s: number): number =>
-        archetypeExtent(make("sandbag", s), "y").high,
+      row(
+        "barrier base",
+        24 * ArchetypeUnits.INCH,
+        24 * ArchetypeUnits.INCH,
+        "FHWA-RD-89-036",
+        (s: number): number =>
+          archetypeExtent(make("jerseyBarrier", s), "z").size,
       ),
-      row("sandbag length", ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, "USACE", (s: number): number =>
-        archetypeExtent(make("sandbag", s), "x").size,
-      ),
-      row("barrier height", 32 * ArchetypeUnits.INCH, 32 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
-        archetypeExtent(make("jerseyBarrier", s), "y").high,
-      ),
-      row("barrier base", 24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
-        archetypeExtent(make("jerseyBarrier", s), "z").size,
-      ),
-      row("barrier top", 6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, "FHWA-RD-89-036", (s: number): number =>
-        make("jerseyBarrier", s).affordance("top").depth!,
+      row(
+        "barrier top",
+        6 * ArchetypeUnits.INCH,
+        6 * ArchetypeUnits.INCH,
+        "FHWA-RD-89-036",
+        (s: number): number =>
+          make("jerseyBarrier", s).affordance("top").depth!,
       ),
       row(
         "barrier mass per metre",
@@ -109,19 +153,38 @@ export function test_archetype_obstacle_placed(): void {
           return barrier.body.mass / archetypeExtent(barrier, "x").size;
         },
       ),
-      row("crowd barrier rail top", 43 * ArchetypeUnits.INCH, 43 * ArchetypeUnits.INCH, "listings", (s: number): number =>
-        archetypeExtent(make("crowdBarrier", s), "y").high,
+      row(
+        "crowd barrier rail top",
+        43 * ArchetypeUnits.INCH,
+        43 * ArchetypeUnits.INCH,
+        "listings",
+        (s: number): number =>
+          archetypeExtent(make("crowdBarrier", s), "y").high,
       ),
-      row("post top", 40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, "listings", (s: number): number =>
-        archetypeExtent(make("ropeAndPosts", s), "y", ["leftPost-post"]).high,
+      row(
+        "post top",
+        40 * ArchetypeUnits.INCH,
+        40 * ArchetypeUnits.INCH,
+        "listings",
+        (s: number): number =>
+          archetypeExtent(make("ropeAndPosts", s), "y", ["leftPost-post"]).high,
       ),
-      row("post to post", 6 * ArchetypeUnits.FOOT, 6 * ArchetypeUnits.FOOT, "listings", (s: number): number => {
-        const posts: ReturnType<typeof createObstacle> = make("ropeAndPosts", s);
-        return (
-          posts.affordance("leftPost").frame.translation.x -
-          posts.affordance("rightPost").frame.translation.x
-        );
-      }),
+      row(
+        "post to post",
+        6 * ArchetypeUnits.FOOT,
+        6 * ArchetypeUnits.FOOT,
+        "listings",
+        (s: number): number => {
+          const posts: ReturnType<typeof createObstacle> = make(
+            "ropeAndPosts",
+            s,
+          );
+          return (
+            posts.affordance("leftPost").frame.translation.x -
+            posts.affordance("rightPost").frame.translation.x
+          );
+        },
+      ),
     ]),
   );
 

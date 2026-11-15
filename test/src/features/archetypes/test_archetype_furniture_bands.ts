@@ -1,6 +1,6 @@
 import {
-  ArchetypeUnits,
   ArchetypeFrame,
+  ArchetypeUnits,
   createBed,
   createSeat,
   createStorage,
@@ -10,6 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** The office chair standard's fixed dimensions. */
 const EN1335: string = "EN 1335-1:2020 Table 2";
@@ -26,7 +27,7 @@ const ADA903: string = "2010 ADA Standards 903";
  * 3. A bench: seat 430 to 485 mm high and 510 to 610 mm deep with the top of its back panel 455 mm above the seat; a three-place bench's seat slab is three 610 mm places wide.
  * 4. A bed: the lying surface 0.39 to 0.63 m high and a single's mattress 0.90 m by 1.90 m; its side seats at the same height.
  * 5. Tables: a desk's top at 740 plus or minus 20 mm, a dining table's between 710 and 762 mm, a counter's at 914 mm and 508 to 635 mm deep.
- * 6. A wardrobe's door pulls inside the 865 to 1220 mm hardware band and its doors opening 95 to 110 degrees; a chest's drawers running 0.30 to 0.40 m.
+ * 6. A wardrobe's door pulls inside the 865 to 1220 mm hardware band; its doors open exactly one of Blum's 95 and 110 degrees, a chest's drawers run exactly one of Accuride's 12, 14 and 16 in, and a loose mattress is exactly a UK single or double, each drawn.
  * 7. Every seat and every table top is level: its frame's `+Y` within a degree of upright.
  * 8. Stools: a bar stool's seat top 762 to 813 mm high; a stool's seat is round, its collider as deep as it is wide and its declared depth that diameter.
  *
@@ -59,7 +60,8 @@ export function test_archetype_furniture_bands(): void {
 
   /** The angle of a frame's +Y from upright, degrees. */
   const tilt = (frame: Parameters<typeof ArchetypeFrame.axis>[0]): number =>
-    Math.acos(Math.min(1, ArchetypeFrame.axis(frame, "y").y)) / ArchetypeUnits.DEGREE;
+    Math.acos(Math.min(1, ArchetypeFrame.axis(frame, "y").y)) /
+    ArchetypeUnits.DEGREE;
   TestValidator.equals(
     "furniture stays in its cited bands",
     archetypeBandSweep([
@@ -258,23 +260,6 @@ export function test_archetype_furniture_bands(): void {
             .translation.y,
       ),
       row(
-        "wardrobe door swing",
-        95,
-        110,
-        "Blum CLIP top",
-        (seed: number): number =>
-          createStorage({ kind: "wardrobe" }, seed).affordance("rightDoor")
-            .travel!,
-      ),
-      row(
-        "drawer travel",
-        0.3,
-        0.4,
-        "Accuride 3832E",
-        (seed: number): number =>
-          createStorage({ kind: "chest" }, seed).affordance("drawer2").travel!,
-      ),
-      row(
         "office seat level",
         0,
         1,
@@ -301,6 +286,49 @@ export function test_archetype_furniture_bands(): void {
           tilt(createTable({ kind: "desk" }, seed).affordance("top").frame),
         true,
       ),
+    ]),
+    [],
+  );
+  TestValidator.equals(
+    "furniture of read models is one of them",
+    archetypeModelSweep([
+      {
+        name: "wardrobe door swing",
+        measure: (seed: number): readonly number[] => [
+          createStorage({ kind: "wardrobe" }, seed).affordance("rightDoor")
+            .travel!,
+        ],
+        models: [[95], [110]],
+        source: "Blum CLIP top",
+      },
+      {
+        name: "drawer travel",
+        measure: (seed: number): readonly number[] => [
+          createStorage({ kind: "chest" }, seed).affordance("drawer2").travel!,
+        ],
+        models: [[12], [14], [16]].map(([inches]: number[]): number[] => [
+          inches! * ArchetypeUnits.INCH,
+        ]),
+        source: "Accuride 3832E",
+      },
+      {
+        name: "loose mattress size",
+        measure: (seed: number): readonly number[] => {
+          const mattress: ReturnType<typeof createBed> = createBed(
+            { kind: "mattress" },
+            seed,
+          );
+          return [
+            archetypeExtent(mattress, "x").size,
+            archetypeExtent(mattress, "z").size,
+          ];
+        },
+        models: [
+          [0.9, 1.9],
+          [1.35, 1.9],
+        ],
+        source: "National Bed Federation",
+      },
     ]),
     [],
   );

@@ -2,8 +2,8 @@ import { ArchetypeUnits, createStorage } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -13,17 +13,29 @@ const HON: Readonly<{
   drawers: number;
   travel: number;
   height: readonly [number, number];
-}> = { drawers: 4, travel: (23 + 1 / 2) * ArchetypeUnits.INCH, height: [52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH] };
+}> = {
+  drawers: 4,
+  travel: (23 + 1 / 2) * ArchetypeUnits.INCH,
+  height: [52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH],
+};
 
 /** Lyon's single-tier lockers: 12 to 18 in wide, 12 to 21 in deep, 72 in high on 6 in legs. */
 const LYON: Readonly<{
-  width: readonly [number, number];
-  depth: readonly [number, number];
+  sizes: readonly (readonly [number, number])[];
   height: number;
   legs: number;
 }> = {
-  width: [12 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH],
-  depth: [12 * ArchetypeUnits.INCH, 21 * ArchetypeUnits.INCH],
+  sizes: [
+    [12, 12],
+    [12, 15],
+    [12, 18],
+    [15, 18],
+    [18, 18],
+    [18, 21],
+  ].map(([w, d]: number[]): readonly [number, number] => [
+    w! * ArchetypeUnits.INCH,
+    d! * ArchetypeUnits.INCH,
+  ]),
   height: 72 * ArchetypeUnits.INCH,
   legs: 6 * ArchetypeUnits.INCH,
 };
@@ -41,7 +53,7 @@ const BILLY: Readonly<Record<string, number>> = {
  *
  * Scenarios:
  * 1. A filing cabinet has the HON 510's four drawers, equal up its height, each sliding its front and box out by the drawn filing length; it declares no pull, which no source places.
- * 2. A locker stands Lyon's height on its legs, as wide and deep as Lyon's range, its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
+ * 2. A locker stands Lyon's height on its legs, over 200 seeds exactly one of Lyon's six 72 in single tier sizes, width and depth together, each drawn, its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
  * 3. A bookcase is the BILLY's size and its five shelves divide its height into six equal steps, each shelf's extent inside the sides.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the drawers; a drawer that does not carry its front, a door that opens without a source, or a shelf off its step is caught with the numbers.
@@ -94,22 +106,21 @@ export function test_archetype_storage_kinds(): void {
 
   // 2. The locker.
   findings.push(
-    ...archetypeBandSweep([
+    ...archetypeModelSweep([
       {
-        name: "locker width",
-        measure: (seed: number): number =>
-          archetypeExtent(createStorage({ kind: "locker" }, seed), "x").size,
-        minimum: LYON.width[0],
-        maximum: LYON.width[1],
-        source: "Lyon standard steel lockers",
-      },
-      {
-        name: "locker depth",
-        measure: (seed: number): number =>
-          archetypeExtent(createStorage({ kind: "locker" }, seed), "z").size,
-        minimum: LYON.depth[0],
-        maximum: LYON.depth[1],
-        source: "Lyon standard steel lockers",
+        name: "locker width and depth",
+        measure: (seed: number): readonly number[] => {
+          const locker: ReturnType<typeof createStorage> = createStorage(
+            { kind: "locker" },
+            seed,
+          );
+          return [
+            archetypeExtent(locker, "x").size,
+            archetypeExtent(locker, "z").size,
+          ];
+        },
+        models: LYON.sizes,
+        source: "Lyon 5042 specification sheet",
       },
     ]),
   );

@@ -2,8 +2,8 @@ import { createMachine, createValve } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 import { archetypeExtent } from "../internal/archetypeExtent";
+import { archetypeModelSweep } from "../internal/archetypeModelSweep";
 
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
@@ -12,14 +12,14 @@ const MM: number = 1e-3;
  * A vending machine stands at Crane's sizes, a pay station at Flowbird's StradaPAL's, and a gate valve is NIBCO's 4 in or 6 in, whole.
  *
  * Scenarios:
- * 1. A vending machine is 1830 mm high, 813 mm deep and 895 to 1180 mm wide, its `front` on its `+Z` face.
+ * 1. A vending machine is 1830 mm high and 813 mm deep, over 200 seeds exactly the Merchant 4's 895 mm or the Merchant 6's 1180 mm wide, each drawn, its `front` on its `+Z` face.
  * 2. A pay station's body is the StradaPAL's 290 x 1488 x 328 mm under its 90 mm spacer and its 475 x 226 x 379 mm head, 1804 mm in all.
  * 3. An ATM's No. 5 key, card reader, cash slot and receipt slot stand at NCR's heights and depths from the shelf's front, across from the key by the remaining leg of the elevation distance after the height difference, to the clock position's side, the key on the centre line.
  * 4. The 4 in valve has a 10 in handwheel 24 in above its pipe's axis, the 6 in a 12 in handwheel 31.06 in above it; its handwheel states no turns; over 200 seeds every valve drawn is one of the two exactly, and both are drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a cabinet or a handwheel off the maker's figures is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is Crane's or NIBCO's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases A ranging width over seeds; both valves given, then the seeds' draws.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both Merchant widths over seeds; both valves given, then the seeds' draws.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
@@ -32,14 +32,14 @@ export function test_archetype_machine_valve(): void {
 
   // 1. The vending machine.
   findings.push(
-    ...archetypeBandSweep([
+    ...archetypeModelSweep([
       {
         name: "vending machine width",
-        measure: (seed: number): number =>
+        measure: (seed: number): readonly number[] => [
           archetypeExtent(createMachine({ kind: "vendingMachine" }, seed), "x")
             .size,
-        minimum: 0.895,
-        maximum: 1.18,
+        ],
+        models: [[0.895], [1.18]],
         source: "Crane Merchant 4 and 6",
       },
     ]),

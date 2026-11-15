@@ -36,17 +36,20 @@ export const OBSTACLE_BANDS: Readonly<
   >
 > = {
   crosstie: {
-    length: ArchetypeBand.metres(8 * ArchetypeUnits.FOOT, 9 * ArchetypeUnits.FOOT, TIE),
-    height: ArchetypeBand.metres(
-      6 * ArchetypeUnits.INCH,
-      7 * ArchetypeUnits.INCH,
-      `${TIE}: its depth as laid, 6 or 7 in`,
+    mass: ArchetypeBand.of(
+      "kg",
+      70,
+      110,
+      `${ArchetypeBand.TYPICAL_MASS}; its sizes by ${TIE}`,
+      true,
     ),
-    width: ArchetypeBand.metres(8 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, `${TIE}: its face, 8 or 9 in`),
-    mass: ArchetypeBand.of("kg", 70, 110, ArchetypeBand.TYPICAL_MASS, true),
   },
   sandbag: {
-    length: ArchetypeBand.metres(ArchetypeUnits.FOOT, ArchetypeUnits.FOOT, SANDBAG),
+    length: ArchetypeBand.metres(
+      ArchetypeUnits.FOOT,
+      ArchetypeUnits.FOOT,
+      SANDBAG,
+    ),
     height: ArchetypeBand.metres(
       ArchetypeUnits.FOOT / 3,
       ArchetypeUnits.FOOT / 3,
@@ -66,12 +69,36 @@ export const OBSTACLE_BANDS: Readonly<
     ),
   },
   jerseyBarrier: {
-    length: ArchetypeBand.metres(3 * ArchetypeUnits.FOOT, 30 * ArchetypeUnits.FOOT, JERSEY),
-    height: ArchetypeBand.metres(32 * ArchetypeUnits.INCH, 32 * ArchetypeUnits.INCH, JERSEY),
-    width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, JERSEY),
-    top: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, JERSEY),
-    curb: ArchetypeBand.metres(3 * ArchetypeUnits.INCH, 3 * ArchetypeUnits.INCH, JERSEY),
-    lowerFace: ArchetypeBand.metres(10 * ArchetypeUnits.INCH, 10 * ArchetypeUnits.INCH, JERSEY),
+    length: ArchetypeBand.metres(
+      3 * ArchetypeUnits.FOOT,
+      30 * ArchetypeUnits.FOOT,
+      JERSEY,
+    ),
+    height: ArchetypeBand.metres(
+      32 * ArchetypeUnits.INCH,
+      32 * ArchetypeUnits.INCH,
+      JERSEY,
+    ),
+    width: ArchetypeBand.metres(
+      24 * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
+      JERSEY,
+    ),
+    top: ArchetypeBand.metres(
+      6 * ArchetypeUnits.INCH,
+      6 * ArchetypeUnits.INCH,
+      JERSEY,
+    ),
+    curb: ArchetypeBand.metres(
+      3 * ArchetypeUnits.INCH,
+      3 * ArchetypeUnits.INCH,
+      JERSEY,
+    ),
+    lowerFace: ArchetypeBand.metres(
+      10 * ArchetypeUnits.INCH,
+      10 * ArchetypeUnits.INCH,
+      JERSEY,
+    ),
     massPerMetre: ArchetypeBand.of(
       "kg",
       (450 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
@@ -80,18 +107,69 @@ export const OBSTACLE_BANDS: Readonly<
     ),
   },
   crowdBarrier: {
-    length: ArchetypeBand.metres(7.5 * ArchetypeUnits.FOOT, 7.5 * ArchetypeUnits.FOOT, CROWD, true),
-    height: ArchetypeBand.metres(43 * ArchetypeUnits.INCH, 43 * ArchetypeUnits.INCH, CROWD, true),
-    tube: ArchetypeBand.metres(1.5 * ArchetypeUnits.INCH, 1.5 * ArchetypeUnits.INCH, CROWD, true),
-    spacing: ArchetypeBand.metres(4 * ArchetypeUnits.INCH, 4 * ArchetypeUnits.INCH, CROWD, true),
-    mass: ArchetypeBand.of("kg", 23.5 * ArchetypeUnits.POUND, 34 * ArchetypeUnits.POUND, CROWD, true),
+    length: ArchetypeBand.metres(
+      7.5 * ArchetypeUnits.FOOT,
+      7.5 * ArchetypeUnits.FOOT,
+      CROWD,
+      true,
+    ),
+    height: ArchetypeBand.metres(
+      43 * ArchetypeUnits.INCH,
+      43 * ArchetypeUnits.INCH,
+      CROWD,
+      true,
+    ),
+    tube: ArchetypeBand.metres(
+      1.5 * ArchetypeUnits.INCH,
+      1.5 * ArchetypeUnits.INCH,
+      CROWD,
+      true,
+    ),
+    spacing: ArchetypeBand.metres(
+      4 * ArchetypeUnits.INCH,
+      4 * ArchetypeUnits.INCH,
+      CROWD,
+      true,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      23.5 * ArchetypeUnits.POUND,
+      34 * ArchetypeUnits.POUND,
+      CROWD,
+      true,
+    ),
   },
   ropeAndPosts: {
-    length: ArchetypeBand.metres(6 * ArchetypeUnits.FOOT, 6 * ArchetypeUnits.FOOT, LAVI, true),
-    height: ArchetypeBand.metres(40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, LAVI, true),
-    post: ArchetypeBand.metres((2 + 3 / 4) * ArchetypeUnits.INCH, (2 + 3 / 4) * ArchetypeUnits.INCH, LAVI, true),
-    base: ArchetypeBand.metres((14 + 1 / 2) * ArchetypeUnits.INCH, (14 + 1 / 2) * ArchetypeUnits.INCH, LAVI, true),
-    ropeDiameter: ArchetypeBand.metres(1.5 * ArchetypeUnits.INCH, 1.5 * ArchetypeUnits.INCH, LAVI, true),
+    length: ArchetypeBand.metres(
+      6 * ArchetypeUnits.FOOT,
+      6 * ArchetypeUnits.FOOT,
+      LAVI,
+      true,
+    ),
+    height: ArchetypeBand.metres(
+      40 * ArchetypeUnits.INCH,
+      40 * ArchetypeUnits.INCH,
+      LAVI,
+      true,
+    ),
+    post: ArchetypeBand.metres(
+      (2 + 3 / 4) * ArchetypeUnits.INCH,
+      (2 + 3 / 4) * ArchetypeUnits.INCH,
+      LAVI,
+      true,
+    ),
+    base: ArchetypeBand.metres(
+      (14 + 1 / 2) * ArchetypeUnits.INCH,
+      (14 + 1 / 2) * ArchetypeUnits.INCH,
+      LAVI,
+      true,
+    ),
+    ropeDiameter: ArchetypeBand.metres(
+      1.5 * ArchetypeUnits.INCH,
+      1.5 * ArchetypeUnits.INCH,
+      LAVI,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 15, 25, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

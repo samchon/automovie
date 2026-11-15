@@ -64,14 +64,14 @@ const ESTIMATES: Readonly<{ shelf: number }> = { shelf: 0.03 };
  *
  * The cabinet stands on the floor at the origin with its front toward `+Z`; a pay station's body carries its spacer and its wider head on top. `front` is the front, the face a person stands at, looks through, leans on or rocks; `side` is the `+X` side face, where it is pushed. Its keypad, coin slot and delivery bin are not declared, since no source read places them on the front; keying a selection is a keyed sequence with no motion law yet (#3446). A pay station's screen and payment slot are not declared either: the manual gives their heights, 1336 and 1210 mm to their tops, but not their sizes or places across the front.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a vending machine's model and any dimension the author fixes.
+ * @param seed The seed that draws a vending machine's model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The machine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the brochure does not list or one named for another kind, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the machine stands, its contacts, and what is left out for want of a source with its missing law.
- * @evidence contracts/development/implementation.md#principled-implementation One cabinet of the maker's height, depth and widths, the two face frames on its faces.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the cabinet, then the two contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation One cabinet of the maker's height and depth, a vending machine one of Crane's two Merchant models whole with its width, the two face frames on its faces.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a vending machine's model, draw the dimensions, then the cabinet and the two contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The glass front and the spirals behind it are not modelled.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -87,13 +87,26 @@ export function createMachine(
     params.kind,
     createMachine.KINDS,
   );
-  const d: Record<createMachine.Dimension, number> = ArchetypeDraw.dimensions(
+  const model: {
+    name: createMachine.Model | undefined;
+    figures: Readonly<Partial<Record<createMachine.Dimension, number>>>;
+  } = ArchetypeDraw.model<createMachine.Model, createMachine.Dimension>(
     "machine",
-    createMachine.BANDS[kind],
+    "model",
+    params.model,
+    createMachine.MODELS[kind],
     seed,
-    params,
-    createMachine.BANDS,
   );
+  const d: Partial<Record<createMachine.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
+      "machine",
+      createMachine.BANDS[kind],
+      seed,
+      params,
+      createMachine.BANDS,
+    ),
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createMachine.Affordance,
     createMachine.Dimension
@@ -105,11 +118,13 @@ export function createMachine(
         ? "pay station"
         : kind === "atm"
           ? "cash machine"
-          : "vending machine",
+          : `vending machine ${model.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const { width, height, depth }: Record<createMachine.Dimension, number> = d;
+  const width: number = d.width!;
+  const height: number = d.height!;
+  const depth: number = d.depth!;
   builder.box("cabinet", v(width, height, depth), v(0, height / 2, 0), {
     color: kind === "payStation" ? "#2b5797" : "#b3202a",
     density: 0.4,
@@ -153,7 +168,7 @@ export function createMachine(
     width: depth,
     depth: height,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
@@ -183,7 +198,12 @@ function atm(
   ][]) {
     // The elevation's straight distance is the hypotenuse over the read height difference; the clock position names only the side, 1 to 5 o'clock right (+X) as the fascia is faced and 7 to 11 left.
     const rise: number = item.height - ITEMS.key5.height;
-    const side: number = item.clock >= 1 && item.clock <= 5 ? 1 : item.clock >= 7 && item.clock <= 11 ? -1 : 0;
+    const side: number =
+      item.clock >= 1 && item.clock <= 5
+        ? 1
+        : item.clock >= 7 && item.clock <= 11
+          ? -1
+          : 0;
     const at: ReturnType<typeof v> = v(
       side * Math.sqrt(Math.max(0, item.distance ** 2 - rise ** 2)) * mm,
       item.height * mm,
@@ -252,7 +272,7 @@ export namespace createMachine {
   /**
    * The free dimensions, metres unless stated:
    *
-   * - `width`, `height`, `depth`: the cabinet along `X`, `Y` and `Z`; a pay station's body, under its spacer and head.
+   * - `width`, `height`, `depth`: the cabinet along `X`, `Y` and `Z`; a pay station's body, under its spacer and head; a vending machine's width is its model's.
    * - `mass`: the empty machine, kilograms.
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
@@ -262,16 +282,38 @@ export namespace createMachine {
     /** Which machine. */
     kind: Kind;
 
+    /** A vending machine's model; drawn from the seed when absent. Other kinds have none. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `machine` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  /** The vending machines read: Crane's Merchant 4 and Merchant 6, 895 and 1180 mm wide. */
+  export type Model = "Merchant 4" | "Merchant 6";
+
+  /** Each kind's models with the width each gives, metres, the default first: a vending machine's Merchant 4 and Merchant 6; the other kinds have one read model. */
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<
+          Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+        >
+      >
+    >
   > = {
     vendingMachine: {
-      width: ArchetypeBand.metres(0.895, 1.18, MERCHANT),
+      "Merchant 4": { width: 0.895 },
+      "Merchant 6": { width: 1.18 },
+    },
+  };
+
+  /** The band of each free dimension, by kind. */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = {
+    vendingMachine: {
       height: ArchetypeBand.metres(1.83, 1.83, MERCHANT),
       depth: ArchetypeBand.metres(0.813, 0.813, MERCHANT),
       mass: ArchetypeBand.of("kg", 250, 350, ArchetypeBand.TYPICAL_MASS, true),

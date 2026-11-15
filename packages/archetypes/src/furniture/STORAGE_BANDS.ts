@@ -1,5 +1,5 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import { ADA_RANGES } from "../architecture/ADA_RANGES";
+import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The UK furniture schedule. */
@@ -19,7 +19,7 @@ const BILLY: string =
   "IKEA BILLY bookcase, 80 x 28 x 202 cm, one fixed and four adjustable shelves, 30 kg a shelf (https://www.ikea.com/de/en/p/billy-bookcase-white-00263850)";
 
 /**
- * The band of each free dimension of {@link createStorage}, by kind.
+ * The band of each free dimension of {@link createStorage}, by kind, but those its models fix.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
  * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
@@ -54,12 +54,6 @@ export const STORAGE_BANDS: Readonly<
       ADA_RANGES.hardware.high,
       `${ADA_RANGES.hardware.source}; a cabinet's pulls share door hardware's range within ${ADA_RANGES.reach.source}`,
     ),
-    swing: ArchetypeBand.of(
-      "degrees",
-      95,
-      110,
-      "Blum CLIP top hinges, 95 and 110 degree opening angles (https://publications.blum.com/2022/catalogue/en/128/, https://www.blum.com/us/en/products/hingesystems/clip-top-blumotion/programme/)",
-    ),
     mass: ArchetypeBand.of("kg", 50, 90, ArchetypeBand.TYPICAL_MASS, true),
   },
   chest: {
@@ -79,17 +73,27 @@ export const STORAGE_BANDS: Readonly<
       "chest of drawers height, not read at a source",
       true,
     ),
-    travel: ArchetypeBand.metres(
-      0.3,
-      0.4,
-      "Accuride 3832E full extension slides, travel equal to slide length (https://res.cloudinary.com/amerhart/image/upload/Documents/Product/3832E Technical Sheet.pdf); the lengths that fit a 450 mm deep chest",
-    ),
     mass: ArchetypeBand.of("kg", 25, 50, ArchetypeBand.TYPICAL_MASS, true),
   },
   filingCabinet: {
-    width: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, HON, true),
-    depth: ArchetypeBand.metres(25 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, HON, true),
-    height: ArchetypeBand.metres(52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH, HON, true),
+    width: ArchetypeBand.metres(
+      15 * ArchetypeUnits.INCH,
+      15 * ArchetypeUnits.INCH,
+      HON,
+      true,
+    ),
+    depth: ArchetypeBand.metres(
+      25 * ArchetypeUnits.INCH,
+      25 * ArchetypeUnits.INCH,
+      HON,
+      true,
+    ),
+    height: ArchetypeBand.metres(
+      52 * ArchetypeUnits.INCH,
+      52 * ArchetypeUnits.INCH,
+      HON,
+      true,
+    ),
     travel: ArchetypeBand.metres(
       (23 + 1 / 2) * ArchetypeUnits.INCH,
       (23 + 1 / 2) * ArchetypeUnits.INCH,
@@ -99,10 +103,16 @@ export const STORAGE_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
   },
   locker: {
-    width: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, LYON),
-    depth: ArchetypeBand.metres(12 * ArchetypeUnits.INCH, 21 * ArchetypeUnits.INCH, LYON),
-    height: ArchetypeBand.metres(72 * ArchetypeUnits.INCH, 72 * ArchetypeUnits.INCH, `${LYON}: the 72 in opening`),
-    legs: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, `${LYON}: 6 in legs`),
+    height: ArchetypeBand.metres(
+      72 * ArchetypeUnits.INCH,
+      72 * ArchetypeUnits.INCH,
+      `${LYON}: the 72 in opening`,
+    ),
+    legs: ArchetypeBand.metres(
+      6 * ArchetypeUnits.INCH,
+      6 * ArchetypeUnits.INCH,
+      `${LYON}: 6 in legs`,
+    ),
     mass: ArchetypeBand.of("kg", 25, 45, ArchetypeBand.TYPICAL_MASS, true),
   },
   bookcase: {
