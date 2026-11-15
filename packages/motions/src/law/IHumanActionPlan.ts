@@ -43,13 +43,6 @@ export interface IHumanActionPlan {
   channels?: readonly AutoMovieMotionHumanChannel.Claim[];
 
   /**
-   * What this instance lets an overlay take, where its parameters decide it
-   * apart from its law (`IHumanActionLaw.yields`): a carry in one hand
-   * yields its free arm, one in both hands none. The law's when absent.
-   */
-  yields?: readonly AutoMovieMotionHumanChannel.Claim[];
-
-  /**
    * The base the action leaves the body on at its end, declared by an
    * action that changes what carries the body: sitting down declares the
    * seat, kneeling the kneel, rising the stand. Absent for an action that

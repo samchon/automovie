@@ -1,4 +1,5 @@
 import {
+  AutoMovieGravity,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
@@ -35,8 +36,11 @@ import type { HumanSegment } from "./HumanSegment";
  * not depend on where or facing which way the flight happens. Its history
  * gives the composite inertia and the segments' relative momentum
  * (`integrateAirborneRotation.history`); the momentum is the plan's, or the
- * one `solveAirborneTakeoff` finds for its turns, and a request it cannot
- * meet is refused on the action, naming the turns. The root's orientation
+ * one `solveAirborneTakeoff` finds for its turns within the take-off's
+ * ceiling (the moment of the take-off's momentum about the foot, at most
+ * the centre's distance from it, unless the plan states its own), and a
+ * request it cannot meet within it is refused on the action, naming the
+ * turns. The root's orientation
  * `q(t)` is integrated from the displayed one at take-off, and the rotation
  * handed back is `q(t) R(t)⁻¹` about the composed centre of mass, `R(t)` the
  * unturned root's own rotation, so the turned root is exactly `q(t)` and
@@ -125,12 +129,43 @@ export namespace HumanPerformanceFlight {
       integrateAirborneRotation.history(model, shape);
     const q0: IAutoMovieQuaternion = root(unturned(t0));
 
+    // The largest angular momentum the take-off can give: the momentum about
+    // the centre is the moment of the ground's impulse, `|L| <= r |J|`, with
+    // the lever `r` at most the centre's distance from the foot, Hof's
+    // pendulum length, and the impulse the take-off momentum `m |v0|`, the
+    // centre's velocity read just after take-off from the ballistic composed
+    // centre (`c(t) = c0 + v0 t - g t² / 2`, so `v0 = (c(2δ) - c(δ)) / δ +
+    // 3 g δ / 2` vertically). First pass: the push's share bearing the
+    // weight is left out of `|J|`, so the bound is the impulse of the
+    // take-off velocity alone.
+    const ceiling = (at: number): number => {
+      const delta: number = integrateAirborneRotation.DELTA;
+      const centre = (t: number): IAutoMovieVector3 =>
+        resolveAutoMovieCenterOfMass.place(
+          model,
+          poseBones(body, unturned(t)),
+        );
+      const one: IAutoMovieVector3 = centre(at + delta);
+      const two: IAutoMovieVector3 = centre(at + 2 * delta);
+      const v0: IAutoMovieVector3 = {
+        x: (two.x - one.x) / delta,
+        y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+        z: (two.z - one.z) / delta,
+      };
+      return (
+        model.mass *
+        Vector3.length(v0) *
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight)
+      );
+    };
+
     // The momentum: given, or solved from the turns.
     let momentum: IAutoMovieVector3;
     if (declared.momentum.kind === "momentum")
       momentum = declared.momentum.momentum;
     else {
       const turns: IHumanActionPlan.IFlightTurns = declared.momentum;
+      const maximum: number = turns.maximum ?? ceiling(t0);
       const solved: solveAirborneTakeoff.ISolution = solveAirborneTakeoff({
         history,
         t0,
@@ -139,7 +174,7 @@ export namespace HumanPerformanceFlight {
         frame: turns.frame,
         somersault: turns.somersault,
         twist: turns.twist,
-        maximum: turns.maximum,
+        maximum,
       });
       if (!solved.met)
         throw new HumanRefusal({
@@ -147,7 +182,7 @@ export namespace HumanPerformanceFlight {
           axis: "turns",
           value: { somersault: turns.somersault, twist: turns.twist },
           feasible: null,
-          reason: `a flight of ${(t1 - t0).toFixed(2)} s misses the requested turns by ${solved.residual.somersault.toFixed(3)} somersault, ${solved.residual.tilt.toFixed(3)} tilt and ${solved.residual.twist.toFixed(3)} twist revolutions${turns.maximum === undefined ? "" : ` within ${turns.maximum.toFixed(1)} kg m²/s of momentum`}`,
+          reason: `a flight of ${(t1 - t0).toFixed(2)} s misses the requested turns by ${solved.residual.somersault.toFixed(3)} somersault, ${solved.residual.tilt.toFixed(3)} tilt and ${solved.residual.twist.toFixed(3)} twist revolutions within ${maximum.toFixed(1)} kg m²/s of momentum`,
           fix: "give a higher apex for a longer flight, or fewer turns",
           performer: subject,
           act: segment.name,

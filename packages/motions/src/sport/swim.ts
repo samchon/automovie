@@ -37,7 +37,9 @@ import { SwimStroke } from "./SwimStroke";
  * - Front crawl: prone with the hips a chest's half depth under the plane, or
  *   as much higher as the breath needs, gliding ahead at 1 m/s (provisional).
  *   The body rolls 45 degrees (provisional) about its long axis toward each
- *   arm as it recovers. The shoulder turns one way round: its abduction
+ *   arm as it recovers, a whole-body rotation about the hips
+ *   (`IHumanPosture.rotation`, #3423) so the pelvis keeps the stroke's own
+ *   joints. The shoulder turns one way round: its abduction
  *   runs from 180 degrees overhead to 0 at the hip and back, in front of the
  *   trunk for the pull (45 degrees of flexion at its middle, the elbow bent
  *   40) and behind it for the recovery (20 degrees of extension, the elbow
@@ -220,10 +222,29 @@ export namespace swim {
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
     const prone: boolean = p.kind === "frontCrawl";
-    // The body's roll about its long axis, a twist of the pelvis: toward the right at the right arm's mid recovery.
+    // The body's roll about its long axis, a whole-body rotation about the
+    // hips (#3423): toward the right at the right arm's mid recovery.
     const roll = (s: number): number =>
       -ROLL *
       Math.sin(2 * Math.PI * (phase(s) - (PULL + (1 - PULL) / 2) + 0.25));
+    const rolled = (
+      posture: IHumanPosture,
+      degrees: number,
+      about: IAutoMovieVector3,
+    ): IHumanPosture => ({
+      ...posture,
+      rotation: {
+        about,
+        turn: Quaternion.fromAxisAngle(
+          Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+            x: 0,
+            y: 1,
+            z: 0,
+          }),
+          degrees,
+        ),
+      },
+    });
     const turned = (
       joints: IHumanPosture["joints"],
       w: number,
@@ -242,14 +263,15 @@ export namespace swim {
       const breath: IHumanPosture = {
         ...entry,
         pitch: entry.pitch + 90,
-        joints: { ...turned(entry.joints, 1), hips: [0, 0, -ROLL] },
+        joints: turned(entry.joints, 1),
       };
       const hips: IAutoMovieVector3 = Vector3.add(
         breath.root,
         Quaternion.rotateVector(resolveHumanPosture.heading(breath), hipsRest),
       );
       const rise: number =
-        HumanTrunk.region(body, breath, "mouth").point.y - hips.y;
+        HumanTrunk.region(body, rolled(breath, -ROLL, hips), "mouth").point.y -
+        hips.y;
       return Math.min(m.chestDepth / 2, rise - CLEAR);
     })();
     primitives.push({
@@ -265,22 +287,25 @@ export namespace swim {
         const pitched: IHumanPosture = {
           ...posture,
           pitch: posture.pitch + 90,
-          joints: { ...posture.joints, hips: [0, 0, roll(s)] },
         };
         const hips: IAutoMovieVector3 = Vector3.add(
           { x: entry.root.x, y: water - depth, z: entry.root.z },
           Vector3.scale(forward, (1.0 * s) / modifiers.tempo),
         );
-        return {
-          ...pitched,
-          root: Vector3.subtract(
-            hips,
-            Quaternion.rotateVector(
-              resolveHumanPosture.heading(pitched),
-              hipsRest,
+        return rolled(
+          {
+            ...pitched,
+            root: Vector3.subtract(
+              hips,
+              Quaternion.rotateVector(
+                resolveHumanPosture.heading(pitched),
+                hipsRest,
+              ),
             ),
-          ),
-        };
+          },
+          roll(s),
+          hips,
+        );
       },
     });
 
