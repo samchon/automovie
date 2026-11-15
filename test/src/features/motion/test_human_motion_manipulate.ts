@@ -15,6 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** A contact digit's bound to its site, metres: #3446's test line (each contact's digit tip within 2 mm of its site at its instant). */
+const CONTACT: number = 0.002;
+
 /** A keyboard prop at a world point, its typist on its +Z side facing it (`createKeyboard`'s contacts). */
 const keyboard = (at: IAutoMovieVector3): IHumanProp => ({
   subject: "keyboard",
@@ -170,9 +173,9 @@ export function test_human_motion_manipulate(): void {
         "flat",
       ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, target));
-      if (!(miss <= 0.002))
+      if (!(miss <= CONTACT))
         complaints.push(
-          `"${letter}" (${side} ${digit}): the tip lies ${(miss * 1000).toFixed(1)} mm from the pressed key, within 2 mm expected`,
+          `"${letter}" (${side} ${digit}): the tip lies ${(miss * 1000).toFixed(1)} mm from the pressed key, within ${CONTACT * 1000} mm expected`,
         );
       for (const other of manipulate.FINGERS)
         if (other !== digit) {
@@ -310,9 +313,9 @@ export function test_human_motion_manipulate(): void {
         "flat",
       ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, site));
-      if (!(miss <= 0.002))
+      if (!(miss <= CONTACT))
         complaints.push(
-          `dial ${i + 1}: the forefinger lies ${(miss * 1000).toFixed(1)} mm from the button, within 2 mm expected`,
+          `dial ${i + 1}: the forefinger lies ${(miss * 1000).toFixed(1)} mm from the button, within ${CONTACT * 1000} mm expected`,
         );
     });
   } catch (error) {
@@ -345,9 +348,9 @@ export function test_human_motion_manipulate(): void {
       const miss: number = Vector3.length(
         Vector3.subtract(tip, { ...key, y: key.y - typeText.TRAVEL }),
       );
-      if (!(miss <= 0.002))
+      if (!(miss <= CONTACT))
         complaints.push(
-          `two-finger "${"hi"[i]}": the ${k.side} forefinger lies ${(miss * 1000).toFixed(1)} mm from the key, within 2 mm expected`,
+          `two-finger "${"hi"[i]}": the ${k.side} forefinger lies ${(miss * 1000).toFixed(1)} mm from the key, within ${CONTACT * 1000} mm expected`,
         );
     });
   } catch (error) {

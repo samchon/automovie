@@ -10,6 +10,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The least spread of index and middle in the victory sign, degrees: #3442's second acceptance line. */
+const SPREAD: number = 8;
+
 /**
  * The finger and thumb ranges of motion (#3442).
  *
@@ -132,8 +135,8 @@ export function test_engine_finger_rom(): void {
     (m.get("rightMiddleProximal")!.abduction ?? 0) -
     (m.get("rightIndexProximal")!.abduction ?? 0);
   TestValidator.predicate(
-    `victory keeps a spread of at least 8 degrees (${spread(victory).toFixed(2)})`,
-    Math.abs(spread(victory)) >= 8,
+    `victory keeps a spread of at least ${SPREAD} degrees (${spread(victory).toFixed(2)})`,
+    Math.abs(spread(victory)) >= SPREAD,
   );
   TestValidator.predicate(
     `crossed keeps its cross (${spread(crossed).toFixed(2)})`,

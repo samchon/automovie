@@ -12,6 +12,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The in-hand bound, metres: #3447's acceptance (a contact pad within 1 mm of its point on the object, a twisted key's off-axis motion under 1 mm). */
+const STABLE: number = 0.001;
+
 /** A key at a world point: its bow a handle at its origin, its shank along its +X from the origin, a second grip 30 mm along the shank. */
 const key = (at: IAutoMovieVector3): IHumanProp => ({
   subject: "key",
@@ -73,7 +76,7 @@ const point = (
  * 5. A twist by a hand that holds nothing is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs pick-ups followed by the rows and reads the displayed prop and hand frames.
- * @evidence contracts/development/testing.md#independent-expectations A rotation about an axis fixes the axis's points and turns an off-axis point by the angle; a grip holds within the campaign's 1 mm bound.
+ * @evidence contracts/development/testing.md#independent-expectations A rotation about an axis fixes the axis's points and turns an off-axis point by the angle; the in-hand bound is #3447's 1 mm (`STABLE`).
  * @evidence contracts/development/testing.md#distinguishing-cases Both turn directions, a regrip, and the refused empty hand.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the five scenarios with their bounds.
@@ -166,13 +169,13 @@ export function test_human_motion_regrasp(): void {
         );
         slip = Math.max(slip, Vector3.length(Vector3.subtract(seat, seat0)));
       }
-      if (!(drift <= 0.001))
+      if (!(drift <= STABLE))
         complaints.push(
-          `twist ${angle}: the key's axis moves ${(drift * 1000).toFixed(2)} mm, within 1 mm expected`,
+          `twist ${angle}: the key's axis moves ${(drift * 1000).toFixed(2)} mm, within ${STABLE * 1000} mm expected`,
         );
-      if (!(slip <= 0.001))
+      if (!(slip <= STABLE))
         complaints.push(
-          `twist ${angle}: the key moves ${(slip * 1000).toFixed(2)} mm in the hand, within 1 mm expected`,
+          `twist ${angle}: the key moves ${(slip * 1000).toFixed(2)} mm in the hand, within ${STABLE * 1000} mm expected`,
         );
       const direction: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(axis1, axis0),
@@ -190,9 +193,9 @@ export function test_human_motion_regrasp(): void {
           expected,
         ),
       );
-      if (!(miss <= 0.001))
+      if (!(miss <= STABLE))
         complaints.push(
-          `twist ${angle}: the off-axis point ends ${(miss * 1000).toFixed(2)} mm from a ${angle} degree turn, within 1 mm expected`,
+          `twist ${angle}: the off-axis point ends ${(miss * 1000).toFixed(2)} mm from a ${angle} degree turn, within ${STABLE * 1000} mm expected`,
         );
     } catch (error) {
       complaints.push(
@@ -215,9 +218,9 @@ export function test_human_motion_regrasp(): void {
       jump = Math.max(jump, Vector3.length(Vector3.subtract(now, previous)));
       previous = now;
     }
-    if (!(jump <= 0.001))
+    if (!(jump <= STABLE))
       complaints.push(
-        `regrip: the key jumps ${(jump * 1000).toFixed(2)} mm between reads 1/240 s apart, within 1 mm expected`,
+        `regrip: the key jumps ${(jump * 1000).toFixed(2)} mm between reads 1/240 s apart, within ${STABLE * 1000} mm expected`,
       );
   } catch (error) {
     complaints.push(

@@ -16,6 +16,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** Standard gravity, m/s^2 (CGPM 1901). */
 const G: number = 9.80665;
 
+/** A hung cord's statics bound, a share of its length: #3448's first acceptance line (the free end its length below the anchor within 2 % once settled). */
+const STATICS: number = 0.02;
+
+/** The most a hanging strap may lean off plumb, degrees: the lean at which its end still hangs its length below the hand within `STATICS`. */
+const PLUMB: number = (Math.acos(1 - STATICS) * 180) / Math.PI;
+
 /** A soft lattice of `columns` by `rows` particles from an origin along two axes, compliant, with handle affordances at named particles. */
 const lattice = (props: {
   subject: string;
@@ -101,7 +107,8 @@ const lattice = (props: {
  * 2. A flag: a cloth anchored along a held pole's two points follows the
  *    pole: its anchored edge stays on the pole within 1 mm.
  * 3. A bag on a strap: a cord from the hand with a heavy last particle hangs
- *    straight down within 5 degrees once settled.
+ *    straight down once settled, leaning no more than lets its end hang its
+ *    length below the hand within #3448's 2 % (`PLUMB`).
  * 4. A rope pulled by two people, each holding one end, stays between their
  *    hands (every particle within the span of the two grips plus its sag).
  * 5. A skipping rope held at both ends by one person's two hands plans and
@@ -112,7 +119,7 @@ const lattice = (props: {
  *    the step's travel bound, at every tenth of a second.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance per composition and reads `HumanPerformance.soft`.
- * @evidence contracts/development/testing.md#independent-expectations The issue's spread, the campaign's grip bound, a hanging weight's plumb line, the span of a rope between two hands, and capsule separation.
+ * @evidence contracts/development/testing.md#independent-expectations The issue's spread, the campaign's grip bound, a hanging weight's plumb line within the lean #3448's 2 % allows, the span of a rope between two hands, and capsule separation.
  * @evidence contracts/development/testing.md#distinguishing-cases Cloth and cord, one and two people, held and anchored, with and without self-contact.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing polygon men; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the six compositions and what each checks.
@@ -299,9 +306,9 @@ export function test_human_motion_lexicon_rows_soft(): void {
       z: s[32]! - s[2]!,
     });
     const tilt: number = (Math.acos(Math.min(1, -line.y)) * 180) / Math.PI;
-    if (!(tilt <= 5))
+    if (!(tilt <= PLUMB))
       complaints.push(
-        `bag: the strap hangs ${tilt.toFixed(2)} degrees off plumb, within 5 expected`,
+        `bag: the strap hangs ${tilt.toFixed(2)} degrees off plumb, within ${PLUMB.toFixed(2)} expected`,
       );
   } catch (error) {
     complaints.push(`bag: expected to plan, got ${(error as Error).message}`);
