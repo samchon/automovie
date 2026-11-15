@@ -40,8 +40,9 @@ import { braceOnThigh } from "./braceOnThigh";
  * of 150 degrees, inside the 141.6 degrees measured in kneeling (Acker et al.
  * 2011, J Arthroplasty 26:319) and below the 157 +- 6 degrees of a heels-up
  * squat (Hemmerich et al. 2006, J Orthop Res 24:770), which the range table
- * does not reach. The shank tilts forward by the ankle's dorsiflexion range,
- * plus the heel lift when the heels are up (the foot pivots about its toes'
+ * does not reach. The shank tilts forward by the crouching ankle's
+ * dorsiflexion (`ANKLE`, within the range table's), plus the heel lift when
+ * the heels are up (the foot pivots about its toes'
  * joint, which stays on the floor), and the thigh takes the rest of the knee
  * flexion, so the hip joint's place over the ankle follows from the leg's
  * two lengths. On the way down the shank and the thigh tilt together, each
@@ -50,9 +51,8 @@ import { braceOnThigh } from "./braceOnThigh";
  * reaches the range and then rises by the rest, the heel-off of a
  * range-limited ankle. A depth whose thigh angle and the hip's flexion range leave
  * no room for the trunk is refused with the deepest knee flexion the heels
- * allow: a full squat with flat heels needs more ankle dorsiflexion than the
- * range table's 20 degrees, so it asks for `heels: "up"` (Hemmerich et al.
- * 2006 measure heels-flat squats only on bodies with that ankle range).
+ * allow: a full squat with flat heels leaves the thigh past the hip's range
+ * at the crouching ankle, so it asks for `heels: "up"`.
  *
  * The trunk's forward inclination is found by bisection at every eighth of
  * the descent, and by a secant search from those between them, so that the
@@ -147,6 +147,9 @@ export namespace crouch {
     full: 150,
   };
 
+  /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum. */
+  export const ANKLE: number = 28;
+
   /** The heel lift of `heels: "up"`, degrees about the toes' joint (provisional, the bend law's squat lift). */
   export const HEEL: number = 30;
 
@@ -187,10 +190,12 @@ export namespace crouch {
     const modifiers: AutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
 
-    // The leg's angles: the shank tilts by the ankle's range plus the heel
+    // The leg's angles: the shank tilts by the crouching ankle plus the heel
     // lift, the thigh takes the rest of the knee flexion.
-    const dorsiflexion: number =
-      AutoMovieMotionHumanRange.limit("leftFoot", "flexion") ?? 0;
+    const dorsiflexion: number = Math.min(
+      ANKLE,
+      AutoMovieMotionHumanRange.limit("leftFoot", "flexion") ?? 0,
+    );
     const hipRange: number =
       AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion") ?? 0;
     const heel: number = heels === "up" ? HEEL : 0;
@@ -228,9 +233,9 @@ export namespace crouch {
       clock.envelope(["descend", "lowest"], ["ascend", "end"], seconds);
 
     // The leg's angles move together over the descent, the shank's tilt and
-    // the thigh's each by its share, so the ankle never passes its range: it
-    // takes the shank's tilt until it reaches the range, and the heel rises
-    // about the toes' joint by the rest (the heel-off of a ROM-limited ankle).
+    // the thigh's each by its share, so the ankle never passes the crouching
+    // ankle: it takes the shank's tilt until it reaches it, and the heel rises
+    // about the toes' joint by the rest.
     const lift = (s: number): number =>
       Math.max(0, shankTilt * s - dorsiflexion);
 

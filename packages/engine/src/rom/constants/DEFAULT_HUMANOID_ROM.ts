@@ -4,6 +4,8 @@ import {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
+import { ANKLE_DORSIFLEXION } from "./ANKLE_DORSIFLEXION";
+
 const range = (min: number, max: number): IAutoMovieAngleRange => ({
   min,
   max,
@@ -212,8 +214,10 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   ),
   leftLowerLeg: constraint(range(0, 150), null, null),
   rightLowerLeg: constraint(range(0, 150), null, null),
-  leftFoot: constraint(range(-50, 20), range(-25, 25), null),
-  rightFoot: constraint(range(-50, 20), range(-25, 25), null),
+  // A foot's dorsiflexion reaches its loaded limit: a bearing foot is taken
+  // that far by the body's weight (`ANKLE_DORSIFLEXION`).
+  leftFoot: constraint(range(-50, ANKLE_DORSIFLEXION.loaded), range(-25, 25), null),
+  rightFoot: constraint(range(-50, ANKLE_DORSIFLEXION.loaded), range(-25, 25), null),
   leftToes: constraint(range(-40, 80), null, null),
   rightToes: constraint(range(-40, 80), null, null),
 

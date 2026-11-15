@@ -43,8 +43,8 @@ import { TestValidator } from "@nestia/e2e";
  *    reached within 1 degree and the ankle within 1 mm.
  * 3. The right leg solving each mirrored goal gives the same clinical angles
  *    within 1e-6 degrees and the mirrored knee within 1e-6 m.
- * 4. Honesty: a crouch with the ankle under the hip tilts the shank by more
- *    than the ankle's 20 degree dorsiflexion limit; the foot's heading is
+ * 4. Honesty: a crouch with the ankle low under the hip tilts the shank
+ *    past the range table's dorsiflexion limit; the foot's heading is
  *    still reached within 1 degree, its total rotation misses by the tilt less
  *    that limit within 0.5 degree (the tilt computed from the leg's triangle),
  *    and no joint leaves its range.
@@ -182,15 +182,22 @@ export function test_motion_fit_chain_leg(): void {
       );
     }
 
-  // 4. Honesty: a crouch past the ankle's dorsiflexion.
-  const under: IAutoMovieVector3 = { x: 0.09, y: 0.11, z: 0.02 };
+  // 4. Honesty: a crouch past the ankle's dorsiflexion. The ankle stands
+  // 2 cm ahead of the point under the hip, as low as folds the leg's
+  // triangle (acos of the span over two shanks) 10 degrees past the range's
+  // dorsiflexion, so the shank tilts past the limit whatever the table holds.
+  const limit: number = DEFAULT_HUMANOID_ROM.leftFoot!.flexion!.max;
+  const under: IAutoMovieVector3 = {
+    x: 0.09,
+    y: hip.y - 2 * 0.42 * Math.cos(((limit + 10) * Math.PI) / 180),
+    z: 0.02,
+  };
   const span: number = Vector3.length(Vector3.subtract(under, hip));
   const tilt: number =
     ((Math.acos(span / 2 / 0.42) -
       Math.atan2(under.z - hip.z, hip.y - under.y)) *
       180) /
     Math.PI;
-  const limit: number = DEFAULT_HUMANOID_ROM.leftFoot!.flexion!.max;
   const goal: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     11,
