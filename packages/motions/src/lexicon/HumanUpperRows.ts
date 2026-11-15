@@ -309,8 +309,8 @@ export namespace HumanUpperRows {
     facing: { fingers: "forward", palm: "up" },
   });
 
-  /** Arms crossed: each hand visits the far arm before the chest, the forearms folded, and stays. */
-  export const armsCrossed = HumanActionRow.of("armsCrossed", armPhrase, {
+  /** Folding the arms: each hand visits the far arm before the chest, the forearms folded, and stays (the phrase that reaches `HumanStance.armsCrossed`, which holds the rest itself). */
+  export const foldArms = HumanActionRow.of("foldArms", armPhrase, {
     phrase: "visit",
     side: "both",
     target: { kind: "self", region: "solarPlexus" },

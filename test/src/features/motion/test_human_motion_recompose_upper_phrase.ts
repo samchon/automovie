@@ -47,7 +47,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    back's surface.
  * 5. The two-hand rows that part the hands place them as the act does at
  *    their stroke: cheerHands raises both palms above the crown, one on
- *    each side of the midline; armsCrossed puts each palm on the far side
+ *    each side of the midline; foldArms puts each palm on the far side
  *    of the midline.
  * 6. Every phrase publishes the standard instants `ready`, `strokeStart`,
  *    `stroke`, `strokeEnd` and `relax` in time order.
@@ -295,11 +295,11 @@ export function test_human_motion_recompose_upper_phrase(): void {
               `${name} cheerHands: the palms lie at x ${(left.x * 1000).toFixed(0)} and ${(right.x * 1000).toFixed(0)} mm, each on its own side expected`,
             );
         }
-        if (row.name === "armsCrossed") {
+        if (row.name === "foldArms") {
           const [left, right] = palms(at("stroke"));
           if (!(left.x < 0 && right.x > 0))
             complaints.push(
-              `${name} armsCrossed: the palms lie at x ${(left.x * 1000).toFixed(0)} and ${(right.x * 1000).toFixed(0)} mm, each across the midline expected`,
+              `${name} foldArms: the palms lie at x ${(left.x * 1000).toFixed(0)} and ${(right.x * 1000).toFixed(0)} mm, each across the midline expected`,
             );
         }
         if (row.name === "drinkFrom" || row.name === "eatWith") {
