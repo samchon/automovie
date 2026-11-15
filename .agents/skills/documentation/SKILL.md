@@ -5,7 +5,7 @@ description: Owns how any document is written, with its sentences, terms, paragr
 
 # Documentation
 
-Every document follows [Writing](writing.md), whoever reads it; only the reader, and so what the reader needs, differs by document. A README adds the rules below.
+Every document follows [Writing](writing.md); documents differ only in their reader and what that reader needs. A README adds the rules below.
 
 ## READMEs
 

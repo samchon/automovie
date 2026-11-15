@@ -5,7 +5,7 @@ description: Owns what makes an instruction for an agent work, namely what to st
 
 # Prompting
 
-Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, read for its first-reading test by someone new to the project, because structure and wording that serve that person serve the agent too. The rules here are what makes an instruction for an agent work.
+Every prompt follows the documentation skill's [Writing](../documentation/writing.md) rules, applying their first-reading test as someone new to the project, because wording that serves that person serves the agent too. The rules here are what makes an instruction for an agent work.
 
 Before editing a prompt, fetch and read in full the current prompting guide for the model that will read it, rather than recalling it, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
 
@@ -13,7 +13,9 @@ Before editing a prompt, fetch and read in full the current prompting guide for 
 
 State only facts the code does not show, rules the user set, and mistakes an agent made. Leave dates and history to git.
 
-Write each instruction concretely enough that a reader can tell whether it was followed. Give a consequential instruction the reason that says who loses what when it is missed, in the instruction itself, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
+Write each instruction concretely enough that a reader can tell whether it was followed.
+
+Writing asks for a reason when it is not obvious. For a consequential instruction, that reason names who loses what when it is missed and sits in the instruction itself, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
 
 Leave the method to the agent unless a known failure requires a particular order or boundary. Where a skill does name methods, it gives one default and says when to leave it.
 
@@ -21,9 +23,9 @@ Give an example only where the rule alone leaves the pattern unclear, and keep e
 
 ## One owner
 
-Give each rule one owner, in one section of one file, and let every other place link to it, so a task receives one consistent requirement. Update a rule's callers when moving it.
+A rule lives in one section of one file, as Writing requires, so a task receives one consistent requirement; every other place links to it, and moving it updates its callers.
 
-Resolve two conflicting rules by changing one of them, never by adding a rule about which one wins, because a model applies a stated priority unreliably.
+Resolve two conflicting instructions inside the prompts by changing one of them, never by adding an instruction about which one wins, because a model applies a stated priority unreliably.
 
 ## Packages
 
@@ -35,7 +37,7 @@ A skill gives a job's goal, order and boundaries, and points to the checklists i
 
 An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
-Group judgments the agent can make together, and split them when their task, respondent (whoever answers the question) or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
+Group judgments the agent can make together, and split them when their task, respondent (whoever answers the question), evidence or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
 
 ## Layout
 
@@ -49,7 +51,7 @@ A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory 
 
 ### Splitting a skill
 
-`SKILL.md` stays a short overview: what the skill is for, when to read it, and which resource each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
+`SKILL.md` stays a short overview, far under 500 lines: what the skill is for, when to read it, and which resource each task needs. An agent loads it on every use of the skill, so everything in it that the task at hand does not need costs attention on every task. Put first what every use needs, because an agent follows earlier text more reliably and a compacted context keeps only the start.
 
 Split when any of these shows:
 
@@ -57,7 +59,7 @@ Split when any of these shows:
 - a branch only some tasks take;
 - a length the opening can no longer introduce.
 
-A branch moves into a sibling file. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
+A branch moves into a sibling file, and a resource longer than about 100 lines usually holds a branch to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
 
 Each sibling file has these three marks:
 
@@ -75,7 +77,7 @@ A skill shared with other projects, such as one a project template ships, holds 
 
 ## Verification
 
-Start a change from the actual failure it must fix, kept as a case, and check the changed instructions against that case and a similar legitimate case they must leave alone.
+Start a change from the actual failure it must fix, kept as a case, and check the changed instructions against that case and the strongest similar legitimate case they must leave alone.
 
 Check that links resolve, triggers reach their resources and each rule has one owner. Compare the instructions with a real governed task and its actual consumers.
 

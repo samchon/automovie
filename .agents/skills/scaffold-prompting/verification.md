@@ -16,8 +16,8 @@ Installed files are project-owned: an existing production update follows [scaffo
 
 Take the cases prompting's verification asks for from the tasks the change affects, rather than a universal suite every project runs. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
 
-For a changed expression criterion, compare preserved meaning with the experience made by actual language, image, sound and timing. Check an informative but ineffective passage and a deliberate restrained form; a function list cannot acquit the first and a style label cannot condemn the second. Confirm that the existing overall item can judge what sentence classification alone misses.
+For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the existing overall item catches what sentence classification alone misses.
 
-Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads. Preserve the actual result and limits. Do not launch an agent solely because a design changed when the user's delegation rules prohibit it.
+Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads. Record what it produced and what it could not check.
 
 Name what was established: instruction consistency, rendered distribution, observed author behavior or actual media result. Static case comparison does not prove better storytelling, a clean sentence table does not approve the whole experience, and an instruction-only change does not verify an unrendered film.

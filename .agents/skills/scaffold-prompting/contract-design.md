@@ -1,18 +1,18 @@
 # Contract design
 
-A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
+A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs every scene it spans, and a rendered-output promise needs the actual output observations.
 
 The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 
-Write an intelligible item, an observable failure and the legitimate neighboring form it protects. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A broad item still needs the passage or output, context and concrete recipient loss supporting its finding.
+Write an intelligible item, an observable failure and the legitimate neighboring form it protects. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A broad item still needs the passage or output, context and concrete audience loss supporting its finding.
 
 Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
 
-An individual function, compliance elsewhere or a paraphrase of intended meaning cannot excuse a different failure in the actual expression. Protection must answer that same alleged failure; preserve useful execution notation, deliberate stillness and adopted stylization where they work.
+Protection must answer the same alleged failure; preserve useful execution notation, deliberate stillness and adopted stylization where they work.
 
-Keep an overall achievement independently answerable when detailed negatives cannot establish it. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) test calls for it; a new sentence pattern does not need a new contract family, the folder of contracts one owner keeps.
+Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) test calls for it; a new sentence pattern does not need a new contract family, the folder of contracts one owner keeps.
 
 ## Items and statements
 
@@ -24,14 +24,14 @@ Statement documents are not evidence targets: place them where no selector of `@
 
 ## Coherent repair and adoption
 
-Compare proposed items with existing ones for overlap, contradiction and feasible joint satisfaction. Trace a failing case and a similar legitimate case through judgment and repair. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
+Compare proposed items with existing ones for overlap, contradiction and feasible joint satisfaction. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
 Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation.
 
 Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
-Keep the reason for a failure in its item and each protection with its statement, both of which the respondent reads. Keep verified source support and its limits in a source record or a comment, knowing that comments ship to productions with the text and that no tool migrates an existing production.
+Keep verified source support and its limits in a source record or a comment, knowing that comments ship to productions with the text and that no tool migrates an existing production.
 
 Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
-Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
+Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual audience observations establish any claimed effect under [verification](verification.md).

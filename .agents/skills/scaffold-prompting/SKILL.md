@@ -22,21 +22,23 @@ Every shipped skill serves these six principles, and a shipped sentence that wor
 
 The product contract sets [coarse models and detailed motion](../project/SKILL.md#coarse-models-detailed-motion). A shipped skill therefore never asks for surface detail to make a scene work: a hint's appearance comes from diffusion and its value from motion.
 
-### The screenplay carries the detail
+### Screenplay detail
 
-The screenplay decides every exchange, outcome and reaction, and a film composes APIs along it. Every object and motion is a reusable module varied by parameters and seed, never by a copied variant, and a module several productions use moves to the workspace's shared packages.
+The screenplay decides every exchange, outcome and reaction, and a film composes APIs along it.
 
-### Installed capability is reused
+### Installed capability
 
 A production composes what its installed packages provide and writes only what they lack. It cannot repair an installed package, so a defect goes to the upstream tracker through the user.
 
+Every object and motion a production writes is a reusable module varied by parameters and seed, never a copied variant, and a module several productions use moves to the workspace's shared packages.
+
 ### Two story routes
 
-The product contract sets the [two routes](../project/SKILL.md#commissions): a short, and long work for a series or a very long film. The evidence graph and the story workflow hold both routes to their instructions.
+The product contract sets the [two routes](../project/SKILL.md#commissions): a short film, and long-form work for a series or a very long film. The evidence graph and the story workflow route each to its own instructions.
 
 ### Strategy in skills, tactics in contracts
 
-Prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule holds for every shipped skill. Shipped contracts also stay few, with one broad item per theme and the detail in its statements, as [contract design](contract-design.md#items-and-statements) defines.
+Prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule holds for every shipped skill, and shipped contracts stay few, as [contract design](contract-design.md#items-and-statements) defines.
 
 ### Stills only
 
@@ -54,7 +56,7 @@ Design task guidance and its contract items around the same commissioned result.
 
 When an existing item already covers the loss, repair how it is applied and evidenced; change the design only when the needed judgment is absent or contradictory.
 
-Compliant records cannot substitute for a usable film, so connect each observed failure back to the author or production owner that can repair it.
+Compliant records cannot substitute for a usable film, so connect each observed failure back to its repair owner.
 
 ## Boundaries
 

@@ -2,7 +2,7 @@
 
 How the text of any document is put together, from its sentences up to its lists.
 
-Text is concise and clear when its reader understands it on the first reading, without rereading or hunting for where a point lives. Length, paragraph count and bullet count do not measure it, and completeness means covering what the reader needs, never longer phrasing. Test a document by reading it top to bottom as its reader would, and fix whatever makes that reader slow down.
+Text is concise and clear when its reader understands it on the first reading, without rereading or hunting for where a point lives. Length, paragraph count and bullet count do not measure it. Completeness means covering what the reader needs, never longer phrasing. Test a document by reading it top to bottom as its reader would, and fix whatever makes that reader slow down.
 
 A set of documents says each thing in one place, and no two places disagree, because a reader who meets a point twice cannot tell which one holds.
 
@@ -42,13 +42,13 @@ Link to a heading by its title's slug and give it no explicit anchor such as `{#
 
 A paragraph is one topic. Open it with its point and follow with the detail, because a reader who skims reads only the first sentence. Start a new paragraph when the topic changes, keep sentences on the same topic together, and write each paragraph on one source line.
 
-Gluing several topics into one long paragraph, or several points into one long sentence, to keep the count low is a failure, not concision, because the reader cannot find the second point. A paragraph of more than about five sentences usually holds a second topic. Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
+Gluing several topics into one long paragraph to keep the count low is a failure, not concision, because the reader cannot find the second topic. A paragraph of more than about five sentences usually holds a second topic. Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
 
 ## Lists, tables and code
 
-A list is for parallel items short enough to take in at a glance, one rendered line each, and for steps whose order changes the result. Introduce it with a sentence that says what its items are, write every item in the same grammatical form, and give it at least two items. Mark a sublist differently from its parent, such as `-` items under a numbered list.
+A list is for parallel items short enough to take in at a glance, one rendered line of about 120 characters at most, and for steps whose order changes the result. Introduce it with a sentence that says what its items are, write every item in the same grammatical form, and give it at least two items. Mark a sublist differently from its parent, such as `-` items under a numbered list.
 
-An item that runs long, or whose reasoning needs more than a short clause, is not a list item, and breaking an explanation into bullets does not make it concise, because the bullets hide how its points connect. Give it the form of what it is:
+An item that runs long, or whose reasoning needs more than a short clause, is not a list item. Breaking an explanation into bullets does not make it concise, because the bullets hide how its points connect. Give it the form of what it is:
 
 | Content | Form |
 | --- | --- |
