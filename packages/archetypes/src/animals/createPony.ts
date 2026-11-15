@@ -9,7 +9,7 @@ import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
 /**
- * A pony of a measured breed, with its tack: the horse's build (`createHorse.equid`) at that breed's size and proportions, under a riding saddle or in a driving harness, with the horse's contacts.
+ * A pony of a measured breed, with its tack: the horse's build (`createHorse.equid`) at that breed's size and proportions, under a riding saddle, in a driving harness or under a pack saddle, with the horse's contacts.
  *
  * The breed is given or drawn whole from the seed (`ArchetypeDrawSession.model`, its figures `MEASURES`): a Shetland, a Welsh Mountain Pony, a Welsh Pony, a Dartmoor or a Connemara, each as Brooks et al. 2010's measured animals of that breed average (`EquidSegments.BREEDS`). Its height at the withers and its heart girth are its breed's, its mass follows them by the girth-squared-times-length law anchored on weighed warmbloods (`createHorse.mass`), and its bones are the horse's fractions of the height, each measured one scaled by its breed's surface measure against the Thoroughbred's (`EquidSegments.lengths`), so a pony is one breed's body, never a blend of two. Its mass is shared among its bones as the horse's is: Nauwelaerts et al. 2011 found that an equid's mass distribution does not change with size below 600 kg, so Kubo's horse shares hold for a pony. It rides as the horse does, its timing the horse's measured table scaled to its height by dynamic similarity (`QuadrupedGait.scale`).
  *
@@ -123,7 +123,7 @@ export namespace createPony {
   ): createHorse.IProfile {
     return {
       archetype: ARCHETYPE,
-      names: { saddle: "saddle pony", harness: "driving pony" },
+      names: { saddle: "saddle pony", harness: "driving pony", pack: "pack pony" },
       bands: BANDS,
       figures,
       girth: (): number => figures.girth!,

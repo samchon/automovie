@@ -130,7 +130,7 @@ export namespace QuadrupedBody {
     /** The point of buttock behind the point of shoulder, as a fraction of the height at the withers. */
     buttock: number;
 
-    /** Mass shares, percent of body mass: the torso, shared by the trunk and the hindquarters by their volumes, the neck, the head, the tail, the withers' ball, and each limb's bones from the top down. */
+    /** Mass shares, percent of body mass as the source prints them (`lay` divides them by their own sum, removing the print's rounding): the torso, shared by the trunk and the hindquarters by their volumes, the neck, the head, the tail, the withers' ball, and each limb's bones from the top down. */
     mass: Readonly<{
       trunk: number;
       neck: number;
@@ -399,7 +399,7 @@ export namespace QuadrupedBody {
    * @param rig The animal's rest rig, from `rig`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation Each bone's bar runs between its joints in the rig, carrying its species' measured share of the body's mass; the torso's share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in the studies that measure it.
+   * @evidence contracts/development/implementation.md#principled-implementation Each bone's bar runs between its joints in the rig, carrying its species' measured share of the body's mass, each share divided by the shares' own sum so the body's shares sum to exactly 100 percent: the printed shares sum past 100 by the source's rounding (Kubo's horse's to 100.4), which the division removes, so a tack's share in percent of the animal's mass leaves the body its drawn mass; the torso's share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in the studies that measure it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, the withers, the neck, head and tail, then the limbs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula is part of the trunk and the pelvis of the trunk and the hindquarters, as the studies' torso includes them; ears, mane and hooves are not modelled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones and the withers.
@@ -416,7 +416,16 @@ export namespace QuadrupedBody {
     const h: number = withers;
     const barrel: number = rig.barrel;
     const coat: string = body.colors.coat;
+    // The shares as percents of the body's mass, the printed ones' rounding removed by their own sum.
     const share: IBody["mass"] = body.mass;
+    const scale: number =
+      100 /
+      (share.trunk +
+        share.withers +
+        share.neck +
+        share.head +
+        share.tail +
+        2 * [...share.fore, ...share.hind].reduce((a: number, b: number): number => a + b, 0));
 
     // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, the torso's share shared between them by volume.
     const back: number = rig.back;
@@ -432,27 +441,27 @@ export namespace QuadrupedBody {
     builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
       color: coat,
       round: true,
-      share: (share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
+      share: (scale * share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
     });
     builder.rod("hindquarters", barrel, rear, quarters, {
       color: coat,
       round: true,
-      share: (share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
+      share: (scale * share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
     });
     builder.ball(
       "withers",
       body.withers * h,
       v(0, (1 - body.withers) * h, half - body.withers * h),
-      { color: coat, share: share.withers },
+      { color: coat, share: scale * share.withers },
     );
     builder.rod("neck", rig.neckRadius, rig.neck, rig.poll, {
       color: coat,
-      share: share.neck,
+      share: scale * share.neck,
     });
     builder.rod("head", rig.headRadius, rig.poll, rig.nose, {
       color: coat,
       round: true,
-      share: share.head,
+      share: scale * share.head,
     });
     const dock: IAutoMovieVector3 = rig.dock;
     builder.rod(
@@ -460,7 +469,7 @@ export namespace QuadrupedBody {
       body.tail.radius * h,
       dock,
       v(0, dock.y - body.tail.drop * h, dock.z - body.tail.back * h),
-      { color: body.colors.tail, share: share.tail },
+      { color: body.colors.tail, share: scale * share.tail },
     );
 
     // The limbs: one bar per bone, from each joint to the next.
@@ -472,7 +481,7 @@ export namespace QuadrupedBody {
       BONES[limb].forEach((bone: Bone, k: number): void => {
         builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,
-          share: shares[k]!,
+          share: scale * shares[k]!,
           // The digit ends in the foot.
           ...(k === 3 ? { surface: body.foot } : {}),
         });

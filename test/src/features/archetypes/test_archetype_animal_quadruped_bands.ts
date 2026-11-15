@@ -25,7 +25,7 @@ const KUBO: number = 0.28 / 1.62;
  *
  * Scenarios, over 200 seeds:
  * 1. A pony's withers stand at one pony breed's mean height of Brooks et al. 2010, its barrel's round is that same breed's mean heart girth, and its fore cannon over its height is Kubo's thoroughbred fraction scaled by that breed's cannon over its height against the Thoroughbred's in the same rows, each to a millimetre or a twentieth of a percent of the height; every breed appears.
- * 2. A pony's mass is the girth-squared-times-length law's on its breed's girth and height, anchored on Jensen et al. 2019's weighed warmbloods' means: 640 kg times the girth's ratio to 204 cm squared times the height's to 172 cm, to a millionth.
+ * 2. A pony's mass, less its riding saddle's 5.4 kg (Wintec's stated weight), is the girth-squared-times-length law's on its breed's girth and height, anchored on Jensen et al. 2019's weighed warmbloods' means: 640 kg times the girth's ratio to 204 cm squared times the height's to 172 cm, to a millionth.
  * 3. Each kind under each of its tacks offers the contacts the horse offers under that tack, by id and kind.
  * 4. Fixing a pony's height at the withers, its breed's own figure, is refused at that dimension.
  *
@@ -60,8 +60,9 @@ export function test_archetype_animal_quadruped_bands(): void {
     // The law's oracle on the weighed warmbloods' means, which the horse states once (`createHorse.JENSEN`, metres and kilograms).
     const anchor: typeof createHorse.JENSEN = createHorse.JENSEN;
     const weight: number = anchor.mass * (girth / 100 / anchor.girth) ** 2 * (height / 100 / anchor.withers);
-    if (Math.abs(pony.body.mass - weight) > 1e-6 * weight)
-      findings.push(`seed ${seed}: a ${breed} weighs ${pony.body.mass} kg, not the ${weight} kg its girth and height give`);
+    // The pony under its riding saddle: the law's mass and the saddle's 5.4 kg, Wintec's stated weight for its 500 All Purpose.
+    if (Math.abs(pony.body.mass - 5.4 - weight) > 1e-6 * weight)
+      findings.push(`seed ${seed}: a ${breed} weighs ${pony.body.mass - 5.4} kg without its saddle, not the ${weight} kg its girth and height give`);
   }
   if (seen.size !== Object.keys(PONIES).length)
     findings.push(`only ${[...seen].join(", ")} appear over ${archetypeBandSweep.SEEDS} seeds`);

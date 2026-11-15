@@ -13,7 +13,7 @@ const LEATHERS: string =
  * The band of each free dimension of a saddle horse, with the source it was read at; `createHorse.BANDS` is this table. The girth and the mass follow the height (`createHorse.PROFILE.girth`, `createHorse.mass`), and the seat and the reins are read sizes (`createHorse.SEATS`, `createHorse.REINS`), so none of them is a band.
  */
 export const HORSE_BANDS: Readonly<
-  Record<createHorse.Free, IArchetypeBand>
+  Record<Exclude<createHorse.Free, "croupClearance">, IArchetypeBand>
 > = {
   withersHeight: ArchetypeBand.metres(
     1.58,

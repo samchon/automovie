@@ -12,14 +12,15 @@ import {
 } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { HorseHarness } from "./HorseHarness";
+import { HorsePack } from "./HorsePack";
 import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
- * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, or in a driving harness.
+ * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, or under a pack saddle with a lead rope.
  *
  * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`).
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`.
  *
  * Its height at the withers is drawn from the warmbloods' range; its heart girth and its mass follow that height, the girth in their mean proportion and the mass by the girth-squared-times-length law anchored on their means (`mass`), so a horse's three measures agree. The seat and the reins are each one of their read sizes.
  *
@@ -61,11 +62,11 @@ export function createHorse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
-  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, or a driving harness. */
-  export type Tack = "saddle" | "harness";
+  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, a driving harness, or a pack saddle with its lead rope. */
+  export type Tack = "saddle" | "harness" | "pack";
 
   /** Every tack, for a caller that reads one at run time. */
-  export const TACKS: readonly Tack[] = ["saddle", "harness"];
+  export const TACKS: readonly Tack[] = ["saddle", "harness", "pack"];
 
   /** The length of strap a hand closes on, metres, for a rein and for the lead rope: a hand's breadth and a half, and two; estimates, no source read gives them. */
   export const HELD: Readonly<{ rein: number; lead: number }> = {
@@ -81,7 +82,10 @@ export namespace createHorse {
    * - `leftStirrup`, `rightStirrup`: the stirrups' treads on `+X` and `-X`, each hanging its drop below the saddle.
    * - `leftRein`, `rightRein`: the reins where the hands hold them above the withers, each frame at the middle of the held run, which runs forward to the mouth.
    * - `lead`: the middle of the lead rope's held run beside the head on the horse's left, running up to the halter.
-   * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from; the other ids belong to the riding saddle and a harnessed horse lacks them.
+   * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from.
+   * - `leftLoad`, `rightLoad`: under a pack saddle, the middle of each side's pad, facing out, where a load rests.
+   *
+   * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
    */
   export type Affordance =
     | "seat"
@@ -92,7 +96,9 @@ export namespace createHorse {
     | "leftRein"
     | "rightRein"
     | "lead"
-    | "hitch";
+    | "hitch"
+    | "leftLoad"
+    | "rightLoad";
 
   /**
    * The dimensions, metres unless stated:
@@ -106,6 +112,7 @@ export namespace createHorse {
    * - `reinWidth`: a rein's width, one of `REINS`.
    * - `tempo`: how far this horse's stride time lies from the mean, in standard deviations.
    * - `breechingDrop`: in harness, the breeching's seat below the point of buttock.
+   * - `croupClearance`: under a pack saddle, the croup piece's end above the tail's root, a packer's hand's breadth (`HorsePack.BANDS`).
    */
   export type Dimension =
     | "withersHeight"
@@ -116,7 +123,8 @@ export namespace createHorse {
     | "stirrupWidth"
     | "reinWidth"
     | "tempo"
-    | "breechingDrop";
+    | "breechingDrop"
+    | "croupClearance";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -129,6 +137,7 @@ export namespace createHorse {
     reinWidth: "m",
     tempo: "",
     breechingDrop: "m",
+    croupClearance: "m",
   };
 
   /** The dimensions drawn from a band: the others follow from these (`girth`, `mass`) or are a read model's (`seatSize`, `reinWidth`). */
@@ -204,6 +213,9 @@ export namespace createHorse {
   /** The saddle's seat width, metres: an estimate, no source read gives it. */
   export const SEAT_WIDTH: number = 0.3;
 
+  /** The riding saddle's mass, kilograms: the Wintec 500 All Purpose's "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not included, at its maker's page (https://wintec-saddles.com.au/products/wintec-500-all-purpose), the saddle whose seat sizes `SEATS` reads. It is added on top of the equid's drawn mass, its share that weight as a percent of the equid's. The stirrups, the leathers, the reins and the lead rope are massless, a share of 0: no maker's weight was read for them (searched: Weaver's lead ropes, retailer shipping weights only, 1.0 to 1.3 lb, secondary). */
+  export const SADDLE_WEIGHT: number = 5.4;
+
   /** A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen only in retailer listings. */
   export const LEAD: number = (5 / 8) * ArchetypeUnits.INCH;
 
@@ -213,14 +225,14 @@ export namespace createHorse {
   export const BUTTOCK: number = 185 / 172;
 
   /**
-   * The horse's body, the shared quadruped body's proportions: `LENGTHS`, `STANCE`, `BACK`, `BUTTOCK` and `MASS`, each with its source, and the shapes no source read gives, each an estimate the model is drawn by: the withers a ball of 0.05 of the withers height whose top stands at the withers (a nominal hundredth of a percent of the mass), the neck's root 0.06 below the back and its bar's radius 0.08, the poll 0.27 above the back and 0.27 ahead of the shoulder joints, the nose 0.31 below and 0.18 ahead of the poll, the head bar's radius 0.06 and the mouth's corners 0.03 above and behind the nose, the tail's bar 0.02 in radius reaching 0.4 down and 0.1 back from its root, its root 0.65 of the barrel's radius up and back from the hindquarters' rounded end's centre, the limb bones' radii 0.055 of the withers height for the humerus and the femur, 0.035 for the radius and the tibia, and 0.022 for the cannon and the pastern alike, and each limb 0.08 m inside the barrel's side. The feet are hooves, shod.
+   * The horse's body, the shared quadruped body's proportions: `LENGTHS`, `STANCE`, `BACK`, `BUTTOCK` and `MASS`, each with its source, and the shapes no source read gives, each an estimate the model is drawn by: the withers a ball of 0.05 of the withers height whose top stands at the withers (massless, a share of 0: the trunk's measured share holds it), the neck's root 0.06 below the back and its bar's radius 0.08, the poll 0.27 above the back and 0.27 ahead of the shoulder joints, the nose 0.31 below and 0.18 ahead of the poll, the head bar's radius 0.06 and the mouth's corners 0.03 above and behind the nose, the tail's bar 0.02 in radius reaching 0.4 down and 0.1 back from its root, its root 0.65 of the barrel's radius up and back from the hindquarters' rounded end's centre, the limb bones' radii 0.055 of the withers height for the humerus and the femur, 0.035 for the radius and the tibia, and 0.022 for the cannon and the pastern alike, and each limb 0.08 m inside the barrel's side. The feet are hooves, shod.
    */
   export const BODY: QuadrupedBody.IBody = {
     lengths: LENGTHS,
     stance: STANCE,
     back: BACK,
     buttock: BUTTOCK,
-    mass: { ...MASS, withers: 0.01 },
+    mass: { ...MASS, withers: 0 },
     withers: 0.05,
     neck: { root: 0.06, radius: 0.08 },
     head: {
@@ -274,7 +286,7 @@ export namespace createHorse {
   }
 
   /**
-   * An equid of the horse's build and tack, the producer behind `createHorse` and `createPony`: the shared quadruped body from the profile's proportions, under a riding saddle with stirrups, reins and a lead rope, or in a driving harness, as `createHorse` describes them.
+   * An equid of the horse's build and tack, the producer behind `createHorse`, `createPony`, `createDonkey` and `createMule`: the shared quadruped body from the profile's proportions, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, or under a pack saddle, as `createHorse` describes them; a saddle's read weight is added on top of the equid's drawn mass, and every tack part whose weight no maker states is massless.
    *
    * @param profile The equid's name, bands and body.
    * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
@@ -294,8 +306,11 @@ export namespace createHorse {
       params.tack ?? "saddle",
       createHorse.TACKS,
     );
+    // A pack saddle draws its own dimension beside the equid's.
+    const bands: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> =
+      tack === "pack" ? { ...profile.bands, ...HorsePack.BANDS } : profile.bands;
     const free: Record<createHorse.Free, number> = {
-      ...draw.dimensions(profile.bands),
+      ...draw.dimensions(bands),
       ...profile.figures,
     } as Record<createHorse.Free, number>;
     const girth: number = draw.derive(
@@ -338,7 +353,7 @@ export namespace createHorse {
         "saddle",
         v(createHorse.SEAT_WIDTH, 0.04, d.seatSize),
         v(0, top - 0.02, centre),
-        { color: "#4a3324", share: 1 },
+        { color: "#4a3324", share: (100 * createHorse.SADDLE_WEIGHT) / d.mass },
       );
       builder.affordance({
         id: "seat",
@@ -356,16 +371,10 @@ export namespace createHorse {
         ["pommel", centre + d.seatSize / 2],
         ["cantle", centre - d.seatSize / 2],
       ] as const) {
-        builder.rod(
-          id,
-          0.015,
-          v(-0.06, top + 0.03, z),
-          v(0.06, top + 0.03, z),
-          {
-            color: "#4a3324",
-            share: 0.01,
-          },
-        );
+        builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
+          color: "#4a3324",
+          share: 0,
+        });
         builder.affordance({
           id,
           kind: "handle",
@@ -392,13 +401,13 @@ export namespace createHorse {
           0.008,
           v(x, top - 0.02, centre + 0.05),
           v(x, tread.y + 0.01, tread.z),
-          { color: "#4a3324", share: 0.01 },
+          { color: "#4a3324", share: 0 },
         );
         builder.box(
           `stirrup-${side}`,
           v(d.stirrupWidth, 0.01, 0.05),
           v(x, tread.y - 0.005, tread.z),
-          { color: "#b9bcc0", share: 0.01 },
+          { color: "#b9bcc0", share: 0 },
         );
         builder.affordance({
           id: `${side}Stirrup`,
@@ -425,7 +434,7 @@ export namespace createHorse {
           d.reinWidth / 2,
           Vector3.subtract(hand, Vector3.scale(run, createHorse.HELD.rein / 2)),
           bit,
-          { color: "#4a3324", share: 0.01 },
+          { color: "#4a3324", share: 0 },
         );
         builder.affordance({
           id: `${side}Rein`,
@@ -442,37 +451,54 @@ export namespace createHorse {
           length: createHorse.HELD.rein,
         });
       }
-      const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
-      const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
-      builder.rod(
-        "lead",
-        createHorse.LEAD / 2,
-        Vector3.subtract(
-          held,
-          Vector3.scale(
-            Vector3.normalize(Vector3.subtract(halter, held)),
-            createHorse.HELD.lead / 2,
-          ),
-        ),
-        halter,
-        { color: "#d8d2c4", share: 0.01 },
-      );
-      builder.affordance({
-        id: "lead",
-        kind: "rein",
-        symmetry: "round",
-        frame: ArchetypeFrame.facing(
-          held,
-          v(1, 0, 0),
-          Vector3.subtract(halter, held),
-        ),
-        extent: null,
-        grip: "power",
-        aperture: createHorse.LEAD,
-        length: createHorse.HELD.lead,
-      });
-    } else HorseHarness.lay(builder, d, rig);
+      lead(builder, nose, h);
+      // The saddle's read weight is its own, beside the equid's; the rest of its tack is massless, unread.
+      return builder.build(d.mass + createHorse.SADDLE_WEIGHT, { rests: profile.body.foot });
+    } else if (tack === "harness") HorseHarness.lay(builder, d, rig);
+    else {
+      // The rigged pack saddle's mass is its own, beside the equid's, its parts' shares percents of the equid's mass as the body's are.
+      HorsePack.lay(builder, d, rig);
+      lead(builder, nose, h);
+      return builder.build(d.mass + HorsePack.saddle(h).rigged, { rests: profile.body.foot });
+    }
     return builder.build(d.mass, { rests: profile.body.foot });
+  }
+
+  /**
+   * Lay the lead rope's held run beside the head on the equid's left, up to the halter, with its `lead` contact.
+   *
+   * @param builder The equid under construction.
+   * @param nose The rig's nose.
+   * @param h The height at the withers, metres.
+   */
+  function lead(
+    builder: ArchetypeBuilder<Affordance, Dimension>,
+    nose: IAutoMovieVector3,
+    h: number,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const held: IAutoMovieVector3 = v(0.25, nose.y - 0.35, nose.z - 0.05);
+    const halter: IAutoMovieVector3 = v(0.03 * h, nose.y, nose.z - 0.05 * h);
+    builder.rod(
+      "lead",
+      LEAD / 2,
+      Vector3.subtract(
+        held,
+        Vector3.scale(Vector3.normalize(Vector3.subtract(halter, held)), HELD.lead / 2),
+      ),
+      halter,
+      { color: "#d8d2c4", share: 0 },
+    );
+    builder.affordance({
+      id: "lead",
+      kind: "rein",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(held, v(1, 0, 0), Vector3.subtract(halter, held)),
+      extent: null,
+      grip: "power",
+      aperture: LEAD,
+      length: HELD.lead,
+    });
   }
 
   /**
@@ -562,7 +588,7 @@ export namespace createHorse {
   /** The horse's profile: its girth in the warmbloods' proportion to its height, so its mass is their mean mass times the cube of its height's ratio. */
   export const PROFILE: IProfile = {
     archetype: "horse",
-    names: { saddle: "saddle horse", harness: "driving horse" },
+    names: { saddle: "saddle horse", harness: "driving horse", pack: "pack horse" },
     bands: BANDS,
     girth: (withers: number): number =>
       (withers * JENSEN.girth) / JENSEN.withers,
