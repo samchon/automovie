@@ -13,7 +13,7 @@ Tracing turns a performer in footage, such as a dancer, into the polygon man's m
 Trace only footage the production may use. Ask the user before tracing anyone else's, and keep the answer in the footage's [record](../../production/media-records.md#records) with each of these:
 
 - the footage's own license, since video platforms' terms forbid downloading or extracting content without permission;
-- the choreography, which copyright can protect once filmed, though single steps and social dances are not;
+- the choreography, which copyright can protect once filmed, though not single steps or social dances;
 - the performer's consent where the face, voice or recognizable likeness is kept;
 - the estimator's and the body model's licenses, as [clips](clips.md#licenses) sets.
 

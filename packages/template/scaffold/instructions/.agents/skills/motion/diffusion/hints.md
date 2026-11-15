@@ -1,5 +1,7 @@
 # Hints
 
+Hints bring the composed performance to a motion model as keys, joint paths or a clip to regenerate, and check that the result still keeps them.
+
 ## Bring the performance to the model
 
 1. Sample the composed performance at the model's frame rate, from the installed vocabulary's own evaluation.

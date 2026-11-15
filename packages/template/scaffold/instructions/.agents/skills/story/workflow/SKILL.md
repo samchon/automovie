@@ -45,9 +45,9 @@ Keep the author, the [evidence answerer](../evidence/answer-writing.md) and the 
 
 ## Completion
 
-Whole-work completion needs the route's passes with their closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../../review/delivery-review.md) of any commissioned media. A creative defect, missing parent, unfinished review or unverified media blocks it, and until review finishes the result is a draft.
-
 Run the README's evidence command and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result.
+
+Whole-work completion needs the route's passes with their closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../../review/delivery-review.md) of any commissioned media. A creative defect, missing parent, unfinished review or unverified media blocks it, and until review finishes the result is a draft.
 
 A manuscript with its closed review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion.
 
