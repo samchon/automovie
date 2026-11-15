@@ -67,7 +67,9 @@ export namespace HumanPopulation {
     const population: HumanEnsemble.IMember[] = ensemble.members.filter(
       (m: HumanEnsemble.IMember): boolean => m.detail === "population",
     );
-    const blocks: Set<number> = new Set(population.map((m: HumanEnsemble.IMember): number => m.slot?.block ?? -1));
+    const blocks: Set<number> = new Set(
+      population.map((m: HumanEnsemble.IMember): number => m.slot?.block ?? -1),
+    );
     if (formation === undefined || blocks.size !== 1 || blocks.has(-1))
       throw new HumanRefusal({
         kind: "parameter",
@@ -82,7 +84,8 @@ export namespace HumanPopulation {
     for (let k: number = 0; k < b; ++k) first += formation.blocks[k]!.count;
 
     // The block's origin and facing in the world, as the engine places a design: its facing turned about.
-    const origin: { at: IAutoMovieVector3; heading: number } = HumanFormation.frame(formation, props.seconds ?? 0);
+    const origin: { at: IAutoMovieVector3; heading: number } =
+      HumanFormation.frame(formation, props.seconds ?? 0);
     const anchor: IAutoMovieVector3 = HumanFormation.place(origin, {
       lateral: block.offset?.lateral ?? 0,
       depth: block.offset?.depth ?? 0,
@@ -97,8 +100,14 @@ export namespace HumanPopulation {
       seed: block.seed ?? 0,
       capabilities: [],
       heroOverrides: ensemble.members
-        .filter((m: HumanEnsemble.IMember): boolean => m.detail !== "population" && m.slot?.block === b)
-        .map((m: HumanEnsemble.IMember): { slot: number; actor: string } => ({ slot: m.index - first, actor: m.subject })),
+        .filter(
+          (m: HumanEnsemble.IMember): boolean =>
+            m.detail !== "population" && m.slot?.block === b,
+        )
+        .map((m: HumanEnsemble.IMember): { slot: number; actor: string } => ({
+          slot: m.index - first,
+          actor: m.subject,
+        })),
     };
   }
 
@@ -121,20 +130,41 @@ export namespace HumanPopulation {
   ): ICycle {
     const segment: HumanSegment.ISegment | undefined = performance
       .segments(template)
-      .find((s: HumanSegment.ISegment): boolean => s.entryTime <= from && from < s.end);
-    const strikes: { seconds: number; side: string }[] = (segment?.plan.events ?? [])
-      .filter((e: IAutoMovieMotionEvent): boolean => /^(left|right)HeelStrike\d+$/.test(e.name))
+      .find(
+        (s: HumanSegment.ISegment): boolean =>
+          s.entryTime <= from && from < s.end,
+      );
+    const strikes: { seconds: number; side: string }[] = (
+      segment?.plan.events ?? []
+    )
+      .filter((e: IAutoMovieMotionEvent): boolean =>
+        /^(left|right)HeelStrike\d+$/.test(e.name),
+      )
       .map((e: IAutoMovieMotionEvent): { seconds: number; side: string } => ({
         seconds: segment!.start + e.share * segment!.plan.duration,
         side: e.name.startsWith("left") ? "left" : "right",
       }))
-      .filter((s: { seconds: number }): boolean => s.seconds >= from && s.seconds <= segment!.end)
-      .sort((a: { seconds: number }, b: { seconds: number }): number => a.seconds - b.seconds);
+      .filter(
+        (s: { seconds: number }): boolean =>
+          s.seconds >= from && s.seconds <= segment!.end,
+      )
+      .sort(
+        (a: { seconds: number }, b: { seconds: number }): number =>
+          a.seconds - b.seconds,
+      );
     const start: { seconds: number; side: string } | undefined = strikes[0];
     const next: { seconds: number; side: string } | undefined = strikes.find(
-      (s: { seconds: number; side: string }): boolean => start !== undefined && s.side === start.side && s.seconds > start.seconds,
+      (s: { seconds: number; side: string }): boolean =>
+        start !== undefined &&
+        s.side === start.side &&
+        s.seconds > start.seconds,
     );
-    if (segment === undefined || start === undefined || next === undefined || !(samples > 0))
+    if (
+      segment === undefined ||
+      start === undefined ||
+      next === undefined ||
+      !(samples > 0)
+    )
       throw new HumanRefusal({
         kind: "participant",
         performer: template,
@@ -151,15 +181,26 @@ export namespace HumanPopulation {
     const period: number = next.seconds - start.seconds;
     const first: IAutoMoviePose = performance.pose(template, start.seconds);
     const last: IAutoMoviePose = performance.pose(template, next.seconds);
-    const origin: IAutoMovieVector3 = first.root?.translation ?? { x: 0, y: 0, z: 0 };
+    const origin: IAutoMovieVector3 = first.root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
     const end: IAutoMovieVector3 = last.root?.translation ?? origin;
     const stride: number = Math.hypot(end.x - origin.x, end.z - origin.z);
-    const heading: number = stride > 1e-9 ? Math.atan2(end.x - origin.x, end.z - origin.z) : 0;
-    const back: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, (-heading * 180) / Math.PI);
+    const heading: number =
+      stride > 1e-9 ? Math.atan2(end.x - origin.x, end.z - origin.z) : 0;
+    const back: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      (-heading * 180) / Math.PI,
+    );
     const poses: IAutoMoviePose[] = [];
     for (let i: number = 0; i < samples; ++i) {
       const u: number = i / samples;
-      const pose: IAutoMoviePose = performance.pose(template, start.seconds + u * period);
+      const pose: IAutoMoviePose = performance.pose(
+        template,
+        start.seconds + u * period,
+      );
       if (pose.root === null) {
         poses.push(pose);
         continue;
@@ -178,6 +219,11 @@ export namespace HumanPopulation {
         },
       });
     }
-    return { gait: segment.name, periodSeconds: period, strideMeters: stride, poses };
+    return {
+      gait: segment.name,
+      periodSeconds: period,
+      strideMeters: stride,
+      poses,
+    };
   }
 }

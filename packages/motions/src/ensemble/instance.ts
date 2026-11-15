@@ -1,8 +1,8 @@
+import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { Quaternion } from "@automovie/engine";
 
 import type { HumanActionKey } from "../HumanActionKey";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -74,7 +74,9 @@ export namespace instance {
    * @returns The plan.
    * @throws {HumanRefusal} When the template is on another body, turns over the span, or carries a goal kept clear of world colliders.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const p: IParams = context.params;
     const shift: number = p.shift ?? 0;
     if (!(p.seconds > 0) || !(Number.isInteger(shift) && shift >= 0))
@@ -82,11 +84,13 @@ export namespace instance {
         kind: "parameter",
         axis: p.seconds > 0 ? "shift" : "seconds",
         value: p.seconds > 0 ? shift : p.seconds,
-        reason: "an instance lasts a positive time and lags by a whole number of frames",
+        reason:
+          "an instance lasts a positive time and lags by a whole number of frames",
         fix: "give a positive span and a whole, nonnegative shift",
       });
     const template: IHumanActionContext.IPerformer = context.performer(p.of);
-    const read: ((seconds: number) => IHumanPosture) | undefined = template.posture?.bind(template);
+    const read: ((seconds: number) => IHumanPosture) | undefined =
+      template.posture?.bind(template);
     if (template.body !== context.body || read === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -105,13 +109,20 @@ export namespace instance {
     const first: IHumanPosture = at(0);
     for (let k: number = 1; k <= Math.ceil(p.seconds * RATE); ++k) {
       const yaw: number = at(Math.min(p.seconds, k / RATE)).yaw;
-      const turned: number = Math.abs(((((yaw - first.yaw + 180) % 360) + 360) % 360) - 180);
+      const turned: number = Math.abs(
+        ((((yaw - first.yaw + 180) % 360) + 360) % 360) - 180,
+      );
       if (turned > TURN)
         throw new HumanRefusal({
           kind: "participant",
           axis: "of",
           value: p.of,
-          feasible: { kind: "range", minimum: 0, maximum: TURN, unit: "degrees" },
+          feasible: {
+            kind: "range",
+            minimum: 0,
+            maximum: TURN,
+            unit: "degrees",
+          },
           reason: `${p.of} turns ${turned.toFixed(1)} degrees ${(k / RATE).toFixed(3)} s into the span, so a rigid copy would no longer stand in its place`,
           fix: "perform the member in full through the turn",
         });
@@ -124,7 +135,10 @@ export namespace instance {
       { x: here.x - first.root.x, y: 0, z: here.z - first.root.z },
       -first.yaw,
     );
-    const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn);
+    const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      turn,
+    );
     return {
       duration: p.seconds,
       events: [],
@@ -135,7 +149,10 @@ export namespace instance {
         const move = (point: IAutoMovieVector3): IAutoMovieVector3 =>
           add(root, rotate(sub(point, t.root), turn));
         const limbs: IHumanPosture["limbs"] = {};
-        for (const [limb, goal] of Object.entries(t.limbs) as [IHumanPosture.Limb, IHumanPosture.IGoal][]) {
+        for (const [limb, goal] of Object.entries(t.limbs) as [
+          IHumanPosture.Limb,
+          IHumanPosture.IGoal,
+        ][]) {
           if (goal.clear !== undefined || goal.rests !== undefined)
             throw new HumanRefusal({
               kind: "participant",
@@ -151,8 +168,12 @@ export namespace instance {
                   ...goal,
                   point: move(goal.point),
                   bend: move(goal.bend),
-                  ...(goal.contact === undefined ? {} : { contact: move(goal.contact) }),
-                  ...(goal.rotation === undefined ? {} : { rotation: Quaternion.multiply(spin, goal.rotation) }),
+                  ...(goal.contact === undefined
+                    ? {}
+                    : { contact: move(goal.contact) }),
+                  ...(goal.rotation === undefined
+                    ? {}
+                    : { rotation: Quaternion.multiply(spin, goal.rotation) }),
                 };
         }
         return { ...t, root, yaw: t.yaw + turn, limbs };

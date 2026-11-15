@@ -39,9 +39,16 @@ export function test_engine_steer_crowd(): void {
   const findings: string[] = [];
   const R: number = 0.25;
   const v: number = 1.34;
-  const agent = (at: IAutoMovieVector3, goal: IAutoMovieVector3): IAutoMovieCrowdAgent => ({ at, goal, radius: R, speed: v, start: 0 });
+  const agent = (
+    at: IAutoMovieVector3,
+    goal: IAutoMovieVector3,
+  ): IAutoMovieCrowdAgent => ({ at, goal, radius: R, speed: v, start: 0 });
   const point = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const gap = (result: steerAutoMovieCrowd.IResult, n: number, t: number): number => {
+  const gap = (
+    result: steerAutoMovieCrowd.IResult,
+    n: number,
+    t: number,
+  ): number => {
     let least: number = Infinity;
     for (let i: number = 0; i < n; ++i)
       for (let j: number = i + 1; j < n; ++j) {
@@ -54,34 +61,64 @@ export function test_engine_steer_crowd(): void {
 
   // 1. Head-on.
   const ends: IAutoMovieVector3[] = [point(0, 10), point(0.01, 0)];
-  const pair: IAutoMovieCrowdAgent[] = [agent(point(0, 0), ends[0]!), agent(point(0.01, 10), ends[1]!)];
-  const headOn: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({ agents: pair, from: 0, to: 14 });
+  const pair: IAutoMovieCrowdAgent[] = [
+    agent(point(0, 0), ends[0]!),
+    agent(point(0.01, 10), ends[1]!),
+  ];
+  const headOn: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+    agents: pair,
+    from: 0,
+    to: 14,
+  });
   let closest: number = Infinity;
-  for (let t: number = 0; t <= 14; t += 1 / 24) closest = Math.min(closest, gap(headOn, 2, t));
-  if (!(closest >= 2 * R)) findings.push(`head-on: the agents came ${closest.toFixed(3)} m apart, at least ${2 * R} m expected`);
+  for (let t: number = 0; t <= 14; t += 1 / 24)
+    closest = Math.min(closest, gap(headOn, 2, t));
+  if (!(closest >= 2 * R))
+    findings.push(
+      `head-on: the agents came ${closest.toFixed(3)} m apart, at least ${2 * R} m expected`,
+    );
   // They pass when their order along the line flips while each keeps to its own side of the other.
-  const along = (t: number): number => headOn.courses[0]!.at(t).position.z - headOn.courses[1]!.at(t).position.z;
-  if (!(along(0) < 0 && along(14) > 0)) findings.push("head-on: the agents did not pass each other");
-  for (const [i, c] of headOn.courses.entries()) if (c.arrival === null) findings.push(`head-on: agent ${i} did not arrive`);
+  const along = (t: number): number =>
+    headOn.courses[0]!.at(t).position.z - headOn.courses[1]!.at(t).position.z;
+  if (!(along(0) < 0 && along(14) > 0))
+    findings.push("head-on: the agents did not pass each other");
+  for (const [i, c] of headOn.courses.entries())
+    if (c.arrival === null) findings.push(`head-on: agent ${i} did not arrive`);
 
   // 2. Crossing flows.
   const flows: IAutoMovieCrowdAgent[] = [];
   for (let k: number = 0; k < 6; ++k) {
-    flows.push(agent(point(-8 - 1.2 * k, 0.9 * (k % 2)), point(10, 0.9 * (k % 2))));
-    flows.push(agent(point(0.9 * (k % 2), -8 - 1.2 * k), point(0.9 * (k % 2), 10)));
+    flows.push(
+      agent(point(-8 - 1.2 * k, 0.9 * (k % 2)), point(10, 0.9 * (k % 2))),
+    );
+    flows.push(
+      agent(point(0.9 * (k % 2), -8 - 1.2 * k), point(0.9 * (k % 2), 10)),
+    );
   }
-  const crossing: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({ agents: flows, from: 0, to: 30 });
+  const crossing: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+    agents: flows,
+    from: 0,
+    to: 30,
+  });
   for (let t: number = 0; t <= 30; t += 1 / 24) {
     const d: number = gap(crossing, flows.length, t);
     if (d < 2 * R - 1e-6) {
-      findings.push(`crossing flows: two agents ${d.toFixed(3)} m apart at ${t.toFixed(2)} s`);
+      findings.push(
+        `crossing flows: two agents ${d.toFixed(3)} m apart at ${t.toFixed(2)} s`,
+      );
       break;
     }
   }
-  if (crossing.contacts.length !== 0) findings.push(`crossing flows: ${crossing.contacts.length} contacts reported`);
-  crossing.courses.forEach((c: IAutoMovieCrowdAgent.ICourse, i: number): void => {
-    if (c.arrival === null) findings.push(`crossing flows: agent ${i} did not arrive`);
-  });
+  if (crossing.contacts.length !== 0)
+    findings.push(
+      `crossing flows: ${crossing.contacts.length} contacts reported`,
+    );
+  crossing.courses.forEach(
+    (c: IAutoMovieCrowdAgent.ICourse, i: number): void => {
+      if (c.arrival === null)
+        findings.push(`crossing flows: agent ${i} did not arrive`);
+    },
+  );
 
   // 3. Close calls against a non-interacting control.
   let seed: number = 12345;
@@ -94,7 +131,12 @@ export function test_engine_steer_crowd(): void {
   for (let k: number = 0; k < 60; ++k) {
     const a: number = random() * 2 * Math.PI;
     goals.push(point(-12 * Math.sin(a), -12 * Math.cos(a)));
-    crowd.push(agent(point(12 * Math.sin(a) + random(), 12 * Math.cos(a) + random()), goals[k]!));
+    crowd.push(
+      agent(
+        point(12 * Math.sin(a) + random(), 12 * Math.cos(a) + random()),
+        goals[k]!,
+      ),
+    );
   }
   const ttc = (result: steerAutoMovieCrowd.IResult | null): number => {
     let close: number = 0;
@@ -103,14 +145,26 @@ export function test_engine_steer_crowd(): void {
         for (let t: number = 0; t <= 20; t += 0.25) {
           const at = (k: number): IKinematic => {
             if (result !== null) {
-              const s: { position: IAutoMovieVector3; velocity: IAutoMovieVector3 } = result.courses[k]!.at(t);
+              const s: {
+                position: IAutoMovieVector3;
+                velocity: IAutoMovieVector3;
+              } = result.courses[k]!.at(t);
               return { p: s.position, u: s.velocity };
             }
             const c: IAutoMovieCrowdAgent = crowd[k]!;
             const g: IAutoMovieVector3 = goals[k]!;
             const L: number = Math.hypot(g.x - c.at.x, g.z - c.at.z);
             const s: number = Math.min(L, v * t);
-            return { p: point(c.at.x + ((g.x - c.at.x) * s) / L, c.at.z + ((g.z - c.at.z) * s) / L), u: s < L ? point(((g.x - c.at.x) * v) / L, ((g.z - c.at.z) * v) / L) : point(0, 0) };
+            return {
+              p: point(
+                c.at.x + ((g.x - c.at.x) * s) / L,
+                c.at.z + ((g.z - c.at.z) * s) / L,
+              ),
+              u:
+                s < L
+                  ? point(((g.x - c.at.x) * v) / L, ((g.z - c.at.z) * v) / L)
+                  : point(0, 0),
+            };
           };
           const a: IKinematic = at(i);
           const b: IKinematic = at(j);
@@ -129,25 +183,44 @@ export function test_engine_steer_crowd(): void {
         }
     return close;
   };
-  const steered: number = ttc(steerAutoMovieCrowd({ agents: crowd, from: 0, to: 20 }));
+  const steered: number = ttc(
+    steerAutoMovieCrowd({ agents: crowd, from: 0, to: 20 }),
+  );
   const control: number = ttc(null);
-  if (!(steered < control)) findings.push(`random crossing: ${steered} pairs came within 1 s of colliding with the interaction and ${control} without; fewer expected`);
+  if (!(steered < control))
+    findings.push(
+      `random crossing: ${steered} pairs came within 1 s of colliding with the interaction and ${control} without; fewer expected`,
+    );
 
   // 4. Order independence.
-  const reversed: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({ agents: [...flows].reverse(), from: 0, to: 30 });
+  const reversed: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+    agents: [...flows].reverse(),
+    from: 0,
+    to: 30,
+  });
   for (let t: number = 0; t <= 30; t += 0.5)
     flows.forEach((_: IAutoMovieCrowdAgent, i: number): void => {
       const a: IAutoMovieVector3 = crossing.courses[i]!.at(t).position;
-      const b: IAutoMovieVector3 = reversed.courses[flows.length - 1 - i]!.at(t).position;
-      if (a.x !== b.x || a.z !== b.z) findings.push(`order: agent ${i} differs at ${t} s`);
+      const b: IAutoMovieVector3 =
+        reversed.courses[flows.length - 1 - i]!.at(t).position;
+      if (a.x !== b.x || a.z !== b.z)
+        findings.push(`order: agent ${i} differs at ${t} s`);
     });
 
   // 5. A moving box.
   const box: IAutoMovieCrowdAgent.IObstacle = {
     footprint: [point(-0.5, -1), point(0.5, -1), point(0.5, 1), point(-0.5, 1)],
-    motion: (s: number): { position: IAutoMovieVector3; yaw: number } => ({ position: point(-10 + 2 * s, 5), yaw: 90 }),
+    motion: (s: number): { position: IAutoMovieVector3; yaw: number } => ({
+      position: point(-10 + 2 * s, 5),
+      yaw: 90,
+    }),
   };
-  const dodge: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({ agents: [agent(point(0, 0), point(0, 10))], obstacles: [box], from: 0, to: 20 });
+  const dodge: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
+    agents: [agent(point(0, 0), point(0, 10))],
+    obstacles: [box],
+    from: 0,
+    to: 20,
+  });
   for (let t: number = 0; t <= 20; t += 1 / 24) {
     const p: IAutoMovieVector3 = dodge.courses[0]!.at(t).position;
     const c: IAutoMovieVector3 = box.motion!(t).position;
@@ -155,18 +228,30 @@ export function test_engine_steer_crowd(): void {
     const dx: number = Math.max(0, Math.abs(p.x - c.x) - 1);
     const dz: number = Math.max(0, Math.abs(p.z - c.z) - 0.5);
     if (Math.hypot(dx, dz) < R - 1e-6) {
-      findings.push(`moving box: the walker's disc enters it at ${t.toFixed(2)} s`);
+      findings.push(
+        `moving box: the walker's disc enters it at ${t.toFixed(2)} s`,
+      );
       break;
     }
   }
-  if (dodge.courses[0]!.arrival === null) findings.push("moving box: the walker did not arrive");
+  if (dodge.courses[0]!.arrival === null)
+    findings.push("moving box: the walker did not arrive");
 
   // 6. A moved and turned frame.
   const turn: number = (37 * Math.PI) / 180;
   const move = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    point(3 + p.x * Math.cos(turn) + p.z * Math.sin(turn), -1 - p.x * Math.sin(turn) + p.z * Math.cos(turn));
+    point(
+      3 + p.x * Math.cos(turn) + p.z * Math.sin(turn),
+      -1 - p.x * Math.sin(turn) + p.z * Math.cos(turn),
+    );
   const moved: steerAutoMovieCrowd.IResult = steerAutoMovieCrowd({
-    agents: pair.map((a: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent => ({ ...a, at: move(a.at), goal: move(ends[i]!) })),
+    agents: pair.map(
+      (a: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent => ({
+        ...a,
+        at: move(a.at),
+        goal: move(ends[i]!),
+      }),
+    ),
     from: 0,
     to: 14,
   });
@@ -175,7 +260,9 @@ export function test_engine_steer_crowd(): void {
       const a: IAutoMovieVector3 = move(headOn.courses[i]!.at(t).position);
       const b: IAutoMovieVector3 = moved.courses[i]!.at(t).position;
       if (Math.hypot(a.x - b.x, a.z - b.z) > 1e-6) {
-        findings.push(`frame: agent ${i} at ${t} s is ${Math.hypot(a.x - b.x, a.z - b.z)} m off its moved course`);
+        findings.push(
+          `frame: agent ${i} at ${t} s is ${Math.hypot(a.x - b.x, a.z - b.z)} m off its moved course`,
+        );
         break;
       }
     }

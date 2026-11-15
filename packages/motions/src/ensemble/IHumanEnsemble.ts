@@ -1,8 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
 import type { HumanAttribute } from "./HumanAttribute";
+import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
 import type { IHumanFormation } from "./IHumanFormation";
 
 /**
@@ -40,7 +40,9 @@ export interface IHumanEnsemble {
   preset?: IHumanEnsemblePreset.Name;
 
   /** Distributions overriding the preset's, by attribute. */
-  attributes?: Readonly<Partial<Record<HumanAttribute.Name, HumanAttribute.IDistribution>>>;
+  attributes?: Readonly<
+    Partial<Record<HumanAttribute.Name, HumanAttribute.IDistribution>>
+  >;
 
   /** The distribution of the members' proficiency `p`, overriding the preset's. */
   proficiency?: HumanAttribute.IDistribution;
@@ -52,7 +54,9 @@ export interface IHumanEnsemble {
   formation?: IHumanFormation;
 
   /** Each member's starting place, by index or as a rule, when there is no formation. */
-  places?: readonly IHumanEnsemble.IPlace[] | ((index: number) => IHumanEnsemble.IPlace);
+  places?:
+    | readonly IHumanEnsemble.IPlace[]
+    | ((index: number) => IHumanEnsemble.IPlace);
 
   /**
    * How much of each member is performed, by member: `full` performs it,

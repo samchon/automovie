@@ -68,27 +68,44 @@ export namespace HumanFormation {
         reason: "a formation has no block",
         fix: "give the formation at least one block",
       });
-    formation.blocks.forEach((block: IHumanFormation.IBlock, b: number): void => {
-      const capacity: number = HumanFormation.capacity(block.layout);
-      if (!(Number.isInteger(block.count) && block.count > 0 && block.count <= capacity))
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: `blocks[${b}].count`,
-          value: block.count,
-          feasible: { kind: "range", minimum: 1, maximum: Number.isFinite(capacity) ? capacity : null, unit: "" },
-          reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
-          fix: "give the block a whole number of members its layout holds",
-        });
-      for (const value of [block.offset?.lateral ?? 0, block.offset?.depth ?? 0, block.facing ?? 0])
-        if (!Number.isFinite(value))
+    formation.blocks.forEach(
+      (block: IHumanFormation.IBlock, b: number): void => {
+        const capacity: number = HumanFormation.capacity(block.layout);
+        if (
+          !(
+            Number.isInteger(block.count) &&
+            block.count > 0 &&
+            block.count <= capacity
+          )
+        )
           throw new HumanRefusal({
             kind: "parameter",
-            axis: `blocks[${b}]`,
-            value,
-            reason: `block ${b}'s offset or facing is not finite`,
-            fix: "give finite offsets and facings",
+            axis: `blocks[${b}].count`,
+            value: block.count,
+            feasible: {
+              kind: "range",
+              minimum: 1,
+              maximum: Number.isFinite(capacity) ? capacity : null,
+              unit: "",
+            },
+            reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
+            fix: "give the block a whole number of members its layout holds",
           });
-    });
+        for (const value of [
+          block.offset?.lateral ?? 0,
+          block.offset?.depth ?? 0,
+          block.facing ?? 0,
+        ])
+          if (!Number.isFinite(value))
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: `blocks[${b}]`,
+              value,
+              reason: `block ${b}'s offset or facing is not finite`,
+              fix: "give finite offsets and facings",
+            });
+      },
+    );
     if (formation.frame.kind === "path") laid(formation.frame);
     return formation;
   }
@@ -130,18 +147,23 @@ export namespace HumanFormation {
    * @returns The slot's local place.
    * @throws {RangeError} When the slot lies outside the formation.
    */
-  export function local(
-    formation: IHumanFormation,
-    index: number,
-  ): ILocal {
+  export function local(formation: IHumanFormation, index: number): ILocal {
     let b: number = 0;
     let within: number = index;
-    while (b < formation.blocks.length && within >= formation.blocks[b]!.count) {
+    while (
+      b < formation.blocks.length &&
+      within >= formation.blocks[b]!.count
+    ) {
       within -= formation.blocks[b]!.count;
       ++b;
     }
-    if (!(Number.isInteger(index) && index >= 0) || b === formation.blocks.length)
-      throw new RangeError(`Slot ${index} lies outside a formation of ${count(formation)}`);
+    if (
+      !(Number.isInteger(index) && index >= 0) ||
+      b === formation.blocks.length
+    )
+      throw new RangeError(
+        `Slot ${index} lies outside a formation of ${count(formation)}`,
+      );
     const block: IHumanFormation.IBlock = formation.blocks[b]!;
 
     // The block's own point: the engine's x is lateral, and its z, which grows rank by rank, is read as the depth toward the rear, so rank 0 is the front.
@@ -216,7 +238,10 @@ export namespace HumanFormation {
         fix: "read the slot from a law's context, or give the formation a fixed or path frame",
       });
     const root: IHumanActionContext.IRoot = read(f.subject, seconds);
-    return { at: { x: root.position.x, y: 0, z: root.position.z }, heading: root.yaw };
+    return {
+      at: { x: root.position.x, y: 0, z: root.position.z },
+      heading: root.yaw,
+    };
   }
 
   /**
@@ -230,7 +255,8 @@ export namespace HumanFormation {
   export function end(formation: IHumanFormation): number | null {
     const f: IHumanFormation.Frame = formation.frame;
     if (f.kind === "path") return laid(f).end;
-    if (f.kind === "course") return f.samples[f.samples.length - 1]?.seconds ?? null;
+    if (f.kind === "course")
+      return f.samples[f.samples.length - 1]?.seconds ?? null;
     return null;
   }
 
@@ -250,7 +276,11 @@ export namespace HumanFormation {
     read?: Reader,
   ): IHumanFormation.ISlot {
     const place: ILocal = local(formation, index);
-    const origin: { at: IAutoMovieVector3; heading: number } = frame(formation, seconds, read);
+    const origin: { at: IAutoMovieVector3; heading: number } = frame(
+      formation,
+      seconds,
+      read,
+    );
     return {
       at: place_(origin, place),
       heading: origin.heading + place.facing,
@@ -282,13 +312,18 @@ export namespace HumanFormation {
     read?: Reader,
   ): IHumanFormation.ISample[] {
     if (!(to > from && step > 0))
-      throw new RangeError(`A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`);
+      throw new RangeError(
+        `A slot's way runs forward in positive steps: ${from} to ${to} by ${step}`,
+      );
     const place: ILocal = local(formation, index);
     const count: number = Math.ceil((to - from) / step - 1e-9);
     const samples: IHumanFormation.ISample[] = [];
     for (let k: number = 0; k <= count; ++k) {
       const seconds: number = k === count ? to : from + k * step;
-      const at: IAutoMovieVector3 = place_(frame(formation, seconds, read), place);
+      const at: IAutoMovieVector3 = place_(
+        frame(formation, seconds, read),
+        place,
+      );
       samples.push({ seconds, x: at.x, y: at.y, z: at.z });
     }
     return samples;
@@ -324,12 +359,16 @@ export namespace HumanFormation {
         reason: `${members.length} members cannot take distinct slots of ${slots}`,
         fix: "give the formation a slot for every member",
       });
-    if (rule === "order") return members.map((_: IAutoMovieVector3, i: number): number => i);
+    if (rule === "order")
+      return members.map((_: IAutoMovieVector3, i: number): number => i);
     const points: IAutoMovieVector3[] = [];
-    for (let s: number = 0; s < slots; ++s) points.push(slot(formation, s, seconds, read).at);
+    for (let s: number = 0; s < slots; ++s)
+      points.push(slot(formation, s, seconds, read).at);
     return assignAutoMovieMinimumCost(
       members.map((m: IAutoMovieVector3): number[] =>
-        points.map((p: IAutoMovieVector3): number => Math.hypot(p.x - m.x, p.z - m.z)),
+        points.map((p: IAutoMovieVector3): number =>
+          Math.hypot(p.x - m.x, p.z - m.z),
+        ),
       ),
     );
   }
@@ -372,7 +411,8 @@ export namespace HumanFormation {
 }
 
 /** Every laid path frame, by its record, so a formation's frame is laid once. */
-const LAID: WeakMap<IHumanFormation.IPath, HumanFormationPath.ILaid> = new WeakMap();
+const LAID: WeakMap<IHumanFormation.IPath, HumanFormationPath.ILaid> =
+  new WeakMap();
 
 /** The laid path frame of a record. */
 function laid(frame: IHumanFormation.IPath): HumanFormationPath.ILaid {
@@ -400,17 +440,30 @@ function coursed(
   const a: IHumanFormation.ISample = s[i]!;
   const b: IHumanFormation.ISample = s[Math.min(i + 1, s.length - 1)]!;
   const span: number = b.seconds - a.seconds;
-  const u: number = span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
+  const u: number =
+    span <= 0 ? 0 : Math.min(1, Math.max(0, (seconds - a.seconds) / span));
   const heading = (k: number): number | null => {
     const p: IHumanFormation.ISample = s[k]!;
     const q: IHumanFormation.ISample = s[k + 1]!;
-    return Math.hypot(q.x - p.x, q.z - p.z) < 1e-9 ? null : (Math.atan2(q.x - p.x, q.z - p.z) * 180) / Math.PI;
+    return Math.hypot(q.x - p.x, q.z - p.z) < 1e-9
+      ? null
+      : (Math.atan2(q.x - p.x, q.z - p.z) * 180) / Math.PI;
   };
   let yaw: number | null = null;
-  for (let k: number = Math.min(i, s.length - 2); k >= 0 && yaw === null; --k) yaw = heading(k);
-  for (let k: number = Math.min(i, s.length - 2) + 1; k < s.length - 1 && yaw === null; ++k) yaw = heading(k);
+  for (let k: number = Math.min(i, s.length - 2); k >= 0 && yaw === null; --k)
+    yaw = heading(k);
+  for (
+    let k: number = Math.min(i, s.length - 2) + 1;
+    k < s.length - 1 && yaw === null;
+    ++k
+  )
+    yaw = heading(k);
   return {
-    at: { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u, z: a.z + (b.z - a.z) * u },
+    at: {
+      x: a.x + (b.x - a.x) * u,
+      y: a.y + (b.y - a.y) * u,
+      z: a.z + (b.z - a.z) * u,
+    },
     heading: yaw ?? 0,
   };
 }

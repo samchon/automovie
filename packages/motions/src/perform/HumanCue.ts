@@ -87,24 +87,36 @@ export namespace HumanCue {
     orders: readonly IOrder[],
   ): resolveAutoMovieSchedule.ICue[] {
     const track: { cue: resolveAutoMovieSchedule.ICue; order: number }[] = [];
-    const sorted: IOrder[] = [...orders].sort((a: IOrder, b: IOrder): number => a.at - b.at);
+    const sorted: IOrder[] = [...orders].sort(
+      (a: IOrder, b: IOrder): number => a.at - b.at,
+    );
     sorted.forEach((order: IOrder, i: number): void => {
       if (!Number.isFinite(order.at))
         throw new Error(`The command ${order.word} has no finite second`);
       if (order.caution !== undefined) {
         if (!(order.caution > 0))
-          throw new Error(`The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`);
+          throw new Error(
+            `The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`,
+          );
         const caution: number = order.at - order.caution;
         if (caution < 0)
-          throw new Error(`The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`);
+          throw new Error(
+            `The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`,
+          );
         const before: IOrder | undefined = sorted[i - 1];
         if (before !== undefined && caution <= before.at)
           throw new Error(
             `The command ${order.word}'s preparatory word at ${caution.toFixed(3)} s falls at or before the word of execution of ${before.word} at ${before.at.toFixed(3)} s`,
           );
-        track.push({ cue: { name: `${order.word}Caution`, seconds: caution }, order: 2 * i });
+        track.push({
+          cue: { name: `${order.word}Caution`, seconds: caution },
+          order: 2 * i,
+        });
       }
-      track.push({ cue: { name: order.word, seconds: order.at }, order: 2 * i + 1 });
+      track.push({
+        cue: { name: order.word, seconds: order.at },
+        order: 2 * i + 1,
+      });
     });
     return track
       .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
@@ -134,8 +146,14 @@ export namespace HumanCue {
     names?: readonly string[],
   ): resolveAutoMovieSchedule.ICue[] {
     return source.instants
-      .filter((i: { label: string }): boolean => names === undefined || names.includes(i.label))
-      .map((i: { label: string; seconds: number }, order: number) => ({ cue: { name: i.label, seconds: i.seconds }, order }))
+      .filter(
+        (i: { label: string }): boolean =>
+          names === undefined || names.includes(i.label),
+      )
+      .map((i: { label: string; seconds: number }, order: number) => ({
+        cue: { name: i.label, seconds: i.seconds },
+        order,
+      }))
       .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
       .map((each) => each.cue);
   }

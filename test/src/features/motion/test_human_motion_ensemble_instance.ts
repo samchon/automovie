@@ -44,10 +44,23 @@ export function test_human_motion_ensemble_instance(): void {
   const findings: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const formation: IHumanFormation = {
-    blocks: [{ layout: { kind: "line", ranks: 2, files: 5, spacing: { lateral: 0.6, depth: 0.8 } }, count: 10 }],
+    blocks: [
+      {
+        layout: {
+          kind: "line",
+          ranks: 2,
+          files: 5,
+          spacing: { lateral: 0.6, depth: 0.8 },
+        },
+        count: 10,
+      },
+    ],
     frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
   };
-  const perform = (instanced: boolean, turn: boolean = false): { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } => {
+  const perform = (
+    instanced: boolean,
+    turn: boolean = false,
+  ): { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } => {
     const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: "l",
       seed: "instance",
@@ -55,7 +68,12 @@ export function test_human_motion_ensemble_instance(): void {
       bodies: [body],
       preset: "elite",
       formation,
-      ...(instanced ? { detail: (m: { rank: number | null }) => (m.rank === 1 ? ("instanced" as const) : ("full" as const)) } : {}),
+      ...(instanced
+        ? {
+            detail: (m: { rank: number | null }) =>
+              m.rank === 1 ? ("instanced" as const) : ("full" as const),
+          }
+        : {}),
     });
     const performance: HumanPerformance = new HumanPerformance({
       seed: "instance",
@@ -65,19 +83,35 @@ export function test_human_motion_ensemble_instance(): void {
         ensemble,
         (m: HumanEnsemble.IMember, chain: HumanChain) =>
           chain.registered("march", {
-            to: turn ? { x: m.place.at.x + 3, y: 0, z: m.place.at.z + 0.01 } : { x: m.place.at.x, y: 0, z: m.place.at.z + 3 },
+            to: turn
+              ? { x: m.place.at.x + 3, y: 0, z: m.place.at.z + 0.01 }
+              : { x: m.place.at.x, y: 0, z: m.place.at.z + 3 },
           }),
         3,
       ),
     });
     return { performance, ensemble };
   };
-  const { performance, ensemble }: { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } = perform(true);
-  for (const m of ensemble.members.filter((m: HumanEnsemble.IMember): boolean => m.detail === "instanced")) {
-    const template: HumanEnsemble.IMember = ensemble.members.find((f: HumanEnsemble.IMember): boolean => f.detail === "full" && f.slot?.block === m.slot?.block)!;
+  const {
+    performance,
+    ensemble,
+  }: { performance: HumanPerformance; ensemble: HumanEnsemble.IEnsemble } =
+    perform(true);
+  for (const m of ensemble.members.filter(
+    (m: HumanEnsemble.IMember): boolean => m.detail === "instanced",
+  )) {
+    const template: HumanEnsemble.IMember = ensemble.members.find(
+      (f: HumanEnsemble.IMember): boolean =>
+        f.detail === "full" && f.slot?.block === m.slot?.block,
+    )!;
     const segment: HumanSegment.ISegment = performance.segments(m.subject)[0]!;
     const shift: number = (segment.params as { shift: number }).shift;
-    if (!Number.isInteger(shift) || shift < 0 || shift / instance.RATE > HumanEnsemble.LAG + 1e-9) findings.push(`${m.subject} lags ${shift} frames`);
+    if (
+      !Number.isInteger(shift) ||
+      shift < 0 ||
+      shift / instance.RATE > HumanEnsemble.LAG + 1e-9
+    )
+      findings.push(`${m.subject} lags ${shift} frames`);
     const offset: IAutoMovieVector3 = {
       x: m.place.at.x - template.place.at.x,
       y: 0,
@@ -85,14 +119,30 @@ export function test_human_motion_ensemble_instance(): void {
     };
     for (let t: number = 1 / 24; t < 2.9; t += 1 / 24) {
       const own: IHumanPosture = performance.posture(m.subject, t);
-      const lead: IHumanPosture = performance.posture(template.subject, t - shift / instance.RATE);
-      const off = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x - offset.x, a.y - b.y, a.z - b.z - offset.z);
+      const lead: IHumanPosture = performance.posture(
+        template.subject,
+        t - shift / instance.RATE,
+      );
+      const off = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+        Math.hypot(a.x - b.x - offset.x, a.y - b.y, a.z - b.z - offset.z);
       let worst: number = off(own.root, lead.root);
       for (const limb of ["leftLeg", "rightLeg"] as const)
-        if (own.limbs[limb] !== undefined && lead.limbs[limb] !== undefined && lead.limbs[limb].on === undefined)
-          worst = Math.max(worst, off(own.limbs[limb].point, lead.limbs[limb].point));
-      if (worst > 1e-9 || JSON.stringify(own.joints) !== JSON.stringify(lead.joints)) {
-        findings.push(`${m.subject} at ${t.toFixed(3)} s is ${worst.toExponential(2)} m off its template's moved posture`);
+        if (
+          own.limbs[limb] !== undefined &&
+          lead.limbs[limb] !== undefined &&
+          lead.limbs[limb].on === undefined
+        )
+          worst = Math.max(
+            worst,
+            off(own.limbs[limb].point, lead.limbs[limb].point),
+          );
+      if (
+        worst > 1e-9 ||
+        JSON.stringify(own.joints) !== JSON.stringify(lead.joints)
+      ) {
+        findings.push(
+          `${m.subject} at ${t.toFixed(3)} s is ${worst.toExponential(2)} m off its template's moved posture`,
+        );
         break;
       }
     }
@@ -100,10 +150,17 @@ export function test_human_motion_ensemble_instance(): void {
 
   // 3. The front rank is untouched by its instances.
   const full: { performance: HumanPerformance } = perform(false);
-  for (const m of ensemble.members.filter((m: HumanEnsemble.IMember): boolean => m.detail === "full"))
+  for (const m of ensemble.members.filter(
+    (m: HumanEnsemble.IMember): boolean => m.detail === "full",
+  ))
     for (let t: number = 0; t < 3; t += 0.25)
-      if (JSON.stringify(full.performance.posture(m.subject, t)) !== JSON.stringify(performance.posture(m.subject, t))) {
-        findings.push(`${m.subject} differs from its fully performed self at ${t} s`);
+      if (
+        JSON.stringify(full.performance.posture(m.subject, t)) !==
+        JSON.stringify(performance.posture(m.subject, t))
+      ) {
+        findings.push(
+          `${m.subject} differs from its fully performed self at ${t} s`,
+        );
         break;
       }
 
@@ -112,8 +169,15 @@ export function test_human_motion_ensemble_instance(): void {
     perform(true, true).performance.posture("l.5", 1);
     findings.push("an instance of a turning template was not refused");
   } catch (error) {
-    if (!(error instanceof HumanRefusal) || !String(error.value).startsWith("l.")) findings.push(`the turn refusal does not name the template: ${String(error)}`);
+    if (
+      !(error instanceof HumanRefusal) ||
+      !String(error.value).startsWith("l.")
+    )
+      findings.push(
+        `the turn refusal does not name the template: ${String(error)}`,
+      );
   }
-  if (HumanFormation.count(formation) !== 10) findings.push("the formation lost a slot");
+  if (HumanFormation.count(formation) !== 10)
+    findings.push("the formation lost a slot");
   TestValidator.equals("instanced members", findings, []);
 }

@@ -55,16 +55,36 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_ensemble_members(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("f-small"), motionHumanBody("m-tall")];
-  const line = (count: number, extra?: Partial<IHumanEnsemble>): IHumanEnsemble => ({
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("f-small"),
+    motionHumanBody("m-tall"),
+  ];
+  const line = (
+    count: number,
+    extra?: Partial<IHumanEnsemble>,
+  ): IHumanEnsemble => ({
     id: "b1",
     seed: "ensemble",
     count,
     bodies: pool,
-    attributes: { discipline: { mean: 0.5, spread: 0.1 }, morale: { mean: 0.6, spread: 0.08, shape: "uniform" } },
+    attributes: {
+      discipline: { mean: 0.5, spread: 0.1 },
+      morale: { mean: 0.6, spread: 0.08, shape: "uniform" },
+    },
     proficiency: { mean: 0.5, spread: 0.1 },
     formation: {
-      blocks: [{ layout: { kind: "line", ranks: 3, files: Math.ceil(count / 3), spacing: { lateral: 0.56, depth: 0.6 } }, count }],
+      blocks: [
+        {
+          layout: {
+            kind: "line",
+            ranks: 3,
+            files: Math.ceil(count / 3),
+            spacing: { lateral: 0.56, depth: 0.6 },
+          },
+          count,
+        },
+      ],
       frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
     },
     ...extra,
@@ -72,44 +92,102 @@ export function test_human_motion_ensemble_members(): void {
 
   // 1. Sampling bands.
   const big: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(1000));
-  for (const [name, mean, spread] of [["discipline", 0.5, 0.1], ["morale", 0.6, 0.08]] as const) {
-    const values: number[] = big.members.map((m: HumanEnsemble.IMember): number => m.attributes[name]!);
-    const m: number = values.reduce((a: number, b: number): number => a + b, 0) / values.length;
-    const sd: number = Math.sqrt(values.reduce((a: number, b: number): number => a + (b - m) ** 2, 0) / (values.length - 1));
-    if (Math.abs(m - mean) > (3 * spread) / Math.sqrt(values.length)) findings.push(`${name}: sample mean ${m.toFixed(4)} outside three standard errors of ${mean}`);
-    if (Math.abs(sd - spread) > 0.1 * spread) findings.push(`${name}: sample deviation ${sd.toFixed(4)}, ${spread} within 10 % expected`);
+  for (const [name, mean, spread] of [
+    ["discipline", 0.5, 0.1],
+    ["morale", 0.6, 0.08],
+  ] as const) {
+    const values: number[] = big.members.map(
+      (m: HumanEnsemble.IMember): number => m.attributes[name]!,
+    );
+    const m: number =
+      values.reduce((a: number, b: number): number => a + b, 0) / values.length;
+    const sd: number = Math.sqrt(
+      values.reduce((a: number, b: number): number => a + (b - m) ** 2, 0) /
+        (values.length - 1),
+    );
+    if (Math.abs(m - mean) > (3 * spread) / Math.sqrt(values.length))
+      findings.push(
+        `${name}: sample mean ${m.toFixed(4)} outside three standard errors of ${mean}`,
+      );
+    if (Math.abs(sd - spread) > 0.1 * spread)
+      findings.push(
+        `${name}: sample deviation ${sd.toFixed(4)}, ${spread} within 10 % expected`,
+      );
   }
 
   // 2. Each member's draws are its own.
   const base: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(30));
   const same = (a: HumanEnsemble.IMember, b: HumanEnsemble.IMember): boolean =>
-    a.pool === b.pool && a.role === b.role && a.attributes.discipline === b.attributes.discipline && a.attributes.morale === b.attributes.morale;
+    a.pool === b.pool &&
+    a.role === b.role &&
+    a.attributes.discipline === b.attributes.discipline &&
+    a.attributes.morale === b.attributes.morale;
   const more: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(31));
   const fewer: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(29));
-  const richer: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(30, { attributes: { discipline: { mean: 0.5, spread: 0.1 }, morale: { mean: 0.6, spread: 0.08, shape: "uniform" }, fatigue: { mean: 0.3, spread: 0.1 } } }));
-  const other: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(30, { seed: "another" }));
-  for (const [label, variant, n] of [["an added member", more, 30], ["a removed member", fewer, 29], ["an added attribute", richer, 30]] as const)
+  const richer: HumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(30, {
+      attributes: {
+        discipline: { mean: 0.5, spread: 0.1 },
+        morale: { mean: 0.6, spread: 0.08, shape: "uniform" },
+        fatigue: { mean: 0.3, spread: 0.1 },
+      },
+    }),
+  );
+  const other: HumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(30, { seed: "another" }),
+  );
+  for (const [label, variant, n] of [
+    ["an added member", more, 30],
+    ["a removed member", fewer, 29],
+    ["an added attribute", richer, 30],
+  ] as const)
     for (let i: number = 0; i < n; ++i)
       if (!same(base.members[i]!, variant.members[i]!)) {
         findings.push(`${label} changed member ${i}'s draws`);
         break;
       }
-  if (base.members.every((m: HumanEnsemble.IMember, i: number): boolean => same(m, other.members[i]!)))
+  if (
+    base.members.every((m: HumanEnsemble.IMember, i: number): boolean =>
+      same(m, other.members[i]!),
+    )
+  )
     findings.push("another seed changed no member's draws");
 
   // 3. Roles.
-  const roled: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(30, { roles: { officer: { count: 1, pick: "front" }, drummer: { count: 2, pick: "rear" } } }));
+  const roled: HumanEnsemble.IEnsemble = HumanEnsemble.of(
+    line(30, {
+      roles: {
+        officer: { count: 1, pick: "front" },
+        drummer: { count: 2, pick: "rear" },
+      },
+    }),
+  );
   for (const m of roled.members) {
-    if (m.role === "officer" && m.slot?.rank !== 0) findings.push(`the officer ${m.subject} stands in rank ${m.slot?.rank}`);
-    if (m.role === "drummer" && m.slot?.rank !== 2) findings.push(`the drummer ${m.subject} stands in rank ${m.slot?.rank}`);
+    if (m.role === "officer" && m.slot?.rank !== 0)
+      findings.push(`the officer ${m.subject} stands in rank ${m.slot?.rank}`);
+    if (m.role === "drummer" && m.slot?.rank !== 2)
+      findings.push(`the drummer ${m.subject} stands in rank ${m.slot?.rank}`);
   }
-  if (roled.members.filter((m: HumanEnsemble.IMember): boolean => m.role === "drummer").length !== 2) findings.push("two drummers expected");
+  if (
+    roled.members.filter(
+      (m: HumanEnsemble.IMember): boolean => m.role === "drummer",
+    ).length !== 2
+  )
+    findings.push("two drummers expected");
   try {
     HumanEnsemble.of(line(6, { roles: { officer: { count: 7 } } }));
     findings.push("a role of 7 among 6 members was not refused");
   } catch (error) {
-    if (!(error instanceof HumanRefusal) || !error.axis.includes("b1") || !error.axis.includes("officer") || error.feasible?.kind !== "range" || error.feasible.maximum !== 6)
-      findings.push(`the over-count refusal does not name the ensemble, the role and 6: ${String(error)}`);
+    if (
+      !(error instanceof HumanRefusal) ||
+      !error.axis.includes("b1") ||
+      !error.axis.includes("officer") ||
+      error.feasible?.kind !== "range" ||
+      error.feasible.maximum !== 6
+    )
+      findings.push(
+        `the over-count refusal does not name the ensemble, the role and 6: ${String(error)}`,
+      );
   }
 
   // 4 and 5. Attributes reach a law; the performance names every member.
@@ -117,7 +195,9 @@ export function test_human_motion_ensemble_members(): void {
   const probe: IHumanActionLaw<{ seconds: number }> = {
     name: "probe",
     interrupts: stand.interrupts,
-    plan: (context: IHumanActionContext<{ seconds: number }>): IHumanActionPlan => {
+    plan: (
+      context: IHumanActionContext<{ seconds: number }>,
+    ): IHumanActionPlan => {
       read.set(context.subject, context.attributes?.discipline);
       return stand.plan(context);
     },
@@ -128,54 +208,116 @@ export function test_human_motion_ensemble_members(): void {
     count: 2,
     bodies: [pool[0]!],
     attributes: { discipline: { mean: 0, spread: 0 } },
-    places: (index: number): IHumanEnsemble.IPlace => ({ at: { x: 2 * index, y: 0, z: 0 }, yaw: 0 }),
+    places: (index: number): IHumanEnsemble.IPlace => ({
+      at: { x: 2 * index, y: 0, z: 0 },
+      yaw: 0,
+    }),
   });
   const given: HumanEnsemble.IEnsemble = {
     ...pair,
-    members: pair.members.map((m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({ ...m, attributes: { discipline: i } })),
+    members: pair.members.map(
+      (m: HumanEnsemble.IMember, i: number): HumanEnsemble.IMember => ({
+        ...m,
+        attributes: { discipline: i },
+      }),
+    ),
   };
   const performance: HumanPerformance = new HumanPerformance({
     seed: "ensemble",
     laws: [probe as IHumanActionLaw<never>],
     performers: HumanEnsemble.performers(given),
-    composition: HumanEnsemble.chains(given, (_: HumanEnsemble.IMember, chain: HumanChain) => chain.registered("probe", { seconds: 0.5 })),
+    composition: HumanEnsemble.chains(
+      given,
+      (_: HumanEnsemble.IMember, chain: HumanChain) =>
+        chain.registered("probe", { seconds: 0.5 }),
+    ),
   });
-  if (read.get("p.0") !== 0 || read.get("p.1") !== 1) findings.push(`the law read discipline ${read.get("p.0")} and ${read.get("p.1")}, 0 and 1 expected`);
+  if (read.get("p.0") !== 0 || read.get("p.1") !== 1)
+    findings.push(
+      `the law read discipline ${read.get("p.0")} and ${read.get("p.1")}, 0 and 1 expected`,
+    );
   for (const m of given.members) {
     const root: IAutoMovieVector3 = performance.posture(m.subject, 0.25).root;
-    if (Math.hypot(root.x - m.place.at.x, root.z - m.place.at.z) > 0.05) findings.push(`${m.subject} stands ${root.x.toFixed(3)}, ${root.z.toFixed(3)}, not at its place`);
+    if (Math.hypot(root.x - m.place.at.x, root.z - m.place.at.z) > 0.05)
+      findings.push(
+        `${m.subject} stands ${root.x.toFixed(3)}, ${root.z.toFixed(3)}, not at its place`,
+      );
   }
 
   // 6. Picks.
-  const picked: number[] = HumanEnsemble.pick(base, 5, "misfire", (m: HumanEnsemble.IMember): boolean => m.index % 2 === 0);
-  if (picked.length !== 5 || picked.some((i: number): boolean => i % 2 !== 0)) findings.push(`pick gave ${picked.join(", ")}`);
-  if (HumanEnsemble.pick(base, 5, "misfire", (m: HumanEnsemble.IMember): boolean => m.index % 2 === 0).join() !== picked.join()) findings.push("pick is not repeatable");
-  const median: number = [...base.members.map((m: HumanEnsemble.IMember): number => m.attributes.discipline!)].sort((a: number, b: number): number => a - b)[15]!;
+  const picked: number[] = HumanEnsemble.pick(
+    base,
+    5,
+    "misfire",
+    (m: HumanEnsemble.IMember): boolean => m.index % 2 === 0,
+  );
+  if (picked.length !== 5 || picked.some((i: number): boolean => i % 2 !== 0))
+    findings.push(`pick gave ${picked.join(", ")}`);
+  if (
+    HumanEnsemble.pick(
+      base,
+      5,
+      "misfire",
+      (m: HumanEnsemble.IMember): boolean => m.index % 2 === 0,
+    ).join() !== picked.join()
+  )
+    findings.push("pick is not repeatable");
+  const median: number = [
+    ...base.members.map(
+      (m: HumanEnsemble.IMember): number => m.attributes.discipline!,
+    ),
+  ].sort((a: number, b: number): number => a - b)[15]!;
   let low: number = 0;
   let high: number = 0;
   for (let s: number = 0; s < 200; ++s) {
-    const e: HumanEnsemble.IEnsemble = HumanEnsemble.of(line(30, { seed: `pick${s}` }));
-    const cut: number = [...e.members.map((m: HumanEnsemble.IMember): number => m.attributes.discipline!)].sort((a: number, b: number): number => a - b)[15]!;
+    const e: HumanEnsemble.IEnsemble = HumanEnsemble.of(
+      line(30, { seed: `pick${s}` }),
+    );
+    const cut: number = [
+      ...e.members.map(
+        (m: HumanEnsemble.IMember): number => m.attributes.discipline!,
+      ),
+    ].sort((a: number, b: number): number => a - b)[15]!;
     for (const i of HumanEnsemble.pick(e, 3, "break", undefined, "discipline"))
       if (e.members[i]!.attributes.discipline! < cut) ++low;
       else ++high;
   }
-  if (!(low > high)) findings.push(`weighted picks fell ${low} times on the less and ${high} on the more disciplined half (median ${median.toFixed(3)})`);
+  if (!(low > high))
+    findings.push(
+      `weighted picks fell ${low} times on the less and ${high} on the more disciplined half (median ${median.toFixed(3)})`,
+    );
   try {
     HumanEnsemble.pick(base, 31, "all");
     findings.push("a pick of 31 among 30 was not refused");
   } catch (error) {
-    if (!(error instanceof HumanRefusal)) findings.push(`the pick refusal is not a HumanRefusal: ${String(error)}`);
+    if (!(error instanceof HumanRefusal))
+      findings.push(`the pick refusal is not a HumanRefusal: ${String(error)}`);
   }
 
   // 7. Seeds and groups.
-  if (HumanEnsemble.seed(base, 3, "horse") !== HumanEnsemble.seed(more, 3, "horse")) findings.push("adding a member changed a member's seed");
-  if (HumanEnsemble.seed(base, 3, "horse") === HumanEnsemble.seed(base, 3, "musket")) findings.push("two names gave one seed");
-  if (HumanEnsemble.seed(base, 3, "horse") === HumanEnsemble.seed(base, 4, "horse")) findings.push("two members gave one seed");
-  const groups: HumanEnsemble.IGroup[] = HumanEnsemble.groups(big, { share: 0.6, sizes: [2, 3] });
+  if (
+    HumanEnsemble.seed(base, 3, "horse") !==
+    HumanEnsemble.seed(more, 3, "horse")
+  )
+    findings.push("adding a member changed a member's seed");
+  if (
+    HumanEnsemble.seed(base, 3, "horse") ===
+    HumanEnsemble.seed(base, 3, "musket")
+  )
+    findings.push("two names gave one seed");
+  if (
+    HumanEnsemble.seed(base, 3, "horse") ===
+    HumanEnsemble.seed(base, 4, "horse")
+  )
+    findings.push("two members gave one seed");
+  const groups: HumanEnsemble.IGroup[] = HumanEnsemble.groups(big, {
+    share: 0.6,
+    sizes: [2, 3],
+  });
   const seen: Set<number> = new Set();
   for (const g of groups) {
-    if (![2, 3].includes(g.members.length)) findings.push(`a group of ${g.members.length}`);
+    if (![2, 3].includes(g.members.length))
+      findings.push(`a group of ${g.members.length}`);
     for (const i of g.members) {
       if (seen.has(i)) findings.push(`member ${i} is in two groups`);
       seen.add(i);
@@ -183,7 +325,10 @@ export function test_human_motion_ensemble_members(): void {
   }
   const share: number = seen.size / big.members.length;
   // Members are grouped in clusters of 2.5 on average, which inflates the binomial variance by the cluster size (the design effect of whole clusters).
-  if (Math.abs(share - 0.6) > 4 * Math.sqrt((2.5 * 0.6 * 0.4) / big.members.length))
+  if (
+    Math.abs(share - 0.6) >
+    4 * Math.sqrt((2.5 * 0.6 * 0.4) / big.members.length)
+  )
     findings.push(`grouped share ${share.toFixed(3)}, 0.6 expected`);
   TestValidator.equals("an ensemble's members", findings, []);
 }

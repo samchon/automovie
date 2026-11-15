@@ -10,11 +10,11 @@ import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HUMAN_ENSEMBLE_PRESETS } from "./HUMAN_ENSEMBLE_PRESETS";
 import { HumanAttribute } from "./HumanAttribute";
-import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
 import { HumanFormation } from "./HumanFormation";
-import { instance } from "./instance";
 import type { IHumanEnsemble } from "./IHumanEnsemble";
+import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
 import type { IHumanFormation } from "./IHumanFormation";
+import { instance } from "./instance";
 
 /**
  * A group of people as one subject: its members resolved from the group's
@@ -106,7 +106,13 @@ export namespace HumanEnsemble {
     input: IHumanEnsemble,
     read?: HumanFormation.Reader,
   ): IEnsemble {
-    const refuse = (axis: string, value: unknown, reason: string, fix: string, feasible?: HumanRefusal.Feasible): never => {
+    const refuse = (
+      axis: string,
+      value: unknown,
+      reason: string,
+      fix: string,
+      feasible?: HumanRefusal.Feasible,
+    ): never => {
       throw new HumanRefusal({
         kind: "parameter",
         axis: `${input.id}.${axis}`,
@@ -117,12 +123,27 @@ export namespace HumanEnsemble {
       });
     };
     if (!(Number.isInteger(input.count) && input.count > 0))
-      refuse("count", input.count, "an ensemble has a positive whole number of members", "give a positive count");
+      refuse(
+        "count",
+        input.count,
+        "an ensemble has a positive whole number of members",
+        "give a positive count",
+      );
     if (input.bodies.length === 0)
-      refuse("bodies", 0, "an ensemble's body pool is empty", "give at least one body");
+      refuse(
+        "bodies",
+        0,
+        "an ensemble's body pool is empty",
+        "give at least one body",
+      );
     const formation: IHumanFormation | undefined =
-      input.formation === undefined ? undefined : HumanFormation.of(input.formation);
-    if (formation !== undefined && HumanFormation.count(formation) < input.count)
+      input.formation === undefined
+        ? undefined
+        : HumanFormation.of(input.formation);
+    if (
+      formation !== undefined &&
+      HumanFormation.count(formation) < input.count
+    )
       refuse(
         "formation",
         HumanFormation.count(formation),
@@ -131,12 +152,21 @@ export namespace HumanEnsemble {
         { kind: "range", minimum: input.count, maximum: null, unit: "" },
       );
     if (formation === undefined && input.places === undefined)
-      refuse("places", undefined, "an ensemble needs a formation or places", "give a formation or places");
+      refuse(
+        "places",
+        undefined,
+        "an ensemble needs a formation or places",
+        "give a formation or places",
+      );
 
     // The distributions: the preset's rows, overridden by the input's.
     const preset: IHumanEnsemblePreset | undefined =
-      input.preset === undefined ? undefined : HUMAN_ENSEMBLE_PRESETS[input.preset];
-    const distributions: Partial<Record<HumanAttribute.Name, HumanAttribute.IDistribution>> = {
+      input.preset === undefined
+        ? undefined
+        : HUMAN_ENSEMBLE_PRESETS[input.preset];
+    const distributions: Partial<
+      Record<HumanAttribute.Name, HumanAttribute.IDistribution>
+    > = {
       ...(preset?.attributes ?? {}),
       ...(input.attributes ?? {}),
     };
@@ -151,16 +181,31 @@ export namespace HumanEnsemble {
       for (const name of HumanAttribute.NAMES) {
         const d: HumanAttribute.IDistribution | undefined = distributions[name];
         if (d !== undefined)
-          attributes[name] = HumanAttribute.draw(input.seed, input.id, index, name, d);
+          attributes[name] = HumanAttribute.draw(
+            input.seed,
+            input.id,
+            index,
+            name,
+            d,
+          );
       }
-      const p: number = HumanAttribute.draw(input.seed, input.id, index, "proficiency", proficiency);
+      const p: number = HumanAttribute.draw(
+        input.seed,
+        input.id,
+        index,
+        "proficiency",
+        proficiency,
+      );
       const axes: Partial<Record<IAutoMovieProficiency.Axis, number>> = {};
       if (attributes.discipline !== undefined)
         for (const axis of HUMAN_ATTRIBUTE_EFFECTS.discipline.axes)
           axes[axis] = attributes.discipline;
       const pool: number = Math.min(
         input.bodies.length - 1,
-        Math.floor(HumanAttribute.stream(input.seed, input.id, index, "body").float(0) * input.bodies.length),
+        Math.floor(
+          HumanAttribute.stream(input.seed, input.id, index, "body").float(0) *
+            input.bodies.length,
+        ),
       );
       const slot: HumanFormation.ILocal | null =
         formation === undefined ? null : HumanFormation.local(formation, index);
@@ -170,7 +215,12 @@ export namespace HumanEnsemble {
           : typeof input.places === "function"
             ? input.places(index)
             : (input.places![index] ??
-              refuse("places", input.places!.length, `${input.places!.length} places for ${input.count} members`, "give a place for every member"));
+              refuse(
+                "places",
+                input.places!.length,
+                `${input.places!.length} places for ${input.count} members`,
+                "give a place for every member",
+              ));
       members.push({
         index,
         subject,
@@ -188,21 +238,41 @@ export namespace HumanEnsemble {
 
     // Roles in the order given, each from the members its pick names that no earlier role took.
     for (const [role, spec] of Object.entries(input.roles ?? {})) {
-      const free: IMember[] = members.filter((m: IMember): boolean => m.role === null);
-      const candidates: IMember[] = spec.pick !== undefined && typeof spec.pick !== "string"
-        ? spec.pick.map((i: number): IMember =>
-            members[i] !== undefined && members[i]!.role === null
-              ? members[i]!
-              : refuse(`roles.${role}.pick`, i, `member ${i} does not exist or already has a role`, "pick free members by index"),
-          )
-        : spec.pick === "front"
-          ? free.filter((m: IMember): boolean => m.slot === null || m.slot.rank === 0)
-          : spec.pick === "rear"
-            ? free.filter((m: IMember): boolean => m.slot === null || m.slot.rank === rearRank(formation, m.slot.block)).reverse()
-            : spec.pick === "flank"
-              ? flank(free, formation)
-              : free;
-      if (!(Number.isInteger(spec.count) && spec.count >= 0) || spec.count > candidates.length)
+      const free: IMember[] = members.filter(
+        (m: IMember): boolean => m.role === null,
+      );
+      const candidates: IMember[] =
+        spec.pick !== undefined && typeof spec.pick !== "string"
+          ? spec.pick.map(
+              (i: number): IMember =>
+                members[i] !== undefined && members[i]!.role === null
+                  ? members[i]!
+                  : refuse(
+                      `roles.${role}.pick`,
+                      i,
+                      `member ${i} does not exist or already has a role`,
+                      "pick free members by index",
+                    ),
+            )
+          : spec.pick === "front"
+            ? free.filter(
+                (m: IMember): boolean => m.slot === null || m.slot.rank === 0,
+              )
+            : spec.pick === "rear"
+              ? free
+                  .filter(
+                    (m: IMember): boolean =>
+                      m.slot === null ||
+                      m.slot.rank === rearRank(formation, m.slot.block),
+                  )
+                  .reverse()
+              : spec.pick === "flank"
+                ? flank(free, formation)
+                : free;
+      if (
+        !(Number.isInteger(spec.count) && spec.count >= 0) ||
+        spec.count > candidates.length
+      )
         refuse(
           `roles.${role}`,
           spec.count,
@@ -278,13 +348,21 @@ export namespace HumanEnsemble {
     build: (member: IMember, chain: HumanChain) => HumanChainCore,
     seconds?: number,
   ): AutoMovieComposition {
-    const full: IMember[] = ensemble.members.filter((m: IMember): boolean => m.detail === "full");
-    const instanced: IMember[] = ensemble.members.filter((m: IMember): boolean => m.detail === "instanced");
+    const full: IMember[] = ensemble.members.filter(
+      (m: IMember): boolean => m.detail === "full",
+    );
+    const instanced: IMember[] = ensemble.members.filter(
+      (m: IMember): boolean => m.detail === "instanced",
+    );
     return AutoMovieComposition.parallel(
-      ...full.map((m: IMember): AutoMovieComposition => build(m, HumanChain.subject(m.subject)).node),
+      ...full.map(
+        (m: IMember): AutoMovieComposition =>
+          build(m, HumanChain.subject(m.subject)).node,
+      ),
       ...instanced.map((m: IMember): AutoMovieComposition => {
         const template: IMember | undefined = full.find(
-          (f: IMember): boolean => f.pool === m.pool && (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
+          (f: IMember): boolean =>
+            f.pool === m.pool && (f.slot?.block ?? 0) === (m.slot?.block ?? 0),
         );
         if (template === undefined || seconds === undefined)
           throw new HumanRefusal({
@@ -299,10 +377,19 @@ export namespace HumanEnsemble {
             fix: "give chains the span, and perform at least one member of each body and block in full",
           });
         const shift: number = Math.floor(
-          HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, m.index, "instance").float(0) *
+          HumanAttribute.stream(
+            ensemble.input.seed,
+            ensemble.input.id,
+            m.index,
+            "instance",
+          ).float(0) *
             (Math.round(LAG * instance.RATE) + 1),
         );
-        return HumanChain.subject(m.subject).registered(instance.name, { of: template.subject, seconds, shift }).node;
+        return HumanChain.subject(m.subject).registered(instance.name, {
+          of: template.subject,
+          seconds,
+          shift,
+        }).node;
       }),
     );
   }
@@ -336,23 +423,46 @@ export namespace HumanEnsemble {
     among?: (member: IMember) => boolean,
     weighted?: HumanAttribute.Name,
   ): number[] {
-    const admitted: IMember[] = ensemble.members.filter((m: IMember): boolean => among?.(m) ?? true);
+    const admitted: IMember[] = ensemble.members.filter(
+      (m: IMember): boolean => among?.(m) ?? true,
+    );
     if (!(Number.isInteger(count) && count >= 0 && count <= admitted.length))
       throw new HumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.pick.${name}`,
         value: count,
-        feasible: { kind: "range", minimum: 0, maximum: admitted.length, unit: "" },
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: admitted.length,
+          unit: "",
+        },
         reason: `${count} members asked for ${name} and ${admitted.length} may take it`,
         fix: "ask no more members than may take the outcome",
       });
     return admitted
       .map((m: IMember): { index: number; key: number } => {
-        const u: number = Math.max(1e-12, HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, m.index, `pick:${name}`).float(0));
-        const w: number = weighted === undefined ? 1 : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
+        const u: number = Math.max(
+          1e-12,
+          HumanAttribute.stream(
+            ensemble.input.seed,
+            ensemble.input.id,
+            m.index,
+            `pick:${name}`,
+          ).float(0),
+        );
+        const w: number =
+          weighted === undefined
+            ? 1
+            : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
         return { index: m.index, key: Math.log(u) / w };
       })
-      .sort((a: { key: number; index: number }, b: { key: number; index: number }): number => b.key - a.key || a.index - b.index)
+      .sort(
+        (
+          a: { key: number; index: number },
+          b: { key: number; index: number },
+        ): number => b.key - a.key || a.index - b.index,
+      )
       .slice(0, count)
       .map((e: { index: number }): number => e.index)
       .sort((a: number, b: number): number => a - b);
@@ -368,8 +478,17 @@ export namespace HumanEnsemble {
    * @param name What the seed is for.
    * @returns A whole number in [0, 2^32).
    */
-  export function seed(ensemble: IEnsemble, index: number, name: string): number {
-    return HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, index, `seed:${name}`).uint32(0);
+  export function seed(
+    ensemble: IEnsemble,
+    index: number,
+    name: string,
+  ): number {
+    return HumanAttribute.stream(
+      ensemble.input.seed,
+      ensemble.input.id,
+      index,
+      `seed:${name}`,
+    ).uint32(0);
   }
 
   /**
@@ -389,23 +508,47 @@ export namespace HumanEnsemble {
     ensemble: IEnsemble,
     spec: { share: number; sizes: readonly number[] },
   ): IGroup[] {
-    if (!(spec.share >= 0 && spec.share <= 1) || spec.sizes.length === 0 || spec.sizes.some((s: number): boolean => !(Number.isInteger(s) && s >= 2)))
+    if (
+      !(spec.share >= 0 && spec.share <= 1) ||
+      spec.sizes.length === 0 ||
+      spec.sizes.some((s: number): boolean => !(Number.isInteger(s) && s >= 2))
+    )
       throw new HumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.groups`,
         value: spec,
-        reason: "a grouped share lies in [0, 1] and every group size is a whole number of at least 2",
+        reason:
+          "a grouped share lies in [0, 1] and every group size is a whole number of at least 2",
         fix: "give a share in [0, 1] and sizes of 2 or more",
       });
-    const mean: number = spec.sizes.reduce((a: number, b: number): number => a + b, 0) / spec.sizes.length;
+    const mean: number =
+      spec.sizes.reduce((a: number, b: number): number => a + b, 0) /
+      spec.sizes.length;
     const start: number = spec.share / (mean - spec.share * (mean - 1));
     const out: IGroup[] = [];
     const n: number = ensemble.members.length;
     for (let i: number = 0; i < n; ) {
-      const random: IAutoMovieRandom = HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, i, "group");
-      const size: number = spec.sizes[Math.min(spec.sizes.length - 1, Math.floor(random.float(1) * spec.sizes.length))]!;
+      const random: IAutoMovieRandom = HumanAttribute.stream(
+        ensemble.input.seed,
+        ensemble.input.id,
+        i,
+        "group",
+      );
+      const size: number =
+        spec.sizes[
+          Math.min(
+            spec.sizes.length - 1,
+            Math.floor(random.float(1) * spec.sizes.length),
+          )
+        ]!;
       if (random.float(0) < start && i + size <= n) {
-        out.push({ index: out.length, members: Array.from({ length: size }, (_: unknown, k: number): number => i + k) });
+        out.push({
+          index: out.length,
+          members: Array.from(
+            { length: size },
+            (_: unknown, k: number): number => i + k,
+          ),
+        });
         i += size;
       } else ++i;
     }
@@ -419,7 +562,10 @@ function placeOf(slot: IHumanFormation.ISlot): IHumanEnsemble.IPlace {
 }
 
 /** The last rank of a block, or 0 without a formation. */
-function rearRank(formation: IHumanFormation | undefined, block: number): number {
+function rearRank(
+  formation: IHumanFormation | undefined,
+  block: number,
+): number {
   if (formation === undefined) return 0;
   let last: number = 0;
   let index: number = 0;
@@ -434,10 +580,17 @@ function flank(
   free: readonly HumanEnsemble.IMember[],
   formation: IHumanFormation | undefined,
 ): HumanEnsemble.IMember[] {
-  if (formation === undefined) return free.length < 2 ? [...free] : [free[0]!, free[free.length - 1]!];
-  const last: number = Math.max(0, ...free.map((m: HumanEnsemble.IMember): number => m.slot?.file ?? 0));
+  if (formation === undefined)
+    return free.length < 2 ? [...free] : [free[0]!, free[free.length - 1]!];
+  const last: number = Math.max(
+    0,
+    ...free.map((m: HumanEnsemble.IMember): number => m.slot?.file ?? 0),
+  );
   return [
     ...free.filter((m: HumanEnsemble.IMember): boolean => m.slot?.file === 0),
-    ...free.filter((m: HumanEnsemble.IMember): boolean => m.slot?.file === last && last !== 0),
+    ...free.filter(
+      (m: HumanEnsemble.IMember): boolean =>
+        m.slot?.file === last && last !== 0,
+    ),
   ];
 }

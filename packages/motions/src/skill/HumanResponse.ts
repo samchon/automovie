@@ -64,20 +64,34 @@ export namespace HumanResponse {
     random: IAutoMovieRandom,
     latency: Latency,
     warned: boolean,
-    attributes: Readonly<Partial<Record<HumanAttribute.Name, number>>> | undefined,
+    attributes:
+      | Readonly<Partial<Record<HumanAttribute.Name, number>>>
+      | undefined,
   ): number {
     if (latency !== "reaction")
-      return Math.max(0, latency.mean + latency.spread * HumanSkill.normal(random, 0));
-    const law: { mu: number; sigma: number; tau: number } = look.reactionLaw(skill, "signal");
+      return Math.max(
+        0,
+        latency.mean + latency.spread * HumanSkill.normal(random, 0),
+      );
+    const law: { mu: number; sigma: number; tau: number } = look.reactionLaw(
+      skill,
+      "signal",
+    );
     const hesitation: number = HumanAttribute.effect(
       HUMAN_ATTRIBUTE_EFFECTS.morale.latency,
       attributes?.morale,
       1,
     );
-    const lead: number = warned ? HumanSkill.quantity(skill, "anticipation", 0, LEAD) : 0;
+    const lead: number = warned
+      ? HumanSkill.quantity(skill, "anticipation", 0, LEAD)
+      : 0;
     return Math.max(
       FLOOR,
-      HumanSkill.reaction({ ...law, mu: law.mu * hesitation - lead }, random, 0),
+      HumanSkill.reaction(
+        { ...law, mu: law.mu * hesitation - lead },
+        random,
+        0,
+      ),
     );
   }
 }

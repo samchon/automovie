@@ -50,7 +50,7 @@ import { walkPaced } from "./walkPaced";
  * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the point every `STEP` seconds and `SAMPLES` postures of the plan, once per plan; each tick of the clock costs one search of the way.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the readings and the clock built once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the clock for as long as the returned plan is held.
- */export function walkStation(
+ */ export function walkStation(
   plan: IHumanActionPlan,
   where: (seconds: number) => IAutoMovieVector3,
   from: number,
@@ -210,21 +210,44 @@ export namespace walkStation {
   export function resolve<P extends IStationed>(
     context: IHumanActionContext<P>,
   ): IHumanActionContext<P> {
-    const station: IHumanFormation.IStation | undefined = context.params.station;
+    const station: IHumanFormation.IStation | undefined =
+      context.params.station;
     if (station === undefined) return context;
     const from: number = context.start;
     const until: number = rests(context, station);
-    const read: HumanFormation.Reader = (subject: string, seconds: number): IHumanActionContext.IRoot =>
-      context.performer(subject).root(seconds);
+    const read: HumanFormation.Reader = (
+      subject: string,
+      seconds: number,
+    ): IHumanActionContext.IRoot => context.performer(subject).root(seconds);
     const samples: IHumanFormation.ISample[] =
       until > from
-        ? HumanFormation.path(station.formation, station.slot, from, until, HumanFormation.SAMPLE, read)
-        : [{ seconds: from, ...HumanFormation.slot(station.formation, station.slot, from, read).at }];
+        ? HumanFormation.path(
+            station.formation,
+            station.slot,
+            from,
+            until,
+            HumanFormation.SAMPLE,
+            read,
+          )
+        : [
+            {
+              seconds: from,
+              ...HumanFormation.slot(
+                station.formation,
+                station.slot,
+                from,
+                read,
+              ).at,
+            },
+          ];
     const last: IHumanFormation.ISample = samples[samples.length - 1]!;
     const via: IAutoMovieVector3[] = [];
     let kept: IAutoMovieVector3 = context.entry.posture.root;
     for (const s of samples.slice(0, -1))
-      if (Math.hypot(s.x - kept.x, s.z - kept.z) >= SPACING && Math.hypot(last.x - s.x, last.z - s.z) >= SPACING) {
+      if (
+        Math.hypot(s.x - kept.x, s.z - kept.z) >= SPACING &&
+        Math.hypot(last.x - s.x, last.z - s.z) >= SPACING
+      ) {
         kept = { x: s.x, y: 0, z: s.z };
         via.push(kept);
       }
@@ -250,14 +273,17 @@ export namespace walkStation {
     context: IHumanActionContext<IStationed>,
     station: IHumanFormation.IStation,
   ): number {
-    const until: number | null = station.until ?? HumanFormation.end(station.formation);
-    if (until === null && station.formation.frame.kind === "fixed") return context.start;
+    const until: number | null =
+      station.until ?? HumanFormation.end(station.formation);
+    if (until === null && station.formation.frame.kind === "fixed")
+      return context.start;
     if (until === null)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "station.until",
         value: undefined,
-        reason: "the station follows a guide, whose rest only the guide's own actions decide",
+        reason:
+          "the station follows a guide, whose rest only the guide's own actions decide",
         fix: "give the station the film second it ends (until)",
       });
     if (until < context.start)
@@ -265,7 +291,12 @@ export namespace walkStation {
         kind: "parameter",
         axis: "station.until",
         value: until,
-        feasible: { kind: "range", minimum: context.start, maximum: null, unit: "s" },
+        feasible: {
+          kind: "range",
+          minimum: context.start,
+          maximum: null,
+          unit: "s",
+        },
         reason: `the station ends at ${until.toFixed(3)} s, before the walk starts at ${context.start.toFixed(3)} s`,
         fix: "start the walk before its station ends, or end the station later",
       });
@@ -284,8 +315,12 @@ export namespace walkStation {
     station: IHumanFormation.IStation,
   ): (seconds: number) => IAutoMovieVector3 {
     return (seconds: number): IAutoMovieVector3 =>
-      HumanFormation.slot(station.formation, station.slot, seconds, (subject: string, t: number): IHumanActionContext.IRoot =>
-        context.performer(subject).root(t),
+      HumanFormation.slot(
+        station.formation,
+        station.slot,
+        seconds,
+        (subject: string, t: number): IHumanActionContext.IRoot =>
+          context.performer(subject).root(t),
       ).at;
   }
 }

@@ -71,13 +71,20 @@ export namespace walkCadence {
 
     // The beat's period against the walk's own step.
     const C: number = walkCadence.period(beats);
-    const own: number = (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds) / (strikes.length - 1);
+    const own: number =
+      (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds) /
+      (strikes.length - 1);
     if (Math.abs(C / own - 1) > 0.2)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "cadence",
         value: 60 / C,
-        feasible: { kind: "range", minimum: Math.ceil(48 / own), maximum: Math.floor(72 / own), unit: "steps a minute" },
+        feasible: {
+          kind: "range",
+          minimum: Math.ceil(48 / own),
+          maximum: Math.floor(72 / own),
+          unit: "steps a minute",
+        },
         reason: `the beat comes every ${C.toFixed(3)} s and the walk steps every ${own.toFixed(3)} s; a step stretched by more than a fifth leaves its gait`,
         fix: "keep step to a beat within a fifth of the gait's own cadence, or march at the beat's time",
       });
@@ -108,7 +115,11 @@ export namespace walkCadence {
         out.push(out[k - 1]! + (strikes[k]!.seconds - strikes[k - 1]!.seconds));
         continue;
       }
-      const T: number = HumanSkill.jitter(context.skill, context.random(`cadence:${k}`), C);
+      const T: number = HumanSkill.jitter(
+        context.skill,
+        context.random(`cadence:${k}`),
+        C,
+      );
       A = (1 - alpha) * A + T - C;
       out.push(beat + A);
     }
@@ -123,8 +134,13 @@ export namespace walkCadence {
    * @param cadence The cadence.
    * @returns The beats in order.
    */
-  export function beats(context: IHumanActionContext, cadence: ICadence): number[] {
-    const track: readonly resolveAutoMovieSchedule.ICue[] = context.cue(cadence.cue);
+  export function beats(
+    context: IHumanActionContext,
+    cadence: ICadence,
+  ): number[] {
+    const track: readonly resolveAutoMovieSchedule.ICue[] = context.cue(
+      cadence.cue,
+    );
     const named: readonly resolveAutoMovieSchedule.ICue[] = track.filter(
       (c: resolveAutoMovieSchedule.ICue): boolean => c.name === "beat",
     );

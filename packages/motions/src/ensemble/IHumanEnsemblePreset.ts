@@ -14,7 +14,9 @@ export interface IHumanEnsemblePreset {
   proficiency: HumanAttribute.IDistribution;
 
   /** Each attribute's distribution. */
-  attributes: Readonly<Record<HumanAttribute.Name, HumanAttribute.IDistribution>>;
+  attributes: Readonly<
+    Record<HumanAttribute.Name, HumanAttribute.IDistribution>
+  >;
 }
 
 /**

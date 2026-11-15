@@ -144,19 +144,33 @@ export namespace HumanGait {
       const l: number = context.body.measure.hipHeight;
 
       // The cadence and the drill step: the regulation's time, or the beat track's period when the march keeps step to one.
-      const drill: { cadence: number; step: number } = regulated(context.params);
+      const drill: { cadence: number; step: number } = regulated(
+        context.params,
+      );
       const beats: number[] =
-        context.params.cadence === undefined ? [] : walkCadence.beats(context, context.params.cadence);
-      const cadence: number = beats.length < 2 ? drill.cadence : 60 / walkCadence.period(beats);
+        context.params.cadence === undefined
+          ? []
+          : walkCadence.beats(context, context.params.cadence);
+      const cadence: number =
+        beats.length < 2 ? drill.cadence : 60 / walkCadence.period(beats);
 
       // The whole number of steps nearest the way in drill steps, taken at the cadence: the step and the speed follow from them. A march keeping station takes as many steps as the cadence fits in the station's span, and the step gives.
-      const resolved: IHumanActionContext<IMarch> = walkStation.resolve(context);
+      const resolved: IHumanActionContext<IMarch> =
+        walkStation.resolve(context);
       const way: number = distance(resolved);
-      const station: IHumanFormation.IStation | undefined = context.params.station;
+      const station: IHumanFormation.IStation | undefined =
+        context.params.station;
       const count: number =
         station === undefined
           ? Math.max(2, Math.round(way / (drill.step * l)))
-          : Math.max(2, Math.round(((walkStation.rests(context, station) - context.start) * cadence) / 60));
+          : Math.max(
+              2,
+              Math.round(
+                ((walkStation.rests(context, station) - context.start) *
+                  cadence) /
+                  60,
+              ),
+            );
       // The stepping plan measures the way along its own path; 2 % of slack
       // keeps it on this count of steps. Its period is the longest step at
       // the speed (`WalkPace`), so the speed is the slack step's at the
@@ -410,8 +424,12 @@ function mood(
 }
 
 /** A march's cadence and step in hip heights: its regulation's time and pace, or TC 3-21.5's quick time. */
-function regulated(params: HumanGait.IMarch): { cadence: number; step: number } {
-  if (params.regulation === undefined) return { cadence: HumanGait.MARCH.cadence, step: HumanGait.MARCH.step };
+function regulated(params: HumanGait.IMarch): {
+  cadence: number;
+  step: number;
+} {
+  if (params.regulation === undefined)
+    return { cadence: HumanGait.MARCH.cadence, step: HumanGait.MARCH.step };
   const row: IHumanDrillRegulation = HUMAN_DRILL_CADENCES[params.regulation];
   const names: string[] = Object.keys(row.times);
   const time: string = params.time ?? names[0] ?? "";

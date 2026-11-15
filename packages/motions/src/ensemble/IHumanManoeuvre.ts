@@ -55,7 +55,15 @@ export interface IHumanManoeuvre {
  */
 export namespace IHumanManoeuvre {
   /** The drills `HUMAN_MANOEUVRES` holds. */
-  export type Row = "wheel" | "deploy" | "ploy" | "square" | "extend" | "close" | "face" | "free";
+  export type Row =
+    | "wheel"
+    | "deploy"
+    | "ploy"
+    | "square"
+    | "extend"
+    | "close"
+    | "face"
+    | "free";
 
   /** The four choices that decide a manoeuvre. */
   export interface IRule {
@@ -69,7 +77,9 @@ export namespace IHumanManoeuvre {
     order: "together" | "farFirst" | "nearFirst" | "byRank";
 
     /** What each rank does on arrival: the front, the rear or every rank stands or kneels; stands when absent. */
-    arrive?: Readonly<Partial<Record<"front" | "rear" | "all", "stand" | "kneel">>>;
+    arrive?: Readonly<
+      Partial<Record<"front" | "rear" | "all", "stand" | "kneel">>
+    >;
   }
 
   /** One member's share of a manoeuvre. */

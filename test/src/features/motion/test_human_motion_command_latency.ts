@@ -1,3 +1,4 @@
+import { AutoMovieComposition } from "@automovie/engine";
 import {
   HumanChain,
   HumanCue,
@@ -8,7 +9,6 @@ import {
   type IHumanBody,
   type IHumanEnsemble,
 } from "@automovie/motions";
-import { AutoMovieComposition } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,16 +46,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_command_latency(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("f-small"), motionHumanBody("m-tall")];
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("f-small"),
+    motionHumanBody("m-tall"),
+  ];
   const word: number = 3;
-  const group = (id: string, preset: IHumanEnsemble["preset"], count: number): HumanEnsemble.IEnsemble =>
+  const group = (
+    id: string,
+    preset: IHumanEnsemble["preset"],
+    count: number,
+  ): HumanEnsemble.IEnsemble =>
     HumanEnsemble.of({
       id,
       seed: "volley",
       count,
       bodies: pool,
       ...(preset === undefined ? {} : { preset }),
-      places: (index: number) => ({ at: { x: (id === "e" ? 0 : 40) + 1.2 * index, y: 0, z: 0 }, yaw: 0 }),
+      places: (index: number) => ({
+        at: { x: (id === "e" ? 0 : 40) + 1.2 * index, y: 0, z: 0 },
+        yaw: 0,
+      }),
     });
   const starts = (
     ensembles: readonly HumanEnsemble.IEnsemble[],
@@ -65,14 +76,36 @@ export function test_human_motion_command_latency(): void {
   ): Map<string, number> => {
     const performance: HumanPerformance = new HumanPerformance({
       seed: "volley",
-      performers: ensembles.flatMap((e: HumanEnsemble.IEnsemble) => HumanEnsemble.performers(e)),
-      cues: { orders: HumanCue.orders([{ word: "fire", at: word, ...(caution ? { caution: 1.5 } : {}) }]) },
+      performers: ensembles.flatMap((e: HumanEnsemble.IEnsemble) =>
+        HumanEnsemble.performers(e),
+      ),
+      cues: {
+        orders: HumanCue.orders([
+          { word: "fire", at: word, ...(caution ? { caution: 1.5 } : {}) },
+        ]),
+      },
       composition: AutoMovieComposition.parallel(
         ...ensembles.map((e: HumanEnsemble.IEnsemble) =>
-          HumanEnsemble.chains(e, (_: HumanEnsemble.IMember, chain: HumanChain) =>
-            (before ? chain.look({ target: { kind: "point", at: { x: 0, y: 1.6, z: 5 }, frame: "performer" }, seconds: 0.8 }) : chain)
-              .stand({ seconds: 0.5 })
-              .sync({ of: "orders", event: "fire", ...(latency ? { latency: "reaction" as const } : {}) }),
+          HumanEnsemble.chains(
+            e,
+            (_: HumanEnsemble.IMember, chain: HumanChain) =>
+              (before
+                ? chain.look({
+                    target: {
+                      kind: "point",
+                      at: { x: 0, y: 1.6, z: 5 },
+                      frame: "performer",
+                    },
+                    seconds: 0.8,
+                  })
+                : chain
+              )
+                .stand({ seconds: 0.5 })
+                .sync({
+                  of: "orders",
+                  event: "fire",
+                  ...(latency ? { latency: "reaction" as const } : {}),
+                }),
           ),
         ),
       ),
@@ -80,7 +113,9 @@ export function test_human_motion_command_latency(): void {
     const out: Map<string, number> = new Map();
     for (const e of ensembles)
       for (const m of e.members) {
-        const segments: readonly HumanSegment.ISegment[] = performance.segments(m.subject);
+        const segments: readonly HumanSegment.ISegment[] = performance.segments(
+          m.subject,
+        );
         out.set(m.subject, segments[segments.length - 1]!.entryTime - word);
       }
     return out;
@@ -88,8 +123,18 @@ export function test_human_motion_command_latency(): void {
   const elite: HumanEnsemble.IEnsemble = group("e", "elite", 30);
   const militia: HumanEnsemble.IEnsemble = group("m", "militia", 30);
   const stats = (values: readonly number[]): { mean: number; sd: number } => {
-    const mean: number = values.reduce((a: number, b: number): number => a + b, 0) / values.length;
-    return { mean, sd: Math.sqrt(values.reduce((a: number, b: number): number => a + (b - mean) ** 2, 0) / (values.length - 1)) };
+    const mean: number =
+      values.reduce((a: number, b: number): number => a + b, 0) / values.length;
+    return {
+      mean,
+      sd: Math.sqrt(
+        values.reduce(
+          (a: number, b: number): number => a + (b - mean) ** 2,
+          0,
+        ) /
+          (values.length - 1),
+      ),
+    };
   };
   const of = (map: Map<string, number>, e: HumanEnsemble.IEnsemble): number[] =>
     e.members.map((m: HumanEnsemble.IMember): number => map.get(m.subject)!);
@@ -97,45 +142,92 @@ export function test_human_motion_command_latency(): void {
   // 1. The floor and the spreads.
   const warned: Map<string, number> = starts([elite, militia], true);
   for (const [subject, latency] of warned)
-    if (latency < HumanResponse.FLOOR - 1e-9) findings.push(`${subject} starts ${latency.toFixed(3)} s after the word, before the floor`);
+    if (latency < HumanResponse.FLOOR - 1e-9)
+      findings.push(
+        `${subject} starts ${latency.toFixed(3)} s after the word, before the floor`,
+      );
   const e1: { mean: number; sd: number } = stats(of(warned, elite));
   const m1: { mean: number; sd: number } = stats(of(warned, militia));
-  if (!(e1.sd < m1.sd)) findings.push(`elite spread ${(e1.sd * 1000).toFixed(1)} ms is not below the militia's ${(m1.sd * 1000).toFixed(1)} ms`);
-  for (const [label, s] of [["elite", e1], ["militia", m1]] as const)
-    if (s.sd < 0.5 * Math.hypot(0.025, 0.04) || s.sd > 1.5 * Math.hypot(0.035, 0.07))
-      findings.push(`${label} spread ${(s.sd * 1000).toFixed(1)} ms outside 23.6 to 117.4 ms`);
+  if (!(e1.sd < m1.sd))
+    findings.push(
+      `elite spread ${(e1.sd * 1000).toFixed(1)} ms is not below the militia's ${(m1.sd * 1000).toFixed(1)} ms`,
+    );
+  for (const [label, s] of [
+    ["elite", e1],
+    ["militia", m1],
+  ] as const)
+    if (
+      s.sd < 0.5 * Math.hypot(0.025, 0.04) ||
+      s.sd > 1.5 * Math.hypot(0.035, 0.07)
+    )
+      findings.push(
+        `${label} spread ${(s.sd * 1000).toFixed(1)} ms outside 23.6 to 117.4 ms`,
+      );
 
   // 2. The preparatory word's lead.
   const unwarned: Map<string, number> = starts([elite, militia], false);
   const e2: { mean: number; sd: number } = stats(of(unwarned, elite));
-  if (!(e2.mean > e1.mean)) findings.push(`the elite answer in ${(e1.mean * 1000).toFixed(1)} ms warned and ${(e2.mean * 1000).toFixed(1)} ms unwarned; the warned sooner expected`);
+  if (!(e2.mean > e1.mean))
+    findings.push(
+      `the elite answer in ${(e1.mean * 1000).toFixed(1)} ms warned and ${(e2.mean * 1000).toFixed(1)} ms unwarned; the warned sooner expected`,
+    );
   for (const m of militia.members) {
     const lead: number = unwarned.get(m.subject)! - warned.get(m.subject)!;
-    if (lead < -1e-9 || lead > HumanResponse.LEAD + 1e-9) findings.push(`${m.subject}'s lead ${lead.toFixed(4)} s lies outside 0 to ${HumanResponse.LEAD} s`);
+    if (lead < -1e-9 || lead > HumanResponse.LEAD + 1e-9)
+      findings.push(
+        `${m.subject}'s lead ${lead.toFixed(4)} s lies outside 0 to ${HumanResponse.LEAD} s`,
+      );
   }
 
   // 3. Replay and independence.
   const again: Map<string, number> = starts([elite, militia], true);
-  for (const [subject, latency] of warned) if (again.get(subject) !== latency) findings.push(`${subject} does not replay`);
-  const grown: Map<string, number> = starts([group("e", "elite", 31), militia], true);
-  for (const m of elite.members) if (grown.get(m.subject) !== warned.get(m.subject)) findings.push(`adding a member moved ${m.subject}`);
-  const looked: Map<string, number> = starts([elite, militia], true, true, true);
-  for (const m of elite.members) if (looked.get(m.subject) !== warned.get(m.subject)) findings.push(`a look before the sync moved ${m.subject}`);
+  for (const [subject, latency] of warned)
+    if (again.get(subject) !== latency)
+      findings.push(`${subject} does not replay`);
+  const grown: Map<string, number> = starts(
+    [group("e", "elite", 31), militia],
+    true,
+  );
+  for (const m of elite.members)
+    if (grown.get(m.subject) !== warned.get(m.subject))
+      findings.push(`adding a member moved ${m.subject}`);
+  const looked: Map<string, number> = starts(
+    [elite, militia],
+    true,
+    true,
+    true,
+  );
+  for (const m of elite.members)
+    if (looked.get(m.subject) !== warned.get(m.subject))
+      findings.push(`a look before the sync moved ${m.subject}`);
 
   // 4. No latency.
   const exact: Map<string, number> = starts([elite], true, false);
-  for (const [subject, latency] of exact) if (Math.abs(latency) > 1e-9) findings.push(`${subject} without a latency starts ${latency} s off the word`);
+  for (const [subject, latency] of exact)
+    if (Math.abs(latency) > 1e-9)
+      findings.push(
+        `${subject} without a latency starts ${latency} s off the word`,
+      );
 
   // 5. Refusals.
   for (const [label, orders] of [
     ["a caution before the film", [{ word: "fire", at: 0.5, caution: 1 }]],
-    ["a caution before an earlier word", [{ word: "present", at: 2 }, { word: "fire", at: 2.5, caution: 1 }]],
+    [
+      "a caution before an earlier word",
+      [
+        { word: "present", at: 2 },
+        { word: "fire", at: 2.5, caution: 1 },
+      ],
+    ],
   ] as const)
     try {
       HumanCue.orders(orders);
       findings.push(`${label} was not refused`);
     } catch (error) {
-      if (!String(error).includes("fire")) findings.push(`${label}: the refusal does not name the word: ${String(error)}`);
+      if (!String(error).includes("fire"))
+        findings.push(
+          `${label}: the refusal does not name the word: ${String(error)}`,
+        );
     }
   TestValidator.equals("a command's latency", findings, []);
 }

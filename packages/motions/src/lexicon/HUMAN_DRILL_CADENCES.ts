@@ -19,7 +19,10 @@ import type { IHumanDrillRegulation } from "./IHumanDrillRegulation";
 export const HUMAN_DRILL_CADENCES: Readonly<
   Record<IHumanDrillRegulation.Name, IHumanDrillRegulation>
 > = {
-  british1792: { times: { ordinary: 75, quick: 108, quickest: 120 }, pace: 0.762 },
+  british1792: {
+    times: { ordinary: 75, quick: 108, quickest: 120 },
+    pace: 0.762,
+  },
   french1791: { times: { ordinary: 76, accelerated: 100 }, pace: 0.65 },
   us2021: { times: { quick: 120, double: 180 }, pace: 0.762 },
 };

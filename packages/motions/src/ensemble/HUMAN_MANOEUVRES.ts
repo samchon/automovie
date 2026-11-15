@@ -19,11 +19,18 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * - `free`: the least total distance (Kuhn 1955), straight, and steered
  *   where ways cross; each by its own latency.
  */
-export const HUMAN_MANOEUVRES: Readonly<Record<IHumanManoeuvre.Row, IHumanManoeuvre.IRule>> = {
+export const HUMAN_MANOEUVRES: Readonly<
+  Record<IHumanManoeuvre.Row, IHumanManoeuvre.IRule>
+> = {
   wheel: { assign: "order", path: "arc", order: "together" },
   deploy: { assign: "order", path: "oblique", order: "farFirst" },
   ploy: { assign: "order", path: "oblique", order: "nearFirst" },
-  square: { assign: "order", path: "straight", order: "together", arrive: { front: "kneel", all: "stand" } },
+  square: {
+    assign: "order",
+    path: "straight",
+    order: "together",
+    arrive: { front: "kneel", all: "stand" },
+  },
   extend: { assign: "order", path: "straight", order: "together" },
   close: { assign: "order", path: "straight", order: "together" },
   face: { assign: "order", path: "inPlace", order: "together" },

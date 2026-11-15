@@ -73,8 +73,15 @@ export const bakeFormationCycle: (
       }),
     );
   if (sources.length === 0) return null;
-  if (sources.some((t: IAutoMovieFormationPoseTake): boolean => t.poses.length !== samples || samples < 1))
-    throw new Error("bakeFormationCycle: every pose take holds the same positive count of poses");
+  if (
+    sources.some(
+      (t: IAutoMovieFormationPoseTake): boolean =>
+        t.poses.length !== samples || samples < 1,
+    )
+  )
+    throw new Error(
+      "bakeFormationCycle: every pose take holds the same positive count of poses",
+    );
   const rest: THREE.Matrix4[] = input.parts.map(
     (
       part: THREE.Mesh<

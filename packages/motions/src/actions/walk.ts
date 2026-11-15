@@ -6,8 +6,8 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
-import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
+import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -23,8 +23,8 @@ import type { IWalkGait } from "./IWalkGait";
 import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
-import { walkCarriage } from "./walkCarriage";
 import { walkCadence } from "./walkCadence";
+import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
@@ -524,23 +524,25 @@ export namespace walk {
             context.params.cadence,
             walkTempo.strikes(planned),
           );
-    const tempo: IHumanActionPlan = entrained !== null
-      ? walkTempo.entrained(
-          planned,
-          entrained.map((s: number): number => s - context.start),
-        )
-      : walkTempo(
-      planned,
-      (index: number): number =>
-        Math.SQRT2 *
-        HumanSkill.quantity(context.skill, "timing", 0.03, 0.01) *
-        (gait.unevenness ?? 1) *
-        HumanSkill.normal(context.random("stride"), 2 * index),
-      gait.limp,
-    );
+    const tempo: IHumanActionPlan =
+      entrained !== null
+        ? walkTempo.entrained(
+            planned,
+            entrained.map((s: number): number => s - context.start),
+          )
+        : walkTempo(
+            planned,
+            (index: number): number =>
+              Math.SQRT2 *
+              HumanSkill.quantity(context.skill, "timing", 0.03, 0.01) *
+              (gait.unevenness ?? 1) *
+              HumanSkill.normal(context.random("stride"), 2 * index),
+            gait.limp,
+          );
 
     // A gait that draws its own tempo keeps its station by matching the slot's speed; a cadenced one keeps its count.
-    const station: IHumanFormation.IStation | undefined = context.params.station;
+    const station: IHumanFormation.IStation | undefined =
+      context.params.station;
     return station === undefined || gait.called === true
       ? tempo
       : walkStation(

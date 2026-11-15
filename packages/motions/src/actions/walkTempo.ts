@@ -189,7 +189,8 @@ export namespace walkTempo {
   ): IHumanActionPlan {
     const planned: IStrike[] = strikes(plan);
     return walkTempo(plan, (index: number): number => {
-      const span: number = planned[index + 1]!.seconds - planned[index]!.seconds;
+      const span: number =
+        planned[index + 1]!.seconds - planned[index]!.seconds;
       const given: number | undefined = seconds[index + 1];
       const before: number | undefined = seconds[index];
       return given === undefined || before === undefined || span <= 0

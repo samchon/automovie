@@ -84,7 +84,9 @@ export namespace HumanObstacleMotion {
       footprint: footprint(obstacle, seconds),
       bottom: obstacle.bottom,
       top: obstacle.top,
-      ...(obstacle.apertures === undefined ? {} : { apertures: obstacle.apertures }),
+      ...(obstacle.apertures === undefined
+        ? {}
+        : { apertures: obstacle.apertures }),
     };
   }
 

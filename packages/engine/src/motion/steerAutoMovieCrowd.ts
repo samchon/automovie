@@ -31,28 +31,47 @@ export function steerAutoMovieCrowd(
   const t0: number = props.law?.horizon ?? steerAutoMovieCrowd.HORIZON;
   const agents: readonly IAutoMovieCrowdAgent[] = props.agents;
   agents.forEach((a: IAutoMovieCrowdAgent, i: number): void => {
-    for (const [name, value] of [["radius", a.radius], ["speed", a.speed]] as const)
+    for (const [name, value] of [
+      ["radius", a.radius],
+      ["speed", a.speed],
+    ] as const)
       if (!(Number.isFinite(value) && value > 0))
-        throw new Error(`steerAutoMovieCrowd: agent ${i}'s ${name} ${value} is not positive`);
-    if (!Number.isFinite(a.start)) throw new Error(`steerAutoMovieCrowd: agent ${i}'s start is not finite`);
+        throw new Error(
+          `steerAutoMovieCrowd: agent ${i}'s ${name} ${value} is not positive`,
+        );
+    if (!Number.isFinite(a.start))
+      throw new Error(`steerAutoMovieCrowd: agent ${i}'s start is not finite`);
     if (goals(a).length === 0)
       throw new Error(`steerAutoMovieCrowd: agent ${i} has no goal`);
   });
-  const obstacles: readonly IAutoMovieCrowdAgent.IObstacle[] = props.obstacles ?? [];
+  const obstacles: readonly IAutoMovieCrowdAgent.IObstacle[] =
+    props.obstacles ?? [];
   const n: number = agents.length;
   if (n === 0) return { courses: [], contacts: [] };
 
   // The canonical order: by each agent's own data, so the order given changes nothing.
   const order: number[] = agents
     .map((_: IAutoMovieCrowdAgent, i: number): number => i)
-    .sort((a: number, b: number): number => compare(agents[a]!, agents[b]!) || a - b);
+    .sort(
+      (a: number, b: number): number =>
+        compare(agents[a]!, agents[b]!) || a - b,
+    );
   const paths: IPath[] = order.map((i: number): IPath => pathOf(agents[i]!));
 
   // The right-hand side over the stacked state [x, z, vx, vz] per agent in canonical order.
-  const f = (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => {
+  const f = (
+    t: number,
+    x: readonly number[],
+  ): integrateMotionTrajectory.IRate => {
     const dx: number[] = new Array<number>(4 * n).fill(0);
-    const placed: IAutoMovieVector3[][] = obstacles.map((o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] => footprintAt(o, t));
-    const moving: IAutoMovieVector3[] = obstacles.map((o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3 => velocityOf(o, t));
+    const placed: IAutoMovieVector3[][] = obstacles.map(
+      (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3[] =>
+        footprintAt(o, t),
+    );
+    const moving: IAutoMovieVector3[] = obstacles.map(
+      (o: IAutoMovieCrowdAgent.IObstacle): IAutoMovieVector3 =>
+        velocityOf(o, t),
+    );
     for (let k: number = 0; k < n; ++k) {
       const agent: IAutoMovieCrowdAgent = agents[order[k]!]!;
       if (t < agent.start) continue;
@@ -62,7 +81,13 @@ export function steerAutoMovieCrowd(
       const vz: number = x[4 * k + 3]!;
 
       // The desired velocity: along the goals, slowed on arrival, mixed with the neighbours' heading.
-      const want: { x: number; z: number; speed: number } = follow(paths[k]!, px, pz, agent.speed, tau);
+      const want: { x: number; z: number; speed: number } = follow(
+        paths[k]!,
+        px,
+        pz,
+        agent.speed,
+        tau,
+      );
       let ex: number = want.x;
       let ez: number = want.z;
       const p: number = agent.herding ?? 0;
@@ -74,7 +99,12 @@ export function steerAutoMovieCrowd(
           const sx: number = x[4 * j + 2]!;
           const sz: number = x[4 * j + 3]!;
           const s: number = Math.hypot(sx, sz);
-          if (s < 1e-6 || Math.hypot(x[4 * j]! - px, x[4 * j + 1]! - pz) > steerAutoMovieCrowd.NEIGHBOURHOOD) continue;
+          if (
+            s < 1e-6 ||
+            Math.hypot(x[4 * j]! - px, x[4 * j + 1]! - pz) >
+              steerAutoMovieCrowd.NEIGHBOURHOOD
+          )
+            continue;
           mx += sx / s;
           mz += sz / s;
         }
@@ -100,21 +130,44 @@ export function steerAutoMovieCrowd(
         const tt: number = Math.max(hit.time, 1e-3);
         const size: number = Math.min(
           steerAutoMovieCrowd.CAP,
-          (steerAutoMovieCrowd.K * Math.exp(-tt / t0) * (2 / tt + 1 / t0)) / (tt * tt * closing),
+          (steerAutoMovieCrowd.K * Math.exp(-tt / t0) * (2 / tt + 1 / t0)) /
+            (tt * tt * closing),
         );
         ax += size * hit.nx;
         az += size * hit.nz;
       };
       for (let j: number = 0; j < n; ++j) {
         if (j === k) continue;
-        push(discs(px, pz, vx, vz, x[4 * j]!, x[4 * j + 1]!, x[4 * j + 2]!, x[4 * j + 3]!, agent.radius + agents[order[j]!]!.radius));
+        push(
+          discs(
+            px,
+            pz,
+            vx,
+            vz,
+            x[4 * j]!,
+            x[4 * j + 1]!,
+            x[4 * j + 2]!,
+            x[4 * j + 3]!,
+            agent.radius + agents[order[j]!]!.radius,
+          ),
+        );
       }
       placed.forEach((footprint: IAutoMovieVector3[], o: number): void =>
-        push(polygon(px, pz, vx - moving[o]!.x, vz - moving[o]!.z, footprint, agent.radius)),
+        push(
+          polygon(
+            px,
+            pz,
+            vx - moving[o]!.x,
+            vz - moving[o]!.z,
+            footprint,
+            agent.radius,
+          ),
+        ),
       );
 
       // A position moves no faster than the agent's maximum.
-      const top: number = agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
+      const top: number =
+        agent.maximum ?? steerAutoMovieCrowd.MAXIMUM * agent.speed;
       const speed: number = Math.hypot(vx, vz);
       const scale: number = speed > top ? top / speed : 1;
       dx[4 * k] = vx * scale;
@@ -126,13 +179,15 @@ export function steerAutoMovieCrowd(
   };
   const x0: number[] = [];
   for (const i of order) x0.push(agents[i]!.at.x, agents[i]!.at.z, 0, 0);
-  const trajectory: integrateMotionTrajectory.ITrajectory = integrateMotionTrajectory({
-    f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => f(t, x),
-    x0,
-    t0: props.from,
-    t1: props.to,
-    ...(props.step === undefined ? {} : { h: props.step }),
-  });
+  const trajectory: integrateMotionTrajectory.ITrajectory =
+    integrateMotionTrajectory({
+      f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate =>
+        f(t, x),
+      x0,
+      t0: props.from,
+      t1: props.to,
+      ...(props.step === undefined ? {} : { h: props.step }),
+    });
 
   // Arrivals and contacts at the knots.
   const slot: number[] = new Array<number>(n);
@@ -141,48 +196,78 @@ export function steerAutoMovieCrowd(
   });
   const arrival: (number | null)[] = new Array<number | null>(n).fill(null);
   const contacts: IAutoMovieCrowdAgent.IContact[] = [];
-  const open: Map<string, { seconds: number; depth: number; ticks: number }> = new Map();
+  const open: Map<string, { seconds: number; depth: number; ticks: number }> =
+    new Map();
   for (let s: number = 0; s < trajectory.knots; ++s) {
     const seconds: number = Math.min(props.to, props.from + s * trajectory.h);
     const x: number[] = trajectory.at(seconds).x;
     const seen: Set<string> = new Set();
-    const touch = (key: string, depth: number, agent: number, other: number | null, obstacle: number | null): void => {
+    const touch = (
+      key: string,
+      depth: number,
+      agent: number,
+      other: number | null,
+      obstacle: number | null,
+    ): void => {
       seen.add(key);
-      const was: { seconds: number; depth: number; ticks: number } = open.get(key) ?? { seconds, depth, ticks: 0 };
+      const was: { seconds: number; depth: number; ticks: number } = open.get(
+        key,
+      ) ?? { seconds, depth, ticks: 0 };
       was.ticks += 1;
       open.set(key, was);
-      if (was.ticks === 2) contacts.push({ agent, other, obstacle, seconds: was.seconds, depth: was.depth });
+      if (was.ticks === 2)
+        contacts.push({
+          agent,
+          other,
+          obstacle,
+          seconds: was.seconds,
+          depth: was.depth,
+        });
     };
     for (let i: number = 0; i < n; ++i) {
       const a: number = slot[i]!;
       const ax: number = x[4 * a]!;
       const az: number = x[4 * a + 1]!;
       const destination: IAutoMovieVector3 = finalGoal(agents[i]!);
-      if (arrival[i] === null && Math.hypot(destination.x - ax, destination.z - az) <= agents[i]!.radius) arrival[i] = seconds;
+      if (
+        arrival[i] === null &&
+        Math.hypot(destination.x - ax, destination.z - az) <= agents[i]!.radius
+      )
+        arrival[i] = seconds;
       for (let j: number = i + 1; j < n; ++j) {
         const b: number = slot[j]!;
-        const depth: number = agents[i]!.radius + agents[j]!.radius - Math.hypot(x[4 * b]! - ax, x[4 * b + 1]! - az);
+        const depth: number =
+          agents[i]!.radius +
+          agents[j]!.radius -
+          Math.hypot(x[4 * b]! - ax, x[4 * b + 1]! - az);
         if (depth > 1e-9) touch(`a${i}:${j}`, depth, i, j, null);
       }
-      obstacles.forEach((o: IAutoMovieCrowdAgent.IObstacle, k: number): void => {
-        const depth: number = agents[i]!.radius - signedDistance(ax, az, footprintAt(o, seconds));
-        if (depth > 1e-9) touch(`o${i}:${k}`, depth, i, null, k);
-      });
+      obstacles.forEach(
+        (o: IAutoMovieCrowdAgent.IObstacle, k: number): void => {
+          const depth: number =
+            agents[i]!.radius - signedDistance(ax, az, footprintAt(o, seconds));
+          if (depth > 1e-9) touch(`o${i}:${k}`, depth, i, null, k);
+        },
+      );
     }
     for (const key of [...open.keys()]) if (!seen.has(key)) open.delete(key);
   }
   return {
-    courses: agents.map((_: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent.ICourse => ({
-      at: (seconds: number): { position: IAutoMovieVector3; velocity: IAutoMovieVector3 } => {
-        const state: number[] = trajectory.at(seconds).x;
-        const k: number = slot[i]!;
-        return {
-          position: { x: state[4 * k]!, y: 0, z: state[4 * k + 1]! },
-          velocity: { x: state[4 * k + 2]!, y: 0, z: state[4 * k + 3]! },
-        };
-      },
-      arrival: arrival[i]!,
-    })),
+    courses: agents.map(
+      (_: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent.ICourse => ({
+        at: (
+          seconds: number,
+        ): { position: IAutoMovieVector3; velocity: IAutoMovieVector3 } => {
+          const state: number[] = trajectory.at(seconds).x;
+          const k: number = slot[i]!;
+          return {
+            position: { x: state[4 * k]!, y: 0, z: state[4 * k + 1]! },
+            velocity: { x: state[4 * k + 2]!, y: 0, z: state[4 * k + 3]! },
+          };
+        },
+        arrival: arrival[i]!,
+      }),
+    ),
     contacts,
   };
 }
@@ -313,12 +398,24 @@ function pathOf(agent: IAutoMovieCrowdAgent): IPath {
   const points: IAutoMovieVector3[] = [agent.at, ...goals(agent)];
   const arcs: number[] = [0];
   for (let i: number = 1; i < points.length; ++i)
-    arcs.push(arcs[i - 1]! + Math.hypot(points[i]!.x - points[i - 1]!.x, points[i]!.z - points[i - 1]!.z));
+    arcs.push(
+      arcs[i - 1]! +
+        Math.hypot(
+          points[i]!.x - points[i - 1]!.x,
+          points[i]!.z - points[i - 1]!.z,
+        ),
+    );
   return { points, arcs };
 }
 
 /** The desired heading and speed at a position: toward the lookahead point on the path, slowed on arrival. */
-function follow(path: IPath, px: number, pz: number, speed: number, tau: number): { x: number; z: number; speed: number } {
+function follow(
+  path: IPath,
+  px: number,
+  pz: number,
+  speed: number,
+  tau: number,
+): { x: number; z: number; speed: number } {
   const { points, arcs }: IPath = path;
   const total: number = arcs[arcs.length - 1]!;
 
@@ -332,7 +429,10 @@ function follow(path: IPath, px: number, pz: number, speed: number, tau: number)
     if (length < 1e-12) continue;
     const dx: number = (points[i + 1]!.x - a.x) / length;
     const dz: number = (points[i + 1]!.z - a.z) / length;
-    const u: number = Math.max(0, Math.min(length, (px - a.x) * dx + (pz - a.z) * dz));
+    const u: number = Math.max(
+      0,
+      Math.min(length, (px - a.x) * dx + (pz - a.z) * dz),
+    );
     const d: number = Math.hypot(a.x + dx * u - px, a.z + dz * u - pz);
     if (d < best - 1e-12) {
       best = d;
@@ -342,13 +442,17 @@ function follow(path: IPath, px: number, pz: number, speed: number, tau: number)
   }
   const remaining: number = total - along + offset;
   const end: IAutoMovieVector3 = points[points.length - 1]!;
-  const s: number = Math.min(total, along + speed * steerAutoMovieCrowd.LOOKAHEAD);
+  const s: number = Math.min(
+    total,
+    along + speed * steerAutoMovieCrowd.LOOKAHEAD,
+  );
   let k: number = 0;
   while (k + 2 < points.length && arcs[k + 1]! < s) ++k;
   const a: IAutoMovieVector3 = points[k]!;
   const b: IAutoMovieVector3 = points[k + 1] ?? end;
   const span: number = arcs[k + 1]! - arcs[k]!;
-  const w: number = span < 1e-12 ? 1 : Math.min(1, Math.max(0, (s - arcs[k]!) / span));
+  const w: number =
+    span < 1e-12 ? 1 : Math.min(1, Math.max(0, (s - arcs[k]!) / span));
   const tx: number = a.x + (b.x - a.x) * w - px;
   const tz: number = a.z + (b.z - a.z) * w - pz;
   const length: number = Math.hypot(tx, tz);
@@ -356,14 +460,22 @@ function follow(path: IPath, px: number, pz: number, speed: number, tau: number)
   return {
     x: tx / length,
     z: tz / length,
-    speed: speed * Math.min(1, remaining / (speed * tau * steerAutoMovieCrowd.ARRIVAL)),
+    speed:
+      speed *
+      Math.min(1, remaining / (speed * tau * steerAutoMovieCrowd.ARRIVAL)),
   };
 }
 
 /** The first contact of two discs moving at constant velocities, or null: `|p - u t| = R` with `p` from the agent to the other and `u` the agent's velocity relative to the other. */
 function discs(
-  px: number, pz: number, vx: number, vz: number,
-  qx: number, qz: number, wx: number, wz: number,
+  px: number,
+  pz: number,
+  vx: number,
+  vz: number,
+  qx: number,
+  qz: number,
+  wx: number,
+  wz: number,
   R: number,
 ): IHit | null {
   const dx: number = qx - px;
@@ -384,14 +496,23 @@ function discs(
 }
 
 /** The first contact of a disc of radius `r` moving at `u` with a still convex polygon, or null. */
-function polygon(px: number, pz: number, ux: number, uz: number, corners: readonly IAutoMovieVector3[], r: number): IHit | null {
+function polygon(
+  px: number,
+  pz: number,
+  ux: number,
+  uz: number,
+  corners: readonly IAutoMovieVector3[],
+  r: number,
+): IHit | null {
   let best: IHit | null = null;
   const consider = (hit: IHit | null): void => {
     if (hit !== null && (best === null || hit.time < best.time)) best = hit;
   };
   const m: number = corners.length;
-  const cx: number = corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
-  const cz: number = corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
+  const cx: number =
+    corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
+  const cz: number =
+    corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
   for (let e: number = 0; e < m; ++e) {
     const a: IAutoMovieVector3 = corners[e]!;
     const b: IAutoMovieVector3 = corners[(e + 1) % m]!;
@@ -411,7 +532,8 @@ function polygon(px: number, pz: number, ux: number, uz: number, corners: readon
       const time: number = (d - r) / -rate;
       const hx: number = px + ux * time;
       const hz: number = pz + uz * time;
-      const along: number = ((hx - a.x) * (b.x - a.x) + (hz - a.z) * (b.z - a.z)) / length;
+      const along: number =
+        ((hx - a.x) * (b.x - a.x) + (hz - a.z) * (b.z - a.z)) / length;
       if (along >= 0 && along <= length) consider({ time, nx, nz, ux, uz });
     }
 
@@ -422,10 +544,16 @@ function polygon(px: number, pz: number, ux: number, uz: number, corners: readon
 }
 
 /** The signed distance from a point to a convex polygon, negative inside. */
-function signedDistance(px: number, pz: number, corners: readonly IAutoMovieVector3[]): number {
+function signedDistance(
+  px: number,
+  pz: number,
+  corners: readonly IAutoMovieVector3[],
+): number {
   const m: number = corners.length;
-  const cx: number = corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
-  const cz: number = corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
+  const cx: number =
+    corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.x, 0) / m;
+  const cz: number =
+    corners.reduce((s: number, c: IAutoMovieVector3): number => s + c.z, 0) / m;
   let outside: number = -Infinity;
   let nearest: number = Infinity;
   for (let e: number = 0; e < m; ++e) {
@@ -440,30 +568,51 @@ function signedDistance(px: number, pz: number, corners: readonly IAutoMovieVect
       nz = -nz;
     }
     outside = Math.max(outside, (px - a.x) * nx + (pz - a.z) * nz);
-    const u: number = Math.max(0, Math.min(length, ((px - a.x) * (b.x - a.x) + (pz - a.z) * (b.z - a.z)) / length));
-    nearest = Math.min(nearest, Math.hypot(a.x + ((b.x - a.x) * u) / length - px, a.z + ((b.z - a.z) * u) / length - pz));
+    const u: number = Math.max(
+      0,
+      Math.min(
+        length,
+        ((px - a.x) * (b.x - a.x) + (pz - a.z) * (b.z - a.z)) / length,
+      ),
+    );
+    nearest = Math.min(
+      nearest,
+      Math.hypot(
+        a.x + ((b.x - a.x) * u) / length - px,
+        a.z + ((b.z - a.z) * u) / length - pz,
+      ),
+    );
   }
   return outside <= 0 ? outside : nearest;
 }
 
 /** An obstacle's footprint in the world at a second. */
-function footprintAt(obstacle: IAutoMovieCrowdAgent.IObstacle, seconds: number): IAutoMovieVector3[] {
+function footprintAt(
+  obstacle: IAutoMovieCrowdAgent.IObstacle,
+  seconds: number,
+): IAutoMovieVector3[] {
   if (obstacle.motion === undefined) return [...obstacle.footprint];
-  const { position, yaw }: { position: IAutoMovieVector3; yaw: number } = obstacle.motion(seconds);
+  const { position, yaw }: { position: IAutoMovieVector3; yaw: number } =
+    obstacle.motion(seconds);
   const h: number = (yaw * Math.PI) / 180;
   const cos: number = Math.cos(h);
   const sin: number = Math.sin(h);
 
   // Its own x is its left and its z ahead: (cos h, -sin h) and (sin h, cos h) in the world.
-  return obstacle.footprint.map((c: IAutoMovieVector3): IAutoMovieVector3 => ({
-    x: position.x + c.x * cos + c.z * sin,
-    y: 0,
-    z: position.z - c.x * sin + c.z * cos,
-  }));
+  return obstacle.footprint.map(
+    (c: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: position.x + c.x * cos + c.z * sin,
+      y: 0,
+      z: position.z - c.x * sin + c.z * cos,
+    }),
+  );
 }
 
 /** An obstacle's velocity at a second, by a central difference of its motion over a millisecond; still without one. */
-function velocityOf(obstacle: IAutoMovieCrowdAgent.IObstacle, seconds: number): IAutoMovieVector3 {
+function velocityOf(
+  obstacle: IAutoMovieCrowdAgent.IObstacle,
+  seconds: number,
+): IAutoMovieVector3 {
   if (obstacle.motion === undefined) return { x: 0, y: 0, z: 0 };
   const h: number = 5e-4;
   const a: IAutoMovieVector3 = obstacle.motion(seconds - h).position;

@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HUMAN_DRILL_CADENCES,
   HUMAN_LEXICON,
@@ -43,31 +46,46 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_human_motion_cadence(): void {
   const findings: string[] = [];
-  const pool: IHumanBody[] = [motionHumanBody("m-average"), motionHumanBody("f-small"), motionHumanBody("m-tall")];
+  const pool: IHumanBody[] = [
+    motionHumanBody("m-average"),
+    motionHumanBody("f-small"),
+    motionHumanBody("m-tall"),
+  ];
   const drum: number[] = HumanCue.beats({ bpm: 76, count: 40, from: 1 })
     .filter((c: { name: string }): boolean => c.name === "beat")
     .map((c: { seconds: number }): number => c.seconds);
-  const march = (preset: IHumanEnsemble["preset"], count: number, drummed: boolean, regulation: "french1791" | "british1792" = "french1791", time: string = "ordinary"): IMarched => {
+  const march = (
+    preset: IHumanEnsemble["preset"],
+    count: number,
+    drummed: boolean,
+    regulation: "french1791" | "british1792" = "french1791",
+    time: string = "ordinary",
+  ): IMarched => {
     const ensemble: HumanEnsemble.IEnsemble = HumanEnsemble.of({
       id: preset ?? "x",
       seed: "drum",
       count,
       bodies: pool,
       ...(preset === undefined ? {} : { preset }),
-      places: (index: number) => ({ at: { x: 1.2 * index, y: 0, z: 0 }, yaw: 0 }),
+      places: (index: number) => ({
+        at: { x: 1.2 * index, y: 0, z: 0 },
+        yaw: 0,
+      }),
     });
     const performance: HumanPerformance = new HumanPerformance({
       seed: "drum",
       laws: [...HUMAN_LEXICON.gait!],
       performers: HumanEnsemble.performers(ensemble),
       cues: { drum: HumanCue.beats({ bpm: 76, count: 40, from: 1 }) },
-      composition: HumanEnsemble.chains(ensemble, (m: HumanEnsemble.IMember, chain: HumanChain) =>
-        chain.registered("march", {
-          to: { x: m.place.at.x, y: 0, z: 12 },
-          regulation,
-          time,
-          ...(drummed ? { cadence: { cue: "drum" } } : {}),
-        }),
+      composition: HumanEnsemble.chains(
+        ensemble,
+        (m: HumanEnsemble.IMember, chain: HumanChain) =>
+          chain.registered("march", {
+            to: { x: m.place.at.x, y: 0, z: 12 },
+            regulation,
+            time,
+            ...(drummed ? { cadence: { cue: "drum" } } : {}),
+          }),
       ),
     });
     const strikes: Map<string, number[]> = new Map();
@@ -76,35 +94,65 @@ export function test_human_motion_cadence(): void {
       strikes.set(
         m.subject,
         s.plan.events
-          .filter((e: IAutoMovieMotionEvent): boolean => /^(left|right)HeelStrike\d+$/.test(e.name))
-          .map((e: IAutoMovieMotionEvent): number => s.start + e.share * s.plan.duration)
+          .filter((e: IAutoMovieMotionEvent): boolean =>
+            /^(left|right)HeelStrike\d+$/.test(e.name),
+          )
+          .map(
+            (e: IAutoMovieMotionEvent): number =>
+              s.start + e.share * s.plan.duration,
+          )
           .sort((a: number, b: number): number => a - b),
       );
     }
     return { ensemble, strikes, performance };
   };
-  const middle = (s: readonly number[]): number[] => s.slice(Math.floor(s.length / 4), Math.ceil((3 * s.length) / 4));
-  const cadence = (s: readonly number[]): number => (60 * (s.length - 1)) / (s[s.length - 1]! - s[0]!);
+  const middle = (s: readonly number[]): number[] =>
+    s.slice(Math.floor(s.length / 4), Math.ceil((3 * s.length) / 4));
+  const cadence = (s: readonly number[]): number =>
+    (60 * (s.length - 1)) / (s[s.length - 1]! - s[0]!);
   const asynchronies = (s: readonly number[]): number[] =>
-    middle(s).map((t: number): number => t - drum.reduce((best: number, b: number): number => (Math.abs(b - t) < Math.abs(best - t) ? b : best), drum[0]!));
+    middle(s).map(
+      (t: number): number =>
+        t -
+        drum.reduce(
+          (best: number, b: number): number =>
+            Math.abs(b - t) < Math.abs(best - t) ? b : best,
+          drum[0]!,
+        ),
+    );
   const sd = (v: readonly number[]): number => {
-    const m: number = v.reduce((a: number, b: number): number => a + b, 0) / v.length;
-    return Math.sqrt(v.reduce((a: number, b: number): number => a + (b - m) ** 2, 0) / (v.length - 1));
+    const m: number =
+      v.reduce((a: number, b: number): number => a + b, 0) / v.length;
+    return Math.sqrt(
+      v.reduce((a: number, b: number): number => a + (b - m) ** 2, 0) /
+        (v.length - 1),
+    );
   };
 
   // 1 and 4. The elite on the drum.
   const elite: IMarched = march("elite", 8, true);
   for (const [subject, s] of elite.strikes) {
     const c: number = cadence(middle(s));
-    if (Math.abs(c - 76) > 0.01 * 76) findings.push(`${subject} marches ${c.toFixed(2)} steps a minute on a 76 drum`);
+    if (Math.abs(c - 76) > 0.01 * 76)
+      findings.push(
+        `${subject} marches ${c.toFixed(2)} steps a minute on a 76 drum`,
+      );
     for (const t of middle(s)) {
       const speed = (u: number): number => {
-        const a: IAutoMovieVector3 = elite.performance.posture(subject, u - 0.0025).root;
-        const b: IAutoMovieVector3 = elite.performance.posture(subject, u + 0.0025).root;
+        const a: IAutoMovieVector3 = elite.performance.posture(
+          subject,
+          u - 0.0025,
+        ).root;
+        const b: IAutoMovieVector3 = elite.performance.posture(
+          subject,
+          u + 0.0025,
+        ).root;
         return Math.hypot(b.x - a.x, b.z - a.z) / 0.005;
       };
       if (Math.abs(speed(t - 0.005) - speed(t + 0.005)) > 0.1) {
-        findings.push(`${subject}'s speed jumps at its strike at ${t.toFixed(3)} s`);
+        findings.push(
+          `${subject}'s speed jumps at its strike at ${t.toFixed(3)} s`,
+        );
         break;
       }
     }
@@ -112,30 +160,52 @@ export function test_human_motion_cadence(): void {
 
   // 2. Elite against militia.
   const militia: IMarched = march("militia", 8, true);
-  const eliteSpread: number = sd([...elite.strikes.values()].flatMap(asynchronies));
-  const militiaSpread: number = sd([...militia.strikes.values()].flatMap(asynchronies));
-  if (!(eliteSpread < militiaSpread)) findings.push(`the elite's asynchrony spread ${(eliteSpread * 1000).toFixed(1)} ms is not below the militia's ${(militiaSpread * 1000).toFixed(1)} ms`);
+  const eliteSpread: number = sd(
+    [...elite.strikes.values()].flatMap(asynchronies),
+  );
+  const militiaSpread: number = sd(
+    [...militia.strikes.values()].flatMap(asynchronies),
+  );
+  if (!(eliteSpread < militiaSpread))
+    findings.push(
+      `the elite's asynchrony spread ${(eliteSpread * 1000).toFixed(1)} ms is not below the militia's ${(militiaSpread * 1000).toFixed(1)} ms`,
+    );
 
   // 3. Civilians: the unlocked keep their own tempos.
   const civilians: IMarched = march("civilians", 9, true);
   const own: number[] = [...civilians.strikes.values()]
-    .filter((s: number[]): boolean => Math.abs(cadence(middle(s)) - 76) > 0.01 * 76)
+    .filter(
+      (s: number[]): boolean => Math.abs(cadence(middle(s)) - 76) > 0.01 * 76,
+    )
     .map((s: number[]): number => cadence(middle(s)));
   if (own.length === 0) findings.push("no civilian kept a tempo of its own");
-  else if (own.length > 1 && !(sd(own) > 0)) findings.push("the unlocked civilians share one cadence");
+  else if (own.length > 1 && !(sd(own) > 0))
+    findings.push("the unlocked civilians share one cadence");
 
   // 5. Regulations without a drum.
-  for (const [regulation, time, expected] of [["french1791", "ordinary", 76], ["british1792", "quick", 108]] as const) {
+  for (const [regulation, time, expected] of [
+    ["french1791", "ordinary", 76],
+    ["british1792", "quick", 108],
+  ] as const) {
     const run: IMarched = march("line", 3, false, regulation, time);
     for (const [index, [subject, s]] of [...run.strikes].entries()) {
       const c: number = cadence(middle(s));
-      if (Math.abs(c - expected) > 0.02 * expected) findings.push(`${regulation} ${time}: ${subject} marches ${c.toFixed(1)} steps a minute, ${expected} within 2 % expected`);
+      if (Math.abs(c - expected) > 0.02 * expected)
+        findings.push(
+          `${regulation} ${time}: ${subject} marches ${c.toFixed(1)} steps a minute, ${expected} within 2 % expected`,
+        );
       const body: IHumanBody = run.ensemble.members[index]!.body;
-      const pace: number = (HUMAN_DRILL_CADENCES[regulation].pace / 0.93) * body.measure.hipHeight;
+      const pace: number =
+        (HUMAN_DRILL_CADENCES[regulation].pace / 0.93) * body.measure.hipHeight;
       const mid: number[] = middle(s);
-      const travelled: number = run.performance.posture(subject, mid[mid.length - 1]!).root.z - run.performance.posture(subject, mid[0]!).root.z;
+      const travelled: number =
+        run.performance.posture(subject, mid[mid.length - 1]!).root.z -
+        run.performance.posture(subject, mid[0]!).root.z;
       const step: number = travelled / (mid.length - 1);
-      if (Math.abs(step - pace) > 0.15 * pace) findings.push(`${regulation} ${time}: ${subject}'s step ${step.toFixed(3)} m, ${pace.toFixed(3)} within 15 % expected`);
+      if (Math.abs(step - pace) > 0.15 * pace)
+        findings.push(
+          `${regulation} ${time}: ${subject}'s step ${step.toFixed(3)} m, ${pace.toFixed(3)} within 15 % expected`,
+        );
     }
   }
   TestValidator.equals("cadence entrained to a drum", findings, []);

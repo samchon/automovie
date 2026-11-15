@@ -216,7 +216,10 @@ export namespace look {
     random: IAutoMovieRandom,
     cue: "seen" | "signal",
   ): number {
-    return Math.max(0.1, HumanSkill.reaction(reactionLaw(skill, cue), random, 0));
+    return Math.max(
+      0.1,
+      HumanSkill.reaction(reactionLaw(skill, cue), random, 0),
+    );
   }
 
   /**

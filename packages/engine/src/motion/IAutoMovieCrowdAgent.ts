@@ -54,7 +54,10 @@ export namespace IAutoMovieCrowdAgent {
   /** One agent's planned course. */
   export interface ICourse {
     /** Its position and velocity at a film second, held at the pass's ends outside it. */
-    at: (seconds: number) => { position: IAutoMovieVector3; velocity: IAutoMovieVector3 };
+    at: (seconds: number) => {
+      position: IAutoMovieVector3;
+      velocity: IAutoMovieVector3;
+    };
 
     /** The first second it stands within its radius of its destination, or null when it does not arrive within the pass. */
     arrival: number | null;

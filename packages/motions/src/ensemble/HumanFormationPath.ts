@@ -63,7 +63,12 @@ export namespace HumanFormationPath {
     acceleration: number,
     turn: number,
   ): ILaid {
-    const refuse = (axis: string, value: unknown, reason: string, fix: string): never => {
+    const refuse = (
+      axis: string,
+      value: unknown,
+      reason: string,
+      fix: string,
+    ): never => {
       throw new HumanRefusal({ kind: "parameter", axis, value, reason, fix });
     };
 
@@ -76,7 +81,12 @@ export namespace HumanFormationPath {
       const dz: number = corners[i + 1]!.z - corners[i]!.z;
       const length: number = Math.hypot(dx, dz);
       if (!Number.isFinite(length))
-        refuse("frame.via", i, `corner ${i} or ${i + 1} is not finite`, "give finite corners");
+        refuse(
+          "frame.via",
+          i,
+          `corner ${i} or ${i + 1} is not finite`,
+          "give finite corners",
+        );
       if (length < 1e-9) continue;
       stretches.push({
         from: corners[i]!,
@@ -101,15 +111,30 @@ export namespace HumanFormationPath {
     const profiled: speedProfile.Stretch[] = [];
     if (typeof frame.speed === "number") {
       if (!(Number.isFinite(frame.speed) && frame.speed > 0))
-        refuse("frame.speed", frame.speed, "a cruising speed is positive", "give a positive speed");
-      profiled.push({ kind: "distance", length: total, speed: 0, cap: frame.speed });
+        refuse(
+          "frame.speed",
+          frame.speed,
+          "a cruising speed is positive",
+          "give a positive speed",
+        );
+      profiled.push({
+        kind: "distance",
+        length: total,
+        speed: 0,
+        cap: frame.speed,
+      });
     } else {
       let v: number = 0;
       let t: number = start;
       let covered: number = 0;
       for (const mark of frame.speed.marks) {
         if (!(Number.isFinite(mark.speed) && mark.speed >= 0))
-          refuse("frame.speed.marks", mark.speed, "a mark's speed is finite and nonnegative", "give a speed of at least 0");
+          refuse(
+            "frame.speed.marks",
+            mark.speed,
+            "a mark's speed is finite and nonnegative",
+            "give a speed of at least 0",
+          );
         if (!(mark.at >= t - 1e-9))
           refuse(
             "frame.speed.marks",
@@ -124,7 +149,11 @@ export namespace HumanFormationPath {
         }
         const change: number = Math.abs(mark.speed - v) / acceleration;
         if (change > 0) {
-          profiled.push({ kind: "seconds", seconds: change, speed: mark.speed });
+          profiled.push({
+            kind: "seconds",
+            seconds: change,
+            speed: mark.speed,
+          });
           covered += ((v + mark.speed) * change) / 2;
           t += change;
         }
@@ -163,18 +192,34 @@ export namespace HumanFormationPath {
       while (k + 1 < stretches.length && stretches[k + 1]!.start <= s) ++k;
       const here: IStretch = stretches[k]!;
       const blend = (a: number, b: number, u: number): number =>
-        a + ((((b - a + 180) % 360) + 360) % 360 - 180) * u;
+        a + (((((b - a + 180) % 360) + 360) % 360) - 180) * u;
       if (k + 1 < stretches.length) {
         const next: IStretch = stretches[k + 1]!;
-        const half: number = Math.min(turn / 2, here.length / 2, next.length / 2);
+        const half: number = Math.min(
+          turn / 2,
+          here.length / 2,
+          next.length / 2,
+        );
         if (half > 0 && s > next.start - half)
-          return blend(here.heading, next.heading, (s - (next.start - half)) / (2 * half));
+          return blend(
+            here.heading,
+            next.heading,
+            (s - (next.start - half)) / (2 * half),
+          );
       }
       if (k > 0) {
         const before: IStretch = stretches[k - 1]!;
-        const half: number = Math.min(turn / 2, here.length / 2, before.length / 2);
+        const half: number = Math.min(
+          turn / 2,
+          here.length / 2,
+          before.length / 2,
+        );
         if (half > 0 && s < here.start + half)
-          return blend(before.heading, here.heading, (s - (here.start - half)) / (2 * half));
+          return blend(
+            before.heading,
+            here.heading,
+            (s - (here.start - half)) / (2 * half),
+          );
       }
       return here.heading;
     };
@@ -188,8 +233,15 @@ export namespace HumanFormationPath {
         const here: IStretch = stretches[k]!;
         const into: number = s - here.start;
         return {
-          at: { x: here.from.x + here.dx * into, y: 0, z: here.from.z + here.dz * into },
-          heading: frame.heading === undefined || frame.heading === "along" ? along(s) : frame.heading,
+          at: {
+            x: here.from.x + here.dx * into,
+            y: 0,
+            z: here.from.z + here.dz * into,
+          },
+          heading:
+            frame.heading === undefined || frame.heading === "along"
+              ? along(s)
+              : frame.heading,
         };
       },
     };

@@ -102,9 +102,13 @@ export namespace HumanAttribute {
   ): number {
     const { mean, spread } = distribution;
     if (!(mean >= 0 && mean <= 1))
-      throw new Error(`The ${name} distribution's mean ${mean} lies outside [0, 1]`);
+      throw new Error(
+        `The ${name} distribution's mean ${mean} lies outside [0, 1]`,
+      );
     if (!(spread >= 0))
-      throw new Error(`The ${name} distribution's spread ${spread} is negative`);
+      throw new Error(
+        `The ${name} distribution's spread ${spread} is negative`,
+      );
     if (spread === 0) return mean;
     const random: IAutoMovieRandom = stream(seed, ensemble, index, name);
     const deviate: number =
