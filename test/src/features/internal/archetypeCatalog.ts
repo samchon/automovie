@@ -28,6 +28,7 @@ import {
   createControl,
   createCue,
   createCueTable,
+  createDeck,
   createDevice,
   createDiscus,
   createDoor,
@@ -409,6 +410,12 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createBoat({ kind }, seed),
       kind === "launch",
     );
+  add(
+    "deck",
+    (seed?: number | string): Archetype =>
+      createDeck(createDeck.REFERENCE, seed),
+    true,
+  );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
   add("pony", (seed?: number | string): Archetype => createPony({}, seed));
   for (const frame of createHandgun.FRAMES)

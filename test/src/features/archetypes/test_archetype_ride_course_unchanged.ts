@@ -217,6 +217,9 @@ function trapezoid(course: ArchetypeCourse.ICourse): ITrapezoid {
     heading = end.heading;
     length += span;
   }
+  // The reference planner's courses start and end at rest, so each states both rates.
+  if (course.acceleration === undefined || course.deceleration === undefined)
+    throw new Error("a course from rest to rest states both its rates");
   const a: number = course.acceleration;
   const b: number = course.deceleration;
   const peak: number = Math.min(

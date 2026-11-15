@@ -16,5 +16,6 @@ export * from "./ArchetypeSea";
 export * from "./ArchetypeShapes";
 export * from "./ArchetypeSite";
 export * from "./ArchetypeSpan";
+export * from "./ArchetypeTrack";
 export * from "./ArchetypeUnits";
 export * from "./IArchetypeBand";

@@ -63,8 +63,25 @@ export namespace ArchetypeCourseLegs {
       ["acceleration", course.acceleration],
       ["deceleration", course.deceleration],
     ] as const)
-      if (!(Number.isFinite(value) && value > 0))
+      if (
+        (name === "cruise" || value !== undefined) &&
+        !(Number.isFinite(value) && value! > 0)
+      )
         refuse(name, value, `${name} must be positive`);
+    // A rate the course's speed changes read, refused as missing only where one is read.
+    const rate = (
+      name: "acceleration" | "deceleration",
+      from: number,
+      to: number,
+    ): number =>
+      course[name] ??
+      refuse(
+        name,
+        undefined,
+        `the course goes from ${from} to ${to} m/s, which needs its ${name}`,
+        null,
+        `give the course's ${name} in metres per second squared`,
+      );
 
     // Each leg's run, its length along the grade, and the place and heading it starts from.
     const rows: IRow[] = [];
@@ -144,12 +161,28 @@ export namespace ArchetypeCourseLegs {
       value: number,
       cap: number,
     ): void => {
-      const range: { minimum: number; maximum: number } = speedProfile.reach(
-        from,
-        span,
-        course.acceleration,
-        course.deceleration,
-      );
+      // A stretch entered at its cap never speeds up and one that ends at it never slows: each bound reads its rate where it is given or used, and is the entry speed where the course neither gives nor needs it.
+      const rises: boolean = from < cap;
+      const falls: boolean = value < cap;
+      // Braking all the way and accelerating all the way: v squared less or plus twice the rate times the span.
+      const range: { minimum: number; maximum: number } = {
+        minimum:
+          course.deceleration !== undefined || falls
+            ? Math.sqrt(
+                Math.max(
+                  0,
+                  from * from -
+                    2 * rate("deceleration", from, value) * span,
+                ),
+              )
+            : from,
+        maximum:
+          course.acceleration !== undefined || rises
+            ? Math.sqrt(
+                from * from + 2 * rate("acceleration", from, value) * span,
+              )
+            : from,
+      };
       const maximum: number = Math.min(range.maximum, cap);
       if (value < range.minimum || value > maximum)
         refuse(
@@ -240,8 +273,12 @@ export namespace ArchetypeCourseLegs {
     const profile: speedProfile.IProfile = speedProfile({
       start: at,
       speed: startSpeed,
-      acceleration: course.acceleration,
-      deceleration: course.deceleration,
+      ...(course.acceleration === undefined
+        ? {}
+        : { acceleration: course.acceleration }),
+      ...(course.deceleration === undefined
+        ? {}
+        : { deceleration: course.deceleration }),
       stretches,
     });
 

@@ -254,32 +254,32 @@ export namespace createBoat {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["rowboat", "canoe", "launch"];
 
-  /** The gunwale's rail where a boarding hand takes it, metres across: a construction estimate, read by the grasp as the bar's width. */
+  /** The gunwale's rail where a boarding hand takes it, metres across: a construction estimate, read by the grasp as the bar's width. Searched for #3497 without a read figure, with the thwart's width below. */
   export const RAIL: number = 0.04;
 
-  /** A thwart's depth fore and aft, metres: a construction estimate. */
+  /** A thwart's depth fore and aft, metres: a construction estimate. Searched for #3497 without a read figure: traditional skiff and Whitehall thwart widths; the one plan found (a sea skiff's on Scribd) is garbled past confirming, and forum posts are no measurement. */
   export const THWART: number = 0.23;
 
   /** A transom's width as a share of the beam: a construction estimate no act reads beyond the stern seat's width. */
   export const TRANSOM: number = 0.6;
 
-  /** The oar's pivot above the gunwale, metres, a provisional value: the oarlock's own height, not read; WoodenBoat's oar geometry table measures the freeboard to the lock's bottom only. */
+  /** The oar's pivot above the gunwale, metres, a provisional value: the oarlock's own height, not read; WoodenBoat's oar geometry table measures the freeboard to the lock's bottom only. Searched for #3497 without a figure: Angus's fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) says only that mounting blocks can raise the oarlocks "a couple of inches" above the gunwales; oarlock makers' listings (Sawyer, NRS, Sea-Dog, Perko) give the shank's length, the horns' opening and the socket's size, not the throat's height above the socket. */
   export const LOCK: number = 0.05;
 
-  /** A canoe's and a launch's draft, metres, a provisional value each: no source read gives a canoe's; the launch takes the Royal Navy 32 ft cutter's 18 in (https://bmpt.org.uk/pnbpt_historic_boats/32-Ft-Naval-Cutter/index.htm), a boat of its size, since the Peake boat's is not given. A rowboat draws its own band. */
+  /** A canoe's and a launch's draft, metres, a provisional value each: no source read gives a canoe's (searched for #3497: makers' and dealers' specification pages of Nova Craft, Wenonah, Old Town, Swift and Northstar canoes state length, beam, depth and capacity, not draft; Paddling Magazine's sizing guide gives freeboard under load, not draft); the launch takes the Royal Navy 32 ft cutter's 18 in (https://bmpt.org.uk/pnbpt_historic_boats/32-Ft-Naval-Cutter/index.htm), a boat of its size, since the Peake boat's is not given. A rowboat draws its own band. */
   export const DRAFT: Readonly<Record<Kind, number>> = {
     rowboat: 0.15,
     canoe: 0.1,
     launch: 18 * ArchetypeUnits.INCH,
   };
 
-  /** A rowboat's places no source read gives, each provisional: the forward thwart's distance ahead of the rowing thwart, taken as the 32 in a single-banked Navy boat's thwarts stand apart (USNI Proceedings, June 1890), and the stern seat's front edge ahead of the transom. The oarlocks stand amidships. The source to read is a rowboat's plan sheet. */
+  /** A rowboat's places no source read gives, each provisional: the forward thwart's distance ahead of the rowing thwart, taken as the 32 in a single-banked Navy boat's thwarts stand apart (USNI Proceedings, June 1890), and the stern seat's front edge ahead of the transom. The oarlocks stand amidships. The source to read is a rowboat's plan sheet. Searched for #3497 without a figure: Whitehall plans' stern sheets and thwarts; the plan sellers' pages (Glen-L, Bear Mountain's Ontario Whitehall, Mystic Seaport's Llynholm and livery Whitehalls, Selway-Fisher) list the sheets and the hull's dimensions only. */
   export const ROWBOAT: Readonly<{ forward: number; stern: number }> = {
     forward: 32 * ArchetypeUnits.INCH,
     stern: 0.6,
   };
 
-  /** A canoe's seats' front edges from its middle, metres, each provisional: the bow seat's 40 in ahead and the stern seat's 50 in astern, the middle of 48 to 52 in, as a builder quotes a 16 ft Chestnut Prospector's plans (https://forums.wcha.org/threads/chestnut-prospector-stripper-seats.2027); the source to read is the plans. */
+  /** A canoe's seats' front edges from its middle, metres, each provisional: the bow seat's 40 in ahead and the stern seat's 50 in astern, the middle of 48 to 52 in, as a builder quotes a 16 ft Chestnut Prospector's plans (https://forums.wcha.org/threads/chestnut-prospector-stripper-seats.2027); the source to read is the plans. Searched for #3497 without a maker's figure: the Nova Craft Prospector 16's seat stations; owners' forums give solo seats only, and the tandem rule they quote (the stern seat's front edge as far aft as the bow seat's is forward) is no measurement. */
   export const CANOE: Readonly<{ bow: number; stern: number }> = {
     bow: 40 * ArchetypeUnits.INCH,
     stern: 50 * ArchetypeUnits.INCH,
@@ -361,7 +361,6 @@ export namespace createBoat {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
   /** The read hulls: the rowboats' Thames skiff, Whitehall skiff and Glen-L 17 ft Whitehall, and the canoes' Prospector 16, Discovery 169, Spirit II and Minnesota II (`BOAT_MODELS`). */
   export type Model =
     | "thamesSkiff"
@@ -387,6 +386,7 @@ export namespace createBoat {
     | "intekCarbon"
     | "intek";
 
+  /** The parameters: the kind, its read hull and a canoe's layup, and any free dimension the kind has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which read hull of the kind; drawn from the seed when absent. */
     model?: Model;

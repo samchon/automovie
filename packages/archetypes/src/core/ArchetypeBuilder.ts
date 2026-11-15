@@ -6,6 +6,8 @@ import {
 import type {
   AutoMoviePrimitiveShape,
   IAutoMovieAffordance,
+  IAutoMovieBodyContact,
+  IAutoMovieBodyDrag,
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -248,7 +250,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
+   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
    * @throws {ArchetypeRefusal} When no source measured the resting pair.
@@ -267,6 +269,8 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       rests?: ArchetypeFriction.Material;
       ground?: ArchetypeFriction.Material;
       restitution?: number;
+      drag?: IAutoMovieBodyDrag;
+      outcome?: IAutoMovieBodyContact;
     },
   ): Archetype<Id, Dimension> {
     const pair: ArchetypeFriction.ICoefficients | null =
@@ -297,6 +301,8 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           : ArchetypeFriction.value(pair.kinetic),
       surfaces: this.#surfaces,
       restitution: contact?.restitution ?? 0.2,
+      drag: contact?.drag ?? null,
+      contact: contact?.outcome ?? null,
       dimensions: this.#props.draw.values,
       provenance: this.#props.draw.provenance,
       spans: this.#spans,

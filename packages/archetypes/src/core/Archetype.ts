@@ -1,6 +1,8 @@
 import type {
   IAutoMovieAffordance,
   IAutoMovieBody,
+  IAutoMovieBodyContact,
+  IAutoMovieBodyDrag,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -120,6 +122,8 @@ export class Archetype<
         ? {}
         : { kineticFriction: props.kineticFriction }),
       restitution: props.restitution,
+      ...(props.drag === null ? {} : { drag: { ...props.drag } }),
+      ...(props.contact === null ? {} : { contact: { ...props.contact } }),
     };
     this.affordances = posed.affordances;
     this.materials = props.materials;
@@ -482,6 +486,12 @@ export namespace Archetype {
 
     /** Coefficient of restitution, 0 to 1. */
     restitution: number;
+
+    /** The air's drag on the body in flight; null when no source measured it. */
+    drag: IAutoMovieBodyDrag | null;
+
+    /** How the body ends a flight against what it strikes; null when it declares none. */
+    contact: IAutoMovieBodyContact | null;
 
     /** The value of each free dimension the variant has. */
     dimensions: Readonly<Partial<Record<Dimension, number>>>;

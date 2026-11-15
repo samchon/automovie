@@ -78,6 +78,7 @@ import {
   createBoat,
   createCar,
   createCart,
+  createDeck,
   createMotorcycle,
   createWheelchair,
   driveCar,
@@ -453,6 +454,7 @@ export function archetypeCaptureCatalog(): Readonly<
         createBoat.KINDS,
         (kind: createBoat.Kind): Archetype => createBoat({ kind }),
       ),
+      deck: createDeck(createDeck.REFERENCE),
     }),
     horse: still({ horse }),
     nature: still({
