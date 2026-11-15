@@ -18,6 +18,7 @@ export * from "./actions/walk";
 export * from "./actions/walkCadence";
 export * from "./actions/walkLegClearance";
 export * from "./actions/walkStanceCourse";
+export * from "./actions/walkStanceSolve";
 export * from "./actions/walkStation";
 export * from "./actions/walkSteps";
 export * from "./gait/HUMANOID_GAITS";

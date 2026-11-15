@@ -2,6 +2,7 @@ import {
   HumanFoot,
   type IHumanBody,
   walkStanceCourse,
+  walkStanceSolve,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    heel rises about the ball by the angle that lifts the ankle so far,
  *    within ten times the course's tolerance `walkStanceCourse.MET`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the course through `walkStanceCourse.solve` for a stance lowered steadily, so a heel that jumps from one knot to the next fails with the knot it was read at.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the course through `walkStanceSolve.solve` for a stance lowered steadily, so a heel that jumps from one knot to the next fails with the knot it was read at.
  * @evidence contracts/development/testing.md#independent-expectations The per-knot bound is the measured fastest ankle turn of walking times a knot's interval (Perry and Burnfield), far below the 11-degree jump a nanometre made; the standing bound is the rise the stance's geometry asks of a knee bent the course's least, read from the body.
  * @evidence contracts/development/testing.md#distinguishing-cases Stances from under the hip, where the flat foot stands, to half a metre behind it, where it cannot, on two builds.
  * @evidence contracts/development/testing.md#execution-ownership Two polygon bodies and plain geometry; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
@@ -70,7 +71,7 @@ export function test_human_motion_walk_heel_rise(): void {
           drop: m * 1e-3,
         }),
       );
-      const pitch: Float64Array = walkStanceCourse.solve(body, knots).pitch
+      const pitch: Float64Array = walkStanceSolve.solve(body, knots).pitch
         .right;
       // 1. Continuous from knot to knot.
       for (let m: number = 1; m < pitch.length; m++)
