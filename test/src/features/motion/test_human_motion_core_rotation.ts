@@ -2,13 +2,19 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieMotionEvent,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  HumanChain,
+  HumanPerformance,
+  type HumanSegment,
   type IHumanBody,
   type IHumanPosture,
   mixHumanPosture,
@@ -44,6 +50,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    heading's singular pitch).
  * 4. A posture with a rotation and a planted world goal is refused, the
  *    message naming the limb.
+ * 5. The front crawl rolls on the root: at each breath the pelvis holds the
+ *    stroke's own twist (0) and the mouth clears the water plane by the
+ *    law's 2 cm within 1 mm (#3423).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves and mixes real postures through the public functions and reads the bones; a goal not turned with the root, an attached goal turned twice, a blend that is not constant-speed, a snap at the vertical or a plant silently turned fails.
  * @evidence contracts/development/testing.md#independent-expectations The rigid motion's definition, slerp's constant angular speed, and an arc's length at the stature.
@@ -215,6 +224,47 @@ export function test_human_motion_core_rotation(): void {
     }
   }
 
+  // 5. The crawl rolls on the root: its pelvis keeps the stroke's own joint,
+  // and each breath clears the mouth over the plane by the law's 2 cm.
+  {
+    const body: IHumanBody = motionHumanBody("m-average");
+    const water: number = 1;
+    const p: HumanPerformance = new HumanPerformance({
+      seed: "rotation-crawl",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.5 })
+        .swim({ kind: "frontCrawl", cycles: 2, water }).node,
+    });
+    const s: HumanSegment.ISegment = p.segments("a")[1]!;
+    for (const e of s.plan.events.filter((x: IAutoMovieMotionEvent): boolean =>
+      x.name.startsWith("breath"),
+    )) {
+      const t: number = s.start + e.share * s.plan.duration;
+      const bones: Bones = p.bones("a", t);
+      const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.regions.mouth;
+      const mouth: number = resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        bones.get(frame.bone)!,
+      ).point.y;
+      if (mouth - water < 0.02 - 0.001)
+        findings.push(`crawl: the mouth clears the plane by ${(1000 * (mouth - water)).toFixed(1)} mm at ${e.name}`);
+      const hips: IAutoMovieJointPose | undefined = p.pose("a", t).joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === "hips",
+      );
+      if (hips !== undefined && Math.abs(hips.twist ?? 0) > 1e-9)
+        findings.push(`crawl: the pelvis twists ${hips.twist} degrees at ${e.name}, not the stroke's own 0`);
+    }
+  }
   TestValidator.predicate(
     `whole-body rotation: ${findings.join("; ") || "all hold"}`,
     findings.length === 0,
