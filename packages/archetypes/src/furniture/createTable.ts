@@ -26,6 +26,10 @@ const SEATING: string =
 const SERVICE: string =
   "Delfield Shelleysteel SCS mobile cashier's counter sheet: 30.00 in (76 cm) deep, 36.00 in (91 cm) high, 30, 36 or 50 in long (https://cdn.restaurantsupply.com/pdf/9/6/4/9644b43a-1127-42c0-87fa-1935fe9071fa.pdf); 2010 ADA Standards 904.4, a service counter's accessible portion at most 36 in (915 mm) high (https://www.access-board.gov/ada/chapter/ch09/)";
 
+/** The workbench read. */
+const RIMFORSA: string =
+  "IKEA RIMFORSA work bench 903.992.84: length 120 cm, width 63.5 cm, height 92 cm (min 90, max 94) (https://www.ikea.com/gb/en/p/rimforsa-work-bench-stainless-steel-bamboo-90399284)";
+
 /** The office desk standard. */
 const EN527: string =
   "EN 527-1:2011 Table 1 (https://cdn.standards.iteh.ai/samples/26022/6cc3729a004c4ce9a231c68a38e8620c/SIST-EN-527-1-2012.pdf)";
@@ -38,13 +42,14 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   coffee: "coffee table",
   bar: "bar counter",
   serviceCounter: "service counter",
+  workbench: "workbench",
 };
 
 /** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
 const KNEE: number = 0.305;
 
 /**
- * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter or a service counter.
+ * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter, a service counter or a workbench.
  *
  * The model is a top on four legs, or on a solid base for a counter, a bar counter and a service counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
@@ -179,7 +184,8 @@ export namespace createTable {
     | "counter"
     | "coffee"
     | "bar"
-    | "serviceCounter";
+    | "serviceCounter"
+    | "workbench";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -189,6 +195,7 @@ export namespace createTable {
     "coffee",
     "bar",
     "serviceCounter",
+    "workbench",
   ];
 
   /**
@@ -320,6 +327,16 @@ export namespace createTable {
       length: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 50 * ArchetypeUnits.INCH, `${SERVICE}: the three lengths`),
       depth: ArchetypeBand.metres(0.76, 0.76, SERVICE),
       mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    workbench: {
+      height: ArchetypeBand.metres(
+        90 * ArchetypeUnits.CENTIMETRE,
+        94 * ArchetypeUnits.CENTIMETRE,
+        `${RIMFORSA}: its adjustable height`,
+      ),
+      length: ArchetypeBand.metres(120 * ArchetypeUnits.CENTIMETRE, 120 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
+      depth: ArchetypeBand.metres(63.5 * ArchetypeUnits.CENTIMETRE, 63.5 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
+      mass: ArchetypeBand.of("kg", 40, 64, `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`, true),
     },
   };
 }

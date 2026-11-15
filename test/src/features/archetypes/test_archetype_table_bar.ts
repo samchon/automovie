@@ -25,12 +25,13 @@ const NKBA: Readonly<{
  * 1. The top, its `stack` and its `front` edge lie 1067 mm up.
  * 2. The base stands under the top's back, as deep as NKBA's counter range, and the top reaches 305 mm past the base's front on `+Z`, where a seated person's knees go.
  * 3. A service counter's top lies at Delfield's and the ADA's 36 in, 30 in deep, 30 to 50 in long.
+ * 4. A workbench's top lies at IKEA RIMFORSA's 90 to 94 cm, 120 x 63.5 cm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced top and base colliders and the contact frames over the seeds; a bar at a kitchen counter's height or with no knee space is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The 1067 and 305 mm and the counter depths are NKBA's figures restated here.
  * @evidence contracts/development/testing.md#distinguishing-cases The raised bar against the plain counter's 50 mm overhang, which `test_archetype_furniture_bands` covers.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
 export function test_archetype_table_bar(): void {
   const findings: string[] = [];
@@ -93,7 +94,24 @@ export function test_archetype_table_bar(): void {
       },
     ]),
   );
-  TestValidator.equals(
+  // 4. The workbench.
+  findings.push(
+    ...archetypeBandSweep([
+      {
+        name: "workbench height",
+        measure: (seed: number): number =>
+          createTable({ kind: "workbench" }, seed).affordance("top").frame.translation.y,
+        minimum: 0.9,
+        maximum: 0.94,
+        source: "IKEA RIMFORSA",
+      },
+    ]),
+  );
+  const bench: ReturnType<typeof createTable> = createTable({ kind: "workbench" }, 5);
+  if (!(Math.abs(archetypeExtent(bench, "x", ["top"]).size - 1.2) <= MM))
+    findings.push("the workbench is not 120 cm long");
+  if (!(Math.abs(archetypeExtent(bench, "z", ["top"]).size - 0.635) <= MM))
+    findings.push("the workbench is not 63.5 cm deep");  TestValidator.equals(
     "a bar counter stands at the guideline's height with its knee space",
     findings,
     [],
