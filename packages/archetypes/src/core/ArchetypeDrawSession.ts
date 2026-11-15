@@ -290,10 +290,24 @@ export class ArchetypeDrawSession<Dimension extends string> {
  * Companion types of {@link ArchetypeDrawSession}.
  */
 export namespace ArchetypeDrawSession {
-  /** A dimension's unit: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count, as a band states it. */
+  /**
+   * A dimension's unit: `m`, `kg`, `degrees`, `N`, or empty for a ratio or a count, as a band states it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each unit is and where it is written.
+   * @evidence contracts/development/design.md#principled-representation The band's own unit type, so a producer's declared unit and a band's are one closed union.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias of the band's member, read by the session's constructor, its unit check and its provenance.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second list of units: a band and a declaration cannot name different sets.
+   */
   export type Unit = IArchetypeBand["unit"];
 
-  /** Where an archetype's values came from: the band of each drawn dimension, the model picked on each axis, the axis whose model gave each figure, and every value's unit; a figure has no band. */
+  /**
+   * Where an archetype's values came from: the band of each drawn dimension, the model picked on each axis, the axis whose model gave each figure, and every value's unit; a figure has no band.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it records and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation Four records keyed by the producer's dimensions or axes, written by the same call that writes each value.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the session; the archetype exposes it and the gallery reads every member.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A dimension a model's figure gives has no band, so no record shows a band the value was not drawn in.
+   */
   export interface IProvenance<Dimension extends string> {
     /** The band each drawn dimension was drawn in, by dimension. */
     bands: Readonly<Partial<Record<Dimension, IArchetypeBand>>>;
@@ -308,7 +322,14 @@ export namespace ArchetypeDrawSession {
     units: Readonly<Partial<Record<Dimension, Unit>>>;
   }
 
-  /** One axis's pick: the model's name, undefined when the variant has none on the axis, and its read figures. */
+  /**
+   * One axis's pick: the model's name, undefined when the variant has none on the axis, and its read figures.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation The picked name from the producer's closed union and that model's read figures by dimension.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `model`; producers read the name to choose a shape and the figures to build it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An axis without models gives an undefined name and no figures, never a default model.
+   */
   export interface IModel<Name extends string, Dimension extends string> {
     /** The model's name; undefined when the variant has no models on the axis. */
     name: Name | undefined;
