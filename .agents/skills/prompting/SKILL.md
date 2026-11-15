@@ -31,7 +31,7 @@ A skill routes to a package and stops there; naming the package is the routing. 
 
 A skill gives a job's goal and boundaries, and points to the checklists it relies on without restating their items.
 
-An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record of one kind must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected one answer it, and whoever answers is the question's respondent. [Review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
+An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration, document or record Evidence selects must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Each selected one answers it, and whoever answers is the question's respondent. [Review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
 Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent, proof or repair owner differs. Keep a question about the overall achievement apart from its detailed checks, because passing every check does not prove the whole works.
 
