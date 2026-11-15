@@ -367,21 +367,21 @@ export namespace highFive {
     );
     const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
       HumanSeatedReach.need(
-      {
-        name: "slapper",
-        subject: context.subject,
-        body,
-        posture: entry,
-        bones,
-        seated: context.entry.supports.some(
-          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
-        ),
-      },
-      bones.get(`${side}UpperArm`)!.worldPosition,
-      place.point,
-      handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
-        .limit,
-    );
+        {
+          name: "slapper",
+          subject: context.subject,
+          body,
+          posture: entry,
+          bones,
+          seated: context.entry.supports.some(
+            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+          ),
+        },
+        bones.get(`${side}UpperArm`)!.worldPosition,
+        place.point,
+        handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
+          .limit,
+      );
     const under: IHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       clock.duration,
@@ -398,7 +398,11 @@ export namespace highFive {
                   under.posture(seconds),
                   lean.joints,
                   lean.share *
-                    clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+                    clock.envelope(
+                      ["start", "ready"],
+                      ["relax", "end"],
+                      seconds,
+                    ),
                 ),
             },
       clock,

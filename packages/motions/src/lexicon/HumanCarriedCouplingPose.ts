@@ -64,7 +64,6 @@ export namespace HumanCarriedCouplingPose {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
-
   /**
    * The bone a region's place is carried by, as the coupling anchors on it:
    * the region's own bone, a trunk bone or a limb's (a drag's thigh).

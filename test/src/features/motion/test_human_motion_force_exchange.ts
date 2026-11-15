@@ -243,8 +243,15 @@ export function test_human_motion_force_exchange(): void {
       }
       // Where the displayed base's edge lies then, against the standing one.
       const shown = (t: number): number =>
-        HumanForceExchange.edge(still.centre, direction, HumanFoot.base(body, HumanSignature.bones(reader, t)));
-      const moved: string = crossed === null ? "" : `; the base's edge then lies ${(shown(crossed) * 1000).toFixed(1)} mm along the pull, ${(edge * 1000).toFixed(1)} mm standing`;
+        HumanForceExchange.edge(
+          still.centre,
+          direction,
+          HumanFoot.base(body, HumanSignature.bones(reader, t)),
+        );
+      const moved: string =
+        crossed === null
+          ? ""
+          : `; the base's edge then lies ${(shown(crossed) * 1000).toFixed(1)} mm along the pull, ${(edge * 1000).toFixed(1)} mm standing`;
       all.check(
         `${cell}: the extrapolated centre reaches the base's edge at ${crossed === null ? "no instant" : `${crossed.toFixed(4)} s`}, within ${STEP.toFixed(4)} s of ${(START + declared).toFixed(4)} s expected${moved}`,
         crossed !== null && Math.abs(crossed - (START + declared)) <= STEP,

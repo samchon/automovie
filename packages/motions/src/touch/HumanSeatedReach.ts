@@ -267,7 +267,10 @@ export namespace HumanSeatedReach {
     Side extends { shoulder: IAutoMovieVector3 },
     Result = IAutoMovieVector3,
   >(
-    roles: readonly [AutoMovieMotionMeeting.IRole, AutoMovieMotionMeeting.IRole],
+    roles: readonly [
+      AutoMovieMotionMeeting.IRole,
+      AutoMovieMotionMeeting.IRole,
+    ],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,
   ): Result {

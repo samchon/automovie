@@ -166,20 +166,20 @@ export namespace handOver {
     )!.worldPosition;
     const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
       HumanSeatedReach.need(
-      {
-        name: HumanHandoverMeeting.GIVER,
-        subject: context.subject,
-        body,
-        posture: held,
-        bones: entered,
-        seated: context.entry.supports.some(
-          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
-        ),
-      },
-      shoulder,
-      shared.giverAt.point,
-      handshake.arm(body, side, shoulder).limit,
-    );
+        {
+          name: HumanHandoverMeeting.GIVER,
+          subject: context.subject,
+          body,
+          posture: held,
+          bones: entered,
+          seated: context.entry.supports.some(
+            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+          ),
+        },
+        shoulder,
+        shared.giverAt.point,
+        handshake.arm(body, side, shoulder).limit,
+      );
     const leaned = (share: number): IHumanPosture =>
       HumanSeatedReach.posed(body, held, lean.joints, lean.share * share);
 

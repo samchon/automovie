@@ -44,7 +44,8 @@ export function tetrahedralizeAutoMovieDelaunay(
   const amount: number =
     tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * largest;
   const jog = (i: number, axis: number): number =>
-    amount * (2 * seededValue(tetrahedralizeAutoMovieDelaunay.DOMAIN, i, axis) - 1);
+    amount *
+    (2 * seededValue(tetrahedralizeAutoMovieDelaunay.DOMAIN, i, axis) - 1);
   const joggled: IAutoMovieVector3[] = points.map(
     (p: IAutoMovieVector3, i: number): IAutoMovieVector3 => ({
       x: p.x + jog(i, 0),

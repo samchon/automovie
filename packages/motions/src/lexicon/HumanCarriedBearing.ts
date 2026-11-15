@@ -11,8 +11,8 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
@@ -164,28 +164,28 @@ export namespace HumanCarriedBearing {
                   );
                 const world: IHumanPosture.IGoal =
                   AutoMovieMotionHumanArmTarget.goal(
-                  body,
-                  side,
-                  AutoMovieMotionHumanTarget.hand(
                     body,
-                    posture,
                     side,
-                    {
-                      point: Vector3.add(
-                        anchor.worldPosition,
-                        Quaternion.rotateVector(
-                          anchor.worldRotation,
-                          local.point,
+                    AutoMovieMotionHumanTarget.hand(
+                      body,
+                      posture,
+                      side,
+                      {
+                        point: Vector3.add(
+                          anchor.worldPosition,
+                          Quaternion.rotateVector(
+                            anchor.worldRotation,
+                            local.point,
+                          ),
                         ),
-                      ),
-                      normal: Quaternion.rotateVector(
-                        anchor.worldRotation,
-                        local.normal,
-                      ),
-                    },
-                    { surface: "palm", shape: "relaxed" },
-                  ),
-                );
+                        normal: Quaternion.rotateVector(
+                          anchor.worldRotation,
+                          local.normal,
+                        ),
+                      },
+                      { surface: "palm", shape: "relaxed" },
+                    ),
+                  );
                 return {
                   ...world,
                   point: toBone(world.point),

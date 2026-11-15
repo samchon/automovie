@@ -77,7 +77,10 @@ export namespace HumanCarriedCouplingFit {
     theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     borne: IHumanBody,
     row: HumanCarried.IRow,
-    held: readonly [AutoMovieHumanoidRegion | null, AutoMovieHumanoidRegion | null],
+    held: readonly [
+      AutoMovieHumanoidRegion | null,
+      AutoMovieHumanoidRegion | null,
+    ],
   ): IFit {
     const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -125,7 +128,10 @@ export namespace HumanCarriedCouplingFit {
         { x: arm, y: 0, z: 0 },
         { x: 0, y: 0, z: arm },
       ]) {
-        const turned: IAutoMovieVector3 = Quaternion.rotateVector(heading, axis);
+        const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+          heading,
+          axis,
+        );
         from.push(turned);
         to.push(turned);
       }

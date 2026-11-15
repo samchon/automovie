@@ -121,7 +121,9 @@ export function test_human_motion_interaction_mesh(): void {
   const mesh: tetrahedralizeAutoMovieDelaunay.IMesh =
     tetrahedralizeAutoMovieDelaunay(reference.points);
   const extent: number = Math.max(
-    ...reference.points.map((p: IAutoMovieVector3): number => Vector3.length(p)),
+    ...reference.points.map((p: IAutoMovieVector3): number =>
+      Vector3.length(p),
+    ),
   );
   all.check(
     `the reference mesh has tetrahedra, read ${mesh.tetrahedra.length}`,
@@ -145,7 +147,10 @@ export function test_human_motion_interaction_mesh(): void {
   );
   for (const t of mesh.tetrahedra) {
     const v: number = tetrahedralizeAutoMovieDelaunay.volume(points, t);
-    all.check(`tetrahedron ${t.join(",")} has volume ${v}, positive expected`, v > 0);
+    all.check(
+      `tetrahedron ${t.join(",")} has volume ${v}, positive expected`,
+      v > 0,
+    );
     const sphere = circumsphere(points, t);
     if (sphere === null) continue;
     for (let i: number = 0; i < points.length; i++) {
@@ -371,7 +376,10 @@ export function test_human_motion_interaction_mesh(): void {
       );
       const off: number = Vector3.length(
         Vector3.subtract(
-          Vector3.subtract(locked[0].joints.get(c.a)!, locked[1].joints.get(c.b)!),
+          Vector3.subtract(
+            locked[0].joints.get(c.a)!,
+            locked[1].joints.get(c.b)!,
+          ),
           offset,
         ),
       );

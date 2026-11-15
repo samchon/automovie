@@ -75,7 +75,9 @@ export function test_human_motion_lexicon_rows_coupled(): void {
     };
 
     // 1. The carries.
-    for (const carry of Object.keys(HumanCarried.CARRIES) as HumanCarried.Carry[]) {
+    for (const carry of Object.keys(
+      HumanCarried.CARRIES,
+    ) as HumanCarried.Carry[]) {
       const cell: string = `carry ${carry}, ${names[0]} bearing ${names[1]}`;
       try {
         const film: HumanPerformance = new HumanPerformance({
@@ -114,7 +116,9 @@ export function test_human_motion_lexicon_rows_coupled(): void {
       resolveAutoMovieCenterOfMass(bodies.b.skeleton, bodies.b.profile);
     const weight: number = model.mass * AutoMovieGravity.STANDARD;
 
-    for (const kind of Object.keys(HumanCoupled.FULCRUMS) as HumanCoupled.Throw[])
+    for (const kind of Object.keys(
+      HumanCoupled.FULCRUMS,
+    ) as HumanCoupled.Throw[])
       for (const outcome of ["thrown", "resist", "yield"] as const) {
         const cell: string = `throw ${kind} ${outcome}, ${names[0]} throwing ${names[1]}`;
 
@@ -225,7 +229,8 @@ export function test_human_motion_lexicon_rows_coupled(): void {
         `supportWalk, two ${names[0]} helping ${names[1]}: planned expected, refused with ${error instanceof Error ? error.message : String(error)}`,
         false,
       );
-    }  }
+    }
+  }
   all.assert("every coupled record is performable");
 }
 
@@ -254,9 +259,18 @@ function helperStand(
   });
   const segments = lying.segments("b");
   const last = segments[segments.length - 1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(lying, "b", helped, 0);
+  const reader: HumanSignature.IReader = HumanSignature.of(
+    lying,
+    "b",
+    helped,
+    0,
+  );
   const end: number = last.start + last.plan.duration;
-  const wrist: IAutoMovieVector3 = HumanSignature.joint(reader, end, "rightHand");
+  const wrist: IAutoMovieVector3 = HumanSignature.joint(
+    reader,
+    end,
+    "rightHand",
+  );
   const hips: IAutoMovieVector3 = HumanSignature.joint(reader, end, "hips");
   const out: IAutoMovieVector3 = Vector3.normalize({
     x: wrist.x - hips.x,

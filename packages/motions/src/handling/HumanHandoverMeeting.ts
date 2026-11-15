@@ -172,8 +172,7 @@ export namespace HumanHandoverMeeting {
               a: resolveAutoMovieMutualGoal.ISide,
               b: resolveAutoMovieMutualGoal.ISide,
             ): IAutoMovieVector3 =>
-              resolveAutoMovieMutualGoal({ height: inputs.height, a, b })
-                .point,
+              resolveAutoMovieMutualGoal({ height: inputs.height, a, b }).point,
           ),
         };
       },

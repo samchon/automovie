@@ -120,8 +120,18 @@ export function test_human_motion_coupled_helpers(): void {
       `${cell}: the feet bear to the end, read ${feet.map((w) => `${w.part} ${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
       feet.some((w) => w.to === 1),
     );
-    const reader: HumanSignature.IReader = HumanSignature.of(film, "b", bodies.b, 0);
-    const helper: HumanSignature.IReader = HumanSignature.of(film, "a", bodies.a, 0);
+    const reader: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "b",
+      bodies.b,
+      0,
+    );
+    const helper: HumanSignature.IReader = HumanSignature.of(
+      film,
+      "a",
+      bodies.a,
+      0,
+    );
     for (const w of grips) {
       const t: number = rise.start + ((w.from + w.to) / 2) * rise.plan.duration;
       const gap: number = Vector3.length(
@@ -252,7 +262,9 @@ export function test_human_motion_coupled_helpers(): void {
           c.kind === "bear",
       )) {
         const on: HumanSignature.IReader =
-          contact.on.role === HumanCarriedCoupling.SECOND ? readers.c : readers.a;
+          contact.on.role === HumanCarriedCoupling.SECOND
+            ? readers.c
+            : readers.a;
         const gap: number = Vector3.length(
           Vector3.subtract(
             HumanSignature.region(readers.b, contact.region, t),
@@ -293,9 +305,18 @@ function helperStand(
   });
   const segments = lying.segments("b");
   const last = segments[segments.length - 1]!;
-  const reader: HumanSignature.IReader = HumanSignature.of(lying, "b", helped, 0);
+  const reader: HumanSignature.IReader = HumanSignature.of(
+    lying,
+    "b",
+    helped,
+    0,
+  );
   const end: number = last.start + last.plan.duration;
-  const wrist: IAutoMovieVector3 = HumanSignature.joint(reader, end, "rightHand");
+  const wrist: IAutoMovieVector3 = HumanSignature.joint(
+    reader,
+    end,
+    "rightHand",
+  );
   const hips: IAutoMovieVector3 = HumanSignature.joint(reader, end, "hips");
   const out: IAutoMovieVector3 = Vector3.normalize({
     x: wrist.x - hips.x,
@@ -323,18 +344,19 @@ function secondAt(
   second: IHumanBody,
   helped: IHumanBody,
 ): IAutoMovieVector3 {
-  const coupling: AutoMovieMotionMeeting.ICoupling = HumanCarriedCoupling.couple(
-    first,
-    helped,
-    HumanCarried.CARRIES.supported,
-    "supported",
-    0,
-    {
-      body: second,
-      row: HumanCarried.CARRIES.supportedLeft,
-      carry: "supportedLeft",
-    },
-  );
+  const coupling: AutoMovieMotionMeeting.ICoupling =
+    HumanCarriedCoupling.couple(
+      first,
+      helped,
+      HumanCarried.CARRIES.supported,
+      "supported",
+      0,
+      {
+        body: second,
+        row: HumanCarried.CARRIES.supportedLeft,
+        carry: "supportedLeft",
+      },
+    );
   const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
   const anchor = HumanCarriedCouplingPose.bones(
     first,

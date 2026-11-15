@@ -162,8 +162,10 @@ export namespace handshakeMeeting {
       HumanFrame.point(shared.frame, shared.contacts.along!),
       point,
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(context.body, context.entry.pose);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      context.entry.pose,
+    );
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
@@ -222,10 +224,7 @@ export namespace handshakeMeeting {
     return {
       ...base,
       posture: (seconds: number): IHumanPosture => {
-        const t: number = Math.min(
-          reach + shake + back,
-          Math.max(0, seconds),
-        );
+        const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach
             ? minimumJerk(t / reach).s

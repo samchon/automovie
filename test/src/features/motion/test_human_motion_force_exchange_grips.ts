@@ -133,7 +133,10 @@ export function test_human_motion_force_exchange_grips(): void {
           w.support.subject === "b",
       );
       if (window === undefined) {
-        all.check(`the o-goshi thrower's ${side} hand declares a grip on the thrown body`, false);
+        all.check(
+          `the o-goshi thrower's ${side} hand declares a grip on the thrown body`,
+          false,
+        );
         continue;
       }
       const from: number =

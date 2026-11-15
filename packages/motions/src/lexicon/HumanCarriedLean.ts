@@ -149,8 +149,10 @@ export namespace HumanCarriedLean {
         ? posture.root
         : Vector3.scale(
             legs.reduce(
-              (s: IAutoMovieVector3, g: IHumanPosture.IGoal): IAutoMovieVector3 =>
-                Vector3.add(s, g.point),
+              (
+                s: IAutoMovieVector3,
+                g: IHumanPosture.IGoal,
+              ): IAutoMovieVector3 => Vector3.add(s, g.point),
               { x: 0, y: 0, z: 0 },
             ),
             1 / legs.length,

@@ -167,8 +167,10 @@ export namespace handshake {
       context,
       side,
       { pump: AMPLITUDE, shake },
-      (b: IHumanBody, shoulder: IAutoMovieVector3): resolveAutoMovieMutualGoal.ISide =>
-        arm(b, side, shoulder),
+      (
+        b: IHumanBody,
+        shoulder: IAutoMovieVector3,
+      ): resolveAutoMovieMutualGoal.ISide => arm(b, side, shoulder),
     );
     const meet: IAutoMovieVector3 = meeting.point;
 

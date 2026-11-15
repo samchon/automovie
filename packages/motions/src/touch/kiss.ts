@@ -390,8 +390,9 @@ export namespace kiss {
     const first: ISolved = solve(context, entry, stance, twist, at, seated);
     const behind: number = seated
       ? 0
-      : HumanBalance.shift(body, (back: number): IHumanPosture =>
-          written(entry, first, 1, back),
+      : HumanBalance.shift(
+          body,
+          (back: number): IHumanPosture => written(entry, first, 1, back),
         );
     const solved: ISolved =
       behind === 0

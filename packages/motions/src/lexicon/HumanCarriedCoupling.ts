@@ -20,9 +20,9 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
-import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
+import { HumanCarriedDrag } from "./HumanCarriedDrag";
 
 /**
  * The coupling of a named carry (#3437): the meeting kind whose borne role
@@ -280,7 +280,9 @@ export namespace HumanCarriedCoupling {
       const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(second.body, stand);
       const shift: IAutoMovieVector3 = Vector3.subtract(
-        fit.place(HumanCarriedCouplingPose.region(borne, mine, second.row.mine)),
+        fit.place(
+          HumanCarriedCouplingPose.region(borne, mine, second.row.mine),
+        ),
         HumanCarriedCouplingPose.region(second.body, still, second.row.theirs),
       );
       const own: AutoMovieHumanoidBone = HumanCarriedCouplingPose.anchor(

@@ -124,13 +124,17 @@ export function test_human_motion_seated_reach(): void {
   // 3. A seated handshake.
   try {
     const p: HumanPerformance = perform(
-      HumanChain.mutual(HumanMutual.handshake, { one: sit("a"), other: sit("b") }),
+      HumanChain.mutual(HumanMutual.handshake, {
+        one: sit("a"),
+        other: sit("b"),
+      }),
     );
     const shake: HumanSegment.ISegment = p.segments("a")[1]!;
     const clasp: number =
       shake.start +
-      shake.plan.events.find((e: { name: string }): boolean => e.name === "clasp")!
-        .share *
+      shake.plan.events.find(
+        (e: { name: string }): boolean => e.name === "clasp",
+      )!.share *
         shake.plan.duration;
     const hands: number = (bodies.a.measure.hand + bodies.b.measure.hand) / 2;
     const wrists: number = Vector3.length(
@@ -153,7 +157,10 @@ export function test_human_motion_seated_reach(): void {
         moved = Math.max(
           moved,
           Vector3.length(
-            Vector3.subtract(p.bones(who, t).get("hips")!.worldPosition, settled),
+            Vector3.subtract(
+              p.bones(who, t).get("hips")!.worldPosition,
+              settled,
+            ),
           ),
         );
       all.check(
