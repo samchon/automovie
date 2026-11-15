@@ -8,7 +8,8 @@ import { motionRowVerdicts } from "../internal/motionRowVerdicts";
 /**
  * Every shipped verdict holds for the upper-body rows (#3361's first
  * acceptance line): each row of the `emblem` and `habit` families that needs
- * no parameter of its own, performed after a quiet stance on every body of
+ * no parameter of its own and no prop its own test stages
+ * (`LexiconRowNet.STAGED`), performed after a quiet stance on every body of
  * `EXTREMES`, reads `clean` from the shipped verdict report over both halves
  * of its film, its bounds untouched.
  *
@@ -30,7 +31,13 @@ export function test_human_motion_recompose_upper_verdicts(): void {
   for (const family of ["emblem", "habit"])
     for (const law of HUMAN_LEXICON[family] ??
       ([] as readonly IHumanActionLaw<never>[])) {
-      if (LexiconRowNet.given(law.name) !== undefined) continue;
+      // A row that needs a parameter, or a prop its own test stages
+      // (`LexiconRowNet.STAGED`, a photograph's camera), is that test's.
+      if (
+        LexiconRowNet.given(law.name) !== undefined ||
+        LexiconRowNet.STAGED.includes(law.name)
+      )
+        continue;
       ++rows;
       for (const name of motionHumanBody.EXTREMES)
         for (const half of [1, 2] as const) {

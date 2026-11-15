@@ -37,9 +37,12 @@ const lattice = (props: {
   handles: Record<string, [number, number]>;
   anchors?: IAutoMovieSoftBodyDomain["anchors"];
   selfCollision?: boolean;
+  /** The particles' rest places, row-major, when they do not lie on the lattice's two axes. */
+  path?: readonly IAutoMovieVector3[];
 }): IHumanProp => {
   const rest: number[] = [];
   const at = (c: number, r: number): IAutoMovieVector3 =>
+    props.path?.[r * props.columns + c] ??
     Vector3.add(
       props.origin,
       Vector3.add(Vector3.scale(props.u, c), Vector3.scale(props.v, r)),
@@ -329,6 +332,18 @@ export function test_human_motion_lexicon_rows_soft(): void {
   ] as const)
     try {
       const length: number = two ? 1.2 : 2.4;
+      // The skipping rope lies at the waist's height in a U ahead of the
+      // performer, its ends at the hands' sides (a, the left's, on +X), so
+      // its whole length is laid without reaching the floor: up the left
+      // side, across, and back down the right, a 24th of the length apart.
+      const w: number = m.shoulderHalfWidth;
+      const side: number = length / 2 - w;
+      const along = (s: number): IAutoMovieVector3 =>
+        s <= side
+          ? { x: w, y: m.waistHeight, z: reach + s }
+          : s <= side + 2 * w
+            ? { x: w - (s - side), y: m.waistHeight, z: reach + side }
+            : { x: -w, y: m.waistHeight, z: reach + side - (s - side - 2 * w) };
       const rope: IHumanProp = lattice({
         subject: "rope",
         columns: 1,
@@ -345,6 +360,15 @@ export function test_human_motion_lexicon_rows_soft(): void {
         mass: 0.3,
         seconds: 8,
         handles: { a: [0, 0], b: [0, 24] },
+        ...(two
+          ? {}
+          : {
+              path: Array.from(
+                { length: 25 },
+                (_: unknown, k: number): IAutoMovieVector3 =>
+                  along((k * length) / 24),
+              ),
+            }),
       });
       const p: HumanPerformance = new HumanPerformance({
         seed: "soft-rows",
