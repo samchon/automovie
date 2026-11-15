@@ -1,6 +1,6 @@
 ---
 name: video
-description: Turns a production's motion hint into generated video, in order: the model chosen with the user, each scene's requests with how closely each follows the hint, their prompts, the generated takes submitted, inspected and adopted, and the takes finished for assembly. Use before generating video from a motion hint, when choosing or changing a video model, when planning or writing a video generation request, when adopting or rejecting a take, and when finishing accepted takes.
+description: Turns a production's motion hint into generated video, choosing the model with the user, planning each scene's requests and how closely each follows the hint, writing their prompts, submitting, inspecting and adopting takes, and finishing them for assembly. Use before generating video from a motion hint, when choosing or changing a video model, when planning or writing a video generation request, when adopting or rejecting a take, and when finishing accepted takes.
 ---
 
 # Video

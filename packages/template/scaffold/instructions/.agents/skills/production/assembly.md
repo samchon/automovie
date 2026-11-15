@@ -4,7 +4,7 @@ Turn the composed scenes or accepted takes into the complete delivered video. Re
 
 ## Assemble
 
-Each screenplay film folder becomes one film under [source layout](../development/source-layout.md#source), and every scene file, section and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
+Each screenplay film folder becomes one film under [source layout](../development/source-layout.md#source), and every scene file, section and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [finished takes](../video/finishing.md) with their [film sound](../audio/film-sound.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
 
 Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, repair the screenplay under [upstream repair](../story/correction/repair.md) and realize the repair, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites.
 
@@ -12,7 +12,7 @@ Assembly decides nothing. The screenplay owns the order of scenes, the cuts, tra
 
 ## Render
 
-Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it. A programmed film renders with the README's render command; accepted takes and captions are joined as the installed renderer's README plans them.
+Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope at the delivery profile [project context](project-context.md) records, and measure the file's actual profile and extent against it. A programmed film renders with the README's render command; finished takes, their sound and captions are joined as the installed renderer's README plans them.
 
 ## Repair and deliver
 

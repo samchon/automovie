@@ -22,7 +22,7 @@ A take that loses action, identity or causality is repaired at the source, the r
 
 ## Place takes in time
 
-Map a take's decoded timestamps and time base into the film; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations. Account for every frame a shortest-stream option or silent padding would drop. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document them.
+Map a take's decoded timestamps and time base into the film; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations, which [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document, and a shortest-stream option or silent padding must not hide lost material.
 
 An extension returns its input joined to the new part, so place only the new part; an edit can return slightly shorter than its input, so measure it. A new take, trim or speed change requires rechecking its timing against its neighbors.
 

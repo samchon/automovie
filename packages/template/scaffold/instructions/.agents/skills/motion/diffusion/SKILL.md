@@ -12,6 +12,6 @@ Use it when the user chooses it for motion the vocabulary has no action for, suc
 1. Choose the model with the user from [motion models](models.md) or another, record it in [project context](../../production/project-context.md), and read its documentation and [licenses](clips.md#licenses) before anything is generated.
 2. Hint it from the composed performance under [hints](hints.md).
 3. Freeze the result and check it under [clips](clips.md).
-4. [Retarget](../retargeting.md) it onto the cast member's polygon man and accept it in its [catalog case](../catalog-cases.md) like any module.
+4. [Retarget](../retargeting.md) it onto the cast member's polygon man and accept it in its catalog case as [any other case](../catalog-cases.md#any-other-case), with the checks of [hints](hints.md#check-the-result) and [clips](clips.md) as its tests.
 
 Motion traced from footage, such as a dance video, follows [tracing](tracing.md), whether it becomes a clip, keys for the composed performance or a study's measurements.
