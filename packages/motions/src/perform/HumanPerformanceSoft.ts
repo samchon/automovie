@@ -223,7 +223,13 @@ export namespace HumanPerformanceSoft {
           from: 0,
           to: state.duration,
           force: (seconds: number): IAutoMovieVector3 =>
-            HumanPerformanceSoft.load(state, subject, h.person, h.side, seconds),
+            HumanPerformanceSoft.load(
+              state,
+              subject,
+              h.person,
+              h.side,
+              seconds,
+            ),
         });
       for (const g of HumanPerformanceRead.grips(state, prop.subject)) {
         if (g.bone !== undefined || anchored.has(`${g.subject}:${g.side}`))
@@ -235,7 +241,13 @@ export namespace HumanPerformanceSoft {
           from: g.from,
           to: g.to,
           force: (seconds: number): IAutoMovieVector3 =>
-            HumanPerformanceSoft.load(state, subject, g.subject, g.side, seconds),
+            HumanPerformanceSoft.load(
+              state,
+              subject,
+              g.subject,
+              g.side,
+              seconds,
+            ),
         });
       }
     }
@@ -302,7 +314,8 @@ export namespace HumanPerformanceSoft {
 
     // The displayed bones of every person the domain or a grip names, read
     // once per step.
-    const bones: HumanPerformanceSoftBoundary.BoneReader = HumanPerformanceSoftBoundary.memoBones(state);
+    const bones: HumanPerformanceSoftBoundary.BoneReader =
+      HumanPerformanceSoftBoundary.memoBones(state);
     const grips: HumanPerformanceSoftBoundary.IGripAnchor[] = [];
     const solve = (
       upto: number,
@@ -314,11 +327,17 @@ export namespace HumanPerformanceSoft {
           ...domain.anchors.filter(
             (a: IAutoMovieSoftAnchor): boolean =>
               !grips.some(
-                (g: HumanPerformanceSoftBoundary.IGripAnchor): boolean => g.particle === a.particle,
+                (g: HumanPerformanceSoftBoundary.IGripAnchor): boolean =>
+                  g.particle === a.particle,
               ),
           ),
           ...[
-            ...new Set(grips.map((g: HumanPerformanceSoftBoundary.IGripAnchor): number => g.particle)),
+            ...new Set(
+              grips.map(
+                (g: HumanPerformanceSoftBoundary.IGripAnchor): number =>
+                  g.particle,
+              ),
+            ),
           ].map(
             (particle: number): IAutoMovieSoftAnchor => ({
               id: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
@@ -335,9 +354,20 @@ export namespace HumanPerformanceSoft {
       };
       const boundaries: IAutoMovieSoftBodyBoundarySample[] = [];
       for (let k: number = 0; k <= upto; ++k)
-        boundaries.push(HumanPerformanceSoftBoundary(state, anchored, grips, bones, k, k * dt));
+        boundaries.push(
+          HumanPerformanceSoftBoundary(
+            state,
+            anchored,
+            grips,
+            bones,
+            k,
+            k * dt,
+          ),
+        );
       const steps: Float64Array[] = [
-        new Float64Array(HumanPerformanceSoftBoundary.rest(anchored, boundaries[0]!)),
+        new Float64Array(
+          HumanPerformanceSoftBoundary.rest(anchored, boundaries[0]!),
+        ),
       ];
       const loads: Map<string, IAutoMovieVector3>[] = [new Map()];
       const observer: IAutoMovieSoftBodyObserver = {
@@ -362,7 +392,8 @@ export namespace HumanPerformanceSoft {
             if (
               seconds >= g.from &&
               seconds <= g.to &&
-              HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) === g
+              HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) ===
+                g
             )
               bear(`${g.person}:${g.side}`, g.particle);
           // The domain's own anchors on a hand bone: the hand holds them
