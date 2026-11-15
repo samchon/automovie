@@ -65,12 +65,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *     refused naming the right arm it holds; a manner pace of 0, a manner
  *     intensity above 1 and an authored stride of 1.4 with a manner are each
  *     refused with the parameter's name in the reason.
+ * 12. The centre of mass as an inverted pendulum, in the 6 m walk's steady
+ *     middle: it rises and falls 4 to 5 cm (the excursion `walk` states it
+ *     keeps), and at each mid single support, halfway between two strikes,
+ *     it is higher and moves forward slower than at the strike before
+ *     (#3360's reading of the 7.4 cm walk, highest and slowest at
+ *     mid-stance).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs every law of the matrix through the public chain and reads the shipped verdict report, displayed bones, segments and overlays: a refused overlay, an unclean report, a manner that does not change the pace or moves a goal on a solid place, a gait without flight or out of its cited speed and duty, a non-replaying take or an accepted bad manner is caught.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is a shipped verdict (`HumanVerdicts`), #3360's acceptance (Bohannon 1997, Mann and Hagy 1980, Novacheck 1998, Hausdorff et al. 1995) or #3227's 0.02 m and 5 degrees; none is read from the laws.
  * @evidence contracts/development/testing.md#distinguishing-cases Two statures; every travel law on every axis that applies to it; both sides of the side-taking loads; two presets each way of the neutral one; a second seed; five refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies and an archetype ladder, discovered by its exported name; no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the eleven scenarios, their bounds and sources.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the twelve scenarios, their bounds and sources.
  */
 export function test_human_motion_recompose_travel(): void {
   const findings: string[] = [];
@@ -454,6 +460,50 @@ export function test_human_motion_recompose_travel(): void {
             `${name}: a ${pace}'s duty ${duty.toFixed(3)} is not below the slower gait's ${previous.toFixed(3)} (Mann and Hagy 1980)`,
           );
         previous = duty;
+      }
+
+      // 12. The centre of mass as an inverted pendulum.
+      {
+        const reader: HumanSignature.IReader = HumanSignature.of(
+          plain,
+          "a",
+          body,
+          0,
+        );
+        const from: number = 0.25 * plain.duration;
+        const to: number = 0.85 * plain.duration;
+        const heights: number[] = HumanSignature.times(from, to, 120).map(
+          (t: number): number => HumanSignature.centre(reader, t).y,
+        );
+        const excursion: number =
+          Math.max(...heights) - Math.min(...heights);
+        if (!(excursion >= 0.04 && excursion <= 0.05))
+          findings.push(
+            `${name}: the steady walk's centre of mass rises and falls ${(excursion * 100).toFixed(2)} cm, the 4 to 5 cm walk.ts states expected`,
+          );
+        const h: number = 1 / 240;
+        const forward = (t: number): number =>
+          (HumanSignature.centre(reader, t + h).z -
+            HumanSignature.centre(reader, t - h).z) /
+          (2 * h);
+        const strikes: number[] = free.gait.strikes.map(
+          (s: { seconds: number }): number => s.seconds,
+        );
+        for (let k: number = 1; k < strikes.length; k++) {
+          const strike: number = strikes[k - 1]!;
+          const middle: number = (strike + strikes[k]!) / 2;
+          const high: number =
+            HumanSignature.centre(reader, middle).y -
+            HumanSignature.centre(reader, strike).y;
+          if (!(high > 0))
+            findings.push(
+              `${name}: at ${middle.toFixed(2)} s, mid single support, the centre of mass is ${(high * 1000).toFixed(1)} mm above its height at the strike before, higher expected (#3360: highest at mid-stance)`,
+            );
+          if (!(forward(middle) < forward(strike)))
+            findings.push(
+              `${name}: at ${middle.toFixed(2)} s, mid single support, the centre of mass moves forward at ${forward(middle).toFixed(3)} m/s against ${forward(strike).toFixed(3)} at the strike, slower expected (#3360: slowest at mid-stance)`,
+            );
+        }
       }
 
       // 10. Replay and variation.
