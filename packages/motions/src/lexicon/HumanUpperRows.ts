@@ -369,6 +369,27 @@ export namespace HumanUpperRows {
     hold: "long",
   });
 
+  /** Drinking: the hand that holds a vessel brings its lip to the mouth and holds it there; the vessel is named as `held`. */
+  export const drinkFrom = HumanActionRow.of("drinkFrom", armPhrase, {
+    phrase: "visit",
+    target: { kind: "self", region: "mouth" },
+    surface: "grip",
+    shape: "fist",
+    point: "lip",
+    facing: { fingers: "forward", palm: "in" },
+    hold: "long",
+  });
+
+  /** Eating: the hand that holds a utensil brings the point it names (a fork's `face`) to the mouth for a beat; the utensil is named as `held`. */
+  export const eatWith = HumanActionRow.of("eatWith", armPhrase, {
+    phrase: "visit",
+    target: { kind: "self", region: "mouth" },
+    surface: "grip",
+    shape: "fist",
+    facing: { fingers: "forward", palm: "in" },
+    hold: "beat",
+  });
+
   /** A scratch: the fingertips oscillate in short strokes on the target. */
   export const scratchOn = HumanActionRow.of("scratchOn", armPhrase, {
     phrase: "oscillate",

@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionTarget,
   IAutoMovieQuaternion,
@@ -11,6 +11,7 @@ import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
@@ -47,7 +48,11 @@ import { poseBones } from "../posture/poseBones";
  * the target's normal with its fingers up, unless `facing` names it. A
  * phrase that names a `held` prop keeps the hand's grip on it over its whole
  * span and leaves it held, so a hammer, a spoon or a hat moves with the
- * hand; a hand that does not hold it at entry is refused. Both hands may
+ * hand; a hand that does not hold it at entry is refused. Such a phrase may
+ * name one of the held prop's own points as its working `point` (a cup's
+ * lip, a fork's face): that point, not the hand's surface, is brought to the
+ * target, the hand's surface placed short of it by the point's lever from
+ * the surface in the hand's frame, which the grip keeps fixed. Both hands may
  * perform one phrase on one clock (a clap, palms rubbed together), each
  * hand's offset mirrored by its side, so two hands sent to one median target
  * meet there; such a phrase holds no prop.
@@ -147,6 +152,13 @@ export namespace armPhrase {
      * entry; none when absent.
      */
     held?: string;
+
+    /**
+     * The held prop's point brought to the target instead of the hand's
+     * surface, one of its affordance ids (a cup's `lip` to the mouth, a
+     * fork's `face`); it needs `held`. The hand's surface when absent.
+     */
+    point?: string;
   }
 
   /**
@@ -154,7 +166,7 @@ export namespace armPhrase {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a held prop is named that the hand does not hold at entry.
+   * @throws {HumanRefusal} When a held prop is named that the hand does not hold at entry or with both hands, when a working point is named without a held prop, or when the held prop has no such point.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -176,6 +188,31 @@ export namespace armPhrase {
       body,
       context.entry.pose,
     );
+
+    // A held prop must be in the one acting hand at entry, and a working
+    // point needs one.
+    if (
+      p.held !== undefined &&
+      (sides.length !== 1 || context.entry.holds[sides[0]!] !== p.held)
+    )
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "held",
+        value: p.held,
+        reason:
+          sides.length !== 1
+            ? `a phrase of both hands names no held prop, but names ${p.held}`
+            : `the ${sides[0]!} hand does not hold ${p.held} at the phrase's start`,
+        fix: "take the prop up in that hand first",
+      });
+    if (p.point !== undefined && p.held === undefined)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "point",
+        value: p.point,
+        reason: `the working point ${p.point} belongs to no held prop`,
+        fix: "name the prop the hand holds as `held`, or drop `point` to bring the hand's surface",
+      });
 
     // The target where it is at the phrase's start.
     const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
@@ -217,6 +254,25 @@ export namespace armPhrase {
         p.facing !== undefined
           ? HumanHand.facing(side, hold.yaw, p.facing)
           : turned(side, aimed.normal);
+      // The working point's lever from the surface, world metres at the
+      // hand's asked rotation: both offsets are from the wrist joint in the
+      // hand's rest axes, the prop's read from the grip socket it rides.
+      const lever: IAutoMovieVector3 =
+        p.point === undefined || p.held === undefined
+          ? { x: 0, y: 0, z: 0 }
+          : Quaternion.rotateVector(
+              rotation,
+              Vector3.subtract(
+                Vector3.add(
+                  HumanHand.offset(body, side, "grip").point,
+                  AutoMovieMotionHumanHeld.point(
+                    AutoMovieMotionHumanHeld.of(context, side, p.held),
+                    p.point,
+                  ).point,
+                ),
+                HumanHand.offset(body, side, surface, shape).point,
+              ),
+            );
       const target: (
         point: IAutoMovieVector3,
       ) => AutoMovieMotionHumanArmTarget.ITarget = (
@@ -224,7 +280,7 @@ export namespace armPhrase {
       ): AutoMovieMotionHumanArmTarget.ITarget => ({
         surface,
         shape,
-        point,
+        point: Vector3.subtract(point, lever),
         rotation,
         bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1),
       });
@@ -238,7 +294,9 @@ export namespace armPhrase {
         place,
         shift,
         target,
-        distance: Vector3.length(Vector3.subtract(place, start)),
+        distance: Vector3.length(
+          Vector3.subtract(Vector3.subtract(place, lever), start),
+        ),
       };
     });
 
@@ -325,17 +383,6 @@ export namespace armPhrase {
 
     // A held prop: the hand's grip on it over the whole phrase takes the
     // hand over without letting the prop go, and the hold carries it on.
-    if (sides.length !== 1 || context.entry.holds[side] !== p.held)
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "held",
-        value: p.held,
-        reason:
-          sides.length !== 1
-            ? `a phrase of both hands names no held prop, but names ${p.held}`
-            : `the ${side} hand does not hold ${p.held} at the phrase's start`,
-        fix: "take the prop up in that hand first",
-      });
     const grip: IHumanContactWindow = {
       part: side === "left" ? "leftHand" : "rightHand",
       kind: "grip",
@@ -359,16 +406,16 @@ interface IArm {
   /** The hand's place before and after. */
   origin: AutoMovieMotionHumanArmTarget.IOrigin;
 
-  /** The surface's place, world metres. */
+  /** The working point's place (the surface's, or a held prop's point), world metres. */
   place: IAutoMovieVector3;
 
   /** An offset by shares of the arm's length, out mirrored by the arm. */
   shift: (o: armPhrase.IOffset | undefined) => IAutoMovieVector3;
 
-  /** The target at a point. */
+  /** The target that brings the working point to a point. */
   target: (point: IAutoMovieVector3) => AutoMovieMotionHumanArmTarget.ITarget;
 
-  /** The distance from the hand's place to the surface's, metres. */
+  /** The distance from the surface's place before to its place at the target, metres. */
   distance: number;
 }
 
