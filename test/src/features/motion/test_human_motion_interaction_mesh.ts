@@ -49,12 +49,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    displayed bones to (f-small, m-large): the paired wrists keep their
  *    key offset within 10 mm, every bone of each target body keeps its
  *    length within 10 mm, and each body has its four limb goals.
+ * 7. A headlock (the plum clinch's hold on the neck, the stage fight's
+ *    headlock row) at its key pose on the reference pair, adapted to
+ *    (f-small, m-large) and (m-large, f-small): each hand keeps its key
+ *    offset from the held neck within 10 mm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the mesh and adapts real polygon men's joints through the engine's public functions; a non-Delaunay or inverted mesh, a moved identity, a stretched bone, an open contact, a lost key offset or a non-deterministic result fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The Delaunay property and orientation are geometric definitions checked directly; the bone lengths come from the target bodies' rest joints, not from the solve.
  * @evidence contracts/development/testing.md#distinguishing-cases The reference pair, both orders of a pair of opposite builds, the identity, the hold through the motions' owner and two refusals.
  * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and solves in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the bounds with their sources and the 6 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the bounds with their sources and the 7 scenarios.
  */
 export function test_human_motion_interaction_mesh(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
@@ -304,6 +308,67 @@ export function test_human_motion_interaction_mesh(): void {
     );
   });
 
+  // 7. A headlock (the plum clinch's hold on the neck, `HumanStageFight`'s
+  // headlock row) adapted from its key pose on the reference pair.
+  const lock: HumanPerformance = new HumanPerformance({
+    seed: "hold-mesh",
+    performers: keyBodies.map((body: IHumanBody, k: number) => ({
+      subject: k === 0 ? "a" : "b",
+      body,
+      at: { x: 0, y: 0, z: k === 0 ? 0 : keyBodies[0].measure.footLength * 2 },
+      yaw: k === 0 ? 0 : 180,
+      proficiency: { level: "trained" as const },
+    })),
+    composition: HumanChain.subject("b")
+      .stand({ seconds: 3 })
+      .with(
+        HumanChain.subject("a").act("clinch", {
+          partner: "b",
+          grip: "plum",
+          hold: 2,
+        } as never),
+      ).node,
+  });
+  const segment = lock.segments("a")[0]!;
+  const holding: number =
+    segment.start +
+    segment.plan.duration *
+      (segment.plan.events.find((e) => e.name === "stroke")?.share ?? 0.5);
+  const lockKeys: [HumanHoldMesh.IKey, HumanHoldMesh.IKey] = [
+    { body: keyBodies[0], bones: lock.bones("a", holding) },
+    { body: keyBodies[1], bones: lock.bones("b", holding) },
+  ];
+  const lockContacts: HumanHoldMesh.IContact[] = [
+    { a: "leftHand", b: "neck" },
+    { a: "rightHand", b: "neck" },
+  ];
+  for (const order of [
+    ["f-small", "m-large"],
+    ["m-large", "f-small"],
+  ] as const) {
+    const bodiesOf: readonly [IHumanBody, IHumanBody] = [
+      motionHumanBody(order[0]),
+      motionHumanBody(order[1]),
+    ];
+    const locked: [HumanHoldMesh.IAdapted, HumanHoldMesh.IAdapted] =
+      HumanHoldMesh.adapt(lockKeys, bodiesOf, lockContacts);
+    for (const c of lockContacts) {
+      const offset: IAutoMovieVector3 = Vector3.subtract(
+        lockKeys[0].bones.get(c.a)!.worldPosition,
+        lockKeys[1].bones.get(c.b)!.worldPosition,
+      );
+      const off: number = Vector3.length(
+        Vector3.subtract(
+          Vector3.subtract(locked[0].joints.get(c.a)!, locked[1].joints.get(c.b)!),
+          offset,
+        ),
+      );
+      all.check(
+        `the headlock adapted to (${order[0]}, ${order[1]}): the ${c.a} keeps its key offset from the ${c.b} within ${(off * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
+        off <= BOUND,
+      );
+    }
+  }
   // 5. Refusals.
   all.refuses("fewer than four points", () =>
     adaptAutoMovieInteractionMesh({

@@ -25,7 +25,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, for the pairs (m-average, f-small) and (f-small, m-average),
  * the first named casting the first role:
- * 1. `carry` in each of the eight carries of `HumanCarried.CARRIES`, with a
+ * 1. `carry` in each of the ten carries of `HumanCarried.CARRIES`, with a
  *    lift and a set-down of a quarter of the carry each, plans; the bearer's
  *    placed action is `bearing` and the borne's `borne`.
  * 2. `throwing` in each of the four kinds by the three outcomes, the pull on
@@ -33,12 +33,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    body's weight for `thrown` and `yield`, half the force its base can
  *    resist for `resist`), plans; the thrower's placed action is `clinch`
  *    and the thrown's `perturb`.
+ * 3. `helpUp`, the helped person lying first, plans with both performing
+ *    `support`; `supportWalk`, the helped person between two helpers of the
+ *    first build, plans with `bearing`, `bearing` and `borne`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Joins the records through the public chain on real bodies and reads the placed actions; a record that is refused or placed under another action fails with the record, the pair and the refusal's message.
  * @evidence contracts/development/testing.md#independent-expectations That each record is humanly performable by these pairs is what the record claims; the pull is sized by the force law's own inputs, never read from the response.
- * @evidence contracts/development/testing.md#distinguishing-cases Eight carries and twelve throws by two pairings of opposite builds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Ten carries, twelve throws, help-up and a walk between two helpers by two pairings of opposite builds.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one short performance per cell; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to the signature test, and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, what it leaves to the signature test, and the 3 scenarios.
  */
 export function test_human_motion_lexicon_rows_coupled(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
@@ -153,6 +156,77 @@ export function test_human_motion_lexicon_rows_coupled(): void {
           );
         }
       }
-  }
+
+    // 3. Help-up and a walk between two helpers.
+    try {
+      const film: HumanPerformance = new HumanPerformance({
+        seed: "coupled-rows",
+        performers: performers(0).map((p) =>
+          p.subject === "a"
+            ? {
+                ...p,
+                at: { x: 0, y: 0, z: bodies.b.measure.stature / 2 },
+                yaw: 180,
+              }
+            : p,
+        ),
+        composition: HumanChain.mutual(
+          HumanCoupled.helpUp,
+          {
+            helper: HumanChain.subject("a").stand({ seconds: 0.3 }),
+            helped: HumanChain.subject("b").lieDown(),
+          },
+          {},
+        ).node,
+      });
+      all.equals(
+        `helpUp, ${names[0]} helping ${names[1]}: the placed actions`,
+        [placed(film, "a"), placed(film, "b")],
+        ["support", "support"],
+      );
+    } catch (error) {
+      all.check(
+        `helpUp, ${names[0]} helping ${names[1]}: planned expected, refused with ${error instanceof Error ? error.message : String(error)}`,
+        false,
+      );
+    }
+    try {
+      const width: number = bodies.b.measure.stature / 4;
+      const film: HumanPerformance = new HumanPerformance({
+        seed: "coupled-rows",
+        laws: [HumanCarried.borne, HumanCarried.bearing],
+        performers: [
+          ...performers(0).map((p) =>
+            p.subject === "a" ? { ...p, at: { x: width, y: 0, z: 0 } } : p,
+          ),
+          {
+            subject: "c",
+            body: bodies.a,
+            at: { x: -width, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" as const },
+          },
+        ],
+        composition: HumanChain.mutual(
+          HumanCoupled.supportWalk,
+          {
+            helper: HumanChain.subject("a").stand({ seconds: 0.3 }),
+            second: HumanChain.subject("c").stand({ seconds: 0.3 }),
+            helped: HumanChain.subject("b").stand({ seconds: 0.3 }),
+          },
+          { seconds: SECONDS },
+        ).node,
+      });
+      all.equals(
+        `supportWalk, two ${names[0]} helping ${names[1]}: the placed actions`,
+        [placed(film, "a"), placed(film, "c"), placed(film, "b")],
+        ["bearing", "bearing", "borne"],
+      );
+    } catch (error) {
+      all.check(
+        `supportWalk, two ${names[0]} helping ${names[1]}: planned expected, refused with ${error instanceof Error ? error.message : String(error)}`,
+        false,
+      );
+    }  }
   all.assert("every coupled record is performable");
 }

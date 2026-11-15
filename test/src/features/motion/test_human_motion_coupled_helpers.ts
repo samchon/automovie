@@ -159,7 +159,10 @@ export function test_human_motion_coupled_helpers(): void {
           subject,
           body: bodies[subject],
           at: {
-            x: subject === "a" ? -width : subject === "c" ? width : 0,
+            // The first helper on the helped body's left (+X when facing
+            // +Z), as `supported` lays its ribs on the helper's; the second
+            // on its right.
+            x: subject === "a" ? width : subject === "c" ? -width : 0,
             y: 0,
             z: 0,
           },

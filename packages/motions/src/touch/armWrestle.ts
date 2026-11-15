@@ -1,4 +1,8 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionKey } from "../HumanActionKey";
@@ -7,6 +11,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { gestureBow } from "../everyday/gestureBow";
+import { HumanForceTrunk } from "../grappling/HumanForceTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -14,6 +19,7 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -36,10 +42,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * the pin's angle (`PIN` degrees when none is asked) toward the winner's
  * left by `pin`, and back up to leave from `relax`. An angle past what the
  * arm holds with its elbow in place (the fitted elbow within `HELD` of its
- * place, as far as upright) is refused with the angle it holds. The trunk
- * holds its lean and does not follow the arm: how far a pinned loser's trunk
- * is pulled is a force exchange between the two, which #3439 owns. The
- * author declares the winner (#3350's outcome-first rule).
+ * place, as far as upright) is refused with the angle it holds. The winner's
+ * trunk holds its lean; the loser's bends toward the pin as the pin comes,
+ * by the force exchanged (#3439, `HumanForceTrunk`): its shoulder resists
+ * at its eccentric internal-rotation peak per body mass (Tasiopoulos et al.
+ * 2018, provisional beyond men at 60 degrees a second) and its trunk holds
+ * that torque at the side-bending share its stiffness gives (Watt, Callaway
+ * and Williams 2022). The author declares the winner (#3350's
+ * outcome-first rule).
  *
  * First pass: the elbow's bearing on the table is not declared as a contact
  * window, the fingers are left as they were and do not clasp, and the free
@@ -104,7 +114,7 @@ export namespace armWrestle {
    * @throws {HumanRefusal} When the struggle's length is negative, no lean from the hips puts the shoulder an upper arm from the elbow's place on the table, or the pin's angle lies outside 0 to 90 degrees or past what this arm holds with its elbow in place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the geometry and the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits, by the elbow's whole place.
+   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits, by the elbow's whole place; the loser's trunk bends toward the pin by `HumanForceTrunk.share` of the torque its shoulder resists with, as the pin comes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared geometry, the lean, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that cannot close the distance throws; the sway is a fixed sine, not a draw, so the two roles stay together.
    * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
@@ -188,11 +198,10 @@ export namespace armWrestle {
       },
     });
 
-    // The lean: the shoulder an upper arm from the elbow. The trunk does not
-    // follow the arm: how far a pinned loser's trunk is pulled is a matter
-    // of the forces between the two (#3439), which this law does not
-    // exchange; a trunk rolled toward the pin by a set share grew the lean
-    // and carried the head over the losing forearm, which cut the pin short.
+    // The lean: the shoulder an upper arm from the elbow. The trunk follows
+    // the arm only as the force between the two bends it (#3439): the
+    // loser's trunk takes the torque its shoulder resists with, and bends
+    // toward the pin until its stiffness holds it (`HumanForceTrunk`).
     const short = (pitch: number): number =>
       Vector3.length(
         Vector3.subtract(
@@ -316,6 +325,18 @@ export namespace armWrestle {
     );
     const begin: AutoMovieMotionHumanArm.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+
+    // The loser's trunk at the pin: its shoulder's resisting torque, at its
+    // eccentric peak per body mass, held by the trunk's side-bending
+    // stiffness; the pin goes toward the winner's left, the loser's own
+    // arm side.
+    const bend: number = p.wins
+      ? 0
+      : HumanForceTrunk.share(
+          HumanForceTrunk.ROTATION *
+            resolveAutoMovieCenterOfMass(body.skeleton, body.profile).mass,
+          HumanForceTrunk.range(body, side),
+        );
     return {
       duration,
       events: [
@@ -344,9 +365,18 @@ export namespace armWrestle {
                   (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
                     minimumJerk((t - turn) / (pin - turn)).s
                 : asked;
+        const pinned: number =
+          t <= turn
+            ? 0
+            : t <= pin
+              ? minimumJerk((t - turn) / (pin - turn)).s
+              : 1;
+        const posed: IHumanPosture = set(base.posture(t), degrees, envelope);
         return AutoMovieMotionHumanArm.carry(
           body,
-          set(base.posture(t), degrees, envelope),
+          bend > 0
+            ? HumanTrunkTurn.turned(body, posed, bend * pinned * envelope, side)
+            : posed,
           { right: begin },
           envelope,
         );

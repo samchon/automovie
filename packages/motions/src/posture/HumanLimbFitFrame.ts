@@ -122,9 +122,8 @@ export namespace HumanLimbFitFrame {
   }
 
   /**
-   * A goal in the frame: its point and bend moved and its rotation turned;
-   * everything else as it is, its contact too, which lies in the end joint's
-   * own rest frame (`IHumanPosture.IGoal.contact`) and turns with the joint.
+   * A goal in the frame: its point, bend and contact moved and its rotation
+   * turned; everything else as it is.
    *
    * @param frame The frame.
    * @param goal The goal, attached to no bone and naming no collider.
@@ -138,6 +137,9 @@ export namespace HumanLimbFitFrame {
       ...goal,
       point: point(frame, goal.point),
       bend: point(frame, goal.bend),
+      ...(goal.contact === undefined
+        ? {}
+        : { contact: point(frame, goal.contact) }),
       ...(goal.rotation === undefined
         ? {}
         : { rotation: Quaternion.multiply(frame.into, goal.rotation) }),

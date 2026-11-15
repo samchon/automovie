@@ -20,10 +20,8 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * At its start the law reads where it stands relative to the template, in
  * the template's heading frame: an offset and a turn. Each posture is the
  * template's at `t - shift / 24` with the root, every limb goal's world
- * point and bend, and every goal's rotation moved by that offset and turn
- * about the template's root; a goal's contact lies in its end joint's own
- * rest frame and turns with the joint, so it is kept; joint angles are the
- * template's. So
+ * point, bend and contact, and every goal's rotation moved by that offset
+ * and turn about the template's root; joint angles are the template's. So
  * the instance's feet are planted where the template's are, moved, and a
  * gaze layer on it still looks at its own target. The move stays rigid only
  * while the template keeps its heading, so a span in which the template
@@ -170,6 +168,9 @@ export namespace instance {
                   ...goal,
                   point: move(goal.point),
                   bend: move(goal.bend),
+                  ...(goal.contact === undefined
+                    ? {}
+                    : { contact: move(goal.contact) }),
                   ...(goal.rotation === undefined
                     ? {}
                     : { rotation: Quaternion.multiply(spin, goal.rotation) }),
