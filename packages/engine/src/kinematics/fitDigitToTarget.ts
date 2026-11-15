@@ -10,7 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
@@ -19,6 +18,7 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
 import type { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
+import { fitDigitDescent } from "./fitDigitDescent";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { resolvePose } from "./resolvePose";
 
@@ -29,44 +29,44 @@ import { resolvePose } from "./resolvePose";
  * where the pose has placed it.
  *
  * Every free axis of every joint of the digit (an axis its constraint does
- * not hold immobile) is a variable, in clinical degrees. The fit minimizes
- * the squared distance from the effector to the target, plus, when a target
- * normal is given, the squared misalignment of the effector's normal with it
- * scaled by the effector's distance from its joint, the distal phalanx's
- * length for a tip (an arc length, so a degree of tilt counts as the
- * millimetres it swings the phalanx), plus the interphalangeal
- * coupling of a finger: the distal joint follows the middle one at the ratio
- * `coupling`, a weighted term rather than a hard tie, so a pad can still lay
- * flat on a key (the coupling of hand animation, DIP = 2/3 PIP, Rijpkema and
- * Girard 1991, SIGGRAPH 25(4):339-348, as relayed by the hand-animation
- * literature; provisional until read at the source). The coupling's
- * residual is likewise that distance times the angle by which the distal
- * joint misses the ratio.
+ * not hold immobile) is a variable, in clinical degrees. The fit has two
+ * tasks in priority order. The first puts the effector on the target: its
+ * residual is the distance between them. The second, bettered only in what
+ * the first leaves free, turns the effector's normal onto the target normal
+ * when one is given (the misalignment scaled by the effector's distance from
+ * its joint, an arc length, so a degree of tilt counts as the millimetres it
+ * swings the phalanx) and keeps a finger's interphalangeal coupling, the
+ * distal joint following the middle one at the ratio `coupling` (the
+ * coupling of hand animation, DIP = 2/3 PIP, Rijpkema and Girard 1991,
+ * SIGGRAPH 25(4):339-348, as relayed by the hand-animation literature;
+ * provisional until read at the source), its residual likewise that distance
+ * times the angle by which the distal joint misses the ratio. So a reachable
+ * point is always reached, and a normal or a coupling the point does not
+ * allow is met as nearly as the point leaves room for, never traded against
+ * it.
  *
- * The method is Levenberg-Marquardt (Madsen, Nielsen and Tingleff 2004,
- * "Methods for non-linear least squares problems", IMM DTU, Algorithm 3.16,
- * with the damping start tau = 1e-3 and Nielsen's update rule given there).
- * The Jacobian is read by central differences on the engine's own forward
- * kinematics, so the angles mean what `resolvePose` displays. Every trial is
- * projected into the range (`clampJointToSkeleton`) before it is measured,
- * as a fit that searches a pose must be measured after the joint limits. A
- * variable that stands on a bound its descent pushes against (the clamp
- * undoes a resolution's move along the negative gradient) is held for the
- * step and the step is solved for the others, the active set of a projected
- * Newton method (Bertsekas 1982, "Projected Newton methods for optimization
- * problems with simple constraints", SIAM J. Control Optim. 20(2):221-246),
- * so a joint at its limit does not stall the joints still free. A
- * step is accepted only when it lowers the measured cost, and the fit stops
- * when the step it would take moves no joint by more than `ROM_TOLERANCE`,
- * the resolution to which the engine resolves a joint's angle; a rejected
- * step doubles the damping growth, which shrinks the next step, so the stop
- * is always reached.
- *
- * The fit descends from two starts, the pose's own angles for the digit and
- * the middle of every range, and keeps the lower cost: a digit folded the
- * wrong way round its target sits in a local minimum the other start lies
- * beyond. The result is deterministic for its input: two fixed starts, a
- * fixed order of variables and no random draw. A
+ * Each descent is `fitDigitDescent`: damped task-priority least squares
+ * (Nakamura, Hanafusa and Yoshikawa 1987; Chiaverini 1997) with the active
+ * set of a projected Newton method (Bertsekas 1982) for the joints on a
+ * bound, and Levenberg-Marquardt damping (Madsen, Nielsen and Tingleff 2004).
+ * The Jacobians are read by central differences on the engine's own forward
+ * kinematics, so the angles mean what `resolvePose` displays, and every
+ * trial is projected into the range (`clampJointToSkeleton`) before it is
+ * measured. The point counts as reached within the effector's motion for one
+ * resolution step of every joint, and a descent stops when its step moves no
+ * joint by more than `ROM_TOLERANCE`, the resolution to which the engine
+ * resolves a joint's angle.
+ * * The fit is a continuation: it descends from the pose's own angles for the
+ * digit, so a caller that seeds each fit from the one before follows a
+ * moving target in one basin, its joints moving continuously. Only when that
+ * fit cannot reach the target (the tip farther from it than one joint
+ * resolution of every joint would move it) does it restart from the middle
+ * of every range, where a digit folded the wrong way round its target is not
+ * trapped, keeping the restart only if it comes nearer; it never takes the
+ * better of two starts for a target the continued fit reaches, an argmin
+ * that would switch basins between neighbouring targets. The result is
+ * deterministic for its input: fixed starts, a fixed order of variables and
+ * no random draw. A
  * target outside the digit's workspace ends at the reachable point nearest
  * it, and `residual` reports the distance left, so a caller refuses or
  * accepts by its own bound.
@@ -75,11 +75,11 @@ import { resolvePose } from "./resolvePose";
  * @returns The digit's fitted joints, the effector's world point and the residual.
  * @throws {Error} When the digit names no joint, or a bone cannot be resolved.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the variables, the cost and its units, the coupling's source and status, the method and its cited constants, the stop rule and its owner, determinism and the out-of-reach behaviour.
- * @evidence contracts/development/implementation.md#principled-implementation Levenberg-Marquardt (Madsen, Nielsen and Tingleff 2004) on the engine's forward kinematics, every trial measured after the range clamp, the bound variables held by a projected Newton active set (Bertsekas 1982), stopping at the engine's joint-angle resolution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One residual function over the digit's variables, one descent per start with one damped normal-equation step on the free variables solved by `AutoMovieSolidVector.solve`, one acceptance test, the lower of two starts kept.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count is chosen: the fit ends at the joint-angle resolution, and an unreached target reports its residual instead of being counted as met.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints) and the active set's probe one clamp per variable; a step solves one system of the free variables, at most 9; two starts double the work.
+ * @evidence contracts/development/common.md#meaningful-documentation States the variables, the two tasks and their units and order, the coupling's source and status, the method and its sources, the reach and stop rules and their owner, the continuation, determinism and the out-of-reach behaviour.
+ * @evidence contracts/development/implementation.md#principled-implementation Damped task-priority least squares (Nakamura et al. 1987, Chiaverini 1997) through `fitDigitDescent` on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution; continuation from the caller's seed.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Two residual functions over the digit's variables, one continued descent and a restart only when it cannot reach.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count and no weight between the tasks: the point is never traded for the normal or the coupling, the fit ends at the joint-angle resolution, and an unreached target reports its residual instead of being counted as met.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints) and the active set's probe one clamp per variable; a step solves two small systems of the free variables; a restart, run only for a target the continued fit cannot reach, doubles the work.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; a caller keeps the result by its own plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned joints belong to the caller.
  */
@@ -174,20 +174,24 @@ export function fitDigitToTarget(
     };
   };
 
-  // The residual vector, metres: position, then the normal's misalignment
-  // and the coupling, each as an arc length on the distal phalanx.
+  // The primary residual, metres: where the effector is less the target.
+  // The secondary, metres: the normal's misalignment and the coupling, each
+  // as an arc length on the distal phalanx.
   const length: number = Vector3.length(input.effector.point);
-  const residual = (x: readonly number[]): number[] => {
-    const list: IAutoMovieJointPose[] = joints(x);
-    const at = place(list);
-    const r: number[] = [
+  const primary = (x: readonly number[]): number[] => {
+    const at = place(joints(x));
+    return [
       at.point.x - input.target.x,
       at.point.y - input.target.y,
       at.point.z - input.target.z,
     ];
+  };
+  const secondary = (x: readonly number[]): number[] => {
+    const list: IAutoMovieJointPose[] = joints(x);
+    const r: number[] = [];
     if (input.normal !== undefined) {
       const miss: IAutoMovieVector3 = Vector3.cross(
-        at.normal,
+        place(list).normal,
         Vector3.normalize(input.normal),
       );
       r.push(miss.x * length, miss.y * length, miss.z * length);
@@ -199,131 +203,55 @@ export function fitDigitToTarget(
     }
     return r;
   };
-  const cost = (r: readonly number[]): number =>
-    0.5 * r.reduce((sum: number, v: number): number => sum + v * v, 0);
 
-  // Central differences in degrees: the step is the engine's joint
-  // resolution, the scale every angle is resolved to.
-  const jacobian = (x: readonly number[]): number[][] => {
-    const columns: number[][] = variables.map(
-      (_v: IVariable, i: number): number[] => {
+  // The effector's motion for one resolution step of every joint: the
+  // nearest the point can be put, so the primary counts as met within it.
+  const tolerance = (
+    _x: readonly number[],
+    J1: readonly (readonly number[])[],
+  ): number =>
+    variables.reduce(
+      (sum: number, _v: IVariable, i: number): number =>
+        sum + Math.hypot(J1[0]![i]!, J1[1]![i]!, J1[2]![i]!) * ROM_TOLERANCE,
+      0,
+    );
+  const descend = (start: readonly number[]): number[] =>
+    fitDigitDescent({
+      start,
+      primary,
+      secondary,
+      project: (x: readonly number[]): number[] => read(joints(x)),
+      step: ROM_TOLERANCE,
+      tolerance,
+    });
+  const jacobian = (x: readonly number[]): number[][] =>
+    [0, 1, 2].map((k: number): number[] =>
+      x.map((_v: number, i: number): number => {
         const up: number[] = [...x];
         const down: number[] = [...x];
         up[i] = up[i]! + ROM_TOLERANCE;
         down[i] = down[i]! - ROM_TOLERANCE;
-        const a: number[] = residual(up);
-        const b: number[] = residual(down);
-        return a.map(
-          (v: number, k: number): number => (v - b[k]!) / (2 * ROM_TOLERANCE),
-        );
-      },
+        return (primary(up)[k]! - primary(down)[k]!) / (2 * ROM_TOLERANCE);
+      }),
     );
-    return columns[0]!.map((_r: number, k: number): number[] =>
-      columns.map((c: number[]): number => c[k]!),
-    );
-  };
 
-  const n: number = variables.length;
-  const normal = (
-    jac: readonly (readonly number[])[],
-    res: readonly number[],
-  ): { A: number[][]; g: number[] } => ({
-    A: Array.from({ length: n }, (_a: unknown, i: number): number[] =>
-      Array.from({ length: n }, (_b: unknown, j: number): number =>
-        jac.reduce(
-          (sum: number, row: readonly number[]): number =>
-            sum + row[i]! * row[j]!,
-          0,
-        ),
+  // Continuation: the descent starts from the pose's own angles, so a
+  // caller that seeds each fit from the one before follows the target
+  // continuously in one basin. Only a continued fit that cannot reach (its
+  // point farther than `tolerance`) restarts from the middle of every range,
+  // where a digit folded the wrong way round its target is not trapped, and
+  // keeps that fit only when it comes nearer.
+  const reach = (x: readonly number[]): number => Math.hypot(...primary(x));
+  const continued: number[] = descend(read(input.pose.joints));
+  let x: number[] = continued;
+  if (reach(continued) > tolerance(continued, jacobian(continued))) {
+    const restarted: number[] = descend(
+      variables.map((v: IVariable): number =>
+        v.range === null ? 0 : (v.range.min + v.range.max) / 2,
       ),
-    ),
-    g: Array.from({ length: n }, (_a: unknown, i: number): number =>
-      jac.reduce(
-        (sum: number, row: readonly number[], k: number): number =>
-          sum + row[i]! * res[k]!,
-        0,
-      ),
-    ),
-  });
-
-  // The variables the range holds: a variable whose descent direction the
-  // clamp undoes stands on a bound it is pushed against, so the step leaves
-  // it where it is and solves for the others (the active set of a projected
-  // Newton method, Bertsekas 1982).
-  const held = (x: readonly number[], g: readonly number[]): boolean[] =>
-    x.map((v: number, i: number): boolean => {
-      if (g[i] === 0) return false;
-      const probe: number[] = [...x];
-      probe[i] = v - Math.sign(g[i]!) * ROM_TOLERANCE;
-      return Math.abs(read(joints(probe))[i]! - v) < ROM_TOLERANCE / 2;
-    });
-
-  // One descent from a start, to the joint-angle resolution.
-  const descend = (start: readonly number[]): number[] => {
-    let x: number[] = read(joints(start));
-    let r: number[] = residual(x);
-    let { A, g } = normal(jacobian(x), r);
-    let mu: number =
-      TAU * Math.max(...A.map((row: number[], i: number): number => row[i]!));
-    let nu: number = 2;
-    for (;;) {
-      const fixed: boolean[] = held(x, g);
-      const free: number[] = x
-        .map((_v: number, i: number): number => i)
-        .filter((i: number): boolean => !fixed[i]);
-      if (free.length === 0) break;
-      const solved: number[] | null = AutoMovieSolidVector.solve(
-        free.map((i: number): number[] =>
-          free.map((j: number): number => A[i]![j]! + (i === j ? mu : 0)),
-        ),
-        free.map((i: number): number => -g[i]!),
-      );
-      if (solved === null) break;
-      const h: number[] = x.map((): number => 0);
-      free.forEach((i: number, k: number): void => {
-        h[i] = solved[k]!;
-      });
-      if (Math.max(...h.map((v: number): number => Math.abs(v))) <= ROM_TOLERANCE)
-        break;
-      const trial: number[] = read(
-        joints(x.map((v: number, i: number): number => v + h[i]!)),
-      );
-      const tr: number[] = residual(trial);
-      const predicted: number =
-        0.5 *
-        h.reduce(
-          (sum: number, v: number, i: number): number =>
-            sum + v * (mu * v - g[i]!),
-          0,
-        );
-      const rho: number =
-        predicted > 0 ? (cost(r) - cost(tr)) / predicted : -Infinity;
-      if (rho > 0) {
-        x = trial;
-        r = tr;
-        ({ A, g } = normal(jacobian(x), r));
-        mu *= Math.max(1 / 3, 1 - (2 * rho - 1) ** 3);
-        nu = 2;
-      } else {
-        mu *= nu;
-        nu *= 2;
-      }
-    }
-    return x;
-  };
-
-  // Two starts, the pose's own angles and the middle of every range, the
-  // lower cost kept: a digit's fit has a local minimum where a joint folds
-  // the wrong way round the target, and the range's middle lies on the
-  // other side of it.
-  const middle: number[] = variables.map((v: IVariable): number =>
-    v.range === null ? 0 : (v.range.min + v.range.max) / 2,
-  );
-  const x: number[] = [read(input.pose.joints), middle]
-    .map(descend)
-    .reduce((best: number[], next: number[]): number[] =>
-      cost(residual(next)) < cost(residual(best)) ? next : best,
     );
+    if (reach(restarted) < reach(continued)) x = restarted;
+  }
 
   const fitted: IAutoMovieJointPose[] = joints(x);
   const at = place(fitted);
@@ -368,7 +296,7 @@ export namespace fitDigitToTarget {
     /** The world direction the effector's normal is turned onto, when the contact needs one (a pad laid on a key faces against the key's normal); none when absent. */
     normal?: IAutoMovieVector3;
 
-    /** The ratio of the distal joint's flexion to the middle joint's that a finger keeps as a weighted prior; no coupling when absent (the thumb). */
+    /** The ratio of the distal joint's flexion to the middle joint's that a finger keeps as its second task, after the point; no coupling when absent (the thumb). */
     coupling?: number;
 
     /** The joint axes the pose is read with, as `resolvePose` takes them; the skeleton's own when absent. */
@@ -408,6 +336,3 @@ interface IVariable {
 
 /** The clinical axes of a joint, in the order variables are read. */
 const AXES = ["flexion", "abduction", "twist"] as const;
-
-/** The damping start of Levenberg-Marquardt relative to the largest diagonal entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2, tau = 1e-3 for a start believed close). */
-const TAU: number = 1e-3;

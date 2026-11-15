@@ -60,13 +60,15 @@ const shaped = (body: IHumanBody, form: HumanHand.Shape): IAutoMoviePose => ({
  *    (its normal's dot with the palm's normal positive), in the flat hand.
  * 2. In the flat hand the tips of the forefinger to the little finger lie in
  *    order across the hand (toward the little finger's side, -Z of the right
- *    hand at rest); in the fist every finger's pad faces the palm (its normal
- *    toward the palm's point).
+ *    hand at rest); in the fist every finger's pad faces into its curl: its
+ *    normal points toward the centre of the circle its three joints lie on
+ *    (a finger flexes in one plane, its phalanges chords of that circle,
+ *    their palmar sides toward its centre).
  * 3. Both sides are mirror images: each left tip is its right twin with the
  *    lateral coordinate negated.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves generated bodies' surfaces and places them by forward kinematics under hand shapes.
- * @evidence contracts/development/testing.md#independent-expectations Anatomy: a tip ends its digit, a pad faces the palm, fingers lie in order across the hand, a curled pad faces into the fist, the body is mirror-symmetric.
+ * @evidence contracts/development/testing.md#independent-expectations Anatomy: a tip ends its digit, a pad faces the palm, fingers lie in order across the hand, a curled pad faces into its finger's curl, the body is mirror-symmetric.
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, ten digits, two sides and two shapes.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios.
@@ -79,8 +81,6 @@ export function test_engine_finger_surfaces(): void {
     const fist: IAutoMoviePose = shaped(body, "fist");
     const palm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
       placed(body, flat, "palmRight");
-    const fistPalm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-      placed(body, fist, "palmRight");
     const bones = poseBones(body, flat);
 
     // 1. Tips at the ends, pads on the palm's side.
@@ -136,18 +136,38 @@ export function test_engine_finger_surfaces(): void {
       complaints.push(
         `${name}: the flat tips do not lie in order across the hand (${across.map((z) => z.toFixed(3)).join(", ")})`,
       );
+    const joints: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, fist);
     for (const d of DIGITS.slice(1)) {
       const pad = placed(
         body,
         fist,
         `${d.name}PadRight` as AutoMovieHumanoidRegion,
       );
-      if (
-        !(
-          Vector3.dot(pad.normal, Vector3.subtract(fistPalm.point, pad.point)) >
-          0
-        )
-      )
+      // The curl's centre: a finger flexes in one plane, so its three joints
+      // (knuckle, middle and end) lie on one circle, its phalanges chords of
+      // it, and a chord's palmar side faces the circle's centre when the
+      // finger flexes palmward. That centre is the joints' circumcentre:
+      // a + (|ac|^2 (ab x ac) x ab + |ab|^2 ac x (ab x ac)) / (2 |ab x ac|^2).
+      const [a, b, c] = (["Proximal", "Intermediate", "Distal"] as const).map(
+        (s: string): IAutoMovieVector3 =>
+          joints.get(`right${d.bone}${s}` as AutoMovieHumanoidBone)!
+            .worldPosition,
+      ) as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
+      const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
+      const ac: IAutoMovieVector3 = Vector3.subtract(c, a);
+      const n: IAutoMovieVector3 = Vector3.cross(ab, ac);
+      const centre: IAutoMovieVector3 = Vector3.add(
+        a,
+        Vector3.scale(
+          Vector3.add(
+            Vector3.scale(Vector3.cross(n, ab), Vector3.dot(ac, ac)),
+            Vector3.scale(Vector3.cross(ac, n), Vector3.dot(ab, ab)),
+          ),
+          1 / (2 * Vector3.dot(n, n)),
+        ),
+      );
+      if (!(Vector3.dot(pad.normal, Vector3.subtract(centre, pad.point)) > 0))
         complaints.push(
           `${name} ${d.name}: the curled pad does not face into the fist`,
         );
