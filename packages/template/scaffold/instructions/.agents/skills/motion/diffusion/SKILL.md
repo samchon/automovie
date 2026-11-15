@@ -17,6 +17,6 @@ Generate a stretch the user chose in these steps:
 4. Hint it from the composed performance under [hints](hints.md).
 5. Freeze the result and check it under [clips](clips.md).
 6. [Retarget](../retargeting.md) it onto the cast member's polygon man, then check it under [hints](hints.md#checks).
-7. Accept it in the catalog as [any other case](../catalog-cases.md#any-other-case), with steps 5 and 6 as its tests.
+7. Accept it in the catalog as [any other case](../catalog-cases.md#any-other-case), with the checks of steps 5 and 6 as its tests.
 
 Motion traced from footage, such as a dance video, follows [tracing](tracing.md), whether it becomes a clip, keys for the composed performance or a study's measurements.

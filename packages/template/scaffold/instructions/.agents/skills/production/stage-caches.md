@@ -20,9 +20,11 @@ A captured frame is reusable only as a pure function of the resolved state and f
 Supply these digests through the caches the installed packages provide, as their APIs document, rather than writing a cache in the production. A cache they lack is handled under [installed packages](../development/reuse.md#installed-packages).
 
 ## Cache checks and cleanup
+
 A second run with unchanged inputs recomputes nothing. Before the delivery render, recompute a sample of cached results with the cache bypassed and compare their digests; a mismatch is a missing key input or nondeterminism, so repair its cause and delete the affected entries instead of keeping whichever result was written first.
 
 Caches are derived state, unlike the run records and other working files under `.cache/`: never commit one or cite it as the source of truth. Let the installed packages' caches collect unreferenced entries, and delete any stage's cache when in doubt, since deletion costs only recomputation.
 
 ## One whole-film render
+
 Iteration runs on stills of the affected interval under [segment review](../motion/segment-review.md), so render time goes to delivery rather than to rechecking. Make the whole-film render exactly once per delivery, after every review segment is clean.

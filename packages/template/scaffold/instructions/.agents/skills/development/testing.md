@@ -16,7 +16,7 @@ The installed motion vocabulary checks its own actions, so a production does not
 
 ## What a test is not
 
-The [testing checklist](../contracts/development/testing.md) sets what a test may not be. Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery-review.md#acceptance-record), not tests.
+The [testing checklist](../contracts/development/testing.md) sets what a test may not be, and a production test also never monkey-patches globals or internals or replays recorded fixtures. Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery-review.md#acceptance-record), not tests.
 
 ## Files and runs
 

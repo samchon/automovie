@@ -3,6 +3,7 @@
 A generated film's takes each bring their own sound, so film sound finishes it across them once the takes are [finished](../video/finishing.md), under the user's listening; its [loudness](#loudness) target serves any film with sound. Its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
 
 ## Separation
+
 A take's sound is one mix of speech, effects, ambience and any music. Before re-voicing a line or replacing a bed, separate the speech from the rest, change the part that needs it, and mix it back. Few separation tools are proven on film mixes, so choose one by these criteria:
 
 - separate dialogue, music and effects stems, since a voice-only tool discards the bed;

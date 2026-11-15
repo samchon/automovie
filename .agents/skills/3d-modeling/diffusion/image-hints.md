@@ -10,7 +10,7 @@ Each image given to the model has:
 - even, diffuse light without harsh shadows or glare, because a shadow becomes a dark patch in the texture;
 - a front or three-quarter view from far away with a long lens, because perspective distortion becomes geometry;
 - for a body that will be rigged, arms and legs apart in an A-pose or T-pose, with the hands open and unobstructed;
-- the resolution the model's guide asks for, with any enhancement that redraws its details turned off.
+- the resolution the model's guide asks for, with any enhancement that redraws the input's details turned off.
 
 A model that crops and centers the subject itself can take it cut out to transparency instead.
 

@@ -112,4 +112,4 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `tsconfig.test.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
-[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations, and the source layout also owns the dependency direction between source folders.
+[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) own every other location, such as `docs`, `references`, `src`, `test`, `public`, `.env` and `media`, and the source layout also owns the dependency direction between source folders.

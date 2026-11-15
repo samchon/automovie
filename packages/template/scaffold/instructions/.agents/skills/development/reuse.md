@@ -34,7 +34,7 @@ A production cannot repair an installed package. An edit under `node_modules` or
 
 When a package misbehaves or lacks something the work needs:
 
-1. Give the user the failing case, its numbers and the installed version, for the tracker the `repository` field names.
+1. Give the user the failing case, its numbers and the installed version, for the tracker the package's `repository` field names.
 2. Continue with the work that does not depend on it.
 3. Where the work cannot wait, use a local substitute that is marked as one and names the report it waits on.
 4. Remove the substitute when the package ships the fix.

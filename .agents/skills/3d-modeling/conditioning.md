@@ -12,7 +12,7 @@ These steps keep the source and every derivative reproducible:
 
    The frozen file is the reproducible source. A URL, a model name or a seed does not identify it, and a service's download link can expire within minutes.
 
-2. Record its origin and usage terms beside it, and for a generated mesh what the project's media records require.
+2. Record its origin and usage terms beside it, and for a generated mesh the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
 3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each one consumes.
 4. Make each derivative by a saved script with its settings, never by hand in an interactive tool.
 

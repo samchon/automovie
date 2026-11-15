@@ -45,4 +45,5 @@ Keep duration, size, frame rate and seed in the request's settings, because pros
 A model that takes only still frames gets no motion from the hint. Write one camera move per request and its actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
 
 ## Pre-submission check
+
 Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit.

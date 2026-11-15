@@ -48,4 +48,5 @@ Make a place's view at each camera angle a scene uses the same way: render the s
 Views of a subject for an image-to-3D model or a modeler follow [turnaround views](turnaround-views.md).
 
 ## Inspection
+
 Judge each image under [visual debugging](../visual-debugging/SKILL.md), against its record and its frozen canon references: identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.

@@ -43,7 +43,7 @@ The vocabulary joins actions with a few operators:
 
 ## Seed
 
-Every performance takes the film's [one seed](../../development/source-layout.md#how-the-parts-work-together). Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/reuse.md#one-module).
+Every performance takes the film's [one seed](../../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no offsets set by hand. Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/reuse.md#one-module).
 
 ## Handoff
 

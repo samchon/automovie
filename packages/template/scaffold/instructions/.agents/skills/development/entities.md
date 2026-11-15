@@ -43,6 +43,7 @@ Select the detailed form only for the delivery that commissions it, record that 
 [3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified.
 
 ## Inspection and handoff
+
 Accept the entity first alone, in its [catalog cases](../motion/catalog-cases.md), against its settings or brief record at every view and state the scenes use. Then inspect it in its commissioned use, with its scene cameras, neighbors and motion, segment by segment under [segment review](../motion/segment-review.md).
 
 The entity names the settings or brief facts it realizes under the [entities contract](../contracts/development/entities.md); settings never link code.

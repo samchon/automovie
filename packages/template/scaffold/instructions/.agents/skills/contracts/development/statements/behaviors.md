@@ -34,7 +34,7 @@ Contract: [behaviors.md](../behaviors.md).
 
 ## Deterministic evaluation
 
-1. The behavior resolves its composition into a frozen schedule once, and each pose is a pure function of that plan and film time, under [plan once](../../../motion/laws/declaration.md#plan-and-time).
+1. The behavior resolves its composition into a frozen schedule once, and each pose is a pure function of that plan and film time, under [plan and time](../../../motion/laws/declaration.md#plan-and-time).
 2. It plans from the [entry state](../../../motion/laws/declaration.md#entry-state): the displayed pose and velocity, the planted feet and what the hands hold.
 3. It names its [events and decisive instant](../../../motion/laws/declaration.md#events-and-the-decisive-instant).
 4. It declares the [cuts](../../../motion/laws/transitions.md#declared-cuts) it admits, with their windows and kinds, and an unlisted cut is refused when the plan is built.

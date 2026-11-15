@@ -30,6 +30,7 @@ Measure the delivered file against the [delivery profile](../production/project-
 Ask the user for what only playback shows, as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets, and record what they report.
 
 ## Measurement and comparison
+
 Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film with the README's capture command, and inspect every segment on its contact sheets at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing. Repeat the pass on every segment a fix touches.
 
 The default spacing skips frames, so around every contact, cut and join add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
@@ -58,4 +59,5 @@ The record holds review's observations. It answers no contract item, because [th
 Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [form inspection](../3d-modeling/inspection.md) at the uses [entity work](../development/entities.md#inspection-and-handoff) sets. Have the user listen to standalone audio as delivered.
 
 ## Records and repairs
+
 Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#requirement-ownership), and confirm the handoff carries what [assembly and handoff](../production/assembly.md#repair-and-delivery) lists. Repair media findings through their owners under the same section and inspect the affected output again; narrative changes follow [repair](../story/correction/repair.md).

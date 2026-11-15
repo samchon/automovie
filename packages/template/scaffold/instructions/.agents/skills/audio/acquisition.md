@@ -5,11 +5,13 @@ Acquisition finds a source for audio the video model does not make, checks its r
 Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/source-layout.md).
 
 ## Source choice
+
 Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
 
 Check each asset's terms, every layer that [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither. Clone or design a voice after a real person only with that person's recorded consent.
 
 ## Take adoption
+
 Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert it to a format the installed packages admit, at the film's sample rate, while keeping the original.
 
 Measure durations and trims from the accepted bytes, place dialogue, captions, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and have the user listen to the result.

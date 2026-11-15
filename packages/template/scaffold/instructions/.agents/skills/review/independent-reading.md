@@ -3,6 +3,7 @@
 An independent reader is an [isolated context](../story/correction/inspection.md#isolated-context).
 
 ## Reading as the recipient
+
 Give the reviewer the task, recipient and annotation-free body before parents, contracts or earlier verdicts. The reviewer never reads the evidence answers. Read the whole declared scope, splitting a large one into non-overlapping chunks rather than sampling, and lock the first response and concrete losses under the [independent-reading questions](../contracts/story/shared/principles/review.md#independent-reading).
 
 Read each layer as its recipient:
@@ -18,7 +19,8 @@ Read each layer as its recipient:
 A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream defects](../story/correction/repair.md#upstream-defects).
 
 ## Comparison with parents and contracts
-Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions; matching quotations cannot replace this comparison. Fiction's own derived quantities belong to research and code, so do not recompute them.
+
+Compare the body's decisions, names, notation, quotations and consequential action, image and sound with the selected contracts, actual parents and requirements, looking for contradictions; matching quotations cannot replace this comparison. Do not recompute fiction's own quantities, as [factual basis](../story/planning/requirements.md#factual-basis) sets.
 
 Where the route runs [independent classification](../story/correction/inspection.md#independent-classification), lock it in an isolated worker before reading author defenses.
 
