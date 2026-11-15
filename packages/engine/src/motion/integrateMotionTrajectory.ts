@@ -4,11 +4,13 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { samplePoseVelocity } from "./samplePoseVelocity";
 
 /**
  * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)` from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its knots kept with their derivatives and read between them by cubic Hermite interpolation.
  *
- * The step count is `ceil((t1 - t0) / h)`, the last step shortened to land on `t1` exactly. A state may carry an orientation block, a unit quaternion advanced on the exponential map by the body-frame angular velocity `f` returns: each stage turns the step's start orientation by `exp(c h w / 2)` with the previous stage's rate, and the step's result by the stages' Runge-Kutta mean rate, renormalised at each knot. Between knots the vector is the cubic Hermite of the two knots' values and derivatives, exact at knots and C1 between; the orientation is the shortest-arc slerp of the two knots' quaternions by the elapsed share of the step, the constant body rate between them. Reads outside `[t0, t1]` hold the nearer end.
+ * The step count is `ceil((t1 - t0) / h)`, the last step shortened to land on `t1` exactly. A state may carry an orientation block, a unit quaternion advanced on the exponential map by the body-frame angular velocity `f` returns, by the fourth-order Runge-Kutta-Munthe-Kaas method: each stage turns the step's start orientation by a rotation vector built from the earlier stages, each stage's body rate is carried to that vector's derivative by the inverse differential of the exponential, and the step turns the start by the stages' weighted vector, renormalised at each knot. Between knots the vector is the cubic Hermite of the two knots' values and derivatives, exact at knots and C1 between; the orientation is the start knot turned by the cubic Hermite of the rotation vector to the end knot, matching both knots' body rates, so a rate read between knots is the motion's and not the step's mean. Reads outside `[t0, t1]` hold the nearer end.
  *
  * The output depends only on `f`, `x0`, `q0`, `t0`, `t1` and `h`, never on which times are read or in which order, so a plan caches it as a value and playback and seeking read the same motion. `f` must be pure: no draw and no clock. The default step, a sixtieth of a second, keeps the classical method's error far under a millimetre for the motions planned here (#3424); a stiff `f`, such as a contact spring or a large drag, needs a smaller one.
  *
@@ -17,7 +19,7 @@ import { Quaternion } from "../math/Quaternion";
  * @throws {Error} When the interval or the step is not finite and positive, the state is empty when no orientation is given, or `f` returns a rate of another length or without an angular velocity for the orientation: a caller's defect.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the method, the step count, the orientation block, the read between knots, the held ends, the determinism contract, the default step and the stiff-case caveat.
- * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation advanced by the Lie-group exponential, which keeps it on the unit sphere, with the step's increment the exponential of the stages' weighted body rate. Its error beyond the vector part's is the rate axis's turn within a step, second order in it, small at the steps used; stated, not hidden.
+ * @evidence contracts/development/implementation.md#principled-implementation Classical RK4 (Butcher's tableau 1/2, 1/2, 1 with weights 1/6, 1/3, 1/3, 1/6), whose global error is fourth order in the step; cubic Hermite interpolation with the knots' exact derivatives; the orientation by Runge-Kutta-Munthe-Kaas (Munthe-Kaas 1999, Appl Numer Math 29:115-127), the classical tableau applied in the Lie algebra with the inverse differential of the exponential truncated after its second bracket, which keeps the fourth order on the unit sphere; its read between knots is the cubic Hermite of the rotation vector in the same algebra.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, step to `t1` keeping knots, then a reader that finds the knot interval by index.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The frame grid never enters the integration; reads are pure functions of the knots.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four evaluations of `f` per step and one at the last knot; a read finds its interval by division in constant time.
@@ -64,23 +66,34 @@ export function integrateMotionTrajectory(
     const dt: number = next - t;
     const x: number[] = xs[s]!;
     const q: IAutoMovieQuaternion | null = qs[s]!;
+    // Runge-Kutta-Munthe-Kaas: each stage's orientation is the step's start
+    // turned by a rotation vector, and the stage's body rate is carried back
+    // to that vector's derivative by the inverse differential of the
+    // exponential, so the orientation keeps the method's fourth order.
     const k1: integrateMotionTrajectory.IRate = ks[s]!;
-    const k2: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k1.dx, dt / 2), turn(q, k1.w, dt / 2));
-    const k3: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k2.dx, dt / 2), turn(q, k2.w, dt / 2));
-    const k4: integrateMotionTrajectory.IRate = rate(t + dt, add(x, k3.dx, dt), turn(q, k3.w, dt));
+    const u1: IAutoMovieVector3 | undefined = k1.w;
+    const v2: IAutoMovieVector3 | undefined = scaled(u1, dt / 2);
+    const k2: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k1.dx, dt / 2), turn(q, v2));
+    const u2: IAutoMovieVector3 | undefined = dexpinv(v2, k2.w);
+    const v3: IAutoMovieVector3 | undefined = scaled(u2, dt / 2);
+    const k3: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k2.dx, dt / 2), turn(q, v3));
+    const u3: IAutoMovieVector3 | undefined = dexpinv(v3, k3.w);
+    const v4: IAutoMovieVector3 | undefined = scaled(u3, dt);
+    const k4: integrateMotionTrajectory.IRate = rate(t + dt, add(x, k3.dx, dt), turn(q, v4));
+    const u4: IAutoMovieVector3 | undefined = dexpinv(v4, k4.w);
     const xn: number[] = x.map(
       (v: number, i: number): number =>
         v + (dt / 6) * (k1.dx[i]! + 2 * k2.dx[i]! + 2 * k3.dx[i]! + k4.dx[i]!),
     );
-    const mean: IAutoMovieVector3 | undefined =
+    const step: IAutoMovieVector3 | undefined =
       q === null
         ? undefined
         : {
-            x: (k1.w!.x + 2 * k2.w!.x + 2 * k3.w!.x + k4.w!.x) / 6,
-            y: (k1.w!.y + 2 * k2.w!.y + 2 * k3.w!.y + k4.w!.y) / 6,
-            z: (k1.w!.z + 2 * k2.w!.z + 2 * k3.w!.z + k4.w!.z) / 6,
+            x: (dt / 6) * (u1!.x + 2 * u2!.x + 2 * u3!.x + u4!.x),
+            y: (dt / 6) * (u1!.y + 2 * u2!.y + 2 * u3!.y + u4!.y),
+            z: (dt / 6) * (u1!.z + 2 * u2!.z + 2 * u3!.z + u4!.z),
           };
-    const qn: IAutoMovieQuaternion | null = q === null ? null : Quaternion.normalize(turn(q, mean, dt)!);
+    const qn: IAutoMovieQuaternion | null = q === null ? null : Quaternion.normalize(turn(q, step)!);
     times.push(next);
     xs.push(xn);
     qs.push(qn);
@@ -108,12 +121,30 @@ export function integrateMotionTrajectory(
       const x1: number[] = xs[i + 1]!;
       const d0: readonly number[] = ks[i]!.dx;
       const d1: readonly number[] = ks[i + 1]!.dx;
+
+      // The orientation: the start knot turned by the cubic Hermite of the
+      // rotation vector, which meets the end knot with both knots' body
+      // rates, the end's carried into the vector's derivative.
+      let q: IAutoMovieQuaternion | null = null;
+      if (oriented && u >= 1) q = qs[i + 1]!;
+      else if (oriented) {
+        const r1: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+          Quaternion.multiply(Quaternion.inverse(qs[i]!), qs[i + 1]!),
+        );
+        const w0: IAutoMovieVector3 = ks[i]!.w!;
+        const w1: IAutoMovieVector3 = dexpinv(r1, ks[i + 1]!.w)!;
+        q = turn(qs[i]!, {
+          x: h10 * span * w0.x + h01 * r1.x + h11 * span * w1.x,
+          y: h10 * span * w0.y + h01 * r1.y + h11 * span * w1.y,
+          z: h10 * span * w0.z + h01 * r1.z + h11 * span * w1.z,
+        });
+      }
       return {
         x: x0.map(
           (v: number, k: number): number =>
             h00 * v + h10 * span * d0[k]! + h01 * x1[k]! + h11 * span * d1[k]!,
         ),
-        q: oriented ? Quaternion.slerp(qs[i]!, qs[i + 1]!, u) : null,
+        q,
       };
     },
   };
@@ -212,23 +243,64 @@ export namespace integrateMotionTrajectory {
 }
 
 /**
- * An orientation turned by a body-frame angular velocity held for a time: `q * exp(dt w / 2)`, the rotation by `|w| dt` about `w` in the body's own frame.
+ * An orientation turned in its own frame by a rotation vector: `q * exp(v / 2)`, the rotation by `|v|` radians about `v` in the body's frame.
  *
  * @param q The orientation, or null for a state without one.
- * @param w The body-frame angular velocity, radians per second.
- * @param dt The time, seconds.
+ * @param v The rotation vector, radians, body frame; absent for none.
  * @returns The turned orientation, or null.
  */
 function turn(
   q: IAutoMovieQuaternion | null,
-  w: IAutoMovieVector3 | undefined,
-  dt: number,
+  v: IAutoMovieVector3 | undefined,
 ): IAutoMovieQuaternion | null {
-  if (q === null || w === undefined) return q;
-  const speed: number = Math.hypot(w.x, w.y, w.z);
-  if (speed === 0) return q;
+  if (q === null || v === undefined) return q;
+  const angle: number = Math.hypot(v.x, v.y, v.z);
+  if (angle === 0) return q;
   return Quaternion.multiply(
     q,
-    Quaternion.fromAxisAngle(w, (speed * dt * 180) / Math.PI),
+    Quaternion.fromAxisAngle(v, (angle * 180) / Math.PI),
   );
+}
+
+/**
+ * A vector scaled, or absent when absent.
+ *
+ * @param v The vector, or undefined.
+ * @param s The scale.
+ * @returns `s v`, or undefined.
+ */
+function scaled(
+  v: IAutoMovieVector3 | undefined,
+  s: number,
+): IAutoMovieVector3 | undefined {
+  return v === undefined ? undefined : { x: s * v.x, y: s * v.y, z: s * v.z };
+}
+
+/**
+ * The derivative of a rotation vector `r` that turns the body at a body-frame
+ * rate `w`, for an orientation `q exp(r)`: the inverse differential of the
+ * exponential map, `w + r × w / 2 + r × (r × w) / 12`, its Bernoulli series
+ * truncated after the second bracket, which keeps a fourth-order
+ * Runge-Kutta-Munthe-Kaas step at its order (Munthe-Kaas 1999, "High order
+ * Runge-Kutta methods on manifolds", Appl Numer Math 29:115-127; Iserles,
+ * Munthe-Kaas, Nørsett and Zanna 2000, "Lie-group methods", Acta Numerica 9,
+ * section 4). The signs are the body frame's: for `q̇ = q ŵ / 2`, the rate of
+ * `q exp(r)` is `ṙ - r × ṙ / 2 + ...`, whose inverse this is.
+ *
+ * @param r The rotation vector, radians; absent for a state without orientation.
+ * @param w The body-frame rate, radians per second.
+ * @returns The vector's derivative, radians per second, or undefined.
+ */
+function dexpinv(
+  r: IAutoMovieVector3 | undefined,
+  w: IAutoMovieVector3 | undefined,
+): IAutoMovieVector3 | undefined {
+  if (r === undefined || w === undefined) return w;
+  const a: IAutoMovieVector3 = Vector3.cross(r, w);
+  const b: IAutoMovieVector3 = Vector3.cross(r, a);
+  return {
+    x: w.x + a.x / 2 + b.x / 12,
+    y: w.y + a.y / 2 + b.y / 12,
+    z: w.z + a.z / 2 + b.z / 12,
+  };
 }
