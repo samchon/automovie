@@ -34,6 +34,14 @@ const RIMFORSA: string =
 const EN527: string =
   "EN 527-1:2011 Table 1 (https://cdn.standards.iteh.ai/samples/26022/6cc3729a004c4ce9a231c68a38e8620c/SIST-EN-527-1-2012.pdf)";
 
+/** The pupil desk read. */
+const SILHOUETTE: string =
+  "Smith System Silhouette student desk #01601 sheet: top 18 x 24 in, 5/8 in thick, height 19 to 31 in in 1 in steps, 33 lb, the optional book box apart (https://smithsystem.com/wp-content/uploads/2017/10/ss_01601_2018.pdf)";
+
+/** The altar read. */
+const WOERNER: string =
+  "Woerner Industries Church and Funeral Furniture Catalog 2023, p. 09: 5061 Altar, 72 in wide, 30 in deep, 40 in high (https://store.occatholic.com/Images/Woerner_Catalog.pdf)";
+
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createTable.Kind, string>> = {
   dining: "dining table",
@@ -43,15 +51,17 @@ const NAMES: Readonly<Record<createTable.Kind, string>> = {
   bar: "bar counter",
   serviceCounter: "service counter",
   workbench: "workbench",
+  pupilDesk: "pupil desk",
+  altar: "altar",
 };
 
 /** A bar counter's knee space under its top's front, metres: NKBA Guideline 9's 12 in (305 mm) for a 42 in counter. */
 const KNEE: number = 0.305;
 
 /**
- * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter, a service counter or a workbench.
+ * A table: a dining table, a desk, a counter, a coffee table, a raised bar counter, a service counter, a workbench, a pupil desk or an altar.
  *
- * The model is a top on four legs, or on a solid base for a counter, a bar counter and a service counter. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
+ * The model is a top on four legs, on a solid base for a counter, a bar counter and a service counter, or on two pedestals for an altar. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -61,7 +71,7 @@ const KNEE: number = 0.305;
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's and a service counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's and a service counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -93,14 +103,29 @@ export function createTable(
     name: NAMES[kind],
     dimensions: d,
   });
-  const slab: number = 0.04;
+  const slab: number =
+    kind === "pupilDesk" ? createTable.PUPIL_TOP : 0.04;
   builder.box(
     "top",
     Vector3.create(length, slab, depth),
     Vector3.create(0, height - slab / 2, 0),
     { color: "#a9825a" },
   );
-  if (kind === "counter" || kind === "bar" || kind === "serviceCounter") {
+  if (kind === "altar") {
+    // Two pedestals under the top's ends, each inset as the legs are.
+    const wide: number = length * createTable.ALTAR_PEDESTAL.width;
+    const deep: number = depth * createTable.ALTAR_PEDESTAL.depth;
+    for (const [name, sx] of [
+      ["pedestal-left", 1],
+      ["pedestal-right", -1],
+    ] as const)
+      builder.box(
+        name,
+        Vector3.create(wide, height - slab, deep),
+        Vector3.create(sx * (length / 2 - 0.05 - wide / 2), (height - slab) / 2, 0),
+        { color: "#a9825a" },
+      );
+  } else if (kind === "counter" || kind === "bar" || kind === "serviceCounter") {
     const overhang: number = kind === "bar" ? KNEE : 0.05;
     builder.box(
       "base",
@@ -173,7 +198,7 @@ export function createTable(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N16).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N6, N12, N16).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, so the bands are total records.
  */
 export namespace createTable {
@@ -185,7 +210,9 @@ export namespace createTable {
     | "coffee"
     | "bar"
     | "serviceCounter"
-    | "workbench";
+    | "workbench"
+    | "pupilDesk"
+    | "altar";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -196,7 +223,18 @@ export namespace createTable {
     "bar",
     "serviceCounter",
     "workbench",
+    "pupilDesk",
+    "altar",
   ];
+
+  /** A pupil desk's top thickness, metres: its sheet's 5/8 in. */
+  export const PUPIL_TOP: number = (5 / 8) * ArchetypeUnits.INCH;
+
+  /** An altar's two pedestals as shares of its top's length and depth: construction estimates no act reads, since the catalog draws but does not size them. */
+  export const ALTAR_PEDESTAL: Readonly<{ width: number; depth: number }> = {
+    width: 0.2,
+    depth: 0.7,
+  };
 
   /**
    * The affordance ids:
@@ -337,6 +375,24 @@ export namespace createTable {
       length: ArchetypeBand.metres(120 * ArchetypeUnits.CENTIMETRE, 120 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
       depth: ArchetypeBand.metres(63.5 * ArchetypeUnits.CENTIMETRE, 63.5 * ArchetypeUnits.CENTIMETRE, RIMFORSA),
       mass: ArchetypeBand.of("kg", 40, 64, `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`, true),
+    },
+    pupilDesk: {
+      height: ArchetypeBand.metres(19 * ArchetypeUnits.INCH, 31 * ArchetypeUnits.INCH, SILHOUETTE),
+      length: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, SILHOUETTE),
+      depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, SILHOUETTE),
+      mass: ArchetypeBand.of("kg", 33 * ArchetypeUnits.POUND, 33 * ArchetypeUnits.POUND, SILHOUETTE),
+    },
+    altar: {
+      height: ArchetypeBand.metres(40 * ArchetypeUnits.INCH, 40 * ArchetypeUnits.INCH, WOERNER),
+      length: ArchetypeBand.metres(72 * ArchetypeUnits.INCH, 72 * ArchetypeUnits.INCH, WOERNER),
+      depth: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, WOERNER),
+      mass: ArchetypeBand.of(
+        "kg",
+        275 * ArchetypeUnits.POUND,
+        450 * ArchetypeUnits.POUND,
+        "the Woerner catalog gives no mass; Cokesbury's listings of Woerner's 417 (60 x 28 x 39 in, 275 lb) and 656 (72 x 40 x 39 in, 450 lb) altars, seen only in search results, bound it",
+        true,
+      ),
     },
   };
 }
