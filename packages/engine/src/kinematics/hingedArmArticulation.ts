@@ -68,6 +68,22 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * one a sample happened to fall nearer the bottom of. The caller owns the
  * decomposition and the rig's ROM, so the geometry here holds no rig policy.
  *
+ * A caller that can certify swivels its score refuses (`excluded`) spares
+ * their scoring, and the pose is still the full sweep's. A step is skipped
+ * when every swivel within two steps of it is refused, and a step whose
+ * bracket, a step either way, is refused is not refined; every other step is
+ * scored and compared with its true neighbours, since a step that is not
+ * skipped and could be refined has both neighbours scored. When the pruned
+ * sweep finds a legal candidate, the full sweep's answer is that candidate:
+ * a refused swivel, a step or a refinement inside a refused bracket, is
+ * never legal, so it can never be ahead of a legal candidate (legality is
+ * compared exactly); every legal candidate of the full sweep is a scored
+ * step or the refinement of a step that is scored with the same neighbours,
+ * so it is the same candidate in both; and the ordering among legal
+ * candidates, met in the same order, is the same. When the pruned sweep
+ * finds none, the full sweep decides, so a chain that cannot reach legally
+ * still returns its least overshoot.
+ *
  * Returns `null` for a degenerate chain: a mid or end offset shorter than
  * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
  * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
@@ -77,7 +93,7 @@ const OVERSHOOT_ROUNDING: number = 1e-9;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep (one more for each tied pass, at most 82), each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep (one more for each tied pass, at most 82), each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses. Steps a caller certifies refused are not scored, which leaves the answer the full sweep's and, when no legal candidate remains, costs one more full sweep.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
  */
@@ -93,6 +109,9 @@ export const hingedArmArticulation: (props: {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ) => { overshoot: number; deviation: number; exact?: () => number };
+  excluded?: (
+    upper: (swivel: number) => IAutoMovieQuaternion,
+  ) => (low: number, high: number) => boolean;
 }) => IAutoMovieHingedArticulation | null = (props: {
   /** Chain-root bone (the shoulder) resolved under the rig's rest FK. */
   upper: IAutoMovieChainBone;
@@ -134,6 +153,17 @@ export const hingedArmArticulation: (props: {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ) => { overshoot: number; deviation: number; exact?: () => number };
+
+  /**
+   * Given the root's bone-local rotation at a swivel on one bend branch,
+   * degrees, a test of whether every swivel from `low` to `high` degrees is
+   * certain to score a positive `overshoot` (`boxExcludedSwivels`); omitted,
+   * every step is scored. Only a certainty may be returned: the returned pose
+   * is then the one the full sweep gives.
+   */
+  excluded?: (
+    upper: (swivel: number) => IAutoMovieQuaternion,
+  ) => (low: number, high: number) => boolean;
 }): IAutoMovieHingedArticulation | null => {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
@@ -183,38 +213,79 @@ export const hingedArmArticulation: (props: {
     return exactOf(a) < theirs;
   };
 
-  let chosen: IScored | null = null;
-  for (const { theta } of stops.filter(
-    (stop: hingedArmSwivel.IStop): boolean => stop.shortfall === shortfall,
-  )) {
-    // Each candidate is the chain posed at this branch and a swivel
-    // (`hingedArmSwivel.pose`).
-    const posed = hingedArmSwivel.pose(props, theta);
-    const probe = (angle: number): IScored => {
-      const { upper, lower } = posed(angle);
-      return { upper, lower, shortfall, ...props.score(upper, lower) };
-    };
-    const swept: IScored[] = [];
-    for (let step: number = 0; step * SWIVEL_STEP < 360; ++step)
-      swept.push(probe(step * SWIVEL_STEP));
-    for (let step: number = 0; step < swept.length; ++step) {
-      const at: IScored = swept[step]!;
-      const before: IScored = swept[(step + swept.length - 1) % swept.length]!;
-      const after: IScored = swept[(step + 1) % swept.length]!;
-      if (chosen === null || better(at, chosen)) chosen = at;
+  // The sweep, with or without the steps `excluded` refuses: a step is
+  // skipped when the swivels within two steps of it are refused, and a step
+  // whose bracket (a step either way) is refused is not refined.
+  const sweep = (
+    excluding: boolean,
+  ): { chosen: IScored | null; skipped: boolean } => {
+    let chosen: IScored | null = null;
+    let skipped: boolean = false;
+    for (const { theta } of stops.filter(
+      (stop: hingedArmSwivel.IStop): boolean => stop.shortfall === shortfall,
+    )) {
+      // Each candidate is the chain posed at this branch and a swivel
+      // (`hingedArmSwivel.pose`).
+      const posed = hingedArmSwivel.pose(props, theta);
+      const probe = (angle: number): IScored => {
+        const { upper, lower } = posed(angle);
+        return { upper, lower, shortfall, ...props.score(upper, lower) };
+      };
+      const refused: ((low: number, high: number) => boolean) | null =
+        excluding && props.excluded !== undefined
+          ? props.excluded(
+              (angle: number): IAutoMovieQuaternion => posed(angle).upper,
+            )
+          : null;
+      const swept: (IScored | null)[] = [];
+      for (let step: number = 0; step * SWIVEL_STEP < 360; ++step) {
+        const angle: number = step * SWIVEL_STEP;
+        const out: boolean =
+          refused !== null &&
+          refused(angle - 2 * SWIVEL_STEP, angle + 2 * SWIVEL_STEP);
+        if (out) skipped = true;
+        swept.push(out ? null : probe(angle));
+      }
+      for (let step: number = 0; step < swept.length; ++step) {
+        const at: IScored | null = swept[step]!;
+        if (at === null) continue;
+        const before: IScored | null =
+          swept[(step + swept.length - 1) % swept.length]!;
+        const after: IScored | null = swept[(step + 1) % swept.length]!;
+        if (chosen === null || better(at, chosen)) chosen = at;
 
-      // Every local minimum of the sweep is refined, not only the sweep's
-      // best step: a legal sliver narrower than one step shows in the sweep
-      // only as a dip of the overshoot, and of two basins the one that is
-      // truly better must win, not the one whose sample fell nearer its
-      // bottom. A step level with both neighbours has nothing to refine.
-      if (better(before, at) || better(after, at)) continue;
-      if (!better(at, before) && !better(at, after)) continue;
-      const refined: IScored = refine(probe, better, step * SWIVEL_STEP);
-      if (better(refined, chosen)) chosen = refined;
+        // Every local minimum of the sweep is refined, not only the sweep's
+        // best step: a legal sliver narrower than one step shows in the sweep
+        // only as a dip of the overshoot, and of two basins the one that is
+        // truly better must win, not the one whose sample fell nearer its
+        // bottom. A step level with both neighbours has nothing to refine.
+        if (before === null || after === null) continue;
+        if (
+          refused !== null &&
+          refused(
+            step * SWIVEL_STEP - SWIVEL_STEP,
+            step * SWIVEL_STEP + SWIVEL_STEP,
+          )
+        )
+          continue;
+        if (better(before, at) || better(after, at)) continue;
+        if (!better(at, before) && !better(at, after)) continue;
+        const refined: IScored = refine(probe, better, step * SWIVEL_STEP);
+        if (better(refined, chosen)) chosen = refined;
+      }
     }
-  }
-  // `branches` is never empty and each sweep scores 360 candidates, so
+    return { chosen, skipped };
+  };
+  // Pruned, the sweep is the full one whenever it finds a legal candidate;
+  // otherwise the full sweep decides.
+  const pruned: { chosen: IScored | null; skipped: boolean } = sweep(
+    props.excluded !== undefined,
+  );
+  const chosen: IScored | null =
+    pruned.chosen !== null && (pruned.chosen.overshoot === 0 || !pruned.skipped)
+      ? pruned.chosen
+      : sweep(false).chosen;
+  // `branches` is never empty and the full sweep scores 360 candidates, so
   // `chosen` is assigned by here.
   return {
     upper: chosen!.upper,

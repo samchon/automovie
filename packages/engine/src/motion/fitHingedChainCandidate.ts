@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
@@ -53,7 +54,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation; swivels the root's three-angle box certainly refuses are not scored (`boxExcludedSwivels`), with the full sweep's answer.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input, called once per fit.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -177,6 +178,17 @@ export function fitHingedChainCandidate(
       hinge: axes.flexion,
       target: props.target,
       ...(range === null ? {} : { range }),
+      // The root's box refuses swivels its overshoot can only score above
+      // zero, so the sweep spares them (`boxExcludedSwivels`).
+      excluded: (
+        upper: (swivel: number) => IAutoMovieQuaternion,
+      ): ((low: number, high: number) => boolean) =>
+        boxExcludedSwivels({
+          basis: upperBasis,
+          frame: props.restFrames?.[props.chain.upper],
+          constraint: prepared.upperDomain.constraint,
+          rotation: upper,
+        }),
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
