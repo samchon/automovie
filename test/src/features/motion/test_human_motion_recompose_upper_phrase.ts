@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Quaternion, Transform, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidRegion,
   IAutoMovieVector3,
@@ -11,6 +11,7 @@ import {
   type HumanSegment,
   type IHumanActionLaw,
   type IHumanBody,
+  type IHumanProp,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,7 +22,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Every row of `HumanUpperRows` is performed after a quiet stance on every
  * body of `EXTREMES`; a row whose target is open is given one of the
- * performer's own regions.
+ * performer's own regions, and a row that moves a held prop is performed after
+ * the performer picks up a stick, named as its held prop.
  *
  * Scenarios:
  *
@@ -53,7 +55,12 @@ export function test_human_motion_recompose_upper_phrase(): void {
     rubOn: "thighFrontRight",
     strokeDown: "upperArmLeft",
     wipeAcross: "thighFrontRight",
+    hammerStrokes: "thighFrontRight",
+    sawStrokes: "thighFrontRight",
+    stirStrokes: "thighFrontRight",
   };
+  // The rows that move a held prop: the performer first picks up a stick.
+  const held: readonly string[] = ["hammerStrokes", "sawStrokes", "stirStrokes", "hatOnHead", "phoneToEar", "teethBrushing", "hairCombing"];
   const touches: Record<string, [AutoMovieHumanoidRegion, HumanHand.Surface]> = {
     handOnHip: ["hipRight", "palm"],
     chinOnFist: ["chin", "fist"],
@@ -63,18 +70,30 @@ export function test_human_motion_recompose_upper_phrase(): void {
     const body: IHumanBody = motionHumanBody(name);
     const reach: number = body.measure.upperArm + body.measure.forearm + body.measure.hand;
     for (const row of rows) {
-      const params: object =
+      const given: object =
         open[row.name] === undefined
           ? row.name === "armPhrase"
             ? { phrase: "visit", target: { kind: "self", region: "hipRight" } }
             : {}
           : { target: { kind: "self", region: open[row.name] } };
+      const params: object = held.includes(row.name) ? { ...given, held: "stick" } : given;
+      const m: IHumanBody["measure"] = body.measure;
+      const stick: IHumanProp = {
+        subject: "stick",
+        frame: { position: { x: -m.shoulderHalfWidth, y: m.waistHeight, z: 0.6 * (m.upperArm + m.forearm) }, rotation: Quaternion.identity() },
+        points: {},
+        affordances: [{ id: "handle", kind: "handle", frame: Transform.identity(), extent: null, radius: 0.015 }],
+      };
       try {
         const p: HumanPerformance = new HumanPerformance({
           seed: "upper",
           laws: rows,
           performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-          composition: HumanChain.subject("a").stand({ seconds: 0.3 }).registered(row.name, params).node,
+          props: [stick],
+          composition: (held.includes(row.name)
+            ? HumanChain.subject("a").pickUp({ prop: "stick", handle: "handle", hand: "right" })
+            : HumanChain.subject("a").stand({ seconds: 0.3 })
+          ).registered(row.name, params).node,
         });
         const s: HumanSegment.ISegment = p.segments("a").at(-1)!;
         if (s.name !== row.name) {

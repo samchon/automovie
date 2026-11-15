@@ -15,9 +15,11 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -42,7 +44,10 @@ import { poseBones } from "../posture/poseBones";
  * performer's frame. An `offset` moves the target's point in the
  * performer's frame (out, up, forward) by shares of the arm's length (upper
  * arm, forearm and hand), so one row fits every body. The hand faces against
- * the target's normal with its fingers up, unless `facing` names it.
+ * the target's normal with its fingers up, unless `facing` names it. A
+ * phrase that names a `held` prop keeps the hand's grip on it over its whole
+ * span and leaves it held, so a hammer, a spoon or a hat moves with the
+ * hand; a hand that does not hold it at entry is refused.
  *
  * Timing: the preparation and the retraction are travels of the distance
  * from the hand to the target (`AutoMovieMotionHumanTiming.transport`); a
@@ -58,7 +63,7 @@ import { poseBones } from "../posture/poseBones";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the arm phrases, the clock, the timing, the base and the manner; it writes no movement of its own.
  * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases on the phrase clock, each phase a minimum-jerk movement through the arm phrases, timed by the vocabulary's transport rule.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Origin, target frame, clock, one primitive, one composition.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; no constant of the phrase is set here.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offset's shares are the caller's and scale with the body; the phases are the timing owner's transport and pauses. Two defaults are set here and named provisional: an oscillation's swing (`SWING`, a tenth of the arm's length) and its two cycles.
  * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics at plan time; each posture is the primitives' constant work.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
@@ -110,7 +115,7 @@ export namespace armPhrase {
     /** An oscillation's swing, by the same shares at the swing's ends; a tenth of the arm out and in when absent. */
     swing?: IOffset;
 
-    /** The oscillation's cycles; 2 when absent. */
+    /** The oscillation's cycles; 2 when absent (provisional: no measured count read). */
     cycles?: number;
 
     /** The hand; the right when absent. */
@@ -130,6 +135,15 @@ export namespace armPhrase {
 
     /** The manner; neutral when absent. */
     manner?: AutoMovieMotionManner.IManner;
+
+    /**
+     * A prop the hand holds through the phrase and keeps after it (a hammer,
+     * a spoon, a hat on its way to the head): the phrase takes the hand's
+     * grip on it over its whole span, so the prop rides the hand with the
+     * offset it was held by, and leaves it held. The hand must hold it at
+     * entry; none when absent.
+     */
+    held?: string;
   }
 
   /**
@@ -137,6 +151,7 @@ export namespace armPhrase {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {HumanRefusal} When a held prop is named that the hand does not hold at entry.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -244,12 +259,36 @@ export namespace armPhrase {
                   ),
                 ),
             });
-    return composeAutoMovieMotionHumanAction({
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
       primitives: [primitive],
       contact: "stroke",
     });
+    if (p.held === undefined) return composed;
+
+    // A held prop: the hand's grip on it over the whole phrase takes the
+    // hand over without letting the prop go, and the hold carries it on.
+    if (context.entry.holds[side] !== p.held)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "held",
+        value: p.held,
+        reason: `the ${side} hand does not hold ${p.held} at the phrase's start`,
+        fix: "take the prop up in that hand first",
+      });
+    const grip: IHumanContactWindow = {
+      part: side === "left" ? "leftHand" : "rightHand",
+      kind: "grip",
+      from: 0,
+      to: 1,
+      support: { kind: "prop", subject: p.held },
+    };
+    return {
+      ...composed,
+      contacts: [...composed.contacts, grip],
+      holds: [...(composed.holds ?? []), { side, prop: p.held, from: 1 }],
+    };
   }
 }
 
