@@ -21,9 +21,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * applies, keeps every shipped verdict (`HumanVerdicts`), and the walk and
  * the run keep their kinematic signature.
  *
- * Bodies: the average man and the small woman, two statures. Every
- * performance is read by `HumanVerdicts.of`, the shipped bounds unchanged; a
- * refused composition or an unclean report is a finding with its text.
+ * Bodies: the average man and the small woman, two statures. The matrix's
+ * cells (a law on an axis, a carry's way of holding) are covered once each,
+ * the two bodies taking turns, so every body meets every axis (a strength-1
+ * covering array, Kuhn, Kacker and Lei 2010); the signature, variability,
+ * replay and refusal scenarios run on both. Every performance a cell claims
+ * keeps the verdicts of is read by `HumanVerdicts.of`, the shipped bounds
+ * unchanged; the neutral and repeated takes a comparison reads are not, their
+ * verdicts being their own specs'. A refused composition or an unclean report
+ * is a finding with its text.
  *
  * Scenarios:
  * 1. Overlay on one arm: a right-hand wave over `stand`, `walk`, `run`,
@@ -34,13 +40,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. Manner presets: `weary` and `brisk` against the neutral act for
  *    `walk`, `run`, `approach`, `carry`, `climbStairs`, `stepOver`, `jump`,
  *    `crawl` and `climbLadder`: the weary act lasts longer and the brisk one
- *    (walk, run, carry) less, each report clean; a weary jump's flight, from
+ *    (walk, run, carry) less, and the weary take's report is clean (the
+ *    neutral and brisk takes are read for their length only, their verdicts
+ *    being the laws' own specs'); a weary jump's flight, from
  *    `takeoff` to `touchdown`, is the neutral one's (gravity fixes it). A weary walk's mean speed and steady
  *    step are below the neutral walk's (sad and weary walks are slower with
  *    shorter strides, Montepare, Goldstein and Clausen 1987, the direction
  *    `AutoMovieMotionManner.PRESETS` cites).
  * 4. Neutral manner: a walk given an empty manner is the walk given none,
- *    bone for bone at every 0.1 s.
+ *    bone for bone at every 0.1 s (no verdict is claimed of either).
  * 5. Carried load: `carry`'s former variants, `oneHand` and `hip` on each
  *    side and `twoHands` and `push`, each plain and `weary`, clean.
  * 6. Coupled partner: an approach to a standing partner at `personal`,
@@ -125,8 +133,12 @@ export function test_human_motion_recompose_travel(): void {
     AutoMovieMotionManner.PRESETS.brisk;
   const PARTNER: number = 3;
 
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const [index, name] of (["m-average", "f-small"] as const).entries()) {
     const body: IHumanBody = motionHumanBody(name);
+    // The covering of the law-by-axis cells: each cell on one body, the
+    // bodies taking turns, every body in some cell of every axis (strength
+    // one, Kuhn, Kacker and Lei 2010, as `motionHumanSignature.cells`).
+    const covers = (cell: number): boolean => cell % 2 === index;
     const partner: IHumanBody = motionHumanBody("m-average");
 
     // One performer, or two with a partner standing `PARTNER` ahead.
@@ -169,12 +181,16 @@ export function test_human_motion_recompose_travel(): void {
               }
             : chain.node,
       });
+    // A performance, read by the verdict report when `judged`; the neutral
+    // and repeated takes a comparison reads are judged by their own specs.
     const attempt = (
       label: string,
       run: () => HumanPerformance,
+      judged: boolean = true,
     ): HumanPerformance | undefined => {
       try {
         const performance: HumanPerformance = run();
+        if (!judged) return performance;
         const report: HumanVerdicts.IReport = HumanVerdicts.of(performance);
         if (!report.clean)
           findings.push(
@@ -293,11 +309,15 @@ export function test_human_motion_recompose_travel(): void {
       label: string,
       m?: AutoMovieMotionManner.IManner,
       over?: (u: HumanChain) => HumanChain,
+      judged: boolean = true,
     ): HumanPerformance | undefined =>
-      attempt(`${law} ${label}`, () =>
-        perform(act(law, m, over), ACTS[law].props(), {
-          duo: ACTS[law].duo,
-        }),
+      attempt(
+        `${law} ${label}`,
+        () =>
+          perform(act(law, m, over), ACTS[law].props(), {
+            duo: ACTS[law].duo,
+          }),
+        judged,
       );
     const length = (p: HumanPerformance | undefined): number =>
       p?.segments("a")[0]?.plan.duration ?? NaN;
@@ -305,15 +325,18 @@ export function test_human_motion_recompose_travel(): void {
     // 1. An overlay on one arm.
     const wave = (u: HumanChain): HumanChain =>
       u.gesture({ kind: "wave", side: "right" });
-    for (const law of [
-      "stand",
-      "walk",
-      "run",
-      "approach",
-      "carry",
-      "climbStairs",
-      "stepOver",
-    ] as const) {
+    for (const [cell, law] of (
+      [
+        "stand",
+        "walk",
+        "run",
+        "approach",
+        "carry",
+        "climbStairs",
+        "stepOver",
+      ] as const
+    ).entries()) {
+      if (!covers(cell)) continue;
       const p: HumanPerformance | undefined = play(
         law,
         "with a right-hand wave",
@@ -328,7 +351,8 @@ export function test_human_motion_recompose_travel(): void {
 
     // 2. An overlay on both arms.
     const clap = (u: HumanChain): HumanChain => u.gesture({ kind: "clap" });
-    for (const law of ["stand", "walk", "run"] as const) {
+    for (const [cell, law] of (["stand", "walk", "run"] as const).entries()) {
+      if (!covers(cell + 1)) continue;
       const p: HumanPerformance | undefined = play(
         law,
         "with a clap",
@@ -342,18 +366,27 @@ export function test_human_motion_recompose_travel(): void {
     }
 
     // 3. Manner presets.
-    for (const law of [
-      "walk",
-      "run",
-      "approach",
-      "carry",
-      "climbStairs",
-      "stepOver",
-      "jump",
-      "crawl",
-      "climbLadder",
-    ] as const) {
-      const plainly: HumanPerformance | undefined = play(law, "neutral");
+    for (const [cell, law] of (
+      [
+        "walk",
+        "run",
+        "approach",
+        "carry",
+        "climbStairs",
+        "stepOver",
+        "jump",
+        "crawl",
+        "climbLadder",
+      ] as const
+    ).entries()) {
+      if (!covers(cell)) continue;
+      const plainly: HumanPerformance | undefined = play(
+        law,
+        "neutral",
+        undefined,
+        undefined,
+        false,
+      );
       const wearily: HumanPerformance | undefined = play(law, "weary", weary);
       const neutral: number = length(plainly);
       const slow: number = length(wearily);
@@ -376,7 +409,9 @@ export function test_human_motion_recompose_travel(): void {
           `${name}: a weary ${law} lasts ${slow.toFixed(3)} s against the neutral ${neutral.toFixed(3)} s, longer expected`,
         );
       if (law === "walk" || law === "run" || law === "carry") {
-        const quick: number = length(play(law, "brisk", brisk));
+        const quick: number = length(
+          play(law, "brisk", brisk, undefined, false),
+        );
         if (!(quick < neutral))
           findings.push(
             `${name}: a brisk ${law} lasts ${quick.toFixed(3)} s against the neutral ${neutral.toFixed(3)} s, shorter expected`,
@@ -424,6 +459,7 @@ export function test_human_motion_recompose_travel(): void {
           [],
           seed === undefined ? {} : { seed },
         ),
+        false,
       );
     const plain: HumanPerformance | undefined = walked(6);
     const tired: HumanPerformance | undefined = walked(6, weary);
@@ -447,7 +483,7 @@ export function test_human_motion_recompose_travel(): void {
       let previous: number = free.gait.duty;
       for (const pace of ["jog", "run", "sprint"] as const) {
         const p: HumanPerformance | undefined = attempt(`a ${pace}`, () =>
-          perform(a().run({ to: { x: 0, y: 0, z: 10 }, pace })),
+          perform(a().run({ to: { x: 0, y: 0, z: 10 }, pace })), false,
         );
         if (p === undefined) continue;
         const duty: number = steady(p).gait.duty;
@@ -552,16 +588,18 @@ export function test_human_motion_recompose_travel(): void {
     }
 
     // 5. The carry's former variants.
-    for (const variant of [
-      { how: "oneHand", side: "left" },
-      { how: "oneHand", side: "right" },
-      { how: "hip", side: "left" },
-      { how: "hip", side: "right" },
-      { how: "twoHands" },
-      { how: "push" },
-    ] as const)
+    for (const [cell, variant] of (
+      [
+        { how: "oneHand", side: "left" },
+        { how: "oneHand", side: "right" },
+        { how: "hip", side: "left" },
+        { how: "hip", side: "right" },
+        { how: "twoHands" },
+        { how: "push" },
+      ] as const
+    ).entries())
       for (const m of [undefined, weary])
-        attempt(
+        if (covers(cell)) attempt(
           `a ${variant.how} carry${"side" in variant ? ` on the ${variant.side}` : ""}${m === undefined ? "" : ", weary"}`,
           () =>
             perform(

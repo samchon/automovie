@@ -350,32 +350,31 @@ export namespace walkReach {
       Quaternion.inverse(frame),
       v,
     );
-    const sagittal: number = Math.hypot(local.z, local.y);
+    // The leg is read in its own plane, the hip's abduction carrying it
+    // aside by `beta`: its reach below the hip there is `down`, so the
+    // extension's test and its correction see the same leg as `behind`.
+    const down: number = Math.hypot(local.x, local.y);
+    const beta: number = Math.atan2(local.x, -local.y);
     const extension: number =
       (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
-    if (local.y < 0 && Math.atan2(-local.z, -local.y) > extension) {
+    if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
       // The thigh stops at its extension and the knee folds: the ankle keeps
       // its place behind the hip, raised onto the shank's reach from the
       // knee, as a trailing leg's heel rises after toe-off. Where the shank
       // cannot reach that far back, the leg turns forward onto the line.
       const thighAngle: number = (EXTENSION * Math.PI) / 180;
-      const kneeAhead: number = -m.thigh * Math.sin(thighAngle);
-      const kneeDown: number = m.thigh * Math.cos(thighAngle);
-      const along: number = local.z - kneeAhead;
-      v = Quaternion.rotateVector(
-        frame,
-        Math.abs(along) <= m.shank
-          ? {
-              x: local.x,
-              y: -kneeDown - Math.sqrt(m.shank * m.shank - along * along),
-              z: local.z,
-            }
-          : {
-              x: local.x,
-              y: -sagittal * Math.cos(extension),
-              z: -sagittal * Math.sin(extension),
-            },
-      );
+      const along: number = local.z + m.thigh * Math.sin(thighAngle);
+      const reach: number = Math.hypot(local.z, down);
+      const rise: number = m.shank ** 2 - along ** 2;
+      const [y, z]: [number, number] =
+        rise >= 0
+          ? [-m.thigh * Math.cos(thighAngle) - Math.sqrt(rise), local.z]
+          : [-reach * Math.cos(extension), -reach * Math.sin(extension)];
+      v = Quaternion.rotateVector(frame, {
+        x: -y * Math.sin(beta),
+        y: y * Math.cos(beta),
+        z,
+      });
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
