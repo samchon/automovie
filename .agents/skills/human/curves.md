@@ -2,7 +2,7 @@
 
 Author the shape through anatomical points, construction lines and visible curve controls before composing its source or judging its loft. Changing a polynomial basis alone keeps the shape, so it cannot repair a wrong datum, domain or boundary condition.
 
-## Few View Curves Per Segment
+## Few view curves per segment
 
 Define a segment by a few 2D view curves in its own frame: the front outline pair, the side outline pair, its axis and a fullness control. Each cross-section is the chain of conic arcs through the outline points at its station, shaped by the fullness. This is conic lofting, the long-established method for fuselages and hulls. Draw lines, circles and arcs as such where the anatomy calls for them.
 
@@ -19,7 +19,7 @@ Solve in dependency order:
 
 A relief such as a breast or a buttock sits on the solved wall and feeds no datum the wall depends on. Apply each measurement by its own definition: the landmarks, reference points and surface it names. A depth read from the wrong point moves a whole region.
 
-## Start With A Sketch
+## Start with a sketch
 
 1. **Frame.** Declare the anatomical plane, the local origin at the part's own datum, the axes (ISB joint-coordinate recommendations where they exist), units, domain and parameter. The part attaches to its parent by a relative transform, so a parent edit or pose carries it. Register the reference region into the same frame by its own segment axes, for comparison only, so pose does not read as shape.
 2. **Aids.** Draw the construction aids and declare them with the spec, so every render shows them:
@@ -33,7 +33,7 @@ A relief such as a breast or a buttock sits on the solved wall and feeds no datu
 3. **Controls.** Use a few local segments and expose their actual controls: a control polygon or Hermite handles, conic controls, or the native field's guides. Distinguish interpolation points, off-curve controls and evaluated points. Derive handles from dimensions, anatomy or a declared construction; they do not become public parameters.
 4. **Show.** Show the curve with its scaffold, control polygon and endpoint tangents, over the reference with its neighbours.
 
-## Choose The Representation
+## Choose the representation
 
 The span's contract selects the representation: its continuity at each end, its number of fullness extrema and its editing domain. The spec records the choice, because a weaker form silently drops a promised continuity. Derivatives belong to a parameter: a spec states which one its knots and jets use, and a reparameterized solve converts its jets by the chain rule before export, since jets read in another parameter make the curve overshoot.
 
@@ -48,13 +48,13 @@ The span's contract selects the representation: its continuity at each end, its 
 
 Convert between bases exactly, in the same parameter, after units and frame maps are applied, and reuse the engine's evaluator for the converted form instead of writing a second one.
 
-## Diagnose The Controls
+## Diagnose the controls
 
 The convex-hull property bounds a polynomial span by its control points in the same frame, and ordered control components give a sufficient monotonicity condition. Failing that sufficient condition does not prove a bad curve; read the actual derivative and its extrema.
 
 Aligned handles establish G1, not equal speed or C2. When an endpoint derivative points against an intended monotone interval, no basis satisfies both: resolve the datum, domain or source condition first. Keep a genuine derivative, a locked measurement and the original defect visible rather than hiding them under a downstream blend.
 
-## Generate From Parameters
+## Generate from parameters
 
 This is the contract of step 3 of the [three steps](SKILL.md#three-steps).
 

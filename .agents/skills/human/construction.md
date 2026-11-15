@@ -52,7 +52,7 @@ Before the first change to an item, reread the governing skill sections, read th
 
 A method grounded in the skills is not dropped for a failed run. A refusal measures a binding cause in the run, such as its target, windows, seed, knots or bounds. Isolate that cause with controls: the tool's existing mode as designed, then one change at a time against it. Fix the cause and keep the method. A method is set aside only when a measured cause shows it cannot express the form.
 
-## Parametric Identity And Binding
+## Parametric identity and binding
 
 - Keep logical anatomical names, source controls, generated streams and surface charts as distinct identities. Map each logical region to its source subdomain, ports and material charts. Duplicating geometry to keep an old chain name forks it.
 - Keep semantic measurement constraints distinct from direct curve authority. A curve edit that changes a locked measurement needs its declared constraint solve or an explicit refusal.

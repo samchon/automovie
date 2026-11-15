@@ -29,7 +29,7 @@ A measurement order, or another value of a parameter, is not research.
 3. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
 4. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.
 
-## Three Steps
+## Three steps
 
 Conquer one person before generalizing. Pass each step's [gates](verification.md#steps-one-and-two) before the next, because a formula fitted to an unmatched shape generalizes the error.
 
@@ -59,11 +59,11 @@ In step 3, derive every fix and expectation from the person's inputs, published 
 
 Finish the anatomical neutral and the bind before any other pose, because every motion starts from them.
 
-## Polygon Man
+## Polygon man
 
 The polygon man that `render` draws is a deliberately simple stand-in of a few rigid primitives on Human's skeleton, for motion verification and diffusion hints. Keep its primitives, segment count and style. A fix corrects a wrong value, such as a radius, a length or a frame. A change that would need more geometry, segments, smoothing, anatomy, a face or realism goes to the user as a report instead, because the stand-in's value is a cheap, readable and deterministic silhouette.
 
-## Done When
+## Done when
 
 - Every public parameter changes the figure through the one construction, answered at its published site.
 - Every supported person comes from that construction with no person selector, and finite, connected, normal anatomy holds across the parameter domain, at rest and in every supported pose.

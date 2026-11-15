@@ -17,7 +17,7 @@ Dispatch by cause, not by region. Group every inventory row by its measured caus
 
 Resume a worker with a message; never replace it, including when it cites its context, because a replacement loses everything the worker measured. Give each generated module, and each shared tool, one writer.
 
-## The Cycle
+## The cycle
 
 Run this cycle every ten minutes while any worker runs, and schedule the next one before the cycle ends.
 
