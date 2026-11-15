@@ -10,6 +10,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { BOAT_BANDS } from "./BOAT_BANDS";
+import { BOAT_MODELS } from "./BOAT_MODELS";
 import { BoatOars } from "./BoatOars";
 
 /**
@@ -17,13 +18,13 @@ import { BoatOars } from "./BoatOars";
  *
  * The boat floats with its root on still water under the middle of its length, its bow toward `+Z`: its bottom `draft` below the water and its gunwale `depth` above the bottom. People sit on its `thwart<k>` seats, a rowboat's and a launch's facing aft as rowers do, a canoe's facing forward as paddlers do, and a rowboat's `sternSeat` facing forward; they stand on its `floor`, take its `gunwale` boarding, and step over its `bow` and `stern`. A rowboat's two oars each turn in an oarlock about the upright (`leftOarlock`, `rightOarlock`), lift about the oarlock's pin riding that (`leftOar`, `rightOar`), and are held by their `leftHandle` and `rightHandle`; `rowBoat` rows it along a course. A racing shell's sliding seat is out of scope: on a fixed thwart the trunk and arms make the stroke.
  *
- * @param params The kind and any dimension the author fixes.
+ * @param params The kind, its read hull and a canoe's layup, and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The boat.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, then the hull's bottom and two sides to each end, the kind's seats at their sourced places, and a rowboat's oars (`BoatOars`).
+ * @evidence contracts/development/implementation.md#principled-implementation Pick the read hull whole and a canoe's layup with its read mass, take a rowboat's blades from the oar its span calls for (`BoatOars.blade`), draw the rest, then the hull's bottom and two sides to each end, the kind's seats at their sourced places, and a rowboat's oars (`BoatOars`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Hull, seats, contacts, oars.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull is flat panels to a stem and a transom, its curves not modelled; the unread places are named provisional constants here.
  * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
@@ -40,14 +41,38 @@ export function createBoat(
     params.kind,
     createBoat.KINDS,
   );
-  const d: Partial<Record<createBoat.Dimension, number>> =
-    ArchetypeDraw.dimensions(
+  // One read hull whole and, for a canoe, one of its layups; a rowboat's blades are the oar its span calls for.
+  const hull: { name: createBoat.Model | undefined; figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
+    ArchetypeDraw.model<createBoat.Model, createBoat.Dimension>(
+      "boat",
+      "model",
+      params.model,
+      BOAT_MODELS.hulls[kind],
+      seed,
+      params,
+    );
+  const layup: { figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
+    ArchetypeDraw.model<createBoat.Layup, createBoat.Dimension>(
+      "boat",
+      "layup",
+      params.layup,
+      hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name],
+      seed,
+      params,
+    );
+  const drawn: Partial<Record<createBoat.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions(
       "boat",
       createBoat.BANDS[kind],
       seed,
       params,
       createBoat.BANDS,
-    );
+    ),
+    ...hull.figures,
+    ...layup.figures,
+  };
+  const d: Partial<Record<createBoat.Dimension, number>> =
+    kind === "rowboat" ? { ...drawn, ...BoatOars.blade(drawn.beam!) } : drawn;
   const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
     new ArchetypeBuilder({
       archetype: "boat",
@@ -316,7 +341,38 @@ export namespace createBoat {
     | "mass";
 
   /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
+  /** The read hulls: the rowboats' Thames skiff, Whitehall skiff and Glen-L 17 ft Whitehall, and the canoes' Prospector 16, Discovery 169, Spirit II and Minnesota II (`BOAT_MODELS`). */
+  export type Model =
+    | "thamesSkiff"
+    | "whitehallSkiff"
+    | "whitehall17"
+    | "prospector16"
+    | "discovery169"
+    | "spiritII"
+    | "minnesotaII";
+
+  /** A canoe's layups, each with its own read mass (`BOAT_MODELS.layups`). */
+  export type Layup =
+    | "fiberglass"
+    | "tuffStuff"
+    | "tuffStuffExpedition"
+    | "aramidLite"
+    | "blueSteel"
+    | "polyethylene"
+    | "flexCore"
+    | "aramidUltraLight"
+    | "superLite"
+    | "intekPolyester"
+    | "intekCarbon"
+    | "intek";
+
   export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Which read hull of the kind; drawn from the seed when absent. */
+    model?: Model;
+
+    /** Which of the canoe's layups; drawn from the seed when absent. */
+    layup?: Layup;
+
     /** Which boat. */
     kind: Kind;
 

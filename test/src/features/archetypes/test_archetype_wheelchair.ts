@@ -17,14 +17,14 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * A wheelchair is drawn inside its maker's bands, built at the sizes it drew, declares its contacts at the places the sheet measures, and rolls its wheels, and a self-propelled chair's rims with them, by the distance.
  *
  * Scenarios, for both kinds over 100 seeds:
- * 1. Every drawn dimension lies inside its band.
+ * 1. Every chair's figures are one read model's whole, and its footrest reach and any ranged length lie inside that model's row's ranges.
  * 2. The built chair measures what it drew: its width across the rear wheels and its height at the push handles within 1 mm, its length from the rear wheels' back to the footplates' front within 1 mm.
  * 3. The seat's front edge is at the seat height and `seatDepth` deep; each armrest bar is `armHeight` above the seat at its side and runs the seat's depth; each footplate is `footDrop` below the seat; the push handles' grips are at the overall height behind the back; each kind of contact is the kind the act reads (`seat`, `bar`, `pedal`, `handle`); within 1 mm.
  * 4. A self-propelled chair has both rims, `wheel` contacts riding their wheels' spin, with the rim's radius; a transport chair has none.
  * 5. Rolled 3 m by `rideWheelchair`, each wheel's spin is 3 over its circumference turns, modulo a turn, within 1e-9 degrees, and a rim's site has gone round with it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces the chairs, measures their parts, reads their contacts and rides them; a dimension outside its band, a chair built at another size, a contact misplaced or of the wrong kind, a rim on a transport chair, or a wheel that skids is caught.
- * @evidence contracts/development/testing.md#independent-expectations The bands are the Karma Medical 2025 sheet's as `createWheelchair.BANDS` cites them; the places are that sheet's definitions (seat height at the front edge, armrest to seat, footrest to seat); rolling without slipping turns a wheel once per circumference.
+ * @evidence contracts/development/testing.md#independent-expectations The models and ranges are the Karma Medical 2025 sheet's as `createWheelchair.MODELS` and `ranges` cite them, a model's figures compared whole; the places are that sheet's definitions (seat height at the front edge, armrest to seat, footrest to seat); rolling without slipping turns a wheel once per circumference.
  * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, every dimension, every contact kind, a chair with and without rims, a still and a rolled chair.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
@@ -40,10 +40,15 @@ export function test_archetype_wheelchair(): void {
         if (!(Math.abs(a - b) <= 1e-3)) findings.push(`${label}: ${what} ${a}, not ${b}`);
       };
 
-      // 1. Inside the bands.
-      for (const [name, band] of Object.entries(createWheelchair.BANDS[kind]) as [createWheelchair.Dimension, IArchetypeBand][])
-        if (!(d[name]! >= band.minimum && d[name]! <= band.maximum))
-          findings.push(`${label}: ${name} ${d[name]} outside its band`);
+      // 1. One read model whole, and its ranged dimensions inside its row's ranges.
+      const model: string | undefined = Object.keys(createWheelchair.MODELS[kind]).find((m: string): boolean =>
+        Object.entries(createWheelchair.MODELS[kind][m]!).every(([name, value]: [string, number | undefined]): boolean => d[name as createWheelchair.Dimension] === value),
+      );
+      if (model === undefined) findings.push(`${label}: no read model has all its figures`);
+      else
+        for (const [name, band] of Object.entries(createWheelchair.ranges(kind, model)) as [createWheelchair.Dimension, IArchetypeBand][])
+          if (!(d[name]! >= band.minimum && d[name]! <= band.maximum))
+            findings.push(`${label}: ${name} ${d[name]} outside its model's range`);
 
       // 2. Built at the drawn size.
       const x: { low: number; high: number } = archetypeExtent(chair, "x", ["wheel-left", "wheel-right"]);

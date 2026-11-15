@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The accelerator's plate lies at the ball of foot, 203 mm up that plane from the heel point on the cabin floor: its height above the floor is 203 mm times the sine of the angle (plus the frame's 5 mm lift off the plate along the sole), within 1e-9 m.
  * 3. The driver's centreline is 381 mm outboard of the car's on the driving side (SAE J826 5.3.4): the steering wheel is centred on it and the accelerator lies 127 mm to its right, under the right foot of feet 254 mm apart (ISO 6549 5.7.2.1).
  * 4. The steering wheel's centre lies 550 mm aft of the ball of foot (SAE J1100's L6) and 646 mm above the heel point (H17), the values of a mid-size sedan package, within 1e-9 m.
- * 5. The front door's hinge stands 578.6 mm behind the front axle and its opening is 1155 mm long (the 2023 Honda Accord's NCAP stations), and the ball of foot lies SAE J1516's tool reference distance, 793.7 + 0.903387 z - 0.00225518 z squared mm with z = H30 in mm, ahead of a seating reference point 262 mm ahead of the door's rear edge (the 2018 Accord's driver H-point to B-post striker).
+ * 5. The front door's hinge stands 578.6 mm behind the front axle and its opening is 1155 mm long (the 2023 Honda Accord's NCAP stations), except a van's, whose opening ends at its bulkhead, the load length ahead of the rear doors' 0.04 m inner panel on a 958 mm front overhang (Ford's Transit Custom figures); the ball of foot lies SAE J1516's tool reference distance, 793.7 + 0.903387 z - 0.00225518 z squared mm with z = H30 in mm, ahead of a seating reference point 262 mm ahead of the door's rear edge (the 2018 Accord's driver H-point to B-post striker).
  * 6. The cabin floor, a provisional height, lies above the rocker panel's measured lower edge, 176 mm, and below the belt line 745 mm above that edge (the 2018 Accord's side impact report); the door opening's threshold is the floor and its top the window's top, 176 + 745 + 413 mm above the ground, except on a pickup, whose belt is its bed's rail.
  * 7. Outside a van, the rear bench's seating reference point lies 203 mm ahead of the rear doors' trailing edge, which lies 2059 mm behind the front doors' leading edge, so the rear seat's front edge is 963 mm behind the driver's, at the driver's height (the 2018 Accord's report); a sedan's and a hatchback's rear opening runs from the middle pillar to that trailing edge, 904 mm.
  *
@@ -75,20 +75,22 @@ export function test_archetype_car_controls(): void {
             `${label}: the steering wheel is ${ball.z - wheel.z} m aft and ${wheel.y - floor} m up`,
           );
 
-        // The front door from the front axle, and the seating reference point from the door's rear edge.
+        // The front door from the front axle, and the seating reference point from the door's rear edge: the Accord's, except that a van's cab closes at its bulkhead, the load length ahead of its rear doors' 0.04 m inner panel, the van standing on its 958 mm front overhang.
         const hinge: number = car.affordance("driverDoor").frame.translation.z;
         const aperture: IAutoMovieAffordance = car.affordance("driverAperture");
-        if (
-          !close(car.dimensions.wheelbase! / 2 - hinge, 0.5786) ||
-          !close(aperture.width!, 1.155)
-        )
+        const wheelbase: number = car.dimensions.wheelbase!;
+        const pillar: number =
+          kind === "van"
+            ? wheelbase / 2 + 0.958 - car.dimensions.length! + 0.04 + car.dimensions.loadLength!
+            : hinge - 1.155;
+        if (!close(wheelbase / 2 - hinge, 0.5786) || !close(aperture.width!, hinge - pillar))
           findings.push(
-            `${label}: the front door does not span the Accord's measured opening`,
+            `${label}: the front door does not span from its hinge to its middle pillar`,
           );
         const mm: number = h30 * 1000;
         const aft: number =
           (793.7 + 0.903387 * mm - 0.00225518 * mm * mm) / 1000;
-        if (!close(ball.z, hinge - 1.155 + 0.262 + aft))
+        if (!close(ball.z, pillar + 0.262 + aft))
           findings.push(
             `${label}: the ball of foot is not J1516's distance ahead of the seating reference point`,
           );

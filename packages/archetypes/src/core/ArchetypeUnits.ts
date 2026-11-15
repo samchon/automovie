@@ -29,4 +29,24 @@ export namespace ArchetypeUnits {
 
   /** One degree, radians. */
   export const DEGREE: number = Math.PI / 180;
+
+  /**
+   * A tyre's outer diameter from its metric size, metres, such as 185/60 R15: the rim's diameter plus twice the sidewall, whose height is the section width times the aspect ratio, as the size designation defines them.
+   *
+   * @param width The section width, millimetres.
+   * @param aspect The aspect ratio, the sidewall's height over the section width, percent.
+   * @param rim The rim's diameter, inches.
+   * @returns The outer diameter.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units of each part of the size and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The designation's own definition: the sidewall is the width times the aspect ratio, above and below the rim.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One sum.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function tyre(width: number, aspect: number, rim: number): number {
+    return rim * INCH + (2 * width * MILLIMETRE * aspect) / 100;
+  }
 }
