@@ -20,9 +20,9 @@ Organize authoring modules by part and group responsibility, reusing one definit
 
 Give shared dimensions, frames, curves and surfaces one owner too, and derive dependent geometry, construction and attachments from their actual generating definitions rather than independent approximations; otherwise a local edit can leave a neighbor or diagnostic describing an old shape.
 
-A source-module boundary need not cut the rendered surface. Keep logical parts, source controls, generating streams and surface charts distinct, and map a logical member to its actual subdomains rather than copying geometry to preserve a name. Shared sewn boundaries consume one material-coordinate and binding owner through their chart maps; coincident contact can retain distinct material sheets.
+A source-module boundary need not cut the rendered surface. Keep logical parts, source controls, generating streams and surface charts distinct, and map a logical member to the subdomains that actually realize it rather than copying geometry to keep its name. Parts sewn along a shared boundary take their material coordinates and binding from one owner through their chart maps, while parts in coincident contact can keep distinct material sheets.
 
-An edit follows the true dependency graph: coupled constraints can affect several regions, while unchanged inputs may reuse equivalent prepared work. Shape or chart changes invalidate their dependent bindings, while changed joint/rest frames also invalidate inverse binds under [Rigging](rigging.md). A surface repartition alone does not create a joint or change an unaffected bone.
+An edit follows the actual dependency graph: coupled constraints can affect several regions, while unchanged inputs may reuse equivalent prepared work. A shape or chart change invalidates the bindings that depend on it, and a changed joint or rest frame also invalidates the inverse binds under [Rigging](rigging.md). A surface repartition alone does not create a joint or change an unaffected bone.
 
 ## Explanation
 

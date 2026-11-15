@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as end-effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
+description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
 ---
 
 # Motion
@@ -77,6 +77,6 @@ Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @au
 
 The specification tests and the vocabulary's own report of its physical bounds decide whether an action is right here. Run the tests that concern the change by name.
 
-[Verification](laws/verification.md#look-at-the-frames) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
+[Verification](laws/verification.md#frame-review) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
 
 The motions package's capture script draws the cases when the user asks.

@@ -19,9 +19,9 @@ When the selected model or mode generates no sound, report it to the user with t
 
 - a sound-generating model or mode;
 - a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;
-- separate speech under [acquisition](acquisition.md), synced onto the take's faces under [finishing](../video/finishing.md#repair-part-of-a-take).
+- separate speech.
 
-Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#choose-a-source) checks any asset, because several are non-commercial or exclude regions.
+Separate speech comes through [acquisition](acquisition.md) and is synced onto the take's faces under [finishing](../video/finishing.md#partial-repair). Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#source-choice) checks any asset, because several are non-commercial or exclude regions.
 
 ## Film sound
 

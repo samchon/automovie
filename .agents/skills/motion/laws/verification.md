@@ -1,4 +1,4 @@
-# Verify a motion
+# Motion verification
 
 Give each action isolated cases. Each case's checks test the action's own goal as bounded assertions, in the unit tests or capture checks the project has:
 
@@ -25,10 +25,10 @@ Take every bound from the requirement or its study. Widening a bound until a cas
 
 Run the cases across bodies of different statures and proportions, and against different partners and props, because a pass on one body establishes nothing about another. Cut each action at every window it declares for a cut, and move its target mid-motion where it tracks one, because films use an action where it is interrupted.
 
-## Look at the frames
+## Frame review
 
-Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is. Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
+Review stills of every case, in order, from several named views, with `joint` marks where the project's capture offers them and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is. Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
 
-## Judge rounds honestly
+## Rounds
 
-Keep each round's capture as [capture](../../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../../visual-debugging/correction-rounds.md#compare-again) allow.
+Keep each round's capture as [capture](../../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../../visual-debugging/correction-rounds.md#comparing-again) allow.

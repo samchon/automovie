@@ -1,10 +1,10 @@
-# Author by effector goals
+# Effector goals
 
 Almost every action is an interaction: a part of the body meets the floor, a prop, a partner, or a point the performer aims at. That part is the end effector, effector for short, what it reaches is the target, and a goal puts the effector on its target for a window.
 
 Author every movement as goals, and let inverse kinematics find the joint angles within the rig's range of motion. A goal survives a taller body, a longer arm, a different opponent or a moved prop; a joint angle fitted to one body puts the next body's hand beside the cup.
 
-## Write the goal
+## Writing a goal
 
 A goal names five things:
 
@@ -24,7 +24,7 @@ Take every distance, height and reach from the performer's own measured segments
 
 The action's study supplies the key poses, the timing and the windows. Take joint values straight from those key poses only where no goal determines the pose, such as a guard's carriage or a follow-through.
 
-## Shape the path in time
+## The path in time
 
 Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985), because a constant-speed path reads as mechanical. A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and reaches its target before the speed falls to zero.
 
@@ -36,7 +36,7 @@ Compute the reach before posing: the root-to-target distance against the limb's 
 
 A silent clamp moves the contact somewhere the screenplay did not ask for and hides the miss from every check. The action's documentation says which rule it follows, and the code must match that sentence.
 
-## Decide the root once
+## The root
 
 Decide the root once, from every demand on it together: the contacts, the far reaches, and balance, which keeps the extrapolated center of mass, the center of mass shifted by its velocity, over the support. Then fit every limb from that root, because separate corrections per limb disagree, and balance left to a check is met after the pose is already wrong.
 
@@ -44,7 +44,7 @@ Place a body that bears on the floor by the joints that bear, each at the height
 
 A contact that still cannot be reached shows the root is wrong: revise that one root, by lowering, leaning or stepping, and refit every limb. A contact dragged off its point to keep the root's path is the error a viewer sees first.
 
-## Order the fits
+## Fit order
 
 Fit supports before reaching limbs: feet on the floor, seat bones on the seat, hands on a held bar. A later fit can pull an earlier contact away, so check every earlier contact after each later fit.
 

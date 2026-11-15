@@ -9,7 +9,8 @@ Settle these by measurement before looking:
 - overall dimensions against the real ones;
 - clearances and contacts between parts;
 - part and triangle counts;
-- open edges, edges that more than two triangles share, reversed faces, triangles without area and a surface passing through itself.
+- open edges and edges that more than two triangles share;
+- reversed faces, triangles without area and a surface passing through itself.
 
 ## Coverage
 
@@ -25,10 +26,10 @@ Take a part with accepted 2D definitions straight to the [3D passes](#constructi
 
 ## Construction
 
-Judge a surface only with the construction that generated it, because the surface shows the symptom and the construction shows the value that causes it:
+Judge a surface only with the construction that generated it, because the surface shows the symptom and the construction shows the value that causes it. Each kind of form has its own construction:
 
-- a curve network's sections, guides, and cage;
-- code CAD's sketches, axes, and boolean operands;
+- a curve network's sections, guides and cage;
+- code CAD's sketches, axes and boolean operands;
 - a procedural rule's skeleton;
 - an implicit surface's primitives;
 - a field's defining curves.
@@ -51,4 +52,4 @@ Judge form in a clay shade under the scene's own lights, with fine material deta
 
 ## Fields judged only where needed
 
-Models are coarse and motion detailed, so a form is judged by silhouette and construction, which the construction marks and the normal shade already show. Skin weights, texture coordinates, curvature and a raking light rig are therefore judged only where a production's models need them, such as a deforming mesh whose weights decide a bend or a texture a delivery depends on. The instrument has no built-in pass for them; it draws such a field when the field's owner hands it over as plain data in marks, so a missing heat map or checker is a decision, not a defect.
+Models are coarse and motion detailed, so a form is judged by silhouette and construction, which the construction marks and the normal shade already show. Skin weights, texture coordinates, curvature and a raking light rig are therefore judged only where a production's models need them, such as a deforming mesh whose weights decide a bend or a texture a delivery depends on. The visual-debugging instrument has no built-in pass for them; it draws such a field when the field's owner hands it over as plain data in marks, so a missing heat map or checker is a decision, not a defect.

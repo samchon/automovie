@@ -22,13 +22,11 @@ A respondent uses the statements to question its own compliance:
 
 1. Check the work against every statement before answering.
 2. Repair what fails.
-3. Write an answer that is true against all of them and names each statement that does not apply, with its reason. The answer does not recite the list.
+3. Write an answer true against all of them, naming each statement that does not apply, with its reason.
 
-A source reviewer audits the answer against the same list; a story answer's truth belongs to its [evidence answerer](../story/evidence/answer-writing.md). Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
+The answer does not recite the list. A source reviewer audits the answer against the same list; a story answer's truth belongs to its [evidence answerer](../story/evidence/answer-writing.md). Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
 
-An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent.
-
-An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
+An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent. An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
 
 ## Outside the graph
 

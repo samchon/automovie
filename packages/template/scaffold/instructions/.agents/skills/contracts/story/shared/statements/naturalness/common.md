@@ -59,7 +59,7 @@ Deciding and retaining:
 28. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
 29. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss.
 30. The author decided each finding and chose the repair under [narrative rounds](../../../../../review/narrative-rounds.md#findings-and-decisions).
-31. A revised passage was classified again under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
+31. A revised passage was classified again under [inspection](../../../../../story/correction/inspection.md#changed-work).
 32. A named failure is retained only under one of these exceptions, supported by the passage:
     - useful execution directions;
     - meaningful silence;
@@ -88,5 +88,5 @@ Deciding and retaining:
 9. The script stays inside the established storyline and adopted form. Exception: it may clarify an implied existing actor and develop bodily performance, image, sound and subtext.
 10. The script adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
 11. The script preserves meaning, not an artificial register, negation patterns, source disclaimers or annotation vocabulary.
-12. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
+12. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream defects](../../../../../story/correction/repair.md#upstream-defects).
 13. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.

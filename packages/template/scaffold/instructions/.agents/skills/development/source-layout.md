@@ -14,7 +14,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition | That scene file, its sections and beats, [composition](../contracts/development/composition.md) |
 | `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/catalog-cases.md) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
-| `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case the screenplay uses, in its own labeled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
+| `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog under [catalog cases](../motion/catalog-cases.md); never delivered | Its cases' research and settings or brief, composition |
 | `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay film folder, composition |
 | `src/*.ts` | The inspector and draw pages' entries, the subjects module, the film interfaces and the film selector | Nothing |
 | `src/executable/` | The Node commands the README documents and the Node tooling they run, shipped with the scaffold | Nothing |
@@ -44,9 +44,7 @@ The object shell over a functional core is the production's own style; installed
 
 ## Dependencies and files
 
-Imports point down the chain: host and commands to films, films to scenes, scenes to consequences, interactions and entities, and every behavior down to laws and installed packages; tests may import any source folder. An import against that direction or into a folder outside the table is a layout defect that review rejects. Lint stays generic and rejects `Math.random` everywhere.
-
-A subject never imports another subject and a scene never imports another scene: an interaction relates subjects by role, and a film orders scenes.
+Imports point down the chain: host and commands to films, films to scenes, scenes to consequences, interactions and entities, and every behavior down to laws and installed packages; tests may import any source folder. An import against that direction or into a folder outside the table is a layout defect that review rejects. A subject never imports another subject and a scene never imports another scene: an interaction relates subjects by role, and a film orders scenes. Lint stays generic and rejects `Math.random` everywhere.
 
 What serves every production belongs to the installed packages and never grows as a production folder; a missing capability follows [installed packages](reuse.md#installed-packages).
 
@@ -58,11 +56,9 @@ A new subject starts from its settings or brief record, then its entity folder a
 
 ## Shared modules
 
-A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](reuse.md#one-module) at workspace scale.
+A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](reuse.md#one-module) at workspace scale. A single production has no workspace packages and keeps its modules in `src`.
 
 The shared module takes what differed between the productions as constructor input or parameters instead of citing one production's records, and keeps its unit tests with it. Each production still answers for its own use: its entity or scene cites its own settings or brief facts and passes them in.
-
-A single production has no workspace packages and keeps its modules in `src`.
 
 ## Execution and runtime setup
 

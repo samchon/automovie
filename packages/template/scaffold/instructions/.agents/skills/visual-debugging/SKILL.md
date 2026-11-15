@@ -9,7 +9,7 @@ Readiness or numerical success proves no appearance; only an observed picture do
 
 This skill owns how a picture is captured, compared and corrected, whatever made it. The skill of each subject owns what to look for in it.
 
-The instrument is the installed render package's inspection and capture core, which the inspector page and the capture command drive with one request, so a picture worked out on the page repeats as a capture. The project README says how to run both, and the render package's README lists every request key with the requirement it serves. Its marks serve [marking what a measurement found](passes.md#mark-what-a-measurement-found), its record the [conditions](capture.md#conditions) and [rounds](capture.md#rounds) of a capture, and its round comparison [matched cells](comparison.md#match-the-cells).
+The instrument is the installed render package's inspection and capture core, which the inspector page and the capture command drive with one request, so a picture worked out on the page repeats as a capture. The project README says how to run both, and the render package's README lists every request key with the requirement it serves. Its marks serve [marking what a measurement found](passes.md#marking-what-a-measurement-found), its record the [conditions](capture.md#conditions) and [rounds](capture.md#rounds) of a capture, and its round comparison [matched cells](comparison.md#matched-cells).
 
 | Task | Read |
 | --- | --- |
@@ -21,7 +21,7 @@ The instrument is the installed render package's inspection and capture core, wh
 
 | Subject | Read also |
 | --- | --- |
-| An entity's form | [Inspecting a form](../3d-modeling/inspection.md), at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets |
+| An entity's form | [Inspecting a form](../3d-modeling/inspection.md), at the uses [entity work](../development/entities.md#inspection-and-handoff) sets |
 | One module alone | [Catalog cases](../motion/catalog-cases.md) |
 | A segment of the film | [Segment review](../motion/segment-review.md) |
 | A control channel | [Control channels](../motion/control-channels.md) |

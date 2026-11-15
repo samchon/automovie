@@ -2,9 +2,8 @@
 
 An accepted take is finished before [assembly](../production/assembly.md), in this order: repair, upscale, conform the frame rate, then match it to its neighbors. Each step makes a derivative kept beside the take's original under [media records](../production/media-records.md#records). A take's sound is finished separately under [film sound](../audio/film-sound.md).
 
-## Repair part of a take
-
-A take that is right except for a local flaw, such as a hand, a face, a stray object or a failed seam, is repaired in place rather than regenerated:
+## Partial repair
+A take that is right except for a local flaw, such as a hand, a face, a stray object or a failed seam, is repaired in place rather than regenerated, by one of these methods:
 
 - regenerate a time range and keep the rest;
 - regenerate a masked region over its frames;
@@ -17,12 +16,10 @@ Compare the frames outside the repair with the original at matched times, and ch
 
 Composite legible text, signs and logos in post from their own clean render, because models garble lettering.
 
-## Upscale
-
+## Upscaling
 Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md).
 
-## Conform the frame rate
-
+## Frame-rate conform
 Generate at the model's frame rate and conform each take to the delivery profile by the method [project context](../production/project-context.md) records:
 
 | Method | Cost |
@@ -31,15 +28,14 @@ Generate at the model's frame rate and conform each take to the delivery profile
 | Speed change | It changes the running time and the pitch of generated sound |
 | Duplicated or dropped frames | Motion judders |
 
-## Match the takes
-
+## Take matching
 Providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop a take's color tags. Read each take's tags, such as with ffprobe, choose one working color space for the film and record it in project context, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
 
 Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness.
 
 ## Provenance and disclosure
 
-Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand the record and the originals to [assembly](../production/assembly.md#repair-and-deliver).
+Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand the record and the originals to [assembly](../production/assembly.md#repair-and-delivery).
 
 A film made with generated video may owe a disclosure where it is released, such as under Article 50 of the EU AI Act or a video platform's rules. Ask the user which disclosure the release owes, and record it in the [delivery profile](../production/project-context.md#what-to-record).
 

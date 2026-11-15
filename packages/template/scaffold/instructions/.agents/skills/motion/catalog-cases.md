@@ -8,7 +8,7 @@ A rehearsal module the film registry does not list is scratch for work in progre
 
 ## Capture and review
 
-Capture each case's interval with the README's capture command, from the [views](../visual-debugging/capture.md#views) and at the [times](../visual-debugging/capture.md#times) visual debugging sets, with a joint overlay where the capture offers one.
+Capture each case's interval with the README's capture command, from the [views](../visual-debugging/capture.md#views) and at the [times](../visual-debugging/capture.md#times) visual debugging sets, with `joint` marks where the capture offers them.
 
 Review every still against the [performance study](../story/planning/research.md#performance-study) and the cast, prop and set records. Repair each failing case at its module by cause and recapture it.
 

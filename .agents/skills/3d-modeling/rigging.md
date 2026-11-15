@@ -18,7 +18,7 @@ A joint nothing drives costs binding and inspection and changes no frame.
 
 When a detailed mesh replaces a body whose skeleton and proportions are already accepted, align the mesh to that skeleton's rest pose and joint positions. Adopting the mesh's own proportions instead changes the character and sends its motion back through retargeting, so that choice is the user's.
 
-## Characterize before binding
+## Characterization
 
 ### Fixed inputs
 
@@ -32,7 +32,7 @@ Map each deforming vertex to the actual joint palette and bind interpretation. V
 
 Give a rigid prop its transform or attachment rather than a skin. Keep unknown joints and extra influences; a deliberate reduction is a new derivative whose error is measured and rendered at the required poses.
 
-## Get the weights
+## Weight sources
 
 Bind a mesh that [Conditioning](conditioning.md) has finished reducing, in a rest pose with the limbs apart, with each loose piece either joined to the surface or set aside as a rigid attachment.
 
@@ -78,7 +78,7 @@ Where needed, bake evaluated results into kept channels or a supported fixed rep
 
 Compare the source's evaluated deformation with the imported result at matched times and views, including required corrective or facial states, attachments and nonuniform scale where used. The kept channels and the visible error show whether the deformation is the same; matching bone names or key counts do not. Cover the promised screen-scale performance without requiring unused controls.
 
-## Hand off
+## Handoff
 
 Hand the admitted skeleton interpretation, controls, source identities and unresolved limits to the owner of the asset's performance under [motion](../motion/SKILL.md), so every rig repair stays with the rig rather than inside a shot. A pose screenshot, a finished auto-rig job or a low fitting residual covers only what it shows.
 

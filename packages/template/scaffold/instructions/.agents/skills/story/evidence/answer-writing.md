@@ -4,16 +4,12 @@ The evidence answerer writes the answers, in a [context separate](../workflow/SK
 
 Read the whole selected respondent and the parents it needs, and find its questions through the [story contracts](../../contracts/story/SKILL.md). Where an item has statements, follow [items and statements](../../contracts/SKILL.md#items-and-statements) before answering. Answer an overview question first, because the local answers follow its direction.
 
-An answer states the current work; it cannot argue missing material into existence or overturn a locked recipient loss. Support each assertion with exact quotations and owner addresses checked against the current body or parent, and check claimed counts, sequence, causes, places and states across the whole scope. Answer only what the question asks, because an unneeded inventory becomes a stale fact, and group a repeated cause and cite its grounds once.
+An answer states the current work; it cannot argue missing material into existence or overturn a locked recipient loss. Support each assertion with exact quotations and owner addresses checked against the current body or parent, and check claimed counts, sequence, causes, places and states across the whole scope. Answer only what the question asks, because an unneeded inventory becomes a stale fact, and group a repeated cause and cite its grounds once. An inapplicable question is answered through the mechanism its relationship permits, under [answer placement](answer-placement.md), which also says where each answer goes.
 
-An inapplicable question is answered through the mechanism its relationship permits, under [answer placement](answer-placement.md), which also says where each answer goes.
-
-When the author edits an open pass whose stage is enabled, the answerer reconciles the dependent answers; changes touching closed work follow [closed passes](../correction/repair.md#closed-passes).
-
-Pass the body and answers to the next step of the [route](../workflow/SKILL.md). Independent [review](../../review/narrative-rounds.md) judges only the body, and a refreshed fingerprint grants no creative judgment.
+When the author edits an open pass whose stage is enabled, the answerer reconciles the dependent answers; changes touching closed work follow [closed passes](../correction/repair.md#closed-passes). Pass the body and answers to the next step of the [route](../workflow/SKILL.md). Independent [review](../../review/narrative-rounds.md) judges only the body, and a refreshed fingerprint grants no creative judgment.
 
 ## Grounds for retaining a candidate
 
 A named expression failure follows its contract's [decision and exception rule](../../contracts/story/shared/naturalness/common.md#reads-as-written). For another candidate, write an alternative carrying the same information, access and pressure without the form and compare the two, recording the gain or loss in ignored notes and the decision in the accountable record.
 
-Deletion, a function label, precedent or earlier protection cannot establish what the expression achieves. After an independent finding, the comparison guides repair rather than acquittal; a working function whose form fails is recomposed, and a defective inherited value returns to its earliest owner under [upstream repair](../correction/repair.md#upstream-defects).
+Deletion, a function label, precedent or earlier protection cannot establish what the expression achieves. After an independent finding, the comparison guides repair rather than acquittal; a working function whose form fails is recomposed, and a defective inherited value returns to its earliest owner under [upstream defects](../correction/repair.md#upstream-defects).

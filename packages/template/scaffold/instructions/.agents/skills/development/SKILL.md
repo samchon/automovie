@@ -24,10 +24,10 @@ Write READMEs, evidence prose and doc comments with [documentation](../documenta
 
 A production module's doc comment is the next agent's manual. Beyond the [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, it shows one short composition example, states the invariants it keeps, and cites what it realizes.
 
-Creative bodies follow the production's adopted language, voice and form under [story contracts](../contracts/story/SKILL.md) in place of those writing rules, keeping fixed quotations and creative choices such as purposeful repetition, nonstandard speech and punctuation.
+Creative bodies follow the production's adopted language, voice and form under [story contracts](../contracts/story/SKILL.md) in place of the documentation rules, keeping fixed quotations and creative choices such as purposeful repetition, nonstandard speech and punctuation.
 
 ## Finish a change
 
 While editing, keep the README's compile checker running as the single compile check and read errors from its output instead of rerunning a build.
 
-Finish a source change with the README's lint, evidence and test commands, then verify the affected consumer through [review](../review/SKILL.md): a visual change on captured stills of the affected interval, and anything only playback or listening can show by asking the user.
+Finish a source change with the README's lint, evidence and test commands, then verify the affected consumer through [review](../review/SKILL.md): a visual change on captured stills of the affected interval, and what stills cannot show as [what you can observe](../../../AGENTS.md#what-you-can-observe) sets.

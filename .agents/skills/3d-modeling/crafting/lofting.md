@@ -4,7 +4,7 @@ Lofting builds a surface through one family of related sections and guides, auth
 
 ## One section family
 
-Define one section family from independent [dimensions](construction.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
+Define one section family from independent [dimensions](construction.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it by a rotation-minimizing frame, the frame that twists least. A composed family declares its common physical plane and each contributing curve's actual plane and frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
 
 A family can be defined by a few view curves: front and side outline pairs, an axis and a fullness control, the value that sets how far each section bulges between its outline points. Each section is the chain of conic or rational arcs through the outline points at its station, shaped by that fullness, as in conic lofting. Measured section dimensions then check the loft instead of being authored loop by loop.
 
@@ -26,7 +26,7 @@ An end that is not visible surface, such as one buried in another part, takes th
 
 ## Composition before lofting
 
-When several authored regions share a physical section, compose their defining 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide/profile correspondence and preserve actual components, concavities, holes and topology changes. A projected silhouette Boolean loses depth, and a tape hull, the outline a taut measuring tape takes around the section, bridges concavities and is a different boundary.
+When several authored regions share a physical section, compose their defining 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide and profile correspondence and preserve actual components, concavities, holes and topology changes. A projected silhouette Boolean loses depth, and a tape hull, the outline a taut measuring tape takes around the section, bridges concavities and is a different boundary.
 
 Choose sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than another loft. Compare exact conversion and explicitly bounded approximation under their actual premises, keeping valid input meanings and independent expectations. Fewer streams or patches alone establish neither a faster nor a correct result.
 
@@ -44,7 +44,7 @@ Smooth joins consume one boundary and compatible transverse derivatives, account
 
 Define a known connection before lofting: its original port curves or its join seed, its domains, correspondence, frames and available transverse data. The surface operator then either consumes the ports or traces the intersection from that seed, so it never has to search for the connection.
 
-A port band, the strip of surface that joins two parts at a declared port, needs its own topology, regularity and continuity admission; it is not automatically an end continuation. Apply C2/G2 only on the domains that promise it and retain explicit missing support.
+A port band, the strip of surface that joins two parts at a declared port, needs its own topology, regularity and continuity admission; it is not automatically an end continuation. Apply C2 or G2 continuity only on the domains that promise it and retain explicit missing support.
 
 Where a connection is traced as an intersection, seed it from shared landmarks. Near a closed end, carry the trace in the root parameter, the square root of the distance from that end, because the station chart is polar there and a linear or quadratic predictor fails in it.
 

@@ -4,19 +4,23 @@ Conditioning turns a found or generated mesh into the form its consumer expects:
 
 Do only what the asset's use needs. Each step makes a derivative to keep and verify, and work no view shows buys nothing.
 
-## Freeze the source
+## Frozen source
+
+These steps keep the source and every derivative reproducible:
 
 1. Freeze the selected file and its sidecars with their hashes before anything reads them.
 
    The frozen file is the reproducible source. A URL, a model name or a seed does not identify it, and a service's download link can expire within minutes.
 
-2. Record its origin and usage terms beside it, and for a generated mesh the model, version, seed, prompt, inputs by digest, settings, job identifier and the plan whose terms cover the output.
-3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each derivative consumes.
-4. Make each derivative by a saved script with its settings, never by hand in an interactive tool, so it can be made again from the frozen source.
+2. Record its origin and usage terms beside it, and for a generated mesh what the project's media records require.
+3. Keep the original apart from every converted, reduced or rigged derivative, and record which source each one consumes.
+4. Make each derivative by a saved script with its settings, never by hand in an interactive tool.
+
+   The script can then make it again from the frozen source.
 
 ## What the use needs
 
-Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce). Its use adds:
+Every asset is [normalized](#normalization), [cleaned](#cleanup) and [reduced](#reduction). Its use adds:
 
 | The asset | Further work |
 | --- | --- |
@@ -27,13 +31,13 @@ Every asset is [normalized](#normalize), [cleaned](#clean) and [reduced](#reduce
 
 Regular quad topology, new texture coordinates and rebaked maps serve an asset that is subdivided, edited further or seen close. Do them when that use or the user asks for them. A remesh replaces the surface, so a textured asset then needs new texture coordinates and a bake from the frozen source.
 
-## Normalize
+## Normalization
 
-Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success. Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width.
+Finish every service step, such as a remesh, segmentation or rig, on the service's own output first, with the mesh facing as that service requires, because a service can return a wrongly oriented result that still reports success.
 
-Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
+Then convert the source to the project's unit, axes and handedness in one named step, because a generated mesh arrives at an arbitrary scale and facing. Check the result against a known real dimension, such as a figure's height or a door's width. Put the origin where the asset meets the ground, under its center, so placing it on a floor needs no offset.
 
-## Clean
+## Cleanup
 
 Remove a defect at the first of these places that can remove it, listed from least work to most:
 
@@ -48,9 +52,9 @@ The examples are neither a complete list nor installed dependencies.
 
 Correct a texture's baked light and shadow only where it shows wrong in the actual render.
 
-## Reduce
+## Reduction
 
-Reduce to the triangle count the asset's closest required view needs, at one of the places [Clean](#clean) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
+Reduce to the triangle count the asset's closest required view needs, at one of the places [Cleanup](#cleanup) lists. Merge duplicate vertices first, within a tolerance that keeps texture seams, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
@@ -77,6 +81,6 @@ What the parameter changes decides whether the mesh can stay:
 
 A few fixed variants need no parameter. Generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
 
-## Check
+## Final check
 
 Load the conditioned derivative through the actual consumer and judge it under [form inspection](inspection.md), beside the frozen source, at the views and motion it is used for.

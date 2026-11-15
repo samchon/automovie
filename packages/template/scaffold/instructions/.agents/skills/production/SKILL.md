@@ -19,8 +19,7 @@ Carry the commission from its adopted scope to the handed-off output. Read the r
 
 [Delivery review](../review/delivery-review.md) accepts each one and discloses what was not produced.
 
-## Route the work
-
+## Routing
 Each task has one owner, in the [writing order](../story/workflow/SKILL.md):
 
 | Work | Owner |

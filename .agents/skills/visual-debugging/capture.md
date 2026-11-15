@@ -37,7 +37,7 @@ Select by the groups and parts the subject's own definition names. Confirm from 
 
 Name each view so that it repeats: a direction, a distance or scale and a target, or the delivery's own camera. Front and side alone hide what faces neither, so add the back, the top, the quarters and the high and low obliques the subject needs. To tell a wrong bend from a foreshortened one, capture the same cells from a second view.
 
-Frame a close-up on the affected region from outside the subject. A view that fits itself to its subject resolves to another camera when the subject changes, so the record keeps the resolved camera for a later [comparison](comparison.md#match-the-cells).
+Frame a close-up on the affected region from outside the subject. A view that fits itself to its subject resolves to another camera when the subject changes, so the record keeps the resolved camera for a later [comparison](comparison.md#matched-cells).
 
 ## Times
 

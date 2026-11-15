@@ -20,7 +20,7 @@ Work by these rules:
 - Follow the user's instruction over any skill.
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
-- Finish each inspection round, then repair all its findings together by cause, with their owners and affected consumers.
+- Finish each inspection round, then repair its findings together by cause, with their owners and affected consumers.
 - Keep external generation outside deterministic playback, and retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stage-caches.md).
 
@@ -38,7 +38,7 @@ Work by these rules:
 
 You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [visual debugging](.agents/skills/visual-debugging/capture.md#times) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
 
-Keep the inspector page and the capture command working, and restore a broken one before other work, because every judgment of the film passes through them.
+Keep the inspector page and the capture command working under [restoring the instrument](.agents/skills/visual-debugging/capture.md#restoring-the-instrument), because every judgment of the film passes through them.
 
 ### Before reporting
 

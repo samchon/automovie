@@ -25,7 +25,7 @@ Where the model sets adherence, record a default level for the film in [project 
 
 Keeping positions and contacts copies the hint's timing, stiffness included. Repair stiff timing in the performance under [motion](../motion/SKILL.md) and render the hint again, because loosening the model loosens the contacts with it.
 
-At every level the prompt and the references give the faces and surfaces, so turn off any setting that keeps the hint's faceless heads. [Dense passes](../motion/control-channels.md#dense-passes) sets how closely a shape is held.
+At every level the prompt and the references give the faces and surfaces, so turn off any setting that keeps the hint's faceless heads. [Dense channels](../motion/control-channels.md#dense-channels) sets how closely a shape is held.
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames, tell the user, who may choose another model.
 
@@ -36,7 +36,7 @@ Give each input one role, and state it in the prompt as [input roles](diffusion/
 - the hint video or its channels, for motion and camera;
 - the canon references, for identity and appearance;
 - a [shot frame](../image/SKILL.md#shot-frames), for appearance at the hint's pose;
-- the accepted previous take, where a request continues its motion, as [continuity](diffusion/continuity.md#chaining-requests) sets.
+- the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests).
 
 [Hints](diffusion/hints.md) sets how each input reaches the model. Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
 

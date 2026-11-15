@@ -4,11 +4,15 @@ An image gives the model far more than words, so prefer it whenever the subject'
 
 ## One image
 
-- One subject, whole and filling the frame, on a plain white or transparent background, or cut out to transparency for a model that crops and centers it itself.
-- Even, diffuse light without harsh shadows or glare, because a shadow becomes a dark patch in the texture.
-- A front or three-quarter view from far away with a long lens, because perspective distortion becomes geometry.
-- Arms and legs apart in an A-pose or T-pose for a body that will be rigged, with the hands open and unobstructed.
-- At the resolution the model's guide asks for, with any enhancement that redraws the input turned off, because it changes details.
+Each image given to the model has:
+
+- one whole subject filling the frame, on a plain white or transparent background;
+- even, diffuse light without harsh shadows or glare, because a shadow becomes a dark patch in the texture;
+- a front or three-quarter view from far away with a long lens, because perspective distortion becomes geometry;
+- for a body that will be rigged, arms and legs apart in an A-pose or T-pose, with the hands open and unobstructed;
+- the resolution the model's guide asks for, with any enhancement that redraws its details turned off.
+
+A model that crops and centers the subject itself can take it cut out to transparency instead.
 
 Glass, mirrors, hair and thin wires reconstruct poorly; give such a subject an opaque reference, or build its thin parts in code.
 

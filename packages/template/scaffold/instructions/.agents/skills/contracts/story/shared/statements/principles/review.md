@@ -14,7 +14,7 @@ Contract: [principles/review.md](../../principles/review.md).
 8. Fragile achievements are recorded with quotations and functions, or the record states that none were identified. Their function is protected, not a defective sentence.
 9. The review gives repair directions, not prose for adoption. Counterfactual sentences belong only to the retention comparison.
 10. The applicable question's defined scope is judged: examples may permit another proven loss, and a named-failure boundary is not expanded by taste.
-11. Where the pass ran independent classification, revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
+11. Where the pass ran independent classification, revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#changed-work).
 
 ## Literal and class audit
 

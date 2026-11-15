@@ -24,7 +24,7 @@ Judge a pose that a held tool must keep at both ends of the tool: fit the pose, 
 
 A held object stays held across actions until an action takes that hand over to put it down, hand it on or use it. Until then the hand travels with the body and keeps its grip. Refuse an action that would use a holding hand for something else, because the object would be left in the air or dragged through a gesture.
 
-At a handover:
+At a handover, the object stays held throughout:
 
 - both hands hold through a shared window while the object's world pose blends from the giver to the receiver;
 - the giver opens only after the receiver's grip has closed;
