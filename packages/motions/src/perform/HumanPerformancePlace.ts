@@ -296,9 +296,9 @@ export namespace HumanPerformancePlace {
         return {
           prop,
           frame: (seconds: number): IHumanProp.IFrame =>
+            HumanPerformanceRead.prop(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
-            HumanPerformanceRead.prop(self, subject, seconds),
         };
       },
       meeting: (
