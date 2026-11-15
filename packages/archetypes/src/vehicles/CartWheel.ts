@@ -17,7 +17,14 @@ import type { createCart } from "./createCart";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace CartWheel {
-  /** Where a pair of wheels stands and what it is called. */
+  /**
+   * Where a pair of wheels stands and what it is called.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation A pair's track, radius and spokes in metres and a count, its axle's station, its parts' prefix and its spin knobs' ids.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what `CartWheel` builds a pair from.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface IPair {
     /** Between the wheels, centre to centre, metres. */
     track: number;

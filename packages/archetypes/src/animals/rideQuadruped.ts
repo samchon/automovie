@@ -364,10 +364,6 @@ export namespace rideQuadruped {
   /**
    * A course leg that may name its gait and its lead.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation A course leg with two optional closed choices.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the legs of `ICourse`, read by `rideQuadruped`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The animal's fields live on the animal's course, not on every support's.
    */
   export type ILeg = ArchetypeCourse.Leg & {
     /** The gait the leg is taken at; the speed chooses when absent. */
@@ -380,10 +376,6 @@ export namespace rideQuadruped {
   /**
    * A quadruped's course: a course whose legs may name their gait and lead.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is.
-   * @evidence contracts/development/design.md#principled-representation `ArchetypeCourse.ICourse` with the animal's legs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; `rideQuadruped`'s course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ICourse extends Omit<ArchetypeCourse.ICourse, "legs"> {
     /** The legs in order, at least one. */

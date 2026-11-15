@@ -82,13 +82,6 @@ export namespace createPony {
    * @param breed The breed.
    * @returns The bands.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each band's source.
-   * @evidence contracts/development/implementation.md#principled-implementation The breed's mean height as a single value.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The horse's bands with the height replaced.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per pony.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bands(
     breed: Breed,
@@ -108,13 +101,6 @@ export namespace createPony {
    * @param breed The breed.
    * @returns The profile.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it gives.
-   * @evidence contracts/development/implementation.md#principled-implementation The breed's bands, its own mean heart girth and its own measures' bone fractions on the horse's body; no mass was read with the breeds' sizes, so the mass follows the girth and the height by `createHorse.mass`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `bands` and `EquidSegments.lengths`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function profile(breed: Breed): createHorse.IProfile {
     return {

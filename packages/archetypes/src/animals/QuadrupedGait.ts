@@ -35,7 +35,14 @@ export namespace QuadrupedGait {
     gallop: 1,
   };
 
-  /** The sides a leaded gait leads on. */
+  /**
+   * The sides a leaded gait leads on.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it names.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the two leads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a stride's lead.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
   export type Lead = "left" | "right";
 
   /**

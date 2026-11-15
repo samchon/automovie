@@ -31,6 +31,11 @@ export namespace ArchetypeFriction {
    * - `hoof`: a shod hoof, its horseshoe.
    * - `ice`: ice.
    * - `concrete`, `asphalt`, `stone`, `brick`: grounds; `stone` includes cobbles.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each material.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the materials the measured pairs name.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what a part's surface and a body's rest and ground name.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Material =
     | "rubber"
@@ -49,7 +54,14 @@ export namespace ArchetypeFriction {
   /** The ground a model's body friction is taken against when its producer names none: concrete, the paving and floor slab most staged ground is, and the ground most measured pairs here share. */
   export const GROUND: Material = "concrete";
 
-  /** One measured pair's coefficients. */
+  /**
+   * One measured pair's coefficients.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation The static and kinetic coefficients as the measurement gives them, a value or a range.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; an entry of the measured pairs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface ICoefficients {
     /** The static coefficient, or the measured range's least and greatest values. */
     static: number | readonly [number, number];

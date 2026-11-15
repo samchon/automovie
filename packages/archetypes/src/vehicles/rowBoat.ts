@@ -154,13 +154,6 @@ export namespace rowBoat {
    * @param speed The boat's speed, metres per second.
    * @returns Strokes a minute.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   * @evidence contracts/development/implementation.md#principled-implementation A stroke covers `STROKE`, so the strokes a minute are sixty times the speed over it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rate(speed: number): number {
     return (60 * speed) / STROKE;
@@ -172,13 +165,6 @@ export namespace rowBoat {
    * @param strokes The stroke rate, strokes a minute.
    * @returns The share, 0 to 1.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   * @evidence contracts/development/implementation.md#principled-implementation Kleshnev's regression of rhythm on stroke rate, held inside the rates it was fitted on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function drive(strokes: number): number {
     const r: number = Math.min(Math.max(strokes, RATES[0]), RATES[1]);

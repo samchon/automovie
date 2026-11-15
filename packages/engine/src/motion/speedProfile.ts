@@ -250,10 +250,6 @@ export namespace speedProfile {
   /**
    * What a profile is laid from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and range.
-   * @evidence contracts/development/design.md#principled-representation A start second, a start speed, two positive rates and the stretches in order; ranges are admitted by `speedProfile`, which throws.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; written by each caller and read once.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IProps {
     /** The film second the motion begins; the mover holds at the path's start before it. */
@@ -275,20 +271,12 @@ export namespace speedProfile {
   /**
    * One stretch of the path, ending at a speed mark.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States its two forms.
-   * @evidence contracts/development/design.md#principled-representation A mark reached at a distance or after a duration, discriminated by `kind`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; one entry of `IProps.stretches`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A union, not one record with an optional length or duration.
    */
   export type Stretch = IDistance | ISeconds;
 
   /**
    * A stretch that ends at its mark after a stated length.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and range.
-   * @evidence contracts/development/design.md#principled-representation A length in metres, an end speed and a top speed in metres per second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the stretch a course's leg gives.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IDistance {
     /** The discriminator. */
@@ -307,10 +295,6 @@ export namespace speedProfile {
   /**
    * A stretch that ends at its mark after a stated time.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and range.
-   * @evidence contracts/development/design.md#principled-representation A duration in seconds and an end speed in metres per second; the distance follows.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the stretch a mark at a given second gives, and a pause at rest.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISeconds {
     /** The discriminator. */
@@ -326,10 +310,6 @@ export namespace speedProfile {
   /**
    * One phase of constant acceleration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and the anchor's meaning.
-   * @evidence contracts/development/design.md#principled-representation An interval of film seconds and of distance with the speed at its anchor and a constant acceleration.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; laid by `speedProfile` and read by its samplers and by a caller that names a phase's start.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPhase {
     /** Its first film second. */
@@ -360,10 +340,6 @@ export namespace speedProfile {
   /**
    * One stretch as laid.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The stretch's interval of seconds and distance, its top speed and the time it spends accelerating, holding and braking.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by a caller naming a stretch's instants, such as a course's `cruise` and `brake`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IStretch {
     /** Its first film second. */
@@ -394,10 +370,6 @@ export namespace speedProfile {
   /**
    * Where the mover is at one second.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation Distance, speed and acceleration at one instant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `IProfile.at`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IState {
     /** Distance along the path, metres. */
@@ -413,10 +385,6 @@ export namespace speedProfile {
   /**
    * A laid profile.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and what the samplers return outside the profile.
-   * @evidence contracts/development/design.md#principled-representation The phases and stretches as plain data with the profile's interval, its length and top speed, and two pure samplers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `speedProfile`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IProfile {
     /** The phases in time order. */
@@ -440,26 +408,12 @@ export namespace speedProfile {
     /**
      * The state at a film second: at rest at the path's start before `start`, at the start speed at `start`, and the end state after `end`.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and the held ends.
-     * @evidence contracts/development/implementation.md#principled-implementation The phase holding the second, integrated in closed form from its anchor.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the phase, evaluate it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside the profile the end state holds, never extrapolated.
-     * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the phases.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the phases laid once.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the profile's closure.
      */
     at: (seconds: number) => IState;
 
     /**
      * The film second a distance is first reached: `start` for 0 or less, `end` for the length or more; a distance held at rest is reached when the hold begins.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and the held ends.
-     * @evidence contracts/development/implementation.md#principled-implementation The phase holding the distance, its quadratic solved by the stable root.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the phase, invert it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside the path the nearer end holds.
-     * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the phases.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the phases laid once.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the profile's closure.
      */
     when: (distance: number) => number;
   }
@@ -473,13 +427,6 @@ export namespace speedProfile {
    * @param deceleration The braking, metres per second squared.
    * @returns The least and greatest end speed, metres per second; the least is 0 when the stretch is long enough to stop in.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and the result's meaning.
-   * @evidence contracts/development/implementation.md#principled-implementation v squared = v0 squared plus or minus 2 a L under constant acceleration, the braking side floored at rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two expressions.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reach(
     speed: number,

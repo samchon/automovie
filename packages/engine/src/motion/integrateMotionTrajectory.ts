@@ -134,22 +134,11 @@ export namespace integrateMotionTrajectory {
   /**
    * What a trajectory is integrated from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and default.
-   * @evidence contracts/development/design.md#principled-representation The right-hand side, the start state and orientation, the interval in seconds and the step.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; written by each caller.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IProps {
     /**
      * The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, the result and purity.
-     * @evidence contracts/development/implementation.md#principled-implementation Supplied by the caller from the physics of its motion.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One function of time and state.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It may not draw or read a clock, so the trajectory is a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The caller's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     f: (
       t: number,
@@ -176,10 +165,6 @@ export namespace integrateMotionTrajectory {
   /**
    * A state's rate.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit.
-   * @evidence contracts/development/design.md#principled-representation The vector's time derivative and the body-frame angular velocity in radians per second.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `IProps.f`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRate {
     /** The vector state's derivative, one per component. */
@@ -192,10 +177,6 @@ export namespace integrateMotionTrajectory {
   /**
    * A state read at one time.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation The vector and the orientation, null without one.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `ITrajectory.at`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IState {
     /** The vector state. */
@@ -208,10 +189,6 @@ export namespace integrateMotionTrajectory {
   /**
    * An integrated trajectory.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation The interval, the step, the knot count and a pure reader.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `integrateMotionTrajectory`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITrajectory {
     /** The first second. */
@@ -229,13 +206,6 @@ export namespace integrateMotionTrajectory {
     /**
      * The state at a time, held at the ends outside `[t0, t1]`.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument and the held ends.
-     * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite interpolation of the vector between the two knots that bracket the time with their exact derivatives, and slerp of the orientation by the elapsed share.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the interval by index, then interpolate.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside the interval the end holds, never extrapolated.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant time per read.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the knots kept once.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the trajectory's closure.
      */
     at: (time: number) => IState;
   }

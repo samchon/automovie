@@ -213,10 +213,6 @@ export namespace createHorse {
   /**
    * The horse's joints and landmarks at rest, in the model's space: the shared quadruped's (`QuadrupedBody.IRig`) and the two places a harness is laid by.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation Points in the model's space.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the harness and a drawn cart read the two places.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IRig extends QuadrupedBody.IRig {
     /** The point of draft on the `+X` side: where the breast collar meets the barrel's side at the point of shoulder's height, just behind the elbow, as the IVC Carriage measuring chart takes the breast collar from the centre of the chest to just behind the elbow; the `-X` side's is its mirror. */
@@ -233,13 +229,6 @@ export namespace createHorse {
    * @param body The body's proportions; the horse's `BODY` when absent, another equid's for that equid.
    * @returns The rest rig.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The shared quadruped's rig from the body's proportions, then the point of draft on the barrel's surface at the shoulder joint's height beside the elbow, and the hitch on the trunk's axis `SADDLE` behind the shoulder joints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared rig, then two points.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse; the bands admit the dimensions.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beyond the shared rig's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedBody.rig`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rig(
     dimensions: Readonly<Partial<Record<Dimension, number>>>,
@@ -267,13 +256,6 @@ export namespace createHorse {
    * @returns The equid.
    * @throws {ArchetypeRefusal} For a fixed dimension outside its band, a tack that is not one of `TACKS`, or a seat or reins not among `SEATS` and `REINS`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it builds, from what, and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The height drawn from its band, the girth the profile's at that height, and the mass a model's read one or `mass`'s law on the two, so the three measures of one animal agree; the seat and the reins each one read size, picked whole; then the shared body (`QuadrupedBody.lay`) from the profile's proportions, stated per part so the mass properties follow the measured distribution, and the tack placed on the rig's landmarks.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the free dimensions, derive the girth and the mass, pick the seat and the reins, take the rest joints from `rig`, lay the body, then the tack and its contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s, stated there; every tack size no source gives is a named estimate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body is the shared quadruped's, the tack the horse's; each call builds one independent model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function equid(
     profile: IProfile,
@@ -464,10 +446,6 @@ export namespace createHorse {
   /**
    * An equid of the horse's build: what `equid` builds one from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation The producer's name, the model's name by tack, the bands and the body's proportions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the horse's is `PROFILE`, a pony breed's `createPony.profile`'s.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IProfile {
     /** The producer's name, which refusals carry and the ride finds the species by. */
@@ -507,13 +485,6 @@ export namespace createHorse {
    * @param girth The heart girth, metres.
    * @returns The mass, kilograms.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its anchor and when a read mass replaces it.
-   * @evidence contracts/development/implementation.md#principled-implementation The girth-squared-times-length volume form with length proportional to height, anchored on one weighed sample's means.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No factor is fitted; a breed far from the warmbloods' mass for its girth is reported where its checks are recorded, not tuned.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function mass(withers: number, girth: number): number {
     return JENSEN.mass * (girth / JENSEN.girth) ** 2 * (withers / JENSEN.withers);

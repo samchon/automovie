@@ -362,12 +362,7 @@ export class ArchetypeAssembly<
 }
 
 /**
- * Companion types and constant of {@link ArchetypeAssembly}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type states what it derives.
- * @evidence contracts/development/design.md#principled-representation A member is an archetype and a rigid placement; the id unions are derived from the members' own closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the assembly; read by its methods' signatures.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+ * Companion types and constant of {@link ArchetypeAssembly}: a member is an archetype and a rigid placement, and the id unions are derived from the members' own closed unions, read by the assembly's methods' signatures; the class's own claims cover them.
  */
 export namespace ArchetypeAssembly {
   /** The name refusals carry for an assembly, which is no producer's. */

@@ -75,10 +75,6 @@ export namespace createQuadruped {
   /**
    * A species: what the shared body and the ride read for an animal of its kind.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
-   * @evidence contracts/development/design.md#principled-representation The producer's name, the standing angles, the gait table and the parts that nod; the joints the ride poses are read off the animal itself (`QuadrupedBody.joints`).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `rideQuadruped` and by the gait and change functions.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISpecies {
     /** The producer's name, which the animal's `archetype` carries and refusals name. */
@@ -120,13 +116,6 @@ export namespace createQuadruped {
    * @returns Its species.
    * @throws {ArchetypeRefusal} When the animal is no quadruped's, listing the kinds.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The kind whose species carries the animal's producer's name.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find, or refuse with the alternatives.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Another archetype is refused, never ridden as a horse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the kinds.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function species(animal: { archetype: string }): ISpecies {
     const kind: Kind | undefined = KINDS.find(

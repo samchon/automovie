@@ -22,7 +22,14 @@ import {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No species branch: a species is its `IBody`, never a case in this code.
  */
 export namespace QuadrupedBody {
-  /** The four limbs. */
+  /**
+   * The four limbs.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it names.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the four limbs by side and end.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the key of every limb table and of the rig's joints.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
+   */
   export type Limb = "leftFore" | "rightFore" | "leftHind" | "rightHind";
 
   /** Every limb, in a fixed order. */
@@ -35,6 +42,11 @@ export namespace QuadrupedBody {
 
   /**
    * The bones, each also the id of the part that draws it: the trunk (with the shoulder blades and the pelvis's front), the hindquarters (the pelvis behind the hip joints and the buttock's muscles, out to the point of buttock), the neck, the head and the tail; down a fore limb the humerus, the radius, the cannon and the pastern (with the hoof or the paw); down a hind limb the femur, the tibia, the cannon and the pastern. The cannon is the metacarpus or metatarsus and the pastern the digit, under the names a horse's carry. Every limb bone hangs from the one above it and the uppermost from the trunk.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each bone and what it includes.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the trunk, the head and tail and four bones a limb, as template literals over the limbs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the ids of the parts the body lays and the ride poses.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a quadruped's, the defect #2805 removed.
    */
   export type Bone =
     | "trunk"
@@ -82,6 +94,11 @@ export namespace QuadrupedBody {
    * - `mass`: body mass, kilograms.
    * - `girth`: the heart girth's circumference, which sizes the barrel.
    * - `tempo`: how far this animal's stride time lies from the mean, in standard deviations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each dimension's unit and meaning.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the four dimensions every quadruped draws.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what the rig and the ride read of any species.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Dimension = "withersHeight" | "mass" | "girth" | "tempo";
 

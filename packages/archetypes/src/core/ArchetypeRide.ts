@@ -66,7 +66,14 @@ export namespace ArchetypeRide {
     points: readonly ILinePoint[];
   }
 
-  /** One point of a line: an end on the leader's posed model, or one on the towed support's. */
+  /**
+   * One point of a line: an end on the leader's posed model, or one on the towed support's.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a point names.
+   * @evidence contracts/development/design.md#principled-representation A union of an end on either model, the other side absent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the points of `ILine`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type ILinePoint =
     | { leader: ArchetypeSpan.End; trailer?: never }
     | { trailer: ArchetypeSpan.End; leader?: never };

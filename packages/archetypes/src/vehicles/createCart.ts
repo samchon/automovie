@@ -357,13 +357,6 @@ export namespace createCart {
    * @returns The four lines, the traces first, left before right.
    * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each line joins, the order and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Every point is an end the two models declare: the horse's harness balls (`HorseHarness.ENDS`) and the cart's single tree's ends, half its length either side of its middle, and its held runs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the cart, then one trace and one line per side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A kind without a single tree is refused, never given lines to nowhere.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the single tree's spread from `createHorse.rig`, the owner of the points of draft.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lines(cart: Archetype<Affordance, Dimension>): ArchetypeRide.ILine[] {
     if (!cart.affordances.some((a: { id: string }): boolean => a.id === "leftLine"))

@@ -135,13 +135,6 @@ export namespace HorseGait {
    * @param change How it is changed into from the gait below, absent for the walk.
    * @returns The gait.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is gathered and from where.
-   * @evidence contracts/development/implementation.md#principled-implementation Each value read from its documented table, the walk's column for the walk and the trot's for the trot, the canter and the gallop.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work, once per gait.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per gait to build `TABLE`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function gathered(
     gait: QuadrupedGait.Gait,

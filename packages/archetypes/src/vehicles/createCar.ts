@@ -145,13 +145,6 @@ export namespace createCar {
    * @param seatHeight The seating reference point above the accelerator heel point, SAE J1100's H30, metres.
    * @returns The angle, degrees, rising forward from the heel.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's unit and the result's sense.
-   * @evidence contracts/development/implementation.md#principled-implementation SAE J1516 (reaffirmed 1990), 3.3.3, equation 2: 78.96 - 0.15 z - 0.0173 z squared degrees with z the H-point height above the heel point in centimetres, derived with the 95th-percentile leg links and an 87-degree foot angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pedalPlane(seatHeight: number): number {
     const z: number = seatHeight * 100;
@@ -164,13 +157,6 @@ export namespace createCar {
    * @param seatHeight SAE J1100's H30, metres.
    * @returns The distance aft, metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's and the result's units.
-   * @evidence contracts/development/implementation.md#principled-implementation SAE J1516 (reaffirmed 1990), 3.3.1, equation 1: x = 793.7 + 0.903387 z - 0.00225518 z squared, millimetres aft of the ball of foot with z = H30 in millimetres.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seatAft(seatHeight: number): number {
     const z: number = seatHeight * 1000;
@@ -190,13 +176,6 @@ export namespace createCar {
    * @param side The wheel's offset from the car's centre line, metres, positive to the left (`+X`): half the track.
    * @returns The wheel's steering angle, degrees, positive to the left; the inner wheel of a turn steers more than the outer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the geometry, each input's unit and sign, and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The rear axle's turning radius is the wheelbase over the tangent of the middle angle; a wheel offset `side` toward the centre turns on that radius less `side`, so its angle's tangent is the wheelbase over that, written as an arctangent of two terms so a straight wheel and a turn either way are one expression (Ackermann steering geometry, Wikipedia, https://en.wikipedia.org/wiki/Ackermann_steering_geometry, not read at a primary). King-pin inclination and caster are left out.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function ackermann(
     centre: number,
