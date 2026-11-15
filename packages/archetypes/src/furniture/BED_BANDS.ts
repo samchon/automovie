@@ -28,9 +28,9 @@ const ISOFLEX: string =
 const SIDERAIL: string =
   "MHRA, Safe use of bed rails (30 August 2023), Appendix 2 quoting BS EN 60601-2-52:2010+A1:2015: the top edge of the side rail at least 220 mm above the mattress without compression; the model takes the least (https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/871247/Safe_use_of_bed_rails.pdf)";
 
-/** The crib's height, from a search only. */
+/** The crib's rail height read. */
 const CRIB_TOP: string =
-  "full-size cribs 33.5 in (Graco Teddi) to 36.25 in (DaVinci Ryder, front rail to floor) high, as search results give the makers' listings; not read";
+  "DaVinci Kalani 4-in-1 convertible crib: \"Front Rail to Floor Height: 35\"\", interior 52 x 28 in (https://davincibaby.com/products/kalani-4-in-1-convertible-crib)";
 
 /** The stretcher read. */
 const PRIME: string =
@@ -113,7 +113,7 @@ export const BED_BANDS: Readonly<
       0.66,
       `${CRIB}: the rail's top above the support at its lowest; the model takes the least`,
     ),
-    height: ArchetypeBand.metres(0.851, 0.921, CRIB_TOP, true),
+    height: ArchetypeBand.metres(0.889, 0.889, CRIB_TOP),
     thickness: ArchetypeBand.metres(
       0.152,
       0.152,

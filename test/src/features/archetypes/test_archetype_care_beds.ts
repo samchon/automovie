@@ -23,7 +23,7 @@ const GOBED: Readonly<{
 /** IEC 60601-2-52's 220 mm of siderail over the mattress, as the supplier's guideline gives it. */
 const SIDERAIL: number = 0.22;
 
-/** 16 CFR 1508.3 and 1508.4: 26 in of rail over the support at its lowest, slats at most 2 3/8 in apart; the makers' 33.5 to 36.25 in rail tops. */
+/** 16 CFR 1508.3 and 1508.4: 26 in of rail over the support at its lowest, slats at most 2 3/8 in apart; DaVinci's 35 in from the front rail to the floor. */
 const CRIB: Readonly<{
   rail: number;
   gap: number;
@@ -32,7 +32,7 @@ const CRIB: Readonly<{
 }> = {
   rail: 0.66,
   gap: 0.06,
-  top: [0.851, 0.921],
+  top: [0.889, 0.889],
   width: [0.6942, 0.7258],
 };
 
@@ -53,7 +53,7 @@ const MYDAL: Readonly<Record<string, number>> = {
  *
  * Scenarios:
  * 1. A hospital bed's surface lies the IsoFlex mattress over a litter inside the GoBed II's range, its siderails' tops the 220 mm over the surface, and its outer size the sheet's.
- * 2. A crib's rail tops lie at the makers' heights, its mattress lies on a support the regulation's 26 in below them, its interior width inside the regulation's tolerance, and no two neighbouring slats stand more than 2 3/8 in apart.
+ * 2. A crib's rail tops lie at DaVinci's 35 in, its mattress lies on a support the regulation's 26 in below them, its interior width inside the regulation's tolerance, and no two neighbouring slats stand more than 2 3/8 in apart.
  * 3. A bunk bed's lower surface lies its mattress over the maker's 20 cm, the upper the maker's 91 cm above it, its guardrails 5 in over the thickest mattress allowed, the climbing side's rail stopping 15 in short of the foot end, and its frame the maker's size.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contact frames over the seeds; a bed whose mattress, rail, support, slat or guardrail drifts from its source is caught with the numbers.
@@ -115,7 +115,7 @@ export function test_archetype_care_beds(): void {
             .high,
         minimum: CRIB.top[0],
         maximum: CRIB.top[1],
-        source: "Graco Teddi and DaVinci Ryder cribs",
+        source: "DaVinci Kalani, front rail to floor 35 in",
       },
       {
         name: "crib interior width",
