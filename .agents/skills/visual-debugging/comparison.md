@@ -11,17 +11,17 @@ A comparison joins two captures cell by cell, so that only the compared thing di
 | A computed result and its picture | A calculation fault from a display fault |
 | The source's picture and the encoded file | What encoding, color conversion or assembly changed |
 | A conditioning input and what a generator made from it | What the generator kept, moved or invented |
-| A coarse form and its detailed option | What the detail shows at the size it is used |
+| A coarse form and its detail option | What the detail shows at the size it is used |
 | A sequential capture and a restart or seek to the same time | State that depends on how the time was reached |
 | This delivery and the previous one | What changed between them at matched times |
 
-## Match the cells
+## Matched cells
 
 Pair two cells only when everything but the compared thing agrees: subject, time or pose, resolved camera, light, pass, raster size and renderer. A view's name does not establish the same framing when the view fits itself to its subject, so the later capture reuses the earlier one's resolved camera. Measure pixels only between stills one renderer backend drew, because bit identity across backends is not established; across backends, set the pair side by side.
 
 Report a cell that one capture holds and the other lacks as unmatched, with its cause. A comparison over the cells that happened to match says nothing about the ones that did not.
 
-## Read the difference
+## Reading the difference
 
 | Form | Shows |
 | --- | --- |

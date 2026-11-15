@@ -7,7 +7,7 @@ description: Programs a scene's deterministic performance, staging, camera and t
 
 Realize the screenplay's performance through code. Read [project context](../production/project-context.md), the final screenplay and its [research](../story/planning/research.md) first. A single moving instance needs only its promised behavior; a whole-video commission needs its complete progression.
 
-## Compose first
+## The motion vocabulary
 
 Whatever a person does is composed from the installed motion vocabulary, on the objects [entity work](../development/entities.md#objects) takes from the installed archetypes. The vocabulary fits each action to the performer's own body, refuses what that body cannot do and reports its own physical bounds, and motion code written for a person in the production has none of the three.
 
@@ -19,10 +19,10 @@ Work in this order, because each step uses what the one before settled:
 
 1. Study what [when to study](../story/planning/research.md#when-to-study) assigns to code.
 2. Build the coarse entities under [entity work](../development/entities.md#coarse-first).
-3. [Compose](compose/SKILL.md) each person's performance, and repair what an installed package [refuses](compose/refusals.md).
+3. [Compose](compose/SKILL.md) each person's performance and repair any [refusal](compose/refusals.md).
 4. [Extend](laws/SKILL.md) only for what composing cannot express.
 5. Accept every entity and motion module alone in its [catalog cases](catalog-cases.md).
-6. Stage the film segment by segment under [staging](staging.md), and pass [segment review](segment-review.md) before extending from a segment's accepted ending.
+6. [Stage](staging.md) segment by segment, extending from one only after it passes [segment review](segment-review.md).
 7. Deliver a commissioned [detail option](../development/entities.md#detail) last.
 
 ## Other resources

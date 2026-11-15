@@ -40,9 +40,9 @@ Author motion, accept catalog cases and review segments at the default. The coar
 
 Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, deformation, visibility, timing and silhouette.
 
-[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns when a form goes beyond the coarse one and how it is made, rigged and verified.
+[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified.
 
-## Inspect and hand off
+## Inspection and handoff
 
 Accept the entity first alone, in its [catalog cases](../motion/catalog-cases.md), against its settings or brief record at every view and state the scenes use. Then inspect it in its commissioned use, with its scene cameras, neighbors and motion, segment by segment under [segment review](../motion/segment-review.md).
 

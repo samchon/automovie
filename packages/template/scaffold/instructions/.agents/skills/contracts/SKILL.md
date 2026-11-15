@@ -14,7 +14,7 @@ This tree holds the questions Evidence asks. A respondent is whoever answers a q
 
 ## Items and statements
 
-Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item, because every item costs every respondent an answer.
+Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item unless prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule splits it, because every item costs every respondent an answer.
 
 The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract. Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
 
@@ -22,13 +22,11 @@ A respondent uses the statements to question its own compliance:
 
 1. Check the work against every statement before answering.
 2. Repair what fails.
-3. Write an answer that is true against all of them and names each statement that does not apply, with its reason. The answer does not recite the list.
+3. Write an answer true against all of them, naming each statement that does not apply, with its reason, without reciting the list.
 
 A source reviewer audits the answer against the same list; a story answer's truth belongs to its [evidence answerer](../story/evidence/answer-writing.md). Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
 
-An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent.
-
-An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
+An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent. An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
 
 ## Outside the graph
 

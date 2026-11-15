@@ -1,6 +1,6 @@
 # Video models
 
-Each row shows how a current model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its documentation, as [read the model](SKILL.md#read-the-model) sets.
+Each row shows how a current model takes the motion hint, sets [adherence](../requests.md#adherence) and continues a take; the user may choose any other. Read the chosen model's values from its documentation, as [model documentation](SKILL.md#model-documentation) sets.
 
 | Model | Takes the hint as | Sets [adherence](../requests.md#adherence) by | Continues a take by | Documentation |
 | --- | --- | --- | --- | --- |
@@ -11,8 +11,8 @@ Each row shows how a current model takes the motion hint, sets [adherence](../re
 | fal H3 Max 3D to video | A 3D render of up to 15 s and 32 shots, with up to 8 reference images and no first frame | No setting; it keeps camera, paths, timing and cuts closely but not exactly, and invents references when given none, so always give the canon references | None documented; end at a cut | [3D to video](https://fal.ai/models/minimax/h3-max/3d-to-video/llms.txt) |
 | Veo | Still frames: a first frame, or a first and last frame, with asset images for identity | None; it keeps only the frames | An extension from a prompt alone, returned joined to its input | [Model](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate), [best practices](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice) |
 | Luma Ray | One video to edit, with keyframes | Strength presets, and per-signal controls for pose, depth, normals, trajectory and face | A chain frame as the first keyframe | [Editing](https://docs.agents.lumalabs.ai/guides/videos/editing) |
-| LTX, open weights | The RGB hint through a gray-layout adapter with a first frame, or one depth, edge or pose pass | Adapter strength from 0 to 1, masked over frames and regions | No documented extension beside a control pass | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) |
-| Wan VACE, open weights | Depth, pose, scribble, flow, layout or mask passes | Each pass's strength and masks | Extension from the previous clip's first or last frames | [VACE](https://github.com/ali-vilab/VACE), [Wan2.1](https://github.com/Wan-Video/Wan2.1) |
+| LTX, open weights | The RGB hint through a gray-layout adapter with a first frame, or one depth, edge or pose channel | Adapter strength from 0 to 1, masked over frames and regions | No documented extension beside a control channel | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md) |
+| Wan VACE, open weights | Depth, pose, scribble, flow, layout or mask channels | Each channel's strength and masks | Extension from the previous clip's first or last frames | [VACE](https://github.com/ali-vilab/VACE), [Wan2.1](https://github.com/Wan-Video/Wan2.1) |
 
 Hosted models take the hint as RGB video at most; open models with control adapters also take depth, edge or pose videos.
 

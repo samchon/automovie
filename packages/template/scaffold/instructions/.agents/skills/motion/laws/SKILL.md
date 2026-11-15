@@ -7,15 +7,15 @@ description: Extends the installed motion vocabulary when composing cannot stage
 
 What to do when a beat needs an action or a moving body the installed packages do not seem to have. Take the first route below that stages the beat, because each later one costs more to write and leaves more of the checking to the production. Generated or traced motion the user chooses follows [motion diffusion](../diffusion/SKILL.md) instead.
 
-## Compose again
+## Composing again
 
-Read the nearest action's parameters and the [operators](../compose/SKILL.md#join-the-actions) again in the vocabulary's types. Most missing actions are an existing one with another target, effector, object or manner, two joined as an overlay or a mutual join, or the same one at another seed.
+Read the nearest action's parameters and the [operators](../compose/SKILL.md#operators) again in the vocabulary's types. Most missing actions are an existing one with another target, effector, object or manner, two joined as an overlay or a mutual join, or the same one at another seed.
 
-## Register a row
+## Registering a row
 
 A row is one named entry of an action's table, such as a kind of gesture, touch or task. When what is missing is a new entry of a table the vocabulary has, register the row with the vocabulary as its README shows. The action that owns the table then performs the row, with every axis the row leaves open and every operator.
 
-## Register a law
+## Registering a law
 
 A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Write one only when the missing action owns what no shipped action plans:
 
@@ -45,6 +45,6 @@ A row takes only its study's values. A law is designed under these shared motion
 | [Layers](layers.md) | It is a layer, or a layer runs over it |
 | [Verification](verification.md) | Writing its bounded checks and reviewing its frames |
 
-## Send it upstream
+## Sending it upstream
 
 A row or a law other productions would need belongs in the vocabulary itself. Share it inside a workspace as a [shared module](../../development/source-layout.md#shared-modules), hand it to the user for the package under [a defect or a gap](../../development/reuse.md#a-defect-or-a-gap), and keep the registered one until the package ships it. An action that registration cannot express is a gap under the same route.

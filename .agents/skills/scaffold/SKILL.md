@@ -11,11 +11,11 @@ A production's own `AGENTS.md`, `README.md`, and source own its meaning; read th
 
 ## What the scaffold owns
 
-The scaffold owns its production skills, directly linked resources and contracts, apart from the shared repository items below. Its own skills describe making a production, not developing this repository.
+The scaffold owns its shipped skills, directly linked resources and contracts, apart from the shared repository items below. Its own skills describe making a production, not developing this repository.
 
 Read its [production skill](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md) for the commissioned outputs, project context and handoff, and [story](../../../packages/template/scaffold/instructions/.agents/skills/story/SKILL.md) before changing narrative authoring. The production's [motion skill](../../../packages/template/scaffold/instructions/.agents/skills/motion/SKILL.md) owns programmatic choreography, constraints, scene time and engine feedback, and 3D modeling owns its asset representations.
 
-Installed package APIs own API documentation, and the scaffold does not duplicate them. `@automovie/evidence` owns reusable evidence defaults and native graph composition; the scaffold keeps one options object evaluated by native `pnpm evidence`.
+`@automovie/evidence` owns reusable evidence defaults and native graph composition; the scaffold keeps one options object evaluated by native `pnpm evidence`.
 
 ## Source layout
 
@@ -23,11 +23,9 @@ The production's [source layout](../../../packages/template/scaffold/instruction
 
 ## Outputs and routes
 
-The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes. The primary output is the whole deterministic motion-video hint, and stills or pilot clips do not complete it.
+The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes. Keep the production's [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md#commissioned-outputs) distinct.
 
-Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
-
-Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
+The long route keeps its four story layers with construction, evidence, current independent review and whole-work completion. Compact items within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 
@@ -35,7 +33,7 @@ Default lint and evidence configurations serve ordinary TypeScript development; 
 
 An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$documentation` the whole folder, `development/$repair.md` the single file. A skill whose production stance differs keeps its own `SKILL.md` beside file placeholders, as `3d-modeling` and `motion` do. The [prepare script](../../../packages/template/build/prepare.ts) copies those items into the package's ignored, published `generated/skills` on `prepare` and `build`, and `createAutoMovieScaffold` ships them in the placeholders' place.
 
-Share a repository skill this way instead of keeping a second copy, and edit it at its repository source under the [shared skill](../prompting/SKILL.md#shared-skills) rule. [Root and scaffold](../scaffold-prompting/SKILL.md#root-and-scaffold) says which rules belong on which side.
+Share a repository skill this way instead of keeping a second copy, and edit it at its repository source under the [shared skill](../prompting/SKILL.md#shared-skills) rule. [Repository and scaffold](../scaffold-prompting/SKILL.md#repository-and-scaffold) says which rules belong on which side.
 
 ## Layers
 

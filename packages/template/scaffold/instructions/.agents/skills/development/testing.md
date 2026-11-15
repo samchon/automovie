@@ -16,12 +16,10 @@ The installed motion vocabulary checks its own actions, so a production does not
 
 ## What a test is not
 
-Do not write end-to-end tests, long simulations, tests that build drawn figures or scenes, monkey-patched globals or internals, golden outputs or expectations copied from the code's own output, or recorded fixtures: they are slow, freeze defects, or prove only that the code repeats itself.
-
-Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery-review.md#acceptance-record), not tests.
+The [testing checklist](../contracts/development/testing.md) sets what a test may not be, and a production test also never monkey-patches globals or internals or replays recorded fixtures. Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery-review.md#acceptance-record), not tests.
 
 ## Files and runs
 
-Put cases in `test/features/<source path>/test_<name>.ts`, at the path of the source they test, as named exported `test_*` functions returning `void` or `Promise<void>`, with the assertion helpers the README's test section names. The production's `test/index.ts` discovers and reports them. Keep helpers outside those files or unexported. Each exported function answers the [testing checklist](../contracts/development/testing.md).
+Write cases where and as the README's test section sets, with the assertion helpers it names, and keep helpers outside the test files or unexported. Each exported function answers the [testing checklist](../contracts/development/testing.md).
 
 Run the suite, or a selection of it, with the README's test command. An empty suite, invalid or unmatched selection, or import or test failure leaves the run unsuccessful; report the executed cases and totals.

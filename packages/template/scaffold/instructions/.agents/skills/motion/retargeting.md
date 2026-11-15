@@ -10,12 +10,12 @@ Convert imported rotations to the representation the retargeter accepts through 
 
 Set root scale from meaningful dimensions, then confirm facing, root path, reach, foot positions and attached props; an unreachable support is fixed at the rig, staging or path, because a different outcome is a narrative change.
 
-## Preserve contacts and time
+## Contacts and time
 
 Bind supports and grasps to their actual ground or object frame, and check sliding, penetration, floating, reach, support transfer and release through the motion, using [physical feedback](physical-feedback.md) for supported correction.
 
 Recheck interpolation, root path and contacts at the actual output times, extrema and cut boundaries, under [frame evaluation](frame-evaluation.md). Keep an imported clip's interpolation, quaternions, scale and morph weights; when baking or simplifying, compare source and derivative at output times and between-key extrema, because a small key error can move a hand off a prop. [glTF's animation rules](https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/Specification.adoc#animations) describe interchange.
 
-## Accept the actual performance
+## Acceptance
 
 Compare the source and retargeted progression from matched views and the actual scene cameras, under the [behaviors contract](../contracts/development/behaviors.md), across the whole sequence, with tolerances taken from the production's promise rather than a favorable solver result. Record the accepted motion, rig interpretation and diagnostics with their inputs; a new clip or rig change invalidates the affected observations.

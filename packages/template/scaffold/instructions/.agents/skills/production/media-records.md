@@ -22,8 +22,9 @@ Commit images and generation requests. Never commit audio or video; they are too
 A record lets the next person identify a file and restore it. Every record, in `media/manifest.json` or in the request that made the file, holds:
 
 - where the file came from: the source URL and creator, or the generation request;
-- its license, attribution and usage terms, which for a generated file cover each layer: the code, the weights, any body model or training data, the territory and the plan it ran under;
-- its content digest;
-- for a generated file, the provider, model and version, settings, prompt, input files by digest and job identifier, and a seed where the model exposes one.
+- its license, attribution and usage terms;
+- its content digest.
 
-A seed, a URL or a finished job does not reproduce a file, so the kept bytes are the source and the record only identifies them. The skill that makes a file adds the fields only it knows, and names no credentials.
+A generated file's terms cover each layer: the code, the weights, any body model or training data, the territory and the plan it ran under. Its record also holds the provider, model and version, settings, prompt, input files by digest and job identifier, and a seed where the model exposes one.
+
+A seed, a URL or a finished job does not reproduce a file, so the kept bytes are the source and the record only identifies them. The skill that makes a file adds the fields only it knows, and never a secret.

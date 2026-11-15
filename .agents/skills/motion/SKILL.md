@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as end-effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
+description: Defines how body motion is designed, authored and verified in this repository, centered on interaction as effector goals and on action laws, and owns the shared motion rules productions receive. Use when authoring or verifying body motion, the motions vocabulary, a human action law, an engine motion primitive or retargeting, or a motion capture verdict.
 ---
 
 # Motion
@@ -11,16 +11,16 @@ The goal is that composition expresses every act a human body performs. The ship
 
 Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, and [laws](laws/SKILL.md) holds the rules for designing and checking one, which are true of motion in any project. This file holds what applies only here.
 
-## Choosing the form {#choosing-the-form}
+## Choosing the form
 
 Take the first form that expresses the act, because each later one writes more motion that must then be fitted, refused and checked anew.
 
 1. A composition of shipped actions through the grammar's operators.
-2. A row: a shipped action under a name of its own with some parameters fixed. It writes no motion, so it is fitted, refused and checked as its action is.
+2. A row: a shipped action under a name of its own with some parameters fixed.
 3. An entry in the data table of the action that owns the family.
-4. A law of its own, for an act that owns what no shipped action plans: a change of what carries the body, an outcome between performers, or a planner of its own. It is composed from the vocabulary's own kernel of a clock, a base and part movements, so it inherits its supports and can be performed over another action.
+4. A law of its own, for an act that owns what no shipped action plans.
 
-The motions package's README shows each form.
+A row writes no motion, so it is fitted, refused and checked as its action is. An act owns what no shipped action plans when it changes what carries the body, decides an outcome between performers, or needs a planner of its own. Its law is composed from the vocabulary's own kernel of a clock, a base and part movements, so it inherits its supports and can be performed over another action. The motions package's README shows each form.
 
 An act that needs a missing axis or operator, such as a new kind of support, effector or join, is a change to the grammar. Make it once in the grammar's owner, never inside one action.
 
@@ -48,7 +48,7 @@ Work in this order, because each step fixes what the next one builds on.
 
    A test states what a person does with a number from the study, never what the code returned. Use few tests that cover widely: a covering set of bodies, variants and supports, and relations that must hold between two runs.
 
-6. Run the tests and repair every finding of the round together by cause.
+6. Run the tests and fix the round's findings [by cause](../../../AGENTS.md#fixing-by-cause).
 
    A specification that fails on a defect outside the change stays in the feature tests, failing, with its measured numbers in its document and on the owning issue. The owner of the defective code fixes it in the same pull request. No specification is parked in a folder apart.
 
@@ -77,6 +77,6 @@ Whoever adds a lexicon row or changes a law's parameters runs `pnpm --filter @au
 
 The specification tests and the vocabulary's own report of its physical bounds decide whether an action is right here. Run the tests that concern the change by name.
 
-[Verification](laws/verification.md#look-at-the-frames) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
+[Verification](laws/verification.md#frame-review) also reviews stills of every case. In this repository that review happens only when the user asks to see an action, because the user holds motion by tests and forbids launching a viewer or a capture otherwise. So a defect a still would have shown must be caught by a bounded check: when one slips through, add the check that would have caught it.
 
 The motions package's capture script draws the cases when the user asks.

@@ -4,7 +4,7 @@ A generated or captured clip is frozen data, never generated at playback, and it
 
 | Check | Expect | Repair |
 | --- | --- | --- |
-| Contacts | Foot sliding, penetration, jitter and floating | Correct them under [retargeting](../retargeting.md#preserve-contacts-and-time) |
+| Contacts | Foot sliding, penetration, jitter and floating | Correct them under [retargeting](../retargeting.md#contacts-and-time) |
 | Objects and partners | One body without the object or partner it touches, so a contact between two clips is never shared | Keep the exchange a mutual join or an object's affordance in the composed performance |
 | Rotations | Joint positions only, with any body parameters fitted later to a neutral shape | Convert positions to rotations by a stated fit rather than relabeling them, and treat the fit as derived |
 | Proportions | The model's own skeleton proportions | Retarget to the cast member's prepared body and check that the authored contacts survive |

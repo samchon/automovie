@@ -8,9 +8,7 @@ Write the prompt in plain prose, in this order: the inputs' roles, the shared de
 
 ## Input roles
 
-The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing").
-
-Name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D.
+The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D.
 
 ## From the story
 
@@ -34,7 +32,7 @@ Leave out what the request keeps from the hint, such as positions, actions, timi
 
 ## Sound
 
-Write the request's sound, decided under [audio](../../audio/SKILL.md), in the dialogue form the selected model's current guide gives, because forms differ and quotation marks render a line as on-screen text in one model. Attribute each line to its speaker as the visual description names them, and keep effects and ambience apart from speech. Leave the scene's score out of the prompt, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays in the prompt as the screenplay decides it. When the model makes no sound, leave sound out of the prompt; audio owns that case.
+Write the request's sound, decided under [audio](../../audio/SKILL.md), in the dialogue form the selected model's current guide gives, because forms differ and quotation marks render a line as on-screen text in one model. Attribute each line to its speaker as the [shared description](#shared-description) names them, and keep effects and ambience apart from speech. Leave the scene's score out of the prompt, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays in the prompt as the screenplay decides it. When the model makes no sound, leave sound out of the prompt; audio owns that case.
 
 ## Wording
 
@@ -42,10 +40,10 @@ Describe what to show, not what to avoid, because a negated word still primes it
 
 Keep duration, size, frame rate and seed in the request's settings, because prose such as "make it longer" changes nothing.
 
-### Still frames
+## Still frames
 
 A model that takes only still frames gets no motion from the hint. Write one camera move per request and its actions as countable steps ("takes three steps and stops at the rail"), because a chain of several is followed less reliably.
 
-## Check before submitting
+## Pre-submission check
 
 Compare the prompt with the hint's start, middle and end frames: every visible figure is named once, no sentence contradicts the hint's positions, order or camera, and the prompt stays within the model's length limit.

@@ -9,7 +9,7 @@ A law is a function that, given a body and its inputs, produces the same motion 
 
 | Rule | Covers |
 | --- | --- |
-| [Effector goals](authoring.md) | Interaction as end-effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
+| [Effector goals](authoring.md) | Interaction as effector goals on targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
 | [Law design](declaration.md) | What every action declares: its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | Parameters, skill and seed, and draws that replay |
 | [Transitions](transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |

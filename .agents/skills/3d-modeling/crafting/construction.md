@@ -16,7 +16,7 @@ Pick the representation by the form, then optimize the form within it:
 
 Take boolean and offset operations from the installed packages or an established solid-modeling kernel, because a hand-written boolean leaves open and self-intersecting surfaces.
 
-Never shape a form by placing vertices, triangles, or polygons by hand; vertices are only what the formulas emit. A coding agent works under four limits, and each favors these representations over hand-placed geometry:
+Never shape a form by placing vertices, triangles or polygons by hand; vertices are only what the formulas emit. A coding agent works under four limits, and each favors these representations over hand-placed geometry:
 
 | The agent | What serves it | Hand-placed geometry |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ Size a feature on a surface in physical units through the surface's metric. A fe
 
 ## Resolution
 
-Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette rather than evenly. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
+Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette rather than evenly. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances or levels of detail where the form allows.
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 

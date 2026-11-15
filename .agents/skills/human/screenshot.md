@@ -2,7 +2,7 @@
 
 The figure is inspected with the shared [instrument](../visual-debugging/instrument.md): the inspector page for reading it interactively and the capture command for stills, sheets and the record a round keeps. The Human package's [README](../../../packages/human/README.md#inspection) owns its subject module, the scripts that run both over it, the subject names and the path of every piece and curve; the [`render` README](../../../packages/render/README.md#request-keys) owns the request keys. This page holds only what reading the Human figure adds.
 
-## Selecting Curves And Parts
+## Selecting curves and parts
 
 The skin is one sewn piece, `f1/body`, and every construction curve has a path under the person named by its family, so one pattern selects, hides, labels, colours and frames them. A family's surface cannot be drawn apart from the body: select its curves, and frame the body around them with `@focus`. Confirm from the capture's record that each selection matched what was meant, because an empty selection draws a still with no defect in it.
 
@@ -20,7 +20,7 @@ The skin is one sewn piece, `f1/body`, and every construction curve has a path u
 
 Name what a still shows with `label` while establishing identity, such as `label=f1/*`, and drop it where labels cover the shape.
 
-## The Three Passes
+## The three passes
 
 Read a part's construction before its surface, through the same cameras, as [inspecting a form](../3d-modeling/inspection.md#construction) requires:
 
@@ -30,7 +30,7 @@ Read a part's construction before its surface, through the same cameras, as [ins
 
 A named view fits itself to what is drawn, and the curves alone span less than the surface, so the three passes of one round take the views the first pass's record gives as each cell's repeat text, the fixed view that draws its camera again, orthographic ones included. Use `@ortho` on a named view where a length is read across the picture, and `@focus=<pattern>` for a close-up on a part or a joint, such as `three-quarter@focus=f1/finger.*` with `marks=curve/*`, since a focus on a family frames its curves.
 
-## Reference Comparison
+## Reference comparison
 
 The instrument draws the generated figure only. Until the reference mesh and its traced curves are handed to it, as a subject or as marks, a comparison of original curves or clay against the reference is unavailable evidence: record it as unobserved in the round, and never pass a curve from a still without its reference.
 

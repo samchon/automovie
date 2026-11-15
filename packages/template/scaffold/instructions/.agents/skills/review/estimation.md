@@ -6,7 +6,7 @@ Estimation is a read-only quality assessment, made only on request. Do not edit 
 
 Fix the requested scope and artifact role; without a narrower request, assess every selected layer body, where the [document layout](../story/document-layout.md#documents) keeps it.
 
-A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery-review.md#measure-and-compare) gives.
+A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery-review.md#measurement-and-comparison) gives.
 
 Before judging the screenplay or video, choose at most two central experience axes from the intended experience [project context](../production/project-context.md) records or links, or state that none was declared.
 

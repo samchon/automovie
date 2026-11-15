@@ -1,23 +1,19 @@
 # Verification
 
-Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This page adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
+Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This resource adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
 
-## Inspect the actual inputs
+## Distribution and consumers
 
-Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff.
+Follow each changed rule from its entry point to the actual task and contract, repair owner and handoff. Inspect the file map `createAutoMovieScaffold` returns when changing what production instructions ship, including substitutions and any generated shared resources the changed links use. A Markdown-only change needs these checks and a review of its affected consumers, not a new test or a disposable generated production.
 
-A Markdown-only change needs these checks and its affected-consumer review; it does not justify inventing a test or generating a disposable production.
+Installed files are project-owned, so an update to an existing production and a change to installation behavior both follow [updating productions](../scaffold/SKILL.md#updating-productions). Changed program behavior takes development's consumer checks.
 
-Inspect the file map `createAutoMovieScaffold` returns when changing what production instructions ship, including substitutions and any generated shared resources the changed links use.
+## Case comparison
 
-Installed files are project-owned: an existing production update follows [scaffold](../scaffold/SKILL.md), not an assumed upstream sync. Changed installation or program behavior requires development's actual consumer checks.
+Take the cases prompting's verification asks for from the tasks the change affects, rather than a universal suite every project runs. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a whole motion hint, and a commissioned generated film.
 
-## Compare decisions before claiming effects
+For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the question of the item holding the changed criterion catches what the production's [independent classification](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/inspection.md#independent-classification) alone misses.
 
-Use actual tasks and retained failures with their strongest legitimate counterexamples. Select cases affected by the change rather than requiring every project to run a universal suite. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
+When a separate agent session performs the task under prompting's verification, also withhold the author's argument for the change and any earlier review verdict, and observe which resources it reads. A review round's reviewer is the exception, because [review](../review/SKILL.md#review-rules) gives it the settled decisions.
 
-For a changed expression criterion, compare preserved meaning with the experience made by actual language, image, sound and timing. Check an informative but ineffective passage and a deliberate restrained form; a function list cannot acquit the first and a style label cannot condemn the second. Confirm that the existing overall item can judge what sentence classification alone misses.
-
-Under prompting's separate-context check, also withhold the author defense and prior verdict, and observe which resources it reads. Preserve the actual result and limits. Do not launch an agent solely because a design changed when the user's delegation rules prohibit it.
-
-Name what was established: instruction consistency, rendered distribution, observed author behavior or actual media result. Static case comparison does not prove better storytelling, a clean sentence table does not approve the whole experience, and an instruction-only change does not verify an unrendered film.
+Report rendered distribution and actual media result as their own categories beside prompting's. Static case comparison does not prove better storytelling. A clean independent classification does not approve the whole experience, and an instruction-only change does not verify an unrendered film.

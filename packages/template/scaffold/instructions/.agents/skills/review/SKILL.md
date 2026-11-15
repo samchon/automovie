@@ -21,4 +21,4 @@ Reviewing segments while implementing motion belongs to the author, under [segme
 
 ## What a reviewer observes
 
-Judge motion and picture on stills at the spacing [delivery review](delivery-review.md#measure-and-compare) gives, and report playback and sound only as what the user watched or heard, because of [what an agent can observe](../../../AGENTS.md#what-you-can-observe). A review that claims an observation it could not make is worse than one that names the gap.
+Judge motion and picture on stills at the spacing [delivery review](delivery-review.md#measurement-and-comparison) gives, and report playback and sound only as what the user watched or heard, because of [what an agent can observe](../../../AGENTS.md#what-you-can-observe). A review that claims an observation it could not make is worse than one that names the gap.

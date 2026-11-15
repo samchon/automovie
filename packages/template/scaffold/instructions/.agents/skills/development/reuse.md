@@ -1,6 +1,6 @@
 # Reuse
 
-This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
+Reuse covers what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance without a copy.
 
 ## Installed packages
 
@@ -26,7 +26,7 @@ The first seven rows follow a film from authored data to encoded video, and [how
 
 ### Reading a package
 
-A package's README, public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
+A package's public types and JSDoc are its API. Read them in the package's folder under `node_modules` instead of recalling a call, because the packages change between releases. Read the README first for what the package owns, then the declaration and JSDoc of each export you use for its units, limits and refusals.
 
 ### A defect or a gap
 
@@ -34,7 +34,7 @@ A production cannot repair an installed package. An edit under `node_modules` or
 
 When a package misbehaves or lacks something the work needs:
 
-1. Hand the user the failing case, its numbers and the installed package version, for the issue tracker the package's `repository` field names.
+1. Give the user the failing case, its numbers and the installed version, for the tracker the package's `repository` field names.
 2. Continue with the work that does not depend on it.
 3. Where the work cannot wait, use a local substitute that is marked as one and names the report it waits on.
 4. Remove the substitute when the package ships the fix.

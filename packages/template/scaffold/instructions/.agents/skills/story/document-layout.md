@@ -2,7 +2,7 @@
 
 Each creative document, its evidence and its review has a default location here, used when needed rather than created as an empty tree, and supplied work enters through intake.
 
-The evidence and review locations below are the installed evidence package's, and its documentation owns supported layouts and selectors. This table is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
+The evidence and review locations below are the installed evidence package's, and its documentation owns supported layouts and selectors. The table below is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
 
 ## Documents
 

@@ -4,9 +4,9 @@ Use the recovery package to observe a fixed external mesh, save its curve or sur
 
 Recover only for what a mesh cannot give: a parameter that [Conditioning](../conditioning.md#variation) cannot vary on the mesh, regeneration at another resolution, or a smooth join to a lofted body. Nearness to the camera or motion alone is no reason to recover, because recovery is the costliest route and discards a usable rig.
 
-## Observe and save
+## Observation and fitting
 
-Read the recovery package's README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API; file publication and command dispatch belong to the project's own recovery command.
+Read the recovery package's README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API; file publication and command dispatch belong to the project's recovery tool.
 
 Start from a mesh frozen and normalized under [Conditioning](../conditioning.md) and segmented into the asset's parts.
 
@@ -14,13 +14,13 @@ Prepare evaluated triangles under the package's coordinate, unit, pose and face-
 
 Extract observations algorithmically and fit compact coefficients, preserving their parameterization, continuation and shared boundary relationships. Follow [Lofting](lofting.md) for section families.
 
-## Generate independently
+## Independent generation
 
 Reconstruct from the saved representation alone through the recovery API and the engine and interface model path. Never use original positions, topology or normal fields as a reconstruction fallback. Derive the surface and displayed construction from the same coefficients.
 
 Recovered coefficients reproduce one shape. When the asset must vary, derive its shared dimensions and formulas under [Crafting](SKILL.md).
 
-## Compare and correct
+## Comparison and correction
 
 Load the newly reconstructed model and its generating construction in the actual viewer. Show the fixed source and result side by side under matching view and render conditions, deriving each mesh's normals from its own geometry. Lines drawn over the source do not show an independently reconstructed surface.
 

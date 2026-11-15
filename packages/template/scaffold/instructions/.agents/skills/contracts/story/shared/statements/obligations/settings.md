@@ -12,7 +12,7 @@ Promise and scope:
 4. Where the user delegated these, a provisional plan is derived from the promise, material and production limits, names its grounds and uncertainty, and is revised when those grounds change.
 5. A series establishes what recurs, what closes per release and what develops across releases. Scripts choose the release boundaries.
 6. Scale serves the audience and available material, not copied size rules or padding.
-7. The adopted representation is declared with what it cannot show, such as faceless polygon men, so later layers write only what it carries.
+7. Settings link the adopted representation in `PROJECT.md` and state what it cannot show, such as faces on polygon men, so later layers write only what it carries.
 8. A dimension the commission excludes is excluded once here, not in every record.
 
 Ownership and depth:
@@ -35,7 +35,7 @@ Coherence:
 17. The records explain why an initial threat, mystery or injustice persists: who could end it, and what stops them.
 18. A contradiction is repaired at its earliest owner.
 19. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), derived chronology, ages, distances, travel, money and capacities agree across records, and every consequential participant the source names is identified.
-20. Fiction's own quantities belong to research and code.
+20. Fiction's own quantities follow [factual basis](../../../../../story/planning/requirements.md#factual-basis).
 
 Records:
 

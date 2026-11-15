@@ -6,4 +6,4 @@ Before an agent-managed installation, get the user's approval for the environmen
 
 Generate one take of a few full lines in the production's language and voice, measure it and have the user listen to it before any batch, keeping the checkpoint and settings with the take.
 
-Adopt accepted takes through [audio acquisition](acquisition.md#adopt-a-take), record the setup in [project context](../production/project-context.md), and document the commands in the README.
+Adopt accepted takes through [audio acquisition](acquisition.md#take-adoption), record the setup in [project context](../production/project-context.md), and document the commands in the README.

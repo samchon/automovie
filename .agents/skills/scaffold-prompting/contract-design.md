@@ -1,37 +1,29 @@
 # Contract design
 
-A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
-
-The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
+A shipped contract is a checklist of items that each selected respondent answers about itself, as the production's [contracts](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md) defines them. The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 
-Write an intelligible item, an observable failure and the legitimate neighboring form it protects. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A broad item still needs the passage or output, context and concrete recipient loss supporting its finding.
+Give each item what the [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) asks of a new question. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A finding under a broad item still cites the passage or output, its context and the concrete loss to its recipient.
 
 Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
 
-An individual function, compliance elsewhere or a paraphrase of intended meaning cannot excuse a different failure in the actual expression. Protection must answer that same alleged failure; preserve useful execution notation, deliberate stillness and adopted stylization where they work.
-
-Keep an overall achievement independently answerable when detailed negatives cannot establish it. Reuse an item that already covers the loss before adding another. Split only when the evidence, scope or repair responsibility differs; a new sentence pattern does not need a new contract family, the folder of contracts one owner keeps.
-
 ## Items and statements
 
-Shipped contracts take two levels. An item is one broad question with its reason and the loss it prevents, and it stays short enough to hold in mind while answering. Its H2 names the theme in a few words, such as `Beat decisions`, and the question opens the text under it. Its statements are single checkable assertions with their exceptions, in a `statements` document at the same path beside the contract, one section per item under the same H2.
+Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`. Its question opens the text under it and stays short enough to hold in mind while answering. An item that is already one short question needs no statements.
 
-Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Write a statement so one reading of the work can find it met or failed, and attach each protection to the statement it limits as its exception.
+Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 
-Statement documents are not evidence targets: place them where no selector of `@automovie/evidence` reaches, and confirm that against the package's selector documentation when adding a family. An item that is already one short question needs no statements.
+A contract family is a folder of contracts that one owner keeps, and a new sentence pattern needs no new family. When adding a family, confirm against the selector documentation of `@automovie/evidence` that no selector selects the family's statements documents.
 
-## Coherent repair and adoption
+## Changing items
 
-Compare proposed items with existing ones for overlap, contradiction and feasible joint satisfaction. Trace a failing case and a similar legitimate case through judgment and repair. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
+Compare proposed items with existing ones for overlap, contradiction and whether all can be met at once. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
-Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation.
+Keep stable family paths and H2 titles where Evidence addresses them, because a title's slug is its address. Change callers, selected respondents and actual dependencies with a moved item; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
-Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
+## New criteria
 
-Keep the reason for a failure in its item and each protection with its statement, both of which the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming `createAutoMovieScaffold`, the template function that turns the scaffold into a project's files, strips comments or provides a novel-style migration tool.
+Record verified source support and its limits in [research routes](research-routes.md), never in the item or its statements, because the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) lets neither cite a source.
 
-Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
-
-Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
+Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported. Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
