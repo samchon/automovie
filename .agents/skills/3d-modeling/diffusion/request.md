@@ -4,7 +4,7 @@ Generating again with a better request costs less than repairing a mesh, so ask 
 
 | Ask for | Otherwise expect |
 | --- | --- |
-| One subject per generation, alone on a plain background in an input image | Several subjects fused into one surface |
+| One subject per generation | Several subjects fused into one surface |
 | A rest pose with the arms and legs apart, an A-pose or a T-pose, for a body that will deform | Limbs fused to the body or to each other, and a failed automatic rig |
 | Part-aware generation or segmentation, or each part generated alone, for parts that move | Moving parts fused into one surface |
 | The triangle count [Conditioning](../conditioning.md#reduce) would reduce to | Far more triangles than any view needs |

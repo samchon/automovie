@@ -1,7 +1,5 @@
 # Hints
 
-Bring the composed performance to the model, choose a technique, then check the result.
-
 ## Bring the performance to the model
 
 1. Sample the composed performance at the model's frame rate, from the installed vocabulary's own evaluation.

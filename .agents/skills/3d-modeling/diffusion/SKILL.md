@@ -13,6 +13,6 @@ A diffusion model turns a prompt, images or a shape into a mesh. Steer it with t
 | An image of the subject, or views of it | [Image hints](image-hints.md) |
 | Only a description | [Text prompts](prompts.md) |
 
-Whatever steers it, [request](request.md) sets what to ask for, [3D models](models.md) shows current examples, and [Conditioning](../conditioning.md) takes the result into the project.
+Use the model the user chooses, local or hosted; [3D models](models.md) shows current examples, [request](request.md) sets what to ask for, and [Conditioning](../conditioning.md) takes the result into the project.
 
 Repainting rendered frames into video is a separate task. A generated 2D image serves as appearance reference and supplies no geometry until an image-to-3D model turns it into a mesh.

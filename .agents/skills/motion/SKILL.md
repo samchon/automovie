@@ -9,7 +9,7 @@ This repository develops the motion vocabulary: the actions productions install 
 
 The goal is that composition expresses every act a human body performs. The shipped actions are a floor, and no kind of human motion is out of scope.
 
-Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, and [laws](laws/SKILL.md) holds the rules for designing and checking one that are true of motion in any project. This file holds what applies only here.
+Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, and [laws](laws/SKILL.md) holds the rules for designing and checking one, which are true of motion in any project. This file holds what applies only here.
 
 ## Choosing the form {#choosing-the-form}
 

@@ -23,7 +23,7 @@ Leave an undecided choice or an unanswered question explicit, and continue only 
 
 ## When to read and update it
 
-Read it when starting or resuming work. Update it whenever a consequential choice is adopted or changed, before later work relies on it, replacing the choice it supersedes. When the user changes direction, update this file and the affected owners together, keeping closed narrative work under [upstream repair](../story/correction/repair.md).
+Read it when starting or resuming work. Update it whenever a consequential choice is adopted or changed, before later work relies on it. When the user changes direction, update this file and the affected owners together, keeping closed narrative work under [upstream repair](../story/correction/repair.md).
 
 ## Asking for operating choices
 

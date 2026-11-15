@@ -8,11 +8,9 @@ An image gives the model far more than words, so prefer it whenever the subject'
 - Even, diffuse light without harsh shadows or glare, because a shadow becomes a dark patch in the texture.
 - A front or three-quarter view from far away with a long lens, because perspective distortion becomes geometry.
 - Arms and legs apart in an A-pose or T-pose for a body that will be rigged, with the hands open and unobstructed.
-- At the resolution the model's guide asks for.
+- At the resolution the model's guide asks for, with any enhancement that redraws the input turned off, because it changes details.
 
 Glass, mirrors, hair and thin wires reconstruct poorly; give such a subject an opaque reference, or build its thin parts in code.
-
-Turn off any enhancement the 3D model offers that redraws the input, because it changes details.
 
 ## Several views
 

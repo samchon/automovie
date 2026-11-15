@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Programs a scene's deterministic performance, staging, camera and timing, composing what each person does from the installed motion vocabulary and writing motion code only for what it cannot express. Use when composing a performance, repairing a refusal, extending the vocabulary, accepting catalog cases, staging or reviewing a segment, choosing a physical mode, retargeting a clip, or rendering a motion hint and its control channels.
+description: Programs a scene's deterministic performance, staging, camera and timing, composing what each person does from the installed motion vocabulary and writing motion code only for what it cannot express. Use when composing a performance, repairing a refusal, extending the vocabulary, accepting catalog cases, staging or reviewing a segment, choosing a physical mode, retargeting a clip, generating or tracing motion with a model, or rendering a motion hint and its control channels.
 ---
 
 # Programmed motion

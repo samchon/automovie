@@ -1,6 +1,6 @@
 # Finishing
 
-An accepted take is finished before [assembly](../production/assembly.md), in this order: repair, upscale, conform the frame rate, then match it to its neighbors. Each step makes a derivative kept beside the take's original under [media records](../production/media-records.md#records). Their sound is finished separately under [film sound](../audio/film-sound.md).
+An accepted take is finished before [assembly](../production/assembly.md), in this order: repair, upscale, conform the frame rate, then match it to its neighbors. Each step makes a derivative kept beside the take's original under [media records](../production/media-records.md#records). A take's sound is finished separately under [film sound](../audio/film-sound.md).
 
 ## Repair part of a take
 

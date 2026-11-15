@@ -21,11 +21,11 @@ Adherence is how much of the hint a request keeps. This scale is a starting poin
 | Blocking, rhythm and camera | Crowds, background action and establishing shots |
 | The camera and the coarse plan | A shot whose action the prompt carries |
 
+Where the model sets adherence, record a default level for the film in [project context](../production/project-context.md) and give a request another level where the scale suits it better.
+
 Keeping positions and contacts copies the hint's timing, stiffness included. Repair stiff timing in the performance under [motion](../motion/SKILL.md) and render the hint again, because loosening the model loosens the contacts with it.
 
 At every level the prompt and the references give the faces and surfaces, so turn off any setting that keeps the hint's faceless heads. [Dense passes](../motion/control-channels.md#dense-passes) sets how closely a shape is held.
-
-Where the model sets adherence, record a default level for the film in [project context](../production/project-context.md) and give a request another level where the scale suits it better.
 
 When the chosen model cannot carry a scene's beats, such as a contact between still frames, tell the user, who may choose another model.
 

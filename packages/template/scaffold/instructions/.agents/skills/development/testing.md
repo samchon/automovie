@@ -4,7 +4,7 @@ Give each module millisecond-scale pure logic unit tests for its behavioral cont
 
 Test what the chain promises: that each research outcome table is consistent and every screenplay outcome is one it permits, that a composition is legal, that each scene's resolved schedule yields its screenplay outcome classes, that goals reach the counterpart's actual region, that every seed keeps the outcome classes, and that a resolved state hashes the same on every run.
 
-Test geometry operators on made inputs as 3D modeling's [Crafting](../3d-modeling/crafting/SKILL.md#tests) describes.
+Test geometry operators on made inputs as 3D modeling's [Crafting](../3d-modeling/crafting/construction.md#tests) describes.
 
 ## Motion checks
 

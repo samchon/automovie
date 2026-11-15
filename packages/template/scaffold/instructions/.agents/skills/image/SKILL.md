@@ -13,9 +13,7 @@ Choose the generator and write each image prompt under [image diffusion](diffusi
 
 ## Canon references
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them, have the user accept them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject.
-
-A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them, have the user accept them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
 
 Give each subject the number and form of references the video model's guide sets, within its size and aspect limits. Many models cap images per request rather than per subject, so make only the views the shots' subjects need. Where the guide sets none, give each character separate images, one person in each, on a plain background with flat light and the canonical wardrobe:
 
@@ -23,9 +21,9 @@ Give each subject the number and form of references the video model's guide sets
 - a face close-up with a neutral expression;
 - three-quarter or profile views as the shots need.
 
-Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity, and record the answer in [project context](../production/project-context.md).
-
 Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night.
+
+Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity, and record the answer in [project context](../production/project-context.md).
 
 Prompt each subject's images with its record's wording and, for a generated film, the film's medium or rendering style, because the [shared description](../video/diffusion/prompts.md#shared-description) of its video prompts uses the same words, and the same words keep the same subject in both. Name each garment and its color every time, because references carry a face more surely than clothes.
 
