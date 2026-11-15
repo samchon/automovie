@@ -43,7 +43,7 @@ Put judgments the agent can make together into one checklist item, and split the
 
 ### Entry files
 
-[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, because Claude Code finds skills only there. Lead each trigger with the words of the task it serves. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
+[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, because an agent that does not scan `.agents/skills` finds skills only there. Lead each trigger with the words of the task it serves. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
 
 ### Skill files
 
@@ -59,9 +59,9 @@ Split when any of these shows:
 - a branch only some tasks take;
 - more content than the opening can introduce.
 
-A branch moves into a sibling file, and a resource longer than about 100 lines usually holds a branch to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
+A branch moves into a resource file beside `SKILL.md`, and a resource longer than about 100 lines usually holds a branch to move. A group of files with one purpose moves into a subfolder with its own routing `SKILL.md`, at any depth, whose `name` joins the parent's and the folder's, such as `story-planning`.
 
-Each sibling file has these three marks:
+Each resource has these three marks:
 
 - a name that states its subject;
 - an opening that states its subject, in its own words;

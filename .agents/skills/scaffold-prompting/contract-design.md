@@ -12,7 +12,7 @@ Judge sufficient and excessive detail in the same achievement. More explanation,
 
 ## Items and statements
 
-Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme in a few words, such as `Beat decisions`, and an item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
+Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`, and an item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
 
 Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 
