@@ -1,6 +1,6 @@
 ---
 name: video
-description: Chooses the video generation model for a production, plans each scene's requests with how closely each follows the motion hint, writes their prompts, and submits, inspects and adopts the generated takes. Use before generating video from a motion hint, when choosing or changing a video model, when planning or writing a video generation request, and when adopting or rejecting a take.
+description: Chooses the video generation model for a production, plans each scene's requests with how closely each follows the motion hint, writes their prompts, submits, inspects and adopts the generated takes, and finishes them for assembly. Use before generating video from a motion hint, when choosing or changing a video model, when planning or writing a video generation request, and when adopting or rejecting a take.
 ---
 
 # Video
@@ -17,5 +17,6 @@ Its limits on length, frame rate, references and prompt size decide how scenes b
 4. Prepare any shot frame each request takes under image.
 5. Write each request's prompt under [prompts](diffusion/prompts.md), with the sound decided under [audio](../audio/SKILL.md).
 6. Submit, inspect and adopt takes under [generation](generation.md).
+7. Repair, upscale, conform and match the accepted takes under [finishing](finishing.md).
 
 Generate takes only from a hint that passed [segment review](../motion/segment-review.md) and a screenplay whose review has closed, because a repair to either discards the takes made from it.

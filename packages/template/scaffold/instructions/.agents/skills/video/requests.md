@@ -4,7 +4,7 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Intervals
 
-End a request at a screenplay cut, unless the model takes several shots in one request. Inside a continuous shot, split only where the model's limits force it, at a beat boundary or a held pose, because every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows the seam.
+End a request at a screenplay cut, unless the model takes several shots in one request. Inside a continuous shot, split only where the model's limits force it, counting the last seconds where its takes drift, at a beat boundary or a held pose, because every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows the seam.
 
 Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
@@ -38,11 +38,9 @@ Give each input one role, and state it in the prompt as [input roles](diffusion/
 - the hint video or its channels, for motion and camera;
 - the canon references, for identity and appearance;
 - a [shot frame](../image/SKILL.md#shot-frames), for appearance at the hint's pose;
-- the accepted previous take, where a request continues its motion: its ending as a second video where the model takes several videos with separate roles, and otherwise its last frame as the first frame.
+- the accepted previous take, where a request continues its motion, as [continuity](diffusion/continuity.md#chaining-requests) sets.
 
-A model's extend mode often takes no hint video, and some models take frames or reference videos but not both. Where the model cannot take the continuation beside the hint, end the request at a cut.
-
-Give a continuing request the canon references too, because identity and color drift across chained requests. Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
+Choose how each input reaches the model under [hints](diffusion/hints.md). Give an open model the passes [dense passes](../motion/control-channels.md#dense-passes) sets.
 
 ## Record
 

@@ -12,9 +12,9 @@ Render from the scene any control mask a [request](../video/requests.md) asks fo
 
 ## Dense passes
 
-A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video, depth or outline, carries a form's shape as well as its place, so the more strongly it is applied, the more of the coarse form's boxes and the polygon man's smooth surface the model keeps. As a starting point to check on takes, give people a pose pass and other forms a depth pass at reduced strength, and keep a full-strength dense pass for what must keep its exact shape.
+A control adapter conditions a model on a structural pass, such as pose, depth or edge. A dense pass, such as the hint video, depth or outline, carries a form's shape as well as its place, so the more strongly it is applied, the more of the coarse form's boxes and the polygon man's smooth surface the model keeps. As a starting point to check on takes, give people a pose pass and other forms a depth pass at reduced strength or blurred, and keep a full-strength dense pass for what must keep its exact shape.
 
-An adapter trained on gray layouts is the exception: it takes the whole hint video and replaces its forms.
+An adapter trained on gray layouts is the exception: it takes the whole hint video and replaces its forms, though their shapes can still drift.
 
 ## Keep channels aligned
 

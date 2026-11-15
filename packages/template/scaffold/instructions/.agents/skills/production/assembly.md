@@ -24,7 +24,7 @@ Hand off, without credentials:
 - the fixed inputs, source entry and dependencies;
 - the commands that reproduce it;
 - the checks observed, by whom, and what only the user watched or heard;
-- rights and attribution, with each generation request traceable to the derivatives the film uses;
+- rights and attribution, with each generation request traceable to the derivatives the film uses, the takes that carry content credentials, and the disclosure the release owes;
 - the remaining limits.
 
 [Delivery review](../review/delivery-review.md) accepts the result.
