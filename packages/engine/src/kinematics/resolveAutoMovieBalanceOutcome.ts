@@ -74,12 +74,13 @@ export function resolveAutoMovieBalanceOutcome(
     Vector3.subtract(props.at ?? props.centre, props.centre),
     props.impulse,
   );
-  const extrapolated: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
-    props.centre,
-    velocity,
-    length,
-    gravity,
-  );
+  const extrapolated: IAutoMovieVector3 =
+    resolveAutoMovieCenterOfMass.extrapolate(
+      props.centre,
+      velocity,
+      length,
+      gravity,
+    );
   const hull: IAutoMovieVector3[] = convexHull2D(props.support);
 
   // The capture distance of infinitely many steps, Koolen's fixed point.
@@ -117,7 +118,10 @@ export function resolveAutoMovieBalanceOutcome(
         : Number.POSITIVE_INFINITY,
   };
 
-  const base: Omit<resolveAutoMovieBalanceOutcome.IOutcome, "outcome" | "steps"> = {
+  const base: Omit<
+    resolveAutoMovieBalanceOutcome.IOutcome,
+    "outcome" | "steps"
+  > = {
     velocity,
     angular,
     extrapolated,

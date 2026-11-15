@@ -23,7 +23,6 @@ import { exercise } from "../exercise/exercise";
 import { stretch } from "../exercise/stretch";
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
-import { support } from "./support";
 import { lieDown } from "../floor/lieDown";
 import { clinch } from "../grappling/clinch";
 import { handOver } from "../handling/handOver";
@@ -62,6 +61,7 @@ import { touch } from "../touch/touch";
 import { jump } from "./jump";
 import { run } from "./run";
 import { stand } from "./stand";
+import { support } from "./support";
 import { walk } from "./walk";
 
 /**

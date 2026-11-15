@@ -82,7 +82,11 @@ export function test_human_motion_core_rotation(): void {
         },
       },
     };
-    const about: IAutoMovieVector3 = { x: 0, y: 0.55 * body.measure.stature, z: 0 };
+    const about: IAutoMovieVector3 = {
+      x: 0,
+      y: 0.55 * body.measure.stature,
+      z: 0,
+    };
     const turns: IAutoMovieQuaternion[] = [
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
@@ -104,15 +108,22 @@ export function test_human_motion_core_rotation(): void {
         for (const [bone, r] of plain) {
           const expected: IAutoMovieVector3 = Vector3.add(
             about,
-            Quaternion.rotateVector(turn, Vector3.subtract(r.worldPosition, about)),
+            Quaternion.rotateVector(
+              turn,
+              Vector3.subtract(r.worldPosition, about),
+            ),
           );
           worst = Math.max(
             worst,
-            Vector3.length(Vector3.subtract(turned.get(bone)!.worldPosition, expected)),
+            Vector3.length(
+              Vector3.subtract(turned.get(bone)!.worldPosition, expected),
+            ),
           );
         }
         if (!(worst <= 1e-9))
-          findings.push(`${name} ${kind}: a turned posture is ${worst.toExponential(2)} m off the rigidly turned one`);
+          findings.push(
+            `${name} ${kind}: a turned posture is ${worst.toExponential(2)} m off the rigidly turned one`,
+          );
       }
     }
 
@@ -128,12 +139,21 @@ export function test_human_motion_core_rotation(): void {
       );
       const angle: number = Quaternion.angle(a.turn, mixed.rotation!.turn);
       if (Math.abs(angle - w * whole) > 1e-9)
-        findings.push(`${name}: at ${w} the mix turns ${angle * DEG} degrees of ${whole * DEG}`);
+        findings.push(
+          `${name}: at ${w} the mix turns ${angle * DEG} degrees of ${whole * DEG}`,
+        );
     }
-    const one: IHumanPosture = mixHumanPosture(free, { ...free, rotation: b }, 0.5);
+    const one: IHumanPosture = mixHumanPosture(
+      free,
+      { ...free, rotation: b },
+      0.5,
+    );
     if (
       one.rotation === undefined ||
-      Math.abs(Quaternion.angle(Quaternion.identity(), one.rotation.turn) - Quaternion.angle(Quaternion.identity(), b.turn) / 2) > 1e-9
+      Math.abs(
+        Quaternion.angle(Quaternion.identity(), one.rotation.turn) -
+          Quaternion.angle(Quaternion.identity(), b.turn) / 2,
+      ) > 1e-9
     )
       findings.push(`${name}: a missing rotation does not mix as the identity`);
     if (mixHumanPosture(free, free, 0.5).rotation !== undefined)
@@ -155,7 +175,12 @@ export function test_human_motion_core_rotation(): void {
         for (const [bone, r] of bones)
           jump = Math.max(
             jump,
-            Vector3.length(Vector3.subtract(r.worldPosition, previous.get(bone)!.worldPosition)),
+            Vector3.length(
+              Vector3.subtract(
+                r.worldPosition,
+                previous.get(bone)!.worldPosition,
+              ),
+            ),
           );
       previous = bones;
     }
@@ -163,7 +188,9 @@ export function test_human_motion_core_rotation(): void {
     // about the long axis), so no point at a stature's reach moves further.
     const bound: number = (Math.hypot(1, 2) / DEG) * body.measure.stature;
     if (jump > bound)
-      findings.push(`${name}: a bone moves ${(1000 * jump).toFixed(1)} mm in one step through the vertical, over ${(1000 * bound).toFixed(1)} mm`);
+      findings.push(
+        `${name}: a bone moves ${(1000 * jump).toFixed(1)} mm in one step through the vertical, over ${(1000 * bound).toFixed(1)} mm`,
+      );
 
     // 4. A planted world goal cannot turn.
     const planted: IHumanPosture = {
@@ -182,7 +209,9 @@ export function test_human_motion_core_rotation(): void {
       findings.push(`${name}: a planted world goal is turned with the body`);
     } catch (error) {
       if (!(error instanceof Error) || !error.message.includes("leftLeg"))
-        findings.push(`${name}: the refusal does not name the limb: ${String(error)}`);
+        findings.push(
+          `${name}: the refusal does not name the limb: ${String(error)}`,
+        );
     }
   }
 

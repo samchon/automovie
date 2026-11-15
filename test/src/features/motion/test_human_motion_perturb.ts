@@ -133,7 +133,9 @@ export function test_human_motion_perturb(): void {
             z: d.z * speed * mass,
           });
         } catch (error) {
-          findings.push(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+          findings.push(
+            `${label}: ${error instanceof Error ? error.message : String(error)}`,
+          );
           continue;
         }
         const segment: HumanSegment.ISegment = p.segments("a")[1]!;
@@ -146,7 +148,9 @@ export function test_human_motion_perturb(): void {
             ? "step"
             : "fall";
         if (shape !== size)
-          findings.push(`${label}: planned a ${shape} (events ${events.join(", ")})`);
+          findings.push(
+            `${label}: planned a ${shape} (events ${events.join(", ")})`,
+          );
 
         if (size === "absorb") {
           // 2. Feet planted, the centre travels and returns.
@@ -156,43 +160,63 @@ export function test_human_motion_perturb(): void {
           for (const side of ["left", "right"] as const) {
             const first: IAutoMovieVector3 = ball(segment.entryTime, side);
             let worst: number = 0;
-            for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 24) {
+            for (
+              let t: number = segment.entryTime;
+              t <= segment.end;
+              t += 1 / 24
+            ) {
               const b: IAutoMovieVector3 = ball(t, side);
               worst = Math.max(worst, Math.hypot(b.x - first.x, b.z - first.z));
             }
             if (worst > 0.005)
-              findings.push(`${label}: the ${side} foot slides ${(1000 * worst).toFixed(1)} mm`);
+              findings.push(
+                `${label}: the ${side} foot slides ${(1000 * worst).toFixed(1)} mm`,
+              );
           }
           const c0: IAutoMovieVector3 = centre(p, segment.entryTime);
           let peak: number = 0;
-          for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 48) {
+          for (
+            let t: number = segment.entryTime;
+            t <= segment.end;
+            t += 1 / 48
+          ) {
             const c: IAutoMovieVector3 = centre(p, t);
             peak = Math.max(peak, (c.x - c0.x) * d.x + (c.z - c0.z) * d.z);
           }
           const expected: number = speed / (Math.E * w0);
           if (Math.abs(peak - expected) > 0.2 * expected)
-            findings.push(`${label}: the centre travels ${(1000 * peak).toFixed(2)} mm, the damped pendulum ${(1000 * expected).toFixed(2)} mm`);
+            findings.push(
+              `${label}: the centre travels ${(1000 * peak).toFixed(2)} mm, the damped pendulum ${(1000 * expected).toFixed(2)} mm`,
+            );
           const back: IAutoMovieVector3 = centre(p, segment.end);
           if (Math.hypot(back.x - c0.x, back.z - c0.z) > 0.1 * expected + 1e-3)
-            findings.push(`${label}: the centre does not return, ${(1000 * Math.hypot(back.x - c0.x, back.z - c0.z)).toFixed(2)} mm off`);
+            findings.push(
+              `${label}: the centre does not return, ${(1000 * Math.hypot(back.x - c0.x, back.z - c0.z)).toFixed(2)} mm off`,
+            );
         }
 
         if (size === "step") {
           // 3. The step lands in the reactive window, on the push's side.
-          const caught: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
-            (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
-          );
+          const caught: IAutoMovieMotionEvent | undefined =
+            segment.plan.events.find(
+              (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
+            );
           const at: number =
             caught === undefined
               ? Number.NaN
               : segment.start + caught.share * segment.plan.duration - START;
           if (!(at >= 0.3 && at <= 0.4))
-            findings.push(`${label}: the step lands ${at.toFixed(3)} s after the impulse`);
-          const moved: IHumanContactWindow | undefined = segment.plan.contacts.find(
-            (w: IHumanContactWindow): boolean => w.kind === "plant" && w.from > 0,
-          );
+            findings.push(
+              `${label}: the step lands ${at.toFixed(3)} s after the impulse`,
+            );
+          const moved: IHumanContactWindow | undefined =
+            segment.plan.contacts.find(
+              (w: IHumanContactWindow): boolean =>
+                w.kind === "plant" && w.from > 0,
+            );
           if (moved !== undefined) {
-            const side: "left" | "right" = moved.part === "leftFoot" ? "left" : "right";
+            const side: "left" | "right" =
+              moved.part === "leftFoot" ? "left" : "right";
             const foot: IAutoMovieVector3 = p
               .bones("a", segment.end)
               .get(`${side}Foot`)!.worldPosition;
@@ -200,37 +224,54 @@ export function test_human_motion_perturb(): void {
               .bones("a", segment.entryTime)
               .get(`${side}Foot`)!.worldPosition;
             if ((foot.x - start.x) * d.x + (foot.z - start.z) * d.z <= 0)
-              findings.push(`${label}: the ${side} foot steps against the push`);
+              findings.push(
+                `${label}: the ${side} foot steps against the push`,
+              );
           }
         }
 
         if (size === "fall") {
           // 4. No faster than free fall.
-          const seat: IHumanContactWindow | undefined = segment.plan.contacts.find(
-            (w: IHumanContactWindow): boolean => w.part === "seat",
-          );
+          const seat: IHumanContactWindow | undefined =
+            segment.plan.contacts.find(
+              (w: IHumanContactWindow): boolean => w.part === "seat",
+            );
           const height: number = centre(p, segment.entryTime).y;
-          const free: number = Math.sqrt((2 * height) / AutoMovieGravity.STANDARD);
-          if (seat === undefined) findings.push(`${label}: the fall declares no seat contact`);
+          const free: number = Math.sqrt(
+            (2 * height) / AutoMovieGravity.STANDARD,
+          );
+          if (seat === undefined)
+            findings.push(`${label}: the fall declares no seat contact`);
           else if (seat.from * segment.plan.duration < free)
-            findings.push(`${label}: the seat lands at ${(seat.from * segment.plan.duration).toFixed(3)} s, before free fall's ${free.toFixed(3)} s`);
+            findings.push(
+              `${label}: the seat lands at ${(seat.from * segment.plan.duration).toFixed(3)} s, before free fall's ${free.toFixed(3)} s`,
+            );
         }
       }
     }
 
     // 5. An outcome the impulse cannot give is refused; the one it gives is accepted.
-    const pushed = (speed: number): IAutoMovieVector3 => ({ x: 0, y: 0, z: speed * mass });
+    const pushed = (speed: number): IAutoMovieVector3 => ({
+      x: 0,
+      y: 0,
+      z: speed * mass,
+    });
     for (const [speed, asked] of [
       [5, "absorb"],
       [0.05, "fall"],
     ] as const)
-      TestValidator.error(`${name}: a ${asked} of a ${speed} m/s push is refused`, (): void => {
-        perform(body, pushed(speed), asked);
-      });
+      TestValidator.error(
+        `${name}: a ${asked} of a ${speed} m/s push is refused`,
+        (): void => {
+          perform(body, pushed(speed), asked);
+        },
+      );
     try {
       perform(body, pushed(0.05), "absorb");
     } catch (error) {
-      findings.push(`${name}: the absorb a 0.05 m/s push gives is refused: ${error instanceof HumanRefusal ? error.message : String(error)}`);
+      findings.push(
+        `${name}: the absorb a 0.05 m/s push gives is refused: ${error instanceof HumanRefusal ? error.message : String(error)}`,
+      );
     }
 
     // 6. No impulse: nothing moves.
@@ -240,7 +281,9 @@ export function test_human_motion_perturb(): void {
     for (let t: number = q.entryTime; t <= q.end; t += 1 / 12) {
       const c: IAutoMovieVector3 = centre(quiet, t);
       if (Math.hypot(c.x - c0.x, c.z - c0.z) > 1e-3) {
-        findings.push(`${name}: with no impulse the centre moves at ${t.toFixed(2)} s`);
+        findings.push(
+          `${name}: with no impulse the centre moves at ${t.toFixed(2)} s`,
+        );
         break;
       }
     }

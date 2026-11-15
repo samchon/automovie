@@ -72,7 +72,13 @@ export namespace manipulate {
   export type Finger = (typeof FINGERS)[number];
 
   /** The digits of {@link Finger}, as data, thumb to little finger. */
-  export const FINGERS = ["thumb", "index", "middle", "ring", "little"] as const;
+  export const FINGERS = [
+    "thumb",
+    "index",
+    "middle",
+    "ring",
+    "little",
+  ] as const;
 
   /** One contact of the sequence. */
   export interface IContact {
@@ -169,7 +175,9 @@ export namespace manipulate {
         presses.some((p: IPress): boolean => p.side === side),
     );
 
-    const contacts: IHumanContactWindow[] = (["leftFoot", "rightFoot"] as const).map(
+    const contacts: IHumanContactWindow[] = (
+      ["leftFoot", "rightFoot"] as const
+    ).map(
       (part: "leftFoot" | "rightFoot"): IHumanContactWindow => ({
         part,
         kind: "plant",
@@ -190,8 +198,13 @@ export namespace manipulate {
         let posture: IHumanPosture = { ...hold, joints: { ...hold.joints } };
         const digits: NonNullable<IHumanPosture["digits"]> = {};
         for (const side of sides) {
-          posture.joints = { ...posture.joints, ...HumanHand.shape(side, "flat") };
-          const mine: IPress[] = presses.filter((p: IPress): boolean => p.side === side);
+          posture.joints = {
+            ...posture.joints,
+            ...HumanHand.shape(side, "flat"),
+          };
+          const mine: IPress[] = presses.filter(
+            (p: IPress): boolean => p.side === side,
+          );
 
           // The current press: the last whose approach has begun.
           const span: number = interval(context);
@@ -201,9 +214,16 @@ export namespace manipulate {
           const press: IPress = mine[k]!;
           const previous: IPress = mine[Math.max(0, k - 1)]!;
           const approach: number = minimumJerk(
-            Math.min(1, Math.max(0, (t - (press.time - REACH * span)) / (REACH * span))),
+            Math.min(
+              1,
+              Math.max(0, (t - (press.time - REACH * span)) / (REACH * span)),
+            ),
           ).s;
-          const point: IAutoMovieVector3 = Vector3.lerp(wrist(previous), wrist(press), approach);
+          const point: IAutoMovieVector3 = Vector3.lerp(
+            wrist(previous),
+            wrist(press),
+            approach,
+          );
           posture = {
             ...posture,
             limbs: {
@@ -220,9 +240,15 @@ export namespace manipulate {
           const down: number =
             t < press.time
               ? approach * approach
-              : 1 - minimumJerk(Math.min(1, (t - press.time) / ((1 - REACH) * span))).s;
-          const lift: number = typeText.HOVER - (typeText.HOVER + press.depth) * down;
-          digits[`${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as IHumanPosture.Digit] = {
+              : 1 -
+                minimumJerk(
+                  Math.min(1, (t - press.time) / ((1 - REACH) * span)),
+                ).s;
+          const lift: number =
+            typeText.HOVER - (typeText.HOVER + press.depth) * down;
+          digits[
+            `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as IHumanPosture.Digit
+          ] = {
             point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),
             normal: press.normal,
             surface: "tip",
@@ -254,12 +280,15 @@ export namespace manipulate {
             const affordance: IAutoMovieAffordance = site(read.prop, c.site);
             return {
               ...c,
-              ...(c.digit ?? params.digit) === undefined
+              ...((c.digit ?? params.digit) === undefined
                 ? {}
-                : { digit: c.digit ?? params.digit },
+                : { digit: c.digit ?? params.digit }),
               point: Vector3.add(
                 frame.position,
-                Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+                Quaternion.rotateVector(
+                  frame.rotation,
+                  affordance.frame.translation,
+                ),
               ),
               normal: Quaternion.rotateVector(
                 Quaternion.multiply(frame.rotation, affordance.frame.rotation),
@@ -276,7 +305,9 @@ export namespace manipulate {
         reason: "a keyed sequence needs at least one contact",
         fix: "give contacts or a text",
       });
-    const timed: number = given.filter((c: IContactAt): boolean => c.at !== undefined).length;
+    const timed: number = given.filter(
+      (c: IContactAt): boolean => c.at !== undefined,
+    ).length;
     if (timed !== 0 && timed !== given.length)
       throw new HumanRefusal({
         kind: "parameter",
@@ -292,7 +323,11 @@ export namespace manipulate {
     const times: number[] = given.map((c: IContactAt, i: number): number => {
       if (c.at !== undefined) return c.at;
       const now: number = clock;
-      clock += HumanSkill.jitter(context.skill, context.random(`press${i}`), span);
+      clock += HumanSkill.jitter(
+        context.skill,
+        context.random(`press${i}`),
+        span,
+      );
       return now;
     });
 
@@ -301,14 +336,16 @@ export namespace manipulate {
       (c: IContactAt): HumanHand.Side => c.side ?? side,
     );
     const digits: Finger[] = manipulateFingering(context.body, given, sides);
-    return given.map((c: IContactAt, i: number): IPress => ({
-      side: sides[i]!,
-      digit: digits[i]!,
-      site: c.point,
-      normal: c.normal,
-      time: times[i]!,
-      depth: c.depth,
-    }));
+    return given.map(
+      (c: IContactAt, i: number): IPress => ({
+        side: sides[i]!,
+        digit: digits[i]!,
+        site: c.point,
+        normal: c.normal,
+        time: times[i]!,
+        depth: c.depth,
+      }),
+    );
   }
 
   /** A contact with its site resolved into the world. */
@@ -328,7 +365,9 @@ export namespace manipulate {
 const REACH: number = 0.4;
 
 /** The touch-typing chart: each letter's finger on the standard home row (left hand on ASDF, right on JKL;), the space under the right thumb. */
-const CHART: Readonly<Record<string, readonly [HumanHand.Side, manipulate.Finger]>> = {
+const CHART: Readonly<
+  Record<string, readonly [HumanHand.Side, manipulate.Finger]>
+> = {
   ...Object.fromEntries(
     (
       [
@@ -348,7 +387,9 @@ const CHART: Readonly<Record<string, readonly [HumanHand.Side, manipulate.Finger
         manipulate.Finger,
       ]): [string, readonly [HumanHand.Side, manipulate.Finger]][] =>
         [...keys].map(
-          (k: string): [string, readonly [HumanHand.Side, manipulate.Finger]] => [
+          (
+            k: string,
+          ): [string, readonly [HumanHand.Side, manipulate.Finger]] => [
             k,
             [side, finger],
           ],
@@ -359,10 +400,9 @@ const CHART: Readonly<Record<string, readonly [HumanHand.Side, manipulate.Finger
 };
 
 /** The interval between presses at the performer's skill: typing's, 0.5 s for a novice to 0.15 s for an elite (Salthouse 1986). */
-const interval: (
+const interval: (context: IHumanActionContext<manipulate.IParams>) => number = (
   context: IHumanActionContext<manipulate.IParams>,
-) => number = (context: IHumanActionContext<manipulate.IParams>): number =>
-  HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
+): number => HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
 
 /** The affordance a contact names, refused with the prop's sites when it has none by that id. */
 const site: (prop: IHumanProp, id: string) => IAutoMovieAffordance = (
@@ -397,7 +437,10 @@ const typed: (
   text: string,
 ): manipulate.IContactAt[] => {
   const board: typeText.IBoard = typeText.board(context, context.params.prop);
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, board.yaw);
+  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    board.yaw,
+  );
   return [...text].map((letter: string): manipulate.IContactAt => {
     const key: { at: IAutoMovieVector3; side: HumanHand.Side } =
       typeText.key(letter);

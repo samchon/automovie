@@ -67,8 +67,7 @@ export namespace HumanPerformanceFlight {
     for (const person of people)
       for (const segment of person.segments) {
         const plan: IHumanActionPlan = segment.plan;
-        if (plan.flight === undefined || plan.airborne === undefined)
-          continue;
+        if (plan.flight === undefined || plan.airborne === undefined) continue;
         flight(self, person, segment);
       }
   }
@@ -165,8 +164,7 @@ export namespace HumanPerformanceFlight {
     const knots: number = turned.knots;
     const times: number[] = Array.from(
       { length: knots },
-      (_: unknown, k: number): number =>
-        k === knots - 1 ? t1 : t0 + k * step,
+      (_: unknown, k: number): number => (k === knots - 1 ? t1 : t0 + k * step),
     );
     const table: IHumanPosture.IRotation[] = times.map(
       (t: number): IHumanPosture.IRotation => {
@@ -186,17 +184,17 @@ export namespace HumanPerformanceFlight {
       },
     );
     const rotation = (seconds: number): IHumanPosture.IRotation => {
-      const t: number = Math.max(
-        t0,
-        Math.min(t1, segment.start + seconds),
-      );
+      const t: number = Math.max(t0, Math.min(t1, segment.start + seconds));
       const i: number = Math.min(knots - 2, Math.floor((t - t0) / step));
       const a: number = times[i]!;
       const u: number = (t - a) / (times[i + 1]! - a);
       return {
         about: Vector3.add(
           table[i]!.about,
-          Vector3.scale(Vector3.subtract(table[i + 1]!.about, table[i]!.about), u),
+          Vector3.scale(
+            Vector3.subtract(table[i + 1]!.about, table[i]!.about),
+            u,
+          ),
         ),
         turn: Quaternion.slerp(table[i]!.turn, table[i + 1]!.turn, u),
       };

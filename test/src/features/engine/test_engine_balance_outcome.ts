@@ -86,7 +86,9 @@ export function test_engine_balance_outcome(): void {
     z: 0,
   });
   if (still.outcome !== "absorb" || still.steps.length !== 0)
-    findings.push(`no impulse: ${still.outcome} with ${still.steps.length} steps`);
+    findings.push(
+      `no impulse: ${still.outcome} with ${still.steps.length} steps`,
+    );
 
   // 2. The absorb bound, three directions.
   const a: number = Math.exp(w0 * step);
@@ -98,15 +100,16 @@ export function test_engine_balance_outcome(): void {
   ];
   for (const mass of [38, 76, 118])
     for (const d of directions) {
-      const edge: number =
-        d.x !== 0 && d.z !== 0 ? half * Math.SQRT2 : half;
+      const edge: number = d.x !== 0 && d.z !== 0 ? half * Math.SQRT2 : half;
       const absorb: number = mass * w0 * edge;
       const read: resolveAutoMovieBalanceOutcome.IOutcome = outcome(
         mass,
         Vector3.scale(d, absorb),
       );
       if (!close(read.bounds.absorb, absorb, 1e-9))
-        findings.push(`${mass} kg along ${JSON.stringify(d)}: absorb bound ${read.bounds.absorb}, closed form ${absorb}`);
+        findings.push(
+          `${mass} kg along ${JSON.stringify(d)}: absorb bound ${read.bounds.absorb}, closed form ${absorb}`,
+        );
       if (outcome(mass, Vector3.scale(d, 0.99 * absorb)).outcome !== "absorb")
         findings.push(`${mass} kg: 1 % under the absorb bound does not absorb`);
       if (outcome(mass, Vector3.scale(d, 1.01 * absorb)).outcome !== "step")
@@ -115,7 +118,9 @@ export function test_engine_balance_outcome(): void {
       // 3. The step bound.
       const stepped: number = mass * w0 * (capturable - margin);
       if (!close(read.bounds.step, stepped, 1e-9))
-        findings.push(`${mass} kg: step bound ${read.bounds.step}, closed form ${stepped}`);
+        findings.push(
+          `${mass} kg: step bound ${read.bounds.step}, closed form ${stepped}`,
+        );
       if (outcome(mass, Vector3.scale(d, 0.99 * stepped)).outcome !== "step")
         findings.push(`${mass} kg: 1 % under the step bound does not step`);
       if (outcome(mass, Vector3.scale(d, 1.01 * stepped)).outcome !== "fall")
@@ -129,9 +134,13 @@ export function test_engine_balance_outcome(): void {
     const light: resolveAutoMovieBalanceOutcome.IOutcome = outcome(38, j);
     const heavy: resolveAutoMovieBalanceOutcome.IOutcome = outcome(118, j);
     if (!close(heavy.velocity.z, (light.velocity.z * 38) / 118, 1e-12))
-      findings.push(`${10 * k} N s: velocity changes ${heavy.velocity.z} and ${light.velocity.z} not in the masses' ratio`);
+      findings.push(
+        `${10 * k} N s: velocity changes ${heavy.velocity.z} and ${light.velocity.z} not in the masses' ratio`,
+      );
     if (rank[heavy.outcome]! > rank[light.outcome]!)
-      findings.push(`${10 * k} N s: the 118 kg body ${heavy.outcome}s where the 38 kg body ${light.outcome}s`);
+      findings.push(
+        `${10 * k} N s: the 118 kg body ${heavy.outcome}s where the 38 kg body ${light.outcome}s`,
+      );
   }
 
   // 5. The moment of an impulse above the centre.
@@ -147,7 +156,9 @@ export function test_engine_balance_outcome(): void {
       Math.abs(above.angular.z) <= 1e-12
     )
   )
-    findings.push(`a push 0.5 m above the centre: angular change ${JSON.stringify(above.angular)}, expected (10, 0, 0)`);
+    findings.push(
+      `a push 0.5 m above the centre: angular change ${JSON.stringify(above.angular)}, expected (10, 0, 0)`,
+    );
   if (Vector3.length(outcome(76, { x: 0, y: 0, z: 20 }).angular) !== 0)
     findings.push("a push at the centre changes the angular momentum");
 
@@ -163,11 +174,15 @@ export function test_engine_balance_outcome(): void {
       z: j,
     });
     if (read.outcome !== "step") {
-      findings.push(`${j.toFixed(1)} N s between the bounds reads ${read.outcome}`);
+      findings.push(
+        `${j.toFixed(1)} N s between the bounds reads ${read.outcome}`,
+      );
       continue;
     }
     if (read.steps.length < last)
-      findings.push(`${j.toFixed(1)} N s takes ${read.steps.length} steps, fewer than ${last} at a smaller impulse`);
+      findings.push(
+        `${j.toFixed(1)} N s takes ${read.steps.length} steps, fewer than ${last} at a smaller impulse`,
+      );
     last = read.steps.length;
     let from: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
     for (const s of read.steps) {

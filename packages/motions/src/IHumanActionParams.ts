@@ -1,6 +1,7 @@
 import type { jump } from "./actions/jump";
 import type { run } from "./actions/run";
 import type { stand } from "./actions/stand";
+import type { support } from "./actions/support";
 import type { walk } from "./actions/walk";
 import type { operate } from "./affordance/operate";
 import type { kickBall } from "./ballStrike/kickBall";
@@ -26,7 +27,6 @@ import type { exercise } from "./exercise/exercise";
 import type { stretch } from "./exercise/stretch";
 import type { crawl } from "./floor/crawl";
 import type { getUp } from "./floor/getUp";
-import type { support } from "./actions/support";
 import type { lieDown } from "./floor/lieDown";
 import type { clinch } from "./grappling/clinch";
 import type { handOver } from "./handling/handOver";

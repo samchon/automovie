@@ -21,8 +21,13 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A digit region's world point on a pose. */
-const at = (body: IHumanBody, pose: IAutoMoviePose, region: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+const at = (
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+  region: AutoMovieHumanoidRegion,
+): IAutoMovieVector3 => {
+  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
 };
@@ -87,14 +92,25 @@ export function test_human_motion_core_digits(): void {
         [`${side}IndexDistal`]: [26.67, 0, 0],
       },
     };
-    const goal: IAutoMovieVector3 = at(body, resolveHumanPosture(body, pinch), `indexTip${Side}` as AutoMovieHumanoidRegion);
+    const goal: IAutoMovieVector3 = at(
+      body,
+      resolveHumanPosture(body, pinch),
+      `indexTip${Side}` as AutoMovieHumanoidRegion,
+    );
     const reached: IAutoMoviePose = resolveHumanPosture(body, {
       ...base,
       digits: { [`${side}Index`]: { point: goal, surface: "tip" } },
     });
-    const miss: number = Vector3.length(Vector3.subtract(at(body, reached, `indexTip${Side}` as AutoMovieHumanoidRegion), goal));
+    const miss: number = Vector3.length(
+      Vector3.subtract(
+        at(body, reached, `indexTip${Side}` as AutoMovieHumanoidRegion),
+        goal,
+      ),
+    );
     if (!(miss <= 5e-4))
-      complaints.push(`${side}: the forefinger's tip misses its goal by ${(miss * 1000).toFixed(3)} mm, within 0.5 mm expected`);
+      complaints.push(
+        `${side}: the forefinger's tip misses its goal by ${(miss * 1000).toFixed(3)} mm, within 0.5 mm expected`,
+      );
   }
 
   // 2. A goal on a bone: the thumb's tip on the forefinger's pad.
@@ -106,34 +122,76 @@ export function test_human_motion_core_digits(): void {
       rightIndexDistal: [30, 0, 0],
     },
   };
-  const pad: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions.indexPadRight;
+  const pad: resolveAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.indexPadRight;
   const pinched: IAutoMoviePose = resolveHumanPosture(body, {
     ...base,
-    digits: { rightThumb: { point: pad.point, normal: pad.normal, surface: "tip", on: pad.bone } },
+    digits: {
+      rightThumb: {
+        point: pad.point,
+        normal: pad.normal,
+        surface: "tip",
+        on: pad.bone,
+      },
+    },
   });
   const opposition: number = Vector3.length(
-    Vector3.subtract(at(body, pinched, "thumbTipRight"), at(body, pinched, "indexPadRight")),
+    Vector3.subtract(
+      at(body, pinched, "thumbTipRight"),
+      at(body, pinched, "indexPadRight"),
+    ),
   );
   if (!(opposition <= 5e-4))
-    complaints.push(`the thumb's tip misses the forefinger's pad by ${(opposition * 1000).toFixed(3)} mm, within 0.5 mm expected`);
+    complaints.push(
+      `the thumb's tip misses the forefinger's pad by ${(opposition * 1000).toFixed(3)} mm, within 0.5 mm expected`,
+    );
 
   // 3. No digit goals: the pose as before.
   const plain: IAutoMoviePose = resolveHumanPosture(body, forward("right"));
-  const empty: IAutoMoviePose = resolveHumanPosture(body, { ...forward("right"), digits: {} });
+  const empty: IAutoMoviePose = resolveHumanPosture(body, {
+    ...forward("right"),
+    digits: {},
+  });
   if (JSON.stringify(plain) !== JSON.stringify(empty))
-    complaints.push("a posture with empty digit goals resolves differently from one with none");
+    complaints.push(
+      "a posture with empty digit goals resolves differently from one with none",
+    );
 
   // 4. Claims.
   const C = AutoMovieMotionHumanChannel;
   const facts: [string, boolean][] = [
-    ["a hand covers its thumb's bone", C.covers(["rightHand"], "rightThumbDistal")],
-    ["a hand covers its little finger's bone", C.covers(["rightHand"], "rightLittleProximal")],
-    ["a thumb claim covers its own bone", C.covers(["rightThumb"], "rightThumbMetacarpal")],
-    ["a thumb claim does not cover the forefinger", !C.covers(["rightThumb"], "rightIndexDistal")],
-    ["a right claim does not cover the left", !C.covers(["rightHand"], "leftThumbDistal")],
-    ["a hand's claim covers its digit's claim", C.claims(["leftHand"], "leftIndex")],
-    ["a digit's claim does not cover its hand", !C.claims(["leftIndex"], "leftHand")],
-    ["a digit names its bone", C.digit("leftMiddleIntermediate") === "leftMiddle"],
+    [
+      "a hand covers its thumb's bone",
+      C.covers(["rightHand"], "rightThumbDistal"),
+    ],
+    [
+      "a hand covers its little finger's bone",
+      C.covers(["rightHand"], "rightLittleProximal"),
+    ],
+    [
+      "a thumb claim covers its own bone",
+      C.covers(["rightThumb"], "rightThumbMetacarpal"),
+    ],
+    [
+      "a thumb claim does not cover the forefinger",
+      !C.covers(["rightThumb"], "rightIndexDistal"),
+    ],
+    [
+      "a right claim does not cover the left",
+      !C.covers(["rightHand"], "leftThumbDistal"),
+    ],
+    [
+      "a hand's claim covers its digit's claim",
+      C.claims(["leftHand"], "leftIndex"),
+    ],
+    [
+      "a digit's claim does not cover its hand",
+      !C.claims(["leftIndex"], "leftHand"),
+    ],
+    [
+      "a digit names its bone",
+      C.digit("leftMiddleIntermediate") === "leftMiddle",
+    ],
     ["a wrist names no digit", C.digit("leftHand") === undefined],
   ];
   for (const [label, ok] of facts) if (!ok) complaints.push(label);
@@ -149,9 +207,17 @@ export function test_human_motion_core_digits(): void {
     digits: { rightThumb: { point: { x: 0, y: 1, z: 0 }, surface: "pad" } },
   };
   const merged: IHumanPosture = C.merge(under, written, ["rightThumb"]);
-  if (!(merged.joints.rightThumbProximal?.[0] === 50 && merged.joints.rightIndexProximal?.[0] === 10))
+  if (
+    !(
+      merged.joints.rightThumbProximal?.[0] === 50 &&
+      merged.joints.rightIndexProximal?.[0] === 10
+    )
+  )
     complaints.push("a thumb claim did not take the thumb's joint alone");
-  if (merged.digits?.rightThumb === undefined || merged.digits?.rightIndex !== undefined)
+  if (
+    merged.digits?.rightThumb === undefined ||
+    merged.digits?.rightIndex !== undefined
+  )
     complaints.push("a thumb claim did not take the thumb's goal alone");
   TestValidator.equals("digit goals and digit claims", complaints, []);
 }

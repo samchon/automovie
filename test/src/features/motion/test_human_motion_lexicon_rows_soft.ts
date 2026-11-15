@@ -32,7 +32,10 @@ const lattice = (props: {
 }): IHumanProp => {
   const rest: number[] = [];
   const at = (c: number, r: number): IAutoMovieVector3 =>
-    Vector3.add(props.origin, Vector3.add(Vector3.scale(props.u, c), Vector3.scale(props.v, r)));
+    Vector3.add(
+      props.origin,
+      Vector3.add(Vector3.scale(props.u, c), Vector3.scale(props.v, r)),
+    );
   for (let r: number = 0; r < props.rows; r++)
     for (let c: number = 0; c < props.columns; c++) {
       const p: IAutoMovieVector3 = at(c, r);
@@ -66,13 +69,19 @@ const lattice = (props: {
         maxSteps: Math.ceil(props.seconds / dt) + 1,
       },
       rest,
-      mass: new Array(props.columns * props.rows).fill(props.mass / (props.columns * props.rows)),
+      mass: new Array(props.columns * props.rows).fill(
+        props.mass / (props.columns * props.rows),
+      ),
       anchors: props.anchors ?? [],
       states: [],
-      colliders: [{ kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 }],
+      colliders: [
+        { kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 },
+      ],
       wind: null,
       selfCollision: props.selfCollision ?? false,
-      ...(props.selfCollision === true ? { contact: { thickness: 0.003, friction: 0.5 } } : {}),
+      ...(props.selfCollision === true
+        ? { contact: { thickness: 0.003, friction: 0.5 } }
+        : {}),
     },
   };
 };
@@ -150,21 +159,40 @@ export function test_human_motion_lexicon_rows_soft(): void {
         .stand({ seconds: 1 }).node,
     });
     const s: number[] = p.soft("towel", p.duration);
-    const apart: number = Math.hypot(s[0]! - s[21]!, s[1]! - s[22]!, s[2]! - s[23]!);
+    const apart: number = Math.hypot(
+      s[0]! - s[21]!,
+      s[1]! - s[22]!,
+      s[2]! - s[23]!,
+    );
     if (!finite(p, "towel")) complaints.push("towel: a non-finite particle");
-    if (!(apart >= 0.9 * edge)) complaints.push(`towel: the held corners lie ${apart.toFixed(3)} m apart, at least ${(0.9 * edge).toFixed(3)} m expected`);
+    if (!(apart >= 0.9 * edge))
+      complaints.push(
+        `towel: the held corners lie ${apart.toFixed(3)} m apart, at least ${(0.9 * edge).toFixed(3)} m expected`,
+      );
   } catch (error) {
     complaints.push(`towel: expected to plan, got ${(error as Error).message}`);
   }
 
   // 2. A flag on a held pole.
   try {
-    const poleAt: IAutoMovieVector3 = { x: -m.shoulderHalfWidth, y: m.waistHeight, z: reach };
+    const poleAt: IAutoMovieVector3 = {
+      x: -m.shoulderHalfWidth,
+      y: m.waistHeight,
+      z: reach,
+    };
     const pole: IHumanProp = {
       subject: "pole",
       frame: { position: poleAt, rotation: Quaternion.identity() },
       points: {},
-      affordances: [{ id: "grip", kind: "handle", frame: Transform.identity(), extent: null, radius: 0.015 }],
+      affordances: [
+        {
+          id: "grip",
+          kind: "handle",
+          frame: Transform.identity(),
+          extent: null,
+          radius: 0.015,
+        },
+      ],
     };
     const flag: IHumanProp = lattice({
       subject: "flag",
@@ -180,25 +208,48 @@ export function test_human_motion_lexicon_rows_soft(): void {
         id: `ring${k}`,
         particle,
         position: null,
-        binding: { kind: "node" as const, node: "pole", offset: { x: 0, y: 0.6 - 0.06 * k, z: 0 } },
+        binding: {
+          kind: "node" as const,
+          node: "pole",
+          offset: { x: 0, y: 0.6 - 0.06 * k, z: 0 },
+        },
       })),
     });
     const p: HumanPerformance = new HumanPerformance({
       seed: "soft-rows",
       props: [pole, flag],
       performers: [performer("a", 0, 0)],
-      composition: HumanChain.subject("a").pickUp({ prop: "pole", handle: "grip", hand: "right" }).stand({ seconds: 1 }).node,
+      composition: HumanChain.subject("a")
+        .pickUp({ prop: "pole", handle: "grip", hand: "right" })
+        .stand({ seconds: 1 }).node,
     });
     let worst: number = 0;
     for (let t: number = 0; t <= p.duration; t += 0.1) {
       const f: IHumanProp.IFrame = p.prop("pole", t);
       const s: number[] = p.soft("flag", t);
       [0, 6, 12, 18].forEach((particle: number, k: number): void => {
-        const ring: IAutoMovieVector3 = Vector3.add(f.position, Quaternion.rotateVector(f.rotation, { x: 0, y: 0.6 - 0.06 * k, z: 0 }));
-        worst = Math.max(worst, Math.hypot(s[particle * 3]! - ring.x, s[particle * 3 + 1]! - ring.y, s[particle * 3 + 2]! - ring.z));
+        const ring: IAutoMovieVector3 = Vector3.add(
+          f.position,
+          Quaternion.rotateVector(f.rotation, {
+            x: 0,
+            y: 0.6 - 0.06 * k,
+            z: 0,
+          }),
+        );
+        worst = Math.max(
+          worst,
+          Math.hypot(
+            s[particle * 3]! - ring.x,
+            s[particle * 3 + 1]! - ring.y,
+            s[particle * 3 + 2]! - ring.z,
+          ),
+        );
       });
     }
-    if (!(worst <= 0.001)) complaints.push(`flag: the anchored edge strays ${(worst * 1000).toFixed(2)} mm from the pole, within 1 mm expected`);
+    if (!(worst <= 0.001))
+      complaints.push(
+        `flag: the anchored edge strays ${(worst * 1000).toFixed(2)} mm from the pole, within 1 mm expected`,
+      );
   } catch (error) {
     complaints.push(`flag: expected to plan, got ${(error as Error).message}`);
   }
@@ -206,7 +257,10 @@ export function test_human_motion_lexicon_rows_soft(): void {
   // 3. A bag on a strap hangs plumb.
   try {
     const socket: IAutoMovieVector3 = body.surfaces.sockets.gripRight.point;
-    const top: IAutoMovieVector3 = Vector3.add(body.rest.get("rightHand")!, socket);
+    const top: IAutoMovieVector3 = Vector3.add(
+      body.rest.get("rightHand")!,
+      socket,
+    );
     const strap: IHumanProp = lattice({
       subject: "strap",
       columns: 1,
@@ -217,7 +271,19 @@ export function test_human_motion_lexicon_rows_soft(): void {
       mass: 0.05,
       seconds: 4,
       handles: {},
-      anchors: [{ id: "hand", particle: 0, position: null, binding: { kind: "actor-bone", actor: "a", bone: "rightHand", offset: socket } }],
+      anchors: [
+        {
+          id: "hand",
+          particle: 0,
+          position: null,
+          binding: {
+            kind: "actor-bone",
+            actor: "a",
+            bone: "rightHand",
+            offset: socket,
+          },
+        },
+      ],
     });
     strap.soft!.mass[10] = 2;
     const p: HumanPerformance = new HumanPerformance({
@@ -227,24 +293,40 @@ export function test_human_motion_lexicon_rows_soft(): void {
       composition: HumanChain.subject("a").stand({ seconds: 4 }).node,
     });
     const s: number[] = p.soft("strap", p.duration);
-    const line: IAutoMovieVector3 = Vector3.normalize({ x: s[30]! - s[0]!, y: s[31]! - s[1]!, z: s[32]! - s[2]! });
+    const line: IAutoMovieVector3 = Vector3.normalize({
+      x: s[30]! - s[0]!,
+      y: s[31]! - s[1]!,
+      z: s[32]! - s[2]!,
+    });
     const tilt: number = (Math.acos(Math.min(1, -line.y)) * 180) / Math.PI;
-    if (!(tilt <= 5)) complaints.push(`bag: the strap hangs ${tilt.toFixed(2)} degrees off plumb, within 5 expected`);
+    if (!(tilt <= 5))
+      complaints.push(
+        `bag: the strap hangs ${tilt.toFixed(2)} degrees off plumb, within 5 expected`,
+      );
   } catch (error) {
     complaints.push(`bag: expected to plan, got ${(error as Error).message}`);
   }
 
   // 4, 5. A rope between two people, and a skipping rope in two hands.
-  for (const [label, two] of [["rope", true], ["skipping rope", false]] as const)
+  for (const [label, two] of [
+    ["rope", true],
+    ["skipping rope", false],
+  ] as const)
     try {
       const length: number = two ? 1.2 : 2.4;
       const rope: IHumanProp = lattice({
         subject: "rope",
         columns: 1,
         rows: 25,
-        origin: { x: two ? 0 : -m.shoulderHalfWidth, y: m.waistHeight, z: two ? reach : reach },
+        origin: {
+          x: two ? 0 : -m.shoulderHalfWidth,
+          y: m.waistHeight,
+          z: two ? reach : reach,
+        },
         u: { x: 0, y: 0, z: 0 },
-        v: two ? { x: 0, y: 0, z: (1.6 - 2 * reach) / 24 } : { x: (2 * m.shoulderHalfWidth) / 24, y: -length / 48, z: 0 },
+        v: two
+          ? { x: 0, y: 0, z: (1.6 - 2 * reach) / 24 }
+          : { x: (2 * m.shoulderHalfWidth) / 24, y: -length / 48, z: 0 },
         mass: 0.3,
         seconds: 8,
         handles: { a: [0, 0], b: [0, 24] },
@@ -252,18 +334,29 @@ export function test_human_motion_lexicon_rows_soft(): void {
       const p: HumanPerformance = new HumanPerformance({
         seed: "soft-rows",
         props: [rope],
-        performers: two ? [performer("a", 0, 0), performer("b", 1.6, 180)] : [performer("a", 0, 0)],
+        performers: two
+          ? [performer("a", 0, 0), performer("b", 1.6, 180)]
+          : [performer("a", 0, 0)],
         composition: two
           ? HumanChain.subject("a")
               .pickUp({ prop: "rope", handle: "a", hand: "right" })
-              .with(HumanChain.subject("b").pickUp({ prop: "rope", handle: "b", hand: "right" })).node
+              .with(
+                HumanChain.subject("b").pickUp({
+                  prop: "rope",
+                  handle: "b",
+                  hand: "right",
+                }),
+              ).node
           : HumanChain.subject("a")
               .pickUp({ prop: "rope", handle: "a", hand: "left" })
               .pickUp({ prop: "rope", handle: "b", hand: "right" }).node,
       });
-      if (!finite(p, "rope")) complaints.push(`${label}: a non-finite particle`);
+      if (!finite(p, "rope"))
+        complaints.push(`${label}: a non-finite particle`);
     } catch (error) {
-      complaints.push(`${label}: expected to plan, got ${(error as Error).message}`);
+      complaints.push(
+        `${label}: expected to plan, got ${(error as Error).message}`,
+      );
     }
 
   // 6. A lace keeps its crossing.
@@ -281,7 +374,11 @@ export function test_human_motion_lexicon_rows_soft(): void {
       handles: {},
       anchors: [
         { id: "eyeletA", particle: 0, position: { x: -0.05, y: 0.05, z: 0.3 } },
-        { id: "eyeletB", particle: 20, position: { x: 0.05, y: 0.09, z: 0.31 } },
+        {
+          id: "eyeletB",
+          particle: 20,
+          position: { x: 0.05, y: 0.09, z: 0.31 },
+        },
       ],
       selfCollision: true,
     });
@@ -292,15 +389,27 @@ export function test_human_motion_lexicon_rows_soft(): void {
       composition: HumanChain.subject("a").stand({ seconds: 2 }).node,
     });
     if (!finite(p, "lace")) complaints.push("lace: a non-finite particle");
-    const bound: number = 2 * radius - lace.soft!.solver.fixedStepSeconds * lace.soft!.solver.referenceSpeed;
+    const bound: number =
+      2 * radius -
+      lace.soft!.solver.fixedStepSeconds * lace.soft!.solver.referenceSpeed;
     let least: number = Infinity;
     for (let t: number = 0; t <= p.duration; t += 0.1) {
       const s: number[] = p.soft("lace", t);
       for (let i: number = 0; i < 21; i++)
         for (let j: number = i + 2; j < 21; j++)
-          least = Math.min(least, Math.hypot(s[i * 3]! - s[j * 3]!, s[i * 3 + 1]! - s[j * 3 + 1]!, s[i * 3 + 2]! - s[j * 3 + 2]!));
+          least = Math.min(
+            least,
+            Math.hypot(
+              s[i * 3]! - s[j * 3]!,
+              s[i * 3 + 1]! - s[j * 3 + 1]!,
+              s[i * 3 + 2]! - s[j * 3 + 2]!,
+            ),
+          );
     }
-    if (!(least >= bound)) complaints.push(`lace: two particles come ${(least * 1000).toFixed(2)} mm apart, at least ${(bound * 1000).toFixed(2)} mm expected`);
+    if (!(least >= bound))
+      complaints.push(
+        `lace: two particles come ${(least * 1000).toFixed(2)} mm apart, at least ${(bound * 1000).toFixed(2)} mm expected`,
+      );
   } catch (error) {
     complaints.push(`lace: expected to plan, got ${(error as Error).message}`);
   }

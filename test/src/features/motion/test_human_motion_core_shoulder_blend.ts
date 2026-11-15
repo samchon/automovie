@@ -84,7 +84,9 @@ export function test_human_motion_core_shoulder_blend(): void {
       );
       const step: number = angle(previous, now);
       if (i === 0 && step > ROM_TOLERANCE)
-        complaints.push(`${name}: the blend starts ${step} degrees off its start`);
+        complaints.push(
+          `${name}: the blend starts ${step} degrees off its start`,
+        );
       if (step > 0.05 * span + ROM_TOLERANCE)
         complaints.push(
           `${name}: the arm turns ${step.toFixed(3)} degrees at share ${(i / 100).toFixed(2)}, over ${(0.05 * span).toFixed(3)} (ends ${span.toFixed(3)} apart)`,

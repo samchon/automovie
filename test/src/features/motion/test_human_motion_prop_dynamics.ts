@@ -50,46 +50,79 @@ export function test_human_motion_prop_dynamics(): void {
   const threshold: number = 0.5 * 40 * g;
 
   // 1. The static threshold.
-  const under: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(crate(40, (): number => 0.99 * threshold));
-  if (under.at(2).x[0] !== 0) findings.push(`a push under the threshold moves the crate ${under.at(2).x[0]} m`);
-  const over: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(crate(40, (): number => 1.01 * threshold));
-  if (!(over.at(2).x[0]! > 0)) findings.push("a push over the threshold leaves the crate");
+  const under: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+    crate(40, (): number => 0.99 * threshold),
+  );
+  if (under.at(2).x[0] !== 0)
+    findings.push(
+      `a push under the threshold moves the crate ${under.at(2).x[0]} m`,
+    );
+  const over: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+    crate(40, (): number => 1.01 * threshold),
+  );
+  if (!(over.at(2).x[0]! > 0))
+    findings.push("a push over the threshold leaves the crate");
 
   // 2. Newton under kinetic friction.
   const F: number = 300;
   const a: number = (F - 0.4 * 40 * g) / 40;
-  const pushed: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(crate(40, (): number => F));
+  const pushed: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+    crate(40, (): number => F),
+  );
   for (const t of [0.5, 1, 2]) {
     const [x, v] = pushed.at(t).x;
     if (Math.abs(v! - a * t) > 0.01 * a * t)
       findings.push(`at ${t} s the crate moves at ${v}, Newton ${a * t}`);
     if (Math.abs(x! - (a * t * t) / 2) > 0.01 * ((a * t * t) / 2))
-      findings.push(`at ${t} s the crate has gone ${x}, Newton ${(a * t * t) / 2}`);
+      findings.push(
+        `at ${t} s the crate has gone ${x}, Newton ${(a * t * t) / 2}`,
+      );
   }
 
   // 3. Mass halves the acceleration; a ramp starts it at its crossing.
   const net: number = 100;
-  const light: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(crate(40, (): number => net + 0.4 * 40 * g));
+  const light: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+    crate(40, (): number => net + 0.4 * 40 * g),
+  );
   const heavy: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide({
     ...crate(80, (): number => net + 0.4 * 80 * g),
     friction: 0.4,
   });
-  if (Math.abs(heavy.at(1).x[1]! - light.at(1).x[1]! / 2) > 0.01 * light.at(1).x[1]!)
-    findings.push(`twice the mass reaches ${heavy.at(1).x[1]} for ${light.at(1).x[1]}`);
-  const ramp: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(crate(40, (t: number): number => 300 * t));
+  if (
+    Math.abs(heavy.at(1).x[1]! - light.at(1).x[1]! / 2) >
+    0.01 * light.at(1).x[1]!
+  )
+    findings.push(
+      `twice the mass reaches ${heavy.at(1).x[1]} for ${light.at(1).x[1]}`,
+    );
+  const ramp: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.slide(
+    crate(40, (t: number): number => 300 * t),
+  );
   const crossing: number = threshold / 300;
   const before: number = ramp.at(crossing - 1 / 60).x[0]!;
   const after: number = ramp.at(crossing + 2 / 60).x[0]!;
   if (before !== 0 || !(after > 0))
-    findings.push(`a ramp starts the crate at the wrong time: ${before} before, ${after} after ${crossing.toFixed(3)} s`);
+    findings.push(
+      `a ramp starts the crate at the wrong time: ${before} before, ${after} after ${crossing.toFixed(3)} s`,
+    );
 
   // 4. A door.
-  const door: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(6, (): number => 3, 0, 2);
+  const door: integrateMotionTrajectory.ITrajectory = HumanPropDynamics.hinge(
+    6,
+    (): number => 3,
+    0,
+    2,
+  );
   for (const t of [0.5, 1, 2]) {
     const angle: number = door.at(t).x[0]!;
     if (Math.abs(angle - (3 * t * t) / 12) > 1e-6)
-      findings.push(`the door at ${t} s turns ${angle} rad, expected ${(3 * t * t) / 12}`);
-    const handle: [number, number] = [0.8 * Math.cos(angle), 0.8 * Math.sin(angle)];
+      findings.push(
+        `the door at ${t} s turns ${angle} rad, expected ${(3 * t * t) / 12}`,
+      );
+    const handle: [number, number] = [
+      0.8 * Math.cos(angle),
+      0.8 * Math.sin(angle),
+    ];
     if (Math.abs(Math.hypot(...handle) - 0.8) > 1e-12)
       findings.push(`the handle leaves its arc at ${t} s`);
   }

@@ -170,7 +170,10 @@ export namespace HumanWater {
     water: IWater,
   ): integrateMotionTrajectory.ITrajectory {
     return integrateMotionTrajectory({
-      f: (_t: number, x: readonly number[]): integrateMotionTrajectory.IRate => {
+      f: (
+        _t: number,
+        x: readonly number[],
+      ): integrateMotionTrajectory.IRate => {
         const drag: IAutoMovieVector3 = sum(
           body,
           bones,
@@ -218,7 +221,8 @@ export namespace HumanWater {
    * @returns The model, its segments in the profile's order.
    */
   function modelOf(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
-    let model: resolveAutoMovieCenterOfMass.IModel | undefined = MODELS.get(body);
+    let model: resolveAutoMovieCenterOfMass.IModel | undefined =
+      MODELS.get(body);
     if (model === undefined) {
       model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
       MODELS.set(body, model);

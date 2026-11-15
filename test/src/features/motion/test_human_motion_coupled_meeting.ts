@@ -245,10 +245,7 @@ export function test_human_motion_coupled_meeting(): void {
             Vector3.subtract(mine, bone.worldPosition),
           );
           first ??= local;
-          slip = Math.max(
-            slip,
-            Vector3.length(Vector3.subtract(local, first)),
-          );
+          slip = Math.max(slip, Vector3.length(Vector3.subtract(local, first)));
         }
         all.check(
           `${cell}, walking: the borne ${contact.region} is up to ${(worst * 1000).toFixed(1)} mm from the bearer's ${contact.on.region}, ${CONTACT * 1000} mm at most expected`,
@@ -333,7 +330,10 @@ export function test_human_motion_coupled_meeting(): void {
         name,
         subject: name === "bearer" ? "a" : "b",
         body: motionHumanBody(name === "bearer" ? "m-average" : "f-small"),
-        posture: { root: { x: 0, y: 0, z: name === "bearer" ? 0 : -0.3 }, yaw: 0 },
+        posture: {
+          root: { x: 0, y: 0, z: name === "bearer" ? 0 : -0.3 },
+          yaw: 0,
+        },
         bones: new Map(),
       }),
     );
@@ -439,7 +439,8 @@ export function test_human_motion_coupled_meeting(): void {
       ),
     );
   const onBearer: IHumanContactWindow[] = contacts.filter(
-    (w: IHumanContactWindow): boolean => bears(w) && w.support.kind === "person",
+    (w: IHumanContactWindow): boolean =>
+      bears(w) && w.support.kind === "person",
   );
   const ground: IHumanContactWindow[] = contacts.filter(
     (w: IHumanContactWindow): boolean => w.support.kind === "ground",

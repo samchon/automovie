@@ -215,7 +215,12 @@ export namespace HumanPerformancePlace {
           subject: intent.subject,
         }),
       forces: (from: number, to: number): readonly HumanForce.IForce[] =>
-        HumanForce.within(self.forces, intent.subject, start + from, start + to),
+        HumanForce.within(
+          self.forces,
+          intent.subject,
+          start + from,
+          start + to,
+        ),
       random: (channel: string) =>
         HumanSkill.stream(
           person.skill,

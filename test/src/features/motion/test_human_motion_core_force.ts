@@ -35,7 +35,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_human_motion_core_force(): void {
   const findings: string[] = [];
   const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
-    Vector3.length(Vector3.subtract(a, b)) <= 1e-12 * Math.max(1, Vector3.length(b));
+    Vector3.length(Vector3.subtract(a, b)) <=
+    1e-12 * Math.max(1, Vector3.length(b));
   const record = (
     extra: Partial<IAutoMovieInteractionEvent>,
   ): IAutoMovieInteractionEvent => ({
@@ -74,17 +75,29 @@ export function test_human_motion_core_force(): void {
   // 2. A stick and a pass.
   const v: IAutoMovieVector3 = { x: 0, y: 0, z: 8 };
   const stick: HumanForce.IImpulse | null = HumanForce.ofHit(
-    record({ mass: 3, velocity: v, outcome: "stick", exit: { x: 0, y: 0, z: 0 } }),
+    record({
+      mass: 3,
+      velocity: v,
+      outcome: "stick",
+      exit: { x: 0, y: 0, z: 0 },
+    }),
     still,
   );
   if (stick === null || !near(stick.impulse, { x: 0, y: 0, z: 24 }))
     findings.push(`stick: ${JSON.stringify(stick?.impulse)} for 3 kg at 8 m/s`);
   const pass: HumanForce.IImpulse | null = HumanForce.ofHit(
-    record({ mass: 0.01, velocity: { x: 0, y: 0, z: 400 }, outcome: "pass", exit: { x: 0, y: 0, z: 250 } }),
+    record({
+      mass: 0.01,
+      velocity: { x: 0, y: 0, z: 400 },
+      outcome: "pass",
+      exit: { x: 0, y: 0, z: 250 },
+    }),
     still,
   );
   if (pass === null || !near(pass.impulse, { x: 0, y: 0, z: 1.5 }))
-    findings.push(`pass: ${JSON.stringify(pass?.impulse)} for 10 g losing 150 m/s`);
+    findings.push(
+      `pass: ${JSON.stringify(pass?.impulse)} for 10 g losing 150 m/s`,
+    );
 
   // 3. The two-mass impulse into the surface.
   const normal: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
@@ -96,17 +109,26 @@ export function test_human_motion_core_force(): void {
     );
     const expected: number = closing / (1 / 3 + 1 / 76);
     if (read === null || !near(read.impulse, { x: 0, y: 0, z: expected }))
-      findings.push(`receiver at ${receiver} m/s: ${JSON.stringify(read?.impulse)}, expected ${expected.toFixed(4)} along +z`);
+      findings.push(
+        `receiver at ${receiver} m/s: ${JSON.stringify(read?.impulse)}, expected ${expected.toFixed(4)} along +z`,
+      );
   }
   const leaving: HumanForce.IImpulse | null = HumanForce.ofHit(
     record({ mass: 3, velocity: { x: 0, y: 0, z: -2 }, normal }),
     still,
   );
   if (leaving === null || Vector3.length(leaving.impulse) !== 0)
-    findings.push(`a striker leaving the surface delivers ${JSON.stringify(leaving?.impulse)}`);
+    findings.push(
+      `a striker leaving the surface delivers ${JSON.stringify(leaving?.impulse)}`,
+    );
 
   // 4. Records that carry nothing.
-  if (HumanForce.ofHit(record({ target: null, impulse: { x: 1, y: 0, z: 0 } }), still) !== null)
+  if (
+    HumanForce.ofHit(
+      record({ target: null, impulse: { x: 1, y: 0, z: 0 } }),
+      still,
+    ) !== null
+  )
     findings.push("a record naming no person yields an impulse");
   if (HumanForce.ofHit(record({ velocity: v }), still) !== null)
     findings.push("a record with no mass yields an impulse");
@@ -134,7 +156,9 @@ export function test_human_motion_core_force(): void {
   ];
   const inside: HumanForce.IForce[] = HumanForce.within(forces, "b", 1, 2);
   if (inside.length !== 3)
-    findings.push(`within [1, 2] for b keeps ${inside.length} of the 3 that touch it`);
+    findings.push(
+      `within [1, 2] for b keeps ${inside.length} of the 3 that touch it`,
+    );
   if (HumanForce.within(forces, "b", 1.1, 1.9).length !== 0)
     findings.push("within (1.1, 1.9) keeps a force that lies outside it");
   if (HumanForce.within(forces, "a", 0, 5).length !== 1)

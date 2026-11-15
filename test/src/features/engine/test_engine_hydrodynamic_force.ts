@@ -66,26 +66,45 @@ export function test_engine_hydrodynamic_force(): void {
     const d: number = (2 * r * k) / 10;
     const cap: number = (Math.PI * d * d * (3 * r - d)) / 3;
     if (!close(at(r - d).submerged, cap))
-      findings.push(`depth ${d.toFixed(4)} m: submerged ${at(r - d).submerged}, cap ${cap}`);
+      findings.push(
+        `depth ${d.toFixed(4)} m: submerged ${at(r - d).submerged}, cap ${cap}`,
+      );
   }
 
   // 2. Drag.
-  if (Vector3.length(at(-2 * r).drag) !== 0) findings.push("a still segment feels drag");
+  if (Vector3.length(at(-2 * r).drag) !== 0)
+    findings.push("a still segment feels drag");
   const v: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0.8 };
   const full: resolveHydrodynamicForce.IForce = at(-2 * r, v);
-  const expected: number = 0.5 * rho * resolveHydrodynamicForce.DRAG * Math.PI * r * r;
-  if (!close(Vector3.length(full.drag), expected) || Vector3.dot(full.drag, v) >= 0)
-    findings.push(`drag at 1 m/s: ${JSON.stringify(full.drag)}, expected ${expected} against the velocity`);
+  const expected: number =
+    0.5 * rho * resolveHydrodynamicForce.DRAG * Math.PI * r * r;
+  if (
+    !close(Vector3.length(full.drag), expected) ||
+    Vector3.dot(full.drag, v) >= 0
+  )
+    findings.push(
+      `drag at 1 m/s: ${JSON.stringify(full.drag)}, expected ${expected} against the velocity`,
+    );
   const faster: number = Vector3.length(at(-2 * r, Vector3.scale(v, 2)).drag);
   if (!close(faster, 4 * Vector3.length(full.drag)))
-    findings.push(`doubling the speed scales drag by ${faster / Vector3.length(full.drag)}`);
+    findings.push(
+      `doubling the speed scales drag by ${faster / Vector3.length(full.drag)}`,
+    );
   const half: resolveHydrodynamicForce.IForce = at(0, v);
   if (!close(Vector3.length(half.drag), expected / 2))
-    findings.push(`half under: drag ${Vector3.length(half.drag)}, expected ${expected / 2}`);
-  if (Vector3.length(at(2 * r, v).drag) !== 0) findings.push("drag above the water");
+    findings.push(
+      `half under: drag ${Vector3.length(half.drag)}, expected ${expected / 2}`,
+    );
+  if (Vector3.length(at(2 * r, v).drag) !== 0)
+    findings.push("drag above the water");
 
   // 3. A denser fluid.
-  if (!close(at(-2 * r, undefined, 1025).buoyancy.y, (1025 / rho) * at(-2 * r).buoyancy.y))
+  if (
+    !close(
+      at(-2 * r, undefined, 1025).buoyancy.y,
+      (1025 / rho) * at(-2 * r).buoyancy.y,
+    )
+  )
     findings.push("sea water does not lift in its density's ratio");
 
   // 4. Volumes.
@@ -104,23 +123,57 @@ export function test_engine_hydrodynamic_force(): void {
     inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
     shapes,
   });
-  const sphere: IAutoMoviePhysicalProfile.IShape = { id: "s", material: "m", transform, kind: "sphere", radius: 0.1 };
-  const capsule: IAutoMoviePhysicalProfile.IShape = { id: "c", material: "m", transform, kind: "capsule", radius: 0.05, halfLength: 0.2 };
-  const box: IAutoMoviePhysicalProfile.IShape = { id: "b", material: "m", transform, kind: "box", halfExtents: { x: 0.1, y: 0.2, z: 0.3 } };
+  const sphere: IAutoMoviePhysicalProfile.IShape = {
+    id: "s",
+    material: "m",
+    transform,
+    kind: "sphere",
+    radius: 0.1,
+  };
+  const capsule: IAutoMoviePhysicalProfile.IShape = {
+    id: "c",
+    material: "m",
+    transform,
+    kind: "capsule",
+    radius: 0.05,
+    halfLength: 0.2,
+  };
+  const box: IAutoMoviePhysicalProfile.IShape = {
+    id: "b",
+    material: "m",
+    transform,
+    kind: "box",
+    halfExtents: { x: 0.1, y: 0.2, z: 0.3 },
+  };
   const vs: number = (4 / 3) * Math.PI * 0.001;
   const vc: number = Math.PI * 0.0025 * 0.4 + (4 / 3) * Math.PI * 0.000125;
   const vb: number = 8 * 0.1 * 0.2 * 0.3;
-  if (!close(resolveHydrodynamicForce.volume(segment([sphere])), vs)) findings.push("a sphere's volume");
-  if (!close(resolveHydrodynamicForce.volume(segment([capsule])), vc)) findings.push("a capsule's volume");
-  if (!close(resolveHydrodynamicForce.volume(segment([box])), vb)) findings.push("a box's volume");
-  if (!close(resolveHydrodynamicForce.volume(segment([sphere, box])), vs + vb)) findings.push("two shapes do not sum");
+  if (!close(resolveHydrodynamicForce.volume(segment([sphere])), vs))
+    findings.push("a sphere's volume");
+  if (!close(resolveHydrodynamicForce.volume(segment([capsule])), vc))
+    findings.push("a capsule's volume");
+  if (!close(resolveHydrodynamicForce.volume(segment([box])), vb))
+    findings.push("a box's volume");
+  if (!close(resolveHydrodynamicForce.volume(segment([sphere, box])), vs + vb))
+    findings.push("two shapes do not sum");
 
   // 5. Refusals.
   TestValidator.error("a zero volume is refused", (): void => {
-    resolveHydrodynamicForce({ volume: 0, centre: { x: 0, y: 0, z: 0 }, velocity: { x: 0, y: 0, z: 0 }, surface: 0 });
+    resolveHydrodynamicForce({
+      volume: 0,
+      centre: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: 0, z: 0 },
+      surface: 0,
+    });
   });
   TestValidator.error("a zero density is refused", (): void => {
-    resolveHydrodynamicForce({ volume: V, centre: { x: 0, y: 0, z: 0 }, velocity: { x: 0, y: 0, z: 0 }, surface: 0, density: 0 });
+    resolveHydrodynamicForce({
+      volume: V,
+      centre: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: 0, z: 0 },
+      surface: 0,
+      density: 0,
+    });
   });
 
   TestValidator.predicate(

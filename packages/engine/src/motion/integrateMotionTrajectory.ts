@@ -32,7 +32,9 @@ export function integrateMotionTrajectory(
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
   const { t0, t1 } = props;
   if (!(Number.isFinite(t0) && Number.isFinite(t1) && t1 > t0))
-    throw new Error(`integrateMotionTrajectory: the interval ${t0} to ${t1} is not finite and forward`);
+    throw new Error(
+      `integrateMotionTrajectory: the interval ${t0} to ${t1} is not finite and forward`,
+    );
   if (!(Number.isFinite(h) && h > 0))
     throw new Error(`integrateMotionTrajectory: the step ${h} is not positive`);
   const n: number = props.x0.length;
@@ -46,19 +48,28 @@ export function integrateMotionTrajectory(
   ): integrateMotionTrajectory.IRate => {
     const r: integrateMotionTrajectory.IRate = props.f(t, x, q);
     if (r.dx.length !== n)
-      throw new Error(`integrateMotionTrajectory: f returned ${r.dx.length} rates for ${n} states`);
+      throw new Error(
+        `integrateMotionTrajectory: f returned ${r.dx.length} rates for ${n} states`,
+      );
     if (oriented && r.w === undefined)
-      throw new Error("integrateMotionTrajectory: f returned no angular velocity for the orientation");
+      throw new Error(
+        "integrateMotionTrajectory: f returned no angular velocity for the orientation",
+      );
     return r;
   };
-  const add = (x: readonly number[], k: readonly number[], s: number): number[] =>
-    x.map((v: number, i: number): number => v + s * k[i]!);
+  const add = (
+    x: readonly number[],
+    k: readonly number[],
+    s: number,
+  ): number[] => x.map((v: number, i: number): number => v + s * k[i]!);
 
   // Step to t1, the last step shortened to land on it exactly; each knot keeps its derivative.
   const steps: number = Math.ceil((t1 - t0) / h);
   const times: number[] = [t0];
   const xs: number[][] = [[...props.x0]];
-  const qs: (IAutoMovieQuaternion | null)[] = [oriented ? Quaternion.normalize(props.q0!) : null];
+  const qs: (IAutoMovieQuaternion | null)[] = [
+    oriented ? Quaternion.normalize(props.q0!) : null,
+  ];
   const ks: integrateMotionTrajectory.IRate[] = [rate(t0, xs[0]!, qs[0]!)];
   for (let s: number = 0; s < steps; s++) {
     const t: number = times[s]!;
@@ -73,13 +84,25 @@ export function integrateMotionTrajectory(
     const k1: integrateMotionTrajectory.IRate = ks[s]!;
     const u1: IAutoMovieVector3 | undefined = k1.w;
     const v2: IAutoMovieVector3 | undefined = scaled(u1, dt / 2);
-    const k2: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k1.dx, dt / 2), turn(q, v2));
+    const k2: integrateMotionTrajectory.IRate = rate(
+      t + dt / 2,
+      add(x, k1.dx, dt / 2),
+      turn(q, v2),
+    );
     const u2: IAutoMovieVector3 | undefined = dexpinv(v2, k2.w);
     const v3: IAutoMovieVector3 | undefined = scaled(u2, dt / 2);
-    const k3: integrateMotionTrajectory.IRate = rate(t + dt / 2, add(x, k2.dx, dt / 2), turn(q, v3));
+    const k3: integrateMotionTrajectory.IRate = rate(
+      t + dt / 2,
+      add(x, k2.dx, dt / 2),
+      turn(q, v3),
+    );
     const u3: IAutoMovieVector3 | undefined = dexpinv(v3, k3.w);
     const v4: IAutoMovieVector3 | undefined = scaled(u3, dt);
-    const k4: integrateMotionTrajectory.IRate = rate(t + dt, add(x, k3.dx, dt), turn(q, v4));
+    const k4: integrateMotionTrajectory.IRate = rate(
+      t + dt,
+      add(x, k3.dx, dt),
+      turn(q, v4),
+    );
     const u4: IAutoMovieVector3 | undefined = dexpinv(v4, k4.w);
     const xn: number[] = x.map(
       (v: number, i: number): number =>
@@ -93,7 +116,8 @@ export function integrateMotionTrajectory(
             y: (dt / 6) * (u1!.y + 2 * u2!.y + 2 * u3!.y + u4!.y),
             z: (dt / 6) * (u1!.z + 2 * u2!.z + 2 * u3!.z + u4!.z),
           };
-    const qn: IAutoMovieQuaternion | null = q === null ? null : Quaternion.normalize(turn(q, step)!);
+    const qn: IAutoMovieQuaternion | null =
+      q === null ? null : Quaternion.normalize(turn(q, step)!);
     times.push(next);
     xs.push(xn);
     qs.push(qn);

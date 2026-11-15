@@ -21,8 +21,19 @@ const keyboard = (at: IAutoMovieVector3): IHumanProp => ({
   frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
   points: {},
   affordances: [
-    { id: "homeRow", kind: "surface", frame: Transform.identity(), extent: null },
-    { id: "keys", kind: "surface", frame: Transform.identity(), extent: null, width: typeText.WIDTH },
+    {
+      id: "homeRow",
+      kind: "surface",
+      frame: Transform.identity(),
+      extent: null,
+    },
+    {
+      id: "keys",
+      kind: "surface",
+      frame: Transform.identity(),
+      extent: null,
+      width: typeText.WIDTH,
+    },
   ],
 });
 
@@ -34,7 +45,10 @@ const keypad = (at: IAutoMovieVector3): IHumanProp => ({
   affordances: [-1, 0, 1].map((k: number) => ({
     id: `key${k + 1}`,
     kind: "button" as const,
-    frame: { ...Transform.identity(), translation: { x: k * typeText.PITCH, y: 0, z: 0 } },
+    frame: {
+      ...Transform.identity(),
+      translation: { x: k * typeText.PITCH, y: 0, z: 0 },
+    },
     extent: null,
     travel: 0.002,
   })),
@@ -105,9 +119,22 @@ export function test_human_motion_manipulate(): void {
   ): HumanPerformance =>
     new HumanPerformance({
       seed,
-      laws: [HumanManipulate.sequence, HumanManipulate.type, HumanManipulate.typeTwoFinger, HumanManipulate.dial],
+      laws: [
+        HumanManipulate.sequence,
+        HumanManipulate.type,
+        HumanManipulate.typeTwoFinger,
+        HumanManipulate.dial,
+      ],
       props,
-      performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level } }],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level },
+        },
+      ],
       composition,
     });
   const text: string = "the quick fox";
@@ -121,64 +148,127 @@ export function test_human_motion_manipulate(): void {
   // 1, 2. Typing with the chart's digits.
   try {
     const typed: HumanPerformance = perform(
-      HumanChain.subject("a").registered("type", { prop: "keyboard", text }).node,
+      HumanChain.subject("a").registered("type", { prop: "keyboard", text })
+        .node,
       [keyboard(at)],
     );
     const times: number[] = presses(typed);
     const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180);
     [...text].forEach((letter: string, i: number): void => {
       const [side, digit] = chart(letter);
-      const key: IAutoMovieVector3 = Vector3.add(at, Quaternion.rotateVector(turn, typeText.key(letter).at));
+      const key: IAutoMovieVector3 = Vector3.add(
+        at,
+        Quaternion.rotateVector(turn, typeText.key(letter).at),
+      );
       const target: IAutoMovieVector3 = { ...key, y: key.y - typeText.TRAVEL };
       const bones = typed.bones("a", times[i]!);
-      const tip: IAutoMovieVector3 = HumanHand.frame(body, bones, side, `${digit}Tip` as HumanHand.Surface, "flat").point;
+      const tip: IAutoMovieVector3 = HumanHand.frame(
+        body,
+        bones,
+        side,
+        `${digit}Tip` as HumanHand.Surface,
+        "flat",
+      ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, target));
       if (!(miss <= 0.002))
-        complaints.push(`"${letter}" (${side} ${digit}): the tip lies ${(miss * 1000).toFixed(1)} mm from the pressed key, within 2 mm expected`);
+        complaints.push(
+          `"${letter}" (${side} ${digit}): the tip lies ${(miss * 1000).toFixed(1)} mm from the pressed key, within 2 mm expected`,
+        );
       for (const other of manipulate.FINGERS)
         if (other !== digit) {
-          const y: number = HumanHand.frame(body, bones, side, `${other}Tip` as HumanHand.Surface, "flat").point.y;
+          const y: number = HumanHand.frame(
+            body,
+            bones,
+            side,
+            `${other}Tip` as HumanHand.Surface,
+            "flat",
+          ).point.y;
           if (!(y > key.y))
-            complaints.push(`"${letter}": the ${side} ${other} is below the key tops (${((key.y - y) * 1000).toFixed(1)} mm) while the ${digit} presses`);
+            complaints.push(
+              `"${letter}": the ${side} ${other} is below the key tops (${((key.y - y) * 1000).toFixed(1)} mm) while the ${digit} presses`,
+            );
         }
     });
 
     // 3. Elite and novice intervals.
-    const gaps: number[] = times.slice(1).map((t: number, i: number): number => t - times[i]!);
+    const gaps: number[] = times
+      .slice(1)
+      .map((t: number, i: number): number => t - times[i]!);
     if (!gaps.every((g: number): boolean => g >= 0.15 && g <= 0.2))
-      complaints.push(`an elite typist's intervals ${gaps.map((g) => g.toFixed(3)).join(", ")} s lie outside 0.15 to 0.2 s`);
+      complaints.push(
+        `an elite typist's intervals ${gaps.map((g) => g.toFixed(3)).join(", ")} s lie outside 0.15 to 0.2 s`,
+      );
     const novice: number[] = presses(
-      perform(HumanChain.subject("a").registered("type", { prop: "keyboard", text }).node, [keyboard(at)], "manipulate", "novice"),
+      perform(
+        HumanChain.subject("a").registered("type", { prop: "keyboard", text })
+          .node,
+        [keyboard(at)],
+        "manipulate",
+        "novice",
+      ),
     );
     if (!(novice.at(-1)! - novice[0]! > times.at(-1)! - times[0]!))
       complaints.push("a novice types the text no slower than an elite typist");
 
     // 4. Replay and another seed.
-    const again: number[] = presses(perform(HumanChain.subject("a").registered("type", { prop: "keyboard", text }).node, [keyboard(at)]));
+    const again: number[] = presses(
+      perform(
+        HumanChain.subject("a").registered("type", { prop: "keyboard", text })
+          .node,
+        [keyboard(at)],
+      ),
+    );
     if (!again.every((t: number, i: number): boolean => Object.is(t, times[i])))
       complaints.push("the same seed does not replay the presses to the bit");
-    const other: number[] = presses(perform(HumanChain.subject("a").registered("type", { prop: "keyboard", text }).node, [keyboard(at)], "another"));
+    const other: number[] = presses(
+      perform(
+        HumanChain.subject("a").registered("type", { prop: "keyboard", text })
+          .node,
+        [keyboard(at)],
+        "another",
+      ),
+    );
     if (other.every((t: number, i: number): boolean => Object.is(t, times[i])))
       complaints.push("another seed gives the very same timing");
   } catch (error) {
-    complaints.push(`typing: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `typing: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 5. The fingering keeps the wrist still on three adjacent buttons.
   const pad: IAutoMovieVector3 = { ...at, y: at.y - 0.05 };
   try {
-    const sequence: manipulate.IContact[] = [{ site: "key0" }, { site: "key1" }, { site: "key2" }];
+    const sequence: manipulate.IContact[] = [
+      { site: "key0" },
+      { site: "key1" },
+      { site: "key2" },
+    ];
     const pressed: HumanPerformance = perform(
-      HumanChain.subject("a").registered("manipulate", { prop: "keypad", contacts: sequence, side: "right" }).node,
+      HumanChain.subject("a").registered("manipulate", {
+        prop: "keypad",
+        contacts: sequence,
+        side: "right",
+      }).node,
       [keypad(pad)],
     );
     const times: number[] = presses(pressed);
     const used: string[] = times.map((t: number, i: number): string => {
-      const site: IAutoMovieVector3 = Vector3.add(pad, { x: (i - 1) * typeText.PITCH, y: 0, z: 0 });
+      const site: IAutoMovieVector3 = Vector3.add(pad, {
+        x: (i - 1) * typeText.PITCH,
+        y: 0,
+        z: 0,
+      });
       let best: string = "";
       let near: number = Infinity;
       for (const d of manipulate.FINGERS) {
-        const tip = HumanHand.frame(body, pressed.bones("a", t), "right", `${d}Tip` as HumanHand.Surface, "flat").point;
+        const tip = HumanHand.frame(
+          body,
+          pressed.bones("a", t),
+          "right",
+          `${d}Tip` as HumanHand.Surface,
+          "flat",
+        ).point;
         const dist: number = Vector3.length(Vector3.subtract(tip, site));
         if (dist < near) {
           near = dist;
@@ -188,23 +278,42 @@ export function test_human_motion_manipulate(): void {
       return best;
     });
     if (new Set(used).size !== 3)
-      complaints.push(`three adjacent buttons were pressed by ${used.join(", ")}, three digits expected`);
+      complaints.push(
+        `three adjacent buttons were pressed by ${used.join(", ")}, three digits expected`,
+      );
   } catch (error) {
-    complaints.push(`a keypad: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `a keypad: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 6. Dial with the forefinger.
   try {
     const dialled: HumanPerformance = perform(
-      HumanChain.subject("a").registered("dial", { prop: "keypad", contacts: [{ site: "key0" }, { site: "key2" }] }).node,
+      HumanChain.subject("a").registered("dial", {
+        prop: "keypad",
+        contacts: [{ site: "key0" }, { site: "key2" }],
+      }).node,
       [keypad(pad)],
     );
     presses(dialled).forEach((t: number, i: number): void => {
-      const site: IAutoMovieVector3 = Vector3.add(pad, { x: (2 * i - 1) * typeText.PITCH, y: -0.002, z: 0 });
-      const tip = HumanHand.frame(body, dialled.bones("a", t), "right", "indexTip", "flat").point;
+      const site: IAutoMovieVector3 = Vector3.add(pad, {
+        x: (2 * i - 1) * typeText.PITCH,
+        y: -0.002,
+        z: 0,
+      });
+      const tip = HumanHand.frame(
+        body,
+        dialled.bones("a", t),
+        "right",
+        "indexTip",
+        "flat",
+      ).point;
       const miss: number = Vector3.length(Vector3.subtract(tip, site));
       if (!(miss <= 0.002))
-        complaints.push(`dial ${i + 1}: the forefinger lies ${(miss * 1000).toFixed(1)} mm from the button, within 2 mm expected`);
+        complaints.push(
+          `dial ${i + 1}: the forefinger lies ${(miss * 1000).toFixed(1)} mm from the button, within 2 mm expected`,
+        );
     });
   } catch (error) {
     complaints.push(`dial: expected to plan, got ${(error as Error).message}`);
@@ -213,34 +322,63 @@ export function test_human_motion_manipulate(): void {
   // 8. Two-finger typing: the forefinger of the key's side.
   try {
     const two: HumanPerformance = perform(
-      HumanChain.subject("a").registered("typeTwoFinger", { prop: "keyboard", text: "hi" }).node,
+      HumanChain.subject("a").registered("typeTwoFinger", {
+        prop: "keyboard",
+        text: "hi",
+      }).node,
       [keyboard(at)],
     );
     const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180);
     presses(two).forEach((t: number, i: number): void => {
       const k = typeText.key("hi"[i]!);
-      const key: IAutoMovieVector3 = Vector3.add(at, Quaternion.rotateVector(turn, k.at));
-      const tip = HumanHand.frame(body, two.bones("a", t), k.side, "indexTip", "flat").point;
-      const miss: number = Vector3.length(Vector3.subtract(tip, { ...key, y: key.y - typeText.TRAVEL }));
+      const key: IAutoMovieVector3 = Vector3.add(
+        at,
+        Quaternion.rotateVector(turn, k.at),
+      );
+      const tip = HumanHand.frame(
+        body,
+        two.bones("a", t),
+        k.side,
+        "indexTip",
+        "flat",
+      ).point;
+      const miss: number = Vector3.length(
+        Vector3.subtract(tip, { ...key, y: key.y - typeText.TRAVEL }),
+      );
       if (!(miss <= 0.002))
-        complaints.push(`two-finger "${"hi"[i]}": the ${k.side} forefinger lies ${(miss * 1000).toFixed(1)} mm from the key, within 2 mm expected`);
+        complaints.push(
+          `two-finger "${"hi"[i]}": the ${k.side} forefinger lies ${(miss * 1000).toFixed(1)} mm from the key, within 2 mm expected`,
+        );
     });
   } catch (error) {
-    complaints.push(`two-finger typing: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `two-finger typing: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 7. Refusals.
   const refused = (contacts: manipulate.IContact[], fragment: string): void => {
     try {
-      perform(HumanChain.subject("a").registered("manipulate", { prop: "keypad", contacts }).node, [keypad(pad)]);
+      perform(
+        HumanChain.subject("a").registered("manipulate", {
+          prop: "keypad",
+          contacts,
+        }).node,
+        [keypad(pad)],
+      );
       complaints.push(`${fragment}: expected a refusal`);
     } catch (error) {
       if (!(error as Error).message.includes(fragment))
-        complaints.push(`${fragment}: refused with "${(error as Error).message}"`);
+        complaints.push(
+          `${fragment}: refused with "${(error as Error).message}"`,
+        );
     }
   };
   refused([], "at least one contact");
   refused([{ site: "key9" }], "key0");
-  refused([{ site: "key0", at: 0.3 }, { site: "key1" }], "every contact a time");
+  refused(
+    [{ site: "key0", at: 0.3 }, { site: "key1" }],
+    "every contact a time",
+  );
   TestValidator.equals("a keyed contact sequence", complaints, []);
 }

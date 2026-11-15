@@ -24,11 +24,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 const G: number = 9.80665;
 
 /** A square towel of `n` by `n` particles and `edge` metres lying flat at a height, its four corners as handle affordances. */
-const towel = (origin: IAutoMovieVector3, n: number, edge: number, seconds: number): IHumanProp => {
+const towel = (
+  origin: IAutoMovieVector3,
+  n: number,
+  edge: number,
+  seconds: number,
+): IHumanProp => {
   const rest: number[] = [];
   for (let row: number = 0; row < n; row++)
     for (let column: number = 0; column < n; column++)
-      rest.push(origin.x + (column * edge) / (n - 1), origin.y, origin.z + (row * edge) / (n - 1));
+      rest.push(
+        origin.x + (column * edge) / (n - 1),
+        origin.y,
+        origin.z + (row * edge) / (n - 1),
+      );
   const dt: number = 1 / 240;
   const domain: IAutoMovieSoftBodyDomain = {
     version: 1,
@@ -49,7 +58,14 @@ const towel = (origin: IAutoMovieVector3, n: number, edge: number, seconds: numb
     mass: new Array(n * n).fill(0.3 / (n * n)),
     anchors: [],
     states: [],
-    colliders: [{ kind: "plane", id: "table", normal: { x: 0, y: 1, z: 0 }, offset: origin.y - 0.001 }],
+    colliders: [
+      {
+        kind: "plane",
+        id: "table",
+        normal: { x: 0, y: 1, z: 0 },
+        offset: origin.y - 0.001,
+      },
+    ],
     wind: null,
     selfCollision: false,
   };
@@ -58,7 +74,11 @@ const towel = (origin: IAutoMovieVector3, n: number, edge: number, seconds: numb
     kind: "handle" as const,
     frame: {
       ...Transform.identity(),
-      translation: { x: origin.x + (column * edge) / (n - 1), y: origin.y, z: origin.z + (row * edge) / (n - 1) },
+      translation: {
+        x: origin.x + (column * edge) / (n - 1),
+        y: origin.y,
+        z: origin.z + (row * edge) / (n - 1),
+      },
     },
     extent: null,
     radius: 0.005,
@@ -98,40 +118,81 @@ export function test_human_motion_soft_grip(): void {
   const body: IHumanBody = motionHumanBody("m-average");
   const m: IHumanBody["measure"] = body.measure;
   const edge: number = 2 * m.shoulderHalfWidth;
-  const origin: IAutoMovieVector3 = { x: -m.shoulderHalfWidth, y: m.waistHeight, z: 0.5 * (m.upperArm + m.forearm) };
-  const perform = (composition: HumanPerformance.IInput["composition"]): HumanPerformance =>
+  const origin: IAutoMovieVector3 = {
+    x: -m.shoulderHalfWidth,
+    y: m.waistHeight,
+    z: 0.5 * (m.upperArm + m.forearm),
+  };
+  const perform = (
+    composition: HumanPerformance.IInput["composition"],
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "grip",
       props: [towel(origin, 8, edge, 8)],
-      performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
       composition,
     });
-  const socket = (p: HumanPerformance, side: "left" | "right", t: number): IAutoMovieVector3 => {
+  const socket = (
+    p: HumanPerformance,
+    side: "left" | "right",
+    t: number,
+  ): IAutoMovieVector3 => {
     const hand = p.bones("a", t).get(`${side}Hand`)!;
-    const s: IAutoMovieVector3 = body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"].point;
-    return Vector3.add(hand.worldPosition, Quaternion.rotateVector(hand.worldRotation, s));
+    const s: IAutoMovieVector3 =
+      body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"].point;
+    return Vector3.add(
+      hand.worldPosition,
+      Quaternion.rotateVector(hand.worldRotation, s),
+    );
   };
   const nearest = (positions: number[], to: IAutoMovieVector3): number => {
     let best: number = Infinity;
     for (let i: number = 0; i < positions.length; i += 3)
-      best = Math.min(best, Math.hypot(positions[i]! - to.x, positions[i + 1]! - to.y, positions[i + 2]! - to.z));
+      best = Math.min(
+        best,
+        Math.hypot(
+          positions[i]! - to.x,
+          positions[i + 1]! - to.y,
+          positions[i + 2]! - to.z,
+        ),
+      );
     return best;
   };
 
   // 1. One corner held.
   try {
     const held: HumanPerformance = perform(
-      HumanChain.subject("a").pickUp({ prop: "towel", handle: "cornerB", hand: "right" }).stand({ seconds: 1 }).node,
+      HumanChain.subject("a")
+        .pickUp({ prop: "towel", handle: "cornerB", hand: "right" })
+        .stand({ seconds: 1 }).node,
     );
     const s = held.segments("a")[0]!;
-    const grip: number = s.start + (s.plan.events.find((e) => e.name === "gripClosed")?.share ?? 1) * s.plan.duration;
+    const grip: number =
+      s.start +
+      (s.plan.events.find((e) => e.name === "gripClosed")?.share ?? 1) *
+        s.plan.duration;
     let worst: number = 0;
     for (let t: number = grip + 0.05; t <= held.duration; t += 0.1)
-      worst = Math.max(worst, nearest(held.soft("towel", t), socket(held, "right", t)));
+      worst = Math.max(
+        worst,
+        nearest(held.soft("towel", t), socket(held, "right", t)),
+      );
     if (!(worst <= 0.001))
-      complaints.push(`a held corner strays ${(worst * 1000).toFixed(2)} mm from the grip socket, within 1 mm expected`);
+      complaints.push(
+        `a held corner strays ${(worst * 1000).toFixed(2)} mm from the grip socket, within 1 mm expected`,
+      );
   } catch (error) {
-    complaints.push(`one corner: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `one corner: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 2. Two corners held spread.
@@ -147,24 +208,45 @@ export function test_human_motion_soft_grip(): void {
     const b: IAutoMovieVector3 = { x: end[21]!, y: end[22]!, z: end[23]! };
     const apart: number = Vector3.length(Vector3.subtract(a, b));
     if (!(apart >= 0.9 * edge))
-      complaints.push(`two held corners lie ${apart.toFixed(3)} m apart, at least ${(0.9 * edge).toFixed(3)} m expected`);
+      complaints.push(
+        `two held corners lie ${apart.toFixed(3)} m apart, at least ${(0.9 * edge).toFixed(3)} m expected`,
+      );
   } catch (error) {
-    complaints.push(`two corners: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `two corners: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 3. A released particle falls.
   const cord: IAutoMovieSoftBodyDomain = {
     ...towel({ x: 0, y: 1, z: 0 }, 2, 0.2, 2).soft!,
     id: "drop",
-    anchors: [{ id: "held", particle: 0, position: null, binding: { kind: "node", node: "hand", offset: { x: 0, y: 0, z: 0 } } }],
-    colliders: [{ kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 }],
+    anchors: [
+      {
+        id: "held",
+        particle: 0,
+        position: null,
+        binding: { kind: "node", node: "hand", offset: { x: 0, y: 0, z: 0 } },
+      },
+    ],
+    colliders: [
+      { kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 },
+    ],
   };
   const steps: number = 240;
   const dt: number = cord.solver.fixedStepSeconds;
-  const boundaries: IAutoMovieSoftBodyBoundarySample[] = Array.from({ length: steps + 1 }, (_: unknown, k: number) =>
-    k < 60
-      ? { step: k, anchors: [{ particle: 0, position: { x: 0.5 * k * dt, y: 1, z: 0 } }], capsules: [] }
-      : { step: k, anchors: [], capsules: [], released: [0] },
+  const boundaries: IAutoMovieSoftBodyBoundarySample[] = Array.from(
+    { length: steps + 1 },
+    (_: unknown, k: number) =>
+      k < 60
+        ? {
+            step: k,
+            anchors: [
+              { particle: 0, position: { x: 0.5 * k * dt, y: 1, z: 0 } },
+            ],
+            capsules: [],
+          }
+        : { step: k, anchors: [], capsules: [], released: [0] },
   );
   const heights: number[] = [];
   const across: number[] = [];
@@ -175,21 +257,41 @@ export function test_human_motion_soft_grip(): void {
     },
   });
   const after: number[] = heights.slice(59);
-  const falling: boolean = after.slice(1).every((h: number, i: number): boolean => h < after[i]! || h <= 1e-9);
-  if (!falling) complaints.push(`the released particle does not fall monotonically until the floor`);
+  const falling: boolean = after
+    .slice(1)
+    .every((h: number, i: number): boolean => h < after[i]! || h <= 1e-9);
+  if (!falling)
+    complaints.push(
+      `the released particle does not fall monotonically until the floor`,
+    );
   if (!(across[60]! > across[59]!))
-    complaints.push(`the released particle does not keep the hand's sideways velocity (${((across[60]! - across[59]!) / dt).toFixed(3)} m/s)`);
+    complaints.push(
+      `the released particle does not keep the hand's sideways velocity (${((across[60]! - across[59]!) / dt).toFixed(3)} m/s)`,
+    );
 
   // 4. Held and released at once.
   try {
     simulateSoftBodyWithBoundaries(cord, 1, [
       boundaries[0]!,
-      { step: 1, anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }], capsules: [], released: [0] },
+      {
+        step: 1,
+        anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }],
+        capsules: [],
+        released: [0],
+      },
     ]);
-    complaints.push("a boundary that holds and releases one particle was admitted");
+    complaints.push(
+      "a boundary that holds and releases one particle was admitted",
+    );
   } catch (error) {
     if (!(error as Error).message.includes("both holds and releases"))
-      complaints.push(`a boundary that holds and releases one particle was refused with "${(error as Error).message}"`);
+      complaints.push(
+        `a boundary that holds and releases one particle was refused with "${(error as Error).message}"`,
+      );
   }
-  TestValidator.equals("gripping, holding and releasing a soft prop", complaints, []);
+  TestValidator.equals(
+    "gripping, holding and releasing a soft prop",
+    complaints,
+    [],
+  );
 }

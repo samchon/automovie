@@ -59,7 +59,12 @@ const cord = (
         id: "hand",
         particle: 0,
         position: null,
-        binding: { kind: "actor-bone", actor: "a", bone: "rightHand", offset: socket },
+        binding: {
+          kind: "actor-bone",
+          actor: "a",
+          bone: "rightHand",
+          offset: socket,
+        },
       },
     ],
     states: [],
@@ -117,12 +122,18 @@ export function test_human_motion_soft_prop(): void {
     composition: HumanChain.subject("a").stand({ seconds: 4 }).node,
   });
   const end: number = performance.duration;
-  const at = (seconds: number): number[] => performance.soft("lanyard", seconds);
+  const at = (seconds: number): number[] =>
+    performance.soft("lanyard", seconds);
   const socket = (seconds: number): IAutoMovieVector3 => {
-    const hand: IAutoMovieResolvedBone = performance.bones("a", seconds).get("rightHand")!;
+    const hand: IAutoMovieResolvedBone = performance
+      .bones("a", seconds)
+      .get("rightHand")!;
     return Vector3.add(
       hand.worldPosition,
-      Quaternion.rotateVector(hand.worldRotation, body.surfaces.sockets.gripRight.point),
+      Quaternion.rotateVector(
+        hand.worldRotation,
+        body.surfaces.sockets.gripRight.point,
+      ),
     );
   };
 
@@ -135,7 +146,10 @@ export function test_human_motion_soft_prop(): void {
   );
 
   // 2. Order.
-  const seconds: number[] = Array.from({ length: 100 }, (_: unknown, k: number): number => (k * end) / 100);
+  const seconds: number[] = Array.from(
+    { length: 100 },
+    (_: unknown, k: number): number => (k * end) / 100,
+  );
   const sorted: number[][] = seconds.map(at);
   const shuffled: number[] = seconds
     .map((s: number, k: number): [number, number] => [s, (k * 37) % 100])
@@ -146,12 +160,17 @@ export function test_human_motion_soft_prop(): void {
     shuffled.every((s: number): boolean => {
       const read: number[] = at(s);
       const known: number[] = sorted[seconds.indexOf(s)]!;
-      return read.every((v: number, i: number): boolean => Object.is(v, known[i]));
+      return read.every((v: number, i: number): boolean =>
+        Object.is(v, known[i]),
+      );
     }),
   );
 
   // 3. Frame rates.
-  const shared: number[] = Array.from({ length: Math.floor(end / 0.5) + 1 }, (_: unknown, k: number): number => k * 0.5);
+  const shared: number[] = Array.from(
+    { length: Math.floor(end / 0.5) + 1 },
+    (_: unknown, k: number): number => k * 0.5,
+  );
   TestValidator.predicate(
     "reads at 24 and 60 frames a second agree at their shared seconds",
     shared.every((s: number): boolean => {
@@ -165,7 +184,15 @@ export function test_human_motion_soft_prop(): void {
   let worst: number = 0;
   for (let s: number = 0; s <= end; s += 0.25) {
     const p: number[] = at(s);
-    worst = Math.max(worst, Vector3.length(Vector3.subtract({ x: p[0]!, y: p[1]!, z: p[2]! }, socket(s))));
+    worst = Math.max(
+      worst,
+      Vector3.length(
+        Vector3.subtract({ x: p[0]!, y: p[1]!, z: p[2]! }, socket(s)),
+      ),
+    );
   }
-  TestValidator.predicate(`the held end stays on the grip socket within 1 mm (worst ${(worst * 1000).toFixed(3)} mm)`, worst <= 1e-3);
+  TestValidator.predicate(
+    `the held end stays on the grip socket within 1 mm (worst ${(worst * 1000).toFixed(3)} mm)`,
+    worst <= 1e-3,
+  );
 }

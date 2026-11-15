@@ -119,7 +119,10 @@ export namespace regrasp {
       });
     const read: IHumanActionContext.IProp = context.prop(subject);
     const frame: IHumanProp.IFrame = read.frame(context.start);
-    const placed: IAutoMovieResolvedBone = poseBones(body, context.entry.pose).get(`${side}Hand`)!;
+    const placed: IAutoMovieResolvedBone = poseBones(
+      body,
+      context.entry.pose,
+    ).get(`${side}Hand`)!;
     const hand: IHumanProp.IFrame = {
       position: placed.worldPosition,
       rotation: placed.worldRotation,
@@ -133,7 +136,8 @@ export namespace regrasp {
       point: hand.position,
       rotation: hand.rotation,
     };
-    const angle: number = kind === "twist" ? need(context.params.angle, "angle") : 90;
+    const angle: number =
+      kind === "twist" ? need(context.params.angle, "angle") : 90;
     const duration: number = (QUARTER * Math.abs(angle)) / 90;
     const window: IHumanContactWindow = {
       part: side === "left" ? "leftHand" : "rightHand",
@@ -141,21 +145,29 @@ export namespace regrasp {
       from: 0,
       to: 1,
       support: { kind: "prop", subject },
-      ...(kind === "twist" ? {} : { inHand: inHand(context, read.prop, frame, hand) }),
+      ...(kind === "twist"
+        ? {}
+        : { inHand: inHand(context, read.prop, frame, hand) }),
     };
     const profile: (seconds: number) => number = (seconds: number): number =>
       minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s;
 
     // A twist turns the hand rigidly about the object's axis line.
-    const axis: { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } | null =
-      kind === "twist" ? line(read.prop, frame, need(context.params.axis, "axis")) : null;
+    const axis: {
+      pivot: IAutoMovieVector3;
+      direction: IAutoMovieVector3;
+    } | null =
+      kind === "twist"
+        ? line(read.prop, frame, need(context.params.axis, "axis"))
+        : null;
     return {
       duration,
       events: [{ name: "done", share: 1 }],
       contacts: [window],
       holds: [{ side, prop: subject, from: 1 }],
       posture: (seconds: number): IHumanPosture => {
-        if (axis === null) return { ...hold, limbs: { ...hold.limbs, [limb]: still } };
+        if (axis === null)
+          return { ...hold, limbs: { ...hold.limbs, [limb]: still } };
         const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
           axis.direction,
           angle * profile(seconds),
@@ -168,9 +180,14 @@ export namespace regrasp {
               ...still,
               point: Vector3.add(
                 axis.pivot,
-                Quaternion.rotateVector(turn, Vector3.subtract(hand.position, axis.pivot)),
+                Quaternion.rotateVector(
+                  turn,
+                  Vector3.subtract(hand.position, axis.pivot),
+                ),
               ),
-              rotation: Quaternion.normalize(Quaternion.multiply(turn, hand.rotation)),
+              rotation: Quaternion.normalize(
+                Quaternion.multiply(turn, hand.rotation),
+              ),
             },
           },
         };
@@ -200,7 +217,10 @@ export namespace regrasp {
 
     // Where it is held now, in the hand's frame.
     const start: IHumanProp.IFrame = {
-      position: Quaternion.rotateVector(inverse, Vector3.subtract(frame.position, hand.position)),
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(frame.position, hand.position),
+      ),
       rotation: Quaternion.multiply(inverse, frame.rotation),
     };
     let end: IHumanProp.IFrame;
@@ -212,20 +232,37 @@ export namespace regrasp {
       );
       const back: IAutoMovieQuaternion = Quaternion.inverse(wrist.rotation);
       end = {
-        position: Quaternion.rotateVector(back, Vector3.subtract(frame.position, wrist.point)),
+        position: Quaternion.rotateVector(
+          back,
+          Vector3.subtract(frame.position, wrist.point),
+        ),
         rotation: Quaternion.multiply(back, frame.rotation),
       };
     } else {
       // A roll from the forefinger's pad to the little finger's, turning
       // about the palm's normal by the distance over the object's radius.
-      const affordance: IAutoMovieAffordance = site(prop, need(context.params.axis, "axis"));
+      const affordance: IAutoMovieAffordance = site(
+        prop,
+        need(context.params.axis, "axis"),
+      );
       const radius: number = need(affordance.radius, "axis.radius");
-      const from: IAutoMovieVector3 = HumanHand.offset(context.body, side, "indexPad", "relaxed").point;
-      const to: IAutoMovieVector3 = HumanHand.offset(context.body, side, "littlePad", "relaxed").point;
+      const from: IAutoMovieVector3 = HumanHand.offset(
+        context.body,
+        side,
+        "indexPad",
+        "relaxed",
+      ).point;
+      const to: IAutoMovieVector3 = HumanHand.offset(
+        context.body,
+        side,
+        "littlePad",
+        "relaxed",
+      ).point;
       const across: IAutoMovieVector3 = Vector3.subtract(to, from);
-      const palm: IAutoMovieVector3 = context.body.surfaces.sockets[
-        side === "left" ? "palmLeft" : "palmRight"
-      ].normal;
+      const palm: IAutoMovieVector3 =
+        context.body.surfaces.sockets[
+          side === "left" ? "palmLeft" : "palmRight"
+        ].normal;
       const roll: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         palm,
         (Vector3.length(across) / radius) * (180 / Math.PI),
@@ -240,10 +277,21 @@ export namespace regrasp {
     );
     return (share: number): IHumanProp.IFrame => {
       const s: number = minimumJerk(Math.min(1, Math.max(0, share))).s;
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(Quaternion.identity(), arc, s);
-      const position: IAutoMovieVector3 = Vector3.lerp(start.position, end.position, s);
+      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+        Quaternion.identity(),
+        arc,
+        s,
+      );
+      const position: IAutoMovieVector3 = Vector3.lerp(
+        start.position,
+        end.position,
+        s,
+      );
       return {
-        position: Vector3.subtract(position, Quaternion.rotateVector(rotation, start.position)),
+        position: Vector3.subtract(
+          position,
+          Quaternion.rotateVector(rotation, start.position),
+        ),
         rotation,
       };
     };
@@ -284,7 +332,9 @@ const site: (prop: IHumanProp, id: string) => IAutoMovieAffordance = (
       value: id,
       feasible: {
         kind: "alternatives",
-        values: (prop.affordances ?? []).map((a: IAutoMovieAffordance): string => a.id),
+        values: (prop.affordances ?? []).map(
+          (a: IAutoMovieAffordance): string => a.id,
+        ),
       },
       reason: `${prop.subject} has no affordance ${id}`,
       fix: "name an affordance of the object",
@@ -304,7 +354,10 @@ const line: (
 ): { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } => {
   const affordance: IAutoMovieAffordance = site(prop, id);
   return {
-    pivot: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation)),
+    pivot: Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
+    ),
     direction: Quaternion.rotateVector(
       Quaternion.multiply(frame.rotation, affordance.frame.rotation),
       { x: 1, y: 0, z: 0 },

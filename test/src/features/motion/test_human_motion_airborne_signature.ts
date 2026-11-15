@@ -7,8 +7,8 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
-  IAutoMovieQuaternion,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
 } from "@automovie/interface";
 import {
   HumanAirborneShape,
@@ -94,31 +94,44 @@ export function test_human_motion_airborne_signature(): void {
           try {
             p = perform(body, { somersault, way }, shape);
           } catch (error) {
-            if (!(error instanceof HumanRefusal) || !error.message.includes("turns"))
+            if (
+              !(error instanceof HumanRefusal) ||
+              !error.message.includes("turns")
+            )
               findings.push(`${label}: refused otherwise: ${String(error)}`);
             continue;
           }
           const s: HumanSegment.ISegment = p.segments("a")[1]!;
           const touchdown: number =
             s.start +
-            s.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "touchdown")!
-              .share *
+            s.plan.events.find(
+              (e: IAutoMovieMotionEvent): boolean => e.name === "touchdown",
+            )!.share *
               s.plan.duration;
           const takeoff: number =
             s.start +
-            s.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "takeoff")!
-              .share *
+            s.plan.events.find(
+              (e: IAutoMovieMotionEvent): boolean => e.name === "takeoff",
+            )!.share *
               s.plan.duration;
           const q0: IAutoMovieQuaternion = p.pose("a", takeoff).root!.rotation;
-          const q1: IAutoMovieQuaternion = p.pose("a", touchdown - 1e-6).root!.rotation;
-          const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(q0, q1);
-          const turns: number = Math.max(
-            Math.abs(off.somersault),
-            Math.abs(off.tilt),
-            Math.abs(off.twist),
-          ) / (2 * Math.PI);
+          const q1: IAutoMovieQuaternion = p.pose("a", touchdown - 1e-6).root!
+            .rotation;
+          const off: solveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
+            q0,
+            q1,
+          );
+          const turns: number =
+            Math.max(
+              Math.abs(off.somersault),
+              Math.abs(off.tilt),
+              Math.abs(off.twist),
+            ) /
+            (2 * Math.PI);
           if (turns > 0.02)
-            findings.push(`${label}: lands ${turns.toFixed(3)} revolution off upright`);
+            findings.push(
+              `${label}: lands ${turns.toFixed(3)} revolution off upright`,
+            );
         }
 
     // 2. The shapes' moments.
@@ -128,8 +141,13 @@ export function test_human_motion_airborne_signature(): void {
       poseBones(body, {
         skeleton: body.skeleton.id,
         root: null,
-        joints: Object.entries(s === null ? {} : HumanAirborneShape.ANGLES[s]).map(
-          ([bone, a]: [string, readonly [number, number, number]]): IAutoMovieJointPose => ({
+        joints: Object.entries(
+          s === null ? {} : HumanAirborneShape.ANGLES[s],
+        ).map(
+          ([bone, a]: [
+            string,
+            readonly [number, number, number],
+          ]): IAutoMovieJointPose => ({
             bone: bone as AutoMovieHumanoidBone,
             flexion: a[0],
             abduction: a[1],
@@ -140,9 +158,13 @@ export function test_human_motion_airborne_signature(): void {
     const moment = (bones: Bones, axis: 0 | 1): number =>
       resolveAutoMovieMomentum.inertia(model, bones)[axis]![axis]!;
     if (!(moment(shaped("armsIn"), 1) < moment(shaped(null), 1)))
-      findings.push(`${name}: arms in do not lower the moment about the long axis`);
+      findings.push(
+        `${name}: arms in do not lower the moment about the long axis`,
+      );
     if (!(moment(shaped("tuck"), 0) < moment(shaped("layout"), 0)))
-      findings.push(`${name}: a tuck does not lower the moment about the somersault axis`);
+      findings.push(
+        `${name}: a tuck does not lower the moment about the somersault axis`,
+      );
   }
 
   // 3. What each shape claims.
@@ -153,16 +175,38 @@ export function test_human_motion_airborne_signature(): void {
     roll: 0,
     joints: {},
     limbs: {
-      leftLeg: { point: { x: 0.1, y: 0.1, z: 0 }, bend: { x: 0.1, y: 0.5, z: 0.5 } },
-      leftArm: { point: { x: 0.3, y: 1.2, z: 0.3 }, bend: { x: 0.5, y: 1, z: 0 } },
+      leftLeg: {
+        point: { x: 0.1, y: 0.1, z: 0 },
+        bend: { x: 0.1, y: 0.5, z: 0.5 },
+      },
+      leftArm: {
+        point: { x: 0.3, y: 1.2, z: 0.3 },
+        bend: { x: 0.5, y: 1, z: 0 },
+      },
     },
   };
   const context: never = {} as never;
-  const tucked: IHumanPosture = HumanAirborneShape.layer("tuck").apply(standing, 0, context);
-  if (tucked.limbs.leftLeg !== undefined || tucked.limbs.leftArm === undefined || tucked.joints.leftUpperLeg === undefined)
+  const tucked: IHumanPosture = HumanAirborneShape.layer("tuck").apply(
+    standing,
+    0,
+    context,
+  );
+  if (
+    tucked.limbs.leftLeg !== undefined ||
+    tucked.limbs.leftArm === undefined ||
+    tucked.joints.leftUpperLeg === undefined
+  )
     findings.push("a tuck does not claim exactly the legs");
-  const wrapped: IHumanPosture = HumanAirborneShape.layer("armsIn").apply(standing, 0, context);
-  if (wrapped.limbs.leftArm !== undefined || wrapped.limbs.leftLeg === undefined || wrapped.joints.leftUpperArm === undefined)
+  const wrapped: IHumanPosture = HumanAirborneShape.layer("armsIn").apply(
+    standing,
+    0,
+    context,
+  );
+  if (
+    wrapped.limbs.leftArm !== undefined ||
+    wrapped.limbs.leftLeg === undefined ||
+    wrapped.joints.leftUpperArm === undefined
+  )
     findings.push("arms in do not claim exactly the arms");
 
   TestValidator.predicate(

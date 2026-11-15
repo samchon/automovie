@@ -48,7 +48,11 @@ export function test_human_motion_recompose_upper_matrix(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const seat: seated.ISeat = {
-    at: { x: 0, y: seated.popliteal(body), z: body.rest.get("leftFoot")!.z - 0.1 },
+    at: {
+      x: 0,
+      y: seated.popliteal(body),
+      z: body.rest.get("leftFoot")!.z - 0.1,
+    },
     yaw: 0,
     depth: 0.45,
   };
@@ -58,17 +62,24 @@ export function test_human_motion_recompose_upper_matrix(): void {
       : name === "kneeling"
         ? HumanChain.subject("a").kneel()
         : HumanChain.subject("a");
-  const classify = (label: string, row: string, build: () => HumanPerformance): void => {
+  const classify = (
+    label: string,
+    row: string,
+    build: () => HumanPerformance,
+  ): void => {
     try {
       const performance: HumanPerformance = build();
       const placed: readonly string[] = [
         ...performance.segments("a").map((s) => s.name),
         ...performance.overlays("a").map((o) => o.name),
       ];
-      if (!placed.includes(row)) complaints.push(`${label}: ${row} was placed as ${placed.join(", ")}`);
+      if (!placed.includes(row))
+        complaints.push(`${label}: ${row} was placed as ${placed.join(", ")}`);
     } catch (error) {
       if (!(error instanceof HumanRefusal))
-        complaints.push(`${label}: ${row} threw ${(error as Error).message}, a plan or a refusal with its reason expected`);
+        complaints.push(
+          `${label}: ${row} threw ${(error as Error).message}, a plan or a refusal with its reason expected`,
+        );
     }
   };
   for (const family of FAMILIES) {
@@ -78,26 +89,45 @@ export function test_human_motion_recompose_upper_matrix(): void {
       const given: object = LexiconRowNet.given(law.name) ?? {};
       for (const manner of MANNERS) {
         const params: object = manner === null ? given : { ...given, manner };
-        const perform = (composition: HumanPerformance.IInput["composition"]): HumanPerformance =>
+        const perform = (
+          composition: HumanPerformance.IInput["composition"],
+        ): HumanPerformance =>
           new HumanPerformance({
             seed: "matrix",
             laws: [...rows],
-            performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
+            performers: [
+              {
+                subject: "a",
+                body,
+                at: { x: 0, y: 0, z: 0 },
+                yaw: 0,
+                proficiency: { level: "trained" },
+              },
+            ],
             composition,
           });
         for (const b of BASES)
-          classify(`${family} on ${b} in ${manner ?? "neutral"}`, law.name, () =>
-            perform(base(b).registered(law.name, params).node),
+          classify(
+            `${family} on ${b} in ${manner ?? "neutral"}`,
+            law.name,
+            () => perform(base(b).registered(law.name, params).node),
           );
-        classify(`${family} over a walk in ${manner ?? "neutral"}`, law.name, () =>
-          perform(
-            HumanChain.subject("a")
-              .walk({ to: { x: 0, y: 0, z: 2 } })
-              .over((o) => o.registered(law.name, params)).node,
-          ),
+        classify(
+          `${family} over a walk in ${manner ?? "neutral"}`,
+          law.name,
+          () =>
+            perform(
+              HumanChain.subject("a")
+                .walk({ to: { x: 0, y: 0, z: 2 } })
+                .over((o) => o.registered(law.name, params)).node,
+            ),
         );
       }
     }
   }
-  TestValidator.equals("every upper-body row plans or refuses with a reason on every base, carrier and manner", complaints, []);
+  TestValidator.equals(
+    "every upper-body row plans or refuses with a reason on every base, carrier and manner",
+    complaints,
+    [],
+  );
 }

@@ -25,7 +25,10 @@ const hung = (
   seconds: number,
 ): IHumanProp => {
   const socket: IAutoMovieVector3 = body.surfaces.sockets.gripRight.point;
-  const top: IAutoMovieVector3 = Vector3.add(body.rest.get("rightHand")!, socket);
+  const top: IAutoMovieVector3 = Vector3.add(
+    body.rest.get("rightHand")!,
+    socket,
+  );
   const rest: number[] = [];
   for (let k: number = 0; k <= links; k++)
     rest.push(top.x + 0.001 * k, top.y - (k * length) / links, top.z + 0.2);
@@ -52,7 +55,12 @@ const hung = (
         id: "hand",
         particle: 0,
         position: null,
-        binding: { kind: "actor-bone", actor: "a", bone: "rightHand", offset: socket },
+        binding: {
+          kind: "actor-bone",
+          actor: "a",
+          bone: "rightHand",
+          offset: socket,
+        },
       },
     ],
     states: [],
@@ -101,30 +109,71 @@ export function test_human_motion_soft_load(): void {
       seed: "load",
       props: [hung(body, 20, 0.5, mass, 4)],
       performers: [
-        { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
       composition: HumanChain.subject("a").stand({ seconds: 4 }).node,
     });
     const end: number = performance.duration;
-    const f: IAutoMovieVector3 = performance.softLoad("cord", "a", "right", end);
+    const f: IAutoMovieVector3 = performance.softLoad(
+      "cord",
+      "a",
+      "right",
+      end,
+    );
     const weight: number = ((mass * 20) / 21) * G;
     pulls.push(-f.y);
-    if (!(Math.abs(-f.y - weight) <= 0.02 * weight && Math.hypot(f.x, f.z) <= 0.02 * weight))
+    if (
+      !(
+        Math.abs(-f.y - weight) <= 0.02 * weight &&
+        Math.hypot(f.x, f.z) <= 0.02 * weight
+      )
+    )
       complaints.push(
         `${mass} kg: the hand bears (${f.x.toFixed(4)}, ${f.y.toFixed(4)}, ${f.z.toFixed(4)}) N, the ${weight.toFixed(4)} N below it straight down within 2 % expected`,
       );
-    const free: IAutoMovieVector3 = performance.softLoad("cord", "a", "left", end);
+    const free: IAutoMovieVector3 = performance.softLoad(
+      "cord",
+      "a",
+      "left",
+      end,
+    );
     if (!(free.x === 0 && free.y === 0 && free.z === 0))
       complaints.push(`${mass} kg: the empty left hand reads a force`);
     for (let k: number = 0; k <= 8; k++) {
       const s: number = k * 0.5;
-      const a24: IAutoMovieVector3 = performance.softLoad("cord", "a", "right", Math.round(s * 24) / 24);
-      const a60: IAutoMovieVector3 = performance.softLoad("cord", "a", "right", Math.round(s * 60) / 60);
-      if (!(Object.is(a24.x, a60.x) && Object.is(a24.y, a60.y) && Object.is(a24.z, a60.z)))
-        complaints.push(`${mass} kg: the force at ${s} s differs between 24 and 60 frames a second`);
+      const a24: IAutoMovieVector3 = performance.softLoad(
+        "cord",
+        "a",
+        "right",
+        Math.round(s * 24) / 24,
+      );
+      const a60: IAutoMovieVector3 = performance.softLoad(
+        "cord",
+        "a",
+        "right",
+        Math.round(s * 60) / 60,
+      );
+      if (
+        !(
+          Object.is(a24.x, a60.x) &&
+          Object.is(a24.y, a60.y) &&
+          Object.is(a24.z, a60.z)
+        )
+      )
+        complaints.push(
+          `${mass} kg: the force at ${s} s differs between 24 and 60 frames a second`,
+        );
     }
   }
   if (!(pulls[1]! > pulls[0]!))
-    complaints.push(`a cord ten times heavier pulls ${pulls[1]!.toFixed(4)} N against ${pulls[0]!.toFixed(4)} N`);
+    complaints.push(
+      `a cord ten times heavier pulls ${pulls[1]!.toFixed(4)} N against ${pulls[0]!.toFixed(4)} N`,
+    );
   TestValidator.equals("a soft prop's tension on the hand", complaints, []);
 }

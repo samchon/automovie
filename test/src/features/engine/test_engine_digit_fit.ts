@@ -39,10 +39,16 @@ const digitBones = (
   (digit === "Thumb"
     ? ["Metacarpal", "Proximal", "Distal"]
     : ["Proximal", "Intermediate", "Distal"]
-  ).map((s: string): AutoMovieHumanoidBone => `${side}${digit}${s}` as AutoMovieHumanoidBone);
+  ).map(
+    (s: string): AutoMovieHumanoidBone =>
+      `${side}${digit}${s}` as AutoMovieHumanoidBone,
+  );
 
 /** A pose with the given digit joints over the rest. */
-const posed = (body: IHumanBody, joints: readonly IAutoMovieJointPose[]): IAutoMoviePose => ({
+const posed = (
+  body: IHumanBody,
+  joints: readonly IAutoMovieJointPose[],
+): IAutoMoviePose => ({
   skeleton: body.skeleton.id,
   root: null,
   joints: [...joints],
@@ -54,7 +60,8 @@ const surfaceAt = (
   pose: IAutoMoviePose,
   region: AutoMovieHumanoidRegion,
 ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
 };
@@ -66,8 +73,13 @@ const random = (
   draw: () => number,
 ): IAutoMovieJointPose[] =>
   bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
-    const c = getConstraint(bone, body.skeleton.bones.find((b) => b.bone === bone)?.constraint ?? null);
-    const pick = (r: { min: number; max: number } | null | undefined): number | null =>
+    const c = getConstraint(
+      bone,
+      body.skeleton.bones.find((b) => b.bone === bone)?.constraint ?? null,
+    );
+    const pick = (
+      r: { min: number; max: number } | null | undefined,
+    ): number | null =>
       r === null || r === undefined ? null : r.min + (r.max - r.min) * draw();
     return {
       bone,
@@ -86,7 +98,9 @@ const fit = (
   from: IAutoMoviePose = posed(body, []),
 ): fitDigitToTarget.IResult => {
   const region: resolveAutoMovieHumanoidSurfaces.IFrame =
-    body.surfaces.regions[`${digit.toLowerCase()}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
+    body.surfaces.regions[
+      `${digit.toLowerCase()}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+    ];
   return fitDigitToTarget({
     skeleton: body.skeleton,
     pose: from,
@@ -142,41 +156,79 @@ export function test_engine_digit_fit(): void {
         goal,
         `${digit.toLowerCase()}TipRight` as AutoMovieHumanoidRegion,
       ).point;
-      const result: fitDigitToTarget.IResult = fit(body, "right", digit, target);
+      const result: fitDigitToTarget.IResult = fit(
+        body,
+        "right",
+        digit,
+        target,
+      );
       worst = Math.max(worst, result.residual);
       inRange &&= result.joints.every((j: IAutoMovieJointPose): boolean => {
         const c = getConstraint(j.bone, null);
-        const within = (v: number | null, r: { min: number; max: number } | null | undefined): boolean =>
-          v === null || r === null || r === undefined || (v >= r.min - 0.01 && v <= r.max + 0.01);
-        return within(j.flexion, c?.flexion) && within(j.abduction, c?.abduction);
+        const within = (
+          v: number | null,
+          r: { min: number; max: number } | null | undefined,
+        ): boolean =>
+          v === null ||
+          r === null ||
+          r === undefined ||
+          (v >= r.min - 0.01 && v <= r.max + 0.01);
+        return (
+          within(j.flexion, c?.flexion) && within(j.abduction, c?.abduction)
+        );
       });
     }
   }
-  check(`every workspace point is reached within 0.5 mm (worst ${(worst * 1000).toFixed(3)} mm)`, worst <= 5e-4);
+  check(
+    `every workspace point is reached within 0.5 mm (worst ${(worst * 1000).toFixed(3)} mm)`,
+    worst <= 5e-4,
+  );
   check("no fitted joint leaves its range", inRange);
 
   // 2. Out of reach.
-  const rest: IAutoMovieVector3 = surfaceAt(body, posed(body, []), "indexTipRight").point;
+  const rest: IAutoMovieVector3 = surfaceAt(
+    body,
+    posed(body, []),
+    "indexTipRight",
+  ).point;
   const far: IAutoMovieVector3 = Vector3.add(rest, { x: -0.2, y: 0, z: 0 });
   const beyond: fitDigitToTarget.IResult = fit(body, "right", "Index", far);
   let nearest: number = Infinity;
   for (let k: number = 0; k < 200; k++) {
-    const pose: IAutoMoviePose = posed(body, random(body, digitBones("right", "Index"), draw));
-    nearest = Math.min(nearest, Vector3.length(Vector3.subtract(surfaceAt(body, pose, "indexTipRight").point, far)));
+    const pose: IAutoMoviePose = posed(
+      body,
+      random(body, digitBones("right", "Index"), draw),
+    );
+    nearest = Math.min(
+      nearest,
+      Vector3.length(
+        Vector3.subtract(surfaceAt(body, pose, "indexTipRight").point, far),
+      ),
+    );
   }
   check(
     `an unreachable point leaves ${beyond.residual.toFixed(4)} m, the reached point's own distance, and no sampled point is nearer by more than 0.5 mm`,
-    Math.abs(beyond.residual - Vector3.length(Vector3.subtract(beyond.point, far))) <= 5e-4 &&
-      beyond.residual <= nearest + 5e-4,
+    Math.abs(
+      beyond.residual - Vector3.length(Vector3.subtract(beyond.point, far)),
+    ) <= 5e-4 && beyond.residual <= nearest + 5e-4,
   );
 
   // 3. Continuity along a path.
   const start: IAutoMoviePose = posed(body, [
     { bone: "rightIndexProximal", flexion: 30, abduction: 0, twist: null },
-    { bone: "rightIndexIntermediate", flexion: 30, abduction: null, twist: null },
+    {
+      bone: "rightIndexIntermediate",
+      flexion: 30,
+      abduction: null,
+      twist: null,
+    },
     { bone: "rightIndexDistal", flexion: 20, abduction: null, twist: null },
   ]);
-  const origin: IAutoMovieVector3 = surfaceAt(body, start, "indexTipRight").point;
+  const origin: IAutoMovieVector3 = surfaceAt(
+    body,
+    start,
+    "indexTipRight",
+  ).point;
   let jump: number = 0;
   let previous: IAutoMovieJointPose[] | undefined;
   for (let mm: number = 0; mm <= 20; mm++) {
@@ -197,18 +249,36 @@ export function test_engine_digit_fit(): void {
       });
     previous = result.joints;
   }
-  check(`a target moved 1 mm at a time moves no joint more than 5 degrees (largest ${jump.toFixed(2)})`, jump <= 5);
+  check(
+    `a target moved 1 mm at a time moves no joint more than 5 degrees (largest ${jump.toFixed(2)})`,
+    jump <= 5,
+  );
 
   // 4. Opposition on every body.
   for (const name of motionHumanBody.EXTREMES) {
     const person: IHumanBody = motionHumanBody(name);
     const pinch: IAutoMoviePose = posed(person, [
       { bone: "rightIndexProximal", flexion: 45, abduction: 0, twist: null },
-      { bone: "rightIndexIntermediate", flexion: 45, abduction: null, twist: null },
+      {
+        bone: "rightIndexIntermediate",
+        flexion: 45,
+        abduction: null,
+        twist: null,
+      },
       { bone: "rightIndexDistal", flexion: 30, abduction: null, twist: null },
     ]);
-    const pad: IAutoMovieVector3 = surfaceAt(person, pinch, "indexPadRight").point;
-    const result: fitDigitToTarget.IResult = fit(person, "right", "Thumb", pad, pinch);
+    const pad: IAutoMovieVector3 = surfaceAt(
+      person,
+      pinch,
+      "indexPadRight",
+    ).point;
+    const result: fitDigitToTarget.IResult = fit(
+      person,
+      "right",
+      "Thumb",
+      pad,
+      pinch,
+    );
     check(
       `${name}: the thumb tip reaches the pinching index pad within 1 mm (${(result.residual * 1000).toFixed(3)} mm)`,
       result.residual <= 1e-3,

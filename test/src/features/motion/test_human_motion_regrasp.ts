@@ -18,8 +18,20 @@ const key = (at: IAutoMovieVector3): IHumanProp => ({
   frame: { position: at, rotation: Quaternion.identity() },
   points: {},
   affordances: [
-    { id: "bow", kind: "handle", frame: Transform.identity(), extent: null, radius: 0.01 },
-    { id: "shank", kind: "handle", frame: Transform.identity(), extent: null, radius: 0.003 },
+    {
+      id: "bow",
+      kind: "handle",
+      frame: Transform.identity(),
+      extent: null,
+      radius: 0.01,
+    },
+    {
+      id: "shank",
+      kind: "handle",
+      frame: Transform.identity(),
+      extent: null,
+      radius: 0.003,
+    },
     {
       id: "tip",
       kind: "handle",
@@ -31,7 +43,11 @@ const key = (at: IAutoMovieVector3): IHumanProp => ({
 });
 
 /** The world point of a key-frame point at a second. */
-const point = (p: HumanPerformance, local: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => {
+const point = (
+  p: HumanPerformance,
+  local: IAutoMovieVector3,
+  seconds: number,
+): IAutoMovieVector3 => {
   const f: IHumanProp.IFrame = p.prop("key", seconds);
   return Vector3.add(f.position, Quaternion.rotateVector(f.rotation, local));
 };
@@ -71,12 +87,22 @@ export function test_human_motion_regrasp(): void {
     y: m.waistHeight,
     z: 0.6 * (m.upperArm + m.forearm),
   };
-  const perform = (composition: HumanPerformance.IInput["composition"]): HumanPerformance =>
+  const perform = (
+    composition: HumanPerformance.IInput["composition"],
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "regrasp",
       laws: [HumanRegrasp.twist, HumanRegrasp.regrip, HumanRegrasp.roll],
       props: [key(at)],
-      performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
       composition,
     });
   const span = (p: HumanPerformance): [number, number] => {
@@ -90,24 +116,48 @@ export function test_human_motion_regrasp(): void {
       const turned: HumanPerformance = perform(
         HumanChain.subject("a")
           .pickUp({ prop: "key", handle: "bow" })
-          .registered("twist", { prop: "key", side: "right", axis: "shank", angle }).node,
+          .registered("twist", {
+            prop: "key",
+            side: "right",
+            axis: "shank",
+            angle,
+          }).node,
       );
       const [from, to] = span(turned);
-      const axis0: IAutoMovieVector3 = point(turned, { x: 0, y: 0, z: 0 }, from);
-      const axis1: IAutoMovieVector3 = point(turned, { x: 0.03, y: 0, z: 0 }, from);
-      const off0: IAutoMovieVector3 = point(turned, { x: 0.01, y: 0.02, z: 0 }, from);
+      const axis0: IAutoMovieVector3 = point(
+        turned,
+        { x: 0, y: 0, z: 0 },
+        from,
+      );
+      const axis1: IAutoMovieVector3 = point(
+        turned,
+        { x: 0.03, y: 0, z: 0 },
+        from,
+      );
+      const off0: IAutoMovieVector3 = point(
+        turned,
+        { x: 0.01, y: 0.02, z: 0 },
+        from,
+      );
       const hand0 = turned.bones("a", from).get("rightHand")!;
       const seat0: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(hand0.worldRotation),
-        Vector3.subtract(turned.prop("key", from).position, hand0.worldPosition),
+        Vector3.subtract(
+          turned.prop("key", from).position,
+          hand0.worldPosition,
+        ),
       );
       let drift: number = 0;
       let slip: number = 0;
       for (let t: number = from; t <= to; t += 1 / 60) {
         drift = Math.max(
           drift,
-          Vector3.length(Vector3.subtract(point(turned, { x: 0, y: 0, z: 0 }, t), axis0)),
-          Vector3.length(Vector3.subtract(point(turned, { x: 0.03, y: 0, z: 0 }, t), axis1)),
+          Vector3.length(
+            Vector3.subtract(point(turned, { x: 0, y: 0, z: 0 }, t), axis0),
+          ),
+          Vector3.length(
+            Vector3.subtract(point(turned, { x: 0.03, y: 0, z: 0 }, t), axis1),
+          ),
         );
         const hand = turned.bones("a", t).get("rightHand")!;
         const seat: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -117,19 +167,37 @@ export function test_human_motion_regrasp(): void {
         slip = Math.max(slip, Vector3.length(Vector3.subtract(seat, seat0)));
       }
       if (!(drift <= 0.001))
-        complaints.push(`twist ${angle}: the key's axis moves ${(drift * 1000).toFixed(2)} mm, within 1 mm expected`);
+        complaints.push(
+          `twist ${angle}: the key's axis moves ${(drift * 1000).toFixed(2)} mm, within 1 mm expected`,
+        );
       if (!(slip <= 0.001))
-        complaints.push(`twist ${angle}: the key moves ${(slip * 1000).toFixed(2)} mm in the hand, within 1 mm expected`);
-      const direction: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(axis1, axis0));
+        complaints.push(
+          `twist ${angle}: the key moves ${(slip * 1000).toFixed(2)} mm in the hand, within 1 mm expected`,
+        );
+      const direction: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(axis1, axis0),
+      );
       const expected: IAutoMovieVector3 = Vector3.add(
         axis0,
-        Quaternion.rotateVector(Quaternion.fromAxisAngle(direction, angle), Vector3.subtract(off0, axis0)),
+        Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(direction, angle),
+          Vector3.subtract(off0, axis0),
+        ),
       );
-      const miss: number = Vector3.length(Vector3.subtract(point(turned, { x: 0.01, y: 0.02, z: 0 }, to), expected));
+      const miss: number = Vector3.length(
+        Vector3.subtract(
+          point(turned, { x: 0.01, y: 0.02, z: 0 }, to),
+          expected,
+        ),
+      );
       if (!(miss <= 0.001))
-        complaints.push(`twist ${angle}: the off-axis point ends ${(miss * 1000).toFixed(2)} mm from a ${angle} degree turn, within 1 mm expected`);
+        complaints.push(
+          `twist ${angle}: the off-axis point ends ${(miss * 1000).toFixed(2)} mm from a ${angle} degree turn, within 1 mm expected`,
+        );
     } catch (error) {
-      complaints.push(`twist ${angle}: expected to plan, got ${(error as Error).message}`);
+      complaints.push(
+        `twist ${angle}: expected to plan, got ${(error as Error).message}`,
+      );
     }
 
   // 4. A regrip to the tip moves continuously.
@@ -148,18 +216,35 @@ export function test_human_motion_regrasp(): void {
       previous = now;
     }
     if (!(jump <= 0.001))
-      complaints.push(`regrip: the key jumps ${(jump * 1000).toFixed(2)} mm between reads 1/240 s apart, within 1 mm expected`);
+      complaints.push(
+        `regrip: the key jumps ${(jump * 1000).toFixed(2)} mm between reads 1/240 s apart, within 1 mm expected`,
+      );
   } catch (error) {
-    complaints.push(`regrip: expected to plan, got ${(error as Error).message}`);
+    complaints.push(
+      `regrip: expected to plan, got ${(error as Error).message}`,
+    );
   }
 
   // 5. An empty hand cannot twist.
   try {
-    perform(HumanChain.subject("a").registered("twist", { prop: "key", side: "right", axis: "shank", angle: 90 }).node);
+    perform(
+      HumanChain.subject("a").registered("twist", {
+        prop: "key",
+        side: "right",
+        axis: "shank",
+        angle: 90,
+      }).node,
+    );
     complaints.push("a twist by an empty hand was not refused");
   } catch (error) {
     if (!(error as Error).message.includes("does not hold"))
-      complaints.push(`an empty hand's twist was refused with "${(error as Error).message}"`);
+      complaints.push(
+        `an empty hand's twist was refused with "${(error as Error).message}"`,
+      );
   }
-  TestValidator.equals("a held object turned and shifted in the hand", complaints, []);
+  TestValidator.equals(
+    "a held object turned and shifted in the hand",
+    complaints,
+    [],
+  );
 }

@@ -148,7 +148,8 @@ export namespace HumanLoad {
   ): IAutoMovieVector3 {
     let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (const f of HumanForce.within(forces, subject, seconds, seconds))
-      if (f.kind === "sustained") sum = Vector3.add(sum, HumanForce.at(f, seconds));
+      if (f.kind === "sustained")
+        sum = Vector3.add(sum, HumanForce.at(f, seconds));
     return sum;
   }
 }

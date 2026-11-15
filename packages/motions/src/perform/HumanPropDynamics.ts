@@ -63,9 +63,7 @@ export namespace HumanPropDynamics {
    * @param props The prop and the force.
    * @returns The trajectory of `[distance, speed]`.
    */
-  export function slide(
-    props: ISlide,
-  ): integrateMotionTrajectory.ITrajectory {
+  export function slide(props: ISlide): integrateMotionTrajectory.ITrajectory {
     const g: number = AutoMovieGravity.STANDARD;
     return integrateMotionTrajectory({
       f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => {
@@ -99,7 +97,10 @@ export namespace HumanPropDynamics {
     to: number,
   ): integrateMotionTrajectory.ITrajectory {
     return integrateMotionTrajectory({
-      f: (t: number, x: readonly number[]): integrateMotionTrajectory.IRate => ({
+      f: (
+        t: number,
+        x: readonly number[],
+      ): integrateMotionTrajectory.IRate => ({
         dx: [x[1]!, torque(t) / inertia],
       }),
       x0: [0, 0],

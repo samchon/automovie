@@ -30,7 +30,8 @@ const placed = (
   pose: IAutoMoviePose,
   region: AutoMovieHumanoidRegion,
 ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
-  const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
+  const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
   return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
 };
@@ -76,44 +77,103 @@ export function test_engine_finger_surfaces(): void {
     const body: IHumanBody = motionHumanBody(name);
     const flat: IAutoMoviePose = shaped(body, "flat");
     const fist: IAutoMoviePose = shaped(body, "fist");
-    const palm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = placed(body, flat, "palmRight");
-    const fistPalm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } = placed(body, fist, "palmRight");
+    const palm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+      placed(body, flat, "palmRight");
+    const fistPalm: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
+      placed(body, fist, "palmRight");
     const bones = poseBones(body, flat);
 
     // 1. Tips at the ends, pads on the palm's side.
     for (const d of DIGITS) {
-      const distal: IAutoMovieVector3 = bones.get(`right${d.bone}Distal` as AutoMovieHumanoidBone)!.worldPosition;
-      const before: IAutoMovieVector3 = bones.get(`right${d.bone}${d.before}` as AutoMovieHumanoidBone)!.worldPosition;
-      const along: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(distal, before));
-      const tip = placed(body, flat, `${d.name}TipRight` as AutoMovieHumanoidRegion);
-      const pad = placed(body, flat, `${d.name}PadRight` as AutoMovieHumanoidRegion);
-      const tipOut: number = Vector3.dot(Vector3.subtract(tip.point, distal), along);
-      const padOut: number = Vector3.dot(Vector3.subtract(pad.point, distal), along);
+      const distal: IAutoMovieVector3 = bones.get(
+        `right${d.bone}Distal` as AutoMovieHumanoidBone,
+      )!.worldPosition;
+      const before: IAutoMovieVector3 = bones.get(
+        `right${d.bone}${d.before}` as AutoMovieHumanoidBone,
+      )!.worldPosition;
+      const along: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.subtract(distal, before),
+      );
+      const tip = placed(
+        body,
+        flat,
+        `${d.name}TipRight` as AutoMovieHumanoidRegion,
+      );
+      const pad = placed(
+        body,
+        flat,
+        `${d.name}PadRight` as AutoMovieHumanoidRegion,
+      );
+      const tipOut: number = Vector3.dot(
+        Vector3.subtract(tip.point, distal),
+        along,
+      );
+      const padOut: number = Vector3.dot(
+        Vector3.subtract(pad.point, distal),
+        along,
+      );
       if (!(tipOut > padOut && tipOut > 0))
-        complaints.push(`${name} ${d.name}: the tip lies ${(tipOut * 1000).toFixed(1)} mm out along the phalanx, the pad ${(padOut * 1000).toFixed(1)} mm`);
+        complaints.push(
+          `${name} ${d.name}: the tip lies ${(tipOut * 1000).toFixed(1)} mm out along the phalanx, the pad ${(padOut * 1000).toFixed(1)} mm`,
+        );
       if (!(Vector3.dot(pad.normal, palm.normal) > 0))
-        complaints.push(`${name} ${d.name}: the pad does not face the palm's side`);
+        complaints.push(
+          `${name} ${d.name}: the pad does not face the palm's side`,
+        );
     }
 
     // 2. Order across the flat hand, and pads into the fist.
     const across: number[] = DIGITS.slice(1).map(
-      (d): number => placed(body, flat, `${d.name}TipRight` as AutoMovieHumanoidRegion).point.z,
+      (d): number =>
+        placed(body, flat, `${d.name}TipRight` as AutoMovieHumanoidRegion).point
+          .z,
     );
-    if (!across.every((z: number, i: number): boolean => i === 0 || z < across[i - 1]!))
-      complaints.push(`${name}: the flat tips do not lie in order across the hand (${across.map((z) => z.toFixed(3)).join(", ")})`);
+    if (
+      !across.every(
+        (z: number, i: number): boolean => i === 0 || z < across[i - 1]!,
+      )
+    )
+      complaints.push(
+        `${name}: the flat tips do not lie in order across the hand (${across.map((z) => z.toFixed(3)).join(", ")})`,
+      );
     for (const d of DIGITS.slice(1)) {
-      const pad = placed(body, fist, `${d.name}PadRight` as AutoMovieHumanoidRegion);
-      if (!(Vector3.dot(pad.normal, Vector3.subtract(fistPalm.point, pad.point)) > 0))
-        complaints.push(`${name} ${d.name}: the curled pad does not face into the fist`);
+      const pad = placed(
+        body,
+        fist,
+        `${d.name}PadRight` as AutoMovieHumanoidRegion,
+      );
+      if (
+        !(
+          Vector3.dot(pad.normal, Vector3.subtract(fistPalm.point, pad.point)) >
+          0
+        )
+      )
+        complaints.push(
+          `${name} ${d.name}: the curled pad does not face into the fist`,
+        );
     }
 
     // 3. Mirror symmetry of the rest frames.
     for (const d of DIGITS)
       for (const kind of ["Tip", "Pad"]) {
-        const l = body.surfaces.regions[`${d.name}${kind}Left` as AutoMovieHumanoidRegion];
-        const r = body.surfaces.regions[`${d.name}${kind}Right` as AutoMovieHumanoidRegion];
-        if (!(l.point.x === -r.point.x && l.point.y === r.point.y && l.point.z === r.point.z))
-          complaints.push(`${name} ${d.name}${kind}: the left frame is not the right's mirror`);
+        const l =
+          body.surfaces.regions[
+            `${d.name}${kind}Left` as AutoMovieHumanoidRegion
+          ];
+        const r =
+          body.surfaces.regions[
+            `${d.name}${kind}Right` as AutoMovieHumanoidRegion
+          ];
+        if (
+          !(
+            l.point.x === -r.point.x &&
+            l.point.y === r.point.y &&
+            l.point.z === r.point.z
+          )
+        )
+          complaints.push(
+            `${name} ${d.name}${kind}: the left frame is not the right's mirror`,
+          );
       }
   }
   TestValidator.equals("every digit's tip and pad", complaints, []);

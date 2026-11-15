@@ -50,14 +50,19 @@ export function test_human_motion_core_hand_rotation_blade(): void {
   const bound: number = (Math.atan(0.015 / 0.9) * 180) / Math.PI;
   for (const name of ["f-small", "m-large"] as const) {
     const body: IHumanBody = motionHumanBody(name);
-    const standing: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const standing: IHumanPosture = stand.posture(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+    );
     const restBones: ReturnType<typeof poseBones> = poseBones(
       body,
       resolveHumanPosture(body, standing),
     );
     const shoulder: IAutoMovieVector3 =
       restBones.get("rightUpperArm")!.worldPosition;
-    const rest: IAutoMovieQuaternion = restBones.get("rightHand")!.worldRotation;
+    const rest: IAutoMovieQuaternion =
+      restBones.get("rightHand")!.worldRotation;
     const point: IAutoMovieVector3 = Vector3.add(shoulder, {
       x: 0,
       y: -0.15,

@@ -70,7 +70,9 @@ export namespace HumanDigitFit {
     for (const digit of IHumanPosture.DIGITS) {
       const goal: IHumanPosture.IDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
-      const side: "left" | "right" = digit.startsWith("left") ? "left" : "right";
+      const side: "left" | "right" = digit.startsWith("left")
+        ? "left"
+        : "right";
       const name: string = digit.slice(side.length);
       const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
       const region: resolveAutoMovieHumanoidSurfaces.IFrame =

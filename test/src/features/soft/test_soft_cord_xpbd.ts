@@ -68,11 +68,7 @@ const catenary = (l: number, s: number): number => {
 };
 
 /** The least distance between two segments, by Ericson's clamped closed form (Real-Time Collision Detection, 5.1.9). */
-const segments = (
-  p: readonly number[],
-  i: number,
-  j: number,
-): number => {
+const segments = (p: readonly number[], i: number, j: number): number => {
   const v = (k: number): number[] => [p[k * 3]!, p[k * 3 + 1]!, p[k * 3 + 2]!];
   const [a0, a1, b0, b1] = [v(i), v(i + 1), v(j), v(j + 1)];
   const d1: number[] = a1.map((x: number, k: number): number => x - a0[k]!);
@@ -185,14 +181,20 @@ export function test_soft_cord_xpbd(): void {
   const coilRest: number[] = [];
   for (let k: number = 0; k <= turns; k++) {
     const angle: number = (k / 12) * 2 * Math.PI;
-    coilRest.push(0.05 * Math.cos(angle), 0.2 + k * 0.0012, 0.05 * Math.sin(angle));
+    coilRest.push(
+      0.05 * Math.cos(angle),
+      0.2 + k * 0.0012,
+      0.05 * Math.sin(angle),
+    );
   }
   const coil: IAutoMovieSoftBodyDomain = {
     ...cord(turns, 1, {}),
     id: "coil",
     rest: coilRest,
     mass: new Array(turns + 1).fill(0.01),
-    colliders: [{ kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 }],
+    colliders: [
+      { kind: "plane", id: "floor", normal: { x: 0, y: 1, z: 0 }, offset: 0 },
+    ],
     selfCollision: true,
     contact: { thickness: radius, friction: 0.3 },
   };
@@ -207,7 +209,8 @@ export function test_soft_cord_xpbd(): void {
     },
   };
   simulateSoftBodyCore(coil, coil.solver.maxSteps, null, null, watch);
-  const travel: number = coil.solver.fixedStepSeconds * coil.solver.referenceSpeed;
+  const travel: number =
+    coil.solver.fixedStepSeconds * coil.solver.referenceSpeed;
   check(
     `the dropped coil's least segment separation ${least.toFixed(5)} m stays above ${(2 * radius - travel).toFixed(5)} m`,
     least >= 2 * radius - travel,
@@ -234,11 +237,23 @@ export function test_soft_cord_xpbd(): void {
       id: "capstan",
       rest: drape,
       mass,
-      colliders: [{ kind: "sphere", id: "bar", center: { x: 0, y: 1, z: 0 }, radius: bar }],
+      colliders: [
+        {
+          kind: "sphere",
+          id: "bar",
+          center: { x: 0, y: 1, z: 0 },
+          radius: bar,
+        },
+      ],
       contact: { thickness: radius, friction: mu },
     };
     domain.solver = { ...domain.solver, maxSteps: 480 };
-    const end: IAutoMovieSoftBodyState = simulateSoftBodyCore(domain, 480, null, null);
+    const end: IAutoMovieSoftBodyState = simulateSoftBodyCore(
+      domain,
+      480,
+      null,
+      null,
+    );
     return drape[1]! - end.positions[1]!;
   };
   const mu: number = 0.3;
@@ -260,14 +275,23 @@ export function test_soft_cord_xpbd(): void {
   check(
     "every observed step is the absolute seek's state to the bit",
     [40, 80, 120].every((step: number): boolean => {
-      const seek: number[] = simulateSoftBodyCore(coil, step, null, null).positions;
-      return seek.every((v: number, i: number): boolean => Object.is(v, seen.get(step)![i]));
+      const seek: number[] = simulateSoftBodyCore(
+        coil,
+        step,
+        null,
+        null,
+      ).positions;
+      return seek.every((v: number, i: number): boolean =>
+        Object.is(v, seen.get(step)![i]),
+      );
     }),
   );
   check(
     "the budget counts every pair of segments that share no particle",
     softBodyBudget(coil).worstCaseSelfContactPairs ===
-      ((turns - 1) * (turns - 2)) / 2 * coil.solver.iterations * coil.solver.maxSteps,
+      (((turns - 1) * (turns - 2)) / 2) *
+        coil.solver.iterations *
+        coil.solver.maxSteps,
   );
   TestValidator.equals("the compliant cord", complaints, []);
 }

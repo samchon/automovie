@@ -54,26 +54,46 @@ export function test_human_motion_core_load(): void {
   for (const [mass, height] of bodies) {
     for (const load of [5, 10, 20])
       for (const ahead of [0.3, 0.5]) {
-        const lean: number | null = HumanLoad.lean({ mass, height, load, ahead });
+        const lean: number | null = HumanLoad.lean({
+          mass,
+          height,
+          load,
+          ahead,
+        });
         if (lean === null) {
-          findings.push(`${mass} kg: ${load} kg at ${ahead} m reported unbalanceable`);
+          findings.push(
+            `${mass} kg: ${load} kg at ${ahead} m reported unbalanceable`,
+          );
           continue;
         }
         const shift: number = height * Math.sin((lean * Math.PI) / 180);
         const combined: number = (mass * shift + load * ahead) / (mass + load);
         if (Math.abs(combined) > 0.005)
-          findings.push(`${mass} kg with ${load} kg at ${ahead} m: the combined centre lies ${(1000 * combined).toFixed(2)} mm off`);
+          findings.push(
+            `${mass} kg with ${load} kg at ${ahead} m: the combined centre lies ${(1000 * combined).toFixed(2)} mm off`,
+          );
         if (!(lean < 0))
-          findings.push(`${mass} kg: a load ahead leans ${lean} degrees, not back`);
+          findings.push(
+            `${mass} kg: a load ahead leans ${lean} degrees, not back`,
+          );
       }
     const one: number = HumanLoad.lean({ mass, height, load: 10, ahead: 0.3 })!;
     const two: number = HumanLoad.lean({ mass, height, load: 20, ahead: 0.3 })!;
     if (!(two < one))
-      findings.push(`${mass} kg: doubling the load leans ${two} against ${one}`);
-    const behind: number | null = HumanLoad.lean({ mass, height, load: 10, ahead: -0.3 });
+      findings.push(
+        `${mass} kg: doubling the load leans ${two} against ${one}`,
+      );
+    const behind: number | null = HumanLoad.lean({
+      mass,
+      height,
+      load: 10,
+      ahead: -0.3,
+    });
     if (behind === null || !(behind > 0))
       findings.push(`${mass} kg: a load behind leans ${behind}`);
-    if (HumanLoad.lean({ mass, height, load: 10 * mass, ahead: height }) !== null)
+    if (
+      HumanLoad.lean({ mass, height, load: 10 * mass, ahead: height }) !== null
+    )
       findings.push(`${mass} kg: an unbalanceable load is clamped to a lean`);
   }
 
@@ -93,24 +113,48 @@ export function test_human_motion_core_load(): void {
     load: 20,
     ahead: 0.3,
   }).apply(posture, 0, context);
-  const balanced: number = HumanLoad.lean({ mass: 76, height: 0.95, load: 20, ahead: 0.3 })!;
+  const balanced: number = HumanLoad.lean({
+    mass: 76,
+    height: 0.95,
+    load: 20,
+    ahead: 0.3,
+  })!;
   if (
     Math.abs(known.joints.spine![0] - balanced / 2) > 1e-12 ||
     Math.abs(known.joints.chest![0] - balanced / 2) > 1e-12
   )
-    findings.push(`a known load's layer adds ${known.joints.spine![0]} and ${known.joints.chest![0]}, not half of ${balanced}`);
+    findings.push(
+      `a known load's layer adds ${known.joints.spine![0]} and ${known.joints.chest![0]}, not half of ${balanced}`,
+    );
   for (const carry of ["piggyback", "cradle", "overShoulder"] as const) {
-    const unknown: IHumanPosture = HumanCarriedLean.layer(carry).apply(posture, 0, context);
-    if (Math.abs(unknown.joints.spine![0] - HumanCarriedLean.LEANS[carry] / 2) > 1e-12)
-      findings.push(`${carry} without a mass leans ${unknown.joints.spine![0]}, not the table's half`);
+    const unknown: IHumanPosture = HumanCarriedLean.layer(carry).apply(
+      posture,
+      0,
+      context,
+    );
+    if (
+      Math.abs(unknown.joints.spine![0] - HumanCarriedLean.LEANS[carry] / 2) >
+      1e-12
+    )
+      findings.push(
+        `${carry} without a mass leans ${unknown.joints.spine![0]}, not the table's half`,
+      );
   }
 
   // 3. Moving support.
   const braking = (): IAutoMovieVector3 => ({ x: 0, y: 0, z: -3 });
-  const inertial: HumanForce.ISustained = HumanLoad.inertial("a", 76, braking, 1, 2);
+  const inertial: HumanForce.ISustained = HumanLoad.inertial(
+    "a",
+    76,
+    braking,
+    1,
+    2,
+  );
   const force: IAutoMovieVector3 = HumanForce.at(inertial, 1.5);
   if (Vector3.length(Vector3.subtract(force, { x: 0, y: 0, z: 228 })) > 1e-9)
-    findings.push(`the inertial force of a 3 m/s² braking is ${JSON.stringify(force)}`);
+    findings.push(
+      `the inertial force of a 3 m/s² braking is ${JSON.stringify(force)}`,
+    );
   if (Vector3.length(HumanForce.at(inertial, 2.5)) !== 0)
     findings.push("the inertial force acts outside its span");
   for (const [, height] of bodies) {

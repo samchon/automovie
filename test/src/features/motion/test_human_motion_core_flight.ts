@@ -111,15 +111,21 @@ export function test_human_motion_core_flight(): void {
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const momentum = (p: HumanPerformance, t: number): IAutoMovieVector3 =>
-      resolveAutoMovieMomentum(model, p.bones("a", t - 1e-3), p.bones("a", t + 1e-3), 2e-3)
-        .angular;
+      resolveAutoMovieMomentum(
+        model,
+        p.bones("a", t - 1e-3),
+        p.bones("a", t + 1e-3),
+        2e-3,
+      ).angular;
     let layout: HumanPerformance;
     let tucked: HumanPerformance;
     try {
       layout = perform(body, { somersault: 1 }, false);
       tucked = perform(body, { somersault: 1 }, true);
     } catch (error) {
-      findings.push(`${name}: ${error instanceof Error ? error.message : String(error)}`);
+      findings.push(
+        `${name}: ${error instanceof Error ? error.message : String(error)}`,
+      );
       continue;
     }
 
@@ -131,10 +137,13 @@ export function test_human_motion_core_flight(): void {
       return resolveAutoMovieMomentum.inertia(model, bones)[0]![0]!;
     };
     const ratio: number =
-      Vector3.length(momentum(tucked, middle)) / Vector3.length(momentum(layout, middle));
+      Vector3.length(momentum(tucked, middle)) /
+      Vector3.length(momentum(layout, middle));
     const moments: number = lateral(tucked) / lateral(layout);
     if (Math.abs(ratio - moments) > 0.05 * moments)
-      findings.push(`${name}: the tuck needs ${ratio.toFixed(3)} of the layout's momentum, the moments' ratio ${moments.toFixed(3)}`);
+      findings.push(
+        `${name}: the tuck needs ${ratio.toFixed(3)} of the layout's momentum, the moments' ratio ${moments.toFixed(3)}`,
+      );
 
     // 2. The momentum holds through the flight.
     for (const [label, p] of [
@@ -146,9 +155,12 @@ export function test_human_motion_core_flight(): void {
       for (let k: number = 1; k < 20; k++) {
         const t: number = a + ((b - a) * k) / 20;
         const drift: number =
-          Vector3.length(Vector3.subtract(momentum(p, t), L0)) / Vector3.length(L0);
+          Vector3.length(Vector3.subtract(momentum(p, t), L0)) /
+          Vector3.length(L0);
         if (drift > 0.01) {
-          findings.push(`${name} ${label}: momentum drifts ${(100 * drift).toFixed(2)} % at ${k}/20 of the flight`);
+          findings.push(
+            `${name} ${label}: momentum drifts ${(100 * drift).toFixed(2)} % at ${k}/20 of the flight`,
+          );
           break;
         }
       }
@@ -164,8 +176,13 @@ export function test_human_motion_core_flight(): void {
       (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
     );
     for (const t of instants)
-      if (JSON.stringify(cold.pose("a", t)) !== JSON.stringify(layout.pose("a", t))) {
-        findings.push(`${name}: a cold read at ${t.toFixed(3)} s differs from the ordered film`);
+      if (
+        JSON.stringify(cold.pose("a", t)) !==
+        JSON.stringify(layout.pose("a", t))
+      ) {
+        findings.push(
+          `${name}: a cold read at ${t.toFixed(3)} s differs from the ordered film`,
+        );
         break;
       }
 
@@ -183,7 +200,9 @@ export function test_human_motion_core_flight(): void {
     const spin: AutoMovieMotionHumanAuditSpin.IResult =
       AutoMovieMotionHumanAuditSpin.measure(motionHumanLaw.film(layout), "a");
     if (spin.turn.value > 5)
-      findings.push(`${name}: a bone turns ${spin.turn.value.toFixed(2)} turns a second at ${spin.turn.seconds.toFixed(3)} s (${spin.turn.where})`);
+      findings.push(
+        `${name}: a bone turns ${spin.turn.value.toFixed(2)} turns a second at ${spin.turn.seconds.toFixed(3)} s (${spin.turn.where})`,
+      );
 
     // 6. The centre stays where the unturned jump puts it.
     const plain: HumanPerformance = perform(body, undefined, false);
@@ -196,7 +215,9 @@ export function test_human_motion_core_flight(): void {
         ),
       );
       if (gap > 0.005) {
-        findings.push(`${name}: the turned centre lies ${(1000 * gap).toFixed(1)} mm off the unturned one at ${k}/20 of the flight`);
+        findings.push(
+          `${name}: the turned centre lies ${(1000 * gap).toFixed(1)} mm off the unturned one at ${k}/20 of the flight`,
+        );
         break;
       }
     }

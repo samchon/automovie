@@ -64,8 +64,7 @@ export function solveAirborneTakeoff(
   const frame: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(props.q0, props.frame ?? Quaternion.identity()),
   );
-  const tolerance: number =
-    props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
+  const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
 
   // The touchdown residual of a momentum given in the frame's axes, against
   // a request of somersault and twist turns.

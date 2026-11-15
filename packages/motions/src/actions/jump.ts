@@ -474,8 +474,7 @@ export namespace jump {
     const somersault: number =
       (turns?.somersault ?? 0) * (turns?.way === "backward" ? -1 : 1);
     const twist: number = turns?.twist ?? 0;
-    const sideways: boolean =
-      turns?.way === "left" || turns?.way === "right";
+    const sideways: boolean = turns?.way === "left" || turns?.way === "right";
     let rotated: ((seconds: number) => IHumanPosture.IRotation) | null = null;
     const flying: IHumanActionPlan.IFlight | undefined =
       somersault === 0 && twist === 0
@@ -542,8 +541,7 @@ export namespace jump {
         };
         const limbs: IHumanPosture["limbs"] = {};
         if (t <= P) push.write(t, root, joints, limbs);
-        else if (t <= touchdown)
-          return turned(airborne(root, (t - P) / T), t);
+        else if (t <= touchdown) return turned(airborne(root, (t - P) / T), t);
         else
           for (const side of ["left", "right"] as const)
             limbs[`${side}Leg`] = {
