@@ -2,8 +2,7 @@
 
 Turn the composed scenes or finished takes into the complete delivered video. Read [project context](project-context.md), the actual source and media and the installed packages' documentation.
 
-## Assemble
-
+## Film assembly
 Each screenplay film folder becomes one film under [source layout](../development/source-layout.md#source), and every scene file, section and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [finished takes](../video/finishing.md) with their [film sound](../audio/film-sound.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
 
 Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, change the screenplay under [repair](../story/correction/repair.md) and realize the change, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites.
