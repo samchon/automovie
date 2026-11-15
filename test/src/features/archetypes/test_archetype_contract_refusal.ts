@@ -44,7 +44,7 @@ function ranged(refused: ArchetypeRefusal | null): string {
  * 6. A site coordinate outside 0 to 1 refuses with kind `site`.
  * 7. A valid request raises nothing.
  * 8. A fixed dimension the kind lacks (a stool's back height, a stool's seat depth) refuses with kind `parameter`, the dimension as the axis and, as alternatives, exactly the dimensions a produced stool reports.
- * 9. Counts and amounts: a dining chair with two places and a bench with five or two and a half; a ladder with one rung, and with one more than the most its refusal states, which itself is accepted; a suitcase loaded past 27 kg and a tote past 16 kg, each bound itself accepted; a crate's contents past 22.5 kg for every one of eight seeds, 22.5 kg accepted, and any contents in a sack; a vessel filled past 1 or below 0.
+ * 9. Counts and amounts: a dining chair with two places and a bench with five or two and a half; a ladder with one rung, and with one more than the most its refusal states, which itself is accepted; a suitcase loaded past 27.7 kg and a tote past 16 kg, each bound itself accepted; a crate's contents past 22.5 kg for every one of eight seeds, 22.5 kg accepted, and any contents in a sack; a vessel filled past 1 or below 0.
  * 10. A bicycle ride's gear with no teeth or a fractional count refuses at `gear.chainring` or `gear.sprocket`.
  * 11. A horse's timing refuses a tempo outside -1 to 1, a tempo that is not a number, and a height that is not positive.
  *
@@ -192,13 +192,13 @@ export function test_archetype_contract_refusal(): void {
   TestValidator.equals(
     "a bag's load past what it carries",
     [
-      ranged(refusal(() => createBag({ kind: "suitcase", load: 27.5 }))),
-      ranged(refusal(() => createBag({ kind: "suitcase", load: 27 }))),
+      ranged(refusal(() => createBag({ kind: "suitcase", load: 27.8 }))),
+      ranged(refusal(() => createBag({ kind: "suitcase", load: 27.7 }))),
       ranged(refusal(() => createBag({ kind: "tote", load: 16.5 }))),
       ranged(refusal(() => createBag({ kind: "backpack", load: 16 }))),
       ranged(refusal(() => createBag({ kind: "tote", load: -1 }))),
     ],
-    ["load: 0..27 kg", "none", "load: 0..16 kg", "none", "load: 0..16 kg"],
+    ["load: 0..27.7 kg", "none", "load: 0..16 kg", "none", "load: 0..16 kg"],
   );
   const crates: string[] = [];
   for (let seed: number = 0; seed < 8; seed++)

@@ -34,6 +34,10 @@ const PULL: string =
 const NIOSH: string =
   "Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: \"An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape\" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle";
 
+/** The NIOSH optimal handle's diameters applied to a tote's handles and strap and a backpack's straps, flat webbing in a hook grip whose width no maker read gives. */
+const WEBBING: string =
+  "the 1.9 to 3.8 cm optimal handle diameter of the Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110, Table 6 note 1, p. 30 (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to a strap's webbing: no maker read states a strap's width (searched for the Fjallraven Kanken's, 2026-11-15; only the Kanken Mini's 25 mm, at a retailer)";
+
 /** Two attache cases, seen only in search results; the larger of each case's two face sizes taken as its width. */
 const ATTACHE: string =
   "Samsonite Focus III 6 in attache, 39.4 x 45.2 x 14.7 cm, 2.95 kg (https://www.samsonite.ca/en/bags/laptop-bags-%26-briefcases/samsonite-focus-iii-6%22-attach%C3%A9/10558XXXX.html), and Rimowa aluminium attache, 35 x 41.5 x 8.5 cm, 2.3 kg (https://rimowa.com/us/en/bags/attache/briefcase/90007010.html), seen only in search results";
@@ -42,11 +46,11 @@ const ATTACHE: string =
 const TOOLBOX: string =
   "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
 
-/** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg, rounded down. */
+/** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg. */
 const LOADS: Readonly<Record<createBag.Kind, number>> = {
   tote: 16,
   backpack: 16,
-  suitcase: 27,
+  suitcase: 32 - 4.3,
   briefcase: 16,
   toolbox: 16,
 };
@@ -121,8 +125,7 @@ export function createBag(
             : "#b08d57",
     },
   );
-  const bar: number =
-    d.handleDiameter !== undefined ? d.handleDiameter / 2 : 0.012;
+  const bar: number = d.handleDiameter! / 2;
   const lift: number = createBag.HANDLE.clearance + bar;
 
   /** A carrying bar along +X at a height, gripped from above, on a riser at each end down to the body's top. */
@@ -294,7 +297,7 @@ export namespace createBag {
    * - `handleDrop`: the top of a tote's handles above its body.
    * - `strapDrop`: the top of a tote's shoulder strap above its body.
    * - `pullHeight`: a suitcase's pull bar above the floor when drawn out.
-   * - `handleDiameter`: a suitcase's, a briefcase's or a toolbox's top handle bar.
+   * - `handleDiameter`: a suitcase's, a briefcase's or a toolbox's top handle bar, or a tote's or a backpack's handle and strap webbing.
    * - `mass`: the empty bag, kilograms.
    */
   export type Dimension =
@@ -315,7 +318,7 @@ export namespace createBag {
     /** The model's id, unique in a scene; `bag` when absent. */
     id?: string;
 
-    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase or a toolbox and 27 for a suitcase; empty when absent. */
+    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase or a toolbox and 27.7 for a suitcase; empty when absent. */
     load?: number;
   }
 
@@ -329,12 +332,14 @@ export namespace createBag {
       depth: ArchetypeBand.metres(0.127, 0.191, TOTE, true),
       handleDrop: ArchetypeBand.metres(0.127, 0.203, TOTE, true),
       strapDrop: ArchetypeBand.metres(0.53, 0.64, STRAP, true),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, WEBBING, true),
       mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
     },
     backpack: {
       width: ArchetypeBand.metres(0.27, 0.33, BACKPACK, true),
       height: ArchetypeBand.metres(0.38, 0.42, BACKPACK, true),
       depth: ArchetypeBand.metres(0.13, 0.21, BACKPACK, true),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, WEBBING, true),
       mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
     },
     suitcase: {
