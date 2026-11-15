@@ -8,38 +8,16 @@ import {
   ArchetypeDraw,
   ArchetypeDrawSession,
   ArchetypeFrame,
-  ArchetypeRefusal,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** The Mary Rose bow X1-3 and its approximations, read in the bowyers' study. */
-const WARBOW: string =
-  "Aston and Spencer, The Deane brother's Mary Rose Bow X1-3: the bow 1710 mm long, 42.03 mm wide and 29.79 mm deep at its centre, about 167 cm nock to nock once horned; approximation MR X1-9/S3 66 in nock to nock; approximations of wych elm, S1, S2 and S3 905, 868 and 785 g, drawing 108, 101 and 141 lb at 30 in; Mary Rose arrow nocks a median 3 mm wide (https://keskustelu.primitiivijousi.fi/uploads/short-url/jbxr7WWexChfC3RBxRL26IK9gxF.pdf, pp. 4-5, 13, 21-22, 25-26, 29, 32)";
-
-/** Two Korean traditional horse bows, read at a dealer that states the maker's figures. */
-const HORSE_BOW: string =
-  'Freddie Warrior KTB 53 in: "Brace height: 5.5 to 6" (14 to 15 cm)", "Mass weight: 330 g", "Draw weight: 15 to 60 lbs in 5 lb steps, measured at 31" of draw" (https://www.bogentandler.at/en/freddie-warrior-ktb-53); Freddie Zenith KTB 48 in: brace 14 to 15 cm, 315 g, drawn at 31 in (https://www.bogentandler.at/en/freddie-zenith-ktb-48)';
-
-/** The handle diameters hands rated most comfortable in a power grip. */
-const POWER: string =
-  "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to a horse bow's and a recurve's grip, whose own size no maker read gives";
+import { BOW_BANDS } from "./BOW_BANDS";
+import { bowLaunchSpeed } from "./bowLaunchSpeed";
+import { buildCrossbow } from "./buildCrossbow";
 
 /** The Olympic recurve's maker's chart. */
 const HOYT: string =
   'Hoyt 2014 Recurve Owner\'s Manual: a 25" Grand Prix riser with medium limbs makes a 68" bow and with long limbs a 70" bow (p. 5), braced 8.5 to 9.0" and 8.75 to 9.5" (p. 15); "The weight marked on the limb is measured at a 28" standard A.T.A. ... draw length" (p. 5) (https://shop.textalk.se/shop/1439/files/manualerkataloger/Hoyt-2014-Recurve-Manual.pdf)';
-
-/** The draw weights shot at the 2012 Olympics. */
-const KSL: string =
-  'KSL International Archery, Arrow speeds recorded at the 2012 London Olympics: "Kathuna was shooting 49lbs on the fingers" at 59.7 m/s and "Luis was estimated to have ~54lbs on the fingers" at 62.2 m/s (https://www.kslinternationalarchery.com/Equipment/Arrow%20speed%202012%20Olympics.pdf); the upper weight is the table\'s estimate, and both are taken at the maker\'s 28" rating draw';
-
-/** The crossbow read. */
-const PAYNE: string =
-  "Payne-Gallwey, The Crossbow (1903), Chapters III and XIX-XXXI (https://archive.org/details/Book_of_the_Crossbow_The_by_Sir_Ralph_Payne-Galloway)";
-
-/** Grand Prix risers' masses, read at retailers. */
-const RISERS: string =
-  "Hoyt Grand Prix 25 in risers at retailers: Horizon about 1,133 g (Abbey Archery, https://abbeyarchery.com.au/p/HYRHZ/Hoyt+Grand+Prix+Horizon+Riser.html) to Arcos 2.95 lb, 1,338 g (Lancaster Archery, https://lancasterarchery.com/products/hoyt-grand-prix-arcos-25-recurve-riser); secondary, and the limbs' mass, which no read gives, is not counted";
 
 /**
  * A bow an archer braces, draws and looses: a longbow, an Olympic recurve or a Korean horse bow.
@@ -115,7 +93,7 @@ export function createBow(
               : "horse bow",
       draw,
     });
-  if (kind === "crossbow") return crossbow(builder, d);
+  if (kind === "crossbow") return buildCrossbow(builder, d);
   const v: typeof Vector3.create = Vector3.create;
 
   // The string a brace height clear of the belly; each limb a straight rod from the grip to its nock, lifted so the lower limb's tilted collider, a capsule as long as the rod, rests on the floor.
@@ -398,50 +376,7 @@ export namespace createBow {
   /** The band of each free dimension a kind's model and draw weight leave, by kind; a recurve's brace is its model's (`BRACES`). */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    longbow: {
-      length: ArchetypeBand.metres(1.67, 66 * ArchetypeUnits.INCH, WARBOW),
-      depth: ArchetypeBand.metres(0.02979, 0.02979, WARBOW),
-    },
-    recurve: {
-      depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      draw: ArchetypeBand.of(
-        "N",
-        49 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-        54 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
-        KSL,
-        true,
-      ),
-      mass: ArchetypeBand.of("kg", 1.133, 1.338, RISERS, true),
-    },
-    horseBow: {
-      depth: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      brace: ArchetypeBand.metres(0.14, 0.15, HORSE_BOW),
-    },
-    crossbow: {
-      length: ArchetypeBand.metres(
-        30 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
-        `${PAYNE}: p. 101, the bow "Between extremes, 2 ft. 6 in."`,
-      ),
-      depth: ArchetypeBand.metres(
-        1.5 * ArchetypeUnits.INCH,
-        1.5 * ArchetypeUnits.INCH,
-        `${PAYNE}: p. 93, the stock's "Thickness, 1½ in.", the fore-stock the bow hand takes`,
-      ),
-      brace: ArchetypeBand.metres(
-        5 * ArchetypeUnits.INCH,
-        5 * ArchetypeUnits.INCH,
-        `${PAYNE}: p. 116, "the front of the string should be 5 in. from the inside upper edge of the centre of the bow"`,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        10 * ArchetypeUnits.POUND,
-        12 * ArchetypeUnits.POUND,
-        `${PAYNE}: p. 15, the sporting crossbow "from 10 lbs. to 12 lbs. if a cranequin"; Chapter XIX's crossbow, built here, is the sporting one, "of slightly larger size" in war`,
-      ),
-    },
-  };
+  > = BOW_BANDS;
 
   /**
    * The crossbow's places along its stock and its spanning gear, metres, degrees and ratios, each Payne-Gallwey's (The Crossbow, 1903) unless marked provisional: `stock`, its "Extreme length ... 3 ft." and `fore`, its depth at the fore-end, 3¼ in (p. 93), its taper to the small end's 1¾ in not drawn; `nut`, the nut's centre 14 in from the fore-end (p. 93); `rest`, the string at rest 6 in ahead of the nut's centre (p. 116); `travel`, the string's 5½ in "common distance ... along the stock to the catch of the lock" (p. 134, read at the page image); `turns`, the cranequin's handle "turned round in a complete circle thirty times" for it, and `handle`, that handle's 9 in (p. 134); `axle`, the cranequin's pin "about seven inches behind the catch" (p. 134); `trigger`, the trigger's handle, "8¼ in. long and ⅜ in. diameter" (p. 98); `release`, the trigger's point going "⅛ in. ... into the notch in the nut" (p. 98), taken as its travel, provisional, since the handle's own travel is unread; `stirrup`, its tread's width, the bow's 1⅝ in at its centre (p. 104); `thickness`, the bow's "½ in." at its centre (p. 101), drawn as the bow's round section and the stirrup's iron. The cranequin's axle direction and the stirrup's height are not read: the axle is taken across the stock and the stirrup ahead of the fore-end at the stock's top, provisional. The sporting crossbow's draw weight is not read, so the crossbow has no `draw` and `launchSpeed` refuses it: Payne-Gallwey states only his siege crossbow's 1,200 lb (p. 14), a crossbow of another class; searched for #3481 without a figure: his sporting types, measured reproductions of sporting and hunting crossbows (makers list munition crossbows only), and German museum and research catalogues of hunting crossbows ("Jagdarmbrust Zuggewicht").
@@ -531,202 +466,6 @@ export namespace createBow {
     return rows;
   }
 
-  /**
-   * The speed an arrow leaves a bow at, drawn to a travel of its string.
-   *
-   * @param bow The bow.
-   * @param mass The arrow's mass, kilograms.
-   * @param travel The string's travel from brace, metres; 0 gives no speed.
-   * @returns The speed, metres per second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the zero at brace.
-   * @evidence contracts/development/implementation.md#principled-implementation Kooi's energy balance, `A = (m + K) v^2 / 2` (eq. 3.89, p. 77), with `A` the stored energy, the draw-force curve's integral from brace to the travel, and `K` the virtual mass of limbs and string, `m0 (1 - eta) / eta` from his efficiency `eta` at his arrow mass `m0` (eq. 3.90). The curve is the one-parameter power law `F (x / X)^p` whose energy over the full stroke is Kooi's factor `q` of `F X`, `p = 1 / q - 1`, so `A(x) = q F X (x / X)^(1 / q)`; the curve's shape between brace and full draw, and the efficiency for a recurve or a horse bow, are provisional.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The stroke, the stored energy, the virtual mass, the speed.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Kooi shows the virtual mass is not constant across arrow masses (pp. 78, 123); it is held at his arrow's, provisional for others.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function launchSpeed(
-    bow: Archetype<Affordance, Dimension>,
-    mass: number,
-    travel: number,
-  ): number {
-    if (bow.dimensions.draw === undefined)
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: bow.archetype,
-        axis: "draw",
-        value: bow.name,
-        reason: `no source read gives the ${bow.name}'s draw weight, so its stored energy is unknown`,
-        fix: "launch from a bow whose draw weight is read",
-      });
-    const stroke: number = bow.affordance("string").travel!;
-    // A longbow's and a crossbow's straight limbs take the straight-end bow's factor, a crossbow's provisionally.
-    const q: number =
-      bow.name === "longbow" || bow.name === "crossbow"
-        ? KOOI.straight
-        : KOOI.recurve;
-    const share: number = Math.max(0, Math.min(1, travel / stroke));
-    const stored: number = q * bow.dimensions.draw! * stroke * share ** (1 / q);
-    const virtual: number =
-      (KOOI.arrow * (1 - KOOI.efficiency)) / KOOI.efficiency;
-    return Math.sqrt((2 * stored) / (mass + virtual));
-  }
-}
-
-/**
- * Build a crossbow lying on its stock: the stock along `+Z` from the butt at the origin, its top the bolt's groove, the bow across its fore-end, the string drawn back toward the butt by the cranequin's crank, and the trigger and stirrup.
- *
- * @param builder The bow under construction.
- * @param d The drawn dimensions.
- * @returns The crossbow.
- */
-function crossbow(
-  builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension>,
-  d: Partial<Record<createBow.Dimension, number>>,
-): Archetype<createBow.Affordance, createBow.Dimension> {
-  const v: typeof Vector3.create = Vector3.create;
-  const c: typeof createBow.CROSSBOW = createBow.CROSSBOW;
-  const top: number = c.fore;
-  const nut: number = c.stock - c.nut;
-  const rest: number = nut + c.rest;
-  const centre: ReturnType<typeof v> = v(0, top, rest + d.brace!);
-  const half: number = d.length! / 2;
-  const limb: number = Math.hypot(half, d.brace!);
-  const r: number = c.thickness / 2;
-
-  // The stock, a box of its fore-end's section; the groove is its top.
-  builder.box("stock", v(d.depth!, top, c.stock), v(0, top / 2, c.stock / 2), {
-    color: "#7a5230",
-    surface: "wood",
-  });
-  // The bow's two halves, straight from its centre to its tips, braced level with the string at rest.
-  for (const [id, sign] of [
-    ["upperLimb", 1],
-    ["lowerLimb", -1],
-  ] as const)
-    builder.rod(id, r, centre, v(sign * half, top, rest), {
-      color: "#55595f",
-      surface: "steel",
-    });
-  builder.ball("nockingPoint", createBow.STRING, v(0, top, rest), {
-    color: "#c9a227",
-  });
-  builder.rod(
-    "trigger",
-    (3 / 16) * ArchetypeUnits.INCH,
-    v(0, 0, nut),
-    v(0, 0, nut - c.trigger),
-    { color: "#55595f", surface: "steel" },
-  );
-  builder.box(
-    "stirrup",
-    v(c.stirrup, r, c.stirrup),
-    v(0, top, c.stock + c.stirrup / 2),
-    { color: "#55595f", surface: "steel" },
-  );
-
-  // The cranequin's crank turns its full count to bring the string its travel, which the string follows by that ratio, and the bow's halves follow the string.
-  builder.affordance({
-    id: "crank",
-    kind: "crank",
-    frame: ArchetypeFrame.facing(
-      v(d.depth! / 2, top, nut - c.axle),
-      v(1, 0, 0),
-      v(0, 0, -1),
-    ),
-    extent: null,
-    radius: c.handle,
-    travel: c.turns * 360,
-  });
-  builder.affordance({
-    id: "string",
-    kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, top, rest), v(0, 1, 0), v(0, 0, -1)),
-    extent: null,
-    travel: c.travel,
-    parts: ["nockingPoint"],
-    follows: { id: "crank", ratio: c.travel / (c.turns * 360) },
-  });
-  builder.affordance({
-    id: "nock",
-    kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, top, rest), v(0, 0, 1), v(0, 1, 0)),
-    extent: null,
-    rides: "string",
-  });
-  const table: [number, number][] = createBow.limbs(half, d.brace!, c.travel);
-  for (const [id, sign] of [
-    ["upperLimb", 1],
-    ["lowerLimb", -1],
-  ] as const)
-    builder.affordance({
-      id,
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(centre, v(0, sign, 0), v(0, 0, 1)),
-      extent: null,
-      travel: table[table.length - 1]![1],
-      parts: [id],
-      follows: { id: "string", table },
-    });
-  for (const [id, part] of [
-    ["string-upper", "upperLimb"],
-    ["string-lower", "lowerLimb"],
-  ] as const)
-    builder.span(
-      id,
-      { part, at: v(0, limb / 2, 0) },
-      { affordance: "nock" },
-      createBow.STRING,
-      { color: "#e8e1cf", density: 0.5 },
-    );
-  builder.affordance({
-    id: "grip",
-    kind: "handle",
-    symmetry: "none",
-    frame: ArchetypeFrame.facing(
-      v(0, 0, (nut + rest) / 2),
-      v(0, -1, 0),
-      v(0, 0, 1),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: d.depth!,
-  });
-  builder.affordance({
-    id: "rest",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, top, (nut + centre.z) / 2)),
-    extent: null,
-    width: d.depth!,
-    depth: centre.z - nut,
-  });
-  builder.affordance({
-    id: "butt",
-    kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, top / 2, 0), v(0, 0, -1), v(0, 1, 0)),
-    extent: null,
-    width: top,
-    depth: d.depth!,
-  });
-  builder.affordance({
-    id: "trigger",
-    kind: "trigger",
-    frame: ArchetypeFrame.facing(
-      v(0, -(3 / 16) * ArchetypeUnits.INCH, nut - c.trigger / 2),
-      v(0, -1, 0),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    travel: c.release,
-  });
-  builder.affordance({
-    id: "stirrup",
-    kind: "stirrup",
-    frame: ArchetypeFrame.upright(v(0, top + r / 2, c.stock + c.stirrup / 2)),
-    extent: null,
-    width: c.stirrup,
-  });
-  return builder.build(d.mass!, { rests: "wood" });
+  /** The speed an arrow leaves a bow at, drawn to a travel of its string, metres per second, by Kooi's energy balance: `bowLaunchSpeed`, which refuses a bow whose draw weight is unread. */
+  export const launchSpeed: typeof bowLaunchSpeed = bowLaunchSpeed;
 }
