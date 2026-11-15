@@ -9,6 +9,7 @@ export * from "./createPell";
 export * from "./createPolearm";
 export * from "./createProjectile";
 export * from "./createShield";
+export * from "./createSiegeEngine";
 export * from "./createSword";
 export * from "./createWeaponLoop";
 export * from "./createWeaponRack";

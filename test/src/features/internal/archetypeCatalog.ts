@@ -98,6 +98,7 @@ import {
   createShield,
   createShot,
   createShowcase,
+  createSiegeEngine,
   createSkateboard,
   createSki,
   createSled,
@@ -454,7 +455,12 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `cannon-${kind}`,
       (seed?: number | string): Archetype => createCannon({ kind }, seed),
-      settled(createCannon.BANDS[kind]),
+      settled(createCannon.BANDS[kind], createCannon.MODELS[kind]),
+    );
+  for (const kind of createSiegeEngine.KINDS)
+    add(
+      `siegeEngine-${kind}`,
+      (seed?: number | string): Archetype => createSiegeEngine({ kind }, seed),
     );
   for (const kind of createLongGun.KINDS)
     add(
