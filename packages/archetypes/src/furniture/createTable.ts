@@ -71,7 +71,7 @@ const KNEE: number = 0.305;
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the top and its support, then the top's contacts and the four edges.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The top overhangs its legs by 25 mm on every side; a counter's and a service counter's top overhangs its base by 50 mm at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The legs stand with their centres `LEG_INSET` in from the top's edges and are `LEG_RADIUS` round, so the top overhangs their outer faces by the difference on every side, and an altar's pedestals stand `LEG_INSET` in from the top's ends; a counter's and a service counter's top overhangs its base by `COUNTER_OVERHANG` at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -112,7 +112,7 @@ export function createTable(
     { color: "#a9825a" },
   );
   if (kind === "altar") {
-    // Two pedestals under the top's ends, each inset as the legs are.
+    // Two pedestals under the top's ends, each standing the legs' inset in from its end.
     const wide: number = length * createTable.ALTAR_PEDESTAL.width;
     const deep: number = depth * createTable.ALTAR_PEDESTAL.depth;
     for (const [name, sx] of [
@@ -122,11 +122,11 @@ export function createTable(
       builder.box(
         name,
         Vector3.create(wide, height - slab, deep),
-        Vector3.create(sx * (length / 2 - 0.05 - wide / 2), (height - slab) / 2, 0),
+        Vector3.create(sx * (length / 2 - createTable.LEG_INSET - wide / 2), (height - slab) / 2, 0),
         { color: "#a9825a" },
       );
   } else if (kind === "counter" || kind === "bar" || kind === "serviceCounter") {
-    const overhang: number = kind === "bar" ? KNEE : 0.05;
+    const overhang: number = kind === "bar" ? KNEE : createTable.COUNTER_OVERHANG;
     builder.box(
       "base",
       Vector3.create(length, height - slab, depth - overhang),
@@ -142,12 +142,12 @@ export function createTable(
     ] as const)
       builder.rod(
         name,
-        0.025,
-        Vector3.create(sx * (length / 2 - 0.05), 0, sz * (depth / 2 - 0.05)),
+        createTable.LEG_RADIUS,
+        Vector3.create(sx * (length / 2 - createTable.LEG_INSET), 0, sz * (depth / 2 - createTable.LEG_INSET)),
         Vector3.create(
-          sx * (length / 2 - 0.05),
+          sx * (length / 2 - createTable.LEG_INSET),
           height - slab,
-          sz * (depth / 2 - 0.05),
+          sz * (depth / 2 - createTable.LEG_INSET),
         ),
         { color: "#a9825a" },
       );
@@ -226,6 +226,15 @@ export namespace createTable {
     "pupilDesk",
     "altar",
   ];
+
+  /** How far in from the top's edges the legs' centres stand, metres: a construction estimate no act reads. */
+  export const LEG_INSET: number = 0.05;
+
+  /** A leg's radius, metres: a construction estimate no act reads. */
+  export const LEG_RADIUS: number = 0.025;
+
+  /** How far a counter's and a service counter's top reaches past its base at the front, metres: a construction estimate no act reads. */
+  export const COUNTER_OVERHANG: number = 0.05;
 
   /** A pupil desk's top thickness, metres: its sheet's 5/8 in. */
   export const PUPIL_TOP: number = (5 / 8) * ArchetypeUnits.INCH;
