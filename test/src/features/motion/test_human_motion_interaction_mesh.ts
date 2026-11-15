@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  adaptAutoMovieInteractionMesh,
-  tetrahedralizeAutoMovieDelaunay,
-} from "@automovie/engine";
+import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -10,6 +6,7 @@ import type {
 import {
   HumanChain,
   HumanHoldMesh,
+  HumanInteractionMesh,
   HumanPerformance,
   type IHumanBody,
 } from "@automovie/motions";
@@ -57,7 +54,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    (f-small, m-large) and (m-large, f-small): each hand keeps its key
  *    offset from the held neck within 10 mm.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the mesh and adapts real polygon men's joints through the engine's public functions; a non-Delaunay or inverted mesh, a moved identity, a stretched bone, an open contact, a lost key offset or a non-deterministic result fails with its numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the mesh and adapts real polygon men's joints through the engine's mesh and the motions package's public adaptation; a non-Delaunay or inverted mesh, a moved identity, a stretched bone, an open contact, a lost key offset or a non-deterministic result fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The Delaunay property and orientation are geometric definitions checked directly; the bone lengths come from the target bodies' rest joints, not from the solve.
  * @evidence contracts/development/testing.md#distinguishing-cases The reference pair, both orders of a pair of opposite builds, the identity, the hold through the motions' owner and two refusals.
  * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and solves in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
@@ -74,7 +71,7 @@ export function test_human_motion_interaction_mesh(): void {
     b: IHumanBody,
   ): {
     points: IAutoMovieVector3[];
-    bones: adaptAutoMovieInteractionMesh.IBone[];
+    bones: HumanInteractionMesh.IBone[];
     index: (body: 0 | 1, bone: AutoMovieHumanoidBone) => number;
   } => {
     const points: IAutoMovieVector3[] = [];
@@ -86,7 +83,7 @@ export function test_human_motion_interaction_mesh(): void {
         points.push(k === 0 ? { ...p } : { x: -p.x, y: p.y, z: gap - p.z });
       }
     });
-    const bones: adaptAutoMovieInteractionMesh.IBone[] = [];
+    const bones: HumanInteractionMesh.IBone[] = [];
     [a, b].forEach((body: IHumanBody, k: number): void => {
       for (const bone of body.skeleton.bones)
         if (bone.parent !== null) {
@@ -121,9 +118,7 @@ export function test_human_motion_interaction_mesh(): void {
   const mesh: tetrahedralizeAutoMovieDelaunay.IMesh =
     tetrahedralizeAutoMovieDelaunay(reference.points);
   const extent: number = Math.max(
-    ...reference.points.map((p: IAutoMovieVector3): number =>
-      Vector3.length(p),
-    ),
+    ...reference.points.map((p: IAutoMovieVector3): number => Vector3.length(p)),
   );
   all.check(
     `the reference mesh has tetrahedra, read ${mesh.tetrahedra.length}`,
@@ -147,10 +142,7 @@ export function test_human_motion_interaction_mesh(): void {
   );
   for (const t of mesh.tetrahedra) {
     const v: number = tetrahedralizeAutoMovieDelaunay.volume(points, t);
-    all.check(
-      `tetrahedron ${t.join(",")} has volume ${v}, positive expected`,
-      v > 0,
-    );
+    all.check(`tetrahedron ${t.join(",")} has volume ${v}, positive expected`, v > 0);
     const sphere = circumsphere(points, t);
     if (sphere === null) continue;
     for (let i: number = 0; i < points.length; i++) {
@@ -171,8 +163,8 @@ export function test_human_motion_interaction_mesh(): void {
   );
 
   // 2. Identity.
-  const same: adaptAutoMovieInteractionMesh.IResult =
-    adaptAutoMovieInteractionMesh({
+  const same: HumanInteractionMesh.IResult =
+    HumanInteractionMesh.adapt({
       reference: reference.points,
       bones: reference.bones,
       contacts: [],
@@ -195,12 +187,12 @@ export function test_human_motion_interaction_mesh(): void {
   ] as const) {
     const cell: string = `${names[0]} with ${names[1]}`;
     const target = pair(motionHumanBody(names[0]), motionHumanBody(names[1]));
-    const contact: adaptAutoMovieInteractionMesh.IContact = {
+    const contact: HumanInteractionMesh.IContact = {
       a: reference.index(0, "leftHand"),
       b: reference.index(1, "rightHand"),
     };
-    const adapt = (): adaptAutoMovieInteractionMesh.IResult =>
-      adaptAutoMovieInteractionMesh({
+    const adapt = (): HumanInteractionMesh.IResult =>
+      HumanInteractionMesh.adapt({
         reference: reference.points,
         // Both pairs list their joints in the rig's one order, so the
         // target's bone indices name the reference's points.
@@ -208,7 +200,7 @@ export function test_human_motion_interaction_mesh(): void {
         contacts: [contact],
         mesh,
       });
-    const adapted: adaptAutoMovieInteractionMesh.IResult = adapt();
+    const adapted: HumanInteractionMesh.IResult = adapt();
     let stretched: number = 0;
     for (const b of target.bones)
       stretched = Math.max(
@@ -376,10 +368,7 @@ export function test_human_motion_interaction_mesh(): void {
       );
       const off: number = Vector3.length(
         Vector3.subtract(
-          Vector3.subtract(
-            locked[0].joints.get(c.a)!,
-            locked[1].joints.get(c.b)!,
-          ),
+          Vector3.subtract(locked[0].joints.get(c.a)!, locked[1].joints.get(c.b)!),
           offset,
         ),
       );
@@ -391,14 +380,14 @@ export function test_human_motion_interaction_mesh(): void {
   }
   // 5. Refusals.
   all.refuses("fewer than four points", () =>
-    adaptAutoMovieInteractionMesh({
+    HumanInteractionMesh.adapt({
       reference: reference.points.slice(0, 3),
       bones: [],
       contacts: [],
     }),
   );
   all.refuses("a bone of no length", () =>
-    adaptAutoMovieInteractionMesh({
+    HumanInteractionMesh.adapt({
       reference: reference.points,
       bones: [{ from: 0, to: 1, length: 0 }],
       contacts: [],

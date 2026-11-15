@@ -38,7 +38,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A pair the full lean cannot bring together is refused by the meeting's own resolution, never stretched.
  */
 export namespace HumanSeatedReach {
-  /** The trunk's joints above the hips that flex a seated lean, from the lowest. */
+  /** The trunk's joints above the hips that flex a seated lean, from the lowest; a rig without one leans by the others. */
   export const SPINE: readonly AutoMovieHumanoidBone[] = [
     "spine",
     "chest",
@@ -112,7 +112,11 @@ export namespace HumanSeatedReach {
       y: 0,
       z: -Math.sin(yaw),
     };
-    const chain: readonly AutoMovieHumanoidBone[] = ["hips", ...SPINE, "neck"];
+    // The spine joints the rig has (an upper chest is optional).
+    const spine: readonly AutoMovieHumanoidBone[] = SPINE.filter(
+      (bone: AutoMovieHumanoidBone): boolean => role.bones.has(bone),
+    );
+    const chain: readonly AutoMovieHumanoidBone[] = ["hips", ...spine, "neck"];
     const flexion = (k: number): number => {
       const below: IAutoMovieVector3 = Vector3.subtract(
         at(chain[k]!),
@@ -133,7 +137,7 @@ export namespace HumanSeatedReach {
     };
     const joints: IJoint[] = [
       { bone: "hips", room: Math.max(0, (range("leftUpperLeg") ?? hip) - hip) },
-      ...SPINE.map(
+      ...spine.map(
         (bone: AutoMovieHumanoidBone, k: number): IJoint => ({
           bone,
           room: Math.max(0, (range(bone) ?? 0) - flexion(k + 1)),
@@ -267,10 +271,7 @@ export namespace HumanSeatedReach {
     Side extends { shoulder: IAutoMovieVector3 },
     Result = IAutoMovieVector3,
   >(
-    roles: readonly [
-      AutoMovieMotionMeeting.IRole,
-      AutoMovieMotionMeeting.IRole,
-    ],
+    roles: readonly [AutoMovieMotionMeeting.IRole, AutoMovieMotionMeeting.IRole],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,
   ): Result {

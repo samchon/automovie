@@ -14,6 +14,7 @@ import type { tags } from "typia";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -21,6 +22,7 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -167,10 +169,8 @@ export namespace handshake {
       context,
       side,
       { pump: AMPLITUDE, shake },
-      (
-        b: IHumanBody,
-        shoulder: IAutoMovieVector3,
-      ): resolveAutoMovieMutualGoal.ISide => arm(b, side, shoulder),
+      (b: IHumanBody, shoulder: IAutoMovieVector3): resolveAutoMovieMutualGoal.ISide =>
+        arm(b, side, shoulder),
     );
     const meet: IAutoMovieVector3 = meeting.point;
 
@@ -181,11 +181,17 @@ export namespace handshake {
     );
     const back: number = reach;
     const duration: number = reach + shake + back;
-    // The body stands under the handshake, its sway signed in the shaking
-    // hand's frame, so a left handshake mirrors a right one (`stand.plan`).
+    // Standing, the body stands under the handshake, its sway signed in the
+    // shaking hand's frame, so a left handshake mirrors a right one
+    // (`stand.plan`); seated, it holds the seat it was entered on.
+    const seated: boolean = context.entry.supports.some(
+      (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+    );
     const base: IHumanActionPlan = handshakeMeeting.leaned(
       body,
-      stand.plan({ ...context, params: { seconds: duration } }, side),
+      seated
+        ? AutoMovieMotionHumanBase.under(context, duration)
+        : stand.plan({ ...context, params: { seconds: duration } }, side),
       lean,
       { reach, shake, back },
     );

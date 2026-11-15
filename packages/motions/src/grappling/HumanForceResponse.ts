@@ -55,10 +55,13 @@ import { HumanForceThrow } from "./HumanForceThrow";
  *   swing stops before the vertical, is refused. The composition cuts into
  *   the fall or the breakfall at `land`.
  *
+ * The centre moves as standing balance moves it with the feet side by side
+ * (Winter 1995): along the facing by the whole body's tip about the ankles,
+ * across it by the pelvis carried sideways over the planted legs.
+ *
  * First pass: the grip sites are not held to the puller's hands by a root
- * solve while the body tips, the tip is a rigid turn about the ankles
- * split into the posture's pitch and roll, and the body is rigid through
- * the swing and the flight.
+ * solve while the body tips, and the body is rigid through the swing and
+ * the flight.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the pull is read, each outcome's motion with its law, the events, the refusals and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation The outcome is the author's, the geometry the forces': a closed union of three responses over one force input.
@@ -198,7 +201,52 @@ export namespace HumanForceResponse {
       };
     };
     const lean = (offset: number): number =>
-      (Math.asin(Math.min(1, offset / height)) * 180) / Math.PI;
+      (Math.asin(Math.max(-1, Math.min(1, offset / height))) * 180) / Math.PI;
+
+    // Standing with the feet side by side, the centre moves along the facing
+    // by the ankles' tip of the whole body, and across it by the hips'
+    // load and unload, the pelvis carried sideways over legs that keep their
+    // feet (Winter 1995, "Human balance and posture control during standing
+    // and walking", Gait Posture 3:193): so the pull's part along the facing
+    // tips the body about the ankles, and its part across moves the root,
+    // by the centre's own shift per shift of the root, read on the entry
+    // posture with its legs solved at a shift of the square root of machine
+    // epsilon of the centre's height.
+    const across: number = (() => {
+      const shown = (root: IAutoMovieVector3): IAutoMovieVector3 =>
+        resolveAutoMovieCenterOfMass.place(
+          model,
+          poseBones(body, resolveHumanPosture(body, { ...entry, root })),
+        );
+      const h: number = height * Number.EPSILON ** 0.5;
+      return (
+        Vector3.dot(
+          Vector3.subtract(
+            shown(Vector3.add(entry.root, Vector3.scale(right, h))),
+            shown(entry.root),
+          ),
+          right,
+        ) / h
+      );
+    })();
+    const drawn = (
+      posture: IHumanPosture,
+      along: IAutoMovieVector3,
+      offset: number,
+    ): IHumanPosture => {
+      const tip: IHumanPosture = tipped(
+        posture,
+        forward,
+        lean(offset * Vector3.dot(along, forward)),
+      );
+      return {
+        ...tip,
+        root: Vector3.add(
+          tip.root,
+          Vector3.scale(right, (offset * Vector3.dot(along, right)) / across),
+        ),
+      };
+    };
 
     // The grips' mean height, where the pull acts.
     const sites: number[] = open.map(
@@ -257,10 +305,10 @@ export namespace HumanForceResponse {
         ...plan,
         events: [{ name: "braced", share: Math.min(1, 1 / w / duration) }],
         posture: (seconds: number): IHumanPosture =>
-          tipped(
+          drawn(
             plan.posture(seconds),
             back,
-            lean(shift) * minimumJerk(Math.min(1, Math.max(0, seconds * w))).s,
+            shift * minimumJerk(Math.min(1, Math.max(0, seconds * w))).s,
           ),
       };
     }
@@ -295,24 +343,20 @@ export namespace HumanForceResponse {
         reason: `a pull of ${force.toFixed(0)} N for ${span.toFixed(2)} s breaks the base only after ${broken.toFixed(2)} s`,
         fix: "pull harder or for longer, or let the body resist",
       });
-    const drawnBy = (seconds: number): number =>
-      lean(
-        HumanForceExchange.drawn({
-          mass: model.mass,
-          frequency: w,
-          force,
-          seconds,
-        }).offset,
-      );
     const yielded: IHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       broken,
     );
     const yieldAt = (seconds: number): IHumanPosture =>
-      tipped(
+      drawn(
         yielded.posture(Math.min(broken, seconds)),
         direction,
-        drawnBy(Math.min(broken, seconds)),
+        HumanForceExchange.drawn({
+          mass: model.mass,
+          frequency: w,
+          force,
+          seconds: Math.min(broken, seconds),
+        }).offset,
       );
     const plant = (
       part: "leftFoot" | "rightFoot",

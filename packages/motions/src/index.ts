@@ -130,6 +130,7 @@ export * from "./dressing/dress";
 export * from "./carrying/carry";
 export * from "./posture/HumanQuadraticProgram";
 export * from "./posture/HumanSequentialConvex";
+export * from "./posture/HumanInteractionMesh";
 export * from "./posture/HumanBodyFit";
 export * from "./posture/HumanLegChain";
 export * from "./posture/HumanLimbFitFrame";

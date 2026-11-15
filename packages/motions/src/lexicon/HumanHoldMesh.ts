@@ -1,21 +1,18 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-  adaptAutoMovieInteractionMesh,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 
 /**
  * A two-person hold's key pose adapted to any pair of bodies (#3438): the
  * joints of both bodies at the key pose, the target bodies' bone lengths and
- * the hold's contacts go through the engine's interaction mesh
- * (`adaptAutoMovieInteractionMesh`, Ho, Komura and Tai 2010), and each
+ * the hold's contacts go through the interaction mesh
+ * (`HumanInteractionMesh`, Ho, Komura and Tai 2010), and each
  * body's adapted joints become its limb goals (each wrist and ankle on its
  * adapted joint, bent toward its adapted elbow or knee) and its root's
  * shift, which the existing limb fits (`resolveHumanPosture`) resolve.
@@ -31,7 +28,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is adapted, how the result is used, where the key pose comes from and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation The hold as joints and contacts of two bodies, the interaction mesh's input, and the result as each body's root shift and limb goals, the posture's own inputs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The key body record, the adapted record and one function; the mesh and its solve are the engine's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The key body record, the adapted record and one function; the mesh and its solve are `HumanInteractionMesh`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold has a table of its own: any key pose of two bodies adapts the same way.
  */
 export namespace HumanHoldMesh {
@@ -75,11 +72,11 @@ export namespace HumanHoldMesh {
    * @throws {Error} When a contact or a bone names a joint the key pose lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and the error.
-   * @evidence contracts/development/implementation.md#principled-implementation Every key joint of both bodies is a mesh point; every parent-child pair is a bone at the target body's rest length; every contact keeps its key offset; the engine minimizes the mesh's Laplacian deformation under those, and each limb's goal is read off its adapted end and middle joints.
+   * @evidence contracts/development/implementation.md#principled-implementation Every key joint of both bodies is a mesh point; every parent-child pair is a bone at the target body's rest length; every contact keeps its key offset; the interaction mesh minimizes its Laplacian deformation under those, and each limb's goal is read off its adapted end and middle joints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Points, bones, contacts, one adaptation, then the goals per body.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing joint throws, never a dropped constraint.
    * @evidence contracts/development/implementation.md#efficient-algorithms One mesh and one adaptation per call, run once per key pose and pair, never per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The mesh and its solve are `adaptAutoMovieInteractionMesh`'s.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The mesh and its solve are `HumanInteractionMesh`'s.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the maps it returns are the caller's.
    */
   export function adapt(
@@ -101,7 +98,7 @@ export namespace HumanHoldMesh {
         throw new Error(`The key pose's body ${side} has no joint ${bone}`);
       return i;
     };
-    const bones: adaptAutoMovieInteractionMesh.IBone[] = [];
+    const bones: HumanInteractionMesh.IBone[] = [];
     to.forEach((body: IHumanBody, side: number): void => {
       for (const bone of body.skeleton.bones)
         if (
@@ -120,12 +117,12 @@ export namespace HumanHoldMesh {
             ),
           });
     });
-    const result: adaptAutoMovieInteractionMesh.IResult =
-      adaptAutoMovieInteractionMesh({
+    const result: HumanInteractionMesh.IResult =
+      HumanInteractionMesh.adapt({
         reference: points,
         bones,
         contacts: contacts.map(
-          (c: IContact): adaptAutoMovieInteractionMesh.IContact => ({
+          (c: IContact): HumanInteractionMesh.IContact => ({
             a: at(0, c.a),
             b: at(1, c.b),
             offset: Vector3.subtract(points[at(0, c.a)]!, points[at(1, c.b)]!),

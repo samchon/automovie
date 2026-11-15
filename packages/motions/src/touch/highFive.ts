@@ -166,12 +166,20 @@ export namespace highFive {
               r.bones.get(`${side}UpperArm`)!.worldPosition,
             ),
         );
-        const preferred: number =
+        // The grid's height is a standing body's; a seated body's is that
+        // height lowered by as much as its acting shoulder, leaned as the
+        // reach leans it, sits below the standing body's.
+        const preferred = (
+          leaned: readonly resolveAutoMovieMutualGoal.ISide[],
+        ): number =>
           roles.reduce(
-            (sum: number, r: AutoMovieMotionMeeting.IRole): number =>
+            (sum: number, r: AutoMovieMotionMeeting.IRole, k: number): number =>
               sum +
               AutoMovieMotionHumanTargetGrid.height(r.body, height) *
-                r.body.measure.stature,
+                r.body.measure.stature -
+              (r.seated === true
+                ? r.body.rest.get(`${side}UpperArm`)!.y - leaned[k]!.shoulder.y
+                : 0),
             0,
           ) / roles.length;
         // The engine refuses a pair no point lies within both arms of; its
@@ -187,7 +195,11 @@ export namespace highFive {
                 a: resolveAutoMovieMutualGoal.ISide,
                 b: resolveAutoMovieMutualGoal.ISide,
               ): IAutoMovieVector3 =>
-                resolveAutoMovieMutualGoal({ a, b, height: preferred }).point,
+                resolveAutoMovieMutualGoal({
+                  a,
+                  b,
+                  height: preferred([a, b]),
+                }).point,
             ),
           };
         } catch (error: unknown) {
@@ -367,21 +379,21 @@ export namespace highFive {
     );
     const lean: { share: number; joints: HumanSeatedReach.IJoint[] } =
       HumanSeatedReach.need(
-        {
-          name: "slapper",
-          subject: context.subject,
-          body,
-          posture: entry,
-          bones,
-          seated: context.entry.supports.some(
-            (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
-          ),
-        },
-        bones.get(`${side}UpperArm`)!.worldPosition,
-        place.point,
-        handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
-          .limit,
-      );
+      {
+        name: "slapper",
+        subject: context.subject,
+        body,
+        posture: entry,
+        bones,
+        seated: context.entry.supports.some(
+          (s: IHumanEntryState.ISupport): boolean => s.kind === "seat",
+        ),
+      },
+      bones.get(`${side}UpperArm`)!.worldPosition,
+      place.point,
+      handshake.arm(body, side, bones.get(`${side}UpperArm`)!.worldPosition)
+        .limit,
+    );
     const under: IHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       clock.duration,
@@ -398,11 +410,7 @@ export namespace highFive {
                   under.posture(seconds),
                   lean.joints,
                   lean.share *
-                    clock.envelope(
-                      ["start", "ready"],
-                      ["relax", "end"],
-                      seconds,
-                    ),
+                    clock.envelope(["start", "ready"], ["relax", "end"], seconds),
                 ),
             },
       clock,
