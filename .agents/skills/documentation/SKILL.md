@@ -5,7 +5,7 @@ description: Owns how any document is written, with its sentences, terms, paragr
 
 # Documentation
 
-Every document follows [Writing](writing.md). A README adds the rules below, and a doc comment says what the project's development skill names.
+Every document follows [Writing](writing.md). A README adds the rules below, and the project's development skill says what a doc comment must contain.
 
 ## READMEs
 

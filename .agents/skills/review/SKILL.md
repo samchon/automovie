@@ -15,7 +15,7 @@ How many passes a review takes depends on whether [contracts](../contracts/SKILL
 
 Code that Evidence covers gets one complete pass, fixed by cause under [`AGENTS.md`](../../../AGENTS.md#fixing-by-cause), and the review is done. Each declaration already answers its checklists in its doc comment, and CI's evidence job fails a missing answer, so a second pass over the same code repeats what Evidence guards and costs hours.
 
-For maintained code, check that each checklist answer is true and complete for its declaration under [contracts](../contracts/SKILL.md). A passing test or renamed wrapper does not prove a cause was fixed.
+For that code, check that each checklist answer is true and complete for its declaration under [contracts](../contracts/SKILL.md). A passing test or renamed wrapper does not prove a cause was fixed.
 
 Everything Evidence does not cover goes in rounds: skills, `AGENTS.md`, documents, READMEs and the website. Run fresh complete rounds, each fixed by cause, until one finds no defect the change introduced or worsened, because these have no checklist to show that a fix left nothing behind.
 
@@ -27,7 +27,7 @@ The review law over the whole change: the base-to-head diff and any uncommitted 
 
 The review reports three things:
 
-- the single pass over evidence-covered code, and the clean round over everything else;
+- the single pass over Evidence-covered code, and the clean round over everything else;
 - every check that could not run;
 - every claim fixed in code but not yet proven on a real host.
 
