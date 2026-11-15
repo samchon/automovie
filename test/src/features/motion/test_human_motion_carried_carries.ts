@@ -81,6 +81,8 @@ export function test_human_motion_carried_carries(): void {
     armpitDrag: ["upperBack", "abdomen"],
     collarDrag: ["nape", "thighFrontLeft"],
     ankleDrag: ["calfLeft", "thighFrontRight"],
+    waistLift: ["abdomen", "sternum"],
+    overheadLift: ["abdomen", "nape"],
   };
   const complaints: string[] = [];
   const stage = (

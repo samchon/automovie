@@ -8,6 +8,7 @@ import {
   AutoMovieMotionMeeting,
   HumanCarried,
   HumanCarriedCoupling,
+  HumanCarriedCouplingLoad,
   HumanCarriedLean,
   HumanChain,
   HumanFoot,
@@ -39,13 +40,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * load on the back leans the trunk forward, more for more load.
  *
  * Scenarios, the bearer standing 0.3 s then walking 2 m (or standing) under
- * `bearing` with the borne person named, the borne person under `borne`,
+ * `bearing` with the borne person named and the lean of the coupled load
+ * scheduled over the carry (`HumanCarriedLean.layer` with
+ * `HumanCarriedCouplingLoad.load`), the borne person under `borne`,
  * read at 20 Hz from 0.8 s to 2.2 s:
  * 1. For the piggyback, the cradle and the fireman's carry (`overShoulder`),
  *    each by the pairs (m-large bears f-small) and (m-average bears
  *    m-average), walking: every bearing contact of the coupling is within
  *    10 mm of the bearer's region and slips less than 10 mm in the frame of
  *    that region's bone.
+ *    No joint of either body lies more than 10 mm inside the other's
+ *    colliders (`HumanVerdicts`' partner bound).
  * 2. The same six, standing: the pair's combined centre of mass lies within
  *    2 % of the bearer's stature of the feet's base.
  * 3. The same six, walking: at every instant both bearer feet bear, the
@@ -141,7 +146,7 @@ export function test_human_motion_coupled_meeting(): void {
                   {
                     layer: HumanCarriedLean.layer(
                       carry,
-                      HumanCarriedCoupling.load(bodies.a, coupling),
+                      HumanCarriedCouplingLoad.load(bodies.a, coupling),
                     ),
                     from: 0.3,
                     fade: HumanCarried.TAKE,
@@ -195,7 +200,7 @@ export function test_human_motion_coupled_meeting(): void {
         );
 
       // 1, 3 and 4. Walking: contacts, slip and the extrapolated centre.
-      const walked = stage(names, carry, true);
+      const walked = stage(names, carry, true, {}, true);
       const borne: HumanSignature.IReader = HumanSignature.of(
         walked.film,
         "b",
@@ -256,7 +261,15 @@ export function test_human_motion_coupled_meeting(): void {
           slip <= CONTACT,
         );
       }
-      const length: number = resolveAutoMovieCenterOfMass.pendulum(
+      // The bodies do not pass into each other beyond the partner verdict's
+      // bound (`HumanVerdicts`' `partner`, 10 mm).
+      let deepest: number = Number.POSITIVE_INFINITY;
+      for (const t of times)
+        deepest = Math.min(deepest, HumanSignature.apart(borne, bearer, t));
+      all.check(
+        `${cell}, walking: a joint lies ${(-deepest * 1000).toFixed(1)} mm inside the other body, ${CONTACT * 1000} mm at most expected`,
+        deepest >= -CONTACT,
+      );      const length: number = resolveAutoMovieCenterOfMass.pendulum(
         walked.bodies.a.measure.hipHeight,
       );
       const pair = (t: number): IAutoMovieVector3 =>
@@ -283,7 +296,7 @@ export function test_human_motion_coupled_meeting(): void {
       }
 
       // 2. Standing: the combined centre over the feet.
-      const stood = stage(names, carry, false);
+      const stood = stage(names, carry, false, {}, true);
       const still: Record<"a" | "b", HumanSignature.IReader> = {
         a: HumanSignature.of(stood.film, "a", stood.bodies.a, 0),
         b: HumanSignature.of(stood.film, "b", stood.bodies.b, 0),
@@ -376,7 +389,7 @@ export function test_human_motion_coupled_meeting(): void {
   // 8. The capacity and its boundary.
   const bearerBody: IHumanBody = motionHumanBody("f-small");
   const borneBody: IHumanBody = motionHumanBody("m-large");
-  const load = HumanCarriedCoupling.load(
+  const load = HumanCarriedCouplingLoad.load(
     bearerBody,
     HumanCarriedCoupling.couple(
       bearerBody,

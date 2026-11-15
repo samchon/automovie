@@ -23,7 +23,7 @@ import type { HumanCarried } from "./HumanCarried";
  * Harman and Reynolds 1996, "Load carriage using packs", Applied Ergonomics
  * 27, a review). The sizes are provisional: no study of carrying a whole
  * person was read for them. A piggyback leans 20 degrees forward, a load
- * over the shoulder 10; a cradle and the drags lean back 10.
+ * over the shoulder 10; a cradle and the drags lean back 10. The dance lifts have no table angle: their lean is the coupled load's moment balance alone (`HumanCarriedCouplingLoad.load`), and none without it.
  *
  * First pass: the lean is a constant of the carry, coming in over the
  * window's fade; it does not follow the carried body's mass or the
@@ -43,6 +43,8 @@ export namespace HumanCarriedLean {
     overShoulder: 10,
     supported: 0,
     supportedLeft: 0,
+    waistLift: 0,
+    overheadLift: 0,
     armpitDrag: -10,
     collarDrag: -10,
     ankleDrag: -10,

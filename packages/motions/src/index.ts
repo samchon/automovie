@@ -290,6 +290,7 @@ export * from "./audit/HumanVariation";
 export * from "./lexicon/HumanCarried";
 export * from "./lexicon/HumanCarriedCoupling";
 export * from "./lexicon/HumanCarriedCouplingPose";
+export * from "./lexicon/HumanCarriedCouplingLoad";
 export * from "./grappling/HumanForceExchange";
 export * from "./grappling/HumanForceResponse";
 export * from "./grappling/HumanForceThrow";

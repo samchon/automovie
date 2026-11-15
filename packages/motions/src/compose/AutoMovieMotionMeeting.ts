@@ -182,6 +182,18 @@ export namespace AutoMovieMotionMeeting {
     /** The borne centre of mass in the bearer's hips frame, metres. */
     centre: IAutoMovieVector3;
 
+    /**
+     * Each further bearer's hips frame in the first bearer's hips frame at
+     * the key pose, by role: a borne body walked between two helpers. None
+     * when one body bears alone.
+     */
+    bearers?: Readonly<
+      Record<
+        string,
+        { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      >
+    >;
+
     /** The borne body's root frame in the bearer's hips frame at the coupling's key pose. */
     key: {
       /** Metres. */

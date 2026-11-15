@@ -34,6 +34,15 @@ import type { HumanCarried } from "./HumanCarried";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearer never reads the borne body's displayed bones, so the two cannot chase each other.
  */
 export namespace HumanCarriedCouplingPose {
+  /** A bearer as the borne body reads it at an instant. */
+  export interface IBearer {
+    /** The bearer's body. */
+    body: IHumanBody;
+
+    /** Its displayed bones at the instant. */
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  }
+
   /**
    * The borne body's posture at an instant: the key pose registered rigidly
    * on the bearer's displayed regions, its clinging hands on theirs.
@@ -41,9 +50,9 @@ export namespace HumanCarriedCouplingPose {
    * @param body The borne body.
    * @param coupling The coupling.
    * @param row The carry's row, for its key posture.
-   * @param bearer The bearer's body.
-   * @param theirs The bearer's displayed bones at the instant.
+   * @param bearers Each bearer's body and displayed bones at the instant, by role.
    * @returns The posture, with a whole-body rotation.
+   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the coupling names is not given or has no hips.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is registered on what and what the hands do.
    * @evidence contracts/development/implementation.md#principled-implementation Horn's least-squares rigid motion maps the key pose's bearing regions onto the bearer's displayed ones; with fewer than three bearing contacts the key frame carried by the bearer's hips adds three correspondences (its origin and two axis points), so the rotation is determined. The rigid motion becomes the root shift and a whole-body rotation about the registered centre (#3423), and each clinging hand's world goal is taken back through that rotation so the turned goal lands on the bearer's region.
@@ -57,13 +66,26 @@ export namespace HumanCarriedCouplingPose {
     body: IHumanBody,
     coupling: AutoMovieMotionMeeting.ICoupling,
     row: HumanCarried.IRow,
-    bearer: IHumanBody,
-    theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    bearers: Readonly<Record<string, IBearer>>,
   ): IHumanPosture {
     const keyed: IHumanPosture = key(row);
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, keyed);
-    const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
+    const of = (role: string): IBearer => {
+      const found: IBearer | undefined = bearers[role];
+      if (found === undefined)
+        throw new HumanRefusal({
+          kind: "participant",
+          axis: "by",
+          value: role,
+          reason: `the carry's ${role} is not given`,
+          fix: "name every bearer of the carry",
+        });
+      return found;
+    };
+    const hips: IAutoMovieResolvedBone | undefined = of(
+      coupling.bearer,
+    ).bones.get("hips");
     if (hips === undefined)
       throw new HumanRefusal({
         kind: "participant",
@@ -77,7 +99,13 @@ export namespace HumanCarriedCouplingPose {
     for (const contact of coupling.contacts)
       if (contact.kind === "bear") {
         reference.push(region(body, mine, contact.region));
-        target.push(region(bearer, theirs, contact.on.region));
+        target.push(
+          region(
+            of(contact.on.role).body,
+            of(contact.on.role).bones,
+            contact.on.region,
+          ),
+        );
       }
 
     // Fewer than three correspondences leave a turn free: the key frame,
@@ -138,7 +166,13 @@ export namespace HumanCarriedCouplingPose {
         const side: "left" | "right" =
           contact.part === "leftHand" ? "left" : "right";
         limbs[`${side}Arm`] = {
-          point: unturn(region(bearer, theirs, contact.on.region)),
+          point: unturn(
+            region(
+              of(contact.on.role).body,
+              of(contact.on.role).bones,
+              contact.on.region,
+            ),
+          ),
           bend: AutoMovieMotionHumanBend.hang(body, placed, side),
         };
       }
@@ -157,7 +191,8 @@ export namespace HumanCarriedCouplingPose {
    * @param borne The borne body.
    * @param coupling The coupling.
    * @param row The carry's row.
-   * @returns The two places, metres in the bearer's hips frame.
+   * @param role The bearer's role; the coupling's first bearer when absent.
+   * @returns The two places, metres in that bearer's hips frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the order and the null.
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body is registered by, so the bearer reaches where the borne body will lie without reading it.
@@ -171,14 +206,20 @@ export namespace HumanCarriedCouplingPose {
     borne: IHumanBody,
     coupling: AutoMovieMotionMeeting.ICoupling,
     row: HumanCarried.IRow,
+    role: string = coupling.bearer,
   ): readonly [IAutoMovieVector3 | null, IAutoMovieVector3 | null] {
+    // A further bearer reads the places in its own hips frame.
+    const frame:
+      | { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+      | undefined =
+      role === coupling.bearer ? undefined : coupling.bearers?.[role];
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, key(row));
     const at = (palm: AutoMovieHumanoidRegion): IAutoMovieVector3 | null => {
       const contact: AutoMovieMotionMeeting.ICoupledContact | undefined =
         coupling.contacts.find(
           (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
-            c.kind === "bear" && c.on.region === palm,
+            c.kind === "bear" && c.on.role === role && c.on.region === palm,
         );
       if (contact === undefined) return null;
       const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(
@@ -188,14 +229,19 @@ export namespace HumanCarriedCouplingPose {
         Quaternion.inverse(heading),
         region(borne, mine, contact.region),
       );
-      return Vector3.add(
+      const first: IAutoMovieVector3 = Vector3.add(
         coupling.key.position,
         Quaternion.rotateVector(coupling.key.rotation, local),
       );
+      return frame === undefined
+        ? first
+        : Quaternion.rotateVector(
+            Quaternion.inverse(frame.rotation),
+            Vector3.subtract(first, frame.position),
+          );
     };
     return [at("palmLeft"), at("palmRight")];
   }
-
 
   /**
    * The posture of a body standing still at the origin.

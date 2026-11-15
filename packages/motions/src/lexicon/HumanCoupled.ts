@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidRegion } from "@automovie/interface";
 
+import { getUp } from "../floor/getUp";
 import type { IHumanMutual } from "../law/IHumanMutual";
 import type { HumanCarried } from "./HumanCarried";
 
@@ -27,16 +28,23 @@ import type { HumanCarried } from "./HumanCarried";
  * over the reaping thigh, the single-leg takedown over the shoulder driven
  * into the hip.
  *
- * First pass: the dance lifts, helping someone up, a walk with two helpers
- * and arm wrestling are not written here (a lift overhead needs a key pose
- * of the lifter's raised arms, help-up a support sequence whose hand bears
- * on the helper's grip, two helpers a borne body on two bearers, and arm
- * wrestling is `armWrestle`'s with its torque owed to #3439); a tug of war
- * is #3451's.
+ * - **carry** also gives the dance's waist lift and overhead lift
+ *   (`waistLift`, `overheadLift`: the lifted body coupled to the lifter,
+ *   the overhead one held an arm's length above the shoulders).
+ * - **supportWalk**: one person walked between two helpers, each with
+ *   `bearing` on its side of a supported walk and the helped person `borne`
+ *   on both, one coupled meeting of three roles.
+ * - **helpUp**: helping someone up from the floor, both performing
+ *   `support` (#3435), the helped hand gripping the helper's palm until the
+ *   feet bear alone.
+ *
+ * Arm wrestling is `HumanSocial.armWrestle` with the author's winner; the
+ * loser's trunk turn the winner's torque gives is owed to #3439. A tug of
+ * war is #3451's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each record's roles and actions, where the force comes from, the fulcrum table's source and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each composition is a mutual record over shipped laws, the vocabulary's form for one thing several people do.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records and the throws' fulcrum table.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four records and the throws' fulcrum table.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
@@ -83,6 +91,123 @@ export namespace HumanCoupled {
               ...(params?.setDown === undefined
                 ? {}
                 : { setDown: params.setDown }),
+            },
+          };
+    },
+  };
+
+  /** The shared parameters of helping someone up from the floor. */
+  export interface IHelpUp {
+    /** The hand both hold by, the helper's and the helped's alike, as a handshake takes them; `right` when absent. */
+    hand?: "left" | "right";
+  }
+
+  /**
+   * Help someone up from the floor: both perform `support` (#3435). The
+   * helper, standing, grips the helped person's wrist where it lies; the
+   * helped person rises through sitting and squatting to standing with
+   * that hand gripping the helper's palm, which bears on the helper while
+   * the hand holds and lets go once the feet bear alone.
+   */
+  export const helpUp: IHumanMutual<IHelpUp, "helper" | "helped"> = {
+    name: "helpUp",
+    roles: ["helper", "helped"],
+    act: (
+      role: "helper" | "helped",
+      params: IHelpUp,
+      cast: Readonly<Record<"helper" | "helped", string>>,
+    ): IHumanMutual.IAct => {
+      const side: "left" | "right" = params?.hand ?? "right";
+      const part: "leftHand" | "rightHand" =
+        side === "left" ? "leftHand" : "rightHand";
+      const feet = [
+        { part: "leftFoot", kind: "bear" },
+        { part: "rightFoot", kind: "bear" },
+      ] as const;
+      if (role === "helper")
+        return {
+          name: "support",
+          params: {
+            stances: [
+              {
+                contacts: [
+                  ...feet,
+                  {
+                    part,
+                    kind: "grip",
+                    target: {
+                      kind: "person",
+                      subject: cast.helped,
+                      region: side === "left" ? "wristLeft" : "wristRight",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        };
+      const grip = {
+        part,
+        kind: "grip",
+        target: {
+          kind: "person",
+          subject: cast.helper,
+          region: side === "left" ? "palmLeft" : "palmRight",
+        },
+      } as const;
+      return {
+        name: "support",
+        params: {
+          stances: [
+            {
+              contacts: [{ part: "seat", kind: "bear" }, ...feet, grip],
+              prefer: getUp.POSES.sit,
+            },
+            { contacts: [...feet, grip], prefer: getUp.POSES.squat },
+            { contacts: feet },
+          ],
+        },
+      };
+    },
+  };
+
+  /** The shared parameters of a walk between two helpers. */
+  export interface ISupportWalk {
+    /** Seconds supported; the laws' own when absent. */
+    seconds?: number;
+  }
+
+  /** One person walked between two helpers: each helper `bearing` on its side of a supported walk, the helped person `borne` on both. */
+  export const supportWalk: IHumanMutual<
+    ISupportWalk,
+    "helper" | "second" | "helped"
+  > = {
+    name: "supportWalk",
+    roles: ["helper", "second", "helped"],
+    act: (
+      role: "helper" | "second" | "helped",
+      params: ISupportWalk,
+      cast: Readonly<Record<"helper" | "second" | "helped", string>>,
+    ): IHumanMutual.IAct => {
+      const seconds: object =
+        params?.seconds === undefined ? {} : { seconds: params.seconds };
+      return role === "helped"
+        ? {
+            name: "borne",
+            params: {
+              ...seconds,
+              carry: "supported",
+              by: cast.helper,
+              with: cast.second,
+            },
+          }
+        : {
+            name: "bearing",
+            params: {
+              ...seconds,
+              carry: role === "helper" ? "supported" : "supportedLeft",
+              of: cast.helped,
+              beside: role === "helper" ? cast.second : cast.helper,
             },
           };
     },

@@ -36,9 +36,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, over the pairs (m-large, f-small), (f-small, m-large) and
  * (m-average, m-average), the first named casting the first role:
- * 1. `carry` in the fireman's carry (`overShoulder`), the piggyback and the
- *    supported walk on every pair, the bearer standing: every bearing
- *    contact within 10 mm of its region at 20 Hz over the carry, and the
+ * 1. `carry` in the fireman's carry (`overShoulder`), the piggyback, the
+ *    supported walk and the dance's waist lift and overhead lift on every
+ *    pair, the bearer standing: every bearing contact within 10 mm of its
+ *    region (raised by the row's `rise` for a lift at the arms' reach) at
+ *    20 Hz over the carry, and the
  *    pair's centre over the bearer's feet within 2 % of the bearer's
  *    stature; or the expected capacity refusal.
  * 2. `throwing` over a pairwise covering of its four kinds, the three pairs
@@ -51,9 +53,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the records through the public chain and reads both displayed bodies and the plans' events; a slipping or floating contact, a pair off the bearer's base, an outcome its geometry does not show, or an unexpected refusal fails with its cell and numbers.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are #3349's, #3437's and #3439's; every reading is of the displayed bodies or the declared events.
- * @evidence contracts/development/testing.md#distinguishing-cases Three carries by three pairs, and a pairwise covering of four throws, three pairs and three outcomes.
- * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and builds twenty-one short performances; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, each bound with its source, the expected refusal and the 2 scenarios.
+ * @evidence contracts/development/testing.md#distinguishing-cases Five carries by three pairs, and a pairwise covering of four throws, three pairs and three outcomes, help-up on three pairs and two walks between two helpers.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and builds twenty-seven short performances; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, each bound with its source, the expected refusal and the 4 scenarios.
  */
 export function test_human_motion_coupled_signature(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
@@ -70,7 +72,13 @@ export function test_human_motion_coupled_signature(): void {
 
   // 1. The carries.
   for (const names of PAIRS)
-    for (const carry of ["overShoulder", "piggyback", "supported"] as const) {
+    for (const carry of [
+      "overShoulder",
+      "piggyback",
+      "supported",
+      "waistLift",
+      "overheadLift",
+    ] as const) {
       const cell: string = `carry ${carry}, ${names[0]} bearing ${names[1]}`;
       const bodies: Record<"a" | "b", IHumanBody> = {
         a: motionHumanBody(names[0]),
@@ -144,10 +152,20 @@ export function test_human_motion_coupled_signature(): void {
           (c: AutoMovieMotionMeeting.ICoupledContact): boolean =>
             c.kind === "bear",
         )) {
+          // A lift held at the arms' reach rests its region that far above
+          // the bearer's (`IRow.rise`).
+          const rise: number =
+            contact.on.region === HumanCarried.CARRIES[carry].theirs
+              ? (HumanCarried.CARRIES[carry].rise ?? 0) *
+                (bodies.a.measure.upperArm + bodies.a.measure.forearm)
+              : 0;
           const gap: number = Vector3.length(
             Vector3.subtract(
               HumanSignature.region(readers.b, contact.region, t),
-              HumanSignature.region(readers.a, contact.on.region, t),
+              Vector3.add(
+                HumanSignature.region(readers.a, contact.on.region, t),
+                { x: 0, y: rise, z: 0 },
+              ),
             ),
           );
           all.check(

@@ -16,10 +16,10 @@ import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanLoad } from "../perform/HumanLoad";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanCarried } from "./HumanCarried";
+import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -57,6 +57,11 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  *   (a search on casualty-carry capacity relative to the rescuer's mass
  *   returned none), so no tighter per-carry bound is set.
  *
+ * - **Two helpers.** A carry with another side (`PAIRED`: a supported
+ *   walk) takes a second helper as the role `second`, standing where its
+ *   side's region meets the borne body's on that side; the borne body rests
+ *   on both, each helper bearing its contacts' share.
+ *
  * First pass: the key pose is the carry's table posture, not a whole-body
  * fit of both bodies (`HumanBodyFit`); the borne centre is read with the
  * arms at their clinical zero; the bearer's sideways moment (a supported
@@ -64,7 +69,7 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the key pose, the contacts, the load shares with their law, the per-instant solve with its source, the capacity bound with its derivation and search record, and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A meeting kind with a coupling of plain data in the bearer's hips frame, the shared record of a coupled pair; the borne body's place is a rigid registration of its key pose on the bearer's contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The roles, the hold table, the kind, the coupling, the bearer's load and the capacity; the borne posture and the holds are `HumanCarriedCouplingPose`'s, the carries' rows stay `HumanCarried`'s and the lean `HumanLoad`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The roles, the second side's table, the hold table, the kind and the coupling; the shares, the load and the capacity are `HumanCarriedCouplingLoad`'s, the borne posture and the holds `HumanCarriedCouplingPose`'s, the carries' rows stay `HumanCarried`'s and the lean `HumanLoad`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The borne body is placed on every bearing contact at once, never on one bone, and a mass no lean balances is refused, never clamped.
  */
 export namespace HumanCarriedCoupling {
@@ -74,11 +79,21 @@ export namespace HumanCarriedCoupling {
   /** The borne role's name. */
   export const BORNE: string = "borne";
 
+  /** The second bearer's role name, when a borne body walks between two helpers. */
+  export const SECOND: string = "second";
+
+  /** The carry the second helper takes beside each carry that has one: a supported walk's other side. */
+  export const PAIRED: Readonly<
+    Partial<Record<HumanCarried.Carry, HumanCarried.Carry>>
+  > = {
+    supported: "supportedLeft",
+  };
+
   /**
    * The borne region each bearer hand holds, left hand then right, from the
    * carries' common descriptions: piggyback, under the thighs; cradle, under
    * the back and the knees; over the shoulder, the back of the thighs;
-   * supported, the far hip; the armpit drag, under the arms; the collar
+   * supported, the far hip; a waist lift face to face, the facing hips; an overhead lift, the hips from below; the armpit drag, under the arms; the collar
    * drag, the collar; the ankle drag, the ankles. Null where the carry's own
    * row has no hold on that side.
    */
@@ -93,6 +108,8 @@ export namespace HumanCarriedCoupling {
     overShoulder: [null, "thighOuterRight"],
     supported: [null, "hipRight"],
     supportedLeft: ["hipLeft", null],
+    waistLift: ["hipRight", "hipLeft"],
+    overheadLift: ["hipLeft", "hipRight"],
     armpitDrag: ["ribsLeft", "ribsRight"],
     collarDrag: ["nape", "nape"],
     ankleDrag: ["calfLeft", "calfRight"],
@@ -106,6 +123,7 @@ export namespace HumanCarriedCoupling {
    * @param carry The carry.
    * @param rows The carries' rows (`HumanCarried.CARRIES`), passed by the caller so this file does not import its consumer.
    * @param extra Kilograms the borne person carries besides their body; none when absent.
+   * @param paired Whether a second helper takes the carry's other side (`PAIRED`), as the role `second`.
    * @returns The kind.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the roles, the timing and what the coupling is computed from.
@@ -120,10 +138,14 @@ export namespace HumanCarriedCoupling {
     carry: HumanCarried.Carry,
     rows: Readonly<Record<HumanCarried.Carry, HumanCarried.IRow>>,
     extra: number = 0,
+    paired: boolean = false,
   ): AutoMovieMotionMeeting.IKind {
+    const other: HumanCarried.Carry | undefined = paired
+      ? PAIRED[carry]
+      : undefined;
     return {
-      name: `carried:${carry}`,
-      roles: [BEARER, BORNE],
+      name: `carried:${carry}${other === undefined ? "" : `+${other}`}`,
+      roles: other === undefined ? [BEARER, BORNE] : [BEARER, BORNE, SECOND],
       contacts: {},
       timing: (): AutoMovieMotionMeeting.ITiming => ({
         ready: 0,
@@ -139,7 +161,19 @@ export namespace HumanCarriedCoupling {
         const borne: AutoMovieMotionMeeting.IRole = roles.find(
           (r: AutoMovieMotionMeeting.IRole): boolean => r.name === BORNE,
         )!;
-        return couple(bearer.body, borne.body, rows[carry], carry, extra);
+        const second: AutoMovieMotionMeeting.IRole | undefined = roles.find(
+          (r: AutoMovieMotionMeeting.IRole): boolean => r.name === SECOND,
+        );
+        return couple(
+          bearer.body,
+          borne.body,
+          rows[carry],
+          carry,
+          extra,
+          other === undefined || second === undefined
+            ? undefined
+            : { body: second.body, row: rows[other], carry: other },
+        );
       },
     };
   }
@@ -153,6 +187,7 @@ export namespace HumanCarriedCoupling {
    * @param row The carry's row.
    * @param carry The carry, for its holds.
    * @param extra Kilograms the borne person carries besides their body.
+   * @param second A second helper on the carry's other side: its body, its side's row and carry; none when absent.
    * @returns The coupling, in the bearer's hips frame.
    * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `parameter` refusal on `mass` for a negative extra mass.
    *
@@ -170,6 +205,11 @@ export namespace HumanCarriedCoupling {
     row: HumanCarried.IRow,
     carry: HumanCarried.Carry,
     extra: number = 0,
+    second?: {
+      body: IHumanBody;
+      row: HumanCarried.IRow;
+      carry: HumanCarried.Carry;
+    },
   ): AutoMovieMotionMeeting.ICoupling {
     if (!(extra >= 0))
       throw new HumanRefusal({
@@ -185,8 +225,13 @@ export namespace HumanCarriedCoupling {
       HumanTrunk.resolve(bearer, stand);
     const hips: IAutoMovieResolvedBone = theirs.get("hips")!;
     const keyed: IHumanPosture = HumanCarriedCouplingPose.key(row);
+    // A lift held at the arms' reach rests its region that far above.
     const root: IAutoMovieVector3 = Vector3.subtract(
-      HumanCarriedCouplingPose.region(bearer, theirs, row.theirs),
+      Vector3.add(HumanCarriedCouplingPose.region(bearer, theirs, row.theirs), {
+        x: 0,
+        y: (row.rise ?? 0) * (bearer.measure.upperArm + bearer.measure.forearm),
+        z: 0,
+      }),
       HumanCarriedCouplingPose.region(borne, HumanTrunk.resolve(borne, keyed), row.mine),
     );
     const key: IHumanPosture = { ...keyed, root };
@@ -201,30 +246,69 @@ export namespace HumanCarriedCoupling {
         Vector3.subtract(point, hips.worldPosition),
       );
 
-    // The contacts: the resting region, the bearer's palms under the held
+    // A second helper stands where its side's region meets the borne
+    // body's region on that side, facing as the first does.
+    const besides: {
+      role: string;
+      row: HumanCarried.IRow;
+      carry: HumanCarried.Carry;
+    }[] = [{ role: BEARER, row, carry }];
+    const bearers: Record<
+      string,
+      { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
+    > = {};
+    if (second !== undefined) {
+      const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        HumanTrunk.resolve(second.body, stand);
+      const shift: IAutoMovieVector3 = Vector3.subtract(
+        HumanCarriedCouplingPose.region(borne, mine, second.row.mine),
+        HumanCarriedCouplingPose.region(second.body, still, second.row.theirs),
+      );
+      const theirsHips: IAutoMovieResolvedBone = still.get("hips")!;
+      bearers[SECOND] = {
+        position: local(Vector3.add(theirsHips.worldPosition, shift)),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, theirsHips.worldRotation),
+        ),
+      };
+      besides.push({ role: SECOND, row: second.row, carry: second.carry });
+    }
+
+    // The contacts: each bearer's resting region, its palms under the held
     // regions, and the clinging hands.
     const bearing: {
+      role: string;
       region: AutoMovieHumanoidRegion;
       on: AutoMovieHumanoidRegion;
-    }[] = [{ region: row.mine, on: row.theirs }];
-    (["left", "right"] as const).forEach(
-      (side: "left" | "right", index: number): void => {
-        const held: AutoMovieHumanoidRegion | null =
-          row.holds[index] === null ? null : (HOLDS[carry][index] ?? null);
-        if (held !== null)
-          bearing.push({
-            region: held,
-            on: side === "left" ? "palmLeft" : "palmRight",
-          });
-      },
-    );
+    }[] = [];
+    for (const side of besides) {
+      bearing.push({
+        role: side.role,
+        region: side.row.mine,
+        on: side.row.theirs,
+      });
+      (["left", "right"] as const).forEach(
+        (hand: "left" | "right", index: number): void => {
+          const held: AutoMovieHumanoidRegion | null =
+            side.row.holds[index] === null
+              ? null
+              : (HOLDS[side.carry][index] ?? null);
+          if (held !== null)
+            bearing.push({
+              role: side.role,
+              region: held,
+              on: hand === "left" ? "palmLeft" : "palmRight",
+            });
+        },
+      );
+    }
     const model: resolveAutoMovieCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(borne.skeleton, borne.profile);
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,
       mine,
     );
-    const loads: number[] = shares(
+    const loads: number[] = HumanCarriedCouplingLoad.shares(
       bearing.map(
         (b: {
           region: AutoMovieHumanoidRegion;
@@ -235,29 +319,35 @@ export namespace HumanCarriedCoupling {
     );
     const contacts: AutoMovieMotionMeeting.ICoupledContact[] = bearing.map(
       (
-        b: { region: AutoMovieHumanoidRegion; on: AutoMovieHumanoidRegion },
+        b: {
+          role: string;
+          region: AutoMovieHumanoidRegion;
+          on: AutoMovieHumanoidRegion;
+        },
         index: number,
       ): AutoMovieMotionMeeting.ICoupledContact => ({
         part: part(borne, b.region),
         region: b.region,
-        on: { role: BEARER, region: b.on },
+        on: { role: b.role, region: b.on },
         kind: "bear",
         load: loads[index]!,
       }),
     );
-    (["left", "right"] as const).forEach(
-      (side: "left" | "right", index: number): void => {
-        const cling: AutoMovieHumanoidRegion | null = row.clings[index] ?? null;
-        if (cling !== null)
-          contacts.push({
-            part: side === "left" ? "leftHand" : "rightHand",
-            region: side === "left" ? "palmLeft" : "palmRight",
-            on: { role: BEARER, region: cling },
-            kind: "grip",
-            load: 0,
-          });
-      },
-    );
+    for (const side of besides)
+      (["left", "right"] as const).forEach(
+        (hand: "left" | "right", index: number): void => {
+          const cling: AutoMovieHumanoidRegion | null =
+            side.row.clings[index] ?? null;
+          if (cling !== null)
+            contacts.push({
+              part: hand === "left" ? "leftHand" : "rightHand",
+              region: hand === "left" ? "palmLeft" : "palmRight",
+              on: { role: side.role, region: cling },
+              kind: "grip",
+              load: 0,
+            });
+        },
+      );
     const coupling: AutoMovieMotionMeeting.ICoupling = {
       bearer: BEARER,
       borne: BORNE,
@@ -273,83 +363,12 @@ export namespace HumanCarriedCoupling {
           ),
         ),
       },
+      ...(second === undefined ? {} : { bearers }),
     };
-    bearable(bearer, coupling);
+    HumanCarriedCouplingLoad.bearable(bearer, coupling);
+    if (second !== undefined)
+      HumanCarriedCouplingLoad.bearable(second.body, coupling, SECOND);
     return coupling;
-  }
-
-  /**
-   * The bearer's load for its lean (`HumanCarriedLean.layer`,
-   * `HumanLoad.lean`): its own mass and centre height, and the borne mass
-   * with its distance ahead of the bearer's centre along the facing.
-   *
-   * @param bearer The bearer's body.
-   * @param coupling The coupling.
-   * @returns The load.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and the frame of the distance.
-   * @evidence contracts/development/implementation.md#principled-implementation The combined centre of the pair moves `m d / (M + m)` ahead of the bearer's own; the lean that balances it is #3431's moment balance, so this returns exactly its inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and one mass model.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's mass model and the coupling's centre.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
-   */
-  export function load(
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
-  ): Parameters<typeof HumanLoad.lean>[0] {
-    const model: resolveAutoMovieCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(bearer.skeleton, bearer.profile);
-    const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(bearer, HumanCarriedCouplingPose.still());
-    const hips: IAutoMovieResolvedBone = theirs.get("hips")!;
-    const own: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      model,
-      theirs,
-    );
-    const borne: IAutoMovieVector3 = Vector3.add(
-      hips.worldPosition,
-      Quaternion.rotateVector(hips.worldRotation, coupling.centre),
-    );
-    return {
-      mass: model.mass,
-      height: own.y,
-      load: coupling.mass,
-      ahead: borne.z - own.z,
-    };
-  }
-
-  /**
-   * Refuse a coupling whose borne mass no lean of the bearer balances.
-   *
-   * @param bearer The bearer's body.
-   * @param coupling The coupling.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation `HumanLoad.lean` is null exactly when `m d > M h`; the feasible mass is `M h / |d|`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One load, one test.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mass is refused, never clamped to the bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work after `load`.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `load` and `HumanLoad.lean`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check.
-   */
-  export function bearable(
-    bearer: IHumanBody,
-    coupling: AutoMovieMotionMeeting.ICoupling,
-  ): void {
-    const props: Parameters<typeof HumanLoad.lean>[0] = load(bearer, coupling);
-    if (HumanLoad.lean(props) !== null) return;
-    const feasible: number = (props.mass * props.height) / Math.abs(props.ahead);
-    throw new HumanRefusal({
-      kind: "participant",
-      axis: "mass",
-      value: coupling.mass,
-      feasible: { kind: "range", minimum: 0, maximum: feasible, unit: "kg" },
-      reason: `a borne mass of ${coupling.mass.toFixed(1)} kg ${Math.abs(props.ahead).toFixed(2)} m from a bearer of ${props.mass.toFixed(1)} kg with its centre ${props.height.toFixed(2)} m high has a moment no lean balances`,
-      fix: `carry at most ${feasible.toFixed(1)} kg in this carry, or choose a carry that holds the body closer`,
-    });
   }
 
   /** The contact window part a region's bone belongs to. */
@@ -375,56 +394,5 @@ export namespace HumanCarriedCoupling {
       } as Partial<Record<AutoMovieHumanoidBone, IHumanContactWindow["part"]>>
     )[bone];
     return limb ?? (bone === "hips" ? "seat" : "back");
-  };
-
-  /**
-   * The least-norm load shares of points whose weighted centre lies under a
-   * centre: `w = A^T (A A^T)^-1 b` for the rows (1, x, z); equal shares when
-   * the points are collinear in plan; a negative share set to none and the
-   * rest renormalized.
-   */
-  const shares = (
-    points: readonly IAutoMovieVector3[],
-    centre: IAutoMovieVector3,
-  ): number[] => {
-    const n: number = points.length;
-    const equal: number[] = points.map((): number => 1 / n);
-    if (n === 1) return [1];
-    const rows: number[][] = [
-      points.map((): number => 1),
-      points.map((p: IAutoMovieVector3): number => p.x),
-      points.map((p: IAutoMovieVector3): number => p.z),
-    ];
-    const g: number[][] = rows.map((a: number[]): number[] =>
-      rows.map((b: number[]): number =>
-        a.reduce((s: number, v: number, i: number): number => s + v * b[i]!, 0),
-      ),
-    );
-    const det = (m: number[][]): number =>
-      m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
-      m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
-      m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
-    const d: number = det(g);
-
-    // Collinear points in plan: the three equations are singular.
-    const scale: number = Math.max(...g.flat().map(Math.abs));
-    if (!(Math.abs(d) > Number.EPSILON * scale * scale * scale)) return equal;
-    const b: number[] = [1, centre.x, centre.z];
-    const lambda: number[] = [0, 1, 2].map((column: number): number =>
-      det(
-        g.map((r: number[], i: number): number[] =>
-          r.map((v: number, j: number): number => (j === column ? b[i]! : v)),
-        ),
-      ) / d,
-    );
-    const raw: number[] = points.map(
-      (_: IAutoMovieVector3, i: number): number =>
-        lambda[0]! * rows[0]![i]! +
-        lambda[1]! * rows[1]![i]! +
-        lambda[2]! * rows[2]![i]!,
-    );
-    const kept: number[] = raw.map((w: number): number => Math.max(0, w));
-    const sum: number = kept.reduce((s: number, w: number): number => s + w, 0);
-    return sum > 0 ? kept.map((w: number): number => w / sum) : equal;
   };
 }

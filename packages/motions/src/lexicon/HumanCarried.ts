@@ -1,39 +1,21 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import type { IAutoMovieResolvedBone } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
 
-import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import type { IAutoMovieMotionHumanPrimitive } from "../compose/IAutoMovieMotionHumanPrimitive";
-import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../everyday/HumanTrunk";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanContactWindow } from "../law/IHumanContactWindow";
-import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
-import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
+import { HumanCarriedBearing } from "./HumanCarriedBearing";
+import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
-import { HumanCarriedLift } from "./HumanCarriedLift";
+import type { HumanCarriedLift } from "./HumanCarriedLift";
 
 /**
  * Being carried by another person: on the back, in the arms or over a
@@ -157,6 +139,8 @@ export namespace HumanCarried {
     | "overShoulder"
     | "supported"
     | "supportedLeft"
+    | "waistLift"
+    | "overheadLift"
     | HumanCarriedDrag.Name;
 
   /** An offset by its parts in a performer's floor frame: toward the named hand's side, up and forward. */
@@ -196,6 +180,9 @@ export namespace HumanCarried {
 
     /** Where the carrier's left and right wrists hold: an own region and an offset from it in arm lengths; null for a free arm. */
     holds: readonly [IHold | null, IHold | null];
+
+    /** How far above the carrier's region the carried region rests, in the carrier's arm lengths (upper arm and forearm): a lift held at the arms' reach; none when absent. */
+    rise?: number;
   }
 
   /** Where a carrying hand holds, on the carrier's own body. */
@@ -207,7 +194,7 @@ export namespace HumanCarried {
     offset: IOffset;
   }
 
-  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
+  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
   export const CARRIES: Readonly<Record<Carry, IRow>> = {
     piggyback: {
       mine: "sternum",
@@ -269,6 +256,31 @@ export namespace HumanCarried {
         null,
       ],
     },
+    waistLift: {
+      mine: "abdomen",
+      theirs: "sternum",
+      turn: 180,
+      pitch: 0,
+      legs: [20, 40, 0],
+      clings: ["shoulderRight", "shoulderLeft"],
+      holds: [
+        { region: "sternum", offset: { out: 0.2, up: 0, forward: 0.3 } },
+        { region: "sternum", offset: { out: 0.2, up: 0, forward: 0.3 } },
+      ],
+    },
+    overheadLift: {
+      mine: "abdomen",
+      theirs: "nape",
+      turn: 0,
+      pitch: 90,
+      legs: [0, 0, 0],
+      clings: [null, null],
+      holds: [
+        { region: "shoulderLeft", offset: { out: 0, up: 1, forward: 0 } },
+        { region: "shoulderRight", offset: { out: 0, up: 1, forward: 0 } },
+      ],
+      rise: 1,
+    },
     ...HumanCarriedDrag.CARRIES,
   };
 
@@ -285,6 +297,9 @@ export namespace HumanCarried {
 
     /** Kilograms the carried person carries besides their body (a pack, gear), which the carrier bears too; none when absent. */
     mass?: number & tags.Minimum<0>;
+
+    /** A second helper's subject id, on the carry's other side (`HumanCarriedCoupling.PAIRED`: a supported walk between two helpers); none when absent. */
+    with?: string;
   }
 
   /** Parameters of the carrier's hold in a named carry. */
@@ -298,37 +313,15 @@ export namespace HumanCarried {
     /** Kilograms the carried person carries besides their body, as their `borne` states it; none when absent. */
     mass?: number & tags.Minimum<0>;
 
+    /** The other helper's subject id when two helpers carry one person (`HumanCarriedCoupling.PAIRED`): this one is the second when its carry is the other side's; none when absent. */
+    beside?: string;
+
     /** Seconds held, more than none; 2 when absent. */
     seconds?: number & tags.ExclusiveMinimum<0> & HumanUnit<"s">;
   }
 
-  /** A region's point on resolved bones. */
-  const placed = (
-    body: IHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    region: AutoMovieHumanoidRegion,
-    axis: string,
-  ): IAutoMovieVector3 => {
-    const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-      body.surfaces.regions[region];
-    const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
-    if (bone === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis,
-        value: region,
-        reason: `the rig has no bone ${frame.bone} for the region ${region}`,
-        fix: "carry on a body of the canonical humanoid rig",
-      });
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
-  };
-
-  /** Refuse a carry's seconds that are not positive. */
-  const lasting = (seconds: number): number =>
-    HumanBound.above("seconds", seconds, 0, "s");
-
   /**
-   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A person named as their own carrier is refused on `by`; a borne mass no lean of the carrier balances is refused on `mass` with the feasible mass.
+   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A second helper named by `with` takes the other side of a carry that has one (`HumanCarriedCoupling.PAIRED`), and the body rests on both. A person named as their own carrier is refused on `by`, a second helper on a carry with no other side on `with`, and a borne mass no lean of a carrier balances on `mass` with the feasible mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, the phases and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture is registered on the carrier's bearing regions by Horn's closed-form absolute orientation (`HumanCarriedCouplingPose.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
@@ -344,135 +337,12 @@ export namespace HumanCarried {
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     },
     yields: ["head"],
-    plan: (context: IHumanActionContext<IBorne>): IHumanActionPlan => {
-      const by: string | undefined = context.params.by;
-      const seconds: number = lasting(context.params.seconds ?? 2);
-      if (by === context.subject)
-        throw new HumanRefusal({
-          kind: "participant",
-          axis: "by",
-          value: by,
-          reason: "a person is carried by someone else",
-          fix: "name the carrier",
-        });
-      const carry: Carry = context.params.carry ?? "piggyback";
-      const row: IRow = CARRIES[carry];
-      const body: IHumanBody = context.body;
-      const carrier: IHumanActionContext.IPerformer | undefined =
-        by === undefined ? undefined : context.performer(by);
-      const entry: IHumanPosture = context.entry.posture;
-      const [hip, knee, apart]: readonly [number, number, number] = row.legs;
-      const joints: IHumanPosture["joints"] = {
-        leftUpperLeg: [hip, apart, 0],
-        rightUpperLeg: [hip, apart, 0],
-        leftLowerLeg: [knee, 0, 0],
-        rightLowerLeg: [knee, 0, 0],
-      };
-
-      // A carrier makes the carry a coupled meeting (#3437): the borne body
-      // rests on every contact of the coupling, each with its load share.
-      const coupling: AutoMovieMotionMeeting.ICoupling | undefined =
-        by === undefined
-          ? undefined
-          : context.meeting(
-              HumanCarriedCoupling.kind(carry, CARRIES, context.params.mass),
-              HumanCarriedCoupling.BORNE,
-              { role: HumanCarriedCoupling.BEARER, subject: by },
-            ).coupling;
-      return HumanCarriedLift.over(context, {
-        duration: seconds,
-        events: [],
-        contacts:
-          by === undefined
-            ? []
-            : coupling === undefined
-              ? [
-                  {
-                    part: "seat",
-                    kind: "seat",
-                    from: 0,
-                    to: 1,
-                    support: {
-                      kind: "person",
-                      subject: by,
-                      region: row.theirs,
-                    },
-                  },
-                ]
-              : coupling.contacts.map(
-                  (
-                    contact: AutoMovieMotionMeeting.ICoupledContact,
-                  ): IHumanContactWindow => ({
-                    part: contact.part,
-                    kind: contact.kind,
-                    region: contact.region,
-                    from: 0,
-                    to: 1,
-                    load: contact.load,
-                    support: {
-                      kind: "person",
-                      subject: by,
-                      region: contact.on.region,
-                    },
-                  }),
-                ),
-        posture: (at: number): IHumanPosture => {
-          // With no carrier the carry's posture is taken where the body stands.
-          if (carrier === undefined)
-            return { ...entry, pitch: row.pitch, joints, limbs: {} };
-          if (coupling !== undefined)
-            return HumanCarriedCouplingPose.posture(
-              body,
-              coupling,
-              row,
-              carrier.body,
-              carrier.bones(
-                context.start + Math.min(seconds, Math.max(0, at)),
-              ),
-            );
-          const theirs: ReturnType<IHumanActionContext.IPerformer["bones"]> =
-            carrier.bones(context.start + Math.min(seconds, Math.max(0, at)));
-          const hips: IAutoMovieResolvedBone | undefined = theirs.get("hips");
-          const turned: IHumanPosture = {
-            root: { x: 0, y: 0, z: 0 },
-            yaw:
-              (hips === undefined
-                ? 0
-                : HumanFrame.heading(hips.worldRotation)) + row.turn,
-            pitch: row.pitch,
-            roll: 0,
-            joints,
-            limbs: {},
-          };
-
-          // The root that puts the resting region on the carrier's region.
-          const posture: IHumanPosture = {
-            ...turned,
-            root: Vector3.subtract(
-              placed(carrier.body, theirs, row.theirs, "carry"),
-              placed(body, HumanTrunk.resolve(body, turned), row.mine, "carry"),
-            ),
-          };
-          const limbs: IHumanPosture["limbs"] = {};
-          (["left", "right"] as const).forEach(
-            (side: "left" | "right", index: number): void => {
-              const region: AutoMovieHumanoidRegion | null =
-                row.clings[index] ?? null;
-              if (region !== null)
-                limbs[`${side}Arm`] = {
-                  point: placed(carrier.body, theirs, region, "carry"),
-                  bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-                };
-            },
-          );
-          return { ...posture, limbs };
-        },
-      });
-    },
+    plan: (context: IHumanActionContext<IBorne>): IHumanActionPlan =>
+      HumanCarriedBorne.plan(context),
   };
 
   /**
-   * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims only the arms that hold. The lean against the load is a layer the composition schedules over the carry (`HumanCarriedLean`), since a walk keeps its trunk for itself.
+   * Hold a person in a named carry: the carrier's hands where the carry takes the carried body. Performed over the carrier's own action (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims only the arms that hold. With two helpers each names the other by `beside`, the one whose carry is the other side's being the second. The lean against the load is a layer the composition schedules over the carry (`HumanCarriedLean`), since a walk keeps its trunk for itself.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the hands do, how it is composed and what is missing.
    * @evidence contracts/development/implementation.md#principled-implementation With the carried person named (`of`), each holding wrist goes where the coupled carry lays the held region, in the carrier's own displayed hips frame (`HumanCarriedCouplingPose.holds`); otherwise to a place measured from one of the carrier's own regions on the trunk the carrier's action has placed, in arm lengths. Either way the hold follows the walk, and the arm is carried in joint space from what it held (`AutoMovieMotionHumanArm.carried`).
@@ -488,99 +358,8 @@ export namespace HumanCarried {
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     },
     overlay: true,
-    plan: (context: IHumanActionContext<IBearing>): IHumanActionPlan => {
-      const seconds: number = lasting(context.params.seconds ?? 2);
-      const carry: Carry = context.params.carry ?? "piggyback";
-      const row: IRow = CARRIES[carry];
-      const body: IHumanBody = context.body;
-      const arm: number = body.measure.upperArm + body.measure.forearm;
-
-      // With the carried person named, each holding hand goes where the
-      // coupled carry lays the held region, in the carrier's own hips frame
-      // (#3437); the carried body is never read, only its rest body.
-      const of: string | undefined = context.params.of;
-      const coupling: AutoMovieMotionMeeting.ICoupling | undefined =
-        of === undefined
-          ? undefined
-          : context.meeting(
-              HumanCarriedCoupling.kind(carry, CARRIES, context.params.mass),
-              HumanCarriedCoupling.BEARER,
-              { role: HumanCarriedCoupling.BORNE, subject: of },
-            ).coupling;
-      const coupled: readonly [
-        IAutoMovieVector3 | null,
-        IAutoMovieVector3 | null,
-      ] =
-        coupling === undefined || of === undefined
-          ? [null, null]
-          : HumanCarriedCouplingPose.holds(
-              context.performer(of).body,
-              coupling,
-              row,
-            );
-      const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.of(
-        seconds,
-        [{ name: "held", seconds: Math.min(seconds, TAKE) }],
-      );
-      const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-      (["left", "right"] as const).forEach(
-        (side: "left" | "right", index: number): void => {
-          const hold: IHold | null = row.holds[index] ?? null;
-          if (hold === null) return;
-          primitives.push(
-            AutoMovieMotionHumanArm.carried({
-              body,
-              side,
-              from: 0,
-              to: seconds,
-              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-              goal: (posture: IHumanPosture): IHumanPosture.IGoal => {
-                const local: IAutoMovieVector3 | null = coupled[index] ?? null;
-                if (local !== null) {
-                  const hips: IAutoMovieResolvedBone = HumanTrunk.resolve(
-                    body,
-                    posture,
-                  ).get("hips")!;
-                  return {
-                    point: Vector3.add(
-                      hips.worldPosition,
-                      Quaternion.rotateVector(hips.worldRotation, local),
-                    ),
-                    bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-                  };
-                }
-                return {
-                point: Vector3.add(
-                  placed(
-                    body,
-                    HumanTrunk.resolve(body, posture),
-                    hold.region,
-                    "carry",
-                  ),
-                  HumanFrame.point(
-                    { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                    {
-                      x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
-                      y: hold.offset.up * arm,
-                      z: hold.offset.forward * arm,
-                    },
-                  ),
-                ),
-                bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-                };
-              },
-              weight: (at: number): number =>
-                clock.progress(AutoMovieMotionClock.START, "held", at),
-            }),
-          );
-        },
-      );
-      return composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.under(context, seconds),
-        clock,
-        primitives,
-      });
-    },
+    plan: (context: IHumanActionContext<IBearing>): IHumanActionPlan =>
+      HumanCarriedBearing.plan(context),
   };
 
   /** Seconds the carrier's hands take to reach their hold (provisional). */
