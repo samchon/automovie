@@ -176,11 +176,19 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tool-${kind}`,
       (seed?: number | string): Archetype => createTool({ kind }, seed),
+      Object.values(createTool.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const kind of createLongTool.KINDS)
     add(
       `longTool-${kind}`,
       (seed?: number | string): Archetype => createLongTool({ kind }, seed),
+      Object.values(createLongTool.BANDS[kind]).every(
+        (band: IArchetypeBand | undefined): boolean =>
+          band === undefined || band.minimum === band.maximum,
+      ),
     );
   for (const kind of createSeat.KINDS)
     add(

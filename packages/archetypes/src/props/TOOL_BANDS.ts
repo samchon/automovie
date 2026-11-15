@@ -1,4 +1,5 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import { PRIMING_WIRE } from "./PRIMING_WIRE";
 import type { createTool } from "./createTool";
 
 /** The handle diameters hands rated most comfortable in a power grip. */
@@ -32,6 +33,10 @@ const LADLE: string =
 /** Two table knives, read at a maker's and a retailer's pages. */
 const KNIFE: string =
   "Eichenlaub Altdeutsch table knife: overall 22.5 cm, blade 12.5 cm, blade width 1.7 cm, 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood); Robert Welch Malvern table knife: H246 x W21 x D9 mm, blade 12 cm, 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599), its 21 mm width the blade's, the knife's widest part";
+
+/** A field gun's priming wire, read; its weight is read only for the garrison wire. */
+const PRIMING: string =
+  "1862 Ordnance Manual, p. 134 (https://archive.org/details/ordnancemanualfo00unitrich): \"Priming-wire; iron wire 0.175 inch diameter, formed with a ring 2 inches diameter at the head, and pointed; length of stem, for siege and garrison guns, 14 inches; length for field-guns, 8 inches. Weight 0.08 lb. for garrison guns.\"";
 
 /** The precision handle band applied to a handle no maker sizes. */
 const PRECISION: string =
@@ -117,5 +122,18 @@ export const TOOL_BANDS: Readonly<
       bladeWidth: ArchetypeBand.metres(0.017, 0.021, KNIFE),
       gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
       mass: ArchetypeBand.of("kg", 0.06, 0.13, KNIFE),
+    },
+    primingWire: {
+      length: ArchetypeBand.metres(
+        PRIMING_WIRE.ring + PRIMING_WIRE.field,
+        PRIMING_WIRE.ring + PRIMING_WIRE.field,
+        `${PRIMING}: the 2 in ring and the 8 in field stem`,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        PRIMING_WIRE.mass,
+        PRIMING_WIRE.mass,
+        `${PRIMING}: the garrison wire's 0.08 lb scaled by the length of wire in the field wire's ring and 8 in stem over the garrison wire's ring and 14 in stem, a derivation`,
+      ),
     },
 };

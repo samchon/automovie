@@ -8,12 +8,15 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
+import { PRIMING_WIRE } from "./PRIMING_WIRE";
 import { TOOL_BANDS } from "./TOOL_BANDS";
 
 /**
- * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a ladle or a table knife.
+ * A one-hand tool: a claw hammer, a hand saw, a screwdriver, a spoon, a fork, a ladle, a table knife, or a field gun's priming wire.
  *
- * A spoon, a fork and a ladle are stainless steel throughout, as their makers' pages state; they rest on that steel, so their bodies' friction is steel's on concrete. A hammer's, a saw's and a screwdriver's materials are not read, so their bodies carry no friction, as does a table knife's, whose read makers' handles differ.
+ * A spoon, a fork and a ladle are stainless steel throughout, as their makers' pages state, and a priming wire is iron wire, as the 1862 Ordnance Manual states; they rest on that metal, so their bodies' friction is steel's on concrete. A hammer's, a saw's and a screwdriver's materials are not read, so their bodies carry no friction, as does a table knife's, whose read makers' handles differ.
+ *
+ * A priming wire stands on its ring at the origin, the ring flat in the `YZ` plane, its stem rising to its point, the `face`, `+Y` along it; finger and thumb pinch the ring's flats from `-X` and `+X`, the `grip`.
  *
  * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines, a ladle's bowl toward `+Z`, and a table knife's edge toward `+Z`. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
@@ -59,6 +62,38 @@ export function createTool(
     });
 
   const v: typeof Vector3.create = Vector3.create;
+
+  if (kind === "primingWire") {
+    // The ring a finger and thumb pinch, then the stem to its point.
+    const wire: number = PRIMING_WIRE.wire;
+    const ring: number = PRIMING_WIRE.ring;
+    builder.rod("ring", ring / 2, v(-wire / 2, ring / 2, 0), v(wire / 2, ring / 2, 0), {
+      color: "#4a4d52",
+      surface: "steel",
+    });
+    builder.rod("stem", wire / 2, v(0, ring, 0), v(0, length, 0), {
+      color: "#4a4d52",
+      surface: "steel",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "half",
+      frame: ArchetypeFrame.facing(v(0, ring / 2, 0), v(1, 0, 0), v(0, 1, 0)),
+      extent: null,
+      grip: "precision",
+      aperture: wire,
+      length: ring,
+    });
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.upright(v(0, length, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!, { rests: "steel" });
+  }
 
   // The handle and its grip: how much of the length is handle depends on the tool.
   const handle: number =
@@ -290,7 +325,8 @@ export namespace createTool {
     | "spoon"
     | "fork"
     | "ladle"
-    | "knife";
+    | "knife"
+    | "primingWire";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -301,6 +337,7 @@ export namespace createTool {
     "fork",
     "ladle",
     "knife",
+    "primingWire",
   ];
 
   /** A table knife blade's thickness as a share of its read width from spine to edge: a construction estimate that no act reads and no band declares. */
@@ -324,8 +361,8 @@ export namespace createTool {
   /**
    * The affordance ids:
    *
-   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others.
-   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a ladle's bowl, a table knife's edge.
+   * - `grip`: the handle, held at its butt end on a hammer, across the heel on a saw and next to the working part on the others; a priming wire's ring, pinched.
+   * - `face`: the working end: a hammer's striking face, the edge of a saw's teeth, a screwdriver's tip, the hollow of a spoon's bowl, the points of a fork's tines, a ladle's bowl, a table knife's edge, a priming wire's point.
    */
   export type Affordance = "grip" | "face";
 

@@ -9,6 +9,7 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
+import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
 
 /** Broom and mop handles from a maker's listings seen in search results. */
 const HANDLES: string =
@@ -31,9 +32,11 @@ const FOREST_AXE_SHOP: string =
   "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
 
 /**
- * A long tool: a broom, a mop or a shovel that works on the floor or the ground, a forest axe, or a fishing rod.
+ * A long tool: a broom, a mop or a shovel that works on the floor or the ground, a forest axe, a fishing rod, or a field gun's sponge and rammer, worm or trail handspike.
  *
  * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down; a forest axe's `face` is its edge instead, facing `+Z` the way the swing goes, with the handle's back flush with the poll. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it. Chopping with two hands has no motion law yet; the axe is built for holding, carrying and the swing rows that exist.
+ *
+ * The 6-pdr field gun's implements follow the 1862 Ordnance Manual: a sponge and rammer stands on its rammer head, whose end is its `face`, with the sponge at the top, whose end is its `tip`, `+Y` along it; a worm stands on its iron worm, whose point is its `face`, `-Y` along it, out of the tool; a trail handspike stands on its large end, its `face`, and tapers to the small end the hands bear down on.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -44,7 +47,7 @@ const FOREST_AXE_SHOP: string =
  * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice. An axe's head and handle carry their read masses as shares, and its handle's diameter is the one at which hickory of the read density, over the handle's length below the head, weighs the read handle mass.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build an axe whole, or the shaft and the head, then a shovel's grip.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate; an axe's wedge head is a block of the retailer's poll thickness, and its oval handle, which slims below the grip, a round rod.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom, a mop or an axe, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom, a mop or an axe, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod; three for a sponge and rammer or a worm, and two for a handspike.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -129,6 +132,10 @@ export function createLongTool(
   }
 
   const radius: number = d.shaftDiameter! / 2;
+  if (kind === "spongeRammer" || kind === "worm" || kind === "trailHandspike") {
+    FIELD_IMPLEMENTS.build(builder, kind, length, radius, d.mass!);
+    return builder.build(d.mass!);
+  }
   if (kind === "fishingRod") {
     // A rod on its butt: the grip a hand takes and the tip it casts with.
     const grip: number = createLongTool.ROD_GRIP;
@@ -250,7 +257,15 @@ export function createLongTool(
  */
 export namespace createLongTool {
   /** The kinds of tool. */
-  export type Kind = "broom" | "mop" | "shovel" | "forestAxe" | "fishingRod";
+  export type Kind =
+    | "broom"
+    | "mop"
+    | "shovel"
+    | "forestAxe"
+    | "fishingRod"
+    | "spongeRammer"
+    | "worm"
+    | "trailHandspike";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -259,6 +274,9 @@ export namespace createLongTool {
     "shovel",
     "forestAxe",
     "fishingRod",
+    "spongeRammer",
+    "worm",
+    "trailHandspike",
   ];
 
   /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
@@ -284,8 +302,8 @@ export namespace createLongTool {
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
    * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
-   * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge.
-   * - `tip`: a fishing rod's end, `+Y` along it.
+   * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge; a rammer head's or a handspike's lower end, facing down; a worm's point, `+Y` down along the tool.
+   * - `tip`: a fishing rod's end, or a sponge's, `+Y` along it.
    */
   export type Affordance = "shaft" | "grip" | "face" | "tip";
 
@@ -293,7 +311,7 @@ export namespace createLongTool {
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its handle's mass instead.
+   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its handle's mass instead, and a handspike's from its read tapers.
    * - `edge`: an axe's cutting edge, along `+Y`, which is the head's height.
    * - `headLength`: an axe head from its poll to its edge, along `+Z`.
    * - `headMass`: an axe head's mass, kilograms, its share of the whole placing the balance.
@@ -316,10 +334,59 @@ export namespace createLongTool {
     id?: string;
   }
 
-  /** The band of each free dimension, by kind; an axe has no drawn shaft diameter, a broom, a mop, a shovel and a fishing rod no head of their own sizes. */
+  /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
+    spongeRammer: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.length,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      shaftDiameter: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.staff,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.staff,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.mass,
+        FIELD_IMPLEMENTS.SPONGE_RAMMER.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
+    worm: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.WORM.length,
+        FIELD_IMPLEMENTS.WORM.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      shaftDiameter: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.WORM.staff,
+        FIELD_IMPLEMENTS.WORM.staff,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.WORM.mass,
+        FIELD_IMPLEMENTS.WORM.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
+    trailHandspike: {
+      length: ArchetypeBand.metres(
+        FIELD_IMPLEMENTS.HANDSPIKE.length,
+        FIELD_IMPLEMENTS.HANDSPIKE.length,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        FIELD_IMPLEMENTS.HANDSPIKE.mass,
+        FIELD_IMPLEMENTS.HANDSPIKE.mass,
+        FIELD_IMPLEMENTS.SOURCE,
+      ),
+    },
     forestAxe: {
       length: ArchetypeBand.metres(
         25 * ArchetypeUnits.INCH,
