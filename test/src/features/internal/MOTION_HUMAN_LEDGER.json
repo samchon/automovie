@@ -479,6 +479,11 @@
       "tests": []
     },    {
       "layer": "compose",
+      "symbol": "AutoMovieMotionHumanBend.strainOf",
+      "tests": []
+    },
+    {
+      "layer": "compose",
       "symbol": "AutoMovieMotionHumanBend.turn",
       "tests": [
         "test_motion_compose_bend_presets"

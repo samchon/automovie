@@ -463,6 +463,42 @@ export namespace AutoMovieMotionHumanBend {
     );
   }
 
+  /**
+   * The strain `solve` ranks elbow places by, for a limb fit that takes its
+   * elbow's hint from its own swivel sweep (`fitChainToTarget`'s `strain`):
+   * the fit's legal candidate of least strain is the place `solve` would
+   * take, read on the fit's own chain.
+   *
+   * @param props The body, the arm and the hand's world rotation, when its turn counts as strain.
+   * @returns The strain of a candidate from its upper arm's bone-local rotation and its lower arm's world rotation, or null when the rig has no arm chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the strain is for, what it reads and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation The search's own strain (`AutoMovieMotionHumanBendSearch.strainOf`) with the hanging arm `solve` reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The search's.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the search's strain and hanging arm.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The search's.
+   */
+  export function strainOf(props: {
+    body: IHumanBody;
+    side: Side;
+    rotation?: IAutoMovieQuaternion | undefined;
+  }):
+    | ((
+        upper: IAutoMovieQuaternion,
+        lower: IAutoMovieQuaternion,
+        lowerWorld: IAutoMovieQuaternion,
+      ) => number)
+    | null {
+    return AutoMovieMotionHumanBendSearch.strainOf(
+      props.body,
+      props.side,
+      props.rotation,
+      hung,
+    );
+  }
+
   /** The `hang` preset's hint for an upright trunk at the origin, from which the search reads the hanging arm. */
   const hung = (body: IHumanBody, side: Side): IAutoMovieVector3 =>
     arm(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side, "hang");

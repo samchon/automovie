@@ -45,7 +45,12 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * opposite side), enough to decide between otherwise equal swivels while
  * never outweighing a visible effector error. A request continuing a nearby
  * fit (`near`) refines that fit's seed instead of sweeping, and the candidate
- * carries the seed it was chosen at.
+ * carries the seed it was chosen at. A request with a `strain` takes its hint
+ * from its own sweep (Tolani, Goswami and Badler 2000): the sweep is read
+ * once, the legal candidate of least strain is the hint, and the fit then
+ * chooses among the same readings with that hint's side, so one sweep of
+ * readings gives the hint and the fit, the best over every swivel; with no
+ * legal candidate the request's `bend` is the hint.
  *
  * @param props The fit request, with merged axes.
  * @param prepared The chain's preparation.
@@ -58,8 +63,8 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
  * @evidence contracts/development/implementation.md#efficient-algorithms 720 candidates (360 swivels on two branches), each one decomposition of the root joint, an overshoot and, with a rotation, the error's decomposition of the effector; what the mid joint's rotation alone gives (its angles, overshoot, effort and turn from the reference) is read once per branch, since a branch's candidates share that rotation; swivels the root's three-angle box or swing-twist range certainly refuses are not scored (`boxExcludedSwivels`), with the full sweep's answer.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input, called once per fit.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work With a `strain`, the hint's sweep and the fit's read each candidate once (`reading`), the fit's sweep finding the hint's readings kept; without one nothing is kept, since each candidate is read once anyway.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains a fit's readings, with a `strain` only, for the call's two sweeps, and nothing after it.
  */
 export function fitHingedChainCandidate(
   props: IFitChainToTargetProps,
@@ -84,7 +89,9 @@ export function fitHingedChainCandidate(
   const hint: IAutoMovieVector3 = across(
     props.bend ?? Vector3.subtract(root, posedSwing(props, prepared, axes)),
   );
-  const side: IAutoMovieVector3 | null =
+  // The hint's side; with a strain, the side of the sweep's own legal
+  // candidate of least strain, once that is read below.
+  let side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
   // Each basis is admitted and normalized once for the whole sweep; the
   // candidates differ only in their rotation.
@@ -172,66 +179,138 @@ export function fitHingedChainCandidate(
     axes,
     lowerBasis,
   );
+  // What a candidate reads besides the hint's side: its root's angles, its
+  // mid joint's place, its overshoot, effort and turn from the reference.
+  // The hint's sweep and the fit's sweep score the same swivels, so each is
+  // read once, by its rotations' components; a fit with no strain reads each
+  // swivel once anyway and keeps nothing.
+  const readings: Map<string, IReading> | null =
+    props.strain !== undefined && props.near === undefined ? new Map() : null;
+  const reading = (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+  ): IReading => {
+    const key: string | null =
+      readings === null
+        ? null
+        : `${upper.x},${upper.y},${upper.z},${upper.w},${lower.x},${lower.y},${lower.z},${lower.w}`;
+    const kept: IReading | undefined =
+      key === null ? undefined : readings?.get(key);
+    if (kept !== undefined) return kept;
+    const [u] = joints(upper, lower);
+    const turnedUpper: IAutoMovieQuaternion = Quaternion.multiply(
+      prepared.upper.worldRotation,
+      upper,
+    );
+    const lowerWorld: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.multiply(turnedUpper, prepared.lowerRotation),
+      lower,
+    );
+    const mid: IAutoMovieVector3 = Vector3.add(
+      root,
+      Quaternion.rotateVector(turnedUpper, prepared.lowerOffset),
+    );
+    const blocked: number =
+      props.obstruction === undefined
+        ? 0
+        : props.obstruction(
+            mid,
+            Vector3.add(
+              mid,
+              Quaternion.rotateVector(lowerWorld, prepared.effectorOffset),
+            ),
+          );
+    const known: IMid = midOf(lower);
+    const read: IReading = {
+      mid,
+      lowerWorld,
+      effort:
+        clinicalDeviation({
+          flexion: u.flexion ?? 0,
+          abduction: u.abduction ?? 0,
+          twist: u.twist ?? 0,
+        }) + known.effort,
+      overshoot:
+        jointRomOvershoot(u, prepared.upperDomain.constraint) +
+        known.overshoot +
+        blocked,
+      turned:
+        anchor *
+        (apart(Quaternion.normalize(upper), before[0]) + known.turned),
+    };
+    if (key !== null) readings?.set(key, read);
+    return read;
+  };
+  const chain = {
+    upper: prepared.upper,
+    midOffset: prepared.lowerOffset,
+    midRest: prepared.lowerRotation,
+    endOffset: prepared.effectorOffset,
+    hinge: axes.flexion,
+    target: props.target,
+    ...(range === null ? {} : { range }),
+    // The root's box, or its swing-twist range, refuses swivels its
+    // overshoot can only score above zero, so the sweep spares them
+    // (`boxExcludedSwivels`). The range is read in the frame
+    // `jointRomOvershoot` reads it in without a rig.
+    excluded: (
+      upper: (swivel: number) => IAutoMovieQuaternion,
+    ): ((low: number, high: number) => boolean) =>
+      boxExcludedSwivels({
+        basis: upperBasis,
+        frame: props.restFrames?.[props.chain.upper],
+        constraint: prepared.upperDomain.constraint,
+        joint: swingTwistRange.of(props.chain.upper),
+        rotation: upper,
+      }),
+  };
+  // With a strain, the hint is the legal candidate of least strain of the
+  // sweep (`strain`); a continued fit keeps its caller's hint, since it
+  // reads only its seed's neighbours.
+  const strain:
+    | ((
+        upper: IAutoMovieQuaternion,
+        lower: IAutoMovieQuaternion,
+        lowerWorld: IAutoMovieQuaternion,
+      ) => number)
+    | undefined = props.strain;
+  if (strain !== undefined && props.near === undefined) {
+    const eased: ReturnType<typeof hingedArmArticulation> =
+      hingedArmArticulation({
+        ...chain,
+        score: (
+          upper: IAutoMovieQuaternion,
+          lower: IAutoMovieQuaternion,
+        ): { overshoot: number; deviation: number } => {
+          const read: IReading = reading(upper, lower);
+          return {
+            overshoot: read.overshoot,
+            deviation: strain(upper, lower, read.lowerWorld),
+          };
+        },
+      });
+    if (eased !== null && eased.overshoot === 0) {
+      const offset: IAutoMovieVector3 = across(
+        reading(eased.upper, eased.lower).mid,
+      );
+      side =
+        Vector3.length(offset) < 1e-9 ? null : Vector3.normalize(offset);
+    }
+  }
   const solved: ReturnType<typeof hingedArmArticulation> =
     hingedArmArticulation({
-      upper: prepared.upper,
-      midOffset: prepared.lowerOffset,
-      midRest: prepared.lowerRotation,
-      endOffset: prepared.effectorOffset,
-      hinge: axes.flexion,
-      target: props.target,
-      ...(range === null ? {} : { range }),
+      ...chain,
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
-      // The root's box, or its swing-twist range, refuses swivels its
-      // overshoot can only score above zero, so the sweep spares them
-      // (`boxExcludedSwivels`). The range is read in the frame
-      // `jointRomOvershoot` reads it in without a rig.
-      excluded: (
-        upper: (swivel: number) => IAutoMovieQuaternion,
-      ): ((low: number, high: number) => boolean) =>
-        boxExcludedSwivels({
-          basis: upperBasis,
-          frame: props.restFrames?.[props.chain.upper],
-          constraint: prepared.upperDomain.constraint,
-          joint: swingTwistRange.of(props.chain.upper),
-          rotation: upper,
-        }),
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
       ): { overshoot: number; deviation: number; exact?: () => number } => {
-        const [u] = joints(upper, lower);
-        const mid: IAutoMovieVector3 = Vector3.add(
-          root,
-          Quaternion.rotateVector(
-            Quaternion.multiply(prepared.upper.worldRotation, upper),
-            prepared.lowerOffset,
-          ),
+        const { mid, effort, overshoot, turned }: IReading = reading(
+          upper,
+          lower,
         );
-        const blocked: number =
-          props.obstruction === undefined
-            ? 0
-            : props.obstruction(
-                mid,
-                Vector3.add(
-                  mid,
-                  Quaternion.rotateVector(
-                    Quaternion.multiply(
-                      Quaternion.multiply(
-                        Quaternion.multiply(
-                          prepared.upper.worldRotation,
-                          upper,
-                        ),
-                        prepared.lowerRotation,
-                      ),
-                      lower,
-                    ),
-                    prepared.effectorOffset,
-                  ),
-                ),
-              );
         // The hint's side weighs as the mid joint leaves the line to the
         // target: a straight limb has no side, and a rounding-sized offset's
         // direction must not rank swivels.
@@ -242,20 +321,6 @@ export function fitHingedChainCandidate(
             ? 0
             : (1 - Vector3.dot(Vector3.scale(offset, 1 / off), side)) *
               Math.min(1, off / SIDED);
-        const known: IMid = midOf(lower);
-        const effort: number =
-          clinicalDeviation({
-            flexion: u.flexion ?? 0,
-            abduction: u.abduction ?? 0,
-            twist: u.twist ?? 0,
-          }) + known.effort;
-        const overshoot: number =
-          jointRomOvershoot(u, prepared.upperDomain.constraint) +
-          known.overshoot +
-          blocked;
-        const turned: number =
-          anchor *
-          (apart(Quaternion.normalize(upper), before[0]) + known.turned);
         // The effector's error is the costly term and is never negative, so
         // the sum without it, added in the same order, is a lower bound of
         // the tie-break (rounding is monotone), and the error is computed
@@ -420,5 +485,23 @@ interface IMid {
   effort: number;
 
   /** Degrees the mid joint turns from the reference pose's; 0 without one. */
+  turned: number;
+}
+
+/** What a candidate reads besides the hint's side, read once per candidate of a fit with a strain. */
+interface IReading {
+  /** The mid joint's place, world metres. */
+  mid: IAutoMovieVector3;
+
+  /** The mid bone's world rotation. */
+  lowerWorld: IAutoMovieQuaternion;
+
+  /** The root's and the mid joint's clinical effort. */
+  effort: number;
+
+  /** The ROM overshoot of both joints plus the obstruction, degrees. */
+  overshoot: number;
+
+  /** Degrees both joints turn from the reference pose's, weighed. */
   turned: number;
 }

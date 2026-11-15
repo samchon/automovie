@@ -35,7 +35,7 @@ import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is searched, what a place is read for, who ranks it and where the rules are stated.
  * @evidence contracts/development/design.md#principled-representation One search shared by the solver, its level variant and its strain reading, which differ only in the ranking they pass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The candidate and score records, the side ranking and the search.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The candidate and score records, the side ranking, the search and its strain for a fit that takes its hint from its own sweep.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Ranges, axes and clearance are the rig's and the engine's; the hanging arm is read from the body.
  */
 export namespace AutoMovieMotionHumanBendSearch {
@@ -194,37 +194,98 @@ export namespace AutoMovieMotionHumanBendSearch {
   }
 
   /**
-   * The best elbow place of a chain for a wrist's place under a ranking.
+   * The strain `search` ranks an elbow place by, read from the rotations of
+   * another fit of the same arm (`fitChainToTarget`'s `strain`): the upper
+   * arm's bone-local rotation, read in the arm's own clinical frame, and the
+   * lower arm's world rotation.
+   *
+   * @param body The body.
+   * @param side The arm.
+   * @param rotation The hand's world rotation, when its turn counts as strain.
+   * @param hang The `hang` preset's hint for an upright trunk at the origin, from which the hanging arm's angles are read.
+   * @returns The strain of a candidate, or null when the rig has no arm chain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which rotations, and the null case.
+   * @evidence contracts/development/implementation.md#principled-implementation The strain `search` ranks by (`strainer`), so a fit that takes its hint from its own sweep takes the place `solve` would.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chain, the hanging arm, one strainer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the chain returns null, never a strain of zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The chain, the ranges and the hanging arm are read once; each candidate costs one decomposition, and with a hand rotation one split and one more decomposition.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares `strainer` with `search`, and the hanging arm's angles with every search of the body.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain, its ranges and the hanging arm's angles.
+   */
+  export function strainOf(
+    body: IHumanBody,
+    side: AutoMovieMotionHumanBend.Side,
+    rotation: IAutoMovieQuaternion | undefined,
+    hang: (
+      body: IHumanBody,
+      side: AutoMovieMotionHumanBend.Side,
+    ) => IAutoMovieVector3,
+  ):
+    | ((
+        upper: IAutoMovieQuaternion,
+        lower: IAutoMovieQuaternion,
+        lowerWorld: IAutoMovieQuaternion,
+      ) => number)
+    | null {
+    const chain: AutoMovieMotionHumanBendChain.IChain | null =
+      AutoMovieMotionHumanBendChain.of(
+        body,
+        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
+        side,
+      );
+    const neutral: IAngles | null = neutralOf(body, side, hang);
+    if (chain === null || neutral === null) return null;
+    const upperBone: AutoMovieHumanoidBone = chain.prepared.chain.upper;
+    const lowerAxes: IAutoMovieJointAxes | undefined =
+      chain.axes[chain.prepared.chain.lower];
+    if (lowerAxes === undefined) return null;
+    const strained: (
+      u: IAngles,
+      lowerWorld: () => IAutoMovieQuaternion,
+    ) => number = strainer(chain, body, side, rotation, neutral, lowerAxes);
+    return (
+      upper: IAutoMovieQuaternion,
+      _lower: IAutoMovieQuaternion,
+      lowerWorld: IAutoMovieQuaternion,
+    ): number =>
+      strained(
+        decomposeJointRotation(
+          upper,
+          chain.axes[upperBone],
+          HUMANOID_REST_FRAME[upperBone],
+          chain.prepared.upperDomain,
+        ),
+        (): IAutoMovieQuaternion => lowerWorld,
+      );
+  }
+
+  /**
+   * The strain of an elbow place, the terms `AutoMovieMotionHumanBend.solve`
+   * states: the shoulder's angles from the hanging arm's, each over half its
+   * range, squared, and with a hand rotation the forearm's and the wrist's
+   * shares of the turn the hand asks, a place whose turn they cannot make
+   * ranking behind every place that makes it.
    *
    * @param chain The prepared chain.
    * @param body The body, for the hand's range.
    * @param side The arm.
-   * @param point The wrist, world metres.
    * @param rotation The hand's world rotation, when its turn counts as strain.
    * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
-   * @param score The ranking of a candidate.
-   * @returns The chosen candidate with its true overshoot, or null for a degenerate chain.
+   * @param lowerAxes The lower arm's axes.
+   * @returns The strain of the shoulder's clinical angles and the lower arm's world rotation, read only with a hand rotation.
    */
-  function best(
+  function strainer(
     chain: AutoMovieMotionHumanBendChain.IChain,
     body: IHumanBody,
     side: AutoMovieMotionHumanBend.Side,
-    point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
     neutral: IAngles | null,
-    score: (candidate: ICandidate) => IScore,
-  ): ICandidate | null {
+    lowerAxes: IAutoMovieJointAxes,
+  ): (u: IAngles, lowerWorld: () => IAutoMovieQuaternion) => number {
     const { prepared } = chain;
-    const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
-    const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
-    const lowerAxes: IAutoMovieJointAxes | undefined = chain.axes[lowerBone];
-    if (lowerAxes === undefined) return null;
     const upperRange: IAutoMovieJointConstraint | null =
       prepared.upperDomain.constraint;
-    const upperBasis: IAutoMovieJointAxes = normalizeJointAxes(
-      chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
-      "AutoMovieMotionHumanBendSearch axes",
-    );
     const halves: [number | null, number | null, number | null] = [
       half(upperRange?.flexion ?? null),
       half(upperRange?.abduction ?? null),
@@ -243,45 +304,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
     const share = (value: number, of: number | null): number =>
       of === null ? 0 : (value / of) ** 2;
-    // A branch's candidates share one lower rotation, the same record, and
-    // differ only in the swivel of the upper arm, so the lower joint's
-    // overshoot is read once per record: the same value, read once.
-    let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
-    const midOf = (lower: IAutoMovieQuaternion): number => {
-      if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
-      const l: IAngles = decomposeJointRotation(
-        lower,
-        lowerAxes,
-        HUMANOID_REST_FRAME[lowerBone],
-        prepared.lowerDomain,
-      );
-      mid = {
-        rotation: lower,
-        overshoot: jointRomOvershoot(
-          { bone: lowerBone, ...l },
-          prepared.lowerDomain.constraint,
-        ),
-      };
-      return mid.overshoot;
-    };
-    const read = (
-      upper: IAutoMovieQuaternion,
-      lower: IAutoMovieQuaternion,
-    ): ICandidate => {
-      const u: IAngles = decomposeJointRotation(
-        upper,
-        chain.axes[upperBone],
-        HUMANOID_REST_FRAME[upperBone],
-        prepared.upperDomain,
-      );
-      const turned: IAutoMovieQuaternion = Quaternion.multiply(
-        prepared.upper.worldRotation,
-        upper,
-      );
-      const elbow: IAutoMovieVector3 = Vector3.add(
-        chain.shoulder,
-        Quaternion.rotateVector(turned, prepared.lowerOffset),
-      );
+    return (u: IAngles, lowerWorld: () => IAutoMovieQuaternion): number => {
       let strain: number =
         neutral === null
           ? 0
@@ -292,15 +315,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         // The canonical rig rests unrotated, so the hand's rotation in the
         // forearm's frame is the turn the forearm and the wrist share.
         const needed: IAutoMovieQuaternion = Quaternion.normalize(
-          Quaternion.multiply(
-            Quaternion.inverse(
-              Quaternion.multiply(
-                Quaternion.multiply(turned, prepared.lowerRotation),
-                lower,
-              ),
-            ),
-            rotation,
-          ),
+          Quaternion.multiply(Quaternion.inverse(lowerWorld()), rotation),
         );
         const split = swingTwist(needed, lowerAxes.twist);
         const degrees = (q: IAutoMovieQuaternion): number =>
@@ -360,6 +375,93 @@ export namespace AutoMovieMotionHumanBendSearch {
               past(bent.abduction, hand?.abduction));
         if (unmade > 0) strain = UNMADE + unmade;
       }
+      return strain;
+    };
+  }
+
+  /**
+   * The best elbow place of a chain for a wrist's place under a ranking.
+   *
+   * @param chain The prepared chain.
+   * @param body The body, for the hand's range.
+   * @param side The arm.
+   * @param point The wrist, world metres.
+   * @param rotation The hand's world rotation, when its turn counts as strain.
+   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
+   * @param score The ranking of a candidate.
+   * @returns The chosen candidate with its true overshoot, or null for a degenerate chain.
+   */
+  function best(
+    chain: AutoMovieMotionHumanBendChain.IChain,
+    body: IHumanBody,
+    side: AutoMovieMotionHumanBend.Side,
+    point: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion | undefined,
+    neutral: IAngles | null,
+    score: (candidate: ICandidate) => IScore,
+  ): ICandidate | null {
+    const { prepared } = chain;
+    const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
+    const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
+    const lowerAxes: IAutoMovieJointAxes | undefined = chain.axes[lowerBone];
+    if (lowerAxes === undefined) return null;
+    const upperRange: IAutoMovieJointConstraint | null =
+      prepared.upperDomain.constraint;
+    const upperBasis: IAutoMovieJointAxes = normalizeJointAxes(
+      chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
+      "AutoMovieMotionHumanBendSearch axes",
+    );
+    const strained: (
+      u: IAngles,
+      lowerWorld: () => IAutoMovieQuaternion,
+    ) => number = strainer(chain, body, side, rotation, neutral, lowerAxes);
+    // A branch's candidates share one lower rotation, the same record, and
+    // differ only in the swivel of the upper arm, so the lower joint's
+    // overshoot is read once per record: the same value, read once.
+    let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
+    const midOf = (lower: IAutoMovieQuaternion): number => {
+      if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
+      const l: IAngles = decomposeJointRotation(
+        lower,
+        lowerAxes,
+        HUMANOID_REST_FRAME[lowerBone],
+        prepared.lowerDomain,
+      );
+      mid = {
+        rotation: lower,
+        overshoot: jointRomOvershoot(
+          { bone: lowerBone, ...l },
+          prepared.lowerDomain.constraint,
+        ),
+      };
+      return mid.overshoot;
+    };
+    const read = (
+      upper: IAutoMovieQuaternion,
+      lower: IAutoMovieQuaternion,
+    ): ICandidate => {
+      const u: IAngles = decomposeJointRotation(
+        upper,
+        chain.axes[upperBone],
+        HUMANOID_REST_FRAME[upperBone],
+        prepared.upperDomain,
+      );
+      const turned: IAutoMovieQuaternion = Quaternion.multiply(
+        prepared.upper.worldRotation,
+        upper,
+      );
+      const elbow: IAutoMovieVector3 = Vector3.add(
+        chain.shoulder,
+        Quaternion.rotateVector(turned, prepared.lowerOffset),
+      );
+      const strain: number = strained(
+        u,
+        (): IAutoMovieQuaternion =>
+          Quaternion.multiply(
+            Quaternion.multiply(turned, prepared.lowerRotation),
+            lower,
+          ),
+      );
       return {
         elbow,
         angles: u,

@@ -80,6 +80,22 @@ export interface IFitChainToTargetProps {
   bend?: IAutoMovieVector3;
 
   /**
+   * A hinged chain's strain of a candidate, non-negative: the candidate's
+   * bone-local root and mid rotations and the mid bone's world rotation. When
+   * given, the mid joint bends toward the legal candidate of least strain of
+   * the fit's own sweep (Tolani, Goswami and Badler 2000: the elbow's place
+   * on its swivel circle chosen by a cost of the joints), read from the same
+   * candidates the fit then chooses among, so one sweep's readings give both
+   * the hint and the fit; `bend` is the hint only when no candidate is legal.
+   * Omitted, `bend` is the hint.
+   */
+  strain?: (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+    lowerWorld: IAutoMovieQuaternion,
+  ) => number;
+
+  /**
    * The effector's model-frame rotation, as `resolvePose` reports world
    * rotations; omitted, the effector keeps the pose's own angles.
    */
