@@ -1,5 +1,6 @@
 import { HORSE_BANDS } from "../animals/HORSE_BANDS";
 import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import { CART_MODELS } from "./CART_MODELS";
 import type { createCart } from "./createCart";
 
 /** A shopping trolley, from its maker's page and a reseller's listing. */
@@ -10,17 +11,13 @@ const TROLLEY: string =
 const BARROW: string =
   "Matador M-130-L4 wheelbarrow data sheet (https://bati-avenue.com/media/akeneo_connector/media_files/1/0/10868_M_130_L4_EN_Data_sheet_final_1_f9d6.pdf)";
 
-/** Single-horse two-wheeled driving carts read at their makers' and museums' pages. */
+/** A single-horse two-wheeled driving cart read at its maker's page. */
 const INTRO: string =
   "Bennington Intro 2 Wheeler, the 14.2 to 15.2 hh size: wheels 94 cm, track 137 cm, 110 kg (https://www.benningtoncarriages.co.uk/carriages/starter-carriage/bennington-intro-2-wheeler)";
 
 /** A multi-use cart for 14.2 to 16.3 hh horses, read at its seller's page. */
 const MULTI: string =
   "a multi-use two-wheeled cart for 14.2 to 16.3 hh horses: wheels 43 in, 57 in hub to hub, shafts 89.5 and 93.5 in (https://www.gypsyhorses.com/sales/cart.htm)";
-
-/** A museum gig. */
-const GIG: string =
-  "the Dennett gig, York Castle Museum: wheels 4 ft 5 in (https://www.thecarriagefoundation.org.uk/item/dennett-gig)";
 
 /** Pulled rickshaws read at museum records and a period rule. */
 const RICKSHAW: string =
@@ -42,12 +39,26 @@ const WAGON: string =
 const BROUGHAM: string =
   "the Brewster brougham of 1893 (H 78.5 in, W 68 in, L 145.5 in, wheelbase 91.5 in, wheels 36.5 and 48.25 in) and the Miner, Stevens brougham of 1840-1860 (H 79 in, W 69 in, L 153 in, wheels 42 and 50 in, wheelbase 105 in) at The Henry Ford (https://www.thehenryford.org/collections/explore/artifact/33937, https://www.thehenryford.org/collections/explore/artifact/7881), and the Peters bow-fronted double brougham of 1880 at York Castle Museum (H 6 ft 2 in, L 11 ft 7 in, W 5 ft 5 in, wheels 3 ft and 3 ft 8 in) (https://thecarriagefoundation.org.uk/item/bow-fronted-double-brougham)";
 
+/**
+ * The read models' figures of one dimension, for a band a model without that figure borrows from the models with it.
+ *
+ * @param kind The kind.
+ * @param dimension The dimension.
+ * @returns The least and the greatest read figure.
+ */
+function spread(kind: createCart.Kind, dimension: createCart.Dimension): [number, number] {
+  const figures: number[] = Object.values(CART_MODELS.figures[kind] ?? {})
+    .map((model: Readonly<Partial<Record<createCart.Dimension, number>>> | undefined): number | undefined => model?.[dimension])
+    .filter((figure: number | undefined): figure is number => figure !== undefined);
+  return [Math.min(...figures), Math.max(...figures)];
+}
+
 /** The ANSUR II wrist centres, as the human package derives them. */
 const WRIST: string =
   "the wrist centre's height above the floor, ANSUR II stylion height less 1.5 mm: women's mean 793 mm, men's 846 mm (packages/human/docs/anatomy/skeleton.md, after the ANSUR II working databases)";
 
 /**
- * The band of each free dimension of a cart, by kind, with the source it was read at; `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the horse's withers height from the saddle horse's own band, and a cart takes the girth that height gives the horse (`createCart`), so the cart fits the horse `createHorse` builds.
+ * The band of each free dimension of a cart, by kind, with the source it was read at, a read model's own figures being `CART_MODELS`'s and not bands; `createCart.BANDS` is this table. A drawn vehicle sized for a horse draws the horse's withers height from the saddle horse's own band, and a cart takes the girth that height gives the horse (`createCart`), so the cart fits the horse `createHorse` builds.
  */
 export const CART_BANDS: Readonly<
   Record<
@@ -70,11 +81,6 @@ export const CART_BANDS: Readonly<
       0.032,
       "the trolley's handle is a round tube whose diameter its maker does not state; an estimate",
       true,
-    ),
-    wheelDiameter: ArchetypeBand.metres(
-      0.1,
-      0.125,
-      `${TROLLEY}: castors of 100 or 125 mm`,
     ),
     mass: ArchetypeBand.of("kg", 18, 28, ArchetypeBand.TYPICAL_MASS, true),
   },
@@ -103,16 +109,16 @@ export const CART_BANDS: Readonly<
     mass: ArchetypeBand.of("kg", 18.6, 18.6, BARROW),
   },
   cart: {
-    wheelDiameter: ArchetypeBand.metres(
-      0.94,
-      53 * ArchetypeUnits.INCH,
-      `${INTRO}; ${MULTI}; ${GIG}`,
+    track: ArchetypeBand.metres(
+      1.37,
+      spread("cart", "track")[1],
+      `${INTRO}; ${MULTI}: the read tracks, borrowed by the gig, whose page gives none and whose track no law gives from its wheels (searched: the Carriage Foundation's record)`,
+      true,
     ),
-    track: ArchetypeBand.metres(1.37, 57 * ArchetypeUnits.INCH, `${INTRO}; ${MULTI}`),
-    shaftLength: ArchetypeBand.metres(
-      89.5 * ArchetypeUnits.INCH,
-      93.5 * ArchetypeUnits.INCH,
-      `${MULTI}, how the seller measured not stated; read as IVC Carriage's harness measuring chart defines a shaft's length, tip to single tree in a straight line (https://cdn.shopify.com/s/files/1/0046/6819/4886/files/IVC_Harness_Fitting_Diagram_Electronic.pdf)`,
+    clearance: ArchetypeBand.metres(
+      8 * ArchetypeUnits.INCH,
+      20 * ArchetypeUnits.INCH,
+      "IVC Carriage, Types of Horse Carriage Shafts: \"there should be 8-20\" of clearance from the horse to the closest part of the vehicle\" (https://www.ivccarriage.com/blogs/ivc-carriage/types-of-horse-carriage-shafts)",
     ),
     seatHeight: ArchetypeBand.metres(
       51 * ArchetypeUnits.INCH,
@@ -121,15 +127,20 @@ export const CART_BANDS: Readonly<
       true,
     ),
     withersHeight: HORSE_BANDS.withersHeight,
-    mass: ArchetypeBand.of("kg", 110, 110, INTRO),
+    mass: ArchetypeBand.of(
+      "kg",
+      90,
+      110,
+      "the Bennington Intro 2 Wheeler's three sizes, 90, 98 and 110 kg (https://www.benningtoncarriages.co.uk/carriages/starter-carriage/bennington-intro-2-wheeler), borrowed by the multi-use cart and the gig, whose pages give no mass; no law gives a cart's mass from its read figures, its coarse parts' volume overstating its timber and its planks' thicknesses unread",
+      true,
+    ),
   },
   rickshaw: {
-    wheelDiameter: ArchetypeBand.metres(42 * ArchetypeUnits.INCH, 1.08, RICKSHAW),
-    width: ArchetypeBand.metres(0.9, 1.07, RICKSHAW),
-    length: ArchetypeBand.metres(
-      2.13,
-      2.15,
-      `${RICKSHAW}; the two longest of the records' unlabelled sizes taken as the length`,
+    wheelDiameter: ArchetypeBand.metres(
+      42 * ArchetypeUnits.INCH,
+      spread("rickshaw", "wheelDiameter")[1],
+      `${RICKSHAW}: the 1882 rule's and the Edo rickshaw's wheels, borrowed by the records that give none`,
+      true,
     ),
     gripHeight: ArchetypeBand.metres(0.793, 0.846, WRIST),
     mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
@@ -140,9 +151,9 @@ export const CART_BANDS: Readonly<
     floorWidth: ArchetypeBand.metres(0.92, 1.11, CHARIOT),
     floorDepth: ArchetypeBand.metres(0.39, 0.54, CHARIOT),
     railHeight: ArchetypeBand.metres(
-      0.71,
-      0.78,
-      `${CHARIOT}: Carter's greatest heights of the body, taken from the floor`,
+      ...spread("chariot", "railHeight"),
+      `${CHARIOT}: Carter's greatest heights of the body, taken from the floor, borrowed by the chariots whose rows give none`,
+      true,
     ),
     poleLength: ArchetypeBand.metres(2.43, 2.6, CHARIOT),
     withersHeight: HORSE_BANDS.withersHeight,
@@ -226,12 +237,11 @@ export const CART_BANDS: Readonly<
     ),
   },
   carriage: {
-    frontWheelDiameter: ArchetypeBand.metres(36 * ArchetypeUnits.INCH, 42 * ArchetypeUnits.INCH, BROUGHAM),
-    wheelDiameter: ArchetypeBand.metres(44 * ArchetypeUnits.INCH, 50 * ArchetypeUnits.INCH, BROUGHAM),
-    wheelbase: ArchetypeBand.metres(91.5 * ArchetypeUnits.INCH, 105 * ArchetypeUnits.INCH, BROUGHAM),
-    length: ArchetypeBand.metres(139 * ArchetypeUnits.INCH, 153 * ArchetypeUnits.INCH, BROUGHAM),
-    width: ArchetypeBand.metres(65 * ArchetypeUnits.INCH, 69 * ArchetypeUnits.INCH, BROUGHAM),
-    height: ArchetypeBand.metres(74 * ArchetypeUnits.INCH, 79 * ArchetypeUnits.INCH, BROUGHAM),
+    wheelbase: ArchetypeBand.metres(
+      ...spread("carriage", "wheelbase"),
+      `${BROUGHAM}: the two read wheelbases, borrowed by the Peters brougham, whose record gives none`,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 400, 600, ArchetypeBand.TYPICAL_MASS, true),
   },
 };

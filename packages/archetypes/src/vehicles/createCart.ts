@@ -13,6 +13,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { CART_BANDS } from "./CART_BANDS";
+import { CART_MODELS } from "./CART_MODELS";
 import { CartCoach } from "./CartCoach";
 import { CartDrawn } from "./CartDrawn";
 import { CartPushed } from "./CartPushed";
@@ -22,13 +23,13 @@ import { CartPushed } from "./CartPushed";
  *
  * The carrier stands on the floor with its front toward `+Z`. A trolley and a wheelbarrow are pushed from behind at `-Z`: a trolley by the one `handle` bar across its back, a wheelbarrow lifted and pushed by its two handles, `leftHandle` on `+X`; `load` is the floor of the basket or the tray. A drawn kind's (rear) axle runs along `X` under the origin, and its `coupling` is where it is drawn from, ahead along `+Z`: a cart's shafts at the horse's tugs, a rickshaw's shafts at the runner's hands, a chariot's, a limber's, a wagon's or a carriage's pole at its end. A wagon's and a carriage's front axle turns on `frontAxle` about its pivot, `wheelbase` ahead of the rear axle, carrying the pole. `ArchetypeRide.along` moves a pushed kind along a course, and `ArchetypeRide.towed` draws a drawn kind by its `coupling` behind a leader's hitch, a four-wheeler with `front` set to its pivot and `frontAxle`; each road wheel spins on a `knob` the ride turns by the distance covered. A cart drawn by a horse in harness takes its traces and driving lines from `lines`, which the towing ride lays between the two at every second.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, its read model and options, and any dimension the author fixes.
+ * @param seed The seed that picks the model and its options and draws every dimension left free inside its band; absent, the first model and option, and each dimension the middle of its band.
  * @returns The carrier.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the kind lacks.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, then build the kind on them: a pushed kind by `CartPushed`, a two-wheeled drawn kind by `CartDrawn`, a four-wheeled one by `CartCoach`.
+ * @evidence contracts/development/implementation.md#principled-implementation Pick the read model whole, among a cart's only those made for a fixed horse, then its castors or shafts; draw the dimensions it leaves free inside the kind's bands and its own ranges; lay its figures over them; then build the kind on them: a pushed kind by `CartPushed`, a two-wheeled drawn kind by `CartDrawn`, a four-wheeled one by `CartCoach`. A cart without read shafts takes the shafts that reach from the horse's point of shoulder past its point of buttock by the drawn clearance (`createHorse.rig`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One dispatch per family; each family is its own module.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every unread place a builder uses is a named provisional constant here, stating the source to read.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most about twenty parts.
@@ -52,21 +53,21 @@ export function createCart(
     params.kind,
     createCart.KINDS,
   );
-  const drawn: Partial<Record<createCart.Dimension, number>> = draw.dimensions(
-    createCart.BANDS[kind],
+  // One read model of the kind, among those made for the horse when its height is fixed, then its castors or its shafts, their figures recorded first; the kind's bands and the model's own ranges draw what they leave.
+  const model: { name: createCart.Model | undefined; figures: Readonly<Partial<Record<createCart.Dimension, number>>> } =
+    draw.model<createCart.Model>(
+      "model",
+      params.model,
+      params.model === undefined ? fitting(CART_MODELS.figures[kind], params) : CART_MODELS.figures[kind],
+    );
+  draw.model<createCart.Castor>("castor", params.castor, CART_MODELS.castors[kind]);
+  draw.model<createCart.Shaft>("shaft", params.shaft, model.name === undefined ? undefined : CART_MODELS.shafts[model.name]);
+  draw.dimensions(
+    { ...createCart.BANDS[kind], ...(model.name === undefined ? {} : CART_MODELS.ranges[model.name]) },
     createCart.BANDS,
   );
-  // A horse's cart fits the horse of its withers height, whose girth follows that height.
-  const d: Partial<Record<createCart.Dimension, number>> =
-    kind === "cart"
-      ? {
-          ...drawn,
-          girth: draw.derive(
-            "girth",
-            createHorse.PROFILE.girth(drawn.withersHeight!),
-          ),
-        }
-      : drawn;
+  if (kind === "cart") harnessed(draw);
+  const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
       id: params.id,
@@ -85,14 +86,73 @@ export function createCart(
 }
 
 /**
+ * The models made for the horse an author fixed, each model without a stated range of horses made for every one.
+ *
+ * @param models The kind's read models.
+ * @param params The parameters, whose fixed withers height selects.
+ * @returns The models whose range admits the fixed withers height, or every model when it is free.
+ */
+function fitting(
+  models: Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Dimension, number>>>>>> | undefined,
+  params: createCart.IParams,
+): Readonly<Partial<Record<createCart.Model, Readonly<Partial<Record<createCart.Dimension, number>>>>>> | undefined {
+  const withers: number | undefined = params.withersHeight;
+  if (models === undefined || withers === undefined) return models;
+  return Object.fromEntries(
+    Object.entries(models).filter(([name]: [string, unknown]): boolean => {
+      const band: IArchetypeBand | undefined = CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
+      return band === undefined || (band.minimum <= withers && withers <= band.maximum);
+    }),
+  );
+}
+
+/**
+ * A horse's cart fitted to the horse of its withers height: the girth that height gives the horse, and, where the cart's shafts are not read, shafts reaching from the horse's point of shoulder, where their tips stand, past its point of buttock by the drawn clearance to the single tree (IVC Carriage's 8 to 20 in from the horse to the vehicle's nearest part).
+ *
+ * @param draw The cart's draw, its height, clearance and any read shafts recorded; the girth and, where unread, the shafts' length are derived into it.
+ */
+function harnessed(draw: ArchetypeDrawSession<createCart.Dimension>): void {
+  const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> = draw.values;
+  const girth: number = draw.derive("girth", createHorse.PROFILE.girth(drawn.withersHeight!));
+  if (drawn.shaftLength !== undefined) return;
+  const horse: createHorse.IRig = createHorse.rig({ withersHeight: drawn.withersHeight!, girth });
+  draw.derive("shaftLength", horse.limbs.leftFore[0]!.z - horse.buttock.z + drawn.clearance!);
+}
+
+/**
  * Companion types, constants and bands of {@link createCart}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is; each band and constant its source, or that none was read and which to read.
- * @evidence contracts/development/design.md#principled-representation Closed unions, one cited band per dimension per kind, a kind lacking the dimensions of the parts it does not have.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, the read models and their options picked whole (`CART_MODELS`), one cited band per dimension a model leaves free, a kind lacking the dimensions of the parts it does not have.
  * @evidence contracts/development/design.md#minimal-and-owned-surface What a pushing, driving, riding or towing act reads (#3372, #3351, #3495): the handles, the seats, the floors, the shafts, the pole's end and the wheels' turn.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A horse-drawn kind draws the horse's withers height from `createHorse`'s band, and a cart takes the girth that height gives the horse, so the places it takes from the horse fit the horse that draws it; a rickshaw takes its shafts' height from the measured human wrist.
  */
 export namespace createCart {
+  /**
+   * The read models by kind, picked whole (`CART_MODELS`): a cart's multi-use cart and the Dennett gig; a rickshaw's Edo-Tokyo Museum 89210382 and 90360001 and the Powerhouse 245268; a chariot's six from the tomb of Tutankhamun by Carter's object numbers; a carriage's Brewster, Miner, Stevens and Peters broughams. A trolley, a wheelbarrow, a limber and a wagon have none.
+   */
+  export type Model =
+    | "multiUse"
+    | "dennettGig"
+    | "edo89210382"
+    | "edo90360001"
+    | "powerhouse245268"
+    | "carter120"
+    | "carter121"
+    | "carter122"
+    | "carter161"
+    | "carter332"
+    | "carter333"
+    | "brewster"
+    | "minerStevens"
+    | "peters";
+
+  /** A trolley's castors, by their wheels' diameter: 100 or 125 mm. */
+  export type Castor = "mm100" | "mm125";
+
+  /** A cart's read shafts, by their length: the multi-use cart's 89.5 or 93.5 in. */
+  export type Shaft = "in89" | "in93";
+
   /** The kinds of carrier. */
   export type Kind =
     | "trolley"
@@ -318,6 +378,7 @@ export namespace createCart {
    * - `wheelDiameter`: a castor or a road wheel.
    * - `track`: between a drawn kind's wheels, centre to centre.
    * - `shaftLength`: a cart's shafts from the tip to the single tree.
+   * - `clearance`: a cart's single tree behind the horse's point of buttock, which sets the shafts' length where they are not read.
    * - `seatHeight`: a cart's seat above the ground.
    * - `gripHeight`: a rickshaw's shafts above the ground where the standing runner's hands hold them, the hanging wrist's height.
    * - `floorWidth`, `floorDepth`: a chariot floor's width across and depth along it.
@@ -335,6 +396,7 @@ export namespace createCart {
     | "wheelDiameter"
     | "track"
     | "shaftLength"
+    | "clearance"
     | "seatHeight"
     | "gripHeight"
     | "floorWidth"
@@ -359,6 +421,7 @@ export namespace createCart {
     wheelDiameter: "m",
     track: "m",
     shaftLength: "m",
+    clearance: "m",
     seatHeight: "m",
     gripHeight: "m",
     floorWidth: "m",
@@ -374,10 +437,19 @@ export namespace createCart {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension the kind has fixed to a value inside its band. */
+  /** The parameters: the kind, its read model and options, and any free dimension the kind has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which carrier. */
     kind: Kind;
+
+    /** Which read model of the kind; drawn from the seed when absent, a cart's among those made for a fixed withers height. */
+    model?: Model;
+
+    /** Which castors, for a trolley; drawn from the seed when absent. */
+    castor?: Castor;
+
+    /** Which read shafts, for a cart whose model offers more than one; drawn from the seed when absent. */
+    shaft?: Shaft;
 
     /** The model's id, unique in a scene; `cart` when absent. */
     id?: string;
