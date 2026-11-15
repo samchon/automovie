@@ -67,6 +67,9 @@ export namespace HUMAN_LEXICON_SCHEMAS {
     /** The alternatives of a union, such as a row whose parameters take one of several forms. */
     oneOf?: unknown;
 
+    /** The member whose value names a union's alternative, with each value's schema, when the union is tagged (OpenAPI 3.1's Discriminator Object). */
+    discriminator?: unknown;
+
     /** A number's least value, when a named component is itself a bounded number. */
     minimum?: unknown;
 

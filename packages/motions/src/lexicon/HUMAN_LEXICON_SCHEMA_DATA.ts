@@ -9577,6 +9577,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             ],
             "description": "The collar hand of `collarSleeve`; `right` when absent."
           },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
+          },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
             "description": "How it is performed."
@@ -10756,6 +10775,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
               }
             ],
             "description": "The collar hand of `collarSleeve`; `right` when absent."
+          },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -14101,7 +14139,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "implement": {
             "$ref": "#/components/schemas/throwObjectLever.IImplement",
-            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop rides its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
+            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop leaves from its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -25890,7 +25928,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
           },
           "implement": {
             "$ref": "#/components/schemas/throwObjectLever.IImplement",
-            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop rides its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
+            "description": "The implement held in the throwing hand that lengthens the arm: a\nsling, an atlatl. The thrown prop leaves from its working point, and the\nlaunch is the lever's (`throwObjectLever`). The hand throws when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
@@ -26107,15 +26145,145 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "properties": {
               "kind": {
                 "const": "hinge",
-                "description": "A door swung about a vertical hinge line by its handle."
+                "description": "A leaf swung about its hinge line by its handle: a door, a lid, a gun's cock."
               },
               "at": {
                 "$ref": "#/components/schemas/AutoMovieMotionTarget",
                 "description": "The handle, its normal out of the leaf toward the hand."
               },
               "hinge": {
-                "$ref": "#/components/schemas/AutoMovieMotionTarget",
-                "description": "A point on the hinge line."
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "person",
+                        "description": "Discriminator."
+                      },
+                      "subject": {
+                        "type": "string",
+                        "description": "The other subject's id."
+                      },
+                      "region": {
+                        "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                        "description": "The region aimed at."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "subject",
+                      "region"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "self",
+                        "description": "Discriminator."
+                      },
+                      "region": {
+                        "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                        "description": "The region of the performer's own body."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "region"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "prop",
+                        "description": "Discriminator."
+                      },
+                      "subject": {
+                        "type": "string",
+                        "description": "The prop subject's id."
+                      },
+                      "point": {
+                        "type": "string",
+                        "description": "The prop's named point."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "subject",
+                      "point"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "point",
+                        "description": "Discriminator."
+                      },
+                      "at": {
+                        "$ref": "#/components/schemas/IAutoMovieVector3",
+                        "description": "The point, metres."
+                      },
+                      "frame": {
+                        "oneOf": [
+                          {
+                            "const": "performer"
+                          },
+                          {
+                            "const": "world"
+                          }
+                        ],
+                        "description": "The frame the point is stated in."
+                      },
+                      "normal": {
+                        "$ref": "#/components/schemas/IAutoMovieVector3",
+                        "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "at",
+                      "frame"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "none",
+                        "description": "Discriminator."
+                      },
+                      "line": {
+                        "oneOf": [
+                          {
+                            "const": "high"
+                          },
+                          {
+                            "const": "low"
+                          },
+                          {
+                            "const": "middle"
+                          }
+                        ],
+                        "description": "The virtual opponent's height line; `middle` when absent."
+                      },
+                      "range": {
+                        "type": "number",
+                        "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "A point on a vertical hinge line, a door's. Absent, the line is the\noperated prop's own hinge articulation (`operateDrive.IPart.line`):\nits point and its `+Y` axis, however it lies, a cock's cross pin."
               },
               "swing": {
                 "type": "number",
@@ -26125,7 +26293,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "required": [
               "kind",
               "at",
-              "hinge",
               "swing"
             ],
             "additionalProperties": false
@@ -27574,6 +27741,25 @@ export const HUMAN_LEXICON_SCHEMA_DATA: HUMAN_LEXICON_SCHEMAS.ICollection = {
             "minimum": 0,
             "description": "Seconds the grip is held; 2 when absent.",
             "x-unit": "s"
+          },
+          "under": {
+            "type": "object",
+            "properties": {
+              "fulcrum": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "This body's region the partner turns over."
+              },
+              "on": {
+                "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                "description": "The partner's region that lies on it."
+              }
+            },
+            "required": [
+              "fulcrum",
+              "on"
+            ],
+            "additionalProperties": false,
+            "description": "A throw's entry (tsukuri, #3439): through the reach the body lowers,\nits knees bending over the planted feet, until its own `fulcrum`\nregion stands at the height of the partner's `on` region, the contact\nthe throw turns the partner over; none when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/AutoMovieMotionManner.IManner",
