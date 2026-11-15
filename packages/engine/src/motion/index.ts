@@ -29,6 +29,7 @@ export * from "./IPreparedChainPlant";
 export * from "./ISolvePreparedChainPlantProps";
 export * from "./ISpringParams";
 export * from "./ISpringStep";
+export * from "./adaptAutoMovieInteractionMesh";
 export * from "./arrangeMotion";
 export * from "./assemblePlantedFeet";
 export * from "./basisOf";

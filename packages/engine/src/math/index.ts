@@ -83,6 +83,7 @@ export * from "./solveAutoMovieQuadraticStep";
 export * from "./solveAutoMovieQuadraticWorkingSetStep";
 export * from "./srgbHexToLinearColor";
 export * from "./swingTwist";
+export * from "./tetrahedralizeAutoMovieDelaunay";
 export * from "./transformedBoxBounds";
 export * from "./weldMeshVertices";
 export * from "./wrapDegrees";

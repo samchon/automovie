@@ -294,6 +294,7 @@ export * from "./grappling/HumanForceExchange";
 export * from "./grappling/HumanForceResponse";
 export * from "./grappling/HumanForceThrow";
 export * from "./lexicon/HumanCoupled";
+export * from "./lexicon/HumanHoldMesh";
 export * from "./lexicon/HumanFirearm";
 export * from "./lexicon/HumanPose";
 export * from "./posture/carryHumanPosture";

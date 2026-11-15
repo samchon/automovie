@@ -19,6 +19,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanForceResponse } from "../grappling/HumanForceResponse";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -181,17 +182,7 @@ export namespace perturb {
       requested === "yield" ||
       requested === "thrown"
     )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "outcome",
-        value: requested,
-        feasible: {
-          kind: "alternatives",
-          values: ["auto", "absorb", "step", "fall"],
-        },
-        reason: `the ${requested} outcome needs the two-body response, which is not wired here yet`,
-        fix: "ask for auto, absorb, step or fall",
-      });
+      return HumanForceResponse.plan(context, requested, outcome);
     const asked: "auto" | "absorb" | "step" | "fall" = requested;
     const chosen: "absorb" | "step" | "fall" =
       asked === "auto" ? outcome.outcome : asked;
