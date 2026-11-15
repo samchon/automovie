@@ -404,20 +404,28 @@ export namespace HumanArmTrajectoryConvex {
             );
             return join(own, along(b, k, carried, dir, -1));
           };
-          if (n === undefined)
+          if (n === undefined) {
+            // A grip held to its point on every axis: the merit's terms
+            // linearised, the squared distance's Gauss-Newton model and the
+            // excess past the region's disc along the offset's direction, so
+            // the model's violation at the zero step is the merit's.
             for (const e of P.AXES) {
               const v: ILinear = relative(e);
-              const r0: number = Vector3.dot(off, e);
+              square(T.SITE, Vector3.dot(off, e), v.idx, v.coef);
+            }
+            const length: number = Vector3.length(off);
+            if (length > 1e-6) {
+              const v: ILinear = relative(Vector3.scale(off, 1 / length));
               rows.push({
-                key: `e|${a}|${k}|${e.x}${e.y}${e.z}`,
+                key: `d|${a}|${k}`,
                 index: v.idx,
                 coef: v.coef,
-                l: -r0,
-                u: -r0,
+                l: -Infinity,
+                u: 1000 * site.disc - length,
                 weight: mu,
               });
             }
-          else {
+          } else {
             // The contact anywhere on the region's disc about the site,
             // pulled toward the site itself.
             const slide: IAutoMovieVector3 = Vector3.subtract(
