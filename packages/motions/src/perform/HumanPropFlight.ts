@@ -146,6 +146,7 @@ export namespace HumanPropFlight {
           });
         }
     launches.sort((a, b): number => a.seconds - b.seconds);
+    if (launches.length === 0) return [];
     const out: IFlight[] = [];
     const map: Map<string, IFlight[]> = BUILDING.get(self) ?? new Map();
     map.set(subject, out);
