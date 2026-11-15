@@ -24,6 +24,9 @@ export namespace ArchetypeUnits {
   /** One millimetre, metres: 0.001 exactly, the SI prefix milli. */
   export const MILLIMETRE: number = 0.001;
 
+  /** One centimetre, metres: 0.01 exactly, the SI prefix centi. */
+  export const CENTIMETRE: number = 0.01;
+
   /** One degree, radians. */
   export const DEGREE: number = Math.PI / 180;
 }

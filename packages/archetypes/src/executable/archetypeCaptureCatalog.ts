@@ -33,7 +33,7 @@ import {
 } from "../furniture";
 import { createBoxingGlove, createHeavyBag } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
-import { createRock } from "../nature";
+import { createRock, createTree } from "../nature";
 import {
   createBag,
   createBox,
@@ -416,13 +416,18 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
     }),
     horse: still({ horse }),
-    nature: still(
-      kinds(
+    nature: still({
+      ...kinds(
         "rock",
         createRock.KINDS,
         (kind: createRock.Kind): Archetype => createRock({ kind }),
       ),
-    ),
+      ...kinds(
+        "tree",
+        createTree.KINDS,
+        (kind: createTree.Kind): Archetype => createTree({ kind }),
+      ),
+    }),
     weapons: still({
       ...kinds(
         "handgun",

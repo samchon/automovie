@@ -100,6 +100,7 @@ import {
   createTool,
   createTorch,
   createTray,
+  createTree,
   createUmbrella,
   createValve,
   createVaultingPole,
@@ -528,6 +529,11 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `rock-${kind}`,
       (seed?: number | string): Archetype => createRock({ kind }, seed),
+    );
+  for (const kind of createTree.KINDS)
+    add(
+      `tree-${kind}`,
+      (seed?: number | string): Archetype => createTree({ kind }, seed),
     );
   // Sport: the jump apparatus.
   add(
