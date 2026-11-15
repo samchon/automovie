@@ -4,15 +4,17 @@
 
 ## Attitude
 
+Work by these rules:
+
 - Do the literal request, widening it only when the user hands that over.
-- The user's instruction outranks any skill.
+- Follow the user's instruction over any skill.
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
 - Write code, comments, documents, commits, issues, and pull requests in English.
 - Ship each topic as its own pull request.
 - Delete every scratch file once it has served.
 
-## Fixing By Cause
+## Fixing by cause
 
 Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time or a known one later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
 
@@ -20,7 +22,7 @@ Let a test run, CI run, review round, visual inspection round, or experiment fin
 
 Keep video and 3D viewers operational, and restore a broken viewer before other work. Fill a missing core capability at its package owner, then verify the real consumer and reconnect it before resuming.
 
-## Finishing Work
+## Finishing work
 
 A message without a tool call ends the turn. While work remains, do not end it with:
 

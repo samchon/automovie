@@ -6,7 +6,7 @@ The scaffold's [adoption guide](../../../packages/template/scaffold/instructions
 
 ## Scope and failure
 
-Give each item an observable failure and the similar legitimate case it must leave alone. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A broad item still needs the passage or output, context and concrete audience loss supporting its finding.
+Give each item an observable failure and the similar legitimate case it must leave alone. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A finding under a broad item still cites the passage or output, its context and the concrete audience loss.
 
 Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
 
@@ -14,7 +14,9 @@ Judge sufficient and excessive detail in the same achievement. More explanation,
 
 Shipped contracts take two levels. An item is one broad question with its reason and the loss it prevents, and it stays short enough to hold in mind while answering. Its H2 names the theme in a few words, such as `Beat decisions`, and the question opens the text under it. Its statements are single checkable assertions with their exceptions, in a `statements` document at the same path beside the contract, one section per item under the same H2.
 
-Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
+Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it. A new sentence pattern needs no new contract family, which is a folder of contracts that one owner keeps.
+
+Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 
 Statement documents are not evidence targets: place them where no selector of `@automovie/evidence` reaches, and confirm that against the package's selector documentation when adding a family. An item that is already one short question needs no statements.
 

@@ -15,7 +15,7 @@ State only facts the code does not show, rules the user set, and mistakes an age
 
 Write each instruction concretely enough that a reader can tell whether it was followed.
 
-Writing asks for a reason when it is not obvious. For a consequential instruction, that reason names who loses what when it is missed and sits in the instruction itself, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
+[Writing](../documentation/writing.md) asks for a reason when it is not obvious. For a consequential instruction, that reason names who loses what when it is missed and sits in the instruction itself, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
 
 Leave the method to the agent unless a known failure requires a particular order or boundary. Where a skill does name methods, it gives one default and says when to leave it.
 
@@ -29,15 +29,15 @@ Resolve two conflicting instructions inside the prompts by changing one of them,
 
 ## Packages
 
-A skill routes to a package and stops there; naming the package is the routing. It carries no function name, command line or file path that a package owns, and it lists no package's features, because a copy in a skill cannot be kept in step with the package. The package's README and types own them.
+A skill routes to a package and stops there; naming the package is the routing. Unless the skill maintains that package, it carries no function name, command line or file path the package owns, and it lists no package's features, because a copy in a skill cannot be kept in step with the package. The package's README and types own them.
 
 ## Skills and contracts
 
-A skill gives a job's goal, order and boundaries, and points to the checklists it relies on without restating their items.
+A skill gives a job's goal and boundaries, and points to the checklists it relies on without restating their items.
 
 An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete. A rule that must hold on every action, such as a forbidden command, belongs in a hook or a check that runs, because prose can be missed.
 
-Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent (whoever answers), evidence or repair owner differs. Keep a question about the overall achievement apart from its detailed checks, because passing every check does not prove the whole works.
+Put judgments the agent can make together into one checklist item, and split them into separate items when their task, respondent (whoever answers), proof or repair owner differs. Keep a question about the overall achievement apart from its detailed checks, because passing every check does not prove the whole works.
 
 ## Layout
 
