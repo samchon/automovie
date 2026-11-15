@@ -118,8 +118,7 @@ export namespace HumanLadder {
     const spacing: number = Vector3.length(rise);
     HumanBound.within("spacing", spacing, 0.25, 0.36, "m");
     const lean: number =
-      (Math.acos(Math.min(1, Math.max(-1, rise.y / spacing))) * 180) /
-      Math.PI;
+      (Math.acos(Math.min(1, Math.max(-1, rise.y / spacing))) * 180) / Math.PI;
     HumanBound.within("lean", lean, 0, UPRIGHT, "degrees");
     const out: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.multiply(frame.rotation, rungs[0]!.frame.rotation),

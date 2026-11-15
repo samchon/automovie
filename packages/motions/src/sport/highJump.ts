@@ -242,7 +242,8 @@ export namespace highJump {
             feasible: {
               kind: "range",
               minimum: centre.y,
-              maximum: centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
+              maximum:
+                centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
               unit: "m",
             },
             reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,

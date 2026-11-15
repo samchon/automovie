@@ -358,13 +358,7 @@ export function test_human_motion_sport_supported(): void {
       ["dip", "bottom1", pressed],
     ] as const) {
       const away: number =
-        1000 *
-        Vector3.length(
-          Vector3.subtract(
-            fists(when(row, event)),
-            place,
-          ),
-        );
+        1000 * Vector3.length(Vector3.subtract(fists(when(row, event)), place));
       if (!(away <= 15))
         complaints.push(
           `${name}: at ${row}'s ${event} the fists' middle is ${away.toFixed(1)} mm from its support's place, 15 mm at most expected`,

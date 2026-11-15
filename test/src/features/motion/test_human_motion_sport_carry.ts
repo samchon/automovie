@@ -7,8 +7,8 @@ import {
   type resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  IAutoMovieVector3,
   IAutoMoviePhysicalProfile,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,

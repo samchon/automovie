@@ -165,6 +165,12 @@ export namespace createWeaponRack {
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     width: ArchetypeBand.metres(0.66, 0.695, RACKS),
     height: ArchetypeBand.metres(0.66, 0.84, RACKS),
-    mass: ArchetypeBand.of("kg", 8, 20, "the stands' pages read give no weight", true),
+    mass: ArchetypeBand.of(
+      "kg",
+      8,
+      20,
+      "the stands' pages read give no weight",
+      true,
+    ),
   };
 }

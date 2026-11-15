@@ -398,7 +398,9 @@ export function* locomotionCases(
           const span: number = until - strikes[0]!;
           const speed: number =
             span > 0 ? Math.hypot(b.x - a.x, b.z - a.z) / span : 0;
-          const froude: number = Math.sqrt(fr * AutoMovieGravity.STANDARD * body.measure.hipHeight);
+          const froude: number = Math.sqrt(
+            fr * AutoMovieGravity.STANDARD * body.measure.hipHeight,
+          );
           speeds.push(
             `${names[i]} ${speed.toFixed(2)}/${froude.toFixed(2)} m/s`,
           );

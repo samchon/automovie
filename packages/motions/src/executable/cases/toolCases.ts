@@ -13,8 +13,8 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import type { HumanPerformance } from "../../perform/HumanPerformance";
-import type { IHumanProp } from "../../perform/IHumanProp";
 import type { HumanSegment } from "../../perform/HumanSegment";
+import type { IHumanProp } from "../../perform/IHumanProp";
 import type { useTool } from "../../tasks/useTool";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -81,7 +81,8 @@ export function toolCases(
             handle: "grip",
             use: {
               tip: "face",
-              line: tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+              line:
+                tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
             },
           })
           .act("useTool", params),

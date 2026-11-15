@@ -50,7 +50,10 @@ export function test_human_motion_core_sweep_walking(): void {
     side: "right",
     from: span.start,
     to: span.end,
-    rest: AutoMovieMotionHumanArm.angles(resolveHumanPosture(body, quiet), "right"),
+    rest: AutoMovieMotionHumanArm.angles(
+      resolveHumanPosture(body, quiet),
+      "right",
+    ),
     goal: (_: IHumanPosture, seconds: number): IHumanPosture.IGoal => ({
       point: shift(wrist, seconds),
       bend: shift({ x: elbow.x - 0.1, y: elbow.y, z: elbow.z - 0.1 }, seconds),
@@ -64,10 +67,20 @@ export function test_human_motion_core_sweep_walking(): void {
   for (let i: number = 0; i <= Math.round(span.end * 30); i++) {
     const seconds: number = i / 30;
     if (seconds < span.ready || seconds > span.relax) continue;
-    const posture: IHumanPosture = arm.write(walking(seconds), seconds, walking);
-    const at: IAutoMovieVector3 = poseBones(body, resolveHumanPosture(body, posture)).get("rightHand")!.worldPosition;
+    const posture: IHumanPosture = arm.write(
+      walking(seconds),
+      seconds,
+      walking,
+    );
+    const at: IAutoMovieVector3 = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    ).get("rightHand")!.worldPosition;
     const place: IAutoMovieVector3 = shift(wrist, seconds);
-    off = Math.max(off, Math.hypot(at.x - place.x, at.y - place.y, at.z - place.z));
+    off = Math.max(
+      off,
+      Math.hypot(at.x - place.x, at.y - place.y, at.z - place.z),
+    );
   }
   TestValidator.predicate(
     `the walking body's still arm keeps its wrist within ${(off * 1000).toFixed(1)} mm of its place`,

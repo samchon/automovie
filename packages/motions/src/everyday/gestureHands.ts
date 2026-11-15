@@ -6,12 +6,12 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import type { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { gesture } from "./gesture";
 import type { gestureStroke } from "./gestureStroke";
@@ -58,30 +58,59 @@ export namespace gestureHands {
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
     envelope: number,
-  ): { request: AutoMovieMotionHumanArm.ISided; fingers: IHumanPosture["joints"] } {
+  ): {
+    request: AutoMovieMotionHumanArm.ISided;
+    fingers: IHumanPosture["joints"];
+  } {
     const turned: IAutoMovieQuaternion =
       p.turn === undefined
         ? goal.rotation
-        : Quaternion.multiply(goal.rotation, Quaternion.fromAxisAngle({ x: 0, y: -1, z: 0 }, (side === "left" ? -1 : 1) * p.turn));
+        : Quaternion.multiply(
+            goal.rotation,
+            Quaternion.fromAxisAngle(
+              { x: 0, y: -1, z: 0 },
+              (side === "left" ? -1 : 1) * p.turn,
+            ),
+          );
     const request: AutoMovieMotionHumanArm.ISided = {
       side,
       surface: goal.surface,
       shape: goal.shape,
       point: goal.point,
-      rotation: digit === undefined || p.aim === undefined ? turned : HumanHandShape.aim(turned, digit, p.aim.toward),
+      rotation:
+        digit === undefined || p.aim === undefined
+          ? turned
+          : HumanHandShape.aim(turned, digit, p.aim.toward),
       bend:
         goal.elbow === undefined
           ? AutoMovieMotionHumanBend.hang(body, posture, side, goal.out + elbow)
-          : AutoMovieMotionHumanBend.arm(body, posture, side, goal.elbow, goal.out + elbow),
+          : AutoMovieMotionHumanBend.arm(
+              body,
+              posture,
+              side,
+              goal.elbow,
+              goal.out + elbow,
+            ),
     };
-    const shape: ReturnType<typeof HumanHand.shape> = p.shape === undefined ? HumanHand.shape(side, goal.shape) : HumanHandShape.emblem(side, p.shape);
-    const relaxed: ReturnType<typeof HumanHand.shape> = HumanHand.shape(side, "relaxed");
+    const shape: ReturnType<typeof HumanHand.shape> =
+      p.shape === undefined
+        ? HumanHand.shape(side, goal.shape)
+        : HumanHandShape.emblem(side, p.shape);
+    const relaxed: ReturnType<typeof HumanHand.shape> = HumanHand.shape(
+      side,
+      "relaxed",
+    );
     const fingers: IHumanPosture["joints"] = {};
     for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[]) {
       const a: readonly [number, number, number] = shape[bone]!;
       const r: readonly [number, number, number] = relaxed[bone]!;
-      const curl: number = bone.includes("Thumb") || p.shape !== undefined ? 0 : (goal.curl ?? 0);
-      fingers[bone] = [r[0] + (a[0] + curl - r[0]) * envelope, a[1] * envelope, 0];
+      const curl: number =
+        bone.includes("Thumb") || p.shape !== undefined ? 0 : (goal.curl ?? 0);
+      fingers[bone] = [
+        r[0] + (a[0] + curl - r[0]) * envelope,
+        a[1] * envelope,
+        0,
+      ];
     }
     return { request, fingers };
   }
@@ -118,7 +147,9 @@ export namespace gestureHands {
           back: rest[side]!,
           goal: (_: IHumanPosture, at: number): IHumanPosture.IGoal => {
             const before: IPrior = prior(at);
-            return handGoals(body, before.posture, before.requests).limbs[`${side}Arm`]!;
+            return handGoals(body, before.posture, before.requests).limbs[
+              `${side}Arm`
+            ]!;
           },
           weight: (at: number): number => prior(at).envelope,
         }),
@@ -143,7 +174,8 @@ export namespace gestureHands {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     for (const [side, trajectory] of arms) {
-      const arm: ReturnType<HumanArmTrajectory.Trajectory> = trajectory(seconds);
+      const arm: ReturnType<HumanArmTrajectory.Trajectory> =
+        trajectory(seconds);
       joints[`${side}UpperArm`] = arm.upper;
       joints[`${side}LowerArm`] = arm.lower;
       joints[`${side}Hand`] = arm.hand;

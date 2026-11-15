@@ -435,7 +435,12 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @returns Whether it is median.
    */
   export function median(region: AutoMovieHumanoidRegion): boolean {
-    return !region.endsWith("Left") && !region.endsWith("Right") && region !== "liver" && region !== "spleen";
+    return (
+      !region.endsWith("Left") &&
+      !region.endsWith("Right") &&
+      region !== "liver" &&
+      region !== "spleen"
+    );
   }
 
   /**
@@ -447,7 +452,11 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * @returns The frame, its own mirror image.
    */
   export function centred(frame: IFrame): IFrame {
-    const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ x: 0, y: v.y, z: v.z });
+    const plane = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: 0,
+      y: v.y,
+      z: v.z,
+    });
     return {
       ...frame,
       point: plane(frame.point),

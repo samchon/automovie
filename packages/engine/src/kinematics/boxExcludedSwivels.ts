@@ -213,10 +213,17 @@ function bounds(
     const p: number = Math.max(from + 360 * first, -90);
     const q: number = Math.min(to + 360 * first, 90);
     const out: swivelArcs.ISinusoid[] = [];
-    if (q < 90) out.push({ ...read.sine, a: read.sine.a - Math.sin(q * Quaternion.DEG2RAD) });
+    if (q < 90)
+      out.push({
+        ...read.sine,
+        a: read.sine.a - Math.sin(q * Quaternion.DEG2RAD),
+      });
     if (p > -90)
       out.push(
-        swivelArcs.scaled({ ...read.sine, a: read.sine.a - Math.sin(p * Quaternion.DEG2RAD) }, -1),
+        swivelArcs.scaled(
+          { ...read.sine, a: read.sine.a - Math.sin(p * Quaternion.DEG2RAD) },
+          -1,
+        ),
       );
     return out;
   }
@@ -238,4 +245,3 @@ function bounds(
     ),
   ];
 }
-

@@ -342,7 +342,15 @@ export namespace touch {
     // At least as long as the arms need to keep within the audit's travel bound.
     const reach: number = Math.max(
       AutoMovieMotionHumanTiming.transport(far),
-      touchReach.duration(body, context.entry.pose, reached, hands, effector, region, laid),
+      touchReach.duration(
+        body,
+        context.entry.pose,
+        reached,
+        hands,
+        effector,
+        region,
+        laid,
+      ),
     );
     const repetition: number = AutoMovieMotionHumanTouchForm.period(
       body,
@@ -388,7 +396,11 @@ export namespace touch {
     const together: AutoMovieMotionHumanArmPlanned.ITogether | undefined =
       hands.length > 1 ? AutoMovieMotionHumanArmPlanned.together() : undefined;
     for (const [side, target] of hands) {
-      const disc: number | undefined = touchRegion.disc(context, target, side === first ? p.site : undefined);
+      const disc: number | undefined = touchRegion.disc(
+        context,
+        target,
+        side === first ? p.site : undefined,
+      );
       const support: IHumanContactWindow.Support | undefined =
         target.kind === "person"
           ? { kind: "person", subject: target.subject, region: target.region }
@@ -474,7 +486,9 @@ export namespace touch {
           entry: risen,
           ...(together === undefined ? {} : { together }),
           ...(disc === undefined ? {} : { disc }),
-          ...(target.kind === "self" ? { on: body.surfaces.regions[target.region].bone } : {}),
+          ...(target.kind === "self"
+            ? { on: body.surfaces.regions[target.region].bone }
+            : {}),
           ...(resting(side).length === 0 ? {} : { rests: resting(side) }),
           ...(p.prop !== undefined && side === first
             ? { fingers: "keep" as const }
@@ -484,7 +498,15 @@ export namespace touch {
             ? {}
             : { contact: support }),
           ...(target.kind === "person"
-            ? { others: touchHold.others(context, target, clock), perceived: touchHold.perceived(context, target, clock, region(target)) }
+            ? {
+                others: touchHold.others(context, target, clock),
+                perceived: touchHold.perceived(
+                  context,
+                  target,
+                  clock,
+                  region(target),
+                ),
+              }
             : {}),
         }),
       );

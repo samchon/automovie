@@ -245,7 +245,11 @@ export namespace createGolfClub {
       ),
     },
     iron: {
-      length: m(37 * INCH, 37 * INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
+      length: m(
+        37 * INCH,
+        37 * INCH,
+        "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
+      ),
       headWidth: m(0.075, 0.085, UNREAD, true),
       headDepth: m(0.02, 0.03, UNREAD, true),
       gripDiameter: GRIP,

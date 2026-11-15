@@ -69,7 +69,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
       where: "none",
     };
     const hold: number =
-      1 / resolveAutoMovieCenterOfMass.frequency(resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight));
+      1 /
+      resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      );
     const times: number[] = IAutoMovieMotionHumanAuditMotion.grid(
       0,
       motion.duration,

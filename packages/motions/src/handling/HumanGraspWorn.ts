@@ -1,4 +1,8 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -167,18 +171,16 @@ export namespace HumanGraspWorn {
       for (let k: number = ROUND; k <= 180; k += ROUND)
         seeds.push(...(k < 180 ? [k, -k] : [k]));
     const turned: number = HumanFreedomChoice.chosen({
-        tried: seeds.map((degrees: number): number[] => [degrees]),
-        freedoms: [
-          {
-            kind: "wrapped",
-            step: props.round === true ? ROUND : 0,
-            period: 360,
-          },
-        ],
-        judge: (values: readonly number[]): number[] => [
-          missed(values[0]!),
-        ],
-      }).values[0]!;
+      tried: seeds.map((degrees: number): number[] => [degrees]),
+      freedoms: [
+        {
+          kind: "wrapped",
+          step: props.round === true ? ROUND : 0,
+          period: 360,
+        },
+      ],
+      judge: (values: readonly number[]): number[] => [missed(values[0]!)],
+    }).values[0]!;
     const chosen: HumanHand.IWrist = keyed(turned);
     return {
       posture: context.entry.posture,
@@ -189,9 +191,7 @@ export namespace HumanGraspWorn {
       judge: (
         bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
       ): number => {
-        const hand: IAutoMovieResolvedBone = bones.get(
-          `${props.side}Hand`,
-        )!;
+        const hand: IAutoMovieResolvedBone = bones.get(`${props.side}Hand`)!;
         return Vector3.length(
           Vector3.subtract(
             Vector3.add(

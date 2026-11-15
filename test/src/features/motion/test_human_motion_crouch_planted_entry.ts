@@ -94,8 +94,9 @@ export function test_human_motion_crouch_planted_entry(): void {
     ): number => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         performance.bones("a", seconds);
-      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!
-        .worldPosition;
+      const hip: IAutoMovieVector3 = bones.get(
+        `${side}UpperLeg`,
+      )!.worldPosition;
       const at: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
       const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
       const u: number[] = [hip.x - at.x, hip.y - at.y, hip.z - at.z];

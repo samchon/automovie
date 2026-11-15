@@ -123,6 +123,12 @@ export namespace createJumpRope {
     length: ArchetypeBand.metres(120 * 0.0254, 132 * 0.0254, ROGUE),
     handleLength: ArchetypeBand.metres(5.25 * 0.0254, 7.5 * 0.0254, ROGUE),
     gripDiameter: ArchetypeBand.metres(0.875 * 0.0254, 0.875 * 0.0254, ROGUE),
-    mass: ArchetypeBand.of("kg", 0.1, 0.3, "the Rogue pages read give no weight", true),
+    mass: ArchetypeBand.of(
+      "kg",
+      0.1,
+      0.3,
+      "the Rogue pages read give no weight",
+      true,
+    ),
   };
 }

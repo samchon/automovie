@@ -145,7 +145,13 @@ export namespace createCleaning {
       width: ArchetypeBand.metres(2.6 * 0.0254, 2.6 * 0.0254, SPONGE),
       length: ArchetypeBand.metres(4.4 * 0.0254, 4.4 * 0.0254, SPONGE),
       thickness: ArchetypeBand.metres(0.6 * 0.0254, 0.7 * 0.0254, SPONGE),
-      mass: ArchetypeBand.of("kg", 0.005, 0.02, "the sponge's weight: the listings read do not give it", true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.005,
+        0.02,
+        "the sponge's weight: the listings read do not give it",
+        true,
+      ),
     },
   };
 }

@@ -325,7 +325,11 @@ export namespace AutoMovieMotionHumanTouchDrink {
             false,
             axis,
           );
-        nearest = AutoMovieMotionHumanDrinkingArm.nearer(nearest, arm, `at a lean of ${lean} degrees`);
+        nearest = AutoMovieMotionHumanDrinkingArm.nearer(
+          nearest,
+          arm,
+          `at a lean of ${lean} degrees`,
+        );
         return holds(arm) &&
           holds(
             AutoMovieMotionHumanDrinkingArm.read(

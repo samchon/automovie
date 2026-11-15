@@ -86,7 +86,6 @@ export namespace pickUpSearch {
       side,
     );
 
-
     const goal = (turn: number, tilt: number): HumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
     // Without a use, the hand takes the grip as the archetype declares it:

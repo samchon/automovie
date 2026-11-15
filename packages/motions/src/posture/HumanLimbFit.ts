@@ -219,7 +219,16 @@ export namespace HumanLimbFit {
     // A left limb is fitted as the right limb in the mirror image of its
     // world, so the two sides are mirror images to the bit.
     if (limb.startsWith("left"))
-      return mirrored(fit(body, mirrored(pose), opposite(limb), reflected(attached), placed.map(other), rival === undefined ? undefined : HumanArmMirror.flip(rival)));
+      return mirrored(
+        fit(
+          body,
+          mirrored(pose),
+          opposite(limb),
+          reflected(attached),
+          placed.map(other),
+          rival === undefined ? undefined : HumanArmMirror.flip(rival),
+        ),
+      );
     const goal: IHumanPosture.IGoal = world(body, pose, limb, attached);
     // An arm's forearm stays clear of the trunk, the thighs and an arm fitted
     // before it as the pose being fitted places them (`HumanArmClearance`),
@@ -379,7 +388,16 @@ export namespace HumanLimbFit {
     // A left limb's fit is its mirror's, remembered under the right limb's
     // key, so a fit and its mirror image share one entry.
     if (limb.startsWith("left"))
-      return mirrored(remembered(body, mirrored(pose), opposite(limb), reflected(goal), placed.map(other), rival === undefined ? undefined : HumanArmMirror.flip(rival)));
+      return mirrored(
+        remembered(
+          body,
+          mirrored(pose),
+          opposite(limb),
+          reflected(goal),
+          placed.map(other),
+          rival === undefined ? undefined : HumanArmMirror.flip(rival),
+        ),
+      );
     const key: string = JSON.stringify([
       limb,
       placed,
@@ -481,17 +499,29 @@ export namespace HumanLimbFit {
       ...goal,
       point: HumanArmMirror.flip(goal.point),
       bend: HumanArmMirror.flip(goal.bend),
-      ...(goal.rotation === undefined ? {} : { rotation: HumanArmMirror.turn(goal.rotation) }),
-      ...(goal.contact === undefined ? {} : { contact: HumanArmMirror.flip(goal.contact) }),
-      ...(goal.on === undefined ? {} : { on: HumanArmMirror.opposite(goal.on) }),
-      ...(goal.clear === undefined ? {} : { clear: goal.clear.map(HumanArmMirror.reflected) }),
-      ...(goal.rests === undefined ? {} : { rests: goal.rests.map(HumanArmMirror.reflected) }),
+      ...(goal.rotation === undefined
+        ? {}
+        : { rotation: HumanArmMirror.turn(goal.rotation) }),
+      ...(goal.contact === undefined
+        ? {}
+        : { contact: HumanArmMirror.flip(goal.contact) }),
+      ...(goal.on === undefined
+        ? {}
+        : { on: HumanArmMirror.opposite(goal.on) }),
+      ...(goal.clear === undefined
+        ? {}
+        : { clear: goal.clear.map(HumanArmMirror.reflected) }),
+      ...(goal.rests === undefined
+        ? {}
+        : { rests: goal.rests.map(HumanArmMirror.reflected) }),
     };
   }
 
   /** The same limb on the other side. */
   function opposite(limb: IHumanPosture.Limb): IHumanPosture.Limb {
-    return (limb.startsWith("left") ? `right${limb.slice(4)}` : `left${limb.slice(5)}`) as IHumanPosture.Limb;
+    return (
+      limb.startsWith("left") ? `right${limb.slice(4)}` : `left${limb.slice(5)}`
+    ) as IHumanPosture.Limb;
   }
 
   /** The other side. */

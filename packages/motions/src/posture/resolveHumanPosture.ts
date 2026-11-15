@@ -99,8 +99,10 @@ export function resolveHumanPosture(
     left: posture.limbs.leftArm,
     right: posture.limbs.rightArm,
   };
-  const riding = (goal: IHumanPosture.IGoal | undefined, other: "left" | "right"): boolean =>
-    goal?.on !== undefined && goal.on.startsWith(other);
+  const riding = (
+    goal: IHumanPosture.IGoal | undefined,
+    other: "left" | "right",
+  ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
   const paired: boolean =
     arms.left !== undefined &&
     arms.right !== undefined &&
@@ -111,7 +113,10 @@ export function resolveHumanPosture(
     if (goal === undefined) continue;
     if (paired && (limb === "leftArm" || limb === "rightArm")) {
       if (placed.length === 0)
-        pose = HumanLimbPair.fitted(body, pose, { left: arms.left!, right: arms.right! });
+        pose = HumanLimbPair.fitted(body, pose, {
+          left: arms.left!,
+          right: arms.right!,
+        });
       placed.push(limb === "leftArm" ? "left" : "right");
       continue;
     }

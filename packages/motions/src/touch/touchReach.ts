@@ -40,7 +40,12 @@ export namespace touchReach {
     reached: IHumanPosture,
     hands: readonly (readonly [HumanHand.Side, AutoMovieMotionTarget])[],
     effector: AutoMovieMotionHumanTouchEffector.IEffector,
-    region: (target: AutoMovieMotionTarget) => (posture: IHumanPosture, seconds: number) => Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    region: (
+      target: AutoMovieMotionTarget,
+    ) => (
+      posture: IHumanPosture,
+      seconds: number,
+    ) => Pick<AutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
     laid: touchHold.Lay,
   ): number {
     let longest: number = 0;
@@ -55,13 +60,23 @@ export namespace touchReach {
         AutoMovieMotionHumanBend.hang(body, reached, side),
         "arm",
       );
-      const arrival: AutoMovieMotionHumanArm.IAngles = AutoMovieMotionHumanArm.angles(
-        resolveHumanPosture(body, { ...reached, limbs: { ...reached.limbs, [`${side}Arm`]: goal } }),
-        side,
-      );
+      const arrival: AutoMovieMotionHumanArm.IAngles =
+        AutoMovieMotionHumanArm.angles(
+          resolveHumanPosture(body, {
+            ...reached,
+            limbs: { ...reached.limbs, [`${side}Arm`]: goal },
+          }),
+          side,
+        );
       longest = Math.max(
         longest,
-        AutoMovieMotionHumanArmPlanned.reaching(body, reached, side, AutoMovieMotionHumanArm.angles(entry, side), arrival),
+        AutoMovieMotionHumanArmPlanned.reaching(
+          body,
+          reached,
+          side,
+          AutoMovieMotionHumanArm.angles(entry, side),
+          arrival,
+        ),
       );
     }
     return longest;

@@ -94,7 +94,9 @@ export function test_physics_moving_launch(): void {
       {
         x: lead.velocity.x * lead.hitTime,
         y:
-          1.6 + lead.velocity.y * lead.hitTime - (AutoMovieGravity.STANDARD * lead.hitTime ** 2) / 2,
+          1.6 +
+          lead.velocity.y * lead.hitTime -
+          (AutoMovieGravity.STANDARD * lead.hitTime ** 2) / 2,
         z: lead.velocity.z * lead.hitTime,
       },
       slide(lead.hitTime),

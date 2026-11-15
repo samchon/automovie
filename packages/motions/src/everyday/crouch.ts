@@ -308,10 +308,7 @@ export namespace crouch {
     };
     const start: IAutoMovieVector3 = over(0);
     const move = (s: number): IAutoMovieVector3 =>
-      Vector3.add(
-        Vector3.subtract(over(s), start),
-        Vector3.scale(start, s),
-      );
+      Vector3.add(Vector3.subtract(over(s), start), Vector3.scale(start, s));
 
     // The body at a share: root moved, trunk inclined by the lumbopelvic
     // rhythm (the pelvis about the hips as far as the folded thighs leave

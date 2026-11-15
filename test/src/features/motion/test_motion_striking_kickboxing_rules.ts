@@ -1,3 +1,4 @@
+import { createExerciseMat, createRing } from "@automovie/archetypes";
 import {
   type AutoMovieComposition,
   type IAutoMovieIntent,
@@ -5,7 +6,6 @@ import {
   resolveAutoMovieSchedule,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { createExerciseMat, createRing } from "@automovie/archetypes";
 import {
   HumanObject,
   KickboxingRing,

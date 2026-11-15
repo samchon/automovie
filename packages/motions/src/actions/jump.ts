@@ -1,8 +1,8 @@
 import {
   AutoMovieGravity,
+  type IAutoMovieResolvedBone,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
-  type IAutoMovieResolvedBone,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -128,7 +128,6 @@ export namespace jump {
 
   /** Rise to standing after the absorption, seconds (provisional). */
   export const RISE: number = 0.45;
-
 
   /**
    * Plan a jump.

@@ -27,9 +27,15 @@ const keyboard = (a: IHumanBody): IHumanProp => {
       {
         x: 0,
         y: a.measure.shoulderHeight - a.measure.upperArm - 0.005,
-        z: a.rest.get("rightUpperArm")!.z + a.measure.forearm + 0.5 * a.measure.hand,
+        z:
+          a.rest.get("rightUpperArm")!.z +
+          a.measure.forearm +
+          0.5 * a.measure.hand,
       },
-      Quaternion.rotateVector(turn, board.affordance("homeRow").frame.translation),
+      Quaternion.rotateVector(
+        turn,
+        board.affordance("homeRow").frame.translation,
+      ),
     ),
     rotation: turn,
   });

@@ -267,9 +267,13 @@ export namespace HumanJacobian {
         ],
       ),
     );
-    const carried: Map<AutoMovieHumanoidBone, Set<AutoMovieHumanoidBone>> =
-      new Map();
-    const carries = (bone: AutoMovieHumanoidBone): Set<AutoMovieHumanoidBone> => {
+    const carried: Map<
+      AutoMovieHumanoidBone,
+      Set<AutoMovieHumanoidBone>
+    > = new Map();
+    const carries = (
+      bone: AutoMovieHumanoidBone,
+    ): Set<AutoMovieHumanoidBone> => {
       const seen: Set<AutoMovieHumanoidBone> | undefined = carried.get(bone);
       if (seen !== undefined) return seen;
       const out: Set<AutoMovieHumanoidBone> = new Set([bone]);

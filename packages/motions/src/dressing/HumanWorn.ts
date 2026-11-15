@@ -80,7 +80,10 @@ export namespace HumanWorn {
     );
     const along: boolean = Math.abs(into.z) > 0.9;
     const aligned: IAutoMovieQuaternion = HumanHand.align(
-      { normal: into, forward: along ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 } },
+      {
+        normal: into,
+        forward: along ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
+      },
       {
         normal: Vector3.scale(at.normal, -1),
         forward: along

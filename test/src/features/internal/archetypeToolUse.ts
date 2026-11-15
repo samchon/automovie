@@ -51,153 +51,153 @@ export function archetypeToolUse(name: "m-average" | "f-small"): void {
   const pan: ReturnType<typeof createVessel> = createVessel({
     kind: "saucepan",
   });
-    const body: IHumanBody = motionHumanBody(name);
-    const bench: number =
-      body.measure.shoulderHeight - body.measure.upperArm - 0.15;
-    const potAt: IAutoMovieVector3 = { x: 0, y: bench, z: 0.4 };
-    const kinds: [useTool.Kind, IAutoMovieVector3][] = [
-      ["hammer", { x: -0.2, y: bench, z: 0.5 }],
-      ["saw", { x: -0.2, y: bench, z: 0.5 }],
-      ["screwdriver", { x: -0.2, y: body.measure.shoulderHeight - 0.25, z: 0.55 }],
-      ["stir", potAt],
+  const body: IHumanBody = motionHumanBody(name);
+  const bench: number =
+    body.measure.shoulderHeight - body.measure.upperArm - 0.15;
+  const potAt: IAutoMovieVector3 = { x: 0, y: bench, z: 0.4 };
+  const kinds: [useTool.Kind, IAutoMovieVector3][] = [
+    ["hammer", { x: -0.2, y: bench, z: 0.5 }],
+    ["saw", { x: -0.2, y: bench, z: 0.5 }],
+    [
+      "screwdriver",
+      { x: -0.2, y: body.measure.shoulderHeight - 0.25, z: 0.55 },
+    ],
+    ["stir", potAt],
+  ];
+  for (const [kind, point] of kinds) {
+    const label: string = `${name} ${kind}`;
+    const tool: ReturnType<typeof createTool> = createTool({
+      kind: kind === "stir" ? "spoon" : kind,
+    });
+    const props: IHumanProp[] = [
+      HumanObject.prop("tool", tool, {
+        position: { x: body.rest.get("rightUpperArm")!.x, y: bench, z: 0.3 },
+        rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+      }),
+      HumanObject.prop("pot", pan, { at: potAt, yaw: 0 }),
     ];
-    for (const [kind, point] of kinds) {
-      const label: string = `${name} ${kind}`;
-      const tool: ReturnType<typeof createTool> = createTool({
-        kind: kind === "stir" ? "spoon" : kind,
+    const on: AutoMovieMotionTarget =
+      kind === "stir"
+        ? { kind: "prop", subject: "pot", point: "inside" }
+        : { kind: "point", at: point, frame: "world" };
+    const work = (taken: boolean): HumanPerformance => {
+      const start: HumanChain = HumanChain.subject("a").stand({
+        seconds: 0.3,
       });
-      const props: IHumanProp[] = [
-        HumanObject.prop("tool", tool, {
-          position: { x: body.rest.get("rightUpperArm")!.x, y: bench, z: 0.3 },
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-        }),
-        HumanObject.prop("pot", pan, { at: potAt, yaw: 0 }),
-      ];
-      const on: AutoMovieMotionTarget =
-        kind === "stir"
-          ? { kind: "prop", subject: "pot", point: "inside" }
-          : { kind: "point", at: point, frame: "world" };
-      const work = (taken: boolean): HumanPerformance => {
-        const start: HumanChain = HumanChain.subject("a").stand({
-          seconds: 0.3,
-        });
-        return new HumanPerformance({
-          seed: "tool",
-          laws: [],
-          props,
-          performers: [
-            {
-              subject: "a",
-              body,
-              at: { x: 0, y: 0, z: 0 },
-              yaw: 0,
-              proficiency: { level: "trained" },
-            },
-          ],
-          composition: (taken
-            ? start.pickUp({
-                prop: "tool",
-                handle: "grip",
-                use: {
-                  tip: "face",
-                  line:
-                    kind === "saw" || kind === "screwdriver"
-                      ? "forearm"
-                      : "square",
-                },
-              })
-            : start
-          ).useTool({ tool: kind, prop: "tool", on }).node,
-        });
-      };
+      return new HumanPerformance({
+        seed: "tool",
+        laws: [],
+        props,
+        performers: [
+          {
+            subject: "a",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: (taken
+          ? start.pickUp({
+              prop: "tool",
+              handle: "grip",
+              use: {
+                tip: "face",
+                line:
+                  kind === "saw" || kind === "screwdriver"
+                    ? "forearm"
+                    : "square",
+              },
+            })
+          : start
+        ).useTool({ tool: kind, prop: "tool", on }).node,
+      });
+    };
 
-      // 1. It plans.
-      let film: HumanPerformance;
-      try {
-        film = work(true);
-      } catch (error) {
-        complaints.push(
-          `${label}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
-        );
-        continue;
-      }
-      const act: HumanSegment.ISegment = film
-        .segments("a")
-        .find((s: HumanSegment.ISegment): boolean => s.name === "useTool")!;
-      const face = (seconds: number): IAutoMovieVector3 => {
-        const frame: IHumanProp.IFrame = film.prop("tool", seconds);
-        return Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(
-            frame.rotation,
-            tool.affordance("face").frame.translation,
-          ),
-        );
-      };
+    // 1. It plans.
+    let film: HumanPerformance;
+    try {
+      film = work(true);
+    } catch (error) {
+      complaints.push(
+        `${label}: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+      );
+      continue;
+    }
+    const act: HumanSegment.ISegment = film
+      .segments("a")
+      .find((s: HumanSegment.ISegment): boolean => s.name === "useTool")!;
+    const face = (seconds: number): IAutoMovieVector3 => {
+      const frame: IHumanProp.IFrame = film.prop("tool", seconds);
+      return Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(
+          frame.rotation,
+          tool.affordance("face").frame.translation,
+        ),
+      );
+    };
 
-      // 2. The face is on the work at every contact.
-      for (const event of act.plan.events) {
-        if (!event.name.startsWith("contact")) continue;
-        const at: number = act.start + event.share * act.plan.duration;
-        const tip: IAutoMovieVector3 = face(at);
-        if (kind === "stir") {
-          const inside: IAutoMovieAffordance = pan.affordance("inside");
-          const floor: number = potAt.y + inside.frame.translation.y;
-          const rim: number = potAt.y + pan.affordance("rim").frame.translation.y;
-          const off: number = Math.hypot(tip.x - potAt.x, tip.z - potAt.z);
-          if (!(off <= inside.width! / 2 && tip.y >= floor && tip.y <= rim))
-            complaints.push(
-              `${label}: at ${event.name} the spoon's face is ${mm(off)} mm off the saucepan's axis (inside ${mm(inside.width! / 2)} mm) at ${mm(tip.y - floor)} mm above its floor (rim ${mm(rim - floor)} mm)`,
-            );
-        } else {
-          const miss: number = Vector3.length(Vector3.subtract(tip, point));
-          if (!(miss <= 0.01))
-            complaints.push(
-              `${label}: at ${event.name} the face is ${mm(miss)} mm from the work point, within 10 mm expected`,
-            );
-        }
-      }
-
-      // 3. The tool rides the hand rigidly.
-      const inHand = (seconds: number): IAutoMovieVector3 => {
-        const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
-          "a",
-          seconds,
-        );
-        const socket: IHumanBody["surfaces"]["sockets"]["gripRight"] =
-          body.surfaces.sockets.gripRight;
-        const hand: IAutoMovieResolvedBone = bones.get(socket.bone)!;
-        return Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(
-            face(seconds),
-            resolveAutoMovieHumanoidSurfaces.place(socket, hand).point,
-          ),
-        );
-      };
-      const first: IAutoMovieVector3 = inHand(act.start);
-      let slip: number = 0;
-      for (let s: number = act.start; s <= act.end; s += 0.1)
-        slip = Math.max(
-          slip,
-          Vector3.length(Vector3.subtract(inHand(s), first)),
-        );
-      if (!(slip <= 0.001))
-        complaints.push(
-          `${label}: the face moves ${mm(slip)} mm in the hand during the work, within 1 mm expected`,
-        );
-
-      // 4. Without the pick-up it is refused.
-      try {
-        work(false);
-        complaints.push(`${label}: a tool left on the bench was worked with`);
-      } catch (error) {
-        if (!(error instanceof HumanRefusal) || error.axis !== "prop")
+    // 2. The face is on the work at every contact.
+    for (const event of act.plan.events) {
+      if (!event.name.startsWith("contact")) continue;
+      const at: number = act.start + event.share * act.plan.duration;
+      const tip: IAutoMovieVector3 = face(at);
+      if (kind === "stir") {
+        const inside: IAutoMovieAffordance = pan.affordance("inside");
+        const floor: number = potAt.y + inside.frame.translation.y;
+        const rim: number = potAt.y + pan.affordance("rim").frame.translation.y;
+        const off: number = Math.hypot(tip.x - potAt.x, tip.z - potAt.z);
+        if (!(off <= inside.width! / 2 && tip.y >= floor && tip.y <= rim))
           complaints.push(
-            `${label}: a tool not held failed with ${error instanceof Error ? error.message : String(error)}, a refusal on prop expected`,
+            `${label}: at ${event.name} the spoon's face is ${mm(off)} mm off the saucepan's axis (inside ${mm(inside.width! / 2)} mm) at ${mm(tip.y - floor)} mm above its floor (rim ${mm(rim - floor)} mm)`,
+          );
+      } else {
+        const miss: number = Vector3.length(Vector3.subtract(tip, point));
+        if (!(miss <= 0.01))
+          complaints.push(
+            `${label}: at ${event.name} the face is ${mm(miss)} mm from the work point, within 10 mm expected`,
           );
       }
     }
+
+    // 3. The tool rides the hand rigidly.
+    const inHand = (seconds: number): IAutoMovieVector3 => {
+      const bones: ReturnType<HumanPerformance["bones"]> = film.bones(
+        "a",
+        seconds,
+      );
+      const socket: IHumanBody["surfaces"]["sockets"]["gripRight"] =
+        body.surfaces.sockets.gripRight;
+      const hand: IAutoMovieResolvedBone = bones.get(socket.bone)!;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(hand.worldRotation),
+        Vector3.subtract(
+          face(seconds),
+          resolveAutoMovieHumanoidSurfaces.place(socket, hand).point,
+        ),
+      );
+    };
+    const first: IAutoMovieVector3 = inHand(act.start);
+    let slip: number = 0;
+    for (let s: number = act.start; s <= act.end; s += 0.1)
+      slip = Math.max(slip, Vector3.length(Vector3.subtract(inHand(s), first)));
+    if (!(slip <= 0.001))
+      complaints.push(
+        `${label}: the face moves ${mm(slip)} mm in the hand during the work, within 1 mm expected`,
+      );
+
+    // 4. Without the pick-up it is refused.
+    try {
+      work(false);
+      complaints.push(`${label}: a tool left on the bench was worked with`);
+    } catch (error) {
+      if (!(error instanceof HumanRefusal) || error.axis !== "prop")
+        complaints.push(
+          `${label}: a tool not held failed with ${error instanceof Error ? error.message : String(error)}, a refusal on prop expected`,
+        );
+    }
+  }
   TestValidator.equals(
     `${name}: a held tool works with its own face`,
     complaints,

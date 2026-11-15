@@ -48,7 +48,8 @@ export namespace everydayCaseKit {
     c: IContext,
     chain: HumanChain,
     props: readonly IHumanProp[] = [],
-  ): HumanPerformance => perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
+  ): HumanPerformance =>
+    perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
 
   /** A performance of polygon men at places and headings, the first `a` and the second `b`, among the scene's props. */
   export function perform(

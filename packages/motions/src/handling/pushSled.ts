@@ -292,8 +292,10 @@ export namespace pushSled {
           rotation: wrist.rotation,
           fallback: "hang",
         });
-        const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          fit(taking, side, { wrist, bend });
+        const bones: ReadonlyMap<
+          AutoMovieHumanoidBone,
+          IAutoMovieResolvedBone
+        > = fit(taking, side, { wrist, bend });
         const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
         return {
           point,

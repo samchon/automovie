@@ -72,7 +72,8 @@ export namespace HumanToolWork {
         kind: "affordance",
         axis: "on",
         value: work.on.kind,
-        reason: "a stir works inside a vessel, and the work point is no vessel's inside",
+        reason:
+          "a stir works inside a vessel, and the work point is no vessel's inside",
         fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
       });
     const subject: string = work.on.subject;

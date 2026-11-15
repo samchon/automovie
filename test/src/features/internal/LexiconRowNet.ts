@@ -52,7 +52,6 @@ export namespace LexiconRowNet {
     },
   };
 
-
   /** What a row done alone leaves open. */
   const ALONE: Readonly<Record<string, object>> = {
     // Mimed without a cigarette: the hand itself on the performer's belly.

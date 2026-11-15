@@ -39,7 +39,9 @@ export namespace HumanPerformanceKey {
     return walk({
       ...input,
       performers: input.performers.map(
-        (p: IHumanPerformer): Omit<IHumanPerformer, "body"> & { body: string } => ({
+        (
+          p: IHumanPerformer,
+        ): Omit<IHumanPerformer, "body"> & { body: string } => ({
           ...p,
           body: identity(p.body),
         }),

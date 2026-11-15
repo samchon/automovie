@@ -162,7 +162,12 @@ export function climbCases(
  */
 function ladderProp(): IHumanProp {
   // Each rung's frame turns +Y to -Z, toward the climber.
-  const out: IAutoMovieQuaternion = { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
+  const out: IAutoMovieQuaternion = {
+    x: -Math.SQRT1_2,
+    y: 0,
+    z: 0,
+    w: Math.SQRT1_2,
+  };
   const affordances: IAutoMovieAffordance[] = Array.from(
     { length: 10 },
     (_: unknown, i: number): IAutoMovieAffordance => ({

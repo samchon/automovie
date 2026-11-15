@@ -91,7 +91,9 @@ export function createRing(
   const levels: number = createRing.ROPES;
   for (let level: number = 1; level <= levels; level++) {
     const y: number =
-      floor + (d.topRope * createRing.LEVELS[level - 1]!) / createRing.LEVELS[levels - 1]!;
+      floor +
+      (d.topRope * createRing.LEVELS[level - 1]!) /
+        createRing.LEVELS[levels - 1]!;
     for (const side of SIDES) {
       const along: boolean = side === "north" || side === "south";
       const sign: number = side === "north" || side === "east" ? 1 : -1;

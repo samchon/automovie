@@ -63,7 +63,11 @@ export namespace HumanArmRefine {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanArmGeometry.placed`, `nearby` and `gap` and the context's `allowed`, the optimiser's own pair reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function unbounded(c: M.IContext, fine: M.IContext, x: readonly (readonly (readonly number[])[])[]): number[] {
+  export function unbounded(
+    c: M.IContext,
+    fine: M.IContext,
+    x: readonly (readonly (readonly number[])[])[],
+  ): number[] {
     const out: number[] = [];
     const ft: readonly number[] = fine.times;
     for (let k: number = 0; k + 1 < c.n; ++k) {
@@ -75,7 +79,14 @@ export namespace HumanArmRefine {
         if (t > from + 1e-9 && t < to - 1e-9) inner.push(g);
       });
       if (inner.length === 0) continue;
-      if (strayed(c, fine, k, inner) || (!x.every((_: readonly (readonly number[])[], a: number): boolean => certified(c, fine, x, a, k, inner)) && tangled(c, fine, x, inner))) out.push(k);
+      if (
+        strayed(c, fine, k, inner) ||
+        (!x.every((_: readonly (readonly number[])[], a: number): boolean =>
+          certified(c, fine, x, a, k, inner),
+        ) &&
+          tangled(c, fine, x, inner))
+      )
+        out.push(k);
     }
     return out;
   }
@@ -87,7 +98,10 @@ export namespace HumanArmRefine {
    * @param split The intervals, by their first waypoint.
    * @returns The seconds, ascending.
    */
-  export function split(times: readonly number[], split: readonly number[]): number[] {
+  export function split(
+    times: readonly number[],
+    split: readonly number[],
+  ): number[] {
     const out: number[] = [];
     times.forEach((t: number, k: number): void => {
       out.push(t);
@@ -105,7 +119,11 @@ export namespace HumanArmRefine {
    * @param seconds The second.
    * @returns The values.
    */
-  export function hermite(times: readonly number[], x: readonly (readonly number[])[], seconds: number): number[] {
+  export function hermite(
+    times: readonly number[],
+    x: readonly (readonly number[])[],
+    seconds: number,
+  ): number[] {
     const n: number = times.length;
     if (seconds <= times[0]!) return [...x[0]!];
     if (seconds >= times[n - 1]!) return [...x[n - 1]!];
@@ -116,77 +134,154 @@ export namespace HumanArmRefine {
     const tangent = (j: number): number[] =>
       j === 0 || j === n - 1
         ? new Array(x[0]!.length).fill(0)
-        : x[j + 1]!.map((v: number, d: number): number => (v - x[j - 1]![d]!) / (times[j + 1]! - times[j - 1]!));
+        : x[j + 1]!.map(
+            (v: number, d: number): number =>
+              (v - x[j - 1]![d]!) / (times[j + 1]! - times[j - 1]!),
+          );
     const m0: number[] = tangent(k);
     const m1: number[] = tangent(k + 1);
     const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
     const h10: number = u ** 3 - 2 * u ** 2 + u;
     const h01: number = -2 * u ** 3 + 3 * u ** 2;
     const h11: number = u ** 3 - u ** 2;
-    return x[k]!.map((v: number, d: number): number => h00 * v + h10 * h * m0[d]! + h01 * x[k + 1]![d]! + h11 * h * m1[d]!);
+    return x[k]!.map(
+      (v: number, d: number): number =>
+        h00 * v + h10 * h * m0[d]! + h01 * x[k + 1]![d]! + h11 * h * m1[d]!,
+    );
   }
 }
 
 /** Whether a hold interval's interpolated site leaves the act's own site by more than `TOLERANCE` at an inner instant. */
-function strayed(c: M.IContext, fine: M.IContext, k: number, inner: readonly number[]): boolean {
-  return c.sites.some((sites: readonly (M.ISite | undefined)[], a: number): boolean => {
-    if (sites[k] === undefined || sites[k + 1] === undefined) return false;
-    const held: number[] = [];
-    sites.forEach((s: M.ISite | undefined, j: number): void => {
-      if (s !== undefined) held.push(j);
-    });
-    const times: number[] = held.map((j: number): number => c.times[j]!);
-    const points: number[][] = held.map((j: number): number[] => {
-      const p: IAutoMovieVector3 = sites[j]!.point;
-      return [p.x, p.y, p.z];
-    });
-    return inner.some((g: number): boolean => {
-      const actual: M.ISite | undefined = fine.sites[a]![g];
-      if (actual === undefined) return false;
-      const [px, py, pz] = HumanArmRefine.hermite(times, points, fine.times[g]!) as [number, number, number];
-      return Math.hypot(px - actual.point.x, py - actual.point.y, pz - actual.point.z) > TOLERANCE;
-    });
-  });
+function strayed(
+  c: M.IContext,
+  fine: M.IContext,
+  k: number,
+  inner: readonly number[],
+): boolean {
+  return c.sites.some(
+    (sites: readonly (M.ISite | undefined)[], a: number): boolean => {
+      if (sites[k] === undefined || sites[k + 1] === undefined) return false;
+      const held: number[] = [];
+      sites.forEach((s: M.ISite | undefined, j: number): void => {
+        if (s !== undefined) held.push(j);
+      });
+      const times: number[] = held.map((j: number): number => c.times[j]!);
+      const points: number[][] = held.map((j: number): number[] => {
+        const p: IAutoMovieVector3 = sites[j]!.point;
+        return [p.x, p.y, p.z];
+      });
+      return inner.some((g: number): boolean => {
+        const actual: M.ISite | undefined = fine.sites[a]![g];
+        if (actual === undefined) return false;
+        const [px, py, pz] = HumanArmRefine.hermite(
+          times,
+          points,
+          fine.times[g]!,
+        ) as [number, number, number];
+        return (
+          Math.hypot(
+            px - actual.point.x,
+            py - actual.point.y,
+            pz - actual.point.z,
+          ) > TOLERANCE
+        );
+      });
+    },
+  );
 }
 
 /** Whether every surface probe of an arm is certified clear over an interval by one of its ends (conservative advancement). */
-function certified(c: M.IContext, fine: M.IContext, x: readonly (readonly (readonly number[])[])[], a: number, k: number, inner: readonly number[]): boolean {
+function certified(
+  c: M.IContext,
+  fine: M.IContext,
+  x: readonly (readonly (readonly number[])[])[],
+  a: number,
+  k: number,
+  inner: readonly number[],
+): boolean {
   const setup: G.ISetup = c.setups[a]!;
-  const inside: G.IPlaced[] = inner.map((g: number): G.IPlaced => G.placed(setup, fine.frames[a]![g]!, HumanArmRefine.hermite(c.times, x[a]!, fine.times[g]!)));
-  const ends: G.IPlaced[] = [k, k + 1].map((j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!));
-  const screens: G.IScreen[] = [k, k + 1].map((j: number, e: number): G.IScreen => G.screen(c.frames[a]![j]!, ends[e]!, T.REACH));
+  const inside: G.IPlaced[] = inner.map(
+    (g: number): G.IPlaced =>
+      G.placed(
+        setup,
+        fine.frames[a]![g]!,
+        HumanArmRefine.hermite(c.times, x[a]!, fine.times[g]!),
+      ),
+  );
+  const ends: G.IPlaced[] = [k, k + 1].map(
+    (j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
+  );
+  const screens: G.IScreen[] = [k, k + 1].map(
+    (j: number, e: number): G.IScreen =>
+      G.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
+  );
   const clear = (end: 0 | 1, probe: number): boolean => {
     const j: number = k + end;
     const frame: G.IFrame = c.frames[a]![j]!;
     const placed: G.IPlaced = ends[end]!;
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     const part: number = frame.segments[probe - G.SURFACE]!;
-    const near: number[] = G.nearby(frame, placed, probe, T.REACH, screens[end]).filter((shape: number): boolean => {
+    const near: number[] = G.nearby(
+      frame,
+      placed,
+      probe,
+      T.REACH,
+      screens[end],
+    ).filter((shape: number): boolean => {
       const other: number = frame.shapes[shape]!.part;
       return !(part >= 0 && other >= 0 && frame.related[part]![other]!);
     });
     // Far from every collider: the pairs' reach is the probe's clearance.
     if (near.length === 0)
-      return inside.every((q: G.IPlaced): boolean => Vector3.length(Vector3.subtract(q.probes[probe]![0], p)) <= T.REACH);
+      return inside.every(
+        (q: G.IPlaced): boolean =>
+          Vector3.length(Vector3.subtract(q.probes[probe]![0], p)) <= T.REACH,
+      );
     return near.every((shape: number): boolean => {
-      const short: number = 1000 * (c.allowed(a, j, probe, shape) - (G.gap(frame, shape, p, p) - r));
+      const short: number =
+        1000 *
+        (c.allowed(a, j, probe, shape) - (G.gap(frame, shape, p, p) - r));
       const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
       const centre: IAutoMovieVector3 = frame.shapes[shape]!.centre;
       return inner.every((g: number, i: number): boolean => {
         const there: G.IShape | undefined = fine.frames[a]![g]!.shapes[shape];
         const moved: IAutoMovieVector3 =
-          there === undefined || there.bone !== frame.shapes[shape]!.bone ? { x: 0, y: 0, z: 0 } : Vector3.subtract(there.centre, centre);
-        return Vector3.length(Vector3.subtract(Vector3.subtract(inside[i]!.probes[probe]![0], p), moved)) <= slack;
+          there === undefined || there.bone !== frame.shapes[shape]!.bone
+            ? { x: 0, y: 0, z: 0 }
+            : Vector3.subtract(there.centre, centre);
+        return (
+          Vector3.length(
+            Vector3.subtract(
+              Vector3.subtract(inside[i]!.probes[probe]![0], p),
+              moved,
+            ),
+          ) <= slack
+        );
       });
     });
   };
-  for (let probe: number = G.SURFACE; probe < ends[0]!.probes.length; ++probe) if (!clear(0, probe) && !clear(1, probe)) return false;
+  for (let probe: number = G.SURFACE; probe < ends[0]!.probes.length; ++probe)
+    if (!clear(0, probe) && !clear(1, probe)) return false;
   return true;
 }
 
 /** Whether the arms placed on their interpolant at an inner instant pass the refusal's own reading there (`HumanArmTrajectoryModel.invalid`). */
-function tangled(c: M.IContext, fine: M.IContext, x: readonly (readonly (readonly number[])[])[], inner: readonly number[]): boolean {
-  return inner.some((g: number): boolean => M.invalid(fine, g, x.map((arm: readonly (readonly number[])[]): number[] => HumanArmRefine.hermite(c.times, arm, fine.times[g]!))).value > M.TOLERANCE);
+function tangled(
+  c: M.IContext,
+  fine: M.IContext,
+  x: readonly (readonly (readonly number[])[])[],
+  inner: readonly number[],
+): boolean {
+  return inner.some(
+    (g: number): boolean =>
+      M.invalid(
+        fine,
+        g,
+        x.map((arm: readonly (readonly number[])[]): number[] =>
+          HumanArmRefine.hermite(c.times, arm, fine.times[g]!),
+        ),
+      ).value > M.TOLERANCE,
+  );
 }
 /** The frame grid, seconds: the finest the waypoints are spaced. */
 const STEP: number = 1 / 30;

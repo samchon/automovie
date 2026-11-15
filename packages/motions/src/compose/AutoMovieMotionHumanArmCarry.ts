@@ -7,6 +7,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmClearing } from "../posture/HumanArmClearing";
+import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import type { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
@@ -14,7 +15,6 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
@@ -73,7 +73,9 @@ export namespace AutoMovieMotionHumanArmCarry {
   export function carry(
     body: IHumanBody,
     posture: IHumanPosture,
-    from: Partial<Record<HumanHand.Side, AutoMovieMotionHumanArmAngles.IAngles>>,
+    from: Partial<
+      Record<HumanHand.Side, AutoMovieMotionHumanArmAngles.IAngles>
+    >,
     share: number,
     planned?: IHumanPosture,
   ): IHumanPosture {
@@ -104,7 +106,10 @@ export namespace AutoMovieMotionHumanArmCarry {
     const courses: Partial<Record<HumanHand.Side, Arm>> = {};
     for (const side of sides) {
       const held: AutoMovieMotionHumanArmAngles.IAngles = from[side]!;
-      const goal: AutoMovieMotionHumanArmAngles.IAngles = solved === null ? held : AutoMovieMotionHumanArmAngles.angles(solved, side);
+      const goal: AutoMovieMotionHumanArmAngles.IAngles =
+        solved === null
+          ? held
+          : AutoMovieMotionHumanArmAngles.angles(solved, side);
       const plain: Arm = (share: number): HumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
@@ -123,7 +128,10 @@ export namespace AutoMovieMotionHumanArmCarry {
         hand: blendHumanJoint(body, `${side}Hand`, held.hand, goal.hand, share),
       });
       plains[side] = plain;
-      const aimed: AutoMovieMotionHumanArmAngles.IAngles = planning === null ? held : AutoMovieMotionHumanArmAngles.angles(planning, side);
+      const aimed: AutoMovieMotionHumanArmAngles.IAngles =
+        planning === null
+          ? held
+          : AutoMovieMotionHumanArmAngles.angles(planning, side);
       const plan: Arm = (share: number): HumanArmClearance.IArm => ({
         upper: blendHumanJoint(
           body,
@@ -416,13 +424,24 @@ export namespace AutoMovieMotionHumanArmCarry {
 
     // The arm's whole action, solved once over its span, with the other
     // arms of its group.
-    const group: AutoMovieMotionHumanArmPlanned.ITogether = props.together ?? AutoMovieMotionHumanArmPlanned.together();
+    const group: AutoMovieMotionHumanArmPlanned.ITogether =
+      props.together ?? AutoMovieMotionHumanArmPlanned.together();
     group.carries.push(props);
-    const planned = (before: (seconds: number) => IHumanPosture): HumanArmTrajectory.Trajectory => {
+    const planned = (
+      before: (seconds: number) => IHumanPosture,
+    ): HumanArmTrajectory.Trajectory => {
       if (group.solved === undefined) {
-        if (group.solving === true) throw new Error("Two arms moved together are solved from the first of them");
+        if (group.solving === true)
+          throw new Error(
+            "Two arms moved together are solved from the first of them",
+          );
         group.solving = true;
-        group.solved = AutoMovieMotionHumanArmPlanned.planned(props.body, span!, group.carries, before);
+        group.solved = AutoMovieMotionHumanArmPlanned.planned(
+          props.body,
+          span!,
+          group.carries,
+          before,
+        );
         group.solving = false;
       }
       return group.solved.get(props.side)!;
@@ -436,18 +455,32 @@ export namespace AutoMovieMotionHumanArmCarry {
       // before its first member, which leaves every member's arm out.
       ...(span === undefined
         ? {}
-        : { prepare: (before: (seconds: number) => IHumanPosture): void => void planned(before) }),
-      write: (posture: IHumanPosture, seconds: number, before?: (seconds: number) => IHumanPosture): IHumanPosture => {
+        : {
+            prepare: (before: (seconds: number) => IHumanPosture): void =>
+              void planned(before),
+          }),
+      write: (
+        posture: IHumanPosture,
+        seconds: number,
+        before?: (seconds: number) => IHumanPosture,
+      ): IHumanPosture => {
         const weight: number = props.weight(seconds);
         let out: IHumanPosture;
         // The plan holds over its span, and on past its end where the hand
         // stays on its site to the end (`ISpan.relax` at `end`), as nothing
         // returns it. An arm that follows a person is the plan with a bounded
         // correction toward the goal read at each second of the hold.
-        const so: (seconds: number) => IHumanPosture = before ?? ((): IHumanPosture => posture);
+        const so: (seconds: number) => IHumanPosture =
+          before ?? ((): IHumanPosture => posture);
         const arm = (at: number): HumanArmClearance.IArm =>
           props.tracked === true
-            ? (follow ??= AutoMovieMotionHumanArmFollow.follower(props.body, props, span!, planned(so), so))(at)
+            ? (follow ??= AutoMovieMotionHumanArmFollow.follower(
+                props.body,
+                props,
+                span!,
+                planned(so),
+                so,
+              ))(at)
             : planned(so)(at);
         const placed = (on: HumanArmClearance.IArm): IHumanPosture => {
           const joints: IHumanPosture["joints"] = { ...posture.joints };
@@ -458,26 +491,38 @@ export namespace AutoMovieMotionHumanArmCarry {
           delete limbs[limb];
           return { ...posture, joints, limbs };
         };
-        const onPlan: boolean = span !== undefined && seconds > span.start && (seconds < span.end || span.relax >= span.end);
+        const onPlan: boolean =
+          span !== undefined &&
+          seconds > span.start &&
+          (seconds < span.end || span.relax >= span.end);
         if (onPlan) out = placed(arm(seconds));
         else
           out = carry(
             props.body,
-            { ...posture, limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) } },
+            {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+            },
             { [props.side]: props.rest },
             weight,
           );
-        if (props.attitude === undefined || !(weight > 0 && weight < 1)) return out;
+        if (props.attitude === undefined || !(weight > 0 && weight < 1))
+          return out;
 
         // The hand held to its attitude on the arm as written
         // (`HumanHandAttitude`), between the hands its two ends show: weight 1
         // writes a planned arm's own hand, so its end is the plan's at the
         // hold's nearer edge, carried on the trunk now; the goal's fit else.
         const hand = (at: IHumanPosture): IAutoMovieQuaternion =>
-          poseBones(props.body, resolveHumanPosture(props.body, at)).get(`${props.side}Hand`)!.worldRotation;
+          poseBones(props.body, resolveHumanPosture(props.body, at)).get(
+            `${props.side}Hand`,
+          )!.worldRotation;
         const ended: IHumanPosture = onPlan
           ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
-          : { ...posture, limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) } };
+          : {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: props.goal(posture, seconds) },
+            };
         return HumanHandAttitude.held(
           props.body,
           out,

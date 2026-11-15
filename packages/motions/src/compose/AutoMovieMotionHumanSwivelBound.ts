@@ -179,7 +179,8 @@ export namespace AutoMovieMotionHumanSwivelBound {
           bound.normal,
           Vector3.subtract(at, Vector3.subtract(bound.point, shoulder)),
         ) - bound.margin
-      );    const refused: swivelArcs.IArc[] = [];
+      );
+    const refused: swivelArcs.IArc[] = [];
     for (const bound of bounds) {
       const arc: swivelArcs.IArc | "all" | null = swivelArcs.above(
         swivelArcs.fitted(

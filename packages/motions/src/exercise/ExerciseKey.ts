@@ -320,7 +320,8 @@ export namespace ExerciseKey {
         throw new Error(`The rig has no bone ${socket.bone}`);
       return resolveAutoMovieHumanoidSurfaces.place(socket, bone).point;
     }
-    const found: IAutoMovieVector3 | undefined = resolved.get(pin)?.worldPosition;
+    const found: IAutoMovieVector3 | undefined =
+      resolved.get(pin)?.worldPosition;
     if (found === undefined) throw new Error(`The rig has no bone ${pin}`);
     return found;
   }

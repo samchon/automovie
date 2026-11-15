@@ -51,7 +51,8 @@ export function archetypeWearableDress(name: motionHumanBody.Name): void {
       const model: ReturnType<typeof createWearable> = createWearable({
         kind: item === "hat" ? "hat" : "spectacles",
       });
-      const wear: IAutoMovieVector3 = model.affordance("wear").frame.translation;
+      const wear: IAutoMovieVector3 =
+        model.affordance("wear").frame.translation;
       const perform = (taken: boolean): HumanPerformance => {
         const start: HumanChain = HumanChain.subject("a").stand({
           seconds: 0.3,

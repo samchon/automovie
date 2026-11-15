@@ -193,7 +193,11 @@ export namespace createKeyboard {
     keyboard: {
       width: ArchetypeBand.metres(0.4187, 0.4187, APPLE_KEYBOARD),
       depth: ArchetypeBand.metres(0.1149, 0.1149, APPLE_KEYBOARD),
-      height: ArchetypeBand.metres(0.0109, 0.0109, `${APPLE_KEYBOARD}: its back edge`),
+      height: ArchetypeBand.metres(
+        0.0109,
+        0.0109,
+        `${APPLE_KEYBOARD}: its back edge`,
+      ),
       mass: ArchetypeBand.of("kg", 0.369, 0.39, APPLE_KEYBOARD),
     },
     laptop: {

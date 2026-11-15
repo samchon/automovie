@@ -114,12 +114,8 @@ export namespace pushSledStance {
     const hip: number = body.measure.hipHeight;
     const shoulder: number = body.measure.shoulderHeight;
     const midway: number = (hip + shoulder) / 2;
-    const between = (
-      a: number,
-      b: number,
-      at: number,
-      to: number,
-    ): number => at + ((to - at) * (height - a)) / (b - a);
+    const between = (a: number, b: number, at: number, to: number): number =>
+      at + ((to - at) * (height - a)) / (b - a);
     const measured: number =
       height >= shoulder
         ? INCLINES.shoulder
@@ -140,9 +136,7 @@ export namespace pushSledStance {
       );
     let sink: number = 0;
     for (const side of ["left", "right"] as const) {
-      const at: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
+      const at: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
       const flat: number = Math.hypot(
         asked[side].x - at.x,
         asked[side].z - at.z,

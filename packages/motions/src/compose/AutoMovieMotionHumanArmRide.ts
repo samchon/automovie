@@ -50,14 +50,25 @@ export namespace AutoMovieMotionHumanArmRide {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function gripped(lead: HumanArmTrajectory.ISite, own: HumanArmTrajectory.ISite): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
+  export function gripped(
+    lead: HumanArmTrajectory.ISite,
+    own: HumanArmTrajectory.ISite,
+  ): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
     const turn: IAutoMovieQuaternion = lead.rotation!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(turn);
-    const wrist: IAutoMovieVector3 = Vector3.subtract(lead.point, Quaternion.rotateVector(turn, lead.contact));
+    const wrist: IAutoMovieVector3 = Vector3.subtract(
+      lead.point,
+      Quaternion.rotateVector(turn, lead.contact),
+    );
     return {
       owner: "hand",
-      point: Quaternion.rotateVector(inverse, Vector3.subtract(own.point, wrist)),
-      ...(own.rotation === undefined ? {} : { rotation: Quaternion.multiply(inverse, own.rotation) }),
+      point: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(own.point, wrist),
+      ),
+      ...(own.rotation === undefined
+        ? {}
+        : { rotation: Quaternion.multiply(inverse, own.rotation) }),
     };
   }
 
@@ -90,15 +101,34 @@ export namespace AutoMovieMotionHumanArmRide {
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
   ): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
-    const owner: "upper" | "lower" | "hand" = bone.endsWith("UpperArm") ? "upper" : bone.endsWith("LowerArm") ? "lower" : "hand";
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose);
-    const by: IAutoMovieResolvedBone = bones.get(`${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`)!;
+    const owner: "upper" | "lower" | "hand" = bone.endsWith("UpperArm")
+      ? "upper"
+      : bone.endsWith("LowerArm")
+        ? "lower"
+        : "hand";
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      pose,
+    );
+    const by: IAutoMovieResolvedBone = bones.get(
+      `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`,
+    )!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(by.worldRotation);
-    const segment: HumanColliders.IPlaced | undefined = HumanColliders.placed(body, bones).find((s: HumanColliders.IPlaced): boolean => s.bone === by.bone);
-    let normal: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(point, by.worldPosition));
+    const segment: HumanColliders.IPlaced | undefined = HumanColliders.placed(
+      body,
+      bones,
+    ).find((s: HumanColliders.IPlaced): boolean => s.bone === by.bone);
+    let normal: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(point, by.worldPosition),
+    );
     let least: number = Infinity;
     for (const shape of segment?.shapes ?? []) {
-      const d: number = physicalShapeSegmentDistance(segment!.pose, shape, point, point);
+      const d: number = physicalShapeSegmentDistance(
+        segment!.pose,
+        shape,
+        point,
+        point,
+      );
       if (d < least) {
         least = d;
         normal = physicalShapeNormal(segment!.pose, shape, point, normal);
@@ -106,9 +136,14 @@ export namespace AutoMovieMotionHumanArmRide {
     }
     return {
       owner,
-      point: Quaternion.rotateVector(inverse, Vector3.subtract(point, by.worldPosition)),
+      point: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(point, by.worldPosition),
+      ),
       normal: Quaternion.rotateVector(inverse, normal),
-      ...(rotation === undefined ? {} : { rotation: Quaternion.multiply(inverse, rotation) }),
+      ...(rotation === undefined
+        ? {}
+        : { rotation: Quaternion.multiply(inverse, rotation) }),
     };
   }
 }

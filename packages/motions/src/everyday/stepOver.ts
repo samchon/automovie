@@ -18,8 +18,8 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanTrunk } from "./HumanTrunk";
 import { HumanObstacle } from "./HumanObstacle";
+import { HumanTrunk } from "./HumanTrunk";
 
 /**
  * Stepping over a low obstacle placed in the scene, a kerb or a hurdle

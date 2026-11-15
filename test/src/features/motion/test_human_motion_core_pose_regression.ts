@@ -1,6 +1,6 @@
 import {
-  ROM_TOLERANCE,
   Quaternion,
+  ROM_TOLERANCE,
   Vector3,
   curlChainUntilContact,
 } from "@automovie/engine";
@@ -119,8 +119,7 @@ function tolerance(body: IHumanBody, bone: string): number {
   const capsule: IAutoMoviePhysicalProfile.IShape | undefined =
     body.profile.segments
       .find(
-        (s: IAutoMoviePhysicalProfile.ISegment): boolean =>
-          s.bone === chain[2],
+        (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === chain[2],
       )
       ?.shapes.find(
         (s: IAutoMoviePhysicalProfile.IShape): boolean => s.kind === "capsule",

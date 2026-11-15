@@ -64,13 +64,21 @@ export namespace AutoMovieMotionHumanArmFollow {
     plan: HumanArmTrajectory.Trajectory,
     before: (seconds: number) => IHumanPosture,
   ): (seconds: number) => HumanArmClearance.IArm {
-    const setup: HumanArmGeometry.ISetup = HumanArmGeometry.prepare(body, carry.side);
+    const setup: HumanArmGeometry.ISetup = HumanArmGeometry.prepare(
+      body,
+      carry.side,
+    );
     const zero: number[] = new Array(HumanArmGeometry.DIMENSIONS).fill(0);
     const corrections: number[][] = [zero];
     let settled: boolean = false;
     const at = (j: number): number => span.ready + j * STEP;
-    const add = (a: readonly number[], b: readonly number[], s: number = 1): number[] => a.map((v: number, i: number): number => v + s * b[i]!);
-    const still = (c: readonly number[]): boolean => c.every((v: number): boolean => v === 0);
+    const add = (
+      a: readonly number[],
+      b: readonly number[],
+      s: number = 1,
+    ): number[] => a.map((v: number, i: number): number => v + s * b[i]!);
+    const still = (c: readonly number[]): boolean =>
+      c.every((v: number): boolean => v === 0);
 
     // One more frame of the grid: the correction stepped toward its target.
     const next = (): void => {
@@ -80,28 +88,56 @@ export namespace AutoMovieMotionHumanArmFollow {
       const posture: IHumanPosture = before(t);
       const here: number[] = HumanArmGeometry.encode(setup, plan(t));
       const there: number[] = HumanArmGeometry.encode(setup, plan(at(j - 1)));
-      const read: ReturnType<typeof AutoMovieMotionHumanArmPlanned.moved> | undefined =
-        t < span.relax ? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, t) : undefined;
-      if (read !== undefined && still(previous) && Vector3.length(read.error) === 0) {
+      const read:
+        | ReturnType<typeof AutoMovieMotionHumanArmPlanned.moved>
+        | undefined =
+        t < span.relax
+          ? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, t)
+          : undefined;
+      if (
+        read !== undefined &&
+        still(previous) &&
+        Vector3.length(read.error) === 0
+      ) {
         corrections.push(zero);
         return;
       }
-      const context: HumanArmTrajectoryModel.IContext = HumanArmTrajectoryContext.of({
-        body,
-        times: [t],
-        bases: [read?.base ?? AutoMovieMotionHumanArmPlanned.moved(body, carry, posture, span.relax).base],
-        arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
-      });
+      const context: HumanArmTrajectoryModel.IContext =
+        HumanArmTrajectoryContext.of({
+          body,
+          times: [t],
+          bases: [
+            read?.base ??
+              AutoMovieMotionHumanArmPlanned.moved(
+                body,
+                carry,
+                posture,
+                span.relax,
+              ).base,
+          ],
+          arms: [{ side: carry.side, rest: carry.rest, sites: [undefined] }],
+        });
       const frame: HumanArmGeometry.IFrame = context.frames[0]![0]!;
-      const placed = (q: readonly number[]): HumanArmGeometry.IPlaced => HumanArmGeometry.placed(setup, frame, q, false);
-      const contact = (p: HumanArmGeometry.IPlaced, offset: IAutoMovieVector3): IAutoMovieVector3 =>
+      const placed = (q: readonly number[]): HumanArmGeometry.IPlaced =>
+        HumanArmGeometry.placed(setup, frame, q, false);
+      const contact = (
+        p: HumanArmGeometry.IPlaced,
+        offset: IAutoMovieVector3,
+      ): IAutoMovieVector3 =>
         Vector3.add(p.wrist, Quaternion.rotateVector(p.hand, offset));
       const travel = (a: readonly number[], b: readonly number[]): number => {
         const p: HumanArmGeometry.IPlaced = placed(a);
         const q: HumanArmGeometry.IPlaced = placed(b);
         let most: number = 0;
-        for (const i of [HumanArmGeometry.ELBOW, HumanArmGeometry.WRIST, HumanArmGeometry.TIP])
-          most = Math.max(most, Vector3.length(Vector3.subtract(p.probes[i]![0], q.probes[i]![0])));
+        for (const i of [
+          HumanArmGeometry.ELBOW,
+          HumanArmGeometry.WRIST,
+          HumanArmGeometry.TIP,
+        ])
+          most = Math.max(
+            most,
+            Vector3.length(Vector3.subtract(p.probes[i]![0], q.probes[i]![0])),
+          );
         return most;
       };
       const current: number[] = add(here, previous);
@@ -110,25 +146,57 @@ export namespace AutoMovieMotionHumanArmFollow {
       let step: number[];
       if (read === undefined) step = previous.map((v: number): number => -v);
       else {
-        const made: IAutoMovieVector3 = Vector3.subtract(contact(placed(current), read.contact), contact(placed(here), read.contact));
-        step = HumanArmDifferential.step(setup, frame, current, read.contact, Vector3.subtract(read.error, made));
+        const made: IAutoMovieVector3 = Vector3.subtract(
+          contact(placed(current), read.contact),
+          contact(placed(here), read.contact),
+        );
+        step = HumanArmDifferential.step(
+          setup,
+          frame,
+          current,
+          read.contact,
+          Vector3.subtract(read.error, made),
+        );
       }
-      const room: number = Math.max(0, HumanArmTrajectoryModel.SPEED_LIMIT * STEP - travel(add(there, previous), current));
+      const room: number = Math.max(
+        0,
+        HumanArmTrajectoryModel.SPEED_LIMIT * STEP -
+          travel(add(there, previous), current),
+      );
       const extra: number = travel(current, add(current, step));
-      if (extra > room) step = step.map((v: number): number => (v * room) / extra);
+      if (extra > room)
+        step = step.map((v: number): number => (v * room) / extra);
 
       // Never deeper past the audit's skin than the arm already is.
-      const depth = (q: readonly number[]): number => HumanArmTrajectoryModel.invalid(context, 0, [q]).value;
-      const limit: number = Math.max(HumanArmTrajectoryModel.TOLERANCE, depth(current));
-      for (let k: number = 0; k < HALVINGS && depth(add(current, step)) > limit; ++k) step = step.map((v: number): number => v / 2);
+      const depth = (q: readonly number[]): number =>
+        HumanArmTrajectoryModel.invalid(context, 0, [q]).value;
+      const limit: number = Math.max(
+        HumanArmTrajectoryModel.TOLERANCE,
+        depth(current),
+      );
+      for (
+        let k: number = 0;
+        k < HALVINGS && depth(add(current, step)) > limit;
+        ++k
+      )
+        step = step.map((v: number): number => v / 2);
       if (depth(add(current, step)) > limit) step = zero;
       const corrected: number[] = add(previous, step);
       corrections.push(corrected);
-      if (t >= span.relax && corrected.every((v: number): boolean => Math.abs(v) < 1e-9)) settled = true;
+      if (
+        t >= span.relax &&
+        corrected.every((v: number): boolean => Math.abs(v) < 1e-9)
+      )
+        settled = true;
     };
     return (seconds: number): HumanArmClearance.IArm => {
       if (seconds <= span.ready) return plan(seconds);
-      while (!settled && at(corrections.length - 1) < seconds && at(corrections.length) <= span.end) next();
+      while (
+        !settled &&
+        at(corrections.length - 1) < seconds &&
+        at(corrections.length) <= span.end
+      )
+        next();
       const last: number = corrections.length - 1;
       const correction: readonly number[] =
         seconds >= at(last)
@@ -136,11 +204,22 @@ export namespace AutoMovieMotionHumanArmFollow {
             ? zero
             : corrections[last]!
           : ((): number[] => {
-              const j: number = Math.min(last - 1, Math.floor((seconds - span.ready) / STEP));
+              const j: number = Math.min(
+                last - 1,
+                Math.floor((seconds - span.ready) / STEP),
+              );
               const u: number = (seconds - at(j)) / STEP;
-              return corrections[j]!.map((v: number, i: number): number => v + (corrections[j + 1]![i]! - v) * u);
+              return corrections[j]!.map(
+                (v: number, i: number): number =>
+                  v + (corrections[j + 1]![i]! - v) * u,
+              );
             })();
-      return still(correction) ? plan(seconds) : HumanArmGeometry.arm(setup, add(HumanArmGeometry.encode(setup, plan(seconds)), correction));
+      return still(correction)
+        ? plan(seconds)
+        : HumanArmGeometry.arm(
+            setup,
+            add(HumanArmGeometry.encode(setup, plan(seconds)), correction),
+          );
     };
   }
 }
@@ -150,4 +229,3 @@ const STEP: number = 1 / 30;
 
 /** Halvings of a step that would take the arm deeper past the skin, before it is not taken. */
 const HALVINGS: number = 4;
-

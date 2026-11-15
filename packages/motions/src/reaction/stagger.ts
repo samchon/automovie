@@ -145,9 +145,7 @@ export namespace stagger {
     height: number,
     margin: number,
   ): number {
-    return (
-      speed / resolveAutoMovieCenterOfMass.frequency(height) + margin
-    );
+    return speed / resolveAutoMovieCenterOfMass.frequency(height) + margin;
   }
 
   /**

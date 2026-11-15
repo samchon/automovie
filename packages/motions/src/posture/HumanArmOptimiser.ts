@@ -38,11 +38,23 @@ export namespace HumanArmOptimiser {
     let duals: Map<string, number> | undefined;
     const problem: SCO.IProblem<number[][][], M.IEvaluation> = {
       evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(context, x),
-      feasible: (evaluation: M.IEvaluation): boolean => evaluation.worst.value <= M.TOLERANCE,
-      convexify: (x: number[][][], evaluation: M.IEvaluation, mu: number, radius: number): SCO.IModel<number[][][]> => {
+      feasible: (evaluation: M.IEvaluation): boolean =>
+        evaluation.worst.value <= M.TOLERANCE,
+      convexify: (
+        x: number[][][],
+        evaluation: M.IEvaluation,
+        mu: number,
+        radius: number,
+      ): SCO.IModel<number[][][]> => {
         // The pairs that can enter the subproblem are read one growth of the
         // region beyond it.
-        const model: QP.IProblem = HumanArmTrajectoryConvex.convexify(context, x, evaluation, mu, SCHEDULE.expand * radius);
+        const model: QP.IProblem = HumanArmTrajectoryConvex.convexify(
+          context,
+          x,
+          evaluation,
+          mu,
+          SCHEDULE.expand * radius,
+        );
         const zero: number = QP.value(model, new Float64Array(model.n));
         let trusted: QP.IProblem | undefined;
         let warm: QP.IState | undefined;
@@ -52,12 +64,22 @@ export namespace HumanArmOptimiser {
               ...model,
               rows: [
                 ...model.rows,
-                ...Array.from({ length: model.n }, (_: unknown, i: number): QP.IRow => ({ index: [i], coef: [1], l: -r, u: r, key: `t|${i}` })),
+                ...Array.from(
+                  { length: model.n },
+                  (_: unknown, i: number): QP.IRow => ({
+                    index: [i],
+                    coef: [1],
+                    l: -r,
+                    u: r,
+                    key: `t|${i}`,
+                  }),
+                ),
               ],
             };
             warm = QP.solve(trusted, warm, duals);
             let length: number = 0;
-            for (let i: number = 0; i < warm.x.length; ++i) length = Math.max(length, Math.abs(warm.x[i]!));
+            for (let i: number = 0; i < warm.x.length; ++i)
+              length = Math.max(length, Math.abs(warm.x[i]!));
             return {
               trial: M.stepped(context, x, warm.x),
               predicted: zero - QP.value(model, warm.x),
@@ -74,10 +96,21 @@ export namespace HumanArmOptimiser {
     };
     const solved: SCO.IResult<number[][][], M.IEvaluation> = SCO.minimise(
       problem,
-      start.map((arm: readonly (readonly number[])[]): number[][] => arm.map((v: readonly number[]): number[] => [...v])),
-      { schedule: SCHEDULE, penalties: PENALTIES, rounds: ROUNDS, ...(from === undefined ? {} : { from }) },
+      start.map((arm: readonly (readonly number[])[]): number[][] =>
+        arm.map((v: readonly number[]): number[] => [...v]),
+      ),
+      {
+        schedule: SCHEDULE,
+        penalties: PENALTIES,
+        rounds: ROUNDS,
+        ...(from === undefined ? {} : { from }),
+      },
     );
-    return { x: solved.x, evaluation: solved.evaluation, penalty: solved.penalty };
+    return {
+      x: solved.x,
+      evaluation: solved.evaluation,
+      penalty: solved.penalty,
+    };
   }
 }
 

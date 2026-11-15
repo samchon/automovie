@@ -266,19 +266,17 @@ export namespace pickUpAdjust {
         );
         const drop: number = Math.max(
           0,
-          ...(["left", "right"] as const).map(
-            (s: "left" | "right"): number => {
-              const ankle: IHumanPosture.IGoal | undefined =
-                posture.limbs[s === "left" ? "leftLeg" : "rightLeg"];
-              return ankle === undefined || s === foot
-                ? 0
-                : walkReach.short(
-                    context.body,
-                    hips.get(`${s}UpperLeg`)!.worldPosition,
-                    ankle.point,
-                  );
-            },
-          ),
+          ...(["left", "right"] as const).map((s: "left" | "right"): number => {
+            const ankle: IHumanPosture.IGoal | undefined =
+              posture.limbs[s === "left" ? "leftLeg" : "rightLeg"];
+            return ankle === undefined || s === foot
+              ? 0
+              : walkReach.short(
+                  context.body,
+                  hips.get(`${s}UpperLeg`)!.worldPosition,
+                  ankle.point,
+                );
+          }),
         );
         return {
           ...posture,
@@ -308,8 +306,9 @@ export namespace pickUpAdjust {
           step(stance.posture, length, 1),
         );
         return Math.max(
-          ...places.map(([place, reach]: [IAutoMovieVector3, number]): number =>
-            Vector3.length(Vector3.subtract(place, at)) - reach,
+          ...places.map(
+            ([place, reach]: [IAutoMovieVector3, number]): number =>
+              Vector3.length(Vector3.subtract(place, at)) - reach,
           ),
         );
       };

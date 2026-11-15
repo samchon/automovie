@@ -139,8 +139,12 @@ export namespace touchRegion {
   ): number | undefined {
     if (site !== undefined && "draw" in site) return site.draw;
     if (site !== undefined && "within" in site) return site.within;
-    if (target.kind === "self") return context.body.surfaces.regions[target.region].radius;
-    if (target.kind === "person") return context.performer(target.subject).body.surfaces.regions[target.region].radius;
+    if (target.kind === "self")
+      return context.body.surfaces.regions[target.region].radius;
+    if (target.kind === "person")
+      return context.performer(target.subject).body.surfaces.regions[
+        target.region
+      ].radius;
     return undefined;
   }
 }

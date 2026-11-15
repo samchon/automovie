@@ -144,20 +144,20 @@ const throwing = (
     b,
     distance,
     [
-    S.chain().act(
-      "throwObject",
-      {
-        at: S.point(
-          0,
-          b.measure.chestHeight,
-          distance -
-            catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
-        ),
-        style,
-        ...thrower,
-      },
-      "throw",
-    ),
+      S.chain().act(
+        "throwObject",
+        {
+          at: S.point(
+            0,
+            b.measure.chestHeight,
+            distance -
+              catchObject.REACH * (b.measure.upperArm + b.measure.forearm),
+          ),
+          style,
+          ...thrower,
+        },
+        "throw",
+      ),
       S.chain("b").act("catchObject", {
         from: "throw",
         ball: "ball",
@@ -360,7 +360,8 @@ export const MOTION_HUMAN_LAW_STAGES_HANDLING: Readonly<
           hand,
           use: {
             tip: "face",
-            line: tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
+            line:
+              tool === "saw" || tool === "screwdriver" ? "forearm" : "square",
           },
         })
         .act("useTool", {

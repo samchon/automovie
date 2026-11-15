@@ -93,7 +93,14 @@ export namespace jumpFlight {
       });
     const vy: number = Math.sqrt(2 * AutoMovieGravity.STANDARD * apex);
     const T: number =
-      (vy + Math.sqrt(Math.max(0, vy * vy - 2 * AutoMovieGravity.STANDARD * (comL.y - comT.y)))) / AutoMovieGravity.STANDARD;
+      (vy +
+        Math.sqrt(
+          Math.max(
+            0,
+            vy * vy - 2 * AutoMovieGravity.STANDARD * (comL.y - comT.y),
+          ),
+        )) /
+      AutoMovieGravity.STANDARD;
     const launch: IAutoMovieVector3 = {
       x: (comL.x - comT.x) / T,
       y: vy,

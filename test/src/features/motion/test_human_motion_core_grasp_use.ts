@@ -187,18 +187,19 @@ export function test_human_motion_core_grasp_use(): void {
         // pick-up leaves it (`AutoMovieMotionHumanArm.carried` over a span)
         // in the aimed movement time (`AutoMovieMotionHumanTiming.aimed`),
         // as a law that presents a held tool reaches.
-        const clock: AutoMovieMotionClock.IClock = AutoMovieMotionClock.sequence(
-          [
+        const clock: AutoMovieMotionClock.IClock =
+          AutoMovieMotionClock.sequence([
             {
               name: "reaching",
               seconds: AutoMovieMotionHumanTiming.aimed(
-                Vector3.length(Vector3.subtract(goal.point, hand.worldPosition)),
+                Vector3.length(
+                  Vector3.subtract(goal.point, hand.worldPosition),
+                ),
                 0.03,
               ),
             },
             { name: "ready", seconds: 0.3 },
-          ],
-        );
+          ]);
         const ready: number = clock.at("ready");
         const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
           base: AutoMovieMotionHumanBase.still(
@@ -227,7 +228,8 @@ export function test_human_motion_core_grasp_use(): void {
         });
         return { ...composed, holds: StrikingHeld.holds(context, tool) };
       },
-    });    const line = (rise: number): IAutoMovieVector3 => ({
+    });
+    const line = (rise: number): IAutoMovieVector3 => ({
       x: 0,
       y: Math.sin((rise * Math.PI) / 180),
       z: Math.cos((rise * Math.PI) / 180),

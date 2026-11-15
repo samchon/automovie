@@ -1,9 +1,9 @@
 import {
   AutoMovieGravity,
+  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   minimumJerk,
-  type IAutoMovieResolvedBone,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -343,7 +343,8 @@ export namespace poleVault {
     const upright: number = -pole0;
     const rate2 = (alpha: number): number =>
       omega0 * omega0 +
-      ((2 * AutoMovieGravity.STANDARD) / r) * (Math.cos(beta0) - Math.cos(beta0 + alpha));
+      ((2 * AutoMovieGravity.STANDARD) / r) *
+        (Math.cos(beta0) - Math.cos(beta0 + alpha));
     let needed: number = 0;
     for (let i: number = 0; i <= STEPS; i++)
       needed = Math.max(
@@ -431,7 +432,10 @@ export namespace poleVault {
       body,
       model,
       from: flying(down),
-      velocity: { ...velocity, y: velocity.y - AutoMovieGravity.STANDARD * down },
+      velocity: {
+        ...velocity,
+        y: velocity.y - AutoMovieGravity.STANDARD * down,
+      },
       height: surface,
     });
 

@@ -52,7 +52,6 @@ export namespace WorkoutPlace {
     "rightUpperLeg",
   ];
 
-
   /**
    * The place the bearing bones keep.
    *
@@ -185,7 +184,11 @@ export namespace WorkoutPlace {
         body,
         {
           ...based,
-          root: { x: hips.x - pelvis(based).x, y: 0, z: hips.z - pelvis(based).z },
+          root: {
+            x: hips.x - pelvis(based).x,
+            y: 0,
+            z: hips.z - pelvis(based).z,
+          },
         },
         kind.pin,
       );

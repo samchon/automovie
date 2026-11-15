@@ -259,7 +259,10 @@ export namespace selfAction {
                 AutoMovieMotionHumanArm.angles(
                   resolveHumanPosture(body, {
                     ...entry,
-                    limbs: { ...entry.limbs, [`${r.side}Arm`]: placed(entry, r, 0) },
+                    limbs: {
+                      ...entry.limbs,
+                      [`${r.side}Arm`]: placed(entry, r, 0),
+                    },
                   }),
                   r.side,
                 ),
@@ -306,7 +309,10 @@ export namespace selfAction {
           },
           // The pump's fist drops a fifth of the arm and rises again
           // `count` times over the stroke.
-          goal: (posture: IHumanPosture, seconds: number): IHumanPosture.IGoal =>
+          goal: (
+            posture: IHumanPosture,
+            seconds: number,
+          ): IHumanPosture.IGoal =>
             placed(
               posture,
               r,

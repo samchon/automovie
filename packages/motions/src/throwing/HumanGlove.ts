@@ -93,8 +93,10 @@ export namespace HumanGlove {
       frame.position,
       Quaternion.rotateVector(frame.rotation, pocket.frame.translation),
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(context.body, context.entry.pose);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      context.entry.pose,
+    );
     const palm: HumanHand.IFrame = HumanHand.frame(
       context.body,
       bones,

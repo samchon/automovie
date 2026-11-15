@@ -186,11 +186,7 @@ export namespace createHurdle {
 
   /** The bands every race shares. */
   export const SHARED: Readonly<Record<"width" | "mass", IArchetypeBand>> = {
-    width: ArchetypeBand.metres(
-      1.18,
-      1.2,
-      `${RULE}: 1.18 to 1.20 m wide`,
-    ),
+    width: ArchetypeBand.metres(1.18, 1.2, `${RULE}: 1.18 to 1.20 m wide`),
     mass: ArchetypeBand.of(
       "kg",
       10,

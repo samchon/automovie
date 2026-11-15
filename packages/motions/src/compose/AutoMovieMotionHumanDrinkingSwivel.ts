@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  Vector3,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieVector3,
@@ -79,8 +76,14 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     const heading: number = (posture.yaw * Math.PI) / 180;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const planes: [IAutoMovieVector3, number][] = [
-      [{ x: Math.sin(heading), y: 0, z: Math.cos(heading) }, AutoMovieMotionHumanDrinkingArm.FLEXION],
-      [{ x: Math.cos(heading), y: 0, z: -Math.sin(heading) }, AutoMovieMotionHumanDrinkingArm.ABDUCTION],
+      [
+        { x: Math.sin(heading), y: 0, z: Math.cos(heading) },
+        AutoMovieMotionHumanDrinkingArm.FLEXION,
+      ],
+      [
+        { x: Math.cos(heading), y: 0, z: -Math.sin(heading) },
+        AutoMovieMotionHumanDrinkingArm.ABDUCTION,
+      ],
     ];
     // Each bound's two inward normals, as world directions whose dot with
     // the shoulder-to-elbow vector is its projected normal's dot.
@@ -110,13 +113,18 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     );
     const of: AutoMovieMotionHumanSwivelBound.IArm = { shoulder, upper, lower };
     const bounds: AutoMovieMotionHumanSwivelBound.IHalfPlane[] = normals.map(
-      (normal: IAutoMovieVector3): AutoMovieMotionHumanSwivelBound.IHalfPlane => ({
+      (
+        normal: IAutoMovieVector3,
+      ): AutoMovieMotionHumanSwivelBound.IHalfPlane => ({
         normal,
         point: shoulder,
         margin: 0,
       }),
     );
-    return (point: IAutoMovieVector3, hint: IAutoMovieVector3): IAutoMovieVector3 =>
+    return (
+      point: IAutoMovieVector3,
+      hint: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       AutoMovieMotionHumanSwivelBound.bounded(of, point, hint, bounds);
   }
 }

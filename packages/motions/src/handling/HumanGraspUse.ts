@@ -373,7 +373,10 @@ export namespace HumanGraspUse {
     // The elbow's hint of a roll's key: its place of least joint strain
     // (`AutoMovieMotionHumanBend.solve`), solved once per roll.
     const hints: Map<number, IAutoMovieVector3> = new Map();
-    const hinted = (roll: number, wrist: HumanHand.IWrist): IAutoMovieVector3 => {
+    const hinted = (
+      roll: number,
+      wrist: HumanHand.IWrist,
+    ): IAutoMovieVector3 => {
       let found: IAutoMovieVector3 | undefined = hints.get(roll);
       if (found === undefined) {
         found = AutoMovieMotionHumanBend.solve({
@@ -460,7 +463,8 @@ export namespace HumanGraspUse {
     const framed: StrikingHeld.IHandFrame = {
       point: Vector3.add(point, Quaternion.rotateVector(rotation, socket)),
       rotation,
-    };    return {
+    };
+    return {
       posture: context.entry.posture,
       wrist: { point, rotation },
       // The elbow's hint of this pose: its place of least joint strain for

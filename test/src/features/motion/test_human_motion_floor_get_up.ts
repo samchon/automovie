@@ -1,4 +1,7 @@
-import { type IAutoMovieResolvedBone, physicalShapeBounds } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  physicalShapeBounds,
+} from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import {
   HumanChain,

@@ -243,7 +243,11 @@ export namespace createRowingMachine {
       96 * 0.0254,
       `${CONCEPT2}: 96 in long`,
     ),
-    width: ArchetypeBand.metres(24 * 0.0254, 24 * 0.0254, `${CONCEPT2}: 2 ft wide`),
+    width: ArchetypeBand.metres(
+      24 * 0.0254,
+      24 * 0.0254,
+      `${CONCEPT2}: 2 ft wide`,
+    ),
     handleWidth: ArchetypeBand.metres(
       0.45,
       0.55,

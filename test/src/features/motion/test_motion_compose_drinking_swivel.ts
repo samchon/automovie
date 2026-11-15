@@ -15,8 +15,8 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/nclose";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
 
 /**
  * An elbow hint bounded into the drinking range on its swivel circle
@@ -97,7 +97,11 @@ export function test_motion_compose_drinking_swivel(): void {
       z: wrist.z - shoulder.z,
     };
     const d: number = Math.hypot(reach.x, reach.y, reach.z);
-    const n: IAutoMovieVector3 = { x: reach.x / d, y: reach.y / d, z: reach.z / d };
+    const n: IAutoMovieVector3 = {
+      x: reach.x / d,
+      y: reach.y / d,
+      z: reach.z / d,
+    };
     const foot: number = (upper * upper - lower * lower + d * d) / (2 * d);
     const r: number = Math.sqrt(upper * upper - foot * foot);
     const h: IAutoMovieVector3 = {
@@ -112,7 +116,11 @@ export function test_motion_compose_drinking_swivel(): void {
       z: h.z - n.z * along,
     };
     const size: number = Math.hypot(raw.x, raw.y, raw.z);
-    const u: IAutoMovieVector3 = { x: raw.x / size, y: raw.y / size, z: raw.z / size };
+    const u: IAutoMovieVector3 = {
+      x: raw.x / size,
+      y: raw.y / size,
+      z: raw.z / size,
+    };
     const v: IAutoMovieVector3 = {
       x: n.y * u.z - n.z * u.y,
       y: n.z * u.x - n.x * u.z,
@@ -121,9 +129,12 @@ export function test_motion_compose_drinking_swivel(): void {
     return (swivel: number): IAutoMovieVector3 => {
       const a: number = (swivel * Math.PI) / 180;
       return {
-        x: shoulder.x + n.x * foot + r * (u.x * Math.cos(a) + v.x * Math.sin(a)),
-        y: shoulder.y + n.y * foot + r * (u.y * Math.cos(a) + v.y * Math.sin(a)),
-        z: shoulder.z + n.z * foot + r * (u.z * Math.cos(a) + v.z * Math.sin(a)),
+        x:
+          shoulder.x + n.x * foot + r * (u.x * Math.cos(a) + v.x * Math.sin(a)),
+        y:
+          shoulder.y + n.y * foot + r * (u.y * Math.cos(a) + v.y * Math.sin(a)),
+        z:
+          shoulder.z + n.z * foot + r * (u.z * Math.cos(a) + v.z * Math.sin(a)),
       };
     };
   };

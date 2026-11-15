@@ -1,9 +1,9 @@
 import {
   AutoMovieGravity,
+  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
-  type IAutoMovieResolvedBone,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -239,9 +239,11 @@ export namespace GymnasticsFlight {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fall(from: number, vy: number, to: number): number | null {
-    const discriminant: number = vy * vy - 2 * AutoMovieGravity.STANDARD * (to - from);
+    const discriminant: number =
+      vy * vy - 2 * AutoMovieGravity.STANDARD * (to - from);
     if (discriminant < 0) return null;
-    const t: number = (vy + Math.sqrt(discriminant)) / AutoMovieGravity.STANDARD;
+    const t: number =
+      (vy + Math.sqrt(discriminant)) / AutoMovieGravity.STANDARD;
     return t > 0 ? t : null;
   }
 
@@ -335,7 +337,10 @@ export namespace GymnasticsFlight {
     return {
       centre: {
         x: one.x - velocity.x * delta,
-        y: one.y - velocity.y * delta + 0.5 * AutoMovieGravity.STANDARD * delta * delta,
+        y:
+          one.y -
+          velocity.y * delta +
+          0.5 * AutoMovieGravity.STANDARD * delta * delta,
         z: one.z - velocity.z * delta,
       },
       velocity,

@@ -78,7 +78,10 @@ export namespace HumanArmJacobian {
       bone,
       {
         bone,
-        localRotation: Quaternion.multiply(Quaternion.inverse(parent), worldRotation),
+        localRotation: Quaternion.multiply(
+          Quaternion.inverse(parent),
+          worldRotation,
+        ),
         worldPosition,
         worldRotation,
       },
@@ -111,12 +114,16 @@ export namespace HumanArmJacobian {
         }),
       ),
     );
-    const kept: [number, number, number][] = [G.clamped(setup, lower, [c[3]!, c[4]!, c[5]!]), G.clamped(setup, hand, [c[6]!, c[7]!, c[8]!])];
+    const kept: [number, number, number][] = [
+      G.clamped(setup, lower, [c[3]!, c[4]!, c[5]!]),
+      G.clamped(setup, hand, [c[6]!, c[7]!, c[8]!]),
+    ];
     return free.map((d: number): IColumn => {
       if (d >= 3) {
         // Past its limit an angle is clamped by forward kinematics, so it
         // moves nothing.
-        if (kept[d < 6 ? 0 : 1]![d % 3] !== c[d]) return { upper: STILL, lower: STILL, hand: STILL };
+        if (kept[d < 6 ? 0 : 1]![d % 3] !== c[d])
+          return { upper: STILL, lower: STILL, hand: STILL };
         const motion: HumanJacobian.IMotion = joints[d - 3]!;
         return {
           upper: HumanJacobian.twist(motion, upper, placed.shoulder),
@@ -128,10 +135,17 @@ export namespace HumanArmJacobian {
       const world = (sign: number): IAutoMovieQuaternion => {
         const moved: number[] = [...c];
         moved[d] = moved[d]! + sign * STEP;
-        return Quaternion.multiply(at.parent.rotation, Quaternion.multiply(setup.rest.upper.rotation, G.shoulder(setup, moved)));
+        return Quaternion.multiply(
+          at.parent.rotation,
+          Quaternion.multiply(
+            setup.rest.upper.rotation,
+            G.shoulder(setup, moved),
+          ),
+        );
       };
       const omega: IAutoMovieVector3 = turn(world(-1), world(1), 2 * STEP);
-      const about = (p: IAutoMovieVector3): IAutoMovieVector3 => Vector3.cross(omega, Vector3.subtract(p, placed.shoulder));
+      const about = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.cross(omega, Vector3.subtract(p, placed.shoulder));
       return {
         upper: { angular: omega, linear: { x: 0, y: 0, z: 0 } },
         lower: { angular: omega, linear: about(placed.elbow) },
@@ -141,7 +155,10 @@ export namespace HumanArmJacobian {
   }
 
   /** An arm's chain placed at coordinates: each joint's point and each segment's world rotation. */
-  export type IChain = Pick<G.IPlaced, "shoulder" | "elbow" | "wrist" | "upper" | "lower" | "hand">;
+  export type IChain = Pick<
+    G.IPlaced,
+    "shoulder" | "elbow" | "wrist" | "upper" | "lower" | "hand"
+  >;
 
   /**
    * One arm of a body on a pose, read at an arm moved by an offset in the
@@ -161,12 +178,20 @@ export namespace HumanArmJacobian {
     pose: IAutoMoviePose,
     arm: HumanArmClearance.IArm,
     offset: readonly number[] = [],
-  ): { c: number[]; free: number[]; columns: IColumn[]; chain: (c: readonly number[]) => IChain } {
+  ): {
+    c: number[];
+    free: number[];
+    columns: IColumn[];
+    chain: (c: readonly number[]) => IChain;
+  } {
     const setup: G.ISetup = G.prepare(body, side);
     const at: G.IFrame = HumanArmFrame.of(setup, { pose, others: [] }, true);
-    const c: number[] = G.encode(setup, arm).map((v: number, d: number): number => v + (offset[d] ?? 0));
+    const c: number[] = G.encode(setup, arm).map(
+      (v: number, d: number): number => v + (offset[d] ?? 0),
+    );
     const free: number[] = [];
-    for (let d: number = 0; d < G.DIMENSIONS; ++d) if (setup.free[d]!) free.push(d);
+    for (let d: number = 0; d < G.DIMENSIONS; ++d)
+      if (setup.free[d]!) free.push(d);
     return {
       c,
       free,
@@ -176,7 +201,10 @@ export namespace HumanArmJacobian {
   }
 
   /** A segment that does not move. */
-  const STILL: HumanJacobian.ITwist = { angular: { x: 0, y: 0, z: 0 }, linear: { x: 0, y: 0, z: 0 } };
+  const STILL: HumanJacobian.ITwist = {
+    angular: { x: 0, y: 0, z: 0 },
+    linear: { x: 0, y: 0, z: 0 },
+  };
 
   /** A joint's angles by index: flexion, abduction, twist. */
   const AXES: readonly (0 | 1 | 2)[] = [0, 1, 2];
@@ -185,8 +213,15 @@ export namespace HumanArmJacobian {
   const STEP: number = 1e-3;
 
   /** The world angular velocity that carries one rotation to another over a span, radians per unit. */
-  const turn = (from: IAutoMovieQuaternion, to: IAutoMovieQuaternion, span: number): IAutoMovieVector3 => {
-    let q: IAutoMovieQuaternion = Quaternion.multiply(to, Quaternion.inverse(from));
+  const turn = (
+    from: IAutoMovieQuaternion,
+    to: IAutoMovieQuaternion,
+    span: number,
+  ): IAutoMovieVector3 => {
+    let q: IAutoMovieQuaternion = Quaternion.multiply(
+      to,
+      Quaternion.inverse(from),
+    );
     if (q.w < 0) q = { x: -q.x, y: -q.y, z: -q.z, w: -q.w };
     const s: number = Math.hypot(q.x, q.y, q.z);
     if (s < 1e-15) return { x: 0, y: 0, z: 0 };

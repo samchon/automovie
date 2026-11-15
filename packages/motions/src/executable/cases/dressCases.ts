@@ -138,16 +138,16 @@ export function dressCases(
         Vector3.subtract(surface(bones, "left"), want(bones, "left")),
       );
       const placed: number = Vector3.length(
-          Vector3.subtract(
-            Vector3.add(
-              frame.position,
-              Quaternion.rotateVector(frame.rotation, WEAR[item].translation),
-            ),
-            resolveAutoMovieHumanoidSurfaces.place(
-              region,
-              bones.get(region.bone)!,
-            ).point,
+        Vector3.subtract(
+          Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(frame.rotation, WEAR[item].translation),
           ),
+          resolveAutoMovieHumanoidSurfaces.place(
+            region,
+            bones.get(region.bone)!,
+          ).point,
+        ),
       );
       let inside: number = Infinity;
       let elevation: number = 0;
