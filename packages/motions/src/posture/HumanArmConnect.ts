@@ -53,12 +53,24 @@ export namespace HumanArmConnect {
         if (!query.valid(lerp(a, b, i / steps))) return false;
       return true;
     };
-    const from: ITree = { nodes: [[...query.start]], parent: [-1], forward: true };
-    const to: ITree = { nodes: [[...query.goal]], parent: [-1], forward: false };
+    const from: ITree = {
+      nodes: [[...query.start]],
+      parent: [-1],
+      forward: true,
+    };
+    const to: ITree = {
+      nodes: [[...query.goal]],
+      parent: [-1],
+      forward: false,
+    };
 
     // An edge of a tree runs the way its tree grows in the rising
     // coordinate: up from the start, down from the goal.
-    const admits = (tree: ITree, node: readonly number[], q: readonly number[]): boolean =>
+    const admits = (
+      tree: ITree,
+      node: readonly number[],
+      q: readonly number[],
+    ): boolean =>
       query.rising === undefined ||
       (tree.forward
         ? q[query.rising]! > node[query.rising]!
