@@ -315,8 +315,10 @@ export namespace HumanArmTrajectoryModel {
             objective += T.ROTATION * turned * turned;
           }
         }
-        const deepest: Map<number, P.IPair> = P.deepest(c, a, k, placed[a]![k]!);
-        const embedded: Map<number, P.IEmbedded> = P.embedded(c, a, k, placed[a]![k]!);
+        // Only the pairs the merit and the convex model can use are read
+        // exactly (`HumanArmTrajectoryPairs.CUT`).
+        const deepest: Map<number, P.IPair> = P.deepest(c, a, k, placed[a]![k]!, P.CUT);
+        const embedded: Map<number, P.IEmbedded> = P.embedded(c, a, k, placed[a]![k]!, P.CUT);
         pairs[a]![k] = { deepest, embedded };
         for (const pair of deepest.values()) {
           note(pair.short, "region", () => `probe ${pair.probe} ${pair.short.toFixed(1)} mm inside shape ${pair.shape} at ${times[k]!.toFixed(3)} s`, T.SKIN);
@@ -331,7 +333,7 @@ export namespace HumanArmTrajectoryModel {
     });
     if (x.length === 2)
       for (let k: number = 1; k < n; ++k)
-        for (const pair of inner(c, k) ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!).values() : []) {
+        for (const pair of inner(c, k) ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT).values() : []) {
           here = k;
           note(pair.short, "region", () => `probe ${pair.probe} of the ${pair.a === 0 ? "first" : "second"} arm ${pair.short.toFixed(1)} mm inside the other's ${pair.bone} at ${times[k]!.toFixed(3)} s`, T.SKIN);
           if (pair.rested) objective += T.LIFT * pair.short * pair.short;

@@ -109,6 +109,21 @@ export namespace HumanArmTrajectoryPairs {
   }
 
   /**
+   * How far short of its bound the trajectory reads a pair exactly,
+   * millimetres: TrajOpt's contact check reads only pairs within a check
+   * distance of their safety distance (Schulman et al. 2014, d_check), and
+   * no reading of a pair further short than its active set (`T.CHECK`) uses
+   * it, the merit counting only a pair past its bound (or a declared rest,
+   * read whatever its distance) and the convex model only a pair within the
+   * active set. A shape's bounding sphere bounds its distance from below,
+   * so a probe the sphere shows further short than this is left unread,
+   * its pair keeping that bound until a probe read exactly passes it: the
+   * pair keeps its first place among the pairs, and its depth is past every
+   * user's reach whichever value it keeps.
+   */
+  export const CUT: number = T.CHECK;
+
+  /**
    * Each segment's deepest collider probe against each shape near it at a
    * waypoint, the tangle audit's pairs: by the audit part the probe belongs
    * to and the shape, a pair the audit does not read (one part, or two that
@@ -118,9 +133,10 @@ export namespace HumanArmTrajectoryPairs {
    * @param a The arm.
    * @param k The waypoint.
    * @param placed The arm placed there.
+   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more); every pair in reach is read when absent.
    * @returns The pairs by part and shape.
    */
-  export function deepest(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<number, IPair> {
+  export function deepest(c: M.IContext, a: number, k: number, placed: G.IPlaced, cut: number = Infinity): Map<number, IPair> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
     const screened: G.IScreen = G.screen(frame, placed, T.REACH);
@@ -139,8 +155,12 @@ export namespace HumanArmTrajectoryPairs {
         // The shape's bounding sphere bounds its distance from below, so a
         // probe it shows no deeper than the pair's deepest so far is not
         // read exactly: it could not replace it (branch and bound).
-        if (known !== undefined && 1000 * (allowance - (Vector3.length(Vector3.subtract(p, frame.shapes[shape]!.centre)) - frame.shapes[shape]!.radius - r)) <= known.short)
+        const bound: number = 1000 * (allowance - (Vector3.length(Vector3.subtract(p, frame.shapes[shape]!.centre)) - frame.shapes[shape]!.radius - r));
+        if (known !== undefined && bound <= known.short) continue;
+        if (bound < -cut && !c.rested(a, k, probe, frame.shapes[shape]!.bone)) {
+          if (known === undefined) out.set(key, { probe, shape, short: bound, rested: false });
           continue;
+        }
         const short: number = 1000 * (allowance - (G.gap(frame, shape, p, p) - r));
         if (known === undefined || short > known.short)
           out.set(key, { probe, shape, short, rested: c.rested(a, k, probe, frame.shapes[shape]!.bone) });
@@ -157,9 +177,10 @@ export namespace HumanArmTrajectoryPairs {
    * @param k The waypoint.
    * @param first The first arm placed there.
    * @param second The second arm placed there.
+   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more); every pair in reach is read when absent.
    * @returns The pairs by arm, segment and shape.
    */
-  export function crossing(c: M.IContext, k: number, first: G.IPlaced, second: G.IPlaced): Map<string, ICrossing> {
+  export function crossing(c: M.IContext, k: number, first: G.IPlaced, second: G.IPlaced, cut: number = Infinity): Map<string, ICrossing> {
     const out: Map<string, ICrossing> = new Map();
     const placed: G.IPlaced[] = [first, second];
     for (let a: number = 0; a < 2; ++a) {
@@ -199,6 +220,10 @@ export namespace HumanArmTrajectoryPairs {
           // Bounded as `deepest`: a probe the bounding sphere shows no
           // deeper than the pair's deepest so far is not read exactly.
           if (known !== undefined && 1000 * (allowance - apart) <= known.short) return;
+          if (1000 * (allowance - apart) < -cut && !c.rested(a, k, probe, shape.bone)) {
+            if (known === undefined) out.set(key, { a, probe, shape, owner: owners[i]!, bone: shape.bone, short: 1000 * (allowance - apart), rested: false });
+            return;
+          }
           const short: number = 1000 * (allowance - (physicalShapeSegmentDistance(shape.pose, shape.shape, p, p) - r));
           if (known === undefined || short > known.short)
             out.set(key, { a, probe, shape, owner: owners[i]!, bone: shape.bone, short, rested: c.rested(a, k, probe, shape.bone) });
@@ -218,9 +243,10 @@ export namespace HumanArmTrajectoryPairs {
    * @param a The arm.
    * @param k The waypoint.
    * @param placed The arm placed there.
+   * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more); every pair in reach is read when absent.
    * @returns The pairs by body part and arm shape.
    */
-  export function embedded(c: M.IContext, a: number, k: number, placed: G.IPlaced): Map<number, IEmbedded> {
+  export function embedded(c: M.IContext, a: number, k: number, placed: G.IPlaced, cut: number = Infinity): Map<number, IEmbedded> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<number, IEmbedded> = new Map();
     const mine: G.IShape[] = G.colliders(frame, placed);
@@ -252,9 +278,13 @@ export namespace HumanArmTrajectoryPairs {
         // Bounded as `deepest`: a corner the bounding sphere shows no
         // deeper than the pair's deepest so far is not read exactly.
         if (known !== undefined && 1000 * (allowance - apart) <= known.short) return;
+        const own: "upperArm" | "lowerArm" | "hand" = owners[j] === "upper" ? "upperArm" : owners[j] === "lower" ? "lowerArm" : "hand";
+        if (1000 * (allowance - apart) < -cut && !c.lying(a, k, own, corner.bone)) {
+          if (known === undefined) out.set(key, { corner: i, shape, index: j, owner: owners[j]!, bone: corner.bone, short: 1000 * (allowance - apart), rested: false });
+          return;
+        }
         const short: number = 1000 * (allowance - physicalShapeSegmentDistance(shape.pose, shape.shape, corner.point, corner.point));
         if (known === undefined || short > known.short) {
-          const own: "upperArm" | "lowerArm" | "hand" = owners[j] === "upper" ? "upperArm" : owners[j] === "lower" ? "lowerArm" : "hand";
           out.set(key, { corner: i, shape, index: j, owner: owners[j]!, bone: corner.bone, short, rested: c.lying(a, k, own, corner.bone) });
         }
       });
