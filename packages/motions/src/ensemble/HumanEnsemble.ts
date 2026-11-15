@@ -5,14 +5,12 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanChainCore } from "../chain/HumanChainCore";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { IHumanPerformer } from "../perform/IHumanPerformer";
-import { HumanSkill } from "../skill/HumanSkill";
 import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
-import { HUMAN_ENSEMBLE_PRESETS } from "./HUMAN_ENSEMBLE_PRESETS";
 import { HumanAttribute } from "./HumanAttribute";
-import { HumanFormation } from "./HumanFormation";
+import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
+import type { HumanFormation } from "./HumanFormation";
 import type { IHumanEnsemble } from "./IHumanEnsemble";
-import type { IHumanEnsemblePreset } from "./IHumanEnsemblePreset";
 import type { IHumanFormation } from "./IHumanFormation";
 import { instance } from "./instance";
 
@@ -31,7 +29,7 @@ import { instance } from "./instance";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace does, what it never does, the draw keys and how discipline reaches the laws.
  * @evidence contracts/development/design.md#principled-representation A resolved ensemble is its input and its members; a member is a performer's data plus its role, attributes, slot and detail.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `performers`, `members`, `chains`, `pick`, `seed`, `groups` (#3457).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `of`, `performers`, `members`, `chains` with instanced members (#3463), `pick`, `seed`, `groups` (#3457), `station` with its dress (#3458), and the two provisional constants `LAG` and `DRESS`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No member has a law of its own.
  */
 export namespace HumanEnsemble {
@@ -106,193 +104,7 @@ export namespace HumanEnsemble {
     input: IHumanEnsemble,
     read?: HumanFormation.Reader,
   ): IEnsemble {
-    const refuse = (
-      axis: string,
-      value: unknown,
-      reason: string,
-      fix: string,
-      feasible?: HumanRefusal.Feasible,
-    ): never => {
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: `${input.id}.${axis}`,
-        value,
-        ...(feasible === undefined ? {} : { feasible }),
-        reason,
-        fix,
-      });
-    };
-    if (!(Number.isInteger(input.count) && input.count > 0))
-      refuse(
-        "count",
-        input.count,
-        "an ensemble has a positive whole number of members",
-        "give a positive count",
-      );
-    if (input.bodies.length === 0)
-      refuse(
-        "bodies",
-        0,
-        "an ensemble's body pool is empty",
-        "give at least one body",
-      );
-    const formation: IHumanFormation | undefined =
-      input.formation === undefined
-        ? undefined
-        : HumanFormation.of(input.formation);
-    if (
-      formation !== undefined &&
-      HumanFormation.count(formation) < input.count
-    )
-      refuse(
-        "formation",
-        HumanFormation.count(formation),
-        `the formation holds ${HumanFormation.count(formation)} slots for ${input.count} members`,
-        "give the formation a slot for every member",
-        { kind: "range", minimum: input.count, maximum: null, unit: "" },
-      );
-    if (formation === undefined && input.places === undefined)
-      refuse(
-        "places",
-        undefined,
-        "an ensemble needs a formation or places",
-        "give a formation or places",
-      );
-
-    // The distributions: the preset's rows, overridden by the input's.
-    const preset: IHumanEnsemblePreset | undefined =
-      input.preset === undefined
-        ? undefined
-        : HUMAN_ENSEMBLE_PRESETS[input.preset];
-    const distributions: Partial<
-      Record<HumanAttribute.Name, HumanAttribute.IDistribution>
-    > = {
-      ...(preset?.attributes ?? {}),
-      ...(input.attributes ?? {}),
-    };
-    const proficiency: HumanAttribute.IDistribution = input.proficiency ??
-      preset?.proficiency ?? { mean: HumanSkill.LEVELS.trained, spread: 0 };
-
-    // Each member's own draws, keyed by its index.
-    const members: IMember[] = [];
-    for (let index: number = 0; index < input.count; ++index) {
-      const subject: string = `${input.id}.${index}`;
-      const attributes: Partial<Record<HumanAttribute.Name, number>> = {};
-      for (const name of HumanAttribute.NAMES) {
-        const d: HumanAttribute.IDistribution | undefined = distributions[name];
-        if (d !== undefined)
-          attributes[name] = HumanAttribute.draw(
-            input.seed,
-            input.id,
-            index,
-            name,
-            d,
-          );
-      }
-      const p: number = HumanAttribute.draw(
-        input.seed,
-        input.id,
-        index,
-        "proficiency",
-        proficiency,
-      );
-      const axes: Partial<Record<IAutoMovieProficiency.Axis, number>> = {};
-      if (attributes.discipline !== undefined)
-        for (const axis of HUMAN_ATTRIBUTE_EFFECTS.discipline.axes)
-          axes[axis] = attributes.discipline;
-      const pool: number = Math.min(
-        input.bodies.length - 1,
-        Math.floor(
-          HumanAttribute.stream(input.seed, input.id, index, "body").float(0) *
-            input.bodies.length,
-        ),
-      );
-      const slot: HumanFormation.ILocal | null =
-        formation === undefined ? null : HumanFormation.local(formation, index);
-      const place: IHumanEnsemble.IPlace =
-        formation !== undefined
-          ? placeOf(HumanFormation.slot(formation, index, 0, read))
-          : typeof input.places === "function"
-            ? input.places(index)
-            : (input.places![index] ??
-              refuse(
-                "places",
-                input.places!.length,
-                `${input.places!.length} places for ${input.count} members`,
-                "give a place for every member",
-              ));
-      members.push({
-        index,
-        subject,
-        role: null,
-        body: input.bodies[pool]!,
-        pool,
-        attributes,
-        proficiency: Object.keys(axes).length === 0 ? { p } : { p, axes },
-        place,
-        slot,
-        detail: "full",
-        prop: (name: string): string => `${subject}.${name}`,
-      });
-    }
-
-    // Roles in the order given, each from the members its pick names that no earlier role took.
-    for (const [role, spec] of Object.entries(input.roles ?? {})) {
-      const free: IMember[] = members.filter(
-        (m: IMember): boolean => m.role === null,
-      );
-      const candidates: IMember[] =
-        spec.pick !== undefined && typeof spec.pick !== "string"
-          ? spec.pick.map(
-              (i: number): IMember =>
-                members[i] !== undefined && members[i]!.role === null
-                  ? members[i]!
-                  : refuse(
-                      `roles.${role}.pick`,
-                      i,
-                      `member ${i} does not exist or already has a role`,
-                      "pick free members by index",
-                    ),
-            )
-          : spec.pick === "front"
-            ? free.filter(
-                (m: IMember): boolean => m.slot === null || m.slot.rank === 0,
-              )
-            : spec.pick === "rear"
-              ? free
-                  .filter(
-                    (m: IMember): boolean =>
-                      m.slot === null ||
-                      m.slot.rank === rearRank(formation, m.slot.block),
-                  )
-                  .reverse()
-              : spec.pick === "flank"
-                ? flank(free, formation)
-                : free;
-      if (
-        !(Number.isInteger(spec.count) && spec.count >= 0) ||
-        spec.count > candidates.length
-      )
-        refuse(
-          `roles.${role}`,
-          spec.count,
-          `the role ${role} asks ${spec.count} members and ${candidates.length} can take it`,
-          "ask no more members than the pick offers",
-          { kind: "range", minimum: 0, maximum: candidates.length, unit: "" },
-        );
-      for (const m of candidates.slice(0, spec.count)) m.role = role;
-    }
-
-    // Each member's detail, read once its role is known.
-    if (input.detail !== undefined)
-      for (const m of members)
-        m.detail = input.detail({
-          index: m.index,
-          role: m.role,
-          block: m.slot?.block ?? null,
-          rank: m.slot?.rank ?? null,
-        });
-    return { input, members };
+    return HumanEnsembleMembers.resolve(input, read);
   }
 
   /**
@@ -594,43 +406,4 @@ export namespace HumanEnsemble {
     }
     return out;
   }
-}
-
-/** A slot as a starting place. */
-function placeOf(slot: IHumanFormation.ISlot): IHumanEnsemble.IPlace {
-  return { at: slot.at, yaw: slot.heading };
-}
-
-/** The last rank of a block, or 0 without a formation. */
-function rearRank(
-  formation: IHumanFormation | undefined,
-  block: number,
-): number {
-  if (formation === undefined) return 0;
-  let last: number = 0;
-  let index: number = 0;
-  for (let b: number = 0; b < block; ++b) index += formation.blocks[b]!.count;
-  for (let k: number = 0; k < formation.blocks[block]!.count; ++k)
-    last = Math.max(last, HumanFormation.local(formation, index + k).rank);
-  return last;
-}
-
-/** The free members on a flank: file 0 first, then the last file of each block; without a formation, the first and the last. */
-function flank(
-  free: readonly HumanEnsemble.IMember[],
-  formation: IHumanFormation | undefined,
-): HumanEnsemble.IMember[] {
-  if (formation === undefined)
-    return free.length < 2 ? [...free] : [free[0]!, free[free.length - 1]!];
-  const last: number = Math.max(
-    0,
-    ...free.map((m: HumanEnsemble.IMember): number => m.slot?.file ?? 0),
-  );
-  return [
-    ...free.filter((m: HumanEnsemble.IMember): boolean => m.slot?.file === 0),
-    ...free.filter(
-      (m: HumanEnsemble.IMember): boolean =>
-        m.slot?.file === last && last !== 0,
-    ),
-  ];
 }
