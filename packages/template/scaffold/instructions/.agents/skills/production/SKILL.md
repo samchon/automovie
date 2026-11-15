@@ -44,3 +44,4 @@ This skill keeps what spans them:
 | Save generated, acquired and pipeline media with their records | [Media records](media-records.md) |
 | Reorganize the production | [Reorganization](reorganization.md) |
 | Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |
+| Write and time a film's caption tracks | [Captions](captions.md) |

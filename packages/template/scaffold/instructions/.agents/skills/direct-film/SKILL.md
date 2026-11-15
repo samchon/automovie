@@ -25,7 +25,7 @@ Give each surface a material from its record and canon references, in the form t
 
 A face the representation adopts, from a detail option or one the renderer draws on the polygon man, carries the expressions and speech the screenplay decides. Read in the installed packages' READMEs and types which faces, expressions and mouth shapes they perform, and follow a defect or a gap for one the film needs and they lack.
 
-Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Time each mouth to its take's measured lines, and ask the user to watch and listen to the sync, because stills cannot show it.
+Speech comes as accepted takes under [audio acquisition](../audio/acquisition.md). Drive each mouth by a track of mouth shapes, visemes, timed from the take's phonemes: those a speech service reports, or a forced alignment of the screenplay's line to the accepted audio. On stills, check that the lips close at every p, b and m and meet the teeth at every f and v, and ask the user to watch and listen to the sync as a whole, because stills cannot show it.
 
 ## Renderer
 

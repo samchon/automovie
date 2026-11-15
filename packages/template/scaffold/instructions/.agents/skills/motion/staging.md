@@ -12,7 +12,9 @@ One beat may need several camera setups and one setup may span several beats; ea
 
 Stage in the set's zones and landmarks, never in coordinates: each beat's spatial change moves its participants between them through entity capabilities, and the set entity resolves where that is.
 
-Program anticipation, action, reaction, pauses and result through each person's [composition](compose/SKILL.md) and the interactions that relate the participants, with [physical feedback](physical-feedback.md) and [retargeting](retargeting.md) where a scene needs them. Program everyone present as [living scene](../contracts/development/composition.md#living-scene) asks, so an official repositions, a crowd reacts and a partner keeps reading the action.
+Program each person's actions, reactions, pauses and result through their [composition](compose/SKILL.md) and the interactions that relate the participants, with [physical feedback](physical-feedback.md) and [retargeting](retargeting.md) where a scene needs them. An installed action carries its own preparation and follow-through, so add only the anticipation the screenplay decides, such as stepping nearer or looking at the target first.
+
+Program everyone present as [living scene](../contracts/development/composition.md#living-scene) asks, so an official repositions, a crowd reacts and a partner keeps reading the action. Give each background mover a purpose and a destination, cross it behind the principal action rather than through it, and quiet it at the beat's focal moment, as the DGA's [background guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) advises.
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state; a reach or scale mismatch is fixed at its owner, not by changing the outcome.
 
@@ -25,6 +27,7 @@ Light each scene from the sources its set and story day give, such as a window, 
 Inspect every shot at the delivered aspect and scale through the whole action, in the actual camera frames rather than in subject bounds:
 
 - the subject the beat names reads at the decided size;
+- at the beat's key action, the moving limb and the turned head stand clear of the torso against what is behind them, or the camera or space entry is repaired in the screenplay;
 - no head or limb is cut at a joint or crowded against the frame edge unless the shot intends it;
 - nothing clips or hides a contact or a reaction, and no detail competes with it;
 - screen direction, eyelines and light hold across each cut, apart from a discontinuity the screenplay decided.

@@ -8,7 +8,7 @@ Write the prompt in plain prose, in this order: the inputs' roles, the shared de
 
 ## Input roles
 
-The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D.
+The hint's figures are gray and coarse, so motion and appearance arrive through different inputs, as [requests](../requests.md#inputs) assigns them. State each input's role in one sentence, in the model's wording, with what the request's [adherence](../requests.md#adherence) keeps ("the input video supplies only camera, positions and timing"). Name each polygon man and coarse form as what it becomes, never by its look in the hint, such as clay or 3D; only the role sentence names the input video itself, in the guide's own words.
 
 ## From the story
 
@@ -28,7 +28,7 @@ Write what happens in the request's interval from the [beat records](../../story
 | Reaction | Each reaction the hint cannot show, such as a facial expression, in the order the hint performs the beats |
 | Camera | The depth of field and focus the screenplay decides; the hint carries framing, moves and lens |
 
-Leave out what the request keeps from the hint, such as positions, actions, timing and camera moves. Write the action and the camera, from the same beat records, only where the hint does not carry them.
+Leave out what the request keeps from the hint, such as positions, actions, timing and camera moves. Write the action and the camera, from the same beat records, only where the hint does not carry them. Where the model's guide gives a form for timed segments, time each from the frames where the hint performs its beat.
 
 ## Sound
 

@@ -30,4 +30,5 @@ Contract: [composition.md](../composition.md).
 2. Each beat's spatial change moves its participants between the set's zones and landmarks.
 3. The camera reframes, follows and moves with motivated action. Exception: a fixed view the screenplay decided.
 4. The composed behaviors aim at the research's measurable targets for what a viewer sees and hears, which delivery review then measures on the picture.
-5. No participant stands idle, and the scene does not fall back to isolated single actions or one axis of movement. Exception: stillness the screenplay decided.
+5. No participant freezes or drops its role behavior, and the scene does not fall back to isolated single actions or one axis of movement. A hold that breathes, looks and keeps its stance's own sway is performing. Exception: stillness the screenplay decided.
+6. No secondary action the screenplay did not decide draws attention from the beat's action.
