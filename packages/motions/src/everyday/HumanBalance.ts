@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Vector3,
+  bracketedBisection,
   bracketedRoot,
   convexHull2D,
   pointInHull,
@@ -73,8 +74,8 @@ export namespace HumanBalance {
    * `TOLERANCE` by the engine's bracketed root for the centre's place (the
    * Illinois false position, `bracketedRoot`), whose bracket keeps it safe
    * where the centre stops following the hips
-   * once the planted legs reach the limit of their range, and by bisection
-   * for whether the heels are down. When no shift in the range balances the
+   * once the planted legs reach the limit of their range, and by the engine's
+   * bisection (`bracketedBisection`) for whether the heels are down. When no shift in the range balances the
    * body, the end that comes nearer is returned, and the law's
    * margin-of-stability verdict reports the remainder.
    *
@@ -118,7 +119,7 @@ export namespace HumanBalance {
     // false position of Dowell and Jarratt 1971, superlinear and never
     // leaving the bracket, so a stretch where the error stops responding,
     // the planted legs at their range, costs steps and no divergence) and by
-    // bisection for a yes-or-no one. With no crossing in the range, the end
+    // the engine's bisection (`bracketedBisection`) for a yes-or-no one. With no crossing in the range, the end
     // that comes nearer is returned.
     const first = (
       from: number,
@@ -134,10 +135,21 @@ export namespace HumanBalance {
       return {
         found: true,
         back: smooth
-          ? bracketedRoot((b: number): number => error(at(b)), from, end, TOLERANCE)
-          : bisect(from, end, (b: number): boolean => error(at(b)) > 0),
+          ? bracketedRoot(
+              (b: number): number => error(at(b)),
+              from,
+              end,
+              TOLERANCE,
+            )
+          : bracketedBisection(
+              (b: number): boolean => error(at(b)) > 0,
+              from,
+              end,
+              TOLERANCE,
+            ),
       };
-    };    const ahead = (r: IReading): number => r.offset - target;
+    };
+    const ahead = (r: IReading): number => r.offset - target;
     // Flat feet first: a heel the planted leg lifted is brought down by
     // moving the hips back; on flat feet a centre ahead of the target is
     // brought back to it, and one behind it is left while it lies inside.
@@ -159,23 +171,6 @@ export namespace HumanBalance {
     return first(0, -1, (r: IReading): number => -ahead(r), true).back;
   }
 
-  /**
-   * The boundary of a yes-or-no condition in a bracket by bisection, to
-   * `TOLERANCE`.
-   *
-   * @param lo The end where the condition holds.
-   * @param hi The end where it does not.
-   * @param holds The condition.
-   * @returns The end of the final bracket where it does not hold.
-   */
-  function bisect(lo: number, hi: number, holds: (x: number) => boolean): number {
-    while (Math.abs(hi - lo) > TOLERANCE) {
-      const mid: number = (lo + hi) / 2;
-      if (holds(mid)) lo = mid;
-      else hi = mid;
-    }
-    return hi;
-  }
   /**
    * The static margin of stability of a posture: the horizontal distance
    * from the engine's whole-body centre of mass to the edge of the hull of
@@ -389,8 +384,7 @@ function read(body: IHumanBody, posture: IHumanPosture): IReading {
         );
         return (
           sockets[0]!.point.y <=
-          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) +
-            HumanFoot.BEARING
+          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING
         );
       },
     ),
