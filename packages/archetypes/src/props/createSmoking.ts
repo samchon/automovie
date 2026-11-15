@@ -13,22 +13,18 @@ import {
 const CIGARETTE: string =
   "regular 70 mm to 100s 100 mm (Wikipedia, Cigarette, https://en.wikipedia.org/wiki/Cigarette); the 3R4F reference cigarette's 24.8 mm circumference and 27 mm filter (Adamson et al. 2012, Chemistry Central Journal 6:98, Table 2, seen only in search results)";
 
-/** The maker's two pocket lighters. */
-const LIGHTER: string =
-  "BIC Maxi J26 (https://bicgraphic.com/gb/bic-j26-lighter-3460002320.html) and BIC Mini J25 (https://www.bicgraphic.com/fi/bic-j25-lighter-3460002360.html)";
-
 /**
  * A cigarette or a pocket lighter.
  *
  * A cigarette lies along `+Z` from its filter end at the origin to its lit end; it is pinched just beyond the filter, the mouth takes the filter end and a flame meets the lit end. A lighter stands on its base at the origin with its spark wheel on top toward `+Z`; the hand wraps the body, the thumb turns the wheel and presses the gas lever beside it, and the flame stands above the top.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a lighter's model, and any dimension the author fixes.
+ * @param seed The seed that picks a lighter's model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The cigarette or the lighter.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each thing lies and where each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Two rods for a cigarette, a box and a wheel for a lighter, from the drawn sizes; the wheel is a `knob` whose part turns with it, as #3369 asks.
+ * @evidence contracts/development/implementation.md#principled-implementation Two rods for a cigarette, a box and a wheel for a lighter, from the drawn sizes or the lighter model's read ones, one model whole; the wheel is a `knob` whose part turns with it, as #3369 asks.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per kind.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No smoke, ash or flame is modelled: the flame is a place, for a law to use.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for either kind: a cigarette's filter and paper, a lighter's body and wheel.
@@ -45,7 +41,7 @@ export function createSmoking(
     params.kind,
     createSmoking.KINDS,
   );
-  const d: Partial<Record<createSmoking.Dimension, number>> =
+  const drawn: Partial<Record<createSmoking.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "smoking",
       createSmoking.BANDS[kind],
@@ -53,13 +49,24 @@ export function createSmoking(
       params,
       createSmoking.BANDS,
     );
+  // A lighter is one of BIC's two models whole.
+  const model: { name: createSmoking.Model | undefined; figures: createSmoking.Figures } =
+    ArchetypeDraw.model<createSmoking.Model, createSmoking.Dimension>(
+      "smoking",
+      "model",
+      params.model,
+      createSmoking.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createSmoking.Dimension, number>> = { ...drawn, ...model.figures };
   const builder: ArchetypeBuilder<
     createSmoking.Affordance,
     createSmoking.Dimension
   > = new ArchetypeBuilder({
     archetype: "smoking",
     id: params.id,
-    name: kind,
+    name: model.name === undefined ? kind : ` ${model.name}`,
     dimensions: d,
   });
 
@@ -223,11 +230,28 @@ export namespace createSmoking {
     /** Which thing. */
     kind: Kind;
 
+    /** A lighter's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `smoking` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The lighters read: BIC's Maxi J26 and Mini J25. */
+  export type Model = "J26" | "J25";
+
+  /** Each kind's models whole, the default first: a lighter's height (length), thickness (diameter), width and mass, 8.2 x 1.5 x 2.5 cm and 24.667 g for the J26 and 6.2 x 1.1 x 2.2 cm and 13 g for the J25 (https://bicgraphic.com/gb/bic-j26-lighter-3460002320.html, https://www.bicgraphic.com/fi/bic-j25-lighter-3460002360.html). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    lighter: {
+      J26: { length: 0.082, diameter: 0.015, width: 0.025, mass: 0.024667 },
+      J25: { length: 0.062, diameter: 0.011, width: 0.022, mass: 0.013 },
+    },
+  };
+
+  /** The band of each free dimension, by kind; a lighter's are its model's. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
@@ -243,11 +267,6 @@ export namespace createSmoking {
         true,
       ),
     },
-    lighter: {
-      length: ArchetypeBand.metres(0.062, 0.082, LIGHTER),
-      diameter: ArchetypeBand.metres(0.011, 0.015, LIGHTER),
-      width: ArchetypeBand.metres(0.022, 0.025, LIGHTER),
-      mass: ArchetypeBand.of("kg", 0.013, 0.0247, LIGHTER),
-    },
+    lighter: {},
   };
 }

@@ -10,31 +10,19 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** IKEA's plates, read. */
-const PLATES: string =
-  "IKEA 365+ side plate, 20 cm across and 2 cm high, 0.41 kg under the page's package details (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/), and plate, 27 cm across, 3 cm high and 0.77 kg under the package details (https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949)";
-
-/** IKEA's serving plates, read, and the largest one's weight seen only in search results. */
-const PLATTER: string =
-  "IKEA 365+ serving plates 27 by 15 cm, 3 cm high, packed at 0.52 kg (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364), and 36 by 20 cm (https://mgmt.ikea.gr/en/products/ikea-365-serving-plate-36x20-cm/00607367); the largest's 1.12 kg from dimensions.com seen only in search results";
-
 /** A maker's saucer, read. */
 const SAUCER: string =
   "Rosenthal Sonetto espresso saucer 12 cm: 1.4 cm high, 106 g (https://www.rosenthal.de/en-gb/espresso-saucer-12-cm/10600-405234-14716.html)";
-
-/** What a packed weight means for a plate's own. */
-const PACKED: string =
-  "the page's packed weight, which the plate alone is lighter than by an amount no page gives";
 
 /**
  * A plate food is served on and eaten from: a round plate, from a side plate to a dinner plate, an oblong serving platter, or a cup's saucer.
  *
  * The plate lies flat on the origin, a slab of the drawn size and height; a platter's long side runs along `X`. Its well and rim are not drawn, so its face is level at its full height. `top` is that face, where food sits and another plate stacks, a `stack-top` whose extent is the plate's outline; `leftRim` and `rightRim` are the plate's edge at `+X` and `-X`, pinched across its height between a thumb on the face and the fingers beneath; `underside` is its base facing down, the whole plate's size, where two hands carry it from below.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The plate.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the plate lies, that its well is not drawn, and its four contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One slab of the read diameter or length and width and the read height, round as a disc or oblong as a box; every contact is on that slab's own faces and edges, and the stacking outline is a regular polygon on the plate's circle.
@@ -54,7 +42,7 @@ export function createTableware(
     params.kind,
     createTableware.KINDS,
   );
-  const d: Partial<Record<createTableware.Dimension, number>> =
+  const drawn: Partial<Record<createTableware.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "tableware",
       createTableware.BANDS[kind],
@@ -62,6 +50,20 @@ export function createTableware(
       params,
       createTableware.BANDS,
     );
+  // A round plate or a platter is one of IKEA's read models whole.
+  const model: { name: createTableware.Model | undefined; figures: createTableware.Figures } =
+    ArchetypeDraw.model<createTableware.Model, createTableware.Dimension>(
+      "tableware",
+      "model",
+      params.model,
+      createTableware.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createTableware.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createTableware.Affordance,
     createTableware.Dimension
@@ -143,9 +145,9 @@ export function createTableware(
  * Companion types, constants and bands of {@link createTableware}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of the round plate, the platter and the saucer, a round one drawn by its diameter and the platter by its length and width, one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#principled-representation A closed union of the round plate, the platter and the saucer, a round one drawn by its diameter and the platter by its length and width, each read model whole, and one cited band per dimension for the saucer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The face food and other plates rest on, the edge a hand pinches and the underside two hands carry from (#3501); a bowl is `createVessel`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every plate has the same four contacts, so serving, clearing and stacking are written once; the bands run between the plates read, the masses between their packed weights.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every plate has the same four contacts, so serving, clearing and stacking are written once; each model is one read plate whole, never a size between two, its mass its page's packed weight.
  */
 export namespace createTableware {
   /** The kinds: a round plate, from a side plate to a dinner plate, an oblong serving platter and a cup's saucer. */
@@ -181,25 +183,40 @@ export namespace createTableware {
     /** Which plate. */
     kind: Kind;
 
+    /** A round plate's or a platter's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `tableware` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm serving plate; the 36 by 20 cm one is not built, since its page gives no height. */
+  export type Model = "sidePlate" | "dinnerPlate" | "serving27";
+
+  /**
+   * Each kind's models whole, the default first. A round plate, diameter and height: the side plate 20 x 2 cm and the plate 27 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/, https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949). A platter, length, width and height: 27 x 15 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364).
+   *
+   * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and 0.52 kg, which the plate alone is lighter than by an amount no page gives.
+   */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+    plate: {
+      sidePlate: { diameter: 0.2, height: 0.02, mass: 0.41 },
+      dinnerPlate: { diameter: 0.27, height: 0.03, mass: 0.77 },
+    },
+    platter: {
+      serving27: { length: 0.27, width: 0.15, height: 0.03, mass: 0.52 },
+    },
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
-    plate: {
-      diameter: ArchetypeBand.metres(0.2, 0.27, PLATES),
-      height: ArchetypeBand.metres(0.02, 0.03, PLATES),
-      mass: ArchetypeBand.of("kg", 0.41, 0.77, `${PLATES}; ${PACKED}`, true),
-    },
-    platter: {
-      length: ArchetypeBand.metres(0.27, 0.36, PLATTER),
-      width: ArchetypeBand.metres(0.15, 0.2, PLATTER),
-      height: ArchetypeBand.metres(0.03, 0.03, PLATTER),
-      mass: ArchetypeBand.of("kg", 0.52, 1.12, `${PLATTER}; ${PACKED}`, true),
-    },
+    plate: {},
+    platter: {},
     saucer: {
       diameter: ArchetypeBand.metres(0.12, 0.12, SAUCER),
       height: ArchetypeBand.metres(0.014, 0.014, SAUCER),

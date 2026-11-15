@@ -9,10 +9,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The maker's stick umbrellas, read. */
-const BLUNT: string =
-  "BLUNT model comparison: Classic open 120 cm, closed 84 cm, 660 g; Exec open 138 cm, closed 95.5 cm, 910 g (https://bluntumbrellas.com/pages/compare-model)";
-
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
   "Kong and Lowe 2005, Int J Ind Ergon 35:495, handles of 30 to 40 mm rated most comfortable (https://stacks.cdc.gov/view/cdc/197408), applied to an umbrella's handle, whose own diameter no maker read states";
@@ -22,10 +18,10 @@ const POWER: string =
  *
  * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle, and declares no canopy. A folding umbrella is not made: no maker read gives its shaft's open length.
  *
- * @param params Whether it is open, and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params Whether it is open, its model, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The umbrella.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model BLUNT's comparison does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the umbrella stands, where it is held and what opening it adds.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod and a shaft rod to the closed length, a stick umbrella's shaft keeping its length open or closed; open adds a canopy disc of the published open diameter.
@@ -39,12 +35,24 @@ export function createUmbrella(
   params: createUmbrella.IParams = {},
   seed?: number | string,
 ): Archetype<createUmbrella.Affordance, createUmbrella.Dimension> {
-  const d: Record<createUmbrella.Dimension, number> = ArchetypeDraw.dimensions(
-    "umbrella",
-    createUmbrella.BANDS,
-    seed,
-    params,
-  );
+  const drawn: Partial<Record<createUmbrella.Dimension, number>> =
+    ArchetypeDraw.dimensions("umbrella", createUmbrella.BANDS, seed, params);
+  // The umbrella is one of BLUNT's two models whole.
+  const model: { name: createUmbrella.Model | undefined; figures: createUmbrella.Figures } =
+    ArchetypeDraw.model<createUmbrella.Model, createUmbrella.Dimension>(
+      "umbrella",
+      "model",
+      params.model,
+      createUmbrella.MODELS,
+      seed,
+      params,
+    );
+  const d: Record<createUmbrella.Dimension, number> = {
+    length: model.figures.length!,
+    canopy: model.figures.canopy!,
+    mass: model.figures.mass!,
+    gripDiameter: drawn.gripDiameter!,
+  };
   const builder: ArchetypeBuilder<
     createUmbrella.Affordance,
     createUmbrella.Dimension
@@ -98,7 +106,7 @@ export function createUmbrella(
  * Companion types, constants and bands of {@link createUmbrella}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension; open or closed is a parameter because the canopy's size, not a part's place, changes.
+ * @evidence contracts/development/design.md#principled-representation The maker's two models whole, and the one remaining cited band; open or closed is a parameter because the canopy's size, not a part's place, changes.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The handle a hand takes and the canopy a shot reads (#3468's N15).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The open diameter, closed length and mass are the maker's as read; the handle's diameter is a grip band applied, provisional, and its length CCOHS's; the shaft's radius and the canopy's thickness are construction estimates.
  */
@@ -135,15 +143,27 @@ export namespace createUmbrella {
     /** Whether the canopy is open; closed when absent. */
     open?: boolean;
 
+    /** BLUNT's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `umbrella` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.84, 0.955, BLUNT),
-    canopy: ArchetypeBand.metres(1.2, 1.38, BLUNT),
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The stick umbrellas read: BLUNT's Classic and Exec. */
+  export type Model = "classic" | "exec";
+
+  /** Each model whole, the default first: closed length, open canopy and mass, the Classic's 84 cm, 120 cm and 660 g and the Exec's 95.5 cm, 138 cm and 910 g (BLUNT model comparison, https://bluntumbrellas.com/pages/compare-model). */
+  export const MODELS: Readonly<Record<Model, Figures>> = {
+    classic: { length: 0.84, canopy: 1.2, mass: 0.66 },
+    exec: { length: 0.955, canopy: 1.38, mass: 0.91 },
+  };
+
+  /** The band of each free dimension the models do not read. */
+  export const BANDS: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-    mass: ArchetypeBand.of("kg", 0.66, 0.91, BLUNT),
   };
 }

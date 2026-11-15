@@ -23,14 +23,6 @@ const STRAP: string =
 const BACKPACK: string =
   "JanSport SuperBreak, 16.7 x 13 x 8.5 in and 0.3 kg, and Fjallraven Kanken 16 L, 38 x 27 x 13 cm and 0.3 kg, listings seen only in search results";
 
-/** Cabin baggage limits. */
-const CABIN: string =
-  "Lufthansa carry-on limit 55 x 40 x 23 cm (https://www.lufthansa.com/us/en/carry-on-baggage) up to IATA's 56 x 45 x 25 cm guide (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/)";
-
-/** The handle heights a luggage-pulling study tested. */
-const PULL: string =
-  "handle heights of 100 and 110 cm tested in a luggage-pulling study, Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article)";
-
 /** The optimal handle of the Revised NIOSH Lifting Equation, applied to a carried container's handle whose own size no maker gives. */
 const NIOSH: string =
   "Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: \"An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape\" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle";
@@ -85,7 +77,7 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
  * The bag stands on its base at the origin, its wide face toward `+Z`; a suitcase's, a briefcase's, a toolbox's and a duffel's top handle is the Revised NIOSH Lifting Equation's optimal handle, applied, and a handbag's handle is that handle's bar and length standing its read drop above the top: a bar of its diameter band and its 11.5 cm length, standing its 5 cm clearance above the top; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
  *
  * @param params The kind, the load and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The bag.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a load the kind does not carry.
  *
@@ -118,7 +110,7 @@ export function createBag(
       reason: `a ${kind} carries up to ${LOADS[kind]} kg`,
       fix: "give a load the bag carries",
     });
-  const d: Partial<Record<createBag.Dimension, number>> =
+  const drawn: Partial<Record<createBag.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "bag",
       createBag.BANDS[kind],
@@ -126,6 +118,30 @@ export function createBag(
       params,
       createBag.BANDS,
     );
+  // A suitcase is one of the two cabin limits read whole, its pull handle one of the two heights the study tested.
+  const model: { name: createBag.Model | undefined; figures: createBag.Figures } =
+    ArchetypeDraw.model<createBag.Model, createBag.Dimension>(
+      "bag",
+      "model",
+      params.model,
+      createBag.MODELS[kind],
+      seed,
+      params,
+    );
+  const pull: { name: createBag.Pull | undefined; figures: createBag.Figures } =
+    ArchetypeDraw.model<createBag.Pull, createBag.Dimension>(
+      "bag",
+      "pull",
+      params.pull,
+      createBag.PULLS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createBag.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+    ...pull.figures,
+  };
   const width: number = d.width!;
   const height: number = d.height!;
   const depth: number = d.depth!;
@@ -351,12 +367,43 @@ export namespace createBag {
     /** Which bag. */
     kind: Kind;
 
+    /** A suitcase's cabin limit; drawn from the seed when absent. */
+    model?: Model;
+
+    /** A suitcase's pull height; drawn from the seed when absent. */
+    pull?: Pull;
+
     /** The model's id, unique in a scene; `bag` when absent. */
     id?: string;
 
     /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase, a toolbox, a handbag or a duffel and 27.7 for a suitcase; empty when absent. */
     load?: number;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The suitcases read: the two cabin limits, Lufthansa's and IATA's guide. */
+  export type Model = "lufthansa" | "iata";
+
+  /** Each kind's models whole, the default first: a suitcase's height x width x depth, Lufthansa's carry-on limit 55 x 40 x 23 cm (https://www.lufthansa.com/us/en/carry-on-baggage) and IATA's 56 x 45 x 25 cm guide (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    suitcase: {
+      lufthansa: { height: 0.55, width: 0.4, depth: 0.23 },
+      iata: { height: 0.56, width: 0.45, depth: 0.25 },
+    },
+  };
+
+  /** The pull heights read: the two a luggage-pulling study tested. */
+  export type Pull = "pull100" | "pull110";
+
+  /** Each kind's pull heights, the default first: 100 and 110 cm, tested in Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article). */
+  export const PULLS: Readonly<Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>> = {
+    suitcase: {
+      pull100: { pullHeight: 1 },
+      pull110: { pullHeight: 1.1 },
+    },
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -379,10 +426,6 @@ export namespace createBag {
       mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
     },
     suitcase: {
-      width: ArchetypeBand.metres(0.4, 0.45, CABIN),
-      height: ArchetypeBand.metres(0.55, 0.56, CABIN),
-      depth: ArchetypeBand.metres(0.23, 0.25, CABIN),
-      pullHeight: ArchetypeBand.metres(1, 1.1, PULL),
       handleDiameter: NIOSH_HANDLE,
       mass: ArchetypeBand.of(
         "kg",

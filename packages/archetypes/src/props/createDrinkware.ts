@@ -36,9 +36,9 @@ const PET: string =
 const BORDEAUX: string =
   "Croxsons Rightweight Bordeaux 750 ml (https://www.croxsons.com/?p=7284); the upper end from other makers' listings seen only in search results";
 
-/** Two mugs read at a maker and a distributor. */
+/** A diner mug read at a dealer; IKEA's 365+ mug page gives the mug's height but the package's diameter, so it is not built. */
 const MUG: string =
-  "IKEA 365+ mug 24 cl (https://www.ikea.com/ie/en/p/ikea-365-mug-white-20282942/) and ITI 82245-02 diner mug 10 oz (https://www.katom.com/129-8224502.html)";
+  "ITI 82245-02 diner mug 10 oz, 3.88 in high and 3.5 in across (https://www.katom.com/129-8224502.html)";
 
 /** A maker's porcelain cup, read. */
 const CUP: string =
@@ -97,7 +97,7 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
  * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's handle is on `+X`, the right of a drinker who faces the `+Z` side: a loop centred on the body's half height, or resting its lower stub at the base where the body is too short for that, its inside as tall as an index and a middle finger are broad and as deep as the thicker of them, so the two fingers pass through it, its bar an industrial handle's read thickness as an analogue; the fingers' hook grip reads the loop's clearance, not the bar.
  *
  * @param params The kind, how full it is and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The vessel.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band or a fill outside 0 to 1.
  *
@@ -130,7 +130,7 @@ export function createDrinkware(
       reason: `a vessel is from empty to full, not ${fill}`,
       fix: "give a fill from 0 to 1",
     });
-  const d: Partial<Record<createDrinkware.Dimension, number>> =
+  const drawn: Partial<Record<createDrinkware.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "drinkware",
       createDrinkware.BANDS[kind],
@@ -138,6 +138,20 @@ export function createDrinkware(
       params,
       createDrinkware.BANDS,
     );
+  // A beer bottle is one of the longnecks read, whole.
+  const model: { name: createDrinkware.Model | undefined; figures: createDrinkware.Figures } =
+    ArchetypeDraw.model<createDrinkware.Model, createDrinkware.Dimension>(
+      "drinkware",
+      "model",
+      params.model,
+      createDrinkware.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createDrinkware.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const height: number = d.height!;
   const radius: number = d.diameter! / 2;
   const builder: ArchetypeBuilder<
@@ -376,6 +390,9 @@ export namespace createDrinkware {
     /** Which vessel. */
     kind: Kind;
 
+    /** A beer bottle's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `drinkware` when absent. */
     id?: string;
 
@@ -416,13 +433,29 @@ export namespace createDrinkware {
     ),
   };
 
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The longneck beer bottles read: O-I's 30416 (30415 the same glass), 30242 and 30001, and Berlin Packaging's Long Neck SE 330 ml. */
+  export type Model = "oi30416" | "oi30242" | "oi30001" | "berlinSE330";
+
+  /** Each kind's models whole, the default first, height, body diameter and mass: O-I's 30416 222.9 x 60.9 mm and 205 g, 30242 222.4 x 60.4 mm and 285 g, 30001 209 x 61.3 mm and 210 g (O-I Beer and Cider Bottle Selection 2017, pp. 5-6, https://brewersguild.org.nz/wp-content/uploads/2024/04/2017-O-I-Glass-Guide-Beer-Cider-Bottle-Selection.pdf), and Berlin's 226.5 x 60.4 mm and 220 g (https://berlinpackaging.eu/en-international/products/long-neck-se-330ml-cr-26-flint). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    beerBottle: {
+      oi30416: { height: 0.2229, diameter: 0.0609, mass: 0.205 },
+      oi30242: { height: 0.2224, diameter: 0.0604, mass: 0.285 },
+      oi30001: { height: 0.209, diameter: 0.0613, mass: 0.21 },
+      berlinSE330: { height: 0.2265, diameter: 0.0604, mass: 0.22 },
+    },
+  };
+
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     mug: {
-      height: ArchetypeBand.metres(0.07, 0.098, MUG),
-      diameter: ArchetypeBand.metres(0.089, 0.09, MUG),
+      height: ArchetypeBand.metres(3.88 * ArchetypeUnits.INCH, 3.88 * ArchetypeUnits.INCH, MUG),
+      diameter: ArchetypeBand.metres(3.5 * ArchetypeUnits.INCH, 3.5 * ArchetypeUnits.INCH, MUG),
       ...createDrinkware.LOOP,
       mass: kg(
         0.25,
@@ -451,14 +484,11 @@ export namespace createDrinkware {
       mass: kg(0.1, 0.15, ArchetypeBand.TYPICAL_MASS, true),
     },
     beerBottle: {
-      height: ArchetypeBand.metres(0.209, 0.2265, LONGNECK),
-      diameter: ArchetypeBand.metres(0.0604, 0.0613, LONGNECK),
       neckDiameter: ArchetypeBand.metres(
         0.026,
         0.026,
         `${LONGNECK}: 26 mm crown finish`,
       ),
-      mass: kg(0.205, 0.285, LONGNECK),
     },
     waterBottle: {
       height: ArchetypeBand.metres(0.197, 0.229, PET, true),

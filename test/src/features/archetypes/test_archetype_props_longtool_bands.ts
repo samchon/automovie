@@ -9,7 +9,7 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * A fishing rod and a forest axe stay inside their sources' dimensions for every seed, measured on the produced thing; the rod is held at its butt and cast from its tip, and the axe's handle is as thick as its hickory's mass makes it, its edge ahead of it by the head's length.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a rod 2.13 m long and 131 to 133 g; an axe 25 in to 0.65 m long, its head 0.163 m from poll to edge, its edge 3.5 in to 0.09 m, its head 0.9 kg to 2 lb, found from the balance, and 1.2 kg whole.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a rod one of Daiwa's seven Ninja X models, 1.83 to 2.74 m long and 106 to 178 g; an axe 25 in to 0.65 m long, its head 0.163 m from poll to edge, its edge 3.5 in to 0.09 m, its head 0.9 kg to 2 lb, found from the balance, and 1.2 kg whole.
  * 2. For three seeds, the rod's `grip` is at its butt, its centre half the grip's length up the rod, and its `tip` at its top end.
  * 3. For three seeds, the axe's `shaft` aperture is the diameter at which hickory of 800 kg per cubic metre over the handle's length below the head weighs the whole less the head; the head's poll is flush with the handle's back, and the `face` sits on the edge at the head's length less the handle's radius ahead of its axis, facing `+Z`.
  *
@@ -30,16 +30,16 @@ export function test_archetype_props_longtool_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "rod length",
-      2.13,
-      2.13,
+      1.83,
+      2.74,
       "Daiwa Ninja X",
       (seed: number): number =>
         archetypeExtent(createLongTool({ kind: "fishingRod" }, seed), "y").size,
     ),
     row(
       "rod mass",
-      0.131,
-      0.133,
+      0.106,
+      0.178,
       "Daiwa Ninja X",
       (seed: number): number =>
         createLongTool({ kind: "fishingRod" }, seed).body.mass,

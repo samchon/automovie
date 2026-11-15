@@ -19,10 +19,6 @@ const HANDLES: string =
 const SHOVEL: string =
   "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
 
-/** A maker's spinning rods, read. */
-const ROD: string =
-  "Daiwa Ninja X spin rods, 7 ft 0 in (213 cm), 131 and 133 g (https://www.daiwa.com/scandinavia/product/n753a5g)";
-
 /** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
 const FOREST_AXE: string =
   "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
@@ -38,10 +34,10 @@ const FOREST_AXE_SHOP: string =
  *
  * The 6-pdr field gun's implements follow the 1862 Ordnance Manual: a sponge and rammer stands on its rammer head, whose end is its `face`, with the sponge at the top, whose end is its `tip`, `+Y` along it; a worm stands on its iron worm, whose point is its `face`, `-Y` along it, out of the tool; a trail handspike stands on its large end, its `face`, and tapers to the small end the hands bear down on.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The tool.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tool stands, where the hands go and which way the head faces.
  * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice. An axe's head and handle carry their read masses as shares, and its handle's diameter is the one at which hickory of the read density, over the handle's length below the head, weighs the read handle mass.
@@ -61,7 +57,7 @@ export function createLongTool(
     params.kind,
     createLongTool.KINDS,
   );
-  const d: Partial<Record<createLongTool.Dimension, number>> =
+  const drawn: Partial<Record<createLongTool.Dimension, number>> =
     ArchetypeDraw.dimensions<createLongTool.Dimension>(
       "longTool",
       createLongTool.BANDS[kind],
@@ -69,6 +65,20 @@ export function createLongTool(
       params,
       createLongTool.BANDS,
     );
+  // A fishing rod is one of Daiwa's Ninja X spinning rods whole.
+  const model: { name: createLongTool.Model | undefined; figures: createLongTool.Figures } =
+    ArchetypeDraw.model<createLongTool.Model, createLongTool.Dimension>(
+      "longTool",
+      "model",
+      params.model,
+      createLongTool.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createLongTool.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const length: number = d.length!;
   const builder: ArchetypeBuilder<
     createLongTool.Affordance,
@@ -330,9 +340,38 @@ export namespace createLongTool {
     /** Which tool. */
     kind: Kind;
 
+    /** A fishing rod's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `longTool` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by length and casting weight. */
+  export type Model =
+    | "NJX602MLFS"
+    | "NJX702MLFS"
+    | "NJX702MHFS"
+    | "NJX802MLFS"
+    | "NJX802MHFS"
+    | "NJX802HFS"
+    | "NJX902MLFS";
+
+  /** Each kind's models whole, the default first, length and mass: 183 cm and 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g, and 274 cm and 178 g (Daiwa Ninja X Spin specifications, https://www.daiwa.com/scandinavia/product/n753a5g). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    fishingRod: {
+      NJX602MLFS: { length: 1.83, mass: 0.106 },
+      NJX702MLFS: { length: 2.13, mass: 0.131 },
+      NJX702MHFS: { length: 2.13, mass: 0.133 },
+      NJX802MLFS: { length: 2.44, mass: 0.141 },
+      NJX802MHFS: { length: 2.44, mass: 0.157 },
+      NJX802HFS: { length: 2.44, mass: 0.165 },
+      NJX902MLFS: { length: 2.74, mass: 0.178 },
+    },
+  };
 
   /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
   export const BANDS: Readonly<
@@ -413,14 +452,12 @@ export namespace createLongTool {
       mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
     },
     fishingRod: {
-      length: ArchetypeBand.metres(2.13, 2.13, ROD),
       shaftDiameter: ArchetypeBand.metres(
         0.032,
         0.038,
         "no rod grip diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a rod's grip",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.131, 0.133, ROD),
     },
     broom: {
       length: ArchetypeBand.metres(

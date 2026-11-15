@@ -8,11 +8,11 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * A ladle and a table knife stay inside their makers' dimensions for every seed, measured on the produced thing, and work from their bowl and their edge.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a ladle 31 to 32 cm long with a 9 cm bowl, 218 g; a table knife 22.5 to 24.6 cm long, its blade 12 to 12.5 cm long and 17 to 21 mm from spine to edge, 60 to 130 g.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a ladle 32 cm long with a 9 cm bowl, 218 g; a table knife 22.5 to 24.6 cm long, its blade 12 to 12.5 cm long and 17 to 21 mm from spine to edge, 60 to 130 g.
  * 2. For three seeds, the ladle's `face` looks `+Z` from its bowl's front, and the knife's `face` runs along its blade's edge at `+Z`, as long as the blade, looking `+Z`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces the ladle for 200 seeds and measures its colliders, frame and mass; a band other than the citation's, a seed that does not vary it, a face off its bowl or off the knife's edge is caught.
- * @evidence contracts/development/testing.md#independent-expectations Rösle's, IKEA's, Eichenlaub's and Robert Welch's published figures; a ladle scoops with the open side of its bowl and a knife cuts with its edge.
+ * @evidence contracts/development/testing.md#independent-expectations Rösle's, Eichenlaub's and Robert Welch's published figures; a ladle scoops with the open side of its bowl and a knife cuts with its edge.
  * @evidence contracts/development/testing.md#distinguishing-cases The kinds the producer gained; the older kinds belong to `test_archetype_props_bands` and `test_archetype_props_tableware_bands`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
@@ -28,9 +28,9 @@ export function test_archetype_props_tool_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "ladle length",
-      0.31,
       0.32,
-      "IKEA and Rösle",
+      0.32,
+      "Rösle",
       (seed: number): number =>
         archetypeExtent(createTool({ kind: "ladle" }, seed), "y").size,
     ),

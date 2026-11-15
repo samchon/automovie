@@ -138,6 +138,15 @@ import {
  */
 export function archetypeCatalog(): archetypeCatalog.IRow[] {
   const rows: archetypeCatalog.IRow[] = [];
+  // A row is fixed when every band it draws is one value and it has at most one read model to pick.
+  const settled = (
+    bands: Readonly<Partial<Record<string, IArchetypeBand>>>,
+    models?: Readonly<Partial<Record<string, unknown>>>,
+  ): boolean =>
+    Object.values(bands).every(
+      (band: IArchetypeBand | undefined): boolean =>
+        band === undefined || band.minimum === band.maximum,
+    ) && Object.keys(models ?? {}).length <= 1;
   const add = (
     name: string,
     create: (seed?: number | string) => Archetype,
@@ -164,10 +173,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `stationery-${kind}`,
       (seed?: number | string): Archetype => createStationery({ kind }, seed),
-      Object.values(createStationery.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createStationery.BANDS[kind], createStationery.MODELS[kind]),
     );
   for (const kind of createCareItem.KINDS)
     add(
@@ -184,19 +190,13 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tool-${kind}`,
       (seed?: number | string): Archetype => createTool({ kind }, seed),
-      Object.values(createTool.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createTool.BANDS[kind], createTool.MODELS[kind]),
     );
   for (const kind of createLongTool.KINDS)
     add(
       `longTool-${kind}`,
       (seed?: number | string): Archetype => createLongTool({ kind }, seed),
-      Object.values(createLongTool.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createLongTool.BANDS[kind], createLongTool.MODELS[kind]),
     );
   for (const kind of createSeat.KINDS)
     add(
@@ -430,10 +430,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `projectile-${kind}`,
       (seed?: number | string): Archetype => createProjectile({ kind }, seed),
-      Object.values(createProjectile.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createProjectile.BANDS[kind]),
     );
   for (const kind of createBow.KINDS)
     add(
@@ -444,9 +441,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `cannon-${kind}`,
       (seed?: number | string): Archetype => createCannon({ kind }, seed),
-      Object.values(createCannon.BANDS[kind]).every(
-        (band: IArchetypeBand): boolean => band.minimum === band.maximum,
-      ),
+      settled(createCannon.BANDS[kind]),
     );
   for (const kind of createLongGun.KINDS)
     add(
@@ -572,10 +567,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tableware-${kind}`,
       (seed?: number | string): Archetype => createTableware({ kind }, seed),
-      Object.values(createTableware.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createTableware.BANDS[kind], createTableware.MODELS[kind]),
     );
   for (const kind of createFood.KINDS)
     add(
@@ -586,10 +578,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `light-${kind}`,
       (seed?: number | string): Archetype => createLight({ kind }, seed),
-      Object.values(createLight.BANDS[kind]).every(
-        (band: IArchetypeBand | undefined): boolean =>
-          band === undefined || band.minimum === band.maximum,
-      ),
+      settled(createLight.BANDS[kind]),
     );
   for (const open of [false, true])
     add(
@@ -610,9 +599,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `fireRing-${kind}`,
       (seed?: number | string): Archetype => createFireRing({ kind }, seed),
-      Object.values(createFireRing.BANDS[kind]).every(
-        (band: IArchetypeBand): boolean => band.minimum === band.maximum,
-      ),
+      settled(createFireRing.BANDS[kind]),
     );
   for (const kind of createTent.KINDS)
     add(

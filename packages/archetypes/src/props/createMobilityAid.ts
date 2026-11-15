@@ -18,9 +18,9 @@ const CANE: string =
 const CANE_MASS: string =
   "a retailer's 0.85 lb for the Drive offset cane, seen only in search results";
 
-/** The maker's walker, read, and its depth seen only in search results. */
+/** Drive Medical's two-button folding walker, read. */
 const WALKER: string =
-  "Drive Medical deluxe two-button folding walker 10210-1: handle height 32 to 39 in, overall width 24 in, 7 to 7.5 lb (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf); its 18 in base depth seen only in search results";
+  "Drive Medical deluxe two-button folding walker sheet: handle heights 32 to 39 and 25 to 32.25 in, overall width 24 in, weights 7.5, 7.5 and 7 lb for items 10210-1, 10210-4ASM and 10211-4ASM (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf); its 18 in base depth seen only in search results";
 
 /** Provita's Premium Care infusion stand, read in the maker's catalogue. */
 const PROVITA: string =
@@ -48,10 +48,10 @@ const NAMES: Readonly<Record<createMobilityAid.Kind, string>> = {
  *
  * A gait that walks with an aid has no motion law yet; the aid is built for holding, standing and carrying. A crutch waits for a source of its hand grip's height.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The aid.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each aid stands, where it is held, what is missing for a gait, and which kinds wait for a source.
  * @evidence contracts/development/implementation.md#principled-implementation Rods from the published heights, widths and diameters, an infusion stand's castors as balls of their read diameter under its legs, and its read base weight shared over its legs and castors by volume, the rest over its tubes; each grip's frame lies at the centre of the rod it closes on, with that rod's diameter as its aperture.
@@ -71,14 +71,35 @@ export function createMobilityAid(
     params.kind,
     createMobilityAid.KINDS,
   );
-  const d: Partial<Record<createMobilityAid.Dimension, number>> =
+  const drawn: Partial<Record<createMobilityAid.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "mobilityAid",
       createMobilityAid.BANDS[kind],
       seed,
-      params,
+      kind === "walker" ? { ...params, height: undefined } : params,
       createMobilityAid.BANDS,
     );
+  // A walker is Drive's adult or junior model whole, its handle height drawn in that model's own range.
+  const model: { name: createMobilityAid.Model | undefined; figures: createMobilityAid.Figures } =
+    ArchetypeDraw.model<createMobilityAid.Model, createMobilityAid.Dimension>(
+      "mobilityAid",
+      "model",
+      params.model,
+      createMobilityAid.MODELS[kind],
+      seed,
+      params,
+    );
+  const range: IArchetypeBand | undefined =
+    model.name === undefined ? undefined : createMobilityAid.HANDLE_HEIGHTS[model.name];
+  const own: Partial<Record<createMobilityAid.Dimension, number>> =
+    range === undefined
+      ? {}
+      : ArchetypeDraw.dimensions("mobilityAid", { height: range }, seed, params);
+  const d: Partial<Record<createMobilityAid.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+    ...own,
+  };
   const builder: ArchetypeBuilder<
     createMobilityAid.Affordance,
     createMobilityAid.Dimension
@@ -276,9 +297,32 @@ export namespace createMobilityAid {
     /** Which aid. */
     kind: Kind;
 
+    /** A walker's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `mobilityAid` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The walkers read: Drive Medical's deluxe two-button folding walker, adult (10210-1, 10210-4ASM) and junior (10211-4ASM). */
+  export type Model = "adult" | "junior";
+
+  /** Each kind's models whole, the default first: the adult walker 7.5 lb and the junior 7 lb, the sheet's weights in the order of its item rows (https://shop.drivemedical.com/us/en/products/mobility/walkers/push-button/deluxe-folding-walker-two-button-with-5-wheels/p/10210-1/downloadPdf). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    walker: {
+      adult: { mass: 7.5 * ArchetypeUnits.POUND },
+      junior: { mass: 7 * ArchetypeUnits.POUND },
+    },
+  };
+
+  /** Each walker model's own handle height range, metres: the sheet's 32 to 39 in for the adult and 25 to 32.25 in for the junior. */
+  export const HANDLE_HEIGHTS: Readonly<Partial<Record<Model, IArchetypeBand>>> = {
+    adult: ArchetypeBand.metres(32 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, `${WALKER}: the adult handle heights`),
+    junior: ArchetypeBand.metres(25 * ArchetypeUnits.INCH, 32.25 * ArchetypeUnits.INCH, `${WALKER}: the junior handle heights`),
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -296,11 +340,9 @@ export namespace createMobilityAid {
       ),
     },
     walker: {
-      height: ArchetypeBand.metres(32 * ArchetypeUnits.INCH, 39 * ArchetypeUnits.INCH, WALKER),
       width: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, WALKER),
       depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, WALKER, true),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 7 * ArchetypeUnits.POUND, 7.5 * ArchetypeUnits.POUND, WALKER),
     },
     infusionStand: {
       height: ArchetypeBand.metres(1.43, 2.26, PROVITA),

@@ -14,10 +14,6 @@ import {
 const BOWL: string =
   "IKEA 365+ bowl, rounded sides, 16 cm across and 7 cm high, 0.44 kg packed (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/)";
 
-/** Glass ashtrays, read. */
-const ASHTRAY: string =
-  "glass ashtrays in retailer listings, from 10 cm across, 3 cm high and 258 g to 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053, https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992)";
-
 /** IKEA's saucepan, read. */
 const SAUCEPAN: string =
   "IKEA 365+ saucepan 2.0 l, 17 cm across, 10 cm high, 35 cm long with its handle (https://www.ikea.com/gb/en/p/ikea-365-saucepan-with-lid-stainless-steel-40484232/)";
@@ -38,10 +34,10 @@ const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
  *
  * It stands on its base centred over the origin, open upward, a saucepan's long handle out along `+X` and a stockpot's two side handles along `X`. `rim` is the top of the rim, facing up, as wide as the vessel; `inside` the floor inside, facing up, where a spoon stirs, a cigarette is stubbed or food lies; a bowl and an ashtray are held by `body`, from beneath, a vase by `body` round its middle; a saucepan by its `handle`, a stockpot by `leftHandle` and `rightHandle`.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The vessel.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the vessel stands, its open side, and which contact each kind declares.
  * @evidence contracts/development/implementation.md#principled-implementation A floor disc and four wall boxes round it to the drawn height and diameter, then the kind's handles: one rod out along `+X`, or two loops on either side.
@@ -61,12 +57,32 @@ export function createVessel(
     params.kind,
     createVessel.KINDS,
   );
-  const d: Record<createVessel.Dimension, number> = ArchetypeDraw.dimensions(
+  const drawn: Partial<Record<createVessel.Dimension, number>> =
+    ArchetypeDraw.dimensions(
     "vessel",
     createVessel.BANDS[kind],
     seed,
     params,
   );
+  // An ashtray is one of the two glass ashtrays read, whole.
+  const model: { name: createVessel.Model | undefined; figures: createVessel.Figures } =
+    ArchetypeDraw.model<createVessel.Model, createVessel.Dimension>(
+      "vessel",
+      "model",
+      params.model,
+      createVessel.MODELS[kind],
+      seed,
+      params,
+    );
+  const read: Partial<Record<createVessel.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
+  const d: Record<createVessel.Dimension, number> = {
+    diameter: read.diameter!,
+    height: read.height!,
+    mass: read.mass!,
+  };
   const builder: ArchetypeBuilder<
     createVessel.Affordance,
     createVessel.Dimension
@@ -273,24 +289,37 @@ export namespace createVessel {
     /** Which vessel. */
     kind: Kind;
 
+    /** An ashtray's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `vessel` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The glass ashtrays read: Nachtmann's Cigar Cuba and Harris's. */
+  export type Model = "nachtmann" | "harris";
+
+  /** Each kind's models whole, the default first: the ashtrays' 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings. */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    ashtray: {
+      nachtmann: { diameter: 0.1, height: 0.03, mass: 0.258 },
+      harris: { diameter: 0.168, height: 0.035, mass: 1.7 },
+    },
+  };
+
+  /** The band of each free dimension, by kind; an ashtray's are its model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     bowl: {
       diameter: ArchetypeBand.metres(0.16, 0.16, BOWL),
       height: ArchetypeBand.metres(0.07, 0.07, BOWL),
       mass: ArchetypeBand.of("kg", 0.4, 0.44, `${BOWL}; the bowl alone is lighter than its packing by an unread amount`, true),
     },
-    ashtray: {
-      diameter: ArchetypeBand.metres(0.1, 0.168, ASHTRAY),
-      height: ArchetypeBand.metres(0.03, 0.035, ASHTRAY),
-      mass: ArchetypeBand.of("kg", 0.258, 1.7, ASHTRAY),
-    },
+    ashtray: {},
     saucepan: {
       diameter: ArchetypeBand.metres(0.17, 0.17, SAUCEPAN),
       height: ArchetypeBand.metres(0.1, 0.1, SAUCEPAN),

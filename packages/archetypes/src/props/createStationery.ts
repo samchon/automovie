@@ -25,10 +25,6 @@ const PAPER: string =
 const PEN: string =
   "BIC Cristal, 14.45 cm without and 14.9 cm with its cap (Wikipedia, Bic Cristal, https://en.wikipedia.org/wiki/Bic_Cristal); barrel inside the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)";
 
-/** Esselte's A4 clipboards, read in the maker's data sheets. */
-const CLIPBOARD: string =
-  "Esselte clipboards 56055 and 604037 (A4): 232 x 3 x 349 mm (W x H x D), 168 g and 190 g (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf)";
-
 /** Michelin's folded road map: its folded size read at the maker, its thickness and mass seen only in listings. */
 const MAP: string =
   "Michelin regional map, folded 11 x 25 cm (https://boutique.laventure.michelin.com/en/product/ouest-france-map-of-calvados-michelin/); 0.7 cm thick and 89 to 90 g, Michelin maps 333, 585 and 707 seen only in search results";
@@ -47,10 +43,10 @@ const NAMES: Readonly<Record<createStationery.Kind, string>> = {
  *
  * A book lies closed on its back cover at the origin, its spine along `+Z` on the `-X` side; its front half is a part on the `hinge` along the spine, so opening the book turns it. A sheet, a clipboard and a folded map lie flat at the origin, their long side along `+Z`; a clipboard's and a map's `grip` is their whole `+Z` edge, pinched across their thickness, and their `face` their upper side. A clipboard's clip waits for a source of its size, and a map does not unfold.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The book, the sheet or the pen.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each thing lies and what opens.
  * @evidence contracts/development/implementation.md#principled-implementation Dimensioned boxes and a rod; the book's two halves share the spine as a hinge axis, turning about `+Z` so a positive travel lifts the front cover over toward `-X`.
@@ -70,7 +66,7 @@ export function createStationery(
     params.kind,
     createStationery.KINDS,
   );
-  const d: Partial<Record<createStationery.Dimension, number>> =
+  const drawn: Partial<Record<createStationery.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "stationery",
       createStationery.BANDS[kind],
@@ -78,6 +74,20 @@ export function createStationery(
       params,
       createStationery.BANDS,
     );
+  // A clipboard is one of Esselte's two models whole.
+  const model: { name: createStationery.Model | undefined; figures: createStationery.Figures } =
+    ArchetypeDraw.model<createStationery.Model, createStationery.Dimension>(
+      "stationery",
+      "model",
+      params.model,
+      createStationery.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createStationery.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createStationery.Affordance,
     createStationery.Dimension
@@ -276,11 +286,28 @@ export namespace createStationery {
     /** Which thing. */
     kind: Kind;
 
+    /** A clipboard's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `stationery` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The clipboards read: Esselte's 56055 and 604037, both A4. */
+  export type Model = "56055" | "604037";
+
+  /** Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037 (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    clipboard: {
+      "56055": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.168 },
+      "604037": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.19 },
+    },
+  };
+
+  /** The band of each free dimension, by kind; a clipboard's are its model's. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
@@ -324,12 +351,7 @@ export namespace createStationery {
         true,
       ),
     },
-    clipboard: {
-      width: ArchetypeBand.metres(0.232, 0.232, CLIPBOARD),
-      length: ArchetypeBand.metres(0.349, 0.349, CLIPBOARD),
-      thickness: ArchetypeBand.metres(0.003, 0.003, CLIPBOARD),
-      mass: ArchetypeBand.of("kg", 0.168, 0.19, CLIPBOARD),
-    },
+    clipboard: {},
     map: {
       width: ArchetypeBand.metres(0.11, 0.11, MAP),
       length: ArchetypeBand.metres(0.25, 0.25, MAP),

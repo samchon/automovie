@@ -4,30 +4,21 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
   ArchetypeUnits,
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
 
-/** Apple's keyboard, read. */
-const APPLE_KEYBOARD: string =
-  "Apple Magic Keyboard with Numeric Keypad, 41.87 cm wide, 11.49 cm deep, 0.41 to 1.09 cm high, 0.369 to 0.39 kg (https://support.apple.com/en-us/112037, https://support.apple.com/en-us/121953)";
-
-/** Apple's laptop, read. */
-const APPLE_LAPTOP: string =
-  "MacBook Air M4, the 13-inch 30.41 x 21.5 x 1.13 cm closed and 1.24 kg (https://support.apple.com/en-us/122209), the 15-inch 34.04 x 23.76 x 1.15 cm and 1.51 kg (https://support.apple.com/en-us/122210)";
-
 /**
  * A computer keyboard, or a laptop open on its base.
  *
  * It lies on a desk centred over the origin, its front edge (the typist's side) toward `+Z`. `keys` is the key field's top, facing up, as wide and as deep as the rows; `homeRow` the middle of the home row (the row of `F` and `J`), the third of the alphanumeric rows from the front, facing up, along `+X`, where the fingers rest to type. A laptop's lid stands open from the base's back edge, tilted back by `LID` degrees, its `screen` facing the typist; `lid` is the lid's top edge, pinched to open or close it.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The keyboard.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the keyboard lies, its rows, the home row's place and a laptop's lid.
  * @evidence contracts/development/implementation.md#principled-implementation A base box of the drawn width, depth and height; the home row's middle two and a half key pitches back from the key field's front; a laptop's lid a box turned about the base's back edge.
@@ -47,12 +38,33 @@ export function createKeyboard(
     params.kind,
     createKeyboard.KINDS,
   );
-  const d: Record<createKeyboard.Dimension, number> = ArchetypeDraw.dimensions(
+  const drawn: Partial<Record<createKeyboard.Dimension, number>> =
+    ArchetypeDraw.dimensions(
     "keyboard",
     createKeyboard.BANDS[kind],
     seed,
     params,
   );
+  // Each kind is one of Apple's read models whole.
+  const model: { name: createKeyboard.Model | undefined; figures: createKeyboard.Figures } =
+    ArchetypeDraw.model<createKeyboard.Model, createKeyboard.Dimension>(
+      "keyboard",
+      "model",
+      params.model,
+      createKeyboard.MODELS[kind],
+      seed,
+      params,
+    );
+  const read: Partial<Record<createKeyboard.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
+  const d: Record<createKeyboard.Dimension, number> = {
+    width: read.width!,
+    depth: read.depth!,
+    height: read.height!,
+    mass: read.mass!,
+  };
   const builder: ArchetypeBuilder<
     createKeyboard.Affordance,
     createKeyboard.Dimension
@@ -183,29 +195,36 @@ export namespace createKeyboard {
     /** Which keyboard. */
     kind: Kind;
 
+    /** The kind's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `keyboard` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
-  > = {
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The models read: Apple's Magic Keyboard with Numeric Keypad and its Touch ID (USB-C) version, and the MacBook Air M4 in its 13 and 15 inch sizes. */
+  export type Model = "numericKeypad" | "touchId" | "air13" | "air15";
+
+  /**
+   * Each kind's models whole, the default first. The keyboards: 41.87 cm wide, 11.49 cm deep, 1.09 cm high at the back edge, 0.39 kg (https://support.apple.com/en-us/112037) and 0.369 kg with Touch ID (https://support.apple.com/en-us/121953). The laptops: the 13-inch 30.41 x 21.5 x 1.13 cm closed and 1.24 kg (https://support.apple.com/en-us/122209), the 15-inch 34.04 x 23.76 x 1.15 cm and 1.51 kg (https://support.apple.com/en-us/122210), the base the closed height less the lid's.
+   */
+  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>> = {
     keyboard: {
-      width: ArchetypeBand.metres(0.4187, 0.4187, APPLE_KEYBOARD),
-      depth: ArchetypeBand.metres(0.1149, 0.1149, APPLE_KEYBOARD),
-      height: ArchetypeBand.metres(0.0109, 0.0109, `${APPLE_KEYBOARD}: its back edge`),
-      mass: ArchetypeBand.of("kg", 0.369, 0.39, APPLE_KEYBOARD),
+      numericKeypad: { width: 0.4187, depth: 0.1149, height: 0.0109, mass: 0.39 },
+      touchId: { width: 0.4187, depth: 0.1149, height: 0.0109, mass: 0.369 },
     },
     laptop: {
-      width: ArchetypeBand.metres(0.3041, 0.3404, APPLE_LAPTOP),
-      depth: ArchetypeBand.metres(0.215, 0.2376, APPLE_LAPTOP),
-      height: ArchetypeBand.metres(
-        0.0113 - LID_THICKNESS,
-        0.0115 - LID_THICKNESS,
-        `${APPLE_LAPTOP}: the closed height less the lid's`,
-      ),
-      mass: ArchetypeBand.of("kg", 1.24, 1.51, APPLE_LAPTOP),
+      air13: { width: 0.3041, depth: 0.215, height: 0.0113 - LID_THICKNESS, mass: 1.24 },
+      air15: { width: 0.3404, depth: 0.2376, height: 0.0115 - LID_THICKNESS, mass: 1.51 },
     },
+  };
+
+  /** The band of each free dimension, by kind: none, every figure is a model's. */
+  export const BANDS: Readonly<Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>> = {
+    keyboard: {},
+    laptop: {},
   };
 }

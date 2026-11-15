@@ -20,10 +20,10 @@ import { TOOL_BANDS } from "./TOOL_BANDS";
  *
  * The tool stands along `+Y` from the butt of its handle at the origin to its working end, whose face is the `face` affordance: a hammer's striking face toward `+Z`, a saw's line of teeth toward `+Z`, a screwdriver's tip, a spoon's bowl, a fork's tines, a ladle's bowl toward `+Z`, and a table knife's edge toward `+Z`. The hand takes the `grip` from the `-Z` side with the thumb toward the working end, except a saw's: its grip runs across its heel square to the line from the grip to the tooth line's middle, the saw's hang (Disstonian Institute glossary: "The imaginary line that runs parallel to the hand grip should have a line running perpendicular to it, running through the mid-point of the tooth line", https://disstonianinstitute.com/glossary.html), and the hand takes it from the blade's `+X` side with the thumb toward the spine, the teeth below the fist.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The tool.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tool stands, where its working end is and how it is held.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod and one working part per tool; a hammer's steel head is eleven times as dense as its handle (steel at 7850 against hickory at about 700 kg per cubic metre, handbook values), which is what puts the balance near the head.
@@ -43,7 +43,7 @@ export function createTool(
     params.kind,
     createTool.KINDS,
   );
-  const d: Partial<Record<createTool.Dimension, number>> =
+  const drawn: Partial<Record<createTool.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "tool",
       createTool.BANDS[kind],
@@ -51,6 +51,20 @@ export function createTool(
       params,
       createTool.BANDS,
     );
+  // A table knife is one of the two read knives whole.
+  const model: { name: createTool.Model | undefined; figures: createTool.Figures } =
+    ArchetypeDraw.model<createTool.Model, createTool.Dimension>(
+      "tool",
+      "model",
+      params.model,
+      createTool.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createTool.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const length: number = d.length!;
   const radius: number = d.gripDiameter! / 2;
   const builder: ArchetypeBuilder<createTool.Affordance, createTool.Dimension> =
@@ -389,9 +403,26 @@ export namespace createTool {
     /** Which tool. */
     kind: Kind;
 
+    /** A table knife's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `tool` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern. */
+  export type Model = "eichenlaub" | "robertWelch";
+
+  /** Each kind's models whole, the default first, length, blade, blade width and mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood), and Robert Welch's Malvern 24.6 cm, 12 cm, 2.1 cm, the blade the knife's widest part, and 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    knife: {
+      eichenlaub: { length: 0.225, blade: 0.125, bladeWidth: 0.017, mass: 0.06 },
+      robertWelch: { length: 0.246, blade: 0.12, bladeWidth: 0.021, mass: 0.13 },
+    },
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<

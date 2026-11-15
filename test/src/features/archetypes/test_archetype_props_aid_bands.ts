@@ -18,7 +18,7 @@ const DRIVE: string = "Drive Medical offset cane and walker 10210-1";
  * Umbrellas and walking aids stay inside their cited dimensions for every seed, measured on the produced thing, and an umbrella's canopy is there only when it is open.
  *
  * Scenarios:
- * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a closed umbrella 84 to 95.5 cm long, an open one's canopy 120 to 138 cm across, 660 to 910 g; a cane's handle 30 to 39 in above the floor on a 3/4 in shaft; a walker's rails 32 to 39 in above the floor, the frame 24 in across, 7 to 7.5 lb; an infusion stand's hooks 1,430 to 2,260 mm above the floor, its base 630 mm across its castors' outer edges, its outer tube 33.7 mm, 12 kg.
+ * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a closed umbrella 84 to 95.5 cm long, an open one's canopy 120 to 138 cm across, 660 to 910 g; a cane's handle 30 to 39 in above the floor on a 3/4 in shaft; an adult walker's rails 32 to 39 in and a junior walker's 25 to 32.25 in above the floor, the frame 24 in across, 7 to 7.5 lb; an infusion stand's hooks 1,430 to 2,260 mm above the floor, its base 630 mm across its castors' outer edges, its outer tube 33.7 mm, 12 kg.
  * 2. A closed umbrella declares no `canopy` and has no canopy part; an open one has both, its `canopy` frame on the canopy's top.
  * 3. A walker's two grips are on its two side rails, the frame's width less one tube apart.
  * 4. For three seeds, an infusion stand rests on its castors on the floor, its `hook` at its top, and its centre of mass lies below the outer tube's middle, as a base of 8.9 kg under 3.1 kg of tubes puts it.
@@ -80,12 +80,20 @@ export function test_archetype_props_aid_bands(): void {
         ]).size,
     ),
     row(
-      "walker height",
+      "adult walker height",
       32 * ArchetypeUnits.INCH,
       39 * ArchetypeUnits.INCH,
       DRIVE,
       (seed: number): number =>
-        archetypeExtent(createMobilityAid({ kind: "walker" }, seed), "y").high,
+        archetypeExtent(createMobilityAid({ kind: "walker", model: "adult" }, seed), "y").high,
+    ),
+    row(
+      "junior walker height",
+      25 * ArchetypeUnits.INCH,
+      32.25 * ArchetypeUnits.INCH,
+      DRIVE,
+      (seed: number): number =>
+        archetypeExtent(createMobilityAid({ kind: "walker", model: "junior" }, seed), "y").high,
     ),
     row(
       "walker width",

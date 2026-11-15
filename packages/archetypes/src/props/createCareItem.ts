@@ -26,17 +26,13 @@ const COMB: string =
 const BRUSH: string =
   "Curaprox CS 5460, 18 cm (listing seen only in search results); Canadian patent 3058910, about 194 to 197 mm overall; US patent 6353959, handle 1.375 in round";
 
-/** A tube maker's data sheet. */
-const TUBE: string =
-  "Alltub laminate tubes data sheet, diameters 19 to 50 mm and lengths 75 to 190 mm (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
+/** Alltub's laminate tubes data sheet. */
+const ALLTUB: string =
+  "Alltub laminate tubes data sheet (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
 
-/** Cartridge razors, read. */
-const RAZOR: string =
-  "Edwin Jagger Mach3 razor, 129 mm overall and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and the Gillette Mach3, 5.4 in long and 35 g (https://www.toolsofmen.com/?p=46812)";
-
-/** Lipstick cases, read. */
+/** A lipstick case read whole; Ellemental's case gives its height but not its width, so it is not built. */
 const LIPSTICK: string =
-  "Quadpack magnetic lipstick case, 21 mm across and 74 mm high (https://americas.quadpack.com/?p=16738), and Ellemental's case, 75 mm high for a 12.1 mm bullet (https://www.ellemental.com/lipstick-tube)";
+  "Quadpack magnetic lipstick case, 21 mm across and 74 mm high (https://americas.quadpack.com/?p=16738)";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createCareItem.Kind, string>> = {
@@ -53,10 +49,10 @@ const NAMES: Readonly<Record<createCareItem.Kind, string>> = {
  *
  * Each lies at the origin with its long side along `+Z`, its working end at `+Z`: a comb's teeth point down along its length, a toothbrush's bristles and a razor's blades face up at its far end, a tube's cap is at its far end and a lipstick's bullet points out of its far end. A tissue lies flat.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The item.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each item lies and where its working end is.
  * @evidence contracts/development/implementation.md#principled-implementation One or two dimensioned primitives per item; each `grip` lies on the axis of the part the hand holds, with that part's thickness as its `aperture`.
@@ -76,14 +72,35 @@ export function createCareItem(
     params.kind,
     createCareItem.KINDS,
   );
-  const d: Partial<Record<createCareItem.Dimension, number>> =
+  const drawn: Partial<Record<createCareItem.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "careItem",
       createCareItem.BANDS[kind],
       seed,
-      params,
+      kind === "tube" ? { ...params, length: undefined } : params,
       createCareItem.BANDS,
     );
+  // A tube is one of Alltub's diameters, its length drawn in that diameter's own range; a razor one of the two razors read, whole.
+  const model: { name: createCareItem.Model | undefined; figures: createCareItem.Figures } =
+    ArchetypeDraw.model<createCareItem.Model, createCareItem.Dimension>(
+      "careItem",
+      "model",
+      params.model,
+      createCareItem.MODELS[kind],
+      seed,
+      params,
+    );
+  const range: IArchetypeBand | undefined =
+    model.name === undefined ? undefined : createCareItem.TUBE_LENGTHS[model.name];
+  const own: Partial<Record<createCareItem.Dimension, number>> =
+    range === undefined
+      ? {}
+      : ArchetypeDraw.dimensions("careItem", { length: range }, seed, params);
+  const d: Partial<Record<createCareItem.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+    ...own,
+  };
   const builder: ArchetypeBuilder<
     createCareItem.Affordance,
     createCareItem.Dimension
@@ -376,9 +393,64 @@ export namespace createCareItem {
     /** Which item. */
     kind: Kind;
 
+    /** A tube's diameter or a razor's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `careItem` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's and Gillette's Mach3 razors. */
+  export type Model =
+    | "alltub13_5"
+    | "alltub19"
+    | "alltub22"
+    | "alltub25"
+    | "alltub28"
+    | "alltub30"
+    | "alltub35"
+    | "alltub38"
+    | "alltub40"
+    | "alltub50"
+    | "edwinJagger"
+    | "gilletteMach3";
+
+  /** Each kind's models whole, the default first. A tube's diameter (`width`) is one of Alltub's ten (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf), its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's length and mass: Edwin Jagger's Mach3, 129 mm and 87 g (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html), and Gillette's Mach3, 5.4 in and 35 g (https://www.toolsofmen.com/?p=46812). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+    tube: {
+      alltub13_5: { width: 0.0135 },
+      alltub19: { width: 0.019 },
+      alltub22: { width: 0.022 },
+      alltub25: { width: 0.025 },
+      alltub28: { width: 0.028 },
+      alltub30: { width: 0.03 },
+      alltub35: { width: 0.035 },
+      alltub38: { width: 0.038 },
+      alltub40: { width: 0.04 },
+      alltub50: { width: 0.05 },
+    },
+    razor: {
+      edwinJagger: { length: 0.129, mass: 0.087 },
+      gilletteMach3: { length: 5.4 * ArchetypeUnits.INCH, mass: 0.035 },
+    },
+  };
+
+  /** Each Alltub tube diameter's own range of lengths, metres, from the data sheet. */
+  export const TUBE_LENGTHS: Readonly<Partial<Record<Model, IArchetypeBand>>> = {
+    alltub13_5: ArchetypeBand.metres(0.045, 0.16, `${ALLTUB}: the 13.5 mm tube's lengths`),
+    alltub19: ArchetypeBand.metres(0.045, 0.16, `${ALLTUB}: the 19 mm tube's lengths`),
+    alltub22: ArchetypeBand.metres(0.075, 0.125, `${ALLTUB}: the 22 mm tube's lengths`),
+    alltub25: ArchetypeBand.metres(0.075, 0.16, `${ALLTUB}: the 25 mm tube's lengths`),
+    alltub28: ArchetypeBand.metres(0.075, 0.19, `${ALLTUB}: the 28 mm tube's lengths`),
+    alltub30: ArchetypeBand.metres(0.075, 0.19, `${ALLTUB}: the 30 mm tube's lengths`),
+    alltub35: ArchetypeBand.metres(0.075, 0.181, `${ALLTUB}: the 35 mm tube's lengths`),
+    alltub38: ArchetypeBand.metres(0.075, 0.205, `${ALLTUB}: the 38 mm tube's lengths`),
+    alltub40: ArchetypeBand.metres(0.06, 0.2, `${ALLTUB}: the 40 mm tube's lengths`),
+    alltub50: ArchetypeBand.metres(0.06, 0.2, `${ALLTUB}: the 50 mm tube's lengths`),
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -412,22 +484,18 @@ export namespace createCareItem {
       mass: kg(0.015, 0.025),
     },
     tube: {
-      length: ArchetypeBand.metres(0.075, 0.19, TUBE),
-      width: ArchetypeBand.metres(0.019, 0.05, TUBE),
       mass: kg(0.02, 0.3),
     },
     razor: {
-      length: ArchetypeBand.metres(0.129, 5.4 * ArchetypeUnits.INCH, RAZOR),
       width: ArchetypeBand.metres(
         0.012,
         0.016,
         "the handle's diameter; the razors' pages read do not give it",
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.035, 0.087, RAZOR),
     },
     lipstick: {
-      length: ArchetypeBand.metres(0.074, 0.075, LIPSTICK),
+      length: ArchetypeBand.metres(0.074, 0.074, LIPSTICK),
       width: ArchetypeBand.metres(0.021, 0.021, LIPSTICK),
       mass: kg(0.01, 0.03),
     },

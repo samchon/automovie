@@ -25,7 +25,7 @@ const LONGNECK: string = "O-I 2017 bottle guide and Berlin Packaging 330 ml";
  * Scenarios, each over 200 seeds, inside the band and spanning at least 80 % of it:
  * 1. A wine glass: the rim's height, the bowl's diameter as the `body` grip's width and the stem's as the `stem` grip's, against the ISO 3591 drawing.
  * 2. A beer bottle: the rim's height, the body grip's width and the empty mass, against two makers' 330 ml longnecks; a full bottle weighs the empty one plus 0.33 kg.
- * 3. A mug: the rim's height against two makers' mugs.
+ * 3. A mug: the rim's height against ITI's diner mug.
  * 4. A phone: its thickness as the grip's width, its width as the pinch's length, and its mass, against Apple's specification pages; a camera's depth as its grip's width and its mass against Ricoh's and Fujifilm's.
  * 5. A lighter's height and a cigarette's length from its mouth end to its lit end.
  * 6. A pen's barrel as its grip's width, inside the precision handle band; a hammer's handle inside the comfortable power grip band; a screwdriver's tip at the maker's overall length.
@@ -33,7 +33,7 @@ const LONGNECK: string = "O-I 2017 bottle guide and Berlin Packaging 330 ml";
  * 8. A cardboard box: the distance between its two hand grips is a moving carton's width, and a 6 kg load adds exactly 6 kg.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each prop for 200 seeds and measures the dimension on the model: frame heights, grip widths, distances between contacts, the body's mass, and an articulated pull bar. A band wider or narrower than its citation, a grip not sized from the drawn dimension or a seed that does not vary it is caught.
- * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: ISO 3591 (155 plus or minus 5 mm tall, 65 plus or minus 2 mm bowl, 9 plus or minus 1 mm stem), O-I and Berlin Packaging (209 to 226.5 mm, 60.4 to 61.3 mm, 205 to 285 g), IKEA and ITI mugs (70 to 98 mm), Apple (5.64 to 8.75 mm, 64.2 to 78 mm, 135 to 249 g), Ricoh and Fujifilm (33.2 to 55.3 mm, 257 to 521 g), BIC (62 to 82 mm), cigarette classes (70 to 100 mm), NIOSH 2004-164 (6 to 13 mm), Kong and Lowe 2005 (30 to 40 mm), Klein Tools (210 mm), Industrial Health 45:756 (1.00 to 1.10 m), Lufthansa and IATA (55 to 56 cm), U-Haul cartons (416 to 460 mm).
+ * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: ISO 3591 (155 plus or minus 5 mm tall, 65 plus or minus 2 mm bowl, 9 plus or minus 1 mm stem), O-I and Berlin Packaging (209 to 226.5 mm, 60.4 to 61.3 mm, 205 to 285 g), ITI's diner mug (3.88 in), Apple (5.64 to 8.75 mm, 64.2 to 78 mm, 135 to 249 g), Ricoh and Fujifilm (33.2 to 55.3 mm, 257 to 471 g, the X100VI without its battery), BIC (62 to 82 mm), cigarette classes (70 to 100 mm), NIOSH 2004-164 (6 to 13 mm), Kong and Lowe 2005 (30 to 40 mm), Klein Tools (210 mm), Industrial Health 45:756 (1.00 to 1.10 m), Lufthansa and IATA (55 to 56 cm), U-Haul cartons (416 to 460 mm).
  * @evidence contracts/development/testing.md#distinguishing-cases One or two act-read dimensions per prop class; dimensions with no source at all (a mug handle's opening) are left to the producer's provisional mark and not asserted here.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the eight scenarios and what each pins.
@@ -113,9 +113,9 @@ export function test_archetype_props_bands(): void {
       ),
       row(
         "mug rim height",
-        0.07,
-        0.098,
-        "IKEA 365+ and ITI diner mugs",
+        3.88 * ArchetypeUnits.INCH,
+        3.88 * ArchetypeUnits.INCH,
+        "ITI diner mug",
         (seed: number): number =>
           createDrinkware({ kind: "mug" }, seed).affordance("lip").frame
             .translation.y,
@@ -155,7 +155,7 @@ export function test_archetype_props_bands(): void {
       row(
         "camera mass",
         0.257,
-        0.521,
+        0.471,
         "Ricoh GR III and Fujifilm X100VI",
         (seed: number): number =>
           createDevice({ kind: "camera" }, seed).body.mass,

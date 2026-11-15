@@ -22,21 +22,9 @@ const kg = (
 const PHONE: string =
   "Apple iPhone 16 and 17 technical specifications (https://www.apple.com/iphone-16/specs/, https://www.apple.com/iphone-17/specs/); the extremes from Apple's comparison page (https://www.apple.com/iphone/compare/), its rows matched to models by position";
 
-/** Two makers' compact cameras. */
-const CAMERA: string =
-  "Ricoh GR III specifications (https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/) and Fujifilm X100VI specifications (https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/)";
-
 /** One maker's remote read at its page and two seen in listings. */
 const REMOTE: string =
   "Apple TV 4K technical specifications, Siri Remote (https://www.apple.com/apple-tv-4k/specs/); the larger end from Roku and Amazon remote listings seen only in search results";
-
-/** Apple's tablet, read. */
-const TABLET: string =
-  "Apple iPad (10th generation) technical specifications: 248.6 mm high, 179.5 mm wide, 7 mm deep, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840)";
-
-/** Motorola's portable radio, read in its data sheet. */
-const RADIO: string =
-  "Motorola Solutions, MOTOTRBO CP200d data sheet (06-2020): 5.0 x 2.4 x 1.5 to 1.8 in (127.7 x 61.5 x 39.0 to 44.0 mm, H x W x D) with its four batteries, 12.1 to 14.3 oz (341 to 406 g) (https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf, p. 3)";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createDevice.Kind, string>> = {
@@ -52,10 +40,10 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
  *
  * The model is a slab, with a camera's lens barrel and hand grip: what tells them apart. The device stands on its bottom edge at the origin, its screen, its lens or its buttons facing `+Z`, its long side along `+Y` for a phone, a remote, a tablet and a walkie-talkie and along `+X` for a camera. A tablet and a walkie-talkie are held across their back anywhere up their height; a tablet's `screen` is its whole front, and no maker read places its lens, so it declares none; a walkie-talkie's `speaker` is its whole front, which the voice meets, and its antenna and push-to-talk key wait for a source of their size and place. A camera's and a remote's `button` states no travel: no maker read gives one, so the press is not built.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The device.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and how the device is oriented.
  * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device; a hold's `aperture` is the slab's thickness along the hand's approach, which is what the collider measures there, and a camera's grip is its own upright bar of the body's depth, its far end the other hand's hold of the same depth, as a camera is held in both hands.
@@ -75,7 +63,7 @@ export function createDevice(
     params.kind,
     createDevice.KINDS,
   );
-  const d: Partial<Record<createDevice.Dimension, number>> =
+  const drawn: Partial<Record<createDevice.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "device",
       createDevice.BANDS[kind],
@@ -83,6 +71,20 @@ export function createDevice(
       params,
       createDevice.BANDS,
     );
+  // A camera, a tablet and a walkie-talkie are each one of their makers' read models whole.
+  const model: { name: createDevice.Model | undefined; figures: createDevice.Figures } =
+    ArchetypeDraw.model<createDevice.Model, createDevice.Dimension>(
+      "device",
+      "model",
+      params.model,
+      createDevice.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createDevice.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const width: number = d.width!;
   const height: number = d.height!;
   const depth: number = d.thickness!;
@@ -351,9 +353,50 @@ export namespace createDevice {
     /** Which device. */
     kind: Kind;
 
+    /** A camera's, a tablet's or a walkie-talkie's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `device` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th generation) Wi-Fi and cellular; Motorola's CP200d with each of its four batteries. */
+  export type Model =
+    | "grIII"
+    | "x100vi"
+    | "wifi"
+    | "cellular"
+    | "nimh1400"
+    | "liIon1600"
+    | "liIon2250"
+    | "liIon2900";
+
+  /**
+   * Each kind's models whole, the default first, width x height x thickness and mass:
+   *
+   * - camera: the Ricoh GR III, 109.4 x 61.9 x 33.2 mm and 257 g (https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/), and the Fujifilm X100VI, 128.0 x 74.8 x 55.3 mm and 471 g without its battery (https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/).
+   * - tablet: the iPad (10th generation), 179.5 x 248.6 x 7 mm, 477 g Wi-Fi and 481 g cellular (https://support.apple.com/en-us/111840).
+   * - walkieTalkie: the MOTOTRBO CP200d, 61.5 x 127.7 mm and, with its NiMH 1400, slim Li-Ion 1600, high-capacity Li-Ion 2250 and ultra-high-capacity Li-Ion 2900 mAh batteries, 42.0, 39.0, 44.0 and 44.0 mm deep and 406, 341, 346 and 348 g (data sheet 06-2020, p. 3, https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf).
+   */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+    camera: {
+      grIII: { width: 0.1094, height: 0.0619, thickness: 0.0332, mass: 0.257 },
+      x100vi: { width: 0.128, height: 0.0748, thickness: 0.0553, mass: 0.471 },
+    },
+    tablet: {
+      wifi: { width: 0.1795, height: 0.2486, thickness: 0.007, mass: 0.477 },
+      cellular: { width: 0.1795, height: 0.2486, thickness: 0.007, mass: 0.481 },
+    },
+    walkieTalkie: {
+      nimh1400: { width: 0.0615, height: 0.1277, thickness: 0.042, mass: 0.406 },
+      liIon1600: { width: 0.0615, height: 0.1277, thickness: 0.039, mass: 0.341 },
+      liIon2250: { width: 0.0615, height: 0.1277, thickness: 0.044, mass: 0.346 },
+      liIon2900: { width: 0.0615, height: 0.1277, thickness: 0.044, mass: 0.348 },
+    },
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -365,29 +408,14 @@ export namespace createDevice {
       thickness: ArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
       mass: kg(0.135, 0.249, PHONE, true),
     },
-    camera: {
-      width: ArchetypeBand.metres(0.1094, 0.128, CAMERA),
-      height: ArchetypeBand.metres(0.0619, 0.0748, CAMERA),
-      thickness: ArchetypeBand.metres(0.0332, 0.0553, CAMERA),
-      mass: kg(0.257, 0.521, CAMERA),
-    },
+    camera: {},
     remote: {
       width: ArchetypeBand.metres(0.035, 0.042, REMOTE, true),
       height: ArchetypeBand.metres(0.136, 0.142, REMOTE, true),
       thickness: ArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
       mass: kg(0.0434, 0.085, REMOTE, true),
     },
-    tablet: {
-      width: ArchetypeBand.metres(0.1795, 0.1795, TABLET),
-      height: ArchetypeBand.metres(0.2486, 0.2486, TABLET),
-      thickness: ArchetypeBand.metres(0.007, 0.007, TABLET),
-      mass: kg(0.477, 0.481, TABLET),
-    },
-    walkieTalkie: {
-      width: ArchetypeBand.metres(0.0615, 0.0615, RADIO),
-      height: ArchetypeBand.metres(0.1277, 0.1277, RADIO),
-      thickness: ArchetypeBand.metres(0.039, 0.044, RADIO),
-      mass: kg(0.341, 0.406, RADIO),
-    },
+    tablet: {},
+    walkieTalkie: {},
   };
 }

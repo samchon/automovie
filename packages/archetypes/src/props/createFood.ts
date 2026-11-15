@@ -10,10 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** USDA's apple portions, read. */
-const APPLE: string =
-  "USDA FoodData Central 171688, Apples, raw, with skin: portions from extra small, 2 1/2 in across and 101 g, to large, 3 1/4 in and 223 g (https://api.nal.usda.gov/fdc/v1/food/171688)";
-
 /** A maker's sandwich loaf, read, and a one-pound pan loaf seen only in search results. */
 const BREAD: string =
   "Klosterman White Sandwich Bread 32 oz, 14.75 by 4.25 by 4.25 in (https://klostermanbakery.com/white-sandwich-bread-32-oz), and a 1 lb loaf from the USA Pan 1140LF's 8.5 by 4.5 by 2.75 in baking surface, seen only in search results";
@@ -26,10 +22,10 @@ const BREAD: string =
  * - a loaf lies along `X`; the hand at `grip` holds it from above at its middle, and `bite` is its `-X` end. Tearing it in two waits for a source of how far a torn half is drawn away.
  * - an apple sits on its base with its stalk up; `grip` closes round it and `bite` is its side toward `+Z`, `+Y` the skin's outward normal.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, the kind's model where it has read models, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The food.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each food lies, where it is held and bitten, and why the loaf does not tear yet.
  * @evidence contracts/development/implementation.md#principled-implementation A loaf as one box of its drawn length, width and height; an apple as one ball of the drawn diameter. Every grip's frame lies at the centre of the part it closes on, with that part's span along its `+Y` as the aperture.
@@ -49,7 +45,7 @@ export function createFood(
     params.kind,
     createFood.KINDS,
   );
-  const d: Partial<Record<createFood.Dimension, number>> =
+  const drawn: Partial<Record<createFood.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "food",
       createFood.BANDS[kind],
@@ -57,6 +53,20 @@ export function createFood(
       params,
       createFood.BANDS,
     );
+  // An apple is one of USDA's four portion sizes whole.
+  const model: { name: createFood.Model | undefined; figures: createFood.Figures } =
+    ArchetypeDraw.model<createFood.Model, createFood.Dimension>(
+      "food",
+      "model",
+      params.model,
+      createFood.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Partial<Record<createFood.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<createFood.Affordance, createFood.Dimension> =
     new ArchetypeBuilder({
       archetype: "food",
@@ -165,9 +175,28 @@ export namespace createFood {
     /** Which food. */
     kind: Kind;
 
+    /** An apple's portion size; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `food` when absent. */
     id?: string;
   }
+
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The apples read: USDA's extra small, small, medium and large portions. */
+  export type Model = "extraSmall" | "small" | "medium" | "large";
+
+  /** Each kind's models whole, the default first: USDA FoodData Central 171688, Apples, raw, with skin, its portions 2 1/2, 2 3/4, 3 and 3 1/4 in across at 101, 149, 182 and 223 g (https://api.nal.usda.gov/fdc/v1/food/171688). */
+  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+    apple: {
+      extraSmall: { diameter: 2.5 * ArchetypeUnits.INCH, mass: 0.101 },
+      small: { diameter: 2.75 * ArchetypeUnits.INCH, mass: 0.149 },
+      medium: { diameter: 3 * ArchetypeUnits.INCH, mass: 0.182 },
+      large: { diameter: 3.25 * ArchetypeUnits.INCH, mass: 0.223 },
+    },
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -184,9 +213,6 @@ export namespace createFood {
       height: ArchetypeBand.metres(2.75 * ArchetypeUnits.INCH, 4.25 * ArchetypeUnits.INCH, BREAD, true),
       mass: ArchetypeBand.of("kg", ArchetypeUnits.POUND, 32 * ArchetypeUnits.OUNCE, BREAD, true),
     },
-    apple: {
-      diameter: ArchetypeBand.metres(2.5 * ArchetypeUnits.INCH, 3.25 * ArchetypeUnits.INCH, APPLE),
-      mass: ArchetypeBand.of("kg", 0.101, 0.223, APPLE),
-    },
+    apple: {},
   };
 }
