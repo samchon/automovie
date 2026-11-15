@@ -21,6 +21,7 @@ import {
   createStairs,
   createStreetFixture,
   createSwitch,
+  createValve,
   createWall,
   createWindow,
 } from "../architecture";

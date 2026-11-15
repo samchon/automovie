@@ -16,7 +16,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold lives, what breaking leaves, how fragments leave and what is not modelled.
  * @evidence contracts/development/design.md#principled-representation A set is an id and the producer's own part ids; a hit is its energy and momentum; the result is the remainder and fragments as archetypes, each with a velocity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `split` for `Archetype.broken`, and the three records #3499 asks for.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `split` for `Archetype.broken`, the set, the hit and the broken result #3499 asks for, and the fragment and piece records the result and `Archetype.broken` pass.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No seeded spread or shard pattern is invented: a fragment is a declared set whole, and its velocity is momentum over mass.
  */
 export namespace ArchetypeFracture {
@@ -136,7 +136,7 @@ export namespace ArchetypeFracture {
    * @evidence contracts/development/implementation.md#principled-implementation Each set's record carries its parts, their spans with both ends on them, and their own masses' mass properties (`ArchetypeMass.of` with those masses as shares); the remainder the rest, keeping each affordance whose moving parts all remain, that no set carries away and whose `rides` and `follows` chain stays whole, so the remainder is a model the engine admits; every piece the rest's contact without its threshold, since it declares no fracture set; every fragment's velocity the hit's momentum over the fragments' summed mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the hit, then one record per set and one for the remainder.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A set that names a part twice or a part of another set is a producer's defect the builder refuses; no spread is drawn.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, the affordances and the spans.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts and the spans; the contacts' chain check repeats until none drops, at most once per contact, so it is quadratic in the contacts, tens at most.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each hit makes new records.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */

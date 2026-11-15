@@ -13,6 +13,7 @@ import {
 } from "../core";
 import { BOW_BANDS } from "./BOW_BANDS";
 import { bowLaunchSpeed } from "./bowLaunchSpeed";
+import { bowLimbs } from "./bowLimbs";
 import { buildCrossbow } from "./buildCrossbow";
 
 /** The Olympic recurve's maker's chart. */
@@ -159,7 +160,7 @@ export function createBow(
       { part, at: v(0, at, 0) },
       { affordance: "nock" },
       createBow.STRING,
-      { color: "#e8e1cf", density: 0.5 },
+      { color: "#e8e1cf" },
     );
   builder.affordance({
     id: "grip",
@@ -379,7 +380,7 @@ export namespace createBow {
   > = BOW_BANDS;
 
   /**
-   * The crossbow's places along its stock and its spanning gear, metres, degrees and ratios, each Payne-Gallwey's (The Crossbow, 1903) unless marked provisional: `stock`, its "Extreme length ... 3 ft." and `fore`, its depth at the fore-end, 3¼ in (p. 93), its taper to the small end's 1¾ in not drawn; `nut`, the nut's centre 14 in from the fore-end (p. 93); `rest`, the string at rest 6 in ahead of the nut's centre (p. 116); `travel`, the string's 5½ in "common distance ... along the stock to the catch of the lock" (p. 134, read at the page image); `turns`, the cranequin's handle "turned round in a complete circle thirty times" for it, and `handle`, that handle's 9 in (p. 134); `axle`, the cranequin's pin "about seven inches behind the catch" (p. 134); `trigger`, the trigger's handle, "8¼ in. long and ⅜ in. diameter" (p. 98); `release`, the trigger's point going "⅛ in. ... into the notch in the nut" (p. 98), taken as its travel, provisional, since the handle's own travel is unread; `stirrup`, its tread's width, the bow's 1⅝ in at its centre (p. 104); `thickness`, the bow's "½ in." at its centre (p. 101), drawn as the bow's round section and the stirrup's iron. The cranequin's axle direction and the stirrup's height are not read: the axle is taken across the stock and the stirrup ahead of the fore-end at the stock's top, provisional. The sporting crossbow's draw weight is not read, so the crossbow has no `draw` and `launchSpeed` refuses it: Payne-Gallwey states only his siege crossbow's 1,200 lb (p. 14), a crossbow of another class; searched for #3481 without a figure: his sporting types, measured reproductions of sporting and hunting crossbows (makers list munition crossbows only), and German museum and research catalogues of hunting crossbows ("Jagdarmbrust Zuggewicht").
+   * The crossbow's places along its stock and its spanning gear, metres, degrees and ratios, each Payne-Gallwey's (The Crossbow, 1903) unless marked provisional: `stock`, its "Extreme length ... 3 ft." and `fore`, its depth at the fore-end, 3¼ in (p. 93), its taper to the small end's 1¾ in not drawn; `nut`, the nut's centre 14 in from the fore-end (p. 93); `rest`, the string at rest 6 in ahead of the nut's centre (p. 116); `travel`, the string's 5½ in "common distance ... along the stock to the catch of the lock" (p. 134, read at the page image); `turns`, the cranequin's handle "turned round in a complete circle thirty times" for it, and `handle`, that handle's 9 in (p. 134); `axle`, the cranequin's pin "about seven inches behind the catch" (p. 134); `trigger` and `triggerDiameter`, the trigger's handle, "8¼ in. long and ⅜ in. diameter" (p. 98); `release`, the trigger's point going "⅛ in. ... into the notch in the nut" (p. 98), taken as its travel, provisional, since the handle's own travel is unread; `stirrup`, its tread's width, the bow's 1⅝ in at its centre (p. 104); `thickness`, the bow's "½ in." at its centre (p. 101), drawn as the bow's round section and the stirrup's iron. The cranequin's axle direction and the stirrup's height are not read: the axle is taken across the stock and the stirrup ahead of the fore-end at the stock's top, provisional. The sporting crossbow's draw weight is not read, so the crossbow has no `draw` and `launchSpeed` refuses it: Payne-Gallwey states only his siege crossbow's 1,200 lb (p. 14), a crossbow of another class; searched for #3481 without a figure: his sporting types, measured reproductions of sporting and hunting crossbows (makers list munition crossbows only), and German museum and research catalogues of hunting crossbows ("Jagdarmbrust Zuggewicht").
    */
   export const CROSSBOW: Readonly<{
     stock: number;
@@ -391,6 +392,7 @@ export namespace createBow {
     handle: number;
     axle: number;
     trigger: number;
+    triggerDiameter: number;
     release: number;
     stirrup: number;
     thickness: number;
@@ -404,6 +406,7 @@ export namespace createBow {
     handle: 9 * ArchetypeUnits.INCH,
     axle: 7 * ArchetypeUnits.INCH,
     trigger: 8.25 * ArchetypeUnits.INCH,
+    triggerDiameter: 0.375 * ArchetypeUnits.INCH,
     release: 0.125 * ArchetypeUnits.INCH,
     stirrup: (13 / 8) * ArchetypeUnits.INCH,
     thickness: 0.5 * ArchetypeUnits.INCH,
@@ -417,54 +420,8 @@ export namespace createBow {
     arrow: number;
   }> = { straight: 0.407, recurve: 0.426, efficiency: 0.765, arrow: 0.02 };
 
-  /**
-   * Each limb's turn against the string's travel: the table `upperLimb` and `lowerLimb` follow.
-   *
-   * @param half The limb's tip's height from the grip, half the length nock to nock, metres.
-   * @param brace The braced string's distance behind the grip, metres.
-   * @param travel The string's full travel, metres.
-   * @returns Rows of the string's travel, metres, and the limb's turn, degrees, from brace to full draw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the rows and their units.
-   * @evidence contracts/development/implementation.md#principled-implementation A tip at `R` from the grip, `R` fixed, and the string's half `S` fixed: with the nock at `n` behind the grip, the tip's reach toward it is `c = (R^2 + n^2 - S^2) / (2 n)`, so the turn is `asin(c / R) - alpha`, `alpha` the braced tip's angle; rows are bisected until the half read between them stays within the string's radius `STRING` of its length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact turn, then a recursive bisection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limb is stiff about the grip; its bending is not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A handful of rows: the bisection stops where linear reading is already inside the string's radius.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function limbs(
-    half: number,
-    brace: number,
-    travel: number,
-  ): [number, number][] {
-    const reach: number = Math.hypot(half, brace);
-    const alpha: number = Math.atan2(brace, half);
-    const turn = (x: number): number => {
-      const n: number = brace + x;
-      const c: number = (reach * reach + n * n - half * half) / (2 * n);
-      return (Math.asin(c / reach) - alpha) / ArchetypeUnits.DEGREE;
-    };
-    // The string's half length read at a travel between two rows, from the linearly read turn.
-    const gap = (x: number, turned: number): number => {
-      const phi: number = turned * ArchetypeUnits.DEGREE;
-      const y: number = reach * Math.cos(alpha + phi);
-      const z: number = reach * Math.sin(alpha + phi);
-      return Math.abs(Math.hypot(y, z - (brace + x)) - half);
-    };
-    const rows: [number, number][] = [[0, 0]];
-    const fill = (a: number, b: number): void => {
-      const middle: number = (a + b) / 2;
-      const ta: number = turn(a);
-      const tb: number = turn(b);
-      if (gap(middle, (ta + tb) / 2) > STRING) {
-        fill(a, middle);
-        fill(middle, b);
-      } else rows.push([b, tb]);
-    };
-    fill(0, travel);
-    return rows;
-  }
+  /** Each limb's turn against the string's travel, the table `upperLimb` and `lowerLimb` follow: `bowLimbs`, rows of the travel in metres and the turn in degrees. */
+  export const limbs: typeof bowLimbs = bowLimbs;
 
   /** The speed an arrow leaves a bow at, drawn to a travel of its string, metres per second, by Kooi's energy balance: `bowLaunchSpeed`, which refuses a bow whose draw weight is unread. */
   export const launchSpeed: typeof bowLaunchSpeed = bowLaunchSpeed;

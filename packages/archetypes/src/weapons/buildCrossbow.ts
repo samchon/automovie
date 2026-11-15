@@ -1,11 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import {
-  type Archetype,
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  ArchetypeUnits,
-} from "../core";
+import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { createBow } from "./createBow";
 
 /**
@@ -61,7 +56,7 @@ export function buildCrossbow(
   });
   builder.rod(
     "trigger",
-    (3 / 16) * ArchetypeUnits.INCH,
+    c.triggerDiameter / 2,
     v(0, 0, nut),
     v(0, 0, nut - c.trigger),
     { color: "#55595f", surface: "steel" },
@@ -125,7 +120,7 @@ export function buildCrossbow(
       { part, at: v(0, limb / 2, 0) },
       { affordance: "nock" },
       createBow.STRING,
-      { color: "#e8e1cf", density: 0.5 },
+      { color: "#e8e1cf" },
     );
   // The bow hand closes across the fore-stock's thickness, Payne-Gallwey's 1½ in, its palm on the stock's left face, `+X`, with the stock along its line.
   builder.affordance({
@@ -157,7 +152,7 @@ export function buildCrossbow(
     id: "trigger",
     kind: "trigger",
     frame: ArchetypeFrame.facing(
-      v(0, -(3 / 16) * ArchetypeUnits.INCH, nut - c.trigger / 2),
+      v(0, -c.triggerDiameter / 2, nut - c.trigger / 2),
       v(0, -1, 0),
       v(1, 0, 0),
     ),

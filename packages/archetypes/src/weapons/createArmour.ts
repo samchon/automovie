@@ -1,8 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMeasure,
-} from "@automovie/interface";
+import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 
 import {
   Archetype,
@@ -14,6 +11,7 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { armourBone } from "./armourBone";
 
 /** The plate thickness read. */
 const PLATE: string =
@@ -317,35 +315,6 @@ export namespace createArmour {
     id?: string;
   }
 
-  /**
-   * The bone a piece rides.
-   *
-   * @param kind The kind.
-   * @param side A limb piece's side.
-   * @returns The bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The bone whose segment the piece covers: the head, the chest, a hand, a lower arm, a lower leg.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per covered segment.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function bone(
-    kind: Kind,
-    side: "left" | "right" = "left",
-  ): AutoMovieHumanoidBone {
-    if (
-      kind === "openHelmet" ||
-      kind === "closedHelmet" ||
-      kind === "brimmedHelmet"
-    )
-      return "head";
-    if (kind === "cuirass" || kind === "mail") return "chest";
-    if (kind === "gauntlet") return side === "left" ? "leftHand" : "rightHand";
-    if (kind === "vambrace")
-      return side === "left" ? "leftLowerArm" : "rightLowerArm";
-    return side === "left" ? "leftLowerLeg" : "rightLowerLeg";
-  }
+  /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
+  export const bone: typeof armourBone = armourBone;
 }

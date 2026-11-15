@@ -1,5 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
 
 import {
   type Archetype,
@@ -12,6 +11,7 @@ import {
 } from "../core";
 import { BOAT_BANDS } from "./BOAT_BANDS";
 import { BOAT_MODELS } from "./BOAT_MODELS";
+import { BoatHull } from "./BoatHull";
 import { BoatOars } from "./BoatOars";
 
 /**
@@ -26,7 +26,7 @@ import { BoatOars } from "./BoatOars";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the boat floats, its axes, who sits, stands and holds where, the oars' articulations, and what is out of scope.
  * @evidence contracts/development/implementation.md#principled-implementation Pick the read hull whole and a canoe's layup with its read mass, take a rowboat's blades from the oar its span calls for (`BoatOars.blade`), draw the rest, then the hull's bottom and two sides to each end, the kind's seats at their sourced places, and a rowboat's oars (`BoatOars`).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Hull, seats, contacts, oars.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Hull, seats, contacts, oars; the side panels and the thwarts are `BoatHull`'s boards.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hull is flat panels to a stem and a transom, its curves not modelled; the unread places are named provisional constants here.
  * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -97,18 +97,20 @@ export function createBoat(
   const stern: number = kind === "canoe" ? 0 : (createBoat.TRANSOM * beam) / 2;
   const ends: number = kind === "canoe" ? bottom + d.endHeight! : gunwale;
 
+  const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
+
   // The hull: a bottom, and each side in two flat panels, aft from the transom's corner (a canoe's stern post) to the widest beam amidships, and forward to the stem.
   builder.box(
     "bottom",
-    v(beam * 0.6, 0.03, length * 0.85),
-    v(0, bottom + 0.015, 0),
-    { color: HULL, surface: "wood" },
+    v(beam * e.bottom.beam, e.bottom.thickness, length * e.bottom.length),
+    v(0, bottom + e.bottom.thickness / 2, 0),
+    { color: BoatHull.PAINT, surface: "wood" },
   );
   for (const [side, sign] of [
     ["left", 1],
     ["right", -1],
   ] as const) {
-    panel(
+    BoatHull.panel(
       builder,
       `side-${side}-aft`,
       v(sign * stern, 0, -length / 2),
@@ -116,7 +118,7 @@ export function createBoat(
       bottom,
       gunwale,
     );
-    panel(
+    BoatHull.panel(
       builder,
       `side-${side}-fore`,
       v((sign * beam) / 2, 0, 0),
@@ -127,44 +129,47 @@ export function createBoat(
   }
   builder.box(
     "stem",
-    v(0.04, ends - bottom, 0.04),
+    v(e.post, ends - bottom, e.post),
     v(0, (ends + bottom) / 2, length / 2),
-    { color: HULL },
+    { color: BoatHull.PAINT },
   );
   if (stern === 0)
     builder.box(
       "sternpost",
-      v(0.04, ends - bottom, 0.04),
+      v(e.post, ends - bottom, e.post),
       v(0, (ends + bottom) / 2, -length / 2),
-      { color: HULL },
+      { color: BoatHull.PAINT },
     );
   if (stern > 0)
     builder.box(
       "transom",
-      v(2 * stern, gunwale - bottom, 0.03),
+      v(2 * stern, gunwale - bottom, e.transom),
       v(0, (gunwale + bottom) / 2, -length / 2),
-      { color: HULL },
+      { color: BoatHull.PAINT },
     );
+
+  // The floorboards lie on the bottom board, and people stand on their top.
+  const floor: number = bottom + e.bottom.thickness + e.floor.thickness;
   builder.box(
     "floor",
-    v(beam * 0.5, 0.02, length * 0.6),
-    v(0, bottom + 0.04, 0),
-    { color: WOOD, surface: "wood" },
+    v(beam * e.floor.beam, e.floor.thickness, length * e.floor.length),
+    v(0, floor - e.floor.thickness / 2, 0),
+    { color: BoatHull.WOOD, surface: "wood" },
   );
   builder.affordance({
     id: "floor",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, bottom + 0.05, 0)),
+    frame: ArchetypeFrame.upright(v(0, floor, 0)),
     extent: null,
-    width: beam * 0.5,
-    depth: length * 0.6,
+    width: beam * e.floor.beam,
+    depth: length * e.floor.length,
   });
   builder.rod(
     "gunwale",
     createBoat.RAIL / 2,
     v(beam / 2, gunwale, -length / 8),
     v(beam / 2, gunwale, length / 8),
-    { color: WOOD, surface: "wood" },
+    { color: BoatHull.WOOD, surface: "wood" },
   );
   builder.affordance({
     id: "gunwale",
@@ -183,16 +188,16 @@ export function createBoat(
   builder.affordance({
     id: "bow",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, length / 2 - 0.05)),
+    frame: ArchetypeFrame.upright(v(0, ends, length / 2 - e.ledge / 2)),
     extent: null,
-    length: 0.1,
+    length: e.ledge,
   });
   builder.affordance({
     id: "stern",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, -length / 2 + 0.05)),
+    frame: ArchetypeFrame.upright(v(0, ends, -length / 2 + e.ledge / 2)),
     extent: null,
-    length: Math.max(2 * stern, 0.1),
+    length: Math.max(2 * stern, e.ledge),
   });
 
   // The seats.
@@ -201,16 +206,16 @@ export function createBoat(
     const pivot: number = gunwale + createBoat.LOCK;
     const seat: number = pivot - BoatOars.HEIGHT * span;
     const aft: number = BoatOars.AFT * span;
-    thwart(builder, "thwart0", seat, aft, beam * 0.95, -1);
-    thwart(
+    BoatHull.thwart(builder, "thwart0", seat, aft, beam * e.seats.rowing, -1);
+    BoatHull.thwart(
       builder,
       "thwart1",
       seat,
       aft + createBoat.ROWBOAT.forward,
-      beam * 0.8,
+      beam * e.seats.forward,
       -1,
     );
-    thwart(
+    BoatHull.thwart(
       builder,
       "sternSeat",
       seat,
@@ -221,18 +226,32 @@ export function createBoat(
     BoatOars.build(builder, d);
   } else if (kind === "canoe") {
     const seat: number = bottom + d.seatHeight!;
-    thwart(builder, "thwart0", seat, createBoat.CANOE.bow, beam * 0.6, 1);
-    thwart(builder, "thwart1", seat, -createBoat.CANOE.stern, beam * 0.7, 1);
+    BoatHull.thwart(
+      builder,
+      "thwart0",
+      seat,
+      createBoat.CANOE.bow,
+      beam * e.seats.canoeBow,
+      1,
+    );
+    BoatHull.thwart(
+      builder,
+      "thwart1",
+      seat,
+      -createBoat.CANOE.stern,
+      beam * e.seats.canoeStern,
+      1,
+    );
   } else {
     const seat: number = gunwale - createBoat.LAUNCH.below;
     for (let k: number = 0; k < createBoat.LAUNCH.thwarts; k++)
-      thwart(
+      BoatHull.thwart(
         builder,
         `thwart${k}` as createBoat.Affordance,
         seat,
         (k - (createBoat.LAUNCH.thwarts - 1) / 2) * createBoat.LAUNCH.room -
           createBoat.THWART / 2,
-        beam * 0.9,
+        beam * e.seats.launch,
         -1,
       );
   }
@@ -262,6 +281,49 @@ export namespace createBoat {
 
   /** A transom's width as a share of the beam: a construction estimate no act reads beyond the stern seat's width. */
   export const TRANSOM: number = 0.6;
+
+  /**
+   * The hull's other construction estimates, which no plan read gives (searched for #3497 with `THWART` and `RAIL`) and which the picture shows; `floor` and `seats` also size the surface people stand on and the seats they sit on, so those are provisional:
+   *
+   * - `bottom`: the bottom board's share of the beam and of the length, and its thickness in metres.
+   * - `floor`: the floorboards' share of the beam and of the length, and their thickness in metres, laid on the bottom board.
+   * - `post`: the stem's and a canoe's sternpost's square section, metres.
+   * - `plank`, `transom`: the side panels' and the transom's thickness, metres.
+   * - `seat`: a thwart board's thickness, metres.
+   * - `ledge`: the bow's and the stern's step along the boat, metres, centred half of it inside the end.
+   * - `seats`: each seat's width as a share of the beam where it stands: a rowboat's rowing and forward thwarts, a canoe's bow and stern seats, and a launch's thwarts.
+   */
+  export const ESTIMATES: Readonly<{
+    bottom: Readonly<{ beam: number; length: number; thickness: number }>;
+    floor: Readonly<{ beam: number; length: number; thickness: number }>;
+    post: number;
+    plank: number;
+    transom: number;
+    seat: number;
+    ledge: number;
+    seats: Readonly<{
+      rowing: number;
+      forward: number;
+      canoeBow: number;
+      canoeStern: number;
+      launch: number;
+    }>;
+  }> = {
+    bottom: { beam: 0.6, length: 0.85, thickness: 0.03 },
+    floor: { beam: 0.5, length: 0.6, thickness: 0.02 },
+    post: 0.04,
+    plank: 0.025,
+    transom: 0.03,
+    seat: 0.03,
+    ledge: 0.1,
+    seats: {
+      rowing: 0.95,
+      forward: 0.8,
+      canoeBow: 0.6,
+      canoeStern: 0.7,
+      launch: 0.9,
+    },
+  };
 
   /** The oar's pivot above the gunwale, metres, a provisional value: the oarlock's own height, not read; WoodenBoat's oar geometry table measures the freeboard to the lock's bottom only. Searched for #3497 without a figure: Angus's fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) says only that mounting blocks can raise the oarlocks "a couple of inches" above the gunwales; oarlock makers' listings (Sawyer, NRS, Sea-Dog, Perko) give the shank's length, the horns' opening and the socket's size, not the throat's height above the socket. */
   export const LOCK: number = 0.05;
@@ -405,88 +467,4 @@ export namespace createBoat {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = BOAT_BANDS;
-}
-
-/** The hull's paint. */
-const HULL: string = "#2f5d50";
-
-/** Bare wood. */
-const WOOD: string = "#a07a4a";
-
-/**
- * Add one flat side panel from one end's foot to another's, the gunwale's height above the bottom.
- *
- * @param builder The boat under construction.
- * @param id The panel's part id.
- * @param from One end of its foot, `Y` ignored.
- * @param to The other end.
- * @param bottom The bottom's height.
- * @param gunwale The gunwale's height.
- */
-function panel(
-  builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
-  id: string,
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  bottom: number,
-  gunwale: number,
-): void {
-  const run: number = Math.hypot(to.x - from.x, to.z - from.z);
-  const yaw: number =
-    Math.atan2(to.x - from.x, to.z - from.z) / ArchetypeUnits.DEGREE;
-  builder.box(
-    id,
-    Vector3.create(0.025, gunwale - bottom, run),
-    Vector3.create(
-      (from.x + to.x) / 2,
-      (gunwale + bottom) / 2,
-      (from.z + to.z) / 2,
-    ),
-    {
-      color: HULL,
-      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-    },
-  );
-}
-
-/**
- * Add one thwart and its seat: a board across the boat, its `seat` on its front edge, the edge the sitter faces from.
- *
- * @param builder The boat under construction.
- * @param id The seat's affordance id.
- * @param height The board's top.
- * @param edge The station of its front edge, the sitter's knees' side.
- * @param width Its width across.
- * @param facing 1 for a sitter facing the bow, -1 for one facing the stern.
- */
-function thwart(
-  builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
-  id: createBoat.Affordance,
-  height: number,
-  edge: number,
-  width: number,
-  facing: number,
-): void {
-  const depth: number = createBoat.THWART;
-  builder.box(
-    `seat-${id}`,
-    Vector3.create(width, 0.03, depth),
-    Vector3.create(0, height - 0.015, edge - (facing * depth) / 2),
-    {
-      color: WOOD,
-      surface: "wood",
-    },
-  );
-  builder.affordance({
-    id,
-    kind: "seat",
-    frame: ArchetypeFrame.facing(
-      Vector3.create(0, height, edge),
-      Vector3.create(0, 1, 0),
-      Vector3.create(facing, 0, 0),
-    ),
-    extent: null,
-    depth,
-    width,
-  });
 }

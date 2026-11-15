@@ -10,6 +10,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { PROJECTILE_BANDS } from "./PROJECTILE_BANDS";
+import { projectileFlight } from "./projectileFlight";
 
 /** The readable name of each kind. */
 const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
@@ -287,53 +288,8 @@ export namespace createProjectile {
     ground: 0.3,
   };
 
-  /**
-   * A projectile's flight data for its body: its drag, its restitution where it bounces or rolls, and its embedding where it sticks, each only where `FLIGHT` read it.
-   *
-   * @param kind A launched kind; a cartridge, loaded and never launched, has no flight data.
-   * @param model The read object, where the kind has one.
-   * @param radius The sphere's or the shaft's radius, metres, whose cross-section is the drag's reference area.
-   * @returns The body's flight data, for `ArchetypeBuilder.build`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is given and that an unread datum is left out.
-   * @evidence contracts/development/implementation.md#principled-implementation The read coefficient against the cross-section its source states (a sphere's) or that is taken provisionally (an arrow's); the read depth for the outcome `stick`, the read soil restitution for `bounce` and `roll`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One table lookup per datum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unread datum is absent, never a placeholder: a bolt carries no drag and no depth.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function flight(
-    kind: Exclude<Kind, "cartridge">,
-    model: Model | undefined,
-    radius: number,
-  ): {
-    drag?: { coefficient: number; area: number };
-    restitution?: number;
-    outcome?: { embed?: number };
-  } {
-    const area: number = Math.PI * radius * radius;
-    const embed: number | undefined =
-      kind === "ball"
-        ? FLIGHT.ballEmbed
-        : kind === "arrow"
-          ? FLIGHT.arrowEmbed
-          : kind === "roundShot" && model !== undefined
-            ? FLIGHT.shotEmbed[model]
-            : undefined;
-    return {
-      ...(kind === "bolt"
-        ? {}
-        : {
-            drag: {
-              coefficient: kind === "arrow" ? FLIGHT.arrow : FLIGHT.sphere,
-              area,
-            },
-          }),
-      ...(OUTCOME[kind] === "stick" ? {} : { restitution: FLIGHT.ground }),
-      ...(embed === undefined ? {} : { outcome: { embed } }),
-    };
-  }
+  /** A launched kind's flight data for its body, from its read object and its radius in metres: `projectileFlight`. */
+  export const flight: typeof projectileFlight = projectileFlight;
 
   /** The read objects: the Westminster Abbey arrow and Mary Rose arrow AZ472/19; the bolts NMM 11461 and Met 33754; the 6-pdr. and 12-pdr. field guns' shot. */
   export type Model =

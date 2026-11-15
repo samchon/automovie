@@ -15,6 +15,11 @@ export namespace WHEELCHAIR_SHEET {
 
   /**
    * One series' row of the sheet on one wheel size: the figures every seat width shares, millimetres and degrees, and by seat width its overall width and total mass; a 14-inch Ergo row is printed for 6-inch and 7-inch casters, its front-edge height, overall height and masses paired 6-inch first.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a row is, its units and how a two-caster row is paired.
+   * @evidence contracts/development/design.md#principled-representation The sheet's columns as printed, millimetres and degrees, ranges as pairs and the per-width figures as triples.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; what `createWheelchair` reads a model and its ranges from.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No figure is converted or derived in the row: it holds the sheet's print, and the producer converts it.
    */
   export interface IRow {
     /** The series' name, the start of each model's name. */

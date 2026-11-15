@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { ARMOUR_RECORDS } from "../internal/ARMOUR_RECORDS";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -20,7 +21,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 6. A brimmed helmet's brim is a disc as wide as its record's depth and as thick as its plate, for both read pieces.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real pieces at and past their band ends and reads the produced parts' shapes, the refusals' axes, the drawn records and the `wear` frame; a plate clamped instead of refused, a band end off by a step, a record never drawn or a brim of the wrong width is caught.
- * @evidence contracts/development/testing.md#independent-expectations The band ends are Williams's 1.5 and 3 mm and the US Army's ¾ in pad, the masses and depths the Metropolitan Museum's records, written here.
+ * @evidence contracts/development/testing.md#independent-expectations The band ends are Williams's 1.5 and 3 mm and the US Army's ¾ in pad, written here; the masses, depths and the records' order the Metropolitan Museum's records, written in `ARMOUR_RECORDS`, not read from the producer.
  * @evidence contracts/development/testing.md#distinguishing-cases Both ends of every plated kind and a step past each, a pad off its value, four kinds of misplaced parameter, the seedless and seeded draws, fitted and unfitted, and both brimmed records.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man of the sweep and builds the pieces in memory; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
@@ -155,14 +156,14 @@ export function test_archetype_armour_bands(): void {
   }
 
   // 4. Seedless and seeded draws.
+  const grams = (kind: createArmour.Kind, record: string): number =>
+    ARMOUR_RECORDS[kind]![record]![3] / 1000;
   for (const kind of createArmour.KINDS) {
-    const records: string[] = Object.keys(createArmour.MODELS[kind]);
-    const first: Readonly<Partial<Record<createArmour.Dimension, number>>> =
-      createArmour.MODELS[kind][records[0] as createArmour.Model]!;
+    const records: string[] = Object.keys(ARMOUR_RECORDS[kind]!);
     const seedless: ReturnType<typeof createArmour> = createArmour({ kind });
-    if (Math.abs(seedless.body.mass - first.mass!) > EPSILON)
+    if (Math.abs(seedless.body.mass - grams(kind, records[0]!)) > EPSILON)
       findings.push(
-        `${kind} seedless weighs ${seedless.body.mass} kg, not its first record's ${first.mass} kg`,
+        `${kind} seedless weighs ${seedless.body.mass} kg, not its first record's ${grams(kind, records[0]!)} kg`,
       );
     if (
       kind !== "mail" &&
@@ -184,8 +185,7 @@ export function test_archetype_armour_bands(): void {
         findings.push(`${kind} seed ${seed} has a ${t} m plate`);
     }
     for (const record of records) {
-      const mass: number =
-        createArmour.MODELS[kind][record as createArmour.Model]!.mass!;
+      const mass: number = grams(kind, record);
       if (
         ![...drawn].some((d: number): boolean => Math.abs(d - mass) <= EPSILON)
       )
@@ -195,22 +195,17 @@ export function test_archetype_armour_bands(): void {
 
   // 5. The record's mass and the `wear` place, fitted or not.
   for (const kind of createArmour.KINDS)
-    for (const [record, figures] of Object.entries(
-      createArmour.MODELS[kind],
-    ) as [
-      createArmour.Model,
-      Readonly<Partial<Record<createArmour.Dimension, number>>>,
-    ][])
+    for (const record of Object.keys(ARMOUR_RECORDS[kind]!))
       for (const measure of [undefined, m]) {
         const piece: ReturnType<typeof createArmour> = createArmour({
           kind,
-          model: record,
+          model: record as createArmour.Model,
           measure,
         });
         const label: string = `${kind} ${record} ${measure === undefined ? "unfitted" : "fitted"}`;
-        if (Math.abs(piece.body.mass - figures.mass!) > EPSILON)
+        if (Math.abs(piece.body.mass - grams(kind, record)) > EPSILON)
           findings.push(
-            `${label} weighs ${piece.body.mass} kg, its record ${figures.mass} kg`,
+            `${label} weighs ${piece.body.mass} kg, its record ${grams(kind, record)} kg`,
           );
         const wear = piece.affordances.find(
           (a: { id: string }): boolean => a.id === "wear",
@@ -237,7 +232,7 @@ export function test_archetype_armour_bands(): void {
         }),
         "brim",
       );
-      const depth: number = createArmour.MODELS.brimmedHelmet[record]!.depth!;
+      const depth: number = ARMOUR_RECORDS.brimmedHelmet![record]![2] / 100;
       if (
         brim?.type !== "cylinder" ||
         Math.abs(2 * brim.radius - depth) > EPSILON ||
