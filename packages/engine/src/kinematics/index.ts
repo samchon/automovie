@@ -21,6 +21,7 @@ export * from "./decomposeJointRotation";
 export * from "./decomposeJointRotationOnBasis";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
+export * from "./hingedArmSwivel";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
 export * from "./jointToQuaternion";

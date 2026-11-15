@@ -1,35 +1,17 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import { aimRotation } from "./aimRotation";
+import { hingedArmSwivel } from "./hingedArmSwivel";
 
-const RAD2DEG: number = 180 / Math.PI;
+/** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
+const SWIVEL_STEP: number = hingedArmSwivel.STEP;
 
-/**
- * Swivel resolution of the candidate sweep, in degrees.
- *
- * Every candidate lands the effector on the same point, so the step decides
- * only which of the equally exact poses is chosen, never how close the hand
- * gets. One degree gives 360 candidates per bend branch, and the solve runs
- * once per authored action rather than per frame.
- */
-const SWIVEL_STEP: number = 1;
+/** The golden-section ratio (`hingedArmSwivel.GOLDEN`). */
+const GOLDEN: number = hingedArmSwivel.GOLDEN;
 
-/** The golden-section ratio, `(sqrt(5) - 1) / 2`, by which each refinement pass shrinks the swivel bracket. */
-const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
-
-/**
- * Golden-section passes refining the swivel inside the two-step bracket
- * around each local minimum of the sweep: 40 passes shrink the 2 degree bracket by
- * `GOLDEN ** 40`, to under 1e-8 degree.
- */
-const REFINEMENTS: number = 40;
-
-/** Below this the mid joint cannot change the chain's span at all. */
-const SPAN_EPSILON: number = 1e-9;
+/** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
+const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
 
 /**
  * Two positive overshoots closer than this, in degrees, are one overshoot.
@@ -153,96 +135,27 @@ export const hingedArmArticulation: (props: {
     lower: IAutoMovieQuaternion,
   ) => { overshoot: number; deviation: number; exact?: () => number };
 }): IAutoMovieHingedArticulation | null => {
-  const root: IAutoMovieVector3 = props.upper.worldPosition;
-  const midOffset: IAutoMovieVector3 = props.midOffset;
-  const endOffset: IAutoMovieVector3 = props.endOffset;
-  if (Vector3.length(midOffset) < 1e-6 || Vector3.length(endOffset) < 1e-6)
-    return null;
-
-  const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
-  const distance: number = Vector3.length(reach);
-  if (distance < 1e-6) return null;
-
-  const hingeLength: number = Vector3.length(props.hinge);
-  if (hingeLength < 1e-6) return null;
-  const hinge: IAutoMovieVector3 = Vector3.normalize(props.hinge);
-
-  // |m(θ)|² = k + α cos θ + β sin θ, with the far segment split into the part
-  // the hinge cannot move (along the hinge) and the part it swings.
-  const along: number = Vector3.dot(hinge, endOffset);
-  const swung: IAutoMovieVector3 = Vector3.subtract(
-    endOffset,
-    Vector3.scale(hinge, along),
+  // The bend branches toward the target, each stopped inside the mid joint's
+  // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
+  // stops at the nearer limit, so the effector rests on the legal shell along
+  // the line to the target, as it does on the geometric shell. Of two
+  // branches the one stopping nearer the target is kept; branches inside the
+  // range stop nowhere and tie.
+  const found: hingedArmSwivel.IStop[] | null = hingedArmSwivel.branches(props);
+  if (found === null) return null;
+  const stops: hingedArmSwivel.IStop[] = found.filter(
+    (
+      stop: hingedArmSwivel.IStop,
+      index: number,
+      all: hingedArmSwivel.IStop[],
+    ): boolean =>
+      all.findIndex(
+        (other: hingedArmSwivel.IStop): boolean => other.theta === stop.theta,
+      ) === index,
   );
-  const radius: number = Vector3.length(swung);
-  const rotated: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
-    vector: IAutoMovieVector3,
-  ): IAutoMovieVector3 => Quaternion.rotateVector(props.midRest, vector);
-  const k: number =
-    Vector3.dot(midOffset, midOffset) +
-    Vector3.dot(endOffset, endOffset) +
-    2 * along * Vector3.dot(midOffset, rotated(hinge));
-  let alpha: number = 0;
-  let beta: number = 0;
-  if (radius >= SPAN_EPSILON) {
-    const unit: IAutoMovieVector3 = Vector3.scale(swung, 1 / radius);
-    alpha = 2 * radius * Vector3.dot(midOffset, rotated(unit));
-    beta =
-      2 * radius * Vector3.dot(midOffset, rotated(Vector3.cross(hinge, unit)));
-  }
-  const span: number = Math.hypot(alpha, beta);
-  if (span < SPAN_EPSILON) return null;
-
-  const phase: number = Math.atan2(beta, alpha);
-  const ratio: number = (distance * distance - k) / span;
-  // Outside the span the chain clamps to its extreme, so the effector stops on
-  // the reachable shell pointing at the target rather than failing.
-  const branches: number[] =
-    ratio >= 1
-      ? [phase]
-      : ratio <= -1
-        ? [phase + Math.PI]
-        : [phase + Math.acos(ratio), phase - Math.acos(ratio)];
-
-  // A hinge angle outside the joint's own range stops at the nearer limit, so
-  // the effector rests on the legal shell along the line to the target, as it
-  // does on the geometric shell above. Of two branches the one stopping
-  // nearer the target is kept; branches inside the range stop nowhere and tie.
-  const range: { min: number; max: number } | undefined = props.range;
-  const outside: boolean = ratio >= 1 || ratio <= -1;
-  const short = (theta: number): number =>
-    Math.abs(
-      Math.sqrt(
-        Math.max(0, k + alpha * Math.cos(theta) + beta * Math.sin(theta)),
-      ) - distance,
-    );
-  const stops: IStop[] = branches
-    .map((theta: number): IStop => {
-      if (range === undefined)
-        return { theta, shortfall: outside ? short(theta) : 0 };
-      const centre: number = (range.min + range.max) / 2;
-      const wrapped: number =
-        theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
-      const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
-      return {
-        theta: legal,
-        shortfall: legal === wrapped && !outside ? 0 : short(legal),
-      };
-    })
-    .filter(
-      (stop: IStop, index: number, all: IStop[]): boolean =>
-        all.findIndex((other: IStop): boolean => other.theta === stop.theta) ===
-        index,
-    );
   const shortfall: number = Math.min(
-    ...stops.map((stop: IStop): number => stop.shortfall),
+    ...stops.map((stop: hingedArmSwivel.IStop): number => stop.shortfall),
   );
-
-  const goal: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(props.upper.worldRotation),
-    reach,
-  );
-
   // Legality is compared EXACTLY, with no tolerance band. A band let a
   // candidate sitting one part in 1e12 outside a limit count as tied with a
   // strictly legal one and then win on deviation, so the solve returned a
@@ -272,23 +185,13 @@ export const hingedArmArticulation: (props: {
 
   let chosen: IScored | null = null;
   for (const { theta } of stops.filter(
-    (stop: IStop): boolean => stop.shortfall === shortfall,
+    (stop: hingedArmSwivel.IStop): boolean => stop.shortfall === shortfall,
   )) {
-    const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      hinge,
-      theta * RAD2DEG,
-    );
-    const mid: IAutoMovieVector3 = Vector3.add(
-      midOffset,
-      rotated(Quaternion.rotateVector(lower, endOffset)),
-    );
-    const aim: IAutoMovieQuaternion = aimRotation(mid, goal);
-    const swivelAxis: IAutoMovieVector3 = Vector3.normalize(mid);
+    // Each candidate is the chain posed at this branch and a swivel
+    // (`hingedArmSwivel.pose`).
+    const posed = hingedArmSwivel.pose(props, theta);
     const probe = (angle: number): IScored => {
-      const upper: IAutoMovieQuaternion = Quaternion.multiply(
-        aim,
-        Quaternion.fromAxisAngle(swivelAxis, angle),
-      );
+      const { upper, lower } = posed(angle);
       return { upper, lower, shortfall, ...props.score(upper, lower) };
     };
     const swept: IScored[] = [];
@@ -320,15 +223,6 @@ export const hingedArmArticulation: (props: {
     shortfall,
   };
 };
-
-/** One bend branch after the hinge's range: its hinge angle and how far short of the target distance it stops. */
-interface IStop {
-  /** The hinge angle, radians, inside the range when one is given. */
-  theta: number;
-
-  /** Metres between the chain's span at `theta` and the target distance; `0` for a branch that reaches the distance inside the range. */
-  shortfall: number;
-}
 
 /** One scored candidate: its rotations, its ROM overshoot and its effort tie-break. */
 interface IScored extends IAutoMovieHingedArticulation {
