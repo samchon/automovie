@@ -150,8 +150,8 @@ export function test_archetype_furniture_bands(): void {
       ),
       row(
         "bar stool seat height",
-        1.067 - 12 * ArchetypeUnits.INCH,
-        1.067 - 10 * ArchetypeUnits.INCH,
+        createTable.BANDS.bar.height.maximum - 12 * ArchetypeUnits.INCH,
+        createTable.BANDS.bar.height.maximum - 10 * ArchetypeUnits.INCH,
         "NKBA Guideline 9's 42 in bar counter less 10 to 12 in",
         (seed: number): number =>
           archetypeExtent(seat("barStool", seed), "y", ["seat"]).high,

@@ -1,5 +1,6 @@
 import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
 import type { createSeat } from "./createSeat";
+import { createTable } from "./createTable";
 
 /** A band in metres. */
 const band = (
@@ -98,8 +99,8 @@ export const SEAT_BANDS: Readonly<
   },
   barStool: {
     seatHeight: band(
-      1.067 - 12 * ArchetypeUnits.INCH,
-      1.067 - 10 * ArchetypeUnits.INCH,
+      createTable.BANDS.bar.height.maximum - 12 * ArchetypeUnits.INCH,
+      createTable.BANDS.bar.height.maximum - 10 * ArchetypeUnits.INCH,
       "a seat 10 to 12 in below the 42 in (1067 mm) bar counter of NKBA Kitchen Planning Guideline 9 (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf); the gap is trade convention, not read at a source",
       true,
     ),
