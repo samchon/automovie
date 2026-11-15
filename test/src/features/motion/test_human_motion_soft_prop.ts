@@ -20,6 +20,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** Standard gravity, m/s^2 (CGPM 1901). */
 const G: number = 9.80665;
 
+/** The hung cord's statics bound, a share of its length: #3448's first acceptance line (the free end its length below the anchor within 2 % once settled). */
+const STATICS: number = 0.02;
+
+/** The cord's length, metres: the cast's lanyard. */
+const LENGTH: number = 0.5;
+
+/** The cord's links: the cast's lanyard. */
+const LINKS: number = 20;
+
 /**
  * A cord of `links` segments and `length` metres hung from a bone-local point
  * of a performer's right hand, laid out straight below the hand's rest place.
@@ -84,7 +93,8 @@ const cord = (
  * Scenarios:
  *
  * 1. Once settled (the last second), the cord's free end hangs its length
- *    below the hand's socket within 2 % (statics of a hanging chain).
+ *    below the hand's socket within 2 % (statics of a hanging chain; the
+ *    bound is #3448's acceptance, `STATICS`).
  * 2. Reading 100 seconds in shuffled order gives the same bits as reading
  *    them sorted.
  * 3. Reading at 24 and at 60 frames a second gives the same state at the
@@ -93,14 +103,14 @@ const cord = (
  *    within 1 mm, the campaign's grip bound.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance with a soft prop and reads `HumanPerformance.soft` and the displayed bones.
- * @evidence contracts/development/testing.md#independent-expectations A hanging chain's statics put its free end its length below the anchor; read order and frame rate cannot change a pure read; the grip bound is the campaign's.
+ * @evidence contracts/development/testing.md#independent-expectations A hanging chain's statics put its free end its length below the anchor, within #3448's 2 %; read order and frame rate cannot change a pure read; the grip bound is the campaign's.
  * @evidence contracts/development/testing.md#distinguishing-cases Settled and moving reads, shuffled and sorted orders, two frame rates and the anchored end.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test that prepares one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
  */
 export function test_human_motion_soft_prop(): void {
   const body: IHumanBody = motionHumanBody("m-average");
-  const domain: IAutoMovieSoftBodyDomain = cord(body, 20, 0.5, 4);
+  const domain: IAutoMovieSoftBodyDomain = cord(body, LINKS, LENGTH, 4);
   const lanyard: IHumanProp = {
     subject: "lanyard",
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
@@ -141,8 +151,8 @@ export function test_human_motion_soft_prop(): void {
   const settled: number[] = at(end);
   const drop: number = socket(end).y - settled[settled.length - 2]!;
   TestValidator.predicate(
-    `the settled cord's end hangs ${drop.toFixed(4)} m below the hand, its 0.5 m length within 2 %`,
-    Math.abs(drop - 0.5) <= 0.01,
+    `the settled cord's end hangs ${drop.toFixed(4)} m below the hand, its ${LENGTH} m length within ${STATICS * 100} %`,
+    Math.abs(drop - LENGTH) <= STATICS * LENGTH,
   );
 
   // 2. Order.

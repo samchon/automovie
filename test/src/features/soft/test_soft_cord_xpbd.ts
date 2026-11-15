@@ -14,6 +14,9 @@ import { softPanel } from "../internal/softPanel";
 /** Standard gravity, m/s^2 (CGPM 1901). */
 const G: number = 9.80665;
 
+/** The sag bound, a share of the sag: #3450's first two acceptance lines (the catenary within 2 % of its sag; the sag at 4 and at 16 iterations within 2 %). */
+const SAG: number = 0.02;
+
 /** A straight cord of `links` segments and `length` metres along +X from the origin, its ends free. */
 const cord = (
   links: number,
@@ -67,6 +70,43 @@ const catenary = (l: number, s: number): number => {
   return a * (Math.cosh(s / (2 * a)) - 1);
 };
 
+/**
+ * The sag of a chain of `links` equal rigid links of total length `l` hung
+ * between two points `s` apart at one height, with equal weights at its
+ * joints, as the solver models a cord: the horizontal tension H is the same
+ * in every link, and the vertical one falls by a joint's weight w at each
+ * joint from half the joints' weight at an anchor, so link i rises at
+ * tan = (links / 2 - i + 1/2) / (H / w); H / w is found by bisection on the
+ * span (the span grows as H rises), and the sag is the rise of the first
+ * half of the links. An even number of links.
+ */
+const chain = (links: number, l: number, s: number): number => {
+  const link: number = l / links;
+  const slopes = (a: number): number[] =>
+    Array.from(
+      { length: links },
+      (_: unknown, i: number): number => (links / 2 - (i + 1) + 1 / 2) / a,
+    );
+  const reach = (a: number): number =>
+    slopes(a).reduce(
+      (sum: number, t: number): number => sum + link / Math.hypot(1, t),
+      0,
+    );
+  let lo: number = 1e-6;
+  let hi: number = 1e6;
+  for (let k: number = 0; k < 200; k++) {
+    const a: number = Math.sqrt(lo * hi);
+    if (reach(a) < s) lo = a;
+    else hi = a;
+  }
+  return slopes(Math.sqrt(lo * hi))
+    .slice(0, links / 2)
+    .reduce(
+      (sum: number, t: number): number => sum + (link * t) / Math.hypot(1, t),
+      0,
+    );
+};
+
 /** The least distance between two segments, by Ericson's clamped closed form (Real-Time Collision Detection, 5.1.9). */
 const segments = (p: readonly number[], i: number, j: number): number => {
   const v = (k: number): number[] => [p[k * 3]!, p[k * 3 + 1]!, p[k * 3 + 2]!];
@@ -105,10 +145,14 @@ const segments = (p: readonly number[], i: number, j: number): number => {
  *
  * Scenarios:
  *
- * 1. An inextensible cord of 1 m hung between two anchors 0.8 m apart
- *    settles to the catenary's sag within 2 % (closed form), solved at a
- *    quarter of the cord's step so the residual stretch of its fixed sweeps
- *    (quadratic in the step) stays a small part of the bound.
+ * 1. An inextensible cord of 1 m and 40 links hung between two anchors
+ *    0.8 m apart, solved at its step and at half of it, extrapolated by
+ *    Richardson to the converged solver (its residual stretch falls with the
+ *    step squared): the chain's own equilibrium (closed form) is the
+ *    continuous catenary's sag within 2 % (#3450's bound, `SAG`), the
+ *    converged sag is the catenary's within the same bound, and the error
+ *    against the chain's equilibrium falls from the step to its half and
+ *    again to the extrapolation, as the step-squared law has it.
  * 2. An elastic cord's settled sag is the same at 4 and at 16 sweeps within
  *    2 %, XPBD's independence of the iteration count (Macklin, Müller and
  *    Chentanez 2016, section 4).
@@ -122,8 +166,8 @@ const segments = (p: readonly number[], i: number, j: number): number => {
  *    gives, to the bit, and the budget counts the cord's segment pairs.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Solves cords through the engine's core and asserts the settled sag, the iteration independence, the least segment separation at every step, the capstan threshold and the observer's agreement with seeks.
- * @evidence contracts/development/testing.md#independent-expectations The catenary's closed form, XPBD's stated property, the capsule radius with the admitted travel bound, the capstan equation and absolute replay are independent of the solver; the discrete chain's own error against the continuous catenary is under the 2 % bound for 40 links.
- * @evidence contracts/development/testing.md#distinguishing-cases Inextensible and elastic cords, 4 and 16 sweeps, a held and a sliding load ratio either side of the bound, and early and late steps.
+ * @evidence contracts/development/testing.md#independent-expectations The catenary's and the discrete chain's closed forms, Richardson's extrapolation under the step-squared law of a fixed-sweep solve, XPBD's stated property, the capsule radius with the admitted travel bound, the capstan equation and absolute replay are independent of the solver; the 2 % is #3450's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inextensible and elastic cords, a step and its half, 4 and 16 sweeps, a held and a sliding load ratio either side of the bound, and early and late steps.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test of the engine's CPU solver with in-memory domains; no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and the behaviour each pins.
  */
@@ -134,34 +178,56 @@ export function test_soft_cord_xpbd(): void {
   };
   // 1. The catenary. A zero-compliance chain swept a fixed number of times
   // per step keeps a residual stretch that falls with the square of the
-  // step (Macklin et al. 2019, "Small steps in physics simulation", SCA):
-  // at 1/240 s the 40 links stretched about 1 %, which lengthens the sag by
-  // about 2 %, so the step is quartered (a sixteenth of the stretch) and the
-  // steps quadrupled to settle over the same 10 s.
+  // step (Macklin et al. 2019, "Small steps in physics simulation", SCA),
+  // so the cord is solved at its step and at half of it, and Richardson's
+  // extrapolation of the two (error proportional to the step squared) gives
+  // the converged solver's sag.
   const links: number = 40;
-  const base: IAutoMovieSoftBodyDomain = cord(links, 1, {});
-  const quarter: number = 4;
-  const hung: IAutoMovieSoftBodyDomain = cord(links, 1, {
+  const length: number = 1;
+  const span: number = 0.8;
+  const hung: IAutoMovieSoftBodyDomain = cord(links, length, {
     anchors: [
-      { id: "a", particle: 0, position: { x: -0.4, y: 1, z: 0 } },
-      { id: "b", particle: links, position: { x: 0.4, y: 1, z: 0 } },
+      { id: "a", particle: 0, position: { x: -span / 2, y: 1, z: 0 } },
+      { id: "b", particle: links, position: { x: span / 2, y: 1, z: 0 } },
     ],
-    solver: {
-      ...base.solver,
-      fixedStepSeconds: base.solver.fixedStepSeconds / quarter,
-      maxSteps: base.solver.maxSteps * quarter,
-    },
   });
-  const settled: IAutoMovieSoftBodyState = simulateSoftBodyCore(
-    hung,
-    hung.solver.maxSteps,
-    null,
-    null,
-  );
-  const expected: number = catenary(1, 0.8);
+  const solved = (refine: number): number =>
+    sag(
+      simulateSoftBodyCore(
+        {
+          ...hung,
+          solver: {
+            ...hung.solver,
+            fixedStepSeconds: hung.solver.fixedStepSeconds / refine,
+            maxSteps: hung.solver.maxSteps * refine,
+          },
+        },
+        hung.solver.maxSteps * refine,
+        null,
+        null,
+      ),
+      1,
+    );
+  const coarse: number = solved(1);
+  const fine: number = solved(2);
+  const converged: number = (4 * fine - coarse) / 3;
+  const discrete: number = chain(links, length, span);
+  const expected: number = catenary(length, span);
   check(
-    `the hung cord's sag ${sag(settled, 1).toFixed(4)} m is the catenary's ${expected.toFixed(4)} m within 2 %`,
-    Math.abs(sag(settled, 1) - expected) <= 0.02 * expected,
+    `the 40 links' own equilibrium sags ${discrete.toFixed(4)} m, the continuous catenary's ${expected.toFixed(4)} m within ${SAG * 100} %`,
+    Math.abs(discrete - expected) <= SAG * expected,
+  );
+  check(
+    `the converged solver sags ${converged.toFixed(4)} m, the catenary's ${expected.toFixed(4)} m within ${SAG * 100} %`,
+    Math.abs(converged - expected) <= SAG * expected,
+  );
+  // The step-squared law: the halved step leaves less error than the step,
+  // and the extrapolation that assumes the law leaves less than either, the
+  // chain's own equilibrium being the exact answer of what is solved.
+  check(
+    `the solver's sag nears the chain's ${discrete.toFixed(4)} m as the step falls, as its square: ${coarse.toFixed(4)} m at the step, ${fine.toFixed(4)} m at half of it, ${converged.toFixed(4)} m extrapolated`,
+    Math.abs(converged - discrete) < Math.abs(fine - discrete) &&
+      Math.abs(fine - discrete) < Math.abs(coarse - discrete),
   );
 
   // 2. Iteration independence of an elastic cord.
@@ -185,8 +251,8 @@ export function test_soft_cord_xpbd(): void {
   const few: number = elastic(4);
   const many: number = elastic(16);
   check(
-    `an elastic cord sags ${few.toFixed(4)} m at 4 sweeps and ${many.toFixed(4)} m at 16, within 2 %`,
-    Math.abs(few - many) <= 0.02 * many,
+    `an elastic cord sags ${few.toFixed(4)} m at 4 sweeps and ${many.toFixed(4)} m at 16, within ${SAG * 100} %`,
+    Math.abs(few - many) <= SAG * many,
   );
 
   // 3. A coil dropped on the floor keeps its segments apart.

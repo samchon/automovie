@@ -16,6 +16,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** Standard gravity, m/s^2 (CGPM 1901). */
 const G: number = 9.80665;
 
+/** The tension's statics bound, a share of the weight below the hand: #3451's test line (the tension equals the cord's weight below the hand within 2 %). */
+const STATICS: number = 0.02;
+
+/** The cord's length, metres: the cast's cord. */
+const LENGTH: number = 0.5;
+
+/** The cord's links: the cast's cord. */
+const LINKS: number = 20;
+
 /** A cord of `links` segments, `length` metres and `mass` kilograms hung from the right hand's grip socket of performer "a". */
 const hung = (
   body: IHumanBody,
@@ -95,7 +104,7 @@ const hung = (
  * 4. A hand that holds nothing, the left, reads no force.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds performances with a hung soft prop and reads `HumanPerformance.softLoad`.
- * @evidence contracts/development/testing.md#independent-expectations Statics of a hanging chain (the anchor bears the weight below it), monotonicity in mass, the purity of a read, and an empty hand.
+ * @evidence contracts/development/testing.md#independent-expectations Statics of a hanging chain (the anchor bears the weight below it, within #3451's 2 %), monotonicity in mass, the purity of a read, and an empty hand.
  * @evidence contracts/development/testing.md#distinguishing-cases Two masses, two frame rates, the holding and the free hand.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the four scenarios with their bounds.
@@ -107,7 +116,7 @@ export function test_human_motion_soft_load(): void {
   for (const mass of [0.05, 0.5]) {
     const performance: HumanPerformance = new HumanPerformance({
       seed: "load",
-      props: [hung(body, 20, 0.5, mass, 4)],
+      props: [hung(body, LINKS, LENGTH, mass, 4)],
       performers: [
         {
           subject: "a",
@@ -126,16 +135,16 @@ export function test_human_motion_soft_load(): void {
       "right",
       end,
     );
-    const weight: number = ((mass * 20) / 21) * G;
+    const weight: number = ((mass * LINKS) / (LINKS + 1)) * G;
     pulls.push(-f.y);
     if (
       !(
-        Math.abs(-f.y - weight) <= 0.02 * weight &&
-        Math.hypot(f.x, f.z) <= 0.02 * weight
+        Math.abs(-f.y - weight) <= STATICS * weight &&
+        Math.hypot(f.x, f.z) <= STATICS * weight
       )
     )
       complaints.push(
-        `${mass} kg: the hand bears (${f.x.toFixed(4)}, ${f.y.toFixed(4)}, ${f.z.toFixed(4)}) N, the ${weight.toFixed(4)} N below it straight down within 2 % expected`,
+        `${mass} kg: the hand bears (${f.x.toFixed(4)}, ${f.y.toFixed(4)}, ${f.z.toFixed(4)}) N, the ${weight.toFixed(4)} N below it straight down within ${STATICS * 100} % expected`,
       );
     const free: IAutoMovieVector3 = performance.softLoad(
       "cord",
