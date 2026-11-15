@@ -3,13 +3,16 @@ import {
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Vector3,
+  ViolationCollector,
   fitDigitToTarget,
   getConstraint,
   resolveAutoMovieHumanoidSurfaces,
+  validateJointRom,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -18,6 +21,15 @@ import { type IHumanBody, poseBones } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** A reached point's bound, metres: #3444's first two acceptance lines (each workspace point within 0.5 mm; an unreachable point's residual within 0.5 mm). */
+const REACH: number = 5e-4;
+
+/** The largest joint move between targets 1 mm apart, degrees: #3444's third acceptance line. */
+const STEP: number = 5;
+
+/** The opposition bound, metres: #3444's fourth acceptance line (the thumb tip on the index pad within 1 mm). */
+const PINCH: number = 1e-3;
 
 /** The digits by rig name. */
 const DIGITS = ["Thumb", "Index", "Middle", "Ring", "Little"] as const;
@@ -124,8 +136,9 @@ const fit = (
  * 2. A point 0.2 m beyond the fingertip ends at the reachable point nearest
  *    it: the residual is the distance left and no sampled workspace point is
  *    nearer by more than 0.5 mm.
- * 3. A target moved 1 mm at a time along a 20 mm line moves every joint by at
- *    most 5 degrees per step.
+ * 3. A target moved 1 mm at a time along a 20 mm line, each fit seeded from
+ *    the one before (continuation), moves every joint by at most 5 degrees
+ *    per step.
  * 4. Opposition: the thumb's tip reaches the index pad of a pinching index
  *    within 1 mm on every body of `EXTREMES`.
  * 5. No fitted joint leaves its range.
@@ -146,7 +159,7 @@ export function test_engine_digit_fit(): void {
 
   // 1. Workspace points.
   let worst: number = 0;
-  let inRange: boolean = true;
+  const outside: string[] = [];
   for (const digit of DIGITS) {
     const bones: AutoMovieHumanoidBone[] = digitBones("right", digit);
     for (let k: number = 0; k < 6; k++) {
@@ -163,27 +176,30 @@ export function test_engine_digit_fit(): void {
         target,
       );
       worst = Math.max(worst, result.residual);
-      inRange &&= result.joints.every((j: IAutoMovieJointPose): boolean => {
-        const c = getConstraint(j.bone, null);
-        const within = (
-          v: number | null,
-          r: { min: number; max: number } | null | undefined,
-        ): boolean =>
-          v === null ||
-          r === null ||
-          r === undefined ||
-          (v >= r.min - 0.01 && v <= r.max + 0.01);
-        return (
-          within(j.flexion, c?.flexion) && within(j.abduction, c?.abduction)
+      // The rig's own ranges, read by the engine's range validator (the
+      // verdicts' measure), not by the clamp the fit projects with: a
+      // thumb base gated by swing and twist is judged by its cone.
+      for (const j of result.joints) {
+        const constraint: IAutoMovieJointConstraint | null = getConstraint(
+          j.bone,
+          body.skeleton.bones.find((b) => b.bone === j.bone)?.constraint ??
+            null,
         );
-      });
-    }
+        if (constraint === null) continue;
+        const collector: ViolationCollector = new ViolationCollector();
+        validateJointRom({ joint: j, constraint, path: j.bone, collector });
+        for (const item of collector.items)
+          outside.push(JSON.stringify(item).slice(0, 160));
+      }    }
   }
   check(
     `every workspace point is reached within 0.5 mm (worst ${(worst * 1000).toFixed(3)} mm)`,
-    worst <= 5e-4,
+    worst <= REACH,
   );
-  check("no fitted joint leaves its range", inRange);
+  check(
+    `no fitted joint leaves its range (${outside.slice(0, 4).join("; ")})`,
+    outside.length === 0,
+  );
 
   // 2. Out of reach.
   const rest: IAutoMovieVector3 = surfaceAt(
@@ -210,7 +226,7 @@ export function test_engine_digit_fit(): void {
     `an unreachable point leaves ${beyond.residual.toFixed(4)} m, the reached point's own distance, and no sampled point is nearer by more than 0.5 mm`,
     Math.abs(
       beyond.residual - Vector3.length(Vector3.subtract(beyond.point, far)),
-    ) <= 5e-4 && beyond.residual <= nearest + 5e-4,
+    ) <= REACH && beyond.residual <= nearest + REACH,
   );
 
   // 3. Continuity along a path.
@@ -230,6 +246,7 @@ export function test_engine_digit_fit(): void {
     "indexTipRight",
   ).point;
   let jump: number = 0;
+  let where: string = "";
   let previous: IAutoMovieJointPose[] | undefined;
   for (let mm: number = 0; mm <= 20; mm++) {
     const result: fitDigitToTarget.IResult = fit(
@@ -237,21 +254,26 @@ export function test_engine_digit_fit(): void {
       "right",
       "Index",
       Vector3.add(origin, { x: 0, y: -mm / 1000, z: 0 }),
-      start,
+      // Continuation: each fit seeded from the one before, as a caller
+      // following a moving target does.
+      previous === undefined ? start : posed(body, previous),
     );
     if (previous !== undefined)
       result.joints.forEach((j: IAutoMovieJointPose, i: number): void => {
-        jump = Math.max(
-          jump,
+        const moved: number = Math.max(
           Math.abs((j.flexion ?? 0) - (previous![i]!.flexion ?? 0)),
           Math.abs((j.abduction ?? 0) - (previous![i]!.abduction ?? 0)),
         );
+        if (moved > jump) {
+          jump = moved;
+          where = `${mm} mm, ${j.bone} from ${JSON.stringify(previous![i])} to ${JSON.stringify(j)}, residual ${(result.residual * 1000).toFixed(3)} mm`;
+        }
       });
     previous = result.joints;
   }
   check(
-    `a target moved 1 mm at a time moves no joint more than 5 degrees (largest ${jump.toFixed(2)})`,
-    jump <= 5,
+    `a target moved 1 mm at a time moves no joint more than 5 degrees (largest ${jump.toFixed(2)}, at ${where})`,
+    jump <= STEP,
   );
 
   // 4. Opposition on every body.
@@ -281,7 +303,7 @@ export function test_engine_digit_fit(): void {
     );
     check(
       `${name}: the thumb tip reaches the pinching index pad within 1 mm (${(result.residual * 1000).toFixed(3)} mm)`,
-      result.residual <= 1e-3,
+      result.residual <= PINCH,
     );
   }
   TestValidator.equals("the digit fit", complaints, []);
