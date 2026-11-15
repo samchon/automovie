@@ -1,0 +1,35 @@
+---
+title: Getting started
+---
+
+# Getting started
+
+AutoMovie is a set of npm packages and a scaffold for a production, the project of one film. Your coding agent writes the screenplay and programs the staging, motion and camera against the packages, and AutoMovie computes that code into the same frames every time, as a motion hint for video diffusion or as a film rendered directly. The packages contain no LLM and no server: you bring the agent, any image or video model a production uses, and the machine that renders.
+
+## Create a production
+
+```bash
+npx automovie create <directory>
+cd <directory>
+pnpm install
+```
+
+Open the directory in a coding agent that reads `AGENTS.md` or `CLAUDE.md`, and tell it what to make. The production holds the instructions, the contracts its work answers, the configuration and an empty Viewer, and no film. The agent records your decisions in `PROJECT.md` and asks only when a decision you have not delegated blocks it.
+
+## Several productions in one workspace
+
+```bash
+npx automovie create <directory> --workspace
+cd <directory>
+pnpm install
+pnpm automovie add shorts/<name>
+pnpm install
+```
+
+A workspace keeps several productions under one set of instructions, with packages of its own for code they share. `add series/<name>` starts a series instead of a short.
+
+## What to read next
+
+- [Composing motion](/docs/composing-motion) explains how a performance is put together from the motion vocabulary.
+- [Scenes](/scenes) shows what composing does: whole scenes, each replayed with other seeds, bodies and skill.
+- The [repository README](https://github.com/samchon/automovie#readme) describes how a film is made from brief to finished video, the commands, and every package.

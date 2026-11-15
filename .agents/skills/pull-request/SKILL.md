@@ -18,7 +18,7 @@ Pushing, opening, and merging each need the user's request or a mandate that nam
 
 Write the body once: intent, scope, deferred items, local verification, and skipped checks.
 
-Record later fixes and [Self-Review](../review/SKILL.md) rounds as `COMMENT` reviews, with line findings inline, never as ordinary comments, `APPROVE`, or `REQUEST_CHANGES`.
+Record later fixes and each [Self-Review](../review/SKILL.md) pass or round as a `COMMENT` review, with line findings inline, never as ordinary comments, `APPROVE`, or `REQUEST_CHANGES`.
 
 Write an issue, pull request or comment body to a UTF-8 file and pass it with `--body-file` from a shell that keeps its bytes, then read the published body back. Windows PowerShell 5.1 reads UTF-8 without a BOM as ANSI and turns every non-ASCII character into `?`.
 
@@ -26,6 +26,6 @@ Write an issue, pull request or comment body to a UTF-8 file and pass it with `-
 
 Push a correction only after every check of the current head has settled, because a push cancels the running checks.
 
-Squash-merge once required checks are green on the exact head. An [issue campaign](../issue-campaign/SKILL.md) also needs a clean [Overall Self-Review](../review/SKILL.md#overall-self-review) on that head.
+Squash-merge once required checks are green on the exact head. An [issue campaign](../issue-campaign/SKILL.md) also needs a completed [Overall Self-Review](../review/SKILL.md#overall-self-review) on that head.
 
 Under a delivery mandate, merge without asking. Report a branch-protection block instead of bypassing it.

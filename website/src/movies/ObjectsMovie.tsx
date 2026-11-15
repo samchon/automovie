@@ -1,0 +1,214 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
+
+import { ObjectCard } from "../components/objects/ObjectCard";
+import { ObjectsHead } from "../components/objects/ObjectsHead";
+import type { IGalleryAdapter } from "../gallery/IGalleryAdapter";
+import { loadGalleryAdapter } from "../gallery/loadGalleryAdapter";
+import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
+import GalleryMovie from "./GalleryMovie";
+
+/** What the page shows: the grid, or one subject the address names. */
+type Mode =
+  | { kind: "loading" }
+  | { kind: "failed"; message: string }
+  | { kind: "grid"; catalogue: IGalleryCatalogue };
+
+/**
+ * The object gallery: every archetype the packages export as a card,
+ * grouped by family, with family chips and a filter kept in the address.
+ * An address naming a subject opens that archetype's page instead; the
+ * address is read on every navigation, so a link back to the grid shows it.
+ * A search that keeps no object says so.
+ *
+ * @param props The listed scenes that place each producer, by producer's export name, which an archetype's page lists.
+ * @returns The page.
+ */
+export default function ObjectsMovie(props: {
+  uses: Record<string, { id: string; title: string }[]>;
+}): ReactElement {
+  const [mode, setMode]: [Mode, Dispatch<SetStateAction<Mode>>] =
+    useState<Mode>({ kind: "loading" });
+  const [family, setFamily]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
+  const [query, setQuery]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
+  const opened: boolean = useSearchParams().has("subject");
+
+  useEffect((): (() => void) => {
+    let alive: boolean = true;
+    if (opened) return (): void => undefined;
+    const params: URLSearchParams = new URLSearchParams(window.location.search);
+    setFamily(params.get("family"));
+    setQuery(params.get("q") ?? "");
+    loadGalleryAdapter()
+      .then((adapter: IGalleryAdapter): void => {
+        if (alive) setMode({ kind: "grid", catalogue: adapter.catalogue });
+      })
+      .catch((error: unknown): void => {
+        if (alive)
+          setMode({
+            kind: "failed",
+            message: error instanceof Error ? error.message : String(error),
+          });
+      });
+    return (): void => {
+      alive = false;
+    };
+  }, [opened]);
+
+  if (opened) return <GalleryMovie uses={props.uses} />;
+
+  const change: (nextFamily: string | null, nextQuery: string) => void = (
+    nextFamily: string | null,
+    nextQuery: string,
+  ): void => {
+    setFamily(nextFamily);
+    setQuery(nextQuery);
+    const params: URLSearchParams = new URLSearchParams();
+    if (nextFamily !== null) params.set("family", nextFamily);
+    if (nextQuery !== "") params.set("q", nextQuery);
+    const text: string = params.toString();
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${text === "" ? "" : `?${text}`}`,
+    );
+  };
+  const words: string[] = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w: string): boolean => w !== "");
+  const matches: (subject: IGalleryCatalogue.ISubject) => boolean = (
+    subject: IGalleryCatalogue.ISubject,
+  ): boolean => {
+    const text: string = [
+      subject.label,
+      subject.group,
+      ...subject.variants.map((v: { label: string }): string => v.label),
+    ]
+      .join(" ")
+      .toLowerCase();
+    return words.every((w: string): boolean => text.includes(w));
+  };
+
+  // The groups the chips select, each with the subjects the search keeps.
+  const groups: {
+    group: IGalleryCatalogue.IGroup;
+    shown: IGalleryCatalogue.ISubject[];
+  }[] =
+    mode.kind === "grid"
+      ? mode.catalogue.groups
+          .filter(
+            (g: IGalleryCatalogue.IGroup): boolean =>
+              family === null || g.name === family,
+          )
+          .map(
+            (
+              group: IGalleryCatalogue.IGroup,
+            ): {
+              group: IGalleryCatalogue.IGroup;
+              shown: IGalleryCatalogue.ISubject[];
+            } => ({ group, shown: group.subjects.filter(matches) }),
+          )
+      : [];
+
+  return (
+    <main className="am-app am-catalogue">
+      <ObjectsHead />
+      {mode.kind === "loading" ? (
+        <p className="am-status" role="status">
+          Loading the archetypes.
+        </p>
+      ) : mode.kind === "failed" ? (
+        <div className="am-alert" role="alert">
+          <h2>The archetypes did not load</h2>
+          <pre className="am-message">{mode.message}</pre>
+        </div>
+      ) : (
+        <>
+          <div className="am-filters" role="search">
+            <div className="am-chips" role="group" aria-label="Family">
+              {[
+                null,
+                ...mode.catalogue.groups.map(
+                  (g: IGalleryCatalogue.IGroup): string => g.name,
+                ),
+              ].map(
+                (name: string | null): ReactElement => (
+                  <button
+                    key={name ?? "all"}
+                    type="button"
+                    className="am-chip"
+                    aria-pressed={family === name}
+                    onClick={(): void => change(name, query)}
+                  >
+                    {name === null
+                      ? "All"
+                      : name[0]!.toUpperCase() + name.slice(1)}
+                  </button>
+                ),
+              )}
+            </div>
+            <label className="am-search">
+              <span className="am-visually-hidden">Search objects</span>
+              <input
+                type="search"
+                placeholder="Search: chair, hinge, sword"
+                value={query}
+                onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+                  change(family, event.target.value)
+                }
+              />
+            </label>
+          </div>
+          {groups.map(
+            ({
+              group,
+              shown,
+            }: {
+              group: IGalleryCatalogue.IGroup;
+              shown: IGalleryCatalogue.ISubject[];
+            }): ReactElement | null => {
+              if (shown.length === 0) return null;
+              return (
+                <section
+                  key={group.name}
+                  aria-labelledby={`am-family-${group.name}`}
+                >
+                  <h2 id={`am-family-${group.name}`}>
+                    {group.name[0]!.toUpperCase() + group.name.slice(1)}
+                  </h2>
+                  <ul className="am-object-grid">
+                    {shown.map(
+                      (subject: IGalleryCatalogue.ISubject): ReactElement => (
+                        <ObjectCard key={subject.id} subject={subject} />
+                      ),
+                    )}
+                  </ul>
+                </section>
+              );
+            },
+          )}
+          {groups.every(
+            (g: { shown: IGalleryCatalogue.ISubject[] }): boolean =>
+              g.shown.length === 0,
+          ) ? (
+            <p className="am-status">No object matches this selection.</p>
+          ) : null}
+        </>
+      )}
+    </main>
+  );
+}

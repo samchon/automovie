@@ -1,15 +1,31 @@
 // Open the built site in a headless browser and check that its pages run.
 //
-//   pnpm run smoke
+//   pnpm run smoke [--shots]
 //
 // The type check and the Node tests cannot see what only the browser bundle
 // does, such as a package source the bundler compiled wrongly. This serves
 // `out/`, opens each page below, waits for what it must show, and fails on a
-// missing element, a page error, a console error or a failed request.
+// missing element, a page error, a console error, a failed request, a page
+// that creates more WebGL contexts than it may, or an address that does not
+// arrive where it should. The scene gallery's case also scrolls its last
+// card into view and checks that its take was computed only then. Each
+// page's time to show what it must is logged, and with `--shots` each page
+// is saved once checked as `.shots/smoke-<n>.png`, which git ignores.
 import { compressToEncodedURIComponent } from "lz-string";
+import fs from "node:fs";
 import type http from "node:http";
-import { type Browser, type Page, chromium } from "playwright-core";
+import path from "node:path";
+import {
+  type Browser,
+  type BrowserContext,
+  type Locator,
+  type Page,
+  chromium,
+} from "playwright-core";
 
+import { SCENES } from "../src/scenes/SCENES";
+import { SceneStatus } from "../src/scenes/package/SceneStatus";
+import type { IScene } from "../src/scenes/structures/IScene";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -25,6 +41,18 @@ interface ICase {
 
   /** Selectors that must match nothing once the others do. */
   lacks: string[];
+
+  /** The most WebGL contexts the page may create; unchecked when absent. */
+  contexts?: number;
+
+  /** The path, under the site's root, the page must end on. */
+  arrives?: string;
+
+  /** Whether the browser asks for reduced motion; a landing page's stage must then stay on its first scene. */
+  reduced?: boolean;
+
+  /** A further check once the selectors match, adding what it finds to problems. */
+  check?: (page: Page, problems: string[]) => Promise<void>;
 }
 
 /** A composition whose second action the vocabulary lacks. */
@@ -50,18 +78,179 @@ const REFUSED: string = compressToEncodedURIComponent(
   }),
 );
 
+/** A drawn scene view: a canvas inside a view that finished loading. */
+const DRAWN: string = '.am-scene-view[aria-busy="false"] canvas';
+
+/** Whether each page is saved as a screenshot once checked. */
+const SHOTS: boolean = process.argv.includes("--shots");
+
+/** The longest a take may take to compute and draw in the headless browser, which poses on the CPU alone, before the case fails. */
+const COMPUTE_LIMIT: number = 180000;
+
+/** The first listed scene whose record marks it refused, whose page must show the packages' refusal. */
+const REFUSED_SCENE: IScene | undefined = SCENES.find(
+  (scene: IScene): boolean =>
+    scene.hidden !== true && SceneStatus.of(scene).kind === "refused",
+);
+
+/**
+ * The gallery's last card is not computed before it is scrolled into view,
+ * and is computed and drawn once it is; the time from the scroll to the
+ * drawing is logged.
+ */
+const lazyCard: (page: Page, problems: string[]) => Promise<void> = async (
+  page: Page,
+  problems: string[],
+): Promise<void> => {
+  const view: Locator = page.locator(".am-scene-card .am-scene-view").last();
+  const title: string =
+    (await page
+      .locator(".am-scene-card .am-scene-card-title")
+      .last()
+      .textContent()) ?? "";
+  const before: string | null = await view.getAttribute("data-take");
+  if (before !== "waiting")
+    problems.push(
+      `the last card's take was ${before} before it was scrolled into view`,
+    );
+  const started: number = Date.now();
+  await view.scrollIntoViewIfNeeded();
+  try {
+    await page.waitForFunction(
+      (): boolean => {
+        const views: NodeListOf<Element> = document.querySelectorAll(
+          ".am-scene-card .am-scene-view",
+        );
+        const phase: string | null =
+          views[views.length - 1]?.getAttribute("data-take") ?? null;
+        return phase !== "waiting" && phase !== "computing";
+      },
+      undefined,
+      { timeout: COMPUTE_LIMIT, polling: 100 },
+    );
+  } catch {
+    problems.push(
+      "the last card's take was not computed after it was scrolled into view",
+    );
+    return;
+  }
+  const after: string | null = await view.getAttribute("data-take");
+  if (after !== "ready")
+    problems.push(`the last card's take ended ${after}, not ready`);
+  else
+    console.log(
+      `  the last card, ${title}, computed and drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was scrolled into view`,
+    );
+};
+
 const CASES: readonly ICase[] = [
   {
-    name: "landing",
+    name: "landing plays its hero",
     path: "",
     shows: [
-      'a[href="/automovie/playground/"]',
-      'a[href="/automovie/gallery/"]',
+      ".am-hero h1",
+      `.am-hero-stage ${DRAWN}`,
+      'a[href="/automovie/scenes/"]',
+    ],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    contexts: 1,
+  },
+  {
+    name: "landing under reduced motion holds its frames",
+    path: "",
+    shows: [`.am-hero-stage ${DRAWN}`],
+    lacks: [],
+    reduced: true,
+  },
+  {
+    name: "scenes gallery plays its cards",
+    path: "scenes/",
+    shows: [`.am-scene-card ${DRAWN}`, "#am-roadmap"],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    contexts: 1,
+    check: lazyCard,
+  },
+  {
+    name: "a scene page plays with its takes and chain",
+    path: "scenes/meeting/",
+    shows: [
+      `.am-player ${DRAWN}`,
+      ".am-take-grid .am-take canvas",
+      ".am-transport",
+    ],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    contexts: 1,
+  },
+  ...(REFUSED_SCENE === undefined
+    ? []
+    : [
+        {
+          name: `scene ${REFUSED_SCENE.id} shows the packages' refusal`,
+          path: `scenes/${REFUSED_SCENE.id}/`,
+          shows: [".am-scene-refused", ".am-scene-view-refusal"],
+          lacks: [".am-scene-view-note.am-danger-text"],
+          contexts: 1,
+        },
+      ]),
+  {
+    name: "a scene page under reduced motion renders as the server did",
+    path: "scenes/meeting/",
+    shows: [`.am-player ${DRAWN}`, ".am-transport"],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    reduced: true,
+  },
+  {
+    name: "a scene that waits shows what it waits on",
+    path: "scenes/line-volley/",
+    shows: [
+      ".am-badge",
+      'a[href^="https://github.com/samchon/automovie/issues/"]',
+    ],
+    lacks: [".am-player"],
+  },
+  {
+    name: "objects gallery draws its cards",
+    path: "objects/",
+    shows: [".am-object-card .am-object-view canvas", ".am-chips"],
+    lacks: [".am-alert"],
+    contexts: 1,
+  },
+  {
+    name: "the old gallery address arrives at the opened door",
+    path: "gallery/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
+    arrives: "objects/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
+    shows: [
+      '.am-viewport[aria-busy="false"] canvas',
+      ".am-viewport-tag",
+      'aside[aria-label="Details"] [role="group"][aria-label="Details view"]',
+    ],
+    lacks: [".am-viewport-error"],
+  },
+  {
+    name: "the Human page stands every body",
+    path: "human/",
+    shows: [`.am-player ${DRAWN}`, "details.am-measures table tbody tr"],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    contexts: 1,
+  },
+  {
+    name: "the motion reference lists the actions",
+    path: "motions/actions/",
+    shows: [
+      ".am-motion-nav",
+      "section#walk",
+      'a[href^="/automovie/playground/#c="]',
     ],
     lacks: [],
   },
   {
-    name: "playground performs its first preset",
+    name: "the docs open",
+    path: "docs/composing-motion/",
+    shows: ["article h1", "nav"],
+    lacks: [],
+  },
+  {
+    name: "playground performs the dance circle",
     path: "playground/",
     shows: [
       "#am-pane-compose",
@@ -80,27 +269,21 @@ const CASES: readonly ICase[] = [
     ],
     lacks: [".am-instrument"],
   },
-  {
-    name: "gallery draws the polygon man",
-    path: "gallery/",
-    shows: [
-      'nav[aria-label="Catalogue"]',
-      'section[aria-label="3D view"] .am-viewport[aria-busy="false"] canvas',
-      'aside[aria-label="Details"] .am-table',
-    ],
-    lacks: [".am-viewport-error"],
-  },
-  {
-    name: "gallery draws an opened door with its affordances",
-    path: "gallery/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
-    shows: [
-      '.am-viewport[aria-busy="false"] canvas',
-      ".am-viewport-tag",
-      'aside[aria-label="Details"] input[type="range"]',
-    ],
-    lacks: [".am-viewport-error"],
-  },
 ];
+
+/** Counts the WebGL contexts a page creates, installed before any of its scripts run. */
+const COUNTERS: string = `
+  window.__amContexts = 0;
+  const getContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (kind, ...rest) {
+    const made = getContext.call(this, kind, ...rest);
+    if (made !== null && String(kind).startsWith("webgl") && !this.__amCounted) {
+      this.__amCounted = true;
+      window.__amContexts++;
+    }
+    return made;
+  };
+`;
 
 const main = async (): Promise<void> => {
   const served: { server: http.Server; address: string } = await serveExport(0);
@@ -113,7 +296,12 @@ const main = async (): Promise<void> => {
   const failures: string[] = [];
   try {
     for (const each of CASES) {
-      const page: Page = await browser.newPage();
+      const context: BrowserContext = await browser.newContext({
+        reducedMotion: each.reduced === true ? "reduce" : "no-preference",
+        viewport: { width: 1440, height: 900 },
+      });
+      await context.addInitScript(COUNTERS);
+      const page: Page = await context.newPage();
       const problems: string[] = [];
       page.on("console", (message): void => {
         if (message.type() === "error")
@@ -125,27 +313,76 @@ const main = async (): Promise<void> => {
       page.on("requestfailed", (request): void => {
         problems.push(`failed request: ${request.url()}`);
       });
+      const opened: number = Date.now();
       await page.goto(`${served.address}${each.path}`, { waitUntil: "load" });
+      if (each.arrives !== undefined)
+        try {
+          await page.waitForURL(`${served.address}${each.arrives}`, {
+            timeout: 30000,
+          });
+        } catch {
+          problems.push(`arrived at ${page.url()}, not ${each.arrives}`);
+        }
       for (const selector of each.shows)
         try {
           await page.waitForSelector(selector, {
             state: "attached",
-            timeout: 180000,
+            timeout: COMPUTE_LIMIT,
           });
         } catch {
           problems.push(`missing: ${selector}`);
         }
+      console.log(
+        `  shown in ${((Date.now() - opened) / 1000).toFixed(1)} s after it was opened`,
+      );
+      if (each.check !== undefined) await each.check(page, problems);
       for (const selector of each.lacks)
         if ((await page.locator(selector).count()) !== 0)
           problems.push(
             `unexpected: ${selector}: ${((await page.locator(selector).first().textContent()) ?? "").slice(0, 300)}`,
           );
+      if (each.contexts !== undefined) {
+        const made: number = await page.evaluate(
+          (): number =>
+            (window as unknown as { __amContexts: number }).__amContexts,
+        );
+        if (made > each.contexts)
+          problems.push(
+            `created ${made} WebGL contexts, more than ${each.contexts}`,
+          );
+      }
+      if (
+        each.reduced === true &&
+        (await page.locator(".am-hero-caption").count()) !== 0
+      ) {
+        // A held stage draws its first picture and stays on its scene.
+        const time: string = await page
+          .locator(".am-hero-caption")
+          .first()
+          .textContent()
+          .then((text: string | null): string => text ?? "");
+        await page.waitForTimeout(1500);
+        const later: string = await page
+          .locator(".am-hero-caption")
+          .first()
+          .textContent()
+          .then((text: string | null): string => text ?? "");
+        if (time !== later)
+          problems.push("the hero moved on under reduced motion");
+      }
+      if (SHOTS) {
+        const out: string = path.resolve(__dirname, "..", ".shots");
+        fs.mkdirSync(out, { recursive: true });
+        await page.screenshot({
+          path: path.join(out, `smoke-${CASES.indexOf(each)}.png`),
+        });
+      }
       console.log(`${problems.length === 0 ? "pass" : "FAIL"} ${each.name}`);
       for (const problem of problems) {
         console.log(`  ${problem}`);
         failures.push(`${each.name}: ${problem}`);
       }
-      await page.close();
+      await context.close();
     }
   } finally {
     await browser.close();

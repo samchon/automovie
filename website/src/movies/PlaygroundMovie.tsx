@@ -18,13 +18,14 @@ import { PlaygroundVerdicts } from "../components/playground/PlaygroundVerdicts"
 import type { IPlaygroundAdapter } from "../playground/IPlaygroundAdapter";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import { applyPlaygroundFix } from "../playground/applyPlaygroundFix";
-import { PLAYGROUND_PRESETS } from "../playground/data/PLAYGROUND_PRESETS";
 import { findPlaygroundRefusedAction } from "../playground/findPlaygroundRefusedAction";
 import { formatPlaygroundReport } from "../playground/formatPlaygroundReport";
 import { loadPlaygroundAdapter } from "../playground/loadPlaygroundAdapter";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundVerdicts } from "../playground/structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../playground/structures/IPlaygroundVocabulary";
+import { SCENES } from "../scenes/SCENES";
+import type { IScene } from "../scenes/structures/IScene";
 
 /** What the page has of the adapter. */
 type Loaded =
@@ -42,6 +43,14 @@ type Outcome =
   | { kind: "building" }
   | IPlaygroundAdapter.Result;
 
+/**
+ * What the page opens with when its address carries no composition: a scene
+ * that plans in under a second, so the page answers at once.
+ */
+const FIRST: IPlaygroundComposition = SCENES.find(
+  (s: IScene): boolean => s.id === "dance-circle",
+)!.composition!;
+
 /** Which pane a narrow screen shows. */
 type Pane = "compose" | "result";
 
@@ -56,7 +65,7 @@ type Pane = "compose" | "result";
  *
  * The composition is kept in the address's fragment, so the address
  * reproduces what the page shows. The page opens with the composition of
- * its address, or the first preset, and performs it at once. On a narrow
+ * its address, or the dance circle, and performs it at once. On a narrow
  * screen the panes are two tabs, and performing shows the result.
  *
  * @returns The page.
@@ -64,8 +73,7 @@ type Pane = "compose" | "result";
 export default function PlaygroundMovie(): ReactElement {
   const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
   const [composition, setComposition] = useState<IPlaygroundComposition>(
-    (): IPlaygroundComposition =>
-      structuredClone(PLAYGROUND_PRESETS[0]!.composition),
+    (): IPlaygroundComposition => structuredClone(FIRST),
   );
 
   // The composition the outcome belongs to: a refusal is shown on the action
@@ -107,9 +115,7 @@ export default function PlaygroundMovie(): ReactElement {
   useEffect((): (() => void) => {
     let alive: boolean = true;
     (async (): Promise<void> => {
-      let first: IPlaygroundComposition = structuredClone(
-        PLAYGROUND_PRESETS[0]!.composition,
-      );
+      let first: IPlaygroundComposition = structuredClone(FIRST);
       try {
         const linked: IPlaygroundComposition | null = PlaygroundAddress.decode(
           window.location.hash,
@@ -149,16 +155,15 @@ export default function PlaygroundMovie(): ReactElement {
       <h1>Composition playground</h1>
       <p className="am-lede">
         Compose what each person does from the actions of{" "}
-        <code>@automovie/motions</code>, perform it on the polygon man, and
-        read what the package refuses and which physical bounds the result
-        breaks.
+        <code>@automovie/motions</code>, perform it on the polygon man, and read
+        what the package refuses and which physical bounds the result breaks.
       </p>
     </header>
   );
 
   if (loaded.kind !== "ready")
     return (
-      <div className="am-app">
+      <main className="am-app">
         {head}
         {loaded.kind === "loading" ? (
           <p className="am-status" role="status">
@@ -170,7 +175,7 @@ export default function PlaygroundMovie(): ReactElement {
             <pre className="am-message">{loaded.message}</pre>
           </div>
         )}
-      </div>
+      </main>
     );
   const { adapter, vocabulary } = loaded;
 
@@ -236,7 +241,7 @@ export default function PlaygroundMovie(): ReactElement {
   }
 
   return (
-    <div className="am-app">
+    <main className="am-app">
       {head}
       <div className="am-tabs" role="tablist" aria-label="Pane">
         <button
@@ -312,11 +317,11 @@ export default function PlaygroundMovie(): ReactElement {
                 Report
               </button>
             </div>
-            {notice === null ? null : (
-              <p className="am-muted" role="status">
-                {notice}
-              </p>
-            )}
+            {/* The live region stays mounted and only its text changes, so
+                the copy is announced. */}
+            <p className="am-muted" role="status">
+              {notice ?? ""}
+            </p>
           </div>
         </section>
 
@@ -350,6 +355,6 @@ export default function PlaygroundMovie(): ReactElement {
           )}
         </section>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 
 /**
  * f1's antihelix on the +Z side, the ridge inside the helix with its superior crus, merged onto the ear's plate; the other side is its
@@ -27,7 +28,7 @@ export const AutoMovieHumanF1Antihelix: AutoMovieHumanConicLoft.IFamily = {
   name: "antihelix",
   centres: AutoMovieHumanF1Joints.antihelix,
   halves: [2, 2, 2, 2, 2],
-  up: [0, 0, 1],
+  up: AutoMovieHumanF1Placement.direction("antihelix.up"),
   layout: AutoMovieHumanConicSection.limb(0),
   // At the lower end, the body's middle, the fork of the inferior crus, the superior crus and the upper end.
   knots: [2, 9, 20, 30, 33.64],

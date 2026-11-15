@@ -12,7 +12,7 @@ On the long route, extract concise notes of the required identities, decisions, 
 
 On the short route, decide the events, action and realization here from the instructions, citing the [brief](brief.md) for the people, places and recurring props it holds, and study what [when to study](../planning/research.md#when-to-study) assigns to the screenplay.
 
-On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon images and the generation prompt.
+On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them, apart from what the [beat decisions](../../contracts/story/shared/statements/principles/screenplay.md#beat-decisions) statements let a commissioned generated film's prompt carry. A polygon man has no face, so its attention is the turn of its head and torso, and a fact it cannot carry reaches a generated film through canon references and the generation prompt.
 
 ## Beats
 
@@ -20,7 +20,7 @@ Before writing beats, plan the whole film's performance: how densely each sectio
 
 A beat is one exchange, ending when an intent or the initiative changes. Its action lines name every action it chains, in order, and its record decides the exchange once, because a record per single action buries the performance under bookkeeping and splits a combination into turns.
 
-The screenplay is the last place a decision can be made: motion, sound and assembly realize it, and a film [only composes](../../contracts/development/composition.md#composition-only). So write every beat in terms the modules can perform, from the decisions about the people, objects and places in it, with each action named as one the installed motion vocabulary performs, alone or joined with others, or as the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
+The screenplay is the last place a decision can be made: motion, sound, generation and assembly realize it, and a film [only composes](../../contracts/development/composition.md#composition-only). So write every beat in terms the modules can perform, from the decisions about the people, objects and places in it, with each action named as one the installed motion vocabulary performs, alone or joined with others, or as the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
 
 Decide the beat completely in its [beat record](notation.md#records), as the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) asks. A beat that no composition of installed actions, cited law or outcome table can produce is repaired here, or at the parent that owns the decision under [upstream repair](../correction/repair.md#upstream-defects), before code is written from it.
 

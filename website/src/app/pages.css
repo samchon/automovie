@@ -1,0 +1,220 @@
+/* The motion reference, the object gallery and the landing page. DESIGN.md
+   states each page's layout; the tokens are in tokens.css. */
+
+/* The motion reference */
+
+/* The links to the rows of a family page are chips a finger can tap. */
+.am-chips > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0 0.25rem;
+}
+
+.am-motion-layout {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: var(--am-space-5);
+  align-items: start;
+}
+
+.am-motion-nav {
+  position: sticky;
+  top: calc(var(--am-navbar) + var(--am-space-3));
+  max-height: calc(100dvh - var(--am-navbar) - var(--am-space-6));
+  overflow-y: auto;
+}
+
+.am-motion-nav-link {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--am-space-2);
+  border-radius: var(--am-radius);
+  padding: var(--am-space-1) var(--am-space-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-motion-nav-link:hover {
+  background: var(--am-bg-hover);
+}
+
+.am-motion-nav-link[aria-current="page"] {
+  background: var(--am-accent-soft);
+  font-weight: 700;
+}
+
+.am-family-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The object gallery */
+.am-object-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-object-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-object-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--am-space-1);
+}
+
+.am-object-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--am-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-app .am-gallery.am-gallery-detail {
+  grid-template-columns: minmax(0, 1fr) var(--am-side);
+  grid-template-areas: "view facts";
+}
+
+@media (max-width: 767px) {
+  .am-motion-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-motion-nav {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .am-app .am-gallery.am-gallery-detail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "view"
+      "facts";
+  }
+}
+
+/* The landing page */
+.am-landing-page {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.am-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: var(--am-space-6);
+  min-height: calc(100dvh - var(--am-navbar) - var(--am-space-6));
+  padding: var(--am-space-4) 0 var(--am-space-6);
+}
+
+.am-app .am-hero h1 {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.am-hero-lede {
+  margin: var(--am-space-4) 0 var(--am-space-5) !important;
+  color: var(--am-fg-muted);
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.am-hero-stage {
+  margin: 0;
+}
+
+.am-hero-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--am-space-1) var(--am-space-3);
+  margin-top: var(--am-space-2);
+}
+
+/* The controls wrap under one another on a phone rather than run past the
+   stage. */
+.am-hero-controls {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--am-space-2);
+  margin-left: auto;
+}
+
+.am-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-figures a {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-bg-panel);
+  padding: var(--am-space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-figures a:hover {
+  border-color: var(--am-accent-bg);
+}
+
+.am-figures strong {
+  font-size: var(--am-text-xl);
+}
+
+.am-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--am-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.am-steps li {
+  border-top: 2px solid var(--am-accent-bg);
+  padding-top: var(--am-space-2);
+}
+
+.am-steps strong {
+  display: block;
+  margin-bottom: var(--am-space-1);
+}
+
+.am-landing-page > section + section {
+  margin-top: var(--am-space-6);
+}
+
+@media (max-width: 1023px) {
+  .am-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+}
