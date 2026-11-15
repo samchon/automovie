@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
