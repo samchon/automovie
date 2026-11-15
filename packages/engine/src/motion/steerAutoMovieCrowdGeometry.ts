@@ -143,7 +143,7 @@ export namespace steerAutoMovieCrowdGeometry {
   }
 
   /**
-   * The desired heading and speed at a position: toward the point lookahead seconds of desired travel past the nearest point of the path, the speed falling linearly within rrival relaxation times of travel from the destination (Reynolds 1999's path following and arrival).
+   * The desired heading and speed at a position: toward the point `lookahead` seconds of desired travel past the nearest point of the path, the speed falling linearly within `arrival` relaxation times of travel from the destination (Reynolds 1999's path following and arrival).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it computes, its inputs' frames and units, and its result.
    * @evidence contracts/development/implementation.md#principled-implementation Closest-point projection onto each stretch, the earliest on a tie, then a carrot point along the arc; the arrival slowing is linear in the remaining distance.
