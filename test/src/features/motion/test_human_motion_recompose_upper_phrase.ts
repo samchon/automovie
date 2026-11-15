@@ -15,6 +15,7 @@ import {
   HumanRefusal,
   type HumanSegment,
   HumanUpperRows,
+  HumanVerdicts,
   type IHumanActionLaw,
   type IHumanBody,
   type IHumanProp,
@@ -57,7 +58,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    a point the held prop lacks are each refused with a `HumanRefusal`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each row through the public chain on generated bodies and measures the displayed hand surfaces at the phrase's instants.
- * @evidence contracts/development/testing.md#independent-expectations The issue's 10 mm self-touch bound, the wave's raised and moving hand as the act describes it, and the phrase's standard instants (BML 1.0).
+ * @evidence contracts/development/testing.md#independent-expectations The issue's 10 mm self-touch bound, read as the verdicts' skin (`HumanVerdicts.SKIN`), the wave's raised and moving hand as the act describes it, and the phrase's standard instants (BML 1.0).
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, every row, visits, strokes and oscillations, self and open targets.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing polygon men; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the sweep and the eight scenarios with their bounds.
@@ -232,9 +233,9 @@ export function test_human_motion_recompose_upper_phrase(): void {
             touch[1] === "fist" ? "fist" : "flat",
           ).point;
           const miss: number = Vector3.length(Vector3.subtract(hand, goal));
-          if (!(miss <= 0.01))
+          if (!(miss <= HumanVerdicts.SKIN))
             complaints.push(
-              `${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within 10 mm expected`,
+              `${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
             );
         }
         const palms = (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
@@ -253,9 +254,9 @@ export function test_human_motion_recompose_upper_phrase(): void {
             row.name === "clapHands" ? at("strokeStart") : at("stroke");
           const [left, right] = palms(t);
           const apart: number = Vector3.length(Vector3.subtract(left, right));
-          if (!(apart <= 0.01))
+          if (!(apart <= HumanVerdicts.SKIN))
             complaints.push(
-              `${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within 10 mm expected`,
+              `${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
             );
           if (row.name === "handsClaspedBehind") {
             const back: resolveAutoMovieHumanoidSurfaces.IFrame =
@@ -316,9 +317,9 @@ export function test_human_motion_recompose_upper_phrase(): void {
             Quaternion.rotateVector(f.rotation, end),
           );
           const miss: number = Vector3.length(Vector3.subtract(tip, lips));
-          if (!(miss <= 0.01))
+          if (!(miss <= HumanVerdicts.SKIN))
             complaints.push(
-              `${name} ${row.name}: the held stick's end lies ${(miss * 1000).toFixed(1)} mm from the mouth, within 10 mm expected`,
+              `${name} ${row.name}: the held stick's end lies ${(miss * 1000).toFixed(1)} mm from the mouth, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
             );
         }
         if (row.name === "waveHand") {

@@ -14,6 +14,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   type HumanSegment,
+  HumanVerdicts,
   type IHumanBody,
   type IHumanProp,
   seated,
@@ -46,8 +47,9 @@ const contact = (prop: IHumanProp, id: string): IAutoMovieVector3 => {
  * Scenarios:
  *
  * 1. With the right hand and the plate on his right, the fork's `face`
- *    comes within 10 mm of the mouth region's point at its closest, the
- *    touch bound a contact on the skin is read against.
+ *    comes within the verdicts' skin (`HumanVerdicts.SKIN`, 10 mm) of the
+ *    mouth region's point at its closest, the touch bound a contact on the
+ *    skin is read against.
  * 2. With the left hand and the plate on his left, the same.
  * 3. With the plate near (half the arm's reach ahead of the table's edge)
  *    and far (the arm's reach less a hand), the same for the right hand.
@@ -59,7 +61,7 @@ const contact = (prop: IHumanProp, id: string): IAutoMovieVector3 => {
  *    grip to the end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the seated scene from the archetypes, performs the pick-up and the eating through the public chain and measures the displayed fork and mouth.
- * @evidence contracts/development/testing.md#independent-expectations The touch bound of a skin contact, the campaign's grip bound, and reach as the arm's own length.
+ * @evidence contracts/development/testing.md#independent-expectations The touch bound of a skin contact (`HumanVerdicts.SKIN`), the campaign's grip bound, and reach as the arm's own length.
  * @evidence contracts/development/testing.md#distinguishing-cases Both hands, a near and a far plate, and an unreachable plate.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man and in-memory archetypes; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the scene and the five scenarios with their bounds.
@@ -174,9 +176,9 @@ export function test_human_motion_habit_eat(): void {
     try {
       const p: HumanPerformance = scene(side, ahead);
       const miss: number = closest(p);
-      if (!(miss <= 0.01))
+      if (!(miss <= HumanVerdicts.SKIN))
         complaints.push(
-          `${label}: the fork's face comes ${(miss * 1000).toFixed(1)} mm from the mouth at its closest, within 10 mm expected`,
+          `${label}: the fork's face comes ${(miss * 1000).toFixed(1)} mm from the mouth at its closest, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
         );
 
       // 5. The fork stays in its hand.
