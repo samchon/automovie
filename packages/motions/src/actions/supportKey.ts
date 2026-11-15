@@ -8,8 +8,11 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanSupport } from "../law/HumanSupport";
 import { HumanBodyFit } from "../posture/HumanBodyFit";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { supportContact } from "./supportContact";
 
 /**
@@ -88,6 +91,72 @@ export namespace supportKey {
       },
     );
     return result.posture;
+  }
+
+  /**
+   * A stance's preferred posture: its stated posture (`prefer`) over the key
+   * before it, turned by the stance's turn and rested on the floor by its
+   * lowest collider and moved across the floor so its contacts that already
+   * have a place lie over them, a seed the fit then places by what bears;
+   * the posture the body entered with when the stance states none.
+   *
+   * @param body The body.
+   * @param base The posture the body entered with, by its joint angles.
+   * @param stance The stance.
+   * @param from The key before.
+   * @param place Each contact's place, world metres, or null for one without; none placed when absent.
+   * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both cases and how the stated posture is placed.
+   * @evidence contracts/development/implementation.md#principled-implementation The stated tilt and joints over the entry's, at the key before's place moved by the mean miss of its placed contacts across the floor, lowered until its lowest collider meets the floor, so the seed's held parts start where they bear.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture and one floor reading.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture resolve per stance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanColliders.lowest`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function preferred(
+    body: IHumanBody,
+    base: IHumanPosture,
+    stance: HumanSupport.IStance,
+    from: IHumanPosture,
+    place: (c: HumanSupport.IContact) => IAutoMovieVector3 | null = (): null =>
+      null,
+  ): IHumanPosture {
+    if (stance.prefer === undefined) return base;
+    const anchors: { part: HumanSupport.Part; at: IAutoMovieVector3 }[] =
+      stance.contacts.flatMap(
+        (
+          c: HumanSupport.IContact,
+        ): { part: HumanSupport.Part; at: IAutoMovieVector3 }[] => {
+          const at: IAutoMovieVector3 | null = place(c);
+          return at === null ? [] : [{ part: c.part, at }];
+        },
+      );
+    const turned: IHumanPosture = {
+      root: from.root,
+      yaw: base.yaw + (stance.turn ?? 0),
+      pitch: stance.prefer.pitch,
+      roll: stance.prefer.roll,
+      joints: { ...base.joints, ...stance.prefer.joints },
+      limbs: {},
+    };
+    let dx: number = 0;
+    let dz: number = 0;
+    for (const a of anchors) {
+      const now: IAutoMovieVector3 = supportContact.pinned(body, turned, a.part);
+      dx += (a.at.x - now.x) / anchors.length;
+      dz += (a.at.z - now.z) / anchors.length;
+    }
+    const keyed: IHumanPosture = {
+      ...turned,
+      root: { x: turned.root.x + dx, y: turned.root.y, z: turned.root.z + dz },
+    };
+    const low: number = HumanColliders.lowest(
+      body,
+      poseBones(body, resolveHumanPosture(body, keyed)),
+    );
+    return { ...keyed, root: { ...keyed.root, y: keyed.root.y - low } };
   }
 
   /**

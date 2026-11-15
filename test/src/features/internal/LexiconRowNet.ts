@@ -228,6 +228,11 @@ export namespace LexiconRowNet {
     "chinUp",
     "kneeRaise",
     "barSwing",
+    // A movement across supports needs its surface at the body's own
+    // heights, which `test_human_motion_lexicon_rows_support` stages.
+    "boxVault",
+    "scramble",
+    "slideOff",
   ];
 
   /** The two builds, each performing with the other as its partner. */

@@ -1,6 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -77,25 +78,50 @@ export namespace supportContact {
         ...(floor ? { bearing: new RegExp(`^${side}(Foot|Toes)$`) } : {}),
       };
     }
-    // The trunk bears through its own colliders: the buttocks and the
-    // thighs' backs sitting, the back or the front lying.
-    if (c.part === "seat" || c.part === "back" || c.part === "front")
+    // On the floor the trunk bears through its own colliders (the buttocks
+    // and the thighs' backs sitting, the back or the front lying) and a knee
+    // through its shin's, their lowest points resting on it. On a raised
+    // surface each lays its own skin on the place, the region's outward
+    // normal facing down onto it, as a palm does: the seat, the upper back,
+    // the abdomen or the knee.
+    const trunk: boolean =
+      c.part === "seat" || c.part === "back" || c.part === "front";
+    if (trunk || c.part.endsWith("Knee")) {
+      if (floor)
+        return {
+          target: {
+            bone: trunk ? "hips" : `${side}LowerLeg`,
+            goal: point,
+            axes,
+          },
+          bearing: trunk
+            ? c.part === "seat"
+              ? /^(hips|leftUpperLeg|rightUpperLeg)$/
+              : /^(hips|spine|chest)$/
+            : new RegExp(`^${side}LowerLeg$`),
+        };
+      const region: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        body.surfaces.regions[
+          c.part === "seat"
+            ? "seat"
+            : c.part === "back"
+              ? "upperBack"
+              : c.part === "front"
+                ? "abdomen"
+                : side === "left"
+                  ? "kneeLeft"
+                  : "kneeRight"
+        ];
       return {
-        target: { bone: "hips", goal: point, axes },
-        ...(floor
-          ? {
-              bearing:
-                c.part === "seat"
-                  ? /^(hips|leftUpperLeg|rightUpperLeg)$/
-                  : /^(hips|spine|chest)$/,
-            }
-          : {}),
+        target: {
+          bone: region.bone,
+          point: region.point,
+          goal: point,
+          axes,
+          normal: { local: region.normal, world: down },
+        },
       };
-    if (c.part.endsWith("Knee"))
-      return {
-        target: { bone: `${side}LowerLeg`, goal: point, axes },
-        ...(floor ? { bearing: new RegExp(`^${side}LowerLeg$`) } : {}),
-      };
+    }
     const surface: HumanHand.IFrame = HumanHand.offset(
       body,
       side,
@@ -151,6 +177,56 @@ export namespace supportContact {
       z: (a.z + b.z) / 2,
     };
     return form(body, { ...to, kind: "bear" }, top).target;
+  }
+
+  /**
+   * The contact window's part a support part bears through: a knee through
+   * its shin, the lower leg's window; the trunk's window named by the back
+   * for every lying position, the front's too, as the lying law names it
+   * (`lieDown`); any other part its own.
+   */
+  export function window(part: HumanSupport.Part): string {
+    return part.endsWith("Knee")
+      ? part.replace("Knee", "LowerLeg")
+      : part === "front"
+        ? "back"
+        : part;
+  }
+
+  /**
+   * The limb a part belongs to, which steps as one: a foot and its knee are
+   * one leg, a hand its arm; a part of the trunk is its own, since the
+   * trunk rolls from one to another and never steps.
+   */
+  export function limb(part: HumanSupport.Part): string {
+    return part.endsWith("Foot") || part.endsWith("Knee")
+      ? `${part.startsWith("left") ? "left" : "right"}Leg`
+      : part.endsWith("Hand")
+        ? `${part.startsWith("left") ? "left" : "right"}Arm`
+        : part;
+  }
+
+  /** Whether two contacts are one: the same part on the same target. */
+  export function same(
+    a: HumanSupport.IContact,
+    b: HumanSupport.IContact,
+  ): boolean {
+    return id(a) === id(b);
+  }
+
+  /** A contact's identity: its part, how it touches and its target. */
+  export function id(c: HumanSupport.IContact): string {
+    return `${c.part}|${c.kind}|${JSON.stringify(c.target)}`;
+  }
+
+  /** Where a part bears in a posture, dropped to the floor: the place a contact without one keeps. */
+  export function onFloor(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    part: HumanSupport.Part,
+  ): IAutoMovieVector3 {
+    const p: IAutoMovieVector3 = pinned(body, posture, part);
+    return { x: p.x, y: 0, z: p.z };
   }
 
   /** Where a part bears in a posture: the joint or bone its contact rides. */

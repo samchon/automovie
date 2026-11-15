@@ -7,6 +7,7 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
+import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import type { HumanBase } from "../law/HumanBase";
@@ -248,6 +249,10 @@ export namespace getUp {
       (SECONDS / ROUTES[supine ? pattern : "rotation"].length) *
       modifiers.tempo;
 
+    // Standing is the stand law's quiet stance (`quiet`).
+    const stood: IPose = quiet(context.body);
+
+
     // The stances: each posture of the route on what it bears on, turned half
     // about the vertical after a roll from the back, so the head stays where
     // it lay.
@@ -268,9 +273,11 @@ export namespace getUp {
         ),
         seconds: phase,
         prefer:
-          key === "halfKneel" && lead === "left"
-            ? mirrored(POSES.halfKneel)
-            : POSES[key],
+          key === "stood"
+            ? stood
+            : key === "halfKneel" && lead === "left"
+              ? mirrored(POSES.halfKneel)
+              : POSES[key],
         turn: supine && pattern === "rotation" ? 180 : 0,
         event,
       }),
@@ -280,6 +287,39 @@ export namespace getUp {
       params: { stances },
     });
     return { ...planned, base: { kind: "standing" } };
+  }
+  /**
+   * Standing as the stand law's quiet stance, the posture every performer
+   * starts from, by its resolved joints: the stated posture a support
+   * sequence ends standing in.
+   *
+   * @param body The body.
+   * @returns The tilt, none, and the joints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the posture is and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, its leg goals resolved to joints, so a rise ends where a performer starts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture resolve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint is typed here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One resolve per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stand.posture` and `resolveHumanPosture`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function quiet(body: IHumanBody): IPose {
+    return {
+      pitch: 0,
+      roll: 0,
+      joints: Object.fromEntries(
+        resolveHumanPosture(
+          body,
+          stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+        ).joints.map(
+          (j): [string, readonly [number, number, number]] => [
+            j.bone,
+            [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
+          ],
+        ),
+      ) as AutoMovieMotionHumanJoints.Angles,
+    };
   }
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(

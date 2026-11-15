@@ -16,11 +16,8 @@ import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanBodyFit } from "../posture/HumanBodyFit";
-import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
@@ -50,8 +47,12 @@ import { supportKey } from "./supportKey";
  * posture reaches is refused with the contact, its stance and the miss.
  *
  * A bearing foot lies on the floor at its toes' joint with its toes flat; a
- * bearing hand lies on its palm laid flat on the surface; a knee bears on the
- * shin's top; a gripping hand closes on its target at its grip. Each move
+ * bearing hand lies on its palm laid flat on the surface; on the floor a
+ * knee bears on its shin and the trunk on its colliders, resting on their
+ * lowest points, and on a raised surface each lays its own skin flat on it
+ * (the knee, the seat, the upper back or the abdomen); a contact held across
+ * stances without a place stays where it was first laid; a gripping hand
+ * closes on its target at its grip. Each move
  * takes `SECONDS` (provisional: no study of the timing of a general support
  * sequence was located) or its stance's own, a step's third of it each to
  * lift, to set down and to settle. Events: `lift<i>` when the move into
@@ -177,33 +178,48 @@ export namespace support {
       );
     };
 
-    // A stance's preferred posture: its own key over the key before it,
-    // rested on the floor by its lowest collider as a seed the fit then
-    // places by what bears, or the entry's.
+    // A bearing support held across stances does not slide: one without a
+    // place keeps where its first key laid it, or its entry place for a part
+    // the body already rests on as it enters.
+    const laid: Map<string, IAutoMovieVector3> = new Map();
+
+    for (const c of stances[0]!.contacts)
+      if (
+        c.target === undefined &&
+        context.entry.supports.some(
+          (s: { part: string }): boolean => s.part === supportContact.window(c.part),
+        )
+      )
+        laid.set(supportContact.id(c), supportContact.onFloor(body, entry, c.part));
+    const place = (c: HumanSupport.IContact): IAutoMovieVector3 | null =>
+      at(c) ?? laid.get(supportContact.id(c)) ?? null;
+
+    // A stance's preferred posture (`supportKey.preferred`).
     const preference = (
       stance: HumanSupport.IStance,
       from: IHumanPosture,
-    ): IHumanPosture => {
-      if (stance.prefer === undefined) return preferred;
-      const keyed: IHumanPosture = {
-        root: from.root,
-        yaw: entry.yaw + (stance.turn ?? 0),
-        pitch: stance.prefer.pitch,
-        roll: stance.prefer.roll,
-        joints: { ...preferred.joints, ...stance.prefer.joints },
-        limbs: {},
-      };
-      const low: number = HumanColliders.lowest(
-        body,
-        poseBones(body, resolveHumanPosture(body, keyed)),
-      );
-      return { ...keyed, root: { ...keyed.root, y: keyed.root.y - low } };
-    };
+    ): IHumanPosture =>
+      supportKey.preferred(body, preferred, stance, from, place);
+
+    // A key's solve starts from the stance's stated posture, else the key
+    // before: from a far parent an l1 penalty method can stop at a stationary
+    // point of the violation (Nocedal and Wright 2006, chapter 17).
+    const seed = (
+      stance: HumanSupport.IStance,
+      from: IHumanPosture,
+    ): IHumanPosture =>
+      stance.prefer === undefined ? from : preference(stance, from);
 
     // Each key: the fit on its contacts from the key before.
     const keys: IKey[] = [
       { posture: preferred, seconds: 0, name: "start", contacts: [] },
     ];
+    const push = (key: IKey): void => {
+      keys.push(key);
+      for (const c of key.contacts)
+        if (c.target === undefined && !laid.has(supportContact.id(c)))
+          laid.set(supportContact.id(c), supportContact.onFloor(body, key.posture, c.part));
+    };
     let seconds: number = 0;
     stances.forEach((stance: HumanSupport.IStance, i: number): void => {
       const move: number = stance.seconds ?? SECONDS;
@@ -212,43 +228,59 @@ export namespace support {
         i === 0 ? [] : stances[i - 1]!.contacts;
       const added: HumanSupport.IContact[] = stance.contacts.filter(
         (c: HumanSupport.IContact): boolean =>
-          !previous.some((p: HumanSupport.IContact): boolean => same(p, c)),
+          !previous.some((p: HumanSupport.IContact): boolean => supportContact.same(p, c)),
       );
-      // A part that bears in both stances on different targets steps: it
-      // lets go, swings over the middle of its step lifted clear of the
-      // surface, and sets down, the other contacts bearing all along (a
-      // contact is broken, then made: Escande, Kheddar and Miossec 2013).
+      // A limb that bears in both stances on different places steps (a part
+      // to another target, or a foot to its own knee): it lets go, swings
+      // over the middle of its step lifted clear of the surface, and sets
+      // down, the other contacts bearing all along (a contact is broken, then
+      // made: Escande, Kheddar and Miossec 2013). A limb cannot bear in two
+      // places at once, so its old contact never waits for its new one.
+      const left = (p: HumanSupport.IContact): boolean =>
+        !stance.contacts.some((s: HumanSupport.IContact): boolean =>
+          supportContact.same(s, p),
+        );
+      const from = (
+        m: HumanSupport.IContact,
+      ): HumanSupport.IContact | undefined =>
+        previous.find(
+          (p: HumanSupport.IContact): boolean =>
+            left(p) &&
+            supportContact.limb(p.part) === supportContact.limb(m.part),
+        );
       const moved: HumanSupport.IContact[] = added.filter(
-        (c: HumanSupport.IContact): boolean =>
-          previous.some(
-            (p: HumanSupport.IContact): boolean => p.part === c.part,
-          ),
+        (c: HumanSupport.IContact): boolean => from(c) !== undefined,
       );
       const kept: HumanSupport.IContact[] = previous.filter(
         (p: HumanSupport.IContact): boolean =>
-          !moved.some((m: HumanSupport.IContact): boolean => m.part === p.part),
+          !(
+            left(p) &&
+            moved.some(
+              (m: HumanSupport.IContact): boolean =>
+                supportContact.limb(m.part) === supportContact.limb(p.part),
+            )
+          ),
       );
       if (i > 0 && moved.length > 0) {
         seconds += move / 3;
-        keys.push({
+        push({
           posture: supportKey.solved(
             body,
             preference(stance, before),
-            before,
+            seed(stance, before),
             kept,
-            at,
+            place,
             `lift${i}`,
             MISS,
             moved.flatMap(
               (m: HumanSupport.IContact): HumanBodyFit.ITarget[] => {
-                const was: HumanSupport.IContact = previous.find(
-                  (p: HumanSupport.IContact): boolean => p.part === m.part,
-                )!;
+                const was: HumanSupport.IContact = from(m)!;
+
                 const top: HumanBodyFit.ITarget | null = supportContact.swing(
                   body,
                   m,
-                  at(was),
-                  at(m),
+                  place(was),
+                  place(m),
                   crawl.LIFT,
                 );
                 return top === null ? [] : [top];
@@ -261,13 +293,13 @@ export namespace support {
         });
         seconds += move / 3;
         const union: HumanSupport.IContact[] = [...kept, ...added];
-        keys.push({
+        push({
           posture: supportKey.solved(
             body,
             preference(stance, keys[keys.length - 1]!.posture),
-            keys[keys.length - 1]!.posture,
+            seed(stance, keys[keys.length - 1]!.posture),
             union,
-            at,
+            place,
             `bear${i}`,
             MISS,
           ),
@@ -279,13 +311,13 @@ export namespace support {
       } else if (i > 0 && added.length > 0) {
         const union: HumanSupport.IContact[] = [...previous, ...added];
         seconds += move / 2;
-        keys.push({
+        push({
           posture: supportKey.solved(
             body,
             preference(stance, before),
-            before,
+            seed(stance, before),
             union,
-            at,
+            place,
             `bear${i}`,
             MISS,
           ),
@@ -295,13 +327,13 @@ export namespace support {
         });
         seconds += move / 2;
       } else seconds += move;
-      keys.push({
+      push({
         posture: supportKey.solved(
           body,
           preference(stance, keys[keys.length - 1]!.posture),
-          keys[keys.length - 1]!.posture,
+          seed(stance, keys[keys.length - 1]!.posture),
           stance.contacts,
-          at,
+          place,
           `stance${i}`,
           MISS,
         ),
@@ -323,7 +355,7 @@ export namespace support {
           st.contacts.map(
             (
               c: HumanSupport.IContact,
-            ): [string, HumanSupport.IContact["kind"]] => [id(c), c.kind],
+            ): [string, HumanSupport.IContact["kind"]] => [supportContact.id(c), c.kind],
           ),
       ),
     );
@@ -331,9 +363,10 @@ export namespace support {
       const from: number = opened.get(key)!;
       opened.delete(key);
       const [named] = key.split("|") as [string];
+      const window: string = supportContact.window(named as HumanSupport.Part);
       const part: IHumanContactWindow["part"] | undefined =
         IHumanContactWindow.PARTS.find(
-          (p: IHumanContactWindow["part"]): boolean => p === named,
+          (p: IHumanContactWindow["part"]): boolean => p === window,
         );
       if (part === undefined) return;
       contacts.push({
@@ -358,9 +391,9 @@ export namespace support {
       const placed: IKey = keyAt(`bear${i}`) ?? held;
       // A part the body already rests on as it enters bears from the start.
       for (const c of stance.contacts)
-        if (!opened.has(id(c)))
+        if (!opened.has(supportContact.id(c)))
           opened.set(
-            id(c),
+            supportContact.id(c),
             i === 0 &&
               context.entry.supports.some(
                 (s: { part: string }): boolean => s.part === c.part,
@@ -370,18 +403,19 @@ export namespace support {
           );
       const next: HumanSupport.IStance | undefined = stances[i + 1];
       if (next === undefined) return;
-      // A stepping part lets go as the step lifts it; any other contact the
+      // A stepping limb lets go as the step lifts it; any other contact the
       // next stance lacks once the next stance's new contacts bear.
       const released: number = (keyAt(`bear${i + 1}`) ?? held).seconds;
       const lifted: number = (keyAt(`lift${i + 1}`) ?? held).seconds;
       for (const c of stance.contacts)
         if (
-          !next.contacts.some((n: HumanSupport.IContact): boolean => same(n, c))
+          !next.contacts.some((n: HumanSupport.IContact): boolean => supportContact.same(n, c))
         )
           close(
-            id(c),
+            supportContact.id(c),
             next.contacts.some(
-              (n: HumanSupport.IContact): boolean => n.part === c.part,
+              (n: HumanSupport.IContact): boolean =>
+                supportContact.limb(n.part) === supportContact.limb(c.part),
             )
               ? lifted
               : released,
@@ -418,9 +452,10 @@ export namespace support {
         );
         const pin: HumanSupport.IContact | undefined = a.contacts.find(
           (p: HumanSupport.IContact): boolean =>
-            b.contacts.some((q: HumanSupport.IContact): boolean => same(p, q)),
+            b.contacts.some((q: HumanSupport.IContact): boolean => supportContact.same(p, q)),
         );
-        if (pin === undefined) return shaped;
+        if (pin === undefined)
+          return { ...shaped, root: { ...shaped.root, y: knockdown.rest(body, shaped) } };
         const held: IAutoMovieVector3 = supportContact.pinned(
           body,
           a.posture,
@@ -460,15 +495,5 @@ export namespace support {
 
     /** The contacts it rests on. */
     contacts: readonly HumanSupport.IContact[];
-  }
-
-  /** Whether two contacts are one: the same part on the same target. */
-  function same(a: HumanSupport.IContact, b: HumanSupport.IContact): boolean {
-    return id(a) === id(b);
-  }
-
-  /** A contact's identity. */
-  function id(c: HumanSupport.IContact): string {
-    return `${c.part}|${c.kind}|${JSON.stringify(c.target)}`;
   }
 }

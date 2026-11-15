@@ -16,8 +16,9 @@ import { crawlFrame } from "./crawlFrame";
 /**
  * The inchworm's reaches, solved on its body in its middle plane: a chain
  * from the feet's balls to the wrists, from which the fold's and the
- * plank's distances from the feet to the hands are read (the walk's
- * postures are the support planner's, `crawlInchworm`).
+ * plank's distances from the feet to the hands are read, and the shape at
+ * each placement of the hands and the feet that seeds its stance's solve
+ * (the walk's postures are the support planner's, `crawlInchworm`).
  *
  * Each foot pivots on its ball with the ankle at its standing angle to the
  * shank, the heel lifting as far as the shank leans forward (the leg's
@@ -79,7 +80,7 @@ export namespace crawlChain {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The leg's elevation fixes the foot's lift and both joints.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the chain's solve of the reaches.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the chain's solve and the shape it gives.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The ankle follows from the foot's pivot on its ball.
    */
   export interface ILeg {
@@ -121,6 +122,12 @@ export namespace crawlChain {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The key reaches are solved, not typed.
    */
   export interface IChain {
+    /** The chain with the feet's balls' middle at `mu` and the wrists' at `wrist`, both along the heading in metres. */
+    shape(mu: number, wrist: number): IShape;
+
+    /** The trunk's forward lean from the hips to the shoulders upright, degrees. */
+    lean: number;
+
     /** How far before the balls the wrists reach in the fold, metres. */
     folding: number;
 
@@ -344,6 +351,8 @@ export namespace crawlChain {
     const folding: number = (lo + hi) / 2;
 
     return {
+      shape,
+      lean,
       folding,
       plank,
       wrists,

@@ -9,6 +9,7 @@ import {
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanStance } from "../internal/motionHumanStance";
 
 /**
  * The support planner (`support`) moves the body's weight across a sequence
@@ -21,18 +22,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the bearing parts), and standing again. The release rule is Escande,
  * Kheddar and Miossec 2013's transition configuration, a stance's new
  * contacts placed while the old still bear; the refusal is the planner's own
- * contract, a hand target 0.5 m past the arm's span.
+ * contract, a hand target farther from feet held in place than the body
+ * laid out reaches.
  *
  * Scenarios, on the average man:
- * 1. The landing plans, and for each pair of consecutive stances no contact
- *    window of the first that the second lacks closes before every window
- *    the second adds has opened.
+ * 1. The landing plans; and down from standing onto the right knee, the
+ *    right foot let go, the knee's window opens no later than the foot's
+ *    closes, and the foot's closes before the end: a support the next
+ *    stance adds bears before one it lacks lets go.
  * 2. Each palm's window opens after the move starts and closes before it
  *    ends: the palms bear only while the hands-down stance holds.
- * 3. A palm sent to a floor point 0.5 m past the arm's span ahead is refused
- *    as a `reach` refusal on the `stances` axis naming the hand.
+ * 3. A palm sent to a floor point the body's stature, its arm's span and
+ *    half a metre ahead of its toes (past the body laid flat from the
+ *    toes with the arm overhead), the feet held where the quiet stance has
+ *    them, is refused as a
+ *    `reach` refusal on the `stances` axis naming the hand.
  *
- * A step: both feet where they stand at rest, then the left foot one foot
+ * A step: both feet where the quiet stance has them, then the left foot one foot
  * length ahead with the right where it was; a part bearing in two stances
  * in a row on different places lets go, swings and sets down (a contact
  * broken, then made: Escande et al.). Bounds: the contact miss
@@ -50,7 +56,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    miss at every thirtieth of a second of the step.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans real sequences through the public chain and reads the plan's own windows; a release before the new support bears, a palm bearing outside its stance, or a contact silently missed fails with its numbers.
- * @evidence contracts/development/testing.md#independent-expectations The release order is the transition configuration of the cited planner; the refusal distance is the arm's span plus half a metre, read from the body.
+ * @evidence contracts/development/testing.md#independent-expectations The release order is the transition configuration of the cited planner; the refusal distance is the stature plus the arm's span plus half a metre beyond the toes, read from the body, past what the body laid out reaches with its feet held where the quiet stance has them.
  * @evidence contracts/development/testing.md#distinguishing-cases A met sequence, a refused one and a step of one part between two places, read at its lift, its set-down and throughout on the bearing foot; getUp's routes are test_human_motion_floor_get_up's.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and plans two performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the sequences, the rules with their sources and the 8 scenarios.
@@ -110,27 +116,79 @@ export function test_human_motion_support_sequence(): void {
       ),
   );
 
+  // 1. A move that adds one support and drops another: down onto the right
+  // knee from standing, the right foot let go. The knee bears before the
+  // foot releases.
+  try {
+    const kneel: HumanPerformance = perform([
+      { contacts: feet },
+      {
+        contacts: [
+          { part: "leftFoot", kind: "bear" },
+          { part: "rightKnee", kind: "bear" },
+        ],
+      },
+    ]);
+    const w: readonly IHumanContactWindow[] = kneel.segments("a")[0]!.plan
+      .contacts;
+    const knee: IHumanContactWindow | undefined = w.find(
+      (x: IHumanContactWindow): boolean => x.part === "rightLowerLeg",
+    );
+    const foot: IHumanContactWindow | undefined = w.find(
+      (x: IHumanContactWindow): boolean => x.part === "rightFoot",
+    );
+    all.check(
+      `the right knee bears (from ${knee?.from.toFixed(3)}) before the right foot lets go (at ${foot?.to.toFixed(3)})`,
+      knee !== undefined && foot !== undefined && knee.from <= foot.to,
+    );
+    all.check(
+      `the right foot lets go before the end, read ${foot?.to.toFixed(3)}`,
+      foot !== undefined && foot.to < 1,
+    );
+  } catch (error) {
+    all.check(`the half kneel plans, refused ${(error as Error).message}`, false);
+  }
+
+  // The feet where the quiet stance has them.
+  const stance = motionHumanStance(body);
+  const toes = (side: "left" | "right") =>
+    stance.get(`${side}Toes`)!.worldPosition;
+  const on = (x: number, z: number): object => ({
+    kind: "point",
+    at: { x, y: 0, z },
+    frame: "world",
+  });
+  const planted = (["left", "right"] as const).map((side) => ({
+    part: `${side}Foot`,
+    kind: "bear",
+    target: on(toes(side).x, toes(side).z),
+  }));
+
   // 3. A palm past the arm's span is refused, naming the hand.
   const span: number = body.measure.upperArm + body.measure.forearm;
   let refusal: HumanRefusal | null = null;
   try {
     perform([
-      { contacts: feet },
+      { contacts: planted },
       {
         contacts: [
-          ...feet,
+          ...planted,
           {
             part: "leftHand",
             kind: "bear",
             target: {
               kind: "point",
-              at: { x: 0, y: 0, z: span * 2 + 0.5 },
+              at: {
+                x: 0,
+                y: 0,
+                z: toes("left").z + body.measure.stature + span + 0.5,
+              },
               frame: "world",
             },
           },
         ],
       },
-    ]);
+    ]).segments("a");
   } catch (error) {
     if (error instanceof HumanRefusal) refusal = error;
     else throw error;
@@ -144,12 +202,6 @@ export function test_human_motion_support_sequence(): void {
   );
 
   // 4 to 8. A step: the left foot one foot length ahead, the right bearing.
-  const toes = (side: "left" | "right") => body.rest.get(`${side}Toes`)!;
-  const on = (x: number, z: number): object => ({
-    kind: "point",
-    at: { x, y: 0, z },
-    frame: "world",
-  });
   const ahead: number = toes("left").z + body.measure.footLength;
   const right = {
     part: "rightFoot",

@@ -12,7 +12,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { crawl } from "./crawl";
 import { crawlChain } from "./crawlChain";
+import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
+import { getUp } from "./getUp";
+import type { lieDown } from "./lieDown";
 
 /**
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds
@@ -23,8 +26,9 @@ import { floorEntry } from "./floorEntry";
  *
  * The walk is a support sequence (`support`): each placement of the hands
  * and the feet is a stance whose key posture the whole-body fit solves on
- * those four contacts, so the hips sink as the hands walk out and rise as
- * the feet walk in because the balanced posture nearest standing does, and
+ * those four contacts, started from and kept nearest the chain's shape at
+ * that placement (`crawlInchwormPose`), so the hips sink as the hands walk
+ * out and rise as the feet walk in, and
  * each step lets one limb go, swings it over the middle of its step and sets
  * it down while the other three bear. The fold's and the plank's reaches
  * are the body's middle-plane chain's (`crawlChain`); a cycle walks the
@@ -81,7 +85,7 @@ export namespace crawlInchworm {
    * @throws {HumanRefusal} When the cycle count is not a positive integer, or a placement the body cannot bear on (`support`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusals; the namespace gives the law.
-   * @evidence contracts/development/implementation.md#principled-implementation Each placement of the four limbs is a stance of the support planner, whose keys are the balanced postures nearest standing on those contacts, and each step one limb released, swung and set down (Escande, Kheddar and Miossec 2013).
+   * @evidence contracts/development/implementation.md#principled-implementation Each placement of the four limbs is a stance of the support planner, whose keys are the balanced postures on those contacts nearest the chain's shape there, each solve started from that shape, and each step one limb released, swung and set down (Escande, Kheddar and Miossec 2013).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A placement schedule, its stances, one support plan and the walk's events named on it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One limb moves at a time, so three always bear; the feet come in by exactly what the hands went out, so each cycle ends in the fold it began in.
    * @evidence contracts/development/implementation.md#efficient-algorithms The chain is built once for the reaches; the support plan solves each key once.
@@ -162,9 +166,20 @@ export namespace crawlInchworm {
         }),
       );
 
+    // Each walking stance is solved from, and kept nearest, the chain's shape
+    // at its placement (`crawlInchwormPose`).
+    const prefer = (): lieDown.IPose =>
+      crawlInchwormPose.of(
+        body,
+        chain,
+        frame,
+        { left: now.leftFoot, right: now.rightFoot },
+        { left: now.leftHand, right: now.rightHand },
+      );
+
     // The stances: the fold, one per step, and standing on the feet.
     const stances: HumanSupport.IStance[] = [
-      { contacts: contacts(), seconds: DOWN, event: "down" },
+      { contacts: contacts(), seconds: DOWN, event: "down", prefer: prefer() },
     ];
     const steps: { limb: Limb; n: number; at: number }[] = [];
     const counts: Record<Limb, number> = {
@@ -180,6 +195,7 @@ export namespace crawlInchworm {
       stances.push({
         contacts: contacts(),
         seconds: step,
+        prefer: prefer(),
         ...(event === undefined ? {} : { event }),
       });
     };
@@ -203,6 +219,7 @@ export namespace crawlInchworm {
       contacts: contacts(["leftFoot", "rightFoot"]),
       seconds: RISE,
       event: "standing",
+      prefer: getUp.quiet(body),
     });
 
     // The walk's events on the support plan's keys: a limb lifts as the
