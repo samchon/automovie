@@ -42,11 +42,6 @@ const MYDAL: string =
 
 /**
  * The band of each free dimension of {@link createBed}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer so the producer stays one readable construction; it re-exports as `createBed.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A regulation's limit is taken where it gives no maker's figure, and said to be.
  */
 export const BED_BANDS: Readonly<
   Record<

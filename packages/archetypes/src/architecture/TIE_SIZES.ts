@@ -3,11 +3,6 @@ import type { createObstacle } from "./createObstacle";
 
 /**
  * A crosstie's read sizes, metres: its section as laid, depth by face, and its length, each from the University of Kentucky's FOR-108 lists, Producing and Inspecting Railroad Crossties (https://publications.mgcafe.uky.edu/sites/publications.ca.uky.edu/files/FOR108.pdf): "most commonly 7 x 9 in, some 6 x 8 and 7 x 8 in"; 8 ft 6 in the most common length, 8 ft standard, 9 ft sometimes required.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each list holds and its source.
- * @evidence contracts/development/design.md#principled-representation One record per read section, its depth and face together, and one per read length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the bands, its own file; read only by `createObstacle`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No section or length between two read is made.
  */
 export const TIE_SIZES: Readonly<{
   section: Readonly<

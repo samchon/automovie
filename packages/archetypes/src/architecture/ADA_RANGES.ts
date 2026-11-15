@@ -17,11 +17,6 @@ interface IRange {
  * - `hardware`: 404.2.7, a door's operable hardware 34 in (865 mm) to 48 in (1220 mm) above the floor, the range a cabinet's pulls share.
  *
  * Every switch, control, call button, handle and pull whose height a range bounds reads it here, so the figures and their citation have one owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each range, its clause, its unit and who reads it.
- * @evidence contracts/development/design.md#principled-representation One record per range, its ends and its citation together.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two ranges several producers share; a range one producer alone reads stays beside it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The standard's own metric figures, not a conversion of its inches, so every reader bounds the same band.
  */
 export const ADA_RANGES: Readonly<Record<"reach" | "hardware", IRange>> = {
   reach: {

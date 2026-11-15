@@ -43,11 +43,6 @@ const BUGLE: string =
 
 /**
  * The band of each free dimension of {@link createInstrument}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer so the producer stays one readable construction; it re-exports as `createInstrument.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A band read only in search results is provisional as a whole; a scale or a nut the maker states is fixed at it.
  */
 export const INSTRUMENT_BANDS: Readonly<
   Record<

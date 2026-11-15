@@ -19,11 +19,6 @@ const ITF: string =
 
 /**
  * The band of each free dimension of {@link createGoal}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer so the producer stays one readable construction; it re-exports as `createGoal.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Where a rule states only a limit, the band is that limit, and says so.
  */
 export const GOAL_BANDS: Readonly<
   Record<

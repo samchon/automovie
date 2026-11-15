@@ -23,11 +23,6 @@ const LAVI: string =
 
 /**
  * The band of each free dimension of {@link createObstacle}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions; a concrete barrier's mass is per metre of its length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer, as `DOOR_BANDS` is, so the producer stays one readable construction; it re-exports as `createObstacle.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bands read only from search results are provisional as a whole.
  */
 export const OBSTACLE_BANDS: Readonly<
   Record<

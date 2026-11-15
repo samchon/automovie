@@ -3,11 +3,6 @@ import type { createStreetFixture } from "./createStreetFixture";
 
 /**
  * The figures each read model fixes, by kind and model, the default first: a cone's height by its MUTCD class, 18 or 28 in (2009 MUTCD Section 6F.64, https://mutcd.fhwa.dot.gov/htm/2009/part6/part6f.htm); a bollard's pipe and mass by its Reliance R-1007 number, 4.50, 6.625, 8.625 and 10.750 in weighing 76, 133, 200 and 284 lb (https://www.reliance-foundry.com/wp-content/uploads/r-1007-xx-bollard-product-drawing.pdf); a STOP sign's side by its MUTCD road class, 30 or 36 in (2009 MUTCD Table 2B-1, https://mutcd.fhwa.dot.gov/htm/2009/part2/part2b.htm).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each model fixes and its source.
- * @evidence contracts/development/design.md#principled-representation One record per read model, its figures whole.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the bands it replaces for those dimensions, its own file; read only by `createStreetFixture`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A model's figures are never mixed with another's or drawn between them.
  */
 export const STREET_FIXTURE_MODELS: Readonly<
   Partial<

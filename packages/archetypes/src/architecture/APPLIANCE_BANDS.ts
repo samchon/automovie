@@ -24,11 +24,6 @@ const WASHER: string =
 
 /**
  * The band of each free dimension of {@link createAppliance}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer so the producer stays one readable construction; it re-exports as `createAppliance.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A band whose second end comes from a search only is provisional as a whole.
  */
 export const APPLIANCE_BANDS: Readonly<
   Record<

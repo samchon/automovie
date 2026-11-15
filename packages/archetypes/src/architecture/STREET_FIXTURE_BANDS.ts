@@ -39,11 +39,6 @@ const POST: string =
 
 /**
  * The band of each free dimension of {@link createStreetFixture}, by kind, but those its models fix.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer so the producer stays one readable construction; it re-exports as `createStreetFixture.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A figure read off an unlabelled dimension is provisional and says so.
  */
 export const STREET_FIXTURE_BANDS: Readonly<
   Record<

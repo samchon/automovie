@@ -31,11 +31,6 @@ const TAP: Readonly<Partial<Record<createSanitary.Dimension, IArchetypeBand>>> =
 
 /**
  * The band of each free dimension of {@link createSanitary}, by kind.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds; each band names its source.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, keyed by the producer's closed unions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Kept beside the producer, as `DOOR_BANDS` is, so the producer stays one readable construction; it re-exports as `createSanitary.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Where a code gives only a limit and no maker's figure was read, the model takes the limit and says so; masses no sheet gives are provisional.
  */
 export const SANITARY_BANDS: Readonly<
   Record<
