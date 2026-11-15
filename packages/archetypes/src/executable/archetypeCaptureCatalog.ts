@@ -543,9 +543,6 @@ export function archetypeCaptureCatalog(): Readonly<
       "fridge-open": createAppliance({ kind: "refrigerator" }).articulate({
         fridgeDoor: 90,
       }),
-      "oven-open": createAppliance({ kind: "cooker" }).articulate({
-        ovenDoor: 90,
-      }),
       "carbine-extended": carbine.articulate({
         stock: carbine.affordance("stock").travel!,
       }),
