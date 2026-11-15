@@ -7,6 +7,7 @@ import {
   ArchetypeDraw,
   ArchetypeFrame,
   ArchetypeRefusal,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -42,6 +43,14 @@ const WEBBING: string =
 const ATTACHE: string =
   "Samsonite Focus III 6 in attache, 39.4 x 45.2 x 14.7 cm, 2.95 kg (https://www.samsonite.ca/en/bags/laptop-bags-%26-briefcases/samsonite-focus-iii-6%22-attach%C3%A9/10558XXXX.html), and Rimowa aluminium attache, 35 x 41.5 x 8.5 cm, 2.3 kg (https://rimowa.com/us/en/bags/attache/briefcase/90007010.html), seen only in search results";
 
+/** A maker's handbag, read at a retailer, its other handle drop and its weight seen only in search results. */
+const HANDBAG: string =
+  "Longchamp Le Pliage Original M: height 28, width 30, depth 20 cm, handle drop 11 cm (https://www.selfridges.com/IE/en/product/longchamp-le-pliage-medium-recycled-nylon-top-handle-bag_R03885492/); a 12 cm handle height on Longchamp's Indonesian page and a 240 g weight seen only in search results";
+
+/** A maker's duffel, seen only in search results. */
+const DUFFEL: string =
+  "The North Face Base Camp Duffel M, 14 x 25 x 14 in, 3 lb 9.1 oz (1620 g) (https://www.sunandski.com/p/93240061700002402), seen only in search results";
+
 /** A maker's toolbox, read, its weight seen only in search results. */
 const TOOLBOX: string =
   "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
@@ -53,12 +62,14 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
   suitcase: 32 - 4.3,
   briefcase: 16,
   toolbox: 16,
+  handbag: 16,
+  duffel: 16,
 };
 
 /**
- * A carried bag: a tote with handles and a shoulder strap, a backpack, a cabin suitcase with a telescopic handle, a briefcase or a toolbox.
+ * A carried bag: a tote with handles and a shoulder strap, a backpack, a cabin suitcase with a telescopic handle, a briefcase, a toolbox, a handbag or a duffel.
  *
- * The bag stands on its base at the origin, its wide face toward `+Z`; a suitcase's, a briefcase's and a toolbox's top handle is the Revised NIOSH Lifting Equation's optimal handle, applied: a bar of its diameter band and its 11.5 cm length, standing its 5 cm clearance above the top; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
+ * The bag stands on its base at the origin, its wide face toward `+Z`; a suitcase's, a briefcase's, a toolbox's and a duffel's top handle is the Revised NIOSH Lifting Equation's optimal handle, applied, and a handbag's handle is that handle's bar and length standing its read drop above the top: a bar of its diameter band and its 11.5 cm length, standing its 5 cm clearance above the top; a backpack's straps are on its `-Z` face, against the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on the `telescope` slider, so drawing it out raises it to the height it is pulled at.
  *
  * @param params The kind, the load and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -194,8 +205,11 @@ export function createBag(
         length: height * 0.8,
       });
     }
-  } else if (kind === "briefcase" || kind === "toolbox") {
+  } else if (kind === "briefcase" || kind === "toolbox" || kind === "duffel") {
     carry("handle", height + lift, createBag.HANDLE.length);
+  } else if (kind === "handbag") {
+    // The handle's top stands the read drop above the bag's top.
+    carry("handle", height + d.handleDrop! - bar, createBag.HANDLE.length);
   } else {
     // A suitcase: a carry handle on top, and a pull bar on two posts that slide up out of the back.
     carry("handle", height + lift, createBag.HANDLE.length);
@@ -256,7 +270,14 @@ export function createBag(
  */
 export namespace createBag {
   /** The kinds of bag. */
-  export type Kind = "tote" | "backpack" | "suitcase" | "briefcase" | "toolbox";
+  export type Kind =
+    | "tote"
+    | "backpack"
+    | "suitcase"
+    | "briefcase"
+    | "toolbox"
+    | "handbag"
+    | "duffel";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -265,9 +286,11 @@ export namespace createBag {
     "suitcase",
     "briefcase",
     "toolbox",
+    "handbag",
+    "duffel",
   ];
 
-  /** The Revised NIOSH Lifting Equation's optimal handle's length and clearance, metres, applied to a suitcase's, a briefcase's and a toolbox's top handle (Applications Manual, NIOSH 94-110, Table 6 note 1, p. 30, https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf): at least 11.5 cm long, 5 cm clear of the top. */
+  /** The Revised NIOSH Lifting Equation's optimal handle's length and clearance, metres, applied to a suitcase's, a briefcase's, a toolbox's, a duffel's and a handbag's handle (Applications Manual, NIOSH 94-110, Table 6 note 1, p. 30, https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf): at least 11.5 cm long, 5 cm clear of the top. */
   export const HANDLE: Readonly<{ length: number; clearance: number }> = {
     length: 0.115,
     clearance: 0.05,
@@ -294,10 +317,10 @@ export namespace createBag {
    * The free dimensions, metres unless stated:
    *
    * - `width`, `height`, `depth`: the body along `+X`, `+Y` and `+Z`.
-   * - `handleDrop`: the top of a tote's handles above its body.
+   * - `handleDrop`: the top of a tote's or a handbag's handles above its body.
    * - `strapDrop`: the top of a tote's shoulder strap above its body.
    * - `pullHeight`: a suitcase's pull bar above the floor when drawn out.
-   * - `handleDiameter`: a suitcase's, a briefcase's or a toolbox's top handle bar, or a tote's or a backpack's handle and strap webbing.
+   * - `handleDiameter`: a suitcase's, a briefcase's, a toolbox's, a duffel's or a handbag's handle bar, or a tote's or a backpack's handle and strap webbing.
    * - `mass`: the empty bag, kilograms.
    */
   export type Dimension =
@@ -318,7 +341,7 @@ export namespace createBag {
     /** The model's id, unique in a scene; `bag` when absent. */
     id?: string;
 
-    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase or a toolbox and 27.7 for a suitcase; empty when absent. */
+    /** The mass of what the bag holds, kilograms: up to 16 for a tote, a backpack, a briefcase, a toolbox, a handbag or a duffel and 27.7 for a suitcase; empty when absent. */
     load?: number;
   }
 
@@ -369,6 +392,36 @@ export namespace createBag {
       depth: ArchetypeBand.metres(0.254, 0.254, TOOLBOX),
       handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
       mass: ArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
+    },
+    handbag: {
+      width: ArchetypeBand.metres(0.3, 0.3, HANDBAG),
+      height: ArchetypeBand.metres(0.28, 0.28, HANDBAG),
+      depth: ArchetypeBand.metres(0.2, 0.2, HANDBAG),
+      handleDrop: ArchetypeBand.metres(0.11, 0.12, HANDBAG, true),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      mass: ArchetypeBand.of("kg", 0.24, 0.24, HANDBAG, true),
+    },
+    duffel: {
+      width: ArchetypeBand.metres(
+        25 * ArchetypeUnits.INCH,
+        25 * ArchetypeUnits.INCH,
+        DUFFEL,
+        true,
+      ),
+      height: ArchetypeBand.metres(
+        14 * ArchetypeUnits.INCH,
+        14 * ArchetypeUnits.INCH,
+        DUFFEL,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        14 * ArchetypeUnits.INCH,
+        14 * ArchetypeUnits.INCH,
+        DUFFEL,
+        true,
+      ),
+      handleDiameter: ArchetypeBand.metres(0.019, 0.038, NIOSH, true),
+      mass: ArchetypeBand.of("kg", 1.62, 1.62, DUFFEL, true),
     },
   };
 }
