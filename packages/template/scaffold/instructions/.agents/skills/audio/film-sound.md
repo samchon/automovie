@@ -20,6 +20,6 @@ Ambience generated per request jumps at every cut, and music generated per reque
 
 ## Loudness
 
-Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for the release's, such as -27 LKFS dialogue-gated for Netflix or -23 LUFS under EBU R128 for broadcast. Measure on the decoded mix that every spoken line rises over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, reaches the target.
+Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for the release's target, such as -27 LKFS dialogue-gated for Netflix or -23 LUFS under EBU R128 for broadcast. Measure on the decoded mix that every spoken line rises over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, reaches the target.
 
 Sources: [iZotope RX Scene Rebalance](https://www.izotope.com/en/learn/scene-rebalance), [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation), [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4), [MERL cocktail-fork separation](https://github.com/merlresearch/cocktail-fork-separation), [Netflix sound mix specification](https://backlothelp.netflix.com/hc/en-us/articles/360001794307-Netflix-Sound-Mix-Specifications-Best-Practices-v1-5), [EBU R128](https://tech.ebu.ch/publications/r128).

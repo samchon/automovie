@@ -5,7 +5,7 @@ description: Chooses the video generation model with the user, reads its documen
 
 # Video diffusion
 
-Choose the model with the user and record it in [project context](../../production/project-context.md); [video models](models.md) shows, by current examples, how differently models take the hint, set adherence and continue a take. Then choose how the hint reaches it under [hints](hints.md), keep requests continuous under [continuity](continuity.md), and write each request's prompt under [prompts](prompts.md), following the model's own guide.
+Choose the model with the user and record it in [project context](../../production/project-context.md); [video models](models.md) shows, by current examples, how differently models take the hint, set adherence and continue a take. [Hints](hints.md) sets how the hint reaches it, [continuity](continuity.md) keeps requests continuous, and [prompts](prompts.md) sets each request's prompt, following the model's own guide.
 
 ## Read the model
 

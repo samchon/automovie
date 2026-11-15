@@ -39,7 +39,7 @@ Grade neighboring takes to match in color and exposure, because a jump at a cut 
 
 ## Provenance and disclosure
 
-Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand both to [assembly](../production/assembly.md#repair-and-deliver).
+Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand the record and the originals to [assembly](../production/assembly.md#repair-and-deliver).
 
 A film made with generated video may owe a disclosure where it is released, such as under Article 50 of the EU AI Act or a video platform's rules. Ask the user which disclosure the release owes, and record it in the [delivery profile](../production/project-context.md#what-to-record).
 

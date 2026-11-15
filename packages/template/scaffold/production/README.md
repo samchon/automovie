@@ -75,7 +75,7 @@ Run `pnpm run review:setup` once to install Playwright's recording FFmpeg and it
 
    Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
-A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
+A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and finished takes with their [film sound]({{skills}}/audio/film-sound.md) before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
 ## Commands
 
