@@ -23,7 +23,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios, members on three bodies:
  * 1. A column of four 2 by 6 blocks deploys on its head into a line of four
- *    2 by 6 blocks, block 0 halting in its place: every member's way ends on its new slot, file order is kept
+ *    2 by 6 blocks, block 0 halting in its place, the others by the flank
+ *    (along the line's front at their own depth, then up into place): every member's way ends on its new slot, file order is kept
  *    (member i takes slot i), the farthest block steps off first, every
  *    member marches its way at one pace, the slowest member's march speed,
  *    so the unit keeps together on three bodies, and the plan's own
@@ -141,6 +142,14 @@ export function test_human_motion_ensemble_manoeuvre(): void {
     findings.push(
       `the farthest member steps off ${farthest.delay} s after the word`,
     );
+  // By the flank: a block that moves both across and up marches its first leg along the line's front (the frame faces +Z, so the leg runs along X).
+  for (const p of parts)
+    if (p.via.length === 3 && Math.abs(p.via[1]!.z - p.via[0]!.z) > 1e-9) {
+      findings.push(`member ${p.member}'s first leg leaves its depth`);
+      break;
+    }
+  if (!parts.some((p: IHumanManoeuvre.IPart): boolean => p.via.length === 3))
+    findings.push("no member deploys by the flank");
   // The unit keeps together: every way is marched at the slowest member's march speed.
   const slowestMarch: number = Math.min(
     ...troop.members.map(

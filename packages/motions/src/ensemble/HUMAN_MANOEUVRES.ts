@@ -7,9 +7,11 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * - `wheel`: file order kept, the formation turned rigidly about the pivot
  *   flank, each member's step growing with its radius, all together
  *   (`manoeuvreWheel`, after Dundas 1792).
- * - `deploy`: column block k takes line block k, each slanting to its place
- *   (the French deployment by oblique march, secondary), the farthest first
- *   so no two ways cross; the base block halts in place.
+ * - `deploy`: column block k takes line block k, its files marching by the
+ *   flank along the line's front to their own file, then fronting and
+ *   marching up into place (`HumanManoeuvre`'s flank way, after Dundas
+ *   1792), the farthest first; the base block halts in place. A straight
+ *   oblique from a closed column would brush the blocks ahead.
  * - `ploy`: the deployment reversed, the nearest first.
  * - `square`: file order kept, straight in whole steps, together; the front
  *   rank kneels, the rest stand (French regulation, through the Balagan
@@ -23,8 +25,8 @@ export const HUMAN_MANOEUVRES: Readonly<
   Record<IHumanManoeuvre.Row, IHumanManoeuvre.IRule>
 > = {
   wheel: { assign: "order", path: "arc", order: "together" },
-  deploy: { assign: "order", path: "oblique", order: "farFirst" },
-  ploy: { assign: "order", path: "oblique", order: "nearFirst" },
+  deploy: { assign: "order", path: "flank", order: "farFirst" },
+  ploy: { assign: "order", path: "flank", order: "nearFirst" },
   square: {
     assign: "order",
     path: "straight",

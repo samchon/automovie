@@ -70,8 +70,8 @@ export namespace IHumanManoeuvre {
     /** Keep member order, or the least total distance (Kuhn 1955). */
     assign: "order" | "nearest";
 
-    /** About the pivot, slanting to the new place, direct, a turn only, or the way the crowd's steering pass gives (`HumanCrowd.steer`). */
-    path: "arc" | "oblique" | "straight" | "inPlace" | "steered";
+    /** About the pivot, slanting to the new place, by the flank (along the target's front to the member's file, then up into its place), direct, a turn only, or the way the crowd's steering pass gives (`HumanCrowd.steer`). */
+    path: "arc" | "oblique" | "flank" | "straight" | "inPlace" | "steered";
 
     /** Who steps off first after the word: all together, the farthest first, the nearest first, or the front rank first. */
     order: "together" | "farFirst" | "nearFirst" | "byRank";

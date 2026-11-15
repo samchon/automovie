@@ -76,6 +76,7 @@ export * from "./seededValue";
 export * from "./segmentIndex";
 export * from "./segmentSegmentDistance";
 export * from "./solveAutoMovieBoundedDisplacement";
+export * from "./solveAutoMovieHalfPlaneProgram";
 export * from "./solveAutoMovieQuadraticInterior";
 export * from "./solveAutoMovieQuadraticKernel";
 export * from "./solveAutoMovieQuadraticProgram";

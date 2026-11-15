@@ -16,9 +16,11 @@ import type { IHumanManoeuvre } from "./IHumanManoeuvre";
  * Formations and Movements of the Militia of Lower-Canada, c. 1814, after
  * Dundas 1792).
  *
- * The wheeling frame is a course: the `from` formation's frame at the word
- * turned about the pivot, sampled every `HumanFormation.SAMPLE` seconds,
- * each sample carrying its heading. Its angular speed is the slowest
+ * The wheeling frame is a course standing on the pivot, the `from`
+ * formation's blocks moved so each slot stands where it stood at the word,
+ * its heading turning and sampled every `HumanFormation.SAMPLE` seconds: a
+ * frame that only turns carries every slot round the pivot exactly between
+ * samples. Its angular speed is the slowest
  * member's travel speed lengthened by `LENGTHENED`, over the outward
  * radius, so the outward man takes the lengthened step and nobody a longer
  * one; it gathers and sheds that speed at `HumanFormation.ACCELERATION`
@@ -110,7 +112,12 @@ export function manoeuvreWheel(
             ? 0.5 * gather * ramp * ramp + peak * (t - ramp)
             : whole - 0.5 * gather * (total - t) ** 2;
 
-  // The frame's samples, each turned about the pivot with its heading.
+  // The frame's origin moved to the pivot, the blocks' offsets moved by as much, so the frame only turns: its heading read between samples turns every slot about the pivot exactly.
+  const radians: number = (origin.heading * Math.PI) / 180;
+  const ox: number = pivot.x - origin.at.x;
+  const oz: number = pivot.z - origin.at.z;
+  const lateral: number = -ox * Math.cos(radians) + oz * Math.sin(radians);
+  const depth: number = -ox * Math.sin(radians) - oz * Math.cos(radians);
   const sign: number = Math.sign(sweep);
   const count: number = Math.max(
     1,
@@ -119,18 +126,24 @@ export function manoeuvreWheel(
   const samples: IHumanFormation.ISample[] = [];
   for (let k: number = 0; k <= count; ++k) {
     const t: number = Math.min(total, k * HumanFormation.SAMPLE);
-    const degrees: number = (sign * angle(t) * 180) / Math.PI;
-    const at: IAutoMovieVector3 = turn(pivot, origin.at, degrees);
     samples.push({
       seconds: manoeuvre.at + t,
-      x: at.x,
+      x: pivot.x,
       y: 0,
-      z: at.z,
-      heading: origin.heading + degrees,
+      z: pivot.z,
+      heading: origin.heading + (sign * angle(t) * 180) / Math.PI,
     });
   }
   const formation: IHumanFormation = {
-    blocks: manoeuvre.from.blocks,
+    blocks: manoeuvre.from.blocks.map(
+      (b: IHumanFormation.IBlock): IHumanFormation.IBlock => ({
+        ...b,
+        offset: {
+          lateral: (b.offset?.lateral ?? 0) - lateral,
+          depth: (b.offset?.depth ?? 0) - depth,
+        },
+      }),
+    ),
     frame: { kind: "course", samples },
   };
   return {

@@ -44,7 +44,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. Halt: every member stands still within one step's time after the word
  *    "halt" plus its reaction latency.
  * 4. Volley: each member shoulders its flintlock musket (`HumanMusketDrill`
- *    on #3483's musket), presents on "present" and fires on "fire", each synced with a
+ *    on #3483's musket), makes ready on "ready" (the thumb on the cock's
+ *    spur draws it to full cock, its hinge's own travel), presents on
+ *    "present" and fires on "fire", each synced with a
  *    reaction latency; the fire instants spread less for the elite than for
  *    the militia, none comes before the word plus the reaction floor, and the
  *    six members picked to misfire present and do not fire.
@@ -89,6 +91,7 @@ export function test_human_motion_scene_line_infantry(): void {
   };
   const orders: ReturnType<typeof HumanCue.orders> = HumanCue.orders([
     { word: "halt", at: 9 },
+    { word: "ready", at: 9.8 },
     { word: "present", at: 10.4 },
     { word: "fire", at: 12, caution: 1.5 },
   ]);
@@ -96,6 +99,10 @@ export function test_human_motion_scene_line_infantry(): void {
   const musket: ReturnType<typeof createLongGun> = createLongGun({
     kind: "musket",
   });
+  // Make ready draws the cock back to full cock: its hinge's travel, the archetype's.
+  const COCK: number = musket.affordances!.find(
+    (a: { id: string }): boolean => a.id === "cock",
+  )!.travel!;
   const battalion = (
     preset: IHumanEnsemble["preset"],
     count: number = 24,
@@ -166,6 +173,14 @@ export function test_human_motion_scene_line_infantry(): void {
             .registered("stand", { seconds: 1 })
             .sync({ of: "orders", event: "halt", latency: "reaction" });
           const presented: HumanChain = marched
+            .registered("makeReady", {
+              mechanism: {
+                kind: "hinge",
+                at: { kind: "prop", subject: gun, point: "spur" },
+                swing: COCK,
+              },
+            })
+            .sync({ of: "orders", event: "ready", latency: "reaction" })
             .registered("presentMusket", {
               gun,
               target: {
@@ -279,6 +294,20 @@ export function test_human_motion_scene_line_infantry(): void {
       )!;
       if (halted.entryTime < word("halt") + 0.1 - 1e-9)
         findings.push(`${m.subject} halts before the word`);
+      const ready: HumanSegment.ISegment | undefined = segments.find(
+        (s: HumanSegment.ISegment): boolean => s.name === "makeReady",
+      );
+      const presenting: HumanSegment.ISegment | undefined = segments.find(
+        (s: HumanSegment.ISegment): boolean => s.name === "presentMusket",
+      );
+      if (ready === undefined) findings.push(`${m.subject} does not make ready`);
+      else if (ready.entryTime < word("ready") + 0.1 - 1e-9)
+        findings.push(`${m.subject} makes ready before the word`);
+      else if (
+        presenting !== undefined &&
+        !(ready.entryTime < presenting.entryTime)
+      )
+        findings.push(`${m.subject} presents before it makes ready`);
       const fired: HumanSegment.ISegment | undefined = segments.find(
         (s: HumanSegment.ISegment): boolean => s.name === "fireMusket",
       );

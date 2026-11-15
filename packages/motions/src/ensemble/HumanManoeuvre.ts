@@ -67,7 +67,7 @@ export namespace HumanManoeuvre {
     const members: readonly HumanEnsemble.IMember[] = ensemble.members;
     const at: number = manoeuvre.at;
     if (
-      rule.path === "oblique" &&
+      (rule.path === "oblique" || rule.path === "flank") &&
       manoeuvre.from.blocks.length > manoeuvre.to.blocks.length
     )
       throw new HumanRefusal({
@@ -115,7 +115,9 @@ export namespace HumanManoeuvre {
               (_: HumanEnsemble.IMember, i: number): IAutoMovieVector3[] =>
                 rule.path === "inPlace"
                   ? [starts[i]!]
-                  : [starts[i]!, ends[i]!.at],
+                  : rule.path === "flank"
+                    ? flanked(manoeuvre, starts[i]!, ends[i]!.at)
+                    : [starts[i]!, ends[i]!.at],
             );
 
     // Who steps off when: by block for the deployments, by rank in turn, or together.
@@ -160,7 +162,9 @@ export namespace HumanManoeuvre {
       ): IHumanFormation.IStation | undefined =>
         wheel !== null && wheel.stations !== null
           ? wheel.stations[i]!
-          : (rule.path === "straight" || rule.path === "oblique") &&
+          : (rule.path === "straight" ||
+                rule.path === "oblique" ||
+                rule.path === "flank") &&
               length(ways[i]!) > 1e-6
             ? {
                 formation: {
@@ -250,6 +254,39 @@ export namespace HumanManoeuvre {
       ? travelled.registered("kneel", { rise: false })
       : travelled;
   }
+}
+
+/**
+ * A way by the flank: along the target line's front to the member's own
+ * file, at the depth it stands at, then straight up into its place; the
+ * corner is left out where either leg is empty. Files march to a flank and
+ * front on the line, as the drill deploys a column ("the platoons of a column
+ * file separately to a flank ... for the purposes of firing or deploying",
+ * each division halting and fronting on the line: Rules and Regulations for
+ * the Formations and Movements of the Militia of Lower-Canada, c. 1814,
+ * after Dundas 1792).
+ */
+function flanked(
+  manoeuvre: IHumanManoeuvre,
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+): IAutoMovieVector3[] {
+  // The target frame's lateral axis, its right: (-cos h, 0, sin h).
+  const radians: number =
+    (HumanFormation.frame(manoeuvre.to, manoeuvre.at).heading * Math.PI) / 180;
+  const lx: number = -Math.cos(radians);
+  const lz: number = Math.sin(radians);
+  const across: number = (to.x - from.x) * lx + (to.z - from.z) * lz;
+  const corner: IAutoMovieVector3 = {
+    x: from.x + across * lx,
+    y: 0,
+    z: from.z + across * lz,
+  };
+  const empty = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
+    Math.hypot(a.x - b.x, a.z - b.z) < 1e-6;
+  return empty(from, corner) || empty(corner, to)
+    ? [from, to]
+    : [from, corner, to];
 }
 
 /** The block of one member a stationed straight way is read on: its one slot stands at the block's origin. */
