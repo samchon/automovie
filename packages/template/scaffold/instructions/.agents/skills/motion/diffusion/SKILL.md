@@ -1,6 +1,6 @@
 ---
 name: motion-diffusion
-description: Generates or refines body motion with a motion model, hinted by the polygon man's composed performance, and captures motion from footage for a study. Use when the user chooses generated motion for a stretch of a performance, or when a study measures footage.
+description: Generates or refines body motion with a motion model hinted by the polygon man's composed performance, and traces a performer in footage into the polygon man's motion. Use when the user chooses generated or traced motion for a stretch of a performance, or when a study measures footage.
 ---
 
 # Motion diffusion
@@ -14,4 +14,4 @@ Use it when the user chooses it for a stretch the vocabulary performs stiffly, o
 3. Freeze the result and check it under [clips](clips.md).
 4. [Retarget](../retargeting.md) it onto the cast member's polygon man and accept it in its [catalog case](../catalog-cases.md) like any module.
 
-[Motion models](models.md) shows current examples. A study that measures footage uses [capture from footage](capture.md).
+Motion traced from footage, such as a dance video, follows [tracing](tracing.md), whether it becomes a clip, keys for the composed performance or a study's measurements. [Motion models](models.md) shows current examples.
