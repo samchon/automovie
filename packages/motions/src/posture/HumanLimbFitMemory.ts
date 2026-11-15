@@ -22,7 +22,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The remembered fit and the memory's switch.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit is `HumanLimbFit`'s; nothing here solves one.
  */
-export namespace HumanLimbFitMemory {  /**
+export namespace HumanLimbFitMemory {
+  /**
    * Turn the memory of limb fits off or on again. Off, every fit is solved
    * afresh and nothing is kept, which is what a check of the memory against
    * the solver compares with; it is on unless turned off.
