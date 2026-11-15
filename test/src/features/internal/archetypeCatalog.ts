@@ -30,6 +30,7 @@ import {
   createElevator,
   createExerciseBike,
   createExerciseMat,
+  createFireRing,
   createFood,
   createGate,
   createGlove,
@@ -529,6 +530,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `rock-${kind}`,
       (seed?: number | string): Archetype => createRock({ kind }, seed),
+    );
+  for (const kind of createFireRing.KINDS)
+    add(
+      `fireRing-${kind}`,
+      (seed?: number | string): Archetype => createFireRing({ kind }, seed),
+      Object.values(createFireRing.BANDS[kind]).every(
+        (band: IArchetypeBand): boolean => band.minimum === band.maximum,
+      ),
     );
   for (const kind of createTree.KINDS)
     add(

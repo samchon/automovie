@@ -33,7 +33,7 @@ import {
 } from "../furniture";
 import { createBoxingGlove, createHeavyBag } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
-import { createRock, createTree } from "../nature";
+import { createFireRing, createRock, createTree } from "../nature";
 import {
   createBag,
   createBox,
@@ -421,6 +421,11 @@ export function archetypeCaptureCatalog(): Readonly<
         "rock",
         createRock.KINDS,
         (kind: createRock.Kind): Archetype => createRock({ kind }),
+      ),
+      ...kinds(
+        "fireRing",
+        createFireRing.KINDS,
+        (kind: createFireRing.Kind): Archetype => createFireRing({ kind }),
       ),
       ...kinds(
         "tree",
