@@ -22,10 +22,18 @@ const SHOVEL: string =
 const ROD: string =
   "Daiwa Ninja X spin rods, 7 ft 0 in (213 cm), 131 and 133 g (https://www.daiwa.com/scandinavia/product/n753a5g)";
 
+/** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
+const FOREST_AXE: string =
+  "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
+
+/** The same axe as a retailer measures it. */
+const FOREST_AXE_SHOP: string =
+  "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
+
 /**
- * A long tool: a broom, a mop or a shovel that works on the floor or the ground, or a fishing rod.
+ * A long tool: a broom, a mop or a shovel that works on the floor or the ground, a forest axe, or a fishing rod.
  *
- * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it.
+ * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down; a forest axe's `face` is its edge instead, facing `+Z` the way the swing goes, with the handle's back flush with the poll. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it. Chopping with two hands has no motion law yet; the axe is built for holding, carrying and the swing rows that exist.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -33,10 +41,10 @@ const ROD: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tool stands, where the hands go and which way the head faces.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the shaft and the head, then a shovel's grip.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom or a mop, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod.
+ * @evidence contracts/development/implementation.md#principled-implementation A shaft rod with a head box; the shaft is one `bar` whose sites the two hands share, so the hand spacing is the holding act's choice. An axe's head and handle carry their read masses as shares, and its handle's diameter is the one at which hickory of the read density, over the handle's length below the head, weighs the read handle mass.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build an axe whole, or the shaft and the head, then a shovel's grip.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bristles and strands are one block; a shovel's blade is a flat plate; an axe's wedge head is a block of the retailer's poll thickness, and its oval handle, which slims below the grip, a round rod.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two parts for a broom, a mop or an axe, a head and a shaft; four for a shovel, with its grip and yoke; one for a fishing rod.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -59,7 +67,6 @@ export function createLongTool(
       createLongTool.BANDS,
     );
   const length: number = d.length!;
-  const radius: number = d.shaftDiameter! / 2;
   const builder: ArchetypeBuilder<
     createLongTool.Affordance,
     createLongTool.Dimension
@@ -70,6 +77,58 @@ export function createLongTool(
     dimensions: d,
   });
 
+  if (kind === "forestAxe") {
+    // The handle's diameter at which its hickory weighs the read handle mass: d = sqrt(4 m / (pi rho L)).
+    const edge: number = d.edge!;
+    const head: number = d.headLength!;
+    const handle: number = d.mass! - d.headMass!;
+    const shaft: number = Math.sqrt(
+      handle / (Math.PI * createLongTool.HICKORY * (length - edge)),
+    );
+    // The head on the floor, its poll flush with the handle's back and its edge toward +Z.
+    builder.box(
+      "head",
+      Vector3.create(createLongTool.AXE_HEAD_THICKNESS, edge, head),
+      Vector3.create(0, edge / 2, head / 2 - shaft),
+      { color: "#6c7076", share: d.headMass! / d.mass! },
+    );
+    builder.affordance({
+      id: "face",
+      kind: "surface",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, edge / 2, head - shaft),
+        Vector3.create(0, 0, 1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      width: edge,
+    });
+    builder.rod(
+      "shaft",
+      shaft,
+      Vector3.create(0, edge, 0),
+      Vector3.create(0, length, 0),
+      { color: "#b98d5b", share: handle / d.mass! },
+    );
+    builder.affordance({
+      id: "shaft",
+      kind: "bar",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, (edge + length) / 2, 0),
+        Vector3.create(0, 0, -1),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      grip: "two-hand",
+      aperture: 2 * shaft,
+      length: length - edge,
+    });
+    return builder.build(d.mass!);
+  }
+
+  const radius: number = d.shaftDiameter! / 2;
   if (kind === "fishingRod") {
     // A rod on its butt: the grip a hand takes and the tip it casts with.
     const grip: number = createLongTool.ROD_GRIP;
@@ -191,10 +250,22 @@ export function createLongTool(
  */
 export namespace createLongTool {
   /** The kinds of tool. */
-  export type Kind = "broom" | "mop" | "shovel" | "fishingRod";
+  export type Kind = "broom" | "mop" | "shovel" | "forestAxe" | "fishingRod";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["broom", "mop", "shovel", "fishingRod"];
+  export const KINDS: readonly Kind[] = [
+    "broom",
+    "mop",
+    "shovel",
+    "forestAxe",
+    "fishingRod",
+  ];
+
+  /** Shagbark hickory's density at 12 % moisture, kilograms per cubic metre, which sizes an axe's handle from its mass (The Wood Database, https://www.wood-database.com/shagbark-hickory/, average dried weight 800 kg/m3). */
+  export const HICKORY: number = 800;
+
+  /** An axe head's thickness across `X`, metres: the retailer's 2.6 cm at the poll ({@link FOREST_AXE_SHOP}). No act reads it, and the head's inertia about the swing's axis does not depend on it. */
+  export const AXE_HEAD_THICKNESS: number = 0.026;
 
   /** A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool handle (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html). */
   export const ROD_GRIP: number = 0.12;
@@ -213,7 +284,7 @@ export namespace createLongTool {
    *
    * - `shaft`: the shaft, a bar both hands hold at sites along it.
    * - `grip`: a shovel's D grip at its top, held from above; a fishing rod's grip at its butt, taken from `-Z`.
-   * - `face`: the working side of the head, facing down onto the floor or the ground.
+   * - `face`: the working side of the head, facing down onto the floor or the ground; an axe's edge, facing `+Z`, its `+X` along the edge.
    * - `tip`: a fishing rod's end, `+Y` along it.
    */
   export type Affordance = "shaft" | "grip" | "face" | "tip";
@@ -222,10 +293,19 @@ export namespace createLongTool {
    * The free dimensions, metres unless stated:
    *
    * - `length`: overall, along `+Y`.
-   * - `shaftDiameter`: the shaft the hands wrap.
+   * - `shaftDiameter`: the shaft the hands wrap; an axe's follows from its handle's mass instead.
+   * - `edge`: an axe's cutting edge, along `+Y`, which is the head's height.
+   * - `headLength`: an axe head from its poll to its edge, along `+Z`.
+   * - `headMass`: an axe head's mass, kilograms, its share of the whole placing the balance.
    * - `mass`: kilograms.
    */
-  export type Dimension = "length" | "shaftDiameter" | "mass";
+  export type Dimension =
+    | "length"
+    | "shaftDiameter"
+    | "edge"
+    | "headLength"
+    | "headMass"
+    | "mass";
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -236,10 +316,35 @@ export namespace createLongTool {
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension, by kind; an axe has no drawn shaft diameter, a broom, a mop, a shovel and a fishing rod no head of their own sizes. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
+    forestAxe: {
+      length: ArchetypeBand.metres(
+        25 * ArchetypeUnits.INCH,
+        0.65,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      edge: ArchetypeBand.metres(
+        3.5 * ArchetypeUnits.INCH,
+        0.09,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      headLength: ArchetypeBand.metres(
+        0.163,
+        0.163,
+        `${FOREST_AXE_SHOP}; where the handle sits in the head no maker's page, the Axe Book or a retailer gives, and no drawing was found, so the handle's back stands flush with the poll, a provisional construction from which the edge's reach ahead of the handle follows`,
+        true,
+      ),
+      headMass: ArchetypeBand.of(
+        "kg",
+        0.9,
+        2 * ArchetypeUnits.POUND,
+        `${FOREST_AXE}; ${FOREST_AXE_SHOP}`,
+      ),
+      mass: ArchetypeBand.of("kg", 1.2, 1.2, `${FOREST_AXE}; ${FOREST_AXE_SHOP}`),
+    },
     fishingRod: {
       length: ArchetypeBand.metres(2.13, 2.13, ROD),
       shaftDiameter: ArchetypeBand.metres(
