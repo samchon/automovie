@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
@@ -152,12 +153,12 @@ export namespace HumanArmTrajectoryPairs {
   ): Map<number, IPair> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
-    const screened: G.IScreen = G.screen(frame, placed, T.REACH);
+    const screened: S.IScreen = S.screen(frame, placed, T.REACH);
     placed.probes.forEach(
       ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
         if (probe < G.SURFACE) return;
         const part: number = frame.segments[probe - G.SURFACE]!;
-        for (const shape of G.nearby(frame, placed, probe, T.REACH, screened)) {
+        for (const shape of S.nearby(frame, placed, probe, T.REACH, screened)) {
           const other: number = frame.shapes[shape]!.part;
           if (part >= 0 && other >= 0 && frame.related[part]![other]!) continue;
 
@@ -187,7 +188,7 @@ export namespace HumanArmTrajectoryPairs {
             continue;
           }
           const short: number =
-            1000 * (allowance - (G.gap(frame, shape, p, p) - r));
+            1000 * (allowance - (S.gap(frame, shape, p, p) - r));
           if (known === undefined || short > known.short)
             out.set(key, {
               probe,
@@ -222,7 +223,7 @@ export namespace HumanArmTrajectoryPairs {
     const out: Map<string, ICrossing> = new Map();
     const placed: G.IPlaced[] = [first, second];
     for (let a: number = 0; a < 2; ++a) {
-      const theirs: G.IShape[] = G.colliders(
+      const theirs: G.IShape[] = S.colliders(
         c.frames[1 - a]![k]!,
         placed[1 - a]!,
       );
@@ -265,7 +266,7 @@ export namespace HumanArmTrajectoryPairs {
       own.probes.forEach(
         ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
           if (probe < G.SURFACE) return;
-          const segment: M.Segment = G.segment(frame, probe);
+          const segment: M.Segment = S.segment(frame, probe);
           const mine: boolean[] = screened[frame.owners[probe - G.SURFACE]!];
           theirs.forEach((shape: G.IShape, i: number): void => {
             if (!mine[i]) return;
@@ -359,7 +360,7 @@ export namespace HumanArmTrajectoryPairs {
   ): Map<number, IEmbedded> {
     const frame: G.IFrame = c.frames[a]![k]!;
     const out: Map<number, IEmbedded> = new Map();
-    const mine: G.IShape[] = G.colliders(frame, placed);
+    const mine: G.IShape[] = S.colliders(frame, placed);
     const owners: ("upper" | "lower" | "hand")[] = frame.colliders.flatMap(
       (col: G.IFrame["colliders"][number]) =>
         col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
@@ -530,7 +531,7 @@ export namespace HumanArmTrajectoryPairs {
         on: { arm: on.arm, owner: on.owner, origin },
       };
     const shape: G.IShape | undefined =
-      where < 0 ? undefined : G.colliders(c.frames[on.arm]![k]!, theirs)[where];
+      where < 0 ? undefined : S.colliders(c.frames[on.arm]![k]!, theirs)[where];
     const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, on.normal);
     return {
       point,

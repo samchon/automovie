@@ -2,14 +2,12 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
+  ROM_TOLERANCE,
   Vector3,
   clampJointToSkeleton,
   decomposeJointRotation,
   getConstraint,
   jointToQuaternion,
-  physicalHullFaces,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
   skeletonJointAxes,
   swingTwistRange,
 } from "@automovie/engine";
@@ -32,8 +30,8 @@ import type { HumanColliders } from "./HumanColliders";
  * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
  * the range, scaled so a unit is near a degree of swing), the elbow's and
  * the wrist's clinical angles; the arm's forward kinematics from its
- * shoulder in a posed frame (`HumanArmFrame`), its probes, and their signed
- * distances to the shapes in its way.
+ * shoulder in a posed frame (`HumanArmFrame`) and its probes; the shapes
+ * in its way and the probes' distances to them are `HumanArmShapes`'.
  */
 export namespace HumanArmGeometry {
   /** Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's and the wrist's clinical triples. */
@@ -186,28 +184,6 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The arm's segment a probe lies on.
-   *
-   * @param at The frame.
-   * @param probe The probe.
-   * @returns The segment: an axis sphere's by its place along the arm, a collider probe's by its owner.
-   */
-  export function segment(
-    at: IFrame,
-    probe: number,
-  ): "upperArm" | "lowerArm" | "hand" {
-    if (probe >= SURFACE) {
-      const owner: "upper" | "lower" | "hand" = at.owners[probe - SURFACE]!;
-      return owner === "upper"
-        ? "upperArm"
-        : owner === "lower"
-          ? "lowerArm"
-          : "hand";
-    }
-    return probe < 2 ? "upperArm" : probe < 6 ? "lowerArm" : "hand";
-  }
-
-  /**
    * An arm's setup.
    *
    * @param body The body.
@@ -351,8 +327,12 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The shoulder's articulation at coordinates; the chart's radius is kept
-   * below 1.3, where the swing stays short of the antipode.
+   * The shoulder's articulation at coordinates. The chart is one to one up
+   * to the rest direction's antipode, where a direction has no azimuth, so a
+   * place whose swing would reach it is drawn back along its azimuth to a
+   * swing the joints' resolution (`ROM_TOLERANCE`) short of 180 degrees;
+   * every rotation an arm can show lies inside, so an arm's coordinates
+   * (`encode`) read back as the arm itself.
    *
    * @param setup The arm.
    * @param c The coordinates.
@@ -363,7 +343,14 @@ export namespace HumanArmGeometry {
     c: readonly number[],
   ): IAutoMovieQuaternion {
     const k: number = Math.hypot(c[0]!, c[1]!) / SCALE;
-    const scale: number = k > 1.3 ? 1.3 / k : 1;
+    const most: number =
+      (180 - ROM_TOLERANCE) /
+      swingTwistRange.radius(
+        setup.constraint.upper,
+        setup.joint,
+        k > 0 ? (Math.atan2(c[1]!, c[0]!) * 180) / Math.PI : 0,
+      );
+    const scale: number = k > most ? most / k : 1;
     return swingTwistRange.placed(
       { x: (c[0]! * scale) / SCALE, y: (c[1]! * scale) / SCALE, twist: c[2]! },
       setup.constraint.upper,
@@ -486,206 +473,6 @@ export namespace HumanArmGeometry {
     };
   }
 
-  /**
-   * The shapes a placed arm's probe may come within a reach of; a collider
-   * probe's segment sphere is screened first, as the tangle audit's own pose
-   * does.
-   *
-   * @param at The frame.
-   * @param placed The arm placed.
-   * @param probe The probe.
-   * @param reach The reach, metres.
-   * @param screened The placement's screen (`screen`), when it is read for many probes; taken here when absent.
-   * @returns The shapes' indices.
-   */
-  export function nearby(
-    at: IFrame,
-    placed: IPlaced,
-    probe: number,
-    reach: number,
-    screened?: IScreen,
-  ): number[] {
-    const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
-    if (probe < SURFACE) return near(at, p, r + reach);
-    const owner: "upper" | "lower" | "hand" = at.owners[probe - SURFACE]!;
-    return (screened ?? screen(at, placed, reach))[owner].filter(
-      (i: number): boolean =>
-        Vector3.length(Vector3.subtract(p, at.shapes[i]!.centre)) -
-          at.shapes[i]!.radius <
-        r + reach,
-    );
-  }
-
-  /** The shapes each of a placed arm's segments may come within a reach of, by their bounding spheres. */
-  export type IScreen = Record<"upper" | "lower" | "hand", number[]>;
-
-  /**
-   * The shapes each of a placed arm's segments may come within a reach of:
-   * the screen `nearby` reads a surface probe's shapes from, taken once for
-   * every probe of the same placement.
-   *
-   * @param at The frame.
-   * @param placed The arm placed.
-   * @param reach The reach, metres.
-   * @returns The shapes' indices by segment.
-   */
-  export function screen(at: IFrame, placed: IPlaced, reach: number): IScreen {
-    const of = (
-      owner: "upper" | "lower" | "hand",
-      o: IAutoMovieVector3,
-      w: IAutoMovieQuaternion,
-    ): number[] =>
-      near(
-        at,
-        Vector3.add(o, Quaternion.rotateVector(w, at.bounds[owner].centre)),
-        at.bounds[owner].radius + reach,
-      );
-    return {
-      upper: of("upper", placed.shoulder, placed.upper),
-      lower: of("lower", placed.elbow, placed.lower),
-      hand: of("hand", placed.wrist, placed.hand),
-    };
-  }
-
-  /**
-   * The arm's own colliders placed where coordinates put it, as shapes
-   * another arm is read against.
-   *
-   * @param at The frame.
-   * @param placed The arm placed.
-   * @returns The shapes, in the order of the frame's colliders.
-   */
-  export function colliders(at: IFrame, placed: IPlaced): IShape[] {
-    const out: IShape[] = [];
-    for (const c of at.colliders) {
-      const [o, w]: [IAutoMovieVector3, IAutoMovieQuaternion] =
-        c.owner === "upper"
-          ? [placed.shoulder, placed.upper]
-          : c.owner === "lower"
-            ? [placed.elbow, placed.lower]
-            : [placed.wrist, placed.hand];
-      const pose: HumanColliders.IPlaced["pose"] = {
-        ...c.pose,
-        position: Vector3.add(o, Quaternion.rotateVector(w, c.pose.position)),
-        rotation: Quaternion.multiply(w, c.pose.rotation),
-      };
-      for (const shape of c.shapes)
-        out.push(bounded(c.bone, c.part, pose, shape));
-    }
-    return out;
-  }
-
-  /**
-   * A placed shape with its bounding sphere.
-   *
-   * @param bone The bone its segment rides on.
-   * @param part The audit's part, -1 for another body's.
-   * @param pose The segment's world pose.
-   * @param shape The shape.
-   * @returns The shape.
-   */
-  export function bounded(
-    bone: AutoMovieHumanoidBone,
-    part: number,
-    pose: HumanColliders.IPlaced["pose"],
-    shape: HumanColliders.IPlaced["shapes"][number],
-  ): IShape {
-    const local: { centre: IAutoMovieVector3; radius: number } =
-      shape.kind === "hull"
-        ? physicalHullFaces(shape.points)
-        : {
-            centre: { x: 0, y: 0, z: 0 },
-            radius:
-              shape.kind === "sphere"
-                ? shape.radius
-                : shape.kind === "capsule"
-                  ? shape.halfLength + shape.radius
-                  : Vector3.length(shape.halfExtents),
-          };
-    return {
-      bone,
-      part,
-      pose,
-      shape,
-      centre: Vector3.add(
-        pose.position,
-        Quaternion.rotateVector(
-          pose.rotation,
-          Vector3.add(
-            shape.transform.position,
-            Quaternion.rotateVector(shape.transform.rotation, local.centre),
-          ),
-        ),
-      ),
-      radius: local.radius,
-    };
-  }
-
-  /**
-   * The shapes whose bounding sphere lies within a reach of a point.
-   *
-   * @param at The frame.
-   * @param p The point.
-   * @param reach The reach, metres.
-   * @returns The shapes' indices.
-   */
-  export function near(
-    at: IFrame,
-    p: IAutoMovieVector3,
-    reach: number,
-  ): number[] {
-    const out: number[] = [];
-    at.shapes.forEach((shape: IShape, i: number): void => {
-      if (
-        Vector3.length(Vector3.subtract(p, shape.centre)) - shape.radius <
-        reach
-      )
-        out.push(i);
-    });
-    return out;
-  }
-
-  /**
-   * One shape's outward normal at a point near it: the gradient of its
-   * distance there (`physicalShapeNormal`).
-   *
-   * @param at The frame.
-   * @param shape The shape's index.
-   * @param p The point.
-   * @returns The unit normal.
-   */
-  export function normal(
-    at: IFrame,
-    shape: number,
-    p: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const s: IShape = at.shapes[shape]!;
-    return physicalShapeNormal(
-      s.pose,
-      s.shape,
-      p,
-      Vector3.normalize(Vector3.subtract(p, s.centre)),
-    );
-  }
-
-  /**
-   * A segment's signed distance to one shape.
-   *
-   * @param at The frame.
-   * @param shape The shape's index.
-   * @param a The segment's one end.
-   * @param b Its other end; `a` for a point.
-   * @returns Metres, negative inside.
-   */
-  export function gap(
-    at: IFrame,
-    shape: number,
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-  ): number {
-    const s: IShape = at.shapes[shape]!;
-    return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
-  }
 }
 
 /** The skeleton's joint axes, read once per skeleton. */

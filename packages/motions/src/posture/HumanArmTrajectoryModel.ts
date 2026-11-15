@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
@@ -114,7 +115,7 @@ export namespace HumanArmTrajectoryModel {
     bounds: ([number, number] | null)[][];
     /** The depth a probe may keep against a shape at a waypoint, metres (negative inside). */
     allowed: (a: number, k: number, probe: number, shape: number) => number;
-    /** The same between a probe of one arm and a collider of the other (`G.colliders`), the collider's bone for a declared rest. */
+    /** The same between a probe of one arm and a collider of the other (`S.colliders`), the collider's bone for a declared rest. */
     between: (
       a: number,
       k: number,
@@ -124,7 +125,7 @@ export namespace HumanArmTrajectoryModel {
     ) => number;
     /** Whether a segment of one arm and a segment of the other hold one object together at a waypoint: each segment in its arm's declared grasp, over the action, as the hands close on the object, hold it and part from it. Such a pair is the allowed-collision set of the shared grasp (as a motion planner's allowed-collision matrix excuses the links that grasp an object through its approach and retreat); clearance against the body stays. */
     grasped: (a: number, k: number, own: Segment, other: Segment) => boolean;
-    /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`G.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
+    /** The depth a body corner (`G.IFrame.body`) may keep inside one of the arm's own collider shapes (`S.colliders`, by index) at a waypoint, metres (negative inside): the reverse of `allowed`, as the audit reads every pair both ways. */
     inside: (a: number, k: number, corner: number, shape: number) => number;
     /** Whether an arm's segment lies on a bone at a waypoint, a declared rest (`IRest`). */
     lying: (
@@ -351,7 +352,7 @@ export namespace HumanArmTrajectoryModel {
         ) {
           const [pa, r]: readonly [IAutoMovieVector3, number] =
             placed[a]![k]!.probes[probe]!;
-          for (const shape of G.near(c.frames[a]![k]!, pa, r + T.REACH)) {
+          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
             // The probe's motion relative to the shape, which may move too.
             const pb: IAutoMovieVector3 = P.relative(
               c,
@@ -366,7 +367,7 @@ export namespace HumanArmTrajectoryModel {
               c.allowed(a, k + 1, probe, shape),
             );
             const short: number =
-              1000 * (lower - (G.gap(c.frames[a]![k]!, shape, pa, pb) - r));
+              1000 * (lower - (S.gap(c.frames[a]![k]!, shape, pa, pb) - r));
             note(
               short,
               "region",

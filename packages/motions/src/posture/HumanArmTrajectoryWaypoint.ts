@@ -7,6 +7,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
@@ -72,7 +73,7 @@ export namespace HumanArmTrajectoryWaypoint {
     );
     const colliders: G.IShape[][] = frames.map(
       (frame: G.IFrame, a: number): G.IShape[] =>
-        G.colliders(frame, placed[a]!),
+        S.colliders(frame, placed[a]!),
     );
     const touched: number[] = sites.map((): number => -1);
     const normals: (IAutoMovieVector3 | undefined)[] = sites.map(

@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmJacobian } from "./HumanArmJacobian";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -87,7 +88,7 @@ export namespace HumanArmTrajectoryJacobians {
             { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
           const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
             (_, i: number): "upper" | "lower" | "hand" => {
-              const segment: M.Segment = G.segment(frame, i);
+              const segment: M.Segment = S.segment(frame, i);
               return segment === "upperArm"
                 ? "upper"
                 : segment === "lowerArm"

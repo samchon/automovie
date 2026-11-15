@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
@@ -211,9 +212,9 @@ function certified(
   const ends: G.IPlaced[] = [k, k + 1].map(
     (j: number): G.IPlaced => G.placed(setup, c.frames[a]![j]!, x[a]![j]!),
   );
-  const screens: G.IScreen[] = [k, k + 1].map(
-    (j: number, e: number): G.IScreen =>
-      G.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
+  const screens: S.IScreen[] = [k, k + 1].map(
+    (j: number, e: number): S.IScreen =>
+      S.screen(c.frames[a]![j]!, ends[e]!, T.REACH),
   );
   const clear = (end: 0 | 1, probe: number): boolean => {
     const j: number = k + end;
@@ -221,7 +222,7 @@ function certified(
     const placed: G.IPlaced = ends[end]!;
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     const part: number = frame.segments[probe - G.SURFACE]!;
-    const near: number[] = G.nearby(
+    const near: number[] = S.nearby(
       frame,
       placed,
       probe,
@@ -240,7 +241,7 @@ function certified(
     return near.every((shape: number): boolean => {
       const short: number =
         1000 *
-        (c.allowed(a, j, probe, shape) - (G.gap(frame, shape, p, p) - r));
+        (c.allowed(a, j, probe, shape) - (S.gap(frame, shape, p, p) - r));
       const slack: number = (T.SKIN + T.TOLERANCE - short) / 1000;
       const centre: IAutoMovieVector3 = frame.shapes[shape]!.centre;
       return inner.every((g: number, i: number): boolean => {

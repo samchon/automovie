@@ -6,6 +6,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
@@ -152,7 +153,7 @@ export namespace HumanArmTrajectoryContext {
       bone: string,
     ): boolean => {
       if (sites[a]![k] === undefined) return false;
-      const own: string = G.segment(frames[a]![k]!, probe);
+      const own: string = S.segment(frames[a]![k]!, probe);
       if (
         (problem.arms[a]!.rests ?? []).some(
           (r: M.IRest): boolean => r.part === own && r.on === bone,
@@ -215,7 +216,7 @@ export namespace HumanArmTrajectoryContext {
         else {
           const [p, r]: readonly [IAutoMovieVector3, number] =
             point.placed[a]!.probes[probe]!;
-          v = Math.min(0, G.gap(frame, shape, p, p) - r) - rested;
+          v = Math.min(0, S.gap(frame, shape, p, p) - r) - rested;
         }
         point.allowed[a]!.set(key, v);
       }

@@ -13,6 +13,7 @@ import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHu
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
@@ -78,7 +79,7 @@ export namespace HumanArmFrame {
     ])
       for (const shape of segment.shapes)
         shapes.push(
-          G.bounded(
+          S.bounded(
             segment.bone,
             others.has(segment)
               ? -1

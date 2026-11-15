@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -177,7 +178,7 @@ export namespace HumanArmTrajectoryConvex {
           ++probe
         ) {
           const [pa, r] = at.placed[a]![k]!.probes[probe]!;
-          for (const shape of G.near(c.frames[a]![k]!, pa, r + T.REACH)) {
+          for (const shape of S.near(c.frames[a]![k]!, pa, r + T.REACH)) {
             // The probe's motion relative to the shape, which may move too;
             // the far end's gradient is carried back by the same turn.
             const moved: {
@@ -193,7 +194,7 @@ export namespace HumanArmTrajectoryConvex {
             const pb: IAutoMovieVector3 = moved.point;
             if (Vector3.length(Vector3.subtract(pa, pb)) < r) continue;
             const frame: G.IFrame = c.frames[a]![k]!;
-            const d0: number = 1000 * (G.gap(frame, shape, pa, pb) - r);
+            const d0: number = 1000 * (S.gap(frame, shape, pa, pb) - r);
             const lower: number =
               1000 *
               Math.min(
@@ -201,8 +202,8 @@ export namespace HumanArmTrajectoryConvex {
                 c.allowed(a, k + 1, probe, shape),
               );
             const pointsClear: boolean =
-              G.gap(frame, shape, pa, pa) - r > lower / 1000 &&
-              G.gap(frame, shape, pb, pb) - r > lower / 1000;
+              S.gap(frame, shape, pa, pa) - r > lower / 1000 &&
+              S.gap(frame, shape, pb, pb) - r > lower / 1000;
             if (
               d0 - lower >
                 Math.min(T.CHECK, reach(a, k) + reach(a, k + 1) + 2) ||
@@ -223,10 +224,10 @@ export namespace HumanArmTrajectoryConvex {
               ),
             );
             const nearer: number =
-              G.gap(frame, shape, pa, pa) <= G.gap(frame, shape, pb, pb)
+              S.gap(frame, shape, pa, pa) <= S.gap(frame, shape, pb, pb)
                 ? 0
                 : 1;
-            const g: IAutoMovieVector3 = G.normal(
+            const g: IAutoMovieVector3 = S.normal(
               frame,
               shape,
               nearer === 0 ? pa : pb,
@@ -364,7 +365,7 @@ export namespace HumanArmTrajectoryConvex {
           at.pairs[a]?.[k]?.deepest ?? P.deepest(c, a, k, placedK)
         ).values()) {
           if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
-          const g: IAutoMovieVector3 = G.normal(
+          const g: IAutoMovieVector3 = S.normal(
             c.frames[a]![k]!,
             pair.shape,
             placedK.probes[pair.probe]![0],
