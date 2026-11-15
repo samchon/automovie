@@ -14,8 +14,10 @@ import type { HumanCarried } from "./HumanCarried";
  *   meeting (#3437): a fireman's carry (`overShoulder`), a piggyback, a
  *   cradle, a supported walk (`supported`), a drag, each with the lift into
  *   it and the set-down out of it as the borne body's support sequence.
- * - **throw**: the thrower takes a collar-and-sleeve grip (`clinch`) and
- *   the thrown person answers the pull through it (`perturb`, #3439) with
+ * - **throw**: the thrower takes a collar-and-sleeve grip and enters under
+ *   the thrown body, its fulcrum lowered to the height of the thrown body's
+ *   front (`clinch` with `under`, tsukuri), and the thrown person answers
+ *   the pull through it (`perturb`, #3439) with
  *   the author's outcome, turning over the throw's fulcrum on the thrower
  *   when thrown. The pull itself is the performance's force input
  *   (`HumanPerformance.IInput.forces`, sized by
@@ -44,7 +46,7 @@ import type { HumanCarried } from "./HumanCarried";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each record's roles and actions, where the force comes from, the fulcrum table's source and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each composition is a mutual record over shipped laws, the vocabulary's form for one thing several people do.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four records and the throws' fulcrum table.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four records, the throws' fulcrum table and the thrown region that lies on it.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No law is written per hold: the coupling, the response and the support sequence are their owners'.
  */
 export namespace HumanCoupled {
@@ -104,7 +106,7 @@ export namespace HumanCoupled {
 
   /**
    * Help someone up from the floor: both perform `support` (#3435). The
-   * helper, standing, grips the helped person's wrist where it lies; the
+   * helper, from the squat, grips the helped person's wrist where it lies; the
    * helped person rises through sitting and squatting to standing with
    * that hand gripping the helper's palm, which bears on the helper while
    * the hand holds and lets go once the feet bear alone.
@@ -142,6 +144,9 @@ export namespace HumanCoupled {
                     },
                   },
                 ],
+                // The hand goes down to a wrist on the floor: the fit starts
+                // from the squat, as `getUp` keys it.
+                prefer: getUp.POSES.squat,
               },
             ],
           },
@@ -224,6 +229,9 @@ export namespace HumanCoupled {
     singleLeg: "shoulderRight",
   };
 
+  /** The thrown body's region that lies on the fulcrum: the front of the trunk, as a hip or a shoulder throw loads it. */
+  export const ON: AutoMovieHumanoidRegion = "abdomen";
+
   /** The shared parameters of a throw. */
   export interface IThrow {
     /** The throw; `seoiNage` when absent. */
@@ -252,6 +260,10 @@ export namespace HumanCoupled {
               partner: cast.thrown,
               grip: "collarSleeve",
               ...(params?.hold === undefined ? {} : { hold: params.hold }),
+              under: {
+                fulcrum: FULCRUMS[params?.kind ?? "seoiNage"],
+                on: ON,
+              },
             },
           }
         : {
@@ -260,6 +272,7 @@ export namespace HumanCoupled {
               outcome: params?.outcome ?? "thrown",
               by: cast.thrower,
               fulcrum: FULCRUMS[params?.kind ?? "seoiNage"],
+              on: ON,
             },
           },
   };

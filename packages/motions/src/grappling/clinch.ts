@@ -19,6 +19,7 @@ import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -40,10 +41,13 @@ import { poseBones } from "../posture/poseBones";
  * both hands closed), `strokeStart`, `stroke`, `strokeEnd`, `relax`
  * (`release`).
  *
- * Not yet: pummelling, underhooks and overhooks, off-balancing (kuzushi),
- * entries and throws, takedowns, and the receiver's response and breakfall
- * (Koshida et al. 2016); the two partners' interaction forces are not
- * modelled, so the held partner does not yield.
+ * With `under` the clinch is a throw's entry (tsukuri): the body lowers
+ * through the reach until its fulcrum region stands at the height of the
+ * partner's region that lies on it, the contact the throw turns over
+ * (#3439); the throw itself is the partner's `perturb` under the pull.
+ *
+ * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
+ * footwork (Koshida et al. 2016).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two grips with their regions, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of two arm visits on the partner's regions over a standing base.
@@ -85,6 +89,20 @@ export namespace clinch {
 
     /** Seconds the grip is held; 2 when absent. */
     hold?: number & tags.Minimum<0> & HumanUnit<"s">;
+
+    /**
+     * A throw's entry (tsukuri, #3439): through the reach the body lowers,
+     * its knees bending over the planted feet, until its own `fulcrum`
+     * region stands at the height of the partner's `on` region, the contact
+     * the throw turns the partner over; none when absent.
+     */
+    under?: {
+      /** This body's region the partner turns over. */
+      fulcrum: AutoMovieHumanoidRegion;
+
+      /** The partner's region that lies on it. */
+      on: AutoMovieHumanoidRegion;
+    };
 
     /** How it is performed. */
     manner?: AutoMovieMotionManner.IManner;
@@ -244,11 +262,49 @@ export namespace clinch {
           });
         },
       });
-    return composeAutoMovieMotionHumanAction({
+    const composed: IHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock,
       contact: "stroke",
       primitives: [arm("left"), arm("right")],
     });
+    const under: IParams["under"] = context.params.under;
+    if (under === undefined) return composed;
+
+    // The entry: the fulcrum's height over the partner's region's, read on
+    // both placed trunks at the start, taken off the root through the reach.
+    const height = (
+      who: IHumanBody,
+      posture: IHumanPosture,
+      region: AutoMovieHumanoidRegion,
+    ): number => {
+      const frame: IHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+        who.surfaces.regions[region];
+      return resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        HumanTrunk.resolve(who, posture).get(frame.bone)!,
+      ).point.y;
+    };
+    const theirs: IHumanPosture | undefined = partner.posture?.(context.start);
+    const drop: number =
+      theirs === undefined
+        ? 0
+        : Math.max(
+            0,
+            height(body, context.entry.posture, under.fulcrum) -
+              height(partner.body, theirs, under.on),
+          );
+    return {
+      ...composed,
+      posture: (seconds: number): IHumanPosture => {
+        const posture: IHumanPosture = composed.posture(seconds);
+        const lowered: number =
+          drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
+        return {
+          ...posture,
+          root: { ...posture.root, y: posture.root.y - lowered },
+        };
+      },
+    };
   }
 }
