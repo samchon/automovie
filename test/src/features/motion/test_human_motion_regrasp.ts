@@ -1,6 +1,11 @@
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditContinuity as Continuity,
   HumanChain,
   HumanPerformance,
   HumanRegrasp,
@@ -10,39 +15,55 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHandleShapes } from "../internal/motionHandleShapes";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The in-hand bound, metres: #3447's acceptance (a contact pad within 1 mm of its point on the object, a twisted key's off-axis motion under 1 mm). */
 const STABLE: number = 0.001;
 
-/** A key at a world point: its bow a handle at its origin, its shank along its +X from the origin, a second grip 30 mm along the shank. */
+/**
+ * The key's handles: its bow at its origin, gripped as a key is in a lock,
+ * the hand arriving along the shank (the bow's -Y along the key's -X) with
+ * its grip axis across the bow (the bow's +X along the key's +Y), its
+ * shank there too, and its tip 30 mm along the shank.
+ */
+const KEY: IAutoMovieAffordance[] = [
+  {
+    id: "bow",
+    kind: "handle",
+    frame: {
+      ...Transform.identity(),
+      rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+    },
+    extent: null,
+    radius: 0.01,
+  },
+  {
+    id: "shank",
+    kind: "handle",
+    frame: Transform.identity(),
+    extent: null,
+    radius: 0.003,
+  },
+  {
+    id: "tip",
+    kind: "handle",
+    frame: { ...Transform.identity(), translation: { x: 0.03, y: 0, z: 0 } },
+    extent: null,
+    radius: 0.003,
+  },
+];
+
+/** A key at a world point, its shank (its +X) pointing ahead of the performer (+Z), as a key in a lock before him: its bow a handle at its origin, a second grip 30 mm along the shank. */
 const key = (at: IAutoMovieVector3): IHumanProp => ({
   subject: "key",
-  frame: { position: at, rotation: Quaternion.identity() },
+  frame: {
+    position: at,
+    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -90),
+  },
   points: {},
-  affordances: [
-    {
-      id: "bow",
-      kind: "handle",
-      frame: Transform.identity(),
-      extent: null,
-      radius: 0.01,
-    },
-    {
-      id: "shank",
-      kind: "handle",
-      frame: Transform.identity(),
-      extent: null,
-      radius: 0.003,
-    },
-    {
-      id: "tip",
-      kind: "handle",
-      frame: { ...Transform.identity(), translation: { x: 0.03, y: 0, z: 0 } },
-      extent: null,
-      radius: 0.003,
-    },
-  ],
+  affordances: KEY,
+  shapes: motionHandleShapes(KEY),
 });
 
 /** The world point of a key-frame point at a second. */
@@ -70,9 +91,10 @@ const point = (
  *    about the axis puts it, within 1 mm, and a -90 turn turns it the other
  *    way.
  * 3. Through the twist the key keeps its place in the hand within 1 mm.
- * 4. `regrip` to the `tip`: the key's world frame moves continuously (no
- *    step above 1 mm between reads 1/240 s apart) and ends held at the new
- *    grip.
+ * 4. `regrip` to the `tip`: the key's world frame moves continuously, read
+ *    as the continuity audit reads a joint (#3447's second line): the
+ *    largest step of the 1/240 s grid, quartered `LEVELS` times, leaves no
+ *    step above the audit's jump limit.
  * 5. A twist by a hand that holds nothing is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs pick-ups followed by the rows and reads the displayed prop and hand frames.
@@ -211,16 +233,37 @@ export function test_human_motion_regrasp(): void {
         .registered("regrip", { prop: "key", side: "right", to: "tip" }).node,
     );
     const [from, to] = span(shifted);
-    let jump: number = 0;
-    let previous: IAutoMovieVector3 = shifted.prop("key", from).position;
-    for (let t: number = from + 1 / 240; t <= to; t += 1 / 240) {
-      const now: IAutoMovieVector3 = shifted.prop("key", t).position;
-      jump = Math.max(jump, Vector3.length(Vector3.subtract(now, previous)));
-      previous = now;
+    // The continuity audit's jump reading on the prop's frame (#3447's
+    // second line): the step that is still there when the largest step of
+    // the 1/240 s grid is quartered `LEVELS` times, its largest quarter
+    // followed each time. A continuous path's step shrinks with its
+    // interval; a jump does not.
+    const step = (a: number, b: number): number =>
+      Vector3.length(
+        Vector3.subtract(
+          shifted.prop("key", b).position,
+          shifted.prop("key", a).position,
+        ),
+      );
+    let start: number = from;
+    let width: number = 1 / 240;
+    for (let t: number = from; t + width <= to; t += width)
+      if (step(t, t + width) > step(start, start + width)) start = t;
+    for (let level: number = 0; level < Continuity.LEVELS; level++) {
+      width /= 4;
+      let best: number = start;
+      for (let q: number = 1; q < 4; q++)
+        if (
+          step(start + q * width, start + (q + 1) * width) >
+          step(best, best + width)
+        )
+          best = start + q * width;
+      start = best;
     }
-    if (!(jump <= STABLE))
+    const jump: number = step(start, start + width);
+    if (!(jump <= AutoMovieMotionHumanAudit.LIMITS.jump))
       complaints.push(
-        `regrip: the key jumps ${(jump * 1000).toFixed(2)} mm between reads 1/240 s apart, within ${STABLE * 1000} mm expected`,
+        `regrip: the key still steps ${(jump * 1000).toFixed(2)} mm over ${(width * 1e6).toFixed(1)} microseconds, within the continuity audit's ${AutoMovieMotionHumanAudit.LIMITS.jump * 1000} mm jump expected`,
       );
   } catch (error) {
     complaints.push(

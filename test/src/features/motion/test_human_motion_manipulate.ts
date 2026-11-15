@@ -1,5 +1,15 @@
-import { Quaternion, Transform, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Transform,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHand,
@@ -17,6 +27,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A contact digit's bound to its site, metres: #3446's test line (each contact's digit tip within 2 mm of its site at its instant). */
 const CONTACT: number = 0.002;
+
+/** A skilled typist's interval between strokes, seconds: about every 0.15 to 0.2 s (Salthouse 1986, Psychol Bull 99:303), the range `typeText` cites. */
+const SKILLED: readonly [number, number] = [0.15, 0.2];
 
 /** A keyboard prop at a world point, its typist on its +Z side facing it (`createKeyboard`'s contacts). */
 const keyboard = (at: IAutoMovieVector3): IHumanProp => ({
@@ -87,8 +100,10 @@ const chart = (letter: string): [HumanHand.Side, string] => {
  *    key's travel, the issue's bound, on both hands.
  * 2. No digit presses two keys at once: at each press, every other digit's
  *    tip of the pressing hand stands above the key tops.
- * 3. The intervals of an elite typist lie inside the 0.15 to 0.2 s that
- *    skilled typists strike at (Salthouse 1986), and a novice's are longer.
+ * 3. An elite typist's mean interval is no longer than the 0.2 s at which
+ *    skilled typists strike at the slowest (Salthouse 1986's 0.15 to 0.2 s,
+ *    a mean, about which single intervals scatter), and a novice types the
+ *    text slower.
  * 4. The same seed replays to the bit; another seed changes the timing.
  * 5. A keypad's three buttons pressed with no digit named: the fingering
  *    keeps the wrist still, so the forefinger, middle and ring fingers take
@@ -109,6 +124,21 @@ export function test_human_motion_manipulate(): void {
   const complaints: string[] = [];
   const body: IHumanBody = motionHumanBody("m-average");
   const m: IHumanBody["measure"] = body.measure;
+  // A digit's tip on its displayed distal phalanx, as the fit placed it.
+  const tipOf = (
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: HumanHand.Side,
+    digit: string,
+  ): IAutoMovieVector3 => {
+    const region: resolveAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[
+        `${digit}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+      ];
+    return resolveAutoMovieHumanoidSurfaces.place(
+      region,
+      bones.get(region.bone)!,
+    ).point;
+  };
   const at: IAutoMovieVector3 = {
     x: 0,
     y: m.shoulderHeight - m.upperArm,
@@ -156,22 +186,18 @@ export function test_human_motion_manipulate(): void {
       [keyboard(at)],
     );
     const times: number[] = presses(typed);
-    const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180);
+    // Typing's layout is in the typist's frame (x to the typist's left, z
+    // away), and the typist faces +Z at yaw 0: the keyboard's own half
+    // turn only puts its typist's side toward him.
     [...text].forEach((letter: string, i: number): void => {
       const [side, digit] = chart(letter);
       const key: IAutoMovieVector3 = Vector3.add(
         at,
-        Quaternion.rotateVector(turn, typeText.key(letter).at),
+        typeText.key(letter).at,
       );
       const target: IAutoMovieVector3 = { ...key, y: key.y - typeText.TRAVEL };
       const bones = typed.bones("a", times[i]!);
-      const tip: IAutoMovieVector3 = HumanHand.frame(
-        body,
-        bones,
-        side,
-        `${digit}Tip` as HumanHand.Surface,
-        "flat",
-      ).point;
+      const tip: IAutoMovieVector3 = tipOf(bones, side, digit);
       const miss: number = Vector3.length(Vector3.subtract(tip, target));
       if (!(miss <= CONTACT))
         complaints.push(
@@ -179,13 +205,7 @@ export function test_human_motion_manipulate(): void {
         );
       for (const other of manipulate.FINGERS)
         if (other !== digit) {
-          const y: number = HumanHand.frame(
-            body,
-            bones,
-            side,
-            `${other}Tip` as HumanHand.Surface,
-            "flat",
-          ).point.y;
+          const y: number = tipOf(bones, side, other).y;
           if (!(y > key.y))
             complaints.push(
               `"${letter}": the ${side} ${other} is below the key tops (${((key.y - y) * 1000).toFixed(1)} mm) while the ${digit} presses`,
@@ -197,9 +217,13 @@ export function test_human_motion_manipulate(): void {
     const gaps: number[] = times
       .slice(1)
       .map((t: number, i: number): number => t - times[i]!);
-    if (!gaps.every((g: number): boolean => g >= 0.15 && g <= 0.2))
+    // Salthouse's range is a skilled typist's mean interval; single
+    // intervals scatter about it, and an elite types at least as fast.
+    const mean: number =
+      gaps.reduce((sum: number, g: number): number => sum + g, 0) / gaps.length;
+    if (!(mean <= SKILLED[1]))
       complaints.push(
-        `an elite typist's intervals ${gaps.map((g) => g.toFixed(3)).join(", ")} s lie outside 0.15 to 0.2 s`,
+        `an elite typist's mean interval is ${mean.toFixed(3)} s, at most a skilled typist's ${SKILLED[1]} s expected`,
       );
     const novice: number[] = presses(
       perform(
@@ -265,13 +289,7 @@ export function test_human_motion_manipulate(): void {
       let best: string = "";
       let near: number = Infinity;
       for (const d of manipulate.FINGERS) {
-        const tip = HumanHand.frame(
-          body,
-          pressed.bones("a", t),
-          "right",
-          `${d}Tip` as HumanHand.Surface,
-          "flat",
-        ).point;
+        const tip: IAutoMovieVector3 = tipOf(pressed.bones("a", t), "right", d);
         const dist: number = Vector3.length(Vector3.subtract(tip, site));
         if (dist < near) {
           near = dist;
@@ -305,13 +323,7 @@ export function test_human_motion_manipulate(): void {
         y: -0.002,
         z: 0,
       });
-      const tip = HumanHand.frame(
-        body,
-        dialled.bones("a", t),
-        "right",
-        "indexTip",
-        "flat",
-      ).point;
+      const tip: IAutoMovieVector3 = tipOf(dialled.bones("a", t), "right", "index");
       const miss: number = Vector3.length(Vector3.subtract(tip, site));
       if (!(miss <= CONTACT))
         complaints.push(
@@ -331,20 +343,16 @@ export function test_human_motion_manipulate(): void {
       }).node,
       [keyboard(at)],
     );
-    const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180);
+    // Typing's layout is in the typist's frame (x to the typist's left, z
+    // away), and the typist faces +Z at yaw 0: the keyboard's own half
+    // turn only puts its typist's side toward him.
     presses(two).forEach((t: number, i: number): void => {
       const k = typeText.key("hi"[i]!);
       const key: IAutoMovieVector3 = Vector3.add(
         at,
-        Quaternion.rotateVector(turn, k.at),
+        k.at,
       );
-      const tip = HumanHand.frame(
-        body,
-        two.bones("a", t),
-        k.side,
-        "indexTip",
-        "flat",
-      ).point;
+      const tip: IAutoMovieVector3 = tipOf(two.bones("a", t), k.side, "index");
       const miss: number = Vector3.length(
         Vector3.subtract(tip, { ...key, y: key.y - typeText.TRAVEL }),
       );

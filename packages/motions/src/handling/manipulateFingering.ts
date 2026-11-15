@@ -1,21 +1,25 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
-import { HumanHand } from "../posture/HumanHand";
+import type { HumanHand } from "../posture/HumanHand";
 import { manipulate } from "./manipulate";
+import { manipulateReach } from "./manipulateReach";
 
 /**
  * The digits of a keyed contact sequence (`manipulate`): each contact's own
  * digit, or the Viterbi path over the five digits of its hand that minimizes
- * the wrist's total travel, the wrist standing where the digit's flat-hand tip
- * is on the site. The hand keeps one rotation for the act, so the wrist's
- * place for a digit is the site less the digit tip's offset in the hand's
- * rest frame, and a difference of two such places is the wrist's travel.
+ * the wrist's total travel, the wrist standing where the plan places it for
+ * that digit's press (`manipulateReach`, in the rotation the hand keeps for
+ * the act), so a difference of two such places is the wrist's travel.
  *
  * @param body The body.
  * @param contacts The contacts with their sites.
  * @param sides Each contact's hand.
+ * @param rotation Each hand's rotation for the act, from its rest.
  * @returns Each contact's digit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the choice, its cost and the frame premise.
@@ -30,6 +34,7 @@ export function manipulateFingering(
   body: IHumanBody,
   contacts: readonly manipulate.IContactAt[],
   sides: readonly HumanHand.Side[],
+  rotation: Readonly<Record<HumanHand.Side, IAutoMovieQuaternion>>,
 ): manipulate.Finger[] {
   type Finger = manipulate.Finger;
   const out: Finger[] = new Array<Finger>(contacts.length);
@@ -48,10 +53,14 @@ export function manipulateFingering(
       i: number,
       f: Finger,
     ): IAutoMovieVector3 =>
-      Vector3.subtract(
+      manipulateReach(
+        body,
+        side,
+        f,
         contacts[i]!.point,
-        HumanHand.offset(body, side, `${f}Tip` as HumanHand.Surface, "flat")
-          .point,
+        contacts[i]!.normal,
+        contacts[i]!.depth,
+        rotation[side],
       );
     let cost: Map<Finger, number> = new Map(
       choices(mine[0]!).map((f: Finger): [Finger, number] => [f, 0]),

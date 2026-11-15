@@ -17,7 +17,10 @@ import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
+import { manipulateReach } from "./manipulateReach";
+import { manipulateShape } from "./manipulateShape";
 
 /**
  * A keyed contact sequence: digits of one hand or both pressing sites of a
@@ -41,7 +44,10 @@ import { manipulateFingering } from "./manipulateFingering";
  * letter's digit by the standard home-row chart instead.
  *
  * Each press is two goals. The arm carries the hand so the pressing digit's
- * tip, in a flat hand, stands over its site at the hover height, moving
+ * tip, the digit straight and the others curled clear of the keys
+ * (`manipulateShape`), stands over its site at the hover height, drawn back
+ * by as much as its swing down to the key shortens its reach
+ * (`manipulateReach`), moving
  * between placements on minimum-jerk paths; the digit's own inverse
  * kinematics (`IHumanPosture.digits`) then takes the tip down by the key's
  * travel and up again. Times come from `at` when every contact gives it, or
@@ -54,7 +60,7 @@ import { manipulateFingering } from "./manipulateFingering";
  * @evidence contracts/development/design.md#principled-representation A law record over a prop's affordances and a list of contacts, with a pure plan.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan; rows fix the layout.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand, the posture's digit goals, typing's layout and timing.
- * @evidence contracts/development/implementation.md#principled-implementation Arm placement by the pressing digit's flat-hand tip and the digit's own inverse kinematics for the press; fingering by an exact Viterbi path minimizing wrist travel.
+ * @evidence contracts/development/implementation.md#principled-implementation Arm placement by the pressing digit's tip in the pressing hand's shape and the digit's own inverse kinematics for the press; fingering by an exact Viterbi path minimizing wrist travel.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Sites, times, fingering, placements, then each posture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown site or key is refused with the alternatives; the fingering's cost is a measured distance, no weight.
  * @evidence contracts/development/implementation.md#efficient-algorithms The fingering is linear in contacts times the square of the five digits; each posture is constant work over the contacts.
@@ -151,23 +157,23 @@ export namespace manipulate {
     const hold: IHumanPosture = context.entry.posture;
     const presses: IPress[] = sequence(context);
     const rotation: Record<HumanHand.Side, IAutoMovieQuaternion> = {
-      left: facing(hold, presses, "left"),
-      right: facing(hold, presses, "right"),
+      left: manipulateFacing(hold, presses, "left"),
+      right: manipulateFacing(hold, presses, "right"),
     };
 
-    // Where the wrist stands for a press: the pressing digit's flat-hand tip
-    // over its site at the hover height.
+    // Where the wrist stands for a press (`manipulateReach`).
     const wrist: (p: IPress) => IAutoMovieVector3 = (
       p: IPress,
     ): IAutoMovieVector3 =>
-      HumanHand.place(
+      manipulateReach(
         body,
         p.side,
-        `${p.digit}Tip` as HumanHand.Surface,
-        Vector3.add(p.site, Vector3.scale(p.normal, typeText.HOVER)),
+        p.digit,
+        p.site,
+        p.normal,
+        p.depth,
         rotation[p.side],
-        "flat",
-      ).point;
+      );
     const duration: number =
       presses[presses.length - 1]!.time + REACH * interval(context);
     const sides: HumanHand.Side[] = (["left", "right"] as const).filter(
@@ -198,10 +204,6 @@ export namespace manipulate {
         let posture: IHumanPosture = { ...hold, joints: { ...hold.joints } };
         const digits: NonNullable<IHumanPosture["digits"]> = {};
         for (const side of sides) {
-          posture.joints = {
-            ...posture.joints,
-            ...HumanHand.shape(side, "flat"),
-          };
           const mine: IPress[] = presses.filter(
             (p: IPress): boolean => p.side === side,
           );
@@ -212,6 +214,14 @@ export namespace manipulate {
           for (let i: number = 0; i < mine.length; i++)
             if (t >= mine[i]!.time - REACH * span) k = i;
           const press: IPress = mine[k]!;
+
+          // The pressing digit takes its position of rest and the others
+          // curl clear of the keys, as typing's pointing hand does
+          // (`typeText`).
+          posture.joints = {
+            ...posture.joints,
+            ...manipulateShape(side, press.digit),
+          };
           const previous: IPress = mine[Math.max(0, k - 1)]!;
           const approach: number = minimumJerk(
             Math.min(
@@ -335,7 +345,19 @@ export namespace manipulate {
     const sides: HumanHand.Side[] = given.map(
       (c: IContactAt): HumanHand.Side => c.side ?? side,
     );
-    const digits: Finger[] = manipulateFingering(context.body, given, sides);
+    // Each hand keeps one rotation for the act, the one the plan gives it,
+    // so the fingering reads every digit's tip where that rotation puts it.
+    const placed: readonly manipulateFacing.ISite[] = given.map(
+      (c: IContactAt, i: number): manipulateFacing.ISite => ({
+        site: c.point,
+        normal: c.normal,
+        side: sides[i]!,
+      }),
+    );
+    const digits: Finger[] = manipulateFingering(context.body, given, sides, {
+      left: manipulateFacing(context.entry.posture, placed, "left"),
+      right: manipulateFacing(context.entry.posture, placed, "right"),
+    });
     return given.map(
       (c: IContactAt, i: number): IPress => ({
         side: sides[i]!,
@@ -457,30 +479,5 @@ const typed: (
       normal: { x: 0, y: 1, z: 0 },
       depth: typeText.TRAVEL,
     };
-  });
-};
-
-/** The hand's rotation for the act: the fingers toward the sites across their normal, the palm against it. */
-const facing: (
-  hold: IHumanPosture,
-  presses: readonly manipulate.IPress[],
-  side: HumanHand.Side,
-) => IAutoMovieQuaternion = (
-  hold: IHumanPosture,
-  presses: readonly manipulate.IPress[],
-  side: HumanHand.Side,
-): IAutoMovieQuaternion => {
-  const mine: manipulate.IPress[] = presses.filter(
-    (p: manipulate.IPress): boolean => p.side === side,
-  );
-  const first: manipulate.IPress = mine.length > 0 ? mine[0]! : presses[0]!;
-  const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
-  const along: IAutoMovieVector3 = Vector3.subtract(
-    toward,
-    Vector3.scale(first.normal, Vector3.dot(toward, first.normal)),
-  );
-  return HumanHand.rotation(side, {
-    fingers: Vector3.length(along) > 1e-9 ? along : { x: 0, y: 0, z: 1 },
-    palm: Vector3.scale(first.normal, -1),
   });
 };
