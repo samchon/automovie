@@ -120,6 +120,9 @@ export namespace throwObject {
   /** A launch (`throwObjectLaunch.ILaunch`). */
   export type ILaunch = throwObjectLaunch.ILaunch;
 
+  /** Seconds before and after the release through which the hand carries its launch velocity (`throwObjectForm.CARRY`). */
+  export const CARRY: number = throwObjectForm.CARRY;
+
   /** A point of a launch's drag-free path (`throwObjectLaunch.path`). */
   export const path = throwObjectLaunch.path;
 

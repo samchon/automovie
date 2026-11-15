@@ -9,6 +9,7 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanVerdicts,
   HumanWeaponFirearm,
   type IHumanBody,
 } from "@automovie/motions";
@@ -26,13 +27,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * and firing a ball at 350 m/s over the stance:
  * 1. The presentation and the shot plan over the stance.
  * 2. The ball's launch point is the displayed muzzle at the launch second,
- *    within 1 cm (provisional: the arm fit's residual against its goal).
+ *    within the audit's skin (`HumanVerdicts.SKIN`).
  * 3. The launch's direction lies within `DISPERSION` degrees of the
- *    displayed bore at that second, plus 1 degree (provisional, the same
- *    residual), although the cart has turned since the fire began.
+ *    displayed bore at that second, plus the turn the skin at each end of
+ *    the bore makes over its length from the sight to the muzzle, although
+ *    the cart has turned since the fire began.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Fires a real handgun and ball over a stance on a turning cart through the public chain and reads the launch against the displayed gun; a shot launched from where the gun was at the fire's start fails.
- * @evidence contracts/development/testing.md#independent-expectations The cart's turn and the shot are the scene's; the cone is the law's declared dispersion; the 1 cm and 1 degree are marked provisional.
+ * @evidence contracts/development/testing.md#independent-expectations The cart's turn and the shot are the scene's; the cone is the law's declared dispersion; the placement bounds are the audit's skin, at the muzzle and at both ends of the gun's own bore.
  * @evidence contracts/development/testing.md#distinguishing-cases The launch's point and its direction.
  * @evidence contracts/development/testing.md#execution-ownership Builds one performance in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the three numbered scenarios with their bounds.
@@ -116,11 +118,23 @@ export function test_human_motion_support_shot(): void {
   );
   TestValidator.predicate(
     `the ball leaves the displayed muzzle (${(1000 * miss).toFixed(1)} mm)`,
-    miss <= 0.01,
+    miss <= HumanVerdicts.SKIN,
   );
   const bore: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(along("muzzle"), along("sight")),
   );
+  const skew: number =
+    (Math.atan(
+      (2 * HumanVerdicts.SKIN) /
+        Vector3.length(
+          Vector3.subtract(
+            gun.affordance("muzzle").frame.translation,
+            gun.affordance("sight").frame.translation,
+          ),
+        ),
+    ) *
+      180) /
+    Math.PI;
   const off: number =
     (Math.acos(
       Math.max(
@@ -132,6 +146,6 @@ export function test_human_motion_support_shot(): void {
     Math.PI;
   TestValidator.predicate(
     `it leaves along the displayed bore (${off.toFixed(3)} degrees)`,
-    off <= HumanWeaponFirearm.DISPERSION + 1,
+    off <= HumanWeaponFirearm.DISPERSION + skew,
   );
 }

@@ -6,6 +6,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  HumanVerdicts,
   HumanWeaponFirearm,
   type IHumanBody,
 } from "@automovie/motions";
@@ -25,15 +26,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. With the cart running sideways at 1 m/s along +X, the presentation
  *    plans.
  * 2. Over its hold, at seven instants, the angle between the bore and the
- *    line from the muzzle to the target stays within 1 degree of the first
- *    instant's (provisional: the arm fit's residual against its goal), while
- *    the cart carries the shooter sideways across the line.
+ *    line from the muzzle to the target stays within the first instant's
+ *    by the turn the audit's skin (`HumanVerdicts.SKIN`) at each end of the
+ *    bore makes over its length from the sight to the muzzle, while the cart
+ *    carries the shooter sideways across the line.
  * 3. With the cart instead turning in place at 90 degrees a second, the
  *    presentation is refused, a `HumanRefusal` on `target`: holding the aim
  *    would twist the trunk past its range.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Presents a real handgun over a stance on a moving cart through the public chain and reads the displayed gun against the world target; an aim carried off with the cart, or a twist past the range accepted, fails.
- * @evidence contracts/development/testing.md#independent-expectations The cart's motions and the target are the scene's; the twist's range is the engine's range-of-motion table; the 1 degree is marked provisional.
+ * @evidence contracts/development/testing.md#independent-expectations The cart's motions and the target are the scene's; the twist's range is the engine's range-of-motion table; the bore's bound is the audit's skin at both ends of the gun's own bore.
  * @evidence contracts/development/testing.md#distinguishing-cases A carry across the line, held; a turn past the range, refused.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the three numbered scenarios with their bounds.
@@ -105,6 +107,18 @@ export function test_human_motion_support_aim(): void {
     return;
   }
   const muzzle = gun.affordance("muzzle").frame;
+  const bound: number =
+    (Math.atan(
+      (2 * HumanVerdicts.SKIN) /
+        Vector3.length(
+          Vector3.subtract(
+            muzzle.translation,
+            gun.affordance("sight").frame.translation,
+          ),
+        ),
+    ) *
+      180) /
+    Math.PI;
   const off = (t: number): number => {
     const held = performance.prop("gun", t);
     const point: IAutoMovieVector3 = Vector3.add(
@@ -130,8 +144,8 @@ export function test_human_motion_support_aim(): void {
   for (let k: number = 1; k < 7; k++)
     worst = Math.max(worst, Math.abs(off(from + ((to - from) * k) / 6) - first));
   TestValidator.predicate(
-    `the bore stays on the target across the carry (${worst.toFixed(3)} degrees)`,
-    worst <= 1,
+    `the bore stays on the target across the carry (${worst.toFixed(3)} of ${bound.toFixed(3)} degrees)`,
+    worst <= bound,
   );
 
   let refused: unknown = undefined;

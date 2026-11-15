@@ -6,6 +6,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanThrownWeapon,
+  HumanVerdicts,
   type IHumanBody,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -24,19 +25,27 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. The spin's rate times the drag-free flight time to the target is a
  *    whole number of half turns, at least one, within 1e-9 half turns.
  * 3. The spin axis, carried into the world by the baton's displayed
- *    rotation at the release, is square to the launch velocity within 1
- *    degree (provisional: the displayed hand against its goal): it turns in
- *    the throw's plane.
+ *    rotation at the release, is square to the launch velocity within the
+ *    turn the audit's skin (`HumanVerdicts.SKIN`) makes over the baton's
+ *    length, from its back to its front: it turns in the throw's plane.
  * 4. The farther stand-off turns at least as many half turns as the nearer.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Throws a real archetype through the public chain and reads the published spin and the displayed prop; a typed rate, an axis out of the throw's plane or turns that ignore the stand-off fail.
- * @evidence contracts/development/testing.md#independent-expectations Whole half turns is the act's rule; the flight time is the drag-free path's own; the 1 degree bound is marked provisional.
+ * @evidence contracts/development/testing.md#independent-expectations Whole half turns is the act's rule; the flight time is the drag-free path's own; the axis's bound is the audit's skin over the baton's own length.
  * @evidence contracts/development/testing.md#distinguishing-cases Two stand-offs; the rate, the axis and the order of the turns.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_human_motion_throw_knife_turns(): void {
   const baton: ReturnType<typeof createRelayBaton> = createRelayBaton({});
+  const length: number = Vector3.length(
+    Vector3.subtract(
+      baton.affordance("front").frame.translation,
+      baton.affordance("back").frame.translation,
+    ),
+  );
+  const bound: number =
+    (Math.atan(HumanVerdicts.SKIN / length) * 180) / Math.PI;
   const body: IHumanBody = motionHumanBody("m-average");
   const turns: number[] = [];
   for (const distance of [4, 8]) {
@@ -108,8 +117,8 @@ export function test_human_motion_throw_knife_turns(): void {
         180) /
       Math.PI;
     TestValidator.predicate(
-      `${distance} m: the spin turns in the throw's plane (${square.toFixed(3)} degrees off)`,
-      square <= 1,
+      `${distance} m: the spin turns in the throw's plane (${square.toFixed(3)} of ${bound.toFixed(3)} degrees off)`,
+      square <= bound,
     );
   }
   if (turns.length === 2)

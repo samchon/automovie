@@ -9,6 +9,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanThrownWeapon,
+  HumanVerdicts,
   type IHumanBody,
   throwObject,
 } from "@automovie/motions";
@@ -28,15 +29,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. The launch's drag-free path passes through the target, within 1e-6 m
  *    at the time its horizontal distance takes at its horizontal speed.
  * 3. At the release second the stick's blade is at the launch point, within
- *    1 cm (provisional, the arm goal's placement to be read in the run).
- * 4. The blade's velocity across the release (central difference over
- *    +-1 ms inside the 10 ms carry) is the launch velocity within 5% of its
- *    speed (provisional, the same placement).
+ *    the audit's skin (`HumanVerdicts.SKIN`).
+ * 4. Across the carry (`throwObject.CARRY` on each side of the release) the
+ *    blade moves by the launch velocity times the carry's span, within the
+ *    skin at each end: twice `HumanVerdicts.SKIN`.
  * 5. The grip's point moves slower than the blade at the release: the lever
  *    carries its end faster than the hand.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Casts from a real stick archetype through the public chain and reads the launch, the displayed implement and the target; an implement left out of the lever, turned off its line or a hand carrying the full launch fails.
- * @evidence contracts/development/testing.md#independent-expectations The target and the stick are the scene's; the path's bound is round-off, the 1 cm and 5% bounds are marked provisional.
+ * @evidence contracts/development/testing.md#independent-expectations The target and the stick are the scene's; the path's bound is round-off, the placement bounds the audit's skin and the span the law's carry.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; the aim, the release point, the release velocity and the lever's gain.
  * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the five numbered scenarios with their bounds.
@@ -117,23 +118,20 @@ export function test_human_motion_throw_implement(): void {
     );
     TestValidator.predicate(
       `${name}: the blade is at the launch point (${off.toFixed(4)} m)`,
-      off <= 0.01,
+      off <= HumanVerdicts.SKIN,
     );
-    const dt: number = 1e-3;
-    const velocity = (id: string): IAutoMovieVector3 =>
-      Vector3.scale(
-        Vector3.subtract(at(id, release + dt), at(id, release - dt)),
-        1 / (2 * dt),
-      );
-    const blade: IAutoMovieVector3 = velocity("blade");
-    const error: number =
-      Vector3.length(Vector3.subtract(blade, launch.velocity)) /
-      Vector3.length(launch.velocity);
+    const dt: number = throwObject.CARRY;
+    const moved = (id: string): IAutoMovieVector3 =>
+      Vector3.subtract(at(id, release + dt), at(id, release - dt));
+    const error: number = Vector3.length(
+      Vector3.subtract(moved("blade"), Vector3.scale(launch.velocity, 2 * dt)),
+    );
     TestValidator.predicate(
-      `${name}: the blade leaves with the launch velocity (${(error * 100).toFixed(2)}%)`,
-      error <= 0.05,
+      `${name}: the blade carries the launch velocity (${(1000 * error).toFixed(1)} mm off over the carry)`,
+      error <= 2 * HumanVerdicts.SKIN,
     );
-    const hand: number = Vector3.length(velocity("grip"));
+    const blade: IAutoMovieVector3 = Vector3.scale(moved("blade"), 1 / (2 * dt));
+    const hand: number = Vector3.length(moved("grip")) / (2 * dt);
     TestValidator.predicate(
       `${name}: the hand moves slower than the blade (${hand.toFixed(2)} < ${Vector3.length(blade).toFixed(2)} m/s)`,
       hand < Vector3.length(blade),
