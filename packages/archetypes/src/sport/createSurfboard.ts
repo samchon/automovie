@@ -10,32 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** One board read: its length, width and thickness, metres. */
-interface IModel {
-  length: number;
-  width: number;
-  thickness: number;
-}
-
-/** The boards read, each whole: Lost Driver 2.0 size chart, 5'10 x 18.75 x 2.36 in, 6'0 x 19.18 x 2.40 in, 6'2 x 19.50 x 2.50 in (https://lostsurfboards.com/surfboards/driver/). */
-const MODELS: Readonly<Record<createSurfboard.Model, IModel>> = {
-  "5'10": {
-    length: 70 * ArchetypeUnits.INCH,
-    width: 18.75 * ArchetypeUnits.INCH,
-    thickness: 2.36 * ArchetypeUnits.INCH,
-  },
-  "6'0": {
-    length: 72 * ArchetypeUnits.INCH,
-    width: 19.18 * ArchetypeUnits.INCH,
-    thickness: 2.4 * ArchetypeUnits.INCH,
-  },
-  "6'2": {
-    length: 74 * ArchetypeUnits.INCH,
-    width: 19.5 * ArchetypeUnits.INCH,
-    thickness: 2.5 * ArchetypeUnits.INCH,
-  },
-};
-
 /**
  * A shortboard lying flat on the ground, its length along `Z` and its nose toward `-Z`.
  *
@@ -58,33 +32,34 @@ export function createSurfboard(
   params: createSurfboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSurfboard.Affordance, createSurfboard.Dimension> {
-  const model: createSurfboard.Model = ArchetypeDraw.pick(
+  const model: {
+    name: createSurfboard.Model | undefined;
+    figures: Readonly<Partial<Record<createSurfboard.Dimension, number>>>;
+  } = ArchetypeDraw.model<createSurfboard.Model, createSurfboard.Dimension>(
     "surfboard",
     "model",
     params.model,
     createSurfboard.MODELS,
     seed,
-  );
-  const read: IModel = MODELS[model];
-  const d: Record<createSurfboard.Dimension, number> = ArchetypeDraw.dimensions(
-    "surfboard",
-    createSurfboard.BANDS,
-    seed,
     params,
   );
+  const d: Partial<Record<createSurfboard.Dimension, number>> = {
+    ...ArchetypeDraw.dimensions("surfboard", createSurfboard.BANDS, seed, params),
+    ...model.figures,
+  };
   const builder: ArchetypeBuilder<
     createSurfboard.Affordance,
     createSurfboard.Dimension
   > = new ArchetypeBuilder({
     archetype: "surfboard",
     id: params.id,
-    name: `surfboard ${model}`,
+    name: `surfboard ${model.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
-  const length: number = read.length;
-  const width: number = read.width;
-  const thickness: number = read.thickness;
+  const length: number = d.length!;
+  const width: number = d.width!;
+  const thickness: number = d.thickness!;
   builder.box("board", v(width, thickness, length), v(0, thickness / 2, 0), {
     color: "#f4f1e8",
     density: 0.15,
@@ -110,7 +85,7 @@ export function createSurfboard(
     grip: "power",
     aperture: thickness,
   });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
@@ -125,8 +100,34 @@ export namespace createSurfboard {
   /** The boards read: the Lost Driver 2.0's 5'10, 6'0 and 6'2. */
   export type Model = "5'10" | "6'0" | "6'2";
 
-  /** Every board, the default first. */
-  export const MODELS: readonly Model[] = ["5'10", "6'0", "6'2"];
+  /**
+   * The dimensions, metres unless stated:
+   *
+   * - `length`, `width`, `thickness`: the board's, its model's.
+   * - `mass`: kilograms, free.
+   */
+  export type Dimension = "length" | "width" | "thickness" | "mass";
+
+  /** Each board's figures, metres, the default first: Lost Driver 2.0 size chart, 5'10 x 18.75 x 2.36 in, 6'0 x 19.18 x 2.40 in, 6'2 x 19.50 x 2.50 in (https://lostsurfboards.com/surfboards/driver/). */
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "5'10": {
+      length: 70 * ArchetypeUnits.INCH,
+      width: 18.75 * ArchetypeUnits.INCH,
+      thickness: 2.36 * ArchetypeUnits.INCH,
+    },
+    "6'0": {
+      length: 72 * ArchetypeUnits.INCH,
+      width: 19.18 * ArchetypeUnits.INCH,
+      thickness: 2.4 * ArchetypeUnits.INCH,
+    },
+    "6'2": {
+      length: 74 * ArchetypeUnits.INCH,
+      width: 19.5 * ArchetypeUnits.INCH,
+      thickness: 2.5 * ArchetypeUnits.INCH,
+    },
+  };
 
   /**
    * The affordance ids:
@@ -136,11 +137,8 @@ export namespace createSurfboard {
    */
   export type Affordance = "deck" | "rail";
 
-  /** The free dimension: `mass`, kilograms. */
-  export type Dimension = "mass";
-
-  /** The parameters: the board, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The parameters: the board, and the mass fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<"mass", number>> {
     /** Which board; drawn from the seed when absent. */
     model?: Model;
 
@@ -148,8 +146,8 @@ export namespace createSurfboard {
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  /** The band of the free dimension. */
+  export const BANDS: Readonly<Record<"mass", IArchetypeBand>> = {
     mass: ArchetypeBand.of("kg", 2.5, 3.5, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

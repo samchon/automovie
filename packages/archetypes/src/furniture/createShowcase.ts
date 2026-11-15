@@ -8,24 +8,6 @@ import {
   ArchetypeUnits,
 } from "../core";
 
-/** One showcase read, metres and kilograms: its length and its mass. */
-interface IModel {
-  length: number;
-  mass: number;
-}
-
-/** The showcases read, each whole: Econoco Showcases and Counters 2025, Full Vision Showcase, "Available in two lengths; 48" long and 70" long", "48" unit weighs 170 lbs. 70" unit weighs 190 lbs." (https://www.econoco.com/media/contentmanager/content/brochure/Showcases_and_Counters_-_2025_1.pdf). */
-const MODELS: Readonly<Record<createShowcase.Model, IModel>> = {
-  "PW/SC482": {
-    length: 48 * ArchetypeUnits.INCH,
-    mass: 170 * ArchetypeUnits.POUND,
-  },
-  "PW/SC702": {
-    length: 70 * ArchetypeUnits.INCH,
-    mass: 190 * ArchetypeUnits.POUND,
-  },
-};
-
 /** A Full Vision showcase's depth and height, metres, the same for both models: the sheet's "20" deep x 38" high". */
 const CASE: Readonly<{ depth: number; height: number }> = {
   depth: 20 * ArchetypeUnits.INCH,
@@ -53,24 +35,28 @@ const CASE: Readonly<{ depth: number; height: number }> = {
 export function createShowcase(
   params: createShowcase.IParams = {},
   seed?: number | string,
-): Archetype<createShowcase.Affordance, never> {
-  const model: createShowcase.Model = ArchetypeDraw.pick(
+): Archetype<createShowcase.Affordance, createShowcase.Dimension> {
+  const model: {
+    name: createShowcase.Model | undefined;
+    figures: Readonly<Partial<Record<createShowcase.Dimension, number>>>;
+  } = ArchetypeDraw.model<createShowcase.Model, createShowcase.Dimension>(
     "showcase",
     "model",
     params.model,
     createShowcase.MODELS,
     seed,
   );
-  const read: IModel = MODELS[model];
-  const builder: ArchetypeBuilder<createShowcase.Affordance, never> =
-    new ArchetypeBuilder({
-      archetype: "showcase",
-      id: params.id,
-      name: `glass showcase ${model}`,
-      dimensions: {},
-    });
+  const builder: ArchetypeBuilder<
+    createShowcase.Affordance,
+    createShowcase.Dimension
+  > = new ArchetypeBuilder({
+    archetype: "showcase",
+    id: params.id,
+    name: `glass showcase ${model.name}`,
+    dimensions: model.figures,
+  });
   const v: typeof Vector3.create = Vector3.create;
-  const { length } = read;
+  const length: number = model.figures.length!;
   const { depth, height } = CASE;
   builder.box("case", v(length, height, depth), v(0, height / 2, 0), {
     color: "#d9e4e8",
@@ -94,7 +80,7 @@ export function createShowcase(
     extent: null,
     length,
   });
-  return builder.build(read.mass);
+  return builder.build(model.figures.mass!);
 }
 
 /**
@@ -109,8 +95,22 @@ export namespace createShowcase {
   /** The models read: Econoco's Full Vision showcases, 48 and 70 in long. */
   export type Model = "PW/SC482" | "PW/SC702";
 
-  /** Every model, the default first. */
-  export const MODELS: readonly Model[] = ["PW/SC482", "PW/SC702"];
+  /** The dimensions, each its model's: `length`, the case along `X`, metres; `mass`, kilograms. */
+  export type Dimension = "length" | "mass";
+
+  /** Each showcase's length and mass, the default first: Econoco Showcases and Counters 2025, Full Vision Showcase, "Available in two lengths; 48" long and 70" long", "48" unit weighs 170 lbs. 70" unit weighs 190 lbs." (https://www.econoco.com/media/contentmanager/content/brochure/Showcases_and_Counters_-_2025_1.pdf). */
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "PW/SC482": {
+      length: 48 * ArchetypeUnits.INCH,
+      mass: 170 * ArchetypeUnits.POUND,
+    },
+    "PW/SC702": {
+      length: 70 * ArchetypeUnits.INCH,
+      mass: 190 * ArchetypeUnits.POUND,
+    },
+  };
 
   /**
    * The affordance ids:

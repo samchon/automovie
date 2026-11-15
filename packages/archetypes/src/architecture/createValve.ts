@@ -9,19 +9,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** One valve read: its pipe's nominal bore, its height open above the pipe's axis and its handwheel's diameter, metres. */
-interface IModel {
-  bore: number;
-  height: number;
-  wheel: number;
-}
-
-/** The valves read, each whole: NIBCO F-617-ON class 125 iron gate valve sheet, the 4 in (100 mm) valve 24.00 in (610 mm) high open with a 10 in (254 mm) handwheel, the 6 in (150 mm) valve 31.06 in (789 mm) high open with a 12 in (305 mm) handwheel, the handwheel the drawing's dimension C (https://cdn.bath1.com/pdf/nibco/FT617ONBI.pdf). */
-const MODELS: Readonly<Record<createValve.Model, IModel>> = {
-  "4in": { bore: 0.1, height: 0.61, wheel: 0.254 },
-  "6in": { bore: 0.15, height: 0.789, wheel: 0.305 },
-};
-
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `run`, the pipe stub's length either side of the valve as a share of the height; `rim`, the handwheel rim's thickness; `body`, the bonnet's diameter as a share of the bore. */
 const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
   run: 0.5,
@@ -53,37 +40,40 @@ export function createValve(
   params: createValve.IParams = {},
   seed?: number | string,
 ): Archetype<createValve.Affordance, createValve.Dimension> {
-  const model: createValve.Model = ArchetypeDraw.pick(
+  const model: {
+    name: createValve.Model | undefined;
+    figures: Readonly<Partial<Record<createValve.Dimension, number>>>;
+  } = ArchetypeDraw.model<createValve.Model, createValve.Dimension>(
     "valve",
     "model",
     params.model,
     createValve.MODELS,
     seed,
-  );
-  const read: IModel = MODELS[model];
-  const d: Record<createValve.Dimension, number> = ArchetypeDraw.dimensions(
-    "valve",
-    createValve.BANDS,
-    seed,
     params,
   );
+  const d: Record<createValve.Dimension, number> = {
+    ...ArchetypeDraw.dimensions("valve", createValve.BANDS, seed, params),
+    bore: model.figures.bore!,
+    height: model.figures.height!,
+    wheel: model.figures.wheel!,
+  };
   const builder: ArchetypeBuilder<
     createValve.Affordance,
     createValve.Dimension
   > = new ArchetypeBuilder({
     archetype: "valve",
     id: params.id,
-    name: `gate valve ${model}`,
+    name: `gate valve ${model.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
-  const bore: number = read.bore;
+  const bore: number = d.bore;
   const axis: number = bore / 2;
-  const height: number = axis + read.height;
-  const radius: number = read.wheel / 2;
+  const height: number = axis + d.height;
+  const radius: number = d.wheel / 2;
   const iron: string = "#4d5357";
-  const run: number = E.run * read.height;
+  const run: number = E.run * d.height;
   builder.rod("pipe", bore / 2, v(-run, axis, 0), v(run, axis, 0), {
     color: iron,
     surface: "steel",
@@ -143,17 +133,29 @@ export namespace createValve {
   /** The valves read: NIBCO F-617-ON's 4 in and 6 in. */
   export type Model = "4in" | "6in";
 
-  /** Every model, the default first. */
-  export const MODELS: readonly Model[] = ["4in", "6in"];
+  /** Each valve's figures, metres, the default first: NIBCO F-617-ON class 125 iron gate valve sheet, the 4 in (100 mm) valve 24.00 in (610 mm) high open with a 10 in (254 mm) handwheel, the 6 in (150 mm) valve 31.06 in (789 mm) high open with a 12 in (305 mm) handwheel, the handwheel the drawing's dimension C (https://cdn.bath1.com/pdf/nibco/FT617ONBI.pdf). */
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "4in": { bore: 0.1, height: 0.61, wheel: 0.254 },
+    "6in": { bore: 0.15, height: 0.789, wheel: 0.305 },
+  };
 
   /** The affordance id: `wheel`, the handwheel turned about `+Y`. */
   export type Affordance = "wheel";
 
-  /** The free dimension: `mass`, kilograms. */
-  export type Dimension = "mass";
+  /**
+   * The dimensions, metres unless stated:
+   *
+   * - `bore`: the pipe's nominal bore, its model's.
+   * - `height`: the valve's height open above the pipe's axis, its model's.
+   * - `wheel`: the handwheel's diameter, its model's.
+   * - `mass`: kilograms, free.
+   */
+  export type Dimension = "bore" | "height" | "wheel" | "mass";
 
   /** The parameters: the model, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  export interface IParams extends Partial<Record<"mass", number>> {
     /** Which valve; drawn from the seed when absent. */
     model?: Model;
 
@@ -161,8 +163,8 @@ export namespace createValve {
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  /** The band of the free dimension. */
+  export const BANDS: Readonly<Record<"mass", IArchetypeBand>> = {
     mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

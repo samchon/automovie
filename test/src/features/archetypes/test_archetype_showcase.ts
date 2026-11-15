@@ -32,7 +32,10 @@ export function test_archetype_showcase(): void {
     "PW/SC482": [48 * inch, 170 * ArchetypeUnits.POUND],
     "PW/SC702": [70 * inch, 190 * ArchetypeUnits.POUND],
   };
-  for (const model of createShowcase.MODELS) {
+  const models: createShowcase.Model[] = Object.keys(
+    read,
+  ) as createShowcase.Model[];
+  for (const model of models) {
     const showcase: ReturnType<typeof createShowcase> = createShowcase({
       model,
     });
@@ -60,7 +63,7 @@ export function test_archetype_showcase(): void {
     );
     const length: number = archetypeExtent(showcase, "x").size;
     const mass: number = showcase.properties.mass;
-    const match: createShowcase.Model | undefined = createShowcase.MODELS.find(
+    const match: createShowcase.Model | undefined = models.find(
       (model: createShowcase.Model): boolean =>
         Math.abs(read[model][0] - length) <= 1e-9 &&
         Math.abs(read[model][1] - mass) <= 1e-9,
@@ -71,7 +74,7 @@ export function test_archetype_showcase(): void {
       );
     else drawn.add(match);
   }
-  if (drawn.size !== createShowcase.MODELS.length)
+  if (drawn.size !== models.length)
     findings.push(`200 seeds drew only ${[...drawn].join(", ")}`);
   TestValidator.equals("a glass showcase is one the maker makes", findings, []);
 }

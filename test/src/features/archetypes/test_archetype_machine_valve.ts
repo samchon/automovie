@@ -105,7 +105,8 @@ export function test_archetype_machine_valve(): void {
     "4in": [0.254, 0.61],
     "6in": [0.305, 0.789],
   };
-  for (const size of createValve.MODELS) {
+  const valves: createValve.Model[] = Object.keys(read) as createValve.Model[];
+  for (const size of valves) {
     const [wheel, height]: readonly [number, number] = read[size];
     const valve: ReturnType<typeof createValve> = createValve({ model: size });
     const hand: IAutoMovieAffordance = valve.affordance("wheel");
@@ -129,7 +130,7 @@ export function test_archetype_machine_valve(): void {
   for (let seed: number = 0; seed < 200; seed++) {
     const diameter: number =
       2 * createValve({}, seed).affordance("wheel").radius!;
-    const match: createValve.Model | undefined = createValve.MODELS.find(
+    const match: createValve.Model | undefined = valves.find(
       (model: createValve.Model): boolean =>
         Math.abs(read[model][0] - diameter) <= 1e-9,
     );
@@ -139,7 +140,7 @@ export function test_archetype_machine_valve(): void {
       );
     else drawn.add(match);
   }
-  if (drawn.size !== createValve.MODELS.length)
+  if (drawn.size !== valves.length)
     findings.push(`200 seeds drew only ${[...drawn].join(", ")}`);
   TestValidator.equals(
     "a vending machine and a gate valve stand at the makers' sizes",

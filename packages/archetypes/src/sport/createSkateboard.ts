@@ -26,27 +26,6 @@ const TRUCK: string =
 const WHEEL: string =
   'Spitfire Formula Four Classic wheels, "52 mm" in the product title (https://www.skatedeluxe.com/en/p/spitfire-formula-four-classic-wheels-white-green-52-mm-99a-4-pack_p123290?cic=GB)';
 
-/** One deck read: its width, length and wheelbase, metres. */
-interface IModel {
-  width: number;
-  length: number;
-  wheelbase: number;
-}
-
-/** The decks read, each whole, by Powell Peralta's width by length. */
-const MODELS: Readonly<Record<createSkateboard.Model, IModel>> = {
-  "7.75x31.75": {
-    width: 7.75 * ArchetypeUnits.INCH,
-    length: 31.75 * ArchetypeUnits.INCH,
-    wheelbase: 14 * ArchetypeUnits.INCH,
-  },
-  "8.5x33.5": {
-    width: 8.5 * ArchetypeUnits.INCH,
-    length: 33.5 * ArchetypeUnits.INCH,
-    wheelbase: 15 * ArchetypeUnits.INCH,
-  },
-};
-
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `wheel`, a wheel's width; `baseplate`, a truck's block along the deck. */
 const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
   wheel: 0.032,
@@ -75,35 +54,42 @@ export function createSkateboard(
   params: createSkateboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSkateboard.Affordance, createSkateboard.Dimension> {
-  const model: createSkateboard.Model = ArchetypeDraw.pick(
+  const model: {
+    name: createSkateboard.Model | undefined;
+    figures: Readonly<Partial<Record<createSkateboard.Dimension, number>>>;
+  } = ArchetypeDraw.model<createSkateboard.Model, createSkateboard.Dimension>(
     "skateboard",
     "model",
     params.model,
     createSkateboard.MODELS,
     seed,
+    params,
   );
-  const read: IModel = MODELS[model];
-  const d: Record<createSkateboard.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const d: Record<createSkateboard.Dimension, number> = {
+    ...ArchetypeDraw.dimensions(
       "skateboard",
       createSkateboard.BANDS,
       seed,
       params,
-    );
+    ),
+    width: model.figures.width!,
+    length: model.figures.length!,
+    wheelbase: model.figures.wheelbase!,
+  };
   const builder: ArchetypeBuilder<
     createSkateboard.Affordance,
     createSkateboard.Dimension
   > = new ArchetypeBuilder({
     archetype: "skateboard",
     id: params.id,
-    name: `skateboard ${model}`,
+    name: `skateboard ${model.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
-  const width: number = read.width;
-  const length: number = read.length;
-  const base: number = read.wheelbase / 2;
+  const width: number = d.width;
+  const length: number = d.length;
+  const base: number = d.wheelbase / 2;
   const radius: number = d.wheel / 2;
   const under: number = radius + d.truck;
   const top: number = under + d.thickness;
@@ -176,8 +162,21 @@ export namespace createSkateboard {
   /** The decks read: Powell Peralta's Kilian Martin Wolf 4, 7.75 by 31.75 in, and Chin Mask, 8.5 by 33.5 in. */
   export type Model = "7.75x31.75" | "8.5x33.5";
 
-  /** Every deck, the default first. */
-  export const MODELS: readonly Model[] = ["7.75x31.75", "8.5x33.5"];
+  /** Each deck's width, length and wheelbase, metres, the default first: Powell Peralta's 7.75 x 31.75 in with a 14 in wheelbase and 8.5 x 33.5 in with a 15 in wheelbase (the pages `POWELL` gives). */
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "7.75x31.75": {
+      width: 7.75 * ArchetypeUnits.INCH,
+      length: 31.75 * ArchetypeUnits.INCH,
+      wheelbase: 14 * ArchetypeUnits.INCH,
+    },
+    "8.5x33.5": {
+      width: 8.5 * ArchetypeUnits.INCH,
+      length: 33.5 * ArchetypeUnits.INCH,
+      wheelbase: 15 * ArchetypeUnits.INCH,
+    },
+  };
 
   /**
    * The affordance ids:
@@ -188,17 +187,28 @@ export namespace createSkateboard {
   export type Affordance = "deck" | "nose" | "tail";
 
   /**
-   * The free dimensions:
+   * The dimensions:
    *
+   * - `width`, `length`, `wheelbase`: the deck's, metres, its model's.
    * - `thickness`: the deck, metres.
    * - `truck`: a truck's height from the deck's underside to the axle, metres.
    * - `wheel`: a wheel's diameter, metres.
    * - `mass`: kilograms.
    */
-  export type Dimension = "thickness" | "truck" | "wheel" | "mass";
+  export type Dimension =
+    | "width"
+    | "length"
+    | "wheelbase"
+    | "thickness"
+    | "truck"
+    | "wheel"
+    | "mass";
+
+  /** The free dimensions, each drawn from its band. */
+  export type Free = Exclude<Dimension, "width" | "length" | "wheelbase">;
 
   /** The parameters: the deck, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  export interface IParams extends Partial<Record<Free, number>> {
     /** Which deck; drawn from the seed when absent. */
     model?: Model;
 
@@ -207,7 +217,7 @@ export namespace createSkateboard {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<Record<Free, IArchetypeBand>> = {
     thickness: ArchetypeBand.metres(
       (7 / 16) * ArchetypeUnits.INCH,
       (7 / 16) * ArchetypeUnits.INCH,

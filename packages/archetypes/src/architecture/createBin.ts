@@ -8,22 +8,20 @@ import {
   ArchetypeUnits,
 } from "../core";
 
-/** One container model read: its outline in metres and its mass in kilograms. */
-interface IModel {
-  width: number;
-  depth: number;
-  height: number;
-  top: number;
-  reach: number;
-  handle: number;
-  wheel: number;
-  mass: number;
-}
-
 /**
- * The models read, each whole, by name. The wheeled bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm, bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848, width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and 17 kg empty (https://sulo.com.au/product/240-litre-container/, https://sulo.com.au/product/360-litre-container/). The dumpsters: Wastequip steel front-load containers, 2 and 3 yd flat nestable, 81 7/8 and 82 7/16 in long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back, 505 and 602 lb (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf). For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height with the lid, `reach` its depth with the handle, `handle` the handle's width, `wheel` its wheels' diameter. For a dumpster: `width` its length across the front, `depth` its depth at the lid, `reach` at the base, `height` at the front and `top` at the back; it has no handle or wheels.
+ * Each kind's models read, each whole, by name, the default first. The wheeled bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm, bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848, width 585 and 680, handle width 400 and 520, wheels 200 and 250 mm, 12.5 and 17 kg empty (https://sulo.com.au/product/240-litre-container/, https://sulo.com.au/product/360-litre-container/). The dumpsters: Wastequip steel front-load containers, 2 and 3 yd flat nestable, 81 7/8 and 82 7/16 in long, 39 3/4 and 46 3/4 in deep at the lid, 34 and 42 in at the base, 40 15/16 and 48 1/2 in high at the front, 45 1/4 and 52 11/16 in at the back, 505 and 602 lb (https://www.Wastequip.com/sites/default/files/2023-06/Steel_FEL_Containers_Brochure_032017_DIGITAL_0.pdf). For a wheeled bin: `width`, `depth` and `height` its body's, `top` its height with the lid, `reach` its depth with the handle, `handle` the handle's width, `wheel` its wheels' diameter. For a dumpster: `width` its length across the front, `depth` its depth at the lid, `reach` at the base, `height` at the front and `top` at the back; it has no handle or wheels.
  */
-const MODELS: Readonly<Record<createBin.Model, IModel>> = {
+const BIN_MODELS: Readonly<
+  Record<
+    createBin.Kind,
+    Readonly<
+      Partial<
+        Record<createBin.Model, Readonly<Partial<Record<createBin.Dimension, number>>>>
+      >
+    >
+  >
+> = {
+  wheelieBin: {
   "240L": {
     width: 0.585,
     depth: 0.66,
@@ -44,14 +42,14 @@ const MODELS: Readonly<Record<createBin.Model, IModel>> = {
     wheel: 0.25,
     mass: 17,
   },
+  },
+  dumpster: {
   "2yd": {
     width: (81 + 7 / 8) * ArchetypeUnits.INCH,
     depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
     height: (40 + 15 / 16) * ArchetypeUnits.INCH,
     top: (45 + 1 / 4) * ArchetypeUnits.INCH,
     reach: 34 * ArchetypeUnits.INCH,
-    handle: 0,
-    wheel: 0,
     mass: 505 * ArchetypeUnits.POUND,
   },
   "3yd": {
@@ -60,9 +58,8 @@ const MODELS: Readonly<Record<createBin.Model, IModel>> = {
     height: (48 + 1 / 2) * ArchetypeUnits.INCH,
     top: (52 + 11 / 16) * ArchetypeUnits.INCH,
     reach: 42 * ArchetypeUnits.INCH,
-    handle: 0,
-    wheel: 0,
     mass: 602 * ArchetypeUnits.POUND,
+  },
   },
 };
 
@@ -95,39 +92,43 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
 export function createBin(
   params: createBin.IParams,
   seed?: number | string,
-): Archetype<createBin.Affordance, never> {
+): Archetype<createBin.Affordance, createBin.Dimension> {
   const kind: createBin.Kind = ArchetypeDraw.choice(
     "bin",
     "kind",
     params.kind,
     createBin.KINDS,
   );
-  const model: createBin.Model = ArchetypeDraw.pick(
+  const model: {
+    name: createBin.Model | undefined;
+    figures: Readonly<Partial<Record<createBin.Dimension, number>>>;
+  } = ArchetypeDraw.model<createBin.Model, createBin.Dimension>(
     "bin",
     "model",
     params.model,
     createBin.MODELS[kind],
     seed,
   );
-  const read: IModel = MODELS[model];
-  const builder: ArchetypeBuilder<createBin.Affordance, never> =
+  const read: Readonly<Partial<Record<createBin.Dimension, number>>> =
+    model.figures;
+  const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
     new ArchetypeBuilder({
       archetype: "bin",
       id: params.id,
-      name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model}`,
-      dimensions: {},
+      name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
+      dimensions: read,
     });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
-  const width: number = read.width;
-  const depth: number = read.depth;
-  const height: number = read.height;
-  const top: number = read.top;
+  const width: number = read.width!;
+  const depth: number = read.depth!;
+  const height: number = read.height!;
+  const top: number = read.top!;
   const front: number = depth / 2;
   const back: number = -depth / 2;
   let hinge: number;
   if (kind === "wheelieBin") {
-    const wheel: number = read.wheel / 2;
+    const wheel: number = read.wheel! / 2;
     hinge = top;
     builder.box("body", v(width, height, depth), v(0, height / 2, 0), {
       color: "#2f6b3a",
@@ -149,8 +150,8 @@ export function createBin(
         v(sign * (width / 2 - E.bar), wheel, back),
         { color: "#1d1d1d" },
       );
-    const behind: number = front - read.reach;
-    const span: number = read.handle;
+    const behind: number = front - read.reach!;
+    const span: number = read.handle!;
     builder.rod(
       "handle",
       E.bar / 2,
@@ -172,7 +173,7 @@ export function createBin(
       length: span,
     });
   } else {
-    const base: number = read.reach;
+    const base: number = read.reach!;
     const mean: number = (height + top) / 2;
     const body: number = mean - E.lid;
     hinge = mean;
@@ -210,7 +211,7 @@ export function createBin(
     depth: height,
   });
   return builder.build(
-    read.mass,
+    read.mass!,
     kind === "dumpster" ? { rests: "steel" } : {},
   );
 }
@@ -242,11 +243,21 @@ export namespace createBin {
   /** The models read: SULO's 240 and 360 litre wheeled bins and Wastequip's 2 and 3 yd front-load containers. */
   export type Model = "240L" | "360L" | "2yd" | "3yd";
 
-  /** Each kind's models, its default first. */
-  export const MODELS: Readonly<Record<Kind, readonly Model[]>> = {
-    wheelieBin: ["240L", "360L"],
-    dumpster: ["2yd", "3yd"],
-  };
+  /**
+   * The dimensions, each its model's, metres unless stated: `width`, `depth` and `height`, a wheeled bin's body's or a dumpster's length across the front, depth at the lid and height at the front; `top`, a wheeled bin's height with its lid or a dumpster's height at the back; `reach`, a wheeled bin's depth with its handle or a dumpster's depth at the base; `handle`, a wheeled bin's handle width; `wheel`, a wheeled bin's wheels' diameter; `mass`, kilograms. A dumpster has no `handle` or `wheel`.
+   */
+  export type Dimension =
+    | "width"
+    | "depth"
+    | "height"
+    | "top"
+    | "reach"
+    | "handle"
+    | "wheel"
+    | "mass";
+
+  /** Each kind's models with their figures, its default first. */
+  export const MODELS: typeof BIN_MODELS = BIN_MODELS;
 
   /** The parameters: the kind, and the model if fixed. */
   export interface IParams {

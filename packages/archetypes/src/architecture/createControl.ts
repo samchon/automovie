@@ -12,25 +12,6 @@ import {
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
-/** One lever read, metres and kilograms: its length from the hub's centre to the knob's, its knob, arm and hub across, its hub along the bore, and its mass. */
-interface ILever {
-  length: number;
-  knob: number;
-  arm: number;
-  hub: number;
-  bore: number;
-  mass: number;
-}
-
-/** The levers read, each whole, by its length l1 in millimetres: Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf). */
-const LEVERS: Readonly<Record<createControl.Lever, ILever>> = {
-  "63": row(63, 20, 8, 16, 12, 32),
-  "80": row(80, 20, 9, 20, 14.5, 53),
-  "100": row(100, 25, 11, 25, 18.5, 100),
-  "125": row(125, 32, 15, 32, 24, 216),
-  "160": row(160, 40, 18, 40, 30, 415),
-};
-
 /** A DIN 6337 lever's arm off the plane square to its bore, degrees: the drawing's 20. */
 const RISE: number = 20;
 
@@ -75,7 +56,7 @@ export function createControl(
       reason: "a dial has no lever",
       fix: "leave lever out for a dial",
     });
-  const d: Record<createControl.Dimension, number> = ArchetypeDraw.dimensions(
+  const d: Record<"height", number> = ArchetypeDraw.dimensions(
     "control",
     createControl.BANDS,
     seed,
@@ -109,14 +90,25 @@ export function createControl(
     });
     return builder.build(createControl.SELECTOR.mass);
   }
-  const model: createControl.Lever = ArchetypeDraw.pick(
+  const model: {
+    name: createControl.Lever | undefined;
+    figures: Readonly<Partial<Record<createControl.Dimension, number>>>;
+  } = ArchetypeDraw.model<createControl.Lever, createControl.Dimension>(
     "control",
     "lever",
     params.lever,
     createControl.LEVERS,
     seed,
+    params,
   );
-  const lever: ILever = LEVERS[model];
+  const lever: Readonly<Record<createControl.LeverDimension, number>> = {
+    length: model.figures.length!,
+    knob: model.figures.knob!,
+    arm: model.figures.arm!,
+    hub: model.figures.hub!,
+    bore: model.figures.bore!,
+    mass: model.figures.mass!,
+  };
   const rise: number = RISE * ArchetypeUnits.DEGREE;
   const hub: ReturnType<typeof v> = v(0, y, lever.bore / 2);
   const knob: ReturnType<typeof v> = v(
@@ -159,7 +151,7 @@ export function createControl(
  * @param hub The hub d3, millimetres.
  * @param bore The hub's length b along the bore, millimetres.
  * @param grams The mass, grams.
- * @returns The lever.
+ * @returns The lever's figures.
  */
 function row(
   length: number,
@@ -168,7 +160,7 @@ function row(
   hub: number,
   bore: number,
   grams: number,
-): ILever {
+): Readonly<Record<createControl.LeverDimension, number>> {
   const mm: number = ArchetypeUnits.MILLIMETRE;
   return {
     length: length * mm,
@@ -198,8 +190,19 @@ export namespace createControl {
   /** The DIN 6337 ball levers read, by their length l1 in millimetres. */
   export type Lever = "63" | "80" | "100" | "125" | "160";
 
-  /** Every lever, the default first. */
-  export const LEVERS: readonly Lever[] = ["63", "80", "100", "125", "160"];
+  /** A lever's figures, its model's, metres and kilograms: `length` from the hub's centre to the knob's, `knob`, `arm` and `hub` across, `bore` the hub along the bore, and `mass`. */
+  export type LeverDimension = "length" | "knob" | "arm" | "hub" | "bore" | "mass";
+
+  /** Each lever's figures, the default first, by its length l1 in millimetres: Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf). */
+  export const LEVERS: Readonly<
+    Record<Lever, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "63": row(63, 20, 8, 16, 12, 32),
+    "80": row(80, 20, 9, 20, 14.5, 53),
+    "100": row(100, 25, 11, 25, 18.5, 100),
+    "125": row(125, 32, 15, 32, 24, 216),
+    "160": row(160, 40, 18, 40, 30, 415),
+  };
 
   /** The selector head read, metres, degrees and kilograms: Schneider Electric Harmony XB4 ZB4BD3, head 28.5 mm across standing 27 mm proud of the panel, "3 positions +/- 45°", product weight 0.04 kg (https://assets.cef.co.uk/downloads/pdg/tele_zb4bd3_datasheet/tele_zb4bd3_datasheet.pdf). */
   export const SELECTOR: Readonly<{
@@ -223,11 +226,11 @@ export namespace createControl {
    */
   export type Affordance = "knob" | "shaft" | "dial";
 
-  /** The free dimension: `height`, the control's axis above the floor, metres. */
-  export type Dimension = "height";
+  /** The dimensions: `height`, the control's axis above the floor, metres, free; and a lever's figures, its model's. */
+  export type Dimension = "height" | LeverDimension;
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
+  /** The parameters: the kind, and the height fixed to a value inside its band. */
+  export interface IParams extends Partial<Record<"height", number>> {
     /** Which control. */
     kind: Kind;
 
@@ -239,7 +242,7 @@ export namespace createControl {
   }
 
   /** The band of the free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<Record<"height", IArchetypeBand>> = {
     height: ArchetypeBand.metres(
       ADA_RANGES.reach.low,
       ADA_RANGES.reach.high,

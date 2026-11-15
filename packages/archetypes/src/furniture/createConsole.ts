@@ -22,13 +22,6 @@ const CONSOLE: Readonly<{ depth: number; surface: number; thickness: number }> =
     thickness: 1.125 * ArchetypeUnits.INCH,
   };
 
-/** The base console's widths the sheet lists, metres: 48, 60 and 72 in (5.1). */
-const WIDTH: Readonly<Record<createConsole.Width, number>> = {
-  "48in": 48 * ArchetypeUnits.INCH,
-  "60in": 60 * ArchetypeUnits.INCH,
-  "72in": 72 * ArchetypeUnits.INCH,
-};
-
 /** The construction size no source read gives, metres, an estimate no act reads and no band declares: `panel`, an end panel's thickness under the work surface. */
 const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
 
@@ -37,14 +30,14 @@ const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
  *
  * The console's back stands on the floor along `X` at the origin's `Z`, its front at `+Z`, where the operator sits. It is one of the sheet's three widths, given or drawn from the seed. The work surface takes the front of the console's depth, its top at the drawn height; the equipment section fills the rest of the depth from the floor to that height. `surface` is the work surface, and `edge` its front edge, where forearms and hands rest.
  *
- * @param params The width and any dimension the author fixes.
+ * @param params The size and any dimension the author fixes.
  * @param seed The seed that draws the width when it is not given and every dimension left free inside its band; absent, the first width and the middle of each band.
  * @returns The console.
- * @throws {ArchetypeRefusal} For a width the sheet does not list, or a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a size the sheet does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the width is chosen, how the depth is shared and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's overall depth, work surface depth and thickness, one of its three widths whole, and the surface's height as the band its sheet's own three figures span, one console's spread and not three models: 5.1's 29 in for the base console overall, the side profile's 28-7/8 in to the work surface, and the ergonomic page's 28-9/16 in work surface height it recommends; the equipment section the overall depth less the work surface's, a derivation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, pick the width, then the work surface, the end panels and the equipment section, then the contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the size, draw the dimensions, then the work surface, the end panels and the equipment section, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No width between the sheet's three is made; the rear section's own profile, the monitor arms and the cable trays are not built; the end panel's thickness is a construction estimate; the mass is provisional.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -54,27 +47,29 @@ export function createConsole(
   params: createConsole.IParams = {},
   seed?: number | string,
 ): Archetype<createConsole.Affordance, createConsole.Dimension> {
-  const d: Record<createConsole.Dimension, number> = ArchetypeDraw.dimensions(
+  const size: {
+    name: createConsole.Size | undefined;
+    figures: Readonly<Partial<Record<createConsole.Dimension, number>>>;
+  } = ArchetypeDraw.model<createConsole.Size, createConsole.Dimension>(
     "console",
-    createConsole.BANDS,
+    "size",
+    params.size,
+    createConsole.SIZES,
     seed,
     params,
   );
-  const size: createConsole.Width = ArchetypeDraw.pick(
-    "console",
-    "width",
-    params.width,
-    createConsole.WIDTHS,
-    seed,
-  );
-  const width: number = WIDTH[size];
+  const d: Record<createConsole.Dimension, number> = {
+    ...ArchetypeDraw.dimensions("console", createConsole.BANDS, seed, params),
+    width: size.figures.width!,
+  };
+  const width: number = d.width;
   const builder: ArchetypeBuilder<
     createConsole.Affordance,
     createConsole.Dimension
   > = new ArchetypeBuilder({
     archetype: "console",
     id: params.id,
-    name: `control console ${size}`,
+    name: `control console ${size.name}`,
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -144,30 +139,40 @@ export namespace createConsole {
   export type Affordance = "surface" | "edge";
 
   /**
-   * The free dimensions, metres unless stated:
+   * The dimensions, metres unless stated:
    *
+   * - `width`: the console along `X`, its size's.
    * - `height`: the work surface's top above the floor.
    * - `mass`: kilograms.
    */
-  export type Dimension = "height" | "mass";
+  export type Dimension = "width" | "height" | "mass";
 
-  /** The base console's widths the sheet lists, inches. */
-  export type Width = "48in" | "60in" | "72in";
+  /** The base console's sizes the sheet lists, by their widths in inches. */
+  export type Size = "48in" | "60in" | "72in";
 
-  /** Every width, the default first. */
-  export const WIDTHS: readonly Width[] = ["48in", "60in", "72in"];
+  /** Each size's width, metres, the default first: the sheet's 48, 60 and 72 in (5.1). */
+  export const SIZES: Readonly<
+    Record<Size, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
+    "48in": { width: 48 * ArchetypeUnits.INCH },
+    "60in": { width: 60 * ArchetypeUnits.INCH },
+    "72in": { width: 72 * ArchetypeUnits.INCH },
+  };
 
-  /** The parameters: the width, and any free dimension fixed to a value inside its band. */
-  export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which of the sheet's widths, along `X`; drawn from the seed when absent. */
-    width?: Width;
+  /** The parameters: the size, and any free dimension fixed to a value inside its band. */
+  export interface IParams
+    extends Partial<Record<Exclude<Dimension, "width">, number>> {
+    /** Which of the sheet's sizes, which sets `width`; drawn from the seed when absent. */
+    size?: Size;
 
     /** The model's id, unique in a scene; `console` when absent. */
     id?: string;
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<
+    Record<Exclude<Dimension, "width">, IArchetypeBand>
+  > = {
     height: ArchetypeBand.metres(
       (28 + 9 / 16) * ArchetypeUnits.INCH,
       29 * ArchetypeUnits.INCH,
