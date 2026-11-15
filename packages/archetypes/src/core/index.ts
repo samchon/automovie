@@ -20,3 +20,4 @@ export * from "./ArchetypeSpan";
 export * from "./ArchetypeTrack";
 export * from "./ArchetypeUnits";
 export * from "./IArchetypeBand";
+export * from "./IArchetypeProps";

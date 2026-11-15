@@ -1,8 +1,6 @@
 import type {
   IAutoMovieAffordance,
   IAutoMovieBody,
-  IAutoMovieBodyContact,
-  IAutoMovieBodyDrag,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -21,6 +19,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import type { IArchetypeProps } from "./IArchetypeProps";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride or fight with, with typed access to what a person's act reads from it.
@@ -455,14 +454,9 @@ export class Archetype<
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFracture.split`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  public broken(hit: ArchetypeFracture.IHit): {
-    remainder: Archetype<Id, Dimension> | null;
-    fragments: {
-      id: string;
-      archetype: Archetype<never, Dimension>;
-      velocity: IAutoMovieVector3;
-    }[];
-  } | null {
+  public broken(
+    hit: ArchetypeFracture.IHit,
+  ): ArchetypeFracture.IPieces<Id, Dimension> | null {
     const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
       ArchetypeFracture.split(this.#rest, hit);
     if (split === null) return null;
@@ -472,11 +466,9 @@ export class Archetype<
           ? null
           : new Archetype<Id, Dimension>(split.remainder),
       fragments: split.fragments.map(
-        (f: {
-          id: string;
-          props: Archetype.IProps<never, Dimension>;
-          velocity: IAutoMovieVector3;
-        }) => ({
+        (
+          f: ArchetypeFracture.IFragment<Dimension>,
+        ): ArchetypeFracture.IPiece<Dimension> => ({
           id: f.id,
           archetype: new Archetype<never, Dimension>(f.props),
           velocity: f.velocity,
@@ -491,66 +483,15 @@ export class Archetype<
  */
 export namespace Archetype {
   /**
-   * What a producer built: the archetype at rest.
+   * What a producer built: the archetype at rest, as {@link IArchetypeProps} records it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The rest model with its derived facts as one record: parts and affordances in the model's space in metres, mass properties in kilograms and kg m squared, coefficients from 0 to 1. Ids are narrowed to the producer's union by the type; their uniqueness is left to `validateModel`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor, with no member either does not use.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension record is keyed by the producer's closed union, not by free strings, and no member is optional.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and where its members are documented.
+   * @evidence contracts/development/design.md#principled-representation The record `IArchetypeProps` defines, under the name every producer and reader already uses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias, not a second record.
    */
-  export interface IProps<Id extends string, Dimension extends string> {
-    /** The producer's name, such as `chair`. */
-    archetype: string;
-
-    /** Model id. */
-    id: string;
-
-    /** Readable name. */
-    name: string;
-
-    /** The parts at rest, with unit scale. */
-    parts: IAutoMovieModelPart[];
-
-    /** The affordances at rest, each id one of `Id`. */
-    affordances: (IAutoMovieAffordance & { id: Id })[];
-
-    /** The materials the parts cite. */
-    materials: IAutoMovieMaterial[];
-
-    /** Mass, centre of mass and inertia. */
-    properties: ArchetypeMass.IProperties;
-
-    /** Static Coulomb friction coefficient of what the model rests on against its ground, 0 to 1; null when its producer has not declared what it rests on. */
-    friction: number | null;
-
-    /** Kinetic Coulomb friction coefficient of the same pair, 0 to 1; null when no measured pair gives it. */
-    kineticFriction: number | null;
-
-    /** What each part's surface is made of, by part id, for the parts whose producer declared it. */
-    surfaces: Readonly<Record<string, ArchetypeFriction.Material>>;
-
-    /** Coefficient of restitution, 0 to 1. */
-    restitution: number;
-
-    /** The air's drag on the body in flight; null when no source measured it. */
-    drag: IAutoMovieBodyDrag | null;
-
-    /** How the body ends a flight against what it strikes; null when it declares none. */
-    contact: IAutoMovieBodyContact | null;
-
-    /** The sets of parts a hit breaks off, each a fragment; empty for an archetype that does not break. */
-    fractures: readonly ArchetypeFracture.ISet[];
-
-    /** Each part's own mass, kilograms, by part id, the shares its mass properties were built from. */
-    masses: Readonly<Record<string, number>>;
-
-    /** The value of each free dimension the variant has. */
-    dimensions: Readonly<Partial<Record<Dimension, number>>>;
-
-    /** Where each dimension came from: the band of each drawn one and the model picked on each axis. */
-    provenance: ArchetypeDrawSession.IProvenance<Dimension>;
-
-    /** The spans laid between moving frames after every pose; empty for most archetypes. */
-    spans: readonly ArchetypeSpan.ISpan[];
-  }
+  export type IProps<
+    Id extends string,
+    Dimension extends string,
+  > = IArchetypeProps<Id, Dimension>;
 }

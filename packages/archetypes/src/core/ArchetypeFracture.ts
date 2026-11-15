@@ -1,5 +1,6 @@
 import type {
   IAutoMovieAffordance,
+  IAutoMovieBodyContact,
   IAutoMovieModelPart,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,7 +12,7 @@ import type { ArchetypeSpan } from "./ArchetypeSpan";
 /**
  * How an archetype breaks: the sets of its parts a hit breaks off as fragments, and what is left.
  *
- * A producer declares its fragment sets (`ArchetypeBuilder.fracture`), each a group of its own parts that leaves as one fragment, and the energy above which a hit breaks it, which its model body carries as `contact.fracture` so a flight's or a melee hit's one outcome rule reads it. A hit at or above that energy breaks every set off: each set becomes an archetype of its own, carrying its parts' own masses, and the parts no set names stay as the remainder, keeping the affordances whose moving parts all remain. The fragments leave together with the hit's momentum shared over their masses, as a perfectly inelastic collision gives; how they spread about that direction no source read gives, so they do not spread. The same archetype and hit always break the same way.
+ * A producer declares its fragment sets (`ArchetypeBuilder.fracture`), each a group of its own parts that leaves as one fragment, and the energy above which a hit breaks it, which its model body carries as `contact.fracture` so a flight's or a melee hit's one outcome rule reads it. A hit at or above that energy breaks every set off: each set becomes an archetype of its own, carrying its parts' own masses, and the parts no set names stay as the remainder, keeping the affordances whose moving parts all remain; no piece breaks again. The fragments leave together with the hit's momentum shared over their masses, as a perfectly inelastic collision gives; how they spread about that direction no source read gives, so they do not spread. The same archetype and hit always break the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold lives, what breaking leaves, how fragments leave and what is not modelled.
  * @evidence contracts/development/design.md#principled-representation A set is an id and the producer's own part ids; a hit is its energy and momentum; the result is the remainder and fragments as archetypes, each with a velocity.
@@ -63,12 +64,62 @@ export namespace ArchetypeFracture {
     /** What stays, its parts and the affordances on them; null when every part broke off. */
     remainder: Archetype.IProps<Id, Dimension> | null;
 
-    /** Each fragment, its parts and mass, and the velocity it leaves with, metres per second. */
-    fragments: readonly {
-      id: string;
-      props: Archetype.IProps<never, Dimension>;
-      velocity: IAutoMovieVector3;
-    }[];
+    /** Each fragment, its parts and mass, and the velocity it leaves with. */
+    fragments: readonly IFragment<Dimension>[];
+  }
+
+  /**
+   * One fragment's rest record and the velocity it leaves with.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation The set's id, its rest record and its velocity in metres per second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Listed by `IBroken`; `Archetype.broken` makes it a piece.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IFragment<Dimension extends string> {
+    /** The set's id. */
+    id: string;
+
+    /** Its parts and mass, at rest. */
+    props: Archetype.IProps<never, Dimension>;
+
+    /** The velocity it leaves with, metres per second, in the archetype's space. */
+    velocity: IAutoMovieVector3;
+  }
+
+  /**
+   * What a hit leaves of an archetype, as archetypes: what `Archetype.broken` returns.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation `IBroken` with each record made an archetype at rest.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `Archetype.broken`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IPieces<Id extends string, Dimension extends string> {
+    /** What stays; null when every part broke off. */
+    remainder: Archetype<Id, Dimension> | null;
+
+    /** Each fragment as an archetype, with its velocity. */
+    fragments: IPiece<Dimension>[];
+  }
+
+  /**
+   * One fragment as an archetype, and the velocity it leaves with.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation The set's id, the archetype at rest and its velocity in metres per second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Listed by `IPieces`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IPiece<Dimension extends string> {
+    /** The set's id. */
+    id: string;
+
+    /** The fragment, an archetype at rest. */
+    archetype: Archetype<never, Dimension>;
+
+    /** The velocity it leaves with, metres per second, in the archetype's space. */
+    velocity: IAutoMovieVector3;
   }
 
   /**
@@ -79,7 +130,7 @@ export namespace ArchetypeFracture {
    * @returns The remainder and fragments, or null when the archetype declares no fracture or the hit is below its threshold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and when nothing breaks.
-   * @evidence contracts/development/implementation.md#principled-implementation Each set's record carries its parts, their spans with both ends on them, and their own masses' mass properties (`ArchetypeMass.of` with those masses as shares); the remainder the rest, keeping each affordance whose moving parts all remain; every fragment's velocity the hit's momentum over the fragments' summed mass.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's record carries its parts, their spans with both ends on them, and their own masses' mass properties (`ArchetypeMass.of` with those masses as shares); the remainder the rest, keeping each affordance whose moving parts all remain; every piece the rest's contact without its threshold, since it declares no fracture set; every fragment's velocity the hit's momentum over the fragments' summed mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the hit, then one record per set and one for the remainder.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A set that names a part twice or a part of another set is a producer's defect the builder refuses; no spread is drawn.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, the affordances and the spans.
@@ -97,6 +148,9 @@ export namespace ArchetypeFracture {
       hit.energy < threshold
     )
       return null;
+    // A piece declares no fracture set, so it carries no threshold either.
+    const contact: IAutoMovieBodyContact = { ...(rest.contact ?? {}) };
+    delete contact.fracture;
     const record = <I extends string>(
       id: string,
       keep: ReadonlySet<string>,
@@ -116,6 +170,7 @@ export namespace ArchetypeFracture {
         parts,
         affordances,
         properties: ArchetypeMass.of(parts, mass, {}, rest.masses),
+        contact,
         spans: rest.spans.filter(
           (s: ArchetypeSpan.ISpan): boolean =>
             keep.has(s.id) &&
