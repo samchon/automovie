@@ -3,29 +3,8 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 import { HorseGait, createHorse, rideHorse } from "../animals";
 import {
   createAppliance,
-  createBar,
-  createBeerTap,
-  createBin,
-  createBoard,
-  createCellFront,
-  createControl,
   createDoor,
-  createElevator,
-  createGate,
-  createHandhold,
-  createHatch,
-  createLadder,
-  createMachine,
-  createMirror,
-  createObstacle,
-  createRamp,
-  createSaloonDoor,
   createSanitary,
-  createStairs,
-  createStreetFixture,
-  createSwitch,
-  createValve,
-  createWall,
   createWindow,
 } from "../architecture";
 import { type Archetype, type ArchetypeCourse, ArchetypeRide } from "../core";
@@ -85,20 +64,10 @@ import {
   rideBicycle,
   rideMotorcycle,
 } from "../vehicles";
-import {
-  createBow,
-  createCannon,
-  createClub,
-  createHandgun,
-  createHolster,
-  createLongGun,
-  createMagazine,
-  createPell,
-  createPolearm,
-  createProjectile,
-  createShield,
-  createSword,
-} from "../weapons";
+import { createLongGun } from "../weapons";
+import { archetypeCaptureArmoury } from "./archetypeCaptureArmoury";
+import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
+import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
 /** A course for the moving subjects: a short straight, a quarter turn to the left, a short straight. */
 const COURSE: ArchetypeCourse.ICourse = {
@@ -122,7 +91,7 @@ const COURSE: ArchetypeCourse.ICourse = {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the list is for and that nothing else reads it.
  * @evidence contracts/development/implementation.md#principled-implementation Every producer and kind through its own public call at the middle of its bands, each vehicle's ride over one shared course and each gait down one 40 m straight.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three helpers (a still subject, a producer's kinds, a ride) and one literal of subjects.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The three `archetypeCaptureSubject` helpers (a still subject, a producer's kinds, a ride) and one literal of subjects, the building subjects from `archetypeCaptureFixtures` and the armoury from `archetypeCaptureArmoury`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No archetype is built here by hand; an inspection list, never a registry a production reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds about a hundred small models once per page load.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once by the subjects module.
@@ -131,48 +100,12 @@ const COURSE: ArchetypeCourse.ICourse = {
 export function archetypeCaptureCatalog(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const still = (
-    members: Record<string, Archetype>,
-  ): archetypeCaptureCatalog.ISubject => ({
-    members: Object.entries(members).map(
-      ([name, archetype]: [
-        string,
-        Archetype,
-      ]): archetypeCaptureCatalog.IMember => ({
-        name,
-        at: (): { archetype: Archetype } => ({ archetype }),
-      }),
-    ),
-  });
-  const kinds = <Kind extends string>(
-    prefix: string,
-    list: readonly Kind[],
-    create: (kind: Kind) => Archetype,
-  ): Record<string, Archetype> =>
-    Object.fromEntries(
-      list.map((kind: Kind): [string, Archetype] => [
-        `${prefix}-${kind}`,
-        create(kind),
-      ]),
-    );
-  const moving = <Id extends string, Dimension extends string>(
-    name: string,
-    ride: ArchetypeRide.IRide<Id, Dimension>,
-  ): archetypeCaptureCatalog.ISubject => ({
-    members: [
-      {
-        name,
-        at: (
-          seconds: number,
-        ): {
-          archetype: Archetype;
-          placement: IAutoMovieTransform;
-        } => ride.at(seconds),
-      },
-    ],
-    duration: ride.duration,
-    instants: ride.instants,
-  });
+  const still: typeof archetypeCaptureSubject.still =
+    archetypeCaptureSubject.still;
+  const kinds: typeof archetypeCaptureSubject.kinds =
+    archetypeCaptureSubject.kinds;
+  const moving: typeof archetypeCaptureSubject.moving =
+    archetypeCaptureSubject.moving;
 
   const door: ReturnType<typeof createDoor> = createDoor({ hardware: "lever" });
   const chest: ReturnType<typeof createStorage> = createStorage({
@@ -323,110 +256,7 @@ export function archetypeCaptureCatalog(): Readonly<
       safe: createSafe(),
       showcase: createShowcase(),
     }),
-    doors: still({
-      "door-lever-right": door,
-      "door-knob-left": createDoor({ hinge: "left", hardware: "knob" }),
-      "door-plate-right": createDoor({ hardware: "plate" }),
-      "door-sliding-left": createDoor({ kind: "sliding", hinge: "left" }),
-      ...kinds(
-        "window",
-        createWindow.KINDS,
-        (kind: createWindow.Kind): Archetype => createWindow({ kind }),
-      ),
-      ...kinds(
-        "switch",
-        createSwitch.KINDS,
-        (kind: createSwitch.Kind): Archetype => createSwitch({ kind }),
-      ),
-      ...kinds(
-        "control",
-        createControl.KINDS,
-        (kind: createControl.Kind): Archetype => createControl({ kind }),
-      ),
-      hatch: createHatch(),
-      beerTap: createBeerTap(),
-    }),
-    climbing: still({
-      stairs: createStairs({ steps: 8 }),
-      ramp: createRamp(),
-      ...kinds(
-        "ladder",
-        createLadder.KINDS,
-        (kind: createLadder.Kind): Archetype =>
-          createLadder({ kind, rungs: 8 }),
-      ),
-      ...kinds(
-        "bar",
-        createBar.KINDS,
-        (kind: createBar.Kind): Archetype => createBar({ kind }),
-      ),
-      ...kinds(
-        "wall",
-        createWall.KINDS,
-        (kind: createWall.Kind): Archetype => createWall({ kind }),
-      ),
-    }),
-    fixtures: still({
-      ...kinds(
-        "sanitary",
-        createSanitary.KINDS,
-        (kind: createSanitary.Kind): Archetype => createSanitary({ kind }),
-      ),
-      ...kinds(
-        "appliance",
-        createAppliance.KINDS,
-        (kind: createAppliance.Kind): Archetype => createAppliance({ kind }),
-      ),
-    }),
-    obstacles: still(
-      kinds(
-        "obstacle",
-        createObstacle.KINDS,
-        (kind: createObstacle.Kind): Archetype => createObstacle({ kind }),
-      ),
-    ),
-    street: still({
-      ...kinds(
-        "streetFixture",
-        createStreetFixture.KINDS,
-        (kind: createStreetFixture.Kind): Archetype =>
-          createStreetFixture({ kind }),
-      ),
-      ...kinds(
-        "bin",
-        createBin.KINDS,
-        (kind: createBin.Kind): Archetype => createBin({ kind }),
-      ),
-      ...kinds(
-        "gate",
-        createGate.KINDS,
-        (kind: createGate.Kind): Archetype => createGate({ kind }),
-      ),
-      ...kinds(
-        "machine",
-        createMachine.KINDS,
-        (kind: createMachine.Kind): Archetype => createMachine({ kind }),
-      ),
-      valve: createValve(),
-      elevator: createElevator(),
-      ...kinds(
-        "handhold",
-        createHandhold.KINDS,
-        (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
-      ),
-      cellFront: createCellFront(createCellFront.REFERENCE),
-      saloonDoor: createSaloonDoor(),
-      ...kinds(
-        "mirror",
-        createMirror.KINDS,
-        (kind: createMirror.Kind): Archetype => createMirror({ kind }),
-      ),
-      ...kinds(
-        "board",
-        createBoard.KINDS,
-        (kind: createBoard.Kind): Archetype => createBoard({ kind }),
-      ),
-    }),
+    ...archetypeCaptureFixtures(door),
     vehicles: still({
       ...kinds(
         "car",
@@ -479,66 +309,7 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createTree.Kind): Archetype => createTree({ kind }),
       ),
     }),
-    weapons: still({
-      ...kinds(
-        "handgun",
-        createHandgun.FRAMES,
-        (frame: createHandgun.Frame): Archetype => createHandgun({ frame }),
-      ),
-      ...kinds(
-        "holster",
-        createHolster.KINDS,
-        (kind: createHolster.Kind): Archetype => createHolster({ kind }),
-      ),
-      ...kinds(
-        "magazine",
-        createMagazine.KINDS,
-        (kind: createMagazine.Kind): Archetype => createMagazine({ kind }),
-      ),
-      ...kinds(
-        "projectile",
-        createProjectile.KINDS,
-        (kind: createProjectile.Kind): Archetype => createProjectile({ kind }),
-      ),
-      ...kinds(
-        "bow",
-        createBow.KINDS,
-        (kind: createBow.Kind): Archetype => createBow({ kind }),
-      ),
-      ...kinds(
-        "cannon",
-        createCannon.KINDS,
-        (kind: createCannon.Kind): Archetype => createCannon({ kind }),
-      ),
-      ...kinds(
-        "longGun",
-        createLongGun.KINDS,
-        (kind: createLongGun.Kind): Archetype => createLongGun({ kind }),
-      ),
-      ...kinds(
-        "club",
-        createClub.KINDS,
-        (kind: createClub.Kind): Archetype => createClub({ kind }),
-      ),
-    }),
-    blades: still({
-      ...kinds(
-        "sword",
-        createSword.KINDS,
-        (kind: createSword.Kind): Archetype => createSword({ kind }),
-      ),
-      ...kinds(
-        "shield",
-        createShield.KINDS,
-        (kind: createShield.Kind): Archetype => createShield({ kind }),
-      ),
-      ...kinds(
-        "polearm",
-        createPolearm.KINDS,
-        (kind: createPolearm.Kind): Archetype => createPolearm({ kind }),
-      ),
-      pell: createPell(),
-    }),
+    ...archetypeCaptureArmoury(),
     articulated: still({
       "door-open": door.articulate({ hinge: 70, latch: 45 }),
       "door-sliding-open": createDoor({ kind: "sliding" }).articulate({
