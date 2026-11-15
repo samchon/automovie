@@ -54,7 +54,8 @@ export namespace walkReachStance {
    * @evidence contracts/development/implementation.md#efficient-algorithms At most four rocker passes, one rounded rise and one pass over the sole's points.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `walkLeg` and `HumanFoot`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */ export function of(
+   */
+  export function of(
     body: IHumanBody,
     side: "left" | "right",
     foot: walkFoot.IFoot,
