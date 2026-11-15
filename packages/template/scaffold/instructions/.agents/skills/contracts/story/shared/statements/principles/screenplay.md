@@ -65,21 +65,22 @@ What each beat decides:
 3. The beat names who and what acts by their settings facts; on a short, by brief decisions, or by the standing state for a person or object only this scene shows.
 4. Each participant has an intent.
 5. The beat states its outcome and each body's reaction or consequence.
-6. Position, camera and sound appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
+6. Space, camera and sound entries appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
 7. The beats cover the whole running time with the continuous response of everyone present. No stretch is summarized, as in "they dance".
 
 What the modules can perform:
 
-8. Each action is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
-9. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-10. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man. Exception: a commissioned generated film's beat states the reactions it needs, such as a facial expression, and the generation prompt carries them.
+8. Each action, named in plain words, is one the installed motion vocabulary performs, alone or joined with others, or the one its cited research law describes.
+9. Each camera entry states what it changes in the terms the installed camera grammar performs. One that starts a new shot opens with `Cut to` and gives that shot's size and subject.
+10. An outcome of a studied practice, such as whether a strike lands or a lift holds, is one the cited outcome table permits for the written intents and the performers' settings. Such an outcome that the table forbids, or that no table covers, is undecided, not dramatic license.
+11. The beat asks nothing the adopted representation cannot show, such as a facial expression on a faceless polygon man. Exceptions: a commissioned generated film's beat states the reactions it needs, such as a facial expression, and the generation prompt carries them; a direct 3D film whose representation adopts a face states the expressions that face shows.
 
 Measurements:
 
-11. Every coordinate and offset is left to the research laws that determine it and the code that derives it.
-12. A beat may state its start second within its section as a plan, marked provisional like a duration estimate; the code derives the exact timing from the research laws.
-13. A true anchor is written exactly:
+12. Every coordinate and offset is left to the research laws that determine it and the code that derives it.
+13. A beat may state its start second within its section as a plan, marked provisional like a duration estimate; the code derives the exact timing from the research laws.
+14. A true anchor is written exactly:
     - a line, lyric or music event the picture syncs to;
     - a count the audience perceives;
     - a key event the edit lands on.
-14. No decision is expressed only as a number, because the number leaves its meaning undecided.
+15. No decision is expressed only as a number, because the number leaves its meaning undecided.

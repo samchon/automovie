@@ -1,6 +1,6 @@
 # Audio acquisition
 
-Acquisition finds a source for audio the video model does not make, checks its rights and adopts the take: a requested voice preview, [speech the video model cannot make](SKILL.md#generated-sound), the beds and score [film sound](film-sound.md) needs, and a [commissioned soundtrack](SKILL.md#commissioned-soundtrack).
+Acquisition finds a source for audio the video model does not make, checks its rights and adopts the take: a requested voice preview, [speech the video model cannot make](SKILL.md#generated-sound), a direct 3D film's dialogue, the beds and score [film sound](film-sound.md) needs, and a [commissioned soundtrack](SKILL.md#commissioned-soundtrack).
 
 Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/source-layout.md).
 
@@ -8,7 +8,9 @@ Audio generation and recording happen outside deterministic replay. Read the ins
 
 Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
 
-Check each asset's terms, every layer that [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither. Clone or design a voice after a real person only with that person's recorded consent.
+Check each asset's terms, every layer that [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither. A recorded song needs both a synchronization license for the composition and a master-use license for the recording. Clone or design a voice after a real person only with that person's recorded consent, and through the provider's own voice verification where it has one.
+
+Generate a scene's exchange in one request where the speech model takes several speakers, so the turns keep their timing together. Pin each voice with its accepted reference audio and record the seed and settings with every take, expecting variation between runs all the same.
 
 ## Take adoption
 
@@ -16,7 +18,7 @@ Keep accepted bytes and their record under [media records](../production/media-r
 
 Measure durations and trims from the accepted bytes, place dialogue, captions, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and have the user listen to the result.
 
-For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
+For a commissioned soundtrack, keep an accepted music take's tempo map beside it: it is the anchor the screenplay's music events and the scenes' timing cite. A cue sheet is made later, from the locked cut, under [assembly](../production/assembly.md#repair-and-delivery).
 
 ## Listening
 

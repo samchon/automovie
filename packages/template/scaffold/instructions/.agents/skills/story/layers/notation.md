@@ -2,7 +2,7 @@
 
 Unless the commission adopts another form, use conventional screenplay blocks: a scene heading such as `INT. LOCATION - DAY`, short present-tense action paragraphs of what can be seen or heard, and a consistent speaker cue before each dialogue block, as the [BBC format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) and [Final Draft elements](https://www.finaldraft.com/learn/screenplay-formatting-elements/) show. Break paragraphs at changes of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts where they would otherwise be ambiguous. Read the blocks as a continuous sequence, each entry following the preceding exit; final duration comes from the performed action, speech, pauses and edit.
 
-Music names its usage where it is stated: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, where visual means a source the picture shows.
+Music names its usage where it is stated: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, where visual means a source the picture shows, and `MT` main title and `ET` end title music.
 
 ## Identities
 
@@ -31,4 +31,7 @@ A screenplay scene file's first section opens with the scene's standing state as
 - Start: about 12 s into the section, provisional.
 - Space: the pair drifts from center stage toward the downstage wing.
 - Camera: slow push in from the standing two-shot.
+- Sound: the music drops to the strings alone.
 ```
+
+A `Camera` entry that starts a new shot opens with `Cut to`, and any other entry moves or reframes the running shot, so the edit inside a scene is read from the records. The standing state's camera default is the scene's first shot. A transition into the next scene other than a cut, such as `DISSOLVE TO:`, closes the scene file as a transition block.

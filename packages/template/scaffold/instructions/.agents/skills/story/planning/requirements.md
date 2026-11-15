@@ -20,8 +20,10 @@ Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new suc
 
 ## Factual basis
 
-A work that presents real people, events or a source text as true, such as an adaptation, biography, history or true story, records that factual basis and the periods, people and sources it covers as a requirement. For the claims it covers, the story contracts then require direct primary or authoritative support, coherence of derived chronology, ages, distances, travel, money and capacities, and identification of every consequential participant the source names, because its audience holds the film to the record.
+A work that presents real people, events or a source text as true, such as a biography, history or true story, records that factual basis and the periods, people and sources it covers as a requirement. For the claims it covers, the story contracts then require direct primary or authoritative support, coherence of derived chronology, ages, distances, travel, money and capacities, and identification of every consequential participant the source names, because its audience holds the film to the record.
 
-Without that requirement the work is fiction: its contracts check that world rules, characters, relationships and knowledge do not contradict one another, and only an external fact the body itself claims, such as a real sport's rule, needs its source.
+An adaptation of fiction records instead which of its source's events, people and center must survive and what may be cut, merged or refocused, as the reinterpretation boundaries of [intake](../document-layout.md#intake-of-existing-work).
+
+Without a factual basis the work is fiction: its contracts check that world rules, characters, relationships and knowledge do not contradict one another, and only an external fact the body itself claims, such as a real sport's rule, needs its source.
 
 Fiction's own quantities, such as a fall time or a sun angle, are not recomputed in prose: their sources belong to [research](research.md) and their values to the code and tests that realize them.

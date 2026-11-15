@@ -13,13 +13,13 @@ Choose the generator and write each image prompt under [image diffusion](diffusi
 
 ## Canon references
 
-For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them, have the user accept them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image, because each edit of an edit loses detail and drifts from the subject. A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
+For a generated film, choose the video model under [video](../video/SKILL.md) first, because its guide and terms decide the views. Generate each subject's canon references once, inspect them, have the user accept them and freeze them. Generate every other view, shot frame and variant from the frozen canon references, never from an earlier derived image alone, because each edit of an edit loses detail and drifts from the subject. A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
 
-Give each subject the number and form of references the video model's guide sets, within its size and aspect limits. Many models cap images per request rather than per subject, so make only the views the shots' subjects need. Where the guide sets none, give each character separate images, one person in each, on a plain background with flat light and the canonical wardrobe:
+Give each subject the number and form of references the video model's guide sets, within its size and aspect limits. Many models cap images per request rather than per subject, so make only the views the shots' subjects need. Where the guide sets none, give each character separate images, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
 
 - a front full-body view in a neutral pose;
 - a face close-up with a neutral expression;
-- three-quarter or profile views as the shots need.
+- three-quarter, profile or back views as the shots need.
 
 Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night.
 
@@ -35,11 +35,11 @@ A canon reference or a plate needs only a prompt, because it carries only appear
 
 A model that starts from a first frame takes the appearance from it while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the first frame of the request's hint at the video model's exact output size and aspect, cropping when the image model's sizes differ, and crop the canon references given beside it to the same aspect, because a reference's aspect can override the frame's.
+Render the first frame of the request's hint at the video model's exact output size and aspect, cropping when the image model's sizes differ, and crop the canon references given beside it to the same aspect, because some generators take the output's aspect from a reference rather than the frame.
 
 Generate the shot frame from that render and the canon references, prompted as canon references are: give the render to a hosted model as an input labeled "pose and camera reference only", and to an open model as the control images [dense channels](../motion/control-channels.md#dense-channels) sets. Then [overlay](../visual-debugging/comparison.md#reading-the-difference) the generated frame on the render and regenerate when silhouettes, horizon or facing move. Upscale a frame only in a mode that keeps detail rather than inventing it, and overlay it again.
 
-Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, or a subject that enters after the first frame.
+Make a last frame or a keyframe the same way, from the hint's frame there, where the model takes one and the shot needs it: a matched cut, an outcome a still-frame model must keep, a subject that enters after the first frame, or a look that a request taking the hint only as a reference must hold.
 
 Make a place's view at each camera angle a scene uses the same way: render the set's coarse form from that shot's camera and restyle it against the canon plate, so every angle keeps one layout.
 

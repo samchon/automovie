@@ -21,8 +21,8 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Object | The object it involves and how the body relates to it: holding it, using it, resting on it, carrying it or riding it |
 | Partner | The performer's role where two or more perform one action together, such as giver and receiver or leader and follower |
 | Manner | How it is performed: its effort, pace and count, and how long it is held |
-| Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
-| Timing | When it happens against other actions, partners, dialogue and beats |
+| Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood; everyone present breathes, and a listener's gaze follows the conversation unless the beat departs from it |
+| Timing | When it happens against other actions, partners, dialogue and beats; a reaction starts from the sight or sound that causes it, with the look the vocabulary delays by its studied reaction time |
 
 Write those decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, because the default is the studied value and a guessed number is not. A decision the beat left vague is made in the screenplay, under [concretization](../../story/correction/repair.md#concretization).
 
@@ -40,6 +40,8 @@ The vocabulary joins actions with a few operators:
 | Two or more people performing one action together, such as a handshake, a handover or a lift | A mutual join, which plans every role from one meeting |
 | An action on an object, such as sitting on it, gripping it, opening it or riding it | Attaching the action to the object's [affordance](../../development/entities.md#objects) |
 | An action timed to another's instant, a partner, a line of dialogue or a beat | A sync between the named instants |
+
+Start a following action inside the window where the previous one lets the next interrupt it, rather than letting each return to rest, because a person begins the next thing before finishing the last.
 
 ## Seed
 

@@ -27,18 +27,19 @@ Promises:
 1. Read without prior settings knowledge, the opening gives a reason to continue and timely understanding of people, relationships, pressure, time and space.
 2. The answer traces actual introductions and returns, the declared engine and rewards, every payoff's setup, risk or cost, and the longest gaps without promised satisfaction.
 3. The answer reports spans where the engine fails, rewards are unearned or worn out, or an eventual return cannot support the delay.
+4. The ending follows from the established choices and costs, and the answer names what the last event decides and why the work stops there. Exception: an open ending needs grounds, not total explanation or a compulsory epilogue.
 
 Time and variation:
 
-4. Scene, compression, pause, omission, simultaneity, habitual time, flashback, anticipation and retelling are compared against each span's pressure.
-5. For each departure from ordinary once-told forward sequence, the answer shows what removing it loses.
-6. The answer compares:
+5. Scene, compression, pause, omission, simultaneity, habitual time, flashback, anticipation and retelling are compared against each span's pressure.
+6. For each departure from ordinary once-told forward sequence, the answer shows what removing it loses.
+7. The answer compares:
     - openings and endings;
     - speech frequency and length;
     - who explains, evades, interrupts or stays silent;
     - the material occupying attention;
     - recurring image-sound functions.
-7. Treatments compare assigned exchanges; scripts and screenplay compare their realization.
-8. Each classification rests on all actual members, not samples or character summaries. Counts locate patterns; reading judges them.
-9. An owned uniform form, refrain, silence, narrow world or long frustration realizes its purpose.
-10. Central concerns develop through changed events, choices, relationships, places, images, sound and form, and motifs acquire force instead of appending or repeating an answer.
+8. Treatments compare assigned exchanges; scripts and screenplay compare their realization.
+9. Each classification rests on all actual members, not samples or character summaries. Counts locate patterns; reading judges them.
+10. An owned uniform form, refrain, silence, narrow world or long frustration realizes its purpose.
+11. Central concerns develop through changed events, choices, relationships, places, images, sound and form, and motifs acquire force instead of appending or repeating an answer.

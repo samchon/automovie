@@ -26,7 +26,7 @@ Production coverage:
 
 10. The settings, research, screenplay, source and, after delivery review, the acceptance record were inspected for:
     - an element kind no source folder owns;
-    - a behavior, camera or staging choice no research supports;
+    - a behavior, camera or staging choice that neither the installed packages, [shots and cuts](../../../../../story/layers/shots.md) nor a study supports;
     - a failure no contract asks about;
     - a skill, folder or instruction the work needed but lacked.
 11. Each gap found was answered in one of three ways:

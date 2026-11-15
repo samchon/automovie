@@ -19,7 +19,7 @@ Composite legible text, signs and logos in post from their own clean render, bec
 
 ## Upscaling
 
-Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md).
+Upscale only the chosen and repaired take, because repair tools often return a lower resolution. A generative upscaler invents detail, and a model's own high-resolution tier may be one, so check identity on stills after it, and measure the result against the [delivery profile](../production/project-context.md).
 
 ## Frame-rate conform
 

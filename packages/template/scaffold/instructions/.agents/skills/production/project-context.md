@@ -11,9 +11,9 @@ Record only the topics this project needs; a standalone asset needs no story, an
 | Overview | What is made, in a sentence or two, with its audience and intended experience, or on long work a link to the settings record that owns them |
 | Commissioned scope | The [commissioned output](SKILL.md#commissioned-outputs) and its boundary, with any authorized slice, deferred work and exclusions |
 | Representation | That people are polygon men and other subjects coarse forms, and which delivery, if any, selects which [detail option](../development/entities.md#detail) |
-| Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and, for a film with sound, its audio tracks, the loudness target and any stems or music-and-effects mix the release requires; for generated video, the disclosure its release owes |
-| Look | For a commissioned generated film, the film's look, as settings [cinematography](../story/layers/settings.md#records) lists its facets, or on long work a link to the settings record that owns it |
-| Adopted approach | The story route, required control channels, how the video model takes the hint and its default [adherence](../video/requests.md#adherence), the handle length at cuts, a generated film's frame-rate conform method and working color space, engine feedback, and how sound is made, with the reasons and limits that affect later choices |
+| Delivery profile | For each delivered video: dimensions, frame rate as an exact fraction such as 24000/1001, running time, scan, container and codec, color, caption tracks with their format and style guide, and, for a film with sound, its audio tracks and sample rate, the loudness target, measurement and true-peak limit, and any stems or music-and-effects mix the release requires; for generated video, the disclosure its release owes |
+| Look | For a commissioned generated or direct 3D film, the film's look, as settings [cinematography](../story/layers/settings.md#records) lists its facets, or on long work a link to the settings record that owns it |
+| Adopted approach | The story route, required control channels, how the video model takes the hint and its default [adherence](../video/requests.md#adherence), the handle length at cuts, a generated film's frame-rate conform method and working color space, a direct 3D film's exposure and tone curve, engine feedback, and how sound is made, with the reasons and limits that affect later choices |
 | Tools and operating constraints | Chosen providers or local tools, the video, image, 3D and motion generation models, the takes per video request, runtime, hardware, time, cost and rights limits, and approved setup |
 | Authority and unresolved choices | What the user fixed, what the agent decided within delegation and why, and what remains open |
 
@@ -27,7 +27,7 @@ Read it when starting or resuming work. Update it whenever a consequential choic
 
 ## Asking for operating choices
 
-Ask for an operating choice the user neither made nor delegated, such as the video model, a generated film's look, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. When the agent writes the story, running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
+Ask for an operating choice the user neither made nor delegated, such as the video model, a generated or direct 3D film's look, a cost limit or the container and codec, when the first task that uses it begins, and record the answer here. Asked earlier, the user answers before knowing what the choice changes. When the agent writes the story, running time, frame and the rest of the story are asked under [creative requirements](../story/planning/requirements.md#asking-the-user).
 
 ## How it controls the work
 

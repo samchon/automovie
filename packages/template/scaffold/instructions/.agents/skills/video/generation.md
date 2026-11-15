@@ -26,6 +26,8 @@ Map a take's decoded timestamps and time base into the film; a nominal frame rat
 
 Where an extension returns its input joined to the new part, place only the new part; an edit can return slightly shorter than its input, so measure it. A new take, trim or speed change requires rechecking its timing against its neighbors.
 
+Choose each take's in and out frames on its own consecutive frames, because a model keeps the hint's timing only approximately, and record them against the take's available frames in its [record](../production/media-records.md#records), so assembly can be repeated.
+
 ## Handoff
 
 Finish the accepted takes under [finishing](finishing.md), measure their actual timing and hand them with their source relationships and limits to [assembly](../production/assembly.md).
