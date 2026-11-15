@@ -1,5 +1,6 @@
 import {
   Vector3,
+  bracketedRoot,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
@@ -443,21 +444,25 @@ export namespace sit {
     const ahead = (t: number, back: number): number =>
       Vector3.dot(HumanBalance.support(body, lowered(t, back)).centre, heading);
     const stood: number = ahead(0, 0);
-    // The share is bisected until the socket's travel between its bounds,
-    // the share times the way back to the seat, is within the balance
-    // search's resolution (`HumanBalance.TOLERANCE`).
+    // The share at which the centre comes back to where it stood is found on
+    // the bracket from no travel to the natural one by the engine's bracketed
+    // root (`bracketedRoot`), until the socket's travel is within the balance
+    // search's resolution (`HumanBalance.TOLERANCE`): the share times the way
+    // back to the seat.
     const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
     const balanced = (t: number): number => {
       const across: number = minimumJerk(t / (0.7 * descent)).s;
-      if (ahead(t, across) >= stood) return across;
-      let lo: number = 0;
-      let hi: number = across;
-      while ((hi - lo) * way > HumanBalance.TOLERANCE) {
-        const mid: number = (lo + hi) / 2;
-        if (ahead(t, mid) >= stood) lo = mid;
-        else hi = mid;
-      }
-      return lo;
+      const behind = (back: number): number => ahead(t, back) - stood;
+      const far: number = behind(across);
+      if (far >= 0) return across;
+      const near: number = behind(0);
+      if (near <= 0 || way <= 0) return 0;
+      return bracketedRoot(
+        (back: number): number => (back === 0 ? near : back === across ? far : behind(back)),
+        0,
+        across,
+        HumanBalance.TOLERANCE / way,
+      );
     };
     const reaches: number[] = Array.from(
       { length: SHARES + 1 },
