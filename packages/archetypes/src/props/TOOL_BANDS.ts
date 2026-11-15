@@ -39,12 +39,7 @@ const PRECISION: string =
   "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a handle no maker read sizes";
 
 /**
- * The band of each free dimension of {@link createTool}, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and why it is its own file.
- * @evidence contracts/development/design.md#principled-representation One cited band per dimension per kind, in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read only as `createTool.BANDS`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band names its source; one not read at its primary source is provisional.
+ * The band of each free dimension of {@link createTool}, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. One cited band per dimension per kind, in metres and kilograms, read only as `createTool.BANDS`; every band names its source, and one not read at its primary source is provisional.
  */
 export const TOOL_BANDS: Readonly<
   Record<
