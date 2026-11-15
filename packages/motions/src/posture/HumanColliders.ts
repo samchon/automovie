@@ -267,6 +267,29 @@ export namespace HumanColliders {
     return out;
   }
 
+  /**
+   * Builds a body's placed colliders and every hull's faces once, when the
+   * body is prepared, so no action pays for them: the segments as placed
+   * (`placed`) and the faces of each hull (`physicalHullFaces`, which keeps
+   * them by the hull's points), a search cubic to quartic in a hull's
+   * points.
+   *
+   * @param body The body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is built, when and why.
+   * @evidence contracts/development/implementation.md#principled-implementation The placement and the hull faces every collider query reads, computed by their owners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the placed segments' shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is computed that a query would not.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The hull search runs once per hull's points, at preparation instead of inside the first action.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The placement is kept per body and the faces per points array by their owners, so every later query reads them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both are held by weak maps keyed by the body and the points, released with them.
+   */
+  export function prepare(body: IHumanBody): void {
+    for (const segment of sided(body))
+      for (const shape of segment.shapes)
+        if (shape.kind === "hull") physicalHullFaces(shape.points);
+  }
+
   /** A profile segment as placed: its bone, its offset from the bone's rest joint, its turn and its shapes. */
   interface ISided {
     /** The bone. */ bone: string;
