@@ -102,7 +102,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @throws {HumanRefusal} When no lean up to `LEAN` and no facing holds a drinking arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order of the search, its assumption, the admission, the choice, the measured defect and the refusal; the namespace states the candidates.
-   * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the posture a person drinks in (Murphy et al. 2011), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
+   * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and read on its displayed bones; the arm is admitted by the shoulder range healthy drinkers use (Alt Murphy et al. 2006), the least lean that admits one is taken so the vessel tips no more than the arm needs, and of the admitted facings the hand's tilt decides.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk of the leans (`least`), each lean one `trial`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The monotone admission the refinement relies on is stated here and read by the drinking signature spec, which checks that the lean a step below the returned one does not admit; with none admitted the law is refused, never given a raised arm.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most five coarse leans and two fine ones; each lean thirteen entry fits, then for its best one referred fit (its reference's entry fit is in the resolver's memory) and, with `after`, a referred fit in the drinking phase (two solves: its reference and the fit). Every 5-degree lean from 0 took up to thirteen leans.
@@ -218,7 +218,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * @throws {HumanRefusal} When no lean up to `LEAN` holds a drinking arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, what is sought, the order, the admission and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same posture (Murphy et al. 2011) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
+   * @evidence contracts/development/implementation.md#principled-implementation A kept grasp fixes the hand-to-vessel rotation, not the hand, so the same drink is admitted by the same shoulder range (Alt Murphy et al. 2006) however the vessel came to the hand; the vessel's point stays on the region as the stroke keeps it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One coarse-to-fine walk (`least`) of a goal, a screen and an admission per lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The admitted arm is the referred one the stroke shows; with none admitted the law is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per lean tried (at most five coarse and two fine): one entry fit, and for a lean that passes it one referred fit (its reference's entry fit in the resolver's memory) and, with `after`, the drinking phase's reference and referred fit, two solves.
@@ -447,7 +447,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
   function holds(arm: AutoMovieMotionHumanDrinkingArm.IArm): boolean {
     return AutoMovieMotionHumanDrinkingArm.drinks(arm) && arm.tilt <= LEAN_STEP;
   }
-  /** The candidate whose arm was raised least, for a refusal: its arm and where it was tried. */
+  /** The candidate whose shoulder was raised least past the drinking range, for a refusal: its arm and where it was tried. */
   interface INearest {
     /** Its fitted arm. */
     arm: AutoMovieMotionHumanDrinkingArm.IArm;
@@ -456,13 +456,21 @@ export namespace AutoMovieMotionHumanTouchDrink {
     at: string;
   }
 
-  /** The nearer of a candidate and the nearest so far: the one whose upper arm is raised less. */
+  /** How far an arm's shoulder lies past the drinking range, degrees: its flexion's or its abduction's excess, the greater. */
+  function past(arm: AutoMovieMotionHumanDrinkingArm.IArm): number {
+    return Math.max(
+      arm.flexion - AutoMovieMotionHumanDrinkingArm.FLEXION,
+      arm.abduction - AutoMovieMotionHumanDrinkingArm.ABDUCTION,
+    );
+  }
+
+  /** The nearer of a candidate and the nearest so far: the one whose shoulder lies less past the drinking range. */
   function near(
     nearest: INearest | undefined,
     arm: AutoMovieMotionHumanDrinkingArm.IArm,
     at: string,
   ): INearest {
-    return nearest === undefined || arm.elevation < nearest.arm.elevation
+    return nearest === undefined || past(arm) < past(nearest.arm)
       ? { arm, at }
       : nearest;
   }
@@ -473,12 +481,12 @@ export namespace AutoMovieMotionHumanTouchDrink {
     turn: string,
     closest: INearest,
   ): HumanRefusal {
-    const nearest: string = `the arm raised least, ${closest.at}, is raised ${closest.arm.elevation.toFixed(1)} degrees with the elbow ${(closest.arm.drop * 1000).toFixed(0)} mm below the shoulder and the forearm's twist ${closest.arm.room.toFixed(0)} degrees inside its range`;
+    const nearest: string = `the arm nearest, ${closest.at}, has the shoulder flexed ${closest.arm.flexion.toFixed(1)} and abducted ${closest.arm.abduction.toFixed(1)} degrees and the forearm's twist ${closest.arm.room.toFixed(0)} degrees inside its range`;
     return new HumanRefusal({
       kind: "reach",
       axis: "facing",
       value: side,
-      reason: `no lean of the held vessel toward the face up to ${LEAN} degrees ${turn} lets the ${side} arm bring it to the region as a person drinks, the upper arm raised at most ${AutoMovieMotionHumanDrinkingArm.ELEVATION} degrees, the elbow ${AutoMovieMotionHumanDrinkingArm.DROP * 1000} mm or more below the shoulder and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (${nearest})`,
+      reason: `no lean of the held vessel toward the face up to ${LEAN} degrees ${turn} lets the ${side} arm bring it to the region as a person drinks, the shoulder flexed at most ${AutoMovieMotionHumanDrinkingArm.FLEXION.toFixed(1)} and abducted at most ${AutoMovieMotionHumanDrinkingArm.ABDUCTION.toFixed(1)} degrees and the forearm's twist ${AutoMovieMotionHumanTouchLaid.MARGIN} degrees inside its range (${nearest})`,
       fix: "bring the vessel to a region nearer the chin, or take it by a grip the arm can drink from: picked up for its use (`pickUp` with `use`), by its side, or with the other hand",
     });
   }
