@@ -5,7 +5,7 @@ description: Defines the form each subject of a production takes, namely the pol
 
 # 3D modeling
 
-A production's film is a hint for video diffusion, which supplies the appearance, so each subject takes the least form that serves the hint. Read [project context](../production/project-context.md) first for the representation the production adopted.
+A motion hint guides video diffusion, which supplies the appearance, so each subject takes the least form that serves the hint; a [direct 3D film](../direct-film/SKILL.md) adds the detail its delivery shows. Read [project context](../production/project-context.md) first for the representation the production adopted.
 
 ## Default form
 

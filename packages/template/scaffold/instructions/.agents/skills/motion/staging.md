@@ -18,11 +18,16 @@ Each entity has one transform owner, so a clip, an attachment and a procedural d
 
 ## The view
 
-Cameras and lights are entities whose behavior follows the action: a camera frames subjects by relation, reframes as they move, follows motivated action and cuts where the screenplay's camera decisions and the cinematography research place it.
+Cameras and lights are entities whose behavior follows the action. A camera realizes the screenplay's shots and cuts, decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give follows [a defect or a gap](../development/reuse.md#a-defect-or-a-gap).
 
-Keep spatial relations, screen direction, eye lines and reveal timing; deliberate discontinuity is valid when it serves the experience.
+Light each scene from the sources its set and story day give, such as a window, a lamp or the sun, and keep each source's direction and color across the scene's cuts, because light that jumps at a cut reads as another place or time.
 
-Inspect subjects, contact and reaction at the delivered aspect and scale through the whole action, checking clipping, occlusion and competing detail in the actual camera frames rather than in subject bounds.
+Inspect every shot at the delivered aspect and scale through the whole action, in the actual camera frames rather than in subject bounds:
+
+- the subject the beat names reads at the decided size;
+- no head or limb is cut at a joint or crowded against the frame edge unless the shot intends it;
+- nothing clips or hides a contact or a reaction, and no detail competes with it;
+- screen direction, eyelines and light hold across each cut, apart from a discontinuity the screenplay decided.
 
 ## Segments and handoff
 

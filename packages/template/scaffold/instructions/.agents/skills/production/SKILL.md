@@ -30,6 +30,7 @@ Each task has one owner, in the [writing order](../story/workflow/SKILL.md):
 | Performance, staging, camera and the motion hint's control channels | [Motion](../motion/SKILL.md) |
 | Generated images | [Image](../image/SKILL.md) |
 | The video model, its prompts and its takes | [Video](../video/SKILL.md) |
+| A direct 3D film's detail, look, faces and render | [Direct film](../direct-film/SKILL.md) |
 | Sound | [Audio](../audio/SKILL.md) |
 | Judgment of the work | [Review](../review/SKILL.md) |
 

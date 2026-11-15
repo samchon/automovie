@@ -27,6 +27,7 @@ The instrument is the installed render package's inspection and capture core, wh
 | A control channel | [Control channels](../motion/control-channels.md) |
 | A generated image | [Image](../image/SKILL.md) |
 | A generated take | [Generation](../video/generation.md) |
+| A direct 3D film's picture | [Direct film](../direct-film/SKILL.md#what-to-look-for) |
 | A delivery | [Delivery review](../review/delivery-review.md) |
 
 When the instrument lacks a view, pass or selection the judgment needs, follow [installed packages](../development/reuse.md#installed-packages) rather than judging without it.

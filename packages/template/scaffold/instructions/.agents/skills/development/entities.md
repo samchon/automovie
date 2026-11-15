@@ -30,7 +30,7 @@ Every other subject is the simplest form that identifies it: a few primitives ch
 
 Identity, dimensions, pivots, attachments and controls stay independent of surface detail, so nothing a scene relies on moves when the surface changes.
 
-A fact the coarse form cannot show, such as a face, a fabric or a makeup state, is not modeled. It travels to the film through the record's canon references and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md). A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
+A fact the coarse form cannot show, such as a face, a fabric or a makeup state, is not modeled. It travels to a generated film through the record's canon references and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md), and to a direct 3D film through a detail option that shows it. A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
 
 ## Detail
 
@@ -40,7 +40,7 @@ Author motion, accept catalog cases and review segments at the default. The coar
 
 Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, deformation, visibility, timing and silhouette.
 
-[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified.
+[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns how a detailed form is made, rigged and verified, and [direct film](../direct-film/SKILL.md) what a direct 3D film's detail adds.
 
 ## Inspection and handoff
 
