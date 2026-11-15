@@ -357,7 +357,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   );
   add(
     "cellFront",
-    (seed?: number | string): Archetype => createCellFront({ bars: 12 }, seed),
+    (seed?: number | string): Archetype => createCellFront(createCellFront.REFERENCE, seed),
   );
   add(
     "elevator",

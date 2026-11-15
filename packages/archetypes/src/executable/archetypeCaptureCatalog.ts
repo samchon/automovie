@@ -413,7 +413,7 @@ export function archetypeCaptureCatalog(): Readonly<
         createHandhold.KINDS,
         (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
       ),
-      cellFront: createCellFront({ bars: 12 }),
+      cellFront: createCellFront(createCellFront.REFERENCE),
       saloonDoor: createSaloonDoor(),
       ...kinds(
         "mirror",

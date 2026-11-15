@@ -23,18 +23,20 @@ const CEILING: string =
 const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
 
 /**
- * A prison cell's barred front: upright round bars at the maker's centres from the floor to the cell's ceiling, braced by horizontal flat bars at the maker's spacing.
+ * A prison cell's barred front across the cell's width: upright round bars at the maker's centres from the floor to the cell's ceiling, braced by horizontal flat bars at the maker's spacing.
+ *
+ * The width is the cell's, a site dimension as a wall's run is, so the author gives it; the bars are as many as fit inside it at the maker's centres, centred on it, so no gap is wider than the centres allow. `createCellFront.REFERENCE` is the narrowest front the read code admits, for a caller that needs one without a cell.
  *
  * The grille stands in the `XY` plane on the floor, centred on the origin, the cell behind it toward `-Z`. `bar1` to `barN` are the upright bars from `-X`, each a bar along `+Y` a hand grips through the gaps.
  *
- * @param params The number of bars and any dimension the author fixes.
+ * @param params The cell's width and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cell front.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of bars that is not a whole number of at least 2.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a width too narrow for two bars at the drawn centres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the grille stands, which side the cell is and how its bars are named.
- * @evidence contracts/development/implementation.md#principled-implementation The maker's bar diameter and centres, its flat bars every 12 in, the rule's least ceiling for the grille's height.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the count, draw the dimensions, the uprights, the flat bars, then the contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation The maker's bar diameter and centres, its flat bars every 12 in, the rule's least ceiling for the grille's height; the bars as many as fit the cell's width.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, derive the bars from the width and admit them, the uprights, the flat bars, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No door, frame or ribbing; the flat bars' width is a construction estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms One rod per bar and one box per flat bar.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -44,23 +46,27 @@ export function createCellFront(
   params: createCellFront.IParams,
   seed?: number | string,
 ): Archetype<createCellFront.Affordance, createCellFront.Dimension> {
-  const bars: number = params.bars;
-  if (!Number.isInteger(bars) || bars < 2)
-    throw new ArchetypeRefusal({
-      kind: "parameter",
-      archetype: "cellFront",
-      axis: "bars",
-      value: bars,
-      feasible: null,
-      reason: `a cell front has at least 2 bars, a whole number, not ${bars}`,
-      fix: "give a whole number of bars, 2 or more",
-    });
   const d: Record<createCellFront.Dimension, number> = ArchetypeDraw.dimensions(
     "cellFront",
     createCellFront.BANDS,
     seed,
     params,
   );
+  // As many bars as fit inside the width at the drawn centres: the first bar's
+  // round section and then one centre per further bar.
+  const width: number = params.width;
+  const narrowest: number = d.spacing + d.diameter;
+  if (!Number.isFinite(width) || width < narrowest)
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype: "cellFront",
+      axis: "width",
+      value: width,
+      feasible: { kind: "range", minimum: narrowest, maximum: null, unit: "m" },
+      reason: `a cell front holds at least two bars at ${d.spacing} m centres, not in ${width} m`,
+      fix: `give the cell's width, at least ${narrowest} m`,
+    });
+  const bars: number = Math.floor((width - d.diameter) / d.spacing) + 1;
   const builder: ArchetypeBuilder<
     createCellFront.Affordance,
     createCellFront.Dimension
@@ -103,7 +109,7 @@ export function createCellFront(
  * Companion types and bands of {@link createCellFront}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, parameter and dimension states what it is; each band its source.
- * @evidence contracts/development/design.md#principled-representation The bar count as a parameter, as a ladder's rungs; one cited band per dimension.
+ * @evidence contracts/development/design.md#principled-representation The front's width a required site parameter, the cell's, as a wall's run is, the bar count derived from it; one cited band per dimension; the reference the narrowest width the read code admits.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The bars a hand grips (#3468 N16).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The mass per bar, which no source read gives, is provisional.
  */
@@ -129,14 +135,19 @@ export namespace createCellFront {
     | "flat"
     | "mass";
 
-  /** The parameters: the number of bars, and any free dimension fixed to a value inside its band. */
+  /** The parameters: the cell's width, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** How many upright bars, a whole number of at least 2. */
-    bars: number;
+    /** The cell's width the front closes, metres, a site dimension: the bars are as many as fit inside it. */
+    width: number;
 
     /** The model's id, unique in a scene; `cellFront` when absent. */
     id?: string;
   }
+
+  /** The narrowest front the read code admits, for a caller that needs one without a cell: the cell's door alone, 20 Ill. Adm. Code 720.160(b)(3)(A), the door "a minimum of 6'8" high and 2'4" wide" (https://www.law.cornell.edu/regulations/illinois/Ill-Admin-Code-tit-20-SS-720.160). */
+  export const REFERENCE: Readonly<IParams> = {
+    width: 2 * ArchetypeUnits.FOOT + 4 * ArchetypeUnits.INCH,
+  };
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
