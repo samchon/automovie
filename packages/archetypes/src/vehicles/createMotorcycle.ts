@@ -11,14 +11,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** A standard motorcycle read at its maker's page, and a second from a secondary source. */
-const STANDARD: string =
-  "Honda CB500 Hornet specifications (https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html) and the Yamaha MT-07 infobox (https://en.wikipedia.org/wiki/Yamaha_MT-07)";
-
-/** A step-through scooter read at its maker's page. */
-const SCOOTER: string =
-  "Honda PCX125 specifications (https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html); 760 and 764 mm seats of earlier years seen in its brochures";
-
 /** Rider-triangle positions no maker publishes. */
 const TRIANGLE: string =
   "the footrest's place under the seat is not published by either maker; a typical rider triangle, not read at a source";
@@ -30,14 +22,14 @@ const TRIANGLE: string =
  *
  * `rideMotorcycle` moves it along a course, leaning into the turns.
  *
- * @param params The kind and any dimension the author fixes.
+ * @param params The kind, its read model and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The machine.
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the machine's origin and front and where the rider's seat, hands and feet go.
  * @evidence contracts/development/implementation.md#principled-implementation Two wheels a wheelbase apart, a body box, a seat slab at the drawn seat height and a handlebar the drawn width across; a scooter's body stands under its seat only, with a front shield under the handlebar and the floorboard between the two, the step-through that tells it from a motorcycle; the foot contacts are `pedal` plates without travel, the kind a foot rests on.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the wheels and the body by kind, then the seat, the bar and the foot contacts, a scooter's with its shield.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the read machine whole (`MODELS`), draw the dimensions no maker states, the wheels and the body by kind, then the seat, the bar and the foot contacts, a scooter's with its shield.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No engine, tank or controls; the front wheel does not steer, since a single-track vehicle turns by its lean.
  * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -53,14 +45,26 @@ export function createMotorcycle(
     params.kind,
     createMotorcycle.KINDS,
   );
-  const d: Record<createMotorcycle.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  // One read machine of the kind, its figures laid over the dimensions no maker states.
+  const model: { figures: Readonly<Partial<Record<createMotorcycle.Dimension, number>>> } =
+    ArchetypeDraw.model<createMotorcycle.Model, createMotorcycle.Dimension>(
+      "motorcycle",
+      "model",
+      params.model,
+      createMotorcycle.MODELS[kind],
+      seed,
+      params,
+    );
+  const d: Record<createMotorcycle.Dimension, number> = {
+    ...ArchetypeDraw.dimensions(
       "motorcycle",
       createMotorcycle.BANDS[kind],
       seed,
       params,
       createMotorcycle.BANDS,
-    );
+    ),
+    ...model.figures,
+  } as Record<createMotorcycle.Dimension, number>;
   const builder: ArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
@@ -72,12 +76,13 @@ export function createMotorcycle(
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.wheelDiameter / 2;
+  const nose: number = d.frontWheelDiameter / 2;
   const half: number = d.wheelbase / 2;
-  for (const [name, z] of [
-    ["wheel-front", half],
-    ["wheel-rear", -half],
+  for (const [name, r, z] of [
+    ["wheel-front", nose, half],
+    ["wheel-rear", radius, -half],
   ] as const)
-    builder.rod(name, radius, v(-0.05, radius, z), v(0.05, radius, z), {
+    builder.rod(name, r, v(-0.05, r, z), v(0.05, r, z), {
       color: "#22262b",
       surface: "rubber",
     });
@@ -101,7 +106,7 @@ export function createMotorcycle(
   builder.rod(
     "fork",
     0.025,
-    v(0, radius, half),
+    v(0, nose, half),
     v(0, d.seatHeight + 0.2, half - 0.3),
     { color: "#8a8d91" },
   );
@@ -209,7 +214,7 @@ export function createMotorcycle(
  * Companion types and bands of {@link createMotorcycle}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, each kind's read machines whole, and a cited band for each dimension no maker states.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The rider's three contacts and their places (#3372): the seat's height, the bar's width, the foot rests.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A scooter has a floorboard and a motorcycle has pegs; neither declares the other's.
  */
@@ -248,7 +253,7 @@ export namespace createMotorcycle {
    * - `seatHeight`: the seat above the ground.
    * - `wheelbase`: axle to axle.
    * - `width`: the handlebar, end to end.
-   * - `wheelDiameter`: a wheel with its tyre.
+   * - `wheelDiameter`, `frontWheelDiameter`: the rear and the front wheel with its tyre.
    * - `gripDiameter`: the bar where the hands hold it.
    * - `footrestHeight`: the foot rests above the ground.
    * - `mass`: kerb mass, kilograms.
@@ -258,38 +263,67 @@ export namespace createMotorcycle {
     | "wheelbase"
     | "width"
     | "wheelDiameter"
+    | "frontWheelDiameter"
     | "gripDiameter"
     | "footrestHeight"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which machine. */
     kind: Kind;
+
+    /** Which read model of the kind; drawn from the seed when absent. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `motorcycle` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  /** The read machines: the Honda CB500 Hornet and the Yamaha MT-07, and the Honda PCX125 scooter. */
+  export type Model = "cb500Hornet" | "mt07" | "pcx125";
+
+  /**
+   * Each kind's read machines, each whole: its seat height, wheelbase, overall width (taken as the handlebar's), tyres' outer diameters (`ArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410, 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg; https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html); the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400, 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg; https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf); the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg; https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
+   */
+  export const MODELS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>
   > = {
     motorcycle: {
-      seatHeight: ArchetypeBand.metres(0.785, 0.805, STANDARD, true),
-      wheelbase: ArchetypeBand.metres(1.4, 1.41, STANDARD, true),
-      width: ArchetypeBand.metres(
-        0.745,
-        0.8,
-        `${STANDARD}: overall width, taken as the handlebar's`,
-        true,
-      ),
-      wheelDiameter: ArchetypeBand.metres(
-        0.6,
-        0.624,
-        `${STANDARD}: tyres 120/70 ZR17 and 160/60 ZR17, the outer diameter computed from the size`,
-        true,
-      ),
+      cb500Hornet: {
+        seatHeight: 0.785,
+        wheelbase: 1.41,
+        width: 0.8,
+        frontWheelDiameter: ArchetypeUnits.tyre(120, 70, 17),
+        wheelDiameter: ArchetypeUnits.tyre(160, 60, 17),
+        mass: 191,
+      },
+      mt07: {
+        seatHeight: 0.805,
+        wheelbase: 1.4,
+        width: 0.745,
+        frontWheelDiameter: ArchetypeUnits.tyre(120, 70, 17),
+        wheelDiameter: ArchetypeUnits.tyre(180, 55, 17),
+        mass: 182,
+      },
+    },
+    scooter: {
+      pcx125: {
+        seatHeight: 0.763,
+        wheelbase: 1.315,
+        width: 0.74,
+        frontWheelDiameter: ArchetypeUnits.tyre(110, 70, 14),
+        wheelDiameter: ArchetypeUnits.tyre(130, 70, 13),
+        mass: 134,
+      },
+    },
+  };
+
+  /** The band of each dimension no machine's maker states, by kind; the others are the read model's (`MODELS`). */
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = {
+    motorcycle: {
       gripDiameter: ArchetypeBand.metres(
         (7 / 8) * ArchetypeUnits.INCH,
         (7 / 8) * ArchetypeUnits.INCH,
@@ -297,22 +331,8 @@ export namespace createMotorcycle {
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
-      mass: ArchetypeBand.of("kg", 179, 191, STANDARD, true),
     },
     scooter: {
-      seatHeight: ArchetypeBand.metres(0.76, 0.764, SCOOTER),
-      wheelbase: ArchetypeBand.metres(1.315, 1.315, SCOOTER),
-      width: ArchetypeBand.metres(
-        0.74,
-        0.74,
-        `${SCOOTER}: overall width, taken as the handlebar's`,
-      ),
-      wheelDiameter: ArchetypeBand.metres(
-        0.51,
-        0.512,
-        `${SCOOTER}: tyres 110/70-14 and 130/70-13, the outer diameter computed from the size`,
-        true,
-      ),
       gripDiameter: ArchetypeBand.metres(
         (7 / 8) * ArchetypeUnits.INCH,
         (7 / 8) * ArchetypeUnits.INCH,
@@ -320,7 +340,6 @@ export namespace createMotorcycle {
         true,
       ),
       footrestHeight: ArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),
-      mass: ArchetypeBand.of("kg", 130, 134, SCOOTER),
     },
   };
 }

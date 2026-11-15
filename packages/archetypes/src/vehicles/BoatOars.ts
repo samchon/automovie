@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
 /**
@@ -24,6 +25,29 @@ export namespace BoatOars {
 
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
+
+  /**
+   * A rowboat's blades: those of the read oar (`BOAT_MODELS.oars`) whose length is nearest the oar Shaw and Tenney's rule gives the span, `RATIO` times the inboard, half the span plus `INBOARD`.
+   *
+   * @param span The span between the oarlocks, metres, the boat's beam.
+   * @returns The blade's length and width, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule and the choice.
+   * @evidence contracts/development/implementation.md#principled-implementation The boatbuilders' oar length from the span, then the read oar nearest it, whose blade is taken whole.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One length, one nearest.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A scan of eight oars.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function blade(span: number): { bladeLength: number; bladeWidth: number } {
+    const length: number = (span / 2 + INBOARD) * RATIO;
+    const oar: (typeof BOAT_MODELS.oars)[number] = BOAT_MODELS.oars.reduce(
+      (best: (typeof BOAT_MODELS.oars)[number], o: (typeof BOAT_MODELS.oars)[number]): (typeof BOAT_MODELS.oars)[number] =>
+        Math.abs(o.length - length) < Math.abs(best.length - length) ? o : best,
+    );
+    return { bladeLength: oar.bladeLength, bladeWidth: oar.bladeWidth };
+  }
 
   /** The oar's loom, metres: 44 mm, Fyne Boat Kits' standard oars (https://fyneboatkits.co.uk/accessories/oars/oars-standard). */
   export const LOOM: number = 0.044;

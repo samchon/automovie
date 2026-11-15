@@ -107,14 +107,20 @@ export namespace CarBody {
     d: Readonly<Partial<Record<createCar.Dimension, number>>>,
   ): ILayout {
     const wheelbase: number = d.wheelbase!;
+    // A model whose front overhang was read stands on it; any other takes the measured sedan's share of its overhangs.
     const front: number =
-      wheelbase / 2 + (d.length! - wheelbase) * createCar.OVERHANG;
+      d.frontOverhang === undefined
+        ? wheelbase / 2 + (d.length! - wheelbase) * createCar.OVERHANG
+        : wheelbase / 2 + d.frontOverhang;
     const rear: number = front - d.length!;
     const floor: number = kind === "van" ? d.sideStep! : createCar.FLOOR;
 
-    // The front doors from the front axle, the middle pillar their span behind, and the seating reference point just ahead of the pillar, as the measured sedans have them; a van and a pickup take the same cabin.
+    // The front doors from the front axle, the middle pillar their span behind, and the seating reference point just ahead of the pillar, as the measured sedans have them; a pickup takes the same cabin. A van's middle pillar is its bulkhead, which its sheet places by the load length ahead of the rear doors' inner face, their 0.04 m panel inside the rear: a van's cab partition is its B-pillar line, and no source read gives the Transit's front-door or B-pillar station (three searches recorded), so the station is derived from the bulkhead rather than borrowed from the sedans, whose door chain would put the pillar 75.6 mm behind the read bulkhead.
     const door: number = wheelbase / 2 - createCar.DOOR_AXLE;
-    const pillar: number = door - createCar.DOOR_SPAN;
+    const pillar: number =
+      kind === "van"
+        ? rear + 0.04 + d.loadLength!
+        : door - createCar.DOOR_SPAN;
     const sz: number = pillar + createCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
     const sx: number = side * createCar.OCCUPANT;
@@ -334,21 +340,21 @@ export namespace CarBody {
   }
 
   /**
-   * A van's bulkhead station, its face toward the cargo: behind the front seats' backrests, so the cargo space and the sliding door's opening begin there.
+   * A van's bulkhead station, its face toward the cargo: its middle pillar, behind the front seats' backrests, so the cargo space and the sliding door's opening begin there.
    *
    * @param l The layout.
    * @returns The station, metres along `+Z`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it places and why.
-   * @evidence contracts/development/implementation.md#principled-implementation The van's sheet gives the load length to the bulkhead, so the bulkhead's face stands that far ahead of the rear doors' inner face, their 0.04 m panel inside the rear.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression, read by this module and `CarCabin`.
+   * @evidence contracts/development/implementation.md#principled-implementation The van's sheet gives the load length to the bulkhead, so `layout` stands the bulkhead's face that far ahead of the rear doors' inner face and closes the cab there, its middle pillar.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the layout, by this module and `CarCabin`.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bulkhead(l: ILayout): number {
-    return l.rear + 0.04 + l.d.loadLength!;
+    return l.pillar;
   }
 }
 

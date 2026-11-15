@@ -268,12 +268,10 @@ export namespace createHorse {
       params.tack ?? "saddle",
       createHorse.TACKS,
     );
-    const free: Record<createHorse.Free, number> = ArchetypeDraw.dimensions(
-      profile.archetype,
-      profile.bands,
-      seed,
-      params,
-    );
+    const free: Record<createHorse.Free, number> = {
+      ...ArchetypeDraw.dimensions(profile.archetype, profile.bands, seed, params),
+      ...profile.figures,
+    } as Record<createHorse.Free, number>;
     const girth: number = profile.girth(free.withersHeight);
     const d: Record<createHorse.Dimension, number> = {
       ...free,
@@ -285,6 +283,7 @@ export namespace createHorse {
         params.seat,
         SEATS,
         seed,
+        params,
       ).figures.seatSize!,
       reinWidth: ArchetypeDraw.model<Rein, Dimension>(
         profile.archetype,
@@ -292,6 +291,7 @@ export namespace createHorse {
         params.rein,
         REINS,
         seed,
+        params,
       ).figures.reinWidth!,
     };
     const builder: ArchetypeBuilder<
@@ -454,8 +454,11 @@ export namespace createHorse {
     /** The model's name under each tack. */
     names: Readonly<Record<Tack, string>>;
 
-    /** The band of each free dimension. */
-    bands: Readonly<Record<Free, IArchetypeBand>>;
+    /** The band of each free dimension the read figures do not give. */
+    bands: Readonly<Partial<Record<Free, IArchetypeBand>>>;
+
+    /** A read model's figures, such as a pony breed's height at the withers and girth, laid over the drawn dimensions; absent for the horse, whose height is drawn. */
+    figures?: Readonly<Partial<Record<Dimension, number>>>;
 
     /** The heart girth at a height at the withers, metres. */
     girth: (withers: number) => number;

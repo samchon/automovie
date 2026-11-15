@@ -6,6 +6,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { CAR_BANDS } from "./CAR_BANDS";
+import { CAR_MODELS } from "./CAR_MODELS";
 import { CarBody } from "./CarBody";
 import { CarCabin } from "./CarCabin";
 import { CarRear } from "./CarRear";
@@ -15,15 +16,15 @@ import { CarRear } from "./CarRear";
  *
  * The car stands on its wheels with the middle of its wheelbase over the origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet, a roof on pillars and low door panels) so the seats and the controls show through it. The driver sits on the side `drive` names; `left` is `+X`. Everything a driver's and a passenger's act reads is an affordance: the doors' hinges with their handles and the openings behind them, the windows that slide down and the openings above them, the seats and their reclining backs, the steering wheel, the accelerator, the bonnet, and what the class carries behind the cabin: a boot's lid and `load` floor, a van's sliding door and `cargo` floor, a pickup's tailgate and `bed`. The front road wheels steer as the steering wheel turns, and every road wheel spins on a `knob` that `driveCar` turns by the distance covered. Getting in by a front door is `HumanTravelCar.getIn`; getting out, and in by a rear door, a sliding door or over a tailgate, has no motion law yet, so those openings serve static staging until one is written (#3498).
  *
- * @param params The class, the driving side and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The class, its read model and tyre, the driving side and any dimension the author fixes.
+ * @param seed The seed that picks the model and its tyre and draws every dimension left free inside its band; absent, the first model and tyre, and each dimension the middle of its band.
  * @returns The car.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the class lacks.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the class lacks, or a model or tyre the class does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
- * @evidence contracts/development/implementation.md#principled-implementation Draw the dimensions, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
+ * @evidence contracts/development/implementation.md#principled-implementation Pick one read model of the class whole and one of its tyres (`CAR_MODELS`, `ArchetypeDraw.model`), so no car mixes two models' figures, draw the remaining dimensions with the model's own ranges, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The body, the rear and the cabin are their own modules, each building from the one layout.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The accelerator and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17. The overhangs, belt line, windows, doors, firewall and both rows' seating reference points along the car are the 2018 and 2023 Honda Accords' NCAP measurements. Four values remain named provisional ones, each stating the source to read: the cabin floor's height (`FLOOR`, bounded below by the read rocker edge and above by the derived belt line), the H-point's height over the cushion (`HIP`), the rear seat's height and the door handles' place (`HANDLE`). The brake, the gear lever, the mirror and the driver's belt grip are not built until a source places them. Bands read at search results only are marked provisional.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The accelerator and the steering wheel are placed by SAE J1516's pedal plane and ball of foot and a sedan package's L6 and H17. The overhangs, belt line, windows, doors, firewall and both rows' seating reference points along the car are the 2018 and 2023 Honda Accords' NCAP measurements. Four values remain named provisional ones, each stating the source to read: the cabin floor's height (`FLOOR`, bounded below by the read rocker edge and above by the derived belt line), the H-point's height over the cushion (`HIP`), the rear seat's height and the door handles' place (`HANDLE`). The brake, the gear lever, the mirror and the driver's belt grip are not built until a source places them. Every class's cabin is these Accord pieces placed on its read model's overall size, so one car mixes makers; each model's own pillar and roof stations are queued to be read. A van's middle pillar is its read bulkhead, no source giving its door station (`CarBody.layout`). Bands read at search results only are marked provisional.
  * @evidence contracts/development/implementation.md#efficient-algorithms About sixty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -45,14 +46,38 @@ export function createCar(
     ]) === "left"
       ? 1
       : -1;
-  const d: Partial<Record<createCar.Dimension, number>> =
+  // One read model of the class, then one of the tyres it is offered on; its own ranges join the class's bands, and its figures are laid over the draw.
+  const model: { name: createCar.Model | undefined; figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
+    ArchetypeDraw.model<createCar.Model, createCar.Dimension>(
+      "car",
+      "model",
+      params.model,
+      CAR_MODELS.figures[kind],
+      seed,
+      params,
+    );
+  const fitted: { figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
+    ArchetypeDraw.model<createCar.Tyre, createCar.Dimension>(
+      "car",
+      "tyre",
+      params.tyre,
+      CAR_MODELS.tyres[model.name!],
+      seed,
+      params,
+    );
+  const drawn: Partial<Record<createCar.Dimension, number>> =
     ArchetypeDraw.dimensions(
       "car",
-      createCar.BANDS[kind],
+      { ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] },
       seed,
       params,
       createCar.BANDS,
     );
+  const d: Partial<Record<createCar.Dimension, number>> = {
+    ...drawn,
+    ...model.figures,
+    ...fitted.figures,
+  };
   const builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension> =
     new ArchetypeBuilder({
       archetype: "car",
@@ -267,6 +292,7 @@ export namespace createCar {
    * - `bootSwing`: a boot lid's or tailgate's widest opening, degrees; a sedan and a hatchback.
    * - `sideDoorWidth`, `sideDoorHeight`: a van's sliding door opening; `sideStep`: the step at it, the van's cabin floor; `cargoFloor`: the cargo floor's height; `loadLength`: the cargo floor's length to the bulkhead.
    * - `bedLength`, `bedWidth`, `bedDepth`, `bedFloor`: a pickup bed's floor length, inside width and depth, and its floor's height; its rail, at the floor's height plus its depth, is the pickup's belt line.
+   * - `frontOverhang`: the front of the car to the front wheels' centre, where a model's source gives it; otherwise the layout takes the measured sedan's share (`OVERHANG`).
    * - `mass`: kerb mass, kilograms.
    */
   export type Dimension =
@@ -294,12 +320,19 @@ export namespace createCar {
     | "bedWidth"
     | "bedDepth"
     | "bedFloor"
+    | "frontOverhang"
     | "mass";
 
   /** The parameters: the class, the driving side, and any free dimension the class has fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which class. */
     kind: Kind;
+
+    /** Which read model of the class; drawn from the seed when absent. */
+    model?: Model;
+
+    /** Which of the model's tyres, for a model offered on more than one; drawn from the seed when absent. */
+    tyre?: Tyre;
 
     /** Which side the driver sits on; left (`+X`) when absent. */
     drive?: "left" | "right";
@@ -308,7 +341,26 @@ export namespace createCar {
     id?: string;
   }
 
-  /** The band of each free dimension, by class. */
+  /** The read models: a hatchback's Jazz and Civic grades, a sedan's Corolla and Camry, a van's Transit Custom L1 and L2, a pickup's Ranger 4x2 and 4x4 (`CAR_MODELS`). */
+  export type Model =
+    | "jazzElegance"
+    | "jazzAdvance"
+    | "jazzCrosstarAdvance"
+    | "jazzAdvanceSport"
+    | "civicElegance"
+    | "civicSport"
+    | "civicAdvance"
+    | "corolla"
+    | "camry"
+    | "transitL1"
+    | "transitL2"
+    | "ranger4x2"
+    | "ranger4x4";
+
+  /** The tyres a model is offered on: the Transit's R16C and R17C, the Ranger's R17 and R18. */
+  export type Tyre = "r16c" | "r17c" | "r17" | "r18";
+
+  /** The band of each free dimension, by class; a model's own figures and ranges are `CAR_MODELS`'s. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = CAR_BANDS;
