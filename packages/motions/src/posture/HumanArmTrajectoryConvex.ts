@@ -5,21 +5,20 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmJacobian } from "./HumanArmJacobian";
+import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
-import type { HumanJacobian } from "./HumanJacobian";
 import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
 /**
  * The convex subproblem of an arms' trajectory about an iterate
  * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model
  * and each constraint linearised by the Jacobians of the probes, the
- * contact and the hand's rotation: each coordinate's segment twists
- * (`HumanArmJacobian`), every point moving with its segment as a rigid
- * body (Schulman et al. 2014, a pair's distance linearised along its normal
- * on the point Jacobian).
+ * contact and the hand's rotation (`HumanArmTrajectoryJacobians`): each
+ * coordinate's segment twists, every point moving with its segment as a
+ * rigid body (Schulman et al. 2014, a pair's distance linearised along its
+ * normal on the point Jacobian).
  */
 export namespace HumanArmTrajectoryConvex {
   /**
@@ -70,102 +69,9 @@ export namespace HumanArmTrajectoryConvex {
       }
     };
     const inner = (k: number): boolean => M.inner(c, k);
-    // The Jacobians of every probe, the contact and the hand's rotation:
-    // each coordinate's segment twists (`HumanArmJacobian`), every point
-    // moving with its segment as a rigid body, the segment's origin's motion
-    // plus its turn about it.
-    const jac: IJacobian[][] = x.map(
-      (arm: readonly (readonly number[])[], a: number): IJacobian[] =>
-        arm.map((v: readonly number[], k: number): IJacobian => {
-          const entry: IJacobian = {
-            probes: [],
-            pad: [],
-            hand: [],
-            move: 0,
-            segments: [],
-          };
-          if (!inner(k)) return entry;
-          const site: M.ISite | undefined = c.sites[a]![k];
-          const here: G.IPlaced = at.placed[a]![k]!;
-          const frame: G.IFrame = c.frames[a]![k]!;
-          entry.probes = here.probes.map((): IAutoMovieVector3[] => []);
-          const origins: Record<"upper" | "lower" | "hand", IAutoMovieVector3> =
-            { upper: here.shoulder, lower: here.elbow, hand: here.wrist };
-          const owners: ("upper" | "lower" | "hand")[] = here.probes.map(
-            (_, i: number): "upper" | "lower" | "hand" => {
-              const segment: M.Segment = G.segment(frame, i);
-              return segment === "upperArm"
-                ? "upper"
-                : segment === "lowerArm"
-                  ? "lower"
-                  : "hand";
-            },
-          );
-          for (const column of HumanArmJacobian.columns(
-            c.setups[a]!,
-            frame,
-            v,
-            here,
-            c.free[a]!,
-          )) {
-            const motion = (twist: HumanJacobian.ITwist): IMotion => ({
-              origin: Vector3.scale(twist.linear, 1000),
-              omega: twist.angular,
-            });
-            const frames: Record<"upper" | "lower" | "hand", IMotion> = {
-              upper: motion(column.upper),
-              lower: motion(column.lower),
-              hand: motion(column.hand),
-            };
-            entry.segments.push(frames);
-            here.probes.forEach(
-              ([p]: readonly [IAutoMovieVector3, number], i: number): void => {
-                const owner: "upper" | "lower" | "hand" = owners[i]!;
-                entry.probes[i]!.push(
-                  Vector3.add(
-                    frames[owner].origin,
-                    Vector3.scale(
-                      Vector3.cross(
-                        frames[owner].omega,
-                        Vector3.subtract(p, origins[owner]),
-                      ),
-                      1000,
-                    ),
-                  ),
-                );
-              },
-            );
-            if (site !== undefined) {
-              const pad: IAutoMovieVector3 = P.pad(here, site.contact);
-              entry.pad.push(
-                Vector3.add(
-                  frames.hand.origin,
-                  Vector3.scale(
-                    Vector3.cross(
-                      frames.hand.omega,
-                      Vector3.subtract(pad, here.wrist),
-                    ),
-                    1000,
-                  ),
-                ),
-              );
-              if (site.rotation !== undefined)
-                entry.hand.push(
-                  turned(site.rotation, here.hand, column.hand.angular),
-                );
-            }
-          }
-          for (const column of entry.probes)
-            entry.move = Math.max(
-              entry.move,
-              column.reduce(
-                (s: number, g: IAutoMovieVector3) => s + Vector3.length(g),
-                0,
-              ),
-            );
-          return entry;
-        }),
-    );
+    // The Jacobians of every probe, the contact and the hand's rotation
+    // (`HumanArmTrajectoryJacobians`).
+    const jac: J.IJacobian[][] = J.of(c, x, at);
     const along = (
       a: number,
       k: number,
@@ -180,34 +86,13 @@ export namespace HumanArmTrajectoryConvex {
       idx: parts.flatMap((part) => part.idx),
       coef: parts.flatMap((part) => part.coef),
     });
-    // The motion of a point riding one of an arm's segments, per coordinate:
-    // the segment's origin's motion plus its turn about it.
+    // The motion of a point riding one of an arm's segments, per coordinate.
     const carried = (
       b: number,
       k: number,
       owner: "upper" | "lower" | "hand",
       p: IAutoMovieVector3,
-    ): IAutoMovieVector3[] => {
-      const placed: G.IPlaced = at.placed[b]![k]!;
-      const origin: IAutoMovieVector3 =
-        owner === "upper"
-          ? placed.shoulder
-          : owner === "lower"
-            ? placed.elbow
-            : placed.wrist;
-      return jac[b]![k]!.segments.map(
-        (
-          column: Record<"upper" | "lower" | "hand", IMotion>,
-        ): IAutoMovieVector3 =>
-          Vector3.add(
-            column[owner].origin,
-            Vector3.scale(
-              Vector3.cross(column[owner].omega, Vector3.subtract(p, origin)),
-              1000,
-            ),
-          ),
-      );
-    };
+    ): IAutoMovieVector3[] => J.carried(at, jac, b, k, owner, p);
     // What a probe can move within the trust region, millimetres.
     const reach = (a: number, k: number): number =>
       inner(k) ? jac[a]![k]!.move * radius : 0;
@@ -586,56 +471,9 @@ export namespace HumanArmTrajectoryConvex {
   }
 }
 
-/**
- * The derivative of the hand's rotation vector off its site along the hand's
- * world turn per coordinate unit, degrees: the vector read with the hand
- * turned a hair either way about that turn, so the logarithm's own
- * curvature at a residual off the site is kept.
- */
-const turned = (
-  site: IAutoMovieQuaternion,
-  hand: IAutoMovieQuaternion,
-  omega: IAutoMovieVector3,
-): IAutoMovieVector3 => {
-  const size: number = Vector3.length(omega);
-  if (size === 0) return { x: 0, y: 0, z: 0 };
-  const axis: IAutoMovieVector3 = Vector3.scale(omega, 1 / size);
-  const read = (sign: number): IAutoMovieVector3 =>
-    P.rotationVector(
-      site,
-      Quaternion.multiply(
-        Quaternion.fromAxisAngle(axis, (sign * HAIR * size * 180) / Math.PI),
-        hand,
-      ),
-    );
-  return Vector3.scale(Vector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
-};
-
-/** The hair the hand is turned by, coordinate units. */
-const HAIR: number = 1e-4;
-
 /** A linear form in the subproblem's variables. */
 interface ILinear {
   idx: number[];
   coef: number[];
 }
 
-/** A segment's motion per coordinate unit: its origin's, millimetres, and its turn, radians. */
-interface IMotion {
-  origin: IAutoMovieVector3;
-  omega: IAutoMovieVector3;
-}
-
-/** Every Jacobian of one arm at one waypoint, a column per free coordinate. */
-interface IJacobian {
-  /** Each probe's motion, millimetres per coordinate unit. */
-  probes: IAutoMovieVector3[][];
-  /** The contact's motion, millimetres per coordinate unit. */
-  pad: IAutoMovieVector3[];
-  /** The hand's rotation vector off its site, degrees per coordinate unit. */
-  hand: IAutoMovieVector3[];
-  /** The farthest any probe moves per unit of every coordinate together, millimetres: what a trust region lets a probe travel. */
-  move: number;
-  /** Each segment's motion. */
-  segments: Record<"upper" | "lower" | "hand", IMotion>[];
-}

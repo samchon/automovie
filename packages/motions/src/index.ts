@@ -99,6 +99,7 @@ export * from "./everyday/approach";
 export * from "./everyday/bend";
 export * from "./everyday/brace";
 export * from "./everyday/crouch";
+export * from "./everyday/braceOnThigh";
 export * from "./everyday/kneel";
 export * from "./terrain/climbStairs";
 export * from "./throwing/catchObject";

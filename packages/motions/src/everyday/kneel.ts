@@ -22,7 +22,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
-import { crouch } from "./crouch";
+import { braceOnThigh } from "./braceOnThigh";
 import { kneelKeys } from "./kneelKeys";
 
 /**
@@ -435,7 +435,7 @@ export namespace kneel {
         ? 1
         : 1 - clock.progress(firstUp.name, "end", seconds));
     const hand = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
-      crouch.brace(
+      braceOnThigh(
         body,
         side,
         AutoMovieMotionHumanArm.angles(context.entry.pose, side),
