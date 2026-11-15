@@ -37,6 +37,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. A synced action without a latency starts exactly on the word.
  * 5. `HumanCue.orders` refuses a preparatory word before the film and one
  *    at or before an earlier word of execution, naming the words.
+ * 6. `HumanCue.instants` turns published instants (a ride's footfalls) into
+ *    a cue track in time order, keeping only the labels asked, and every
+ *    label when none is asked; `HumanCue.orders` names a warned word's
+ *    preparatory instant `${word}Caution` before it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves performances and reads each synced action's placed start; a latency drawn before the floor, a spread that ignores skill, a lead that ignores the caution, a draw that moves with other members, or a sync that moves without a latency is caught.
  * @evidence contracts/development/testing.md#independent-expectations The floor is the athletics false-start rule; the spread band is the ex-Gaussian's own moments at the reaction axis's ends; elite against militia and warned against unwarned are relations the law must keep whatever its constants.
@@ -229,5 +233,20 @@ export function test_human_motion_command_latency(): void {
           `${label}: the refusal does not name the word: ${String(error)}`,
         );
     }
+
+  // 6. Instants and the orders' names.
+  const ride: { instants: { label: string; seconds: number }[] } = {
+    instants: [
+      { label: "rightForeOn", seconds: 1.2 },
+      { label: "leftHindOn", seconds: 0.4 },
+      { label: "gaitChange", seconds: 0.9 },
+      { label: "rightForeOn", seconds: 0.6 },
+    ],
+  };
+  const fore: { name: string; seconds: number }[] = HumanCue.instants(ride, ["rightForeOn"]);
+  if (JSON.stringify(fore) !== JSON.stringify([{ name: "rightForeOn", seconds: 0.6 }, { name: "rightForeOn", seconds: 1.2 }])) findings.push(`instants kept ${JSON.stringify(fore)}`);
+  if (HumanCue.instants(ride).map((c: { seconds: number }): number => c.seconds).join() !== "0.4,0.6,0.9,1.2") findings.push("instants are not in time order");
+  const words: { name: string; seconds: number }[] = HumanCue.orders([{ word: "fire", at: 3, caution: 1 }]);
+  if (JSON.stringify(words) !== JSON.stringify([{ name: "fireCaution", seconds: 2 }, { name: "fire", seconds: 3 }])) findings.push(`orders gave ${JSON.stringify(words)}`);
   TestValidator.equals("a command's latency", findings, []);
 }
