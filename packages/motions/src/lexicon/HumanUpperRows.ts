@@ -288,4 +288,93 @@ export namespace HumanUpperRows {
       hold: "long",
     },
   );
+
+  /** A cheer: both open hands visit places above and beside the head, palms forward, for a beat. */
+  export const cheerHands = HumanActionRow.of("cheerHands", armPhrase, {
+    phrase: "visit",
+    side: "both",
+    target: { kind: "self", region: "crown" },
+    offset: { out: 0.3, up: 0.25, forward: 0.05 },
+    facing: { fingers: "up", palm: "forward" },
+    hold: "beat",
+  });
+
+  /** A beckon: the open hand held out ahead, palm up, draws in toward the chest and out again. */
+  export const beckonHand = HumanActionRow.of("beckonHand", armPhrase, {
+    phrase: "oscillate",
+    target: { kind: "self", region: "shoulderRight" },
+    offset: { out: 0, up: -0.2, forward: 0.5 },
+    swing: { out: 0, up: 0, forward: 0.08 },
+    cycles: 3,
+    facing: { fingers: "forward", palm: "up" },
+  });
+
+  /** Arms crossed: each hand visits the far arm before the chest, the forearms folded, and stays. */
+  export const armsCrossed = HumanActionRow.of("armsCrossed", armPhrase, {
+    phrase: "visit",
+    side: "both",
+    target: { kind: "self", region: "solarPlexus" },
+    offset: { out: -0.25, up: 0.05, forward: 0.12 },
+    shape: "relaxed",
+    facing: { fingers: "out", palm: "in" },
+    hold: "long",
+  });
+
+  /** Hands clasped behind: both palms meet behind the lower back and stay. */
+  export const handsClaspedBehind = HumanActionRow.of(
+    "handsClaspedBehind",
+    armPhrase,
+    {
+      phrase: "visit",
+      side: "both",
+      target: { kind: "self", region: "lowerBack" },
+      offset: { out: 0, up: -0.05, forward: -0.08 },
+      facing: { fingers: "down", palm: "in" },
+      hold: "long",
+    },
+  );
+
+  /** An arm at rest at the side: the relaxed hand visits a place beside the thigh, palm in, and stays. */
+  export const armAtSide = HumanActionRow.of("armAtSide", armPhrase, {
+    phrase: "visit",
+    target: { kind: "self", region: "hipRight" },
+    offset: { out: 0.12, up: -0.1, forward: 0 },
+    shape: "relaxed",
+    facing: { fingers: "down", palm: "in" },
+    hold: "long",
+  });
+
+  /** A pat: the flat palm bounces on the target, up and down. */
+  export const patOn = HumanActionRow.of("patOn", armPhrase, {
+    phrase: "oscillate",
+    surface: "palm",
+    shape: "flat",
+    swing: { out: 0, up: 0.05, forward: 0 },
+    cycles: 3,
+  });
+
+  /** A squeeze: the hand closes on the target and holds. */
+  export const squeezeOn = HumanActionRow.of("squeezeOn", armPhrase, {
+    phrase: "visit",
+    surface: "grip",
+    shape: "fist",
+    hold: "long",
+  });
+
+  /** A hold: the relaxed palm rests on the target and stays. */
+  export const holdOn = HumanActionRow.of("holdOn", armPhrase, {
+    phrase: "visit",
+    surface: "palm",
+    shape: "relaxed",
+    hold: "long",
+  });
+
+  /** A scratch: the fingertips oscillate in short strokes on the target. */
+  export const scratchOn = HumanActionRow.of("scratchOn", armPhrase, {
+    phrase: "oscillate",
+    surface: "indexTip",
+    shape: "relaxed",
+    swing: { out: 0, up: 0.02, forward: 0 },
+    cycles: 5,
+  });
 }

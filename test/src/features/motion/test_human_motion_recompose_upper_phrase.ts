@@ -40,15 +40,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    its hand moves out and back: the palm's lateral travel over the stroke
  *    exceeds a twentieth of the arm's length.
  * 4. The two-hand rows bring the palms together: clapHands at its
- *    stroke's start and handsTogetherFront at its stroke, within 10 mm.
- * 5. Every phrase publishes the standard instants `ready`, `strokeStart`,
+ *    stroke's start, handsTogetherFront and handsClaspedBehind at their
+ *    stroke, within 10 mm; handsClaspedBehind's palms lie behind the lower
+ *    back's surface.
+ * 5. The two-hand rows that part the hands place them as the act does at
+ *    their stroke: cheerHands raises both palms above the crown, one on
+ *    each side of the midline; armsCrossed puts each palm on the far side
+ *    of the midline.
+ * 6. Every phrase publishes the standard instants `ready`, `strokeStart`,
  *    `stroke`, `strokeEnd` and `relax` in time order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each row through the public chain on generated bodies and measures the displayed hand surfaces at the phrase's instants.
  * @evidence contracts/development/testing.md#independent-expectations The issue's 10 mm self-touch bound, the wave's raised and moving hand as the act describes it, and the phrase's standard instants (BML 1.0).
  * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, every row, visits, strokes and oscillations, self and open targets.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing polygon men; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the sweep and the four scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the sweep and the six scenarios with their bounds.
  */
 export function test_human_motion_recompose_upper_phrase(): void {
   const complaints: string[] = [];
@@ -66,6 +72,10 @@ export function test_human_motion_recompose_upper_phrase(): void {
     hammerStrokes: "thighFrontRight",
     sawStrokes: "thighFrontRight",
     stirStrokes: "thighFrontRight",
+    patOn: "thighFrontRight",
+    squeezeOn: "upperArmLeft",
+    holdOn: "upperArmLeft",
+    scratchOn: "thighFrontRight",
   };
   // The rows that move a held prop: the performer first picks up a stick.
   const held: readonly string[] = [
@@ -82,6 +92,7 @@ export function test_human_motion_recompose_upper_phrase(): void {
       handOnHip: ["hipRight", "palm"],
       chinOnFist: ["chin", "fist"],
       pressOn: ["chestRight", "palm"],
+      holdOn: ["upperArmLeft", "palm"],
     };
   for (const name of motionHumanBody.EXTREMES) {
     const body: IHumanBody = motionHumanBody(name);
@@ -192,28 +203,68 @@ export function test_human_motion_recompose_upper_phrase(): void {
               `${name} ${row.name}: the ${touch[1]} lies ${(miss * 1000).toFixed(1)} mm from ${touch[0]}, within 10 mm expected`,
             );
         }
-        if (row.name === "clapHands" || row.name === "handsTogetherFront") {
+        const palms = (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
+          const bones = p.bones("a", t);
+          return [
+            HumanHand.frame(body, bones, "left", "palm", "flat").point,
+            HumanHand.frame(body, bones, "right", "palm", "flat").point,
+          ];
+        };
+        if (
+          row.name === "clapHands" ||
+          row.name === "handsTogetherFront" ||
+          row.name === "handsClaspedBehind"
+        ) {
           const t: number =
             row.name === "clapHands" ? at("strokeStart") : at("stroke");
-          const bones = p.bones("a", t);
-          const left: IAutoMovieVector3 = HumanHand.frame(
-            body,
-            bones,
-            "left",
-            "palm",
-            "flat",
-          ).point;
-          const right: IAutoMovieVector3 = HumanHand.frame(
-            body,
-            bones,
-            "right",
-            "palm",
-            "flat",
-          ).point;
+          const [left, right] = palms(t);
           const apart: number = Vector3.length(Vector3.subtract(left, right));
           if (!(apart <= 0.01))
             complaints.push(
               `${name} ${row.name}: the palms lie ${(apart * 1000).toFixed(1)} mm apart when they meet, within 10 mm expected`,
+            );
+          if (row.name === "handsClaspedBehind") {
+            const back: resolveAutoMovieHumanoidSurfaces.IFrame =
+              body.surfaces.regions.lowerBack;
+            const surface: IAutoMovieVector3 =
+              resolveAutoMovieHumanoidSurfaces.place(
+                back,
+                p.bones("a", t).get(back.bone)!,
+              ).point;
+            for (const [hand, palm] of [
+              ["left", left],
+              ["right", right],
+            ] as const)
+              if (!(palm.z < surface.z))
+                complaints.push(
+                  `${name} handsClaspedBehind: the ${hand} palm lies ${((palm.z - surface.z) * 1000).toFixed(1)} mm ahead of the lower back, behind it expected`,
+                );
+          }
+        }
+        // The performer faces +z at yaw 0, so its right side is -x.
+        if (row.name === "cheerHands") {
+          const t: number = at("stroke");
+          const [left, right] = palms(t);
+          const crown: resolveAutoMovieHumanoidSurfaces.IFrame =
+            body.surfaces.regions.crown;
+          const top: number = resolveAutoMovieHumanoidSurfaces.place(
+            crown,
+            p.bones("a", t).get(crown.bone)!,
+          ).point.y;
+          if (!(left.y > top && right.y > top))
+            complaints.push(
+              `${name} cheerHands: the palms rise to ${(left.y * 1000).toFixed(0)} and ${(right.y * 1000).toFixed(0)} mm, above the crown's ${(top * 1000).toFixed(0)} mm expected`,
+            );
+          if (!(left.x > 0 && right.x < 0))
+            complaints.push(
+              `${name} cheerHands: the palms lie at x ${(left.x * 1000).toFixed(0)} and ${(right.x * 1000).toFixed(0)} mm, each on its own side expected`,
+            );
+        }
+        if (row.name === "armsCrossed") {
+          const [left, right] = palms(at("stroke"));
+          if (!(left.x < 0 && right.x > 0))
+            complaints.push(
+              `${name} armsCrossed: the palms lie at x ${(left.x * 1000).toFixed(0)} and ${(right.x * 1000).toFixed(0)} mm, each across the midline expected`,
             );
         }
         if (row.name === "waveHand") {
