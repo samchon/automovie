@@ -97,73 +97,73 @@ export function test_human_motion_haul_push_pull(): void {
     ];
     const leans: Partial<Record<string, number>> = {};
     for (const { way, label, height, ahead } of stagings) {
-        for (const load of ["light", "moderate", "heavy"] as const) {
-          const tag: string = `${name} ${way} at the ${label} ${load}`;
-          const to: IAutoMovieVector3 = {
-            x: 0,
-            y: 0,
-            z: way === "pull" ? -2 : 3,
-          };
-          const prop: IHumanProp = crate(ahead, height);
-          const built: HumanPerformance | string | HumanRefusal = perform(
-            body,
-            prop,
-            {
-              prop: "crate",
-              way,
-              to,
-              load,
-            },
-          );
-          if (!(built instanceof HumanPerformance)) {
-            complaints.push(`${tag}: expected to plan, got ${String(built)}`);
-            continue;
-          }
-          const read: IRead = readHaul(built, body, prop);
-          if (!(read.off <= 0.01))
-            complaints.push(
-              `${tag}: a fist lies ${mm(read.off)} mm from its handle, within 10 mm expected`,
-            );
-          if (!(read.slip <= 0.001))
-            complaints.push(
-              `${tag}: a handle moves ${mm(read.slip)} mm in its hand, within 1 mm expected`,
-            );
-          if (!(read.apart <= 0.01))
-            complaints.push(
-              `${tag}: a handle moves ${mm(read.apart)} mm apart from its fist, within 10 mm expected`,
-            );
-          const along: number = Math.sign(to.z) * read.moved.z;
-          if (!(along >= Math.abs(to.z) / 2))
-            complaints.push(
-              `${tag}: the load moves ${mm(along)} mm the way walked, at least ${mm(Math.abs(to.z) / 2)} mm expected`,
-            );
-          if (!(read.lowest >= -0.01))
-            complaints.push(
-              `${tag}: the load sinks ${mm(-read.lowest)} mm below where it stood, within 10 mm expected`,
-            );
-          const sign: number = way === "pull" ? -1 : 1;
-          if (!(sign * read.lean > 0))
-            complaints.push(
-              `${tag}: the trunk leans ${read.lean.toFixed(1)} degrees forward on average, ${way === "pull" ? "back" : "forward"} expected`,
-            );
-          leans[`${way} ${label} ${load}`] = read.lean;
-          const free: number = freeSpeed(body, to);
-          if (!(read.speed < free))
-            complaints.push(
-              `${tag}: the haul walks ${read.speed.toFixed(2)} m/s, slower than the free walk's ${free.toFixed(2)} m/s expected`,
-            );
+      for (const load of ["light", "moderate", "heavy"] as const) {
+        const tag: string = `${name} ${way} at the ${label} ${load}`;
+        const to: IAutoMovieVector3 = {
+          x: 0,
+          y: 0,
+          z: way === "pull" ? -2 : 3,
+        };
+        const prop: IHumanProp = crate(ahead, height);
+        const built: HumanPerformance | string | HumanRefusal = perform(
+          body,
+          prop,
+          {
+            prop: "crate",
+            way,
+            to,
+            load,
+          },
+        );
+        if (!(built instanceof HumanPerformance)) {
+          complaints.push(`${tag}: expected to plan, got ${String(built)}`);
+          continue;
         }
-        const light: number | undefined = leans[`${way} ${label} light`];
-        const heavy: number | undefined = leans[`${way} ${label} heavy`];
-        const sign: number = way === "pull" ? -1 : 1;
-        if (
-          light !== undefined &&
-          heavy !== undefined &&
-          !(sign * (heavy - light) > ROM_TOLERANCE)
-        )
+        const read: IRead = readHaul(built, body, prop);
+        if (!(read.off <= 0.01))
           complaints.push(
-            `${name} ${way} at the ${label}: a heavy load leans the trunk ${heavy.toFixed(2)} degrees against a light one's ${light.toFixed(2)}, further expected`,
+            `${tag}: a fist lies ${mm(read.off)} mm from its handle, within 10 mm expected`,
           );
+        if (!(read.slip <= 0.001))
+          complaints.push(
+            `${tag}: a handle moves ${mm(read.slip)} mm in its hand, within 1 mm expected`,
+          );
+        if (!(read.apart <= 0.01))
+          complaints.push(
+            `${tag}: a handle moves ${mm(read.apart)} mm apart from its fist, within 10 mm expected`,
+          );
+        const along: number = Math.sign(to.z) * read.moved.z;
+        if (!(along >= Math.abs(to.z) / 2))
+          complaints.push(
+            `${tag}: the load moves ${mm(along)} mm the way walked, at least ${mm(Math.abs(to.z) / 2)} mm expected`,
+          );
+        if (!(read.lowest >= -0.01))
+          complaints.push(
+            `${tag}: the load sinks ${mm(-read.lowest)} mm below where it stood, within 10 mm expected`,
+          );
+        const sign: number = way === "pull" ? -1 : 1;
+        if (!(sign * read.lean > 0))
+          complaints.push(
+            `${tag}: the trunk leans ${read.lean.toFixed(1)} degrees forward on average, ${way === "pull" ? "back" : "forward"} expected`,
+          );
+        leans[`${way} ${label} ${load}`] = read.lean;
+        const free: number = freeSpeed(body, to);
+        if (!(read.speed < free))
+          complaints.push(
+            `${tag}: the haul walks ${read.speed.toFixed(2)} m/s, slower than the free walk's ${free.toFixed(2)} m/s expected`,
+          );
+      }
+      const light: number | undefined = leans[`${way} ${label} light`];
+      const heavy: number | undefined = leans[`${way} ${label} heavy`];
+      const sign: number = way === "pull" ? -1 : 1;
+      if (
+        light !== undefined &&
+        heavy !== undefined &&
+        !(sign * (heavy - light) > ROM_TOLERANCE)
+      )
+        complaints.push(
+          `${name} ${way} at the ${label}: a heavy load leans the trunk ${heavy.toFixed(2)} degrees against a light one's ${light.toFixed(2)}, further expected`,
+        );
     }
     for (const [label, height] of Object.entries(heights)) {
       // A load that does not move.

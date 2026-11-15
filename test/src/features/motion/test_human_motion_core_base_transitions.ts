@@ -74,7 +74,9 @@ export function test_human_motion_core_base_transitions(): void {
         if (depth === "full" && heels === "flat") {
           try {
             declared(body, "crouch", { depth, heels, hold: 0.5 });
-            complaints.push(`${name} crouch full flat: planned, a refusal expected`);
+            complaints.push(
+              `${name} crouch full flat: planned, a refusal expected`,
+            );
           } catch (error) {
             if (
               !(

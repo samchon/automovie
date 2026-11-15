@@ -58,7 +58,9 @@ export function test_human_motion_core_site(): void {
   const counts: Record<string, number> = { a: 0, b: 0, c: 0 };
   const runs: number = 200;
   for (let i: number = 0; i < runs; i++) {
-    const random: IAutoMovieRandom = createAutoMovieRandom(i.toString(16).padStart(16, "0"));
+    const random: IAutoMovieRandom = createAutoMovieRandom(
+      i.toString(16).padStart(16, "0"),
+    );
     const id: string = AutoMovieMotionHumanSite.draw(sites, random, 0);
     if (counts[id] === undefined) complaints.push(`drew ${id}, not allowed`);
     else counts[id]! += 1;
