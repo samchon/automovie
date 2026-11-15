@@ -134,9 +134,6 @@ export namespace sit {
   /** Shares of the descent before the fall onto the seat at which the balanced travel back is solved. */
   export const SHARES: number = 8;
 
-  /** Bisection steps of the balanced travel back at a share. */
-  const BISECTIONS: number = 12;
-
 
   /**
    * Plan a sit.
@@ -399,7 +396,7 @@ export namespace sit {
       return minimumJerk((t - s.start) / (s.ready - s.start)).s;
     }
 
-    /** A posture whose fingers straighten from their own to lie flat as each hand comes to rest: the hand is shaped during its transport (Jeannerod 1984). */
+    /** A posture whose fingers straighten from their own to lie flat as each hand comes to rest: the hand is shaped during its transport (Jeannerod 1984). Interim: a blend to a named shape, until the resting hand's fingers are solved onto the surface they rest on as part of its contact. */
     function shaped(posture: IHumanPosture, t: number): IHumanPosture {
       const joints: IHumanPosture["joints"] = { ...posture.joints };
       for (const side of ["left", "right"] as const) {
@@ -442,12 +439,16 @@ export namespace sit {
     const ahead = (t: number, back: number): number =>
       Vector3.dot(HumanBalance.support(body, lowered(t, back)).centre, heading);
     const stood: number = ahead(0, 0);
+    // The share is bisected until the socket's travel between its bounds,
+    // the share times the way back to the seat, is within the balance
+    // search's resolution (`HumanBalance.TOLERANCE`).
+    const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
     const balanced = (t: number): number => {
       const across: number = minimumJerk(t / (0.7 * descent)).s;
       if (ahead(t, across) >= stood) return across;
       let lo: number = 0;
       let hi: number = across;
-      for (let i: number = 0; i < BISECTIONS; i++) {
+      while ((hi - lo) * way > HumanBalance.TOLERANCE) {
         const mid: number = (lo + hi) / 2;
         if (ahead(t, mid) >= stood) lo = mid;
         else hi = mid;

@@ -53,6 +53,9 @@ export namespace HumanBalance {
    */
   export const REACH: number = 1.3;
 
+  /** The resolution a balance search solves a shift or a travel to, metres: half a millimetre, under the millimetre the margins are reported in. */
+  export const TOLERANCE: number = 5e-4;
+
   /**
    * The hips' backward shift that puts the whole-body centre of mass over
    * the base of support along the heading, the feet where they bear
@@ -123,7 +126,7 @@ export namespace HumanBalance {
         if (e <= 0) {
           let lo: number = previous;
           let hi: number = back;
-          while (Math.abs(hi - lo) > 5e-4) {
+          while (Math.abs(hi - lo) > TOLERANCE) {
             const mid: number = (lo + hi) / 2;
             if (error(at(mid)) > 0) lo = mid;
             else hi = mid;
