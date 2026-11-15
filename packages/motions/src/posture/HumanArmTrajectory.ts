@@ -15,6 +15,7 @@ import { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
  * A performer's arms over one action as one trajectory optimisation, in
@@ -219,10 +220,14 @@ export namespace HumanArmTrajectory {
           arm[k + 1]!,
         );
         const dt: number = c.times[k + 1]! - c.times[k]!;
+        // The arm's own travel, against its base (`HumanArmTrajectoryTravel`):
+        // slowing the action slows nothing a carrier does.
         for (const p of T.SPEED) {
-          const d: IAutoMovieVector3 = Vector3.subtract(
-            next.probes[p]![0],
+          const d: IAutoMovieVector3 = V.step(
+            c.frames[a]![k]!,
+            c.frames[a]![k + 1]!,
             now.probes[p]![0],
+            next.probes[p]![0],
           );
           most = Math.max(most, Vector3.length(d) / (M.SPEED_LIMIT * dt));
         }

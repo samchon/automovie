@@ -10,6 +10,7 @@ import { HumanArmTrajectoryJacobians as J } from "./HumanArmTrajectoryJacobians"
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import type { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
 /**
@@ -129,12 +130,20 @@ export namespace HumanArmTrajectoryConvex {
           );
       for (let k: number = 0; k + 1 < n; ++k) {
         const dt: number = c.times[k + 1]! - c.times[k]!;
-        // Cartesian steps and speed.
+        // Cartesian steps and speed, read against the arm's own base
+        // (`HumanArmTrajectoryTravel`): the later point's share of a step's
+        // gradient is its world Jacobian, the earlier point's that Jacobian
+        // turned by the bases' relative turn.
+        const before: G.IFrame = c.frames[a]![k]!;
+        const after: G.IFrame = c.frames[a]![k + 1]!;
+        const turn: IAutoMovieQuaternion = V.back(before, after);
         for (const probe of c.still ? [] : new Set([...T.PATH, ...T.SPEED])) {
           const d: IAutoMovieVector3 = Vector3.scale(
-            Vector3.subtract(
-              at.placed[a]![k + 1]!.probes[probe]![0],
+            V.step(
+              before,
+              after,
               at.placed[a]![k]!.probes[probe]![0],
+              at.placed[a]![k + 1]!.probes[probe]![0],
             ),
             1000,
           );
@@ -144,7 +153,15 @@ export namespace HumanArmTrajectoryConvex {
                 ? [along(a, k + 1, jac[a]![k + 1]!.probes[probe]!, dir)]
                 : []),
               ...(inner(k)
-                ? [along(a, k, jac[a]![k]!.probes[probe]!, dir, -1)]
+                ? [
+                    along(
+                      a,
+                      k,
+                      jac[a]![k]!.probes[probe]!,
+                      Quaternion.rotateVector(turn, dir),
+                      -1,
+                    ),
+                  ]
                 : []),
             );
           if (T.PATH.includes(probe))

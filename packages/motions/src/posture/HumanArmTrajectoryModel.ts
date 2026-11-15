@@ -8,6 +8,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
 /**
  * The objective and the constraints of an arms' trajectory
@@ -317,27 +318,25 @@ export namespace HumanArmTrajectoryModel {
           }
       for (let k: number = 0; k + 1 < n; ++k) {
         here = k;
+        // A probe's travel is read against the arm's own base, so a carried
+        // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
+        const travel = (p: number): number =>
+          1000 *
+          Vector3.length(
+            V.step(
+              c.frames[a]![k]!,
+              c.frames[a]![k + 1]!,
+              placed[a]![k]!.probes[p]![0],
+              placed[a]![k + 1]!.probes[p]![0],
+            ),
+          );
         for (const p of c.still ? [] : T.PATH) {
-          const s: number =
-            1000 *
-            Vector3.length(
-              Vector3.subtract(
-                placed[a]![k + 1]!.probes[p]![0],
-                placed[a]![k]!.probes[p]![0],
-              ),
-            );
+          const s: number = travel(p);
           objective += T.LENGTH * s * s;
         }
         const dt: number = times[k + 1]! - times[k]!;
         for (const p of c.still ? [] : T.SPEED) {
-          const step: number =
-            1000 *
-            Vector3.length(
-              Vector3.subtract(
-                placed[a]![k + 1]!.probes[p]![0],
-                placed[a]![k]!.probes[p]![0],
-              ),
-            );
+          const step: number = travel(p);
           note(
             step - 1000 * SPEED_LIMIT * dt,
             "duration",
