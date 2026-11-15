@@ -35,7 +35,7 @@ Keeping positions and contacts copies the hint's timing, stiffness included. Rep
 
 ## Inputs
 
-Give each input one role, and state it in the prompt as [input roles](diffusion/prompts.md#input-roles) sets:
+Give each input one role, and state it in the prompt as [input roles](diffusion/prompts.md#input-roles) sets. Where speech carries a shot at the speech-and-reaction level, a model that takes the accepted dialogue audio, and a pose video where offered, such as [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2), can generate the shot from both. The inputs are:
 
 - the hint video or its channels, for motion and camera;
 - the canon references, for identity and appearance;

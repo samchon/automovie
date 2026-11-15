@@ -23,7 +23,9 @@ When the selected model or mode generates no sound, report it to the user with t
 
 Check the license of a video-to-audio or lip-sync model as [acquisition](acquisition.md#choose-a-source) checks any asset, because several are non-commercial or exclude regions.
 
-Once the takes are accepted, finish the film's sound across them under [film sound](film-sound.md): beds, score, re-synced faces and loudness.
+## Film sound
+
+Once the takes are finished, finish the film's sound across them under [film sound](film-sound.md): separation, beds, score and loudness.
 
 ## Voice preview
 

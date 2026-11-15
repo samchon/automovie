@@ -20,10 +20,10 @@ Ambience generated per request jumps at every cut, and music generated per reque
 
 ## Faces and dialogue
 
-The polygon man has no face, so a face's performance comes from the take. A take whose lips miss the accepted dialogue is re-synced to it as a picture repair under [finishing](../video/finishing.md#repair-part-of-a-take). Where speech carries a shot and the request's [adherence](../video/requests.md#adherence) is speech and reaction, a model that takes the dialogue audio, and a pose video where offered, can generate the shot from it.
+The polygon man has no face, so a face's performance comes from the take. A take whose lips miss the accepted dialogue is re-synced to it as a picture repair under [finishing](../video/finishing.md#repair-part-of-a-take).
 
 ## Loudness
 
 Every delivered film with sound has a loudness target in the [delivery profile](../production/project-context.md). Ask the user for the release's, such as -27 LKFS dialogue-gated for Netflix or -23 LUFS under EBU R128 for broadcast, and measure the mix as [sound effects](sound-effects.md#edit-with-picture) sets.
 
-Sources: [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4), [MERL cocktail-fork separation](https://github.com/merlresearch/cocktail-fork-separation), [Stable Audio 3](https://github.com/Stability-AI/stable-audio-3), [Wan2.2-S2V](https://github.com/Wan-Video/Wan2.2), [Netflix sound mix specification](https://backlothelp.netflix.com/hc/en-us/articles/360001794307-Netflix-Sound-Mix-Specifications-Best-Practices-v1-5), [EBU R128](https://tech.ebu.ch/publications/r128).
+Sources: [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4), [MERL cocktail-fork separation](https://github.com/merlresearch/cocktail-fork-separation), [Stable Audio 3](https://github.com/Stability-AI/stable-audio-3), [Netflix sound mix specification](https://backlothelp.netflix.com/hc/en-us/articles/360001794307-Netflix-Sound-Mix-Specifications-Best-Practices-v1-5), [EBU R128](https://tech.ebu.ch/publications/r128).
