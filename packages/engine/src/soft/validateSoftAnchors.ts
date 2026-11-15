@@ -1,0 +1,143 @@
+import {
+  IAutoMovieSoftAnchor,
+  IAutoMovieSoftAnchorPose,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftNamedState,
+} from "@automovie/interface";
+
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
+import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
+import { validateSoftBounded as bounded } from "./validateSoftBounded";
+import { validateSoftIdentity as identity } from "./validateSoftIdentity";
+import { validateSoftInteger as integer } from "./validateSoftInteger";
+import { validateSoftVector as vector } from "./validateSoftVector";
+
+/**
+ * Validate a soft-body domain's anchors and its named states: the anchors'
+ * budget, identities, particles (each held by one anchor only), static
+ * positions and moving bindings, then the states' budget, identities and the
+ * anchors each poses (declared, posed once, finite). Split from
+ * `validateSoftBodyDomain`, which calls it at the same place, so its
+ * findings keep their order.
+ *
+ * @param out The collector the domain's validation writes to.
+ * @param root The domain's path.
+ * @param domain The domain.
+ * @param count The lattice's particle count.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States every rule and why the findings keep their order.
+ * @evidence contracts/development/implementation.md#principled-implementation Budget, identity, integer-range and vector admission through the shared primitive validators, and reference joins through the anchors' identity set.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the anchors, then one over the states and their poses.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second anchor on a particle, a moving anchor with a static position, a blank binding identity and an undeclared or repeated pose are each reported, never repaired.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors plus state poses, with one identity set per collection.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared primitive validators.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The identity sets belong to the call; only the caller's collector is written.
+ */
+export const validateSoftAnchors: (
+  out: ViolationCollector,
+  root: string,
+  domain: IAutoMovieSoftBodyDomain,
+  count: number,
+) => void = (
+  out: ViolationCollector,
+  root: string,
+  domain: IAutoMovieSoftBodyDomain,
+  count: number,
+): void => {
+  bounded(
+    out,
+    `${root}.anchors`,
+    "anchors",
+    domain.anchors.length,
+    SOFT_MAX_ANCHORS,
+  );
+  const anchorIds: Set<string> = new Set<string>();
+  const anchoredParticles: Set<number> = new Set<number>();
+  domain.anchors.forEach(
+    (anchor: IAutoMovieSoftAnchor, index: number): void => {
+      const path: string = `${root}.anchors[${index}]`;
+      identity(out, path, "anchor", anchor.id, anchorIds);
+      integer(
+        out,
+        `${path}.particle`,
+        "anchor particle",
+        anchor.particle,
+        0,
+        count - 1,
+      );
+      if (anchoredParticles.has(anchor.particle))
+        out.push(
+          "type",
+          `${path}.particle`,
+          `particle ${anchor.particle} is already held by another anchor`,
+          anchor.particle,
+        );
+      anchoredParticles.add(anchor.particle);
+      if (anchor.position !== null)
+        vector(out, `${path}.position`, anchor.position);
+      if (anchor.binding !== undefined) {
+        if (anchor.position !== null)
+          out.push(
+            "type",
+            `${path}.position`,
+            "a moving anchor must leave its static world position null",
+            anchor.position,
+          );
+        if (anchor.binding.kind === "node") {
+          if (anchor.binding.node.trim().length === 0)
+            out.push(
+              "type",
+              `${path}.binding.node`,
+              "moving anchor node identity must be non-empty",
+              anchor.binding.node,
+            );
+        } else if (anchor.binding.actor.trim().length === 0)
+          out.push(
+            "type",
+            `${path}.binding.actor`,
+            "moving anchor actor identity must be non-empty",
+            anchor.binding.actor,
+          );
+        vector(out, `${path}.binding.offset`, anchor.binding.offset);
+      }
+    },
+  );
+
+  bounded(
+    out,
+    `${root}.states`,
+    "named states",
+    domain.states.length,
+    SOFT_MAX_STATES,
+  );
+  const stateIds: Set<string> = new Set<string>();
+  domain.states.forEach(
+    (state: IAutoMovieSoftNamedState, index: number): void => {
+      const path: string = `${root}.states[${index}]`;
+      identity(out, path, "named state", state.id, stateIds);
+      const posed: Set<string> = new Set<string>();
+      state.anchors.forEach(
+        (pose: IAutoMovieSoftAnchorPose, at: number): void => {
+          const posePath: string = `${path}.anchors[${at}]`;
+          if (!anchorIds.has(pose.anchor))
+            out.push(
+              "type",
+              `${posePath}.anchor`,
+              `named state cites anchor "${pose.anchor}", which the domain does not declare`,
+              pose.anchor,
+            );
+          else if (posed.has(pose.anchor))
+            out.push(
+              "type",
+              `${posePath}.anchor`,
+              `named state poses anchor "${pose.anchor}" twice`,
+              pose.anchor,
+            );
+          posed.add(pose.anchor);
+          vector(out, `${posePath}.position`, pose.position);
+        },
+      );
+    },
+  );
+};
