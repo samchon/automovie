@@ -11,6 +11,7 @@ import {
   createBench,
   createBicycle,
   createBin,
+  createBoard,
   createBoat,
   createBow,
   createBox,
@@ -62,6 +63,7 @@ import {
   createMachine,
   createMagazine,
   createMicrophone,
+  createMirror,
   createMobilityAid,
   createMotorcycle,
   createObstacle,
@@ -300,6 +302,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `handhold-${kind}`,
       (seed?: number | string): Archetype => createHandhold({ kind }, seed),
+    );
+  for (const kind of createMirror.KINDS)
+    add(
+      `mirror-${kind}`,
+      (seed?: number | string): Archetype => createMirror({ kind }, seed),
+    );
+  for (const kind of createBoard.KINDS)
+    add(
+      `board-${kind}`,
+      (seed?: number | string): Archetype => createBoard({ kind }, seed),
     );
   add(
     "cellFront",

@@ -19,10 +19,7 @@ const GRILLE: string =
 const CEILING: string =
   "6VAC15-81-660: cells with \"a ceiling height no less than eight feet\" (https://law.lis.virginia.gov/admincode/title6/agency15/chapter81/section660/); the model takes the least, the grille floor to ceiling";
 
-/** The most bars a cell front may have here. */
-const BARS: number = 60;
-
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `flat`, a horizontal flat bar's width across the grille. */
+/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `flat`, a horizontal flat bar's width across the grille; the grip contacts are the round bars only. */
 const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
 
 /**
@@ -33,7 +30,7 @@ const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
  * @param params The number of bars and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The cell front.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of bars that is not a whole number from 2 to 60.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or a number of bars that is not a whole number of at least 2.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the grille stands, which side the cell is and how its bars are named.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's bar diameter and centres, its flat bars every 12 in, the rule's least ceiling for the grille's height.
@@ -48,15 +45,15 @@ export function createCellFront(
   seed?: number | string,
 ): Archetype<createCellFront.Affordance, createCellFront.Dimension> {
   const bars: number = params.bars;
-  if (!Number.isInteger(bars) || bars < 2 || bars > BARS)
+  if (!Number.isInteger(bars) || bars < 2)
     throw new ArchetypeRefusal({
       kind: "parameter",
       archetype: "cellFront",
       axis: "bars",
       value: bars,
-      feasible: { kind: "range", minimum: 2, maximum: BARS, unit: "" },
-      reason: `a cell front has 2 to ${BARS} bars, not ${bars}`,
-      fix: "give a whole number of bars",
+      feasible: null,
+      reason: `a cell front has at least 2 bars, a whole number, not ${bars}`,
+      fix: "give a whole number of bars, 2 or more",
     });
   const d: Record<createCellFront.Dimension, number> = ArchetypeDraw.dimensions(
     "cellFront",
@@ -134,7 +131,7 @@ export namespace createCellFront {
 
   /** The parameters: the number of bars, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** How many upright bars, 2 to 60. */
+    /** How many upright bars, a whole number of at least 2. */
     bars: number;
 
     /** The model's id, unique in a scene; `cellFront` when absent. */

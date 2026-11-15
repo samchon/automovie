@@ -5,6 +5,7 @@ import {
   createAppliance,
   createBar,
   createBin,
+  createBoard,
   createCellFront,
   createDoor,
   createElevator,
@@ -12,6 +13,7 @@ import {
   createHandhold,
   createLadder,
   createMachine,
+  createMirror,
   createObstacle,
   createRamp,
   createSanitary,
@@ -394,6 +396,16 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
       ),
       cellFront: createCellFront({ bars: 12 }),
+      ...kinds(
+        "mirror",
+        createMirror.KINDS,
+        (kind: createMirror.Kind): Archetype => createMirror({ kind }),
+      ),
+      ...kinds(
+        "board",
+        createBoard.KINDS,
+        (kind: createBoard.Kind): Archetype => createBoard({ kind }),
+      ),
     }),
     vehicles: still({
       ...kinds(

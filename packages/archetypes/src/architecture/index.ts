@@ -1,6 +1,7 @@
 export * from "./createAppliance";
 export * from "./createBar";
 export * from "./createBin";
+export * from "./createBoard";
 export * from "./createCellFront";
 export * from "./createDoor";
 export * from "./createElevator";
@@ -9,6 +10,7 @@ export * from "./createHandhold";
 export * from "./createKerb";
 export * from "./createLadder";
 export * from "./createMachine";
+export * from "./createMirror";
 export * from "./createObstacle";
 export * from "./createRamp";
 export * from "./createSanitary";
