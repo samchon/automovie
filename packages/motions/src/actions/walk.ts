@@ -6,6 +6,7 @@ import type {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanFormation } from "../ensemble/IHumanFormation";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -23,12 +24,14 @@ import { runStance } from "./runStance";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkCarriage } from "./walkCarriage";
+import { walkCadence } from "./walkCadence";
 import { walkClear } from "./walkClear";
 import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
+import { walkStation } from "./walkStation";
 import { walkSteps } from "./walkSteps";
 import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
@@ -149,6 +152,22 @@ export namespace walk {
 
     /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
     elbows?: import("../law/HumanUnit").HumanUnit.Bounded<0, 30, 0, "degrees">;
+
+    /**
+     * A formation slot to keep (`walkStation.resolve`): the walk goes along
+     * the slot's way from its start until the station ends, `to` and `via`
+     * read from it, and a gait that draws its own tempo keeps station by
+     * speed matching (`walkStation`) while a cadenced one lets its step give.
+     * No station when absent.
+     */
+    station?: IHumanFormation.IStation;
+
+    /**
+     * A beat track to keep step to (`walkCadence`): each heel strike answers
+     * a beat, by the walker's drawn asynchrony and phase correction, when the
+     * walker locks to it; no beat when absent.
+     */
+    cadence?: walkCadence.ICadence;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
@@ -198,9 +217,12 @@ export namespace walk {
    * @returns The plan.
    */
   export function locomote(
-    context: IHumanActionContext<Omit<IParams, "pace">>,
+    given: IHumanActionContext<Omit<IParams, "pace">>,
     gait: IGait,
   ): IHumanActionPlan {
+    // A station is a way read from its slot; without one the context is as given.
+    const context: IHumanActionContext<Omit<IParams, "pace">> =
+      walkStation.resolve(given);
     const body: IHumanBody = context.body;
     const m = body.measure;
     const l: number = m.hipHeight;
@@ -269,11 +291,22 @@ export namespace walk {
     ): walkFoot.IFoot => {
       const from: walkFoot.IEnd = at(side, swing.off);
       const before: walkFoot.IEnd = at(side, swing.off - TICK);
+      const earlier: walkFoot.IEnd = at(side, swing.off - 2 * TICK);
       return walkFoot.swing(body, side, {
         from,
         velocity: Vector3.scale(
           Vector3.subtract(from.ankle, before.ankle),
           1 / TICK,
+        ),
+        // The ankle's acceleration at toe-off, the backward second difference
+        // of the same samples, so the swing leaves the stance with its
+        // position, rate and acceleration (`walkFoot.swing`).
+        acceleration: Vector3.scale(
+          Vector3.add(
+            Vector3.subtract(from.ankle, Vector3.scale(before.ankle, 2)),
+            earlier.ankle,
+          ),
+          1 / (TICK * TICK),
         ),
         rates: {
           pitch:
@@ -482,7 +515,21 @@ export namespace walk {
     };
 
     // The steps are taken a little unevenly in time: a stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3 % of healthy adults, Hausdorff; the mapping onto skill is provisional), which each step's own draw carries as the square root of two times that, two independent steps making a stride.
-    return walkTempo(
+    // On a beat track, a walker who locks lands each strike by its phase correction toward its beat.
+    const entrained: number[] | null =
+      context.params.cadence === undefined
+        ? null
+        : walkCadence.strikes(
+            context,
+            context.params.cadence,
+            walkTempo.strikes(planned),
+          );
+    const tempo: IHumanActionPlan = entrained !== null
+      ? walkTempo.entrained(
+          planned,
+          entrained.map((s: number): number => s - context.start),
+        )
+      : walkTempo(
       planned,
       (index: number): number =>
         Math.SQRT2 *
@@ -491,5 +538,16 @@ export namespace walk {
         HumanSkill.normal(context.random("stride"), 2 * index),
       gait.limp,
     );
+
+    // A gait that draws its own tempo keeps its station by matching the slot's speed; a cadenced one keeps its count.
+    const station: IHumanFormation.IStation | undefined = context.params.station;
+    return station === undefined || gait.called === true
+      ? tempo
+      : walkStation(
+          tempo,
+          walkStation.point(context, station),
+          context.start,
+          walkStation.rests(context, station),
+        );
   }
 }

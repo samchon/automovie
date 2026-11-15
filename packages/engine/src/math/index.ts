@@ -30,6 +30,7 @@ export * from "./addPositiveModulo";
 export * from "./adjacentAutoMovieFloat64";
 export * from "./admitAutoMovieQuadraticProgram";
 export * from "./assembleAutoMovieQuadraticProgram";
+export * from "./assignAutoMovieMinimumCost";
 export * from "./bracketedBisection";
 export * from "./bracketedRoot";
 export * from "./clampAutoMovieUnitInterval";

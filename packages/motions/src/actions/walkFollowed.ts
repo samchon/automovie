@@ -1,8 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
-import type { IHumanPosture } from "../posture/IHumanPosture";
-import { walkPaced } from "./walkPaced";
+import { walkStation } from "./walkStation";
 
 /**
  * A stepping plan walked at the speed of a person followed: while they
@@ -38,8 +37,8 @@ import { walkPaced } from "./walkPaced";
  * @returns The plan at the person's speed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law and its source, what it does not do and how the way is finished, how the person and the plan are read, and what the first pass leaves out.
- * @evidence contracts/development/implementation.md#principled-implementation The cited first-order law is integrated exactly over each `TICK` for a speed held constant in it; the travelled length is turned into the plan's second through the plan's own way, and `walkPaced` plays the plan on that clock. Speed is continuous where the plan's own clock takes over because that clock starts at the rate the speed has there.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the person's speeds, read the plan's way, integrate the two phases into one clock, hand it to `walkPaced`.
+ * @evidence contracts/development/implementation.md#principled-implementation The person is a moving point, and the speed-matching law that keeps station on one is `walkStation`'s, its one owner.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `walkStation` with the person's root as the point.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `GAIN` is the cited fit; `FASTEST`, `STEP`, `TICK`, `SAMPLES` and `CRUISE` are named and provisional. The speed bound is the gait's, not a clamp of what was asked: the follower then arrives late, as stated.
  * @evidence contracts/development/implementation.md#efficient-algorithms One reading of the person's root every `STEP` seconds and `SAMPLES` postures of the plan, once per plan; each tick of the clock costs one search of the way.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache beyond the readings and the clock built once.
@@ -51,100 +50,8 @@ export function walkFollowed(
   from: number,
   rests: number,
 ): IHumanActionPlan {
-  // The person's speed between readings.
-  const count: number = Math.ceil((rests - from) / walkFollowed.STEP);
-  if (count < 1) return plan;
-  const step: number = (rests - from) / count;
-  const speeds: number[] = [];
-  let before: IAutoMovieVector3 = where(from);
-  let led: number = 0;
-  for (let i: number = 1; i <= count; ++i) {
-    const now: IAutoMovieVector3 = where(from + i * step);
-    const length: number = Math.hypot(now.x - before.x, now.z - before.z);
-    speeds.push(length / step);
-    led += length;
-    before = now;
-  }
-
-  // The plan's way: the length its root has travelled at each sampled second.
-  const seconds: number[] = [0];
-  const lengths: number[] = [0];
-  let root: IHumanPosture["root"] = plan.posture(0).root;
-  for (let i: number = 1; i <= walkFollowed.SAMPLES; ++i) {
-    const t: number = (i / walkFollowed.SAMPLES) * plan.duration;
-    const now: IHumanPosture["root"] = plan.posture(t).root;
-    seconds.push(t);
-    lengths.push(lengths[i - 1]! + Math.hypot(now.x - root.x, now.z - root.z));
-    root = now;
-  }
-  const whole: number = lengths[walkFollowed.SAMPLES]!;
-  if (led < 1e-6 || whole < 1e-9) return plan;
-  const rate = (i: number): number =>
-    (lengths[i]! - lengths[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
-  const rates: number[] = seconds
-    .slice(1)
-    .map((_: number, i: number): number => rate(i + 1));
-  const cruise: number = [...rates].sort(
-    (a: number, b: number): number => a - b,
-  )[rates.length >> 1]!;
-
-  // Where the plan's own stop begins: the end of its last stretch at cruising speed.
-  let brake: number = whole;
-  for (let i: number = walkFollowed.SAMPLES; i >= 1; --i)
-    if (rates[i - 1]! >= walkFollowed.CRUISE * cruise) {
-      brake = lengths[i]!;
-      break;
-    }
-  const secondAt = (length: number): number => {
-    let i: number = 1;
-    while (i < walkFollowed.SAMPLES && lengths[i]! < length) ++i;
-    const span: number = lengths[i]! - lengths[i - 1]!;
-    return (
-      seconds[i - 1]! +
-      (span < 1e-12 ? 0 : Math.min(1, (length - lengths[i - 1]!) / span)) *
-        (seconds[i]! - seconds[i - 1]!)
-    );
-  };
-
-  // The follower's speed follows the person's while they walk and the plan's own stop has not begun.
-  const tick: number = walkFollowed.TICK;
-  const decay: number = Math.exp(-walkFollowed.GAIN * tick);
-  const clock: number[] = [0];
-  let travelled: number = 0;
-  let speed: number = 0;
-  for (
-    let t: number = 0;
-    t < rests - from && travelled < brake && clock.length < walkFollowed.TICKS;
-    t += tick
-  ) {
-    const asked: number = Math.min(
-      walkFollowed.FASTEST * cruise,
-      speeds[Math.min(count - 1, Math.floor(t / step))]!,
-    );
-    travelled +=
-      asked * tick + ((speed - asked) * (1 - decay)) / walkFollowed.GAIN;
-    speed = asked + (speed - asked) * decay;
-    clock.push(secondAt(Math.min(travelled, whole)));
-  }
-
-  // The rest of the way on the plan's own clock, its rate coming to 1 from the rate the speed has here.
-  let planned: number = clock[clock.length - 1]!;
-  const own: number =
-    rates[
-      Math.min(
-        walkFollowed.SAMPLES - 1,
-        Math.floor((planned / plan.duration) * walkFollowed.SAMPLES),
-      )
-    ]!;
-  let pace: number =
-    own > 1e-6 ? Math.min(walkFollowed.FASTEST, speed / own) : 1;
-  while (planned < plan.duration - 1e-9 && clock.length < walkFollowed.TICKS) {
-    planned += tick + ((pace - 1) * (1 - decay)) / walkFollowed.GAIN;
-    pace = 1 + (pace - 1) * decay;
-    clock.push(Math.min(plan.duration, planned));
-  }
-  clock[clock.length - 1] = plan.duration;
-  return walkPaced(plan, tick, clock);
+  // The person is a moving point, kept station on by the one speed-matching law.
+  return walkStation(plan, where, from, rests);
 }
 
 /**
@@ -156,24 +63,24 @@ export function walkFollowed(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Named and marked, not numbers inside the function.
  */
 export namespace walkFollowed {
-  /** The gain of speed matching, per second: a follower's acceleration per unit of speed difference from the leader (Rio, Rhea and Warren 2014, J Vis 14(2):4, Table 1). */
-  export const GAIN: number = 1.87;
+  /** The gain of speed matching, per second (`walkStation.GAIN`). */
+  export const GAIN: number = walkStation.GAIN;
 
-  /** The most of its gait's cruising speed a follower matches (provisional: beyond it a walk would have to become a run). */
-  export const FASTEST: number = 1.5;
+  /** The most of its gait's cruising speed a follower matches (`walkStation.FASTEST`). */
+  export const FASTEST: number = walkStation.FASTEST;
 
-  /** Seconds between two readings of the followed person's place (provisional: a few readings a step). */
-  export const STEP: number = 0.25;
+  /** Seconds between two readings of the followed person's place (`walkStation.STEP`). */
+  export const STEP: number = walkStation.STEP;
 
-  /** Seconds between two entries of the follower's clock (provisional: under a film frame). */
-  export const TICK: number = 0.02;
+  /** Seconds between two entries of the follower's clock (`walkStation.TICK`). */
+  export const TICK: number = walkStation.TICK;
 
-  /** The most entries a clock holds: ten minutes of them, which no shot reaches. */
-  export const TICKS: number = 30_000;
+  /** The most entries a clock holds (`walkStation.TICKS`). */
+  export const TICKS: number = walkStation.TICKS;
 
-  /** Instants of the plan at which its way is read (provisional: a step is read several times over). */
-  export const SAMPLES: number = 80;
+  /** Instants of the plan at which its way is read (`walkStation.SAMPLES`). */
+  export const SAMPLES: number = walkStation.SAMPLES;
 
-  /** The share of its cruising speed under which the plan is taken to be stopping (provisional). */
-  export const CRUISE: number = 0.9;
+  /** The share of its cruising speed under which the plan is taken to be stopping (`walkStation.CRUISE`). */
+  export const CRUISE: number = walkStation.CRUISE;
 }

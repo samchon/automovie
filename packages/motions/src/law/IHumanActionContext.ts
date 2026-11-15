@@ -12,6 +12,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
+import type { HumanAttribute } from "../ensemble/HumanAttribute";
 import type { HumanObstacle } from "../perform/HumanObstacle";
 import type { IHumanProp } from "../perform/IHumanProp";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -44,6 +45,13 @@ export interface IHumanActionContext<P = object> {
 
   /** The performer's resolved skill. */
   skill: HumanSkill.ISkill;
+
+  /**
+   * The performer's group attributes (`IHumanPerformer.attributes`), each in
+   * [0, 1]; an attribute absent, or the whole record absent, reads as its
+   * neutral value.
+   */
+  attributes?: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
 
   /** The state the action is entered from. */
   entry: IHumanEntryState;
@@ -220,6 +228,18 @@ export namespace IHumanActionContext {
      * @throws {HumanRefusal} A `participant` refusal when the second lies after their last placed action while later actions of theirs are still to be placed.
      */
     root(seconds: number): IRoot;
+
+    /**
+     * Their placed posture at a film second, read under the same rule as
+     * `root`: the posture their active action writes, before layers and the
+     * decaying offset of a cut. An instanced member displays it moved
+     * (`instance`). Absent where the context reads no placed path.
+     *
+     * @param seconds Film seconds.
+     * @returns Their posture.
+     * @throws {HumanRefusal} As `root` does.
+     */
+    posture?(seconds: number): IHumanPosture;
   }
 
   /** Another performer of a meeting and the role they take in it. */

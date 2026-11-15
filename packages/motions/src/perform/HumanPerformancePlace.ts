@@ -168,6 +168,9 @@ export namespace HumanPerformancePlace {
       body,
       params: params as never,
       skill: person.skill,
+      ...(person.performer.attributes === undefined
+        ? {}
+        : { attributes: person.performer.attributes }),
       entry,
       start,
       ...(over && previous !== undefined
@@ -267,6 +270,16 @@ export namespace HumanPerformancePlace {
               seconds,
               named(subject, "performer"),
             ),
+          posture: (seconds: number): IHumanPosture => {
+            // The same rule as the root's: refused beyond what is placed.
+            HumanPerformanceRead.root(
+              self,
+              subject,
+              seconds,
+              named(subject, "performer"),
+            );
+            return HumanPerformanceRead.posture(self, subject, seconds);
+          },
         };
       },
       prop: (subject: string): IHumanActionContext.IProp => {

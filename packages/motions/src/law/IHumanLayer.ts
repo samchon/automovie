@@ -7,6 +7,7 @@ import type {
 import type { HumanActionKey } from "../HumanActionKey";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import type { HumanAttribute } from "../ensemble/HumanAttribute";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -153,6 +154,9 @@ export namespace IHumanLayer {
 
     /** The person's skill. */
     skill: HumanSkill.ISkill;
+
+    /** The person's group attributes (`IHumanPerformer.attributes`), each in [0, 1]; absent reads as neutral. */
+    attributes?: Readonly<Partial<Record<HumanAttribute.Name, number>>>;
 
     /**
      * A target's world point and outward normal at a film second.

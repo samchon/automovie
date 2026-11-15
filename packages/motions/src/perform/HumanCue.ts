@@ -45,6 +45,101 @@ export namespace HumanCue {
     phrases?: readonly number[];
   }
 
+  /** One spoken command. */
+  export interface IOrder {
+    /** The command's name, which names its instants: the word of execution is `${word}` and the preparatory word `${word}Caution`. */
+    word: string;
+
+    /** Film second of the word of execution. */
+    at: number;
+
+    /** Seconds the preparatory word comes before it; none when absent. */
+    caution?: number;
+  }
+
+  /** Published instants of something that is not an action: a ride's footfalls, a band's cues. */
+  export interface IInstants {
+    /** The instants, each named, at film seconds. */
+    instants: readonly { label: string; seconds: number }[];
+  }
+
+  /**
+   * A command track: for each order its preparatory word `${word}Caution`
+   * (when it has one) and its word of execution `${word}`, in film order, as
+   * drill gives a command in two parts (US Army TC 3-21.5: the preparatory
+   * command and the command of execution). An action synced to a word with
+   * `latency: "reaction"` is warned when its preparatory word is on the
+   * track. The words' seconds are the screenplay's.
+   *
+   * @param orders The commands, in the order given.
+   * @returns The track.
+   * @throws {Error} When a second is not finite, a caution is not positive, a preparatory word falls before the film, or one falls at or before an earlier command's word of execution, naming both words.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the event names, the source of the two parts and the refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Each order contributes its two instants; the track is ordered by time, an earlier order first on a tie.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation pass, one loop and one stable sort.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No interval between words is invented: every second is given.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants, which are few.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   */
+  export function orders(
+    orders: readonly IOrder[],
+  ): resolveAutoMovieSchedule.ICue[] {
+    const track: { cue: resolveAutoMovieSchedule.ICue; order: number }[] = [];
+    const sorted: IOrder[] = [...orders].sort((a: IOrder, b: IOrder): number => a.at - b.at);
+    sorted.forEach((order: IOrder, i: number): void => {
+      if (!Number.isFinite(order.at))
+        throw new Error(`The command ${order.word} has no finite second`);
+      if (order.caution !== undefined) {
+        if (!(order.caution > 0))
+          throw new Error(`The command ${order.word}'s preparatory word comes ${order.caution} s before it; a positive time is expected`);
+        const caution: number = order.at - order.caution;
+        if (caution < 0)
+          throw new Error(`The command ${order.word}'s preparatory word would fall at ${caution.toFixed(3)} s, before the film begins`);
+        const before: IOrder | undefined = sorted[i - 1];
+        if (before !== undefined && caution <= before.at)
+          throw new Error(
+            `The command ${order.word}'s preparatory word at ${caution.toFixed(3)} s falls at or before the word of execution of ${before.word} at ${before.at.toFixed(3)} s`,
+          );
+        track.push({ cue: { name: `${order.word}Caution`, seconds: caution }, order: 2 * i });
+      }
+      track.push({ cue: { name: order.word, seconds: order.at }, order: 2 * i + 1 });
+    });
+    return track
+      .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
+      .map((each) => each.cue);
+  }
+
+  /**
+   * A cue track from published instants, read structurally from anything
+   * that publishes them (an archetype ride's footfalls and gait changes), so
+   * a rider, a squadron's riders or a dancer read a support's or a band's
+   * events without this package importing what publishes them.
+   *
+   * @param source What publishes the instants.
+   * @param names The labels to keep; every label when absent.
+   * @returns The track, in time order, each instant under its label.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and why it is read structurally.
+   * @evidence contracts/development/implementation.md#principled-implementation Each kept instant becomes a cue of its label; the track is ordered by time, the source's order kept on a tie.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter, one map and one stable sort.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is renamed or invented.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A sort of the instants.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new list and retains nothing.
+   */
+  export function instants(
+    source: IInstants,
+    names?: readonly string[],
+  ): resolveAutoMovieSchedule.ICue[] {
+    return source.instants
+      .filter((i: { label: string }): boolean => names === undefined || names.includes(i.label))
+      .map((i: { label: string; seconds: number }, order: number) => ({ cue: { name: i.label, seconds: i.seconds }, order }))
+      .sort((a, b) => a.cue.seconds - b.cue.seconds || a.order - b.order)
+      .map((each) => each.cue);
+  }
+
   /**
    * A beat track: `beat` at every beat and `downbeat` at the first beat of
    * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and

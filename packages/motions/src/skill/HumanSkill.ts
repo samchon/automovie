@@ -179,6 +179,29 @@ export namespace HumanSkill {
   }
 
   /**
+   * One simple reaction time drawn from an ex-Gaussian, the distribution
+   * simple reaction times follow (Hohle 1965): a normal of mean `mu` and
+   * standard deviation `sigma` plus an exponential of mean `tau`. The family
+   * that reacts gives the three parameters from its own studies (orienting in
+   * `look`, combat in `StrikingSkill`, a command's answer in
+   * `HumanResponse`) and its own floor or band; this is the one draw.
+   *
+   * @param law The ex-Gaussian's parameters, seconds.
+   * @param random The stream; reads indices `index`, `index + 1` (the normal) and `index + 2` (the exponential).
+   * @param index The first index read; 0 when absent.
+   * @returns Seconds, unfloored.
+   */
+  export function reaction(
+    law: { mu: number; sigma: number; tau: number },
+    random: IAutoMovieRandom,
+    index: number = 0,
+  ): number {
+    const exponential: number =
+      -law.tau * Math.log(Math.max(1e-12, 1 - random.float(index + 2)));
+    return law.mu + law.sigma * normal(random, index) + exponential;
+  }
+
+  /**
    * Endpoint scatter of a movement, metres: impulse variability's
    * `k D / T` (Schmidt et al. 1979), k from 0.012 s (novice) to 0.004 s
    * (elite) on the `path` axis, provisional constants.

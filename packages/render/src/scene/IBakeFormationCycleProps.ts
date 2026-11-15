@@ -1,6 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import type * as THREE from "three";
 
+import type { IAutoMovieFormationPoseTake } from "./IAutoMovieFormationPoseTake.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
@@ -33,4 +34,11 @@ export interface IBakeFormationCycleProps {
    * Even samples across one cycle; omission uses AUTOMOVIE_FORMATION_CYCLE_SAMPLES.
    */
   samples?: number;
+
+  /**
+   * Cycles of given poses to bake instead of the model's gaits, each sampled
+   * at its own poses' count (all the same count); the model's gaits when
+   * absent.
+   */
+  takes?: readonly IAutoMovieFormationPoseTake[];
 }

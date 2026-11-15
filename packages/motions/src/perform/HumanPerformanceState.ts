@@ -186,6 +186,9 @@ export class HumanPerformanceState {
           subject: performer.subject,
           body,
           skill,
+          ...(performer.attributes === undefined
+            ? {}
+            : { attributes: performer.attributes }),
           action: () => undefined,
           aim: (target: AutoMovieMotionTarget, seconds: number) => {
             const posture: IHumanPosture = HumanPerformanceRead.posture(

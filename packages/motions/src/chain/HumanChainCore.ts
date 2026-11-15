@@ -6,6 +6,7 @@ import {
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionParams } from "../IHumanActionParams";
+import type { HumanResponse } from "../skill/HumanResponse";
 
 /**
  * The part of a person's chain that knows no action: whose chain it is, how
@@ -139,15 +140,38 @@ export class HumanChainCore extends AutoMovieChain {
       );
     if (last === undefined || last.kind === "sequence")
       throw new Error("sync times an action; append one first");
+
+    // A drawn latency rides on the synced action's own parameters, as `over`
+    // does, and the action is aligned by its start when it names no instant,
+    // so the performance's alignment hook places it and adds the draw.
+    const latency = (node: AutoMovieComposition): AutoMovieComposition =>
+      node.kind === "intent"
+        ? {
+            kind: "intent",
+            intent: {
+              ...node.intent,
+              parameters: { ...node.intent.parameters, latency: sync.latency },
+            },
+          }
+        : node.kind === "parallel"
+          ? { kind: "parallel", parts: [latency(node.parts[0]!), ...node.parts.slice(1)] }
+          : node;
+    const align: string | undefined =
+      sync.align ?? (sync.latency === undefined ? undefined : "start");
     return this.derive({
       kind: "sequence",
       parts: [
         ...parts.slice(0, -1),
-        AutoMovieComposition.at(sync.of, last, sync.offset ?? 0, {
-          ...(sync.event === undefined ? {} : { event: sync.event }),
-          ...(sync.index === undefined ? {} : { index: sync.index }),
-          ...(sync.align === undefined ? {} : { align: sync.align }),
-        }),
+        AutoMovieComposition.at(
+          sync.of,
+          sync.latency === undefined ? last : latency(last),
+          sync.offset ?? 0,
+          {
+            ...(sync.event === undefined ? {} : { event: sync.event }),
+            ...(sync.index === undefined ? {} : { index: sync.index }),
+            ...(align === undefined ? {} : { align }),
+          },
+        ),
       ],
     });
   }
@@ -266,6 +290,16 @@ export namespace HumanChainCore {
 
     /** Seconds after the instant named; negative is before. 0 when absent. */
     offset?: number;
+
+    /**
+     * A delay drawn per performer and added after `offset`: `reaction` for a
+     * person answering the cue (a command, a shot), shortened by the
+     * preparatory word when the track names one (`HumanCue.orders`), or a
+     * stated normal for a deliberate pause (`HumanResponse.latency`). Keyed
+     * by the performer, the synced action's id and `latency`, so it is the
+     * performer's own and no other draw moves. None when absent.
+     */
+    latency?: HumanResponse.Latency;
   }
 
   /**

@@ -1,0 +1,86 @@
+/**
+ * The assignment of rows to distinct columns of least total cost: the Hungarian method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular cost table with no more rows than columns.
+ *
+ * Row `i` is given column `result[i]`; no two rows share a column, and the sum of `cost[i][result[i]]` is the least any such assignment reaches. Ties are broken by the scan order of rows and columns, so the same table always gives the same assignment.
+ *
+ * @param cost The cost of giving each row each column: `rows` arrays of `columns` finite numbers, `rows <= columns`.
+ * @returns The column of each row.
+ * @throws {Error} When the table is ragged, has more rows than columns, or holds a value that is not finite: a caller's defect.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the problem solved, the rectangular case, the result's meaning, the deterministic tie rule and the refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation Kuhn's Hungarian method with row and column potentials, each row added by a Dijkstra-like search for the shortest augmenting path in reduced costs (the O(n^2 m) form of Jonker and Volgenant's shortest-path formulation); reduced costs stay nonnegative, which is the optimality certificate of the dual.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the table, add the rows one at a time by an augmenting path, read the matching back.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact on finite costs: no cost is scaled, rounded or capped.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(rows^2 columns) time and O(rows + columns) memory beyond the table, against the factorial count of assignments.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its table; nothing is kept between calls.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the working arrays are freed on return.
+ */
+export function assignAutoMovieMinimumCost(
+  cost: readonly (readonly number[])[],
+): number[] {
+  const n: number = cost.length;
+  if (n === 0) return [];
+  const m: number = cost[0]!.length;
+  if (n > m)
+    throw new Error(
+      `assignAutoMovieMinimumCost: ${n} rows cannot take distinct columns of ${m}`,
+    );
+  cost.forEach((row: readonly number[], i: number): void => {
+    if (row.length !== m)
+      throw new Error(
+        `assignAutoMovieMinimumCost: row ${i} has ${row.length} columns, ${m} expected`,
+      );
+    for (const value of row)
+      if (!Number.isFinite(value))
+        throw new Error(`assignAutoMovieMinimumCost: row ${i} holds ${value}`);
+  });
+
+  // Potentials u (rows) and v (columns), 1-based with column 0 the virtual start; way[j] is the column before j on the path.
+  const u: number[] = new Array<number>(n + 1).fill(0);
+  const v: number[] = new Array<number>(m + 1).fill(0);
+  const owner: number[] = new Array<number>(m + 1).fill(0);
+  const way: number[] = new Array<number>(m + 1).fill(0);
+  for (let i: number = 1; i <= n; ++i) {
+    owner[0] = i;
+    let j0: number = 0;
+    const least: number[] = new Array<number>(m + 1).fill(Infinity);
+    const used: boolean[] = new Array<boolean>(m + 1).fill(false);
+
+    // Grow the shortest-path tree in reduced costs until a free column is reached.
+    do {
+      used[j0] = true;
+      const i0: number = owner[j0]!;
+      let delta: number = Infinity;
+      let j1: number = 0;
+      for (let j: number = 1; j <= m; ++j) {
+        if (used[j]) continue;
+        const reduced: number = cost[i0 - 1]![j - 1]! - u[i0]! - v[j]!;
+        if (reduced < least[j]!) {
+          least[j] = reduced;
+          way[j] = j0;
+        }
+        if (least[j]! < delta) {
+          delta = least[j]!;
+          j1 = j;
+        }
+      }
+      for (let j: number = 0; j <= m; ++j)
+        if (used[j]) {
+          u[owner[j]!] = u[owner[j]!]! + delta;
+          v[j] = v[j]! - delta;
+        } else least[j] = least[j]! - delta;
+      j0 = j1;
+    } while (owner[j0] !== 0);
+
+    // Flip the matching along the path back to the start.
+    do {
+      const j1: number = way[j0]!;
+      owner[j0] = owner[j1]!;
+      j0 = j1;
+    } while (j0 !== 0);
+  }
+  const result: number[] = new Array<number>(n).fill(-1);
+  for (let j: number = 1; j <= m; ++j)
+    if (owner[j] !== 0) result[owner[j]! - 1] = j - 1;
+  return result;
+}
