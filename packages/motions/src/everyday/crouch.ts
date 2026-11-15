@@ -76,7 +76,7 @@ import { braceOnThigh } from "./braceOnThigh";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the depth law with its sources, the refusal, the balance solve, the hands, the timing and the events, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core composed of part primitives over a standing base on one clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the depth table and the plan; the thigh brace it shares with the kneel is `braceOnThigh's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the depth table and the plan; the thigh brace it shares with the kneel is `braceOnThigh`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is read from the body's measure and the range table; no world coordinate is typed.
  */
 export namespace crouch {
