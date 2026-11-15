@@ -7,6 +7,8 @@ import type {
 /**
  * A capture case's fixture contact frame: a place and a turn, at the identity scale every `IAutoMovieTransform` carries.
  *
+ * Known follow-up: motions still writes the identity scale inline in other places; when the motion branch's identity-scale owner lands and this branch takes master, this folds into that owner.
+ *
  * @param translation The frame's origin in the prop's space, metres.
  * @param rotation The frame's turn in the prop's space.
  * @returns The frame.
