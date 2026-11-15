@@ -11,7 +11,10 @@ Read the whole declared surface in the current checkout, without splitting it by
 
 Judge each finding before acting on it. Fix a defect the change introduces or worsens; report a pre-existing one without fixing it here; drop a preference no rule supports.
 
-Collect a round's findings, fix the ones that hold together, then run a fresh complete round. Stop after a complete round finds no defect the change introduced.
+How many passes a review takes depends on whether [contracts](../contracts/SKILL.md) evidence covers what changed:
+
+- Code that evidence covers gets one complete pass. Collect every finding and fix them together by cause, and the review is done. Each declaration already answers its checklists in its doc comment, and CI's evidence job fails a missing answer, so a second pass over the same code repeats what evidence guards and costs hours.
+- Everything evidence does not cover goes in rounds: skills, `AGENTS.md`, documents, READMEs and the website. Collect a round's findings, fix them together by cause, then run a fresh complete round. Stop after a complete round finds no defect the change introduced. These have no checklist to hold them, so only another round shows that a fix left nothing behind.
 
 When rounds keep returning findings, look for the change's own design error and simplify or revert, rather than adding a rule or mechanism for each finding. Answering every finding with more text made one small skill change run twelve rounds and grow verbose.
 
@@ -23,7 +26,7 @@ The review law over the whole change: the base-to-head diff and any uncommitted 
 
 Report:
 
-- the clean round;
+- the single pass over evidence-covered code, and the clean round over everything else;
 - every check that could not run;
 - every claim fixed in code but not yet proven on a real host.
 
