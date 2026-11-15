@@ -6,6 +6,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -25,8 +26,41 @@ const HEAD: Readonly<{
   depth: number;
 }> = { spacer: 0.09, width: 0.475, height: 0.226, depth: 0.379 };
 
+/** The ATM read. */
+const NCR: string =
+  "NCR SelfServ 32 Site Preparation B006-6585-B000 (https://tranact.com/pdf/NCR-SS32-Site-Prep.pdf): p. 9, fascia 770 mm wide, 1575 mm high, 800 mm deep, shelf 763 mm high protruding 174 mm; pp. 14-15, heights from the base and depths from the shelf's front; pp. 17-18, each item's distance from the No. 5 key, drawn as a straight arrow on the fascia's front elevation, and its clock position, which gives only its side; the keypad on the centre line as drawn, not dimensioned";
+
+/** An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia (NCR SS32 p. 9). */
+const SHELF: Readonly<{ height: number; out: number }> = {
+  height: 763 * ArchetypeUnits.MILLIMETRE,
+  out: 174 * ArchetypeUnits.MILLIMETRE,
+};
+
+/** An ATM's fascia items, from NCR's guide: each one's height from the base and depth from the shelf's front (pp. 14-15), and its distance on the front elevation and clock position from the No. 5 key (pp. 17-18), in millimetres and hours; the key itself is the origin, at no distance. */
+const ITEMS: Readonly<
+  Record<
+    "key5" | "cardReader" | "cash" | "receipt",
+    Readonly<{ height: number; depth: number; distance: number; clock: number }>
+  >
+> = {
+  key5: { height: 786, depth: 89, distance: 0, clock: 0 },
+  cardReader: { height: 1039, depth: 152, distance: 388, clock: 2 },
+  cash: { height: 822, depth: 152, distance: 152, clock: 9 },
+  receipt: { height: 1154, depth: 170, distance: 472, clock: 1 },
+};
+
+/** An ATM's 15 in touchscreen, from NCR's guide: its height from the base and depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre line as drawn. */
+const SCREEN: Readonly<{ height: number; depth: number; size: number }> = {
+  height: 1126,
+  depth: 244,
+  size: 381,
+};
+
+/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `shelf`, an ATM shelf's thickness. */
+const ESTIMATES: Readonly<{ shelf: number }> = { shelf: 0.03 };
+
 /**
- * A public machine standing against a wall: a snack vending machine or a parking pay station.
+ * A public machine standing against a wall: a snack vending machine, a parking pay station or an ATM; an ATM carries its shelf and declares its keypad's No. 5 key, its slots and its screen at NCR's read places (see `atm`).
  *
  * The cabinet stands on the floor at the origin with its front toward `+Z`; a pay station's body carries its spacer and its wider head on top. `front` is the front, the face a person stands at, looks through, leans on or rocks; `side` is the `+X` side face, where it is pushed. Its keypad, coin slot and delivery bin are not declared, since no source read places them on the front; keying a selection is a keyed sequence with no motion law yet (#3446). A pay station's screen and payment slot are not declared either: the manual gives their heights, 1336 and 1210 mm to their tops, but not their sizes or places across the front.
  *
@@ -66,7 +100,12 @@ export function createMachine(
   > = new ArchetypeBuilder({
     archetype: "machine",
     id: params.id,
-    name: kind === "payStation" ? "pay station" : "vending machine",
+    name:
+      kind === "payStation"
+        ? "pay station"
+        : kind === "atm"
+          ? "cash machine"
+          : "vending machine",
     dimensions: d,
   });
   const v: typeof Vector3.create = Vector3.create;
@@ -75,6 +114,7 @@ export function createMachine(
     color: kind === "payStation" ? "#2b5797" : "#b3202a",
     density: 0.4,
   });
+  if (kind === "atm") atm(builder, width, depth);
   if (kind === "payStation") {
     builder.box(
       "spacer",
@@ -117,6 +157,68 @@ export function createMachine(
 }
 
 /**
+ * Build an ATM's shelf and its fascia items' contacts: the shelf across the fascia's foot, and each item at its read height and depth, across the fascia from the No. 5 key by the remaining leg of its elevation distance after its height above the key, to the side its clock position names, the key on the centre line. `key5` is the No. 5 key, a button pressed along `-Z`; `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points out of the fascia; `screen` the touchscreen, a surface.
+ *
+ * @param builder The builder to fill.
+ * @param width The fascia's width, metres.
+ * @param depth The cabinet's depth, metres.
+ */
+function atm(
+  builder: ArchetypeBuilder<createMachine.Affordance, createMachine.Dimension>,
+  width: number,
+  depth: number,
+): void {
+  const v: typeof Vector3.create = Vector3.create;
+  const mm: number = ArchetypeUnits.MILLIMETRE;
+  const front: number = depth / 2 + SHELF.out;
+  builder.box(
+    "shelf",
+    v(width, ESTIMATES.shelf, SHELF.out),
+    v(0, SHELF.height - ESTIMATES.shelf / 2, depth / 2 + SHELF.out / 2),
+    { color: "#55595f" },
+  );
+  for (const [id, item] of Object.entries(ITEMS) as [
+    keyof typeof ITEMS,
+    (typeof ITEMS)[keyof typeof ITEMS],
+  ][]) {
+    // The elevation's straight distance is the hypotenuse over the read height difference; the clock position names only the side, 1 to 5 o'clock right (+X) as the fascia is faced and 7 to 11 left.
+    const rise: number = item.height - ITEMS.key5.height;
+    const side: number = item.clock >= 1 && item.clock <= 5 ? 1 : item.clock >= 7 && item.clock <= 11 ? -1 : 0;
+    const at: ReturnType<typeof v> = v(
+      side * Math.sqrt(Math.max(0, item.distance ** 2 - rise ** 2)) * mm,
+      item.height * mm,
+      front - item.depth * mm,
+    );
+    builder.affordance(
+      id === "key5"
+        ? {
+            id,
+            kind: "button",
+            frame: ArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
+            extent: null,
+          }
+        : {
+            id,
+            kind: "socket",
+            frame: ArchetypeFrame.facing(at, v(0, 0, 1), v(1, 0, 0)),
+            extent: null,
+          },
+    );
+  }
+  builder.affordance({
+    id: "screen",
+    kind: "surface",
+    frame: ArchetypeFrame.facing(
+      v(0, SCREEN.height * mm, front - SCREEN.depth * mm),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
+    extent: null,
+    width: SCREEN.size * mm,
+  });
+}
+
+/**
  * Companion types and bands of {@link createMachine}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
@@ -126,18 +228,26 @@ export function createMachine(
  */
 export namespace createMachine {
   /** The kinds of machine. */
-  export type Kind = "vendingMachine" | "payStation";
+  export type Kind = "vendingMachine" | "payStation" | "atm";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["vendingMachine", "payStation"];
+  export const KINDS: readonly Kind[] = ["vendingMachine", "payStation", "atm"];
 
   /**
    * The affordance ids:
    *
    * - `front`: the front face, `+Z`.
    * - `side`: the `+X` side face.
+   * - `key5`, `cardReader`, `cash`, `receipt`, `screen`: an ATM's No. 5 key (a button), card reader, cash slot and receipt slot (sockets) and touchscreen (a surface), each at NCR's read place.
    */
-  export type Affordance = "front" | "side";
+  export type Affordance =
+    | "front"
+    | "side"
+    | "key5"
+    | "cardReader"
+    | "cash"
+    | "receipt"
+    | "screen";
 
   /**
    * The free dimensions, metres unless stated:
@@ -165,6 +275,12 @@ export namespace createMachine {
       height: ArchetypeBand.metres(1.83, 1.83, MERCHANT),
       depth: ArchetypeBand.metres(0.813, 0.813, MERCHANT),
       mass: ArchetypeBand.of("kg", 250, 350, ArchetypeBand.TYPICAL_MASS, true),
+    },
+    atm: {
+      width: ArchetypeBand.metres(0.77, 0.77, `${NCR}: the fascia`),
+      height: ArchetypeBand.metres(1.575, 1.575, NCR),
+      depth: ArchetypeBand.metres(0.8, 0.8, NCR),
+      mass: ArchetypeBand.of("kg", 250, 400, ArchetypeBand.TYPICAL_MASS, true),
     },
     payStation: {
       width: ArchetypeBand.metres(0.29, 0.29, `${STRADA}: the body`),

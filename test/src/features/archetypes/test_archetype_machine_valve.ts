@@ -13,14 +13,15 @@ const MM: number = 1e-3;
  *
  * Scenarios:
  * 1. A vending machine is 1830 mm high, 813 mm deep and 895 to 1180 mm wide, its `front` on its `+Z` face.
- * 3. A pay station's body is the StradaPAL's 290 x 1488 x 328 mm under its 90 mm spacer and its 475 x 226 x 379 mm head, 1804 mm in all.
- * 2. A valve at size 0 has a 10 in handwheel 24 in above its pipe's axis, at size 1 a 12 in handwheel 31.06 in above it; its handwheel states no turns.
+ * 2. A pay station's body is the StradaPAL's 290 x 1488 x 328 mm under its 90 mm spacer and its 475 x 226 x 379 mm head, 1804 mm in all.
+ * 3. An ATM's No. 5 key, card reader, cash slot and receipt slot stand at NCR's heights and depths from the shelf's front, across from the key by the remaining leg of the elevation distance after the height difference, to the clock position's side, the key on the centre line.
+ * 4. A valve at size 0 has a 10 in handwheel 24 in above its pipe's axis, at size 1 a 12 in handwheel 31.06 in above it; its handwheel states no turns.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a cabinet or a handwheel off the maker's figures is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is Crane's or NIBCO's restated here.
  * @evidence contracts/development/testing.md#distinguishing-cases A ranging width over seeds; both ends of the valve's size.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
  */
 export function test_archetype_machine_valve(): void {
   const findings: string[] = [];
@@ -55,7 +56,7 @@ export function test_archetype_machine_valve(): void {
     archetypeExtent(machine, "z").high,
   );
 
-  // 3. The pay station.
+  // 2. The pay station.
   const station: ReturnType<typeof createMachine> = createMachine(
     { kind: "payStation" },
     5,
@@ -64,7 +65,23 @@ export function test_archetype_machine_valve(): void {
   near("the pay station's body depth", archetypeExtent(station, "z", ["cabinet"]).size, 0.328);
   near("the pay station's head width", archetypeExtent(station, "x", ["head"]).size, 0.475);
   near("the pay station's height", archetypeExtent(station, "y").high, 1.488 + 0.09 + 0.226);
-  // 2. The valve.
+  // 3. The ATM.
+  const atm: ReturnType<typeof createMachine> = createMachine({ kind: "atm" }, 5);
+  const shelf: number = archetypeExtent(atm, "z", ["shelf"]).high;
+  for (const [id, height, depth, across] of [
+    ["key5", 0.786, 0.089, 0],
+    ["cardReader", 1.039, 0.152, Math.sqrt(0.388 ** 2 - (1.039 - 0.786) ** 2)],
+    ["cash", 0.822, 0.152, -Math.sqrt(0.152 ** 2 - (0.822 - 0.786) ** 2)],
+    ["receipt", 1.154, 0.17, Math.sqrt(0.472 ** 2 - (1.154 - 0.786) ** 2)],
+  ] as const) {
+    const at: IAutoMovieAffordance = atm.affordance(id);
+    near(`the ATM's ${id} height`, at.frame.translation.y, height);
+    near(`the ATM's ${id} depth`, shelf - at.frame.translation.z, depth);
+    near(`the ATM's ${id} across`, at.frame.translation.x, across);
+  }
+  near("the ATM's shelf", archetypeExtent(atm, "y", ["shelf"]).high, 0.763);
+  near("the ATM's fascia", archetypeExtent(atm, "x", ["cabinet"]).size, 0.77);
+  // 4. The valve.
   for (const [size, wheel, height] of [
     [0, 0.254, 0.61],
     [1, 0.305, 0.789],
