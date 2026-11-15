@@ -203,8 +203,8 @@ export function fitDigitToTarget(
         down[i] = down[i]! - ROM_TOLERANCE;
         const a: number[] = residual(up);
         const b: number[] = residual(down);
-        return a.map((v: number, k: number): number =>
-          (v - b[k]!) / (2 * ROM_TOLERANCE),
+        return a.map(
+          (v: number, k: number): number => (v - b[k]!) / (2 * ROM_TOLERANCE),
         );
       },
     );
@@ -312,7 +312,11 @@ export namespace fitDigitToTarget {
     bones: readonly AutoMovieHumanoidBone[];
 
     /** The point brought to the target, in its bone's rest frame relative to the bone's joint, metres, with the outward unit normal there: a region frame of the digit's tip or pad. */
-    effector: { bone: AutoMovieHumanoidBone; point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+    effector: {
+      bone: AutoMovieHumanoidBone;
+      point: IAutoMovieVector3;
+      normal: IAutoMovieVector3;
+    };
 
     /** The target, world metres. */
     target: IAutoMovieVector3;

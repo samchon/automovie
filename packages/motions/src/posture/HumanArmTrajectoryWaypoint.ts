@@ -70,7 +70,8 @@ export namespace HumanArmTrajectoryWaypoint {
         G.placed(setup, frames[a]!, resting[a]!),
     );
     const colliders: G.IShape[][] = frames.map(
-      (frame: G.IFrame, a: number): G.IShape[] => G.colliders(frame, placed[a]!),
+      (frame: G.IFrame, a: number): G.IShape[] =>
+        G.colliders(frame, placed[a]!),
     );
     const touched: number[] = sites.map((): number => -1);
     const normals: (IAutoMovieVector3 | undefined)[] = sites.map(

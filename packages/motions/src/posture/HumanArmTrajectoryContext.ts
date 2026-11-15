@@ -367,7 +367,6 @@ export namespace HumanArmTrajectoryContext {
   }
 }
 
-
 /** Each context's waypoint records by second, shared with every later context built from it, kept while a context that reads them is held. */
 const STORES: WeakMap<M.IContext, Map<number, W.IWaypoint>> = new WeakMap();
 

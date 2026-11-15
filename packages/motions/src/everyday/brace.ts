@@ -9,25 +9,25 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureHands } from "./gestureHands";
-import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { poseBones } from "../posture/poseBones";
 
 /**
  * Bracing for an expected impact, push or a falling body: the stance
@@ -308,7 +308,9 @@ export namespace brace {
     // chest's surface however far the trunk leans.
     const catching: boolean = p.kind === "catchBody";
     const reach: number = (m.upperArm + m.forearm) * 0.55;
-    const requests = (posture: IHumanPosture): AutoMovieMotionHumanArm.ISided[] => {
+    const requests = (
+      posture: IHumanPosture,
+    ): AutoMovieMotionHumanArm.ISided[] => {
       const bones = poseBones(body, resolveHumanPosture(body, posture));
       const region = body.surfaces.regions.sternum;
       const sternum: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
@@ -323,7 +325,10 @@ export namespace brace {
           point: Vector3.add(
             Vector3.add(
               sternum,
-              Vector3.scale(left, (side === "left" ? 1 : -1) * m.shoulderHalfWidth * 0.9),
+              Vector3.scale(
+                left,
+                (side === "left" ? 1 : -1) * m.shoulderHalfWidth * 0.9,
+              ),
             ),
             Vector3.add(Vector3.scale(toward, reach), {
               x: 0,
@@ -341,10 +346,11 @@ export namespace brace {
         }),
       );
     };
-    const entryArms: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> = {
-      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-    };
+    const entryArms: Record<"left" | "right", AutoMovieMotionHumanArm.IAngles> =
+      {
+        left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+        right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+      };
     const arms: Map<"left" | "right", HumanArmTrajectory.Trajectory> =
       gestureHands.planned(
         body,
