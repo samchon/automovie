@@ -32,7 +32,7 @@ import { HumanFoot } from "../posture/HumanFoot";
  * ends, so the lift adds no velocity at toe-off and the foot meets the floor
  * at rest (the heel's vertical velocity at contact is near zero, Winter
  * 1992), and raised
- * further wherever the toe or heel would come within 12 mm of the floor. The
+ * further wherever the toe or heel would come within 12.9 mm of the floor. The
  * travel, the turn and the descent of the placements end early, at the share
  * of the swing where the lift has fallen to the contact height of the floor
  * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe
@@ -307,6 +307,9 @@ export namespace walkFoot {
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
       props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
       (props.rates?.toes ?? 0) * turning;
+    // A foot that leaves or lands on its edge rolls between the two as its
+    // pitch does.
+    const rolled: number = HumanFoot.roll(props.from.rotation);
     const placement: HumanFoot.IPlacement = {
       ankle,
       rotation: HumanFoot.rotation(
@@ -314,6 +317,7 @@ export namespace walkFoot {
         left +
           (HumanFoot.pitch(props.to.rotation) - left) * level +
           (props.rates?.pitch ?? 0) * turning,
+        rolled + (HumanFoot.roll(props.to.rotation) - rolled) * level,
       ),
     };
     const low: number = Math.min(
@@ -346,6 +350,6 @@ export namespace walkFoot {
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;
 
-  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres (minimum toe clearance is 10 to 20 mm, Winter 1992). */
-  const CLEARANCE: number = 0.012;
+  /** The least clearance of a swinging foot's toe and heel at mid-swing, metres, provisional: Winter 1992 (Phys Ther 72:45-53) gives a minimum toe clearance of 1.29 cm with about 4 mm of variability over 10 trials of 11 young adults, read from its abstract only; the full text's statistic and table were not reachable (the publisher's PDF and two repositories searched, 2026-11-16). */
+  const CLEARANCE: number = 0.0129;
 }

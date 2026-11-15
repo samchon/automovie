@@ -1,5 +1,6 @@
 import {
   DEFAULT_HUMANOID_ROM,
+  Quaternion,
   Vector3,
   bracketedRoot,
   minimumJerk,
@@ -91,6 +92,9 @@ export namespace walkReach {
 
     /** Each stance's contact point in its foot's frame. */
     contacts: Record<"left" | "right", IAutoMovieVector3>;
+
+    /** The pelvis's world rotation, where the caller tilts it from upright under its heading (a trunk tipped about the hips, `AutoMovieMotionHumanLean.pivot`), the hip joints then the tilted ones; upright when absent. */
+    pelvis?: IAutoMovieQuaternion;
   }
 
   /**
@@ -305,6 +309,136 @@ export namespace walkReach {
   }
 
   /**
+   * A pelvis tilted with the trunk about the hips, as
+   * `AutoMovieMotionHumanLean.pivot` tilts a posture: the hips bone stays and
+   * the hip joints turn about it.
+   *
+   * @param body The body.
+   * @param root The upright root, world metres.
+   * @param yaw The heading, degrees.
+   * @param joints The upright hip joints under that root, world metres.
+   * @param trunk The posture's added pitch and roll, degrees.
+   * @returns The pelvis's world rotation and the tilted hip joints.
+   */
+  export function tilt(
+    body: IHumanBody,
+    root: IAutoMovieVector3,
+    yaw: number,
+    joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    trunk: { pitch: number; roll: number },
+  ): {
+    rotation: IAutoMovieQuaternion;
+    hips: Record<"left" | "right", IAutoMovieVector3>;
+  } {
+    const upright: IAutoMovieQuaternion = resolveHumanPosture.heading({
+      yaw,
+      pitch: 0,
+      roll: 0,
+    });
+    const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading({
+      yaw,
+      pitch: trunk.pitch,
+      roll: trunk.roll,
+    });
+    const turn: IAutoMovieQuaternion = Quaternion.multiply(
+      rotation,
+      Quaternion.inverse(upright),
+    );
+    const centre: IAutoMovieVector3 = Vector3.add(
+      root,
+      Quaternion.rotateVector(upright, body.rest.get("hips")!),
+    );
+    const at = (side: "left" | "right"): IAutoMovieVector3 =>
+      Vector3.add(
+        centre,
+        Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
+      );
+    return { rotation, hips: { left: at("left"), right: at("right") } };
+  }
+
+  /**
+   * The pelvis and the stances a stance course chose (`walkStanceCourse`):
+   * the pelvis turned toward its stances as `pelvis` turns it, tilted with
+   * the trunk (`tilt`) and lowered by the course's drop, and each planted
+   * foot turned on the floor and pitched about its ball as the course chose,
+   * so nothing is solved per second but the pelvis's turn.
+   *
+   * @param body The body.
+   * @param root The upright root before the drop, world metres.
+   * @param planned The unconstrained heading, degrees.
+   * @param hips The pelvis joint's clinical angles, degrees.
+   * @param feet Each foot as scheduled.
+   * @param course The course read at the second: its drop, metres, each foot's pitch and turn and the trunk's tilt, degrees.
+   * @returns The pelvis and each stance as held.
+   */
+  export function held(
+    body: IHumanBody,
+    root: IAutoMovieVector3,
+    planned: number,
+    hips: readonly [number, number, number],
+    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    course: {
+      drop: number;
+      pitch: Record<"left" | "right", number>;
+      turn: Record<"left" | "right", number>;
+      trunk: { pitch: number; roll: number };
+    },
+  ): IGround {
+    const {
+      yaw,
+      pivots,
+      hips: upright,
+    }: IPelvis = pelvis(body, root, planned, hips, feet);
+    const lowered: IAutoMovieVector3 = { ...root, y: root.y - course.drop };
+    const tilted = tilt(
+      body,
+      lowered,
+      yaw,
+      {
+        left: { ...upright.left, y: upright.left.y - course.drop },
+        right: { ...upright.right, y: upright.right.y - course.drop },
+      },
+      course.trunk,
+    );
+    const placed = {} as Record<"left" | "right", walkFoot.IEnd>;
+    const contacts = {} as Record<"left" | "right", IAutoMovieVector3>;
+    for (const side of SIDES) {
+      // A swinging foot is the swing's to place; it stands as scheduled.
+      if (feet[side].swing !== undefined) {
+        placed[side] = { ...feet[side].placement, toes: feet[side].toes };
+        contacts[side] = HumanFoot.offset(body, side, "mtp");
+        continue;
+      }
+      const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
+        walkReachStance.of(
+          body,
+          side,
+          {
+            ...feet[side],
+            placement: HumanFoot.turned(
+              feet[side].placement,
+              course.turn[side],
+            ),
+          },
+          tilted.hips[side],
+          yaw,
+          pivots[side],
+          0,
+          course.pitch[side],
+        );
+      placed[side] = out.end;
+      contacts[side] = out.contact;
+    }
+    return {
+      yaw,
+      root: lowered,
+      hips: tilted.hips,
+      feet: placed,
+      contacts,
+      pelvis: tilted.rotation,
+    };
+  }
+  /**
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
    * degrees back and the knee's bend carry it (an ankle past that keeps its
@@ -312,12 +446,13 @@ export namespace walkReach {
    * knee folding as a trailing heel lifts, or turns forward onto that line
    * where the shank cannot reach so far back), the heading within `TWIST` of
    * the pelvis, the pitch inside the ankle's range, and neither toe nor heel
-   * under the floor.
+   * nearer the floor than the swing carried them.
    *
    * @param body The body.
    * @param side The foot.
    * @param settled The pelvis.
    * @param foot The swinging foot.
+   * @param share The share of the swing, when the caller's stances may stand outside these ranges (a foot rolled onto its edge, a stance far behind the hip): the ranges then come in over the first `FADE` of the swing and go over its last, so the swing leaves and joins its stances where they stand. Held throughout when absent.
    * @returns The foot as reached.
    */
   export function swing(
@@ -325,13 +460,15 @@ export namespace walkReach {
     side: "left" | "right",
     settled: IGround,
     foot: walkFoot.IFoot,
+    share?: number,
   ): walkFoot.IEnd {
     const m = body.measure;
     const h: IAutoMovieVector3 = settled.hips[side];
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: settled.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
+    // The hip's extension is read in the pelvis's frame, so a pelvis tilted
+    // with the trunk counts.
+    const frame: IAutoMovieQuaternion =
+      settled.pelvis ??
+      resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
     const limit: number = Math.sqrt(
       m.thigh ** 2 +
         m.shank ** 2 +
@@ -340,11 +477,14 @@ export namespace walkReach {
     let v: IAutoMovieVector3 = Vector3.subtract(foot.placement.ankle, h);
     const d: number = Vector3.length(v);
     if (d > limit) v = Vector3.scale(v, limit / d);
-    const ahead: number = v.x * forward.x + v.z * forward.z;
-    const sagittal: number = Math.hypot(ahead, v.y);
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(frame),
+      v,
+    );
+    const sagittal: number = Math.hypot(local.z, local.y);
     const extension: number =
       (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
-    if (v.y < 0 && Math.atan2(-ahead, -v.y) > extension) {
+    if (local.y < 0 && Math.atan2(-local.z, -local.y) > extension) {
       // The thigh stops at its extension and the knee folds: the ankle keeps
       // its place behind the hip, raised onto the shank's reach from the
       // knee, as a trailing leg's heel rises after toe-off. Where the shank
@@ -352,21 +492,21 @@ export namespace walkReach {
       const thighAngle: number = (EXTENSION * Math.PI) / 180;
       const kneeAhead: number = -m.thigh * Math.sin(thighAngle);
       const kneeDown: number = m.thigh * Math.cos(thighAngle);
-      const along: number = ahead - kneeAhead;
-      if (Math.abs(along) <= m.shank)
-        v = {
-          x: v.x,
-          y: -kneeDown - Math.sqrt(m.shank * m.shank - along * along),
-          z: v.z,
-        };
-      else {
-        const back: number = sagittal * Math.sin(extension);
-        v = {
-          x: v.x - ahead * forward.x - back * forward.x,
-          y: -sagittal * Math.cos(extension),
-          z: v.z - ahead * forward.z - back * forward.z,
-        };
-      }
+      const along: number = local.z - kneeAhead;
+      v = Quaternion.rotateVector(
+        frame,
+        Math.abs(along) <= m.shank
+          ? {
+              x: local.x,
+              y: -kneeDown - Math.sqrt(m.shank * m.shank - along * along),
+              z: local.z,
+            }
+          : {
+              x: local.x,
+              y: -sagittal * Math.cos(extension),
+              z: -sagittal * Math.sin(extension),
+            },
+      );
     }
     let ankle: IAutoMovieVector3 = Vector3.add(h, v);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
@@ -396,18 +536,45 @@ export namespace walkReach {
       };
     }
 
-    // Lifting the foot off the floor leans its shank further, so the pitch is
-    // held inside the ankle's range again after each lift.
+    // The foot keeps the clearance its swing gave it: where the ankle's range
+    // turns it, the ankle rises so its lowest point stays as high over the
+    // floor as the swing put it, never on the floor while it travels. Lifting
+    // the foot leans its shank further, so the pitch is held inside the
+    // ankle's range again after each lift.
+    const lowest = (placement: HumanFoot.IPlacement): number =>
+      Math.min(
+        HumanFoot.point(body, side, "toe", placement, foot.toes).y,
+        HumanFoot.point(body, side, "heel", placement).y,
+      );
+    const clear: number = Math.max(0, lowest(foot.placement));
     for (let k: number = 0; k < 8; k++) {
       rotation = walkLeg.ankleRange(body, h, ankle, rotation);
-      const low: number = Math.min(
-        HumanFoot.point(body, side, "toe", { ankle, rotation }, foot.toes).y,
-        HumanFoot.point(body, side, "heel", { ankle, rotation }).y,
-      );
-      if (low >= -1e-6) break;
-      ankle = { ...ankle, y: ankle.y - low };
+      const low: number = lowest({ ankle, rotation });
+      if (low >= clear - 1e-6) break;
+      ankle = { ...ankle, y: ankle.y + clear - low };
     }
-    return { ankle, rotation, toes: foot.toes };
+    if (share === undefined) return { ankle, rotation, toes: foot.toes };
+
+    // The ranges come in after lift-off and go before landing, so a swing
+    // leaves and joins its stances where they stand; the clearance holds
+    // throughout.
+    const held: number = Math.min(
+      minimumJerk(Math.min(1, Math.max(0, share) / FADE)).s,
+      minimumJerk(Math.min(1, Math.max(0, 1 - share) / FADE)).s,
+    );
+    let joined: IAutoMovieVector3 = Vector3.lerp(
+      foot.placement.ankle,
+      ankle,
+      held,
+    );
+    const turned: IAutoMovieQuaternion = Quaternion.slerp(
+      foot.placement.rotation,
+      rotation,
+      held,
+    );
+    const low: number = lowest({ ankle: joined, rotation: turned });
+    if (low < clear) joined = { ...joined, y: joined.y + clear - low };
+    return { ankle: joined, rotation: turned, toes: foot.toes };
   }
 
   /** Both feet. */
@@ -416,11 +583,11 @@ export namespace walkReach {
   /** The width, metres, to which the root's lowering is solved: a nanometre, under which its error adds less than a micrometre per second to a rate read over a frame. */
   const FINE: number = 1e-9;
 
-  /** The largest extension, degrees, of a swinging leg's thigh, 2° inside the hip's 30° extension (DEFAULT_HUMANOID_ROM); the ankle trails further by the knee's bend. */
-  const EXTENSION: number = 28;
+  /** The largest extension, degrees, of a leg's thigh, swinging or planted, 2° inside the hip's 30° extension (DEFAULT_HUMANOID_ROM); the ankle trails further by the knee's bend. */
+  export const EXTENSION: number = 28;
 
   /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), the same bound a stance stands inside, so a swing joins its stances where they are. */
-  const SIDE: number = 25;
+  const SIDE: number = walkReachStance.SIDE;
 
   /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
   const KNEE: number = 10;

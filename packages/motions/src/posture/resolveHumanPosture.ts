@@ -71,6 +71,9 @@ export function resolveHumanPosture(
  * @evidence contracts/development/implementation.md#principled-implementation Heading is yaw about +Y, then pitch about the turned +X, then roll about the turned +Z, the intrinsic order of a body turning, then leaning.
  */
 export namespace resolveHumanPosture {
+  /** The least knee flexion of a planted leg, degrees: the knee's greatest extension in stance, about 5 degrees at initial contact and through terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and Pathological Function, ch. 7; provisional, read through secondary summaries, the primary not read). Every planted leg's lowering (`lower`) and every stance course (`walkStanceCourse`) keeps it. */
+  export const KNEE: number = 5;
+
   /** Each limb's nearby fit to continue (`IAutoMovieSwivelNear`). */
   export type INear = Readonly<
     Partial<Record<IHumanPosture.Limb, IAutoMovieSwivelNear>>
@@ -310,13 +313,13 @@ export namespace resolveHumanPosture {
    *
    * @param body The performer's body.
    * @param posture The posture; legs with `planted` goals are kept reachable.
-   * @param knee The least knee flexion, degrees; 5 when absent.
+   * @param knee The least knee flexion, degrees; a planted leg's (`KNEE`) when absent.
    * @returns The posture, its root lowered when needed.
    */
   export function lower(
     body: IHumanBody,
     posture: IHumanPosture,
-    knee: number = 5,
+    knee: number = KNEE,
   ): IHumanPosture {
     // Only world-anchored plants are lowered for: a leg goal attached to a
     // bone moves with that bone, so the root cannot be solved against it here.

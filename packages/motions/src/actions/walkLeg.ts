@@ -1,4 +1,9 @@
-import { Vector3, minimumJerk, smoothMinimum } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  Vector3,
+  minimumJerk,
+  smoothMinimum,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -14,7 +19,7 @@ import { HumanFrame } from "../posture/HumanFrame";
  * of cosines on the segment lengths.
  */
 export namespace walkLeg {
-  /** Degrees a foot keeps inside the ankle's 50° plantar and 20° dorsal limits (DEFAULT_HUMANOID_ROM). */
+  /** Degrees a foot keeps inside the ankle's 50° plantar limit and its dorsal one, loaded or unloaded (`ANKLE_DORSIFLEXION`). */
   export const ANKLE: number = 2;
 
   /**
@@ -153,7 +158,8 @@ export namespace walkLeg {
   }
 
   /**
-   * A foot's rotation kept inside the ankle's range relative to its shank,
+   * A foot that bears no weight, its rotation kept inside the unloaded
+   * ankle's range relative to its shank (`ANKLE_DORSIFLEXION.unloaded`),
    * less `ANKLE`.
    *
    * @param body The body.
@@ -172,7 +178,7 @@ export namespace walkLeg {
     const shank: number = lean(body, hip, ankle, heading);
     const pitch: number = HumanFoot.pitch(rotation);
     const clamped: number = Math.min(
-      -shank + 20 - ANKLE,
+      -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
       Math.max(-shank - 50 + ANKLE, pitch),
     );
     return clamped === pitch ? rotation : HumanFoot.rotation(heading, clamped);
@@ -208,17 +214,50 @@ export namespace walkLeg {
   ): number {
     return rise(
       (degrees: number): number =>
-        -lean(
-          body,
-          hip,
-          HumanFoot.pivot(body, side, "mtp", pivot, heading, degrees).ankle,
-          heading,
-        ) +
-        20 -
-        ANKLE -
-        degrees,
+        room(body, side, hip, pivot, heading, degrees),
       pitch,
       width,
+    );
+  }
+
+  /**
+   * The room a planted foot's ankle keeps before its dorsal limit at a pitch
+   * about its toes' joint, degrees: what `heelRise` keeps.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param hip The hip joint, world metres.
+   * @param pivot The toes' joint the foot turns about, world metres.
+   * @param heading The foot's heading, degrees.
+   * @param pitch The pitch, degrees, negative toes-down.
+   * @returns Degrees; `-Infinity` where the ankle lies beyond the leg's reach from the hip, a pitch the leg cannot stand on at all, whose lean would be read off a leg stretched past its length.
+   */
+  export function room(
+    body: IHumanBody,
+    side: "left" | "right",
+    hip: IAutoMovieVector3,
+    pivot: IAutoMovieVector3,
+    heading: number,
+    pitch: number,
+  ): number {
+    const ankle: IAutoMovieVector3 = HumanFoot.pivot(
+      body,
+      side,
+      "mtp",
+      pivot,
+      heading,
+      pitch,
+    ).ankle;
+    if (
+      Vector3.length(Vector3.subtract(ankle, hip)) >
+      body.measure.thigh + body.measure.shank
+    )
+      return -Infinity;
+    return (
+      -lean(body, hip, ankle, heading) +
+      20 -
+      ANKLE -
+      pitch
     );
   }
 
@@ -233,9 +272,17 @@ export namespace walkLeg {
    * degrees of heel rise bend the knee and lean the shank faster than they
    * open the ankle, so the room first dips and only then grows, and the pitch
    * that has a given room lies past the dip, a finite step from the asked
-   * one. The pitch is therefore searched past the dip, the lowest room found
-   * by ternary search and the kept one by bisection beyond it, no steeper
-   * than `STEEPEST`, and the foot moves from its asked pitch to that one on a
+   * one. The pitch is therefore searched past the dip: the room is walked
+   * down from the asked pitch in `SCAN` steps to its first low, which the rise
+   * meets first (the room is not unimodal over the whole range: past the
+   * first dip it may dip again), that low found by ternary search between the
+   * steps around it and the kept room by bisection beyond it, no steeper than
+   * `STEEPEST`. A pitch whose ankle lies beyond the leg's reach has no room at
+   * all (`-Infinity`): it is no stance, and counting a lean read off a leg
+   * stretched past its length made the room cross the kept one twice, the
+   * pitch jumping between the crossings as the hip moved by nanometres. An
+   * asked pitch the leg cannot stand on is first raised to the least rise
+   * that brings the ankle within reach, and the rule goes on from there. and the foot moves from its asked pitch to that one on a
    * minimum-jerk weight (Flash and Hogan 1985) as the asked room runs from
    * `width` down to none, so the heel's rate is continuous where the rule
    * takes over or lets go. The step past the dip is crossed in the time the
@@ -248,7 +295,7 @@ export namespace walkLeg {
    * steepen it. Such a rule says so with `folds` and takes that pitch itself.
    *
    * @param room The room a pitch leaves, degrees; `Infinity` where the rule
-   *   asks nothing of that pitch.
+   *   asks nothing of that pitch, `-Infinity` where the leg cannot stand on it.
    * @param pitch The asked pitch, degrees, negative toes-down.
    * @param width The room, degrees, under which the heel begins to rise; zero
    *   keeps the asked pitch until the room is none.
@@ -261,19 +308,52 @@ export namespace walkLeg {
     width: number,
     folds: boolean = true,
   ): number {
-    const asked: number = room(pitch);
+    // An asked pitch the leg cannot stand on is first raised to the least
+    // rise that brings its ankle within the leg's reach, which is continuous
+    // with the asked pitch as the reach is lost; the rule then reads that
+    // pitch as the asked one.
+    let asked: number = room(pitch);
+    if (asked === -Infinity) {
+      if (room(-STEEPEST) === -Infinity) return -STEEPEST;
+      let out: number = pitch;
+      let within: number = -STEEPEST;
+      while (out - within > 1e-6) {
+        const middle: number = (out + within) / 2;
+        if (room(middle) === -Infinity) out = middle;
+        else within = middle;
+      }
+      pitch = within;
+      asked = room(pitch);
+    }
     if (asked >= width || pitch <= -STEEPEST) return pitch;
     const kept: number =
       width > 0 ? -smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
+    // The dip is the first low of the room as the heel rises from the asked
+    // pitch: walked down in `SCAN` steps until the room grows again, then
+    // narrowed by ternary search between the steps on either side of it, so
+    // the dip found is the one the rise meets first, not whichever of two
+    // lows a search over the whole range happens to fall into.
     let far: number = -STEEPEST;
     let near: number = pitch;
-    if (folds)
+    if (folds) {
+      let before: number = room(pitch);
+      for (let at: number = pitch - SCAN; at > -STEEPEST; at -= SCAN) {
+        const value: number = room(at);
+        // Pitches the leg cannot stand on lie before the dip, not in it.
+        if (value > before && before > -Infinity) {
+          far = Math.max(-STEEPEST, at);
+          near = Math.min(pitch, at + 2 * SCAN);
+          break;
+        }
+        before = value;
+      }
       for (let k: number = 0; k < 24; k++) {
         const a: number = far + (near - far) / 3;
         const b: number = near - (near - far) / 3;
         if (room(a) < room(b)) near = b;
         else far = a;
       }
+    }
     let low: number = -STEEPEST;
     let high: number = folds ? (far + near) / 2 : pitch;
     if (room(low) >= kept)
@@ -290,6 +370,9 @@ export namespace walkLeg {
 
   /** The room left to a stance's ankle before its dorsal limit, degrees, under which a stepping foot's heel begins to rise (provisional): the heel is leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of the way into this rounding under the 18° limit this body keeps, and the rounding is wide enough that the step past the fold is crossed in a stance's few hundredths of a second without a jolt at the knee. */
   export const ROCKER: number = 12;
+
+  /** The step, degrees, in which `rise` walks the room down from the asked pitch to find its first low: half a degree, under which the room of a leg near straight has no second low. */
+  export const SCAN: number = 0.5;
 
   /** The steepest heel rise of a planted foot, degrees toes-down (provisional): past it the foot would stand on its toe tips. */
   export const STEEPEST: number = 75;

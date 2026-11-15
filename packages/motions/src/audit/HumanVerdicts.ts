@@ -48,6 +48,9 @@ import type { IAutoMovieMotionHumanAuditMotion } from "./IAutoMovieMotionHumanAu
  *   2 % of stature (`AutoMovieMotionHumanAuditStatics`).
  * - `range`: every joint stays within its range of motion, within
  *   `ROM_TOLERANCE` (0.01 degrees).
+ * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further
+ *   than an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`),
+ *   within `ROM_TOLERANCE`.
  * - `turn`: no bone spins more than 5 turns a second between frames.
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
@@ -239,6 +242,14 @@ export namespace HumanVerdicts {
             rate,
           ),
           AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
+        );
+        measured(
+          who,
+          who,
+          "unloaded",
+          AutoMovieMotionHumanAuditRange.unloaded(motion, posed, who, rate)
+            .overshoot,
+          ROM_TOLERANCE,
         );
       }
       measured(

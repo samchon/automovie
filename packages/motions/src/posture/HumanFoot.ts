@@ -8,9 +8,9 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -150,6 +150,43 @@ export namespace HumanFoot {
   }
 
   /**
+   * The points a placed foot stands on, flat with its toes flat: its sole
+   * sockets and the corners of its outline (`outline`), world metres.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param foot The foot's placement.
+   * @returns The heel, the ball and the toe, then the outline's corners.
+   */
+  export function sole(
+    body: IHumanBody,
+    side: "left" | "right",
+    foot: IPlacement,
+  ): IAutoMovieVector3[] {
+    const ankle: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
+    return [
+      ...SOCKETS.map(
+        (socket: Socket): IAutoMovieVector3 => point(body, side, socket, foot),
+      ),
+      ...outline(body, side).map(
+        (frame: resolveAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
+          Vector3.add(
+            foot.ankle,
+            Quaternion.rotateVector(
+              foot.rotation,
+              frame.bone === `${side}Foot`
+                ? frame.point
+                : Vector3.add(
+                    Vector3.subtract(body.rest.get(frame.bone)!, ankle),
+                    frame.point,
+                  ),
+            ),
+          ),
+      ),
+    ];
+  }
+
+  /**
    * A foot's outline on its sole: the corners of the outline of the foot's
    * colliders, and the toes' when the profile jointed them, seen from below
    * at rest and laid on the sole's plane, each riding its bone. A foot
@@ -222,22 +259,63 @@ export namespace HumanFoot {
   }
 
   /**
-   * The foot's rotation from rest for a heading and a pitch.
+   * A placement turned on the floor about its ankle's vertical.
+   *
+   * @param foot The placement.
+   * @param degrees The turn about +Y, degrees.
+   * @returns The turned placement; the same one for no turn.
+   */
+  export function turned(foot: IPlacement, degrees: number): IPlacement {
+    if (degrees === 0) return foot;
+    return {
+      ankle: foot.ankle,
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
+          foot.rotation,
+        ),
+      ),
+    };
+  }
+
+  /**
+   * The foot's rotation from rest for a heading, a pitch and a roll.
    *
    * @param heading Degrees about +Y.
    * @param pitch Degrees, positive toes up.
+   * @param roll Degrees about the foot's forward axis, positive lifting its outer border on the left foot's side (+X at rest); none when absent.
    * @returns The rotation.
    */
   export function rotation(
     heading: number,
     pitch: number,
+    roll: number = 0,
   ): IAutoMovieQuaternion {
     return Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
+          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, roll),
+        ),
         Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -pitch),
       ),
     );
+  }
+
+  /**
+   * The roll of a foot's rotation about its forward axis, degrees, as
+   * `rotation` takes it: the rise of its lateral axis.
+   *
+   * @param rotation The foot's rotation.
+   * @returns Degrees.
+   */
+  export function roll(rotation: IAutoMovieQuaternion): number {
+    const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    return (Math.asin(Math.max(-1, Math.min(1, lateral.y))) * 180) / Math.PI;
   }
 
   /**
