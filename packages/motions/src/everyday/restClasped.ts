@@ -21,7 +21,8 @@ import type { rest } from "./rest";
  * - In front the left palm lies on the front of the pelvis and the right palm
  *   on the back of the left hand, so both palms face the body.
  * - Behind, the back of the left hand lies on the sacrum and the back of the
- *   right hand in the left palm, so both palms face back.
+ *   right hand in the left palm, so both palms face back, the fingers of both
+ *   hands extended (`behind`).
  *
  * The place on the trunk is a point of its colliders on the midline
  * (`HumanTrunk.surface`), and the hand surface faces into the surface's own
@@ -112,6 +113,7 @@ export namespace restClasped {
         place.normal,
         shoulders.left,
         elbows.left,
+        "relaxed",
       );
       return {
         left,
@@ -175,7 +177,12 @@ export namespace restClasped {
    * Both hands' goals clasped behind the pelvis: the back of the left hand on
    * the back midline of the trunk 0.03 of the stature below the lower back
    * region (the sacrum; provisional), and the back of the right hand in the
-   * left palm.
+   * left palm, the fingers of both hands extended and joined, as the drill
+   * manual's parade rest holds them (TC 3-21.5, as the Army's Fort Jackson
+   * drill modules reproduce it: "Keep the fingers of both hands extended and
+   * joined, interlocking the thumbs so that the palm of the right hand is
+   * outward"). Relaxed, the left fingers curled past the right wrist into
+   * the right forearm.
    *
    * @param body The body.
    * @param posture The standing posture.
@@ -215,6 +222,7 @@ export namespace restClasped {
       place.normal,
       shoulders.left,
       elbows.left,
+      "flat",
     );
     return {
       left,
@@ -312,8 +320,8 @@ function forearm(
 }
 
 /**
- * A hand surface laid on a surface point: its normal turned into the
- * surface's outward normal exactly, and the fingers along the forearm as far
+ * A hand surface laid on a surface point in a shape: its normal turned into
+ * the surface's outward normal exactly, and the fingers along the forearm as far
  * as that allows. The wrist depends on the fingers and the forearm on the
  * wrist, so the direction starts at the line from the shoulder to the point
  * and is substituted three times.
@@ -326,6 +334,7 @@ function laid(
   normal: IAutoMovieVector3,
   shoulder: IAutoMovieVector3,
   elbow: IAutoMovieVector3,
+  shape: HumanHand.Shape,
 ): rest.IGoal {
   const local: HumanHand.IFrame = HumanHand.offset(body, side, surface);
   const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
@@ -353,7 +362,7 @@ function laid(
         ),
       ),
     );
-  return { surface, shape: "relaxed", point, rotation, elbow };
+  return { surface, shape, point, rotation, elbow };
 }
 
 /**
@@ -389,5 +398,6 @@ function stacked(
     Quaternion.rotateVector(wrist.rotation, face.normal),
     shoulder,
     elbow,
+    left.shape,
   );
 }
