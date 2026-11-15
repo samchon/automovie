@@ -242,11 +242,15 @@ export function test_human_motion_ensemble_formation(): void {
     const segment: HumanSegment.ISegment = march.segments(m.subject)[0]!;
     const half: number = 0.5 * HumanGait.MARCH.step * m.body.measure.hipHeight;
     for (const e of segment.plan.events.filter(
-      (e: IAutoMovieMotionEvent): boolean =>
-        /HeelStrike\d+$/.test(e.name),
+      (e: IAutoMovieMotionEvent): boolean => /HeelStrike\d+$/.test(e.name),
     )) {
       const t: number = segment.start + e.share * segment.plan.duration;
-      if (t > end || HumanFormation.frame(path, t).heading !== HumanFormation.frame(path, 0).heading) continue;
+      if (
+        t > end ||
+        HumanFormation.frame(path, t).heading !==
+          HumanFormation.frame(path, 0).heading
+      )
+        continue;
       const at: IAutoMovieVector3 = march.posture(m.subject, t).root;
       const slot: IAutoMovieVector3 = HumanFormation.slot(path, m.index, t).at;
       const gap: number = Math.hypot(at.x - slot.x, at.z - slot.z);

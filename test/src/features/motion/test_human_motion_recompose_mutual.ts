@@ -218,7 +218,9 @@ export function test_human_motion_recompose_mutual(): void {
           JSON.stringify(other.pose("a", reaching)) ===
           JSON.stringify(p.pose("a", reaching))
         )
-          findings.push(`${label}: another seed reaches for the clasp exactly alike`);
+          findings.push(
+            `${label}: another seed reaches for the clasp exactly alike`,
+          );
       });
 
       // 2. High five.
@@ -459,7 +461,9 @@ export function test_human_motion_recompose_mutual(): void {
           const kick: HumanSegment.ISegment | undefined = p.segments("a")[1];
           const stroke: number = instant(kick, "stroke");
           if (!(stroke > kick!.entryTime && stroke < kick!.end))
-            findings.push(`${label}: the kick's stroke falls at ${stroke} s, outside the act`);
+            findings.push(
+              `${label}: the kick's stroke falls at ${stroke} s, outside the act`,
+            );
         });
       }
     }

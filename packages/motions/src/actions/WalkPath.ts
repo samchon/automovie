@@ -62,7 +62,8 @@ export class WalkPath {
               1,
               Math.max(
                 0,
-                ((point.x - a.x) * (b.x - a.x) + (point.z - a.z) * (b.z - a.z)) /
+                ((point.x - a.x) * (b.x - a.x) +
+                  (point.z - a.z) * (b.z - a.z)) /
                   (span * span),
               ),
             );

@@ -139,7 +139,9 @@ export function test_human_motion_core_fit_frame(): void {
           `${name}${pivoting ? " pivoting" : ""} turned ${yaw}: ${after.misses - before.misses} fits solved again`,
         );
       if (!(after.hits > before.hits))
-        findings.push(`${name}${pivoting ? " pivoting" : ""} turned ${yaw}: no fit read from the memory`);
+        findings.push(
+          `${name}${pivoting ? " pivoting" : ""} turned ${yaw}: no fit read from the memory`,
+        );
       let worst: number = 0;
       for (const [bone, b] of world(body, moved)) {
         const a: IAutoMovieResolvedBone | undefined = reference.get(bone);

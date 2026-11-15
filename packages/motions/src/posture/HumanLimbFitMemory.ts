@@ -108,7 +108,8 @@ export namespace HumanLimbFitMemory {
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
   ): IAutoMovieSeededChainFit {
-    if (!REMEMBERING.on) return HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near);
+    if (!REMEMBERING.on)
+      return HumanLimbFit.fit(body, pose, limb, goal, placed, rival, near);
     // A left limb's fit is its mirror's, remembered under the right limb's
     // key, so a fit and its mirror image share one entry.
     if (limb.startsWith("left")) {
@@ -150,7 +151,8 @@ export namespace HumanLimbFitMemory {
     }
     let out: IAutoMovieSeededChainFit | undefined = fits.get(key);
     HumanLimbFitFrame.count(body, out !== undefined);
-    if (out === undefined) out = HumanLimbFit.fit(body, own, limb, aim, placed, away, near);
+    if (out === undefined)
+      out = HumanLimbFit.fit(body, own, limb, aim, placed, away, near);
     else fits.delete(key);
     fits.set(key, out);
     if (fits.size > FIT_MEMORY) fits.delete(fits.keys().next().value!);

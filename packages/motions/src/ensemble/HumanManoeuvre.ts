@@ -154,7 +154,10 @@ export namespace HumanManoeuvre {
     // A unit keeps together: each member marches its straight way at the slowest member's pace, keeping its own place on it as a station, so the parallel ways of a block stay parallel whatever each body's own step.
     const pace: number = Math.min(...speeds);
     const stations: (IHumanFormation.IStation | undefined)[] = members.map(
-      (_: HumanEnsemble.IMember, i: number): IHumanFormation.IStation | undefined =>
+      (
+        _: HumanEnsemble.IMember,
+        i: number,
+      ): IHumanFormation.IStation | undefined =>
         wheel !== null && wheel.stations !== null
           ? wheel.stations[i]!
           : (rule.path === "straight" || rule.path === "oblique") &&
@@ -251,7 +254,12 @@ export namespace HumanManoeuvre {
 
 /** The block of one member a stationed straight way is read on: its one slot stands at the block's origin. */
 const ALONE: IHumanFormation.IBlock = {
-  layout: { kind: "line", ranks: 1, files: 1, spacing: { lateral: 1, depth: 1 } },
+  layout: {
+    kind: "line",
+    ranks: 1,
+    files: 1,
+    spacing: { lateral: 1, depth: 1 },
+  },
   count: 1,
 };
 
@@ -310,7 +318,8 @@ function crossings(
   const where = (i: number, t: number): IAutoMovieVector3 => {
     const p: IHumanManoeuvre.IPart = parts[i]!;
     if (p.station !== undefined)
-      return HumanFormation.slot(p.station.formation, p.station.slot, at + t).at;
+      return HumanFormation.slot(p.station.formation, p.station.slot, at + t)
+        .at;
     const s: number = Math.max(0, (t - p.delay) * speeds[i]!);
     const arcs: number[] = lengths[i]!;
     let k: number = 0;
@@ -326,11 +335,10 @@ function crossings(
   };
   const end: number = Math.max(
     0,
-    ...parts.map(
-      (p: IHumanManoeuvre.IPart, i: number): number =>
-        p.station === undefined
-          ? p.delay + lengths[i]![lengths[i]!.length - 1]! / speeds[i]!
-          : (HumanFormation.end(p.station.formation) ?? at) - at,
+    ...parts.map((p: IHumanManoeuvre.IPart, i: number): number =>
+      p.station === undefined
+        ? p.delay + lengths[i]![lengths[i]!.length - 1]! / speeds[i]!
+        : (HumanFormation.end(p.station.formation) ?? at) - at,
     ),
   );
   const n: number = parts.length;

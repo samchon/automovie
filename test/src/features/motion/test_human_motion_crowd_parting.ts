@@ -51,9 +51,7 @@ export function test_human_motion_crowd_parting(): void {
       places: (index: number): { at: IAutoMovieVector3; yaw: number } => ({
         at: {
           // Three abreast 0.8 m apart, wider than any two of the bodies' shoulders, each flow keeping to its own side.
-          x:
-            dx +
-            (index % 2 === 0 ? -1 : 1) * (1.5 + 0.8 * ((index >> 1) % 3)),
+          x: dx + (index % 2 === 0 ? -1 : 1) * (1.5 + 0.8 * ((index >> 1) % 3)),
           y: 0,
           z:
             dz +

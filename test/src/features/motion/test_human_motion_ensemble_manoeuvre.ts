@@ -154,8 +154,7 @@ export function test_human_motion_ensemble_manoeuvre(): void {
   for (const p of parts.filter(
     (p: IHumanManoeuvre.IPart): boolean => reach(p) > 1e-6,
   )) {
-    const frame: IHumanFormation.Frame | undefined =
-      p.station?.formation.frame;
+    const frame: IHumanFormation.Frame | undefined = p.station?.formation.frame;
     if (frame?.kind !== "path" || frame.speed !== slowestMarch) {
       findings.push(
         `member ${p.member} does not march its way at the unit's pace`,
