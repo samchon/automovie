@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { type ReactElement, useCallback, useEffect, useState } from "react";
 
-import { GalleryCatalogueNav } from "../components/gallery/GalleryCatalogueNav";
+import { SITE_BASE } from "../SITE_BASE";
 import { GalleryDetails } from "../components/gallery/GalleryDetails";
 import { GalleryViewport } from "../components/gallery/GalleryViewport";
 import { GalleryAddress } from "../gallery/GalleryAddress";
@@ -19,19 +20,20 @@ type Loaded =
   | { kind: "ready"; adapter: IGalleryAdapter };
 
 /**
- * The gallery: the polygon man and every archetype, one at a time.
- *
- * The catalogue on the left lists every subject the packages export. The
- * view in the middle draws the chosen one, built in the browser. The panel
- * on the right holds its variant, its seed, the dimensions the seed drew
- * and its affordances, with a slider for each articulation.
+ * One archetype: the view, built in the browser, beside its name and kind,
+ * its specs (the dimensions its seed drew, its affordances) and, on request,
+ * the controls that customise it (seed, affordance marks, articulations).
+ * Under them, the scenes that place it.
  *
  * What is shown is kept in the address's query, so a link shows the same
  * subject in the same state.
  *
+ * @param props The listed scenes that place each producer, by producer's export name, read while the site is exported so the page carries no scene records.
  * @returns The page.
  */
-export default function GalleryMovie(): ReactElement {
+export default function GalleryMovie(props: {
+  uses: Record<string, { id: string; title: string }[]>;
+}): ReactElement {
   const [loaded, setLoaded] = useState<Loaded>({ kind: "loading" });
   const [request, setRequest] = useState<IGalleryRequest | null>(null);
   const [view, setView] = useState<IGalleryView | null>(null);
@@ -68,26 +70,45 @@ export default function GalleryMovie(): ReactElement {
     );
   }, [request]);
 
+  // The tab's title names the archetype shown.
+  useEffect((): void => {
+    if (loaded.kind !== "ready" || request === null) return;
+    const shown: IGalleryCatalogue.ISubject | undefined =
+      loaded.adapter.catalogue.groups
+        .flatMap(
+          (group: IGalleryCatalogue.IGroup): IGalleryCatalogue.ISubject[] =>
+            group.subjects,
+        )
+        .find(
+          (s: IGalleryCatalogue.ISubject): boolean => s.id === request.subject,
+        );
+    if (shown !== undefined) document.title = `${shown.label} | AutoMovie`;
+  }, [loaded, request]);
+
   const onView = useCallback(
     (next: IGalleryView | null): void => setView(next),
     [],
   );
 
-  const head: ReactElement = (
+  // The page is named after the archetype it shows, in its heading and its
+  // title, with the way back to every object above it.
+  const head: (title: string) => ReactElement = (
+    title: string,
+  ): ReactElement => (
     <header className="am-app-head">
-      <h1>Gallery</h1>
-      <p className="am-lede">
-        The body and the objects the motion vocabulary works with: the polygon
-        man of <code>@automovie/human</code> and every archetype of{" "}
-        <code>@automovie/archetypes</code>, built in your browser.
-      </p>
+      <nav aria-label="Breadcrumb" className="am-lede">
+        {/* A full navigation, as a card's link takes: each object page
+            reads its address when it mounts. */}
+        <a href={`${SITE_BASE}/objects/`}>All objects</a>
+      </nav>
+      <h1>{title}</h1>
     </header>
   );
 
   if (loaded.kind !== "ready" || request === null)
     return (
-      <div className="am-app">
-        {head}
+      <main className="am-app">
+        {head("Objects")}
         {loaded.kind === "failed" ? (
           <div className="am-alert" role="alert">
             <h2>The packages did not load</h2>
@@ -98,7 +119,7 @@ export default function GalleryMovie(): ReactElement {
             Loading the packages.
           </p>
         )}
-      </div>
+      </main>
     );
 
   const catalogue: IGalleryCatalogue = loaded.adapter.catalogue;
@@ -109,28 +130,15 @@ export default function GalleryMovie(): ReactElement {
   const subject: IGalleryCatalogue.ISubject | undefined = subjects.find(
     (s: IGalleryCatalogue.ISubject): boolean => s.id === request.subject,
   );
+  const used: { id: string; title: string }[] =
+    (Object.hasOwn(props.uses, request.subject)
+      ? props.uses[request.subject]
+      : undefined) ?? [];
 
   return (
-    <div className="am-app">
-      {head}
-      <div className="am-gallery">
-        <GalleryCatalogueNav
-          catalogue={catalogue}
-          selected={request.subject}
-          onSelect={(id: string): void => {
-            const next: IGalleryCatalogue.ISubject | undefined = subjects.find(
-              (s: IGalleryCatalogue.ISubject): boolean => s.id === id,
-            );
-            if (next === undefined) return;
-            setView(null);
-            setRequest({
-              ...request,
-              subject: next.id,
-              variant: next.variants[0]?.id ?? "",
-              state: {},
-            });
-          }}
-        />
+    <main className="am-app">
+      {head(subject?.label ?? "Objects")}
+      <div className="am-gallery am-gallery-detail">
         <GalleryViewport
           adapter={loaded.adapter}
           request={request}
@@ -145,6 +153,22 @@ export default function GalleryMovie(): ReactElement {
           />
         )}
       </div>
-    </div>
+      <section aria-labelledby="am-used" className="am-stack">
+        <h2 id="am-used">Used in scenes</h2>
+        {used.length === 0 ? (
+          <p className="am-muted">No scene places it yet.</p>
+        ) : (
+          <ul className="am-plain">
+            {used.map(
+              (scene: { id: string; title: string }): ReactElement => (
+                <li key={scene.id}>
+                  <Link href={`/scenes/${scene.id}/`}>{scene.title}</Link>
+                </li>
+              ),
+            )}
+          </ul>
+        )}
+      </section>
+    </main>
   );
 }

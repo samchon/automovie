@@ -33,6 +33,26 @@ const meta: MetaRecord = {
     display: "hidden",
     theme: { ...APPLICATION, footer: true },
   },
+  scenes: {
+    title: "Scenes",
+    type: "page",
+    theme: APPLICATION,
+  },
+  motions: {
+    title: "Motions",
+    type: "page",
+    theme: APPLICATION,
+  },
+  objects: {
+    title: "Objects",
+    type: "page",
+    theme: APPLICATION,
+  },
+  human: {
+    title: "Human",
+    type: "page",
+    theme: APPLICATION,
+  },
   playground: {
     title: "Playground",
     type: "page",
@@ -41,7 +61,12 @@ const meta: MetaRecord = {
   gallery: {
     title: "Gallery",
     type: "page",
+    display: "hidden",
     theme: APPLICATION,
+  },
+  docs: {
+    title: "Docs",
+    type: "page",
   },
 };
 export default meta;

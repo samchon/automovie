@@ -14,11 +14,19 @@ A section of such a family need not be convex. A groove, crease or valley that r
 
 The method's limit is that each section is star-shaped about the family's course: every ray from the course point meets the section once. A feature that folds back over itself breaks that, so it becomes its own family, joined to its host under [Connections](#connections).
 
+Fit a section that is symmetric about a plane as one half, with its two extremes held on that plane, and reflect it. An extreme left free wanders along a flat stretch of the outline from station to station, and its track shows as a crease along the surface.
+
 Read what a method can express from the section model's own types and from the method's literature before working around a limit. A limit taken from the method's name sends every form it would have carried to workarounds.
 
 Choose each curve's representation by its span's continuity and fullness contract, never by convenience, because a weaker form silently drops a promised continuity.
 
 Reconcile measured guide intersections before interpolation, using sections and obliques alongside front and side envelopes. Distinguish the generating operator's interpolation waypoints, control points and evaluated points.
+
+## Closed ends
+
+Mesh a closed end in rings of its own between its last section and its pole, because an end with no stations is drawn as a cone with a flat disc at the pole. Give its closing law the wall's slope and the wall's bend where the two meet, since a law that meets only the slope leaves a ring there.
+
+An end that is not visible surface, such as one buried in another part, takes the slimmest closure the law allows, so it stays inside what covers it.
 
 ## Composition before lofting
 
@@ -27,6 +35,10 @@ When several authored regions share a physical section, compose their defining 2
 Build a relief's height, and every target it blends between, from C2 functions: a C2 ramp and a C2 max over the roll. A hard clamp, max, min or polyline corner in the target becomes a crease in the surface, however finely it is sampled. A relief's window must contain the whole region where its height is nonzero, because a window edge that cuts through a nonzero height leaves a crease as well.
 
 A relief's cast must see the skin it carries. Leave unobserved an observation whose cast meets the skin at a grazing angle: a height along a ray that runs along the skin measures where an edge-on face begins, not how deep the skin lies, so the net builds a cliff there and draws a notch or spikes. A form that no cast sees belongs to the wall as an inflection line, or to a family of its own.
+
+A relief shows at its edge, in its fade and at its net's spacing, and its one height per point cannot overhang. When a surface reads in steps or level lines, look first at what its reliefs carry, and move the concave form the wall can hold into the wall as an inflection line. A smaller count of curves alone leaves those marks.
+
+How fine a relief's net must be depends on the wall under it, so measure the density again when the wall changes.
 
 A relief, a cutter and a band are each fitted to the wall they sit on. When a correct change moves that wall, refit them on the new wall. Reverting the wall to keep them restores the defect the change removed.
 
@@ -55,6 +67,8 @@ Before converting a source's sections to conic arcs, fair each section to the sc
 Judge a conversion by its loft. Loft the converted sections, render the result in clay beside the source at matching cameras, and adopt it when the form reads right there.
 
 A family is admissible when the surface operator accepts every one of its sections. Check that in the form the operator reads: between the fitted stations as well as at them, with every value rounded as it is stored, and with a margin from the boundary of the admissible region. A fit checked only at its stations or before rounding is refused when the surface is built.
+
+Space a wall's knots along its course at the scale of the form the wall is meant to carry. Knots closer than that make the wall follow the small steps of its target, which show as level lines across the surface. Form finer than the knots belongs to an inflection line or a relief.
 
 When a fit misses, find what binds it before refitting: a layout that cannot express the section, too few knots along the course, a constraint that holds the fit off the data, or a weighting that favours another region. Each has its own remedy, and a refit that changes one of them by trial repeats the miss.
 

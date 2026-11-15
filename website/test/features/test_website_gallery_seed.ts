@@ -19,14 +19,10 @@ export function test_website_gallery_seed(): void {
   const unchanged: string[] = [];
   const empty: string[] = [];
   const refused: string[] = [];
-  const subjects: IGalleryCatalogue.ISubject[] = GalleryCatalogue.catalogue()
-    .groups.flatMap(
+  const subjects: IGalleryCatalogue.ISubject[] =
+    GalleryCatalogue.catalogue().groups.flatMap(
       (group: IGalleryCatalogue.IGroup): IGalleryCatalogue.ISubject[] =>
         group.subjects,
-    )
-    .filter(
-      (subject: IGalleryCatalogue.ISubject): boolean =>
-        subject.id !== GalleryCatalogue.HUMAN,
     );
 
   for (const subject of subjects)

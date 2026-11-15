@@ -1,3 +1,4 @@
+export * from "./ARCHETYPE_FAMILIES";
 export * from "./animals";
 export * from "./architecture";
 export * from "./core";
