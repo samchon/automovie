@@ -228,7 +228,7 @@ export namespace IHumanActionPlan {
     /** The somersault frame in the root's frame at take-off (a side salto turns it a quarter about the long axis); the root's own axes when absent. */
     frame?: IAutoMovieQuaternion;
 
-    /** The largest momentum the take-off can give, kg m²/s; when absent, the flight pass derives it from the take-off's own momentum and the centre's lever over the foot (`HumanPerformanceFlight`). */
+    /** The largest momentum the take-off can give, kg m²/s; unbounded when absent. */
     maximum?: number;
   }
 
