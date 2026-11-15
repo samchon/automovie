@@ -32,9 +32,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    overlay segment) and the report is clean.
  * 2. Overlay on both arms: a clap over `stand`, `walk` and `run`, the same.
  * 3. Manner presets: `weary` and `brisk` against the neutral act for
- *    `walk`, `run`, `approach`, `carry`, `climbStairs`, `crawl` and
- *    `climbLadder`: the weary act lasts longer and the brisk one (walk, run,
- *    carry) less, each report clean. A weary walk's mean speed and steady
+ *    `walk`, `run`, `approach`, `carry`, `climbStairs`, `stepOver`, `jump`,
+ *    `crawl` and `climbLadder`: the weary act lasts longer and the brisk one
+ *    (walk, run, carry) less, each report clean; a weary jump's flight, from
+ *    `takeoff` to `touchdown`, is the neutral one's (gravity fixes it). A weary walk's mean speed and steady
  *    step are below the neutral walk's (sad and weary walks are slower with
  *    shorter strides, Montepare, Goldstein and Clausen 1987, the direction
  *    `AutoMovieMotionManner.PRESETS` cites).
@@ -60,13 +61,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    ankles' midpoint within 10 mm of the floor point asked (#3211).
  * 10. Replay and variation: the 6 m walk performed again with the same seed
  *     is bone for bone the same; with another seed its duration differs.
- * 11. Refusals: a manner pace of 0, a manner intensity above 1 and an
- *     authored stride of 1.4 with a manner are each refused with the
- *     parameter's name in the reason.
+ * 11. Refusals: a wave over a carry in both hands or on a pushed handle is
+ *     refused naming the right arm it holds; a manner pace of 0, a manner
+ *     intensity above 1 and an authored stride of 1.4 with a manner are each
+ *     refused with the parameter's name in the reason.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs every law of the matrix through the public chain and reads the shipped verdict report, displayed bones, segments and overlays: a refused overlay, an unclean report, a manner that does not change the pace or moves a goal on a solid place, a gait without flight or out of its cited speed and duty, a non-replaying take or an accepted bad manner is caught.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is a shipped verdict (`HumanVerdicts`), #3360's acceptance (Bohannon 1997, Mann and Hagy 1980, Novacheck 1998, Hausdorff et al. 1995) or #3227's 0.02 m and 5 degrees; none is read from the laws.
- * @evidence contracts/development/testing.md#distinguishing-cases Two statures; every travel law on every axis that applies to it; both sides of the side-taking loads; two presets each way of the neutral one; a second seed; three refusals.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two statures; every travel law on every axis that applies to it; both sides of the side-taking loads; two presets each way of the neutral one; a second seed; five refusals.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of the motions package on prepared polygon-man bodies and an archetype ladder, discovered by its exported name; no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the eleven scenarios, their bounds and sources.
  */
@@ -191,6 +193,7 @@ export function test_human_motion_recompose_travel(): void {
       | "carry"
       | "climbStairs"
       | "stepOver"
+      | "jump"
       | "crawl"
       | "climbLadder";
     interface IAct {
@@ -247,8 +250,17 @@ export function test_human_motion_recompose_travel(): void {
         duo: false,
       },
       stepOver: {
-        chain: () => a().stepOver({ obstacle: "box" }),
+        chain: (m) => a().stepOver({ obstacle: "box", ...manner(m) }),
         props: () => [box],
+        duo: false,
+      },
+      jump: {
+        chain: (m) =>
+          a().jump({
+            to: { x: 0, y: 0, z: 0.6 * body.measure.hipHeight },
+            ...manner(m),
+          }),
+        props: () => [],
         duo: false,
       },
       crawl: {
@@ -330,11 +342,29 @@ export function test_human_motion_recompose_travel(): void {
       "approach",
       "carry",
       "climbStairs",
+      "stepOver",
+      "jump",
       "crawl",
       "climbLadder",
     ] as const) {
-      const neutral: number = length(play(law, "neutral"));
-      const slow: number = length(play(law, "weary", weary));
+      const plainly: HumanPerformance | undefined = play(law, "neutral");
+      const wearily: HumanPerformance | undefined = play(law, "weary", weary);
+      const neutral: number = length(plainly);
+      const slow: number = length(wearily);
+      if (law === "jump") {
+        // The flight is gravity's: a manner leaves it as it is.
+        const flight = (p: HumanPerformance | undefined): number => {
+          const plan = p?.segments("a")[0]?.plan;
+          const at = (event: string): number =>
+            (plan?.events.find((e): boolean => e.name === event)?.share ??
+              NaN) * (plan?.duration ?? NaN);
+          return at("touchdown") - at("takeoff");
+        };
+        if (!(Math.abs(flight(wearily) - flight(plainly)) <= 1e-9))
+          findings.push(
+            `${name}: a weary jump flies ${flight(wearily).toFixed(4)} s against the neutral ${flight(plainly).toFixed(4)} s, the same expected (a manner never retimes a ballistic flight)`,
+          );
+      }
       if (!(slow > neutral))
         findings.push(
           `${name}: a weary ${law} lasts ${slow.toFixed(3)} s against the neutral ${neutral.toFixed(3)} s, longer expected`,
@@ -611,7 +641,23 @@ export function test_human_motion_recompose_travel(): void {
         );
     }
 
-    // 11. Refusals.
+    // 11. Refusals. A load held in both hands yields no arm.
+    for (const how of ["twoHands", "push"] as const) {
+      let reason: string = "";
+      try {
+        perform(
+          a()
+            .carry({ to: { x: 0, y: 0, z: 2.5 }, how, load: 0.15 })
+            .over(wave),
+        );
+      } catch (error) {
+        reason = error instanceof Error ? error.message : String(error);
+      }
+      if (!reason.includes("rightArm"))
+        findings.push(
+          `${name}: a wave over a ${how} carry is ${reason === "" ? "accepted" : `refused for "${reason}"`}, refused naming rightArm expected`,
+        );
+    }
     for (const [label, params, parameter] of [
       [
         "a manner pace of 0",

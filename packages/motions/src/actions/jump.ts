@@ -14,6 +14,7 @@ import type { tags } from "typia";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
+import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanUnit } from "../law/HumanUnit";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -130,6 +131,9 @@ export namespace jump {
      * faster. No turn when absent.
      */
     rotation?: IParams.IRotation;
+
+    /** How it is performed: the manner's tempo scales the push-off, the absorption and the rise, never the flight, which gravity fixes; neutral when absent. */
+    manner?: AutoMovieMotionManner.IManner;
   }
   export namespace IParams {
     /** A flight's requested turns. */
@@ -331,10 +335,15 @@ export namespace jump {
     );
     const { vy, T, launch, land } = flight;
 
-    const P: number = PUSH;
+    // A manner retimes what the performer does, not the flight gravity fixes.
+    const tempo: number = AutoMovieMotionManner.of(
+      context,
+      context.params.manner,
+    ).tempo;
+    const P: number = PUSH * tempo;
     const touchdown: number = P + T;
-    const settled: number = touchdown + ABSORB;
-    const duration: number = settled + RISE;
+    const settled: number = touchdown + ABSORB * tempo;
+    const duration: number = settled + RISE * tempo;
     const bearing: IHumanContactWindow["support"] =
       context.params.on === undefined
         ? { kind: "ground" }
