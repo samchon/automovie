@@ -11,13 +11,14 @@ import { throwObject } from "../throwing/throwObject";
  *   (2004) measured in elite men at the 1999 World Championships (27.7 to
  *   40.1 degrees), 33.9 degrees; a soldier's lower speed follows from the
  *   range equation to the target. The athletes' run-up stays with #3377.
- * - `throwKnife`: overarm; the knife's spin, whose rate turns it a whole
- *   number of half turns to the target, is the composition's attitude until
- *   the act chooses the stand-off.
+ * - `throwKnife`: overarm, spinning at the throwing arm's rate rounded to a
+ *   whole number of half turns over the flight to the target, so the
+ *   stand-off decides the turns (`throwObjectLever.spin`).
  * - `throwGrenade`, `hurlStone` and `hurlBottle`: overarm at the style's
  *   angle, the body tumbling as it was released.
- * - `sling` and `castAtlatl`: overarm; the implement that lengthens the arm
- *   is not modelled yet (#3490's `implement`), so they throw from the hand.
+ * - `sling` and `castAtlatl`: overarm from the implement the composition
+ *   names (`implement`, a sling's pouch, an atlatl's spur), which lengthens
+ *   the lever the launch leaves from (`throwObjectLever`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each row's style, angle and attitude with the source, and what is not modelled.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped law (`HumanActionRow`).
@@ -42,9 +43,10 @@ export namespace HumanThrownWeapon {
     attitude: { kind: "velocity" },
   });
 
-  /** Throw a knife overarm. */
+  /** Throw a knife overarm, spinning whole half turns to the target. */
   export const throwKnife = HumanActionRow.of("throwKnife", throwObject, {
     style: "overarm",
+    attitude: { kind: "turns" },
   });
 
   /** Lob a grenade overarm. */
@@ -62,12 +64,12 @@ export namespace HumanThrownWeapon {
     style: "overarm",
   });
 
-  /** Sling a stone. */
+  /** Sling a stone from the sling the composition names (`implement`). */
   export const sling = HumanActionRow.of("sling", throwObject, {
     style: "overarm",
   });
 
-  /** Cast a dart with an atlatl. */
+  /** Cast a dart with the atlatl the composition names (`implement`). */
   export const castAtlatl = HumanActionRow.of("castAtlatl", throwObject, {
     style: "overarm",
   });
