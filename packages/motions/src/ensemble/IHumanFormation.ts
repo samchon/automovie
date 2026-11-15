@@ -136,6 +136,13 @@ export namespace IHumanFormation {
 
     /** The film second the station ends; the frame's own end when absent. */
     until?: number;
+
+    /**
+     * The member's slow deviation from its slot (`HumanEnsemble.station`):
+     * its bound, metres, and the stream seed its lateral and depth
+     * deviations are drawn from; none when absent.
+     */
+    dress?: { bound: number; seed: string };
   }
 
   /** One speed mark of a path frame. */

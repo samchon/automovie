@@ -24,12 +24,14 @@ import type { IHumanAttributeEffects } from "./IHumanAttributeEffects";
  *   for measured gains in paced stepping (Repp 2005; Repp and Keller 2004,
  *   2008) found no table read; 0.3 to 0.7 is provisional.
  * - `discipline.dress`: the factor on a member's dress bound about its slot
- *   (#3458); provisional.
- * - `fatigue.pace`: the factor on a gait's speed, from fresh to the `weary`
- *   manner preset's pace (`AutoMovieMotionManner.PRESETS.weary`, itself
- *   provisional), so one table owns weariness.
- * - `morale.latency`: the factor on a response latency's mean (hesitation);
+ *   (`HumanEnsemble.station`, read by the walk family's station keeping);
  *   provisional.
+ * - `fatigue.pace`: the factor on a steered member's desired speed
+ *   (`HumanCrowd.steer`), from fresh to the `weary` manner preset's pace
+ *   (`AutoMovieMotionManner.PRESETS.weary`, itself provisional), so one table
+ *   owns weariness. The walk family does not read it yet.
+ * - `morale.latency`: the factor on a response latency's mean (hesitation,
+ *   `HumanResponse.latency`); provisional.
  * - `morale.speed`: the factor on a fleeing member's desired speed, from the
  *   nervous to the normal desired speed of Helbing, Farkas and Vicsek 2000
  *   (Nature 407:487: about 1.5 against 1 m/s), so low morale runs faster.

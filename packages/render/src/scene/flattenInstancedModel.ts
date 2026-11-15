@@ -41,11 +41,11 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 export const flattenInstancedModel: (
   model: IAutoMovieModel,
   owner?: string,
-  bake?: Pick<IBakeFormationCycleProps, "samples">,
+  bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
 ) => IAutoMovieInstancedModelRepresentation = (
   model: IAutoMovieModel,
   owner: string = `Instanced runtime model "${model.id}"`,
-  bake?: Pick<IBakeFormationCycleProps, "samples">,
+  bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
 ): IAutoMovieInstancedModelRepresentation => {
   const built: ReturnType<typeof buildModel> = buildModel(model);
   const sourceResources: readonly { dispose(): void }[] =
@@ -75,6 +75,7 @@ export const flattenInstancedModel: (
             built,
             parts,
             samples: bake.samples,
+            ...(bake.takes === undefined ? {} : { takes: bake.takes }),
           });
   } catch (error) {
     // The source collection already holds the skinned meshes' skeletons.

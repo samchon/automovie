@@ -1,3 +1,8 @@
+import {
+  type IAutoMovieRandom,
+  createAutoMovieRandom,
+  seededSmoothNoise,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFormation } from "../ensemble/HumanFormation";
@@ -182,6 +187,9 @@ export namespace walkStation {
   /** The share of its cruising speed under which the plan is taken to be stopping (provisional). */
   export const CRUISE: number = 0.9;
 
+  /** The fastest a member's dress deviation swings, hertz (provisional: once in about two strides of a march at quick time). */
+  export const DRESS_FREQUENCY: number = 0.25;
+
   /** Metres between two kept corners of a slot's way handed to the stepping plan (provisional: about a stride, so no corner falls within one step of the last). */
   export const SPACING: number = 1;
 
@@ -215,31 +223,16 @@ export namespace walkStation {
     if (station === undefined) return context;
     const from: number = context.start;
     const until: number = rests(context, station);
-    const read: HumanFormation.Reader = (
-      subject: string,
-      seconds: number,
-    ): IHumanActionContext.IRoot => context.performer(subject).root(seconds);
-    const samples: IHumanFormation.ISample[] =
-      until > from
-        ? HumanFormation.path(
-            station.formation,
-            station.slot,
-            from,
-            until,
-            HumanFormation.SAMPLE,
-            read,
-          )
-        : [
-            {
-              seconds: from,
-              ...HumanFormation.slot(
-                station.formation,
-                station.slot,
-                from,
-                read,
-              ).at,
-            },
-          ];
+    // The slot's way at the formation's sampling, each point the member's dressed place there.
+    const at: (seconds: number) => IAutoMovieVector3 = point(context, station);
+    const samples: IHumanFormation.ISample[] = [];
+    const count: number =
+      until > from ? Math.ceil((until - from) / HumanFormation.SAMPLE - 1e-9) : 0;
+    for (let k: number = 0; k <= count; ++k) {
+      const seconds: number =
+        k === count ? Math.max(from, until) : from + k * HumanFormation.SAMPLE;
+      samples.push({ seconds, ...at(seconds) });
+    }
     const last: IHumanFormation.ISample = samples[samples.length - 1]!;
     const via: IAutoMovieVector3[] = [];
     let kept: IAutoMovieVector3 = context.entry.posture.root;
@@ -304,7 +297,8 @@ export namespace walkStation {
   }
 
   /**
-   * The point a walk's station keeps at a film second: its slot.
+   * The point a walk's station keeps at a film second: its slot, moved by
+   * the member's slow dress deviation when the station carries one.
    *
    * @param context The walk's context.
    * @param station The station.
@@ -314,13 +308,38 @@ export namespace walkStation {
     context: IHumanActionContext<IStationed>,
     station: IHumanFormation.IStation,
   ): (seconds: number) => IAutoMovieVector3 {
-    return (seconds: number): IAutoMovieVector3 =>
-      HumanFormation.slot(
-        station.formation,
-        station.slot,
-        seconds,
-        (subject: string, t: number): IHumanActionContext.IRoot =>
-          context.performer(subject).root(t),
-      ).at;
+    const read: HumanFormation.Reader = (
+      subject: string,
+      t: number,
+    ): IHumanActionContext.IRoot => context.performer(subject).root(t);
+    const dress: { bound: number; seed: string } | undefined = station.dress;
+    if (dress === undefined || !(dress.bound > 0))
+      return (seconds: number): IAutoMovieVector3 =>
+        HumanFormation.slot(station.formation, station.slot, seconds, read).at;
+
+    // A slow deviation from the slot along each of the frame's axes, smooth and zero where the station begins and ends (`seededSmoothNoise`), swinging at most `DRESS_FREQUENCY` hertz.
+    const local: HumanFormation.ILocal = HumanFormation.local(
+      station.formation,
+      station.slot,
+    );
+    const from: number = context.start;
+    const span: number = Math.max(rests(context, station) - from, 1e-6);
+    const random: IAutoMovieRandom = createAutoMovieRandom(dress.seed);
+    const lateral: IAutoMovieRandom = random.stream("lateral");
+    const depth: IAutoMovieRandom = random.stream("depth");
+    return (seconds: number): IAutoMovieVector3 => {
+      const u: number = (seconds - from) / span;
+      return HumanFormation.place(
+        HumanFormation.frame(station.formation, seconds, read),
+        {
+          lateral:
+            local.lateral +
+            dress.bound * seededSmoothNoise(lateral, u, span, DRESS_FREQUENCY),
+          depth:
+            local.depth +
+            dress.bound * seededSmoothNoise(depth, u, span, DRESS_FREQUENCY),
+        },
+      );
+    };
   }
 }

@@ -161,6 +161,7 @@ export class HumanChain extends HumanChainSport {
               role,
               params ?? ({} as Params),
               subjects,
+              anchor,
             );
             return HumanChain.subject(subjects[role]).registered(
               act.name,

@@ -402,6 +402,46 @@ export namespace HumanEnsemble {
   export const LAG: number = 0.047;
 
   /**
+   * A member's station in a formation, for the walk family's `station`: its
+   * slot, and its slow dress deviation, whose bound is `DRESS` scaled by its
+   * discipline (`HUMAN_ATTRIBUTE_EFFECTS.discipline.dress`, the neutral 0.5
+   * when absent) and whose draws are the member's own.
+   *
+   * @param ensemble The ensemble.
+   * @param member The member.
+   * @param formation The formation it keeps; the ensemble's when absent.
+   * @param until The film second the station ends; the frame's rest when absent.
+   * @returns The station.
+   * @throws {Error} When neither a formation nor the ensemble's is given.
+   */
+  export function station(
+    ensemble: IEnsemble,
+    member: IMember,
+    formation?: IHumanFormation,
+    until?: number,
+  ): IHumanFormation.IStation {
+    const kept: IHumanFormation | undefined = formation ?? ensemble.input.formation;
+    if (kept === undefined) throw new Error(`${member.subject} keeps no formation`);
+    return {
+      formation: kept,
+      slot: member.index,
+      ...(until === undefined ? {} : { until }),
+      dress: {
+        bound:
+          DRESS *
+          HumanAttribute.effect(HUMAN_ATTRIBUTE_EFFECTS.discipline.dress, member.attributes.discipline, 0.5),
+        seed: HumanAttribute.stream(ensemble.input.seed, ensemble.input.id, member.index, "dress").seed,
+      },
+    };
+  }
+
+  /**
+   * The bound of a member's slow dress deviation at the effect's factor 1,
+   * metres (provisional: about the 4 cm dressing a formed line keeps, the
+   * tolerance the interface's layouts call dressing).
+   */
+  export const DRESS: number = 0.04;
+  /**
    * Which members an authored outcome falls on: exactly `count` of those
    * `among` admits, chosen by the seed, and where an attribute is named the
    * members lower in it more often (weighted sampling without replacement
