@@ -24,7 +24,7 @@ const NKBA: Readonly<{
  * Scenarios:
  * 1. The top, its `stack` and its `front` edge lie 1067 mm up.
  * 2. The base stands under the top's back, as deep as NKBA's counter range, and the top reaches 305 mm past the base's front on `+Z`, where a seated person's knees go.
- * 3. A service counter's top lies at Delfield's and the ADA's 36 in, 30 in deep, 30 to 50 in long.
+ * 3. A service counter's top lies at Delfield's and the ADA's 36 in, 30 in deep; over 200 seeds every counter is one of Delfield's 30, 36 and 50 in lengths exactly, and each is drawn.
  * 4. A workbench's top lies at IKEA RIMFORSA's 90 to 94 cm, 120 x 63.5 cm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced top and base colliders and the contact frames over the seeds; a bar at a kitchen counter's height or with no knee space is caught with the numbers.
@@ -80,20 +80,26 @@ export function test_archetype_table_bar(): void {
     findings.push("the service counter is not 36 in (91 cm) high");
   if (!(Math.abs(archetypeExtent(counter, "z", ["top"]).size - 0.76) <= MM))
     findings.push("the service counter is not 30 in (76 cm) deep");
-  findings.push(
-    ...archetypeBandSweep([
-      {
-        name: "service counter length",
-        measure: (seed: number): number =>
-          archetypeExtent(createTable({ kind: "serviceCounter" }, seed), "x", [
-            "top",
-          ]).size,
-        minimum: 30 * ArchetypeUnits.INCH,
-        maximum: 50 * ArchetypeUnits.INCH,
-        source: "Delfield SCS",
-      },
-    ]),
+  // Over 200 seeds every service counter is one of Delfield's three lengths exactly, and each is drawn.
+  const lengths: readonly number[] = [30, 36, 50].map(
+    (inches: number): number => inches * ArchetypeUnits.INCH,
   );
+  const drawn: Set<number> = new Set<number>();
+  for (let seed: number = 0; seed < 200; seed++) {
+    const length: number = archetypeExtent(
+      createTable({ kind: "serviceCounter" }, seed),
+      "x",
+      ["top"],
+    ).size;
+    const listed: number = lengths.findIndex(
+      (read: number): boolean => Math.abs(read - length) <= 1e-9,
+    );
+    if (listed < 0)
+      findings.push(`service counter ${seed}: ${length} m is no Delfield length`);
+    else drawn.add(listed);
+  }
+  if (drawn.size !== lengths.length)
+    findings.push(`200 seeds drew ${drawn.size} of Delfield's three lengths`);
   // 4. The workbench.
   findings.push(
     ...archetypeBandSweep([

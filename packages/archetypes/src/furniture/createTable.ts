@@ -63,14 +63,14 @@ const KNEE: number = 0.305;
  *
  * The model is a top on four legs, on a solid base for a counter, a bar counter and a service counter, or on two pedestals for an altar. The top is centred over the origin with its length along `+X`; the `+Z` edge is the front, where a person sits or stands at it.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, a service counter's or a pupil desk's listed size, and any dimension the author fixes.
+ * @param seed The seed that picks a listed size when none is given and draws every dimension left free inside its band; absent, the first size and the middle of each band.
  * @returns The table.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the top and its support, then the top's contacts and the four edges.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions and pick a listed size, build the top and its support, then the top's contacts and the four edges.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No drawer or apron. The legs stand with their centres `LEG_INSET` in from the top's edges and are `LEG_RADIUS` round, so the top overhangs their outer faces by the difference on every side, and an altar's pedestals stand `LEG_INSET` in from the top's ends; a counter's and a service counter's top overhangs its base by `COUNTER_OVERHANG` at the front and a bar counter's by the guideline's knee space, each base flush with the top at the back and at both ends. A pupil desk's top is its sheet's 5/8 in; the others' 40 mm and an altar's pedestals (`ALTAR_PEDESTAL`) are construction estimates no act reads.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most five parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -86,14 +86,29 @@ export function createTable(
     params.kind,
     createTable.KINDS,
   );
-  const d: Record<createTable.Dimension, number> = ArchetypeDraw.dimensions(
+  const d: Partial<Record<createTable.Dimension, number>> =
+    ArchetypeDraw.dimensions(
+      "table",
+      createTable.BANDS[kind],
+      seed,
+      params,
+      createTable.BANDS,
+    );
+  // A service counter's length and a pupil desk's height are one of the sizes their sheets list, never a value between two.
+  const size: { figures: Readonly<Partial<Record<createTable.Dimension, number>>> } = ArchetypeDraw.model(
     "table",
-    createTable.BANDS[kind],
+    "size",
+    params.size,
+    createTable.SIZES[kind],
     seed,
-    params,
-    createTable.BANDS,
   );
-  const { height, length, depth }: Record<createTable.Dimension, number> = d;
+  const sized: Partial<Record<createTable.Dimension, number>> = {
+    ...d,
+    ...size.figures,
+  };
+  const height: number = sized.height!;
+  const length: number = sized.length!;
+  const depth: number = sized.depth!;
   const builder: ArchetypeBuilder<
     createTable.Affordance,
     createTable.Dimension
@@ -190,7 +205,7 @@ export function createTable(
       extent: null,
       length: span,
     });
-  return builder.build(d.mass);
+  return builder.build(d.mass!);
 }
 
 /**
@@ -199,7 +214,7 @@ export function createTable(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance and dimension states what it is; each band its source.
  * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The height a seated or standing person works at and the top's size (#3370, #3468 N6, N12, N16).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every kind has every dimension, so the bands are total records.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A size a sheet lists as discrete steps is picked whole from `SIZES`, never drawn between two; every other dimension is a band.
  */
 export namespace createTable {
   /** The kinds of table. */
@@ -226,6 +241,51 @@ export namespace createTable {
     "pupilDesk",
     "altar",
   ];
+
+  /** The sizes a sheet lists in steps: a service counter's lengths (`length30`, `length36`, `length50`, Delfield's 30, 36 and 50 in) and a pupil desk's heights (`height19` to `height31`, Smith System's 19 to 31 in in 1 in steps). */
+  export type Size =
+    | "length30"
+    | "length36"
+    | "length50"
+    | "height19"
+    | "height20"
+    | "height21"
+    | "height22"
+    | "height23"
+    | "height24"
+    | "height25"
+    | "height26"
+    | "height27"
+    | "height28"
+    | "height29"
+    | "height30"
+    | "height31";
+
+  /** Each kind's listed sizes, the default first, each with the dimension it fixes, metres; a kind not listed has none. */
+  export const SIZES: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Size, Readonly<Partial<Record<Dimension, number>>>>>>>>
+  > = {
+    serviceCounter: {
+      length30: { length: 30 * ArchetypeUnits.INCH },
+      length36: { length: 36 * ArchetypeUnits.INCH },
+      length50: { length: 50 * ArchetypeUnits.INCH },
+    },
+    pupilDesk: {
+      height19: { height: 19 * ArchetypeUnits.INCH },
+      height20: { height: 20 * ArchetypeUnits.INCH },
+      height21: { height: 21 * ArchetypeUnits.INCH },
+      height22: { height: 22 * ArchetypeUnits.INCH },
+      height23: { height: 23 * ArchetypeUnits.INCH },
+      height24: { height: 24 * ArchetypeUnits.INCH },
+      height25: { height: 25 * ArchetypeUnits.INCH },
+      height26: { height: 26 * ArchetypeUnits.INCH },
+      height27: { height: 27 * ArchetypeUnits.INCH },
+      height28: { height: 28 * ArchetypeUnits.INCH },
+      height29: { height: 29 * ArchetypeUnits.INCH },
+      height30: { height: 30 * ArchetypeUnits.INCH },
+      height31: { height: 31 * ArchetypeUnits.INCH },
+    },
+  };
 
   /** How far in from the top's edges the legs' centres stand, metres: a construction estimate no act reads. */
   export const LEG_INSET: number = 0.05;
@@ -275,13 +335,22 @@ export namespace createTable {
     /** Which table. */
     kind: Kind;
 
+    /** A service counter's length or a pupil desk's height, one of the kind's `SIZES`; drawn from the seed when absent. */
+    size?: Size;
+
     /** The model's id, unique in a scene; `table` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The band of each free dimension, by kind: every dimension's, except a service counter's length and a pupil desk's height, which are picked from `SIZES`. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<
+      Exclude<Kind, "serviceCounter" | "pupilDesk">,
+      Readonly<Record<Dimension, IArchetypeBand>>
+    > & {
+      serviceCounter: Readonly<Record<Exclude<Dimension, "length">, IArchetypeBand>>;
+      pupilDesk: Readonly<Record<Exclude<Dimension, "height">, IArchetypeBand>>;
+    }
   > = {
     dining: {
       height: ArchetypeBand.metres(
@@ -371,7 +440,6 @@ export namespace createTable {
     },
     serviceCounter: {
       height: ArchetypeBand.metres(0.91, 0.91, SERVICE),
-      length: ArchetypeBand.metres(30 * ArchetypeUnits.INCH, 50 * ArchetypeUnits.INCH, `${SERVICE}: the three lengths`),
       depth: ArchetypeBand.metres(0.76, 0.76, SERVICE),
       mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
     },
@@ -386,7 +454,6 @@ export namespace createTable {
       mass: ArchetypeBand.of("kg", 40, 64, `${ArchetypeBand.TYPICAL_MASS}; its three packages weigh 64.5 kg`, true),
     },
     pupilDesk: {
-      height: ArchetypeBand.metres(19 * ArchetypeUnits.INCH, 31 * ArchetypeUnits.INCH, SILHOUETTE),
       length: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, SILHOUETTE),
       depth: ArchetypeBand.metres(18 * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, SILHOUETTE),
       mass: ArchetypeBand.of("kg", 33 * ArchetypeUnits.POUND, 33 * ArchetypeUnits.POUND, SILHOUETTE),
