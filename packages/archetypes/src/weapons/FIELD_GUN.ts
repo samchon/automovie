@@ -189,6 +189,7 @@ export namespace FIELD_GUN {
    * The tube's 884 lb is shared between its breech and its chase so that the breech bears the read 47 lb preponderance at the rear of the base-ring; the trunnions take their volume's part at the tube's mean density. The carriage's wood and irons share its 540 lb less the axle-tree's read 116 lb by volume, and each wheel carries its read 180 lb by the volumes of its disc, spokes and nave.
    *
    * @param builder The producer's builder.
+   * @param recoil The run back on firing, metres: the travel of the `recoil` slider every part rides.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the weights are shared.
    * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis.
@@ -200,6 +201,7 @@ export namespace FIELD_GUN {
    */
   export function build(
     builder: ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension>,
+    recoil: number,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const t: typeof TUBE = TUBE;
@@ -353,6 +355,7 @@ export namespace FIELD_GUN {
         extent: null,
         travel: 360,
         parts,
+        rides: "recoil",
       });
     }
 
@@ -365,6 +368,16 @@ export namespace FIELD_GUN {
       travel: c.elevation,
       reverse: c.depression,
       parts: ["breech", "cascabel", "chase", "trunnions"],
+      rides: "recoil",
+    });
+    // The recoil: the whole gun runs back along the ground, the carriage's parts on this slider and everything else riding it.
+    builder.affordance({
+      id: "recoil",
+      kind: "slider",
+      frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(0, 0, -1)),
+      extent: null,
+      travel: recoil,
+      parts: ["stock", "trail", "cheek-left", "cheek-right", "screw", "axle"],
     });
     builder.affordance({
       id: "muzzle",
@@ -419,6 +432,7 @@ export namespace FIELD_GUN {
       kind: "knob",
       frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
+      rides: "recoil",
     });
     builder.affordance({
       id: "trail",
@@ -426,6 +440,7 @@ export namespace FIELD_GUN {
       frame: ArchetypeFrame.upright(v(0, depth, trailEnd)),
       extent: null,
       width,
+      rides: "recoil",
     });
     // The trail handspike shipped in the trail's end, its read length running back along the trail, `ESTIMATES.handspike` of it behind the end; the limber's pintle takes the trail's end from below, and the axle's middle is where the carriage is drawn from.
     builder.affordance({
@@ -437,18 +452,21 @@ export namespace FIELD_GUN {
       grip: "power",
       aperture: depth,
       length: s.handspike * e.handspike,
+      rides: "recoil",
     });
     builder.affordance({
       id: "limber",
       kind: "socket",
       frame: ArchetypeFrame.facing(v(0, 0, trailEnd), v(0, -1, 0), v(1, 0, 0)),
       extent: null,
+      rides: "recoil",
     });
     builder.affordance({
       id: "axle",
       kind: "socket",
       frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
+      rides: "recoil",
     });
     // Each wheel's top, where a cannoneer takes the spokes to run the gun up; it turns with the wheel.
     for (const [id, spin, sign] of [
