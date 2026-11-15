@@ -14,6 +14,6 @@ Take the cases prompting's verification asks for from the tasks the change affec
 
 For a changed expression criterion, test an informative but ineffective passage and a deliberate restrained form against [creation and judgment](task-design.md#creation-and-judgment), and confirm that the item's own question catches what the production's [sentence classification](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/inspection.md) alone misses.
 
-Under prompting's separate-context check, also withhold the author's argument for the change and any earlier review verdict, and observe which resources it reads.
+When a separate context performs the task under prompting's verification, also withhold the author's argument for the change and any earlier review verdict, and observe which resources it reads; this does not apply to a review round's reviewer.
 
 Report rendered distribution and actual media result as their own categories beside prompting's. Static case comparison does not prove better storytelling, a clean sentence classification does not approve the whole experience, and an instruction-only change does not verify an unrendered film.
