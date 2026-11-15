@@ -82,6 +82,7 @@ import {
   createRing,
   createRock,
   createRowingMachine,
+  createSaloonDoor,
   createSanitary,
   createSeat,
   createShield,
@@ -313,6 +314,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       `board-${kind}`,
       (seed?: number | string): Archetype => createBoard({ kind }, seed),
     );
+  add(
+    "saloonDoor",
+    (seed?: number | string): Archetype => createSaloonDoor({}, seed),
+  );
   add(
     "cellFront",
     (seed?: number | string): Archetype => createCellFront({ bars: 12 }, seed),

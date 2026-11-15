@@ -13,6 +13,7 @@ export * from "./createMachine";
 export * from "./createMirror";
 export * from "./createObstacle";
 export * from "./createRamp";
+export * from "./createSaloonDoor";
 export * from "./createSanitary";
 export * from "./createStairs";
 export * from "./createStreetFixture";

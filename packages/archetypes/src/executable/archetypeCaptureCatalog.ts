@@ -16,6 +16,7 @@ import {
   createMirror,
   createObstacle,
   createRamp,
+  createSaloonDoor,
   createSanitary,
   createStairs,
   createStreetFixture,
@@ -396,6 +397,7 @@ export function archetypeCaptureCatalog(): Readonly<
         (kind: createHandhold.Kind): Archetype => createHandhold({ kind }),
       ),
       cellFront: createCellFront({ bars: 12 }),
+      saloonDoor: createSaloonDoor(),
       ...kinds(
         "mirror",
         createMirror.KINDS,
