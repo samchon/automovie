@@ -22,6 +22,7 @@ export * from "./constants";
 export * from "./curlChainUntilContact";
 export * from "./decomposeJointRotation";
 export * from "./decomposeJointRotationOnBasis";
+export * from "./fitDigitToTarget";
 export * from "./gazeChainJoints";
 export * from "./hingedArmArticulation";
 export * from "./hingedArmSwivel";
