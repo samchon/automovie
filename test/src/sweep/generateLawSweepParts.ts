@@ -89,7 +89,7 @@ const CLAIMS: Record<string, string> = {
   locomotion:
     "standing, walking, running, jumping, approaching, stepping over, stairs, a ladder, crawling and carrying",
   posture:
-    "looking, gesturing, resting the hands, bracing, bending, crouching, kneeling, lying down, sitting, shifting, rising and typing",
+    "looking, gesturing, resting the hands, bracing, bending, crouching, kneeling, lying down, moving across supports, getting up from the floor, sitting, shifting, rising and typing",
   sport:
     "exercise repetitions, stretches, dance steps, the sprint start, the gymnast's stand, martial forms, ball handling, baseball postures, racket postures and swimming",
   striking:
