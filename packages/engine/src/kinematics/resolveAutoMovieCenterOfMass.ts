@@ -114,6 +114,12 @@ export namespace resolveAutoMovieCenterOfMass {
     point: IAutoMovieVector3;
   }
 
+  /** Gravity's acceleration, metres per second squared: 9.81, the rounded value the motion laws use today (standard gravity is 9.80665, ISO 80000-3). */
+  export const GRAVITY: number = 9.81;
+
+  /** The inverted pendulum's length in hip heights: the leg length, about 1.34 times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech 38:1), which `extrapolate` takes its length from. */
+  export const PENDULUM: number = 1.34;
+
   /**
    * The whole-body centre of mass of a posed body.
    *
@@ -154,7 +160,7 @@ export namespace resolveAutoMovieCenterOfMass {
    * @param com The centre of mass, world metres.
    * @param velocity Its velocity, metres per second.
    * @param length The pendulum length, metres; positive.
-   * @param gravity Gravitational acceleration, m/s²; 9.81 when absent.
+   * @param gravity Gravitational acceleration, m/s²; `GRAVITY` when absent.
    * @returns The extrapolated centre of mass, world metres.
    * @throws {Error} When the length or gravity is not positive.
    */
@@ -162,7 +168,7 @@ export namespace resolveAutoMovieCenterOfMass {
     com: IAutoMovieVector3,
     velocity: IAutoMovieVector3,
     length: number,
-    gravity: number = 9.81,
+    gravity: number = GRAVITY,
   ): IAutoMovieVector3 {
     if (!(length > 0) || !(gravity > 0))
       throw new Error(
