@@ -8,8 +8,9 @@ import * as THREE from "three";
  * give each card its own. Here one renderer draws each view in turn into
  * the corner of its own canvas and copies that corner into the view's 2D
  * canvas. Views out of the window are neither posed nor drawn, a view draws
- * only when it says it changed, and `near` lets a view wait to load until it
- * comes near the window, so a page of cards costs what it shows.
+ * only when it says it changed, and `near` and `visibility` let a view wait
+ * to load until it comes near or into the window, so a page of cards costs
+ * what it shows.
  */
 export namespace SharedStage {
   /** One registered view. */
@@ -98,6 +99,28 @@ export namespace SharedStage {
         callback();
       },
       { rootMargin: "100% 0px" },
+    );
+    watcher.observe(element);
+    return (): void => watcher.disconnect();
+  }
+
+  /**
+   * Tell each time an element enters or leaves the window, so a view starts
+   * costly work only while it is seen and abandons it when scrolled past.
+   *
+   * @param element The element, such as a view's canvas.
+   * @param changed Called with whether it is in the window, first when observation starts.
+   * @returns What stops watching.
+   */
+  export function visibility(
+    element: Element,
+    changed: (inside: boolean) => void,
+  ): () => void {
+    const watcher: IntersectionObserver = new IntersectionObserver(
+      (records: IntersectionObserverEntry[]): void => {
+        const last: IntersectionObserverEntry | undefined = records.at(-1);
+        if (last !== undefined) changed(last.isIntersecting);
+      },
     );
     watcher.observe(element);
     return (): void => watcher.disconnect();

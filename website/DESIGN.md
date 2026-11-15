@@ -46,7 +46,6 @@ Rejected:
 - Dockable or resizable panes. Fixed regions with stated breakpoints behave the same for everyone.
 - Tailwind utilities. The pages have a few dozen rules, and one stylesheet over tokens keeps every value in one place.
 - A second theme for the inspector of `@automovie/viewer`. It brings its own light inline styling, so it sits on a light surface in both themes, with the page's control styles kept out of it, rather than being restyled from outside.
-- Computing a scene in the visitor's browser. A pose costs tens of milliseconds and a take's plan seconds, so a card would play a few frames a second; the build bakes the takes instead, and the playground computes only the composition its visitor edits.
 
 ## The frame
 
@@ -75,6 +74,8 @@ States of a scene:
 
 ## The player
 
+A view computes its take when it scrolls into the window, in a Web Worker, because a take's plan costs seconds and each pose tens of milliseconds and the page must stay responsive meanwhile. Until the take is ready the view says it is computing; a view scrolled past before its take starts drops the request, and a computed take is kept for the page, so scrolling back draws it at once. A scene's take is posed at 12 frames a second and read between frames by interpolation.
+
 Every view draws on one WebGL renderer per page (`src/stage/SharedStage.ts`), which draws each view in the window into the corner of its canvas and copies it into the view's own 2D canvas, because a browser keeps only a few contexts at once. The transport is one Play/Pause button, the scrubber, the time, the speed and Loop; while the player has focus, Space and K play or pause, J and L seek a second, comma and full stop step a frame, Home and End go to the ends. A drag or the arrow keys turn the camera, the wheel zooms only while the view has focus or a modifier key is held, plus and minus zoom, and a double-click or the 0 key frames it again. The named views are a group of buttons, each reached with Tab. Under `prefers-reduced-motion` nothing plays until asked.
 
 ## Playground
@@ -94,7 +95,7 @@ States of the result region:
 | --- | --- |
 | Packages loading | "Loading the motion packages." |
 | Packages failed to load | A danger panel with the error. |
-| Building | A notice that a body is prepared the first time, which takes seconds. |
+| Building | A notice that a body is prepared the first time, which takes seconds. The take is computed in the same worker as a scene's. |
 | Refused | A danger panel in place of the performance: the package's message verbatim, then its fields. |
 | Performed | The drawing, the timeline and the verdicts. |
 
@@ -112,7 +113,7 @@ States of the view: "Building the model." over the previous picture while a subj
 
 ## Human
 
-The site's bodies stand side by side on one floor, from the bake, with the chosen body's measures folded under a select. Inspect opens the inspector of `@automovie/viewer` on that body, which prepares it in the page and so waits for the request. The inspector puts its transport under the canvas and its panels in collapsible sections, View and Shade open, Marks, Selection and Request closed, each heading saying what is active.
+The site's bodies stand side by side on one floor, computed in the page like any scene, with the chosen body's measures folded under a select and read when the body is chosen. Inspect opens the inspector of `@automovie/viewer` on that body, which prepares it in the page and so waits for the request. The inspector puts its transport under the canvas and its panels in collapsible sections, View and Shade open, Marks, Selection and Request closed, each heading saying what is active.
 
 ## Motions
 

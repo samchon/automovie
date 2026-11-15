@@ -32,10 +32,12 @@ interface IFilter {
  * The setting and the search live in the address's query, so a link shows
  * the same selection.
  *
- * @param props The ids of the scenes the build baked.
+ * @param props The ids of the scenes whose takes the installed packages compute: those that play and those their records mark refused.
  * @returns The page.
  */
-export default function ScenesMovie(props: { baked: string[] }): ReactElement {
+export default function ScenesMovie(props: {
+  computed: string[];
+}): ReactElement {
   const [filter, setFilter]: [IFilter, Dispatch<SetStateAction<IFilter>>] =
     useState<IFilter>({ setting: null, query: "" });
 
@@ -63,7 +65,7 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
     );
   };
 
-  const baked: Set<string> = new Set(props.baked);
+  const computed: Set<string> = new Set(props.computed);
   const shown: IScene[] = SCENES.filter(
     (scene: IScene): boolean =>
       scene.hidden !== true &&
@@ -71,10 +73,10 @@ export default function ScenesMovie(props: { baked: string[] }): ReactElement {
       SceneFacts.matches(scene, filter.query),
   );
   const playing: IScene[] = shown.filter((s: IScene): boolean =>
-    baked.has(s.id),
+    computed.has(s.id),
   );
   const coming: IScene[] = shown.filter(
-    (s: IScene): boolean => !baked.has(s.id),
+    (s: IScene): boolean => !computed.has(s.id),
   );
 
   return (
