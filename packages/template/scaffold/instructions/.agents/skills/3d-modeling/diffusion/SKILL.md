@@ -15,4 +15,6 @@ A generated form serves only a commissioned [detail option](../../development/en
 | Canon references, and no model that takes a shape | Views rendered from the coarse form and restyled under [turnaround views](../../image/turnaround-views.md) | [Views rendered from the shape](shape-hints.md#views-rendered-from-the-shape), with [image hints](image-hints.md) |
 | Only its record | A text prompt in the record's wording | [Text prompts](prompts.md) |
 
-Choose the model with the user from [3D models](models.md) or another, and record it in [project context](../../production/project-context.md); whatever steers it, [request](request.md) sets what to ask for. Keep each accepted result under [media records](../../production/media-records.md#files), take it into the entity's detail option under [Conditioning](../conditioning.md), and check that it keeps the coarse form's size, pivots and contacts.
+Choose the model with the user from [3D models](models.md) or another, and record it in [project context](../../production/project-context.md); whatever steers it, [request](request.md) sets what to ask for.
+
+Keep each accepted result under [media records](../../production/media-records.md#files), take it into the entity's detail option under [Conditioning](../conditioning.md), and check that it keeps the coarse form's size, pivots and contacts.

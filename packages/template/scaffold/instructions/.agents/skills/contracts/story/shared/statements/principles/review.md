@@ -21,7 +21,6 @@ Contract: [principles/review.md](../../principles/review.md).
 1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
 2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.
 3. Quotations and locators match the inspected revision.
-4. Where the pass ran independent classification, its [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence.
-5. Where the pass ran independent classification, its inspection record rechecked all changed dependencies without silently reversing unchanged tests.
-6. The body was compared with its parents and requirements, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
-7. Similar wording prompts inspection, not automatic failure.
+4. Where the pass ran independent classification, its [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, and rechecked all changed dependencies without silently reversing unchanged tests.
+5. The body was compared with its parents and requirements, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
+6. Similar wording prompts inspection, not automatic failure.

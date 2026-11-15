@@ -26,6 +26,4 @@ Keep dimensions, mass or material assumptions, initial state, time sampling, tra
 
 ## Review the result
 
-Feed returned motion, contacts or violations into the performance and check them against measurable production requirements. Then review support, impact order, reaction, recoil and the following state on consecutive captured frames across the complete affected sequence under [segment review](segment-review.md).
-
-When detail, proportions or attachments change, recheck that the physical assumptions and visible contact still agree.
+Feed returned motion, contacts or violations into the performance and check them against measurable production requirements. Then review support, impact order, reaction, recoil and the following state on consecutive captured frames across the complete affected sequence under [segment review](segment-review.md). When detail, proportions or attachments change, recheck that the physical assumptions and visible contact still agree.

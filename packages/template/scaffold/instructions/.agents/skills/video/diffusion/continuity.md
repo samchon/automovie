@@ -19,9 +19,7 @@ An extend mode often takes no hint and keeps only the last frame or last seconds
 
 Give every request the same canon references and the [shared description](prompts.md#shared-description), because each request knows nothing of the last. Rely on those references for identity, never on a seed, as [media records](../../production/media-records.md#records) explains.
 
-Where the model offers an element or subject, bind a character's references into it; some take only photoreal people. An open model can also take a character LoRA for a character that recurs across many requests, trained on the frozen canon references and accepted shot frames or takes, never the gray hint.
-
-A character's generated voice is kept under [audio](../../audio/SKILL.md#generated-sound).
+Where the model offers an element or subject, bind a character's references into it; some take only photoreal people. An open model can also take a character LoRA for a character that recurs across many requests, trained on the frozen canon references and accepted shot frames or takes, never the gray hint. A character's generated voice is kept under [audio](../../audio/SKILL.md#generated-sound).
 
 ## Seams
 

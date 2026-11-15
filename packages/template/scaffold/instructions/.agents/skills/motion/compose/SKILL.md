@@ -24,9 +24,7 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, dialogue and beats |
 
-Write those decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, because the default is the studied value and a guessed number is not.
-
-A decision the beat left vague is made in the screenplay, under [concretization](../../story/correction/repair.md#concretization).
+Write those decisions as the composition and nothing else. A value the beat does not decide stays at the action's default, because the default is the studied value and a guessed number is not. A decision the beat left vague is made in the screenplay, under [concretization](../../story/correction/repair.md#concretization).
 
 ## Join the actions
 
@@ -47,9 +45,7 @@ An action that follows, chases, escorts or meets a moving person reads where tha
 
 ## Seed
 
-Every performance takes the film's [one seed](../../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no offsets set by hand.
-
-Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/reuse.md#one-module).
+Every performance takes the film's [one seed](../../development/source-layout.md#how-the-parts-work-together). The vocabulary draws each variation from the seed, the person and the action, so people given the same action already differ and a crowd needs no offsets set by hand. Another take of an action is another seed or parameter, never a copied composition, under [one module](../../development/reuse.md#one-module).
 
 ## Hand it on
 

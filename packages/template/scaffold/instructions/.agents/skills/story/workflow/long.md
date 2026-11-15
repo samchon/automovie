@@ -2,6 +2,8 @@
 
 Long work runs settings, treatments, scripts and screenplay, one layer at a time, and each layer is a pass that closes before the next builds on it. Settings come first because every later layer realizes and cites their decisions.
 
+Ask the user under [asking the user](../planning/requirements.md#asking-the-user) first, and run [discovery](../planning/discovery.md) before bulk settings and again at each of its three [checkpoints](../planning/discovery.md#checkpoints).
+
 ## Parents
 
 | Submitted layer | Required parent |
@@ -11,7 +13,7 @@ Long work runs settings, treatments, scripts and screenplay, one layer at a time
 | Scripts | Completed treatments |
 | Screenplay | Completed treatments and scripts |
 
-Ask the user under [asking the user](../planning/requirements.md#asking-the-user) first, and run [discovery](../planning/discovery.md) before bulk settings and again at each of its three [checkpoints](../planning/discovery.md#checkpoints). Each layer inherits through its actual parents, studies what [when to study](../planning/research.md#when-to-study) assigns it, and repairs a missing handoff at its owner under [upstream defects](../correction/repair.md#upstream-defects) rather than bypassing it.
+Each layer inherits through its actual parents, studies what [when to study](../planning/research.md#when-to-study) assigns it, and repairs a missing handoff at its owner under [upstream defects](../correction/repair.md#upstream-defects) rather than bypassing it.
 
 ## Each layer's pass
 

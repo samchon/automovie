@@ -4,9 +4,7 @@ Package upgrades never rewrite this production, and only part of its organizatio
 
 ## Ownership
 
-In a workspace the shared instructions belong to the workspace root, never to one production.
-
-Keep custom criteria and decisions with their production owners. Reusable checking belongs to the installed evidence package. When adapting paths, language or tools, keep every duty of the route and every relationship the graph records.
+In a workspace the shared instructions belong to the workspace root, never to one production. Keep custom criteria and decisions with their production owners. Reusable checking belongs to the installed evidence package. When adapting paths, language or tools, keep every duty of the route and every relationship the graph records.
 
 ## What a production may reorganize
 

@@ -1,8 +1,6 @@
 # AGENTS.md
 
-This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, the coarse film whose staging and motion guide video diffusion. A screenplay, a standalone asset, a direct 3D film or a generated film can also be commissioned on its own.
-
-The [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
+This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, the coarse film whose staging and motion guide video diffusion. A screenplay, a standalone asset, a direct 3D film or a generated film can also be commissioned on its own, and the [production skill](.agents/skills/production/SKILL.md) routes each commissioned output and its working files.
 
 A production is built with the installed AutoMovie packages. [Installed packages](.agents/skills/development/reuse.md#installed-packages) says what each one is for and where its API is written.
 
@@ -55,11 +53,13 @@ A message without a tool call ends the turn. While work remains, do not end it w
 - a report because a stage finished;
 - a wait on background work.
 
-Put status notes in the same message as the next tool call. Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
+Put status notes in the same message as the next tool call.
+
+Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
 
 ## Skills
 
-Read the production's `PROJECT.md` for the adopted scope, then enter the requested task directly.
+Read the production's `PROJECT.md` for its adopted scope and choices, which [project context](.agents/skills/production/project-context.md) owns, then enter the requested task directly.
 
 ### Creation
 

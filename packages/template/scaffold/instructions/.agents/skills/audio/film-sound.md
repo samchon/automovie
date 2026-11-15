@@ -1,6 +1,6 @@
 # Film sound
 
-A generated film's takes each bring their own sound, so the film's sound is finished across them once the takes are [finished](../video/finishing.md), under the user's listening. This page owns that work; its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
+A generated film's takes each bring their own sound, so the film's sound is finished across them once the takes are [finished](../video/finishing.md), under the user's listening. Its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
 
 ## Separate before changing
 

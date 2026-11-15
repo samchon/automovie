@@ -8,13 +8,9 @@ A refusal names who was to act, the action, the axis at fault, the value given, 
 
 ## Repair at the axis
 
-Change the one [axis](SKILL.md#decide-each-action) the refusal names, as it says, then build again.
+Change the one [axis](SKILL.md#decide-each-action) the refusal names, as it says, then build again. The change is often to what precedes the action rather than to the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow.
 
-The change is often to what precedes the action rather than to the action: the performer steps nearer before a reach, frees a hand before a grip, or sits or stands before an action the base does not allow.
-
-Take the repair from the screenplay. When two repairs would plan, choose the one the beat describes, because a repair that only silences the refusal stages a different scene.
-
-A refusal that is caught and passed over leaves the person standing still in the film. A value widened until the refusal stops moves the fault into the picture, where it is harder to find.
+Take the repair from the screenplay. When two repairs would plan, choose the one the beat describes, because a repair that only silences the refusal stages a different scene. A refusal that is caught and passed over leaves the person standing still in the film. A value widened until the refusal stops moves the fault into the picture, where it is harder to find.
 
 ## When no repair holds
 

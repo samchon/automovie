@@ -4,11 +4,9 @@ A narrative pass closes through independent review: a fresh reviewer reads the b
 
 ## Records
 
-Keep current reviews in the review locations of the [document layout](../story/document-layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties.
+Keep current reviews in the review locations of the [document layout](../story/document-layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties. Raw independent reads and sentence tables stay in ignored `.cache/`.
 
 Each unit with no body finding carries its current review, which the installed evidence package binds to the body by a fingerprint of its text. That review covers the body, not the truth of its answers.
-
-Raw independent reads and sentence tables stay in ignored `.cache/`.
 
 ## Reviewers
 

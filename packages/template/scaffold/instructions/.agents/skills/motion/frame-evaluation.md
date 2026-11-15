@@ -1,6 +1,6 @@
 # Frame evaluation
 
-The installed engine and renderer own frame schedules, trims, transitions and shot-local time; use them rather than reproducing their arithmetic in the host. A deterministic schedule does not make a stateful animation independent of its evaluation history.
+Frame evaluation maps film time onto the performance at every frame the film draws. The installed engine and renderer own frame schedules, trims, transitions and shot-local time; use them rather than reproducing their arithmetic in the host.
 
 ## Map output time to performance
 
@@ -14,12 +14,10 @@ Verify the first and last frames, both sides of cuts and trim boundaries against
 
 The installed packages evaluate every pose from the resolved plan and the requested time, and a production's own behavior does the same under the [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) item.
 
-Before allowing seeking, retries or split renders, identify state the host still carries in springs, physics, callbacks, random draws or imported runtimes. Such state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame.
+A deterministic schedule does not make a stateful animation independent of its evaluation history. Before allowing seeking, retries or split renders, identify state the host still carries in springs, physics, callbacks, random draws or imported runtimes. Such state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame.
 
-Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times. Use supported lifecycle operations, never private-field resets.
+Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times, as [Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep/) explains. Use supported lifecycle operations, never private-field resets.
 
 ## Verify the actual evaluation path
 
 Compare poses, transforms, contacts and pictures at matching times across sequential capture, a fresh restart, and seeking or split capture where promised, including settling and cut boundaries, through [testing](../development/testing.md) and a [comparison](../visual-debugging/comparison.md) of their stills. Record unsupported paths instead of claiming them.
-
-[Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep/) explains separating simulation from display time.

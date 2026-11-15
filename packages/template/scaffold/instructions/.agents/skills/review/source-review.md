@@ -12,7 +12,7 @@ Each answer states what the code actually does and claims no behavior, measureme
 | Behavior | The study it follows |
 | Scene | The screenplay scene file it realizes, or the sections and beats of it |
 
-Check each answer against its item's [statements](../contracts/SKILL.md#items-and-statements). A passing graph shows only that answers exist.
+Check each answer against its item's [statements](../contracts/SKILL.md#items-and-statements), because a passing graph shows only that answers exist.
 
 ## Behavior is principled
 

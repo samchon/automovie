@@ -27,9 +27,7 @@ Register the law with the vocabulary as its README shows, and the vocabulary com
 
 ## What is not a person
 
-Write a production law for a moving body no installed package provides, such as an animal or a machine no archetype offers, or a crowd moving as a mass. The archetypes move their own vehicles, mounts and articulated parts, so those need none.
-
-Contact and reactions of such a body use the installed engine through [physical feedback](../physical-feedback.md).
+Write a production law for a moving body no installed package provides, such as an animal or a machine no archetype offers, or a crowd moving as a mass. The archetypes move their own vehicles, mounts and articulated parts, so those need none. Contact and reactions of such a body use the installed engine through [physical feedback](../physical-feedback.md).
 
 ## What an extension owes
 
@@ -49,6 +47,4 @@ A row takes only its study's values. A law is designed under these shared motion
 
 ## Send it upstream
 
-A row or a law other productions would need belongs in the vocabulary itself. Share it inside a workspace as a [shared module](../../development/source-layout.md#shared-modules), hand it to the user for the package under [a defect or a gap](../../development/reuse.md#a-defect-or-a-gap), and keep the registered one until the package ships it.
-
-An action that registration cannot express is a gap under the same route.
+A row or a law other productions would need belongs in the vocabulary itself. Share it inside a workspace as a [shared module](../../development/source-layout.md#shared-modules), hand it to the user for the package under [a defect or a gap](../../development/reuse.md#a-defect-or-a-gap), and keep the registered one until the package ships it. An action that registration cannot express is a gap under the same route.

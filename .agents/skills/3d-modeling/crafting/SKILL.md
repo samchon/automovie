@@ -7,6 +7,8 @@ description: Builds a form in code from named dimensions and formulas, lofts and
 
 A crafted form is code: named dimensions and formulas that the engine turns into geometry the same way every time.
 
+Crafting pays where dimensions define the form or a parameter must control it. For an organic form no parameter controls, such as an animal, a face or draped cloth, propose [Diffusion](../diffusion/SKILL.md) or [Sources](../sources.md) to the user first, because authoring that surface costs far more than [Conditioning](../conditioning.md) a mesh.
+
 Organize its parts and groups by [Modularization](../modularization.md), and test its construction as [Tests](#tests) describes, within the project's [testing](../../development/testing.md) rules.
 
 ## Representation
@@ -23,11 +25,7 @@ Pick the representation by the form, then optimize the form within it:
 
 Take boolean and offset operations from the installed packages or an established solid-modeling kernel, because a hand-written boolean leaves open and self-intersecting surfaces.
 
-Crafting pays where dimensions define the form or a parameter must control it. For an organic form no parameter controls, such as an animal, a face or draped cloth, propose [Diffusion](../diffusion/SKILL.md) or [Sources](../sources.md) to the user first, because authoring that surface costs far more than [Conditioning](../conditioning.md) a mesh.
-
-Never shape a form by placing vertices, triangles, or polygons by hand; vertices are only what the formulas emit.
-
-A coding agent works under four limits, and each favors these representations over hand-placed geometry:
+Never shape a form by placing vertices, triangles, or polygons by hand; vertices are only what the formulas emit. A coding agent works under four limits, and each favors these representations over hand-placed geometry:
 
 | The agent | What serves it | Hand-placed geometry |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Creative requirements
 
-What the user fixed or delegated about the work itself is recorded here before anything relies on it.
+Creative requirements are what the user fixed or delegated about the work itself.
 
 ## Requirements
 

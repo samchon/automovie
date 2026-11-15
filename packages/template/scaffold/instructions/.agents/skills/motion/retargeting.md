@@ -14,9 +14,7 @@ Set root scale from meaningful dimensions, then confirm facing, root path, reach
 
 Bind supports and grasps to their actual ground or object frame, and check sliding, penetration, floating, reach, support transfer and release through the motion, using [physical feedback](physical-feedback.md) for supported correction.
 
-Recheck interpolation, root path and contacts at the actual output times, extrema and cut boundaries, under [frame evaluation](frame-evaluation.md).
-
-Keep an imported clip's interpolation, quaternions, scale and morph weights; when baking or simplifying, compare source and derivative at output times and between-key extrema, because a small key error can move a hand off a prop. [glTF's animation rules](https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/Specification.adoc#animations) describe interchange.
+Recheck interpolation, root path and contacts at the actual output times, extrema and cut boundaries, under [frame evaluation](frame-evaluation.md). Keep an imported clip's interpolation, quaternions, scale and morph weights; when baking or simplifying, compare source and derivative at output times and between-key extrema, because a small key error can move a hand off a prop. [glTF's animation rules](https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/Specification.adoc#animations) describe interchange.
 
 ## Accept the actual performance
 

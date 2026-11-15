@@ -5,7 +5,7 @@ description: Authors a video's research, requirements, direction, settings or a 
 
 # Story
 
-Make the commissioned audience experience and a usable handoff to the next layer. Read the request, [project context](../production/project-context.md) and current work to find the task, route, layer and pass, then enter only the part it needs.
+Make the commissioned audience experience and a usable handoff to the next layer, keeping user-fixed choices and making each layer's own contribution within delegation. Read the request, [project context](../production/project-context.md) and current work to find the task, route, layer and pass, then enter only the part it needs.
 
 | Part | Covers |
 | --- | --- |
@@ -16,4 +16,4 @@ Make the commissioned audience experience and a usable handoff to the next layer
 | [Evidence](evidence/SKILL.md) | Answers to the story contracts and where they go |
 | [Layout](document-layout.md) | Where documents, evidence and reviews live, and intake of supplied work |
 
-The [story contracts](../contracts/story/SKILL.md) hold the quality questions; keep user-fixed choices and make each layer's own contribution within delegation. Independent [review](../review/SKILL.md) judges the result.
+The [story contracts](../contracts/story/SKILL.md) hold the quality questions, and independent [review](../review/SKILL.md) judges the result.

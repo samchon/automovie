@@ -19,23 +19,21 @@ You judge a film on stills, in two passes that answer different questions:
 
 Make both passes for every delivery claim, because an accepted source pass does not show that the file holds it.
 
-Review as an audience that has not read the plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole motion hint, as [commissioned outputs](../production/SKILL.md#commissioned-outputs) define it, carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do.
+Review as an audience that has not read the plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join.
 
 Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
-Check control channels at matched frames under [control channels](../motion/control-channels.md), and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
+A whole motion hint, as [commissioned outputs](../production/SKILL.md#commissioned-outputs) define it, carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do. Check control channels at matched frames under [control channels](../motion/control-channels.md), and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
 
-Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count and duration. An encoder exit or a matching nominal duration is not a measurement.
+Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count and duration. An encoder exit or a matching nominal duration is not a measurement. Take runtime from performed and measured timing, never page or word count.
 
-Take runtime from performed and measured timing, never page or word count. What only playback shows, such as smoothness, synchronization and sound, the user watches and hears: ask for it, and record what the user reported.
+What only playback shows, such as smoothness, synchronization and sound, the user watches and hears: ask for it, and record what the user reported.
 
 ## Measure and compare
 
-Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film with the README's capture command, and inspect every segment on its contact sheets at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
+Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one capture of a stretch of the film with the README's capture command, and inspect every segment on its contact sheets at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing. Repeat the pass on every segment a fix touches.
 
 The default spacing skips frames, so around every contact, cut and join add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
-
-Repeat the pass on every segment a fix touches.
 
 Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review, and measure the research's targets for what a viewer sees where the viewer sees them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
 

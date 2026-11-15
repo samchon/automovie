@@ -4,13 +4,7 @@ Study what the film must show truthfully: each practice, the conduct of official
 
 ## When to study
 
-Before choosing the [direction](direction.md), study only what could change it.
-
-On the short route, study a fact only at the moment a decision in the brief, the screenplay or the code needs it, and keep the study under [sources](#sources).
-
-On long work, settings study each fact as they fix it, and the treatment or script that first names an action studies its law and outcomes.
-
-When [no narrative pass runs](../workflow/SKILL.md#who-writes-the-screenplay), the code studies the facts, laws and outcomes the narrative layers would have studied. On every route, code and delivery review study the measurements they program or measure.
+Before choosing the [direction](direction.md), study only what could change it. On the short route, study a fact only at the moment a decision in the brief, the screenplay or the code needs it, and keep the study under [sources](#sources). On long work, settings study each fact as they fix it, and the treatment or script that first names an action studies its law and outcomes. When [no narrative pass runs](../workflow/SKILL.md#who-writes-the-screenplay), the code studies the facts, laws and outcomes the narrative layers would have studied. On every route, code and delivery review study the measurements they program or measure.
 
 A value nothing written yet uses is not gathered, because its consumer often needs a different value when it is written. A study made for a decision goes as deep as the depicted level requires.
 

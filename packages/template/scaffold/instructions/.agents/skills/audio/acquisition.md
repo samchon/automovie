@@ -14,9 +14,9 @@ Check each asset's terms, every layer that [media records](../production/media-r
 
 Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert it to a format the installed packages admit, at the film's sample rate, while keeping the original.
 
-For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
-
 Measure durations and trims from the accepted bytes, place dialogue, captions, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and have the user listen to the result.
+
+For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
 
 ## Have it heard
 

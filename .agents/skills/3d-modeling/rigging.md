@@ -1,8 +1,8 @@
 # Rigging
 
-Use this guide when an asset needs a new or changed skeleton, skin, attachment or deformation control. Read the asset's required use, its retained source, and the import, model, skinning and viewer contracts of the packages it uses.
+Rigging owns an asset's rest state: where the joints sit, which vertices follow them, the attachments, the limits and the still poses that test them. Anything over time, such as clips, retargeting, inverse kinematics and the laws that generate motion, belongs to [motion](../motion/SKILL.md).
 
-Rigging owns the rest state: where the joints sit, which vertices follow them, the attachments, the limits and the still poses that test them. Anything over time, such as clips, retargeting, inverse kinematics and the laws that generate motion, belongs to [motion](../motion/SKILL.md).
+Before adding or changing a skeleton, skin, attachment or deformation control, read the asset's required use, its retained source, and the import, model, skinning and viewer contracts of the packages it uses.
 
 A generated surface is not a rig, and a generated rig is a candidate until its actual consumer deforms it correctly.
 
@@ -62,9 +62,7 @@ Check the rest result first, then each required control alone, then combined pos
 | A joint pinching flat when it twists or bends far | The limit of linear blending rather than a binding error; add a twist joint or compare the other skinning method |
 | A piece left behind or torn off | A loose piece with no weights; attach it to one joint |
 
-Look also for penetrating clothing or accessories, and changing normals or materials.
-
-[Visual debugging](../visual-debugging/SKILL.md) owns the observation round and matching comparisons.
+Look also for penetrating clothing or accessories, and changing normals or materials. [Visual debugging](../visual-debugging/SKILL.md) owns the observation round and matching comparisons.
 
 ### Skinning method and variants
 

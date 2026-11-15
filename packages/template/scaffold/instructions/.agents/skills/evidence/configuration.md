@@ -16,9 +16,7 @@ Narrative stages follow a finished draft, never the presence of files, because a
 
 Except on the short route, whose studies answer no research contract, turn on the research stage when the first study is written. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
-The `naturalness` contract folder holds questions scripts construction answers and chooses no stage of its own.
-
-No stage selects a [statements](../contracts/SKILL.md#items-and-statements) document, and none should be added to a selector.
+The `naturalness` contract folder holds questions scripts construction answers and chooses no stage of its own. No stage selects a [statements](../contracts/SKILL.md#items-and-statements) document, and none should be added to a selector.
 
 ## Changing the graph
 

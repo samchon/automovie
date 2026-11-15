@@ -1,6 +1,6 @@
 # Independent reading
 
-Use a fresh context of the author's model, without the author's working memory. If none is available, report the review as unperformed.
+An independent reader is a fresh context of the author's model, without the author's working memory, and reads the body before any author record. If no such context is available, report the review as unperformed.
 
 ## Read as the recipient
 

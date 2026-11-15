@@ -9,7 +9,7 @@ Give each action isolated cases. Each case's checks test the action's own goal a
 - balance, as the extrapolated center of mass against the support (Hof 2005);
 - continuity of every displayed channel and of its velocity at every cut.
 
-A case that only shows the action establishes nothing.
+A case that only shows the action establishes nothing. Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md).
 
 ## Checks that can fail
 
@@ -25,12 +25,8 @@ Run the cases across bodies of different statures and proportions, and against d
 
 ## Look at the frames
 
-Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
-
-Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
+Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is. Sample the stills in time as [capture](../../visual-debugging/capture.md#times) sets.
 
 ## Judge rounds honestly
 
 Keep each round's capture as [capture](../../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../../visual-debugging/correction-rounds.md#compare-again) allow.
-
-Unit tests of the laws answer the [testing contract](../../contracts/development/testing.md).

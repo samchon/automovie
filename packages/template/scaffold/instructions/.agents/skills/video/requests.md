@@ -6,13 +6,9 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 End a request at a screenplay cut, unless the model takes several shots in one request. A model that cuts a request into shots by default needs that turned off for a continuous shot, and its cut timing is not frame-exact unless it takes its cuts from the hint.
 
-Inside a continuous shot, split only where the model's length forces it, at a beat boundary or a held pose. Every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows the seam.
+Inside a continuous shot, split only where the model's length forces it, at a beat boundary or a held pose. Every split joins two generations where identity and light can jump, and a split inside a contact or a spoken line shows the seam. Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
 
-A take eases toward stillness and drifts in its last seconds. Keep a request shorter than the model's maximum where the shot allows, and render and generate it a little past each cut as an editor's handle, cutting inside it; [project context](../production/project-context.md) records the handle's length.
-
-Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets. Time each beat by the frames where the rendered hint performs it, because a beat record's start is provisional.
-
-Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
+A take eases toward stillness and drifts in its last seconds. Keep a request shorter than the model's maximum where the shot allows, and render and generate it a little past each cut as an editor's handle, cutting inside it; [project context](../production/project-context.md) records the handle's length. Keep each request's lines speakable within its length, as [generated sound](../audio/SKILL.md#generated-sound) sets.
 
 ## Adherence
 
@@ -42,7 +38,7 @@ Give each input one role, and state it in the prompt as [input roles](diffusion/
 - a [shot frame](../image/SKILL.md#shot-frames), for appearance at the hint's pose;
 - the accepted previous take, where a request continues its motion, as [continuity](diffusion/continuity.md#chaining-requests) sets.
 
-[Hints](diffusion/hints.md) sets how each input reaches the model.
+[Hints](diffusion/hints.md) sets how each input reaches the model. Render each request's hint and control channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
 
 ## Record
 

@@ -1,6 +1,6 @@
 # Generation
 
-Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
+Generation submits each planned [request](requests.md), inspects its takes and chooses one. Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
 
 ## Prove one path first
 
@@ -16,9 +16,9 @@ Hosted models screen prompts and inputs for violence, weapons, blood, real peopl
 
 Generate the takes per request that [project context](../production/project-context.md) records, and choose among them before rewriting a prompt, because takes of one request differ and a choice costs less than another round of wording. Where the model offers a draft tier or several outputs per job, choose among cheap drafts first, then make the final from the chosen draft by the model's documented draft-to-final path.
 
-Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), first the contacts and outcomes its beats decide. The user judges its sound and its continuous motion.
+Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md), first the contacts and outcomes its beats decide. Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. The user judges a take's sound and its continuous motion.
 
-Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut; a local flaw in an otherwise right take is repaired under [finishing](finishing.md#repair-part-of-a-take). A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt's words. When motion or camera drifts, regenerate with a stricter adherence or a shorter request rather than a longer prompt.
+A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut; a local flaw in an otherwise right take is repaired under [finishing](finishing.md#repair-part-of-a-take). A framing the takes keep losing is repaired at the hint's camera under [staging](../motion/staging.md), within the screenplay's camera entry, because a take follows the hint's framing more closely than the prompt's words. When motion or camera drifts, regenerate with a stricter adherence or a shorter request rather than a longer prompt.
 
 ## Place takes in time
 
