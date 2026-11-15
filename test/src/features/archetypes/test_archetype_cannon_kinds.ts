@@ -52,7 +52,7 @@ export function test_archetype_cannon_kinds(): void {
     if (!close(n[name]!, expected))
       findings.push(`naval ${name} is ${n[name]}, not ${expected}`);
   for (const name of ["frontWheelDiameter", "wheelDiameter", "recoil"] as const)
-    if (createCannon.BANDS.navalGun[name]?.provisional !== true)
+    if (createCannon({ kind: "navalGun" }).provenance.bands[name]?.provisional !== true)
       findings.push(`naval ${name} is not marked provisional`);
 
   findings.push(
@@ -132,7 +132,7 @@ export function test_archetype_cannon_kinds(): void {
     !close(swivel.dimensions.length!, 1)
   )
     findings.push("the swivel gun is not KTP0053's");
-  if (createCannon.BANDS.swivelGun.length?.provisional !== true)
+  if (swivel.provenance.bands.length?.provisional !== true)
     findings.push("the swivel's length is not marked provisional");
   if (
     swivel.affordance("elevation").rides !== "traverse" ||

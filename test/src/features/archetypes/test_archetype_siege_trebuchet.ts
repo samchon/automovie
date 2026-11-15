@@ -9,7 +9,7 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * A siege engine's arm winds, swings and throws as its sources and its own masses say.
  *
  * Scenarios, for each kind at four seeds:
- * 1. The engine is its source's: a trebuchet Hansen's replica (long arm 5.85 m, short 1.2 m, axle 3.15 m, cocked 32 degrees, a 15 kg stone, Saimre's measurements), a mangonel Tarver's (a 16 ft beam at six to one, 12 ft uprights, a 2.5 kg stone); every borrowed or estimated band is marked provisional.
+ * 1. The engine is its source's: a trebuchet Hansen's replica (long arm 5.85 m, short 1.2 m, axle 3.15 m, cocked 32 degrees, a 15 kg stone, Saimre's measurements), a mangonel Tarver's (a 16 ft beam at six to one, 12 ft uprights, a 2.5 kg stone); the bands' provisional marks are `test_archetype_siege_bands`'s.
  * 2. Winding the arm down by its cocked travel turns the winch by the ratio the other way, and every pose from cocked to the reach's end is an admitted model.
  * 3. A trebuchet's counterweight stays plumb (within 0.5 degree) at the cocked travel, level, straight up and the release.
  * 4. After the pin's second the arm rises monotonically from its cocked travel to the release, which it reaches at the throw's second.
@@ -47,15 +47,6 @@ export function test_archetype_siege_trebuchet(): void {
   ] as const)
     if (!close(m[name]!, expected))
       findings.push(`mangonel ${name} is ${m[name]}, not ${expected}`);
-  for (const kind of createSiegeEngine.KINDS)
-    for (const [name, band] of Object.entries(createSiegeEngine.BANDS[kind]))
-      if (
-        band !== undefined &&
-        /borrowed|estimate|provisional/.test(band.source) &&
-        band.provisional !== true
-      )
-        findings.push(`${kind}: ${name} is not marked provisional`);
-
   for (const kind of createSiegeEngine.KINDS)
     for (const seed of [0, 3, 7, 12]) {
       const engine: Archetype<

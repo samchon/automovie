@@ -29,6 +29,10 @@ const ORIGIN: IAutoMoviePhysicalProfile.ITransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
+/** The back where a saddle sits, as a share of the height at the withers, and the saddle's middle behind the shoulder joints, metres: the horse's two construction estimates, no source giving either, restated here as numbers. */
+const BACK: number = 0.95;
+const SADDLE: number = 0.45;
+
 /**
  * A horse in harness wears its harness on its own body, and a cart it draws is joined to it by traces and driving lines the towing ride lays at every second.
  *
@@ -168,8 +172,8 @@ export function test_archetype_harness(): void {
       const hitch: IAutoMovieVector3 =
         horse.affordance("hitch").frame.translation;
       if (
-        !close(hitch.y, createHorse.BACK * h - barrel) ||
-        !close(hitch.z, shoulder.z - createHorse.SADDLE)
+        !close(hitch.y, BACK * h - barrel) ||
+        !close(hitch.z, shoulder.z - SADDLE)
       )
         findings.push(`${label}: the hitch is at ${JSON.stringify(hitch)}`);
       const part = (id: string): IAutoMovieModelPart =>

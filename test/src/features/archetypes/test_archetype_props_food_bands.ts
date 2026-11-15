@@ -228,9 +228,9 @@ export function test_archetype_props_food_bands(): void {
       findings.push(`loaf@${seed}: the tear does not draw the +X half away`);
   }
 
-  // 3. The drumstick's estimates marked, its read mass not.
-  const bands: (typeof createFood.BANDS)["drumstick"] =
-    createFood.BANDS.drumstick;
+  // 3. The drumstick's estimates marked, its read mass not, on the bands the produced drumstick records.
+  const bands: Readonly<Partial<Record<string, { provisional?: boolean }>>> =
+    createFood({ kind: "drumstick" }, 0).provenance.bands;
   if (
     bands.length!.provisional !== true ||
     bands.diameter!.provisional !== true ||

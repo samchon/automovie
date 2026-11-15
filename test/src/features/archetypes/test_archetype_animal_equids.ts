@@ -1,8 +1,4 @@
-import {
-  ArchetypeRefusal,
-  createHorse,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { ArchetypeRefusal, createQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -33,6 +29,13 @@ const CANNONS: Readonly<{
 /** Kubo et al. 1992's thoroughbred metacarpus over its 1.62 m withers height. */
 const KUBO: number = 0.28 / 1.62;
 
+/** Jensen et al. 2019, Acta Vet Scand 61, Table 2: 38 weighed adult warmbloods' means, withers 172 cm, heart girth 204 cm, body weight 640 kg; metres and kilograms. */
+const JENSEN: Readonly<{ withers: number; girth: number; mass: number }> = {
+  withers: 1.72,
+  girth: 2.04,
+  mass: 640,
+};
+
 /**
  * A donkey's three measures follow its one drawn height, and a mule is one sex's weighed mean whole.
  *
@@ -43,7 +46,7 @@ const KUBO: number = 0.28 / 1.62;
  * 4. Fixing a mule's height at the withers, its sex's own figure, is refused at that dimension.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each kind for 200 seeds and measures the withers' top, the barrel's width, a bone's length and the body's mass; a mule blended between sexes, a donkey whose girth or mass is drawn apart from its height, or a bone out of the jackstock's proportion is caught.
- * @evidence contracts/development/testing.md#independent-expectations The sexes' means, the donkeys' range and proportion, the jackstock's and the Thoroughbred's cannons and Kubo's fraction are written here from their sources; the law's anchor is the horse's one statement of Jensen et al.'s means.
+ * @evidence contracts/development/testing.md#independent-expectations The sexes' means, the donkeys' range and proportion, the jackstock's and the Thoroughbred's cannons and Kubo's fraction are written here from their sources; the law's anchor is Jensen et al.'s means, written here as numbers.
  * @evidence contracts/development/testing.md#distinguishing-cases Both sexes, the donkey's band from end to end, its girth, mass and one derived bone, and one refused figure.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -76,7 +79,7 @@ export function test_archetype_animal_equids(): void {
   );
 
   const findings: string[] = [];
-  const anchor: typeof createHorse.JENSEN = createHorse.JENSEN;
+  const anchor: typeof JENSEN = JENSEN;
   const middle: number = (VERACRUZ.low + VERACRUZ.high) / 200;
   let low: boolean = false;
   let high: boolean = false;

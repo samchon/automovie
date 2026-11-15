@@ -24,6 +24,13 @@ const THOROUGHBRED: readonly [number, number] = [161.4, 32.9];
 /** Kubo et al. 1992's thoroughbred metacarpus over its 1.62 m withers height. */
 const KUBO: number = 0.28 / 1.62;
 
+/** Jensen et al. 2019, Acta Vet Scand 61, Table 2: 38 weighed adult warmbloods' means, withers 172 cm, heart girth 204 cm, body weight 640 kg; metres and kilograms. */
+const JENSEN: Readonly<{ withers: number; girth: number; mass: number }> = {
+  withers: 1.72,
+  girth: 2.04,
+  mass: 640,
+};
+
 /**
  * Every quadruped kind is one of its measured samples whole and stays inside its cited bands for every seed, measured on the produced animal, and wears its tack's contacts.
  *
@@ -73,8 +80,8 @@ export function test_archetype_animal_quadruped_bands(): void {
       findings.push(
         `seed ${seed}: a ${breed}'s fore cannon is ${fraction} of its height, not ${expected}`,
       );
-    // The law's oracle on the weighed warmbloods' means, which the horse states once (`createHorse.JENSEN`, metres and kilograms).
-    const anchor: typeof createHorse.JENSEN = createHorse.JENSEN;
+    // The law's oracle on the weighed warmbloods' means, written here (`JENSEN`).
+    const anchor: typeof JENSEN = JENSEN;
     const weight: number =
       anchor.mass *
       (girth / 100 / anchor.girth) ** 2 *

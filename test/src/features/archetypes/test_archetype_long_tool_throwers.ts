@@ -56,7 +56,7 @@ export function test_archetype_long_tool_throwers(): void {
     if (!close(s[name]!, expected))
       findings.push(`sling ${name} is ${s[name]}, not ${expected}`);
   sweep("sling", 32.1, 43.3);
-  if (createLongTool.BANDS.sling.mass?.provisional !== true)
+  if (sling.provenance.bands.mass?.provisional !== true)
     findings.push("the sling's mass is not marked provisional");
   const loop: IAutoMovieAffordance = sling.affordance("grip");
   const knot: IAutoMovieAffordance = sling.affordance("release");

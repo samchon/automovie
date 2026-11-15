@@ -46,7 +46,7 @@ export function test_archetype_weapon_cartridge_box(): void {
   ] as const)
     if (!close(d[name]!, inches * IN))
       findings.push(`${name} is ${d[name]}, not ${inches} in`);
-  if (createHolster.BANDS.pouch?.mass?.provisional !== true)
+  if (box.provenance.bands.mass?.provisional !== true)
     findings.push("the mass band is not marked provisional");
   if (
     !close(archetypeExtent(box, "z", ["box"]).size, 7.7 * IN) ||
