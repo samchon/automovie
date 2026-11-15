@@ -4,7 +4,7 @@ Contract: [principles/research.md](../../principles/research.md).
 
 ## Depicted practice
 
-The answer names each statement that does not apply, because the studied subject lacks what it asks for, such as an outcome table for a camera style, or because no written consumer uses it yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
+A statement here does not apply when the studied subject lacks what it asks for, such as an outcome table for a camera style, or when no written consumer uses it yet, under [when to study](../../../../../story/planning/research.md#when-to-study).
 
 1. A performed practice, such as fighting, dance, sport, work or ceremony, has density and distribution targets at the depicted level, such as actions per unit time, chain lengths, technique mix, defense and counter ratios and pauses, measured from footage or statistics where they exist.
 2. Each technique has its law:

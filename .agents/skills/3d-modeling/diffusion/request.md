@@ -1,6 +1,6 @@
 # Request
 
-Generating again with a better request costs less than repairing a mesh, so ask for whichever of these the model offers, through its settings rather than prompt words:
+Generating again with a better request costs less than repairing a mesh, so ask for whichever of these the model offers, through its settings where it has them rather than prompt words:
 
 | Ask for | Otherwise expect |
 | --- | --- |
