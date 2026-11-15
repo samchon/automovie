@@ -28,6 +28,7 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingTarget } from "../striking/StrikingTarget";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFirearmReady } from "./HumanFirearmReady";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
@@ -96,6 +97,14 @@ export namespace HumanWeaponPresent {
 
     /** How it is performed: a tempo that stretches the clock; at its neutral the clock is the law's own. */
     manner?: AutoMovieMotionManner.IManner;
+
+    /**
+     * What a shot launches (#3488): the prop that flies (a ball the scene
+     * gives), its speed out of the muzzle in m/s (the gun's muzzle
+     * velocity) and the lock's time from the break to the launch in seconds
+     * (the gun's lock time; 0 when absent). Nothing is launched when absent.
+     */
+    shot?: { prop: string; speed: number; lock?: number };
   }
 
   /** Where a line of aim starts: the eye, the cheek on a stock, the face a bow's hand draws to, the arm a lance is couched under. */
@@ -400,25 +409,64 @@ export namespace HumanWeaponPresent {
           : (context.prop(context.params.gun).prop.affordances ?? []).find(
               (a: IAutoMovieAffordance): boolean => a.kind === "trigger",
             );
-      if (trigger?.travel === undefined) return shot;
-      const full: number = trigger.travel;
+      const full: number | undefined = trigger?.travel;
+      const drives: IHumanActionPlan.IDrive[] =
+        trigger === undefined || full === undefined
+          ? []
+          : [
+              {
+                prop: context.params.gun!,
+                articulation: trigger.id,
+                from: 0,
+                to: 1,
+                travel: (seconds: number): number =>
+                  full *
+                  clock.envelope(
+                    ["start", "strokeStart"],
+                    ["strokeEnd", "end"],
+                    seconds,
+                  ),
+              },
+            ];
+
+      // The shot leaves the muzzle along the bore, its direction drawn
+      // inside the declared dispersion's cone from the shooter's own stream
+      // (uniform over the cone's disc), at the break plus the lock's time,
+      // with the support's velocity added (#3488, #3491).
+      const fired: IWield["shot"] = context.params.shot;
+      const launches: IHumanActionPlan.ILaunch[] = [];
+      if (fired !== undefined) {
+        const random: ReturnType<typeof context.random> =
+          context.random("dispersion");
+        const off: number = DISPERSION * Math.sqrt(random.float(0));
+        const around: number = 360 * random.float(1);
+        const square: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(bore, around),
+          about,
+        );
+        const direction: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.fromAxisAngle(square, off),
+          bore,
+        );
+        const seconds: number = clock.at("strokeStart") + (fired.lock ?? 0);
+        launches.push({
+          prop: fired.prop,
+          seconds,
+          point: Vector3.add(
+            held.point,
+            Quaternion.rotateVector(held.rotation, s.tool.tip),
+          ),
+          velocity: Vector3.add(
+            Vector3.scale(direction, fired.speed),
+            HumanSupportFrame.at(context, context.start + seconds).velocity,
+          ),
+          attitude: { kind: "velocity" },
+        });
+      }
       return {
         ...shot,
-        drives: [
-          {
-            prop: context.params.gun!,
-            articulation: trigger.id,
-            from: 0,
-            to: 1,
-            travel: (seconds: number): number =>
-              full *
-              clock.envelope(
-                ["start", "strokeStart"],
-                ["strokeEnd", "end"],
-                seconds,
-              ),
-          },
-        ],
+        ...(drives.length === 0 ? {} : { drives }),
+        ...(launches.length === 0 ? {} : { launches }),
       };
     },
   };

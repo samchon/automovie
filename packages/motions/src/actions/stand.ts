@@ -1,6 +1,12 @@
-import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  seededSmoothNoise,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import type { tags } from "typia";
@@ -13,6 +19,7 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
+import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -61,6 +68,7 @@ export namespace stand {
     "rightHand",
     "leftArm",
     "rightArm",
+    "trunkTurn",
   ];
 
   /**
@@ -92,6 +100,37 @@ export namespace stand {
     HumanBound.least("sway", sway, 0, "m");
     const sx = context.random("swayX");
     const sz = context.random("swayZ");
+
+    // The support the stance stands on: the ground, or a prop that moves.
+    const on: IParams["on"] = context.params.on;
+    const first: IHumanProp.IFrame | undefined =
+      on === undefined ? undefined : context.prop(on.prop).frame(context.start);
+    const carried = (
+      seconds: number,
+    ): { point: (p: IAutoMovieVector3) => IAutoMovieVector3; yaw: number } => {
+      if (on === undefined || first === undefined)
+        return { point: (p: IAutoMovieVector3): IAutoMovieVector3 => p, yaw: 0 };
+      const now: IHumanProp.IFrame = context
+        .prop(on.prop)
+        .frame(context.start + seconds);
+      const turn: IAutoMovieQuaternion = Quaternion.multiply(
+        now.rotation,
+        Quaternion.inverse(first.rotation),
+      );
+      const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
+      return {
+        point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.add(
+            now.position,
+            Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
+          ),
+        yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
+      };
+    };
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
@@ -100,7 +139,10 @@ export namespace stand {
         kind: "plant" as const,
         from: 0,
         to: 1,
-        support: { kind: "ground" as const },
+        support:
+          on === undefined
+            ? { kind: "ground" as const }
+            : { kind: "prop" as const, subject: on.prop },
       })),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
@@ -125,13 +167,21 @@ export namespace stand {
           y: from.y + (middle.y - from.y) * s,
           z: from.z + (middle.z - from.z) * s + swayed.z,
         };
+        // On a moving support the stance planned at the entry is carried by
+        // the support's rigid motion since then (#3491); its tilt is not
+        // read yet, only its travel and its turn about the vertical.
+        const carry: { point: (p: IAutoMovieVector3) => IAutoMovieVector3; yaw: number } = carried(t);
+        const placed: IAutoMovieVector3 = carry.point(root);
         return {
-          root,
-          yaw,
+          root: placed,
+          yaw: yaw + carry.yaw,
           pitch: 0,
           roll: 0,
           joints,
-          limbs: legs(context.body, root, yaw, footing),
+          limbs: legs(context.body, placed, yaw + carry.yaw, {
+            left: carry.point(footing.left),
+            right: carry.point(footing.right),
+          }),
         };
       },
     };
@@ -149,6 +199,13 @@ export namespace stand {
      * or a difference is read against.
      */
     sway?: number & tags.Minimum<0> & HumanUnit<"m">;
+
+    /**
+     * A moving support stood on (#3491): a cart's bed, a deck. The stance is
+     * planned where the body stands at the entry and carried by the prop's
+     * motion from there, its feet planted on the prop. The ground when absent.
+     */
+    on?: { prop: string };
   }
 
   /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
