@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
@@ -49,14 +50,23 @@ import { resolvePose } from "./resolvePose";
  * kinematics, so the angles mean what `resolvePose` displays. Every trial is
  * projected into the range (`clampJointToSkeleton`) before it is measured,
  * as a fit that searches a pose must be measured after the joint limits. A
+ * variable that stands on a bound its descent pushes against (the clamp
+ * undoes a resolution's move along the negative gradient) is held for the
+ * step and the step is solved for the others, the active set of a projected
+ * Newton method (Bertsekas 1982, "Projected Newton methods for optimization
+ * problems with simple constraints", SIAM J. Control Optim. 20(2):221-246),
+ * so a joint at its limit does not stall the joints still free. A
  * step is accepted only when it lowers the measured cost, and the fit stops
  * when the step it would take moves no joint by more than `ROM_TOLERANCE`,
  * the resolution to which the engine resolves a joint's angle; a rejected
  * step doubles the damping growth, which shrinks the next step, so the stop
  * is always reached.
  *
- * The result is deterministic for its input: a fixed start (the pose's own
- * angles for the digit), a fixed order of variables and no random draw. A
+ * The fit descends from two starts, the pose's own angles for the digit and
+ * the middle of every range, and keeps the lower cost: a digit folded the
+ * wrong way round its target sits in a local minimum the other start lies
+ * beyond. The result is deterministic for its input: two fixed starts, a
+ * fixed order of variables and no random draw. A
  * target outside the digit's workspace ends at the reachable point nearest
  * it, and `residual` reports the distance left, so a caller refuses or
  * accepts by its own bound.
@@ -66,10 +76,10 @@ import { resolvePose } from "./resolvePose";
  * @throws {Error} When the digit names no joint, or a bone cannot be resolved.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the variables, the cost and its units, the coupling's source and status, the method and its cited constants, the stop rule and its owner, determinism and the out-of-reach behaviour.
- * @evidence contracts/development/implementation.md#principled-implementation Levenberg-Marquardt (Madsen, Nielsen and Tingleff 2004) on the engine's forward kinematics, every trial measured after the range clamp, stopping at the engine's joint-angle resolution.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One residual function over the digit's variables, one damped normal-equation step solved by `AutoMovieSolidVector.solve`, one acceptance test.
+ * @evidence contracts/development/implementation.md#principled-implementation Levenberg-Marquardt (Madsen, Nielsen and Tingleff 2004) on the engine's forward kinematics, every trial measured after the range clamp, the bound variables held by a projected Newton active set (Bertsekas 1982), stopping at the engine's joint-angle resolution.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One residual function over the digit's variables, one descent per start with one damped normal-equation step on the free variables solved by `AutoMovieSolidVector.solve`, one acceptance test, the lower of two starts kept.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No iteration count is chosen: the fit ends at the joint-angle resolution, and an unreached target reports its residual instead of being counted as met.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints); a step solves one n-by-n system, n at most 9.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each evaluation is one forward kinematics of the rig, linear in its bones; a Jacobian costs two per variable (at most 9 for a digit of three joints) and the active set's probe one clamp per variable; a step solves one system of the free variables, at most 9; two starts double the work.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; a caller keeps the result by its own plan.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned joints belong to the caller.
  */
@@ -92,7 +102,7 @@ export function fitDigitToTarget(
     );
     for (const axis of AXES)
       if (constraint === null || constraint[axis] !== null)
-        variables.push({ bone, axis });
+        variables.push({ bone, axis, range: constraint?.[axis] ?? null });
   }
   const clamps: Map<
     AutoMovieHumanoidBone,
@@ -213,9 +223,6 @@ export function fitDigitToTarget(
     );
   };
 
-  let x: number[] = read(joints(read(input.pose.joints)));
-  let r: number[] = residual(x);
-  let J: number[][] = jacobian(x);
   const n: number = variables.length;
   const normal = (
     jac: readonly (readonly number[])[],
@@ -238,48 +245,85 @@ export function fitDigitToTarget(
       ),
     ),
   });
-  let { A, g } = normal(J, r);
-  let mu: number =
-    TAU * Math.max(...A.map((row: number[], i: number): number => row[i]!));
-  let nu: number = 2;
-  for (;;) {
-    const damped: number[][] = A.map((row: number[], i: number): number[] =>
-      row.map((v: number, j: number): number => (i === j ? v + mu : v)),
-    );
-    const h: number[] | null = AutoMovieSolidVector.solve(
-      damped,
-      g.map((v: number): number => -v),
-    );
-    if (
-      h === null ||
-      Math.max(...h.map((v: number): number => Math.abs(v))) <= ROM_TOLERANCE
-    )
-      break;
-    const trial: number[] = read(
-      joints(x.map((v: number, i: number): number => v + h[i]!)),
-    );
-    const tr: number[] = residual(trial);
-    const predicted: number =
-      0.5 *
-      h.reduce(
-        (sum: number, v: number, i: number): number =>
-          sum + v * (mu * v - g[i]!),
-        0,
+
+  // The variables the range holds: a variable whose descent direction the
+  // clamp undoes stands on a bound it is pushed against, so the step leaves
+  // it where it is and solves for the others (the active set of a projected
+  // Newton method, Bertsekas 1982).
+  const held = (x: readonly number[], g: readonly number[]): boolean[] =>
+    x.map((v: number, i: number): boolean => {
+      if (g[i] === 0) return false;
+      const probe: number[] = [...x];
+      probe[i] = v - Math.sign(g[i]!) * ROM_TOLERANCE;
+      return Math.abs(read(joints(probe))[i]! - v) < ROM_TOLERANCE / 2;
+    });
+
+  // One descent from a start, to the joint-angle resolution.
+  const descend = (start: readonly number[]): number[] => {
+    let x: number[] = read(joints(start));
+    let r: number[] = residual(x);
+    let { A, g } = normal(jacobian(x), r);
+    let mu: number =
+      TAU * Math.max(...A.map((row: number[], i: number): number => row[i]!));
+    let nu: number = 2;
+    for (;;) {
+      const fixed: boolean[] = held(x, g);
+      const free: number[] = x
+        .map((_v: number, i: number): number => i)
+        .filter((i: number): boolean => !fixed[i]);
+      if (free.length === 0) break;
+      const solved: number[] | null = AutoMovieSolidVector.solve(
+        free.map((i: number): number[] =>
+          free.map((j: number): number => A[i]![j]! + (i === j ? mu : 0)),
+        ),
+        free.map((i: number): number => -g[i]!),
       );
-    const rho: number =
-      predicted > 0 ? (cost(r) - cost(tr)) / predicted : -Infinity;
-    if (rho > 0) {
-      x = trial;
-      r = tr;
-      J = jacobian(x);
-      ({ A, g } = normal(J, r));
-      mu *= Math.max(1 / 3, 1 - (2 * rho - 1) ** 3);
-      nu = 2;
-    } else {
-      mu *= nu;
-      nu *= 2;
+      if (solved === null) break;
+      const h: number[] = x.map((): number => 0);
+      free.forEach((i: number, k: number): void => {
+        h[i] = solved[k]!;
+      });
+      if (Math.max(...h.map((v: number): number => Math.abs(v))) <= ROM_TOLERANCE)
+        break;
+      const trial: number[] = read(
+        joints(x.map((v: number, i: number): number => v + h[i]!)),
+      );
+      const tr: number[] = residual(trial);
+      const predicted: number =
+        0.5 *
+        h.reduce(
+          (sum: number, v: number, i: number): number =>
+            sum + v * (mu * v - g[i]!),
+          0,
+        );
+      const rho: number =
+        predicted > 0 ? (cost(r) - cost(tr)) / predicted : -Infinity;
+      if (rho > 0) {
+        x = trial;
+        r = tr;
+        ({ A, g } = normal(jacobian(x), r));
+        mu *= Math.max(1 / 3, 1 - (2 * rho - 1) ** 3);
+        nu = 2;
+      } else {
+        mu *= nu;
+        nu *= 2;
+      }
     }
-  }
+    return x;
+  };
+
+  // Two starts, the pose's own angles and the middle of every range, the
+  // lower cost kept: a digit's fit has a local minimum where a joint folds
+  // the wrong way round the target, and the range's middle lies on the
+  // other side of it.
+  const middle: number[] = variables.map((v: IVariable): number =>
+    v.range === null ? 0 : (v.range.min + v.range.max) / 2,
+  );
+  const x: number[] = [read(input.pose.joints), middle]
+    .map(descend)
+    .reduce((best: number[], next: number[]): number[] =>
+      cost(residual(next)) < cost(residual(best)) ? next : best,
+    );
 
   const fitted: IAutoMovieJointPose[] = joints(x);
   const at = place(fitted);
@@ -357,6 +401,9 @@ export namespace fitDigitToTarget {
 interface IVariable {
   bone: AutoMovieHumanoidBone;
   axis: (typeof AXES)[number];
+
+  /** The axis's range, clinical degrees; none when the joint has no constraint. */
+  range: IAutoMovieAngleRange | null;
 }
 
 /** The clinical axes of a joint, in the order variables are read. */
