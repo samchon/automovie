@@ -1,7 +1,9 @@
 import {
   ArchetypeRefusal,
+  QuadrupedBody,
   createHorse,
   rideHorse,
+  type rideQuadruped,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,7 +19,7 @@ import { archetypeHorseRide } from "../internal/archetypeHorseRide";
  * 4. A leg naming the walk at a canter's speed is refused with the walk's range.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides produced horses on named leads and reads the order of the landings; a lead not mirrored, a change that never takes, or a gait admitted beyond its range is caught.
- * @evidence contracts/development/testing.md#independent-expectations The left lead's order is the paper's Table 1, mirrored here by hand for the right; the speed is scaled by the square root of the height ratio, the dynamic similarity `HorseGait.scale` states.
+ * @evidence contracts/development/testing.md#independent-expectations The left lead's order is the paper's Table 1, mirrored here by hand for the right; the speed is scaled by the square root of the height ratio, the dynamic similarity `QuadrupedGait.scale` states.
  * @evidence contracts/development/testing.md#distinguishing-cases Both leads, a flying change and a refused gait.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -26,7 +28,7 @@ export function test_archetype_ride_horse_lead(): void {
   const findings: string[] = [];
   const horse: ReturnType<typeof createHorse> = createHorse({}, 2);
   const speed: number = 5.5 * Math.sqrt(horse.dimensions.withersHeight! / 1.38);
-  const course = (legs: rideHorse.ILeg[]): rideHorse.ICourse => ({
+  const course = (legs: rideQuadruped.ILeg[]): rideQuadruped.ICourse => ({
     start: { x: 0, z: 0, heading: 0 },
     legs,
     cruise: speed,
@@ -40,7 +42,7 @@ export function test_archetype_ride_horse_lead(): void {
     const k: number = starts.findIndex((s: number): boolean => s >= at);
     const from: number = starts[k]!;
     const to: number = starts[k + 1]!;
-    return createHorse.LIMBS.map((limb: createHorse.Limb): [string, number] => [
+    return QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): [string, number] => [
       limb,
       archetypeHorseRide.footfalls(r, limb).find((s: number): boolean => s >= from - 1e-9 && s < to - 1e-9)! - from,
     ])

@@ -1,6 +1,6 @@
 import {
   ArchetypeFrame,
-  createHorse,
+  QuadrupedBody,
   type rideHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -23,7 +23,7 @@ export namespace archetypeHorseRide {
    */
   export function footfalls(
     ride: ReturnType<typeof rideHorse>,
-    limb: createHorse.Limb,
+    limb: QuadrupedBody.Limb,
   ): number[] {
     return ride.instants
       .filter((i: { label: string }): boolean => i.label === `${limb}On`)
@@ -40,12 +40,12 @@ export namespace archetypeHorseRide {
    */
   export function hoof(
     ride: ReturnType<typeof rideHorse>,
-    limb: createHorse.Limb,
+    limb: QuadrupedBody.Limb,
     seconds: number,
   ): IAutoMovieVector3 {
     const sample: ReturnType<typeof ride.at> = ride.at(seconds);
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
-      (p: IAutoMovieModelPart): boolean => p.id === createHorse.BONES[limb][3],
+      (p: IAutoMovieModelPart): boolean => p.id === QuadrupedBody.BONES[limb][3],
     )!;
     const shape: AutoMoviePrimitiveShape | null =
       part.geometry.type === "primitive" ? part.geometry.shape : null;
@@ -74,7 +74,7 @@ export namespace archetypeHorseRide {
   } {
     let worst: number = 0;
     let at: string = "";
-    for (const limb of createHorse.LIMBS) {
+    for (const limb of QuadrupedBody.LIMBS) {
       const on: number[] = footfalls(ride, limb);
       for (let i: number = 0; i + 1 < on.length; i++) {
         const gap: number = on[i + 1]! - on[i]!;

@@ -6,6 +6,7 @@ import {
   createCart,
   createHorse,
   rideHorse,
+  type rideQuadruped,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -169,7 +170,7 @@ export function test_archetype_harness(): void {
 }
 
 /** A straight, a quarter turn of 10 m radius and a straight, at a walk. */
-const COURSE: rideHorse.ICourse = {
+const COURSE: rideQuadruped.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [
     { kind: "straight", length: 8 },

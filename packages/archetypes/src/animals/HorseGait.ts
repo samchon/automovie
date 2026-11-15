@@ -1,56 +1,30 @@
-import { ArchetypeRefusal } from "../core";
-import type { createHorse } from "./createHorse";
+import type { QuadrupedBody } from "./QuadrupedBody";
+import type { QuadrupedChange } from "./QuadrupedChange";
+import type { QuadrupedGait } from "./QuadrupedGait";
 
 /**
- * The timing of a horse's gaits: how long a stride lasts and how much of it each hoof is on the ground at a speed, and when in the stride each hoof lands.
+ * The horse's gaits as measured: the stride and stance times by speed, the footfalls, the change points, and the ranges the ride poses the trunk, the head and the limbs with, gathered into the horse's gait table, `TABLE`.
  *
- * Every number is from Robilliard, Pfau and Wilson 2007, Gait characterisation and classification in horses, J Exp Biol 210:187 (https://journals.biologists.com/jeb/article/210/2/187/17107/Gait-characterisation-and-classification-in-horses): stride time and left-fore stance time by speed (Tables 2 and 3), the order of footfalls (Table 1) and the fore and hind phase ratios (Table 4). Its eight horses were Icelandic, about 1.4 m at the withers; warmbloods of 1.6 m stride about 15 % slower at the same speed (Back, Schamhardt and Barneveld 1996, Vet Q 18:79: 1.09 s at a 1.6 m/s walk, 0.67 s at a 4.0 m/s trot). For a horse of another height the rows are scaled by dynamic similarity (`scale`): read at the speed of equal Froude number and multiplied by the square root of the height ratio. The scaled timing is provisional; it closes about half of the gap to those warmblood figures.
+ * The timing is from Robilliard, Pfau and Wilson 2007, Gait characterisation and classification in horses, J Exp Biol 210:187 (https://journals.biologists.com/jeb/article/210/2/187/17107/Gait-characterisation-and-classification-in-horses): stride time and left-fore stance time by speed (Tables 2 and 3), the order of footfalls (Table 1) and the fore and hind phase ratios (Table 4). Its eight horses were Icelandic, about 1.4 m at the withers; warmbloods of 1.6 m stride about 15 % slower at the same speed (Back, Schamhardt and Barneveld 1996, Vet Q 18:79: 1.09 s at a 1.6 m/s walk, 0.67 s at a 4.0 m/s trot). For a horse of another height the rows are scaled by dynamic similarity (`QuadrupedGait.scale`), which closes about half of the gap to those warmblood figures: provisional.
  *
- * A stride starts when the left fore hoof lands. A hoof is named by its limb, `createHorse.Limb`, and its phase is the fraction of the stride at which it lands; the canter and the gallop are given on the left lead, the left fore landing last before the suspension, and the right lead is their mirror image.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source of every number, the population it measured, the known gap to a larger horse and the stride's zero.
- * @evidence contracts/development/design.md#principled-representation Measured rows by gait and speed, read by interpolation, and one landing phase per hoof per gait: the two things a gait is, in the paper's own variables.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `rideHorse` reads to pose the limbs and name the footfalls, and what a riding act reads to lock a rising trot to a diagonal (#3352).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted curve stands in for the rows; a speed outside a gait's measured range is refused.
+ * @evidence contracts/development/common.md#meaningful-documentation States the source of every number, the population it measured and the known gap to a larger horse.
+ * @evidence contracts/development/design.md#principled-representation Measured rows by gait and speed, one landing phase per hoof per gait, and the ride's ranges, each in its source's own variables, gathered into one `QuadrupedGait.ITable`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The horse's gait data; the timing, the change points and the pose that read it are the shared quadruped's (`QuadrupedGait`, `QuadrupedChange`, `rideQuadruped`).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No fitted curve stands in for the rows; a value one gait borrows from another, and every estimate, says so.
  */
 export namespace HorseGait {
-  /**
-   * The gaits.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The four gaits the source measured, as a closed union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; a parameter of `rideHorse` and the key of every table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
-   */
-  export type Gait = "walk" | "trot" | "canter" | "gallop";
-
-  /** Every gait, for a caller that reads one at run time. */
-  export const GAITS: readonly Gait[] = ["walk", "trot", "canter", "gallop"];
-
-  /**
-   * One measured row: a speed with the stride's mean time, its standard deviation and the left fore hoof's stance time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation One measured row: speed in metres per second, mean stride time and its standard deviation in seconds, and the left fore's stance time in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; the element of `ROWS`, read by `timing`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None; the members are the paper's own variables.
-   */
-  export interface IRow {
-    /** Speed, metres per second. */
-    speed: number;
-
-    /** Mean stride time, seconds. */
-    stride: number;
-
-    /** Standard deviation of the stride time, seconds; zero for a row of one stride. */
-    deviation: number;
-
-    /** Mean stance time of the left fore hoof, seconds. */
-    stance: number;
-  }
+  /** Every gait of the horse, slowest first. */
+  export const GAITS: readonly QuadrupedGait.Gait[] = [
+    "walk",
+    "trot",
+    "canter",
+    "gallop",
+  ];
 
   /** The measured rows by gait, in order of speed (Robilliard et al. 2007, Tables 2 and 3; the canter and gallop rows are the left and right lead rows the paper could be read at). */
-  export const ROWS: Readonly<Record<Gait, readonly IRow[]>> = {
+  export const ROWS: Readonly<
+    Record<QuadrupedGait.Gait, readonly QuadrupedGait.IRow[]>
+  > = {
     walk: [
       { speed: 1.0, stride: 1.121, deviation: 0.12, stance: 0.733 },
       { speed: 1.5, stride: 0.904, deviation: 0.079, stance: 0.54 },
@@ -88,7 +62,7 @@ export namespace HorseGait {
    * The walk is the lateral sequence left hind, left fore, right hind, right fore with the pairs half a stride apart (Table 4: fore and hind ratios 0.50); the quarter-stride lag from a hind hoof to the fore hoof of its side is the even four-beat walk's, which the paper does not give as a number. The trot lands diagonal pairs together. The left canter lands right hind, then right fore with left hind, then left fore (fore ratio 0.73, hind ratio 0.32). The left transverse gallop lands right hind, left hind, right fore, left fore (fore ratio 0.78, hind ratio 0.29); the lag from the hind pair to the fore pair is not in the paper, and is set so the right hind lands 0.05 of a stride after the left fore lifts off at the gallop's longest measured duty factor of 0.37, the suspension that makes the gait a gallop: an estimate.
    */
   export const PHASES: Readonly<
-    Record<Gait, Readonly<Record<createHorse.Limb, number>>>
+    Record<QuadrupedGait.Gait, Readonly<Record<QuadrupedBody.Limb, number>>>
   > = {
     walk: { leftFore: 0, rightFore: 0.5, leftHind: 0.75, rightHind: 0.25 },
     trot: { leftFore: 0, rightFore: 0.5, leftHind: 0.5, rightHind: 0 },
@@ -96,162 +70,104 @@ export namespace HorseGait {
     gallop: { leftFore: 0, rightFore: 0.78, leftHind: 0.71, rightHind: 0.42 },
   };
 
-  /**
-   * The timing of a gait at a speed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A gait's timing at a speed: stride time and its deviation in seconds, and the duty factor, a fraction between 0 and 1.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; returned by `timing` and read by `rideHorse`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface ITiming {
-    /** Stride time, seconds. */
-    stride: number;
-
-    /** Standard deviation of the stride time at that speed, seconds. */
-    deviation: number;
-
-    /** Duty factor: the fraction of the stride a hoof is on the ground. */
-    duty: number;
-  }
-
   /** The height at the withers of the horses the rows were measured on, metres: Icelandic horses, 1.38 m (range 1.30 to 1.43) in Jensen et al. 2019, Acta Vet Scand 61, Table 2 (https://www.ebi.ac.uk/europepmc/webservices/rest/PMC6933663/fullTextXML). Robilliard et al. do not report their own horses' height, so this is another sample of the breed: provisional. */
   export const REFERENCE: number = 1.38;
 
-  /**
-   * The factor by which a horse's stride times and speeds differ from the measured horses' at the same gait: the square root of its height at the withers over theirs.
-   *
-   * Animals of one build move in a dynamically similar way at equal Froude number, the speed squared over gravity times leg length (Alexander and Jayes 1983, J Zool 201:135; Alexander 1984, Int J Robotics Res 3:49): their stride lengths are then the same multiple of leg length, so at speeds in the ratio of the square roots of their leg lengths their stride times are in that ratio too. Height at the withers stands for leg length, the two being proportional across horses of one build. Neither paper was read at its source, and the rule under-corrects against measured warmbloods (it gives 0.99 s for a 1.6 m/s walk and 0.63 s for a 4.0 m/s trot at 1.615 m, against the 1.09 s and 0.67 s of Back, Schamhardt and Barneveld 1996, Vet Q 18:79): provisional.
-   *
-   * @param withers The horse's height at the withers, metres.
-   * @returns The factor; 1 at the measured horses' height.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the similarity rule, its sources, what stands for leg length and how far it falls short of a measured case.
-   * @evidence contracts/development/implementation.md#principled-implementation Dynamic similarity at equal Froude number, the rule the human gaits of this repository scale by.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One square root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No factor is fitted to the warmblood figures; the shortfall is stated instead.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function scale(withers: number): number {
-    return Math.sqrt(withers / REFERENCE);
-  }
+  /** The Froude number at which horses change from walk to trot: 0.35, speed squared over gravity times leg length, across nine horses of 90 to 720 kg and legs of 0.7 to 1.4 m changing at 1.6 to 2.3 m/s (Griffin, Kram, Wickler and Hoyt 2004, J Exp Biol 207:4215, abstract, https://journals.biologists.com/jeb/article/207/24/4215/2679/Biomechanical-and-energetic-determinants-of-the). The change point is the square root of this times gravity times the leg's length. The paper's Methods, which name the landmark its leg length was measured to, could not be read (the article page shows the abstract only, the journal's PDF refused the fetch, and searches for a copy found none); the hip joint's height from the ground (`createHorse.rig`) stands for it, a provisional choice consistent with the paper's figures: its 1.4 m for its 720 kg horse against 1.29 m at the hip of the 718 kg, 1.80 m warmblood the bands allow. */
+  export const FROUDE: number = 0.35;
+
+  /** The trot-gallop transition speed as it scales with body mass, the canter being the gallop's slow form: `speed` at `mass` times the mass ratio to `exponent`. Heglund and Taylor 1988 (J Exp Biol 138:301, https://doi.org/10.1242/jeb.138.1.301), as a summary of the paper reads (https://www.originalwisdom.com/wp-content/uploads/bsk-pdf-manager/2019/10/Heglund-and-Taylor_1988_Speed-and-stride-frequency-and-energy-cost-per-stride-how-do-they-change-with-body-size-and-gait.pdf): "Transition speed rose with body mass to the power 0.216; stride frequency there fell with body mass to the power -0.150." and "A 30 g mouse began to gallop at 0.8 m/s, a 170 kg pony at 5 m/s." The coefficient of the paper's Table 2 is unread (the journal's PDF refused the fetch and the summary gives no table), so the pony's point anchors the power law; the same page notes the paper's horse masses are given inconsistently. `rideHorse`'s spec checks that the speed falls inside the trot's and the canter's measured ranges. */
+  export const GALLOP: Readonly<{
+    speed: number;
+    mass: number;
+    exponent: number;
+  }> = {
+    speed: 5,
+    mass: 170,
+    exponent: 0.216,
+  };
+
+  /** How far past a change point the speed must go before the gait changes, metres per second at the measured horses' height, scaled with the gait's speeds. A gap is needed at all because a speed at a change point wavers, and without one the gait would flicker between its two gaits every stride. A provisional value: no measured difference between a horse's up and down changes was found (searches for gait transition hysteresis in horses found Griffin et al. 2004's speed steps, upward only; a 2013 quadruped simulation, arXiv 1310.7568, reporting hysteresis without a horse's measure; and Nauwelaerts et al.'s acceleration study, read at its abstract only). Twice the 0.1 m/s a steady speed wavers by in the hysteresis spec. */
+  export const HYSTERESIS: number = 0.2;
+
+  /** The head's pitch range in a stride, degrees, by gait: 9 at walk, 5 at trot and 10 at canter, the head's pitch displacement relative to space (Dunbar et al. 2008, J Exp Biol 211:3889, Table 1, https://pmc.ncbi.nlm.nih.gov/articles/PMC2768006). The gallop reuses the canter's; no measured value was found. Dunbar et al. time the nod to the footfalls: at the walk the head and neck pitch on the trunk as one, nose-up in the latter part of each forelimb's support (`support`); at the canter retraction, nose-up, begins at the leading forelimb's touchdown (`lead`), and the gallop is timed as the canter; at the trot the head bobs slightly as the body rises and falls (pitch "so small as to be insignificant" in their Fig. 9B), and its nose-down as the trunk sinks (`bob`) is a provisional reading of that sentence. */
+  export const NOD: Readonly<Record<QuadrupedGait.Gait, number>> = {
+    walk: 9,
+    trot: 5,
+    canter: 10,
+    gallop: 10,
+  };
+
+  /** How far the trunk rises and falls in a stride, metres: the withers' vertical range of warmbloods, 33.4 mm at walk and 92.2 mm at trot (Rhodin et al. 2022, Animals 12:3053, Tables 2 and 3, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9657284/fullTextXML). The canter and the gallop reuse the trot's; no measured value was found. */
+  export const BOB: Readonly<Record<QuadrupedGait.Gait, number>> = {
+    walk: 0.0334,
+    trot: 0.0922,
+    canter: 0.0922,
+    gallop: 0.0922,
+  };
+
+  /** The peak fold of the carpus and of the hock in the swing, degrees, at the walk and at the trot: the joints' ranges in Back, Schamhardt and Barneveld 1996, Vet Q 18:79, Tables 1 and 2 (https://www.tandfonline.com/doi/pdf/10.1080/01652176.1996.9694699). The canter and the gallop reuse the trot's. */
+  export const FOLD: Readonly<{
+    fore: readonly [number, number];
+    hind: readonly [number, number];
+  }> = { fore: [68.7, 90.8], hind: [35.6, 55.4] };
+
+  /** How high a swinging hoof rises at the middle of its swing, fore and hind, as a fraction of the height at the withers, at the walk and at the faster gaits. At the trot, the peak hoof heights of eight horses trotting on level ground, 13.8 cm fore and 10.8 cm hind (Brown, Stubbs, Kaiser, Lavagnino and Clayton 2015, Equine Vet J 2015, abstract read at Europe PMC, PMID 24593249), over their 142.3 cm at the withers (Clayton, Stubbs and Lavagnino 2015, Equine Vet J 47:113, Materials and methods, the same horses), so the model's horse of another height lifts in proportion: a derivation. The canter and the gallop reuse the trot's, no measured value having been found. The walk's 0.03 is a named estimate: no level-ground walk hoof height was read (searched: the SLU forward-walk study, its figures not reachable; the 2001 hindlimb walk kinematics, joint angles only; the Kentucky walk-lameness hoof study, no heights in its abstract; Animals 2025 15:2376 and Stutz et al. 2018, both refused). */
+  export const LIFT: Readonly<{
+    fore: readonly [number, number];
+    hind: readonly [number, number];
+  }> = { fore: [0.03, 0.138 / 1.423], hind: [0.03, 0.108 / 1.423] };
+
+  /** The share of a hoof's fore-and-aft travel that its top joint follows, fore and hind: the shoulder joint's travel under a scapula of 0.311 of the withers height (Matsuura et al. 2008) turning through 19.4 degrees, and the hip joint's under the pelvis's 8.2 degrees (Back et al. 1996), each over the 1.1 m a hoof travels in stance; derived, not measured. */
+  export const FOLLOW: Readonly<{ fore: number; hind: number }> = {
+    fore: 0.16,
+    hind: 0.05,
+  };
 
   /**
-   * The range of speeds of a gait for a horse of a height: the measured rows' range at the dynamically similar speeds.
+   * One of the horse's gaits gathered from the measured tables: its rows, phases, bob and nod range, the walk's fold and lift or the trot's for the faster gaits, as the tables state, with its nod's timing and its change rule.
    *
    * @param gait The gait.
-   * @param withers The horse's height at the withers, metres; the measured horses' when absent.
-   * @returns The least and greatest speed, metres per second.
+   * @param nod When in the stride the head is nose-down, as `NOD` states.
+   * @param change How it is changed into from the gait below, absent for the walk.
+   * @returns The gait.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the range is and how height enters.
-   * @evidence contracts/development/implementation.md#principled-implementation The first and last measured rows' speeds times `scale`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two lookups and one factor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `scale`.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is gathered and from where.
+   * @evidence contracts/development/implementation.md#principled-implementation Each value read from its documented table, the walk's column for the walk and the trot's for the trot, the canter and the gallop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work, once per gait.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per gait to build `TABLE`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function range(
-    gait: Gait,
-    withers: number = REFERENCE,
-  ): { minimum: number; maximum: number } {
-    const rows: readonly IRow[] = ROWS[gait];
-    const by: number = scale(withers);
+  function gathered(
+    gait: QuadrupedGait.Gait,
+    nod: QuadrupedGait.IGait["nod"]["timing"],
+    change?: QuadrupedChange.Rule,
+  ): QuadrupedGait.IGait {
+    const column: number = gait === "walk" ? 0 : 1;
     return {
-      minimum: rows[0]!.speed * by,
-      maximum: rows[rows.length - 1]!.speed * by,
+      rows: ROWS[gait],
+      phases: PHASES[gait],
+      ...(change === undefined ? {} : { change }),
+      bob: BOB[gait],
+      nod: { range: NOD[gait], timing: nod },
+      fold: { fore: FOLD.fore[column]!, hind: FOLD.hind[column]! },
+      lift: { fore: LIFT.fore[column]!, hind: LIFT.hind[column]! },
     };
   }
 
-  /**
-   * The timing of a gait at a speed, for a horse of a height.
-   *
-   * @param gait The gait.
-   * @param speed The speed, metres per second, inside the gait's range for that height.
-   * @param tempo How far this horse's stride time lies from the mean, in standard deviations, from -1 to 1; the mean when absent.
-   * @param withers The horse's height at the withers, metres; the measured horses' when absent, which gives the rows as measured.
-   * @returns The stride time, its standard deviation and the duty factor. For a height other than the measured horses' the times are scaled by dynamic similarity and are provisional, as `scale` states.
-   * @throws {ArchetypeRefusal} When the speed lies outside the gait's range for that height, giving the range, the tempo lies outside -1 to 1, or the height is not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units and ranges, what height does, that scaled values are provisional and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The rows are read at the dynamically similar speed, the speed over `scale`, by linear interpolation between the two rows that bracket it; the stride time and its deviation are then multiplied by `scale`, and the duty factor, a ratio of two times, is unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the height, the tempo and the speed, scale the speed, find the bracket, interpolate three numbers, scale the times.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is extrapolated beyond the rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of at most ten rows.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `scale` and `range`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function timing(
-    gait: Gait,
-    speed: number,
-    tempo: number = 0,
-    withers: number = REFERENCE,
-  ): ITiming {
-    const refuse = (
-      axis: string,
-      value: number,
-      low: number,
-      high: number | null,
-      unit: string,
-      reason: string,
-    ): never => {
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: "horse",
-        axis,
-        value,
-        feasible: { kind: "range", minimum: low, maximum: high, unit },
-        reason,
-        fix: `give a ${axis} inside its range`,
-      });
-    };
-    if (!(Number.isFinite(withers) && withers > 0))
-      refuse("withers", withers, 0, null, "m", "a height is positive");
-    if (!(tempo >= -1 && tempo <= 1))
-      refuse(
-        "tempo",
-        tempo,
-        -1,
-        1,
-        "",
-        "tempo is at most one standard deviation from the mean",
-      );
-    const rows: readonly IRow[] = ROWS[gait];
-    const by: number = scale(withers);
-    const { minimum, maximum }: { minimum: number; maximum: number } = range(
-      gait,
-      withers,
-    );
-    if (!(speed >= minimum && speed <= maximum))
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: "horse",
-        axis: "speed",
-        value: speed,
-        feasible: { kind: "range", minimum, maximum, unit: "m/s" },
-        reason: `a horse of ${withers} m has no measured ${gait} at ${speed} m/s`,
-        fix: "choose a speed inside the gait's range, or another gait",
-      });
-
-    // The measured horses' speed at the same Froude number, held inside the rows against rounding at the ends.
-    const similar: number = Math.max(
-      rows[0]!.speed,
-      Math.min(rows[rows.length - 1]!.speed, speed / by),
-    );
-    let k: number = 0;
-    while (k < rows.length - 2 && similar > rows[k + 1]!.speed) k++;
-    const low: IRow = rows[k]!;
-    const high: IRow = rows[k + 1]!;
-    const share: number = (similar - low.speed) / (high.speed - low.speed);
-    const mix = (a: number, b: number): number => a + (b - a) * share;
-    const deviation: number = mix(low.deviation, high.deviation);
-    const stride: number = mix(low.stride, high.stride);
-    return {
-      stride: (stride + tempo * deviation) * by,
-      deviation: deviation * by,
-      duty: mix(low.stance, high.stance) / stride,
-    };
-  }
+  /** The horse's gait table: walk to trot at `FROUDE`, trot to canter at `GALLOP` for the horse's mass, and canter to gallop at the middle of the two gaits' overlapping measured ranges, provisional for want of a measured change. */
+  export const TABLE: QuadrupedGait.ITable = {
+    order: GAITS,
+    gaits: {
+      walk: gathered("walk", "support"),
+      trot: gathered("trot", "bob", { kind: "froude", froude: FROUDE }),
+      canter: gathered("canter", "lead", { kind: "mass", ...GALLOP }),
+      gallop: gathered("gallop", "lead", { kind: "overlap" }),
+    },
+    reference: REFERENCE,
+    hysteresis: HYSTERESIS,
+    follow: FOLLOW,
+  };
 }

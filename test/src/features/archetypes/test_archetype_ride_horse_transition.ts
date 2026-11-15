@@ -1,12 +1,16 @@
 import {
   ArchetypeCourse,
-  HorseGait,
+  QuadrupedGait,
   createHorse,
+  createQuadruped,
   rideHorse,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
+
+/** The horse's species, whose gait table the expectations read. */
+const HORSE: createQuadruped.ISpecies = createQuadruped.SPECIES.horse;
 
 /**
  * A horse left to choose its gait walks, trots, canters and comes back down as the speed rises and falls, each change at a footfall with every planted hoof held.
@@ -19,7 +23,7 @@ import { archetypeHorseRide } from "../internal/archetypeHorseRide";
  * 5. The trot-to-canter change point lies inside both the trot's and the canter's measured ranges at the horse's height.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides produced horses along a course whose speed crosses every change point both ways and reads the instants and the hooves in the world; a gait chosen against its speed, a change between footfalls, or a hoof dragged across a change is caught.
- * @evidence contracts/development/testing.md#independent-expectations The change points are worked here from the Froude number and the horse's rest rig, from Heglund and Taylor's figures and the horse's mass, and from `HorseGait.range`, the measured ranges, not read from the ride; the millimetre is the planted rule #3373 set.
+ * @evidence contracts/development/testing.md#independent-expectations The change points are worked here from the Froude number and the horse's rest rig, from Heglund and Taylor's figures and the horse's mass, and from `QuadrupedGait.range`, the measured ranges, not read from the ride; the millimetre is the planted rule #3373 set.
  * @evidence contracts/development/testing.md#distinguishing-cases Two seeds, four changes up and down, and a fixed gait.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
@@ -29,9 +33,9 @@ export function test_archetype_ride_horse_transition(): void {
   for (const seed of [1, 4]) {
     const horse: ReturnType<typeof createHorse> = createHorse({}, seed);
     const withers: number = horse.dimensions.withersHeight!;
-    const middle = (a: HorseGait.Gait, b: HorseGait.Gait): number => {
-      const p: { minimum: number; maximum: number } = HorseGait.range(a, withers);
-      const q: { minimum: number; maximum: number } = HorseGait.range(b, withers);
+    const middle = (a: QuadrupedGait.Gait, b: QuadrupedGait.Gait): number => {
+      const p: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, a, withers);
+      const q: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, b, withers);
       return (Math.max(p.minimum, q.minimum) + Math.min(p.maximum, q.maximum)) / 2;
     };
     const hip: number = createHorse.rig(horse.dimensions).limbs.leftHind[0]!.y;
@@ -39,7 +43,7 @@ export function test_archetype_ride_horse_transition(): void {
     const gallop: number = 5 * (horse.dimensions.mass! / 170) ** 0.216;
     const canter: number = (gallop + middle("canter", "gallop")) / 2;
     for (const which of ["trot", "canter"] as const) {
-      const range: { minimum: number; maximum: number } = HorseGait.range(which, withers);
+      const range: { minimum: number; maximum: number } = QuadrupedGait.range(HORSE, which, withers);
       if (!(gallop > range.minimum && gallop < range.maximum))
         findings.push(`seed ${seed}: the trot-to-canter point ${gallop} m/s is outside the measured ${which}`);
     }
