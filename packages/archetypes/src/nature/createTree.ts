@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -12,7 +13,7 @@ import {
 
 /** White oak's size at maturity, read in the USDA silvics manual. */
 const SILVICS: string =
-  "USDA Forest Service, Silvics of North America, white oak (Quercus alba): \"often 24 to 30 m (80 to 100 ft) in height and 91 to 122 cm (36 to 48 in) in d.b.h.\" (https://research.fs.usda.gov/silvics/white-oak)";
+  'USDA Forest Service, Silvics of North America, white oak (Quercus alba): "often 24 to 30 m (80 to 100 ft) in height and 91 to 122 cm (36 to 48 in) in d.b.h." (https://research.fs.usda.gov/silvics/white-oak)';
 
 /** Oaks' crown base, read in a study of European oaks, applied to white oak. */
 const CROWN: string =
@@ -58,24 +59,27 @@ export function createTree(
   params: createTree.IParams,
   seed?: number | string,
 ): Archetype<createTree.Affordance, createTree.Dimension> {
+  const draw: ArchetypeDrawSession<createTree.Dimension> =
+    new ArchetypeDrawSession<createTree.Dimension>(
+      "tree",
+      createTree.UNITS,
+      seed,
+      params,
+    );
   const kind: createTree.Kind = ArchetypeDraw.choice(
     "tree",
     "kind",
     params.kind,
     createTree.KINDS,
   );
-  const d: Record<createTree.Dimension, number> = ArchetypeDraw.dimensions(
-    "tree",
+  const d: Record<createTree.Dimension, number> = draw.dimensions(
     createTree.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<createTree.Affordance, createTree.Dimension> =
     new ArchetypeBuilder({
-      archetype: "tree",
       id: params.id,
       name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
 
@@ -180,6 +184,14 @@ export namespace createTree {
    */
   export type Dimension = "height" | "dbh" | "crownBase" | "moisture";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    dbh: "m",
+    crownBase: "",
+    moisture: "",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tree. */
@@ -190,7 +202,9 @@ export namespace createTree {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> = {
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > = {
     whiteOak: {
       height: ArchetypeBand.metres(24, 30, SILVICS),
       dbh: ArchetypeBand.metres(0.91, 1.22, SILVICS),

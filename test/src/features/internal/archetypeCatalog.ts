@@ -28,8 +28,10 @@ import {
   createControl,
   createCue,
   createCueTable,
+  createDeck,
   createDevice,
   createDiscus,
+  createDonkey,
   createDoor,
   createDrinkware,
   createDumbbell,
@@ -71,13 +73,14 @@ import {
   createMirror,
   createMobilityAid,
   createMotorcycle,
+  createMule,
   createObstacle,
   createParallelBars,
   createPell,
   createPlyoBox,
   createPolearm,
-  createPoolEdge,
   createPony,
+  createPoolEdge,
   createPram,
   createProjectile,
   createPullUpBar,
@@ -92,9 +95,10 @@ import {
   createSaloonDoor,
   createSanitary,
   createSeat,
-  createShowcase,
   createShield,
   createShot,
+  createShowcase,
+  createSiegeEngine,
   createSkateboard,
   createSki,
   createSled,
@@ -357,7 +361,8 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   );
   add(
     "cellFront",
-    (seed?: number | string): Archetype => createCellFront(createCellFront.REFERENCE, seed),
+    (seed?: number | string): Archetype =>
+      createCellFront(createCellFront.REFERENCE, seed),
   );
   add(
     "elevator",
@@ -409,8 +414,16 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
       (seed?: number | string): Archetype => createBoat({ kind }, seed),
       kind === "launch",
     );
+  add(
+    "deck",
+    (seed?: number | string): Archetype =>
+      createDeck(createDeck.REFERENCE, seed),
+    true,
+  );
   add("horse", (seed?: number | string): Archetype => createHorse({}, seed));
   add("pony", (seed?: number | string): Archetype => createPony({}, seed));
+  add("donkey", (seed?: number | string): Archetype => createDonkey({}, seed));
+  add("mule", (seed?: number | string): Archetype => createMule({}, seed));
   for (const frame of createHandgun.FRAMES)
     add(
       `handgun-${frame}`,
@@ -442,7 +455,12 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `cannon-${kind}`,
       (seed?: number | string): Archetype => createCannon({ kind }, seed),
-      settled(createCannon.BANDS[kind]),
+      settled(createCannon.BANDS[kind], createCannon.MODELS[kind]),
+    );
+  for (const kind of createSiegeEngine.KINDS)
+    add(
+      `siegeEngine-${kind}`,
+      (seed?: number | string): Archetype => createSiegeEngine({ kind }, seed),
     );
   for (const kind of createLongGun.KINDS)
     add(

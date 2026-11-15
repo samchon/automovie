@@ -2,6 +2,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { INSTRUMENT_BANDS } from "./INSTRUMENT_BANDS";
@@ -36,6 +37,13 @@ export function createInstrument(
   params: createInstrument.IParams,
   seed?: number | string,
 ): Archetype<createInstrument.Affordance, createInstrument.Dimension> {
+  const draw: ArchetypeDrawSession<createInstrument.Dimension> =
+    new ArchetypeDrawSession<createInstrument.Dimension>(
+      "instrument",
+      createInstrument.UNITS,
+      seed,
+      params,
+    );
   const kind: createInstrument.Kind = ArchetypeDraw.choice(
     "instrument",
     "kind",
@@ -43,21 +51,14 @@ export function createInstrument(
     createInstrument.KINDS,
   );
   const d: Partial<Record<createInstrument.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "instrument",
-      createInstrument.BANDS[kind],
-      seed,
-      params,
-      createInstrument.BANDS,
-    );
+    draw.dimensions(createInstrument.BANDS[kind], createInstrument.BANDS);
   const builder: ArchetypeBuilder<
     createInstrument.Affordance,
     createInstrument.Dimension
   > = new ArchetypeBuilder({
-    archetype: "instrument",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   if (kind === "uprightPiano") KeyboardConstruction.uprightPiano(builder, d);
   else if (kind === "sideDrum" || kind === "bugle")
@@ -155,6 +156,39 @@ export namespace createInstrument {
     | "diameter"
     | "bell"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    keyHeight: "m",
+    octave: "m",
+    keyLength: "m",
+    blackLength: "m",
+    dip: "m",
+    blackRise: "m",
+    scale: "m",
+    nut: "m",
+    saddle: "m",
+    bodyLength: "m",
+    bodyWidth: "m",
+    bodyDepth: "m",
+    neck: "m",
+    upperBout: "m",
+    waist: "m",
+    lowerBout: "m",
+    rib: "m",
+    neckThickness: "m",
+    fingerboard: "m",
+    nutSpacing: "m",
+    bridgeSpacing: "m",
+    bridgeHeight: "m",
+    length: "m",
+    diameter: "m",
+    bell: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

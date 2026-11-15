@@ -5,7 +5,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -37,27 +37,23 @@ export function createRowingMachine(
   params: createRowingMachine.IParams = {},
   seed?: number | string,
 ): Archetype<createRowingMachine.Affordance, createRowingMachine.Dimension> {
+  const draw: ArchetypeDrawSession<createRowingMachine.Dimension> =
+    new ArchetypeDrawSession<createRowingMachine.Dimension>(
+      "rowingMachine",
+      createRowingMachine.UNITS,
+      seed,
+      params,
+    );
   const legs: {
     name: createRowingMachine.Legs | undefined;
     figures: Readonly<Partial<Record<createRowingMachine.Dimension, number>>>;
-  } = ArchetypeDraw.model<
-    createRowingMachine.Legs,
-    createRowingMachine.Dimension
-  >(
-    "rowingMachine",
+  } = draw.model<createRowingMachine.Legs>(
     "legs",
     params.legs,
     createRowingMachine.LEGS,
-    seed,
-    params,
   );
   const d: Record<createRowingMachine.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "rowingMachine",
-      createRowingMachine.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createRowingMachine.BANDS),
     seatHeight: legs.figures.seatHeight!,
     mass: legs.figures.mass!,
   };
@@ -65,10 +61,9 @@ export function createRowingMachine(
     createRowingMachine.Affordance,
     createRowingMachine.Dimension
   > = new ArchetypeBuilder({
-    archetype: "rowingMachine",
     id: params.id,
     name: `rowing machine on ${legs.name} legs`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const rail: number = createRowingMachine.RAIL;
@@ -242,6 +237,15 @@ export namespace createRowingMachine {
     | "width"
     | "handleWidth"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatHeight: "m",
+    length: "m",
+    width: "m",
+    handleWidth: "m",
+    mass: "kg",
+  };
 
   /** Concept2's legs. */
   export type Legs = "standard" | "tall";

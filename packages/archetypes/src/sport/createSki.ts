@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -50,27 +50,26 @@ export function createSki(
   params: createSki.IParams = {},
   seed?: number | string,
 ): Archetype<createSki.Affordance, createSki.Dimension> {
+  const draw: ArchetypeDrawSession<createSki.Dimension> =
+    new ArchetypeDrawSession<createSki.Dimension>(
+      "ski",
+      createSki.UNITS,
+      seed,
+      params,
+    );
   const length: {
     name: createSki.Length | undefined;
     figures: Readonly<Partial<Record<createSki.Dimension, number>>>;
-  } = ArchetypeDraw.model<createSki.Length, createSki.Dimension>(
-    "ski",
-    "size",
-    params.size,
-    createSki.LENGTHS,
-    seed,
-    params,
-  );
+  } = draw.model<createSki.Length>("size", params.size, createSki.LENGTHS);
   const d: Partial<Record<createSki.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("ski", createSki.BANDS, seed, params),
+    ...draw.dimensions(createSki.BANDS),
     ...length.figures,
   };
   const builder: ArchetypeBuilder<createSki.Affordance, createSki.Dimension> =
     new ArchetypeBuilder({
-      archetype: "ski",
       id: params.id,
       name: `ski ${length.name}`,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.length! / 2;
@@ -117,6 +116,13 @@ export namespace createSki {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** LINE Blend's lengths. */
   export type Length = "163cm" | "169cm" | "175cm" | "180cm";

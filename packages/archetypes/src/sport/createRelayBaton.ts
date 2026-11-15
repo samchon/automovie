@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -35,21 +35,23 @@ export function createRelayBaton(
   params: createRelayBaton.IParams = {},
   seed?: number | string,
 ): Archetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
-  const d: Record<createRelayBaton.Dimension, number> =
-    ArchetypeDraw.dimensions(
+  const draw: ArchetypeDrawSession<createRelayBaton.Dimension> =
+    new ArchetypeDrawSession<createRelayBaton.Dimension>(
       "relayBaton",
-      createRelayBaton.BANDS,
+      createRelayBaton.UNITS,
       seed,
       params,
     );
+  const d: Record<createRelayBaton.Dimension, number> = draw.dimensions(
+    createRelayBaton.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createRelayBaton.Affordance,
     createRelayBaton.Dimension
   > = new ArchetypeBuilder({
-    archetype: "relayBaton",
     id: params.id,
     name: "relay baton",
-    dimensions: d,
+    draw,
   });
   builder.rod(
     "tube",
@@ -123,6 +125,13 @@ export namespace createRelayBaton {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

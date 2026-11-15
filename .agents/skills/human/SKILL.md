@@ -24,7 +24,7 @@ A measurement order, or another value of a parameter, is not research.
 
 ## Method
 
-1. **Families.** Every part is a conic family: a few view curves (outline pairs, axis, fullness) and one inflection line for each groove along it. [Lofting](../3d-modeling/lofting.md#one-section-family) owns the section model and its one limit, star-shape about the course.
+1. **Families.** Every part is a conic family: a few view curves (outline pairs, axis, fullness) and one inflection line for each groove along it. [Lofting](../3d-modeling/crafting/lofting.md#one-section-family) owns the section model and its one limit, star-shape about the course.
 2. **Connections.** Parts meet only through the operator their topology selects in [Connections](construction.md#connections). The joint is composed in 2D before either side is lofted.
 3. **Repair.** A defect is fixed at the curve that makes it, in the order [Repair](construction.md#repair) gives.
 4. **Seeing.** Nothing is true until it is seen. Every shape claim rests on renders opened beside the reference, as [Verification](verification.md) requires.

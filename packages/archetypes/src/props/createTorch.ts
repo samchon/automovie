@@ -2,30 +2,24 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
-  type IArchetypeBand,
 } from "../core";
 
-/** The maker's torch, read. */
-const MAGLITE: string =
-  "Maglite 2-Cell D LED: 10 in (254 mm) long, a 1 9/16 in (39.67 mm) barrel, a 2.25 in (57 mm) head, 23 oz (674 g) with batteries (https://maglite.com/pages/specifications-maglite-2-cell-d-led-flashlight), the 23 oz given as 652 g by a retailer (https://www.adorama.com/mlst2d015.html)";
-
 /**
- * A handheld electric torch (a flashlight): a barrel with a wider head and a switch on the barrel.
+ * A handheld electric torch (a flashlight): a barrel with a wider head and a switch on the barrel, one of Maglite's two- and three-cell D torches whole.
  *
  * It stands on its tail at the origin, its head up along `+Y`. `grip` is the barrel a hand closes on, taken from `-Z`; `lens` the head's front, its `+Y` along the beam, the working point an aim carries; `switch` the push button on the barrel's `+Z` side under the thumb, pressed along its `-Y`.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The model, and any dimension the author fixes.
+ * @param seed The seed that picks the model when none is given; absent, the first model.
  * @returns The torch.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a model the torch does not have, or a fixed dimension that is the model's own figure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the torch stands and its three contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the drawn length and diameter and a head rod of the maker's head diameter at its top, the switch a point on the barrel's side below the head.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, two parts, three contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation A barrel rod of the model's length and diameter and a head rod of the maker's head diameter at its top, the switch a point on the barrel's side below the head.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, two parts, three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The switch is a contact on the barrel, not a part; the head's size and the switch's travel are named estimates.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -35,20 +29,30 @@ export function createTorch(
   params: createTorch.IParams = {},
   seed?: number | string,
 ): Archetype<createTorch.Affordance, createTorch.Dimension> {
-  const d: Record<createTorch.Dimension, number> = ArchetypeDraw.dimensions(
-    "torch",
-    createTorch.BANDS,
-    seed,
-    params,
-  );
+  const draw: ArchetypeDrawSession<createTorch.Dimension> =
+    new ArchetypeDrawSession<createTorch.Dimension>(
+      "torch",
+      createTorch.UNITS,
+      seed,
+      params,
+    );
+  // A torch is one of the maker's models whole.
+  const model: {
+    name: createTorch.Model | undefined;
+    figures: createTorch.Figures;
+  } = draw.model<createTorch.Model>("model", params.model, createTorch.MODELS);
+  const d: Record<createTorch.Dimension, number> = {
+    length: model.figures.length!,
+    diameter: model.figures.diameter!,
+    mass: model.figures.mass!,
+  };
   const builder: ArchetypeBuilder<
     createTorch.Affordance,
     createTorch.Dimension
   > = new ArchetypeBuilder({
-    archetype: "torch",
     id: params.id,
     name: "torch",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const head: number = createTorch.HEAD;
@@ -99,12 +103,12 @@ export function createTorch(
  * Companion types, constants and bands of {@link createTorch}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation One band per dimension a maker varies.
+ * @evidence contracts/development/design.md#principled-representation Each model one maker's torch whole, never a size between two.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The barrel a hand takes, the lens an aim reads and the switch a thumb presses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The length, the barrel's diameter and the mass are the maker's as read; the head's length and the switch's travel are named estimates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The length, the barrel's diameter and the mass are the maker's as read for each model; the head's length and the switch's travel are named estimates.
  */
 export namespace createTorch {
-  /** The head's diameter, metres: the Maglite 2-Cell D's 57 mm. */
+  /** The head's diameter, metres: the Maglite 2-Cell and 3-Cell D's 57 mm. */
   export const HEAD_DIAMETER: number = 0.057;
 
   /** The head's length, metres: an estimate; the maker's page read does not give it. */
@@ -131,16 +135,31 @@ export namespace createTorch {
    */
   export type Dimension = "length" | "diameter" | "mass";
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    mass: "kg",
+  };
+
+  /** The parameters: the model. */
   export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The maker's model; drawn from the seed when absent. */
+    model?: Model;
+
     /** The model's id, unique in a scene; `torch` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.254, 0.254, MAGLITE),
-    diameter: ArchetypeBand.metres(0.03967, 0.03967, MAGLITE),
-    mass: ArchetypeBand.of("kg", 0.652, 0.674, MAGLITE),
+  /** A model's read figures, by dimension. */
+  export type Figures = Readonly<Partial<Record<Dimension, number>>>;
+
+  /** The maker's torches read: the Maglite 2-Cell D LED and 3-Cell D LED. */
+  export type Model = "twoCellD" | "threeCellD";
+
+  /** Each model whole, the default first, with batteries: the 2-Cell D LED 254 mm long, a 39.67 mm barrel, 674 g (https://maglite.com/pages/specifications-maglite-2-cell-d-led-flashlight); the 3-Cell D LED 313 mm, 39.67 mm, 856 g (https://maglite.com/pages/specifications-maglite-3-cell-d-led-flashlight). */
+  export const MODELS: Readonly<Record<Model, Figures>> = {
+    twoCellD: { length: 0.254, diameter: 0.03967, mass: 0.674 },
+    threeCellD: { length: 0.313, diameter: 0.03967, mass: 0.856 },
   };
 }

@@ -13,21 +13,25 @@ pnpm run evidence
 pnpm test
 ```
 
-The project includes instructions, contracts and a working empty inspector page with exact-time video export. Start with [production]({{skills}}/production/SKILL.md) for the requested output and [story]({{skills}}/story/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration]({{skills}}/evidence/configuration.md) adds narrative scope and stages to that same configuration. The empty scene and checks do not complete a production.
+The project includes instructions, contracts and a working empty inspector page with exact-time video export; the empty scene and checks do not complete a production. Start with [production]({{skills}}/production/SKILL.md) for the requested output and [story]({{skills}}/story/SKILL.md) for creative work.
+
+Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration]({{skills}}/evidence/configuration.md) adds narrative scope and stages to that same configuration.
 
 ## Inspector and export
 
-Run `pnpm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows the films of `src/subjects.ts`, the same subjects `pnpm run capture` draws, through one request: every panel (time, selection, marks, shade, view and the request text) edits it, the address carries it with the capture's keys, and the page shows the `automovie capture` command whose options, given to `pnpm run capture`, repeat the picture. Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its [film name]({{skills}}/development/source-layout.md#source), derived from its film folder's path, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?subject=<name>` selects one, and may be omitted while only one exists, and `at` the second shown, for example [the starter at 2 seconds through the front view](http://127.0.0.1:5173/?subject=starter&at=2&views=front). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
+Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its [film name]({{skills}}/development/source-layout.md#source), derived from its film folder's path, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short). Each film composes its own scenes; the starter film `src/composition/films/starter.ts` holds an empty one.
 
-`pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, omitting `--subject` while only one film exists. It builds a draw-only page over `src/subjects.ts` with this production's Vite and draws every frame at `i / fps` through the same draw function `pnpm run capture` uses, with SwiftShader, the software WebGL backend, in the Chromium build Playwright pins (`pnpm run review:setup` installs it; `CHROME_PATH` selects another executable), then encodes them once with FFmpeg from `ffmpeg-static`, or `FFMPEG_PATH`. No server needs to be running.
+Run `pnpm run dev`, then open [the inspector](http://127.0.0.1:5173/). It shows the films of `src/subjects.ts`, the same subjects `pnpm run capture` draws, through one request: every panel (time, selection, marks, shade, view and the request text) edits it, the address carries it in the capture's keys of the same names, such as `?views=front@ortho&parts=teapot&shade=clay&marks=curve`, and the page shows the `automovie capture` command whose options, given to `pnpm run capture`, repeat the picture. `?subject=<name>` selects a film, and may be omitted while only one exists, and `at` the second shown, for example [the starter at 2 seconds through the front view](http://127.0.0.1:5173/?subject=starter&at=2&views=front). A request the capture refuses is refused on the page too: the page opens on the empty request and shows the reason. Play, pause and seek use the same deterministic performance as export.
 
-It writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames, followed by one picture-only encode. The report's hashes describe the drawn frames; judge the film on stills of the encoded file under [delivery review]({{skills}}/review/delivery-review.md), and ask the user to watch its playback before accepting it.
+`pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, omitting `--subject` while only one film exists. It draws every frame in the browser `pnpm run review:setup` installs, through the same draw function `pnpm run capture` uses, and encodes them once, picture only; no server needs to be running. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg.
+
+It writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames. The report's hashes describe the drawn frames; judge the film on stills of the encoded file under [delivery review]({{skills}}/review/delivery-review.md), and ask the user to watch its playback before accepting it.
 
 ## Stills
 
-`pnpm run capture --subject <film> [request]` runs `automovie capture --module src/subjects.ts`: it builds a draw-only page over `src/subjects.ts` with this production's Vite, draws each planned still of the film in headless Chromium with SwiftShader through the same draw function the delivery render uses, and writes the stills, contact sheets laid out for the reader and `record.json` into `media/capture/<film>/`. The record names the source revision, the request, each cell's resolved camera and the backend with the WebGL renderer and the Chromium version, and keeps every cell that could not be drawn with its cause; the command exits non-zero when one was not. Run `pnpm run review:setup` once to install the browser.
+`pnpm run capture --subject <film> [request]` runs `automovie capture --module src/subjects.ts`: it draws each planned still of the film through the same draw function as the delivery render and writes the stills, contact sheets and `record.json` into `media/capture/<film>/`. The record keeps every cell that could not be drawn with its cause, and the command exits non-zero when one was not; the [render README](https://github.com/samchon/automovie/tree/master/packages/render#capture) lists what else it holds. Run `pnpm run review:setup` once to install the browser.
 
-The request is the same grammar as the inspector's address, each key written with `--` before it; the [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with what it asks for and the requirement it serves. `--marks` draws marks by kind from what the subject supplies, such as its construction curves (`curve`), the measured mesh `edge` and `defect` kinds, or a performance's `joint`, `bone` and `contact`. `--round <name>` keeps a capture under `rounds/<name>`, and `--compare <name>` adds comparison sheets that set each cell beside the same cell of that round and report every cell the two rounds could not pair. `--file <video>` captures an encoded file's own frames around its cuts instead of a film.
+The request is the same grammar as the inspector's address, each key written with `--` before it; the [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with what it asks for and the requirement it serves. `--marks` draws marks by kind from what the subject supplies, such as its construction curves (`curve`), the measured mesh `edge` and `defect` kinds, or a performance's `joint`, `bone` and `contact`. `--round <name>` keeps a capture under `rounds/<name>`, and `--compare <name>` adds comparison sheets that set each cell beside the same cell of that round and report every cell the two rounds could not pair; judge a correction at the same source revision, film seconds and camera. `--file <video>` captures an encoded file's own frames around its cuts instead of a film.
 
 ```bash
 pnpm run capture --subject catalog --from 12 --to 14 --events 13.1 --views "right;three-quarter@ortho"
@@ -39,23 +43,21 @@ pnpm run capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
 
 ## Physical performance review
 
-[Physical feedback]({{skills}}/motion/physical-feedback.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits. Supply `IFilmProduction.performance` from the displayed state to draw its skeleton and contacts as marks; the starter's empty scene supplies none.
-
-Run `pnpm run review:setup` once to install Playwright's recording FFmpeg and its headless Chromium. With `pnpm run dev` running, `pnpm run review --url <inspector-address> --seconds <s>` runs `automovie review`: it presses the inspector's Play button and records real-time playback as a video, with the time readout it showed and the page's errors, into `media/automovie/review/`, or `--out <dir>`, for the user to watch.
-
-In the inspector, the capture's keys are the address's parameters of the same names, such as `?views=front@ortho&parts=teapot&shade=clay&marks=curve`; `marks=joint,bone,contact` draws the skeleton and contact forces of `IFilmProduction.performance`, which `src/markFilmProduction.ts` hands to the inspection in every host. A request the capture refuses is refused on the page too: the page opens on the empty request and shows the reason. Judge a correction at the same source revision, film seconds and camera.
+[Physical feedback]({{skills}}/motion/physical-feedback.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits.
 
 `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [stage cache]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
 
+Supply `IFilmProduction.performance` from the displayed state; `src/markFilmProduction.ts` hands it to the inspection in every host, and `marks=joint,bone,contact` draws its skeleton and contact forces. The starter's empty scene supplies none.
+
+Run `pnpm run review:setup` once to install Playwright's recording FFmpeg and its headless Chromium. With `pnpm run dev` running, `pnpm run review --url <inspector-address> --seconds <s>` runs `automovie review`: it presses the inspector's Play button and records real-time playback as a video, with the time readout it showed and the page's errors, into `media/automovie/review/`, or `--out <dir>`, for the user to watch.
+
 ## Make a motion hint
 
-1. Adopt the request and output boundary in [PROJECT.md](PROJECT.md) through [project context]({{skills}}/production/project-context.md).
+1. Adopt the request, its output boundary and the intended execution and capture path in [PROJECT.md](PROJECT.md) under [project context]({{skills}}/production/project-context.md).
 
-   Include the intended execution/capture path. Make routine choices within the user's delegation and keep creative requirements with their owners. [Ask for operating choices]({{skills}}/production/project-context.md#asking-for-operating-choices) when the task that uses them begins.
+2. Write the screenplay as the user's [choice of writer]({{skills}}/story/workflow/SKILL.md#who-writes-the-screenplay) sets.
 
-2. When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it.
-
-   Write the screenplay as the user's [choice of writer]({{skills}}/story/workflow/SKILL.md#who-writes-the-screenplay) sets. When it runs the narrative passes, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow/SKILL.md), which also sets when evidence and independent review run; a short drafts its entities, scenes and film before them, as its route's film draft step sets.
+   When the agent writes the story, first [ask the user]({{skills}}/story/planning/requirements.md#asking-the-user) about it. When the choice runs the narrative passes, write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow/SKILL.md), which also sets when evidence and independent review run; a short drafts its entities, scenes and film before evidence and review, as its route's film draft step sets.
 
 3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 
@@ -73,7 +75,7 @@ In the inspector, the capture's keys are the address's parameters of the same na
 
    Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
-A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
+A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and finished takes with their [film sound]({{skills}}/audio/film-sound.md) before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
 ## Commands
 
@@ -101,7 +103,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | Path, when used | Holds |
 | --- | --- |
 | `.agents/skills`, at this project's root or its workspace root | The task entry points `AGENTS.md` lists, their resources and the contracts |
-| `PROJECT.md` | The project overview, commissioned scope, current choices, constraints and setup authority |
+| `PROJECT.md` | The current scope, choices and constraints [project context]({{skills}}/production/project-context.md) defines |
 | `docs/instructions` | Creative writing requirements |
 | Other `docs` locations | Research studies, bodies, evidence, reviews and acceptance records when needed |
 | `references/` | The retained research originals |
@@ -117,8 +119,4 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `tsconfig.test.json` | The scope of pure TypeScript unit tests |
 | `package.json` | Dependencies and commands |
 
-`AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its workflow, planning, layers, correction and evidence parts.
-
-[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations. The dependency direction between source folders is the source layout's rule.
-
-Installed package READMEs, public types and JSDoc own API behavior.
+[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations, and the source layout also owns the dependency direction between source folders. Installed package READMEs, public types and JSDoc own API behavior.

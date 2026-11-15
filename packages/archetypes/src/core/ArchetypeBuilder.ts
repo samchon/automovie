@@ -6,6 +6,8 @@ import {
 import type {
   AutoMoviePrimitiveShape,
   IAutoMovieAffordance,
+  IAutoMovieBodyContact,
+  IAutoMovieBodyDrag,
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -13,6 +15,8 @@ import type {
 } from "@automovie/interface";
 
 import { Archetype } from "./Archetype";
+import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import type { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -56,13 +60,16 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   /** Surface materials declared so far, by part id. */
   readonly #surfaces: Record<string, ArchetypeFriction.Material> = {};
 
-  /** The producer's identity and drawn dimensions. */
+  /** The fragment sets declared so far. */
+  readonly #fractures: ArchetypeFracture.ISet[] = [];
+
+  /** The producer's identity and its draws. */
   readonly #props: ArchetypeBuilder.IProps<Dimension>;
 
   /**
    * An empty archetype under construction.
    *
-   * @param props The producer's name, the model's id and name, and the drawn dimensions.
+   * @param props The model's id and name, and the producer's draws, which name the producer.
    */
   public constructor(props: ArchetypeBuilder.IProps<Dimension>) {
     this.#props = props;
@@ -198,13 +205,13 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     length?: number,
   ): this {
     const start: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.archetype,
+      this.#props.draw.archetype,
       from,
       this.#parts,
       this.#affordances,
     );
     const end: IAutoMovieVector3 = ArchetypeSpan.locate(
-      this.#props.archetype,
+      this.#props.draw.archetype,
       to,
       this.#parts,
       this.#affordances,
@@ -212,7 +219,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
     if (!(Vector3.length(Vector3.subtract(end, start)) > 0))
       throw new ArchetypeRefusal({
         kind: "parameter",
-        archetype: this.#props.archetype,
+        archetype: this.#props.draw.archetype,
         axis: id,
         value: 0,
         feasible: null,
@@ -244,10 +251,58 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   }
 
   /**
+   * Declare the sets of parts a hit breaks off, each a fragment; the threshold is the body's `contact.fracture`, given to `build` as `outcome`.
+   *
+   * @param sets The fragment sets, each an id and the parts it carries away.
+   * @returns This builder.
+   * @throws {Error} When a set's id is declared twice, a set carries no part, or a set names a part not yet recorded or one a set already names (its own included), a producer's defect.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what a set is, where the threshold goes and the failures.
+   * @evidence contracts/development/implementation.md#principled-implementation Each set's id is unique and its parts exist, at least one, each named once across the sets, so every part is in at most one fragment and the remainder is the rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check per part, then the record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated id, an empty set, or an unknown or shared part throws rather than being dropped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A scan of the parts per named part, tens at most.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Records once per producer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder keeps the sets until `build` hands them to the archetype.
+   */
+  public fracture(sets: readonly ArchetypeFracture.ISet[]): this {
+    const named: Set<string> = new Set(
+      this.#fractures.flatMap(
+        (s: ArchetypeFracture.ISet): readonly string[] => s.parts,
+      ),
+    );
+    const ids: Set<string> = new Set(
+      this.#fractures.map((s: ArchetypeFracture.ISet): string => s.id),
+    );
+    for (const set of sets) {
+      if (ids.has(set.id))
+        throw new Error(`fracture set ${set.id} is declared twice`);
+      if (set.parts.length === 0)
+        throw new Error(`fracture set ${set.id} carries no part`);
+      ids.add(set.id);
+      for (const part of set.parts) {
+        if (
+          !this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === part)
+        )
+          throw new Error(
+            `fracture set ${set.id} names the unrecorded part ${part}`,
+          );
+        if (named.has(part))
+          throw new Error(
+            `fracture set ${set.id} names ${part}, which a set already carries`,
+          );
+        named.add(part);
+      }
+    }
+    this.#fractures.push(...sets);
+    return this;
+  }
+
+  /**
    * The finished archetype.
    *
    * @param mass The total mass, kilograms, from the producer's cited band.
-   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
+   * @param contact `rests`, the material of what the model stands on, such as its tyres or its hooves, and `ground`, the material it stands on, concrete when absent: the body's static and kinetic friction are that measured pair's (`ArchetypeFriction.pair`), a range's middle where the source gives a range. `restitution`, 0 to 1, 0.2 when absent. `drag` and `outcome`, a launched body's measured drag and its flight's ending (`IAutoMovieBody.drag` and `contact`), absent when no source measured them. Without `rests` the body carries no friction, static or kinetic, until the producer declares what it rests on.
    * @returns The archetype at rest.
    * @throws {Error} As `ArchetypeMass.of` does when no part has mass.
    * @throws {ArchetypeRefusal} When no source measured the resting pair.
@@ -266,6 +321,8 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
       rests?: ArchetypeFriction.Material;
       ground?: ArchetypeFriction.Material;
       restitution?: number;
+      drag?: IAutoMovieBodyDrag;
+      outcome?: IAutoMovieBodyContact;
     },
   ): Archetype<Id, Dimension> {
     const pair: ArchetypeFriction.ICoefficients | null =
@@ -274,11 +331,11 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
         : ArchetypeFriction.pair(
             contact.rests,
             contact.ground ?? ArchetypeFriction.GROUND,
-            this.#props.archetype,
+            this.#props.draw.archetype,
           );
     return new Archetype<Id, Dimension>({
-      archetype: this.#props.archetype,
-      id: this.#props.id ?? this.#props.archetype,
+      archetype: this.#props.draw.archetype,
+      id: this.#props.id ?? this.#props.draw.archetype,
       name: this.#props.name,
       parts: this.#parts,
       affordances: this.#affordances,
@@ -296,7 +353,17 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
           : ArchetypeFriction.value(pair.kinetic),
       surfaces: this.#surfaces,
       restitution: contact?.restitution ?? 0.2,
-      dimensions: this.#props.dimensions,
+      drag: contact?.drag ?? null,
+      contact: contact?.outcome ?? null,
+      fractures: this.#fractures,
+      masses: ArchetypeMass.parts(
+        this.#parts,
+        mass,
+        this.#density,
+        this.#shares,
+      ),
+      dimensions: this.#props.draw.values,
+      provenance: this.#props.draw.provenance,
       spans: this.#spans,
     });
   }
@@ -311,7 +378,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
   ): this {
     if (this.#parts.some((p: IAutoMovieModelPart): boolean => p.id === id))
       throw new Error(
-        `Archetype ${this.#props.archetype} already has a part "${id}"`,
+        `Archetype ${this.#props.draw.archetype} already has a part "${id}"`,
       );
 
     // One flat material per colour, shared by every part of that colour.
@@ -357,25 +424,22 @@ export namespace ArchetypeBuilder {
   export const NEUTRAL: string = "#9a9a9a";
 
   /**
-   * A producer's identity and drawn dimensions.
+   * A model's identity and its producer's draws.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation A producer's identity, a name for refusals and the drawn dimensions keyed by the producer's closed union, each in its band's unit.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's meaning.
+   * @evidence contracts/development/design.md#principled-representation The model's identity and the producer's draw session, which carries the producer's name, the values keyed by its closed union and where each came from, so the archetype's record is the session's and cannot disagree with it.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the builder; every producer writes one and `build` reads every member. `id` is optional because a scene holding one such thing needs none.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No registry key: the archetype's name is text for messages only.
    */
   export interface IProps<Dimension extends string> {
-    /** The producer's name, such as `chair`. */
-    archetype: string;
-
     /** The model's id; the producer's name when absent. */
     id?: string;
 
     /** The model's readable name. */
     name: string;
 
-    /** The value drawn for each free dimension the variant has. */
-    dimensions: Readonly<Partial<Record<Dimension, number>>>;
+    /** The producer's draws, whose values the archetype records as its dimensions and whose provenance it keeps. */
+    draw: ArchetypeDrawSession<Dimension>;
   }
 
   /**

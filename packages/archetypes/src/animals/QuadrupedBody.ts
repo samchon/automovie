@@ -1,9 +1,5 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  AutoMoviePrimitiveShape,
-  IAutoMovieModelPart,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   type ArchetypeBuilder,
@@ -130,7 +126,7 @@ export namespace QuadrupedBody {
     /** The point of buttock behind the point of shoulder, as a fraction of the height at the withers. */
     buttock: number;
 
-    /** Mass shares, percent of body mass: the torso, shared by the trunk and the hindquarters by their volumes, the neck, the head, the tail, the withers' ball, and each limb's bones from the top down. */
+    /** Mass shares, percent of body mass as the source prints them (`lay` divides them by their own sum, removing the print's rounding): the torso, shared by the trunk and the hindquarters by their volumes, the neck, the head, the tail, the withers' ball, and each limb's bones from the top down. */
     mass: Readonly<{
       trunk: number;
       neck: number;
@@ -156,7 +152,12 @@ export namespace QuadrupedBody {
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */
-    tail: Readonly<{ radius: number; drop: number; back: number; dock: number }>;
+    tail: Readonly<{
+      radius: number;
+      drop: number;
+      back: number;
+      dock: number;
+    }>;
 
     /** Each limb bone's radius, from the top down, as a fraction of the height at the withers. */
     bones: readonly [number, number, number, number];
@@ -252,8 +253,11 @@ export namespace QuadrupedBody {
       const lengths: readonly number[] = fore
         ? body.lengths.fore
         : body.lengths.hind;
-      const angles: readonly number[] = fore ? body.stance.fore : body.stance.hind;
-      const x: number = (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
+      const angles: readonly number[] = fore
+        ? body.stance.fore
+        : body.stance.hind;
+      const x: number =
+        (limb.startsWith("left") ? 1 : -1) * (barrel - body.inset);
 
       // From the foot on the ground up to the top joint, then listed from the top down.
       let y: number = 0;
@@ -334,63 +338,6 @@ export namespace QuadrupedBody {
   }
 
   /**
-   * The joints a ride poses from, read off an animal's own bars at rest: each limb's five joints and the neck's root.
-   *
-   * Each bone is a bar from joint to joint whose `+Y` runs from its upper joint to its lower (`lay`), so its upper joint is its centre less half its length along that axis and its lower joint its centre plus as much. Reading them off the animal, rather than rebuilding them from a species' proportions, poses the animal the producer built, whatever breed or sample it drew.
-   *
-   * @param parts The animal's parts at rest.
-   * @returns Each limb's five joints from the top down, and the neck's root.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, from which bars and why.
-   * @evidence contracts/development/implementation.md#principled-implementation A bar's two ends from its transform and its cylinder's height, the convention `lay` builds every bone by.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One end per bone, then the neck's root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parts are found by the bone vocabulary's ids; a model without them is no quadruped `lay` built, and the ride refuses it by its species first.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seventeen lookups.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per ride.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function joints(parts: readonly IAutoMovieModelPart[]): {
-    limbs: Readonly<Record<Limb, readonly IAutoMovieVector3[]>>;
-    neck: IAutoMovieVector3;
-  } {
-    const ends = (id: Bone): [IAutoMovieVector3, IAutoMovieVector3] => {
-      const part: IAutoMovieModelPart = parts.find(
-        (p: IAutoMovieModelPart): boolean => p.id === id,
-      )!;
-      const shape: AutoMoviePrimitiveShape | null =
-        part.geometry.type === "primitive" ? part.geometry.shape : null;
-      const half: number =
-        shape !== null && (shape.type === "cylinder" || shape.type === "capsule")
-          ? shape.height / 2
-          : 0;
-      const along: IAutoMovieVector3 = Quaternion.rotateVector(
-        part.transform!.rotation,
-        Vector3.create(0, half, 0),
-      );
-      return [
-        Vector3.subtract(part.transform!.translation, along),
-        Vector3.add(part.transform!.translation, along),
-      ];
-    };
-    const limbs: Partial<Record<Limb, IAutoMovieVector3[]>> = {};
-    for (const limb of LIMBS) {
-      const bones: readonly (readonly [IAutoMovieVector3, IAutoMovieVector3])[] =
-        BONES[limb].map(ends);
-      limbs[limb] = [
-        bones[0]![0],
-        ...bones.map(
-          (b: readonly [IAutoMovieVector3, IAutoMovieVector3]): IAutoMovieVector3 =>
-            b[1],
-        ),
-      ];
-    }
-    return {
-      limbs: limbs as Record<Limb, IAutoMovieVector3[]>,
-      neck: ends("neck")[0],
-    };
-  }
-
-  /**
    * Lay a quadruped's body on a model under construction: a bar per bone from joint to joint at rest, and the withers.
    *
    * @param body The species' body.
@@ -399,7 +346,7 @@ export namespace QuadrupedBody {
    * @param rig The animal's rest rig, from `rig`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it adds and what it reads.
-   * @evidence contracts/development/implementation.md#principled-implementation Each bone's bar runs between its joints in the rig, carrying its species' measured share of the body's mass; the torso's share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in the studies that measure it.
+   * @evidence contracts/development/implementation.md#principled-implementation Each bone's bar runs between its joints in the rig, carrying its species' measured share of the body's mass, each share divided by the shares' own sum so the body's shares sum to exactly 100 percent: the printed shares sum past 100 by the source's rounding (Kubo's horse's to 100.4), which the division removes, so a tack's share in percent of the animal's mass leaves the body its drawn mass; the torso's share is split between the trunk and the hindquarters by their drawn volumes, the torso being one segment of one density in the studies that measure it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The trunk and hindquarters, the withers, the neck, head and tail, then the limbs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scapula is part of the trunk and the pelvis of the trunk and the hindquarters, as the studies' torso includes them; ears, mane and hooves are not modelled.
    * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones and the withers.
@@ -416,7 +363,20 @@ export namespace QuadrupedBody {
     const h: number = withers;
     const barrel: number = rig.barrel;
     const coat: string = body.colors.coat;
+    // The shares as percents of the body's mass, the printed ones' rounding removed by their own sum.
     const share: IBody["mass"] = body.mass;
+    const scale: number =
+      100 /
+      (share.trunk +
+        share.withers +
+        share.neck +
+        share.head +
+        share.tail +
+        2 *
+          [...share.fore, ...share.hind].reduce(
+            (a: number, b: number): number => a + b,
+            0,
+          ));
 
     // The trunk from the shoulder joints to the hip joints, and the hindquarters from the hip joints back to the point of buttock, the torso's share shared between them by volume.
     const back: number = rig.back;
@@ -432,27 +392,29 @@ export namespace QuadrupedBody {
     builder.rod("trunk", barrel, rear, v(0, back - barrel, half), {
       color: coat,
       round: true,
-      share: (share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
+      share:
+        (scale * share.trunk * trunkVolume) / (trunkVolume + quartersVolume),
     });
     builder.rod("hindquarters", barrel, rear, quarters, {
       color: coat,
       round: true,
-      share: (share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
+      share:
+        (scale * share.trunk * quartersVolume) / (trunkVolume + quartersVolume),
     });
     builder.ball(
       "withers",
       body.withers * h,
       v(0, (1 - body.withers) * h, half - body.withers * h),
-      { color: coat, share: share.withers },
+      { color: coat, share: scale * share.withers },
     );
     builder.rod("neck", rig.neckRadius, rig.neck, rig.poll, {
       color: coat,
-      share: share.neck,
+      share: scale * share.neck,
     });
     builder.rod("head", rig.headRadius, rig.poll, rig.nose, {
       color: coat,
       round: true,
-      share: share.head,
+      share: scale * share.head,
     });
     const dock: IAutoMovieVector3 = rig.dock;
     builder.rod(
@@ -460,7 +422,7 @@ export namespace QuadrupedBody {
       body.tail.radius * h,
       dock,
       v(0, dock.y - body.tail.drop * h, dock.z - body.tail.back * h),
-      { color: body.colors.tail, share: share.tail },
+      { color: body.colors.tail, share: scale * share.tail },
     );
 
     // The limbs: one bar per bone, from each joint to the next.
@@ -472,7 +434,7 @@ export namespace QuadrupedBody {
       BONES[limb].forEach((bone: Bone, k: number): void => {
         builder.rod(bone, body.bones[k]! * h, joints[k]!, joints[k + 1]!, {
           color: coat,
-          share: shares[k]!,
+          share: scale * shares[k]!,
           // The digit ends in the foot.
           ...(k === 3 ? { surface: body.foot } : {}),
         });

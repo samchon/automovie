@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -38,6 +39,13 @@ export function createBar(
   params: createBar.IParams,
   seed?: number | string,
 ): Archetype<createBar.Affordance, createBar.Dimension> {
+  const draw: ArchetypeDrawSession<createBar.Dimension> =
+    new ArchetypeDrawSession<createBar.Dimension>(
+      "bar",
+      createBar.UNITS,
+      seed,
+      params,
+    );
   const kind: createBar.Kind = ArchetypeDraw.choice(
     "bar",
     "kind",
@@ -45,22 +53,13 @@ export function createBar(
     createBar.KINDS,
   );
   const wall: Readonly<Partial<Record<createBar.Dimension, number>>> =
-    ArchetypeDraw.model<createBar.Wall, createBar.Dimension>(
-      "bar",
+    draw.model<createBar.Wall>(
       "wall",
       params.wall,
       createBar.WALLS[kind],
-      seed,
-      params,
     ).figures;
   const d: Partial<Record<createBar.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "bar",
-      createBar.BANDS[kind],
-      seed,
-      params,
-      createBar.BANDS,
-    ),
+    ...draw.dimensions(createBar.BANDS[kind], createBar.BANDS),
     ...wall,
   };
   const radius: number = d.diameter! / 2;
@@ -69,11 +68,10 @@ export function createBar(
   const y: number = d.height! - radius;
   const builder: ArchetypeBuilder<createBar.Affordance, createBar.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bar",
       id: params.id,
       name:
         kind === "high" ? "high bar" : kind === "grab" ? "grab bar" : "rail",
-      dimensions: d,
+      draw,
     });
   builder.rod(
     "bar",
@@ -137,6 +135,14 @@ export namespace createBar {
    * - `mass`: kilograms.
    */
   export type Dimension = "height" | "diameter" | "length" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    diameter: "m",
+    length: "m",
+    mass: "kg",
+  };
 
   /** The walls a grab bar is on: the rear wall and the side wall. */
   export type Wall = "rear" | "side";

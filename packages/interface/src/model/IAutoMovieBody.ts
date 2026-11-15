@@ -1,4 +1,6 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import { IAutoMovieBodyContact } from "./IAutoMovieBodyContact";
+import { IAutoMovieBodyDrag } from "./IAutoMovieBodyDrag";
 
 /**
  * Authored model mass and contact properties available to physical-analysis helpers.
@@ -8,7 +10,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * Rough numbers, as everywhere in `interface`: units and ranges live here in the JSDoc and are enforced at runtime by `@automovie/engine`, not by the type.
  *
  * @evidence contracts/development/design.md#principled-representation validateBody admits positive finite mass, nullable finite local centre and bounded contact coefficients. Available collision and centre helpers consume mass/restitution or centre; friction remains declared metadata and the detectors are not automatically wired into product execution.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three required model-owned properties, an optional static friction absent when nothing measured it, and the optional kinetic friction a sliding prop reads (#3433), remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three required model-owned properties, an optional static friction absent when nothing measured it, the optional kinetic friction a sliding prop reads (#3433), and the optional flight data a launched body carries, its drag and its contact outcomes (#3482), remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No named object selects mass or grip presets, and an unmeasured friction is absent rather than a placeholder coefficient; an authored centre overrides uniform-density geometric estimation, and physical advice remains distinct from rejecting malformed numeric inputs.
  * @evidence contracts/development/common.md#meaningful-documentation Defines authored kilograms, local metre centre and contact coefficients, distinct null-body helper behavior, friction's unread status and current detector wiring limits.
  */
@@ -37,4 +39,14 @@ export interface IAutoMovieBody {
    * Coefficient of restitution, `0` (perfectly inelastic: no bounce) to `1` (perfectly elastic). Shapes the rebound the engine suggests on impact.
    */
   restitution: number;
+
+  /**
+   * The air's drag on the body in flight, its coefficient and the reference area it is stated against. Absent when no source measured it; a flight then reads no drag from the body.
+   */
+  drag?: IAutoMovieBodyDrag;
+
+  /**
+   * How the body ends a flight against what it strikes: how deep it sticks, how it rolls on, how much speed it loses passing through. Absent when the body declares none of these.
+   */
+  contact?: IAutoMovieBodyContact;
 }

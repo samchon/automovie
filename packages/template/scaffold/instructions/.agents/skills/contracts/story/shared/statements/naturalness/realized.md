@@ -1,4 +1,4 @@
-# Realized exchange statements
+# Realized speech expression statements
 
 Contract: [naturalness/realized.md](../../naturalness/realized.md).
 

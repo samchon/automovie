@@ -1,8 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
-import { ArchetypeFrame, ArchetypeUnits, type ArchetypeBuilder } from "../core";
-import type { createCannon } from "./createCannon";
+import { ArchetypeUnits } from "../core";
 
 /** The 1862 Ordnance Manual, read at its scan. */
 const ORDNANCE: string =
@@ -15,15 +11,18 @@ const GIBBON: string =
 /** An inch, metres. */
 const IN: number = ArchetypeUnits.INCH;
 
+/** A yard, metres: three feet. */
+const YARD: number = 3 * ArchetypeUnits.FOOT;
+
 /**
- * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them, in metres, kilograms and degrees, and the builder that draws them: kept apart from {@link createCannon} so each file stays within its size.
+ * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them, in metres, kilograms and degrees: kept apart from `createCannon` so each file stays within its size, and drawn by `buildFieldGun`.
  *
  * The gun stands on level ground at `y = 0`, its axle across `X` at `z = 0`, its muzzle toward `+Z`. Every place an act reads comes from a read figure or is derived from read figures; the construction estimates below size only parts no act reads, and the elevating screw's place, read from an undimensioned plate, is provisional.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, what each figure is and its page, and which places are provisional or construction.
- * @evidence contracts/development/design.md#principled-representation The read figures as named members converted through `ArchetypeUnits`, the construction estimates apart, and one builder.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createCannon`'s bands and its producer, which calls `build`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from.
+ * @evidence contracts/development/design.md#principled-representation The read figures as named members converted through `ArchetypeUnits`, the construction estimates apart; the builder is `buildFieldGun`'s.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `createCannon`'s bands and by `buildFieldGun`, which its producer calls.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every construction estimate is named as one; the vent's lean and the screw's place say where they come from; the service figures (`SERVICE`) are each the manual's or Gibbon's, with their pages.
  */
 export namespace FIELD_GUN {
   /** The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions. */
@@ -133,6 +132,33 @@ export namespace FIELD_GUN {
   export const VENT: number = 80;
 
   /**
+   * The gun's service, read at the 1861 Ordnance Manual and Gibbon: the 6-pdr's shot, 3.58 in and 6.1 lb (p. 34); its muzzle velocity at the 1.25 lb service charge, 1439 ft/s, from the Washington Arsenal's ballistic pendulum ("Initial Velocities of Cannon-Balls", p. 393); its recoil, "under some circumstances the 6-pdr. gun will recoil but 1½ or 2 yards" (Gibbon, p. 272); the lanyard, "a piece of strong cod-line (about .2 inch diam.) 12 feet long", a hook at one end and a toggle .75 inch across and 4 inches long at the other (p. 132); the friction primer's long tube 1.75 inch and its wire 3.4 inches (p. 298); the trail handspike, 53 inches long (p. 137).
+   */
+  export const SERVICE: Readonly<{
+    shot: number;
+    shotMass: number;
+    velocity: number;
+    recoil: Readonly<{ least: number; most: number }>;
+    lanyard: number;
+    line: number;
+    toggle: Readonly<{ diameter: number; length: number }>;
+    tube: number;
+    wire: number;
+    handspike: number;
+  }> = {
+    shot: 3.58 * IN,
+    shotMass: 6.1 * ArchetypeUnits.POUND,
+    velocity: 1439 * ArchetypeUnits.FOOT,
+    recoil: { least: 1.5 * YARD, most: 2 * YARD },
+    lanyard: 12 * ArchetypeUnits.FOOT,
+    line: 0.2 * IN,
+    toggle: { diameter: 0.75 * IN, length: 4 * IN },
+    tube: 1.75 * IN,
+    wire: 3.4 * IN,
+    handspike: 53 * IN,
+  };
+
+  /**
    * Construction estimates, read by no act, each sizing a part the manual gives no figure for:
    *
    * - `cascabel`: the cascabel's knob radius as a share of the base-ring's.
@@ -140,239 +166,19 @@ export namespace FIELD_GUN {
    * - `spoke`: a spoke's radius as a share of the tire's width.
    * - `nave`: the nave's radius as a multiple of the axle arm's.
    * - `naveLength`: the nave's length as a multiple of the tire's width.
+   * - `handspike`: the share of the trail handspike's read 53 in that stands behind the trail's end where the hands take it; its seat in the trail's rings is not given (searched: the 1861 Ordnance Manual's handspike table and Plate 2, Gibbon; records-cannon.md).
    */
   export const ESTIMATES: Readonly<
-    Record<"cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength", number>
+    Record<
+      "cascabel" | "stockDepth" | "spoke" | "nave" | "naveLength" | "handspike",
+      number
+    >
   > = {
     cascabel: 0.5,
     stockDepth: 0.75,
     spoke: 0.25,
     nave: 3,
     naveLength: 3,
+    handspike: 0.5,
   };
-
-  /**
-   * Builds the field gun on the producer's builder: the tube on its trunnions, the cheeks and the stock to the trail's end, the axle and the two wheels, with every part's share of the read weights.
-   *
-   * The tube's 884 lb is shared between its breech and its chase so that the breech bears the read 47 lb preponderance at the rear of the base-ring; the trunnions take their volume's part at the tube's mean density. The carriage's wood and irons share its 540 lb less the axle-tree's read 116 lb by volume, and each wheel carries its read 180 lb by the volumes of its disc, spokes and nave.
-   *
-   * @param builder The producer's builder.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the weights are shared.
-   * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tube, the carriage, the wheels, then the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function build(
-    builder: ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension>,
-  ): void {
-    const v: typeof Vector3.create = Vector3.create;
-    const t: typeof TUBE = TUBE;
-    const c: typeof CARRIAGE = CARRIAGE;
-    const e: typeof ESTIMATES = ESTIMATES;
-    const bronze: string = "#8c6a3a";
-    const wood: string = "#6b5a3e";
-    const iron: string = "#3f4246";
-
-    // The places along Z: the trunnions' axis, the muzzle's face, the base-ring's rear and the cascabel's end.
-    const radius: number = c.wheel / 2;
-    const axis: number = c.trunnionHeight;
-    const trunnions: number = -c.trunnionBehind;
-    const muzzle: number = trunnions + t.trunnionToFace;
-    const base: number = muzzle - t.baseRing;
-    const end: number = muzzle - t.whole;
-
-    // The tube's shares: the breech bears the preponderance at the base-ring's rear.
-    const breech: number = t.breech / 2;
-    const chase: number = t.swell / 2;
-    const knob: number = breech * e.cascabel;
-    const trunnion: number = t.trunnion / 2;
-    const vBreech: number = Math.PI * breech * breech * (trunnions - base);
-    const vKnob: number = Math.PI * knob * knob * (base - end);
-    const vChase: number = Math.PI * chase * chase * (muzzle - trunnions);
-    const vTrunnions: number = 2 * Math.PI * trunnion * trunnion * t.trunnionLength;
-    const density: number = t.mass / (vBreech + vKnob + vChase + vTrunnions);
-    const tube: number = t.mass - density * vTrunnions;
-    const rearArm: number =
-      (vBreech * (trunnions - base) / 2 + vKnob * (trunnions - (base + end) / 2)) /
-      (vBreech + vKnob);
-    const frontArm: number = (muzzle - trunnions) / 2;
-    const rear: number =
-      (t.preponderance * (trunnions - base) + tube * frontArm) / (rearArm + frontArm);
-    const front: number = tube - rear;
-
-    // The carriage's and wheels' shares of the whole.
-    const total: number = t.mass + c.mass + 2 * c.wheelMass;
-    builder.rod("breech", breech, v(0, axis, base), v(0, axis, trunnions), {
-      color: bronze,
-      share: (rear * vBreech) / (vBreech + vKnob) / total,
-    });
-    builder.rod("cascabel", knob, v(0, axis, end), v(0, axis, base), {
-      color: bronze,
-      share: (rear * vKnob) / (vBreech + vKnob) / total,
-    });
-    builder.rod("chase", chase, v(0, axis, trunnions), v(0, axis, muzzle), {
-      color: bronze,
-      share: front / total,
-    });
-    builder.rod(
-      "trunnions",
-      trunnion,
-      v(-(t.rimbases / 2 + t.trunnionLength), axis, trunnions),
-      v(t.rimbases / 2 + t.trunnionLength, axis, trunnions),
-      { color: bronze, share: (density * vTrunnions) / total },
-    );
-
-    // The carriage: the trail's underside from the top of the axle arm to its ground contact, then on the ground to its end.
-    const width: number = c.plates;
-    const depth: number = width * e.stockDepth;
-    const arm: number = c.arm / 2;
-    const contact: number = -c.trailContact;
-    const trailEnd: number = radius - c.trailEnd;
-    const slope: number = Math.atan2(radius + arm, -contact);
-    const run: number = Math.hypot(radius + arm, contact);
-    const under: IAutoMovieVector3 = v(0, (radius + arm) / 2, contact / 2);
-    const stockCentre: IAutoMovieVector3 = Vector3.add(
-      under,
-      v(0, (depth / 2) * Math.cos(slope), (-depth / 2) * Math.sin(slope)),
-    );
-    const vStock: number = width * depth * run;
-    const vTrail: number = width * depth * (contact - trailEnd);
-    const cheek: number = t.trunnionLength;
-    const cheekLength: number = trunnions + trunnion - (base - trunnion);
-    const cheekHeight: number = axis - radius;
-    const vCheeks: number = 2 * cheek * cheekLength * cheekHeight;
-    // The screw stands on the stock's top at the base-ring's rear and reaches the breech's underside.
-    const screwTop: number = axis - breech;
-    const screwFoot: number =
-      ((radius + arm) * (base - contact)) / -contact + depth / Math.cos(slope);
-    const vScrew: number = Math.PI * arm * arm * (screwTop - screwFoot);
-    const wooden: number = c.mass - c.axleMass;
-    const vWood: number = vStock + vTrail + vCheeks + vScrew;
-    builder.box("stock", v(width, depth, run), stockCentre, {
-      color: wood,
-      rotation: Quaternion.fromAxisAngle(v(1, 0, 0), (-slope * 180) / Math.PI),
-      share: (wooden * vStock) / vWood / total,
-    });
-    builder.box(
-      "trail",
-      v(width, depth, contact - trailEnd),
-      v(0, depth / 2, (contact + trailEnd) / 2),
-      { color: wood, share: (wooden * vTrail) / vWood / total },
-    );
-    for (const [side, sign] of [
-      ["left", 1],
-      ["right", -1],
-    ] as const)
-      builder.box(
-        `cheek-${side}`,
-        v(cheek, cheekHeight, cheekLength),
-        v(sign * (width / 2 + cheek / 2), (axis + radius) / 2, (trunnions + trunnion + base - trunnion) / 2),
-        { color: wood, share: (wooden * vCheeks) / 2 / vWood / total },
-      );
-    builder.rod("screw", arm, v(0, screwFoot, base), v(0, screwTop, base), {
-      color: iron,
-      share: (wooden * vScrew) / vWood / total,
-    });
-    builder.rod("axle", arm, v(-c.axle / 2, radius, 0), v(c.axle / 2, radius, 0), {
-      color: iron,
-      share: c.axleMass / total,
-    });
-
-    // The wheels: a disc of the tire's width, its spokes through the nave, turning on the axle.
-    const spoke: number = c.tyre * e.spoke;
-    const nave: number = arm * e.nave;
-    const naveLength: number = c.tyre * e.naveLength;
-    const vDisc: number = Math.PI * radius * radius * c.tyre;
-    const vSpokes: number = (c.spokes / 2) * Math.PI * spoke * spoke * 2 * radius;
-    const vNave: number = Math.PI * nave * nave * naveLength;
-    const vWheel: number = vDisc + vSpokes + vNave;
-    for (const [k, side, sign] of [
-      [0, "left", 1],
-      [1, "right", -1],
-    ] as const) {
-      const x: number = (sign * c.track) / 2;
-      const parts: string[] = [`wheel-${side}`, `nave-${side}`];
-      builder.rod(`wheel-${side}`, radius, v(x - c.tyre / 2, radius, 0), v(x + c.tyre / 2, radius, 0), {
-        color: wood,
-        share: (c.wheelMass * vDisc) / vWheel / total,
-      });
-      builder.rod(`nave-${side}`, nave, v(x - naveLength / 2, radius, 0), v(x + naveLength / 2, radius, 0), {
-        color: wood,
-        share: (c.wheelMass * vNave) / vWheel / total,
-      });
-      for (let n: number = 0; n < c.spokes / 2; n++) {
-        const angle: number = (2 * Math.PI * n) / c.spokes;
-        const along: IAutoMovieVector3 = v(0, Math.cos(angle) * radius, Math.sin(angle) * radius);
-        const hub: IAutoMovieVector3 = v(x + sign * (c.tyre / 2 + spoke), radius, 0);
-        builder.rod(`spoke-${side}-${n}`, spoke, Vector3.subtract(hub, along), Vector3.add(hub, along), {
-          color: wood,
-          share: (c.wheelMass * vSpokes) / (c.spokes / 2) / vWheel / total,
-        });
-        parts.push(`spoke-${side}-${n}`);
-      }
-      builder.affordance({
-        id: k === 0 ? "leftSpin" : "rightSpin",
-        kind: "knob",
-        frame: ArchetypeFrame.facing(v(x, radius, 0), v(1, 0, 0), v(0, 1, 0)),
-        extent: null,
-        travel: 360,
-        parts,
-      });
-    }
-
-    // The elevation: a hinge on the trunnions' axis whose positive travel raises the muzzle up to the read 12 degrees and whose reverse lowers it the read 8.
-    builder.affordance({
-      id: "elevation",
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, axis, trunnions), v(-1, 0, 0), v(0, 0, 1)),
-      extent: null,
-      travel: c.elevation,
-      reverse: c.depression,
-      parts: ["breech", "cascabel", "chase", "trunnions"],
-    });
-    builder.affordance({
-      id: "muzzle",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(v(0, axis, muzzle), v(0, 0, 1), v(1, 0, 0)),
-      extent: null,
-      rides: "elevation",
-    });
-
-    // The vent: from its entry a quarter of the bore's diameter ahead of the bore's bottom, up through the metal at 80 degrees to the axis, leaning to the rear, to the breech's top.
-    const entry: number = muzzle - t.boreLength + t.bore / 4;
-    const rise: number = breech - t.bore / 2;
-    const lean: number = (VENT * Math.PI) / 180;
-    builder.affordance({
-      id: "vent",
-      kind: "surface",
-      direction: "along",
-      frame: ArchetypeFrame.facing(
-        v(0, axis + breech, entry - rise / Math.tan(lean)),
-        v(0, Math.sin(lean), -Math.cos(lean)),
-        v(1, 0, 0),
-      ),
-      extent: null,
-      rides: "elevation",
-    });
-
-    // The elevating screw's handle under the breech at the base-ring's rear, where the breech rests: Plate 2 draws it there without dimensions, so its place is provisional, its travel bounded by the vertical field of fire (p. 74). The trail's end, where the handspike bears.
-    builder.affordance({
-      id: "elevatingScrew",
-      kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, screwTop, base), v(0, 1, 0), v(1, 0, 0)),
-      extent: null,
-    });
-    builder.affordance({
-      id: "trail",
-      kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, depth, trailEnd)),
-      extent: null,
-      width,
-    });
-  }
 }

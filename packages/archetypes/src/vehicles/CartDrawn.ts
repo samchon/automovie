@@ -3,16 +3,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HorseHarness } from "../animals/HorseHarness";
 import { createHorse } from "../animals/createHorse";
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
 /**
- * The drawn carriers on one axle: a horse's cart, a runner's rickshaw, a pair's chariot and an artillery limber, each built on its drawn dimensions with its axle along `X` under the origin.
+ * The drawn carriers on one axle: a horse's cart, a runner's rickshaw and a pair's chariot, each built on its drawn dimensions with its axle along `X` under the origin.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what it builds and where the axle stands.
  * @evidence contracts/development/design.md#principled-representation Each kind's body on its axle, its road wheels on spin knobs, and its coupling ahead where it is drawn from.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The four builders `createCart` calls for its two-wheeled drawn kinds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The three builders `createCart` calls for its two-wheeled drawn kinds; the limber is `CartLimber`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The wheels are `CartWheel.pair`, shared with the four-wheelers, not a copy per kind.
  */
 export namespace CartDrawn {
@@ -23,7 +23,7 @@ export namespace CartDrawn {
    * @param d The drawn dimensions.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, which stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`. The single tree stands across the front at the points of draft's height and spread (`createHorse.rig`'s `draft`), so the traces run straight back from the collar; it hangs from a bar between the shafts. The driving lines' held runs, `leftLine` and `rightLine`, are each line's length behind its terret: `createCart.LINES`, IVC Carriage's 14 ft stock single-horse lines, less the line's run from the bit ring through the neck strap's ring to the terret (`HorseHarness.passes`), laid from the terret on the horse's saddle at the coupling toward the line's rest point, `createCart.REST`'s elbow height over the seat. Where along a run the hands hold is the driving act's choice, as a grasp chooses within its bound.
+   * @evidence contracts/development/implementation.md#principled-implementation The shafts hang level at the horse's tugs, which sit on the saddle pad at the middle of the barrel, so their height is the horse's back less its barrel's radius (`createHorse.rig`, the girth over two pi), and they run either side of the barrel, a barrel's width apart (the girth over pi; In Harness's 23 to 24 in at 15 to 16 hh agrees). The shafts' tips stand at the point of the horse's shoulder (the Carriage Association of America's fitting guidance, seen only in search results), so the tugs, and the `coupling` between them, stand `createHorse.SADDLE` behind the tips. The tips stand `shaftLength` ahead of the single tree, a read cart's own shafts or, unread, the horse's point of shoulder to its point of buttock and the drawn `clearance` behind it (`createCart`), so the single tree stands clear of the horse; the single tree stands `SINGLE_TREE` ahead of the axle. The floor rests on the axle and the seat stands over it at `seatHeight`. The single tree stands across the front at the points of draft's height and spread (`createHorse.rig`'s `draft`), so the traces run straight back from the collar; it hangs from a bar between the shafts. The driving lines' held runs, `leftLine` and `rightLine`, are each line's length behind its terret: `createCart.LINES`, IVC Carriage's 14 ft stock single-horse lines, less the line's run from the bit ring through the neck strap's ring to the terret (`HorseHarness.passes`), laid from the terret on the horse's saddle at the coupling toward the line's rest point, `createCart.REST`'s elbow height over the seat. Where along a run the hands hold is the driving act's choice, as a grasp chooses within its bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The horse's places, then the body, the shafts and the wheels.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SINGLE_TREE` is a named provisional value and the seat's height a band seen only in search results; the body's own boards, a construction no act reads, are sized from the track and the seat. The single tree's height, level with the points of draft so the traces run level, is a provisional value: the fitting guides read give the trace's angle to the hame, not the single tree's height; the lines' rest point over the seat is their rest geometry only, never where a hand is put.
    * @evidence contracts/development/implementation.md#efficient-algorithms About a dozen parts.
@@ -135,7 +135,8 @@ export namespace CartDrawn {
     );
 
     // The driving lines' held runs: each line's length behind its terret, IVC's 14 ft single-horse lines less their run from the bit through the ring to the terret, laid from the terret toward the line's rest point over the seat. The driving act's hands choose where along it they hold.
-    const pass: ReturnType<typeof HorseHarness.passes> = HorseHarness.passes(horse);
+    const pass: ReturnType<typeof HorseHarness.passes> =
+      HorseHarness.passes(horse);
     const ahead: number = coupling - horse.hitch.z;
     const used: number =
       Vector3.length(Vector3.subtract(pass.ring, pass.bit)) +
@@ -388,106 +389,6 @@ export namespace CartDrawn {
       track: d.track!,
       radius,
       spokes: 6,
-      z: 0,
-      prefix: "",
-      spins: ["leftSpin", "rightSpin"],
-    });
-  }
-
-  /**
-   * An artillery limber: a frame on the axle carrying the ammunition chest, a pole ahead and the pintle hook behind.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The frame, `length` long, rests on the axle from `LIMBER.rear` behind it, and the pole runs `poleLength` on from its front, level, its end the `coupling`. The chest, its inside the Ordnance Manual's, stands over the axle on the frame; its lid hinges at its rear edge, opening a quarter turn to stand upright, and is the gunners' forward-facing `seat`. The `pintle` hook is at the frame's rear end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Frame, chest, pole, hook, wheels.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chest's boards (`LIMBER.board`) are a construction estimate and the pintle's height (`LIMBER.pintle`) a named provisional value; the pole is level until a team's harness holds it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About ten parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function limber(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
-    d: Readonly<Partial<Record<createCart.Dimension, number>>>,
-  ): void {
-    const v: typeof Vector3.create = Vector3.create;
-    const radius: number = d.wheelDiameter! / 2;
-    const rear: number = -createCart.LIMBER.rear;
-    const front: number = rear + d.length!;
-    const tip: number = front + d.poleLength!;
-    const chest: typeof createCart.LIMBER.chest = createCart.LIMBER.chest;
-    const board: number = createCart.LIMBER.board;
-    const width: number = chest.width + 2 * board;
-    const across: number = chest.length + 2 * board;
-    const base: number = radius + 0.08;
-    const lid: number = base + chest.depth + 2 * board;
-    builder.box(
-      "frame",
-      v(0.5, 0.08, d.length!),
-      v(0, radius + 0.04, (rear + front) / 2),
-      { color: WOOD },
-    );
-    builder.box(
-      "chest",
-      v(across, lid - base - board, width),
-      v(0, (base + lid - board) / 2, 0),
-      { color: BODY },
-    );
-    builder.box(
-      "chest-lid",
-      v(across, board, width),
-      v(0, lid - board / 2, 0),
-      { color: BODY, density: 0.5 },
-    );
-    builder.affordance({
-      id: "chest",
-      kind: "hinge",
-      frame: ArchetypeFrame.facing(
-        v(0, lid, -width / 2),
-        v(-1, 0, 0),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      travel: 90,
-      parts: ["chest-lid"],
-    });
-    builder.affordance({
-      id: "seat",
-      kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, lid, width / 2)),
-      extent: null,
-      depth: width,
-      width: across,
-    });
-    builder.rod(
-      "pole",
-      0.04,
-      v(0, radius + 0.04, front),
-      v(0, radius + 0.04, tip),
-      { color: WOOD },
-    );
-    builder.affordance({
-      id: "coupling",
-      kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, radius + 0.04, tip)),
-      extent: null,
-    });
-    const pintle: number = createCart.LIMBER.pintle;
-    builder.rod("pintle", 0.02, v(0, pintle, rear), v(0, pintle, rear - 0.1), {
-      color: METAL,
-    });
-    builder.affordance({
-      id: "pintle",
-      kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, pintle, rear - 0.08)),
-      extent: null,
-    });
-    CartWheel.pair(builder, {
-      track: d.track!,
-      radius,
-      spokes: 12,
       z: 0,
       prefix: "",
       spins: ["leftSpin", "rightSpin"],

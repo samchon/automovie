@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -41,20 +42,23 @@ export function createWindow(
   params: createWindow.IParams,
   seed?: number | string,
 ): Archetype<createWindow.Affordance, createWindow.Dimension> {
+  const draw: ArchetypeDrawSession<createWindow.Dimension> =
+    new ArchetypeDrawSession<createWindow.Dimension>(
+      "window",
+      createWindow.UNITS,
+      seed,
+      params,
+    );
   const kind: createWindow.Kind = ArchetypeDraw.choice(
     "window",
     "kind",
     params.kind,
     createWindow.KINDS,
   );
-  const d: Partial<Record<createWindow.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "window",
-      createWindow.BANDS[kind],
-      seed,
-      params,
-      createWindow.BANDS,
-    );
+  const d: Partial<Record<createWindow.Dimension, number>> = draw.dimensions(
+    createWindow.BANDS[kind],
+    createWindow.BANDS,
+  );
   const width: number = d.width!;
   const height: number = d.height!;
   const sill: number = d.sillHeight!;
@@ -63,10 +67,9 @@ export function createWindow(
     createWindow.Affordance,
     createWindow.Dimension
   > = new ArchetypeBuilder({
-    archetype: "window",
     id: params.id,
     name: `${kind} window`,
-    dimensions: d,
+    draw,
   });
   builder.box(
     "wall",
@@ -222,6 +225,17 @@ export namespace createWindow {
     | "travel"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    sillHeight: "m",
+    handleHeight: "m",
+    swing: "degrees",
+    travel: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which window. */
@@ -235,7 +249,12 @@ export namespace createWindow {
   const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     width: ArchetypeBand.metres(0.6, 1.2, SIZE, true),
     height: ArchetypeBand.metres(0.9, 1.2, SIZE, true),
-    sillHeight: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 0.914, SILL, true),
+    sillHeight: ArchetypeBand.metres(
+      24 * ArchetypeUnits.INCH,
+      0.914,
+      SILL,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
   };
 

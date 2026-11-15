@@ -9,11 +9,11 @@ Realization:
 1. Events and execution are inherited from the actual scripts in a long work, or decided here on the short route.
 2. The used time and space, participants or forces, conditions, action, spoken words, response and resulting state are established to the extent the chosen form uses them.
 3. Settled events, choices, relationships, consequences, world values and reveal order are preserved.
-4. Important choices and exchanges occur instead of becoming synopsis. Exception: an already complete short utterance or inserted artifact may stay concise.
+4. Important choices, exchanges and sustained moments occur in full instead of becoming synopsis. Exception: an already complete short utterance or inserted artifact may stay concise.
 
 Performance:
 
-5. Every required observable movement, interaction, reaction, expression the adopted representation can show, and sound is decided through its preparation, development and resulting state.
+5. Every required observable movement, interaction, reaction, expression the adopted representation can show, and sound is decided through its preparation, development and resulting state, not as an inventory of procedures.
 6. Where physical action matters, support, weight transfer, contact or separation, recovery and connecting movement are executable.
 7. No named technique, isolated key pose or emotional label stands in for that executable action.
 8. A specialist performance meets its study's density and distribution targets for the depicted level, with chained sequences, tempo changes and spatial strategy drawn from its research.
@@ -32,7 +32,7 @@ Orientation and access:
 
 Attention and duration:
 
-18. Important exchanges and sustained moments occur in full, and an action that recurs is written each time it happens.
+18. An action that recurs is written each time it happens.
 19. Duration estimates are marked provisional until the performed action and the measured file establish them.
 20. Concrete details come from the inherited scene and change action, relationship, atmosphere, understanding or thematic force.
 21. Emotion is realized through the context of those details before its effect is demanded.
@@ -45,14 +45,13 @@ Attention and duration:
 23. Restrained detail, nonemotional atmosphere and deliberate gaps work when their cues let the audience experience their function.
 24. Inward meaning reaches the audience through performance, image, sound, or an adopted narration or caption form.
 25. Performance and sensory emphasis, images, motifs and image-sound relations are created as the scene needs them: choices, not categories to fill.
-26. Each action is written as its preparation, execution and result in the observable progression, not as an inventory of procedures.
-27. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome. Exception: on a short, the screenplay decides what the [brief leaves to it](../../../../../story/layers/brief.md#what-it-holds).
-28. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
+26. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome. Exception: on a short, the screenplay decides what the [brief leaves to it](../../../../../story/layers/brief.md#what-it-holds).
+27. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
 
 Language:
 
-29. Dialogue, narration and screen text read as idiomatic in the work's adopted language, variety, period and register, with no translated construction nobody would use there.
-30. Action lines are judged for precision, who does what, where and with what result, and never for literary style.
+28. Dialogue, narration and screen text read as idiomatic in the work's adopted language, variety, period and register, with no translated construction nobody would use there.
+29. Action lines are judged for precision, who does what, where and with what result, and never for literary style.
 
 ## Beat decisions
 

@@ -1,3 +1,4 @@
+export * from "./createArmour";
 export * from "./createBow";
 export * from "./createCannon";
 export * from "./createClub";
@@ -9,6 +10,7 @@ export * from "./createPell";
 export * from "./createPolearm";
 export * from "./createProjectile";
 export * from "./createShield";
+export * from "./createSiegeEngine";
 export * from "./createSword";
 export * from "./createWeaponLoop";
 export * from "./createWeaponRack";

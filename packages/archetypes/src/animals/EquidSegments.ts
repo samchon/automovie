@@ -52,7 +52,7 @@ export namespace EquidSegments {
     hindDigit: number;
   }
 
-  /** The breeds, each the mean of its rows: the Thoroughbred, against which the horse's bone fractions were measured, and the ponies. A digit is the pastern's mean plus the hoof's. */
+  /** The breeds, each the mean of its rows: the Thoroughbred, against which the horse's bone fractions were measured, the ponies, and the American Mammoth Jackstock, the one donkey breed the rows measure in number (five; the two Mediterranean Miniature Donkeys are recorded and not used), which stands for the donkey. A digit is the pastern's mean plus the hoof's. */
   export const BREEDS: Readonly<
     Record<
       | "thoroughbred"
@@ -60,7 +60,8 @@ export namespace EquidSegments {
       | "welshMountain"
       | "welshPony"
       | "dartmoor"
-      | "connemara",
+      | "connemara"
+      | "mammothJackstock",
       IBreed
     >
   > = {
@@ -136,6 +137,18 @@ export namespace EquidSegments {
       hindCannon: 37.6,
       hindDigit: 9.6 + 9.7,
     },
+    mammothJackstock: {
+      n: 5,
+      withers: 151.1,
+      girth: 164.6,
+      back: 94.0,
+      forearm: 42.2,
+      foreCannon: 31.2,
+      foreDigit: 13.2 + 7.7,
+      gaskin: 50.8,
+      hindCannon: 43.9,
+      hindDigit: 12.2 + 8.1,
+    },
   };
 
   /**
@@ -154,9 +167,7 @@ export namespace EquidSegments {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function, called once per equid.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function lengths(
-    breed: IBreed,
-  ): QuadrupedBody.IBody["lengths"] {
+  export function lengths(breed: IBreed): QuadrupedBody.IBody["lengths"] {
     const horse: QuadrupedBody.IBody["lengths"] = createHorse.LENGTHS;
     const reference: IBreed = BREEDS.thoroughbred;
     const ratio = (measure: keyof Omit<IBreed, "n" | "withers">): number =>

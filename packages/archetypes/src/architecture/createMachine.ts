@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -81,6 +82,13 @@ export function createMachine(
   params: createMachine.IParams,
   seed?: number | string,
 ): Archetype<createMachine.Affordance, createMachine.Dimension> {
+  const draw: ArchetypeDrawSession<createMachine.Dimension> =
+    new ArchetypeDrawSession<createMachine.Dimension>(
+      "machine",
+      createMachine.UNITS,
+      seed,
+      params,
+    );
   const kind: createMachine.Kind = ArchetypeDraw.choice(
     "machine",
     "kind",
@@ -90,29 +98,19 @@ export function createMachine(
   const model: {
     name: createMachine.Model | undefined;
     figures: Readonly<Partial<Record<createMachine.Dimension, number>>>;
-  } = ArchetypeDraw.model<createMachine.Model, createMachine.Dimension>(
-    "machine",
+  } = draw.model<createMachine.Model>(
     "model",
     params.model,
     createMachine.MODELS[kind],
-    seed,
-    params,
   );
   const d: Partial<Record<createMachine.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "machine",
-      createMachine.BANDS[kind],
-      seed,
-      params,
-      createMachine.BANDS,
-    ),
+    ...draw.dimensions(createMachine.BANDS[kind], createMachine.BANDS),
     ...model.figures,
   };
   const builder: ArchetypeBuilder<
     createMachine.Affordance,
     createMachine.Dimension
   > = new ArchetypeBuilder({
-    archetype: "machine",
     id: params.id,
     name:
       kind === "payStation"
@@ -120,7 +118,7 @@ export function createMachine(
         : kind === "atm"
           ? "cash machine"
           : `vending machine ${model.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const width: number = d.width!;
@@ -277,6 +275,14 @@ export namespace createMachine {
    * - `mass`: the empty machine, kilograms.
    */
   export type Dimension = "width" | "height" | "depth" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

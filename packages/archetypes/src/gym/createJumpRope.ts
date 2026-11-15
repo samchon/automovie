@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -39,26 +39,26 @@ export function createJumpRope(
   params: createJumpRope.IParams = {},
   seed?: number | string,
 ): Archetype<createJumpRope.Affordance, createJumpRope.Dimension> {
+  const draw: ArchetypeDrawSession<createJumpRope.Dimension> =
+    new ArchetypeDrawSession<createJumpRope.Dimension>(
+      "jumpRope",
+      createJumpRope.UNITS,
+      seed,
+      params,
+    );
   /** One of Rogue's lists, given or picked whole. */
   const pick = <Name extends string>(
     axis: string,
     given: Name | undefined,
     models: Readonly<Record<Name, Figures>>,
   ): { name: Name | undefined; figures: Figures } =>
-    ArchetypeDraw.model<Name, createJumpRope.Dimension>(
-      "jumpRope",
-      axis,
-      given,
-      models,
-      seed,
-      params,
-    );
+    draw.model<Name>(axis, given, models);
   const cable: { name: createJumpRope.Cable | undefined; figures: Figures } =
     pick("cable", params.cable, createJumpRope.CABLES);
   const handle: { name: createJumpRope.Handle | undefined; figures: Figures } =
     pick("handle", params.handle, createJumpRope.HANDLES);
   const d: Record<createJumpRope.Dimension, number> = {
-    ...ArchetypeDraw.dimensions("jumpRope", createJumpRope.BANDS, seed, params),
+    ...draw.dimensions(createJumpRope.BANDS),
     length: cable.figures.length!,
     handleLength: handle.figures.handleLength!,
   };
@@ -66,10 +66,9 @@ export function createJumpRope(
     createJumpRope.Affordance,
     createJumpRope.Dimension
   > = new ArchetypeBuilder({
-    archetype: "jumpRope",
     id: params.id,
     name: `skipping rope ${handle.name}, ${cable.name} cable`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.gripDiameter / 2;
@@ -132,6 +131,14 @@ export namespace createJumpRope {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "handleLength" | "gripDiameter" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    handleLength: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** Rogue's cable lengths. */
   export type Cable = "10ft" | "11ft";

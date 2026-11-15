@@ -1,4 +1,5 @@
 import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import { CAR_MODELS } from "./CAR_MODELS";
 import type { createCar } from "./createCar";
 
 /** A band in degrees. */
@@ -14,16 +15,9 @@ const deg = (
 const HATCH: string =
   "Honda Jazz Hybrid and Civic Hybrid specifications (https://www.honda.co.uk/cars/new/jazz-hybrid/specifications.html, https://www.honda.co.uk/cars/new/civic-hybrid/specifications.html)";
 
-/** Two sedans read at a secondary source. */
-const SEDAN: string =
-  "Toyota Corolla (E210) sedan and Camry (XV70) infoboxes (https://en.wikipedia.org/wiki/Toyota_Corolla_(E210), https://en.wikipedia.org/wiki/Toyota_Camry_(XV70))";
-
 /** A panel van read at its maker's technical specification. */
 const VAN: string =
   "Ford Transit Custom 2023 technical specification, L1H1 van (https://www.fordpers.be/content/documents/news/2023/2023_10_09_transit_custom_2023_technical_specification_eu.pdf)";
-
-/** The van's long-wheelbase body, read at a dealer's sizing guide only. */
-const VAN_LONG: string = `${VAN}; the L2 body's 5,450 mm and 3,500 mm from the vansdirect.co.uk sizing guide (https://www.vansdirect.co.uk/load-sizing-guide/ford-transit-custom-dimensions/), not read at the maker`;
 
 /** A crew-cab pickup read at its maker's technical specification. */
 const PICKUP: string =
@@ -41,7 +35,6 @@ const SHARED: Readonly<
   Record<
     | "steeringDiameter"
     | "steeringAngle"
-    | "lockTurns"
     | "doorSwing"
     | "pedalTravel"
     | "bonnetSwing"
@@ -56,12 +49,6 @@ const SHARED: Readonly<
     true,
   ),
   steeringAngle: deg(15, 30, PACKAGE, true),
-  lockTurns: ArchetypeBand.of(
-    "",
-    2.2,
-    2.63,
-    `${HATCH}: 2.2 to 2.63 turns lock to lock`,
-  ),
   doorSwing: deg(
     60,
     70,
@@ -86,6 +73,27 @@ const SHARED: Readonly<
     true,
   ),
 };
+
+/**
+ * The least and the greatest of the hatchbacks' read grades' figures of one dimension, for a band a class whose models state none borrows.
+ *
+ * @param dimension The dimension.
+ * @returns The least and the greatest figure.
+ */
+function hatchbacks(dimension: createCar.Dimension): [number, number] {
+  const figures: number[] = Object.values(CAR_MODELS.figures.hatchback)
+    .map((model: Readonly<Partial<Record<createCar.Dimension, number>>> | undefined): number | undefined => model?.[dimension])
+    .filter((figure: number | undefined): figure is number => figure !== undefined);
+  return [Math.min(...figures), Math.max(...figures)];
+}
+
+/** The turns lock to lock of a class whose models state none: the span of the hatchbacks' read grades, borrowed for want of the class's own. */
+const TURNS: IArchetypeBand = ArchetypeBand.of(
+  "",
+  ...hatchbacks("lockTurns"),
+  `${HATCH}: the grades' turns lock to lock, borrowed by a class whose models state none`,
+  true,
+);
 
 /** The bands of the classes that are passenger cars. */
 const CAR: Readonly<
@@ -120,7 +128,7 @@ const COMMERCIAL_SEAT: IArchetypeBand = ArchetypeBand.metres(
 );
 
 /**
- * The band of each free dimension of a car, by class, with the source it was read at; `createCar.BANDS` is this table. A class lacks the dimensions of the parts it does not have: only the sedan and the hatchback have a boot, only the van a sliding door and a cargo floor, only the pickup a bed.
+ * The band of each free dimension of a car, by class, with the source it was read at; `createCar.BANDS` is this table. A class lacks the dimensions of the parts it does not have: only the sedan and the hatchback have a boot, only the van a sliding door and a cargo floor, only the pickup a bed. A model's own figures are its read model's (`CAR_MODELS`), not bands; the van's sliding door, step and cargo floor are the L1's read figures, the L2's dealer page giving the same 1,030 mm door and none of the others, so the L2 takes the L1's, the same body section: provisional for the L2.
  */
 export const CAR_BANDS: Readonly<
   Record<
@@ -131,51 +139,22 @@ export const CAR_BANDS: Readonly<
   hatchback: {
     ...SHARED,
     ...CAR,
-    length: ArchetypeBand.metres(4.089, 4.56, HATCH),
-    width: ArchetypeBand.metres(1.694, 1.802, HATCH),
-    height: ArchetypeBand.metres(1.408, 1.526, HATCH),
-    wheelbase: ArchetypeBand.metres(2.517, 2.734, HATCH),
-    wheelDiameter: ArchetypeBand.metres(
-      0.603,
-      0.647,
-      `${HATCH}: tyres 185/60 R15 to 215/50 R17, the outer diameter computed from the size`,
-      true,
-    ),
-    mass: ArchetypeBand.of("kg", 1230, 1503, HATCH),
   },
   sedan: {
     ...SHARED,
     ...CAR,
-    length: ArchetypeBand.metres(4.63, 4.91, SEDAN, true),
-    width: ArchetypeBand.metres(1.78, 1.84, SEDAN, true),
-    height: ArchetypeBand.metres(1.435, 1.46, SEDAN, true),
-    wheelbase: ArchetypeBand.metres(2.7, 2.82, SEDAN, true),
+    lockTurns: TURNS,
     wheelDiameter: ArchetypeBand.metres(
-      0.603,
-      0.647,
-      `${HATCH}: tyre sizes of comparable cars, the outer diameter computed from the size`,
+      ...hatchbacks("wheelDiameter"),
+      `${HATCH}: the span of the grades' tyres' outer diameters, computed from their sizes, borrowed for want of a sedan's read tyre`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 1290, 1660, SEDAN, true),
   },
   van: {
     ...SHARED,
     seatHeight: COMMERCIAL_SEAT,
+    lockTurns: TURNS,
     steeringRatio: ArchetypeBand.of("", 15.7, 15.7, `${VAN}: ratio 15.7:1`),
-    length: ArchetypeBand.metres(5.05, 5.45, VAN_LONG, true),
-    width: ArchetypeBand.metres(
-      2.032,
-      2.032,
-      `${VAN}: overall width without mirrors`,
-    ),
-    height: ArchetypeBand.metres(1.968, 1.983, VAN),
-    wheelbase: ArchetypeBand.metres(3.1, 3.5, VAN_LONG, true),
-    wheelDiameter: ArchetypeBand.metres(
-      0.686,
-      0.69,
-      `${VAN}: tyres 215/65 R16 to 215/60 R17, the outer diameter computed from the size`,
-    ),
-    mass: ArchetypeBand.of("kg", 1892, 1892, `${VAN}: kerb weight`),
     sideDoorWidth: ArchetypeBand.metres(
       1.03,
       1.03,
@@ -196,35 +175,19 @@ export const CAR_BANDS: Readonly<
       0.593,
       `${VAN}: rear door loading height`,
     ),
-    loadLength: ArchetypeBand.metres(
-      2.394,
-      2.394,
-      `${VAN}: load length to the bulkhead`,
-    ),
   },
   pickup: {
     ...SHARED,
     seatHeight: COMMERCIAL_SEAT,
     steeringRatio: CAR.steeringRatio,
+    lockTurns: TURNS,
     length: ArchetypeBand.metres(210.6 * ArchetypeUnits.INCH, 210.6 * ArchetypeUnits.INCH, PICKUP),
     width: ArchetypeBand.metres(
       75.5 * ArchetypeUnits.INCH,
       75.5 * ArchetypeUnits.INCH,
       `${PICKUP}: width excluding mirrors`,
     ),
-    height: ArchetypeBand.metres(73.9 * ArchetypeUnits.INCH, 74.4 * ArchetypeUnits.INCH, PICKUP),
     wheelbase: ArchetypeBand.metres(128.7 * ArchetypeUnits.INCH, 128.7 * ArchetypeUnits.INCH, PICKUP),
-    wheelDiameter: ArchetypeBand.metres(
-      0.788,
-      0.789,
-      `${PICKUP}: tyres 255/70 R17 to 255/65 R18, the outer diameter computed from the size`,
-    ),
-    mass: ArchetypeBand.of(
-      "kg",
-      4203 * ArchetypeUnits.POUND,
-      4415 * ArchetypeUnits.POUND,
-      `${PICKUP}: base curb weight, 4,203 to 4,415 lb`,
-    ),
     bedLength: ArchetypeBand.metres(
       59.6 * ArchetypeUnits.INCH,
       59.6 * ArchetypeUnits.INCH,
@@ -240,11 +203,6 @@ export const CAR_BANDS: Readonly<
       20.9 * ArchetypeUnits.INCH,
       "a 2024-2025 Ranger SuperCrew bed's inside height, 20.8 to 20.9 in, in dealers' and outfitters' guides (https://www.greghublerford.com/2024-ford-ranger-bed-size/, https://offroadtents.com/blogs/news/ford-ranger-bed-dimensions-guide-for-every-model), seen in search results only",
       true,
-    ),
-    bedFloor: ArchetypeBand.metres(
-      34.0 * ArchetypeUnits.INCH,
-      34.7 * ArchetypeUnits.INCH,
-      `${PICKUP}: lift-in height`,
     ),
   },
 };

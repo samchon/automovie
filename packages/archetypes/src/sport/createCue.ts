@@ -4,7 +4,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -40,39 +40,31 @@ export function createCue(
   params: createCue.IParams = {},
   seed?: number | string,
 ): Archetype<createCue.Affordance, createCue.Dimension> {
+  const draw: ArchetypeDrawSession<createCue.Dimension> =
+    new ArchetypeDrawSession<createCue.Dimension>(
+      "cue",
+      createCue.UNITS,
+      seed,
+      params,
+    );
   const buttModel: {
     name: createCue.Butt | undefined;
     figures: Readonly<Partial<Record<createCue.Dimension, number>>>;
-  } = ArchetypeDraw.model<createCue.Butt, createCue.Dimension>(
-    "cue",
-    "buttSize",
-    params.buttSize,
-    createCue.BUTTS,
-    seed,
-    params,
-  );
+  } = draw.model<createCue.Butt>("buttSize", params.buttSize, createCue.BUTTS);
   const shaft: {
     name: createCue.Shaft | undefined;
     figures: Readonly<Partial<Record<createCue.Dimension, number>>>;
-  } = ArchetypeDraw.model<createCue.Shaft, createCue.Dimension>(
-    "cue",
-    "shaft",
-    params.shaft,
-    createCue.SHAFTS,
-    seed,
-    params,
-  );
+  } = draw.model<createCue.Shaft>("shaft", params.shaft, createCue.SHAFTS);
   const d: Record<createCue.Dimension, number> = {
-    ...ArchetypeDraw.dimensions("cue", createCue.BANDS, seed, params),
+    ...draw.dimensions(createCue.BANDS),
     butt: buttModel.figures.butt!,
     tip: shaft.figures.tip!,
   };
   const builder: ArchetypeBuilder<createCue.Affordance, createCue.Dimension> =
     new ArchetypeBuilder({
-      archetype: "cue",
       id: params.id,
       name: `pool cue, ${buttModel.name} butt, ${shaft.name} shaft`,
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const butt: number = d.butt / 2;
@@ -157,6 +149,14 @@ export namespace createCue {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "butt" | "tip" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    butt: "m",
+    tip: "m",
+    mass: "kg",
+  };
 
   /** Viking's butt diameters. */
   export type Butt = "standard" | "skinny" | "average";

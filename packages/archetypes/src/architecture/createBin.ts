@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
 } from "../core";
@@ -16,50 +17,53 @@ const BIN_MODELS: Readonly<
     createBin.Kind,
     Readonly<
       Partial<
-        Record<createBin.Model, Readonly<Partial<Record<createBin.Dimension, number>>>>
+        Record<
+          createBin.Model,
+          Readonly<Partial<Record<createBin.Dimension, number>>>
+        >
       >
     >
   >
 > = {
   wheelieBin: {
-  "240L": {
-    width: 0.585,
-    depth: 0.66,
-    height: 0.99,
-    top: 1.06,
-    reach: 0.73,
-    handle: 0.4,
-    wheel: 0.2,
-    mass: 12.5,
-  },
-  "360L": {
-    width: 0.68,
-    depth: 0.77,
-    height: 1.028,
-    top: 1.1,
-    reach: 0.848,
-    handle: 0.52,
-    wheel: 0.25,
-    mass: 17,
-  },
+    "240L": {
+      width: 0.585,
+      depth: 0.66,
+      height: 0.99,
+      top: 1.06,
+      reach: 0.73,
+      handle: 0.4,
+      wheel: 0.2,
+      mass: 12.5,
+    },
+    "360L": {
+      width: 0.68,
+      depth: 0.77,
+      height: 1.028,
+      top: 1.1,
+      reach: 0.848,
+      handle: 0.52,
+      wheel: 0.25,
+      mass: 17,
+    },
   },
   dumpster: {
-  "2yd": {
-    width: (81 + 7 / 8) * ArchetypeUnits.INCH,
-    depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
-    height: (40 + 15 / 16) * ArchetypeUnits.INCH,
-    top: (45 + 1 / 4) * ArchetypeUnits.INCH,
-    reach: 34 * ArchetypeUnits.INCH,
-    mass: 505 * ArchetypeUnits.POUND,
-  },
-  "3yd": {
-    width: (82 + 7 / 16) * ArchetypeUnits.INCH,
-    depth: (46 + 3 / 4) * ArchetypeUnits.INCH,
-    height: (48 + 1 / 2) * ArchetypeUnits.INCH,
-    top: (52 + 11 / 16) * ArchetypeUnits.INCH,
-    reach: 42 * ArchetypeUnits.INCH,
-    mass: 602 * ArchetypeUnits.POUND,
-  },
+    "2yd": {
+      width: (81 + 7 / 8) * ArchetypeUnits.INCH,
+      depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
+      height: (40 + 15 / 16) * ArchetypeUnits.INCH,
+      top: (45 + 1 / 4) * ArchetypeUnits.INCH,
+      reach: 34 * ArchetypeUnits.INCH,
+      mass: 505 * ArchetypeUnits.POUND,
+    },
+    "3yd": {
+      width: (82 + 7 / 16) * ArchetypeUnits.INCH,
+      depth: (46 + 3 / 4) * ArchetypeUnits.INCH,
+      height: (48 + 1 / 2) * ArchetypeUnits.INCH,
+      top: (52 + 11 / 16) * ArchetypeUnits.INCH,
+      reach: 42 * ArchetypeUnits.INCH,
+      mass: 602 * ArchetypeUnits.POUND,
+    },
   },
 };
 
@@ -93,6 +97,8 @@ export function createBin(
   params: createBin.IParams,
   seed?: number | string,
 ): Archetype<createBin.Affordance, createBin.Dimension> {
+  const draw: ArchetypeDrawSession<createBin.Dimension> =
+    new ArchetypeDrawSession<createBin.Dimension>("bin", createBin.UNITS, seed);
   const kind: createBin.Kind = ArchetypeDraw.choice(
     "bin",
     "kind",
@@ -102,21 +108,18 @@ export function createBin(
   const model: {
     name: createBin.Model | undefined;
     figures: Readonly<Partial<Record<createBin.Dimension, number>>>;
-  } = ArchetypeDraw.model<createBin.Model, createBin.Dimension>(
-    "bin",
+  } = draw.model<createBin.Model>(
     "model",
     params.model,
     createBin.MODELS[kind],
-    seed,
   );
   const read: Readonly<Partial<Record<createBin.Dimension, number>>> =
     model.figures;
   const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bin",
       id: params.id,
       name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
-      dimensions: read,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
@@ -255,6 +258,18 @@ export namespace createBin {
     | "handle"
     | "wheel"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    top: "m",
+    reach: "m",
+    handle: "m",
+    wheel: "m",
+    mass: "kg",
+  };
 
   /** Each kind's models with their figures, its default first. */
   export const MODELS: typeof BIN_MODELS = BIN_MODELS;

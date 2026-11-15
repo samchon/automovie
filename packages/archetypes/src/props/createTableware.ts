@@ -6,6 +6,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -36,6 +37,13 @@ export function createTableware(
   params: createTableware.IParams,
   seed?: number | string,
 ): Archetype<createTableware.Affordance, createTableware.Dimension> {
+  const draw: ArchetypeDrawSession<createTableware.Dimension> =
+    new ArchetypeDrawSession<createTableware.Dimension>(
+      "tableware",
+      createTableware.UNITS,
+      seed,
+      params,
+    );
   const kind: createTableware.Kind = ArchetypeDraw.choice(
     "tableware",
     "kind",
@@ -43,23 +51,16 @@ export function createTableware(
     createTableware.KINDS,
   );
   const drawn: Partial<Record<createTableware.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "tableware",
-      createTableware.BANDS[kind],
-      seed,
-      params,
-      createTableware.BANDS,
-    );
-  // A round plate or a platter is one of IKEA's read models whole.
-  const model: { name: createTableware.Model | undefined; figures: createTableware.Figures } =
-    ArchetypeDraw.model<createTableware.Model, createTableware.Dimension>(
-      "tableware",
-      "model",
-      params.model,
-      createTableware.MODELS[kind],
-      seed,
-      params,
-    );
+    draw.dimensions(createTableware.BANDS[kind], createTableware.BANDS);
+  // A round plate or a platter is one of the read models whole: IKEA's, Rosenthal's or Thomas's.
+  const model: {
+    name: createTableware.Model | undefined;
+    figures: createTableware.Figures;
+  } = draw.model<createTableware.Model>(
+    "model",
+    params.model,
+    createTableware.MODELS[kind],
+  );
   const d: Partial<Record<createTableware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -68,10 +69,9 @@ export function createTableware(
     createTableware.Affordance,
     createTableware.Dimension
   > = new ArchetypeBuilder({
-    archetype: "tableware",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = d.height!;
@@ -178,6 +178,15 @@ export namespace createTableware {
    */
   export type Dimension = "diameter" | "length" | "width" | "height" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which plate. */
@@ -193,21 +202,36 @@ export namespace createTableware {
   /** A model's read figures, by dimension. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /** The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm serving plate; the 36 by 20 cm one is not built, since its page gives no height. */
-  export type Model = "sidePlate" | "dinnerPlate" | "serving27";
+  /** The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm serving plate (the 36 by 20 cm one is not built, since its page gives no height); Rosenthal's Joyn and Thomas's Sunny Day 27 cm plates; Thomas's Loft 34 cm and Rosenthal's Heritage Midas 33 cm platters. */
+  export type Model =
+    | "sidePlate"
+    | "dinnerPlate"
+    | "serving27"
+    | "joyn27"
+    | "sunnyDay27"
+    | "loft34"
+    | "midas33";
 
   /**
    * Each kind's models whole, the default first. A round plate, diameter and height: the side plate 20 x 2 cm and the plate 27 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/, https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949). A platter, length, width and height: 27 x 15 x 3 cm (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364).
    *
    * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and 0.52 kg, which the plate alone is lighter than by an amount no page gives.
+   *
+   * The makers' plates and platters, with each article's own weight: Rosenthal Joyn Plate 27 cm flat, 27.00 cm across, 2.50 cm high, 710 g (https://www.rosenthal.de/en-gb/plate-27-cm-flat/44020-640202-10867.html); Thomas Sunny Day Plate 27 cm, 27.00 cm, 2.80 cm, 590 g (https://thomas-porzellan.de/de-at/speiseteller-27-cm/10850-800001-10227.html); Thomas Loft Platter 34 cm, 33.80 by 24.00 cm, 3.10 cm high, 965 g (https://thomas-porzellan.de/fr-fr/plat-34-cm/11900-800001-12734.html); Rosenthal Heritage Midas Platter 33 cm, 33.20 by 21.20 cm, 3.80 cm high, 780 g (https://www.rosenthal.de/en-gb/platter-33-cm/10480-408684-12733.html).
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
+  > = {
     plate: {
       sidePlate: { diameter: 0.2, height: 0.02, mass: 0.41 },
       dinnerPlate: { diameter: 0.27, height: 0.03, mass: 0.77 },
+      joyn27: { diameter: 0.27, height: 0.025, mass: 0.71 },
+      sunnyDay27: { diameter: 0.27, height: 0.028, mass: 0.59 },
     },
     platter: {
       serving27: { length: 0.27, width: 0.15, height: 0.03, mass: 0.52 },
+      loft34: { length: 0.338, width: 0.24, height: 0.031, mass: 0.965 },
+      midas33: { length: 0.332, width: 0.212, height: 0.038, mass: 0.78 },
     },
   };
 

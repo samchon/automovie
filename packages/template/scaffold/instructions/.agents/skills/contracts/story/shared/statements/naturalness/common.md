@@ -18,7 +18,7 @@ Padding and explanation:
     - a role, relationship or single scene-used identifying trait conveyed through action, address or perception.
 7. No habitual gesture, filler, empty link, arbitrary sentence pattern or authoring jargon appears. Exception: reusing an object's name, a word twice or a script's framing is not by itself habitual.
 8. No misunderstanding is invented only to be negated.
-9. No modifier, qualification, contrast or formatting carries no information, access or pressure. Padding that was removed and came back in different words counts.
+9. No modifier, qualification, contrast or formatting appears without information, access or pressure. Padding that was removed and came back in different words counts.
 10. No character's thought merely adds the conclusion or emotion shown or about to be shown. Exception: a calculation, memory or expectation that reveals new present understanding, hope or burden.
 11. Recalling an earlier event or sharing a later action's goal is not repetition by itself; the passage with its neighbors shows the difference.
 
@@ -72,23 +72,21 @@ Deciding and retaining:
 
 ## Expression fidelity
 
-1. The script keeps:
+1. Compared with its parent treatments, the script keeps:
     - the world facts, events and causal connections;
     - people and relationships, motives, choices and consequences;
     - knowledge boundaries, chronology and reveal order;
     - values such as names, quantities, dimensions and colors;
     - the degree of certainty.
-2. The original compared is the parent treatments.
-3. Realized setup and payoff, motivation-setting speech, the promised narrator voice and humor survive as functions the audience experiences.
-4. Where the current expression of such a function is a named failure, the function is recomposed without the failure and not deleted.
-5. Every value the script states is accurate.
-6. Nothing omitted changes inherited meaning, required execution, knowledge or reveal order, or removes information needed to understand a choice and its result.
-7. An upstream measurement or condition the audience does not need is not displayed, and execution constraints go to their actual consumer.
-8. Information the adopted work requires the audience to receive stays.
-9. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
-10. The script stays inside the established storyline and adopted form.
-11. The script may clarify an implied existing actor and develop bodily performance, image, sound and subtext.
-12. The script adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
-13. The script preserves meaning, not an artificial register, negation patterns, source disclaimers or annotation vocabulary.
-14. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
-15. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.
+2. Realized setup and payoff, motivation-setting speech, the promised narrator voice and humor survive as functions the audience experiences.
+3. Where the current expression of such a function is a named failure, the function is recomposed without the failure and not deleted.
+4. Every value the script states is accurate.
+5. Nothing omitted changes inherited meaning, required execution, knowledge or reveal order, or removes information needed to understand a choice and its result.
+6. An upstream measurement or condition the audience does not need is not displayed, and execution constraints go to their actual consumer.
+7. Information the adopted work requires the audience to receive stays.
+8. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
+9. The script stays inside the established storyline and adopted form. Exception: it may clarify an implied existing actor and develop bodily performance, image, sound and subtext.
+10. The script adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
+11. The script preserves meaning, not an artificial register, negation patterns, source disclaimers or annotation vocabulary.
+12. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
+13. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.

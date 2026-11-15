@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import { BOAT_MODELS } from "./BOAT_MODELS";
 import { createBoat } from "./createBoat";
 
 /**
@@ -25,6 +26,35 @@ export namespace BoatOars {
   /** An oar's whole length over its inboard length: 25/7, the same rule. */
   export const RATIO: number = 25 / 7;
 
+  /**
+   * A rowboat's blades: those of the read oar (`BOAT_MODELS.oars`) whose length is nearest the oar Shaw and Tenney's rule gives the span, `RATIO` times the inboard, half the span plus `INBOARD`.
+   *
+   * @param span The span between the oarlocks, metres, the boat's beam.
+   * @returns The blade's length and width, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule and the choice.
+   * @evidence contracts/development/implementation.md#principled-implementation The boatbuilders' oar length from the span, then the read oar nearest it, whose blade is taken whole.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One length, one nearest.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A scan of eight oars.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function blade(span: number): {
+    bladeLength: number;
+    bladeWidth: number;
+  } {
+    const length: number = (span / 2 + INBOARD) * RATIO;
+    const oar: (typeof BOAT_MODELS.oars)[number] = BOAT_MODELS.oars.reduce(
+      (
+        best: (typeof BOAT_MODELS.oars)[number],
+        o: (typeof BOAT_MODELS.oars)[number],
+      ): (typeof BOAT_MODELS.oars)[number] =>
+        Math.abs(o.length - length) < Math.abs(best.length - length) ? o : best,
+    );
+    return { bladeLength: oar.bladeLength, bladeWidth: oar.bladeWidth };
+  }
+
   /** The oar's loom, metres: 44 mm, Fyne Boat Kits' standard oars (https://fyneboatkits.co.uk/accessories/oars/oars-standard). */
   export const LOOM: number = 0.044;
 
@@ -34,13 +64,13 @@ export namespace BoatOars {
   /** The handle's held run, metres: a construction estimate, one hand's breadth and a little. */
   export const GRIP: number = 0.12;
 
-  /** The stroke's arc, degrees from square to the boat: the blade 62 degrees toward the bow at the catch and 43.5 toward the stern at the finish, the men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and Active Living 2:589013, Table 1). Those are sliding-seat boats; a fixed thwart's arc no source read gives, so on a rowboat this is a provisional value. */
+  /** The stroke's arc, degrees from square to the boat: the blade 62 degrees toward the bow at the catch and 43.5 toward the stern at the finish, the men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and Active Living 2:589013, Table 1). Those are sliding-seat boats; a fixed thwart's arc no source read gives, so on a rowboat this is a provisional value. Searched for #3497 without a figure: fixed-seat oar angles at the catch and the finish for trainera, llaut, gig and dghajsa crews; Agius et al. 2023 (Bioengineering 10(7):774) and the 2025 static-seat ergometer study (PMC12289236) measure the body's angles, not the oar's; Angus's fixed-seat rowing geometry (Small Craft Advisor, 6 February 2023) gives the rig, not the arc. */
   export const ARC: Readonly<{ catch: number; finish: number }> = {
     catch: 62,
     finish: 43.5,
   };
 
-  /** The blade's lower edge above the water on the recovery, metres, a provisional value: not read; the source to read is a fixed-seat rowing biomechanics study. */
+  /** The blade's lower edge above the water on the recovery, metres, a provisional value: not read; the source to read is a fixed-seat rowing biomechanics study. Searched for #3497 without a figure: the fixed-seat kinematics studies above, and Angus's fixed-seat geometry, which states none. */
   export const CLEAR: number = 0.1;
 
   /**
@@ -97,7 +127,8 @@ export namespace BoatOars {
     const outboard: number = inboard * RATIO - inboard;
     const half: number = d.bladeWidth! / 2;
     const root: number = outboard - d.bladeLength!;
-    const degrees = (radians: number): number => radians / ArchetypeUnits.DEGREE;
+    const degrees = (radians: number): number =>
+      radians / ArchetypeUnits.DEGREE;
 
     // At rest the blade's upper root corner meets the water; lifted, its lower tip corner stands at a height above it.
     const rest: number = degrees(

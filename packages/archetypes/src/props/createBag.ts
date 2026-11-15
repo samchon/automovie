@@ -2,64 +2,18 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
-  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** Tote sizes and handle lengths from a maker's listing seen in search results. */
-const TOTE: string =
-  "L.L.Bean Boat and Tote, small 10.5 x 9.5 x 5 in to large 15 x 17 x 7.5 in with 6 to 8 in handles, product listing seen only in search results";
-
-/** Shoulder strap drops from a maker's pages seen in search results. */
-const STRAP: string =
-  "Coach handbag pages, detachable strap with 21.75 to 25 in drop, seen only in search results";
-
-/** Two backpacks from listings seen in search results. */
-const BACKPACK: string =
-  "JanSport SuperBreak, 16.7 x 13 x 8.5 in and 0.3 kg, and Fjallraven Kanken 16 L, 38 x 27 x 13 cm and 0.3 kg, listings seen only in search results";
-
-/** The optimal handle of the Revised NIOSH Lifting Equation, applied to a carried container's handle whose own size no maker gives. */
-const NIOSH: string =
-  "Waters, Putz-Anderson and Garg, Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110 (1994), Table 6 note 1, p. 30: \"An optimal handle design has .75 - 1.5 inches (1.9 to 3.8 cm) diameter, >= 4.5 inches (11.5 cm) length, 2 inches (5 cm) clearance, cylindrical shape\" (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to this handle";
-
-/** The NIOSH optimal handle's diameters applied to a tote's handles and strap and a backpack's straps, flat webbing in a hook grip whose width no maker read gives. */
-const WEBBING: string =
-  "the 1.9 to 3.8 cm optimal handle diameter of the Applications Manual for the Revised NIOSH Lifting Equation, DHHS (NIOSH) 94-110, Table 6 note 1, p. 30 (https://stacks.cdc.gov/view/cdc/209665/cdc_209665_DS1.pdf), applied to a strap's webbing: no maker read states a strap's width (searched for the Fjallraven Kanken's, 2026-11-15; only the Kanken Mini's 25 mm, at a retailer)";
-
-/** Two attache cases, seen only in search results; the larger of each case's two face sizes taken as its width. */
-const ATTACHE: string =
-  "Samsonite Focus III 6 in attache, 39.4 x 45.2 x 14.7 cm, 2.95 kg (https://www.samsonite.ca/en/bags/laptop-bags-%26-briefcases/samsonite-focus-iii-6%22-attach%C3%A9/10558XXXX.html), and Rimowa aluminium attache, 35 x 41.5 x 8.5 cm, 2.3 kg (https://rimowa.com/us/en/bags/attache/briefcase/90007010.html), seen only in search results";
-
-/** A maker's handbag, read at a retailer, its other handle drop and its weight seen only in search results. */
-const HANDBAG: string =
-  "Longchamp Le Pliage Original M: height 28, width 30, depth 20 cm, handle drop 11 cm (https://www.selfridges.com/IE/en/product/longchamp-le-pliage-medium-recycled-nylon-top-handle-bag_R03885492/); a 12 cm handle height on Longchamp's Indonesian page and a 240 g weight seen only in search results";
-
-/** A maker's duffel, seen only in search results. */
-const DUFFEL: string =
-  "The North Face Base Camp Duffel M, 14 x 25 x 14 in, 3 lb 9.1 oz (1620 g) (https://www.sunandski.com/p/93240061700002402), seen only in search results";
-
-/** A maker's toolbox, read, its weight seen only in search results. */
-const TOOLBOX: string =
-  "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
+import { BAG_BANDS } from "./BAG_BANDS";
 
 /** HSE's guideline load for a load held close to the body below the elbow by a woman, kilograms (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by hand or on the back. */
 const HSE_CLOSE_LOAD: number = 16;
 
-/** The NIOSH optimal handle's diameters, metres, applied to a cased or carried bag's handle bar. */
-const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(0.019, 0.038, NIOSH, true);
-
-/** The same diameters applied to a strap's webbing. */
-const NIOSH_WEBBING: IArchetypeBand = ArchetypeBand.metres(
-  NIOSH_HANDLE.minimum,
-  NIOSH_HANDLE.maximum,
-  WEBBING,
-  true,
-);
 /** The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held close below the elbow by a woman (INDG143, Figure 1, https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox, and for a suitcase IATA's 32 kg piece limit (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/) less the heaviest empty case of 4.3 kg. */
 const LOADS: Readonly<Record<createBag.Kind, number>> = {
   tote: HSE_CLOSE_LOAD,
@@ -93,6 +47,13 @@ export function createBag(
   params: createBag.IParams,
   seed?: number | string,
 ): Archetype<createBag.Affordance, createBag.Dimension> {
+  const draw: ArchetypeDrawSession<createBag.Dimension> =
+    new ArchetypeDrawSession<createBag.Dimension>(
+      "bag",
+      createBag.UNITS,
+      seed,
+      params,
+    );
   const kind: createBag.Kind = ArchetypeDraw.choice(
     "bag",
     "kind",
@@ -110,33 +71,21 @@ export function createBag(
       reason: `a ${kind} carries up to ${LOADS[kind]} kg`,
       fix: "give a load the bag carries",
     });
-  const drawn: Partial<Record<createBag.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "bag",
-      createBag.BANDS[kind],
-      seed,
-      params,
-      createBag.BANDS,
-    );
+  const drawn: Partial<Record<createBag.Dimension, number>> = draw.dimensions(
+    createBag.BANDS[kind],
+    createBag.BANDS,
+  );
   // A suitcase is one of the two cabin limits read whole, its pull handle one of the two heights the study tested.
-  const model: { name: createBag.Model | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Model, createBag.Dimension>(
-      "bag",
-      "model",
-      params.model,
-      createBag.MODELS[kind],
-      seed,
-      params,
-    );
+  const model: {
+    name: createBag.Model | undefined;
+    figures: createBag.Figures;
+  } = draw.model<createBag.Model>(
+    "model",
+    params.model,
+    createBag.MODELS[kind],
+  );
   const pull: { name: createBag.Pull | undefined; figures: createBag.Figures } =
-    ArchetypeDraw.model<createBag.Pull, createBag.Dimension>(
-      "bag",
-      "pull",
-      params.pull,
-      createBag.PULLS[kind],
-      seed,
-      params,
-    );
+    draw.model<createBag.Pull>("pull", params.pull, createBag.PULLS[kind]);
   const d: Partial<Record<createBag.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -147,10 +96,9 @@ export function createBag(
   const depth: number = d.depth!;
   const builder: ArchetypeBuilder<createBag.Affordance, createBag.Dimension> =
     new ArchetypeBuilder({
-      archetype: "bag",
       id: params.id,
       name: kind,
-      dimensions: d,
+      draw,
     });
   builder.box(
     "body",
@@ -362,6 +310,18 @@ export namespace createBag {
     | "handleDiameter"
     | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    height: "m",
+    depth: "m",
+    handleDrop: "m",
+    strapDrop: "m",
+    pullHeight: "m",
+    handleDiameter: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, the load, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which bag. */
@@ -387,7 +347,9 @@ export namespace createBag {
   export type Model = "lufthansa" | "iata";
 
   /** Each kind's models whole, the default first: a suitcase's height x width x depth, Lufthansa's carry-on limit 55 x 40 x 23 cm (https://www.lufthansa.com/us/en/carry-on-baggage) and IATA's 56 x 45 x 25 cm guide (https://www.iata.org/en/programs/ops-infra/baggage/passenger-baggage-rules/). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     suitcase: {
       lufthansa: { height: 0.55, width: 0.4, depth: 0.23 },
       iata: { height: 0.56, width: 0.45, depth: 0.25 },
@@ -398,7 +360,9 @@ export namespace createBag {
   export type Pull = "pull100" | "pull110";
 
   /** Each kind's pull heights, the default first: 100 and 110 cm, tested in Industrial Health 45(6):756-765, 2007 (https://www.jstage.jst.go.jp/article/indhealth/45/6/45_6_756/_article). */
-  export const PULLS: Readonly<Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>> = {
+  export const PULLS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Pull, Figures>>>>
+  > = {
     suitcase: {
       pull100: { pullHeight: 1 },
       pull110: { pullHeight: 1.1 },
@@ -408,76 +372,5 @@ export namespace createBag {
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    tote: {
-      width: ArchetypeBand.metres(9.5 * ArchetypeUnits.INCH, 17 * ArchetypeUnits.INCH, TOTE, true),
-      height: ArchetypeBand.metres(10.5 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, TOTE, true),
-      depth: ArchetypeBand.metres(5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, TOTE, true),
-      handleDrop: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 8 * ArchetypeUnits.INCH, TOTE, true),
-      strapDrop: ArchetypeBand.metres(21.75 * ArchetypeUnits.INCH, 25 * ArchetypeUnits.INCH, STRAP, true),
-      handleDiameter: NIOSH_WEBBING,
-      mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    backpack: {
-      width: ArchetypeBand.metres(0.27, 13 * ArchetypeUnits.INCH, BACKPACK, true),
-      height: ArchetypeBand.metres(0.38, 16.7 * ArchetypeUnits.INCH, BACKPACK, true),
-      depth: ArchetypeBand.metres(0.13, 8.5 * ArchetypeUnits.INCH, BACKPACK, true),
-      handleDiameter: NIOSH_WEBBING,
-      mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
-    },
-    suitcase: {
-      handleDiameter: NIOSH_HANDLE,
-      mass: ArchetypeBand.of(
-        "kg",
-        3.2,
-        4.3,
-        "Rimowa Essential and Classic Cabin, 3.2 and 4.3 kg, product pages seen only in search results",
-        true,
-      ),
-    },
-    briefcase: {
-      width: ArchetypeBand.metres(0.415, 0.452, ATTACHE, true),
-      height: ArchetypeBand.metres(0.35, 0.394, ATTACHE, true),
-      depth: ArchetypeBand.metres(0.085, 0.147, ATTACHE, true),
-      handleDiameter: NIOSH_HANDLE,
-      mass: ArchetypeBand.of("kg", 2.3, 2.95, ATTACHE, true),
-    },
-    toolbox: {
-      width: ArchetypeBand.metres(0.482, 0.482, TOOLBOX),
-      height: ArchetypeBand.metres(0.25, 0.25, TOOLBOX),
-      depth: ArchetypeBand.metres(0.254, 0.254, TOOLBOX),
-      handleDiameter: NIOSH_HANDLE,
-      mass: ArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
-    },
-    handbag: {
-      width: ArchetypeBand.metres(0.3, 0.3, HANDBAG),
-      height: ArchetypeBand.metres(0.28, 0.28, HANDBAG),
-      depth: ArchetypeBand.metres(0.2, 0.2, HANDBAG),
-      handleDrop: ArchetypeBand.metres(0.11, 0.12, HANDBAG, true),
-      handleDiameter: NIOSH_HANDLE,
-      mass: ArchetypeBand.of("kg", 0.24, 0.24, HANDBAG, true),
-    },
-    duffel: {
-      width: ArchetypeBand.metres(
-        25 * ArchetypeUnits.INCH,
-        25 * ArchetypeUnits.INCH,
-        DUFFEL,
-        true,
-      ),
-      height: ArchetypeBand.metres(
-        14 * ArchetypeUnits.INCH,
-        14 * ArchetypeUnits.INCH,
-        DUFFEL,
-        true,
-      ),
-      depth: ArchetypeBand.metres(
-        14 * ArchetypeUnits.INCH,
-        14 * ArchetypeUnits.INCH,
-        DUFFEL,
-        true,
-      ),
-      handleDiameter: NIOSH_HANDLE,
-      mass: ArchetypeBand.of("kg", 1.62, 1.62, DUFFEL, true),
-    },
-  };
+  > = BAG_BANDS;
 }

@@ -1,6 +1,6 @@
 # Audio acquisition
 
-Audio is acquired only for a requested voice preview or a [commissioned soundtrack](SKILL.md#commissioned-soundtrack); a generated film's sound needs none of it.
+Acquisition finds a source for audio the video model does not make, checks its rights and adopts the take: a requested voice preview, [speech the video model cannot make](SKILL.md#generated-sound), the beds and score [film sound](film-sound.md) needs, and a [commissioned soundtrack](SKILL.md#commissioned-soundtrack).
 
 Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/source-layout.md).
 
@@ -8,15 +8,15 @@ Audio generation and recording happen outside deterministic replay. Read the ins
 
 Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
 
-Check each asset's license for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither.
+Check each asset's terms, every layer that [media records](../production/media-records.md#records) lists, for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither. Clone or design a voice after a real person only with that person's recorded consent.
 
 ## Adopt a take
 
-Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert to a format the installed packages admit while keeping the original.
-
-For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
+Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert it to a format the installed packages admit, at the film's sample rate, while keeping the original.
 
 Measure durations and trims from the accepted bytes, place dialogue, captions, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and have the user listen to the result.
+
+For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
 
 ## Have it heard
 

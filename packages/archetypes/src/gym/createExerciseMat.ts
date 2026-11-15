@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -32,6 +33,13 @@ export function createExerciseMat(
   params: createExerciseMat.IParams,
   seed?: number | string,
 ): Archetype<createExerciseMat.Affordance, createExerciseMat.Dimension> {
+  const draw: ArchetypeDrawSession<createExerciseMat.Dimension> =
+    new ArchetypeDrawSession<createExerciseMat.Dimension>(
+      "exerciseMat",
+      createExerciseMat.UNITS,
+      seed,
+      params,
+    );
   const kind: createExerciseMat.Kind = ArchetypeDraw.choice(
     "exerciseMat",
     "kind",
@@ -41,22 +49,13 @@ export function createExerciseMat(
   const size: {
     name: createExerciseMat.Size | undefined;
     figures: Readonly<Partial<Record<createExerciseMat.Dimension, number>>>;
-  } = ArchetypeDraw.model<createExerciseMat.Size, createExerciseMat.Dimension>(
-    "exerciseMat",
+  } = draw.model<createExerciseMat.Size>(
     "size",
     params.size,
     createExerciseMat.SIZES[kind],
-    seed,
-    params,
   );
   const d: Partial<Record<createExerciseMat.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions(
-      "exerciseMat",
-      createExerciseMat.BANDS[kind],
-      seed,
-      params,
-      createExerciseMat.BANDS,
-    ),
+    ...draw.dimensions(createExerciseMat.BANDS[kind], createExerciseMat.BANDS),
     ...size.figures,
   };
   const length: number = d.length!;
@@ -66,10 +65,9 @@ export function createExerciseMat(
     createExerciseMat.Affordance,
     createExerciseMat.Dimension
   > = new ArchetypeBuilder({
-    archetype: "exerciseMat",
     id: params.id,
     name: size.name === undefined ? `${kind} mat` : `${kind} mat ${size.name}`,
-    dimensions: d,
+    draw,
   });
   builder.box(
     "mat",
@@ -113,6 +111,14 @@ export namespace createExerciseMat {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    thickness: "m",
+    mass: "kg",
+  };
 
   /** A yoga mat's lengths, Manduka PRO's that it gives a mass for. */
   export type Size = "71in" | "85in";

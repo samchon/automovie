@@ -3,6 +3,8 @@ export * from "./IAutoMovieEllipticLoft";
 export * from "./IAutoMovieConvexSupportLoft";
 export * from "./IAutoMovieAffordance";
 export * from "./IAutoMovieBody";
+export * from "./IAutoMovieBodyContact";
+export * from "./IAutoMovieBodyDrag";
 export * from "./AutoMoviePrimitiveShape";
 export * from "./IAutoMovieMesh";
 export * from "./IAutoMovieGeometry";

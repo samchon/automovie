@@ -2,55 +2,19 @@ import { Vector3 } from "@automovie/engine";
 
 import {
   Archetype,
-  ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-
-/** The maker's guide that gives the trigger's reach by backstrap and its travel. */
-const TRIGGER: string =
-  "GLOCK Gen4 Buyer's Guide, p. 4, trigger distance 70, 72 and 74 mm without, with the medium and with the large backstrap, and trigger travel about 12.5 mm (https://www.krale.shop/media/blfa_files/Glock_Generation_4_Models_manual_exploded_view_EN-min_2.pdf)";
-
-/** Dimensions no maker publishes. */
-const UNPUBLISHED: string = "not published by either maker; an estimate";
-
-/** The bands of the dimensions a model leaves, the same for both frames: each drawn only for a model that does not give it. */
-const SHARED: Readonly<
-  Record<
-    "width" | "triggerReach" | "triggerTravel" | "gripDepth",
-    IArchetypeBand
-  >
-> = {
-  width: ArchetypeBand.metres(
-    0.0255,
-    0.0255,
-    "slide width: SIG SAUER publishes only the overall width; the one slide width read, GLOCK's 25.5 mm on the G17 and G19 Gen5 (https://eu.glock.com/en/products/pistols/g17-gen5), applied",
-    true,
-  ),
-  triggerReach: ArchetypeBand.metres(
-    0.07,
-    0.074,
-    `${TRIGGER}: SIG SAUER publishes no trigger distance; the GLOCKs' read range applied`,
-    true,
-  ),
-  triggerTravel: ArchetypeBand.metres(
-    0.0125,
-    0.0125,
-    `${TRIGGER}: no Gen5 or SIG SAUER figure is published; the Gen4 figure applied`,
-    true,
-  ),
-  gripDepth: ArchetypeBand.metres(
-    0.048,
-    0.055,
-    `grip depth from front strap to backstrap, ${UNPUBLISHED}`,
-    true,
-  ),
-};
+import { HANDGUN_BANDS } from "./HANDGUN_BANDS";
+import { HANDGUN_MODELS } from "./HANDGUN_MODELS";
+import { HandgunActions } from "./HandgunActions";
 
 /**
- * A handgun as a film prop: a slide over a frame with a grip, a trigger and sights. It models no mechanism and no effect.
+ * A handgun as a film prop: a self-loading pistol, a slide over a frame with a grip, a trigger and sights; a revolver, its hammer cocking and its cylinder turning; or a flintlock pistol with the musket's lock (`HandgunActions`). It models no effect.
  *
  * The pistol stands on the base of its grip at the origin with its muzzle toward `+Z` and its backstrap at `z = 0`. The shooting hand takes the `grip` from behind; the `trigger` is a part on its articulation, its face `triggerReach` ahead of the backstrap, as makers measure it; the `slide` runs back on its slider. `sight` and `frontSight` give the line of aim, `muzzle` the end of the barrel and `magazine` the well under the grip.
  *
@@ -60,7 +24,7 @@ const SHARED: Readonly<
  * @throws {ArchetypeRefusal} For a model not of the frame, sights on a pistol without them, a fixed dimension outside its band, or one the model or the sights give.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is and is not modelled, how the pistol stands and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the picked pistol's published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses.
+ * @evidence contracts/development/implementation.md#principled-implementation Three boxes from the picked pistol's published outside sizes; the trigger face stands at the published reach from the backstrap and moves by the published travel; a loaded pistol adds the difference between the makers' loaded and unloaded masses. A revolver and a flintlock pistol are `HandgunActions`'s, their sight radius derived where no maker gives it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model and the sights, draw the other dimensions, build the grip, the slide and the trigger, then the contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip is upright, without its rake, and there is no trigger guard; neither changes where a hand or a finger goes.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
@@ -71,6 +35,13 @@ export function createHandgun(
   params: createHandgun.IParams,
   seed?: number | string,
 ): Archetype<createHandgun.Affordance, createHandgun.Dimension> {
+  const draw: ArchetypeDrawSession<createHandgun.Dimension> =
+    new ArchetypeDrawSession<createHandgun.Dimension>(
+      "handgun",
+      createHandgun.UNITS,
+      seed,
+      params,
+    );
   const frame: createHandgun.Frame = ArchetypeDraw.choice(
     "handgun",
     "frame",
@@ -78,31 +49,42 @@ export function createHandgun(
     createHandgun.FRAMES,
   );
   // One of the frame's two read pistols whole, and a GLOCK's sights, which set its sight radius.
-  const model: { name: createHandgun.Model | undefined; figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Model, createHandgun.Dimension>("handgun", "model", params.model, createHandgun.MODELS[frame], seed, params);
-  const sights: { figures: Readonly<Partial<Record<createHandgun.Dimension, number>>> } =
-    ArchetypeDraw.model<createHandgun.Sights, createHandgun.Dimension>(
-      "handgun",
-      "sights",
-      params.sights,
-      model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
-      seed,
-      params,
-    );
+  const model: {
+    name: createHandgun.Model | undefined;
+    figures: Readonly<Partial<Record<createHandgun.Dimension, number>>>;
+  } = draw.model<createHandgun.Model>(
+    "model",
+    params.model,
+    createHandgun.MODELS[frame],
+  );
+  draw.model<createHandgun.Sights>(
+    "sights",
+    params.sights,
+    model.name === undefined ? undefined : createHandgun.SIGHTS[model.name],
+  );
+  draw.dimensions(createHandgun.BANDS[frame], createHandgun.BANDS);
+  // A revolver's or a flintlock pistol's sight line, where no maker gives its radius: a revolver's from the top strap's groove to the muzzle, a flintlock's along its barrel, which carries no sights.
+  if (frame === "revolver" && draw.values.sightRadius === undefined)
+    draw.derive("sightRadius", HandgunActions.radius(draw.values));
+  if (frame === "flintlock") draw.derive("sightRadius", draw.values.barrel!);
   const d: Partial<Record<createHandgun.Dimension, number>> = {
-    ...ArchetypeDraw.dimensions("handgun", createHandgun.BANDS[frame], seed, params, createHandgun.BANDS),
-    ...model.figures,
-    ...sights.figures,
+    ...draw.values,
   };
   const builder: ArchetypeBuilder<
     createHandgun.Affordance,
     createHandgun.Dimension
   > = new ArchetypeBuilder({
-    archetype: "handgun",
     id: params.id,
-    name: `${frame === "fullSize" ? "full-size" : "compact"} handgun`,
-    dimensions: d,
+    name: createHandgun.NAMES[frame],
+    draw,
   });
+  const loaded: number =
+    params.loaded === true ? createHandgun.AMMUNITION[frame] : 0;
+  if (frame === "revolver" || frame === "flintlock") {
+    if (frame === "revolver") HandgunActions.revolver(builder, d);
+    else HandgunActions.flintlock(builder, d);
+    return builder.build(d.mass! + loaded);
+  }
   const v: typeof Vector3.create = Vector3.create;
   const slide: number = 0.028;
   const top: number = d.height!;
@@ -201,9 +183,7 @@ export function createHandgun(
     ),
     extent: null,
   });
-  return builder.build(
-    d.mass! + (params.loaded === true ? createHandgun.AMMUNITION[frame] : 0),
-  );
+  return builder.build(d.mass! + loaded);
 }
 
 /**
@@ -215,16 +195,31 @@ export function createHandgun(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Loading is a parameter that adds a published mass, not a second set of bands; nothing between two pistols or two sights is drawn, and no maker's figure stands in another maker's pistol.
  */
 export namespace createHandgun {
-  /** The frame sizes. */
-  export type Frame = "fullSize" | "compact";
+  /** The frames: a full-size or compact self-loading pistol, a revolver or a flintlock pistol. */
+  export type Frame = "fullSize" | "compact" | "revolver" | "flintlock";
 
   /** Every frame, for a caller that reads one at run time. */
-  export const FRAMES: readonly Frame[] = ["fullSize", "compact"];
+  export const FRAMES: readonly Frame[] = [
+    "fullSize",
+    "compact",
+    "revolver",
+    "flintlock",
+  ];
 
-  /** What a full magazine adds, kilograms: the loaded mass less the mass with an empty magazine, GLOCK G17 Gen5 (945 less 708 g) and G19 Gen5 (855 less 670 g). */
+  /** Each frame's model name. */
+  export const NAMES: Readonly<Record<Frame, string>> = {
+    fullSize: "full-size handgun",
+    compact: "compact handgun",
+    revolver: "revolver",
+    flintlock: "flintlock pistol",
+  };
+
+  /** What a load adds, kilograms: a full magazine, the loaded mass less the mass with an empty magazine, GLOCK G17 Gen5 (945 less 708 g) and G19 Gen5 (855 less 670 g); a revolver's five rounds, Gun Tests' Single Action Army loaded at 46.02 oz less its 40.8 oz; a flintlock's ball and charge, the Graz pistol's 14.45 g and 5.00 g, borrowed. */
   export const AMMUNITION: Readonly<Record<Frame, number>> = {
     fullSize: 0.237,
     compact: 0.185,
+    revolver: (46.02 - 40.8) * ArchetypeUnits.OUNCE,
+    flintlock: 0.01445 + 0.005,
   };
 
   /** How far the slide is drawn back, metres: an estimate, not published. */
@@ -239,6 +234,8 @@ export namespace createHandgun {
    * - `sight`, `frontSight`: the tops of the rear and front sights, which ride the slide.
    * - `muzzle`: the end of the barrel, facing forward.
    * - `magazine`: the magazine well under the grip, a socket facing down.
+   * - `hammer`, `cylinder`, `gate`, `chamber1` to `chamber6`: a revolver's hammer, its cylinder following it, its loading gate and the chambers on the cylinder's rear face (`HandgunActions.revolver`).
+   * - `cock`, `frizzen`, `pan`: a flintlock pistol's lock (`FlintLock.lay`).
    */
   export type Affordance =
     | "grip"
@@ -247,7 +244,19 @@ export namespace createHandgun {
     | "sight"
     | "frontSight"
     | "muzzle"
-    | "magazine";
+    | "magazine"
+    | "hammer"
+    | "cylinder"
+    | "gate"
+    | "chamber1"
+    | "chamber2"
+    | "chamber3"
+    | "chamber4"
+    | "chamber5"
+    | "chamber6"
+    | "cock"
+    | "frizzen"
+    | "pan";
 
   /**
    * The free dimensions, metres unless stated:
@@ -257,7 +266,11 @@ export namespace createHandgun {
    * - `triggerReach`: from the backstrap to the trigger's face.
    * - `triggerTravel`: the trigger's pull.
    * - `gripDepth`: the grip from front strap to backstrap.
-   * - `mass`: with an empty magazine, kilograms.
+   * - `barrel`: a revolver's or a flintlock pistol's barrel.
+   * - `muzzleVelocity`: the shot's speed leaving the muzzle, metres per second.
+   * - `lockTime`: seconds from the trigger's break to the discharge.
+   * - `ball`: a flintlock pistol's ball's diameter, the calibre of the projectile it fires.
+   * - `mass`: unloaded, kilograms.
    */
   export type Dimension =
     | "length"
@@ -267,10 +280,38 @@ export namespace createHandgun {
     | "triggerReach"
     | "triggerTravel"
     | "gripDepth"
+    | "barrel"
+    | "muzzleVelocity"
+    | "lockTime"
+    | "ball"
     | "mass";
 
-  /** The read pistols: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact. */
-  export type Model = "g17" | "p320m17" | "g19" | "p320m18";
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    height: "m",
+    width: "m",
+    sightRadius: "m",
+    triggerReach: "m",
+    triggerTravel: "m",
+    gripDepth: "m",
+    barrel: "m",
+    muzzleVelocity: "m/s",
+    lockTime: "s",
+    ball: "m",
+    mass: "kg",
+  };
+
+  /** The read handguns: the GLOCK G17 Gen5 and the SIG SAUER P320-M17 full-size, the G19 Gen5 and the P320-M18 compact; Colt's Single Action Army with a 7.5 in barrel and Ruger's Vaquero 5104; the Light Dragoon and the Sea Service flintlock pistols. */
+  export type Model =
+    | "g17"
+    | "p320m17"
+    | "g19"
+    | "p320m18"
+    | "saa75"
+    | "vaquero5104"
+    | "lightDragoon"
+    | "seaService";
 
   /** A GLOCK's sights, which set its sight radius: polymer, steel or GNS. */
   export type Sights = "polymer" | "steel" | "gns";
@@ -282,20 +323,29 @@ export namespace createHandgun {
    * - P320-M17: 8.5 in (216 mm) long, 5.5 in (139 mm) high, 6.6 in (168 mm) sight radius, 29.6 oz (839.1 g), the magazine state not stated (https://www.sigsauer.com/p320-m17.html; the 216 mm of the two 10-round SKUs, the first SKU's 6.6 in overall length repeating its sight radius).
    * - G19 Gen5: 185 mm long, 128 mm high, slide 25.5 mm wide, trigger distance 70 mm, 670 g with an empty magazine (https://eu.glock.com/en/products/pistols/g19-gen5).
    * - P320-M18: 7.2 in (183 mm) long, 5.5 in (140 mm) high, 5.8 in (147 mm) sight radius, 28.1 oz (797 g), the magazine state not stated (https://www.sigsauer.com/p320-m18.html).
+   * - Single Action Army 7.5 in, as Gun Tests measured it: 13.0 in long, 5.5 in high, 1.6 in wide, sight radius 8.5 in, trigger span 2.8 in, 40.8 oz unloaded (https://www.gun-tests.com/handguns/revolvers/colt-single-action-army-7-5-inch-p1870-45-colt/).
+   * - Vaquero 5104, Ruger's spec sheet: barrel 5.50 in, 11.12 in overall, 41 oz (https://ruger.com/products/vaqueroStainless/specSheets/5104.html).
+   * - Light Dragoon pistol, Museums Victoria ST 21852: 39.7 cm long, 14 cm high, 5.5 cm wide, a 9 in barrel (https://collections.museumsvictoria.com.au/items/373561).
+   * - Sea Service pistol, third model, Royal Museums Greenwich AAA2441: overall 180 x 500 x 40 mm, a 12 in barrel (https://rmg.co.uk/collections/objects/rmgc-object-2440).
    */
-  export const MODELS: Readonly<Record<Frame, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
-    fullSize: {
-      g17: { length: 0.202, height: 0.139, width: 0.0255, triggerReach: 0.07, mass: 0.708 },
-      p320m17: { length: 0.216, height: 0.139, sightRadius: 0.168, mass: 0.8391 },
-    },
-    compact: {
-      g19: { length: 0.185, height: 0.128, width: 0.0255, triggerReach: 0.07, mass: 0.67 },
-      p320m18: { length: 0.183, height: 0.14, sightRadius: 0.147, mass: 0.797 },
-    },
-  };
+  export const MODELS: Readonly<
+    Record<
+      Frame,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = HANDGUN_MODELS;
 
   /** A GLOCK's sight radius by its sights, the maker's tables: G17 Gen5 165, 164 and 163 mm, G19 Gen5 153, 152 and 151 mm for polymer, steel and GNS. A SIG SAUER's is its model's. */
-  export const SIGHTS: Readonly<Partial<Record<Model, Readonly<Record<Sights, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const SIGHTS: Readonly<
+    Partial<
+      Record<
+        Model,
+        Readonly<Record<Sights, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     g17: {
       polymer: { sightRadius: 0.165 },
       steel: { sightRadius: 0.164 },
@@ -329,8 +379,5 @@ export namespace createHandgun {
   /** The band of each free dimension a model leaves, by frame. */
   export const BANDS: Readonly<
     Record<Frame, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = {
-    fullSize: SHARED,
-    compact: SHARED,
-  };
+  > = HANDGUN_BANDS;
 }

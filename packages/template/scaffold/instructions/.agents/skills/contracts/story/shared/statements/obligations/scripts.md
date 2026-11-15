@@ -9,7 +9,7 @@ Contract: [obligations/scripts.md](../../obligations/scripts.md).
 3. Where purchase boundaries are declared, the prior material has delivered the promised experience and reward.
 4. Each audience-facing title is compared with its unit's content and prior viewing: the promised event, object, conflict, image or question gains meaning there.
 5. Absent promises and interchangeable titles are reported.
-6. No plot summary or spoiler is demanded, numbers, ambiguous or poetic titles, part-numbered repetition and refrains may work, and user-fixed wording is preserved.
+6. A title need not summarize the plot or reveal a spoiler; numbers, ambiguous or poetic titles, part-numbered repetition and refrains may work; and user-fixed wording is preserved.
 7. Semantic mismatches are repaired at scripts, which own the titles and identities descendants inherit.
 
 ## Complete execution

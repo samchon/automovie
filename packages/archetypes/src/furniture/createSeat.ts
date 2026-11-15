@@ -4,6 +4,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeRefusal,
 } from "../core";
@@ -68,6 +69,13 @@ export function createSeat(
   params: createSeat.IParams,
   seed?: number | string,
 ): Archetype<createSeat.Affordance, createSeat.Dimension> {
+  const draw: ArchetypeDrawSession<createSeat.Dimension> =
+    new ArchetypeDrawSession<createSeat.Dimension>(
+      "seat",
+      createSeat.UNITS,
+      seed,
+      params,
+    );
   const kind: createSeat.Kind = ArchetypeDraw.choice(
     "seat",
     "kind",
@@ -91,14 +99,10 @@ export function createSeat(
       reason: `a ${kind} seats ${shared ? "one to four" : "one"}`,
       fix: "give a whole number of places the kind has",
     });
-  const d: Partial<Record<createSeat.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "seat",
-      createSeat.BANDS[kind],
-      seed,
-      params,
-      createSeat.BANDS,
-    );
+  const d: Partial<Record<createSeat.Dimension, number>> = draw.dimensions(
+    createSeat.BANDS[kind],
+    createSeat.BANDS,
+  );
   const height: number = d.seatHeight!;
   const round: boolean = kind === "stool" || kind === "barStool";
   const width: number = d.seatWidth! * places;
@@ -107,10 +111,9 @@ export function createSeat(
   const arm: number | undefined = d.armHeight;
   const builder: ArchetypeBuilder<createSeat.Affordance, createSeat.Dimension> =
     new ArchetypeBuilder({
-      archetype: "seat",
       id: params.id,
       name: NAMES[kind],
-      dimensions: d,
+      draw,
     });
 
   // The seat: a slab whose top is the sitting surface, round for a stool.
@@ -366,6 +369,17 @@ export namespace createSeat {
     | "armHeight"
     | "footrestDrop"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatHeight: "m",
+    seatDepth: "m",
+    seatWidth: "m",
+    backHeight: "m",
+    armHeight: "m",
+    footrestDrop: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

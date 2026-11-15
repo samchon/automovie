@@ -10,6 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulation } from "./ArchetypeArticulation";
+import type { ArchetypeDrawSession } from "./ArchetypeDrawSession";
+import { ArchetypeFracture } from "./ArchetypeFracture";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeFriction } from "./ArchetypeFriction";
 import { ArchetypeMass } from "./ArchetypeMass";
@@ -17,6 +19,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeShapes } from "./ArchetypeShapes";
 import { ArchetypeSite } from "./ArchetypeSite";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import type { IArchetypeProps } from "./IArchetypeProps";
 
 /**
  * What a producer returns: a model of one thing people hold, use, sit on, ride or fight with, with typed access to what a person's act reads from it.
@@ -25,7 +28,7 @@ import { ArchetypeSpan } from "./ArchetypeSpan";
  *
  * - `affordance(id)` and `site(id, u, v)` give a contact and a place on it, with `id` checked against the producer's closed id type at compile time and refused at run time with the ids that exist;
  * - `articulate(state)` gives the archetype with its articulations at the stated travels, parts and carried affordances moved with them, followers set by their leaders and spans laid again between their ends; `travel(id)` gives any articulation's travel, a follower's included, and `span(id)` a span's ends and slack. The travels live on the instance only: a serialised posed archetype is a picture of that pose and carries no state, so articulate from the archetype a producer returned, never from a copy read back;
- * - `dimensions` gives the value drawn for each free dimension, and `properties` the mass, centre of mass and inertia;
+ * - `dimensions` gives the value drawn for each free dimension, `provenance` the band each was drawn in and the model picked on each axis, and `properties` the mass, centre of mass and inertia;
  * - `shapes()` gives colliders for a hand to close on, and `placed(id, placement)` a contact's frame in the world;
  * - `surface(part)` gives what a part's surface is made of and `friction(part, against)` its measured friction against another material, while `body` carries the static and kinetic friction of what the model rests on against its ground ({@link ArchetypeFriction}).
  *
@@ -119,6 +122,8 @@ export class Archetype<
         ? {}
         : { kineticFriction: props.kineticFriction }),
       restitution: props.restitution,
+      ...(props.drag === null ? {} : { drag: { ...props.drag } }),
+      ...(props.contact === null ? {} : { contact: { ...props.contact } }),
     };
     this.affordances = posed.affordances;
     this.materials = props.materials;
@@ -134,6 +139,11 @@ export class Archetype<
   /** The value of each free dimension this variant has, in the unit of its band: drawn from the seed, or fixed by a parameter. A dimension the variant lacks, as a stool lacks a back height, is absent. */
   public get dimensions(): Readonly<Partial<Record<Dimension, number>>> {
     return this.#rest.dimensions;
+  }
+
+  /** Where the dimensions came from: the band each drawn dimension was drawn in, and the model picked on each axis, by axis. A figure a model gives has no band; its model's name is the record. */
+  public get provenance(): ArchetypeDrawSession.IProvenance<Dimension> {
+    return this.#rest.provenance;
   }
 
   /** Mass, centre of mass and inertia about it, at rest. */
@@ -429,6 +439,43 @@ export class Archetype<
   ): number {
     return ArchetypeMass.about(this.#rest.properties, through, direction);
   }
+
+  /**
+   * What a hit leaves of this archetype at rest: its remainder and its fragments, each an archetype, or null when it does not break.
+   *
+   * @param hit The hit's energy and momentum.
+   * @returns The remainder, null when every part breaks off, and each fragment with its velocity; null when the archetype declares no fracture or the hit's energy is below its body's `contact.fracture`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and when nothing breaks.
+   * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeFracture.split` over the rest record, each record made an archetype at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One split, then one construction per record.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the owner it calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the parts, through `split`.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFracture.split`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  public broken(
+    hit: ArchetypeFracture.IHit,
+  ): ArchetypeFracture.IPieces<Id, Dimension> | null {
+    const split: ArchetypeFracture.IBroken<Id, Dimension> | null =
+      ArchetypeFracture.split(this.#rest, hit);
+    if (split === null) return null;
+    return {
+      remainder:
+        split.remainder === null
+          ? null
+          : new Archetype<Id, Dimension>(split.remainder),
+      fragments: split.fragments.map(
+        (
+          f: ArchetypeFracture.IFragment<Dimension>,
+        ): ArchetypeFracture.IPiece<Dimension> => ({
+          id: f.id,
+          archetype: new Archetype<never, Dimension>(f.props),
+          velocity: f.velocity,
+        }),
+      ),
+    };
+  }
 }
 
 /**
@@ -436,51 +483,15 @@ export class Archetype<
  */
 export namespace Archetype {
   /**
-   * What a producer built: the archetype at rest.
+   * What a producer built: the archetype at rest, as {@link IArchetypeProps} records it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it is and each member's unit or meaning.
-   * @evidence contracts/development/design.md#principled-representation The rest model with its derived facts as one record: parts and affordances in the model's space in metres, mass properties in kilograms and kg m squared, coefficients from 0 to 1. Ids are narrowed to the producer's union by the type; their uniqueness is left to `validateModel`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor, with no member either does not use.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The dimension record is keyed by the producer's closed union, not by free strings, and no member is optional.
+   * @evidence contracts/development/common.md#meaningful-documentation States what it is and where its members are documented.
+   * @evidence contracts/development/design.md#principled-representation The record `IArchetypeProps` defines, under the name every producer and reader already uses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by `Archetype`; written by `ArchetypeBuilder.build` and read by the constructor.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An alias, not a second record.
    */
-  export interface IProps<Id extends string, Dimension extends string> {
-    /** The producer's name, such as `chair`. */
-    archetype: string;
-
-    /** Model id. */
-    id: string;
-
-    /** Readable name. */
-    name: string;
-
-    /** The parts at rest, with unit scale. */
-    parts: IAutoMovieModelPart[];
-
-    /** The affordances at rest, each id one of `Id`. */
-    affordances: (IAutoMovieAffordance & { id: Id })[];
-
-    /** The materials the parts cite. */
-    materials: IAutoMovieMaterial[];
-
-    /** Mass, centre of mass and inertia. */
-    properties: ArchetypeMass.IProperties;
-
-    /** Static Coulomb friction coefficient of what the model rests on against its ground, 0 to 1; null when its producer has not declared what it rests on. */
-    friction: number | null;
-
-    /** Kinetic Coulomb friction coefficient of the same pair, 0 to 1; null when no measured pair gives it. */
-    kineticFriction: number | null;
-
-    /** What each part's surface is made of, by part id, for the parts whose producer declared it. */
-    surfaces: Readonly<Record<string, ArchetypeFriction.Material>>;
-
-    /** Coefficient of restitution, 0 to 1. */
-    restitution: number;
-
-    /** The value of each free dimension the variant has. */
-    dimensions: Readonly<Partial<Record<Dimension, number>>>;
-
-    /** The spans laid between moving frames after every pose; empty for most archetypes. */
-    spans: readonly ArchetypeSpan.ISpan[];
-  }
+  export type IProps<
+    Id extends string,
+    Dimension extends string,
+  > = IArchetypeProps<Id, Dimension>;
 }

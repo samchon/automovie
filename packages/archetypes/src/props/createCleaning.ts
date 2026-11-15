@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -40,26 +41,29 @@ export function createCleaning(
   params: createCleaning.IParams,
   seed?: number | string,
 ): Archetype<createCleaning.Affordance, createCleaning.Dimension> {
+  const draw: ArchetypeDrawSession<createCleaning.Dimension> =
+    new ArchetypeDrawSession<createCleaning.Dimension>(
+      "cleaning",
+      createCleaning.UNITS,
+      seed,
+      params,
+    );
   const kind: createCleaning.Kind = ArchetypeDraw.choice(
     "cleaning",
     "kind",
     params.kind,
     createCleaning.KINDS,
   );
-  const d: Record<createCleaning.Dimension, number> = ArchetypeDraw.dimensions(
-    "cleaning",
+  const d: Record<createCleaning.Dimension, number> = draw.dimensions(
     createCleaning.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createCleaning.Affordance,
     createCleaning.Dimension
   > = new ArchetypeBuilder({
-    archetype: "cleaning",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   builder.box(
     kind,
@@ -123,6 +127,14 @@ export namespace createCleaning {
    */
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    length: "m",
+    thickness: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -143,10 +155,28 @@ export namespace createCleaning {
       mass: ArchetypeBand.of("kg", 0.019, 0.019, CLOTH),
     },
     sponge: {
-      width: ArchetypeBand.metres(2.6 * ArchetypeUnits.INCH, 2.6 * ArchetypeUnits.INCH, SPONGE),
-      length: ArchetypeBand.metres(4.4 * ArchetypeUnits.INCH, 4.4 * ArchetypeUnits.INCH, SPONGE),
-      thickness: ArchetypeBand.metres(0.6 * ArchetypeUnits.INCH, 0.7 * ArchetypeUnits.INCH, SPONGE),
-      mass: ArchetypeBand.of("kg", 0.005, 0.02, "the sponge's weight: the listings read do not give it", true),
+      width: ArchetypeBand.metres(
+        2.6 * ArchetypeUnits.INCH,
+        2.6 * ArchetypeUnits.INCH,
+        SPONGE,
+      ),
+      length: ArchetypeBand.metres(
+        4.4 * ArchetypeUnits.INCH,
+        4.4 * ArchetypeUnits.INCH,
+        SPONGE,
+      ),
+      thickness: ArchetypeBand.metres(
+        0.6 * ArchetypeUnits.INCH,
+        0.7 * ArchetypeUnits.INCH,
+        SPONGE,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.005,
+        0.02,
+        "the sponge's weight: the listings read do not give it",
+        true,
+      ),
     },
   };
 }

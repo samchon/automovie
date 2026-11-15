@@ -2,14 +2,16 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   type Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
 
 /**
  * A manual wheelchair: a self-propelled chair on large rear wheels with handrims, or an attendant-propelled transport chair on small ones, each with its seat, back, armrests, footplates and push handles.
@@ -18,14 +20,14 @@ import {
  *
  * A seated person's own stroke on the handrims is no motion law yet (#3468's mobility family), so a self-propelled ride is staged as moving the chair with its rims turning, and a pushing attendant holds the handles with `HumanRide`'s hands or a carry.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
+ * @param params The kind, its read model and any dimension the author fixes inside its model's ranges.
+ * @param seed The seed that picks the model and draws the footrest's reach and any overall length its row gives as a range; absent, the first model and each range's middle.
  * @returns The wheelchair.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {ArchetypeRefusal} For a fixed dimension outside its model's range, or a model the kind does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the chair's origin and front, the recognising parts, what turns, and which act has no law.
  * @evidence contracts/development/implementation.md#principled-implementation Boxes and rods from the maker's figures: the seat at its front-edge height and tilted back by the seat plane angle, the back at the backrest angle from upright, the armrests their height above the seat, the footplates their distance below it with their front edge at the overall length ahead of the rear wheels' back, the rear wheels at the overall width, the casters under the seat's front and the push handles at the overall height; grips state no aperture, so a grasp reads the drawn colliders; each armrest runs the seat's depth over the seat's side, each push handle's grip is on its top where it leaves the back, at the overall height, the handle's rearward length drawn as a construction estimate, and the two footplates share the seat's width, their front edge at the overall length; part thicknesses are construction estimates no act reads; and the handrim is not drawn (no ring primitive), so a hand on it closes on the wheel; the rim spins about the axle with the wheel's knob.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw, then the seat and back, the arms and handles, the footplates, and the wheels.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the read model whole (`MODELS`), draw its row's ranges, then the seat and back, the arms and handles, the footplates, and the wheels.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The handrim's radius is the 540 mm rim's, read in search results only and marked provisional; the casters do not swivel.
  * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -35,28 +37,39 @@ export function createWheelchair(
   params: createWheelchair.IParams = {},
   seed?: number | string,
 ): Archetype<createWheelchair.Affordance, createWheelchair.Dimension> {
+  const draw: ArchetypeDrawSession<createWheelchair.Dimension> =
+    new ArchetypeDrawSession<createWheelchair.Dimension>(
+      "wheelchair",
+      createWheelchair.UNITS,
+      seed,
+      params,
+    );
   const kind: createWheelchair.Kind = ArchetypeDraw.choice(
     "wheelchair",
     "kind",
     params.kind ?? "selfPropelled",
     createWheelchair.KINDS,
   );
-  const d: Record<createWheelchair.Dimension, number> =
-    ArchetypeDraw.dimensions(
-      "wheelchair",
-      createWheelchair.BANDS[kind],
-      seed,
-      params,
-      createWheelchair.BANDS,
-    );
+  // One read model of the kind whole, then the ranges its own row states inside it.
+  const model: {
+    name: createWheelchair.Model | undefined;
+    figures: Readonly<Partial<Record<createWheelchair.Dimension, number>>>;
+  } = draw.model<createWheelchair.Model>(
+    "model",
+    params.model,
+    createWheelchair.MODELS[kind],
+  );
+  const d: Record<createWheelchair.Dimension, number> = {
+    ...draw.dimensions(createWheelchair.ranges(kind, model.name!)),
+    ...model.figures,
+  } as Record<createWheelchair.Dimension, number>;
   const builder: ArchetypeBuilder<
     createWheelchair.Affordance,
     createWheelchair.Dimension
   > = new ArchetypeBuilder({
-    archetype: "wheelchair",
     id: params.id,
     name: kind === "selfPropelled" ? "wheelchair" : "transport wheelchair",
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const frame: string = "#55595f";
@@ -255,7 +268,7 @@ export function createWheelchair(
  * Companion types and bands of {@link createWheelchair}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation Closed unions and one cited band per dimension per kind, from one maker's sheet of its 24-inch and 14-inch models.
+ * @evidence contracts/development/design.md#principled-representation Closed unions, and each kind's read models whole from one maker's sheet of its 24-inch and 14-inch models, with the ranges a model's own row states.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The dimensions sitting, transferring, pushing and wheeling read: the seat, the back, the arms, the footplates, the handles and the wheels.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A figure read only in search results is a marked constant.
  */
@@ -325,99 +338,112 @@ export namespace createWheelchair {
     | "height"
     | "mass";
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    seatWidth: "m",
+    seatDepth: "m",
+    seatHeight: "m",
+    backHeight: "m",
+    backAngle: "degrees",
+    armHeight: "m",
+    footDrop: "m",
+    wheelDiameter: "m",
+    casterDiameter: "m",
+    length: "m",
+    width: "m",
+    height: "m",
+    mass: "kg",
+  };
+
+  /** The parameters: the kind, its read model, and any free dimension fixed to a value inside its model's range. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which kind; self-propelled when absent. */
     kind?: Kind;
+
+    /** Which read model of the kind (`MODELS`); drawn from the seed when absent. */
+    model?: Model;
 
     /** The model's id, unique in a scene; `wheelchair` when absent. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
-  > = ((): Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
-  > => {
-    const sheet: string =
-      "Karma Medical 2025 global manual wheelchair specification, pp. 66-67, Ergo 2, Ergo 3, S-Ergo 115 and S-Ergo 125 (https://www.karmamedical.com/wp-content/uploads/2021/05/2025-Karma-Medical-Global-Manual-Wheelchair-Specification.pdf)";
-    const m = (
-      minimum: number,
-      maximum: number,
-      what: string,
-    ): IArchetypeBand =>
-      ArchetypeBand.metres(minimum, maximum, `${sheet}: ${what}`);
-    const shared: Readonly<
-      Record<
-        | "seatWidth"
-        | "backHeight"
-        | "backAngle"
-        | "armHeight"
-        | "footDrop"
-        | "casterDiameter",
-        IArchetypeBand
-      >
-    > = {
-      seatWidth: m(0.4, 0.51, "nominal seat width"),
-      backHeight: m(0.43, 0.435, "backrest height"),
-      backAngle: ArchetypeBand.of(
-        "degrees",
-        12,
-        20,
-        `${sheet}: backrest angle`,
-      ),
-      armHeight: m(0.22, 0.23, "armrest to seat distance"),
-      footDrop: m(0.355, 0.46, "footrest to seat distance"),
-      casterDiameter: m(7 * ArchetypeUnits.INCH, 7 * ArchetypeUnits.INCH, "front caster, 7 in"),
-    };
+  /** A read model's name: its series, seat width in millimetres and, on 14-inch wheels, its caster in inches, such as `ergo3-460-7`. */
+  export type Model = string;
+
+  /** Each kind's read models whole, from `WHEELCHAIR_SHEET.ROWS`: every figure a row gives for one seat width, converted to metres. */
+  export const MODELS: Readonly<
+    Record<
+      Kind,
+      Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+    >
+  > = {
+    selfPropelled: models("selfPropelled", 24),
+    transport: models("transport", 14),
+  };
+
+  /**
+   * A kind's models from its rows.
+   *
+   * @param kind The kind.
+   * @param wheel The rear wheel's size, inches.
+   * @returns The models by name.
+   */
+  function models(
+    kind: Kind,
+    wheel: number,
+  ): Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> {
+    const mm: number = ArchetypeUnits.MILLIMETRE;
+    const out: Record<Model, Partial<Record<Dimension, number>>> = {};
+    for (const r of WHEELCHAIR_SHEET.ROWS[kind])
+      for (const [seat, width, mass] of r.widths)
+        out[`${r.series}-${seat}-${r.caster}`] = {
+          seatWidth: seat * mm,
+          seatDepth: r.depth * mm,
+          seatHeight: r.edge * mm,
+          backHeight: r.back * mm,
+          backAngle: r.angle,
+          armHeight: r.arm * mm,
+          wheelDiameter: wheel * ArchetypeUnits.INCH,
+          casterDiameter: r.caster * ArchetypeUnits.INCH,
+          width: width * mm,
+          height: r.height * mm,
+          mass,
+          ...(r.length[0] === r.length[1] ? { length: r.length[0] * mm } : {}),
+        };
+    return out;
+  }
+
+  /**
+   * The ranges one model's row states inside it: the footrest's reach, and the overall length where a row gives one.
+   *
+   * @param kind The kind.
+   * @param model The model's name.
+   * @returns The bands.
+   */
+  export function ranges(
+    kind: Kind,
+    model: Model,
+  ): Readonly<Partial<Record<Dimension, IArchetypeBand>>> {
+    const r: WHEELCHAIR_SHEET.IRow = WHEELCHAIR_SHEET.ROWS[kind].find(
+      (row: WHEELCHAIR_SHEET.IRow): boolean =>
+        model.startsWith(`${row.series}-`) && model.endsWith(`-${row.caster}`),
+    )!;
+    const mm: number = ArchetypeUnits.MILLIMETRE;
     return {
-      selfPropelled: {
-        ...shared,
-        seatDepth: m(0.42, 0.435, "nominal seat depth of the 24-inch models"),
-        seatHeight: m(
-          0.485,
-          0.495,
-          "seat surface height at the front edge of the 24-inch models",
-        ),
-        wheelDiameter: m(24 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, "rear wheel, 24 in"),
-        length: m(
-          1.0,
-          1.03,
-          "overall length with legrest of the 24-inch models",
-        ),
-        width: m(0.58, 0.695, "overall width of the 24-inch models"),
-        height: m(0.905, 0.935, "overall height of the 24-inch models"),
-        mass: ArchetypeBand.of(
-          "kg",
-          13.6,
-          14.6,
-          `${sheet}: total mass of the 24-inch models`,
-        ),
-      },
-      transport: {
-        ...shared,
-        seatDepth: m(0.43, 0.435, "nominal seat depth of the 14-inch models"),
-        seatHeight: m(
-          0.435,
-          0.5,
-          "seat surface height at the front edge of the 14-inch models",
-        ),
-        wheelDiameter: m(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, "rear wheel, 14 in"),
-        length: m(
-          1.01,
-          1.03,
-          "overall length with legrest of the 14-inch models",
-        ),
-        width: m(0.575, 0.675, "overall width of the 14-inch models"),
-        height: m(0.885, 0.935, "overall height of the 14-inch models"),
-        mass: ArchetypeBand.of(
-          "kg",
-          11.8,
-          13.1,
-          `${sheet}: total mass of the 14-inch models`,
-        ),
-      },
+      footDrop: ArchetypeBand.metres(
+        r.foot[0] * mm,
+        r.foot[1] * mm,
+        `${WHEELCHAIR_SHEET.SOURCE}: footrest to seat distance, ${model}`,
+      ),
+      ...(r.length[0] === r.length[1]
+        ? {}
+        : {
+            length: ArchetypeBand.metres(
+              r.length[0] * mm,
+              r.length[1] * mm,
+              `${WHEELCHAIR_SHEET.SOURCE}: overall length with legrest, ${model}`,
+            ),
+          }),
     };
-  })();
+  }
 }

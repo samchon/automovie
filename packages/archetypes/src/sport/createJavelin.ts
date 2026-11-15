@@ -5,6 +5,7 @@ import {
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
@@ -24,10 +25,10 @@ const RULE: string =
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the javelin stands and its two contacts.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft rod of the drawn length and diameter, and a cord rod a few millimetres thicker, as wide as the rule's cord, centred on the drawn centre of gravity's distance from the point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, shaft, cord, two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft is a cylinder, not tapered to the point and the tail; the cord's thickness is a named estimate.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
+ * @evidence contracts/development/implementation.md#principled-implementation A shaft of the drawn length and diameter in two lengths meeting at the drawn centre of gravity's distance from the point, their mass shares the ones that put the whole's centre of mass there, as the rule places it, and a cord rod a few millimetres thicker, as wide as the rule's cord, centred on it.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the shaft's two lengths, the cord, two contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft is a cylinder, not tapered to the point and the tail, its mass shared between its two lengths only to place the rule's balance; the cord's thickness is a named estimate and its mass, unread, is not counted.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -35,42 +36,54 @@ export function createJavelin(
   params: createJavelin.IParams,
   seed?: number | string,
 ): Archetype<createJavelin.Affordance, createJavelin.Dimension> {
+  const draw: ArchetypeDrawSession<createJavelin.Dimension> =
+    new ArchetypeDrawSession<createJavelin.Dimension>(
+      "javelin",
+      createJavelin.UNITS,
+      seed,
+      params,
+    );
   const kind: createJavelin.Kind = ArchetypeDraw.choice(
     "javelin",
     "kind",
     params.kind,
     createJavelin.KINDS,
   );
-  const d: Record<createJavelin.Dimension, number> = ArchetypeDraw.dimensions(
-    "javelin",
+  const d: Record<createJavelin.Dimension, number> = draw.dimensions(
     createJavelin.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createJavelin.Affordance,
     createJavelin.Dimension
   > = new ArchetypeBuilder({
-    archetype: "javelin",
     id: params.id,
     name: `${kind}'s javelin`,
-    dimensions: d,
+    draw,
   });
   const cord: number = d.diameter + 2 * createJavelin.CORD;
   const width: number = createJavelin.CORD_WIDTH[kind];
+  // The shaft in two lengths meeting at the drawn centre of gravity, their mass shares chosen so the whole balances there as the rule places it: the fore length's middle is `balance / 2` from the point and the aft's `(balance + length) / 2`, so the aft carries `balance / length` of the mass and the fore the rest; the cord sits on the balance point and carries none, its mass unread.
+  const aft: number = d.balance / d.length;
   builder.rod(
     "shaft",
     d.diameter / 2,
     Vector3.create(0, 0, 0),
+    Vector3.create(0, d.balance, 0),
+    { color: "#c9ccd1", share: 1 - aft },
+  );
+  builder.rod(
+    "tail",
+    d.diameter / 2,
+    Vector3.create(0, d.balance, 0),
     Vector3.create(0, d.length, 0),
-    { color: "#c9ccd1" },
+    { color: "#c9ccd1", share: aft },
   );
   builder.rod(
     "cord",
     cord / 2,
     Vector3.create(0, d.balance - width / 2, 0),
     Vector3.create(0, d.balance + width / 2, 0),
-    { color: "#2c2f33" },
+    { color: "#2c2f33", share: 0 },
   );
   builder.affordance({
     id: "grip",
@@ -141,6 +154,14 @@ export namespace createJavelin {
    * - `mass`: kilograms.
    */
   export type Dimension = "length" | "diameter" | "balance" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    diameter: "m",
+    balance: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the category, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -36,18 +36,21 @@ export function createPram(
   params: createPram.IParams = {},
   seed?: number | string,
 ): Archetype<createPram.Affordance, createPram.Dimension> {
-  const d: Record<createPram.Dimension, number> = ArchetypeDraw.dimensions(
-    "pram",
+  const draw: ArchetypeDrawSession<createPram.Dimension> =
+    new ArchetypeDrawSession<createPram.Dimension>(
+      "pram",
+      createPram.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createPram.Dimension, number> = draw.dimensions(
     createPram.BANDS,
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<createPram.Affordance, createPram.Dimension> =
     new ArchetypeBuilder({
-      archetype: "pram",
       id: params.id,
       name: "pram",
-      dimensions: d,
+      draw,
     });
   const v: typeof Vector3.create = Vector3.create;
   const wheel: number = createPram.WHEEL.rear;
@@ -166,6 +169,14 @@ export namespace createPram {
    */
   export type Dimension = "length" | "width" | "handleHeight" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    width: "m",
+    handleHeight: "m",
+    mass: "kg",
+  };
+
   /** The parameters: any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The model's id, unique in a scene; `pram` when absent. */
@@ -174,13 +185,26 @@ export namespace createPram {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(36.6 * ArchetypeUnits.INCH, 36.6 * ArchetypeUnits.INCH, BUGABOO),
-    width: ArchetypeBand.metres(23.6 * ArchetypeUnits.INCH, 23.6 * ArchetypeUnits.INCH, BUGABOO),
+    length: ArchetypeBand.metres(
+      36.6 * ArchetypeUnits.INCH,
+      36.6 * ArchetypeUnits.INCH,
+      BUGABOO,
+    ),
+    width: ArchetypeBand.metres(
+      23.6 * ArchetypeUnits.INCH,
+      23.6 * ArchetypeUnits.INCH,
+      BUGABOO,
+    ),
     handleHeight: ArchetypeBand.metres(
       41.3 * ArchetypeUnits.INCH,
       41.3 * ArchetypeUnits.INCH,
       `${BUGABOO}: its height open, the push bar's`,
     ),
-    mass: ArchetypeBand.of("kg", 22.9 * ArchetypeUnits.POUND, 27.8 * ArchetypeUnits.POUND, BUGABOO),
+    mass: ArchetypeBand.of(
+      "kg",
+      22.9 * ArchetypeUnits.POUND,
+      27.8 * ArchetypeUnits.POUND,
+      BUGABOO,
+    ),
   };
 }

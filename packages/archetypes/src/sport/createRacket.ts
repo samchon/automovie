@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -32,26 +33,29 @@ export function createRacket(
   params: createRacket.IParams,
   seed?: number | string,
 ): Archetype<createRacket.Affordance, createRacket.Dimension> {
+  const draw: ArchetypeDrawSession<createRacket.Dimension> =
+    new ArchetypeDrawSession<createRacket.Dimension>(
+      "racket",
+      createRacket.UNITS,
+      seed,
+      params,
+    );
   const kind: createRacket.Kind = ArchetypeDraw.choice(
     "racket",
     "kind",
     params.kind,
     createRacket.KINDS,
   );
-  const d: Record<createRacket.Dimension, number> = ArchetypeDraw.dimensions(
-    "racket",
+  const d: Record<createRacket.Dimension, number> = draw.dimensions(
     createRacket.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createRacket.Affordance,
     createRacket.Dimension
   > = new ArchetypeBuilder({
-    archetype: "racket",
     id: params.id,
     name: createRacket.NAMES[kind],
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const thick: number = createRacket.THICKNESS[kind];
@@ -177,6 +181,16 @@ export namespace createRacket {
     | "handleLength"
     | "gripDiameter"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    headWidth: "m",
+    headLength: "m",
+    handleLength: "m",
+    gripDiameter: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

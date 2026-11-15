@@ -8,7 +8,7 @@ import {
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
-  ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
   ArchetypeUnits,
   type IArchetypeBand,
@@ -40,27 +40,23 @@ export function createStartingBlock(
   params: createStartingBlock.IParams = {},
   seed?: number | string,
 ): Archetype<createStartingBlock.Affordance, createStartingBlock.Dimension> {
+  const draw: ArchetypeDrawSession<createStartingBlock.Dimension> =
+    new ArchetypeDrawSession<createStartingBlock.Dimension>(
+      "startingBlock",
+      createStartingBlock.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createStartingBlock.Model | undefined;
     figures: Readonly<Partial<Record<createStartingBlock.Dimension, number>>>;
-  } = ArchetypeDraw.model<
-    createStartingBlock.Model,
-    createStartingBlock.Dimension
-  >(
-    "startingBlock",
+  } = draw.model<createStartingBlock.Model>(
     "model",
     params.model,
     createStartingBlock.MODELS,
-    seed,
-    params,
   );
   const d: Record<createStartingBlock.Dimension, number> = {
-    ...ArchetypeDraw.dimensions(
-      "startingBlock",
-      createStartingBlock.BANDS,
-      seed,
-      params,
-    ),
+    ...draw.dimensions(createStartingBlock.BANDS),
     rail: model.figures.rail!,
     plateWidth: model.figures.plateWidth!,
     plateHeight: model.figures.plateHeight!,
@@ -70,10 +66,9 @@ export function createStartingBlock(
     createStartingBlock.Affordance,
     createStartingBlock.Dimension
   > = new ArchetypeBuilder({
-    archetype: "startingBlock",
     id: params.id,
     name: `starting block ${model.name}`,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const rail: number = d.rail;
@@ -190,6 +185,17 @@ export namespace createStartingBlock {
     | "plateWidth"
     | "plateHeight"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    setback: "m",
+    spacing: "m",
+    angle: "degrees",
+    rail: "m",
+    plateWidth: "m",
+    plateHeight: "m",
+    mass: "kg",
+  };
 
   /** The settings a sprinter adjusts. */
   export type Setting = "setback" | "spacing" | "angle";

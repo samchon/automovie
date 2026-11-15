@@ -2,6 +2,7 @@ import {
   Archetype,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
@@ -34,28 +35,30 @@ export function createAppliance(
   params: createAppliance.IParams,
   seed?: number | string,
 ): Archetype<createAppliance.Affordance, createAppliance.Dimension> {
+  const draw: ArchetypeDrawSession<createAppliance.Dimension> =
+    new ArchetypeDrawSession<createAppliance.Dimension>(
+      "appliance",
+      createAppliance.UNITS,
+      seed,
+      params,
+    );
   const kind: createAppliance.Kind = ArchetypeDraw.choice(
     "appliance",
     "kind",
     params.kind,
     createAppliance.KINDS,
   );
-  const d: Partial<Record<createAppliance.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "appliance",
-      createAppliance.BANDS[kind],
-      seed,
-      params,
-      createAppliance.BANDS,
-    );
+  const d: Partial<Record<createAppliance.Dimension, number>> = draw.dimensions(
+    createAppliance.BANDS[kind],
+    createAppliance.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createAppliance.Affordance,
     createAppliance.Dimension
   > = new ArchetypeBuilder({
-    archetype: "appliance",
     id: params.id,
     name: NAMES[kind],
-    dimensions: d,
+    draw,
   });
   ApplianceConstruction[kind](builder, d);
   return builder.build(d.mass!);
@@ -119,6 +122,19 @@ export namespace createAppliance {
     | "cavityDepth"
     | "door"
     | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    height: "m",
+    width: "m",
+    depth: "m",
+    pullHeight: "m",
+    cavityHeight: "m",
+    cavityWidth: "m",
+    cavityDepth: "m",
+    door: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

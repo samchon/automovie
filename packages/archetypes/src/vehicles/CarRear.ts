@@ -134,11 +134,10 @@ export namespace CarRear {
       { color: BODY },
     );
 
-    // The kerb side's wall leaves the sliding door's opening behind the bulkhead; the driver's side is closed from the middle pillar back.
+    // The kerb side's wall leaves the sliding door's opening behind the bulkhead, the middle pillar; the driver's side is closed from the middle pillar back.
     const kerb: number = -l.side;
     for (const [name, x, from, to] of [
       ["side-driver", l.side * (l.half - 0.02), l.pillar, l.rear],
-      ["side-kerb-front", kerb * (l.half - 0.02), l.pillar, bulkhead],
       ["side-kerb-rear", kerb * (l.half - 0.02), bulkhead - opening, l.rear],
     ] as const)
       builder.box(

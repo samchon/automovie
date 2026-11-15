@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -47,26 +48,29 @@ export function createWearable(
   params: createWearable.IParams,
   seed?: number | string,
 ): Archetype<createWearable.Affordance, createWearable.Dimension> {
+  const draw: ArchetypeDrawSession<createWearable.Dimension> =
+    new ArchetypeDrawSession<createWearable.Dimension>(
+      "wearable",
+      createWearable.UNITS,
+      seed,
+      params,
+    );
   const kind: createWearable.Kind = ArchetypeDraw.choice(
     "wearable",
     "kind",
     params.kind,
     createWearable.KINDS,
   );
-  const d: Record<createWearable.Dimension, number> = ArchetypeDraw.dimensions(
-    "wearable",
+  const d: Record<createWearable.Dimension, number> = draw.dimensions(
     createWearable.BANDS[kind],
-    seed,
-    params,
   );
   const builder: ArchetypeBuilder<
     createWearable.Affordance,
     createWearable.Dimension
   > = new ArchetypeBuilder({
-    archetype: "wearable",
     id: params.id,
     name: kind,
-    dimensions: d,
+    draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const thin: number = createWearable.THIN;
@@ -228,6 +232,14 @@ export namespace createWearable {
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    width: "m",
+    depth: "m",
+    height: "m",
+    mass: "kg",
+  };
+
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which thing. */
@@ -243,14 +255,20 @@ export namespace createWearable {
   > = {
     watch: {
       width: ArchetypeBand.metres(0.0352, 0.0382, CASIO),
-      depth: ArchetypeBand.metres(0.2, 0.24, `the strap's length: ${UNREAD}`, true),
+      depth: ArchetypeBand.metres(
+        0.2,
+        0.24,
+        `the strap's length: ${UNREAD}`,
+        true,
+      ),
       height: ArchetypeBand.metres(0.0085, 0.0085, CASIO),
       mass: ArchetypeBand.of("kg", 0.021, 0.021, CASIO),
     },
     hat: {
       width: ArchetypeBand.metres(
         (20.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 2 * ArchetypeUnits.INCH,
-        (22.25 * ArchetypeUnits.INCH) / Math.PI + 2 * 4.125 * ArchetypeUnits.INCH,
+        (22.25 * ArchetypeUnits.INCH) / Math.PI +
+          2 * 4.125 * ArchetypeUnits.INCH,
         `${STETSON}: a head's round as a circle's across and a brim on either side`,
       ),
       depth: ArchetypeBand.metres(
@@ -258,8 +276,18 @@ export namespace createWearable {
         (22.25 * ArchetypeUnits.INCH) / Math.PI,
         `${STETSON}: the head's round as a circle's across`,
       ),
-      height: ArchetypeBand.metres(3.75 * ArchetypeUnits.INCH, 4.5 * ArchetypeUnits.INCH, STETSON),
-      mass: ArchetypeBand.of("kg", 0.08, 0.2, `the hat's weight: ${UNREAD}`, true),
+      height: ArchetypeBand.metres(
+        3.75 * ArchetypeUnits.INCH,
+        4.5 * ArchetypeUnits.INCH,
+        STETSON,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.08,
+        0.2,
+        `the hat's weight: ${UNREAD}`,
+        true,
+      ),
     },
     spectacles: {
       width: ArchetypeBand.metres(
@@ -269,7 +297,13 @@ export namespace createWearable {
       ),
       depth: ArchetypeBand.metres(0.15, 0.15, RAYBAN),
       height: ArchetypeBand.metres(0.041, 0.041, RAYBAN),
-      mass: ArchetypeBand.of("kg", 0.02, 0.04, `the frame's weight: ${UNREAD}`, true),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.02,
+        0.04,
+        `the frame's weight: ${UNREAD}`,
+        true,
+      ),
     },
   };
 }

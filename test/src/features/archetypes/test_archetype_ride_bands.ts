@@ -30,7 +30,7 @@ const KUBO: string = "Kubo et al. 1992, Table 4";
  *
  * Scenarios, each over 200 seeds, inside the band, and spanning at least 80 % of it unless the source gives only a limit or one value:
  * 1. A car: the driver's seating reference point (the seat's surface plus the 97.5 mm of the H-point machine) 127 to 405 mm above the cabin floor, the floor being the door opening's sill (SAE J1100 class A, H30); a steering wheel under 450 mm across turning 2.2 to 2.63 turns lock to lock; front doors opening 60 to 70 degrees; a hatchback's wheelbase and kerb mass inside two Honda models'.
- * 2. A bicycle: the saddle's top 0.62 to 0.80 m from the crank axle, 0.883 of an inseam of 0.70 to 0.90 m by LeMond's rule; a scooter's and a motorcycle's seat at their makers' heights.
+ * 2. A bicycle: the saddle's top 0.62 to 0.80 m from the crank axle, 0.883 of an inseam of 0.70 to 0.90 m by LeMond's rule; a scooter's and a motorcycle's seat at their makers' heights, the PCX125's 763 mm and the CB500 Hornet's 785 and the MT-07's 805.
  * 3. A wheelbarrow's handgrips 38 mm across, measured on the grip's collider.
  * 4. A horse: the top of its withers 1.58 to 1.80 m high, the warmbloods of Jensen et al., its barrel's round over that height their mean girth over their mean height (204 over 172 cm), and its mass over the cube of that height their mean mass over the cube of their mean height (640 kg at 1.72 m), the girth-squared-times-length law with its girth in their proportion; its forearm, fore cannon and hind cannon, the bones that stand upright, the fractions of its height that Kubo's thoroughbreds have, to a twentieth of a percent of the height; its saddle 16 to 18 in long and its reins 5/8 to 3/4 in wide.
  * 5. A handgun: the trigger's face 70 to 74 mm ahead of the backstrap and its part drawn back 12.5 mm at full travel, the slide as long as the makers' overall lengths, the sights their sight radius apart, the mass between the makers' two.
@@ -38,7 +38,7 @@ const KUBO: string = "Kubo et al. 1992, Table 4";
  * 7. A bat 35.1 to 35.2 in long, at most 66.3 mm across and 33.9 to 34.5 oz; a baton 0.61 to 0.66 m long; a holster's mouth within 38 mm of the belt line.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each thing for 200 seeds and measures frames, collider extents, part lengths, the body's mass and an articulated stock; a dimension outside its source, a bone not in proportion or a seed that does not vary a banded dimension is caught.
- * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: SAE J1100 (H30, wheel diameter), Honda UK specification pages (lock turns, wheelbase 2.517 to 2.734 m, mass 1230 to 1503 kg, seat heights 760 to 764 and 785 mm with Yamaha's 805), US patent 6817062 (door swing), Bini, Hume and Croft 2011 (LeMond's 0.883), Matador's data sheet (38 mm), Jensen et al. 2019 (withers range; mean withers, girth and mass), Kubo et al. 1992 (0.382, 0.280, 0.384 and 0.368 m at 1.62 m), Wintec (seat sizes), Dover Saddlery (rein widths), GLOCK and SIG SAUER tables (lengths, sight radius, mass, trigger distance and travel), Colt's sheet (carbine lengths), Mossberg (13.87 in), Official Baseball Rules 3.02 (2.61 in), Nathan et al. (bat length and mass), Monadnock (baton), Safariland (ride).
+ * @evidence contracts/development/testing.md#independent-expectations Every band is written here from its source: SAE J1100 (H30, wheel diameter), Honda UK specification pages (lock turns, wheelbase 2.517 to 2.734 m, mass 1230 to 1503 kg, seat heights 763 and 785 mm) with Yamaha's factsheet (805 mm), US patent 6817062 (door swing), Bini, Hume and Croft 2011 (LeMond's 0.883), Matador's data sheet (38 mm), Jensen et al. 2019 (withers range; mean withers, girth and mass), Kubo et al. 1992 (0.382, 0.280, 0.384 and 0.368 m at 1.62 m), Wintec (seat sizes), Dover Saddlery (rein widths), GLOCK and SIG SAUER tables (lengths, sight radius, mass, trigger distance and travel), Colt's sheet (carbine lengths), Mossberg (13.87 in), Official Baseball Rules 3.02 (2.61 in), Nathan et al. (bat length and mass), Monadnock (baton), Safariland (ride).
  * @evidence contracts/development/testing.md#distinguishing-cases One or two act-read dimensions per thing; layout offsets that no source gives (a car's wheel and pedal places) are exported, marked constants and are not asserted as cited.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
@@ -173,9 +173,9 @@ export function test_archetype_ride_bands(): void {
       ),
       row(
         "scooter seat height",
-        0.76,
-        0.764,
-        "Honda PCX125",
+        0.763,
+        0.763,
+        "Honda PCX125, 2025",
         (seed: number): number =>
           createMotorcycle({ kind: "scooter" }, seed).affordance("seat").frame
             .translation.y,
@@ -222,8 +222,9 @@ export function test_archetype_ride_bands(): void {
         640 / 1.72 ** 3,
         640 / 1.72 ** 3,
         `${JENSEN}, by Carroll and Huntington's girth-squared-times-length form`,
+        // The horse alone: its whole less the riding saddle's 5.4 kg, Wintec's stated weight for its 500 All Purpose.
         (seed: number): number =>
-          horse(seed).body.mass /
+          (horse(seed).body.mass - 5.4) /
           archetypeExtent(horse(seed), "y", ["withers"]).high ** 3,
         true,
       ),

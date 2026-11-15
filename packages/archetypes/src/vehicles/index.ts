@@ -2,6 +2,7 @@ export * from "./createBicycle";
 export * from "./createBoat";
 export * from "./createCar";
 export * from "./createCart";
+export * from "./createDeck";
 export * from "./createMotorcycle";
 export * from "./createPram";
 export * from "./createWheelchair";

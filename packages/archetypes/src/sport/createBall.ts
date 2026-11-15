@@ -2,12 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  ArchetypeUnits,
   Archetype,
   ArchetypeBand,
   ArchetypeBuilder,
   ArchetypeDraw,
+  ArchetypeDrawSession,
   ArchetypeFrame,
+  ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
 
@@ -33,26 +34,28 @@ export function createBall(
   params: createBall.IParams,
   seed?: number | string,
 ): Archetype<createBall.Affordance, createBall.Dimension> {
+  const draw: ArchetypeDrawSession<createBall.Dimension> =
+    new ArchetypeDrawSession<createBall.Dimension>(
+      "ball",
+      createBall.UNITS,
+      seed,
+      params,
+    );
   const kind: createBall.Kind = ArchetypeDraw.choice(
     "ball",
     "kind",
     params.kind,
     createBall.KINDS,
   );
-  const d: Partial<Record<createBall.Dimension, number>> =
-    ArchetypeDraw.dimensions(
-      "ball",
-      createBall.BANDS[kind],
-      seed,
-      params,
-      createBall.BANDS,
-    );
+  const d: Partial<Record<createBall.Dimension, number>> = draw.dimensions(
+    createBall.BANDS[kind],
+    createBall.BANDS,
+  );
   const builder: ArchetypeBuilder<createBall.Affordance, createBall.Dimension> =
     new ArchetypeBuilder({
-      archetype: "ball",
       id: params.id,
       name: kind === "puck" ? "puck" : `${kind} ball`,
-      dimensions: d,
+      draw,
     });
   const diameter: number = d.diameter!;
   const radius: number = diameter / 2;
@@ -60,9 +63,15 @@ export function createBall(
   const high: number = kind === "puck" ? d.length! : diameter;
   const centre: IAutoMovieVector3 = Vector3.create(0, high / 2, 0);
   if (kind === "puck")
-    builder.rod("ball", radius, Vector3.create(0, 0, 0), Vector3.create(0, high, 0), {
-      color,
-    });
+    builder.rod(
+      "ball",
+      radius,
+      Vector3.create(0, 0, 0),
+      Vector3.create(0, high, 0),
+      {
+        color,
+      },
+    );
   else if (kind === "rugby" || kind === "americanFootball") {
     const half: number = d.length! / 2 - radius;
     builder.rod(
@@ -173,6 +182,13 @@ export namespace createBall {
    * - `mass`: kilograms.
    */
   export type Dimension = "diameter" | "length" | "mass";
+
+  /** Each dimension's unit, which its band and any model's figure for it share. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    diameter: "m",
+    length: "m",
+    mass: "kg",
+  };
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -343,8 +359,16 @@ export namespace createBall {
       mass: kg(0.41, 0.46, RUGBY),
     },
     americanFootball: {
-      diameter: round(21 * ArchetypeUnits.INCH, 21.25 * ArchetypeUnits.INCH, NFL),
-      length: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11.25 * ArchetypeUnits.INCH, NFL),
+      diameter: round(
+        21 * ArchetypeUnits.INCH,
+        21.25 * ArchetypeUnits.INCH,
+        NFL,
+      ),
+      length: ArchetypeBand.metres(
+        11 * ArchetypeUnits.INCH,
+        11.25 * ArchetypeUnits.INCH,
+        NFL,
+      ),
       mass: kg(14 * ArchetypeUnits.OUNCE, 15 * ArchetypeUnits.OUNCE, NFL),
     },
     puck: {

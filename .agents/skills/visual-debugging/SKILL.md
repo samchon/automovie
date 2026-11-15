@@ -21,7 +21,7 @@ An agent reads a picture only as stills, so each judgment starts from a planned 
 | Subject | Read also |
 | --- | --- |
 | A form, its construction, rig or materials | [Inspecting a form](../3d-modeling/inspection.md) |
-| Body motion | [Motion verification](../motion/verification.md) |
+| Body motion | [Motion verification](../motion/laws/verification.md) |
 | The Human figure | [Human verification](../human/verification.md) |
 
 The [package boundaries](../project/SKILL.md#packages) say which package owns display, capture and each measurement. Add a view, pass or selection the instrument lacks at that owner under [development](../development/SKILL.md), so every consumer of the instrument gains it.
