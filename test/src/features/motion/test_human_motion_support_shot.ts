@@ -56,7 +56,11 @@ export function test_human_motion_support_shot(): void {
   try {
     performance = new HumanPerformance({
       seed: "support-shot",
-      laws: [HumanWeaponFirearm.present, HumanWeaponFirearm.fire],
+      laws: [
+        HumanWeaponFirearm.draw,
+        HumanWeaponFirearm.present,
+        HumanWeaponFirearm.fire,
+      ],
       props: [
         HumanObject.prop("cart", cart, motion(0), motion),
         HumanObject.prop("gun", gun, {
@@ -75,7 +79,7 @@ export function test_human_motion_support_shot(): void {
         },
       ],
       composition: HumanChain.subject("a")
-        .pickUp({ prop: "gun", handle: "grip" })
+        .registered("drawFirearm", { prop: "gun" })
         .stand({ seconds: 4, on: { prop: "cart" } })
         .over((u) =>
           u

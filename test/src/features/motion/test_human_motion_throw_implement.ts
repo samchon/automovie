@@ -32,8 +32,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    at the time its horizontal distance takes at its horizontal speed.
  * 3. At the release second the stick's blade is at the launch point, within
  *    the audit's skin (`HumanVerdicts.SKIN`).
- * 4. Across the carry (`throwObject.CARRY` on each side of the release) the
- *    blade moves by the launch velocity times the carry's span, within the
+ * 4. Over the carry into the release (`throwObject.CARRY` before it, the
+ *    approach whose velocity the launch takes; after it the implement is
+ *    let go of the prop) the blade moves by the launch velocity times the
+ *    carry, within the
  *    skin at each end: twice `HumanVerdicts.SKIN`.
  * 5. The grip's point moves slower than the blade at the release: the lever
  *    carries its end faster than the hand.
@@ -134,19 +136,16 @@ export function test_human_motion_throw_implement(): void {
     );
     const dt: number = throwObject.CARRY;
     const moved = (id: string): IAutoMovieVector3 =>
-      Vector3.subtract(at(id, release + dt), at(id, release - dt));
+      Vector3.subtract(at(id, release), at(id, release - dt));
     const error: number = Vector3.length(
-      Vector3.subtract(moved("blade"), Vector3.scale(launch.velocity, 2 * dt)),
+      Vector3.subtract(moved("blade"), Vector3.scale(launch.velocity, dt)),
     );
     TestValidator.predicate(
       `${name}: the blade carries the launch velocity (${(1000 * error).toFixed(1)} mm off over the carry)`,
       error <= 2 * HumanVerdicts.SKIN,
     );
-    const blade: IAutoMovieVector3 = Vector3.scale(
-      moved("blade"),
-      1 / (2 * dt),
-    );
-    const hand: number = Vector3.length(moved("grip")) / (2 * dt);
+    const blade: IAutoMovieVector3 = Vector3.scale(moved("blade"), 1 / dt);
+    const hand: number = Vector3.length(moved("grip")) / dt;
     TestValidator.predicate(
       `${name}: the hand moves slower than the blade (${hand.toFixed(2)} < ${Vector3.length(blade).toFixed(2)} m/s)`,
       hand < Vector3.length(blade),
