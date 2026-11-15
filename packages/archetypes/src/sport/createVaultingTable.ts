@@ -36,15 +36,22 @@ export function createVaultingTable(
   params: createVaultingTable.IParams,
   seed?: number | string,
 ): Archetype<createVaultingTable.Affordance, createVaultingTable.Dimension> {
-  const draw: ArchetypeDrawSession<createVaultingTable.Dimension> = new ArchetypeDrawSession<createVaultingTable.Dimension>("vaultingTable", createVaultingTable.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createVaultingTable.Dimension> =
+    new ArchetypeDrawSession<createVaultingTable.Dimension>(
+      "vaultingTable",
+      createVaultingTable.UNITS,
+      seed,
+      params,
+    );
   const kind: createVaultingTable.Kind = ArchetypeDraw.choice(
     "vaultingTable",
     "kind",
     params.kind,
     createVaultingTable.KINDS,
   );
-  const d: Record<createVaultingTable.Dimension, number> =
-    draw.dimensions(createVaultingTable.BANDS[kind]);
+  const d: Record<createVaultingTable.Dimension, number> = draw.dimensions(
+    createVaultingTable.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createVaultingTable.Affordance,
     createVaultingTable.Dimension

@@ -67,8 +67,16 @@ export function createBeerTap(
   params: createBeerTap.IParams = {},
   seed?: number | string,
 ): Archetype<createBeerTap.Affordance, createBeerTap.Dimension> {
-  const draw: ArchetypeDrawSession<createBeerTap.Dimension> = new ArchetypeDrawSession<createBeerTap.Dimension>("beerTap", createBeerTap.UNITS, seed, params);
-  const d: Record<createBeerTap.Dimension, number> = draw.dimensions(createBeerTap.BANDS);
+  const draw: ArchetypeDrawSession<createBeerTap.Dimension> =
+    new ArchetypeDrawSession<createBeerTap.Dimension>(
+      "beerTap",
+      createBeerTap.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createBeerTap.Dimension, number> = draw.dimensions(
+    createBeerTap.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createBeerTap.Affordance,
     createBeerTap.Dimension

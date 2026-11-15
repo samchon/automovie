@@ -69,7 +69,13 @@ export function createGoal(
   params: createGoal.IParams,
   seed?: number | string,
 ): Archetype<createGoal.Affordance, createGoal.Dimension> {
-  const draw: ArchetypeDrawSession<createGoal.Dimension> = new ArchetypeDrawSession<createGoal.Dimension>("goal", createGoal.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createGoal.Dimension> =
+    new ArchetypeDrawSession<createGoal.Dimension>(
+      "goal",
+      createGoal.UNITS,
+      seed,
+      params,
+    );
   const kind: createGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",

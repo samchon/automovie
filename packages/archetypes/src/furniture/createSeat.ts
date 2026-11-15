@@ -69,7 +69,13 @@ export function createSeat(
   params: createSeat.IParams,
   seed?: number | string,
 ): Archetype<createSeat.Affordance, createSeat.Dimension> {
-  const draw: ArchetypeDrawSession<createSeat.Dimension> = new ArchetypeDrawSession<createSeat.Dimension>("seat", createSeat.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSeat.Dimension> =
+    new ArchetypeDrawSession<createSeat.Dimension>(
+      "seat",
+      createSeat.UNITS,
+      seed,
+      params,
+    );
   const kind: createSeat.Kind = ArchetypeDraw.choice(
     "seat",
     "kind",
@@ -93,8 +99,10 @@ export function createSeat(
       reason: `a ${kind} seats ${shared ? "one to four" : "one"}`,
       fix: "give a whole number of places the kind has",
     });
-  const d: Partial<Record<createSeat.Dimension, number>> =
-    draw.dimensions(createSeat.BANDS[kind], createSeat.BANDS);
+  const d: Partial<Record<createSeat.Dimension, number>> = draw.dimensions(
+    createSeat.BANDS[kind],
+    createSeat.BANDS,
+  );
   const height: number = d.seatHeight!;
   const round: boolean = kind === "stool" || kind === "barStool";
   const width: number = d.seatWidth! * places;

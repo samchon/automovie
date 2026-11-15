@@ -40,7 +40,13 @@ export function createValve(
   params: createValve.IParams = {},
   seed?: number | string,
 ): Archetype<createValve.Affordance, createValve.Dimension> {
-  const draw: ArchetypeDrawSession<createValve.Dimension> = new ArchetypeDrawSession<createValve.Dimension>("valve", createValve.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createValve.Dimension> =
+    new ArchetypeDrawSession<createValve.Dimension>(
+      "valve",
+      createValve.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createValve.Model | undefined;
     figures: Readonly<Partial<Record<createValve.Dimension, number>>>;

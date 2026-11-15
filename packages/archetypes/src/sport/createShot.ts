@@ -37,14 +37,22 @@ export function createShot(
   params: createShot.IParams,
   seed?: number | string,
 ): Archetype<createShot.Affordance, createShot.Dimension> {
-  const draw: ArchetypeDrawSession<createShot.Dimension> = new ArchetypeDrawSession<createShot.Dimension>("shot", createShot.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createShot.Dimension> =
+    new ArchetypeDrawSession<createShot.Dimension>(
+      "shot",
+      createShot.UNITS,
+      seed,
+      params,
+    );
   const kind: createShot.Kind = ArchetypeDraw.choice(
     "shot",
     "kind",
     params.kind,
     createShot.KINDS,
   );
-  const d: Record<createShot.Dimension, number> = draw.dimensions(createShot.BANDS[kind]);
+  const d: Record<createShot.Dimension, number> = draw.dimensions(
+    createShot.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<createShot.Affordance, createShot.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

@@ -50,7 +50,13 @@ export function createSki(
   params: createSki.IParams = {},
   seed?: number | string,
 ): Archetype<createSki.Affordance, createSki.Dimension> {
-  const draw: ArchetypeDrawSession<createSki.Dimension> = new ArchetypeDrawSession<createSki.Dimension>("ski", createSki.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSki.Dimension> =
+    new ArchetypeDrawSession<createSki.Dimension>(
+      "ski",
+      createSki.UNITS,
+      seed,
+      params,
+    );
   const length: {
     name: createSki.Length | undefined;
     figures: Readonly<Partial<Record<createSki.Dimension, number>>>;

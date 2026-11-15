@@ -9,7 +9,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-
 /**
  * A floor weapon rack: a base with a row of slots and a top rail with a notch over each, where swords, clubs and bats stand upright.
  *
@@ -32,10 +31,21 @@ export function createWeaponRack(
   params: createWeaponRack.IParams = {},
   seed?: number | string,
 ): Archetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
-  const draw: ArchetypeDrawSession<createWeaponRack.Dimension> = new ArchetypeDrawSession<createWeaponRack.Dimension>("weaponRack", createWeaponRack.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createWeaponRack.Dimension> =
+    new ArchetypeDrawSession<createWeaponRack.Dimension>(
+      "weaponRack",
+      createWeaponRack.UNITS,
+      seed,
+      params,
+    );
   // The rack is one of the two read stands whole; only its unread mass is drawn.
-  const model: { figures: Readonly<Partial<Record<createWeaponRack.Dimension, number>>> } =
-    draw.model<createWeaponRack.Model>("model", params.model, createWeaponRack.MODELS);
+  const model: {
+    figures: Readonly<Partial<Record<createWeaponRack.Dimension, number>>>;
+  } = draw.model<createWeaponRack.Model>(
+    "model",
+    params.model,
+    createWeaponRack.MODELS,
+  );
   const d: Partial<Record<createWeaponRack.Dimension, number>> = {
     ...draw.dimensions(createWeaponRack.BANDS),
     ...model.figures,
@@ -52,14 +62,9 @@ export function createWeaponRack(
   const base: number = createWeaponRack.BASE;
   const post: number = createWeaponRack.POST;
   const half: number = d.width! / 2;
-  builder.box(
-    "base",
-    v(d.width!, base, d.depth!),
-    v(0, base / 2, 0),
-    {
-      color: "#5a3e2b",
-    },
-  );
+  builder.box("base", v(d.width!, base, d.depth!), v(0, base / 2, 0), {
+    color: "#5a3e2b",
+  });
   for (const [id, x] of [
     ["leftPost", -half + post / 2],
     ["rightPost", half - post / 2],
@@ -114,7 +119,6 @@ export namespace createWeaponRack {
   /** The base's height, metres: Medieval Extreme's read 3 cm, applied to Gladney's, whose page gives none; an estimate. */
   export const BASE: number = 0.03;
 
-
   /** The slots along the base: the makers' six. */
   export const SLOTS: number = 6;
 
@@ -163,7 +167,9 @@ export namespace createWeaponRack {
   export type Model = "medievalExtreme" | "gladney";
 
   /** The stands whole, the default first: Medieval Extreme's 66 x 23 cm base and 84 cm high (https://medievalextreme.com/medieval-furniture/wooden-sword-display-stand-for-6-swords-6-slot-sword-holder/), Gladney's 69.5 x 22 x 66 cm (https://www.shein.tw/gladney-Adjustable-6-Slot-Floor-Sword-Stand-Bamboo-Rack-Matte-Black-Vertical-Display-For-Katanas-Tantos-Replicas-Up-To-55lbs-p-389724431.html). */
-  export const MODELS: Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>> = {
+  export const MODELS: Readonly<
+    Record<Model, Readonly<Partial<Record<Dimension, number>>>>
+  > = {
     medievalExtreme: { width: 0.66, depth: 0.23, height: 0.84 },
     gladney: { width: 0.695, depth: 0.22, height: 0.66 },
   };
@@ -179,6 +185,12 @@ export namespace createWeaponRack {
 
   /** The band of the dimension a stand leaves. */
   export const BANDS: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    mass: ArchetypeBand.of("kg", 8, 20, "the stands' pages read give no weight", true),
+    mass: ArchetypeBand.of(
+      "kg",
+      8,
+      20,
+      "the stands' pages read give no weight",
+      true,
+    ),
   };
 }

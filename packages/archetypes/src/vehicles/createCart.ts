@@ -39,19 +39,33 @@ export function createCart(
   params: createCart.IParams,
   seed?: number | string,
 ): Archetype<createCart.Affordance, createCart.Dimension> {
-  const draw: ArchetypeDrawSession<createCart.Dimension> = new ArchetypeDrawSession<createCart.Dimension>("cart", createCart.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createCart.Dimension> =
+    new ArchetypeDrawSession<createCart.Dimension>(
+      "cart",
+      createCart.UNITS,
+      seed,
+      params,
+    );
   const kind: createCart.Kind = ArchetypeDraw.choice(
     "cart",
     "kind",
     params.kind,
     createCart.KINDS,
   );
-  const drawn: Partial<Record<createCart.Dimension, number>> =
-    draw.dimensions(createCart.BANDS[kind], createCart.BANDS);
+  const drawn: Partial<Record<createCart.Dimension, number>> = draw.dimensions(
+    createCart.BANDS[kind],
+    createCart.BANDS,
+  );
   // A horse's cart fits the horse of its withers height, whose girth follows that height.
   const d: Partial<Record<createCart.Dimension, number>> =
     kind === "cart"
-      ? { ...drawn, girth: draw.derive("girth", createHorse.PROFILE.girth(drawn.withersHeight!)) }
+      ? {
+          ...drawn,
+          girth: draw.derive(
+            "girth",
+            createHorse.PROFILE.girth(drawn.withersHeight!),
+          ),
+        }
       : drawn;
   const builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension> =
     new ArchetypeBuilder({
@@ -185,7 +199,11 @@ export namespace createCart {
     pintle: number;
   }> = {
     rear: (28.5 - 11.88) * ArchetypeUnits.INCH,
-    chest: { length: 40 * ArchetypeUnits.INCH, width: 18 * ArchetypeUnits.INCH, depth: 14.75 * ArchetypeUnits.INCH },
+    chest: {
+      length: 40 * ArchetypeUnits.INCH,
+      width: 18 * ArchetypeUnits.INCH,
+      depth: 14.75 * ArchetypeUnits.INCH,
+    },
     board: 0.025,
     pintle: 28.5 * ArchetypeUnits.INCH,
   };
@@ -378,8 +396,14 @@ export namespace createCart {
    * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
    */
-  export function lines(cart: Archetype<Affordance, Dimension>): ArchetypeRide.ILine[] {
-    if (!cart.affordances.some((a: { id: string }): boolean => a.id === "leftLine"))
+  export function lines(
+    cart: Archetype<Affordance, Dimension>,
+  ): ArchetypeRide.ILine[] {
+    if (
+      !cart.affordances.some(
+        (a: { id: string }): boolean => a.id === "leftLine",
+      )
+    )
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype: "cart",
@@ -395,12 +419,20 @@ export namespace createCart {
       at: { x: 0, y: 0, z: 0 },
     });
     const traces: ArchetypeRide.ILine[] = HorseHarness.SIDES.map(
-      ([side, sign]: readonly ["left" | "right", number]): ArchetypeRide.ILine => ({
+      ([side, sign]: readonly [
+        "left" | "right",
+        number,
+      ]): ArchetypeRide.ILine => ({
         id: `trace-${side}`,
         radius: TRACE,
         points: [
           { leader: ball(HorseHarness.ENDS.draft[side]) },
-          { trailer: { part: "single-tree", at: { x: 0, y: sign * spread, z: 0 } } },
+          {
+            trailer: {
+              part: "single-tree",
+              at: { x: 0, y: sign * spread, z: 0 },
+            },
+          },
         ],
       }),
     );

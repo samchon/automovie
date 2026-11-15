@@ -39,7 +39,13 @@ export function createBar(
   params: createBar.IParams,
   seed?: number | string,
 ): Archetype<createBar.Affordance, createBar.Dimension> {
-  const draw: ArchetypeDrawSession<createBar.Dimension> = new ArchetypeDrawSession<createBar.Dimension>("bar", createBar.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBar.Dimension> =
+    new ArchetypeDrawSession<createBar.Dimension>(
+      "bar",
+      createBar.UNITS,
+      seed,
+      params,
+    );
   const kind: createBar.Kind = ArchetypeDraw.choice(
     "bar",
     "kind",
@@ -47,7 +53,11 @@ export function createBar(
     createBar.KINDS,
   );
   const wall: Readonly<Partial<Record<createBar.Dimension, number>>> =
-    draw.model<createBar.Wall>("wall", params.wall, createBar.WALLS[kind]).figures;
+    draw.model<createBar.Wall>(
+      "wall",
+      params.wall,
+      createBar.WALLS[kind],
+    ).figures;
   const d: Partial<Record<createBar.Dimension, number>> = {
     ...draw.dimensions(createBar.BANDS[kind], createBar.BANDS),
     ...wall,

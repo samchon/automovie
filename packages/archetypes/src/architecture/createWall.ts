@@ -35,14 +35,23 @@ export function createWall(
   params: createWall.IParams,
   seed?: number | string,
 ): Archetype<createWall.Affordance, createWall.Dimension> {
-  const draw: ArchetypeDrawSession<createWall.Dimension> = new ArchetypeDrawSession<createWall.Dimension>("wall", createWall.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createWall.Dimension> =
+    new ArchetypeDrawSession<createWall.Dimension>(
+      "wall",
+      createWall.UNITS,
+      seed,
+      params,
+    );
   const kind: createWall.Kind = ArchetypeDraw.choice(
     "wall",
     "kind",
     params.kind,
     createWall.KINDS,
   );
-  const d: Record<createWall.Dimension, number> = draw.dimensions(createWall.BANDS[kind], createWall.BANDS);
+  const d: Record<createWall.Dimension, number> = draw.dimensions(
+    createWall.BANDS[kind],
+    createWall.BANDS,
+  );
   const { height, length, thickness }: Record<createWall.Dimension, number> = d;
   const builder: ArchetypeBuilder<createWall.Affordance, createWall.Dimension> =
     new ArchetypeBuilder({

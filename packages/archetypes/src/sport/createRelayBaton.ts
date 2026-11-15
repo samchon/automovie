@@ -35,9 +35,16 @@ export function createRelayBaton(
   params: createRelayBaton.IParams = {},
   seed?: number | string,
 ): Archetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
-  const draw: ArchetypeDrawSession<createRelayBaton.Dimension> = new ArchetypeDrawSession<createRelayBaton.Dimension>("relayBaton", createRelayBaton.UNITS, seed, params);
-  const d: Record<createRelayBaton.Dimension, number> =
-    draw.dimensions(createRelayBaton.BANDS);
+  const draw: ArchetypeDrawSession<createRelayBaton.Dimension> =
+    new ArchetypeDrawSession<createRelayBaton.Dimension>(
+      "relayBaton",
+      createRelayBaton.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createRelayBaton.Dimension, number> = draw.dimensions(
+    createRelayBaton.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createRelayBaton.Affordance,
     createRelayBaton.Dimension

@@ -66,15 +66,23 @@ export function createLight(
   params: createLight.IParams,
   seed?: number | string,
 ): Archetype<createLight.Affordance, createLight.Dimension> {
-  const draw: ArchetypeDrawSession<createLight.Dimension> = new ArchetypeDrawSession<createLight.Dimension>("light", createLight.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createLight.Dimension> =
+    new ArchetypeDrawSession<createLight.Dimension>(
+      "light",
+      createLight.UNITS,
+      seed,
+      params,
+    );
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",
     "kind",
     params.kind,
     createLight.KINDS,
   );
-  const d: Partial<Record<createLight.Dimension, number>> =
-    draw.dimensions(createLight.BANDS[kind], createLight.BANDS);
+  const d: Partial<Record<createLight.Dimension, number>> = draw.dimensions(
+    createLight.BANDS[kind],
+    createLight.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createLight.Affordance,
     createLight.Dimension
@@ -312,14 +320,27 @@ export namespace createLight {
       mass: ArchetypeBand.of("kg", 0.0645, 0.0645, TAPER, true),
     },
     fireTorch: {
-      length: ArchetypeBand.metres(16 * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, TORCH, true),
+      length: ArchetypeBand.metres(
+        16 * ArchetypeUnits.INCH,
+        24 * ArchetypeUnits.INCH,
+        TORCH,
+        true,
+      ),
       diameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
       headDiameter: ArchetypeBand.metres(0.065, 0.065, TORCH, true),
       mass: ArchetypeBand.of("kg", 0.205, 0.265, TORCH, true),
     },
     pendant: {
-      height: ArchetypeBand.metres(11 * ArchetypeUnits.INCH, 11 * ArchetypeUnits.INCH, PENDANT),
-      shade: ArchetypeBand.metres(15 * ArchetypeUnits.INCH, 15 * ArchetypeUnits.INCH, PENDANT),
+      height: ArchetypeBand.metres(
+        11 * ArchetypeUnits.INCH,
+        11 * ArchetypeUnits.INCH,
+        PENDANT,
+      ),
+      shade: ArchetypeBand.metres(
+        15 * ArchetypeUnits.INCH,
+        15 * ArchetypeUnits.INCH,
+        PENDANT,
+      ),
       cord: ArchetypeBand.metres(
         4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,
         4 * ArchetypeUnits.FOOT + 11 * ArchetypeUnits.INCH,

@@ -33,14 +33,22 @@ export function createGlove(
   params: createGlove.IParams,
   seed?: number | string,
 ): Archetype<createGlove.Affordance, createGlove.Dimension> {
-  const draw: ArchetypeDrawSession<createGlove.Dimension> = new ArchetypeDrawSession<createGlove.Dimension>("glove", createGlove.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createGlove.Dimension> =
+    new ArchetypeDrawSession<createGlove.Dimension>(
+      "glove",
+      createGlove.UNITS,
+      seed,
+      params,
+    );
   const kind: createGlove.Kind = ArchetypeDraw.choice(
     "glove",
     "kind",
     params.kind,
     createGlove.KINDS,
   );
-  const d: Record<createGlove.Dimension, number> = draw.dimensions(createGlove.BANDS[kind]);
+  const d: Record<createGlove.Dimension, number> = draw.dimensions(
+    createGlove.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createGlove.Affordance,
     createGlove.Dimension
@@ -173,8 +181,12 @@ export namespace createGlove {
         `${OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
       width: m(
-        2 * ((38 * ArchetypeUnits.INCH) / Math.PI - (15.5 * ArchetypeUnits.INCH) / 2),
-        2 * ((38 * ArchetypeUnits.INCH) / Math.PI - (15.5 * ArchetypeUnits.INCH) / 2),
+        2 *
+          ((38 * ArchetypeUnits.INCH) / Math.PI -
+            (15.5 * ArchetypeUnits.INCH) / 2),
+        2 *
+          ((38 * ArchetypeUnits.INCH) / Math.PI -
+            (15.5 * ArchetypeUnits.INCH) / 2),
         `${OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
       ),
       mass: ArchetypeBand.of(

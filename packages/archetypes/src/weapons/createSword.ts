@@ -35,7 +35,13 @@ export function createSword(
   params: createSword.IParams,
   seed?: number | string,
 ): Archetype<createSword.Affordance, createSword.Dimension> {
-  const draw: ArchetypeDrawSession<createSword.Dimension> = new ArchetypeDrawSession<createSword.Dimension>("sword", createSword.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSword.Dimension> =
+    new ArchetypeDrawSession<createSword.Dimension>(
+      "sword",
+      createSword.UNITS,
+      seed,
+      params,
+    );
   const kind: createSword.Kind = ArchetypeDraw.choice(
     "sword",
     "kind",
@@ -43,8 +49,13 @@ export function createSword(
     createSword.KINDS,
   );
   // A longsword or an arming sword is one of its maker's swords whole, a sabre one of its pattern's two weights; the rest are drawn in their bands.
-  const model: { figures: Readonly<Partial<Record<createSword.Dimension, number>>> } =
-    draw.model<createSword.Model>("model", params.model, createSword.MODELS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createSword.Dimension, number>>>;
+  } = draw.model<createSword.Model>(
+    "model",
+    params.model,
+    createSword.MODELS[kind],
+  );
   const drawn: Partial<Record<createSword.Dimension, number>> = {
     ...draw.dimensions(createSword.BANDS[kind], createSword.BANDS),
     ...model.figures,
@@ -426,7 +437,13 @@ export namespace createSword {
   };
 
   /** The read models: Albion's Crecy and Regent longswords and Knight and Poitiers arming swords, and the 1796 sabre's officer's and trooper's patterns. */
-  export type Model = "crecy" | "regent" | "knight" | "poitiers" | "officer" | "trooper";
+  export type Model =
+    | "crecy"
+    | "regent"
+    | "knight"
+    | "poitiers"
+    | "officer"
+    | "trooper";
 
   /** The parameters: the kind, the model, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {

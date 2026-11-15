@@ -30,21 +30,31 @@ export function createCannon(
   params: createCannon.IParams,
   seed?: number | string,
 ): Archetype<createCannon.Affordance, createCannon.Dimension> {
-  const draw: ArchetypeDrawSession<createCannon.Dimension> = new ArchetypeDrawSession<createCannon.Dimension>("cannon", createCannon.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createCannon.Dimension> =
+    new ArchetypeDrawSession<createCannon.Dimension>(
+      "cannon",
+      createCannon.UNITS,
+      seed,
+      params,
+    );
   const kind: createCannon.Kind = ArchetypeDraw.choice(
     "cannon",
     "kind",
     params.kind,
     createCannon.KINDS,
   );
-  const d: Partial<Record<createCannon.Dimension, number>> =
-    draw.dimensions(createCannon.BANDS[kind], createCannon.BANDS);
-  const builder: ArchetypeBuilder<createCannon.Affordance, createCannon.Dimension> =
-    new ArchetypeBuilder({
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const d: Partial<Record<createCannon.Dimension, number>> = draw.dimensions(
+    createCannon.BANDS[kind],
+    createCannon.BANDS,
+  );
+  const builder: ArchetypeBuilder<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = new ArchetypeBuilder({
+    id: params.id,
+    name: kind,
+    draw,
+  });
   FIELD_GUN.build(builder);
   return builder.build(d.mass!);
 }
@@ -144,8 +154,12 @@ export namespace createCannon {
       ),
       mass: ArchetypeBand.of(
         "kg",
-        FIELD_GUN.TUBE.mass + FIELD_GUN.CARRIAGE.mass + 2 * FIELD_GUN.CARRIAGE.wheelMass,
-        FIELD_GUN.TUBE.mass + FIELD_GUN.CARRIAGE.mass + 2 * FIELD_GUN.CARRIAGE.wheelMass,
+        FIELD_GUN.TUBE.mass +
+          FIELD_GUN.CARRIAGE.mass +
+          2 * FIELD_GUN.CARRIAGE.wheelMass,
+        FIELD_GUN.TUBE.mass +
+          FIELD_GUN.CARRIAGE.mass +
+          2 * FIELD_GUN.CARRIAGE.wheelMass,
         `${FIELD_GUN.SOURCE}: the piece's 884 lb and the gun-carriage complete without implements, 900 lb`,
       ),
     },

@@ -33,7 +33,13 @@ export function createExerciseMat(
   params: createExerciseMat.IParams,
   seed?: number | string,
 ): Archetype<createExerciseMat.Affordance, createExerciseMat.Dimension> {
-  const draw: ArchetypeDrawSession<createExerciseMat.Dimension> = new ArchetypeDrawSession<createExerciseMat.Dimension>("exerciseMat", createExerciseMat.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createExerciseMat.Dimension> =
+    new ArchetypeDrawSession<createExerciseMat.Dimension>(
+      "exerciseMat",
+      createExerciseMat.UNITS,
+      seed,
+      params,
+    );
   const kind: createExerciseMat.Kind = ArchetypeDraw.choice(
     "exerciseMat",
     "kind",
@@ -43,7 +49,11 @@ export function createExerciseMat(
   const size: {
     name: createExerciseMat.Size | undefined;
     figures: Readonly<Partial<Record<createExerciseMat.Dimension, number>>>;
-  } = draw.model<createExerciseMat.Size>("size", params.size, createExerciseMat.SIZES[kind]);
+  } = draw.model<createExerciseMat.Size>(
+    "size",
+    params.size,
+    createExerciseMat.SIZES[kind],
+  );
   const d: Partial<Record<createExerciseMat.Dimension, number>> = {
     ...draw.dimensions(createExerciseMat.BANDS[kind], createExerciseMat.BANDS),
     ...size.figures,

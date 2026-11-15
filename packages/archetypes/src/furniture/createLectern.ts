@@ -39,8 +39,16 @@ export function createLectern(
   params: createLectern.IParams = {},
   seed?: number | string,
 ): Archetype<createLectern.Affordance, createLectern.Dimension> {
-  const draw: ArchetypeDrawSession<createLectern.Dimension> = new ArchetypeDrawSession<createLectern.Dimension>("lectern", createLectern.UNITS, seed, params);
-  const d: Record<createLectern.Dimension, number> = draw.dimensions(createLectern.BANDS);
+  const draw: ArchetypeDrawSession<createLectern.Dimension> =
+    new ArchetypeDrawSession<createLectern.Dimension>(
+      "lectern",
+      createLectern.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createLectern.Dimension, number> = draw.dimensions(
+    createLectern.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createLectern.Affordance,
     createLectern.Dimension
@@ -61,15 +69,24 @@ export function createLectern(
     y: (d.height + front) / 2 - (ESTIMATES.slab / 2) * Math.cos(slope),
     z: -(ESTIMATES.slab / 2) * Math.sin(slope),
   };
-  builder.box("surface", v(d.width, ESTIMATES.slab, d.depth), v(0, middle.y, middle.z), {
-    color: "#7d5a3c",
-    rotation: Quaternion.fromAxisAngle(v(1, 0, 0), d.slope),
-  });
+  builder.box(
+    "surface",
+    v(d.width, ESTIMATES.slab, d.depth),
+    v(0, middle.y, middle.z),
+    {
+      color: "#7d5a3c",
+      rotation: Quaternion.fromAxisAngle(v(1, 0, 0), d.slope),
+    },
+  );
   const normal: ReturnType<typeof v> = v(0, Math.cos(slope), Math.sin(slope));
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, (d.height + front) / 2, 0), normal, v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, (d.height + front) / 2, 0),
+      normal,
+      v(1, 0, 0),
+    ),
     extent: null,
     width: d.width,
     depth: d.depth,
@@ -128,9 +145,21 @@ export namespace createLectern {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(23 * ArchetypeUnits.INCH, 23 * ArchetypeUnits.INCH, SAFCO),
-    depth: ArchetypeBand.metres(15.75 * ArchetypeUnits.INCH, 15.75 * ArchetypeUnits.INCH, SAFCO),
-    height: ArchetypeBand.metres(46 * ArchetypeUnits.INCH, 46 * ArchetypeUnits.INCH, SAFCO),
+    width: ArchetypeBand.metres(
+      23 * ArchetypeUnits.INCH,
+      23 * ArchetypeUnits.INCH,
+      SAFCO,
+    ),
+    depth: ArchetypeBand.metres(
+      15.75 * ArchetypeUnits.INCH,
+      15.75 * ArchetypeUnits.INCH,
+      SAFCO,
+    ),
+    height: ArchetypeBand.metres(
+      46 * ArchetypeUnits.INCH,
+      46 * ArchetypeUnits.INCH,
+      SAFCO,
+    ),
     slope: ArchetypeBand.of("degrees", 15, 15, SAFCO),
     mass: ArchetypeBand.of("kg", 15, 30, ArchetypeBand.TYPICAL_MASS, true),
   };

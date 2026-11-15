@@ -46,7 +46,13 @@ export function createLadder(
   params: createLadder.IParams,
   seed?: number | string,
 ): Archetype<createLadder.Affordance, createLadder.Dimension> {
-  const draw: ArchetypeDrawSession<createLadder.Dimension> = new ArchetypeDrawSession<createLadder.Dimension>("ladder", createLadder.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createLadder.Dimension> =
+    new ArchetypeDrawSession<createLadder.Dimension>(
+      "ladder",
+      createLadder.UNITS,
+      seed,
+      params,
+    );
   const kind: createLadder.Kind = ArchetypeDraw.choice(
     "ladder",
     "kind",
@@ -69,7 +75,10 @@ export function createLadder(
       reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${rungs}`,
       fix: "give a whole number of rungs",
     });
-  const d: Record<createLadder.Dimension, number> = draw.dimensions(createLadder.BANDS[kind], createLadder.BANDS);
+  const d: Record<createLadder.Dimension, number> = draw.dimensions(
+    createLadder.BANDS[kind],
+    createLadder.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createLadder.Affordance,
     createLadder.Dimension

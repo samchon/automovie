@@ -66,7 +66,8 @@ export namespace GalleryArchetype {
     // from: a drawn one with the band it was drawn in, a picked model's figure
     // as that fixed value in its dimension's unit, named by the model it
     // belongs to.
-    const provenance: ArchetypeDrawSession.IProvenance<string> = rest.provenance;
+    const provenance: ArchetypeDrawSession.IProvenance<string> =
+      rest.provenance;
     const drawn: Readonly<Partial<Record<string, number>>> =
       archetype.dimensions;
     return {

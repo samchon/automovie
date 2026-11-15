@@ -40,9 +40,16 @@ export function createExerciseBike(
   params: createExerciseBike.IParams = {},
   seed?: number | string,
 ): Archetype<createExerciseBike.Affordance, createExerciseBike.Dimension> {
-  const draw: ArchetypeDrawSession<createExerciseBike.Dimension> = new ArchetypeDrawSession<createExerciseBike.Dimension>("exerciseBike", createExerciseBike.UNITS, seed, params);
-  const d: Record<createExerciseBike.Dimension, number> =
-    draw.dimensions(createExerciseBike.BANDS);
+  const draw: ArchetypeDrawSession<createExerciseBike.Dimension> =
+    new ArchetypeDrawSession<createExerciseBike.Dimension>(
+      "exerciseBike",
+      createExerciseBike.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createExerciseBike.Dimension, number> = draw.dimensions(
+    createExerciseBike.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createExerciseBike.Affordance,
     createExerciseBike.Dimension

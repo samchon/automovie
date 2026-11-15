@@ -12,7 +12,7 @@ import {
 
 /** UNHCR's family tent, read in its specification. */
 const UNHCR: string =
-  "UNHCR Family Tent, eco-design (SH-TE-10028), specification (https://www.unhcr.org/sites/default/files/2025-02/family-tent-eco-design.pdf): outer frame \"Centre height: 2.2 m / Width: 4 m / Ridge length: 4 m / Side wall height: 1.25 - 1.40 m / Door height: 1.4 m / Centre base length: 6.6 m\" (p. 9), its drawing's 1.40 m end width (p. 5); outer \"Door size: W 1.3 x H 1.4 m\" (p. 10); inner doors \"1 m wide and 1.75 m high from the floor\" (p. 12); \"approximately 49-53 kg\" packed (p. 6)";
+  'UNHCR Family Tent, eco-design (SH-TE-10028), specification (https://www.unhcr.org/sites/default/files/2025-02/family-tent-eco-design.pdf): outer frame "Centre height: 2.2 m / Width: 4 m / Ridge length: 4 m / Side wall height: 1.25 - 1.40 m / Door height: 1.4 m / Centre base length: 6.6 m" (p. 9), its drawing\'s 1.40 m end width (p. 5); outer "Door size: W 1.3 x H 1.4 m" (p. 10); inner doors "1 m wide and 1.75 m high from the floor" (p. 12); "approximately 49-53 kg" packed (p. 6)';
 
 /**
  * A relief family tent: UNHCR's eco-design family tent, a ridge tent with a vestibule at each end. Not a backpacking or camping tent, whose doors no maker read gives.
@@ -36,14 +36,22 @@ export function createTent(
   params: createTent.IParams,
   seed?: number | string,
 ): Archetype<createTent.Affordance, createTent.Dimension> {
-  const draw: ArchetypeDrawSession<createTent.Dimension> = new ArchetypeDrawSession<createTent.Dimension>("tent", createTent.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createTent.Dimension> =
+    new ArchetypeDrawSession<createTent.Dimension>(
+      "tent",
+      createTent.UNITS,
+      seed,
+      params,
+    );
   const kind: createTent.Kind = ArchetypeDraw.choice(
     "tent",
     "kind",
     params.kind,
     createTent.KINDS,
   );
-  const d: Record<createTent.Dimension, number> = draw.dimensions(createTent.BANDS[kind]);
+  const d: Record<createTent.Dimension, number> = draw.dimensions(
+    createTent.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<createTent.Affordance, createTent.Dimension> =
     new ArchetypeBuilder({
       id: params.id,
@@ -193,7 +201,9 @@ export namespace createTent {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> = {
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > = {
     reliefFamily: {
       width: ArchetypeBand.metres(4, 4, UNHCR),
       ridge: ArchetypeBand.metres(4, 4, UNHCR),

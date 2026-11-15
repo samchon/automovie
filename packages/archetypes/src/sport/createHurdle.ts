@@ -36,14 +36,23 @@ export function createHurdle(
   params: createHurdle.IParams,
   seed?: number | string,
 ): Archetype<createHurdle.Affordance, createHurdle.Dimension> {
-  const draw: ArchetypeDrawSession<createHurdle.Dimension> = new ArchetypeDrawSession<createHurdle.Dimension>("hurdle", createHurdle.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createHurdle.Dimension> =
+    new ArchetypeDrawSession<createHurdle.Dimension>(
+      "hurdle",
+      createHurdle.UNITS,
+      seed,
+      params,
+    );
   const kind: createHurdle.Kind = ArchetypeDraw.choice(
     "hurdle",
     "kind",
     params.kind,
     createHurdle.KINDS,
   );
-  const d: Record<createHurdle.Dimension, number> = draw.dimensions(createHurdle.BANDS[kind], createHurdle.BANDS);
+  const d: Record<createHurdle.Dimension, number> = draw.dimensions(
+    createHurdle.BANDS[kind],
+    createHurdle.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createHurdle.Affordance,
     createHurdle.Dimension

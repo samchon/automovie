@@ -11,7 +11,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-
 /** The round shield's size, from a secondary source. */
 const ROUND: string =
   "Viking Age round shields, 75 to 90 cm across by far the most common (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
@@ -38,7 +37,13 @@ export function createShield(
   params: createShield.IParams,
   seed?: number | string,
 ): Archetype<createShield.Affordance, createShield.Dimension> {
-  const draw: ArchetypeDrawSession<createShield.Dimension> = new ArchetypeDrawSession<createShield.Dimension>("shield", createShield.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createShield.Dimension> =
+    new ArchetypeDrawSession<createShield.Dimension>(
+      "shield",
+      createShield.UNITS,
+      seed,
+      params,
+    );
   const kind: createShield.Kind = ArchetypeDraw.choice(
     "shield",
     "kind",
@@ -46,8 +51,13 @@ export function createShield(
     createShield.KINDS,
   );
   // A buckler is one of the two Wallace Collection bucklers whole; a round shield has no read model, its bands.
-  const model: { figures: Readonly<Partial<Record<createShield.Dimension, number>>> } =
-    draw.model<createShield.Model>("model", params.model, createShield.MODELS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createShield.Dimension, number>>>;
+  } = draw.model<createShield.Model>(
+    "model",
+    params.model,
+    createShield.MODELS[kind],
+  );
   const d: Partial<Record<createShield.Dimension, number>> = {
     ...draw.dimensions(createShield.BANDS[kind], createShield.BANDS),
     ...model.figures,
@@ -172,10 +182,23 @@ export namespace createShield {
   export type Model = "a315" | "a316";
 
   /** Each kind's models whole, the default first: A315, about 17.5 in and 3 lb 7 oz, and A316, 20.75 in and 3 lb 13 oz (K. Reeves, A Survey of Bucklers at the Wallace Collection, https://nachtanz.org/kjr/a-survey-of-bucklers-wallace-museum.html); a round shield has none. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     buckler: {
-      a315: { diameter: 17.5 * ArchetypeUnits.INCH, mass: 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE },
-      a316: { diameter: 20.75 * ArchetypeUnits.INCH, mass: 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE },
+      a315: {
+        diameter: 17.5 * ArchetypeUnits.INCH,
+        mass: 3 * ArchetypeUnits.POUND + 7 * ArchetypeUnits.OUNCE,
+      },
+      a316: {
+        diameter: 20.75 * ArchetypeUnits.INCH,
+        mass: 3 * ArchetypeUnits.POUND + 13 * ArchetypeUnits.OUNCE,
+      },
     },
   };
 

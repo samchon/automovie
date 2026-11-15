@@ -37,11 +37,21 @@ export function createRowingMachine(
   params: createRowingMachine.IParams = {},
   seed?: number | string,
 ): Archetype<createRowingMachine.Affordance, createRowingMachine.Dimension> {
-  const draw: ArchetypeDrawSession<createRowingMachine.Dimension> = new ArchetypeDrawSession<createRowingMachine.Dimension>("rowingMachine", createRowingMachine.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createRowingMachine.Dimension> =
+    new ArchetypeDrawSession<createRowingMachine.Dimension>(
+      "rowingMachine",
+      createRowingMachine.UNITS,
+      seed,
+      params,
+    );
   const legs: {
     name: createRowingMachine.Legs | undefined;
     figures: Readonly<Partial<Record<createRowingMachine.Dimension, number>>>;
-  } = draw.model<createRowingMachine.Legs>("legs", params.legs, createRowingMachine.LEGS);
+  } = draw.model<createRowingMachine.Legs>(
+    "legs",
+    params.legs,
+    createRowingMachine.LEGS,
+  );
   const d: Record<createRowingMachine.Dimension, number> = {
     ...draw.dimensions(createRowingMachine.BANDS),
     seatHeight: legs.figures.seatHeight!,

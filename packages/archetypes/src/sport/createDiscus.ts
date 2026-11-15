@@ -36,14 +36,22 @@ export function createDiscus(
   params: createDiscus.IParams,
   seed?: number | string,
 ): Archetype<createDiscus.Affordance, createDiscus.Dimension> {
-  const draw: ArchetypeDrawSession<createDiscus.Dimension> = new ArchetypeDrawSession<createDiscus.Dimension>("discus", createDiscus.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createDiscus.Dimension> =
+    new ArchetypeDrawSession<createDiscus.Dimension>(
+      "discus",
+      createDiscus.UNITS,
+      seed,
+      params,
+    );
   const kind: createDiscus.Kind = ArchetypeDraw.choice(
     "discus",
     "kind",
     params.kind,
     createDiscus.KINDS,
   );
-  const d: Record<createDiscus.Dimension, number> = draw.dimensions(createDiscus.BANDS[kind]);
+  const d: Record<createDiscus.Dimension, number> = draw.dimensions(
+    createDiscus.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createDiscus.Affordance,
     createDiscus.Dimension

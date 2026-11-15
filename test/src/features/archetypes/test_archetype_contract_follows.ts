@@ -81,7 +81,10 @@ function fixture(
 }
 
 /** Where a part's centre is in its model. */
-function centre(archetype: Archetype<Id, never>, part: string): IAutoMovieVector3 {
+function centre(
+  archetype: Archetype<Id, never>,
+  part: string,
+): IAutoMovieVector3 {
   return archetype.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === part,
   )!.transform!.translation;
@@ -160,7 +163,9 @@ export function test_archetype_contract_follows(): void {
       )
         findings.push(`${part} at a slide of ${slide} m`);
       if (Math.abs(posed.travel(id) - angle) > 1e-9)
-        findings.push(`${id}'s travel ${posed.travel(id)} at ${slide} m, not ${angle}`);
+        findings.push(
+          `${id}'s travel ${posed.travel(id)} at ${slide} m, not ${angle}`,
+        );
     }
     if (JSON.stringify(Object.keys(posed.state)) !== '["slide"]')
       findings.push(`the state names ${Object.keys(posed.state).join(", ")}`);

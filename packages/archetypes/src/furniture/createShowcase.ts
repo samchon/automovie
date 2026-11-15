@@ -36,11 +36,20 @@ export function createShowcase(
   params: createShowcase.IParams = {},
   seed?: number | string,
 ): Archetype<createShowcase.Affordance, createShowcase.Dimension> {
-  const draw: ArchetypeDrawSession<createShowcase.Dimension> = new ArchetypeDrawSession<createShowcase.Dimension>("showcase", createShowcase.UNITS, seed);
+  const draw: ArchetypeDrawSession<createShowcase.Dimension> =
+    new ArchetypeDrawSession<createShowcase.Dimension>(
+      "showcase",
+      createShowcase.UNITS,
+      seed,
+    );
   const model: {
     name: createShowcase.Model | undefined;
     figures: Readonly<Partial<Record<createShowcase.Dimension, number>>>;
-  } = draw.model<createShowcase.Model>("model", params.model, createShowcase.MODELS);
+  } = draw.model<createShowcase.Model>(
+    "model",
+    params.model,
+    createShowcase.MODELS,
+  );
   const builder: ArchetypeBuilder<
     createShowcase.Affordance,
     createShowcase.Dimension

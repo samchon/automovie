@@ -36,7 +36,13 @@ export function createWeaponLoop(
   params: createWeaponLoop.IParams,
   seed?: number | string,
 ): Archetype<createWeaponLoop.Affordance, createWeaponLoop.Dimension> {
-  const draw: ArchetypeDrawSession<createWeaponLoop.Dimension> = new ArchetypeDrawSession<createWeaponLoop.Dimension>("weaponLoop", createWeaponLoop.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createWeaponLoop.Dimension> =
+    new ArchetypeDrawSession<createWeaponLoop.Dimension>(
+      "weaponLoop",
+      createWeaponLoop.UNITS,
+      seed,
+      params,
+    );
   const kind: createWeaponLoop.Kind = ArchetypeDraw.choice(
     "weaponLoop",
     "kind",
@@ -44,8 +50,13 @@ export function createWeaponLoop(
     createWeaponLoop.KINDS,
   );
   // A belt loop's ring is one of the three read rings whole; a back sleeve has no read model, its bands.
-  const model: { figures: Readonly<Partial<Record<createWeaponLoop.Dimension, number>>> } =
-    draw.model<createWeaponLoop.Model>("model", params.model, createWeaponLoop.MODELS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createWeaponLoop.Dimension, number>>>;
+  } = draw.model<createWeaponLoop.Model>(
+    "model",
+    params.model,
+    createWeaponLoop.MODELS[kind],
+  );
   const d: Partial<Record<createWeaponLoop.Dimension, number>> = {
     ...draw.dimensions(createWeaponLoop.BANDS[kind], createWeaponLoop.BANDS),
     ...model.figures,
@@ -72,7 +83,8 @@ export function createWeaponLoop(
   // middle of a sleeve.
   const strap: number = createWeaponLoop.STRAP[kind];
   const side: number = -(span / 2 + WALL / 2);
-  const middle: number = kind === "belt" ? d.length! + strap / 2 : d.length! / 2;
+  const middle: number =
+    kind === "belt" ? d.length! + strap / 2 : d.length! / 2;
   builder.box("strap", v(WALL, strap, 0.04), v(side, middle, 0), {
     color: "#3a2a1e",
   });
@@ -144,7 +156,14 @@ export namespace createWeaponLoop {
   export type Model = "safariland692s" | "rothco" | "highSpeedGear";
 
   /** Each kind's rings whole, the default first, by their opening inside: Safariland 692S 35 mm (https://varusteleka.com/en-us/products/safariland-model-692s-baton-ring-unissued), Rothco 1.5 in (https://rothco.com/product/rothco-two-ring-baton-flashlight-holder) and High Speed Gear 1.5 in (https://www.highspeedgear.com/products/duty-baton-ring-holder); a back sleeve has none. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     belt: {
       safariland692s: { aperture: 0.035 },
       rothco: { aperture: 1.5 * ArchetypeUnits.INCH },

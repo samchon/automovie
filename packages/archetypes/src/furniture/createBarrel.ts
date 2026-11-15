@@ -57,7 +57,13 @@ export function createBarrel(
   params: createBarrel.IParams,
   seed?: number | string,
 ): Archetype<createBarrel.Affordance, createBarrel.Dimension> {
-  const draw: ArchetypeDrawSession<createBarrel.Dimension> = new ArchetypeDrawSession<createBarrel.Dimension>("barrel", createBarrel.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBarrel.Dimension> =
+    new ArchetypeDrawSession<createBarrel.Dimension>(
+      "barrel",
+      createBarrel.UNITS,
+      seed,
+      params,
+    );
   const kind: createBarrel.Kind = ArchetypeDraw.choice(
     "barrel",
     "kind",
@@ -65,7 +71,11 @@ export function createBarrel(
     createBarrel.KINDS,
   );
   const drum: Readonly<Partial<Record<createBarrel.Dimension, number>>> =
-    draw.model<createBarrel.Drum>("model", params.model, createBarrel.DRUMS[kind]).figures;
+    draw.model<createBarrel.Drum>(
+      "model",
+      params.model,
+      createBarrel.DRUMS[kind],
+    ).figures;
   const d: Partial<Record<createBarrel.Dimension, number>> = {
     ...draw.dimensions(createBarrel.BANDS[kind], createBarrel.BANDS),
     ...drum,

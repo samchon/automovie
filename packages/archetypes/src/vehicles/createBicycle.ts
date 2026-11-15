@@ -43,8 +43,16 @@ export function createBicycle(
   params: createBicycle.IParams = {},
   seed?: number | string,
 ): Archetype<createBicycle.Affordance, createBicycle.Dimension> {
-  const draw: ArchetypeDrawSession<createBicycle.Dimension> = new ArchetypeDrawSession<createBicycle.Dimension>("bicycle", createBicycle.UNITS, seed, params);
-  const d: Record<createBicycle.Dimension, number> = draw.dimensions(createBicycle.BANDS);
+  const draw: ArchetypeDrawSession<createBicycle.Dimension> =
+    new ArchetypeDrawSession<createBicycle.Dimension>(
+      "bicycle",
+      createBicycle.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createBicycle.Dimension, number> = draw.dimensions(
+    createBicycle.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createBicycle.Affordance,
     createBicycle.Dimension

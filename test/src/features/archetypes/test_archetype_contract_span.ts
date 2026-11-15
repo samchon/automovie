@@ -62,7 +62,14 @@ function fixture(
       extent: null,
       rides: "carriage",
     })
-    .span("line", from, { affordance: "hook" }, 0.002, { color: "#222222" }, REST)
+    .span(
+      "line",
+      from,
+      { affordance: "hook" },
+      0.002,
+      { color: "#222222" },
+      REST,
+    )
     .build(5);
 }
 
@@ -102,13 +109,18 @@ export function test_archetype_contract_span(): void {
           Vector3.subtract(tip, { x: 0, y: 1, z: 0 }),
         ),
       );
-      const to: IAutoMovieVector3 = Vector3.add(hook, { x: carriage, y: 0, z: 0 });
+      const to: IAutoMovieVector3 = Vector3.add(hook, {
+        x: carriage,
+        y: 0,
+        z: 0,
+      });
       const distance: number = Vector3.length(Vector3.subtract(to, from));
       const line: IAutoMovieModelPart = posed.parts.find(
         (p: IAutoMovieModelPart): boolean => p.id === "line",
       )!;
       const shape: { height: number } =
-        line.geometry.type === "primitive" && line.geometry.shape.type === "cylinder"
+        line.geometry.type === "primitive" &&
+        line.geometry.shape.type === "cylinder"
           ? line.geometry.shape
           : { height: Number.NaN };
       const half: IAutoMovieVector3 = Vector3.scale(
@@ -119,7 +131,11 @@ export function test_archetype_contract_span(): void {
 
       // 1 and 2. The line is drawn between its ends, as long as they are apart.
       if (
-        !vclose(Vector3.subtract(line.transform!.translation, half), from, 1e-9) ||
+        !vclose(
+          Vector3.subtract(line.transform!.translation, half),
+          from,
+          1e-9,
+        ) ||
         !vclose(Vector3.add(line.transform!.translation, half), to, 1e-9)
       )
         findings.push(`${label}: the line is not drawn between its ends`);
@@ -133,9 +149,13 @@ export function test_archetype_contract_span(): void {
       // 3. Its collider.
       const collider: IAutoMoviePhysicalProfile.IShape | undefined = posed
         .shapes()
-        .find((s: IAutoMoviePhysicalProfile.IShape): boolean => s.id === "line");
+        .find(
+          (s: IAutoMoviePhysicalProfile.IShape): boolean => s.id === "line",
+        );
       if (collider?.kind !== "capsule" || collider.radius !== 0.002)
-        findings.push(`${label}: the line's collider is ${collider?.kind ?? "missing"}`);
+        findings.push(
+          `${label}: the line's collider is ${collider?.kind ?? "missing"}`,
+        );
 
       // 4. Slack exactly where its ends are closer than its rest length.
       if (state.slack !== distance < REST)

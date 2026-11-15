@@ -58,15 +58,23 @@ export function createStick(
   params: createStick.IParams,
   seed?: number | string,
 ): Archetype<createStick.Affordance, createStick.Dimension> {
-  const draw: ArchetypeDrawSession<createStick.Dimension> = new ArchetypeDrawSession<createStick.Dimension>("stick", createStick.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStick.Dimension> =
+    new ArchetypeDrawSession<createStick.Dimension>(
+      "stick",
+      createStick.UNITS,
+      seed,
+      params,
+    );
   const kind: createStick.Kind = ArchetypeDraw.choice(
     "stick",
     "kind",
     params.kind,
     createStick.KINDS,
   );
-  const d: Partial<Record<createStick.Dimension, number>> =
-    draw.dimensions(createStick.BANDS[kind], createStick.BANDS);
+  const d: Partial<Record<createStick.Dimension, number>> = draw.dimensions(
+    createStick.BANDS[kind],
+    createStick.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createStick.Affordance,
     createStick.Dimension
@@ -86,12 +94,22 @@ export function createStick(
   let gripLength: number;
   let aperture: number | undefined;
   if (kind === "iceHockey") {
-    builder.box("blade", v(d.reach!, head, E.blade), v(d.reach! / 2, head / 2, 0), {
-      color: "#1d1d1d",
-    });
-    builder.box("shaft", v(width, length - head, depth), v(0, (length + head) / 2, 0), {
-      color: "#d8d8d8",
-    });
+    builder.box(
+      "blade",
+      v(d.reach!, head, E.blade),
+      v(d.reach! / 2, head / 2, 0),
+      {
+        color: "#1d1d1d",
+      },
+    );
+    builder.box(
+      "shaft",
+      v(width, length - head, depth),
+      v(0, (length + head) / 2, 0),
+      {
+        color: "#d8d8d8",
+      },
+    );
     face = v(d.reach! / 2, head / 2, E.blade / 2);
     faceWidth = d.reach!;
     gripLength = length - head;
@@ -158,7 +176,11 @@ export namespace createStick {
   export type Kind = "iceHockey" | "fieldHockey" | "cricketBat";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["iceHockey", "fieldHockey", "cricketBat"];
+  export const KINDS: readonly Kind[] = [
+    "iceHockey",
+    "fieldHockey",
+    "cricketBat",
+  ];
 
   /**
    * The affordance ids:
@@ -177,7 +199,13 @@ export namespace createStick {
    * - `width`, `depth`: an ice hockey shaft's section, a field hockey stick's diameter, a cricket bat blade's width and depth.
    * - `mass`: kilograms.
    */
-  export type Dimension = "length" | "head" | "reach" | "width" | "depth" | "mass";
+  export type Dimension =
+    | "length"
+    | "head"
+    | "reach"
+    | "width"
+    | "depth"
+    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -203,17 +231,41 @@ export namespace createStick {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     iceHockey: {
-      length: ArchetypeBand.metres(1.63, 1.63, `${IIHF}; the model takes the limit`),
+      length: ArchetypeBand.metres(
+        1.63,
+        1.63,
+        `${IIHF}; the model takes the limit`,
+      ),
       head: ArchetypeBand.metres(0.05, 0.076, IIHF),
-      reach: ArchetypeBand.metres(0.32, 0.32, `${IIHF}; the model takes the limit`),
-      width: ArchetypeBand.metres(0.03, 0.03, `${IIHF}; the model takes the limit`),
-      depth: ArchetypeBand.metres(0.025, 0.025, `${IIHF}; the model takes the limit`),
+      reach: ArchetypeBand.metres(
+        0.32,
+        0.32,
+        `${IIHF}; the model takes the limit`,
+      ),
+      width: ArchetypeBand.metres(
+        0.03,
+        0.03,
+        `${IIHF}; the model takes the limit`,
+      ),
+      depth: ArchetypeBand.metres(
+        0.025,
+        0.025,
+        `${IIHF}; the model takes the limit`,
+      ),
       mass: ArchetypeBand.of("kg", 0.4, 0.6, ArchetypeBand.TYPICAL_MASS, true),
     },
     fieldHockey: {
-      length: ArchetypeBand.metres(1.05, 1.05, `${FIH}; the model takes the limit`),
+      length: ArchetypeBand.metres(
+        1.05,
+        1.05,
+        `${FIH}; the model takes the limit`,
+      ),
       head: ArchetypeBand.metres(0.1, 0.1, FIH),
-      width: ArchetypeBand.metres(0.051, 0.051, `${FIH}; the model takes the ring`),
+      width: ArchetypeBand.metres(
+        0.051,
+        0.051,
+        `${FIH}; the model takes the ring`,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         0.5,
@@ -223,14 +275,26 @@ export namespace createStick {
       ),
     },
     cricketBat: {
-      length: ArchetypeBand.metres(0.9652, 0.9652, `${MCC}; the model takes the limit`),
+      length: ArchetypeBand.metres(
+        0.9652,
+        0.9652,
+        `${MCC}; the model takes the limit`,
+      ),
       head: ArchetypeBand.metres(
         0.9652 * 0.48,
         0.9652 * 0.48,
         `${MCC}: the blade the length less the handle's greatest 52%`,
       ),
-      width: ArchetypeBand.metres(0.108, 0.108, `${MCC}; the model takes the limit`),
-      depth: ArchetypeBand.metres(0.067, 0.067, `${MCC}; the model takes the limit`),
+      width: ArchetypeBand.metres(
+        0.108,
+        0.108,
+        `${MCC}; the model takes the limit`,
+      ),
+      depth: ArchetypeBand.metres(
+        0.067,
+        0.067,
+        `${MCC}; the model takes the limit`,
+      ),
       mass: ArchetypeBand.of("kg", 1.1, 1.4, ArchetypeBand.TYPICAL_MASS, true),
     },
   };

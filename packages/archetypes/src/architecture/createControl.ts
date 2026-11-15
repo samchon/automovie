@@ -41,7 +41,13 @@ export function createControl(
   params: createControl.IParams,
   seed?: number | string,
 ): Archetype<createControl.Affordance, createControl.Dimension> {
-  const draw: ArchetypeDrawSession<createControl.Dimension> = new ArchetypeDrawSession<createControl.Dimension>("control", createControl.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createControl.Dimension> =
+    new ArchetypeDrawSession<createControl.Dimension>(
+      "control",
+      createControl.UNITS,
+      seed,
+      params,
+    );
   const kind: createControl.Kind = ArchetypeDraw.choice(
     "control",
     "kind",
@@ -89,7 +95,11 @@ export function createControl(
   const model: {
     name: createControl.Lever | undefined;
     figures: Readonly<Partial<Record<createControl.Dimension, number>>>;
-  } = draw.model<createControl.Lever>("lever", params.lever, createControl.LEVERS);
+  } = draw.model<createControl.Lever>(
+    "lever",
+    params.lever,
+    createControl.LEVERS,
+  );
   const lever: Readonly<Record<createControl.LeverDimension, number>> = {
     length: model.figures.length!,
     knob: model.figures.knob!,
@@ -180,7 +190,13 @@ export namespace createControl {
   export type Lever = "63" | "80" | "100" | "125" | "160";
 
   /** A lever's figures, its model's, metres and kilograms: `length` from the hub's centre to the knob's, `knob`, `arm` and `hub` across, `bore` the hub along the bore, and `mass`. */
-  export type LeverDimension = "length" | "knob" | "arm" | "hub" | "bore" | "mass";
+  export type LeverDimension =
+    | "length"
+    | "knob"
+    | "arm"
+    | "hub"
+    | "bore"
+    | "mass";
 
   /** Each lever's figures, the default first, by its length l1 in millimetres: Elesa+Ganter DIN 6337 ball levers, type L, l1 63, 80, 100, 125 and 160 mm with DIN 319 ball knobs d5 20, 20, 25, 32 and 40 mm, arms d6 8, 9, 11, 15 and 18 mm, hubs d3 16, 20, 25, 32 and 40 mm across and b 12, 14.5, 18.5, 24 and 30 mm along the bore, weighing 32, 53, 100, 216 and 415 g (https://www.elesa-ganter.com/siteassets/PDF/EN/DIN%206337.pdf). */
   export const LEVERS: Readonly<

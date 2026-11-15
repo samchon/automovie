@@ -11,7 +11,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-
 /** An aftermarket magazine for that pistol, read at a retailer. */
 const STRIKE: string =
   "Strike Industries SI-G-MAG-17, 17 rounds: 125.55 mm long, 28.50 mm wide, 41.88 mm high, 1.4 oz (https://www.at3tactical.com/products/strike-industries-9mm-translucent-magazine-for-glock-17-17-round)";
@@ -42,14 +41,22 @@ export function createMagazine(
   params: createMagazine.IParams,
   seed?: number | string,
 ): Archetype<createMagazine.Affordance, createMagazine.Dimension> {
-  const draw: ArchetypeDrawSession<createMagazine.Dimension> = new ArchetypeDrawSession<createMagazine.Dimension>("magazine", createMagazine.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createMagazine.Dimension> =
+    new ArchetypeDrawSession<createMagazine.Dimension>(
+      "magazine",
+      createMagazine.UNITS,
+      seed,
+      params,
+    );
   const kind: createMagazine.Kind = ArchetypeDraw.choice(
     "magazine",
     "kind",
     params.kind,
     createMagazine.KINDS,
   );
-  const d: Record<createMagazine.Dimension, number> = draw.dimensions(createMagazine.BANDS[kind]);
+  const d: Record<createMagazine.Dimension, number> = draw.dimensions(
+    createMagazine.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createMagazine.Affordance,
     createMagazine.Dimension
@@ -59,12 +66,9 @@ export function createMagazine(
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
-  builder.box(
-    "body",
-    v(d.width, d.length, d.depth),
-    v(0, d.length / 2, 0),
-    { color: "#2c2f33" },
-  );
+  builder.box("body", v(d.width, d.length, d.depth), v(0, d.length / 2, 0), {
+    color: "#2c2f33",
+  });
   builder.affordance({
     id: "feed",
     kind: "socket",
@@ -170,12 +174,29 @@ export namespace createMagazine {
         0.04188,
         `${STRIKE}; its 41.88 mm height is taken as front to back, the other two being the length and the double stack's width`,
       ),
-      mass: ArchetypeBand.of("kg", 1.4 * ArchetypeUnits.OUNCE, 1.4 * ArchetypeUnits.OUNCE, STRIKE),
+      mass: ArchetypeBand.of(
+        "kg",
+        1.4 * ArchetypeUnits.OUNCE,
+        1.4 * ArchetypeUnits.OUNCE,
+        STRIKE,
+      ),
     },
     rifle: {
-      length: ArchetypeBand.metres(7.5 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, PMAG),
-      width: ArchetypeBand.metres(0.87 * ArchetypeUnits.INCH, 0.87 * ArchetypeUnits.INCH, PMAG),
-      depth: ArchetypeBand.metres(2.6 * ArchetypeUnits.INCH, 2.6 * ArchetypeUnits.INCH, PMAG),
+      length: ArchetypeBand.metres(
+        7.5 * ArchetypeUnits.INCH,
+        7.5 * ArchetypeUnits.INCH,
+        PMAG,
+      ),
+      width: ArchetypeBand.metres(
+        0.87 * ArchetypeUnits.INCH,
+        0.87 * ArchetypeUnits.INCH,
+        PMAG,
+      ),
+      depth: ArchetypeBand.metres(
+        2.6 * ArchetypeUnits.INCH,
+        2.6 * ArchetypeUnits.INCH,
+        PMAG,
+      ),
       mass: ArchetypeBand.of("kg", 5 * ArchetypeUnits.OUNCE, 0.146, PMAG),
     },
   };

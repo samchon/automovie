@@ -113,7 +113,13 @@ export function createBoard(
   params: createBoard.IParams,
   seed?: number | string,
 ): Archetype<createBoard.Affordance, createBoard.Dimension> {
-  const draw: ArchetypeDrawSession<createBoard.Dimension> = new ArchetypeDrawSession<createBoard.Dimension>("board", createBoard.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBoard.Dimension> =
+    new ArchetypeDrawSession<createBoard.Dimension>(
+      "board",
+      createBoard.UNITS,
+      seed,
+      params,
+    );
   const kind: createBoard.Kind = ArchetypeDraw.choice(
     "board",
     "kind",
@@ -123,7 +129,11 @@ export function createBoard(
   const size: {
     name: createBoard.Size | undefined;
     figures: Readonly<Partial<Record<createBoard.Dimension, number>>>;
-  } = draw.model<createBoard.Size>("size", params.size, createBoard.SIZES[kind]);
+  } = draw.model<createBoard.Size>(
+    "size",
+    params.size,
+    createBoard.SIZES[kind],
+  );
   const d: Partial<Record<createBoard.Dimension, number>> = {
     ...draw.dimensions(createBoard.BANDS[kind], createBoard.BANDS),
     ...size.figures,

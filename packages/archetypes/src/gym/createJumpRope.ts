@@ -39,7 +39,13 @@ export function createJumpRope(
   params: createJumpRope.IParams = {},
   seed?: number | string,
 ): Archetype<createJumpRope.Affordance, createJumpRope.Dimension> {
-  const draw: ArchetypeDrawSession<createJumpRope.Dimension> = new ArchetypeDrawSession<createJumpRope.Dimension>("jumpRope", createJumpRope.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createJumpRope.Dimension> =
+    new ArchetypeDrawSession<createJumpRope.Dimension>(
+      "jumpRope",
+      createJumpRope.UNITS,
+      seed,
+      params,
+    );
   /** One of Rogue's lists, given or picked whole. */
   const pick = <Name extends string>(
     axis: string,

@@ -40,18 +40,32 @@ export function createFood(
   params: createFood.IParams,
   seed?: number | string,
 ): Archetype<createFood.Affordance, createFood.Dimension> {
-  const draw: ArchetypeDrawSession<createFood.Dimension> = new ArchetypeDrawSession<createFood.Dimension>("food", createFood.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createFood.Dimension> =
+    new ArchetypeDrawSession<createFood.Dimension>(
+      "food",
+      createFood.UNITS,
+      seed,
+      params,
+    );
   const kind: createFood.Kind = ArchetypeDraw.choice(
     "food",
     "kind",
     params.kind,
     createFood.KINDS,
   );
-  const drawn: Partial<Record<createFood.Dimension, number>> =
-    draw.dimensions(createFood.BANDS[kind], createFood.BANDS);
+  const drawn: Partial<Record<createFood.Dimension, number>> = draw.dimensions(
+    createFood.BANDS[kind],
+    createFood.BANDS,
+  );
   // An apple is one of USDA's four portion sizes whole.
-  const model: { name: createFood.Model | undefined; figures: createFood.Figures } =
-    draw.model<createFood.Model>("model", params.model, createFood.MODELS[kind]);
+  const model: {
+    name: createFood.Model | undefined;
+    figures: createFood.Figures;
+  } = draw.model<createFood.Model>(
+    "model",
+    params.model,
+    createFood.MODELS[kind],
+  );
   const d: Partial<Record<createFood.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -186,7 +200,9 @@ export namespace createFood {
   export type Model = "extraSmall" | "small" | "medium" | "large";
 
   /** Each kind's models whole, the default first: USDA FoodData Central 171688, Apples, raw, with skin, its portions 2 1/2, 2 3/4, 3 and 3 1/4 in across at 101, 149, 182 and 223 g (https://api.nal.usda.gov/fdc/v1/food/171688). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     apple: {
       extraSmall: { diameter: 2.5 * ArchetypeUnits.INCH, mass: 0.101 },
       small: { diameter: 2.75 * ArchetypeUnits.INCH, mass: 0.149 },
@@ -206,9 +222,25 @@ export namespace createFood {
         BREAD,
         true,
       ),
-      width: ArchetypeBand.metres(4.25 * ArchetypeUnits.INCH, 4.5 * ArchetypeUnits.INCH, BREAD, true),
-      height: ArchetypeBand.metres(2.75 * ArchetypeUnits.INCH, 4.25 * ArchetypeUnits.INCH, BREAD, true),
-      mass: ArchetypeBand.of("kg", ArchetypeUnits.POUND, 32 * ArchetypeUnits.OUNCE, BREAD, true),
+      width: ArchetypeBand.metres(
+        4.25 * ArchetypeUnits.INCH,
+        4.5 * ArchetypeUnits.INCH,
+        BREAD,
+        true,
+      ),
+      height: ArchetypeBand.metres(
+        2.75 * ArchetypeUnits.INCH,
+        4.25 * ArchetypeUnits.INCH,
+        BREAD,
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        ArchetypeUnits.POUND,
+        32 * ArchetypeUnits.OUNCE,
+        BREAD,
+        true,
+      ),
     },
     apple: {},
   };

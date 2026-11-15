@@ -43,7 +43,13 @@ export function createStairs(
   params: createStairs.IParams = {},
   seed?: number | string,
 ): Archetype<createStairs.Affordance, createStairs.Dimension> {
-  const draw: ArchetypeDrawSession<createStairs.Dimension> = new ArchetypeDrawSession<createStairs.Dimension>("stairs", createStairs.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStairs.Dimension> =
+    new ArchetypeDrawSession<createStairs.Dimension>(
+      "stairs",
+      createStairs.UNITS,
+      seed,
+      params,
+    );
   const steps: number = params.steps ?? 12;
   if (!Number.isInteger(steps) || steps < 2 || steps > createStairs.STEPS)
     throw new ArchetypeRefusal({
@@ -69,7 +75,11 @@ export function createStairs(
   const occupancy: {
     name: createStairs.Occupancy | undefined;
     figures: Readonly<Partial<Record<createStairs.Dimension, number>>>;
-  } = draw.model<createStairs.Occupancy>("occupancy", params.occupancy, createStairs.OCCUPANCIES);
+  } = draw.model<createStairs.Occupancy>(
+    "occupancy",
+    params.occupancy,
+    createStairs.OCCUPANCIES,
+  );
   const d: Record<createStairs.Dimension, number> = {
     ...draw.dimensions(createStairs.BANDS),
     width: occupancy.figures.width!,

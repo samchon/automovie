@@ -43,11 +43,21 @@ export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
-  const draw: ArchetypeDrawSession<createSaloonDoor.Dimension> = new ArchetypeDrawSession<createSaloonDoor.Dimension>("saloonDoor", createSaloonDoor.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSaloonDoor.Dimension> =
+    new ArchetypeDrawSession<createSaloonDoor.Dimension>(
+      "saloonDoor",
+      createSaloonDoor.UNITS,
+      seed,
+      params,
+    );
   const opening: {
     name: createSaloonDoor.Opening | undefined;
     figures: Readonly<Partial<Record<createSaloonDoor.Dimension, number>>>;
-  } = draw.model<createSaloonDoor.Opening>("size", params.size, createSaloonDoor.OPENINGS);
+  } = draw.model<createSaloonDoor.Opening>(
+    "size",
+    params.size,
+    createSaloonDoor.OPENINGS,
+  );
   const d: Record<createSaloonDoor.Dimension, number> = {
     ...draw.dimensions(createSaloonDoor.BANDS),
     opening: opening.figures.opening!,

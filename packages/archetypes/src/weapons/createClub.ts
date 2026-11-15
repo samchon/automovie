@@ -11,7 +11,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-
 /** The professional rule on a bat's size. */
 const RULE: string =
   "Official Baseball Rules 2024, rule 3.02(a), a bat at most 2.61 in across at its thickest (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
@@ -42,7 +41,13 @@ export function createClub(
   params: createClub.IParams,
   seed?: number | string,
 ): Archetype<createClub.Affordance, createClub.Dimension> {
-  const draw: ArchetypeDrawSession<createClub.Dimension> = new ArchetypeDrawSession<createClub.Dimension>("club", createClub.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createClub.Dimension> =
+    new ArchetypeDrawSession<createClub.Dimension>(
+      "club",
+      createClub.UNITS,
+      seed,
+      params,
+    );
   const kind: createClub.Kind = ArchetypeDraw.choice(
     "club",
     "kind",
@@ -50,8 +55,13 @@ export function createClub(
     createClub.KINDS,
   );
   // A bat is one of the four measured maple bats, a baton one of the maker's two lengths, each whole.
-  const model: { figures: Readonly<Partial<Record<createClub.Dimension, number>>> } =
-    draw.model<createClub.Model>("model", params.model, createClub.MODELS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createClub.Dimension, number>>>;
+  } = draw.model<createClub.Model>(
+    "model",
+    params.model,
+    createClub.MODELS[kind],
+  );
   const d: Partial<Record<createClub.Dimension, number>> = {
     ...draw.dimensions(createClub.BANDS[kind], createClub.BANDS),
     ...model.figures,
@@ -191,12 +201,31 @@ export namespace createClub {
   export type Model = "s154" | "s155" | "t153" | "t156" | "mp24" | "mp26";
 
   /** Each kind's models whole, the default first: the bats' length and weight in Nathan, Smith and Russell, Studies of the Torpedo Bat, ISEA 2026, Table 1 (https://baseball.physics.illinois.edu/ISEA2026-Torpedo-v7.pdf), and the batons' lengths (https://www.defense-technology.com/?p=2138). */
-  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Record<
+      Kind,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     bat: {
-      s154: { length: 35.2 * ArchetypeUnits.INCH, mass: 33.9 * ArchetypeUnits.OUNCE },
-      s155: { length: 35.1 * ArchetypeUnits.INCH, mass: 34 * ArchetypeUnits.OUNCE },
-      t153: { length: 35.2 * ArchetypeUnits.INCH, mass: 34 * ArchetypeUnits.OUNCE },
-      t156: { length: 35.1 * ArchetypeUnits.INCH, mass: 34.5 * ArchetypeUnits.OUNCE },
+      s154: {
+        length: 35.2 * ArchetypeUnits.INCH,
+        mass: 33.9 * ArchetypeUnits.OUNCE,
+      },
+      s155: {
+        length: 35.1 * ArchetypeUnits.INCH,
+        mass: 34 * ArchetypeUnits.OUNCE,
+      },
+      t153: {
+        length: 35.2 * ArchetypeUnits.INCH,
+        mass: 34 * ArchetypeUnits.OUNCE,
+      },
+      t156: {
+        length: 35.1 * ArchetypeUnits.INCH,
+        mass: 34.5 * ArchetypeUnits.OUNCE,
+      },
     },
     baton: {
       mp24: { length: 24 * ArchetypeUnits.INCH },
@@ -235,7 +264,11 @@ export namespace createClub {
       ),
     },
     baton: {
-      diameter: ArchetypeBand.metres(1.25 * ArchetypeUnits.INCH, 1.25 * ArchetypeUnits.INCH, BATON),
+      diameter: ArchetypeBand.metres(
+        1.25 * ArchetypeUnits.INCH,
+        1.25 * ArchetypeUnits.INCH,
+        BATON,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         13 * ArchetypeUnits.OUNCE,

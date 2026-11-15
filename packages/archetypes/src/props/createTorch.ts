@@ -35,8 +35,16 @@ export function createTorch(
   params: createTorch.IParams = {},
   seed?: number | string,
 ): Archetype<createTorch.Affordance, createTorch.Dimension> {
-  const draw: ArchetypeDrawSession<createTorch.Dimension> = new ArchetypeDrawSession<createTorch.Dimension>("torch", createTorch.UNITS, seed, params);
-  const d: Record<createTorch.Dimension, number> = draw.dimensions(createTorch.BANDS);
+  const draw: ArchetypeDrawSession<createTorch.Dimension> =
+    new ArchetypeDrawSession<createTorch.Dimension>(
+      "torch",
+      createTorch.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createTorch.Dimension, number> = draw.dimensions(
+    createTorch.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createTorch.Affordance,
     createTorch.Dimension

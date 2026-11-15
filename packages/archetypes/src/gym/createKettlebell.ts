@@ -41,7 +41,13 @@ export function createKettlebell(
   params: createKettlebell.IParams,
   seed?: number | string,
 ): Archetype<createKettlebell.Affordance, createKettlebell.Dimension> {
-  const draw: ArchetypeDrawSession<createKettlebell.Dimension> = new ArchetypeDrawSession<createKettlebell.Dimension>("kettlebell", createKettlebell.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createKettlebell.Dimension> =
+    new ArchetypeDrawSession<createKettlebell.Dimension>(
+      "kettlebell",
+      createKettlebell.UNITS,
+      seed,
+      params,
+    );
   const kind: createKettlebell.Kind = ArchetypeDraw.choice(
     "kettlebell",
     "kind",

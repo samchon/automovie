@@ -38,8 +38,16 @@ export function createHeavyBag(
   params: createHeavyBag.IParams = {},
   seed?: number | string,
 ): Archetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
-  const draw: ArchetypeDrawSession<createHeavyBag.Dimension> = new ArchetypeDrawSession<createHeavyBag.Dimension>("heavyBag", createHeavyBag.UNITS, seed, params);
-  const d: Record<createHeavyBag.Dimension, number> = draw.dimensions(createHeavyBag.BANDS);
+  const draw: ArchetypeDrawSession<createHeavyBag.Dimension> =
+    new ArchetypeDrawSession<createHeavyBag.Dimension>(
+      "heavyBag",
+      createHeavyBag.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createHeavyBag.Dimension, number> = draw.dimensions(
+    createHeavyBag.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createHeavyBag.Affordance,
     createHeavyBag.Dimension
@@ -57,7 +65,11 @@ export function createHeavyBag(
   builder.affordance({
     id: "target",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, top - d.height / 2, radius), v(0, 0, 1), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, top - d.height / 2, radius),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     width: d.diameter,
     depth: d.height,
@@ -112,8 +124,24 @@ export namespace createHeavyBag {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(46 * ArchetypeUnits.INCH, 59 * ArchetypeUnits.INCH, EVERLAST, true),
-    diameter: ArchetypeBand.metres(13 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, EVERLAST, true),
-    mass: ArchetypeBand.of("kg", 100 * ArchetypeUnits.POUND, 100 * ArchetypeUnits.POUND, `${EVERLAST}: 100 lb`, true),
+    height: ArchetypeBand.metres(
+      46 * ArchetypeUnits.INCH,
+      59 * ArchetypeUnits.INCH,
+      EVERLAST,
+      true,
+    ),
+    diameter: ArchetypeBand.metres(
+      13 * ArchetypeUnits.INCH,
+      14.5 * ArchetypeUnits.INCH,
+      EVERLAST,
+      true,
+    ),
+    mass: ArchetypeBand.of(
+      "kg",
+      100 * ArchetypeUnits.POUND,
+      100 * ArchetypeUnits.POUND,
+      `${EVERLAST}: 100 lb`,
+      true,
+    ),
   };
 }

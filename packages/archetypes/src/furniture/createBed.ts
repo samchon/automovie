@@ -36,7 +36,13 @@ export function createBed(
   params: createBed.IParams,
   seed?: number | string,
 ): Archetype<createBed.Affordance, createBed.Dimension> {
-  const draw: ArchetypeDrawSession<createBed.Dimension> = new ArchetypeDrawSession<createBed.Dimension>("bed", createBed.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBed.Dimension> =
+    new ArchetypeDrawSession<createBed.Dimension>(
+      "bed",
+      createBed.UNITS,
+      seed,
+      params,
+    );
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",
     "kind",
@@ -44,7 +50,11 @@ export function createBed(
     createBed.KINDS,
   );
   const size: Readonly<Partial<Record<createBed.Dimension, number>>> =
-    draw.model<createBed.Mattress>("size", params.size, MATTRESS_SIZES[kind]).figures;
+    draw.model<createBed.Mattress>(
+      "size",
+      params.size,
+      MATTRESS_SIZES[kind],
+    ).figures;
   const d: Partial<Record<createBed.Dimension, number>> = {
     ...draw.dimensions(createBed.BANDS[kind], createBed.BANDS),
     ...size,

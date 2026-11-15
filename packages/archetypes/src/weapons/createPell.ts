@@ -31,8 +31,16 @@ export function createPell(
   params: createPell.IParams = {},
   seed?: number | string,
 ): Archetype<createPell.Affordance, createPell.Dimension> {
-  const draw: ArchetypeDrawSession<createPell.Dimension> = new ArchetypeDrawSession<createPell.Dimension>("pell", createPell.UNITS, seed, params);
-  const d: Record<createPell.Dimension, number> = draw.dimensions(createPell.BANDS);
+  const draw: ArchetypeDrawSession<createPell.Dimension> =
+    new ArchetypeDrawSession<createPell.Dimension>(
+      "pell",
+      createPell.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createPell.Dimension, number> = draw.dimensions(
+    createPell.BANDS,
+  );
   const builder: ArchetypeBuilder<createPell.Affordance, createPell.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

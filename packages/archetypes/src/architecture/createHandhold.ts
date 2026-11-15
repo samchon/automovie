@@ -50,7 +50,13 @@ export function createHandhold(
   params: createHandhold.IParams,
   seed?: number | string,
 ): Archetype<createHandhold.Affordance, createHandhold.Dimension> {
-  const draw: ArchetypeDrawSession<createHandhold.Dimension> = new ArchetypeDrawSession<createHandhold.Dimension>("handhold", createHandhold.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createHandhold.Dimension> =
+    new ArchetypeDrawSession<createHandhold.Dimension>(
+      "handhold",
+      createHandhold.UNITS,
+      seed,
+      params,
+    );
   const kind: createHandhold.Kind = ArchetypeDraw.choice(
     "handhold",
     "kind",
@@ -60,7 +66,11 @@ export function createHandhold(
   const strap: {
     name: createHandhold.Strap | undefined;
     figures: Readonly<Partial<Record<createHandhold.Dimension, number>>>;
-  } = draw.model<createHandhold.Strap>("strap", params.strap, createHandhold.STRAPS[kind]);
+  } = draw.model<createHandhold.Strap>(
+    "strap",
+    params.strap,
+    createHandhold.STRAPS[kind],
+  );
   const d: Partial<Record<createHandhold.Dimension, number>> = {
     ...draw.dimensions(createHandhold.BANDS[kind], createHandhold.BANDS),
     ...strap.figures,

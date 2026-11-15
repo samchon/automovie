@@ -260,7 +260,8 @@ export class ArchetypeDrawSession<Dimension extends string> {
                 names.length - 1,
               )
             ]!;
-    const figures: Readonly<Partial<Record<Dimension, number>>> = models![name]!;
+    const figures: Readonly<Partial<Record<Dimension, number>>> =
+      models![name]!;
     for (const dimension of Object.keys(figures) as Dimension[])
       if (this.#fixed[dimension] !== undefined)
         throw new ArchetypeRefusal({

@@ -37,7 +37,13 @@ export function createBox(
   params: createBox.IParams = {},
   seed?: number | string,
 ): Archetype<createBox.Affordance, createBox.Dimension> {
-  const draw: ArchetypeDrawSession<createBox.Dimension> = new ArchetypeDrawSession<createBox.Dimension>("box", createBox.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBox.Dimension> =
+    new ArchetypeDrawSession<createBox.Dimension>(
+      "box",
+      createBox.UNITS,
+      seed,
+      params,
+    );
   const load: number = params.load ?? 0;
   if (!(load >= 0 && load <= createBox.LOAD))
     throw new ArchetypeRefusal({
@@ -54,8 +60,9 @@ export function createBox(
       reason: `${load} kg is more than a person lifts close to the body`,
       fix: "give a load of at most 25 kg, or split it over several boxes",
     });
-  const d: Record<createBox.Dimension, number> =
-    draw.dimensions(createBox.BANDS);
+  const d: Record<createBox.Dimension, number> = draw.dimensions(
+    createBox.BANDS,
+  );
   const width: number = d.width;
   const height: number = d.height;
   const depth: number = d.depth;
@@ -162,9 +169,27 @@ export namespace createBox {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of("m", (16 + 3 / 8) * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, CARTON, true),
-    height: ArchetypeBand.of("m", (12 + 5 / 8) * ArchetypeUnits.INCH, 24 * ArchetypeUnits.INCH, CARTON, true),
-    depth: ArchetypeBand.of("m", (12 + 5 / 8) * ArchetypeUnits.INCH, 18 * ArchetypeUnits.INCH, CARTON, true),
+    width: ArchetypeBand.of(
+      "m",
+      (16 + 3 / 8) * ArchetypeUnits.INCH,
+      18 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
+    height: ArchetypeBand.of(
+      "m",
+      (12 + 5 / 8) * ArchetypeUnits.INCH,
+      24 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
+    depth: ArchetypeBand.of(
+      "m",
+      (12 + 5 / 8) * ArchetypeUnits.INCH,
+      18 * ArchetypeUnits.INCH,
+      CARTON,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

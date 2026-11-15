@@ -41,15 +41,23 @@ export function createBarbell(
   params: createBarbell.IParams,
   seed?: number | string,
 ): Archetype<createBarbell.Affordance, createBarbell.Dimension> {
-  const draw: ArchetypeDrawSession<createBarbell.Dimension> = new ArchetypeDrawSession<createBarbell.Dimension>("barbell", createBarbell.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBarbell.Dimension> =
+    new ArchetypeDrawSession<createBarbell.Dimension>(
+      "barbell",
+      createBarbell.UNITS,
+      seed,
+      params,
+    );
   const kind: createBarbell.Kind = ArchetypeDraw.choice(
     "barbell",
     "kind",
     params.kind,
     createBarbell.KINDS,
   );
-  const d: Partial<Record<createBarbell.Dimension, number>> =
-    draw.dimensions(createBarbell.BANDS[kind], createBarbell.BANDS);
+  const d: Partial<Record<createBarbell.Dimension, number>> = draw.dimensions(
+    createBarbell.BANDS[kind],
+    createBarbell.BANDS,
+  );
   const half: number = d.length! / 2;
   const collar: number = createBarbell.BETWEEN / 2;
   const builder: ArchetypeBuilder<

@@ -40,7 +40,13 @@ export function createLandingMat(
   params: createLandingMat.IParams,
   seed?: number | string,
 ): Archetype<createLandingMat.Affordance, createLandingMat.Dimension> {
-  const draw: ArchetypeDrawSession<createLandingMat.Dimension> = new ArchetypeDrawSession<createLandingMat.Dimension>("landingMat", createLandingMat.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createLandingMat.Dimension> =
+    new ArchetypeDrawSession<createLandingMat.Dimension>(
+      "landingMat",
+      createLandingMat.UNITS,
+      seed,
+      params,
+    );
   const kind: createLandingMat.Kind = ArchetypeDraw.choice(
     "landingMat",
     "kind",
@@ -50,7 +56,11 @@ export function createLandingMat(
   const layout: {
     name: createLandingMat.Layout | undefined;
     figures: Readonly<Partial<Record<createLandingMat.Dimension, number>>>;
-  } = draw.model<createLandingMat.Layout>("layout", params.layout, createLandingMat.LAYOUTS[kind]);
+  } = draw.model<createLandingMat.Layout>(
+    "layout",
+    params.layout,
+    createLandingMat.LAYOUTS[kind],
+  );
   const d: Partial<Record<createLandingMat.Dimension, number>> = {
     ...draw.dimensions(createLandingMat.BANDS[kind], createLandingMat.BANDS),
     ...layout.figures,

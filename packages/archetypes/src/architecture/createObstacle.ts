@@ -34,7 +34,13 @@ export function createObstacle(
   params: createObstacle.IParams,
   seed?: number | string,
 ): Archetype<createObstacle.Affordance, createObstacle.Dimension> {
-  const draw: ArchetypeDrawSession<createObstacle.Dimension> = new ArchetypeDrawSession<createObstacle.Dimension>("obstacle", createObstacle.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createObstacle.Dimension> =
+    new ArchetypeDrawSession<createObstacle.Dimension>(
+      "obstacle",
+      createObstacle.UNITS,
+      seed,
+      params,
+    );
   const kind: createObstacle.Kind = ArchetypeDraw.choice(
     "obstacle",
     "kind",
@@ -42,9 +48,17 @@ export function createObstacle(
     createObstacle.KINDS,
   );
   const section: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
-    draw.model<createObstacle.Section>("section", params.section, TIE_SIZES.section[kind]).figures;
+    draw.model<createObstacle.Section>(
+      "section",
+      params.section,
+      TIE_SIZES.section[kind],
+    ).figures;
   const length: Readonly<Partial<Record<createObstacle.Dimension, number>>> =
-    draw.model<createObstacle.TieLength>("tieLength", params.tieLength, TIE_SIZES.length[kind]).figures;
+    draw.model<createObstacle.TieLength>(
+      "tieLength",
+      params.tieLength,
+      TIE_SIZES.length[kind],
+    ).figures;
   const d: Partial<Record<createObstacle.Dimension, number>> = {
     ...draw.dimensions(createObstacle.BANDS[kind], createObstacle.BANDS),
     ...section,

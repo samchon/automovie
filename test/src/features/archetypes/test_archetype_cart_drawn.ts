@@ -65,7 +65,8 @@ export function test_archetype_cart_drawn(): void {
           cart.affordance(id).frame,
           "y",
         );
-        const track: number = kind === "rickshaw" ? d.width! - ArchetypeUnits.INCH : d.track!;
+        const track: number =
+          kind === "rickshaw" ? d.width! - ArchetypeUnits.INCH : d.track!;
         if (
           !close(spin.x, (sign * track) / 2) ||
           !close(spin.y, radius) ||
@@ -127,7 +128,10 @@ export function test_archetype_cart_drawn(): void {
           );
         if (!(at(cart, "pintle").z < 0))
           findings.push(`${label}: the pintle is not behind the axle`);
-        if (!close(d.wheelDiameter!, 57 * ArchetypeUnits.INCH) || !close(d.track!, 60 * ArchetypeUnits.INCH))
+        if (
+          !close(d.wheelDiameter!, 57 * ArchetypeUnits.INCH) ||
+          !close(d.track!, 60 * ArchetypeUnits.INCH)
+        )
           findings.push(`${label}: the wheels are not the Manual's`);
       }
 

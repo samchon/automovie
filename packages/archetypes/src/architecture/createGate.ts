@@ -48,7 +48,13 @@ export function createGate(
   params: createGate.IParams,
   seed?: number | string,
 ): Archetype<createGate.Affordance, createGate.Dimension> {
-  const draw: ArchetypeDrawSession<createGate.Dimension> = new ArchetypeDrawSession<createGate.Dimension>("gate", createGate.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createGate.Dimension> =
+    new ArchetypeDrawSession<createGate.Dimension>(
+      "gate",
+      createGate.UNITS,
+      seed,
+      params,
+    );
   const kind: createGate.Kind = ArchetypeDraw.choice(
     "gate",
     "kind",
@@ -58,7 +64,11 @@ export function createGate(
   const model: {
     name: createGate.Passage | undefined;
     figures: Readonly<Partial<Record<createGate.Dimension, number>>>;
-  } = draw.model<createGate.Passage>("lane", params.lane, createGate.PASSAGES[kind]);
+  } = draw.model<createGate.Passage>(
+    "lane",
+    params.lane,
+    createGate.PASSAGES[kind],
+  );
   const d: Partial<Record<createGate.Dimension, number>> = {
     ...draw.dimensions(createGate.BANDS[kind], createGate.BANDS),
     ...model.figures,

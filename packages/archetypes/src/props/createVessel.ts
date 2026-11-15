@@ -52,7 +52,13 @@ export function createVessel(
   params: createVessel.IParams,
   seed?: number | string,
 ): Archetype<createVessel.Affordance, createVessel.Dimension> {
-  const draw: ArchetypeDrawSession<createVessel.Dimension> = new ArchetypeDrawSession<createVessel.Dimension>("vessel", createVessel.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createVessel.Dimension> =
+    new ArchetypeDrawSession<createVessel.Dimension>(
+      "vessel",
+      createVessel.UNITS,
+      seed,
+      params,
+    );
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",
     "kind",
@@ -62,8 +68,14 @@ export function createVessel(
   const drawn: Partial<Record<createVessel.Dimension, number>> =
     draw.dimensions(createVessel.BANDS[kind]);
   // An ashtray is one of the two glass ashtrays read, whole.
-  const model: { name: createVessel.Model | undefined; figures: createVessel.Figures } =
-    draw.model<createVessel.Model>("model", params.model, createVessel.MODELS[kind]);
+  const model: {
+    name: createVessel.Model | undefined;
+    figures: createVessel.Figures;
+  } = draw.model<createVessel.Model>(
+    "model",
+    params.model,
+    createVessel.MODELS[kind],
+  );
   const read: Partial<Record<createVessel.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -299,7 +311,9 @@ export namespace createVessel {
   export type Model = "nachtmann" | "harris";
 
   /** Each kind's models whole, the default first: the ashtrays' 10 cm across, 3 cm high and 258 g (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053) and 16.8 cm across, 3.5 cm high and 1.7 kg (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992), retailer listings. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     ashtray: {
       nachtmann: { diameter: 0.1, height: 0.03, mass: 0.258 },
       harris: { diameter: 0.168, height: 0.035, mass: 1.7 },
@@ -328,8 +342,16 @@ export namespace createVessel {
       mass: ArchetypeBand.of("kg", 0.8, 1.4, UNREAD, true),
     },
     stockpot: {
-      diameter: ArchetypeBand.metres(9 * ArchetypeUnits.INCH, 9 * ArchetypeUnits.INCH, POT),
-      height: ArchetypeBand.metres(6 * ArchetypeUnits.INCH, 6 * ArchetypeUnits.INCH, POT),
+      diameter: ArchetypeBand.metres(
+        9 * ArchetypeUnits.INCH,
+        9 * ArchetypeUnits.INCH,
+        POT,
+      ),
+      height: ArchetypeBand.metres(
+        6 * ArchetypeUnits.INCH,
+        6 * ArchetypeUnits.INCH,
+        POT,
+      ),
       mass: ArchetypeBand.of("kg", 1.8, 3, UNREAD, true),
     },
     vase: {

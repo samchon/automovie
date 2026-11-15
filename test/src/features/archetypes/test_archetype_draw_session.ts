@@ -3,8 +3,8 @@ import {
   ArchetypeBuilder,
   ArchetypeDrawSession,
   ArchetypeRefusal,
-  createSki,
   type IArchetypeBand,
+  createSki,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -53,22 +53,34 @@ export function test_archetype_draw_session(): void {
 
   // 1. Drawn values with their bands.
   for (let seed: number = 0; seed < 50; seed++) {
-    const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession<Dimension>("thing", UNITS, seed);
+    const draw: ArchetypeDrawSession<Dimension> =
+      new ArchetypeDrawSession<Dimension>("thing", UNITS, seed);
     const drawn: Record<"width" | "mass", number> = draw.dimensions(BANDS);
-    const again: Record<"width" | "mass", number> = new ArchetypeDrawSession<Dimension>("thing", UNITS, seed).dimensions(BANDS);
+    const again: Record<"width" | "mass", number> =
+      new ArchetypeDrawSession<Dimension>("thing", UNITS, seed).dimensions(
+        BANDS,
+      );
     for (const name of ["width", "mass"] as const) {
       const band: IArchetypeBand | undefined = draw.provenance.bands[name];
       if (band !== BANDS[name])
         findings.push(`seed ${seed}: ${name} is not recorded with its band`);
       if (draw.values[name] !== drawn[name] || again[name] !== drawn[name])
         findings.push(`seed ${seed}: ${name} is not one value`);
-      if (!(drawn[name] >= BANDS[name].minimum && drawn[name] <= BANDS[name].maximum))
-        findings.push(`seed ${seed}: ${name} ${drawn[name]} lies outside its band`);
+      if (
+        !(
+          drawn[name] >= BANDS[name].minimum &&
+          drawn[name] <= BANDS[name].maximum
+        )
+      )
+        findings.push(
+          `seed ${seed}: ${name} ${drawn[name]} lies outside its band`,
+        );
     }
   }
 
   // 2. A picked model's figures and name.
-  const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession<Dimension>("thing", UNITS, 3);
+  const draw: ArchetypeDrawSession<Dimension> =
+    new ArchetypeDrawSession<Dimension>("thing", UNITS, 3);
   draw.dimensions(BANDS);
   const size: ArchetypeDrawSession.IModel<"short" | "long", Dimension> =
     draw.model<"short" | "long">("size", undefined, SIZES);
@@ -93,14 +105,16 @@ export function test_archetype_draw_session(): void {
     findings.push("a band in another unit than its dimension's was drawn");
   } catch (error) {
     if (error instanceof ArchetypeRefusal || !(error instanceof Error))
-      findings.push("a band in another unit was not thrown as a producer's defect");
+      findings.push(
+        "a band in another unit was not thrown as a producer's defect",
+      );
   }
 
   // 3. The archetype carries the record, posed or not.
   const built: ReturnType<ArchetypeBuilder<"top", Dimension>["build"]> =
     new ArchetypeBuilder<"top", Dimension>({ name: "thing", draw })
-    .box("block", Vector3.create(0.1, 0.1, 0.1), Vector3.create(0, 0.05, 0))
-    .build(1);
+      .box("block", Vector3.create(0.1, 0.1, 0.1), Vector3.create(0, 0.05, 0))
+      .build(1);
   if (
     JSON.stringify(built.dimensions) !== JSON.stringify(draw.values) ||
     JSON.stringify(built.provenance) !== JSON.stringify(draw.provenance)

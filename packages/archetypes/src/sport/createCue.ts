@@ -40,7 +40,13 @@ export function createCue(
   params: createCue.IParams = {},
   seed?: number | string,
 ): Archetype<createCue.Affordance, createCue.Dimension> {
-  const draw: ArchetypeDrawSession<createCue.Dimension> = new ArchetypeDrawSession<createCue.Dimension>("cue", createCue.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createCue.Dimension> =
+    new ArchetypeDrawSession<createCue.Dimension>(
+      "cue",
+      createCue.UNITS,
+      seed,
+      params,
+    );
   const buttModel: {
     name: createCue.Butt | undefined;
     figures: Readonly<Partial<Record<createCue.Dimension, number>>>;

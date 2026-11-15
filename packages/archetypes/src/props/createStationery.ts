@@ -61,7 +61,13 @@ export function createStationery(
   params: createStationery.IParams,
   seed?: number | string,
 ): Archetype<createStationery.Affordance, createStationery.Dimension> {
-  const draw: ArchetypeDrawSession<createStationery.Dimension> = new ArchetypeDrawSession<createStationery.Dimension>("stationery", createStationery.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStationery.Dimension> =
+    new ArchetypeDrawSession<createStationery.Dimension>(
+      "stationery",
+      createStationery.UNITS,
+      seed,
+      params,
+    );
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
     "kind",
@@ -71,8 +77,14 @@ export function createStationery(
   const drawn: Partial<Record<createStationery.Dimension, number>> =
     draw.dimensions(createStationery.BANDS[kind], createStationery.BANDS);
   // A clipboard is one of Esselte's two models whole.
-  const model: { name: createStationery.Model | undefined; figures: createStationery.Figures } =
-    draw.model<createStationery.Model>("model", params.model, createStationery.MODELS[kind]);
+  const model: {
+    name: createStationery.Model | undefined;
+    figures: createStationery.Figures;
+  } = draw.model<createStationery.Model>(
+    "model",
+    params.model,
+    createStationery.MODELS[kind],
+  );
   const d: Partial<Record<createStationery.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -296,7 +308,9 @@ export namespace createStationery {
   export type Model = "56055" | "604037";
 
   /** Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037 (https://docs.rs-online.com/6055/A700000015150044.pdf, https://docs.rs-online.com/86b9/A700000015142764.pdf). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     clipboard: {
       "56055": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.168 },
       "604037": { width: 0.232, length: 0.349, thickness: 0.003, mass: 0.19 },

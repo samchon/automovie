@@ -43,7 +43,13 @@ export function createMicrophone(
   params: createMicrophone.IParams,
   seed?: number | string,
 ): Archetype<createMicrophone.Affordance, createMicrophone.Dimension> {
-  const draw: ArchetypeDrawSession<createMicrophone.Dimension> = new ArchetypeDrawSession<createMicrophone.Dimension>("microphone", createMicrophone.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createMicrophone.Dimension> =
+    new ArchetypeDrawSession<createMicrophone.Dimension>(
+      "microphone",
+      createMicrophone.UNITS,
+      seed,
+      params,
+    );
   const kind: createMicrophone.Kind = ArchetypeDraw.choice(
     "microphone",
     "kind",

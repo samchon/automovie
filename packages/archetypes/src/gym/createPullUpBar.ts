@@ -39,15 +39,23 @@ export function createPullUpBar(
   params: createPullUpBar.IParams,
   seed?: number | string,
 ): Archetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
-  const draw: ArchetypeDrawSession<createPullUpBar.Dimension> = new ArchetypeDrawSession<createPullUpBar.Dimension>("pullUpBar", createPullUpBar.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createPullUpBar.Dimension> =
+    new ArchetypeDrawSession<createPullUpBar.Dimension>(
+      "pullUpBar",
+      createPullUpBar.UNITS,
+      seed,
+      params,
+    );
   const kind: createPullUpBar.Kind = ArchetypeDraw.choice(
     "pullUpBar",
     "kind",
     params.kind,
     createPullUpBar.KINDS,
   );
-  const d: Partial<Record<createPullUpBar.Dimension, number>> =
-    draw.dimensions(createPullUpBar.BANDS[kind], createPullUpBar.BANDS);
+  const d: Partial<Record<createPullUpBar.Dimension, number>> = draw.dimensions(
+    createPullUpBar.BANDS[kind],
+    createPullUpBar.BANDS,
+  );
   const half: number = d.length! / 2;
   const height: number = d.height!;
   const builder: ArchetypeBuilder<

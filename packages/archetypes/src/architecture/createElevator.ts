@@ -55,15 +55,28 @@ export function createElevator(
   params: createElevator.IParams = {},
   seed?: number | string,
 ): Archetype<createElevator.Affordance, createElevator.Dimension> {
-  const draw: ArchetypeDrawSession<createElevator.Dimension> = new ArchetypeDrawSession<createElevator.Dimension>("elevator", createElevator.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createElevator.Dimension> =
+    new ArchetypeDrawSession<createElevator.Dimension>(
+      "elevator",
+      createElevator.UNITS,
+      seed,
+      params,
+    );
   type Picked = {
     name: createElevator.Height | undefined;
     figures: Readonly<Partial<Record<createElevator.Dimension, number>>>;
   };
-  const car: Picked = draw.model<createElevator.Height>("car", params.car, createElevator.CARS);
+  const car: Picked = draw.model<createElevator.Height>(
+    "car",
+    params.car,
+    createElevator.CARS,
+  );
   const height: number = car.figures.height!;
   // A door is picked only among the heights below the car's, so it never reaches the roof.
-  const door: Picked = draw.model<createElevator.Height>("doorway", params.doorway, Object.fromEntries(
+  const door: Picked = draw.model<createElevator.Height>(
+    "doorway",
+    params.doorway,
+    Object.fromEntries(
       Object.entries(createElevator.DOORS).filter(
         ([, figures]: [
           string,
@@ -73,7 +86,8 @@ export function createElevator(
           ),
         ]): boolean => figures!.doorHeight! < height,
       ),
-    ));
+    ),
+  );
   const doorHeight: number = door.figures.doorHeight!;
   const d: Record<
     Exclude<createElevator.Dimension, "height" | "doorHeight">,

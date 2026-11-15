@@ -42,7 +42,13 @@ export function createStorage(
   params: createStorage.IParams,
   seed?: number | string,
 ): Archetype<createStorage.Affordance, createStorage.Dimension> {
-  const draw: ArchetypeDrawSession<createStorage.Dimension> = new ArchetypeDrawSession<createStorage.Dimension>("storage", createStorage.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStorage.Dimension> =
+    new ArchetypeDrawSession<createStorage.Dimension>(
+      "storage",
+      createStorage.UNITS,
+      seed,
+      params,
+    );
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",
     "kind",
@@ -50,7 +56,11 @@ export function createStorage(
     createStorage.KINDS,
   );
   const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
-    draw.model<createStorage.Model>("model", params.model, STORAGE_MODELS[kind]).figures;
+    draw.model<createStorage.Model>(
+      "model",
+      params.model,
+      STORAGE_MODELS[kind],
+    ).figures;
   const d: Partial<Record<createStorage.Dimension, number>> = {
     ...draw.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
     ...model,

@@ -47,7 +47,13 @@ export function createConsole(
   params: createConsole.IParams = {},
   seed?: number | string,
 ): Archetype<createConsole.Affordance, createConsole.Dimension> {
-  const draw: ArchetypeDrawSession<createConsole.Dimension> = new ArchetypeDrawSession<createConsole.Dimension>("console", createConsole.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createConsole.Dimension> =
+    new ArchetypeDrawSession<createConsole.Dimension>(
+      "console",
+      createConsole.UNITS,
+      seed,
+      params,
+    );
   const size: {
     name: createConsole.Size | undefined;
     figures: Readonly<Partial<Record<createConsole.Dimension, number>>>;
@@ -160,8 +166,9 @@ export namespace createConsole {
   };
 
   /** The parameters: the size, and any free dimension fixed to a value inside its band. */
-  export interface IParams
-    extends Partial<Record<Exclude<Dimension, "width">, number>> {
+  export interface IParams extends Partial<
+    Record<Exclude<Dimension, "width">, number>
+  > {
     /** Which of the sheet's sizes, which sets `width`; drawn from the seed when absent. */
     size?: Size;
 

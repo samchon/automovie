@@ -38,8 +38,16 @@ export function createTap(
   params: createTap.IParams = {},
   seed?: number | string,
 ): Archetype<createTap.Affordance, createTap.Dimension> {
-  const draw: ArchetypeDrawSession<createTap.Dimension> = new ArchetypeDrawSession<createTap.Dimension>("tap", createTap.UNITS, seed, params);
-  const d: Record<createTap.Dimension, number> = draw.dimensions(createTap.BANDS);
+  const draw: ArchetypeDrawSession<createTap.Dimension> =
+    new ArchetypeDrawSession<createTap.Dimension>(
+      "tap",
+      createTap.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createTap.Dimension, number> = draw.dimensions(
+    createTap.BANDS,
+  );
   const builder: ArchetypeBuilder<createTap.Affordance, createTap.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

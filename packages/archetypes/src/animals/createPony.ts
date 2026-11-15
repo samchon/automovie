@@ -30,18 +30,22 @@ export function createPony(
   params: createPony.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  const draw: ArchetypeDrawSession<createHorse.Dimension> = new ArchetypeDrawSession<createHorse.Dimension>(
-    createPony.ARCHETYPE,
-    createHorse.UNITS,
-    seed,
+  const draw: ArchetypeDrawSession<createHorse.Dimension> =
+    new ArchetypeDrawSession<createHorse.Dimension>(
+      createPony.ARCHETYPE,
+      createHorse.UNITS,
+      seed,
+      params,
+    );
+  const breed: ArchetypeDrawSession.IModel<
+    createPony.Breed,
+    createHorse.Dimension
+  > = draw.model<createPony.Breed>("breed", params.breed, createPony.MEASURES);
+  return createHorse.equid(
+    createPony.profile(breed.name!, breed.figures),
     params,
+    draw,
   );
-  const breed: ArchetypeDrawSession.IModel<createPony.Breed, createHorse.Dimension> = draw.model<createPony.Breed>(
-    "breed",
-    params.breed,
-    createPony.MEASURES,
-  );
-  return createHorse.equid(createPony.profile(breed.name!, breed.figures), params, draw);
 }
 
 /**
@@ -65,7 +69,9 @@ export namespace createPony {
     | "connemara";
 
   /** Each breed's read figures, the default first: its mean height at the withers and heart girth in Brooks et al. 2010's published rows (`EquidSegments.BREEDS`), in metres. */
-  export const MEASURES: Readonly<Record<Breed, Readonly<Partial<Record<createHorse.Dimension, number>>>>> = {
+  export const MEASURES: Readonly<
+    Record<Breed, Readonly<Partial<Record<createHorse.Dimension, number>>>>
+  > = {
     shetland: measures(EquidSegments.BREEDS.shetland),
     welshMountain: measures(EquidSegments.BREEDS.welshMountain),
     welshPony: measures(EquidSegments.BREEDS.welshPony),
@@ -79,7 +85,9 @@ export namespace createPony {
    * @param breed The breed's measures.
    * @returns The figures.
    */
-  function measures(breed: EquidSegments.IBreed): Readonly<Partial<Record<createHorse.Dimension, number>>> {
+  function measures(
+    breed: EquidSegments.IBreed,
+  ): Readonly<Partial<Record<createHorse.Dimension, number>>> {
     return {
       withersHeight: breed.withers * ArchetypeUnits.CENTIMETRE,
       girth: breed.girth * ArchetypeUnits.CENTIMETRE,
@@ -93,7 +101,9 @@ export namespace createPony {
   }
 
   /** The band of each dimension a pony draws: the horse's tack and tempo, which the rider's hand and foot and the gait's spread set, not the pony's size; its height is its breed's (`MEASURES`). */
-  export const BANDS: Readonly<Partial<Record<createHorse.Free, IArchetypeBand>>> = {
+  export const BANDS: Readonly<
+    Partial<Record<createHorse.Free, IArchetypeBand>>
+  > = {
     stirrupDrop: HORSE_BANDS.stirrupDrop,
     stirrupWidth: HORSE_BANDS.stirrupWidth,
     tempo: HORSE_BANDS.tempo,

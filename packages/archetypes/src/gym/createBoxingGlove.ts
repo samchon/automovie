@@ -36,11 +36,21 @@ export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
   seed?: number | string,
 ): Archetype<createBoxingGlove.Affordance, createBoxingGlove.Dimension> {
-  const draw: ArchetypeDrawSession<createBoxingGlove.Dimension> = new ArchetypeDrawSession<createBoxingGlove.Dimension>("boxingGlove", createBoxingGlove.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBoxingGlove.Dimension> =
+    new ArchetypeDrawSession<createBoxingGlove.Dimension>(
+      "boxingGlove",
+      createBoxingGlove.UNITS,
+      seed,
+      params,
+    );
   const weight: {
     name: createBoxingGlove.Weight | undefined;
     figures: Readonly<Partial<Record<createBoxingGlove.Dimension, number>>>;
-  } = draw.model<createBoxingGlove.Weight>("weight", params.weight, createBoxingGlove.WEIGHTS);
+  } = draw.model<createBoxingGlove.Weight>(
+    "weight",
+    params.weight,
+    createBoxingGlove.WEIGHTS,
+  );
   const d: Record<createBoxingGlove.Dimension, number> = {
     ...draw.dimensions(createBoxingGlove.BANDS),
     mass: weight.figures.mass!,

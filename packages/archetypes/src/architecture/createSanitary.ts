@@ -35,15 +35,23 @@ export function createSanitary(
   params: createSanitary.IParams,
   seed?: number | string,
 ): Archetype<createSanitary.Affordance, createSanitary.Dimension> {
-  const draw: ArchetypeDrawSession<createSanitary.Dimension> = new ArchetypeDrawSession<createSanitary.Dimension>("sanitary", createSanitary.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSanitary.Dimension> =
+    new ArchetypeDrawSession<createSanitary.Dimension>(
+      "sanitary",
+      createSanitary.UNITS,
+      seed,
+      params,
+    );
   const kind: createSanitary.Kind = ArchetypeDraw.choice(
     "sanitary",
     "kind",
     params.kind,
     createSanitary.KINDS,
   );
-  const d: Partial<Record<createSanitary.Dimension, number>> =
-    draw.dimensions(createSanitary.BANDS[kind], createSanitary.BANDS);
+  const d: Partial<Record<createSanitary.Dimension, number>> = draw.dimensions(
+    createSanitary.BANDS[kind],
+    createSanitary.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createSanitary.Affordance,
     createSanitary.Dimension

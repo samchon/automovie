@@ -35,15 +35,23 @@ export function createAppliance(
   params: createAppliance.IParams,
   seed?: number | string,
 ): Archetype<createAppliance.Affordance, createAppliance.Dimension> {
-  const draw: ArchetypeDrawSession<createAppliance.Dimension> = new ArchetypeDrawSession<createAppliance.Dimension>("appliance", createAppliance.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createAppliance.Dimension> =
+    new ArchetypeDrawSession<createAppliance.Dimension>(
+      "appliance",
+      createAppliance.UNITS,
+      seed,
+      params,
+    );
   const kind: createAppliance.Kind = ArchetypeDraw.choice(
     "appliance",
     "kind",
     params.kind,
     createAppliance.KINDS,
   );
-  const d: Partial<Record<createAppliance.Dimension, number>> =
-    draw.dimensions(createAppliance.BANDS[kind], createAppliance.BANDS);
+  const d: Partial<Record<createAppliance.Dimension, number>> = draw.dimensions(
+    createAppliance.BANDS[kind],
+    createAppliance.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createAppliance.Affordance,
     createAppliance.Dimension

@@ -77,7 +77,13 @@ export function createStreetFixture(
   params: createStreetFixture.IParams,
   seed?: number | string,
 ): Archetype<createStreetFixture.Affordance, createStreetFixture.Dimension> {
-  const draw: ArchetypeDrawSession<createStreetFixture.Dimension> = new ArchetypeDrawSession<createStreetFixture.Dimension>("streetFixture", createStreetFixture.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStreetFixture.Dimension> =
+    new ArchetypeDrawSession<createStreetFixture.Dimension>(
+      "streetFixture",
+      createStreetFixture.UNITS,
+      seed,
+      params,
+    );
   const kind: createStreetFixture.Kind = ArchetypeDraw.choice(
     "streetFixture",
     "kind",
@@ -87,9 +93,16 @@ export function createStreetFixture(
   const model: {
     name: createStreetFixture.Model | undefined;
     figures: Readonly<Partial<Record<createStreetFixture.Dimension, number>>>;
-  } = draw.model<createStreetFixture.Model>("model", params.model, createStreetFixture.MODELS[kind]);
+  } = draw.model<createStreetFixture.Model>(
+    "model",
+    params.model,
+    createStreetFixture.MODELS[kind],
+  );
   const d: Drawn = {
-    ...draw.dimensions(createStreetFixture.BANDS[kind], createStreetFixture.BANDS),
+    ...draw.dimensions(
+      createStreetFixture.BANDS[kind],
+      createStreetFixture.BANDS,
+    ),
     ...model.figures,
   };
   const builder: Builder = new ArchetypeBuilder({

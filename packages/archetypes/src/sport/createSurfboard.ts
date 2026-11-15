@@ -32,11 +32,21 @@ export function createSurfboard(
   params: createSurfboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSurfboard.Affordance, createSurfboard.Dimension> {
-  const draw: ArchetypeDrawSession<createSurfboard.Dimension> = new ArchetypeDrawSession<createSurfboard.Dimension>("surfboard", createSurfboard.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSurfboard.Dimension> =
+    new ArchetypeDrawSession<createSurfboard.Dimension>(
+      "surfboard",
+      createSurfboard.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createSurfboard.Model | undefined;
     figures: Readonly<Partial<Record<createSurfboard.Dimension, number>>>;
-  } = draw.model<createSurfboard.Model>("model", params.model, createSurfboard.MODELS);
+  } = draw.model<createSurfboard.Model>(
+    "model",
+    params.model,
+    createSurfboard.MODELS,
+  );
   const d: Partial<Record<createSurfboard.Dimension, number>> = {
     ...draw.dimensions(createSurfboard.BANDS),
     ...model.figures,

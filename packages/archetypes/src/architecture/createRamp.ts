@@ -35,8 +35,16 @@ export function createRamp(
   params: createRamp.IParams = {},
   seed?: number | string,
 ): Archetype<createRamp.Affordance, createRamp.Dimension> {
-  const draw: ArchetypeDrawSession<createRamp.Dimension> = new ArchetypeDrawSession<createRamp.Dimension>("ramp", createRamp.UNITS, seed, params);
-  const d: Record<createRamp.Dimension, number> = draw.dimensions(createRamp.BANDS);
+  const draw: ArchetypeDrawSession<createRamp.Dimension> =
+    new ArchetypeDrawSession<createRamp.Dimension>(
+      "ramp",
+      createRamp.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createRamp.Dimension, number> = draw.dimensions(
+    createRamp.BANDS,
+  );
   const run: number = d.rise / d.slope;
   const builder: ArchetypeBuilder<createRamp.Affordance, createRamp.Dimension> =
     new ArchetypeBuilder({

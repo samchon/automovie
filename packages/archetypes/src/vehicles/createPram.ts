@@ -36,8 +36,16 @@ export function createPram(
   params: createPram.IParams = {},
   seed?: number | string,
 ): Archetype<createPram.Affordance, createPram.Dimension> {
-  const draw: ArchetypeDrawSession<createPram.Dimension> = new ArchetypeDrawSession<createPram.Dimension>("pram", createPram.UNITS, seed, params);
-  const d: Record<createPram.Dimension, number> = draw.dimensions(createPram.BANDS);
+  const draw: ArchetypeDrawSession<createPram.Dimension> =
+    new ArchetypeDrawSession<createPram.Dimension>(
+      "pram",
+      createPram.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createPram.Dimension, number> = draw.dimensions(
+    createPram.BANDS,
+  );
   const builder: ArchetypeBuilder<createPram.Affordance, createPram.Dimension> =
     new ArchetypeBuilder({
       id: params.id,
@@ -177,13 +185,26 @@ export namespace createPram {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(36.6 * ArchetypeUnits.INCH, 36.6 * ArchetypeUnits.INCH, BUGABOO),
-    width: ArchetypeBand.metres(23.6 * ArchetypeUnits.INCH, 23.6 * ArchetypeUnits.INCH, BUGABOO),
+    length: ArchetypeBand.metres(
+      36.6 * ArchetypeUnits.INCH,
+      36.6 * ArchetypeUnits.INCH,
+      BUGABOO,
+    ),
+    width: ArchetypeBand.metres(
+      23.6 * ArchetypeUnits.INCH,
+      23.6 * ArchetypeUnits.INCH,
+      BUGABOO,
+    ),
     handleHeight: ArchetypeBand.metres(
       41.3 * ArchetypeUnits.INCH,
       41.3 * ArchetypeUnits.INCH,
       `${BUGABOO}: its height open, the push bar's`,
     ),
-    mass: ArchetypeBand.of("kg", 22.9 * ArchetypeUnits.POUND, 27.8 * ArchetypeUnits.POUND, BUGABOO),
+    mass: ArchetypeBand.of(
+      "kg",
+      22.9 * ArchetypeUnits.POUND,
+      27.8 * ArchetypeUnits.POUND,
+      BUGABOO,
+    ),
   };
 }

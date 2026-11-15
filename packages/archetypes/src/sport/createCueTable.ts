@@ -39,8 +39,16 @@ export function createCueTable(
   params: createCueTable.IParams = {},
   seed?: number | string,
 ): Archetype<createCueTable.Affordance, createCueTable.Dimension> {
-  const draw: ArchetypeDrawSession<createCueTable.Dimension> = new ArchetypeDrawSession<createCueTable.Dimension>("cueTable", createCueTable.UNITS, seed, params);
-  const d: Record<createCueTable.Dimension, number> = draw.dimensions(createCueTable.BANDS);
+  const draw: ArchetypeDrawSession<createCueTable.Dimension> =
+    new ArchetypeDrawSession<createCueTable.Dimension>(
+      "cueTable",
+      createCueTable.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createCueTable.Dimension, number> = draw.dimensions(
+    createCueTable.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createCueTable.Affordance,
     createCueTable.Dimension
@@ -129,7 +137,13 @@ export namespace createCueTable {
    * - `rail`: a rail's width with its cushion.
    * - `mass`: kilograms.
    */
-  export type Dimension = "width" | "length" | "height" | "nose" | "rail" | "mass";
+  export type Dimension =
+    | "width"
+    | "length"
+    | "height"
+    | "nose"
+    | "rail"
+    | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
@@ -149,11 +163,27 @@ export namespace createCueTable {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(50 * ArchetypeUnits.INCH, 50.125 * ArchetypeUnits.INCH, WPA),
-    length: ArchetypeBand.metres(100 * ArchetypeUnits.INCH, 100.125 * ArchetypeUnits.INCH, WPA),
-    height: ArchetypeBand.metres(29.25 * ArchetypeUnits.INCH, 31 * ArchetypeUnits.INCH, WPA),
+    width: ArchetypeBand.metres(
+      50 * ArchetypeUnits.INCH,
+      50.125 * ArchetypeUnits.INCH,
+      WPA,
+    ),
+    length: ArchetypeBand.metres(
+      100 * ArchetypeUnits.INCH,
+      100.125 * ArchetypeUnits.INCH,
+      WPA,
+    ),
+    height: ArchetypeBand.metres(
+      29.25 * ArchetypeUnits.INCH,
+      31 * ArchetypeUnits.INCH,
+      WPA,
+    ),
     nose: ArchetypeBand.of("", 0.625, 0.645, WPA),
-    rail: ArchetypeBand.metres(4 * ArchetypeUnits.INCH, 7.5 * ArchetypeUnits.INCH, WPA),
+    rail: ArchetypeBand.metres(
+      4 * ArchetypeUnits.INCH,
+      7.5 * ArchetypeUnits.INCH,
+      WPA,
+    ),
     mass: ArchetypeBand.of("kg", 300, 450, ArchetypeBand.TYPICAL_MASS, true),
   };
 }

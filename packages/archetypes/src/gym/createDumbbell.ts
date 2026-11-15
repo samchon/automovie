@@ -36,15 +36,23 @@ export function createDumbbell(
   params: createDumbbell.IParams,
   seed?: number | string,
 ): Archetype<createDumbbell.Affordance, createDumbbell.Dimension> {
-  const draw: ArchetypeDrawSession<createDumbbell.Dimension> = new ArchetypeDrawSession<createDumbbell.Dimension>("dumbbell", createDumbbell.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createDumbbell.Dimension> =
+    new ArchetypeDrawSession<createDumbbell.Dimension>(
+      "dumbbell",
+      createDumbbell.UNITS,
+      seed,
+      params,
+    );
   const kind: createDumbbell.Kind = ArchetypeDraw.choice(
     "dumbbell",
     "kind",
     params.kind ?? "fixed",
     createDumbbell.KINDS,
   );
-  const d: Partial<Record<createDumbbell.Dimension, number>> =
-    draw.dimensions(createDumbbell.BANDS[kind], createDumbbell.BANDS);
+  const d: Partial<Record<createDumbbell.Dimension, number>> = draw.dimensions(
+    createDumbbell.BANDS[kind],
+    createDumbbell.BANDS,
+  );
   const half: number = d.handle! / 2;
   const slim: number = d.diameter! / 2;
 

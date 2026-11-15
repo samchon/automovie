@@ -35,12 +35,24 @@ export function createUmbrella(
   params: createUmbrella.IParams = {},
   seed?: number | string,
 ): Archetype<createUmbrella.Affordance, createUmbrella.Dimension> {
-  const draw: ArchetypeDrawSession<createUmbrella.Dimension> = new ArchetypeDrawSession<createUmbrella.Dimension>("umbrella", createUmbrella.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createUmbrella.Dimension> =
+    new ArchetypeDrawSession<createUmbrella.Dimension>(
+      "umbrella",
+      createUmbrella.UNITS,
+      seed,
+      params,
+    );
   const drawn: Partial<Record<createUmbrella.Dimension, number>> =
     draw.dimensions(createUmbrella.BANDS);
   // The umbrella is one of BLUNT's two models whole.
-  const model: { name: createUmbrella.Model | undefined; figures: createUmbrella.Figures } =
-    draw.model<createUmbrella.Model>("model", params.model, createUmbrella.MODELS);
+  const model: {
+    name: createUmbrella.Model | undefined;
+    figures: createUmbrella.Figures;
+  } = draw.model<createUmbrella.Model>(
+    "model",
+    params.model,
+    createUmbrella.MODELS,
+  );
   const d: Record<createUmbrella.Dimension, number> = {
     length: model.figures.length!,
     canopy: model.figures.canopy!,
@@ -60,9 +72,15 @@ export function createUmbrella(
   builder.rod("handle", d.gripDiameter / 2, v(0, 0, 0), v(0, handle, 0), {
     color: "#3a2a1e",
   });
-  builder.rod("shaft", createUmbrella.SHAFT, v(0, handle, 0), v(0, d.length, 0), {
-    color: "#2c2f33",
-  });
+  builder.rod(
+    "shaft",
+    createUmbrella.SHAFT,
+    v(0, handle, 0),
+    v(0, d.length, 0),
+    {
+      color: "#2c2f33",
+    },
+  );
   builder.affordance({
     id: "grip",
     kind: "handle",

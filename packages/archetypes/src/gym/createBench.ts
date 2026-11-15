@@ -41,15 +41,23 @@ export function createBench(
   params: createBench.IParams,
   seed?: number | string,
 ): Archetype<createBench.Affordance, createBench.Dimension> {
-  const draw: ArchetypeDrawSession<createBench.Dimension> = new ArchetypeDrawSession<createBench.Dimension>("bench", createBench.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBench.Dimension> =
+    new ArchetypeDrawSession<createBench.Dimension>(
+      "bench",
+      createBench.UNITS,
+      seed,
+      params,
+    );
   const kind: createBench.Kind = ArchetypeDraw.choice(
     "bench",
     "kind",
     params.kind ?? "flat",
     createBench.KINDS,
   );
-  const d: Partial<Record<createBench.Dimension, number>> =
-    draw.dimensions(createBench.BANDS[kind], createBench.BANDS);
+  const d: Partial<Record<createBench.Dimension, number>> = draw.dimensions(
+    createBench.BANDS[kind],
+    createBench.BANDS,
+  );
   const length: number = d.length!;
   const width: number = d.width!;
   const height: number = d.height!;

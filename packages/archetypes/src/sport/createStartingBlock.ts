@@ -40,11 +40,21 @@ export function createStartingBlock(
   params: createStartingBlock.IParams = {},
   seed?: number | string,
 ): Archetype<createStartingBlock.Affordance, createStartingBlock.Dimension> {
-  const draw: ArchetypeDrawSession<createStartingBlock.Dimension> = new ArchetypeDrawSession<createStartingBlock.Dimension>("startingBlock", createStartingBlock.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createStartingBlock.Dimension> =
+    new ArchetypeDrawSession<createStartingBlock.Dimension>(
+      "startingBlock",
+      createStartingBlock.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createStartingBlock.Model | undefined;
     figures: Readonly<Partial<Record<createStartingBlock.Dimension, number>>>;
-  } = draw.model<createStartingBlock.Model>("model", params.model, createStartingBlock.MODELS);
+  } = draw.model<createStartingBlock.Model>(
+    "model",
+    params.model,
+    createStartingBlock.MODELS,
+  );
   const d: Record<createStartingBlock.Dimension, number> = {
     ...draw.dimensions(createStartingBlock.BANDS),
     rail: model.figures.rail!,

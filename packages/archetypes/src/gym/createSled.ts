@@ -36,7 +36,13 @@ export function createSled(
   params: createSled.IParams = {},
   seed?: number | string,
 ): Archetype<createSled.Affordance, createSled.Dimension> {
-  const draw: ArchetypeDrawSession<createSled.Dimension> = new ArchetypeDrawSession<createSled.Dimension>("sled", createSled.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSled.Dimension> =
+    new ArchetypeDrawSession<createSled.Dimension>(
+      "sled",
+      createSled.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createSled.Model | undefined;
     figures: Readonly<Partial<Record<createSled.Dimension, number>>>;

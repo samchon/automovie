@@ -38,18 +38,32 @@ export function createTool(
   params: createTool.IParams,
   seed?: number | string,
 ): Archetype<createTool.Affordance, createTool.Dimension> {
-  const draw: ArchetypeDrawSession<createTool.Dimension> = new ArchetypeDrawSession<createTool.Dimension>("tool", createTool.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createTool.Dimension> =
+    new ArchetypeDrawSession<createTool.Dimension>(
+      "tool",
+      createTool.UNITS,
+      seed,
+      params,
+    );
   const kind: createTool.Kind = ArchetypeDraw.choice(
     "tool",
     "kind",
     params.kind,
     createTool.KINDS,
   );
-  const drawn: Partial<Record<createTool.Dimension, number>> =
-    draw.dimensions(createTool.BANDS[kind], createTool.BANDS);
+  const drawn: Partial<Record<createTool.Dimension, number>> = draw.dimensions(
+    createTool.BANDS[kind],
+    createTool.BANDS,
+  );
   // A table knife is one of the two read knives whole.
-  const model: { name: createTool.Model | undefined; figures: createTool.Figures } =
-    draw.model<createTool.Model>("model", params.model, createTool.MODELS[kind]);
+  const model: {
+    name: createTool.Model | undefined;
+    figures: createTool.Figures;
+  } = draw.model<createTool.Model>(
+    "model",
+    params.model,
+    createTool.MODELS[kind],
+  );
   const d: Partial<Record<createTool.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -69,10 +83,16 @@ export function createTool(
     // The ring a finger and thumb pinch, then the stem to its point.
     const wire: number = PRIMING_WIRE.wire;
     const ring: number = PRIMING_WIRE.ring;
-    builder.rod("ring", ring / 2, v(-wire / 2, ring / 2, 0), v(wire / 2, ring / 2, 0), {
-      color: "#4a4d52",
-      surface: "steel",
-    });
+    builder.rod(
+      "ring",
+      ring / 2,
+      v(-wire / 2, ring / 2, 0),
+      v(wire / 2, ring / 2, 0),
+      {
+        color: "#4a4d52",
+        surface: "steel",
+      },
+    );
     builder.rod("stem", wire / 2, v(0, ring, 0), v(0, length, 0), {
       color: "#4a4d52",
       surface: "steel",
@@ -415,10 +435,22 @@ export namespace createTool {
   export type Model = "eichenlaub" | "robertWelch";
 
   /** Each kind's models whole, the default first, length, blade, blade width and mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood), and Robert Welch's Malvern 24.6 cm, 12 cm, 2.1 cm, the blade the knife's widest part, and 130 g (https://www.johnlewis.com/robert-welch-malvern-stainless-steel-table-knife-12cm/p707599). */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
+  > = {
     knife: {
-      eichenlaub: { length: 0.225, blade: 0.125, bladeWidth: 0.017, mass: 0.06 },
-      robertWelch: { length: 0.246, blade: 0.12, bladeWidth: 0.021, mass: 0.13 },
+      eichenlaub: {
+        length: 0.225,
+        blade: 0.125,
+        bladeWidth: 0.017,
+        mass: 0.06,
+      },
+      robertWelch: {
+        length: 0.246,
+        blade: 0.12,
+        bladeWidth: 0.021,
+        mass: 0.13,
+      },
     },
   };
 

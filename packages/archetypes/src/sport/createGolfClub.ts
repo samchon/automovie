@@ -33,14 +33,22 @@ export function createGolfClub(
   params: createGolfClub.IParams,
   seed?: number | string,
 ): Archetype<createGolfClub.Affordance, createGolfClub.Dimension> {
-  const draw: ArchetypeDrawSession<createGolfClub.Dimension> = new ArchetypeDrawSession<createGolfClub.Dimension>("golfClub", createGolfClub.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createGolfClub.Dimension> =
+    new ArchetypeDrawSession<createGolfClub.Dimension>(
+      "golfClub",
+      createGolfClub.UNITS,
+      seed,
+      params,
+    );
   const kind: createGolfClub.Kind = ArchetypeDraw.choice(
     "golfClub",
     "kind",
     params.kind,
     createGolfClub.KINDS,
   );
-  const d: Record<createGolfClub.Dimension, number> = draw.dimensions(createGolfClub.BANDS[kind]);
+  const d: Record<createGolfClub.Dimension, number> = draw.dimensions(
+    createGolfClub.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createGolfClub.Affordance,
     createGolfClub.Dimension
@@ -248,7 +256,11 @@ export namespace createGolfClub {
       ),
     },
     iron: {
-      length: m(37 * ArchetypeUnits.INCH, 37 * ArchetypeUnits.INCH, "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)"),
+      length: m(
+        37 * ArchetypeUnits.INCH,
+        37 * ArchetypeUnits.INCH,
+        "PING G440 7-iron, 37 in (https://ping.com/clubs/irons/g440)",
+      ),
       headWidth: m(0.075, 0.085, UNREAD, true),
       headDepth: m(0.02, 0.03, UNREAD, true),
       gripDiameter: GRIP,

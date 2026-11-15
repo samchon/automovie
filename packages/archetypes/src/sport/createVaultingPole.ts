@@ -38,11 +38,21 @@ export function createVaultingPole(
   params: createVaultingPole.IParams = {},
   seed?: number | string,
 ): Archetype<createVaultingPole.Affordance, createVaultingPole.Dimension> {
-  const draw: ArchetypeDrawSession<createVaultingPole.Dimension> = new ArchetypeDrawSession<createVaultingPole.Dimension>("vaultingPole", createVaultingPole.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createVaultingPole.Dimension> =
+    new ArchetypeDrawSession<createVaultingPole.Dimension>(
+      "vaultingPole",
+      createVaultingPole.UNITS,
+      seed,
+      params,
+    );
   const series: {
     name: createVaultingPole.Series | undefined;
     figures: Readonly<Partial<Record<createVaultingPole.Dimension, number>>>;
-  } = draw.model<createVaultingPole.Series>("series", params.series, createVaultingPole.SERIES);
+  } = draw.model<createVaultingPole.Series>(
+    "series",
+    params.series,
+    createVaultingPole.SERIES,
+  );
   const d: Record<createVaultingPole.Dimension, number> = {
     ...draw.dimensions(createVaultingPole.BANDS),
     length: series.figures.length!,

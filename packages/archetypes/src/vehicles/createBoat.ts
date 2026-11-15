@@ -36,7 +36,13 @@ export function createBoat(
   params: createBoat.IParams,
   seed?: number | string,
 ): Archetype<createBoat.Affordance, createBoat.Dimension> {
-  const draw: ArchetypeDrawSession<createBoat.Dimension> = new ArchetypeDrawSession<createBoat.Dimension>("boat", createBoat.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBoat.Dimension> =
+    new ArchetypeDrawSession<createBoat.Dimension>(
+      "boat",
+      createBoat.UNITS,
+      seed,
+      params,
+    );
   const kind: createBoat.Kind = ArchetypeDraw.choice(
     "boat",
     "kind",
@@ -44,22 +50,38 @@ export function createBoat(
     createBoat.KINDS,
   );
   // One read hull whole and, for a canoe, one of its layups; a rowboat's blades are the oar its span calls for.
-  const hull: { name: createBoat.Model | undefined; figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
-    draw.model<createBoat.Model>("model", params.model, BOAT_MODELS.hulls[kind]);
-  const layup: { figures: Readonly<Partial<Record<createBoat.Dimension, number>>> } =
-    draw.model<createBoat.Layup>("layup", params.layup, hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name]);
+  const hull: {
+    name: createBoat.Model | undefined;
+    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
+  } = draw.model<createBoat.Model>(
+    "model",
+    params.model,
+    BOAT_MODELS.hulls[kind],
+  );
+  const layup: {
+    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
+  } = draw.model<createBoat.Layup>(
+    "layup",
+    params.layup,
+    hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name],
+  );
   const drawn: Partial<Record<createBoat.Dimension, number>> = {
     ...draw.dimensions(createBoat.BANDS[kind], createBoat.BANDS),
     ...hull.figures,
     ...layup.figures,
   };
   // A rowboat's blades follow its beam, by the oar its span calls for: derived, not drawn.
-  const derived = (blade: { bladeLength: number; bladeWidth: number }): Partial<Record<createBoat.Dimension, number>> => ({
+  const derived = (blade: {
+    bladeLength: number;
+    bladeWidth: number;
+  }): Partial<Record<createBoat.Dimension, number>> => ({
     bladeLength: draw.derive("bladeLength", blade.bladeLength),
     bladeWidth: draw.derive("bladeWidth", blade.bladeWidth),
   });
   const d: Partial<Record<createBoat.Dimension, number>> =
-    kind === "rowboat" ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) } : drawn;
+    kind === "rowboat"
+      ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) }
+      : drawn;
   const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

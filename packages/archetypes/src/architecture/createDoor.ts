@@ -40,7 +40,13 @@ export function createDoor(
   params: createDoor.IParams = {},
   seed?: number | string,
 ): Archetype<createDoor.Affordance, createDoor.Dimension> {
-  const draw: ArchetypeDrawSession<createDoor.Dimension> = new ArchetypeDrawSession<createDoor.Dimension>("door", createDoor.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createDoor.Dimension> =
+    new ArchetypeDrawSession<createDoor.Dimension>(
+      "door",
+      createDoor.UNITS,
+      seed,
+      params,
+    );
   const kind: createDoor.Kind = ArchetypeDraw.choice(
     "door",
     "kind",

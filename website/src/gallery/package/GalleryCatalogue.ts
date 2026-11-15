@@ -1,7 +1,4 @@
-import {
-  ARCHETYPE_FAMILIES,
-  type Archetype,
-} from "@automovie/archetypes";
+import { ARCHETYPE_FAMILIES, type Archetype } from "@automovie/archetypes";
 
 import { formatArchetypeLabel } from "../formatArchetypeLabel";
 import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
@@ -33,7 +30,6 @@ export namespace GalleryCatalogue {
 
     /** The frames, where the producer's variants are frames. */
     FRAMES?: readonly string[];
-
 
     /** The parameters a producer needs beyond its variant, as the stated reference instance it carries, such as a cell front's narrowest width. */
     REFERENCE?: Readonly<Record<string, unknown>>;

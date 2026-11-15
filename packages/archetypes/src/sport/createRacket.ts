@@ -33,14 +33,22 @@ export function createRacket(
   params: createRacket.IParams,
   seed?: number | string,
 ): Archetype<createRacket.Affordance, createRacket.Dimension> {
-  const draw: ArchetypeDrawSession<createRacket.Dimension> = new ArchetypeDrawSession<createRacket.Dimension>("racket", createRacket.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createRacket.Dimension> =
+    new ArchetypeDrawSession<createRacket.Dimension>(
+      "racket",
+      createRacket.UNITS,
+      seed,
+      params,
+    );
   const kind: createRacket.Kind = ArchetypeDraw.choice(
     "racket",
     "kind",
     params.kind,
     createRacket.KINDS,
   );
-  const d: Record<createRacket.Dimension, number> = draw.dimensions(createRacket.BANDS[kind]);
+  const d: Record<createRacket.Dimension, number> = draw.dimensions(
+    createRacket.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createRacket.Affordance,
     createRacket.Dimension

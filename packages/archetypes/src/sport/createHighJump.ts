@@ -47,15 +47,23 @@ export function createHighJump(
   params: createHighJump.IParams = {},
   seed?: number | string,
 ): Archetype<createHighJump.Affordance, createHighJump.Dimension> {
-  const draw: ArchetypeDrawSession<createHighJump.Dimension> = new ArchetypeDrawSession<createHighJump.Dimension>("highJump", createHighJump.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createHighJump.Dimension> =
+    new ArchetypeDrawSession<createHighJump.Dimension>(
+      "highJump",
+      createHighJump.UNITS,
+      seed,
+      params,
+    );
   const kind: createHighJump.Kind = ArchetypeDraw.choice(
     "highJump",
     "kind",
     params.kind ?? "highJump",
     createHighJump.KINDS,
   );
-  const d: Partial<Record<createHighJump.Dimension, number>> =
-    draw.dimensions(createHighJump.BANDS[kind], createHighJump.BANDS);
+  const d: Partial<Record<createHighJump.Dimension, number>> = draw.dimensions(
+    createHighJump.BANDS[kind],
+    createHighJump.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createHighJump.Affordance,
     createHighJump.Dimension
@@ -72,9 +80,7 @@ export function createHighJump(
 
   // The high jump's uprights carry the bar's ends; a pole vault's standards stand clear of its ends and reach in with arms to the pegs.
   const standing: number =
-    kind === "highJump"
-      ? d.span! / 2
-      : length / 2 + createHighJump.UPRIGHT;
+    kind === "highJump" ? d.span! / 2 : length / 2 + createHighJump.UPRIGHT;
   for (const [side, sign] of [
     ["left", 1],
     ["right", -1],
@@ -90,8 +96,16 @@ export function createHighJump(
       builder.rod(
         `arm-${side}`,
         createHighJump.UPRIGHT / 4,
-        v(sign * standing, d.height! - d.diameter! - createHighJump.UPRIGHT / 4, at),
-        v((sign * d.span!) / 2, d.height! - d.diameter! - createHighJump.UPRIGHT / 4, at),
+        v(
+          sign * standing,
+          d.height! - d.diameter! - createHighJump.UPRIGHT / 4,
+          at,
+        ),
+        v(
+          (sign * d.span!) / 2,
+          d.height! - d.diameter! - createHighJump.UPRIGHT / 4,
+          at,
+        ),
         { color: "#d8d2c4" },
       );
   }
@@ -269,7 +283,10 @@ export namespace createHighJump {
  * @param d The drawn dimensions.
  */
 function box(
-  builder: ArchetypeBuilder<createHighJump.Affordance, createHighJump.Dimension>,
+  builder: ArchetypeBuilder<
+    createHighJump.Affordance,
+    createHighJump.Dimension
+  >,
   d: Partial<Record<createHighJump.Dimension, number>>,
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -293,7 +310,10 @@ function box(
     builder.box(
       id,
       v(width, t, Vector3.length(span)),
-      Vector3.add(Vector3.scale(Vector3.add(from, to), 0.5), Vector3.scale(behind, t / 2)),
+      Vector3.add(
+        Vector3.scale(Vector3.add(from, to), 0.5),
+        Vector3.scale(behind, t / 2),
+      ),
       {
         color: "#4a4d52",
         rotation: Quaternion.fromAxisAngle(v(1, 0, 0), tilt),

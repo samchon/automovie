@@ -36,14 +36,22 @@ export function createJavelin(
   params: createJavelin.IParams,
   seed?: number | string,
 ): Archetype<createJavelin.Affordance, createJavelin.Dimension> {
-  const draw: ArchetypeDrawSession<createJavelin.Dimension> = new ArchetypeDrawSession<createJavelin.Dimension>("javelin", createJavelin.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createJavelin.Dimension> =
+    new ArchetypeDrawSession<createJavelin.Dimension>(
+      "javelin",
+      createJavelin.UNITS,
+      seed,
+      params,
+    );
   const kind: createJavelin.Kind = ArchetypeDraw.choice(
     "javelin",
     "kind",
     params.kind,
     createJavelin.KINDS,
   );
-  const d: Record<createJavelin.Dimension, number> = draw.dimensions(createJavelin.BANDS[kind]);
+  const d: Record<createJavelin.Dimension, number> = draw.dimensions(
+    createJavelin.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createJavelin.Affordance,
     createJavelin.Dimension

@@ -35,15 +35,23 @@ export function createRack(
   params: createRack.IParams,
   seed?: number | string,
 ): Archetype<createRack.Affordance, createRack.Dimension> {
-  const draw: ArchetypeDrawSession<createRack.Dimension> = new ArchetypeDrawSession<createRack.Dimension>("rack", createRack.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createRack.Dimension> =
+    new ArchetypeDrawSession<createRack.Dimension>(
+      "rack",
+      createRack.UNITS,
+      seed,
+      params,
+    );
   const kind: createRack.Kind = ArchetypeDraw.choice(
     "rack",
     "kind",
     params.kind ?? "squat",
     createRack.KINDS,
   );
-  const d: Partial<Record<createRack.Dimension, number>> =
-    draw.dimensions(createRack.BANDS[kind], createRack.BANDS);
+  const d: Partial<Record<createRack.Dimension, number>> = draw.dimensions(
+    createRack.BANDS[kind],
+    createRack.BANDS,
+  );
   const half: number = d.width! / 2;
   const builder: ArchetypeBuilder<createRack.Affordance, createRack.Dimension> =
     new ArchetypeBuilder({

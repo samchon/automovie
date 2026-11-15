@@ -37,7 +37,13 @@ export function createTableware(
   params: createTableware.IParams,
   seed?: number | string,
 ): Archetype<createTableware.Affordance, createTableware.Dimension> {
-  const draw: ArchetypeDrawSession<createTableware.Dimension> = new ArchetypeDrawSession<createTableware.Dimension>("tableware", createTableware.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createTableware.Dimension> =
+    new ArchetypeDrawSession<createTableware.Dimension>(
+      "tableware",
+      createTableware.UNITS,
+      seed,
+      params,
+    );
   const kind: createTableware.Kind = ArchetypeDraw.choice(
     "tableware",
     "kind",
@@ -47,8 +53,14 @@ export function createTableware(
   const drawn: Partial<Record<createTableware.Dimension, number>> =
     draw.dimensions(createTableware.BANDS[kind], createTableware.BANDS);
   // A round plate or a platter is one of IKEA's read models whole.
-  const model: { name: createTableware.Model | undefined; figures: createTableware.Figures } =
-    draw.model<createTableware.Model>("model", params.model, createTableware.MODELS[kind]);
+  const model: {
+    name: createTableware.Model | undefined;
+    figures: createTableware.Figures;
+  } = draw.model<createTableware.Model>(
+    "model",
+    params.model,
+    createTableware.MODELS[kind],
+  );
   const d: Partial<Record<createTableware.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -198,7 +210,9 @@ export namespace createTableware {
    *
    * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and 0.52 kg, which the plate alone is lighter than by an amount no page gives.
    */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
+  > = {
     plate: {
       sidePlate: { diameter: 0.2, height: 0.02, mass: 0.41 },
       dinnerPlate: { diameter: 0.27, height: 0.03, mass: 0.77 },

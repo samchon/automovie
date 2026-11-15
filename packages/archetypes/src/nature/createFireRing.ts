@@ -13,7 +13,7 @@ import {
 
 /** A maker's campground fire ring, read. */
 const RING: string =
-  "Belson FR-30-GNG fire ring: \"3/16\" steel plate, 8\"H x 30\" Diameter\", 42 lbs without the grill grate (https://belson.com/Fire-Ring-with-Flip-Back-Campfire-Grill); the diameter, which the page does not call inside or outside, taken as the ring's outside";
+  'Belson FR-30-GNG fire ring: "3/16" steel plate, 8"H x 30" Diameter", 42 lbs without the grill grate (https://belson.com/Fire-Ring-with-Flip-Back-Campfire-Grill); the diameter, which the page does not call inside or outside, taken as the ring\'s outside';
 
 /**
  * A campground fire ring: a steel band standing on the ground round a fire.
@@ -37,14 +37,22 @@ export function createFireRing(
   params: createFireRing.IParams,
   seed?: number | string,
 ): Archetype<createFireRing.Affordance, createFireRing.Dimension> {
-  const draw: ArchetypeDrawSession<createFireRing.Dimension> = new ArchetypeDrawSession<createFireRing.Dimension>("fireRing", createFireRing.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createFireRing.Dimension> =
+    new ArchetypeDrawSession<createFireRing.Dimension>(
+      "fireRing",
+      createFireRing.UNITS,
+      seed,
+      params,
+    );
   const kind: createFireRing.Kind = ArchetypeDraw.choice(
     "fireRing",
     "kind",
     params.kind,
     createFireRing.KINDS,
   );
-  const d: Record<createFireRing.Dimension, number> = draw.dimensions(createFireRing.BANDS[kind]);
+  const d: Record<createFireRing.Dimension, number> = draw.dimensions(
+    createFireRing.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createFireRing.Affordance,
     createFireRing.Dimension
@@ -69,7 +77,12 @@ export function createFireRing(
       {
         color: "#3a3a3a",
         surface: "steel",
-        rotation: { x: 0, y: Math.sin(angle / 2), z: 0, w: Math.cos(angle / 2) },
+        rotation: {
+          x: 0,
+          y: Math.sin(angle / 2),
+          z: 0,
+          w: Math.cos(angle / 2),
+        },
       },
     );
   }
@@ -144,7 +157,9 @@ export namespace createFireRing {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>> = {
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  > = {
     campground: {
       diameter: ArchetypeBand.metres(
         30 * ArchetypeUnits.INCH,

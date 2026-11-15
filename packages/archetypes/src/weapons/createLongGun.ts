@@ -44,7 +44,13 @@ export function createLongGun(
   params: createLongGun.IParams,
   seed?: number | string,
 ): Archetype<createLongGun.Affordance, createLongGun.Dimension> {
-  const draw: ArchetypeDrawSession<createLongGun.Dimension> = new ArchetypeDrawSession<createLongGun.Dimension>("longGun", createLongGun.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createLongGun.Dimension> =
+    new ArchetypeDrawSession<createLongGun.Dimension>(
+      "longGun",
+      createLongGun.UNITS,
+      seed,
+      params,
+    );
   const kind: createLongGun.Kind = ArchetypeDraw.choice(
     "longGun",
     "kind",
@@ -52,8 +58,13 @@ export function createLongGun(
     createLongGun.KINDS,
   );
   // A carbine is one of Colt's three, each weighed whole; a shotgun has one read model, its bands.
-  const model: { figures: Readonly<Partial<Record<createLongGun.Dimension, number>>> } =
-    draw.model<createLongGun.Model>("model", params.model, createLongGun.MODELS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createLongGun.Dimension, number>>>;
+  } = draw.model<createLongGun.Model>(
+    "model",
+    params.model,
+    createLongGun.MODELS[kind],
+  );
   const d: Partial<Record<createLongGun.Dimension, number>> = {
     ...draw.dimensions(createLongGun.BANDS[kind], createLongGun.BANDS),
     ...model.figures,
@@ -265,7 +276,14 @@ export namespace createLongGun {
   export type Model = "r0977hb" | "r0979" | "cr6921";
 
   /** Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); a shotgun has none. */
-  export const MODELS: Readonly<Partial<Record<Kind, Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     carbine: {
       r0977hb: { mass: 3.13 },
       r0979: { mass: 2.95 },
@@ -295,7 +313,11 @@ export namespace createLongGun {
         30.5 * ArchetypeUnits.INCH,
         `${CARBINE}: 30.5 in with the stock retracted, all three`,
       ),
-      barrel: ArchetypeBand.metres(14.5 * ArchetypeUnits.INCH, 14.5 * ArchetypeUnits.INCH, `${CARBINE}: 14.5 in`),
+      barrel: ArchetypeBand.metres(
+        14.5 * ArchetypeUnits.INCH,
+        14.5 * ArchetypeUnits.INCH,
+        `${CARBINE}: 14.5 in`,
+      ),
       lengthOfPull: ArchetypeBand.metres(
         10.75 * ArchetypeUnits.INCH,
         0.29,
@@ -315,8 +337,16 @@ export namespace createLongGun {
       ),
     },
     shotgun: {
-      length: ArchetypeBand.metres(39.5 * ArchetypeUnits.INCH, 39.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 39.5 in`),
-      barrel: ArchetypeBand.metres(18.5 * ArchetypeUnits.INCH, 18.5 * ArchetypeUnits.INCH, `${SHOTGUN}: 18.5 in`),
+      length: ArchetypeBand.metres(
+        39.5 * ArchetypeUnits.INCH,
+        39.5 * ArchetypeUnits.INCH,
+        `${SHOTGUN}: 39.5 in`,
+      ),
+      barrel: ArchetypeBand.metres(
+        18.5 * ArchetypeUnits.INCH,
+        18.5 * ArchetypeUnits.INCH,
+        `${SHOTGUN}: 18.5 in`,
+      ),
       lengthOfPull: ArchetypeBand.metres(
         13.87 * ArchetypeUnits.INCH,
         13.87 * ArchetypeUnits.INCH,

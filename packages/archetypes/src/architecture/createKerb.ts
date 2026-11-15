@@ -32,14 +32,22 @@ export function createKerb(
   params: createKerb.IParams,
   seed?: number | string,
 ): Archetype<createKerb.Affordance, createKerb.Dimension> {
-  const draw: ArchetypeDrawSession<createKerb.Dimension> = new ArchetypeDrawSession<createKerb.Dimension>("kerb", createKerb.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createKerb.Dimension> =
+    new ArchetypeDrawSession<createKerb.Dimension>(
+      "kerb",
+      createKerb.UNITS,
+      seed,
+      params,
+    );
   const kind: createKerb.Kind = ArchetypeDraw.choice(
     "kerb",
     "kind",
     params.kind,
     createKerb.KINDS,
   );
-  const d: Record<createKerb.Dimension, number> = draw.dimensions(createKerb.BANDS[kind]);
+  const d: Record<createKerb.Dimension, number> = draw.dimensions(
+    createKerb.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<createKerb.Affordance, createKerb.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

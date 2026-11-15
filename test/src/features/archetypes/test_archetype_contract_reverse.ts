@@ -57,15 +57,46 @@ function fixture(
     .box("carriage", v(0.1, 0.1, 0.1), v(0, 0.2, 0))
     .box("flap-leaf", v(0.4, 0.3, 0.02), v(-0.5, 0.5, 0))
     .box("cap", v(0.02, 0.02, 0.02), v(0, 0.8, 0))
-    .affordance({ id: "swing", kind: "hinge", frame: facing(v(0.1, 0.5, 0)), extent: null, ...swing, parts: ["leaf"] })
-    .affordance({ id: "slide", kind: "slider", frame: facing(v(0, 0.2, 0)), extent: null, ...TRAVEL.slide, parts: ["carriage"] })
-    .affordance({ id: "flap", kind: "hinge", frame: facing(v(-0.3, 0.5, 0)), extent: null, ...TRAVEL.flap, parts: ["flap-leaf"] })
-    .affordance({ id: "press", kind: "button", frame: facing(v(0, 0.8, 0)), extent: null, ...TRAVEL.press, parts: ["cap"] })
+    .affordance({
+      id: "swing",
+      kind: "hinge",
+      frame: facing(v(0.1, 0.5, 0)),
+      extent: null,
+      ...swing,
+      parts: ["leaf"],
+    })
+    .affordance({
+      id: "slide",
+      kind: "slider",
+      frame: facing(v(0, 0.2, 0)),
+      extent: null,
+      ...TRAVEL.slide,
+      parts: ["carriage"],
+    })
+    .affordance({
+      id: "flap",
+      kind: "hinge",
+      frame: facing(v(-0.3, 0.5, 0)),
+      extent: null,
+      ...TRAVEL.flap,
+      parts: ["flap-leaf"],
+    })
+    .affordance({
+      id: "press",
+      kind: "button",
+      frame: facing(v(0, 0.8, 0)),
+      extent: null,
+      ...TRAVEL.press,
+      parts: ["cap"],
+    })
     .build(10);
 }
 
 /** Where a part's centre is in its model. */
-function centre(archetype: Archetype<Id, never>, part: string): IAutoMovieVector3 {
+function centre(
+  archetype: Archetype<Id, never>,
+  part: string,
+): IAutoMovieVector3 {
   return archetype.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === part,
   )!.transform!.translation;
@@ -122,7 +153,9 @@ export function test_archetype_contract_reverse(): void {
     const range: { minimum: number | null; maximum: number | null } =
       ArchetypeArticulation.range(affordance(id));
     if (range.minimum !== minimum || range.maximum !== maximum)
-      findings.push(`${id} ranges ${range.minimum} to ${range.maximum}, not ${minimum} to ${maximum}`);
+      findings.push(
+        `${id} ranges ${range.minimum} to ${range.maximum}, not ${minimum} to ${maximum}`,
+      );
   }
 
   // 2. Either way from rest.
@@ -135,15 +168,32 @@ export function test_archetype_contract_reverse(): void {
         Vector3.subtract(centre(model, "leaf"), pivot),
       ),
     );
-  const back: IAutoMovieVector3 = centre(model.articulate({ swing: -60 }), "leaf");
-  const ahead: IAutoMovieVector3 = centre(model.articulate({ swing: 60 }), "leaf");
+  const back: IAutoMovieVector3 = centre(
+    model.articulate({ swing: -60 }),
+    "leaf",
+  );
+  const ahead: IAutoMovieVector3 = centre(
+    model.articulate({ swing: 60 }),
+    "leaf",
+  );
   if (!vclose(back, turned(-60), 1e-9) || !(Math.abs(back.z + ahead.z) < 1e-9))
-    findings.push(`the leaf at -60 degrees is at ${JSON.stringify(back)}, not ${JSON.stringify(turned(-60))}`);
+    findings.push(
+      `the leaf at -60 degrees is at ${JSON.stringify(back)}, not ${JSON.stringify(turned(-60))}`,
+    );
   const run: IAutoMovieVector3 = Vector3.subtract(
     centre(model.articulate({ slide: -TRAVEL.slide.reverse! }), "carriage"),
     centre(model, "carriage"),
   );
-  if (!vclose(run, Vector3.scale(ArchetypeFrame.axis(affordance("slide").frame, "x"), -TRAVEL.slide.reverse!), 1e-9))
+  if (
+    !vclose(
+      run,
+      Vector3.scale(
+        ArchetypeFrame.axis(affordance("slide").frame, "x"),
+        -TRAVEL.slide.reverse!,
+      ),
+      1e-9,
+    )
+  )
     findings.push(`the carriage at its reverse ran ${JSON.stringify(run)}`);
 
   // 3. Past either end.
@@ -154,33 +204,64 @@ export function test_archetype_contract_reverse(): void {
     ["press", -0.001, 0],
   ] as const) {
     const state: Partial<Record<Id, number>> = { [id]: travel };
-    const refusal: ArchetypeRefusal | null = refused(() => model.articulate(state));
-    if (refusal === null || refusal.feasible?.kind !== "range" || refusal.feasible.minimum !== minimum)
-      findings.push(`${id} at ${travel} is not refused with its least end ${minimum}`);
+    const refusal: ArchetypeRefusal | null = refused(() =>
+      model.articulate(state),
+    );
+    if (
+      refusal === null ||
+      refusal.feasible?.kind !== "range" ||
+      refusal.feasible.minimum !== minimum
+    )
+      findings.push(
+        `${id} at ${travel} is not refused with its least end ${minimum}`,
+      );
   }
 
   // 4. The engine's admission.
-  if (faults(model).length !== 0) findings.push(`the fixture is refused at ${faults(model).join(", ")}`);
+  if (faults(model).length !== 0)
+    findings.push(`the fixture is refused at ${faults(model).join(", ")}`);
   for (const reverse of [0, -10, Number.NaN]) {
-    const at: string[] = faults(fixture({ travel: TRAVEL.swing.travel, reverse }));
+    const at: string[] = faults(
+      fixture({ travel: TRAVEL.swing.travel, reverse }),
+    );
     if (!at.some((path: string): boolean => path.endsWith(".reverse")))
       findings.push(`a reverse of ${reverse} is admitted: ${at.join(", ")}`);
   }
 
   // 5. The slider's mark.
-  const points: readonly number[] = ArchetypeMarks.of("fixture", [affordance("slide")]).flatMap(
-    (m: IAutoMovieMark): number[] => (m.shape.type === "segments" ? m.shape.points : []),
+  const points: readonly number[] = ArchetypeMarks.of("fixture", [
+    affordance("slide"),
+  ]).flatMap((m: IAutoMovieMark): number[] =>
+    m.shape.type === "segments" ? m.shape.points : [],
   );
   const frame: IAutoMovieAffordance["frame"] = affordance("slide").frame;
   const along: IAutoMovieVector3 = ArchetypeFrame.axis(frame, "x");
   const ends: IAutoMovieVector3[] = [0, 3]
     .filter((k: number): boolean => k + 2 < points.length)
-    .map((k: number): IAutoMovieVector3 => Vector3.create(points[k]!, points[k + 1]!, points[k + 2]!));
+    .map(
+      (k: number): IAutoMovieVector3 =>
+        Vector3.create(points[k]!, points[k + 1]!, points[k + 2]!),
+    );
   if (
     ends.length !== 2 ||
-    !vclose(ends[0]!, Vector3.add(frame.translation, Vector3.scale(along, -TRAVEL.slide.reverse!)), 1e-9) ||
-    !vclose(ends[1]!, Vector3.add(frame.translation, Vector3.scale(along, TRAVEL.slide.travel)), 1e-9)
+    !vclose(
+      ends[0]!,
+      Vector3.add(
+        frame.translation,
+        Vector3.scale(along, -TRAVEL.slide.reverse!),
+      ),
+      1e-9,
+    ) ||
+    !vclose(
+      ends[1]!,
+      Vector3.add(frame.translation, Vector3.scale(along, TRAVEL.slide.travel)),
+      1e-9,
+    )
   )
     findings.push(`the slider's mark runs ${JSON.stringify(ends)}`);
-  TestValidator.equals("a reverse moves an articulation the other way", findings, []);
+  TestValidator.equals(
+    "a reverse moves an articulation the other way",
+    findings,
+    [],
+  );
 }

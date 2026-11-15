@@ -51,7 +51,13 @@ export function createMirror(
   params: createMirror.IParams,
   seed?: number | string,
 ): Archetype<createMirror.Affordance, createMirror.Dimension> {
-  const draw: ArchetypeDrawSession<createMirror.Dimension> = new ArchetypeDrawSession<createMirror.Dimension>("mirror", createMirror.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createMirror.Dimension> =
+    new ArchetypeDrawSession<createMirror.Dimension>(
+      "mirror",
+      createMirror.UNITS,
+      seed,
+      params,
+    );
   const kind: createMirror.Kind = ArchetypeDraw.choice(
     "mirror",
     "kind",
@@ -61,7 +67,11 @@ export function createMirror(
   const size: {
     name: createMirror.Size | undefined;
     figures: Readonly<Partial<Record<createMirror.Dimension, number>>>;
-  } = draw.model<createMirror.Size>("size", params.size, createMirror.SIZES[kind]);
+  } = draw.model<createMirror.Size>(
+    "size",
+    params.size,
+    createMirror.SIZES[kind],
+  );
   const d: Partial<Record<createMirror.Dimension, number>> = {
     ...draw.dimensions(createMirror.BANDS[kind], createMirror.BANDS),
     ...size.figures,

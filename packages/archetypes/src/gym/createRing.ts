@@ -44,8 +44,16 @@ export function createRing(
   params: createRing.IParams = {},
   seed?: number | string,
 ): Archetype<createRing.Affordance, createRing.Dimension> {
-  const draw: ArchetypeDrawSession<createRing.Dimension> = new ArchetypeDrawSession<createRing.Dimension>("ring", createRing.UNITS, seed, params);
-  const d: Record<createRing.Dimension, number> = draw.dimensions(createRing.BANDS);
+  const draw: ArchetypeDrawSession<createRing.Dimension> =
+    new ArchetypeDrawSession<createRing.Dimension>(
+      "ring",
+      createRing.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createRing.Dimension, number> = draw.dimensions(
+    createRing.BANDS,
+  );
   const builder: ArchetypeBuilder<createRing.Affordance, createRing.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

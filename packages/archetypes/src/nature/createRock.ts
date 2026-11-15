@@ -40,14 +40,22 @@ export function createRock(
   params: createRock.IParams,
   seed?: number | string,
 ): Archetype<createRock.Affordance, createRock.Dimension> {
-  const draw: ArchetypeDrawSession<createRock.Dimension> = new ArchetypeDrawSession<createRock.Dimension>("rock", createRock.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createRock.Dimension> =
+    new ArchetypeDrawSession<createRock.Dimension>(
+      "rock",
+      createRock.UNITS,
+      seed,
+      params,
+    );
   const kind: createRock.Kind = ArchetypeDraw.choice(
     "rock",
     "kind",
     params.kind,
     createRock.KINDS,
   );
-  const d: Record<createRock.Dimension, number> = draw.dimensions(createRock.BANDS[kind]);
+  const d: Record<createRock.Dimension, number> = draw.dimensions(
+    createRock.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<createRock.Affordance, createRock.Dimension> =
     new ArchetypeBuilder({
       id: params.id,

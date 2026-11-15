@@ -40,15 +40,23 @@ export function createPlyoBox(
   params: createPlyoBox.IParams,
   seed?: number | string,
 ): Archetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
-  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> = new ArchetypeDrawSession<createPlyoBox.Dimension>("plyoBox", createPlyoBox.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> =
+    new ArchetypeDrawSession<createPlyoBox.Dimension>(
+      "plyoBox",
+      createPlyoBox.UNITS,
+      seed,
+      params,
+    );
   const kind: createPlyoBox.Kind = ArchetypeDraw.choice(
     "plyoBox",
     "kind",
     params.kind ?? "wood",
     createPlyoBox.KINDS,
   );
-  const d: Partial<Record<createPlyoBox.Dimension, number>> =
-    draw.dimensions(createPlyoBox.BANDS[kind], createPlyoBox.BANDS);
+  const d: Partial<Record<createPlyoBox.Dimension, number>> = draw.dimensions(
+    createPlyoBox.BANDS[kind],
+    createPlyoBox.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
@@ -124,9 +132,24 @@ export namespace createPlyoBox {
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
-      width: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
-      depth: ArchetypeBand.metres(20 * ArchetypeUnits.INCH, 30 * ArchetypeUnits.INCH, BOX, true),
+      height: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      width: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
+      depth: ArchetypeBand.metres(
+        20 * ArchetypeUnits.INCH,
+        30 * ArchetypeUnits.INCH,
+        BOX,
+        true,
+      ),
       mass: ArchetypeBand.of(
         "kg",
         15,

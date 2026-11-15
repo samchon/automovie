@@ -41,14 +41,23 @@ export function createLoad(
   params: createLoad.IParams,
   seed?: number | string,
 ): Archetype<createLoad.Affordance, createLoad.Dimension> {
-  const draw: ArchetypeDrawSession<createLoad.Dimension> = new ArchetypeDrawSession<createLoad.Dimension>("load", createLoad.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createLoad.Dimension> =
+    new ArchetypeDrawSession<createLoad.Dimension>(
+      "load",
+      createLoad.UNITS,
+      seed,
+      params,
+    );
   const kind: createLoad.Kind = ArchetypeDraw.choice(
     "load",
     "kind",
     params.kind,
     createLoad.KINDS,
   );
-  const d: Record<createLoad.Dimension, number> = draw.dimensions(createLoad.BANDS[kind], createLoad.BANDS);
+  const d: Record<createLoad.Dimension, number> = draw.dimensions(
+    createLoad.BANDS[kind],
+    createLoad.BANDS,
+  );
   const load: number = params.load ?? 0;
   const most: number = kind === "sack" ? 0 : createLoad.CONTENTS;
   if (!(load >= 0 && load <= most))

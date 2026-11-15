@@ -39,7 +39,13 @@ export function createParallelBars(
   params: createParallelBars.IParams,
   seed?: number | string,
 ): Archetype<createParallelBars.Affordance, createParallelBars.Dimension> {
-  const draw: ArchetypeDrawSession<createParallelBars.Dimension> = new ArchetypeDrawSession<createParallelBars.Dimension>("parallelBars", createParallelBars.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createParallelBars.Dimension> =
+    new ArchetypeDrawSession<createParallelBars.Dimension>(
+      "parallelBars",
+      createParallelBars.UNITS,
+      seed,
+      params,
+    );
   const kind: createParallelBars.Kind = ArchetypeDraw.choice(
     "parallelBars",
     "kind",

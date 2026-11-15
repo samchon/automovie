@@ -82,7 +82,13 @@ export function createMachine(
   params: createMachine.IParams,
   seed?: number | string,
 ): Archetype<createMachine.Affordance, createMachine.Dimension> {
-  const draw: ArchetypeDrawSession<createMachine.Dimension> = new ArchetypeDrawSession<createMachine.Dimension>("machine", createMachine.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createMachine.Dimension> =
+    new ArchetypeDrawSession<createMachine.Dimension>(
+      "machine",
+      createMachine.UNITS,
+      seed,
+      params,
+    );
   const kind: createMachine.Kind = ArchetypeDraw.choice(
     "machine",
     "kind",
@@ -92,7 +98,11 @@ export function createMachine(
   const model: {
     name: createMachine.Model | undefined;
     figures: Readonly<Partial<Record<createMachine.Dimension, number>>>;
-  } = draw.model<createMachine.Model>("model", params.model, createMachine.MODELS[kind]);
+  } = draw.model<createMachine.Model>(
+    "model",
+    params.model,
+    createMachine.MODELS[kind],
+  );
   const d: Partial<Record<createMachine.Dimension, number>> = {
     ...draw.dimensions(createMachine.BANDS[kind], createMachine.BANDS),
     ...model.figures,

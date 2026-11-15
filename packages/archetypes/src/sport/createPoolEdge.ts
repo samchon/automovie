@@ -42,15 +42,23 @@ export function createPoolEdge(
   params: createPoolEdge.IParams,
   seed?: number | string,
 ): Archetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
-  const draw: ArchetypeDrawSession<createPoolEdge.Dimension> = new ArchetypeDrawSession<createPoolEdge.Dimension>("poolEdge", createPoolEdge.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createPoolEdge.Dimension> =
+    new ArchetypeDrawSession<createPoolEdge.Dimension>(
+      "poolEdge",
+      createPoolEdge.UNITS,
+      seed,
+      params,
+    );
   const kind: createPoolEdge.Kind = ArchetypeDraw.choice(
     "poolEdge",
     "kind",
     params.kind,
     createPoolEdge.KINDS,
   );
-  const d: Partial<Record<createPoolEdge.Dimension, number>> =
-    draw.dimensions(createPoolEdge.BANDS[kind], createPoolEdge.BANDS);
+  const d: Partial<Record<createPoolEdge.Dimension, number>> = draw.dimensions(
+    createPoolEdge.BANDS[kind],
+    createPoolEdge.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createPoolEdge.Affordance,
     createPoolEdge.Dimension
@@ -100,7 +108,11 @@ export function createPoolEdge(
   builder.affordance({
     id: "restLedge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, ledge, d.ledgeWidth!), v(0, 1, 0), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, ledge, d.ledgeWidth!),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     length: width,
   });
@@ -147,7 +159,11 @@ export function createPoolEdge(
     id: "backstrokeGrip",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, grip, -E.grip / 2), v(0, 0, 1), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(
+      v(0, grip, -E.grip / 2),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     length: size,
@@ -156,7 +172,11 @@ export function createPoolEdge(
     id: "front",
     kind: "ledge",
     frame: ArchetypeFrame.facing(
-      v(0, top - (size / 2) * Math.sin(slope), -(size / 2) * (1 - Math.cos(slope))),
+      v(
+        0,
+        top - (size / 2) * Math.sin(slope),
+        -(size / 2) * (1 - Math.cos(slope)),
+      ),
       normal,
       v(1, 0, 0),
     ),

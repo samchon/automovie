@@ -42,15 +42,23 @@ export function createWindow(
   params: createWindow.IParams,
   seed?: number | string,
 ): Archetype<createWindow.Affordance, createWindow.Dimension> {
-  const draw: ArchetypeDrawSession<createWindow.Dimension> = new ArchetypeDrawSession<createWindow.Dimension>("window", createWindow.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createWindow.Dimension> =
+    new ArchetypeDrawSession<createWindow.Dimension>(
+      "window",
+      createWindow.UNITS,
+      seed,
+      params,
+    );
   const kind: createWindow.Kind = ArchetypeDraw.choice(
     "window",
     "kind",
     params.kind,
     createWindow.KINDS,
   );
-  const d: Partial<Record<createWindow.Dimension, number>> =
-    draw.dimensions(createWindow.BANDS[kind], createWindow.BANDS);
+  const d: Partial<Record<createWindow.Dimension, number>> = draw.dimensions(
+    createWindow.BANDS[kind],
+    createWindow.BANDS,
+  );
   const width: number = d.width!;
   const height: number = d.height!;
   const sill: number = d.sillHeight!;
@@ -241,7 +249,12 @@ export namespace createWindow {
   const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
     width: ArchetypeBand.metres(0.6, 1.2, SIZE, true),
     height: ArchetypeBand.metres(0.9, 1.2, SIZE, true),
-    sillHeight: ArchetypeBand.metres(24 * ArchetypeUnits.INCH, 0.914, SILL, true),
+    sillHeight: ArchetypeBand.metres(
+      24 * ArchetypeUnits.INCH,
+      0.914,
+      SILL,
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 40, 90, ArchetypeBand.TYPICAL_MASS, true),
   };
 

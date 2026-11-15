@@ -37,7 +37,13 @@ export function createInstrument(
   params: createInstrument.IParams,
   seed?: number | string,
 ): Archetype<createInstrument.Affordance, createInstrument.Dimension> {
-  const draw: ArchetypeDrawSession<createInstrument.Dimension> = new ArchetypeDrawSession<createInstrument.Dimension>("instrument", createInstrument.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createInstrument.Dimension> =
+    new ArchetypeDrawSession<createInstrument.Dimension>(
+      "instrument",
+      createInstrument.UNITS,
+      seed,
+      params,
+    );
   const kind: createInstrument.Kind = ArchetypeDraw.choice(
     "instrument",
     "kind",

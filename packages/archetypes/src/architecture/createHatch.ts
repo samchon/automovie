@@ -53,8 +53,16 @@ export function createHatch(
   params: createHatch.IParams = {},
   seed?: number | string,
 ): Archetype<createHatch.Affordance, createHatch.Dimension> {
-  const draw: ArchetypeDrawSession<createHatch.Dimension> = new ArchetypeDrawSession<createHatch.Dimension>("hatch", createHatch.UNITS, seed, params);
-  const d: Record<createHatch.Dimension, number> = draw.dimensions(createHatch.BANDS);
+  const draw: ArchetypeDrawSession<createHatch.Dimension> =
+    new ArchetypeDrawSession<createHatch.Dimension>(
+      "hatch",
+      createHatch.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createHatch.Dimension, number> = draw.dimensions(
+    createHatch.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createHatch.Affordance,
     createHatch.Dimension

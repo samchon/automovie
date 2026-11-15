@@ -33,7 +33,13 @@ export function createKeyboard(
   params: createKeyboard.IParams,
   seed?: number | string,
 ): Archetype<createKeyboard.Affordance, createKeyboard.Dimension> {
-  const draw: ArchetypeDrawSession<createKeyboard.Dimension> = new ArchetypeDrawSession<createKeyboard.Dimension>("keyboard", createKeyboard.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createKeyboard.Dimension> =
+    new ArchetypeDrawSession<createKeyboard.Dimension>(
+      "keyboard",
+      createKeyboard.UNITS,
+      seed,
+      params,
+    );
   const kind: createKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
     "kind",
@@ -43,8 +49,14 @@ export function createKeyboard(
   const drawn: Partial<Record<createKeyboard.Dimension, number>> =
     draw.dimensions(createKeyboard.BANDS[kind]);
   // Each kind is one of Apple's read models whole.
-  const model: { name: createKeyboard.Model | undefined; figures: createKeyboard.Figures } =
-    draw.model<createKeyboard.Model>("model", params.model, createKeyboard.MODELS[kind]);
+  const model: {
+    name: createKeyboard.Model | undefined;
+    figures: createKeyboard.Figures;
+  } = draw.model<createKeyboard.Model>(
+    "model",
+    params.model,
+    createKeyboard.MODELS[kind],
+  );
   const read: Partial<Record<createKeyboard.Dimension, number>> = {
     ...drawn,
     ...model.figures,
@@ -208,19 +220,38 @@ export namespace createKeyboard {
   /**
    * Each kind's models whole, the default first. The keyboards: 41.87 cm wide, 11.49 cm deep, 1.09 cm high at the back edge, 0.39 kg (https://support.apple.com/en-us/112037) and 0.369 kg with Touch ID (https://support.apple.com/en-us/121953). The laptops: the 13-inch 30.41 x 21.5 x 1.13 cm closed and 1.24 kg (https://support.apple.com/en-us/122209), the 15-inch 34.04 x 23.76 x 1.15 cm and 1.51 kg (https://support.apple.com/en-us/122210), the base the closed height less the lid's.
    */
-  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>> = {
+  export const MODELS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Model, Figures>>>>
+  > = {
     keyboard: {
-      numericKeypad: { width: 0.4187, depth: 0.1149, height: 0.0109, mass: 0.39 },
+      numericKeypad: {
+        width: 0.4187,
+        depth: 0.1149,
+        height: 0.0109,
+        mass: 0.39,
+      },
       touchId: { width: 0.4187, depth: 0.1149, height: 0.0109, mass: 0.369 },
     },
     laptop: {
-      air13: { width: 0.3041, depth: 0.215, height: 0.0113 - LID_THICKNESS, mass: 1.24 },
-      air15: { width: 0.3404, depth: 0.2376, height: 0.0115 - LID_THICKNESS, mass: 1.51 },
+      air13: {
+        width: 0.3041,
+        depth: 0.215,
+        height: 0.0113 - LID_THICKNESS,
+        mass: 1.24,
+      },
+      air15: {
+        width: 0.3404,
+        depth: 0.2376,
+        height: 0.0115 - LID_THICKNESS,
+        mass: 1.51,
+      },
     },
   };
 
   /** The band of each free dimension, by kind: none, every figure is a model's. */
-  export const BANDS: Readonly<Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>> = {
+  export const BANDS: Readonly<
+    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+  > = {
     keyboard: {},
     laptop: {},
   };

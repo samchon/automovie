@@ -34,7 +34,13 @@ export function createCar(
   params: createCar.IParams,
   seed?: number | string,
 ): Archetype<createCar.Affordance, createCar.Dimension> {
-  const draw: ArchetypeDrawSession<createCar.Dimension> = new ArchetypeDrawSession<createCar.Dimension>("car", createCar.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createCar.Dimension> =
+    new ArchetypeDrawSession<createCar.Dimension>(
+      "car",
+      createCar.UNITS,
+      seed,
+      params,
+    );
   const kind: createCar.Kind = ArchetypeDraw.choice(
     "car",
     "kind",
@@ -49,12 +55,25 @@ export function createCar(
       ? 1
       : -1;
   // One read model of the class, then one of the tyres it is offered on; its own ranges join the class's bands, and its figures are laid over the draw.
-  const model: { name: createCar.Model | undefined; figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
-    draw.model<createCar.Model>("model", params.model, CAR_MODELS.figures[kind]);
-  const fitted: { figures: Readonly<Partial<Record<createCar.Dimension, number>>> } =
-    draw.model<createCar.Tyre>("tyre", params.tyre, CAR_MODELS.tyres[model.name!]);
-  const drawn: Partial<Record<createCar.Dimension, number>> =
-    draw.dimensions({ ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] }, createCar.BANDS);
+  const model: {
+    name: createCar.Model | undefined;
+    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
+  } = draw.model<createCar.Model>(
+    "model",
+    params.model,
+    CAR_MODELS.figures[kind],
+  );
+  const fitted: {
+    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
+  } = draw.model<createCar.Tyre>(
+    "tyre",
+    params.tyre,
+    CAR_MODELS.tyres[model.name!],
+  );
+  const drawn: Partial<Record<createCar.Dimension, number>> = draw.dimensions(
+    { ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] },
+    createCar.BANDS,
+  );
   const d: Partial<Record<createCar.Dimension, number>> = {
     ...drawn,
     ...model.figures,

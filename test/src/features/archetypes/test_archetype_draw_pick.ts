@@ -5,7 +5,9 @@ import { TestValidator } from "@nestia/e2e";
 const ALTERNATIVES: readonly ("a" | "b" | "c")[] = ["a", "b", "c"];
 
 /** The alternatives as models without figures, in their order. */
-const MODELS: Readonly<Record<"a" | "b" | "c", Readonly<Record<never, number>>>> = {
+const MODELS: Readonly<
+  Record<"a" | "b" | "c", Readonly<Record<never, number>>>
+> = {
   a: {},
   b: {},
   c: {},
@@ -26,8 +28,11 @@ function pick(
   value: "a" | "b" | "c" | undefined,
   seed: number | string | undefined,
 ): string {
-  return new ArchetypeDrawSession<never>(archetype, {}, seed).model(axis, value, MODELS)
-    .name!;
+  return new ArchetypeDrawSession<never>(archetype, {}, seed).model(
+    axis,
+    value,
+    MODELS,
+  ).name!;
 }
 
 /**
@@ -63,36 +68,22 @@ export function test_archetype_draw_pick(): void {
     )
       findings.push("an unlisted value was refused without its alternatives");
   }
-  if (
-    pick("thing", "model", undefined, undefined) !==
-    "a"
-  )
+  if (pick("thing", "model", undefined, undefined) !== "a")
     findings.push("the seedless pick is not the first alternative");
 
   const counts: Map<string, number> = new Map();
   let axes: number = 0;
   let producers: number = 0;
   for (let seed: number = 0; seed < 300; seed++) {
-    const once: string = pick("thing", "model", undefined, seed,
-    );
+    const once: string = pick("thing", "model", undefined, seed);
     if (
-      pick("thing", "model", undefined, seed) !==
-        once ||
-      pick("thing", "model", undefined, String(seed),
-      ) !== once
+      pick("thing", "model", undefined, seed) !== once ||
+      pick("thing", "model", undefined, String(seed)) !== once
     )
       findings.push(`seed ${seed}: the pick is not deterministic`);
     counts.set(once, (counts.get(once) ?? 0) + 1);
-    if (
-      pick("thing", "finish", undefined, seed) ===
-      once
-    )
-      axes++;
-    if (
-      pick("other", "model", undefined, seed) ===
-      once
-    )
-      producers++;
+    if (pick("thing", "finish", undefined, seed) === once) axes++;
+    if (pick("other", "model", undefined, seed) === once) producers++;
   }
   for (const value of ALTERNATIVES)
     if (!((counts.get(value) ?? 0) >= 60))

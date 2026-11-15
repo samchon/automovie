@@ -18,7 +18,7 @@ const WARBOW: string =
 
 /** Two Korean traditional horse bows, read at a dealer that states the maker's figures. */
 const HORSE_BOW: string =
-  "Freddie Warrior KTB 53 in: \"Brace height: 5.5 to 6\" (14 to 15 cm)\", \"Mass weight: 330 g\", \"Draw weight: 15 to 60 lbs in 5 lb steps, measured at 31\" of draw\" (https://www.bogentandler.at/en/freddie-warrior-ktb-53); Freddie Zenith KTB 48 in: brace 14 to 15 cm, 315 g, drawn at 31 in (https://www.bogentandler.at/en/freddie-zenith-ktb-48)";
+  'Freddie Warrior KTB 53 in: "Brace height: 5.5 to 6" (14 to 15 cm)", "Mass weight: 330 g", "Draw weight: 15 to 60 lbs in 5 lb steps, measured at 31" of draw" (https://www.bogentandler.at/en/freddie-warrior-ktb-53); Freddie Zenith KTB 48 in: brace 14 to 15 cm, 315 g, drawn at 31 in (https://www.bogentandler.at/en/freddie-zenith-ktb-48)';
 
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
@@ -46,7 +46,13 @@ export function createBow(
   params: createBow.IParams,
   seed?: number | string,
 ): Archetype<createBow.Affordance, createBow.Dimension> {
-  const draw: ArchetypeDrawSession<createBow.Dimension> = new ArchetypeDrawSession<createBow.Dimension>("bow", createBow.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createBow.Dimension> =
+    new ArchetypeDrawSession<createBow.Dimension>(
+      "bow",
+      createBow.UNITS,
+      seed,
+      params,
+    );
   const kind: createBow.Kind = ArchetypeDraw.choice(
     "bow",
     "kind",
@@ -54,10 +60,20 @@ export function createBow(
     createBow.KINDS,
   );
   // A longbow is one of the three read approximations, its mass and draw whole; a horse bow one of the two read bows, drawn at one of its maker's draw weights.
-  const model: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
-    draw.model<createBow.Model>("model", params.model, createBow.MODELS[kind]);
-  const weight: { figures: Readonly<Partial<Record<createBow.Dimension, number>>> } =
-    draw.model<createBow.Weight>("weight", params.weight, createBow.WEIGHTS[kind]);
+  const model: {
+    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
+  } = draw.model<createBow.Model>(
+    "model",
+    params.model,
+    createBow.MODELS[kind],
+  );
+  const weight: {
+    figures: Readonly<Partial<Record<createBow.Dimension, number>>>;
+  } = draw.model<createBow.Weight>(
+    "weight",
+    params.weight,
+    createBow.WEIGHTS[kind],
+  );
   const d: Partial<Record<createBow.Dimension, number>> = {
     ...draw.dimensions(createBow.BANDS[kind], createBow.BANDS),
     ...model.figures,
@@ -81,7 +97,8 @@ export function createBow(
   const low: ReturnType<typeof v> = v(0, floor, string);
   const high: ReturnType<typeof v> = v(0, floor + length, string);
   const grip: ReturnType<typeof v> = v(0, centre, 0);
-  const wood: { surface?: "wood" } = kind === "longbow" ? { surface: "wood" } : {};
+  const wood: { surface?: "wood" } =
+    kind === "longbow" ? { surface: "wood" } : {};
   builder.rod("lowerLimb", r, low, grip, { color: "#a8743f", ...wood });
   builder.rod("upperLimb", r, grip, high, { color: "#a8743f", ...wood });
   builder.ball("grip", r, grip, { color: "#8a5a2b", ...wood });
@@ -171,14 +188,40 @@ export namespace createBow {
   export type Model = "s1" | "s2" | "s3" | "warrior" | "zenith";
 
   /** A horse bow's draw weights, its maker's 15 to 60 lb in 5 lb steps. */
-  export type Weight = "lb15" | "lb20" | "lb25" | "lb30" | "lb35" | "lb40" | "lb45" | "lb50" | "lb55" | "lb60";
+  export type Weight =
+    | "lb15"
+    | "lb20"
+    | "lb25"
+    | "lb30"
+    | "lb35"
+    | "lb40"
+    | "lb45"
+    | "lb50"
+    | "lb55"
+    | "lb60";
 
   /** Each kind's models whole, the default first: the longbow approximations' mass and draw at 30 in (Aston and Spencer, pp. 25-26, 29), the horse bows' length and mass (Bogentandler, the makers' figures; the bow length taken as nock to nock). */
-  export const MODELS: Readonly<Record<Kind, Readonly<Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const MODELS: Readonly<
+    Record<
+      Kind,
+      Readonly<
+        Partial<Record<Model, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     longbow: {
-      s1: { mass: 0.905, draw: 108 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      s2: { mass: 0.868, draw: 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
-      s3: { mass: 0.785, draw: 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
+      s1: {
+        mass: 0.905,
+        draw: 108 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      },
+      s2: {
+        mass: 0.868,
+        draw: 101 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      },
+      s3: {
+        mass: 0.785,
+        draw: 141 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY,
+      },
     },
     horseBow: {
       warrior: { length: 53 * ArchetypeUnits.INCH, mass: 0.33 },
@@ -187,7 +230,14 @@ export namespace createBow {
   };
 
   /** A horse bow's draw weights as forces at 31 in, both makers' pages: "15 to 60 lbs in 5 lb steps"; a longbow's draw is its model's. */
-  export const WEIGHTS: Readonly<Partial<Record<Kind, Readonly<Record<Weight, Readonly<Partial<Record<Dimension, number>>>>>>>> = {
+  export const WEIGHTS: Readonly<
+    Partial<
+      Record<
+        Kind,
+        Readonly<Record<Weight, Readonly<Partial<Record<Dimension, number>>>>>
+      >
+    >
+  > = {
     horseBow: {
       lb15: { draw: 15 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },
       lb20: { draw: 20 * ArchetypeUnits.POUND * ArchetypeCourse.GRAVITY },

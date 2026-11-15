@@ -54,11 +54,21 @@ export function createSkateboard(
   params: createSkateboard.IParams = {},
   seed?: number | string,
 ): Archetype<createSkateboard.Affordance, createSkateboard.Dimension> {
-  const draw: ArchetypeDrawSession<createSkateboard.Dimension> = new ArchetypeDrawSession<createSkateboard.Dimension>("skateboard", createSkateboard.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSkateboard.Dimension> =
+    new ArchetypeDrawSession<createSkateboard.Dimension>(
+      "skateboard",
+      createSkateboard.UNITS,
+      seed,
+      params,
+    );
   const model: {
     name: createSkateboard.Model | undefined;
     figures: Readonly<Partial<Record<createSkateboard.Dimension, number>>>;
-  } = draw.model<createSkateboard.Model>("model", params.model, createSkateboard.MODELS);
+  } = draw.model<createSkateboard.Model>(
+    "model",
+    params.model,
+    createSkateboard.MODELS,
+  );
   const d: Record<createSkateboard.Dimension, number> = {
     ...draw.dimensions(createSkateboard.BANDS),
     width: model.figures.width!,

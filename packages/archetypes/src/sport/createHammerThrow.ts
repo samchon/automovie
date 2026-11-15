@@ -36,15 +36,22 @@ export function createHammerThrow(
   params: createHammerThrow.IParams,
   seed?: number | string,
 ): Archetype<createHammerThrow.Affordance, createHammerThrow.Dimension> {
-  const draw: ArchetypeDrawSession<createHammerThrow.Dimension> = new ArchetypeDrawSession<createHammerThrow.Dimension>("hammerThrow", createHammerThrow.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createHammerThrow.Dimension> =
+    new ArchetypeDrawSession<createHammerThrow.Dimension>(
+      "hammerThrow",
+      createHammerThrow.UNITS,
+      seed,
+      params,
+    );
   const kind: createHammerThrow.Kind = ArchetypeDraw.choice(
     "hammerThrow",
     "kind",
     params.kind,
     createHammerThrow.KINDS,
   );
-  const d: Record<createHammerThrow.Dimension, number> =
-    draw.dimensions(createHammerThrow.BANDS[kind]);
+  const d: Record<createHammerThrow.Dimension, number> = draw.dimensions(
+    createHammerThrow.BANDS[kind],
+  );
   const builder: ArchetypeBuilder<
     createHammerThrow.Affordance,
     createHammerThrow.Dimension

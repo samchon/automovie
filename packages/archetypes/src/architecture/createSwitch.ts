@@ -36,14 +36,23 @@ export function createSwitch(
   params: createSwitch.IParams,
   seed?: number | string,
 ): Archetype<createSwitch.Affordance, createSwitch.Dimension> {
-  const draw: ArchetypeDrawSession<createSwitch.Dimension> = new ArchetypeDrawSession<createSwitch.Dimension>("switch", createSwitch.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSwitch.Dimension> =
+    new ArchetypeDrawSession<createSwitch.Dimension>(
+      "switch",
+      createSwitch.UNITS,
+      seed,
+      params,
+    );
   const kind: createSwitch.Kind = ArchetypeDraw.choice(
     "switch",
     "kind",
     params.kind,
     createSwitch.KINDS,
   );
-  const d: Record<createSwitch.Dimension, number> = draw.dimensions(createSwitch.BANDS[kind], createSwitch.BANDS);
+  const d: Record<createSwitch.Dimension, number> = draw.dimensions(
+    createSwitch.BANDS[kind],
+    createSwitch.BANDS,
+  );
   const builder: ArchetypeBuilder<
     createSwitch.Affordance,
     createSwitch.Dimension

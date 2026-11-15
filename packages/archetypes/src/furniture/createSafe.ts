@@ -39,7 +39,13 @@ export function createSafe(
   params: createSafe.IParams = {},
   seed?: number | string,
 ): Archetype<createSafe.Affordance, createSafe.Dimension> {
-  const draw: ArchetypeDrawSession<createSafe.Dimension> = new ArchetypeDrawSession<createSafe.Dimension>("safe", createSafe.UNITS, seed, params);
+  const draw: ArchetypeDrawSession<createSafe.Dimension> =
+    new ArchetypeDrawSession<createSafe.Dimension>(
+      "safe",
+      createSafe.UNITS,
+      seed,
+      params,
+    );
   const s: number =
     ArchetypeDraw.choice("safe", "hinge", params.hinge ?? "right", [
       "left",
@@ -47,7 +53,9 @@ export function createSafe(
     ]) === "right"
       ? 1
       : -1;
-  const d: Record<createSafe.Dimension, number> = draw.dimensions(createSafe.BANDS);
+  const d: Record<createSafe.Dimension, number> = draw.dimensions(
+    createSafe.BANDS,
+  );
   const builder: ArchetypeBuilder<createSafe.Affordance, createSafe.Dimension> =
     new ArchetypeBuilder({
       id: params.id,
