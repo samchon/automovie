@@ -5,11 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
-import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
-import { HumanFloorReading } from "./HumanFloorReading";
 import { HumanJacobian } from "./HumanJacobian";
 import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
@@ -35,7 +34,8 @@ import type { IHumanPosture } from "./IHumanPosture";
  * curved part rests on one point and a planar contact's normal lays it
  * flat. Every row is an exact penalty at its price (an elastic l1
  * sequential quadratic program; Fletcher 1985) linearised by the analytic
- * Jacobian of the posed body (`HumanJacobian`), and the merit prices exactly
+ * Jacobian of the posed body (`HumanJacobian`), and the merit
+ * (`HumanBodyFitMerit`) prices exactly
  * what the rows do, so the model and the merit agree at every iterate
  * (Nocedal and Wright 2006, section 18.5). The steps are taken by the shared
  * penalty sequential convex loop (`HumanSequentialConvex`), its penalty
@@ -132,9 +132,6 @@ export namespace HumanBodyFit {
   /** The price of a millimetre a contact misses by, in the merit and in each step's rows: an exact penalty above what the objective trades a millimetre of a contact for (a degree of a joint moves a contact a few millimetres, and weighs one). */
   export const PRICE: number = 100;
 
-  /** The tolerance under which a row holds, metres or radians. */
-  const TOLERANCE: number = 5e-4;
-
   /** How far a row may miss unpriced, metres, in each step's rows and in the merit alike; half the tolerance, so a step that meets its rows holds. */
   const BAND: number = HumanBodyFitRows.BAND;
 
@@ -219,85 +216,19 @@ export namespace HumanBodyFit {
           HumanFitVariables.reach(v),
       ),
     );
-    const read = (x: Float64Array): IReading => {
-      const r: HumanFloorReading.IReading = HumanFloorReading.of(
-        body,
-        HumanFitVariables.written(variables, posture, x),
-        bearing,
-        targets,
-      );
-      if (props.balance === undefined || props.balance === false) return r;
-      if (props.balance === true)
-        return { ...r, balance: HumanFitBalance.of(body, r.bones) };
-      return { ...r, balance: HumanFitBalance.of(body, r.bones, supports(r)) };
-    };
-    const beyond = (miss: number): number => Math.max(0, miss - BAND);
 
-    // The points the named bearing parts bear on at a reading: each of their
-    // support candidates within the bearing margin of the part's lowest.
-    const named: Set<string> = new Set(
-      typeof props.balance === "object"
-        ? props.balance.parts.map((p: RegExp): string => p.source)
-        : [],
-    );
-    const supports = (r: HumanFloorReading.IReading): IAutoMovieVector3[] => {
-      const out: IAutoMovieVector3[] = [];
-      bearing.forEach((part: RegExp, k: number): void => {
-        if (!named.has(part.source)) return;
-        const mine: Set<number> = new Set(r.members[k] ?? []);
-        r.heights.forEach((h: number, c: number): void => {
-          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN)
-            out.push(r.spots[c]!);
-        });
-      });
-      return out;
-    };
-
-    // What a reading misses by, row by row: the merit's and the feasibility's
-    // one reading of the rows the model linearises.
-    const misses = (r: IReading): IMisses => {
-      const lowest: number[] = HumanBodyFitRows.lowest(r);
-      const floor: number[] = r.heights.map((h: number, c: number): number =>
-        lowest.includes(c) ? Math.abs(h) : -h,
-      );
-      const goals: number[][] = targets.map((t: ITarget, k: number): number[] =>
-        HumanBodyFitRows.misses(t, r, k),
-      );
-      return {
-        floor,
-        balance: (r.balance?.inside ?? []).map((d: number): number => -d),
-        goals,
-        pairs: pairs.map(
-          (pair: HumanFitPairs.IPair): number =>
-            -HumanFitPairs.gap(r.bones, pair).distance,
-        ),
-      };
-    };
-    const evaluate = (x: Float64Array): IEvaluation => {
-      const r: IReading = read(x);
-      const m: IMisses = misses(r);
-      let pull: number = 0;
-      for (let i: number = 0; i < n; i++)
-        pull +=
-          0.5 *
-          HumanFitVariables.weight(variables[i]!) *
-          (x[i]! - key[i]!) ** 2;
-      let violation: number = 0;
-      for (const d of [...m.floor, ...m.balance, ...m.pairs])
-        violation += beyond(d);
-      m.goals.forEach((g: number[], k: number): void => {
-        const share: number = (targets[k]!.price ?? PRICE) / PRICE;
-        for (const d of g) violation += share * beyond(Math.abs(d));
-      });
-      return { objective: pull, violation: violation * MM, r, misses: m };
-    };
-    const holds = (m: IMisses): boolean =>
-      [...m.floor, ...m.balance, ...m.pairs].every(
-        (d: number): boolean => d <= TOLERANCE,
-      ) &&
-      m.goals.every((g: number[]): boolean =>
-        g.every((d: number): boolean => Math.abs(d) <= TOLERANCE),
-      );
+    // The merit and the feasibility of an iterate (`HumanBodyFitMerit`).
+    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit.of({
+      body,
+      posture,
+      ...(props.balance === undefined ? {} : { balance: props.balance }),
+      variables,
+      targets,
+      bearing,
+      pairs,
+      key,
+      price: PRICE,
+    });
 
     // The last model solved, which a rejected trial's second-order correction
     // re-solves with each row shifted by the trial's miss from its linear model
@@ -315,8 +246,8 @@ export namespace HumanBodyFit {
       rows: IRead[];
     } | null = null;
     const problem: HumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
-      evaluate,
-      feasible: (e: IEvaluation): boolean => holds(e.misses),
+      evaluate: merit.evaluate,
+      feasible: (e: IEvaluation): boolean => merit.holds(e.misses),
       correct: (
         x: Float64Array,
         _step: HumanSequentialConvex.IStep<Float64Array>,
@@ -513,7 +444,7 @@ export namespace HumanBodyFit {
           0,
           ...(r.balance?.inside ?? []).map((d: number): number => -d),
         ) * MM,
-      converged: solved.settled && holds(solved.evaluation.misses),
+      converged: solved.settled && merit.holds(solved.evaluation.misses),
       reason: solved.reason,
     };
   }
@@ -524,29 +455,8 @@ export namespace HumanBodyFit {
   /** A row of a step and the reading it linearises. */
   type IRead = HumanBodyFitRows.IRead;
 
-  /** What a reading misses each row by, metres or radians: positive where a one-sided row is violated, signed for a goal. */
-  interface IMisses {
-    /** Each support candidate: a lowest one's distance from the floor, any other's depth under it. */
-    floor: number[];
-
-    /** The centre's distance outside each edge of the base. */
-    balance: number[];
-
-    /** Each target's misses on its rows. */
-    goals: number[][];
-
-    /** Each pair's overlap. */
-    pairs: number[];
-  }
-
-  /** An iterate's reading for the loop. */
-  interface IEvaluation extends HumanSequentialConvex.IEvaluation {
-    /** The reading. */
-    r: IReading;
-
-    /** Its misses. */
-    misses: IMisses;
-  }
+  /** An iterate's reading for the loop (`HumanBodyFitMerit`). */
+  type IEvaluation = HumanBodyFitMerit.IEvaluation;
 
   /** The last convex model solved: what a second-order correction re-solves. */
   interface ILast {
