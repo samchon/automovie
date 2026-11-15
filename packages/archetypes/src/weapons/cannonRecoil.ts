@@ -24,9 +24,7 @@ export function cannonRecoil(
   gun: Archetype<createCannon.Affordance, createCannon.Dimension>,
   start: number,
 ): ArchetypeTrack.ITrack<createCannon.Affordance> {
-  if (
-    !gun.affordances.some((a: { id: string }): boolean => a.id === "recoil")
-  )
+  if (!gun.affordances.some((a: { id: string }): boolean => a.id === "recoil"))
     throw new ArchetypeRefusal({
       kind: "parameter",
       archetype: "cannon",

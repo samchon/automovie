@@ -147,12 +147,7 @@ export function test_archetype_harness(): void {
                 shape.id.startsWith("breeching-"),
               )
               .map((shape: IAutoMoviePhysicalProfile.IShape): number =>
-                physicalShapeSegmentDistance(
-                  ORIGIN,
-                  shape,
-                  quarters,
-                  quarters,
-                ),
+                physicalShapeSegmentDistance(ORIGIN, shape, quarters, quarters),
               ),
           ) - rig.barrel;
         if (!close(clearance, ArchetypeUnits.INCH, 1e-9))

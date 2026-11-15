@@ -19,7 +19,11 @@ const LB: number = 0.45359237;
 const CWT: number = 112 * LB;
 
 /** One expected band: its least and greatest value, and whether its source is borrowed or an estimate. */
-type Expected = readonly [minimum: number, maximum: number, provisional: boolean];
+type Expected = readonly [
+  minimum: number,
+  maximum: number,
+  provisional: boolean,
+];
 
 /**
  * Each kind's bands as their sources give them, restated here:

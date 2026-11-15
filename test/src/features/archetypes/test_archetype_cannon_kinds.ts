@@ -52,7 +52,10 @@ export function test_archetype_cannon_kinds(): void {
     if (!close(n[name]!, expected))
       findings.push(`naval ${name} is ${n[name]}, not ${expected}`);
   for (const name of ["frontWheelDiameter", "wheelDiameter", "recoil"] as const)
-    if (createCannon({ kind: "navalGun" }).provenance.bands[name]?.provisional !== true)
+    if (
+      createCannon({ kind: "navalGun" }).provenance.bands[name]?.provisional !==
+      true
+    )
       findings.push(`naval ${name} is not marked provisional`);
 
   findings.push(

@@ -51,7 +51,10 @@ export function test_archetype_cannon_service(): void {
   }
   if (!(least < 4.75 * FT && most > 5.75 * FT))
     findings.push(`the recoil spans only ${least} to ${most}`);
-  if (createCannon({ kind: "fieldGun" }).provenance.bands.recoil?.provisional !== true)
+  if (
+    createCannon({ kind: "fieldGun" }).provenance.bands.recoil?.provisional !==
+    true
+  )
     findings.push("the recoil band is not marked provisional");
 
   for (const id of ["muzzle", "vent", "primer", "limber", "axle"] as const)

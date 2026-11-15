@@ -11,7 +11,11 @@ import { archetypeBandSweep } from "../internal/archetypeBandSweep";
 const FT: number = 0.3048;
 
 /** One expected band: its least and greatest value, and whether its source is borrowed or an estimate. */
-type Expected = readonly [minimum: number, maximum: number, provisional: boolean];
+type Expected = readonly [
+  minimum: number,
+  maximum: number,
+  provisional: boolean,
+];
 
 /**
  * Each kind's bands as their sources give them, restated here: the trebuchet Hansen's replica as Saimre measured it (arms 5.85 and 1.2 m, axle 3.15 m, 2000 to 4000 kg counterweights, a 15 kg stone, cocked 32 degrees), its release, beam, frame, winch and whole mass estimates; the mangonel Tarver's traction trebuchet (a 16 ft beam at six to one, 12 ft uprights, 2.5 kg stones), its crew's pull as twenty pullers' 25 kg each and every other band an estimate.
