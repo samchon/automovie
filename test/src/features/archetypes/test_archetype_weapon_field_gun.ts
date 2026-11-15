@@ -11,7 +11,7 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * 2. The muzzle stands 5.91 in ahead of the wheels' front (p. 74), which is also the tube's 34.91 in from the trunnions (p. 19) less the trunnions' 0.5 in behind the axle and the wheel's 28.5 in radius: the two tables agree on the produced gun.
  * 3. The trail's end lies 116.6 in behind the wheels' front, and the stock touches the ground.
  * 4. The vent's orifice is on the breech's top over its entry a quarter of the 3.67 in bore ahead of the bore's bottom, moved to the rear by its rise through the metal at 80 degrees to the axis, its `+Y` up and to the rear along the vent.
- * 5. At 12 degrees of elevation the muzzle rises by 34.91 in times the sine of 12 degrees, and the elevation goes no higher.
+ * 5. At 12 degrees of elevation the muzzle rises by 34.91 in times the sine of 12 degrees, and at 8 degrees of depression (a travel of -8) it falls by 34.91 in times the sine of 8 degrees; the elevation goes no higher than 12 and no lower than -8 (p. 74).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces the gun, measures its colliders and frames, and articulates its elevation; a figure off the manual's, a vent at the wrong end or leaning forward, a muzzle off the wheels' front, or an elevation about the wrong axis or the wrong way is caught.
  * @evidence contracts/development/testing.md#independent-expectations The manual's tables for the tube (p. 19) and the carriage (pp. 68, 74), its vent (p. 16), and Gibbon's rear-leaning vent (p. 306); scenario 2 checks one table against the other.
@@ -86,13 +86,21 @@ export function test_archetype_weapon_field_gun(): void {
     raised.affordance("muzzle").frame.translation.y - muzzle.frame.translation.y,
     34.91 * inch * Math.sin((12 * Math.PI) / 180),
   );
-  let refused: boolean = false;
-  try {
-    gun.articulate({ elevation: 13 });
-  } catch {
-    refused = true;
+  const lowered: ReturnType<typeof createCannon> = gun.articulate({ elevation: -8 });
+  near(
+    "muzzle lowered at 8 degrees of depression",
+    muzzle.frame.translation.y - lowered.affordance("muzzle").frame.translation.y,
+    34.91 * inch * Math.sin((8 * Math.PI) / 180),
+  );
+  for (const beyond of [13, -9]) {
+    let refused: boolean = false;
+    try {
+      gun.articulate({ elevation: beyond });
+    } catch {
+      refused = true;
+    }
+    if (!refused) findings.push(`an elevation of ${beyond} degrees was not refused`);
   }
-  if (!refused) findings.push("elevation past 12 degrees was not refused");
 
   TestValidator.equals("the field gun is the 1862 Ordnance Manual's", findings, []);
 }

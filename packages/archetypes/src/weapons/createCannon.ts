@@ -10,7 +10,7 @@ import { FIELD_GUN } from "./FIELD_GUN";
 /**
  * A cannon on its carriage: the 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the 1862 Ordnance Manual gives them.
  *
- * The gun stands on level ground, its axle across `X` at the origin's `Z`, its muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore; `vent` is the vent's outer orifice on the breech, `+Y` out along the vent, which leans to the rear; both ride `elevation`, a hinge on the trunnions' axis whose positive travel raises the muzzle up to the manual's 12 degrees; its 8 degrees of depression below level wait on a signed articulation range in the core. `elevatingScrew` is the screw's handle under the breech, a place read from an undimensioned plate and so provisional. `trail` is the top of the trail's end, where the trail handspike bears to traverse the piece; where the pointing rings sit on it is unread. `leftSpin` and `rightSpin` turn the wheels on the axle, a positive turn rolling them forward. The gun rests on its iron tires and its wooden trail, two materials, so its body carries no friction.
+ * The gun stands on level ground, its axle across `X` at the origin's `Z`, its muzzle toward `+Z`. `muzzle` is the muzzle's face, `+Y` along the bore; `vent` is the vent's outer orifice on the breech, `+Y` out along the vent, which leans to the rear; both ride `elevation`, a hinge on the trunnions' axis whose positive travel raises the muzzle up to the manual's 12 degrees and whose reverse lowers it its 8 degrees below level. `elevatingScrew` is the screw's handle under the breech, a place read from an undimensioned plate and so provisional. `trail` is the top of the trail's end, where the trail handspike bears to traverse the piece; where the pointing rings sit on it is unread. `leftSpin` and `rightSpin` turn the wheels on the axle, a positive turn rolling them forward. The gun rests on its iron tires and its wooden trail, two materials, so its body carries no friction.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -74,7 +74,7 @@ export namespace createCannon {
    *
    * - `muzzle`: the muzzle's face, `+Y` along the bore; it rides `elevation`.
    * - `vent`: the vent's outer orifice, `+Y` out along the vent; it rides `elevation`.
-   * - `elevation`: the tube's hinge on the trunnions' axis, raising the muzzle.
+   * - `elevation`: the tube's hinge on the trunnions' axis, raising the muzzle and, in reverse, lowering it.
    * - `elevatingScrew`: the elevating screw's handle under the breech, provisional.
    * - `trail`: the top of the trail's end, where the handspike bears.
    * - `leftSpin`, `rightSpin`: the wheels' turns on the axle.

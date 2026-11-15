@@ -161,8 +161,7 @@ export namespace FIELD_GUN {
    * @evidence contracts/development/common.md#meaningful-documentation States what is built and how the weights are shared.
    * @evidence contracts/development/implementation.md#principled-implementation The tube lies level with its axis on the trunnions' axis (Gibbon, p. 62: "In all our pieces, the axis of the trunnions is in the same plane with the axis of the piece"), the trunnions 43.1 in up and 0.5 in behind the axle, so its muzzle stands 5.91 in ahead of the wheels as p. 74 reads; the trail's underside runs from the top of the axle arm to its ground contact 74.4 in behind the wheels', and lies on the ground to its end 116.6 in behind their front; the elevation is a hinge on the trunnions' axis.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The tube, the carriage, the wheels, then the affordances.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes. The hinge opens from level up to the read 12 degrees only: the read 8 degrees of depression below level waits on an articulation whose travel runs both ways from rest, a signed range the core does not have yet, and takes its place when that lands.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tube is two rods at the base-ring's and the swell's diameters meeting at the trunnions, the cheeks and stock are boxes, a wheel is a disc of its tire's width with its spokes.   * @evidence contracts/development/implementation.md#efficient-algorithms About twenty parts.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -324,13 +323,14 @@ export namespace FIELD_GUN {
       });
     }
 
-    // The elevation: a hinge on the trunnions' axis whose positive travel raises the muzzle.
+    // The elevation: a hinge on the trunnions' axis whose positive travel raises the muzzle up to the read 12 degrees and whose reverse lowers it the read 8.
     builder.affordance({
       id: "elevation",
       kind: "hinge",
       frame: ArchetypeFrame.facing(v(0, axis, trunnions), v(-1, 0, 0), v(0, 0, 1)),
       extent: null,
       travel: c.elevation,
+      reverse: c.depression,
       parts: ["breech", "cascabel", "chase", "trunnions"],
     });
     builder.affordance({
