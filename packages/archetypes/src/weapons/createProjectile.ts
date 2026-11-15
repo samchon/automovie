@@ -34,12 +34,17 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
   bolt: "crossbow bolt",
   roundShot: "round shot",
   grenade: "hand grenade",
+  cartridge: "musket cartridge",
 };
 
+/** The US musket cartridge, read in the Ordnance Manual's tables. */
+const CARTRIDGE: string =
+  'Ordnance Manual for the Use of the Officers of the United States Army, 3rd ed., 1862, p. 270, Cartridges for Small Arms, round ball, musket 1842: ball .65 in, 412 grs, powder 110 grs, "Weight of 10 cartridges" 13.2 oz, "Bundles of 10" 2.6 x 3.1 x 1.35 in, and p. 268, the bundling box\'s "length that of the cartridge" (https://archive.org/details/ordnancemanualfo00unitrich); Mordecai, Ordnance Manual, 1850, p. 246, the paper rolled on a former "of the same diameter as the ball" (https://archive.org/details/ordnancemanualf00mordgoog)';
+
 /**
- * Something a weapon launches or a hand throws: a musket ball, an arrow, a crossbow bolt, a field gun's round shot or a hand grenade.
+ * Something a weapon launches or a hand throws, or a soldier loads: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade or a musket's paper cartridge.
  *
- * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; each rests on that material, an arrow and a bolt on the wooden butt of its shaft, so its body's friction is that material's on concrete; a ball's lead has no measured pair, so its body carries no friction. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data is its model body's (`flight`): its drag, its restitution where it bounces or rolls and its depth where it sticks, each only where a source read it, with how it is held in flight and how its flight ends (`ATTITUDE`, `OUTCOME`), for the flight #3479 runs. The cartridge of #3482 waits for the sizes its contacts need, listed in the sources record.
+ * A ball and a shot rest on the floor of their own space on their lowest point; `body` is the ball pinched between the fingers or the shot taken in two hands. A grenade rests on its body with its fuze up, its `body` closed round in one hand; its pin and lever wait for a source of their size and pull, and its 4 to 5 s fuze delay is its data sheet's, for the throw that reads it. An arrow or a bolt stands along `+Y` from its butt at the origin to its point: `shaft` is its shaft, held anywhere along it; `nock` is its butt, facing down along it, which sits on a bow's or a crossbow's string; `tip` is its point, `+Y` along it. An arrow's and a bolt's shaft is wood, a bolt's head steel, and a shot and a grenade iron or steel, as their records state; each rests on that material, an arrow and a bolt on the wooden butt of its shaft, so its body's friction is that material's on concrete; a ball's lead has no measured pair, so its body carries no friction. A projectile is an ordinary archetype: it moves only by a grip or a flight, never by itself, and its flight data is its model body's (`flight`): its drag, its restitution where it bounces or rolls and its depth where it sticks, each only where a source read it, with how it is held in flight and how its flight ends (`ATTITUDE`, `OUTCOME`), for the flight #3479 runs. A cartridge, the paper tube of a musket's ball and powder, stands along `+Y` from its ball end at the origin to its powder end: `grip` is its paper pinched between the thumb and two fingers, and `end` its powder end, which the teeth bite off to prime and load ("Bring it to the mouth ... and bite off the top of it", Duane, A Military Dictionary, 1810); it is loaded, never launched, so it carries no flight data.
  *
  * @param params The kind, the read object where the kind has several, and any dimension the author fixes.
  * @param seed The seed that picks the object left free and draws every dimension left free inside its band; absent, the first object and the middle of each band.
@@ -93,6 +98,35 @@ export function createProjectile(
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
+
+  // A cartridge: a paper tube from its ball end at the origin to its powder end along `+Y`, pinched in the middle, torn at the top.
+  if (kind === "cartridge") {
+    const r: number = d.diameter! / 2;
+    builder.rod("paper", r, v(0, 0, 0), v(0, d.length!, 0), {
+      color: "#d8cfb8",
+    });
+    builder.affordance({
+      id: "grip",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.facing(
+        v(0, d.length! / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
+      extent: null,
+      grip: "precision",
+      aperture: d.diameter!,
+    });
+    builder.affordance({
+      id: "end",
+      kind: "surface",
+      direction: "along",
+      frame: ArchetypeFrame.upright(v(0, d.length!, 0)),
+      extent: null,
+    });
+    return builder.build(d.mass!);
+  }
 
   if (kind === "bolt" || kind === "arrow") {
     const length: number = d.length!;
@@ -189,8 +223,14 @@ export function createProjectile(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No kind is built whose contacts lack a source; a bolt head's density over its shaft's is the ratio of read steel and ash densities, which places its balance. No object's figure stands in another's record: a figure an object does not give is drawn from a provisional band citing the read objects' range of it.
  */
 export namespace createProjectile {
-  /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot and a hand grenade. */
-  export type Kind = "ball" | "arrow" | "bolt" | "roundShot" | "grenade";
+  /** The kinds: a musket ball, an arrow, a crossbow bolt, a field gun's round shot, a hand grenade and a musket's paper cartridge. */
+  export type Kind =
+    | "ball"
+    | "arrow"
+    | "bolt"
+    | "roundShot"
+    | "grenade"
+    | "cartridge";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -199,6 +239,7 @@ export namespace createProjectile {
     "bolt",
     "roundShot",
     "grenade",
+    "cartridge",
   ];
 
   /** A grenade fuze's radius as a share of the body's diameter: a construction estimate that no act reads and no band declares; the fuze's height is the data sheet's length less the body. */
@@ -213,8 +254,10 @@ export namespace createProjectile {
   /** A bolt's steel head's density over its ash shaft's, which places the bolt's balance toward its head. */
   export const STEEL_OVER_ASH: number = STEEL / ASH;
 
-  /** How each kind is held in flight: `velocity`, its axis along its velocity, point first, as an arrow and a bolt fly; `free`, turning as it will, as a sphere does (#3482). */
-  export const ATTITUDE: Readonly<Record<Kind, "velocity" | "free">> = {
+  /** How each launched kind is held in flight: `velocity`, its axis along its velocity, point first, as an arrow and a bolt fly; `free`, turning as it will, as a sphere does (#3482). A cartridge is loaded, not launched, so it has none. */
+  export const ATTITUDE: Readonly<
+    Record<Exclude<Kind, "cartridge">, "velocity" | "free">
+  > = {
     ball: "free",
     arrow: "velocity",
     bolt: "velocity",
@@ -222,8 +265,10 @@ export namespace createProjectile {
     grenade: "free",
   };
 
-  /** How each kind's flight ends (#3482): `stick`, it embeds where it strikes; `bounce`, it rebounds and then rolls; `roll`, it rolls where it lands. */
-  export const OUTCOME: Readonly<Record<Kind, "stick" | "bounce" | "roll">> = {
+  /** How each launched kind's flight ends (#3482): `stick`, it embeds where it strikes; `bounce`, it rebounds and then rolls; `roll`, it rolls where it lands. A cartridge is loaded, not launched, so it has none. */
+  export const OUTCOME: Readonly<
+    Record<Exclude<Kind, "cartridge">, "stick" | "bounce" | "roll">
+  > = {
     ball: "stick",
     arrow: "stick",
     bolt: "stick",
@@ -265,7 +310,7 @@ export namespace createProjectile {
   /**
    * A projectile's flight data for its body: its drag, its restitution where it bounces or rolls, and its embedding where it sticks, each only where `FLIGHT` read it.
    *
-   * @param kind The kind.
+   * @param kind A launched kind; a cartridge, loaded and never launched, has no flight data.
    * @param model The read object, where the kind has one.
    * @param radius The sphere's or the shaft's radius, metres, whose cross-section is the drag's reference area.
    * @returns The body's flight data, for `ArchetypeBuilder.build`.
@@ -279,7 +324,7 @@ export namespace createProjectile {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function flight(
-    kind: Kind,
+    kind: Exclude<Kind, "cartridge">,
     model: Model | undefined,
     radius: number,
   ): {
@@ -371,14 +416,22 @@ export namespace createProjectile {
    * - `shaft`: an arrow's or a bolt's shaft, taken from `-Z` anywhere along it.
    * - `nock`: an arrow's or a bolt's butt, facing down along it.
    * - `tip`: an arrow's or a bolt's point, `+Y` along it.
+   * - `grip`: a cartridge's paper, pinched between the thumb and two fingers.
+   * - `end`: a cartridge's powder end, `+Y` out along it, which the teeth tear open.
    */
-  export type Affordance = "body" | "shaft" | "nock" | "tip";
+  export type Affordance =
+    | "body"
+    | "shaft"
+    | "nock"
+    | "tip"
+    | "grip"
+    | "end";
 
   /**
    * The free dimensions, metres unless stated:
    *
    * - `diameter`: a ball's, a shot's or a grenade's body across, an arrow's or a bolt's shaft across.
-   * - `length`: an arrow's or a bolt's, butt to point; a grenade's, base to fuze top.
+   * - `length`: an arrow's or a bolt's, butt to point; a grenade's, base to fuze top; a cartridge's, ball end to powder end.
    * - `head`: a bolt's head along it.
    * - `headWidth`: a bolt's head across, drawn round.
    * - `mass`: kilograms.
@@ -459,6 +512,25 @@ export namespace createProjectile {
         14 * ArchetypeUnits.OUNCE,
         14 * ArchetypeUnits.OUNCE,
         M67,
+      ),
+    },
+    cartridge: {
+      diameter: ArchetypeBand.metres(
+        0.65 * ArchetypeUnits.INCH,
+        0.65 * ArchetypeUnits.INCH,
+        `${CARTRIDGE}: the paper rolled on a former "of the same diameter as the ball", the ball .65 in; the paper's thickness, unread, not added`,
+        true,
+      ),
+      length: ArchetypeBand.metres(
+        2.6 * ArchetypeUnits.INCH,
+        2.6 * ArchetypeUnits.INCH,
+        `${CARTRIDGE}: the bundle of ten 2.6 in long, the bundling box's "length that of the cartridge"`,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        (13.2 * ArchetypeUnits.OUNCE) / 10,
+        (13.2 * ArchetypeUnits.OUNCE) / 10,
+        `${CARTRIDGE}: "Weight of 10 cartridges" 13.2 oz`,
       ),
     },
   };

@@ -11,6 +11,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A kind that bounces or rolls (`createProjectile.OUTCOME`) carries a restitution; a sticking kind carries an embedding depth, except the crossbow bolt, whose depth no source read gave.
  * 3. A sphere's drag coefficient is a sphere's and its reference area its cross-section, `pi r^2` of its drawn diameter; an arrow's is the arrow's on its shaft's cross-section; a bolt carries no drag, none being read.
  * 4. A round shot's depth is its object's: the 6-pounder's least 3½ ft and the 12-pounder's least 8½ ft (Griffiths 1856).
+ * 7. A cartridge, loaded and never launched, carries no drag and no contact.
  * 6. Each kind flies and ends as the issue's table states: an arrow and a bolt along their velocity and sticking, a round shot free and bouncing, a ball free and sticking, a grenade free and rolling.
  * 5. A bolt's centre of mass lies ahead of its middle, toward its steel head, the reason it flies point first. An arrow's head is not drawn, no read giving its size and mass, so its balance waits for that source.
  *
@@ -23,14 +24,20 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_projectile_flight_data(): void {
   const findings: string[] = [];
   const inch: number = 0.0254;
+  // The launched kinds; a cartridge is loaded, never launched, and carries no flight data.
+  type Launched = Exclude<createProjectile.Kind, "cartridge">;
+  const launched: Launched[] = createProjectile.KINDS.filter(
+    (kind: createProjectile.Kind): kind is Launched => kind !== "cartridge",
+  );
+  const cartridge: IAutoMovieBody = createProjectile({ kind: "cartridge" }).body;
+  if (cartridge.drag !== undefined || cartridge.contact !== undefined)
+    findings.push("the cartridge carries flight data");
   // Every read object of every kind, and the kinds without one at their seedless draw.
   const rows: {
-    kind: createProjectile.Kind;
+    kind: Launched;
     model?: createProjectile.Model;
-  }[] = createProjectile.KINDS.flatMap(
-    (
-      kind: createProjectile.Kind,
-    ): { kind: createProjectile.Kind; model?: createProjectile.Model }[] => {
+  }[] = launched.flatMap(
+    (kind: Launched): { kind: Launched; model?: createProjectile.Model }[] => {
       const models: createProjectile.Model[] = Object.keys(
         createProjectile.MODELS[kind] ?? {},
       ) as createProjectile.Model[];
@@ -79,10 +86,10 @@ export function test_archetype_projectile_flight_data(): void {
   // 6. Each kind's attitude and outcome are the issue's table's.
   const table: Readonly<
     Record<
-      createProjectile.Kind,
+      Launched,
       readonly [
-        (typeof createProjectile.ATTITUDE)[createProjectile.Kind],
-        (typeof createProjectile.OUTCOME)[createProjectile.Kind],
+        (typeof createProjectile.ATTITUDE)[Launched],
+        (typeof createProjectile.OUTCOME)[Launched],
       ]
     >
   > = {
@@ -92,7 +99,7 @@ export function test_archetype_projectile_flight_data(): void {
     ball: ["free", "stick"],
     grenade: ["free", "roll"],
   };
-  for (const kind of createProjectile.KINDS)
+  for (const kind of launched)
     if (
       createProjectile.ATTITUDE[kind] !== table[kind][0] ||
       createProjectile.OUTCOME[kind] !== table[kind][1]
