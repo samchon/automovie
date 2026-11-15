@@ -1,18 +1,18 @@
 # Contract design
 
-A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs every scene it spans, and a rendered-output promise needs the actual output observations.
+A shipped contract is a checklist of items that a respondent answers about its work. Ask in each item only what the respondent can establish with that work: a scene can establish its experience, cross-scene continuity needs every scene it spans; what rendered media show stays [outside the graph](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#outside-the-graph).
 
 The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 
-Give each item an observable failure and the similar legitimate case it must leave alone. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A finding under a broad item still cites the passage or output, its context and the concrete loss to its recipient.
+Give each item what the [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) asks of a new question. State whether listed failures are examples of a broader achievement or an exhaustive judgment boundary, so review cannot silently turn taste into a new requirement. A finding under a broad item still cites the passage or output, its context and the concrete loss to its recipient.
 
 Judge sufficient and excessive detail in the same achievement. More explanation, geometry, emphasis or variation can displace the required action or experience.
 
 ## Items and statements
 
-Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`. An item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it.
+Shipped contracts take two levels, a broad item and its statements, as the production's [items and statements](../../../packages/template/scaffold/instructions/.agents/skills/contracts/SKILL.md#items-and-statements) defines. An item's H2 names its theme, such as `Beat decisions`, and its question, short enough to hold in mind while answering, opens the text under it. An item that is already one short question needs no statements. Split an item only where prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule calls for it.
 
 Write a statement so one reading of the work can find it met or failed. Attach each exception to the statement it limits, such as an exception for useful execution notation, deliberate stillness or adopted stylization the statement would otherwise flag.
 

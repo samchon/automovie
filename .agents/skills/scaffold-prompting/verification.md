@@ -16,4 +16,4 @@ For a changed expression criterion, test an informative but ineffective passage 
 
 Under prompting's separate-context check, also withhold the author's argument for the change and any earlier review verdict, and observe which resources it reads.
 
-Name what was established: instruction consistency, rendered distribution, observed author behavior or actual media result. Static case comparison does not prove better storytelling, a clean sentence classification does not approve the whole experience, and an instruction-only change does not verify an unrendered film.
+Report rendered distribution and actual media result as their own categories beside prompting's. Static case comparison does not prove better storytelling, a clean sentence classification does not approve the whole experience, and an instruction-only change does not verify an unrendered film.

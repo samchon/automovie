@@ -38,7 +38,7 @@ The product contract sets the [two routes](../project/SKILL.md#commissions): a s
 
 ### Skills and contracts
 
-A shipped task skill gives the goal and boundaries and its contracts ask the detailed questions, under prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule.
+Shipped task skills and contracts follow prompting's [skills and contracts](../prompting/SKILL.md#skills-and-contracts) rule.
 
 ### Stills only
 
