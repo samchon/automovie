@@ -17,7 +17,7 @@ A character's generated voice can change between requests even with the same des
 
 Ask the user to listen across takes for a voice that drifts. Re-voice a drifted line with speech-to-speech in the accepted voice rather than regenerate the take, after separating the speech as [film sound](film-sound.md) sets.
 
-When the selected model or mode generates no sound, report it to the user with these choices and follow theirs:
+When the selected model or mode generates no sound, report it to the user with these choices, and record theirs in [project context](../production/project-context.md):
 
 - a sound-generating model or mode;
 - a video-to-audio pass over the accepted take, which adds effects and ambience but no speech;

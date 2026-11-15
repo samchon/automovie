@@ -23,7 +23,7 @@ Upscale only the chosen and repaired take, because repair tools often return a l
 
 ## Conform the frame rate
 
-Generate at the model's frame rate and conform each take to the delivery profile by the method the user chose:
+Generate at the model's frame rate and conform each take to the delivery profile by the method [project context](../production/project-context.md) records:
 
 | Method | Cost |
 | --- | --- |
@@ -33,13 +33,13 @@ Generate at the model's frame rate and conform each take to the delivery profile
 
 ## Match the takes
 
-Providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop a take's color tags. Read each take's tags, such as with ffprobe, choose one working color space for the film, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
+Providers deliver anything from 8-bit SDR to HDR and EXR, and a re-encode can drop a take's color tags. Read each take's tags, such as with ffprobe, choose one working color space for the film and record it in project context, and set every take's input space explicitly before grading; SDR brought into an HDR space cannot recover what it clipped.
 
 Grade neighboring takes to match in color and exposure, because a jump at a cut is a grade, not a reason to regenerate. A shared grain or texture over the film hides the takes' differing sharpness.
 
 ## Provenance and disclosure
 
-Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Record which takes carry them, keep the signed originals, and hand both to [assembly](../production/assembly.md#repair-and-deliver).
+Some providers sign their output with content credentials or a watermark. Editing or re-encoding with a tool that does not carry them breaks the signature, and some terms forbid removing them. Note in each take's [record](../production/media-records.md#records) whether it carries them, keep the signed originals, and hand both to [assembly](../production/assembly.md#repair-and-deliver).
 
 A film made with generated video may owe a disclosure where it is released, such as under Article 50 of the EU AI Act or a video platform's rules. Ask the user which disclosure the release owes, and record it in the [delivery profile](../production/project-context.md#what-to-record).
 

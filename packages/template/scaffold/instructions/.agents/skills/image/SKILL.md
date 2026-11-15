@@ -21,7 +21,7 @@ Give each subject the number and form of references the video model's guide sets
 - a face close-up with a neutral expression;
 - three-quarter or profile views as the shots need.
 
-Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity.
+Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity, and record the answer in [project context](../production/project-context.md).
 
 A wardrobe, makeup or wound state of a story day is its own reference set, generated from the base canon references and then frozen as that state's canon references.
 

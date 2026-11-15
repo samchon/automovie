@@ -9,7 +9,7 @@ A motion model fills, varies or restyles motion; it does not decide it. The comp
 
 Use it when the user chooses it for a stretch the vocabulary performs stiffly, or for motion the vocabulary has no action for, such as a dance's flowing transitions:
 
-1. Read the model's documentation and its [licenses](clips.md#licenses) before anything is generated.
+1. Choose the model with the user, record it in [project context](../../production/project-context.md), and read its documentation and [licenses](clips.md#licenses) before anything is generated.
 2. Hint it from the composed performance under [hints](hints.md).
 3. Freeze the result and check it under [clips](clips.md).
 4. [Retarget](../retargeting.md) it onto the cast member's polygon man and accept it in its [catalog case](../catalog-cases.md) like any module.
