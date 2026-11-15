@@ -56,6 +56,16 @@ export namespace HumanActionRow {
       ...(law.overlay === undefined ? {} : { overlay: law.overlay }),
       plan: (context: IHumanActionContext<Omit<P, Fixed>>): IHumanActionPlan =>
         law.plan(context as unknown as IHumanActionContext<P>),
+      // The owner's demands, read from the resolved parameters as its plan
+      // reads them.
+      ...(law.demands === undefined
+        ? {}
+        : {
+            demands: (
+              ahead: IHumanActionLaw.IAhead<Omit<P, Fixed>>,
+            ): readonly IHumanActionLaw.IDemand[] =>
+              law.demands!(ahead as unknown as IHumanActionLaw.IAhead<P>),
+          }),
     };
   }
 }
