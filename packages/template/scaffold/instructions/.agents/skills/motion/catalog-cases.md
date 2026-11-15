@@ -28,7 +28,7 @@ A finding that remains in a vocabulary action composed as its README shows is a 
 
 ## Any other case
 
-Accept any other case when its [tests](../development/testing.md) pass and no still shows a flaw.
+Accept any other case, a clip retargeted onto a person included, when its [tests](../development/testing.md) pass and no still shows a flaw.
 
 ## Record
 

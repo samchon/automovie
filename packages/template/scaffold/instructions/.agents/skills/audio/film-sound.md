@@ -1,6 +1,6 @@
 # Film sound
 
-Film sound finishes the mix of any film with sound, under the user's listening. A generated film's takes each bring their own sound, so its sound is finished across them once the takes are [finished](../video/finishing.md). Its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
+A generated film's takes each bring their own sound, so film sound finishes it across them once the takes are [finished](../video/finishing.md), under the user's listening; its [loudness](#loudness) target serves any film with sound. Its beds, effects and score come through [acquisition](acquisition.md) and [sound effects](sound-effects.md).
 
 ## Separate before changing
 
